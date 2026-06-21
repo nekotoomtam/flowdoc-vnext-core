@@ -58,6 +58,10 @@ Phase 35 sends `liveLayout` summaries through the same packet path. The browser
 updates request count, affected scope, and exact-stale status without running a
 live layout renderer or exact pagination.
 
+Phase 37 uses this same packet path for WYSIWYG browser draft commits. Active
+draft text stays local until commit; successful or rejected commits return a
+packet that updates the derived browser view model.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.

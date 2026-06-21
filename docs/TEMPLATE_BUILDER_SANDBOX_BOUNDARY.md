@@ -82,12 +82,15 @@ with a proper bundler/runtime adapter.
 - Phase 35 adds bounded live-layout request summaries to snapshots and packets
   using the existing core live-layout boundary, without adding a live renderer
   or exact layout execution.
+- Phase 37 adds browser-local WYSIWYG draft editing for safe text blocks on the
+  canvas, with commit through the existing bridge packet path and guards for
+  atomic or styled inline content.
 
 ## Non-Goals
 
-Phase 27 does not implement:
+The sandbox does not yet implement:
 
-- real typing or text transaction UI;
+- rich text editing;
 - DOM selection mapping;
 - IME behavior;
 - live layout rendering beyond bounded request summaries;

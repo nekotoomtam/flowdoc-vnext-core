@@ -571,6 +571,38 @@ Acceptance:
 - exact layout, artifact rendering, save/publish, full caret mapping, and IME
   remain out of active typing until explicitly phased.
 
+## Phase 37: WYSIWYG Text Draft Boundary
+
+Goal:
+
+- implement the first visible document-position text draft on the sandbox
+  canvas while keeping browser draft state separate from canonical package
+  truth.
+
+Deliverables:
+
+- browser-local draft state for one safe text block at a time;
+- full `plainText` snapshot fact for draft source text instead of truncated
+  `textPreview`;
+- WYSIWYG draft eligibility facts and guard reasons for atomic or styled inline
+  content;
+- canvas draft editor with commit/cancel controls;
+- inspector/status draft state;
+- commit through the existing mutation bridge packet route;
+- conflict check against the draft base document revision.
+
+Acceptance:
+
+- safe text blocks can be edited in document position on the canvas;
+- active typing updates local draft state without full app render per keypress;
+- committed drafts flow through `replace-text?response=packet` and the browser
+  cache applies the returned packet;
+- rejected or conflicted commits preserve the draft text;
+- field refs, page numbers, line breaks, and styled runs remain guarded instead
+  of flattened;
+- direct bridge actions and undo/redo are blocked while a browser draft is
+  active.
+
 ## Later Phases
 
 Goal:
@@ -580,7 +612,6 @@ Goal:
 
 Possible later work:
 
-- WYSIWYG text draft boundary;
 - caret and browser selection mapping;
 - IME composition boundary;
 - required rich text return list: inline style patching, style-preserving

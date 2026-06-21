@@ -72,6 +72,7 @@ describe("template builder sandbox boundary", () => {
     }
     const coverZone = snapshot.sections[0].zones[0]
     const coverText = coverZone.children[0]
+    const coverTitle = snapshot.sections[0].zones[1].children.find((node) => node.id === "cover-title")
 
     expect(coverZone).toMatchObject({
       id: "cover-first-header",
@@ -99,6 +100,22 @@ describe("template builder sandbox boundary", () => {
       canBeDeleted: true,
       canBeDuplicated: true,
       canBeReordered: true,
+      canReplacePlainText: true,
+      canUseWysiwygDraft: true,
+      hasAtomicInline: false,
+      hasStyledText: false,
+      plainText: "Confidential Product Report",
+      wysiwygDraftGuardReason: null,
+    })
+    expect(coverTitle).toMatchObject({
+      id: "cover-title",
+      type: "text-block",
+      canReplacePlainText: false,
+      canUseWysiwygDraft: false,
+      hasAtomicInline: true,
+      hasStyledText: false,
+      plainText: null,
+      wysiwygDraftGuardReason: "text-block contains atomic inline content",
     })
     expect(new Set(snapshot.actionLanes.map((action) => action.status))).toEqual(
       new Set(["wired", "planned", "blocked"]),
@@ -168,8 +185,12 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("Live Layout")
     expect(appSource).toContain("Live layout:")
     expect(appSource).toContain("data-history-action")
+    expect(appSource).toContain("data-draft-editor")
+    expect(appSource).toContain("startDraftForNode")
+    expect(appSource).toContain("commitDraft")
     expect(appSource).toContain("lastPacket")
     expect(appSource).not.toContain("snapshot.document")
+    expect(bridgeSource).not.toContain("browser.editTextDraft")
     expect(snapshot.mutationBridge).toEqual({
       mode: "static-snapshot",
       documentRevision: 0,
@@ -887,5 +908,26 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("user.undo")
     expect(coreBoundarySource).toContain("user.redo")
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
+  })
+
+  it("keeps WYSIWYG browser drafts local until bridge commit", () => {
+    const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
+
+    expect(coreBoundarySource).toContain("plainText")
+    expect(coreBoundarySource).toContain("canUseWysiwygDraft")
+    expect(coreBoundarySource).toContain("hasAtomicInline")
+    expect(coreBoundarySource).toContain("hasStyledText")
+    expect(coreBoundarySource).toContain("wysiwygDraftGuardReason")
+    expect(coreBoundarySource).toContain("browser.editTextDraft")
+    expect(appSource).toContain("draftTextForNode")
+    expect(appSource).toContain("node?.plainText")
+    expect(appSource).toContain("data-draft-editor")
+    expect(appSource).toContain("data-draft-action=\"commit\"")
+    expect(appSource).toContain("draft.baseRevision !== state.snapshot.session.documentRevision")
+    expect(appSource).toContain("routeForBridgeTextAction(\"replace-text\")")
+    expect(appSource).toContain("applyMutationResult(result)")
+    expect(appSource).toContain("Finish the active browser draft before using direct bridge actions.")
+    expect(appSource).not.toContain("state.snapshot.document")
   })
 })

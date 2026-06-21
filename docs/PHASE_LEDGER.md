@@ -43,6 +43,7 @@ Parent goal:
 | 34 | Sandbox undo redo execution boundary | done | `docs/TEMPLATE_BUILDER_UNDO_REDO_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 35 | Sandbox live layout request boundary | done | `docs/TEMPLATE_BUILDER_LIVE_LAYOUT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 36 | WYSIWYG text draft design lock | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/TEXT_EDITING_TRANSACTION_PLAN.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` |
+| 37 | WYSIWYG text draft boundary | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -566,6 +567,33 @@ text toolbar, inline style patch commands, full DOM caret mapping, IME
 lifecycle, multi-range selection, exact WYSIWYG pagination, live layout
 renderer, save/publish persistence, or backend API routes outside the sandbox
 dev server.
+
+## Phase 37 WYSIWYG Text Draft Boundary
+
+Phase 37 implements the first visible WYSIWYG draft surface inside the
+extractable template-builder sandbox:
+
+- `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md` records the implemented
+  browser-local draft contract, truth-layer separation, eligibility facts,
+  lifecycle, commit/conflict rules, interaction rules, evidence, and non-goals;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` adds full `plainText`
+  for safe draft source text, `canUseWysiwygDraft`, `hasAtomicInline`,
+  `hasStyledText`, and `wysiwygDraftGuardReason`;
+- `examples/template-builder-sandbox/public/app.js` adds one active browser
+  draft at a time, canvas-position textarea editing, commit/cancel controls,
+  revision conflict checks, rejected-commit preservation, and direct
+  bridge/history blocking while a draft is active;
+- `examples/template-builder-sandbox/public/styles.css` adds plain functional
+  draft styling without changing the larger sandbox layout direction;
+- `tests/templateBuilderSandboxBoundary.test.ts` asserts safe/guarded snapshot
+  facts and proves browser drafts still commit through the existing bridge
+  packet path without mutating canonical document structures.
+
+This phase intentionally does not implement rich text toolbar commands,
+`inline.style.patch`, style-preserving mixed inline edits, DOM caret mapping,
+IME composition, multi-range selection, per-keystroke core transactions, live
+layout rendering during active typing, exact WYSIWYG pagination,
+save/publish persistence, or backend API routes outside the sandbox dev server.
 
 ## Phase 12 Extraction Record
 

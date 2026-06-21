@@ -115,6 +115,9 @@ The package must remain runnable without any parent editor checkout.
   layers, inline-content preservation rules, guarded editability, draft
   lifecycle, commit/conflict policy, and required rich text return list before
   visible draft editing is implemented
+- WYSIWYG text draft boundary adds a browser-local canvas draft surface for
+  safe text blocks, commits through the existing mutation bridge packet path,
+  and guards atomic or styled inline content from silent flattening
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -197,6 +200,9 @@ The package must remain runnable without any parent editor checkout.
   summary contract before a concrete browser live renderer
 - `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md`: WYSIWYG text draft
   design lock before visible draft editing implementation
+- `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`: first visible sandbox
+  WYSIWYG text draft boundary for browser-local canvas editing before rich text
+  and caret/IME work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -212,13 +218,13 @@ The package must remain runnable without any parent editor checkout.
 
 ## Not Implemented Yet
 
-- visible editor runtime integration beyond the extractable static sandbox
-  shell, in-memory sandbox mutation bridge, and bounded history/live-layout
-  summaries
+- visible editor runtime integration beyond the extractable sandbox shell,
+  in-memory sandbox mutation bridge, browser-local WYSIWYG text drafts for safe
+  text blocks, and bounded history/live-layout summaries
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
-  node composition, visible typing integration, IME, product-level undo/redo UI,
-  and a concrete browser live-layout renderer
+  node composition, rich text editing, caret mapping, IME, product-level
+  undo/redo UI, and a concrete browser live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
 - concrete backend API routes, storage, and rendered artifacts on top of the
   generation runtime

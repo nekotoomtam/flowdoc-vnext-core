@@ -6,6 +6,10 @@ Phase 36 locks the direction for WYSIWYG text editing before implementation.
 The goal is to prevent the sandbox from becoming a form editor, an inspector
 textbox, or a visually plausible but structurally weak middle ground.
 
+Phase 37 implements the first bounded version of this design in
+`docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`. This document remains the
+north star for richer editor work that is still intentionally deferred.
+
 ## Editor Goal
 
 The visible editor direction is a WYSIWYG document editor. Users should edit

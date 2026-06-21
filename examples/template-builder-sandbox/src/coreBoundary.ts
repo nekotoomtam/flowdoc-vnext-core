@@ -101,8 +101,13 @@ export interface TemplateBuilderSnapshotNode {
   canBeDuplicated: boolean
   canBeReordered: boolean
   canReplacePlainText: boolean
+  canUseWysiwygDraft: boolean
+  hasAtomicInline: boolean
+  hasStyledText: boolean
+  wysiwygDraftGuardReason: string | null
   textLength: number
   childCount: number
+  plainText: string | null
   textPreview: string | null
   fieldRefs: string[]
   children: TemplateBuilderSnapshotNode[]
@@ -202,15 +207,50 @@ function textPreview(node: AuthoredNode): string | null {
   return preview.length > 120 ? `${preview.slice(0, 117)}...` : preview
 }
 
-function textProjectionFacts(node: AuthoredNode): { canReplacePlainText: boolean; textLength: number } {
+function textProjectionFacts(node: AuthoredNode): {
+  canReplacePlainText: boolean
+  canUseWysiwygDraft: boolean
+  hasAtomicInline: boolean
+  hasStyledText: boolean
+  plainText: string | null
+  textLength: number
+  wysiwygDraftGuardReason: string | null
+} {
   if (node.type !== "text-block") {
-    return { canReplacePlainText: false, textLength: 0 }
+    return {
+      canReplacePlainText: false,
+      canUseWysiwygDraft: false,
+      hasAtomicInline: false,
+      hasStyledText: false,
+      plainText: null,
+      textLength: 0,
+      wysiwygDraftGuardReason: "target is not a text-block",
+    }
   }
 
   const projection = projectVNextTextBlockInlines(node)
+  const hasAtomicInline = node.children.some((inline) => inline.type !== "text")
+  const hasStyledText = node.children.some((inline) => inline.type === "text" && inline.style != null)
+  const canReplacePlainText = projection.textLength > 0 && projection.segments.every((segment) => segment.editable)
+  const canUseWysiwygDraft = canReplacePlainText && !hasStyledText
+  const wysiwygDraftGuardReason = canUseWysiwygDraft
+    ? null
+    : projection.textLength === 0
+      ? "empty text-blocks cannot start a browser draft yet"
+      : hasAtomicInline
+        ? "text-block contains atomic inline content"
+        : hasStyledText
+          ? "text-block contains styled text runs"
+          : "text-block cannot be represented as a safe plain-text draft"
+
   return {
-    canReplacePlainText: projection.textLength > 0 && projection.segments.every((segment) => segment.editable),
+    canReplacePlainText,
+    canUseWysiwygDraft,
+    hasAtomicInline,
+    hasStyledText,
+    plainText: canReplacePlainText ? projection.text : null,
     textLength: projection.textLength,
+    wysiwygDraftGuardReason,
   }
 }
 
@@ -260,8 +300,13 @@ function summarizeNode(
     canBeDuplicated: capabilities.canBeDuplicated,
     canBeReordered: capabilities.canBeReordered,
     canReplacePlainText: textFacts.canReplacePlainText,
+    canUseWysiwygDraft: textFacts.canUseWysiwygDraft,
+    hasAtomicInline: textFacts.hasAtomicInline,
+    hasStyledText: textFacts.hasStyledText,
+    wysiwygDraftGuardReason: textFacts.wysiwygDraftGuardReason,
     textLength: textFacts.textLength,
     childCount: childIds.length,
+    plainText: textFacts.plainText,
     textPreview: textPreview(node),
     fieldRefs: fieldRefs(node),
     children: visibleChildIds.map((childId) => summarizeNode(graph, section, childId, depth + 1, nodePath)),
@@ -448,6 +493,13 @@ export function createTemplateBuilderSnapshot(
         lane: "immediate",
         status: "wired",
         reason: "browser runtime cache consumes packet-only mutation responses after boot",
+      },
+      {
+        action: "browser.editTextDraft",
+        label: "Draft",
+        lane: "immediate + commit",
+        status: "wired",
+        reason: "safe text blocks can hold browser-local WYSIWYG drafts before commit through the sandbox bridge",
       },
       {
         action: "sandbox.recordAuthoringHistory",

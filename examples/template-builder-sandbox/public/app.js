@@ -3,6 +3,14 @@ const app = document.querySelector("#app")
 const state = {
   bridgeBusy: false,
   bridgeMessage: "",
+  draft: {
+    baseRevision: null,
+    message: "",
+    originalText: "",
+    status: "idle",
+    text: "",
+    textBlockId: null,
+  },
   lastPacket: null,
   mutationText: "Edited through the mutation bridge",
   runtimeCache: null,
@@ -147,6 +155,19 @@ function applyChangePacket(packet) {
     packetApplied: true,
   })
 
+  if (
+    draftIsActive()
+    && packet.status === "applied"
+    && packet.nextRevision !== state.draft.baseRevision
+    && packet.changedNodeIds.includes(state.draft.textBlockId)
+  ) {
+    state.draft = {
+      ...state.draft,
+      message: "Draft target changed in the committed document; cancel or restart the draft.",
+      status: "conflicted",
+    }
+  }
+
   return { ok: true, reason: "packet applied" }
 }
 
@@ -166,6 +187,136 @@ function statusVariant(status) {
 
 function selectedNodeCanUseBridge(node) {
   return Boolean(node && node.type === "text-block" && node.canReplacePlainText)
+}
+
+function selectedNodeCanUseWysiwygDraft(node) {
+  return Boolean(node && node.type === "text-block" && node.canUseWysiwygDraft)
+}
+
+function draftIsActive() {
+  return Boolean(state.draft.textBlockId)
+}
+
+function draftIsDirty() {
+  return draftIsActive() && state.draft.text !== state.draft.originalText
+}
+
+function draftTargetNode() {
+  return nodeById(state.draft.textBlockId)
+}
+
+function draftGuardReason(node) {
+  if (!node) return "Select a text block before starting a draft."
+  if (selectedNodeCanUseWysiwygDraft(node)) return null
+  return node.wysiwygDraftGuardReason || "This node cannot be edited as a safe WYSIWYG draft yet."
+}
+
+function draftTextForNode(node) {
+  return node?.plainText ?? node?.textPreview ?? ""
+}
+
+function draftCanCommit() {
+  return draftIsActive() && draftIsDirty() && !state.bridgeBusy && state.draft.status !== "committing"
+}
+
+function draftStatusLabel() {
+  if (!draftIsActive()) return state.draft.status || "idle"
+  if (state.draft.status === "committing") return "committing"
+  if (state.draft.status === "conflicted") return "conflicted"
+  if (state.draft.status === "rejected") return "rejected"
+  return draftIsDirty() ? "dirty" : "editing"
+}
+
+function resetDraft(status = "idle", message = "") {
+  state.draft = {
+    baseRevision: null,
+    message,
+    originalText: "",
+    status,
+    text: "",
+    textBlockId: null,
+  }
+}
+
+function focusDraftEditor() {
+  window.setTimeout(() => {
+    const editor = app.querySelector("[data-draft-editor]")
+    if (!editor) return
+    editor.focus()
+    editor.setSelectionRange(editor.value.length, editor.value.length)
+  }, 0)
+}
+
+function syncDraftDomState() {
+  const status = draftStatusLabel()
+  const message = state.draft.message || (
+    draftIsActive()
+      ? draftIsDirty()
+        ? "Local draft changes are waiting for commit."
+        : "Draft is open with no local changes."
+      : "No browser draft is active."
+  )
+
+  app.querySelectorAll("[data-draft-status]").forEach((target) => {
+    target.textContent = status
+    target.dataset.state = status
+  })
+  app.querySelectorAll("[data-draft-message]").forEach((target) => {
+    target.textContent = message
+  })
+  app.querySelectorAll("[data-draft-statusbar]").forEach((target) => {
+    target.textContent = `Draft: ${status}`
+  })
+  app.querySelectorAll("[data-draft-action='commit']").forEach((target) => {
+    target.disabled = !draftCanCommit()
+  })
+}
+
+function startDraftForNode(nodeId, selectionSource = "draft") {
+  const node = nodeById(nodeId)
+  if (!node) return
+
+  if (draftIsActive()) {
+    state.draft = {
+      ...state.draft,
+      message: state.draft.textBlockId === node.id
+        ? "Draft is already open on this text block."
+        : "Commit or cancel the active browser draft before starting another one.",
+    }
+    render()
+    focusDraftEditor()
+    return
+  }
+
+  state.selectedId = node.id
+  state.selectionSource = selectionSource
+
+  const guardReason = draftGuardReason(node)
+  if (guardReason) {
+    resetDraft("blocked", guardReason)
+    state.bridgeMessage = guardReason
+    render()
+    return
+  }
+
+  const text = draftTextForNode(node)
+  state.draft = {
+    baseRevision: state.snapshot.session.documentRevision,
+    message: "Draft is open on the canvas.",
+    originalText: text,
+    status: "editing",
+    text,
+    textBlockId: node.id,
+  }
+  render()
+  focusDraftEditor()
+}
+
+function cancelDraft() {
+  if (!draftIsActive()) return
+  resetDraft("cancelled", "Browser draft was cancelled before commit.")
+  state.selectionSource = "draft-cancel"
+  render()
 }
 
 function actionLabel(action) {
@@ -274,9 +425,55 @@ function renderCanvasNode(node) {
   }
 
   if (node.type === "text-block") {
+    const isDraftTarget = state.draft.textBlockId === node.id
+    const canDraft = selectedNodeCanUseWysiwygDraft(node)
+    const draftClass = isDraftTarget ? ` is-drafting is-draft-${state.draft.status}` : canDraft ? " can-draft" : ""
+    const draftStarter = node.id === state.selectedId && canDraft && !draftIsActive()
+      ? `
+        <button
+          type="button"
+          class="canvas-draft-start"
+          data-draft-action="start"
+          data-draft-node-id="${escapeHtml(node.id)}"
+          title="Edit this text block on the canvas"
+        >
+          Edit
+        </button>
+      `
+      : ""
+
+    if (isDraftTarget && draftIsActive()) {
+      return `
+        <div class="canvas-text${selectedClass}${draftClass}" ${nodeDomAttributes(node)}>
+          <textarea
+            class="canvas-draft-editor"
+            data-draft-editor
+            data-draft-node-id="${escapeHtml(node.id)}"
+            aria-label="Draft text"
+            rows="2"
+          >${escapeHtml(state.draft.text)}</textarea>
+          <div class="canvas-draft-footer">
+            <span data-draft-status data-state="${escapeHtml(draftStatusLabel())}">${escapeHtml(draftStatusLabel())}</span>
+            <div class="canvas-draft-actions">
+              <button
+                type="button"
+                data-draft-action="commit"
+                ${draftCanCommit() ? "" : "disabled"}
+              >
+                Commit
+              </button>
+              <button type="button" data-draft-action="cancel">Cancel</button>
+            </div>
+          </div>
+          <small data-draft-message>${escapeHtml(state.draft.message || "Browser draft is local until commit.")}</small>
+        </div>
+      `
+    }
+
     return `
-      <div class="canvas-text${selectedClass}" ${nodeDomAttributes(node)}>
-        ${renderTextPreview(node)}
+      <div class="canvas-text${selectedClass}${draftClass}" ${nodeDomAttributes(node)}>
+        <div class="canvas-text-body">${renderTextPreview(node)}</div>
+        ${draftStarter}
       </div>
     `
   }
@@ -352,7 +549,16 @@ function renderCanvas(snapshot) {
 function renderInspector(snapshot) {
   const node = selectedNode()
   const parentNode = nodeById(node?.parentId)
-  const canUseBridge = selectedNodeCanUseBridge(node)
+  const activeDraftNode = draftTargetNode()
+  const canStartDraft = Boolean(node && selectedNodeCanUseWysiwygDraft(node) && !draftIsActive())
+  const canUseBridge = selectedNodeCanUseBridge(node) && !draftIsActive()
+  const draftGuard = node ? draftGuardReason(node) : "Select a text block before starting a draft."
+  const draftTargetLabel = activeDraftNode
+    ? `${activeDraftNode.type} ${shortId(activeDraftNode.id)}`
+    : "none"
+  const draftPanelMessage = draftIsActive()
+    ? state.draft.message || "Browser draft is active."
+    : draftGuard || state.draft.message || "No browser draft is active."
   const fieldRows = snapshot.fields.map((field) => `
     <li>
       <span>${escapeHtml(field.label)}</span>
@@ -434,6 +640,7 @@ function renderInspector(snapshot) {
             }</dd>
             <dt>Children</dt><dd>${node.childCount}</dd>
             <dt>Fields</dt><dd>${node.fieldRefs.length ? node.fieldRefs.map((key) => renderBadge(key, "info")).join("") : "none"}</dd>
+            <dt>Draft</dt><dd>${node.canUseWysiwygDraft ? renderBadge("safe", "good") : renderBadge("guarded", "warn")}</dd>
           </dl>
         ` : "<p>No node selected.</p>"}
       </section>
@@ -457,6 +664,42 @@ function renderInspector(snapshot) {
           <ul class="child-list">${childRows}</ul>
         </section>
       ` : ""}
+      <section class="inspector-section">
+        <h3>Draft</h3>
+        <div class="draft-control">
+          <dl class="detail-list">
+            <dt>Status</dt><dd><span data-draft-status data-state="${escapeHtml(draftStatusLabel())}">${escapeHtml(draftStatusLabel())}</span></dd>
+            <dt>Target</dt><dd>${escapeHtml(draftTargetLabel)}</dd>
+            <dt>Base</dt><dd>${state.draft.baseRevision == null ? "none" : state.draft.baseRevision}</dd>
+            <dt>Dirty</dt><dd>${draftIsDirty() ? "yes" : "no"}</dd>
+          </dl>
+          <div class="draft-actions">
+            <button
+              type="button"
+              data-draft-action="start"
+              data-draft-node-id="${escapeHtml(node?.id || "")}"
+              ${canStartDraft ? "" : "disabled"}
+            >
+              Start draft
+            </button>
+            <button
+              type="button"
+              data-draft-action="commit"
+              ${draftCanCommit() ? "" : "disabled"}
+            >
+              Commit
+            </button>
+            <button
+              type="button"
+              data-draft-action="cancel"
+              ${draftIsActive() && !state.bridgeBusy ? "" : "disabled"}
+            >
+              Cancel
+            </button>
+          </div>
+          <p data-draft-message>${escapeHtml(draftPanelMessage)}</p>
+        </div>
+      </section>
       <section class="inspector-section">
         <h3>Mutation Bridge</h3>
         <div class="bridge-control">
@@ -484,7 +727,7 @@ function renderInspector(snapshot) {
             </button>
           </div>
           <p data-state="${lastMutation?.status || "idle"}">${escapeHtml(bridgeMessage)}</p>
-          ${canUseBridge ? "" : `<small>Select a plain text-block without field refs, page numbers, or line breaks.</small>`}
+          ${canUseBridge ? "" : `<small>${draftIsActive() ? "Finish the active browser draft before using direct bridge actions." : "Select a plain text-block without field refs, page numbers, or line breaks."}</small>`}
         </div>
       </section>
       <section class="inspector-section">
@@ -503,19 +746,19 @@ function renderInspector(snapshot) {
           <button
             type="button"
             data-history-action="undo"
-            ${history.canUndo && !state.bridgeBusy ? "" : "disabled"}
+            ${history.canUndo && !state.bridgeBusy && !draftIsActive() ? "" : "disabled"}
           >
             ${state.bridgeBusy ? "Applying" : "Undo"}
           </button>
           <button
             type="button"
             data-history-action="redo"
-            ${history.canRedo && !state.bridgeBusy ? "" : "disabled"}
+            ${history.canRedo && !state.bridgeBusy && !draftIsActive() ? "" : "disabled"}
           >
             ${state.bridgeBusy ? "Applying" : "Redo"}
           </button>
         </div>
-        <small>Undo and redo replay only sandbox text patches kept in memory.</small>
+        <small>${draftIsActive() ? "Finish the active browser draft before undo or redo." : "Undo and redo replay only sandbox text patches kept in memory."}</small>
       </section>
       <section class="inspector-section">
         <h3>Live Layout</h3>
@@ -563,6 +806,7 @@ function renderStatus(snapshot) {
       <span>Source: ${escapeHtml(state.selectionSource)}</span>
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
+      <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
       <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
       <span>${escapeHtml(packetLabel)}</span>
@@ -597,13 +841,50 @@ function bindSelectionHandlers() {
   })
 
   canvas?.addEventListener("click", (event) => {
+    const draftActionTarget = event.target.closest("[data-draft-action]")
+    if (draftActionTarget && canvas.contains(draftActionTarget)) {
+      event.stopPropagation()
+      applyDraftAction(draftActionTarget.dataset.draftAction, draftActionTarget.dataset.draftNodeId)
+      return
+    }
+
+    if (event.target.closest("[data-draft-editor]")) {
+      event.stopPropagation()
+      return
+    }
+
     const target = event.target.closest("[data-node-id]")
     if (!target || !canvas.contains(target)) return
     event.stopPropagation()
     selectNode(target.dataset.nodeId, "canvas")
   })
 
+  canvas?.addEventListener("dblclick", (event) => {
+    if (event.target.closest("[data-draft-editor], [data-draft-action]")) return
+    const target = event.target.closest(".canvas-text[data-node-id]")
+    if (!target || !canvas.contains(target)) return
+    event.stopPropagation()
+    startDraftForNode(target.dataset.nodeId, "canvas-draft")
+  })
+
+  canvas?.querySelector("[data-draft-editor]")?.addEventListener("input", (event) => {
+    state.draft = {
+      ...state.draft,
+      message: "Local draft changes are waiting for commit.",
+      status: "editing",
+      text: event.target.value,
+    }
+    syncDraftDomState()
+  })
+
   inspector?.addEventListener("click", (event) => {
+    const draftActionTarget = event.target.closest("[data-draft-action]")
+    if (draftActionTarget && inspector.contains(draftActionTarget)) {
+      event.stopPropagation()
+      applyDraftAction(draftActionTarget.dataset.draftAction, draftActionTarget.dataset.draftNodeId)
+      return
+    }
+
     const actionTarget = event.target.closest("[data-mutation-action]")
     if (actionTarget && inspector.contains(actionTarget)) {
       event.stopPropagation()
@@ -627,6 +908,110 @@ function bindSelectionHandlers() {
   inspector?.querySelector("[data-mutation-text]")?.addEventListener("input", (event) => {
     state.mutationText = event.target.value
   })
+}
+
+function applyDraftAction(action, nodeId) {
+  if (action === "start") {
+    startDraftForNode(nodeId || state.selectedId, "draft")
+    return
+  }
+
+  if (action === "cancel") {
+    cancelDraft()
+    return
+  }
+
+  if (action === "commit") {
+    commitDraft()
+  }
+}
+
+async function commitDraft() {
+  if (!draftIsActive() || state.bridgeBusy) return
+
+  const draft = { ...state.draft }
+  const node = draftTargetNode()
+  const guardReason = draftGuardReason(node)
+
+  if (guardReason) {
+    state.draft = {
+      ...state.draft,
+      message: guardReason,
+      status: "blocked",
+    }
+    render()
+    focusDraftEditor()
+    return
+  }
+
+  if (!draftIsDirty()) {
+    state.draft = {
+      ...state.draft,
+      message: "Draft has no local changes to commit.",
+      status: "editing",
+    }
+    syncDraftDomState()
+    return
+  }
+
+  if (draft.baseRevision !== state.snapshot.session.documentRevision) {
+    state.draft = {
+      ...state.draft,
+      message: `Draft base ${draft.baseRevision} does not match document revision ${state.snapshot.session.documentRevision}.`,
+      status: "conflicted",
+    }
+    render()
+    focusDraftEditor()
+    return
+  }
+
+  state.bridgeBusy = true
+  state.bridgeMessage = "Committing browser draft through sandbox bridge..."
+  state.draft = {
+    ...state.draft,
+    message: "Committing browser draft through sandbox bridge...",
+    status: "committing",
+  }
+  render()
+
+  try {
+    const response = await fetch(routeForBridgeTextAction("replace-text"), {
+      body: JSON.stringify({
+        text: draft.text,
+        textBlockId: draft.textBlockId,
+      }),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    })
+    const result = await response.json()
+    const fallbackReason = await applyMutationResult(result)
+    if (result.ok) {
+      resetDraft("committed", `Committed browser draft through bridge.${fallbackReason}`)
+      state.selectedId = draft.textBlockId
+      state.selectionSource = "wysiwyg-draft"
+      state.bridgeMessage = `draft committed: ${result.mutation.summary}${fallbackReason}`
+    } else {
+      const issueMessage = (result.issues || []).map((issue) => issue.message).join("; ") || "bridge rejected draft"
+      state.draft = {
+        ...draft,
+        message: `${issueMessage}${fallbackReason}`,
+        status: "rejected",
+      }
+      state.bridgeMessage = `draft rejected: ${issueMessage}${fallbackReason}`
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "draft commit failed"
+    state.draft = {
+      ...draft,
+      message,
+      status: "rejected",
+    }
+    state.bridgeMessage = message
+  } finally {
+    state.bridgeBusy = false
+    render()
+    if (draftIsActive()) focusDraftEditor()
+  }
 }
 
 async function fetchSnapshot() {
@@ -669,6 +1054,12 @@ async function applyMutationResult(result) {
 }
 
 async function applyBridgeTextAction(action) {
+  if (draftIsActive()) {
+    state.bridgeMessage = "Finish the active browser draft before using direct bridge actions."
+    render()
+    return
+  }
+
   const node = selectedNode()
   if (!selectedNodeCanUseBridge(node)) return
 
@@ -700,6 +1091,12 @@ async function applyBridgeTextAction(action) {
 }
 
 async function applyHistoryAction(action) {
+  if (draftIsActive()) {
+    state.bridgeMessage = "Finish the active browser draft before undo or redo."
+    render()
+    return
+  }
+
   const history = state.snapshot?.authoringHistory
   if (!history) return
   if (action === "undo" && !history.canUndo) return

@@ -35,11 +35,15 @@ Implemented:
 - Node bridge that calls core through `@flowdoc/vnext-core`;
 - generated browser snapshot from the canonical product fixture;
 - static editor shell with toolbar, node tree, canvas, inspector, and status;
+- browser-local WYSIWYG draft editing for safe text blocks, committed through
+  the sandbox mutation bridge;
+- bounded authoring history, undo/redo, and live-layout summaries after bridge
+  commits;
 - boundary tests from the root repository.
 
 Not implemented:
 
-- real text editing;
+- rich text editing;
 - DOM selection mapping;
 - live layout renderer;
 - background job scheduler;
