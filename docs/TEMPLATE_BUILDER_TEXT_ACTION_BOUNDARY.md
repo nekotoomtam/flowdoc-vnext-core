@@ -23,6 +23,9 @@ Both actions are explicit inspector commands. The browser does not derive text
 ranges from DOM selection and does not run IME composition handling in this
 phase.
 
+Phase 33 records accepted explicit text actions in the sandbox authoring
+history summary, but those records are not replayed as undo/redo yet.
+
 ## Supported Insert Action
 
 `sandbox.insertPlainTextAtEnd`
@@ -67,6 +70,7 @@ Phase 32 does not implement:
 - browser-derived text ranges;
 - partial range replace from selection;
 - undo/redo execution;
+- durable authoring history persistence;
 - live layout rendering;
 - structural packet operations;
 - durable browser cache persistence;

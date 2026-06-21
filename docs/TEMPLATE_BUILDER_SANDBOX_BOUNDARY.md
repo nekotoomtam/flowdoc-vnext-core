@@ -73,6 +73,9 @@ with a proper bundler/runtime adapter.
 - Phase 32 adds an explicit append-text action that uses `text.insert` through
   the same bridge, packet, and browser cache path without DOM caret or IME
   handling.
+- Phase 33 appends vNext authoring intent history records for accepted bridge
+  text transactions and exposes a bounded history summary in snapshots,
+  packets, inspector, and status.
 
 ## Non-Goals
 
@@ -85,6 +88,7 @@ Phase 27 does not implement:
 - scheduler or worker queues;
 - backend API routes;
 - save/publish persistence;
+- undo/redo execution;
 - exact layout, preview, PDF, or DOCX rendering.
 
 ## Extraction Rule

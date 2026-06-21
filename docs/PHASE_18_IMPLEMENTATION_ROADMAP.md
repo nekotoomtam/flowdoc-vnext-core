@@ -455,6 +455,35 @@ Acceptance:
 - no DOM caret mapping, IME composition, browser-derived ranges, live layout
   renderer, persistence, or non-sandbox API route is claimed.
 
+## Phase 33: Sandbox Authoring History Boundary
+
+Goal:
+
+- connect visible sandbox mutations to the vNext authoring intent history
+  contract before undo/redo or caret typing work.
+
+Deliverables:
+
+- in-memory authoring history records owned by the sandbox mutation bridge;
+- accepted bridge transactions appended through
+  `appendVNextAuthoringIntentHistoryResult(...)`;
+- bounded `authoringHistory` summary on snapshots and change packets;
+- browser inspector and status readouts for history record/group counts;
+- action lane entries for history, undo, and redo readiness;
+- history boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- replace-block and append-text actions both create undoable history summaries;
+- packet responses carry history summary without a full snapshot tree;
+- browser cache updates history from packet responses;
+- pre-core validation rejections remain packet issues and do not pretend to be
+  durable history;
+- undo/redo execution, inverse replay, focus restoration, persistence,
+  DOM caret mapping, IME composition, live layout renderer, and non-sandbox API
+  routes remain deferred.
+
 ## Later Phases
 
 Goal:

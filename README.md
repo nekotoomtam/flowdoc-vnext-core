@@ -101,6 +101,9 @@ The package must remain runnable without any parent editor checkout.
 - Sandbox text action boundary adds an explicit append-text inspector command
   that calls `text.insert` through the mutation bridge and packet cache path
   without taking on DOM caret or IME behavior yet
+- Sandbox history boundary appends vNext authoring intent history records for
+  accepted bridge text transactions and exposes a bounded history summary in
+  snapshots, packets, inspector, and status without executing undo/redo yet
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -175,6 +178,8 @@ The package must remain runnable without any parent editor checkout.
   contract for consuming sandbox change packets after boot
 - `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md`: explicit text insert action
   contract before DOM caret and IME work
+- `docs/TEMPLATE_BUILDER_HISTORY_BOUNDARY.md`: sandbox authoring history
+  summary contract before undo/redo execution
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -191,7 +196,7 @@ The package must remain runnable without any parent editor checkout.
 ## Not Implemented Yet
 
 - visible editor runtime integration beyond the extractable static sandbox
-  shell and in-memory sandbox mutation bridge
+  shell, in-memory sandbox mutation bridge, and bounded history summary
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, visible typing integration, IME, concrete undo/redo UI, and
@@ -210,6 +215,7 @@ The package must remain runnable without any parent editor checkout.
 - concrete PDF/DOCX renderer implementation beyond measured-fragment
   consumption contracts
 - durable operation/authoring history persistence outside in-memory helpers
+- concrete sandbox undo/redo execution from authoring history
 - product-level visible editor acceptance smokes
 - durable browser cache persistence and structural packet application
 - publishing/distribution strategy beyond local package consumption

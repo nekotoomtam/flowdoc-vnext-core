@@ -122,6 +122,7 @@ function applyChangePacket(packet) {
   const nextSnapshot = {
     ...state.snapshot,
     diagnostics: packet.diagnostics || state.snapshot.diagnostics,
+    authoringHistory: packet.authoringHistory || state.snapshot.authoringHistory,
     mutationBridge: {
       ...state.snapshot.mutationBridge,
       documentRevision: packet.nextRevision,
@@ -381,6 +382,15 @@ function renderInspector(snapshot) {
     </li>
   `).join("")
   const lastMutation = snapshot.mutationBridge.lastMutation
+  const history = snapshot.authoringHistory || {
+    mode: "static-snapshot",
+    recordCount: 0,
+    undoableRecordCount: 0,
+    rejectedRecordCount: 0,
+    groupCount: 0,
+    latestGroup: null,
+  }
+  const latestHistory = history.latestGroup
   const bridgeMessage = state.bridgeMessage || (
     lastMutation
       ? `${lastMutation.status}: ${lastMutation.summary}`
@@ -464,6 +474,18 @@ function renderInspector(snapshot) {
         </div>
       </section>
       <section class="inspector-section">
+        <h3>History</h3>
+        <dl class="detail-list">
+          <dt>Mode</dt><dd>${escapeHtml(history.mode)}</dd>
+          <dt>Records</dt><dd>${history.recordCount}</dd>
+          <dt>Groups</dt><dd>${history.groupCount}</dd>
+          <dt>Undoable</dt><dd>${history.undoableRecordCount}</dd>
+          <dt>Rejected</dt><dd>${history.rejectedRecordCount}</dd>
+          <dt>Latest</dt><dd>${latestHistory ? escapeHtml(`${latestHistory.groupId}: ${latestHistory.summary}`) : "none"}</dd>
+        </dl>
+        <small>Undo and redo execution are planned after the history boundary is stable.</small>
+      </section>
+      <section class="inspector-section">
         <h3>Actions</h3>
         <ul class="action-list">${actionRows}</ul>
       </section>
@@ -483,6 +505,9 @@ function renderStatus(snapshot) {
   const cacheLabel = state.runtimeCache
     ? `Cache: ${state.runtimeCache.mode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.packetsApplied} packets`
     : "Cache: none"
+  const historyLabel = snapshot.authoringHistory
+    ? `History: ${snapshot.authoringHistory.recordCount} records ${snapshot.authoringHistory.groupCount} groups`
+    : "History: none"
 
   return `
     <footer class="statusbar">
@@ -494,6 +519,7 @@ function renderStatus(snapshot) {
       <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
       <span>${escapeHtml(packetLabel)}</span>
       <span>${escapeHtml(cacheLabel)}</span>
+      <span>${escapeHtml(historyLabel)}</span>
       <span>Dirty scopes: ${snapshot.session.dirtyScopeCount}</span>
       <span>Key data: ${escapeHtml(snapshot.diagnostics.keyDataStatus)}</span>
       <span>Exact layout: ${escapeHtml(snapshot.diagnostics.exactLayoutStatus)}</span>

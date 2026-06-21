@@ -11,7 +11,17 @@ import {
   type InlineNode,
   type ParentRef,
   type RelationshipGraph,
+  type VNextAuthoringIntentHistoryGroup,
 } from "@flowdoc/vnext-core"
+
+export interface TemplateBuilderAuthoringHistorySnapshot {
+  mode: "static-snapshot" | "in-memory"
+  recordCount: number
+  undoableRecordCount: number
+  rejectedRecordCount: number
+  groupCount: number
+  latestGroup: VNextAuthoringIntentHistoryGroup | null
+}
 
 export interface TemplateBuilderSnapshotOptions {
   fixturePath: string
@@ -19,6 +29,7 @@ export interface TemplateBuilderSnapshotOptions {
     mode?: "static-snapshot" | "in-memory-bridge"
     documentRevision?: number
     dirtyScopeCount?: number
+    authoringHistory?: TemplateBuilderAuthoringHistorySnapshot
     mutationCount?: number
     lastMutation?: TemplateBuilderSnapshotLastMutation | null
   }
@@ -95,6 +106,7 @@ export interface TemplateBuilderSnapshot {
     mutationCount: number
     lastMutation: TemplateBuilderSnapshotLastMutation | null
   }
+  authoringHistory: TemplateBuilderAuthoringHistorySnapshot
   session: {
     selectionKind: string
     documentRevision: number
@@ -281,6 +293,14 @@ export function createTemplateBuilderSnapshot(
       mutationCount: runtime.mutationCount ?? 0,
       lastMutation: runtime.lastMutation ?? null,
     },
+    authoringHistory: runtime.authoringHistory ?? {
+      mode: "static-snapshot",
+      recordCount: 0,
+      undoableRecordCount: 0,
+      rejectedRecordCount: 0,
+      groupCount: 0,
+      latestGroup: null,
+    },
     session: {
       selectionKind: session.selection.kind,
       documentRevision,
@@ -333,6 +353,27 @@ export function createTemplateBuilderSnapshot(
         lane: "immediate",
         status: "wired",
         reason: "browser runtime cache consumes packet-only mutation responses after boot",
+      },
+      {
+        action: "sandbox.recordAuthoringHistory",
+        label: "History",
+        lane: "immediate",
+        status: "wired",
+        reason: "bridge actions append core authoring intent history records for future undo and audit",
+      },
+      {
+        action: "user.undo",
+        label: "Undo",
+        lane: "immediate",
+        status: "planned",
+        reason: "history records are visible, but inverse replay and focus restore are not wired yet",
+      },
+      {
+        action: "user.redo",
+        label: "Redo",
+        lane: "immediate",
+        status: "planned",
+        reason: "redo waits for the same replay boundary as undo",
       },
       {
         action: "user.typeText",

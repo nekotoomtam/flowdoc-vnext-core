@@ -39,6 +39,7 @@ Parent goal:
 | 30 | Snapshot delta boundary | done | `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 31 | Browser runtime cache boundary | done | `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 32 | Explicit text action boundary | done | `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 33 | Sandbox authoring history boundary | done | `docs/TEMPLATE_BUILDER_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -461,6 +462,31 @@ selection, undo/redo execution, live layout rendering, structural packet
 operations, durable browser cache persistence, save/publish persistence,
 backend API routes outside the sandbox server, exact layout, preview, PDF, or
 DOCX rendering.
+
+## Phase 33 Sandbox Authoring History Boundary
+
+Phase 33 connects sandbox bridge mutations to the vNext authoring intent
+history contract before undo/redo execution:
+
+- the mutation bridge owns an in-memory authoring history record list beside
+  its working package, document revision, mutation count, and last mutation;
+- accepted replace and append text transactions call
+  `appendVNextAuthoringIntentHistoryResult(...)` with `inputKind: "command"`;
+- core transaction rejections can append diagnostic-only history records, while
+  pre-core bridge validation rejections remain packet issues only;
+- snapshots and change packets expose a bounded `authoringHistory` summary
+  with record counts, undoable/rejected counts, group count, and latest group;
+- browser packet application updates history summary alongside diagnostics,
+  revision, mutation metadata, dirty scopes, and changed node summaries;
+- the inspector and status bar show history counts and latest group context;
+- action lanes now make the history rail wired while undo and redo remain
+  planned.
+
+This phase intentionally does not implement undo execution, redo execution,
+inverse transaction generation, keyboard shortcuts, focus or caret restoration,
+durable history persistence, per-keystroke typing, IME composition, live layout
+rendering, save/publish persistence, non-sandbox API routes, exact layout,
+preview, PDF, or DOCX rendering.
 
 ## Phase 12 Extraction Record
 

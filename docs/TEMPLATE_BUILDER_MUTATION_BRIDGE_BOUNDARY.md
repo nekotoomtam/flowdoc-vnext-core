@@ -73,6 +73,13 @@ The bridge now has both a whole-block replace action and an append-text action.
 The append path is explicit and button-driven; it does not infer browser DOM
 selection, caret position, or IME composition ranges.
 
+## Phase 33 Handoff
+
+The bridge now appends vNext authoring intent history records for accepted
+text transactions and returns a bounded `authoringHistory` summary in snapshots
+and change packets. This makes future undo/redo and AI-safe edit audit paths
+visible without executing inverse replay yet.
+
 ## Non-Goals
 
 Phase 29 and Phase 30 do not implement:
@@ -84,6 +91,7 @@ Phase 29 and Phase 30 do not implement:
 - partial range selection from the browser;
 - persistent browser normalized cache;
 - undo/redo execution;
+- durable authoring history persistence;
 - save/publish persistence;
 - backend API routes outside the sandbox dev server;
 - exact layout, preview, PDF, or DOCX rendering.

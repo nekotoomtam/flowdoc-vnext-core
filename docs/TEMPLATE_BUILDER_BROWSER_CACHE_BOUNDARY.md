@@ -46,6 +46,10 @@ ownership and browser-side packet consumption before typing work starts.
 Phase 32 reuses this cache path for `sandbox.insertPlainTextAtEnd`, the first
 explicit text-insert action.
 
+Phase 33 reuses the same packet path for bounded authoring-history summaries,
+so the browser cache updates history status without receiving full history
+records or a complete snapshot tree.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.
@@ -68,6 +72,7 @@ Phase 31 does not implement:
 - IME composition;
 - partial text ranges from browser selection;
 - undo/redo execution;
+- durable authoring history persistence;
 - live layout rendering;
 - structural packet operations;
 - durable browser cache persistence;

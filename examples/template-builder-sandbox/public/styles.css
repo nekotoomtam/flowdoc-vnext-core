@@ -467,6 +467,14 @@ ul {
   overflow-wrap: anywhere;
 }
 
+.inspector-section > small {
+  color: #667385;
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
 .field-list {
   display: grid;
   gap: 8px;

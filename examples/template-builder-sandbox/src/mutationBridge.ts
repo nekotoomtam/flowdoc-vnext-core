@@ -1,14 +1,19 @@
 import {
+  appendVNextAuthoringIntentHistoryResult,
   createVNextEditableSession,
+  groupVNextAuthoringIntentHistory,
   projectVNextTextBlockInlines,
   runVNextTextTransaction,
   serializeFlowDocPackageV2DocumentVNext,
   type FlowDocPackageV2DocumentVNext,
   type TextBlockNode,
+  type VNextAuthoringIntentHistoryRecord,
   type VNextTextTransactionDirtyScope,
+  type VNextTextTransactionResult,
 } from "@flowdoc/vnext-core"
 import {
   createTemplateBuilderSnapshot,
+  type TemplateBuilderAuthoringHistorySnapshot,
   type TemplateBuilderSnapshot,
   type TemplateBuilderSnapshotLastMutation,
   type TemplateBuilderSnapshotNode,
@@ -47,6 +52,7 @@ export interface TemplateBuilderChangePacket {
   affectedParentNodeIds: string[]
   dirtyScopes: VNextTextTransactionDirtyScope[]
   diagnostics: TemplateBuilderSnapshot["diagnostics"]
+  authoringHistory: TemplateBuilderAuthoringHistorySnapshot
   snapshotRequired: boolean
 }
 
@@ -167,7 +173,24 @@ function createChangePacket(input: {
     affectedParentNodeIds,
     dirtyScopes,
     diagnostics: cloneJson(input.snapshot.diagnostics),
+    authoringHistory: cloneJson(input.snapshot.authoringHistory),
     snapshotRequired: false,
+  }
+}
+
+function summarizeAuthoringHistory(
+  records: readonly VNextAuthoringIntentHistoryRecord[],
+  mode: TemplateBuilderAuthoringHistorySnapshot["mode"],
+): TemplateBuilderAuthoringHistorySnapshot {
+  const groups = groupVNextAuthoringIntentHistory(records)
+
+  return {
+    mode,
+    recordCount: records.length,
+    undoableRecordCount: records.filter((record) => record.historyAction === "undoable").length,
+    rejectedRecordCount: records.filter((record) => record.status === "rejected").length,
+    groupCount: groups.length,
+    latestGroup: groups.at(-1) ?? null,
   }
 }
 
@@ -205,6 +228,7 @@ export function createTemplateBuilderMutationBridge(
   let mutationCount = options.runtime?.mutationCount ?? 0
   let dirtyScopeCount = options.runtime?.dirtyScopeCount ?? 0
   let lastMutation: TemplateBuilderSnapshotLastMutation | null = options.runtime?.lastMutation ?? null
+  let authoringHistory: VNextAuthoringIntentHistoryRecord[] = []
 
   function bridgeSnapshot(): TemplateBuilderSnapshot {
     return createTemplateBuilderSnapshot(workingPackage, {
@@ -213,9 +237,16 @@ export function createTemplateBuilderMutationBridge(
         mode: "in-memory-bridge",
         documentRevision,
         dirtyScopeCount,
+        authoringHistory: summarizeAuthoringHistory(authoringHistory, "in-memory"),
         mutationCount,
         lastMutation,
       },
+    })
+  }
+
+  function appendHistory(result: VNextTextTransactionResult): void {
+    authoringHistory = appendVNextAuthoringIntentHistoryResult(authoringHistory, result, {
+      inputKind: "command",
     })
   }
 
@@ -249,6 +280,7 @@ export function createTemplateBuilderMutationBridge(
     baseRevision: number
     document: FlowDocPackageV2DocumentVNext["document"]
     dirtyScope: VNextTextTransactionDirtyScope
+    transactionResult: Extract<VNextTextTransactionResult, { ok: true }>
     summary: string
     responseOptions?: TemplateBuilderMutationResponseOptions
   }): TemplateBuilderMutationResponse {
@@ -263,6 +295,7 @@ export function createTemplateBuilderMutationBridge(
     documentRevision += 1
     mutationCount += 1
     dirtyScopeCount = 1
+    appendHistory(input.transactionResult)
     lastMutation = bridgeMutation(
       input.action,
       "applied",
@@ -326,6 +359,7 @@ export function createTemplateBuilderMutationBridge(
       })
 
       if (!transaction.ok) {
+        appendHistory(transaction)
         return rejected(action, textBlock.id, "core text transaction was rejected", transaction.issues.map((item) => ({
           severity: item.severity,
           code: item.code,
@@ -340,6 +374,7 @@ export function createTemplateBuilderMutationBridge(
         baseRevision,
         document: transaction.document,
         dirtyScope: transaction.transaction.dirtyScope,
+        transactionResult: transaction,
         summary: transaction.transaction.historyIntent.summary,
         responseOptions,
       })
@@ -385,6 +420,7 @@ export function createTemplateBuilderMutationBridge(
       })
 
       if (!transaction.ok) {
+        appendHistory(transaction)
         return rejected(action, textBlock.id, "core text transaction was rejected", transaction.issues.map((item) => ({
           severity: item.severity,
           code: item.code,
@@ -399,6 +435,7 @@ export function createTemplateBuilderMutationBridge(
         baseRevision,
         document: transaction.document,
         dirtyScope: transaction.transaction.dirtyScope,
+        transactionResult: transaction,
         summary: transaction.transaction.historyIntent.summary,
         responseOptions,
       })

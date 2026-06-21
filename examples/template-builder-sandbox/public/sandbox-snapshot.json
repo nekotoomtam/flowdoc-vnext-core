@@ -37,6 +37,14 @@
     "mutationCount": 0,
     "lastMutation": null
   },
+  "authoringHistory": {
+    "mode": "static-snapshot",
+    "recordCount": 0,
+    "undoableRecordCount": 0,
+    "rejectedRecordCount": 0,
+    "groupCount": 0,
+    "latestGroup": null
+  },
   "session": {
     "selectionKind": "none",
     "documentRevision": 0,
@@ -1568,6 +1576,27 @@
       "lane": "immediate",
       "status": "wired",
       "reason": "browser runtime cache consumes packet-only mutation responses after boot"
+    },
+    {
+      "action": "sandbox.recordAuthoringHistory",
+      "label": "History",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "bridge actions append core authoring intent history records for future undo and audit"
+    },
+    {
+      "action": "user.undo",
+      "label": "Undo",
+      "lane": "immediate",
+      "status": "planned",
+      "reason": "history records are visible, but inverse replay and focus restore are not wired yet"
+    },
+    {
+      "action": "user.redo",
+      "label": "Redo",
+      "lane": "immediate",
+      "status": "planned",
+      "reason": "redo waits for the same replay boundary as undo"
     },
     {
       "action": "user.typeText",

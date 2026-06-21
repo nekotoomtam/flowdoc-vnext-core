@@ -67,6 +67,7 @@ describe("template builder sandbox boundary", () => {
     const snapshot = readJson("../examples/template-builder-sandbox/public/sandbox-snapshot.json") as {
       sections: Array<{ zones: Array<Record<string, unknown> & { children: Array<Record<string, unknown>> }> }>
       actionLanes: Array<{ status: string }>
+      authoringHistory: { mode: string; recordCount: number; groupCount: number; latestGroup: unknown }
     }
     const coverZone = snapshot.sections[0].zones[0]
     const coverText = coverZone.children[0]
@@ -101,6 +102,12 @@ describe("template builder sandbox boundary", () => {
     expect(new Set(snapshot.actionLanes.map((action) => action.status))).toEqual(
       new Set(["wired", "planned", "blocked"]),
     )
+    expect(snapshot.authoringHistory).toMatchObject({
+      mode: "static-snapshot",
+      recordCount: 0,
+      groupCount: 0,
+      latestGroup: null,
+    })
   })
 
   it("keeps selected node state browser-only", () => {
@@ -120,6 +127,7 @@ describe("template builder sandbox boundary", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const snapshot = readJson("../examples/template-builder-sandbox/public/sandbox-snapshot.json") as {
       mutationBridge: { mode: string; documentRevision: number; mutationCount: number; lastMutation: unknown }
+      authoringHistory: { mode: string; recordCount: number; groupCount: number; latestGroup: unknown }
     }
 
     expect(serverSource).toContain("/api/snapshot")
@@ -128,13 +136,17 @@ describe("template builder sandbox boundary", () => {
     expect(serverSource).toContain('searchParams.get("response") !== "packet"')
     expect(bridgeSource).toContain('from "@flowdoc/vnext-core"')
     expect(bridgeSource).toContain("runVNextTextTransaction")
+    expect(bridgeSource).toContain("appendVNextAuthoringIntentHistoryResult")
+    expect(bridgeSource).toContain("groupVNextAuthoringIntentHistory")
     expect(bridgeSource).toContain("text.range.replace")
     expect(bridgeSource).toContain("text.insert")
     expect(bridgeSource).toContain("sandbox.insertPlainTextAtEnd")
     expect(bridgeSource).toContain("flowdoc-template-builder-change-packet")
+    expect(bridgeSource).toContain("authoringHistory")
     expect(appSource).toContain("./api/actions/replace-text?response=packet")
     expect(appSource).toContain("./api/actions/insert-text-at-end?response=packet")
     expect(appSource).toContain("Append text")
+    expect(appSource).toContain("History")
     expect(appSource).toContain("lastPacket")
     expect(appSource).not.toContain("snapshot.document")
     expect(snapshot.mutationBridge).toEqual({
@@ -142,6 +154,14 @@ describe("template builder sandbox boundary", () => {
       documentRevision: 0,
       mutationCount: 0,
       lastMutation: null,
+    })
+    expect(snapshot.authoringHistory).toEqual({
+      mode: "static-snapshot",
+      recordCount: 0,
+      undoableRecordCount: 0,
+      rejectedRecordCount: 0,
+      groupCount: 0,
+      latestGroup: null,
     })
   })
 
@@ -169,10 +189,12 @@ describe("template builder sandbox boundary", () => {
       console.log(JSON.stringify({
         acceptedOk: accepted.ok,
         acceptedBridge: accepted.snapshot.mutationBridge,
+        acceptedHistory: accepted.snapshot.authoringHistory,
         acceptedContainsText: JSON.stringify(accepted.snapshot.sections).includes("Edited through bridge test"),
         rejectedOk: rejected.ok,
         rejectedIssues: rejected.issues,
         rejectedBridge: rejected.snapshot.mutationBridge,
+        rejectedHistory: rejected.snapshot.authoringHistory,
       }));
     `], {
       cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
@@ -186,6 +208,14 @@ describe("template builder sandbox boundary", () => {
         mutationCount: number
         lastMutation: { status: string; targetTextBlockId: string }
       }
+      acceptedHistory: {
+        mode: string
+        recordCount: number
+        undoableRecordCount: number
+        rejectedRecordCount: number
+        groupCount: number
+        latestGroup: { commandKinds: string[]; recordCount: number; summary: string }
+      }
       acceptedContainsText: boolean
       rejectedOk: boolean
       rejectedIssues: Array<{ code: string }>
@@ -194,6 +224,7 @@ describe("template builder sandbox boundary", () => {
         mutationCount: number
         lastMutation: { status: string; targetTextBlockId: string }
       }
+      rejectedHistory: { recordCount: number; groupCount: number }
     }
 
     expect(result.acceptedOk).toBe(true)
@@ -204,6 +235,18 @@ describe("template builder sandbox boundary", () => {
       lastMutation: {
         status: "applied",
         targetTextBlockId: "cover-header-label",
+      },
+    })
+    expect(result.acceptedHistory).toMatchObject({
+      mode: "in-memory",
+      recordCount: 1,
+      undoableRecordCount: 1,
+      rejectedRecordCount: 0,
+      groupCount: 1,
+      latestGroup: {
+        commandKinds: ["text.range.replace"],
+        recordCount: 1,
+        summary: "replace text range in cover-header-label",
       },
     })
     expect(result.acceptedContainsText).toBe(true)
@@ -218,6 +261,10 @@ describe("template builder sandbox boundary", () => {
         status: "rejected",
         targetTextBlockId: "cover-title",
       },
+    })
+    expect(result.rejectedHistory).toMatchObject({
+      recordCount: 1,
+      groupCount: 1,
     })
   }, 15_000)
 
@@ -267,6 +314,12 @@ describe("template builder sandbox boundary", () => {
         changedNodes: Array<{ id: string; textPreview: string }>
         affectedParentNodeIds: string[]
         dirtyScopes: Array<{ textBlockId: string; parentNodeIds: string[] }>
+        authoringHistory: {
+          recordCount: number
+          undoableRecordCount: number
+          groupCount: number
+          latestGroup: { commandKinds: string[]; summary: string }
+        }
       }
       acceptedPacketHasSections: boolean
       rejectedOk: boolean
@@ -276,6 +329,7 @@ describe("template builder sandbox boundary", () => {
         nextRevision: number
         mutationCount: number
         changedNodeIds: string[]
+        authoringHistory: { recordCount: number; groupCount: number }
         issues: Array<{ code: string }>
       }
     }
@@ -303,6 +357,15 @@ describe("template builder sandbox boundary", () => {
       ],
     })
     expect(result.acceptedPacketHasSections).toBe(false)
+    expect(result.acceptedPacket.authoringHistory).toMatchObject({
+      recordCount: 1,
+      undoableRecordCount: 1,
+      groupCount: 1,
+      latestGroup: {
+        commandKinds: ["text.range.replace"],
+        summary: "replace text range in cover-header-label",
+      },
+    })
     expect(result.rejectedOk).toBe(false)
     expect(result.rejectedHasSnapshot).toBe(false)
     expect(result.rejectedPacket).toMatchObject({
@@ -310,6 +373,10 @@ describe("template builder sandbox boundary", () => {
       nextRevision: 1,
       mutationCount: 1,
       changedNodeIds: [],
+      authoringHistory: {
+        recordCount: 1,
+        groupCount: 1,
+      },
     })
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
@@ -360,6 +427,12 @@ describe("template builder sandbox boundary", () => {
         changedNodeIds: string[]
         changedNodes: Array<{ id: string; textPreview: string }>
         dirtyScopes: Array<{ textBlockId: string }>
+        authoringHistory: {
+          recordCount: number
+          undoableRecordCount: number
+          groupCount: number
+          latestGroup: { commandKinds: string[]; summary: string }
+        }
       }
       acceptedPacketHasSections: boolean
       rejectedOk: boolean
@@ -367,6 +440,7 @@ describe("template builder sandbox boundary", () => {
         baseRevision: number
         nextRevision: number
         changedNodeIds: string[]
+        authoringHistory: { recordCount: number; groupCount: number }
         issues: Array<{ code: string }>
       }
     }
@@ -389,11 +463,24 @@ describe("template builder sandbox boundary", () => {
       ],
     })
     expect(result.acceptedPacketHasSections).toBe(false)
+    expect(result.acceptedPacket.authoringHistory).toMatchObject({
+      recordCount: 1,
+      undoableRecordCount: 1,
+      groupCount: 1,
+      latestGroup: {
+        commandKinds: ["text.insert"],
+        summary: "insert text into cover-header-label",
+      },
+    })
     expect(result.rejectedOk).toBe(false)
     expect(result.rejectedPacket).toMatchObject({
       baseRevision: 1,
       nextRevision: 1,
       changedNodeIds: [],
+      authoringHistory: {
+        recordCount: 1,
+        groupCount: 1,
+      },
     })
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
@@ -412,10 +499,13 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("packet.baseRevision !== state.snapshot.session.documentRevision")
     expect(appSource).toContain("applyChangePacket(result.packet)")
     expect(appSource).toContain("applyBridgeTextAction")
+    expect(appSource).toContain("authoringHistory")
+    expect(appSource).toContain("History:")
     expect(appSource).toContain("setSnapshotFromRefresh(await fetchSnapshot())")
     expect(appSource).toContain("state.runtimeCache?.nodeById.get")
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
+    expect(coreBoundarySource).toContain("sandbox.recordAuthoringHistory")
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
   })
 })
