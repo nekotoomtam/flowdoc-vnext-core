@@ -630,6 +630,35 @@ Acceptance:
 - selection-only changes do not create history records, dirty scopes, live
   layout requests, or canonical document mutations.
 
+## Phase 39: Draft Command Context Boundary
+
+Goal:
+
+- derive a browser-local command context from active draft selection before
+  executing text, key, or rich inline commands.
+
+Deliverables:
+
+- command surface and target text-block id;
+- base document revision;
+- selection start/end/length and collapsed status;
+- selected, before-selection, and after-selection bounded previews;
+- readiness for `text.insert`, `text.replaceSelection`,
+  `inline.fieldRef.insert`, and `inline.style.patch`;
+- canvas, inspector, and status bar command-context labels;
+- action lane for `browser.deriveDraftCommandContext`;
+- source/test evidence that command context remains browser-local and does not
+  enter generated snapshots or canonical package state.
+
+Acceptance:
+
+- command context updates from draft selection without full app re-render;
+- collapsed selection marks insertion ready and replace guarded;
+- non-collapsed selection can mark replace ready;
+- key and style commands remain planned/guarded until their own phases;
+- draft commit continues to send only text and target text-block id through the
+  mutation bridge packet route.
+
 ## Later Phases
 
 Goal:

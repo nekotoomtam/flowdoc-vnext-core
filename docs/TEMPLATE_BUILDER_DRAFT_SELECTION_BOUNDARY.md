@@ -7,6 +7,9 @@ drafts in the template-builder sandbox. It tracks where the user's textarea
 selection is during a draft without promoting that selection to canonical
 document truth.
 
+Phase 39 derives command context from this selection in
+`docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`.
+
 ## Purpose
 
 The draft flow now has a local range signal:

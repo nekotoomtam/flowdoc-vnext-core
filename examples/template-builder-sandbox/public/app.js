@@ -270,6 +270,157 @@ function draftSelectionLabel() {
   return `${selection.start}-${selection.end} (${selection.length})`
 }
 
+function previewText(value, emptyLabel = "empty") {
+  if (!value) return emptyLabel
+  const compact = value.replaceAll(/\s+/g, " ")
+  return compact.length > 28 ? `${compact.slice(0, 25)}...` : compact
+}
+
+function draftCommandReadiness(context) {
+  if (!context.active) {
+    return [
+      {
+        command: "text.insert",
+        label: "Insert text",
+        status: "blocked",
+        reason: "no active browser draft",
+      },
+      {
+        command: "text.replaceSelection",
+        label: "Replace selection",
+        status: "blocked",
+        reason: "no active browser draft",
+      },
+      {
+        command: "inline.fieldRef.insert",
+        label: "Insert key",
+        status: "planned",
+        reason: "requires atomic inline draft command support",
+      },
+      {
+        command: "inline.style.patch",
+        label: "Style range",
+        status: "planned",
+        reason: "requires rich inline range mapping",
+      },
+    ]
+  }
+
+  return [
+    {
+      command: "text.insert",
+      label: "Insert text",
+      status: "ready",
+      reason: context.collapsed
+        ? "cursor can accept plain text insertion in a later command phase"
+        : "range can be replaced by inserted plain text in a later command phase",
+    },
+    {
+      command: "text.replaceSelection",
+      label: "Replace selection",
+      status: context.collapsed ? "guarded" : "ready",
+      reason: context.collapsed
+        ? "selection is collapsed; replace needs a non-empty range"
+        : "selected range can be replaced in a later command phase",
+    },
+    {
+      command: "inline.fieldRef.insert",
+      label: "Insert key",
+      status: "planned",
+      reason: "key insertion waits for atomic inline draft support",
+    },
+    {
+      command: "inline.style.patch",
+      label: "Style range",
+      status: "planned",
+      reason: "rich style commands wait for inline range mapping",
+    },
+  ]
+}
+
+function deriveDraftCommandContext() {
+  const selection = normalizedDraftSelection()
+  const active = draftIsActive() && selection.start != null && selection.end != null
+
+  if (!active) {
+    const context = {
+      active: false,
+      afterTextPreview: "none",
+      baseRevision: null,
+      beforeTextPreview: "none",
+      collapsed: true,
+      commandSurface: "none",
+      readiness: [],
+      selectedTextPreview: "none",
+      selectionDirection: "none",
+      selectionEnd: null,
+      selectionLength: 0,
+      selectionSource: selection.source,
+      selectionStart: null,
+      targetTextBlockId: null,
+    }
+    return {
+      ...context,
+      readiness: draftCommandReadiness(context),
+    }
+  }
+
+  const text = state.draft.text
+  const beforeText = text.slice(Math.max(0, selection.start - 28), selection.start)
+  const selectedText = text.slice(selection.start, selection.end)
+  const afterText = text.slice(selection.end, selection.end + 28)
+  const context = {
+    active: true,
+    afterTextPreview: previewText(afterText, "none"),
+    baseRevision: state.draft.baseRevision,
+    beforeTextPreview: previewText(beforeText, "none"),
+    collapsed: selection.collapsed,
+    commandSurface: "browser-draft",
+    readiness: [],
+    selectedTextPreview: previewText(selectedText, selection.collapsed ? "cursor" : "empty selection"),
+    selectionDirection: selection.direction,
+    selectionEnd: selection.end,
+    selectionLength: selection.length,
+    selectionSource: selection.source,
+    selectionStart: selection.start,
+    targetTextBlockId: state.draft.textBlockId,
+  }
+
+  return {
+    ...context,
+    readiness: draftCommandReadiness(context),
+  }
+}
+
+function draftCommandSummary() {
+  const context = deriveDraftCommandContext()
+  if (!context.active) return "none"
+
+  const insert = context.readiness.find((item) => item.command === "text.insert")
+  const replace = context.readiness.find((item) => item.command === "text.replaceSelection")
+  return `${insert?.status || "blocked"} insert / ${replace?.status || "blocked"} replace`
+}
+
+function commandStatusVariant(status) {
+  if (status === "ready") return "good"
+  if (status === "guarded" || status === "blocked") return "warn"
+  return "neutral"
+}
+
+function renderDraftCommandReadiness(context = deriveDraftCommandContext()) {
+  return `
+    <ul class="command-list">
+      ${context.readiness.map((item) => `
+        <li data-draft-command-row="${escapeHtml(item.command)}" data-state="${escapeHtml(item.status)}">
+          <span>${escapeHtml(item.label)}</span>
+          ${renderBadge(item.status, commandStatusVariant(item.status))}
+          <em data-draft-command-reason>${escapeHtml(item.reason)}</em>
+        </li>
+      `).join("")}
+    </ul>
+  `
+}
+
 function resetDraft(status = "idle", message = "") {
   state.draft = {
     baseRevision: null,
@@ -318,6 +469,7 @@ function updateDraftSelectionFromEditor(editor, selectionSource) {
 
 function syncDraftDomState() {
   const status = draftStatusLabel()
+  const commandContext = deriveDraftCommandContext()
   const message = state.draft.message || (
     draftIsActive()
       ? draftIsDirty()
@@ -340,11 +492,44 @@ function syncDraftDomState() {
     const selection = normalizedDraftSelection()
     target.textContent = selection.source
   })
+  app.querySelectorAll("[data-draft-command-summary]").forEach((target) => {
+    target.textContent = draftCommandSummary()
+  })
+  app.querySelectorAll("[data-draft-command-target]").forEach((target) => {
+    target.textContent = commandContext.targetTextBlockId || "none"
+  })
+  app.querySelectorAll("[data-draft-command-surface]").forEach((target) => {
+    target.textContent = commandContext.commandSurface
+  })
+  app.querySelectorAll("[data-draft-command-selected]").forEach((target) => {
+    target.textContent = commandContext.selectedTextPreview
+  })
+  app.querySelectorAll("[data-draft-command-before]").forEach((target) => {
+    target.textContent = commandContext.beforeTextPreview
+  })
+  app.querySelectorAll("[data-draft-command-after]").forEach((target) => {
+    target.textContent = commandContext.afterTextPreview
+  })
+  commandContext.readiness.forEach((item) => {
+    app.querySelectorAll(`[data-draft-command-row="${item.command}"]`).forEach((target) => {
+      target.dataset.state = item.status
+      const badge = target.querySelector(".badge")
+      if (badge) {
+        badge.className = `badge badge-${commandStatusVariant(item.status)}`
+        badge.textContent = item.status
+      }
+      const reason = target.querySelector("[data-draft-command-reason]")
+      if (reason) reason.textContent = item.reason
+    })
+  })
   app.querySelectorAll("[data-draft-statusbar]").forEach((target) => {
     target.textContent = `Draft: ${status}`
   })
   app.querySelectorAll("[data-draft-selectionbar]").forEach((target) => {
     target.textContent = `Draft selection: ${draftSelectionLabel()}`
+  })
+  app.querySelectorAll("[data-draft-commandbar]").forEach((target) => {
+    target.textContent = `Command: ${draftCommandSummary()}`
   })
   app.querySelectorAll("[data-draft-action='commit']").forEach((target) => {
     target.disabled = !draftCanCommit()
@@ -538,6 +723,7 @@ function renderCanvasNode(node) {
           <div class="canvas-draft-footer">
             <span data-draft-status data-state="${escapeHtml(draftStatusLabel())}">${escapeHtml(draftStatusLabel())}</span>
             <span data-draft-selection>${escapeHtml(draftSelectionLabel())}</span>
+            <span data-draft-command-summary>${escapeHtml(draftCommandSummary())}</span>
             <div class="canvas-draft-actions">
               <button
                 type="button"
@@ -634,6 +820,7 @@ function renderInspector(snapshot) {
   const node = selectedNode()
   const parentNode = nodeById(node?.parentId)
   const activeDraftNode = draftTargetNode()
+  const commandContext = deriveDraftCommandContext()
   const canStartDraft = Boolean(node && selectedNodeCanUseWysiwygDraft(node) && !draftIsActive())
   const canUseBridge = selectedNodeCanUseBridge(node) && !draftIsActive()
   const draftGuard = node ? draftGuardReason(node) : "Select a text block before starting a draft."
@@ -753,12 +940,18 @@ function renderInspector(snapshot) {
         <div class="draft-control">
           <dl class="detail-list">
             <dt>Status</dt><dd><span data-draft-status data-state="${escapeHtml(draftStatusLabel())}">${escapeHtml(draftStatusLabel())}</span></dd>
-            <dt>Target</dt><dd>${escapeHtml(draftTargetLabel)}</dd>
+            <dt>Target</dt><dd data-draft-command-target>${escapeHtml(commandContext.targetTextBlockId || draftTargetLabel)}</dd>
             <dt>Base</dt><dd>${state.draft.baseRevision == null ? "none" : state.draft.baseRevision}</dd>
             <dt>Dirty</dt><dd>${draftIsDirty() ? "yes" : "no"}</dd>
             <dt>Range</dt><dd data-draft-selection>${escapeHtml(draftSelectionLabel())}</dd>
             <dt>Input</dt><dd data-draft-selection-source>${escapeHtml(normalizedDraftSelection().source)}</dd>
+            <dt>Command</dt><dd data-draft-command-summary>${escapeHtml(draftCommandSummary())}</dd>
+            <dt>Surface</dt><dd data-draft-command-surface>${escapeHtml(commandContext.commandSurface)}</dd>
+            <dt>Selected</dt><dd data-draft-command-selected>${escapeHtml(commandContext.selectedTextPreview)}</dd>
+            <dt>Before</dt><dd data-draft-command-before>${escapeHtml(commandContext.beforeTextPreview)}</dd>
+            <dt>After</dt><dd data-draft-command-after>${escapeHtml(commandContext.afterTextPreview)}</dd>
           </dl>
+          ${renderDraftCommandReadiness(commandContext)}
           <div class="draft-actions">
             <button
               type="button"
@@ -894,6 +1087,7 @@ function renderStatus(snapshot) {
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
       <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
       <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>
+      <span data-draft-commandbar>Command: ${escapeHtml(draftCommandSummary())}</span>
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
       <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
       <span>${escapeHtml(packetLabel)}</span>

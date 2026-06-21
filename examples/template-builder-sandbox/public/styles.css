@@ -594,7 +594,8 @@ ul {
 
 .field-list li,
 .child-list li,
-.action-list li {
+.action-list li,
+.command-list li {
   border: 1px solid #dce2e9;
   border-radius: 6px;
   display: grid;
@@ -605,7 +606,9 @@ ul {
 .field-list span,
 .field-list em,
 .action-list span,
-.action-list em {
+.action-list em,
+.command-list span,
+.command-list em {
   color: #667385;
   font-size: 12px;
 }
@@ -617,12 +620,14 @@ ul {
 }
 
 .field-list em,
-.action-list em {
+.action-list em,
+.command-list em {
   font-style: normal;
 }
 
 .child-list,
-.action-list {
+.action-list,
+.command-list {
   display: grid;
   gap: 8px;
 }
@@ -694,12 +699,25 @@ ul {
   color: #16623e;
 }
 
-.action-list li {
+.action-list li,
+.command-list li {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.action-list em {
+.action-list em,
+.command-list em {
   grid-column: 1 / -1;
+}
+
+.command-list li[data-state="ready"] {
+  background: #f3fbf6;
+  border-color: #a7d8bd;
+}
+
+.command-list li[data-state="guarded"],
+.command-list li[data-state="blocked"] {
+  background: #fff9ed;
+  border-color: #e0c16d;
 }
 
 .bridge-control {

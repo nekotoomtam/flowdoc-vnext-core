@@ -38,6 +38,7 @@ Implemented:
 - browser-local WYSIWYG draft editing for safe text blocks, committed through
   the sandbox mutation bridge;
 - browser-local draft selection range tracking while a draft is active;
+- browser-local draft command context and readiness before command execution;
 - bounded authoring history, undo/redo, and live-layout summaries after bridge
   commits;
 - boundary tests from the root repository.
@@ -45,6 +46,7 @@ Implemented:
 Not implemented:
 
 - rich text editing;
+- command execution from draft context;
 - durable DOM selection mapping beyond active textarea drafts;
 - live layout renderer;
 - background job scheduler;

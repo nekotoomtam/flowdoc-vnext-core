@@ -121,6 +121,9 @@ The package must remain runnable without any parent editor checkout.
 - Draft selection boundary tracks browser-local textarea selection ranges for
   active WYSIWYG drafts and exposes them in the canvas, inspector, and status
   without persisting selection into canonical packages or history
+- Draft command context boundary derives browser-local target, range previews,
+  and command readiness from active draft selection before any insert, replace,
+  key, or rich text command executes
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -208,6 +211,9 @@ The package must remain runnable without any parent editor checkout.
   and caret/IME work
 - `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`: browser-local active
   draft selection range boundary before rich inline range mapping and IME work
+- `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`: browser-local
+  command context and readiness boundary derived from active draft selection
+  before command execution
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -225,8 +231,8 @@ The package must remain runnable without any parent editor checkout.
 
 - visible editor runtime integration beyond the extractable sandbox shell,
   in-memory sandbox mutation bridge, browser-local WYSIWYG text drafts for safe
-  text blocks, draft selection range tracking, and bounded history/live-layout
-  summaries
+  text blocks, draft selection range tracking, draft command context readiness,
+  and bounded history/live-layout summaries
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level

@@ -85,13 +85,18 @@ with a proper bundler/runtime adapter.
 - Phase 37 adds browser-local WYSIWYG draft editing for safe text blocks on the
   canvas, with commit through the existing bridge packet path and guards for
   atomic or styled inline content.
+- Phase 38 adds browser-local draft selection range tracking while a WYSIWYG
+  draft is active.
+- Phase 39 derives browser-local draft command context and readiness from that
+  selection before any command execution is wired.
 
 ## Non-Goals
 
 The sandbox does not yet implement:
 
 - rich text editing;
-- DOM selection mapping;
+- command execution from draft context;
+- durable DOM selection mapping beyond active textarea drafts;
 - IME behavior;
 - live layout rendering beyond bounded request summaries;
 - scheduler or worker queues;

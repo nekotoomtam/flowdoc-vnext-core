@@ -509,6 +509,13 @@ export function createTemplateBuilderSnapshot(
         reason: "active browser drafts track local textarea selection ranges without mutating canonical package state",
       },
       {
+        action: "browser.deriveDraftCommandContext",
+        label: "Command ctx",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local draft selection derives command target, range preview, and readiness before command execution",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",

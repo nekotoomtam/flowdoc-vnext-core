@@ -45,6 +45,7 @@ Parent goal:
 | 36 | WYSIWYG text draft design lock | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/TEXT_EDITING_TRANSACTION_PLAN.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` |
 | 37 | WYSIWYG text draft boundary | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 38 | Draft selection boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 39 | Draft command context boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -620,6 +621,32 @@ nodes, contenteditable editing, IME composition lifecycle, toolbar commands,
 `inline.style.patch`, style-preserving mixed inline edits, persistent selection
 records, collaboration cursors, per-keystroke core transactions, or live layout
 rendering during active typing.
+
+## Phase 39 Draft Command Context Boundary
+
+Phase 39 derives command context from active WYSIWYG draft selection without
+executing commands:
+
+- `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md` records context
+  fields, command readiness, truth boundary, visible state, acceptance
+  evidence, and non-goals;
+- `examples/template-builder-sandbox/public/app.js` now derives command
+  surface, target text-block id, base revision, selection range, bounded
+  selected/before/after previews, and readiness for future insert, replace,
+  key, and style commands;
+- canvas, inspector, and status bar labels now show command context without
+  full app re-render on selection updates;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.deriveDraftCommandContext` as a browser-local action lane;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves command-context preview
+  fields stay out of generated snapshots and draft commits still use the
+  existing bridge packet path.
+
+This phase intentionally does not implement command execution, replace-selection
+bridge routes, key/field insertion, rich text toolbar commands,
+`inline.style.patch`, contenteditable editing, DOM range mapping over rich
+inline nodes, IME composition lifecycle, per-keystroke core transactions, or
+live layout rendering during active typing.
 
 ## Phase 12 Extraction Record
 
