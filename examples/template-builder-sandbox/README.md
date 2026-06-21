@@ -37,6 +37,7 @@ Implemented:
 - static editor shell with toolbar, node tree, canvas, inspector, and status;
 - browser-local WYSIWYG draft editing for safe text blocks, committed through
   the sandbox mutation bridge;
+- browser-local draft selection range tracking while a draft is active;
 - bounded authoring history, undo/redo, and live-layout summaries after bridge
   commits;
 - boundary tests from the root repository.
@@ -44,7 +45,7 @@ Implemented:
 Not implemented:
 
 - rich text editing;
-- DOM selection mapping;
+- durable DOM selection mapping beyond active textarea drafts;
 - live layout renderer;
 - background job scheduler;
 - backend API route;

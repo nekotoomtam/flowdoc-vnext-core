@@ -118,6 +118,9 @@ The package must remain runnable without any parent editor checkout.
 - WYSIWYG text draft boundary adds a browser-local canvas draft surface for
   safe text blocks, commits through the existing mutation bridge packet path,
   and guards atomic or styled inline content from silent flattening
+- Draft selection boundary tracks browser-local textarea selection ranges for
+  active WYSIWYG drafts and exposes them in the canvas, inspector, and status
+  without persisting selection into canonical packages or history
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -203,6 +206,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`: first visible sandbox
   WYSIWYG text draft boundary for browser-local canvas editing before rich text
   and caret/IME work
+- `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`: browser-local active
+  draft selection range boundary before rich inline range mapping and IME work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -220,7 +225,8 @@ The package must remain runnable without any parent editor checkout.
 
 - visible editor runtime integration beyond the extractable sandbox shell,
   in-memory sandbox mutation bridge, browser-local WYSIWYG text drafts for safe
-  text blocks, and bounded history/live-layout summaries
+  text blocks, draft selection range tracking, and bounded history/live-layout
+  summaries
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level

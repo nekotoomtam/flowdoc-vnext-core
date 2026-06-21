@@ -66,7 +66,7 @@ describe("template builder sandbox boundary", () => {
   it("carries core-derived relationship facts in the generated snapshot", () => {
     const snapshot = readJson("../examples/template-builder-sandbox/public/sandbox-snapshot.json") as {
       sections: Array<{ zones: Array<Record<string, unknown> & { children: Array<Record<string, unknown>> }> }>
-      actionLanes: Array<{ status: string }>
+      actionLanes: Array<{ action: string; status: string }>
       authoringHistory: { mode: string; recordCount: number; groupCount: number; latestGroup: unknown }
       liveLayout: { mode: string; requestCount: number; exactGenerationStale: boolean; lastResult: unknown }
     }
@@ -120,6 +120,7 @@ describe("template builder sandbox boundary", () => {
     expect(new Set(snapshot.actionLanes.map((action) => action.status))).toEqual(
       new Set(["wired", "planned", "blocked"]),
     )
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftSelection")
     expect(snapshot.authoringHistory).toMatchObject({
       mode: "static-snapshot",
       recordCount: 0,
@@ -140,8 +141,12 @@ describe("template builder sandbox boundary", () => {
 
     expect(snapshotText).not.toContain("selectedId")
     expect(snapshotText).not.toContain("selectionSource")
+    expect(snapshotText).not.toContain("selectionStart")
+    expect(snapshotText).not.toContain("selectionEnd")
     expect(appSource).toContain("selectedId")
     expect(appSource).toContain("selectionSource")
+    expect(appSource).toContain("selectionStart")
+    expect(appSource).toContain("selectionEnd")
     expect(appSource).toContain('closest("[data-node-id]")')
   })
 
@@ -920,10 +925,18 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("hasStyledText")
     expect(coreBoundarySource).toContain("wysiwygDraftGuardReason")
     expect(coreBoundarySource).toContain("browser.editTextDraft")
+    expect(coreBoundarySource).toContain("browser.trackDraftSelection")
     expect(appSource).toContain("draftTextForNode")
+    expect(appSource).toContain("draftSelectionLabel")
+    expect(appSource).toContain("normalizedDraftSelection")
+    expect(appSource).toContain("updateDraftSelectionFromEditor")
     expect(appSource).toContain("node?.plainText")
     expect(appSource).toContain("data-draft-editor")
+    expect(appSource).toContain("data-draft-selection")
+    expect(appSource).toContain("data-draft-selectionbar")
     expect(appSource).toContain("data-draft-action=\"commit\"")
+    expect(appSource).toContain("selectionDirection")
+    expect(appSource).toContain("selectionSource")
     expect(appSource).toContain("draft.baseRevision !== state.snapshot.session.documentRevision")
     expect(appSource).toContain("routeForBridgeTextAction(\"replace-text\")")
     expect(appSource).toContain("applyMutationResult(result)")

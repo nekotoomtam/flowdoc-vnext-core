@@ -6,6 +6,9 @@ Phase 37 implements the first visible WYSIWYG text draft path inside the
 extractable template-builder sandbox. The goal is a usable document-position
 draft surface without making browser-local text the canonical document truth.
 
+Phase 38 extends this with browser-local draft selection tracking in
+`docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`.
+
 ## Purpose
 
 The sandbox now supports this early editing flow:

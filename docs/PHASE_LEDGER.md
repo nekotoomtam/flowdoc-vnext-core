@@ -44,6 +44,7 @@ Parent goal:
 | 35 | Sandbox live layout request boundary | done | `docs/TEMPLATE_BUILDER_LIVE_LAYOUT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 36 | WYSIWYG text draft design lock | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/TEXT_EDITING_TRANSACTION_PLAN.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` |
 | 37 | WYSIWYG text draft boundary | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 38 | Draft selection boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -594,6 +595,31 @@ This phase intentionally does not implement rich text toolbar commands,
 IME composition, multi-range selection, per-keystroke core transactions, live
 layout rendering during active typing, exact WYSIWYG pagination,
 save/publish persistence, or backend API routes outside the sandbox dev server.
+
+## Phase 38 Draft Selection Boundary
+
+Phase 38 adds a browser-local selection range contract for active WYSIWYG
+drafts:
+
+- `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md` records the purpose,
+  local state fields, interaction events, visible state, commit rules,
+  acceptance evidence, and non-goals;
+- `examples/template-builder-sandbox/public/app.js` now tracks
+  `selectionStart`, `selectionEnd`, `selectionDirection`, and
+  `selectionSource` while a canvas draft is active;
+- canvas, inspector, and status bar labels now show the active draft range
+  without re-rendering the full app on every selection update;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.trackDraftSelection` as a browser-local action lane;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves draft selection state
+  stays out of generated snapshots and remains separate from canonical package
+  mutation.
+
+This phase intentionally does not implement DOM range mapping over rich inline
+nodes, contenteditable editing, IME composition lifecycle, toolbar commands,
+`inline.style.patch`, style-preserving mixed inline edits, persistent selection
+records, collaboration cursors, per-keystroke core transactions, or live layout
+rendering during active typing.
 
 ## Phase 12 Extraction Record
 

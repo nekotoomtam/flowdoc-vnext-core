@@ -7,6 +7,10 @@ const state = {
     baseRevision: null,
     message: "",
     originalText: "",
+    selectionDirection: "none",
+    selectionEnd: null,
+    selectionSource: "idle",
+    selectionStart: null,
     status: "idle",
     text: "",
     textBlockId: null,
@@ -227,11 +231,54 @@ function draftStatusLabel() {
   return draftIsDirty() ? "dirty" : "editing"
 }
 
+function normalizedDraftSelection() {
+  if (!draftIsActive()) {
+    return {
+      collapsed: true,
+      direction: "none",
+      end: null,
+      length: 0,
+      source: state.draft.selectionSource || "idle",
+      start: null,
+    }
+  }
+
+  const textLength = state.draft.text.length
+  const start = Number.isInteger(state.draft.selectionStart)
+    ? Math.max(0, Math.min(state.draft.selectionStart, textLength))
+    : textLength
+  const end = Number.isInteger(state.draft.selectionEnd)
+    ? Math.max(0, Math.min(state.draft.selectionEnd, textLength))
+    : start
+  const rangeStart = Math.min(start, end)
+  const rangeEnd = Math.max(start, end)
+
+  return {
+    collapsed: rangeStart === rangeEnd,
+    direction: state.draft.selectionDirection || "none",
+    end: rangeEnd,
+    length: rangeEnd - rangeStart,
+    source: state.draft.selectionSource || "unknown",
+    start: rangeStart,
+  }
+}
+
+function draftSelectionLabel() {
+  const selection = normalizedDraftSelection()
+  if (!draftIsActive() || selection.start == null || selection.end == null) return "none"
+  if (selection.collapsed) return `cursor ${selection.start}`
+  return `${selection.start}-${selection.end} (${selection.length})`
+}
+
 function resetDraft(status = "idle", message = "") {
   state.draft = {
     baseRevision: null,
     message,
     originalText: "",
+    selectionDirection: "none",
+    selectionEnd: null,
+    selectionSource: "idle",
+    selectionStart: null,
     status,
     text: "",
     textBlockId: null,
@@ -242,9 +289,31 @@ function focusDraftEditor() {
   window.setTimeout(() => {
     const editor = app.querySelector("[data-draft-editor]")
     if (!editor) return
+    const selection = normalizedDraftSelection()
+    const start = selection.start ?? editor.value.length
+    const end = selection.end ?? start
     editor.focus()
-    editor.setSelectionRange(editor.value.length, editor.value.length)
+    editor.setSelectionRange(start, end, selection.direction === "backward" ? "backward" : "forward")
+    updateDraftSelectionFromEditor(editor, "focus")
+    syncDraftDomState()
   }, 0)
+}
+
+function updateDraftSelectionFromEditor(editor, selectionSource) {
+  if (!draftIsActive()) return
+  if (editor.dataset.draftNodeId !== state.draft.textBlockId) return
+
+  const value = editor.value
+  const selectionStart = Number.isInteger(editor.selectionStart) ? editor.selectionStart : value.length
+  const selectionEnd = Number.isInteger(editor.selectionEnd) ? editor.selectionEnd : selectionStart
+  state.draft = {
+    ...state.draft,
+    selectionDirection: editor.selectionDirection || "none",
+    selectionEnd,
+    selectionSource,
+    selectionStart,
+    text: value,
+  }
 }
 
 function syncDraftDomState() {
@@ -264,8 +333,18 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-message]").forEach((target) => {
     target.textContent = message
   })
+  app.querySelectorAll("[data-draft-selection]").forEach((target) => {
+    target.textContent = draftSelectionLabel()
+  })
+  app.querySelectorAll("[data-draft-selection-source]").forEach((target) => {
+    const selection = normalizedDraftSelection()
+    target.textContent = selection.source
+  })
   app.querySelectorAll("[data-draft-statusbar]").forEach((target) => {
     target.textContent = `Draft: ${status}`
+  })
+  app.querySelectorAll("[data-draft-selectionbar]").forEach((target) => {
+    target.textContent = `Draft selection: ${draftSelectionLabel()}`
   })
   app.querySelectorAll("[data-draft-action='commit']").forEach((target) => {
     target.disabled = !draftCanCommit()
@@ -304,6 +383,10 @@ function startDraftForNode(nodeId, selectionSource = "draft") {
     baseRevision: state.snapshot.session.documentRevision,
     message: "Draft is open on the canvas.",
     originalText: text,
+    selectionDirection: "none",
+    selectionEnd: text.length,
+    selectionSource: "start",
+    selectionStart: text.length,
     status: "editing",
     text,
     textBlockId: node.id,
@@ -454,6 +537,7 @@ function renderCanvasNode(node) {
           >${escapeHtml(state.draft.text)}</textarea>
           <div class="canvas-draft-footer">
             <span data-draft-status data-state="${escapeHtml(draftStatusLabel())}">${escapeHtml(draftStatusLabel())}</span>
+            <span data-draft-selection>${escapeHtml(draftSelectionLabel())}</span>
             <div class="canvas-draft-actions">
               <button
                 type="button"
@@ -672,6 +756,8 @@ function renderInspector(snapshot) {
             <dt>Target</dt><dd>${escapeHtml(draftTargetLabel)}</dd>
             <dt>Base</dt><dd>${state.draft.baseRevision == null ? "none" : state.draft.baseRevision}</dd>
             <dt>Dirty</dt><dd>${draftIsDirty() ? "yes" : "no"}</dd>
+            <dt>Range</dt><dd data-draft-selection>${escapeHtml(draftSelectionLabel())}</dd>
+            <dt>Input</dt><dd data-draft-selection-source>${escapeHtml(normalizedDraftSelection().source)}</dd>
           </dl>
           <div class="draft-actions">
             <button
@@ -807,6 +893,7 @@ function renderStatus(snapshot) {
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
       <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
+      <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
       <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
       <span>${escapeHtml(packetLabel)}</span>
@@ -867,14 +954,23 @@ function bindSelectionHandlers() {
     startDraftForNode(target.dataset.nodeId, "canvas-draft")
   })
 
-  canvas?.querySelector("[data-draft-editor]")?.addEventListener("input", (event) => {
+  const draftEditor = canvas?.querySelector("[data-draft-editor]")
+
+  draftEditor?.addEventListener("input", (event) => {
+    updateDraftSelectionFromEditor(event.target, "input")
     state.draft = {
       ...state.draft,
       message: "Local draft changes are waiting for commit.",
       status: "editing",
-      text: event.target.value,
     }
     syncDraftDomState()
+  })
+
+  ;["click", "focus", "keyup", "mouseup", "select"].forEach((eventName) => {
+    draftEditor?.addEventListener(eventName, (event) => {
+      updateDraftSelectionFromEditor(event.target, eventName)
+      syncDraftDomState()
+    })
   })
 
   inspector?.addEventListener("click", (event) => {

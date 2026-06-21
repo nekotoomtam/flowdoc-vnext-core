@@ -603,6 +603,33 @@ Acceptance:
 - direct bridge actions and undo/redo are blocked while a browser draft is
   active.
 
+## Phase 38: Draft Selection Boundary
+
+Goal:
+
+- give active WYSIWYG drafts a browser-local selection range contract before
+  rich text toolbar, inline range commands, IME, or full DOM caret mapping.
+
+Deliverables:
+
+- draft state fields for `selectionStart`, `selectionEnd`,
+  `selectionDirection`, and `selectionSource`;
+- textarea event handling for focus, click, mouseup, keyup, select, and input;
+- canvas, inspector, and status bar labels for the active draft range;
+- source/test evidence that selection range state remains browser-local and is
+  not persisted into generated snapshots or canonical package data;
+- action lane for `browser.trackDraftSelection`.
+
+Acceptance:
+
+- active draft selection updates without full app re-render per selection
+  change;
+- collapsed and non-collapsed selections are visible to the user;
+- draft commits still send only text and target text-block id through the
+  mutation bridge packet route;
+- selection-only changes do not create history records, dirty scopes, live
+  layout requests, or canonical document mutations.
+
 ## Later Phases
 
 Goal:
@@ -612,7 +639,8 @@ Goal:
 
 Possible later work:
 
-- caret and browser selection mapping;
+- rich inline range mapping beyond the textarea draft boundary;
+- durable caret and browser selection mapping;
 - IME composition boundary;
 - required rich text return list: inline style patching, style-preserving
   insert/delete/replace, rich selection toolbar state, atomic field chips inside

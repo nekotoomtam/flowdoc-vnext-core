@@ -502,6 +502,13 @@ export function createTemplateBuilderSnapshot(
         reason: "safe text blocks can hold browser-local WYSIWYG drafts before commit through the sandbox bridge",
       },
       {
+        action: "browser.trackDraftSelection",
+        label: "Draft range",
+        lane: "immediate",
+        status: "wired",
+        reason: "active browser drafts track local textarea selection ranges without mutating canonical package state",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",
