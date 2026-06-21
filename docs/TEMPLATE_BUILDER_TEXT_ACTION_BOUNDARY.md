@@ -26,6 +26,9 @@ phase.
 Phase 33 records accepted explicit text actions in the sandbox authoring
 history summary, but those records are not replayed as undo/redo yet.
 
+Phase 34 adds sandbox-only undo/redo replay for accepted explicit text actions
+using bounded before/after text patches.
+
 ## Supported Insert Action
 
 `sandbox.insertPlainTextAtEnd`
@@ -69,7 +72,7 @@ Phase 32 does not implement:
 - IME composition;
 - browser-derived text ranges;
 - partial range replace from selection;
-- undo/redo execution;
+- durable/full undo/redo replay beyond sandbox text patches;
 - durable authoring history persistence;
 - live layout rendering;
 - structural packet operations;

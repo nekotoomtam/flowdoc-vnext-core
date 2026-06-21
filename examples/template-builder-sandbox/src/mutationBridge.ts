@@ -78,6 +78,16 @@ export interface TemplateBuilderMutationBridge {
     request: TemplateBuilderReplaceTextRequest,
     responseOptions?: TemplateBuilderMutationResponseOptions,
   ): TemplateBuilderMutationResponse
+  redo(responseOptions?: TemplateBuilderMutationResponseOptions): TemplateBuilderMutationResponse
+  undo(responseOptions?: TemplateBuilderMutationResponseOptions): TemplateBuilderMutationResponse
+}
+
+interface TemplateBuilderTextUndoPatch {
+  groupId: string
+  sourceAction: string
+  targetTextBlockId: string
+  beforeText: string
+  afterText: string
 }
 
 function issue(code: string, message: string, path = ""): TemplateBuilderMutationIssue {
@@ -181,6 +191,8 @@ function createChangePacket(input: {
 function summarizeAuthoringHistory(
   records: readonly VNextAuthoringIntentHistoryRecord[],
   mode: TemplateBuilderAuthoringHistorySnapshot["mode"],
+  undoStack: readonly TemplateBuilderTextUndoPatch[],
+  redoStack: readonly TemplateBuilderTextUndoPatch[],
 ): TemplateBuilderAuthoringHistorySnapshot {
   const groups = groupVNextAuthoringIntentHistory(records)
 
@@ -190,6 +202,12 @@ function summarizeAuthoringHistory(
     undoableRecordCount: records.filter((record) => record.historyAction === "undoable").length,
     rejectedRecordCount: records.filter((record) => record.status === "rejected").length,
     groupCount: groups.length,
+    canUndo: undoStack.length > 0,
+    canRedo: redoStack.length > 0,
+    undoDepth: undoStack.length,
+    redoDepth: redoStack.length,
+    nextUndoGroupId: undoStack.at(-1)?.groupId ?? null,
+    nextRedoGroupId: redoStack.at(-1)?.groupId ?? null,
     latestGroup: groups.at(-1) ?? null,
   }
 }
@@ -229,6 +247,8 @@ export function createTemplateBuilderMutationBridge(
   let dirtyScopeCount = options.runtime?.dirtyScopeCount ?? 0
   let lastMutation: TemplateBuilderSnapshotLastMutation | null = options.runtime?.lastMutation ?? null
   let authoringHistory: VNextAuthoringIntentHistoryRecord[] = []
+  let undoStack: TemplateBuilderTextUndoPatch[] = []
+  let redoStack: TemplateBuilderTextUndoPatch[] = []
 
   function bridgeSnapshot(): TemplateBuilderSnapshot {
     return createTemplateBuilderSnapshot(workingPackage, {
@@ -237,17 +257,40 @@ export function createTemplateBuilderMutationBridge(
         mode: "in-memory-bridge",
         documentRevision,
         dirtyScopeCount,
-        authoringHistory: summarizeAuthoringHistory(authoringHistory, "in-memory"),
+        authoringHistory: summarizeAuthoringHistory(authoringHistory, "in-memory", undoStack, redoStack),
         mutationCount,
         lastMutation,
       },
     })
   }
 
-  function appendHistory(result: VNextTextTransactionResult): void {
+  function appendHistory(result: VNextTextTransactionResult): VNextAuthoringIntentHistoryRecord | null {
     authoringHistory = appendVNextAuthoringIntentHistoryResult(authoringHistory, result, {
       inputKind: "command",
     })
+    return authoringHistory.at(-1) ?? null
+  }
+
+  function rememberUndoPatch(input: {
+    action: string
+    historyRecord: VNextAuthoringIntentHistoryRecord | null
+    targetTextBlockId: string
+    beforeText: string
+    afterText: string
+  }): void {
+    if (input.historyRecord?.historyAction !== "undoable") return
+
+    undoStack = [
+      ...undoStack,
+      {
+        groupId: input.historyRecord.groupId ?? `authoring-group-${undoStack.length + 1}`,
+        sourceAction: input.action,
+        targetTextBlockId: input.targetTextBlockId,
+        beforeText: input.beforeText,
+        afterText: input.afterText,
+      },
+    ]
+    redoStack = []
   }
 
   function rejected(
@@ -281,6 +324,8 @@ export function createTemplateBuilderMutationBridge(
     document: FlowDocPackageV2DocumentVNext["document"]
     dirtyScope: VNextTextTransactionDirtyScope
     transactionResult: Extract<VNextTextTransactionResult, { ok: true }>
+    beforeText: string
+    afterText: string
     summary: string
     responseOptions?: TemplateBuilderMutationResponseOptions
   }): TemplateBuilderMutationResponse {
@@ -295,7 +340,14 @@ export function createTemplateBuilderMutationBridge(
     documentRevision += 1
     mutationCount += 1
     dirtyScopeCount = 1
-    appendHistory(input.transactionResult)
+    const historyRecord = appendHistory(input.transactionResult)
+    rememberUndoPatch({
+      action: input.action,
+      historyRecord,
+      targetTextBlockId: input.targetTextBlockId,
+      beforeText: input.beforeText,
+      afterText: input.afterText,
+    })
     lastMutation = bridgeMutation(
       input.action,
       "applied",
@@ -313,6 +365,87 @@ export function createTemplateBuilderMutationBridge(
       nextRevision: documentRevision,
       changedNodeIds: [input.targetTextBlockId],
       dirtyScopes: [input.dirtyScope],
+      responseOptions: input.responseOptions,
+    })
+  }
+
+  function applyHistoryPatch(input: {
+    action: "sandbox.undo" | "sandbox.redo"
+    patch: TemplateBuilderTextUndoPatch
+    targetText: string
+    summary: string
+    responseOptions?: TemplateBuilderMutationResponseOptions
+    onCommitted: () => void
+  }): TemplateBuilderMutationResponse {
+    const textBlock = textBlockFromPackage(workingPackage, input.patch.targetTextBlockId)
+    if (textBlock == null) {
+      return rejected(input.action, input.patch.targetTextBlockId, `${input.action} was rejected`, [
+        issue("target-not-text-block", `target "${input.patch.targetTextBlockId}" is not a text-block`, "textBlockId"),
+      ], input.responseOptions)
+    }
+
+    const projection = projectVNextTextBlockInlines(textBlock)
+    if (projection.segments.some((segment) => !segment.editable)) {
+      return rejected(input.action, textBlock.id, "target contains atomic inline content", [
+        issue(
+          "non-plain-text-block",
+          "Phase 34 undo/redo only restores plain text-block patches without field refs, page numbers, or line breaks",
+          "textBlockId",
+        ),
+      ], input.responseOptions)
+    }
+
+    const baseRevision = documentRevision
+    const transaction = runVNextTextTransaction(workingPackage.document, {
+      kind: "text.range.replace",
+      source: "user",
+      range: {
+        textBlockId: textBlock.id,
+        anchorOffset: 0,
+        focusOffset: projection.textLength,
+      },
+      text: input.targetText,
+      inlineId: `${textBlock.id}-bridge-${input.action.split(".").at(-1)}-${mutationCount + 1}`,
+    })
+
+    if (!transaction.ok) {
+      return rejected(input.action, textBlock.id, "core text transaction was rejected", transaction.issues.map((item) => ({
+        severity: item.severity,
+        code: item.code,
+        message: item.message,
+        path: item.path,
+      })), input.responseOptions)
+    }
+
+    workingPackage = serializeFlowDocPackageV2DocumentVNext({
+      ...workingPackage,
+      document: transaction.document,
+      meta: {
+        ...workingPackage.meta,
+        updatedAt: "sandbox-memory",
+      },
+    })
+    documentRevision += 1
+    mutationCount += 1
+    dirtyScopeCount = 1
+    input.onCommitted()
+    lastMutation = bridgeMutation(
+      input.action,
+      "applied",
+      textBlock.id,
+      input.summary,
+      0,
+    )
+
+    return mutationResponse({
+      ok: true,
+      snapshot: bridgeSnapshot(),
+      mutation: lastMutation,
+      issues: [],
+      baseRevision,
+      nextRevision: documentRevision,
+      changedNodeIds: [textBlock.id],
+      dirtyScopes: [transaction.transaction.dirtyScope],
       responseOptions: input.responseOptions,
     })
   }
@@ -375,8 +508,31 @@ export function createTemplateBuilderMutationBridge(
         document: transaction.document,
         dirtyScope: transaction.transaction.dirtyScope,
         transactionResult: transaction,
+        beforeText: projection.text,
+        afterText: `${projection.text}${text}`,
         summary: transaction.transaction.historyIntent.summary,
         responseOptions,
+      })
+    },
+    redo(responseOptions) {
+      const action = "sandbox.redo" as const
+      const patch = redoStack.at(-1)
+      if (patch == null) {
+        return rejected(action, null, "redo was rejected", [
+          issue("nothing-to-redo", "there is no sandbox text patch available to redo", "history"),
+        ], responseOptions)
+      }
+
+      return applyHistoryPatch({
+        action,
+        patch,
+        targetText: patch.afterText,
+        summary: `redo ${patch.groupId}`,
+        responseOptions,
+        onCommitted: () => {
+          redoStack = redoStack.slice(0, -1)
+          undoStack = [...undoStack, patch]
+        },
       })
     },
     replaceText(request, responseOptions) {
@@ -436,8 +592,31 @@ export function createTemplateBuilderMutationBridge(
         document: transaction.document,
         dirtyScope: transaction.transaction.dirtyScope,
         transactionResult: transaction,
+        beforeText: projection.text,
+        afterText: text,
         summary: transaction.transaction.historyIntent.summary,
         responseOptions,
+      })
+    },
+    undo(responseOptions) {
+      const action = "sandbox.undo" as const
+      const patch = undoStack.at(-1)
+      if (patch == null) {
+        return rejected(action, null, "undo was rejected", [
+          issue("nothing-to-undo", "there is no sandbox text patch available to undo", "history"),
+        ], responseOptions)
+      }
+
+      return applyHistoryPatch({
+        action,
+        patch,
+        targetText: patch.beforeText,
+        summary: `undo ${patch.groupId}`,
+        responseOptions,
+        onCommitted: () => {
+          undoStack = undoStack.slice(0, -1)
+          redoStack = [...redoStack, patch]
+        },
       })
     },
   }

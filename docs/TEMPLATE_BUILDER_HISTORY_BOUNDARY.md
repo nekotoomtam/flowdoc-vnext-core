@@ -24,6 +24,10 @@ History state is owned by the in-memory bridge runtime. The static generated
 snapshot only carries an empty summary so the browser contract is stable before
 the API bridge is available.
 
+Phase 34 extends this summary with undo/redo availability and stack depth for
+the sandbox's in-memory text patches. The full authoring records and replay
+stacks are still not sent to the browser.
+
 ## Runtime Rules
 
 - Accepted bridge transactions append a vNext authoring intent history record.
@@ -46,6 +50,9 @@ the API bridge is available.
 - undoable record count;
 - rejected record count;
 - group count;
+- undo/redo availability;
+- undo/redo stack depth;
+- next undo/redo group ids;
 - latest group summary.
 
 This is intentionally a small status surface. The durable history record shape
@@ -55,9 +62,7 @@ remains owned by `@flowdoc/vnext-core`.
 
 Phase 33 does not implement:
 
-- undo execution;
-- redo execution;
-- inverse transaction generation;
+- durable/full undo/redo beyond sandbox text patches;
 - focus or caret restoration;
 - keyboard shortcut handling;
 - durable history persistence;

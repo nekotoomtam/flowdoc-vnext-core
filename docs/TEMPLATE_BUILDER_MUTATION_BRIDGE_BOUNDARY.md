@@ -80,6 +80,14 @@ text transactions and returns a bounded `authoringHistory` summary in snapshots
 and change packets. This makes future undo/redo and AI-safe edit audit paths
 visible without executing inverse replay yet.
 
+## Phase 34 Handoff
+
+The bridge now owns bounded in-memory undo and redo stacks for accepted sandbox
+text mutations. Undo and redo replay text patches through
+`runVNextTextTransaction(...)` and return the same packet shape as other bridge
+mutations. The stacks store before/after text for a target text block, not full
+package snapshots.
+
 ## Non-Goals
 
 Phase 29 and Phase 30 do not implement:
@@ -90,7 +98,7 @@ Phase 29 and Phase 30 do not implement:
 - browser-derived text ranges;
 - partial range selection from the browser;
 - persistent browser normalized cache;
-- undo/redo execution;
+- durable/full undo/redo replay beyond sandbox text patches;
 - durable authoring history persistence;
 - save/publish persistence;
 - backend API routes outside the sandbox dev server;

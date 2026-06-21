@@ -133,20 +133,28 @@ describe("template builder sandbox boundary", () => {
     expect(serverSource).toContain("/api/snapshot")
     expect(serverSource).toContain("/api/actions/replace-text")
     expect(serverSource).toContain("/api/actions/insert-text-at-end")
+    expect(serverSource).toContain("/api/actions/undo")
+    expect(serverSource).toContain("/api/actions/redo")
     expect(serverSource).toContain('searchParams.get("response") !== "packet"')
     expect(bridgeSource).toContain('from "@flowdoc/vnext-core"')
     expect(bridgeSource).toContain("runVNextTextTransaction")
     expect(bridgeSource).toContain("appendVNextAuthoringIntentHistoryResult")
     expect(bridgeSource).toContain("groupVNextAuthoringIntentHistory")
+    expect(bridgeSource).toContain("TemplateBuilderTextUndoPatch")
     expect(bridgeSource).toContain("text.range.replace")
     expect(bridgeSource).toContain("text.insert")
     expect(bridgeSource).toContain("sandbox.insertPlainTextAtEnd")
+    expect(bridgeSource).toContain("sandbox.undo")
+    expect(bridgeSource).toContain("sandbox.redo")
     expect(bridgeSource).toContain("flowdoc-template-builder-change-packet")
     expect(bridgeSource).toContain("authoringHistory")
     expect(appSource).toContain("./api/actions/replace-text?response=packet")
     expect(appSource).toContain("./api/actions/insert-text-at-end?response=packet")
+    expect(appSource).toContain("./api/actions/undo?response=packet")
+    expect(appSource).toContain("./api/actions/redo?response=packet")
     expect(appSource).toContain("Append text")
     expect(appSource).toContain("History")
+    expect(appSource).toContain("data-history-action")
     expect(appSource).toContain("lastPacket")
     expect(appSource).not.toContain("snapshot.document")
     expect(snapshot.mutationBridge).toEqual({
@@ -161,6 +169,12 @@ describe("template builder sandbox boundary", () => {
       undoableRecordCount: 0,
       rejectedRecordCount: 0,
       groupCount: 0,
+      canUndo: false,
+      canRedo: false,
+      undoDepth: 0,
+      redoDepth: 0,
+      nextUndoGroupId: null,
+      nextRedoGroupId: null,
       latestGroup: null,
     })
   })
@@ -214,6 +228,10 @@ describe("template builder sandbox boundary", () => {
         undoableRecordCount: number
         rejectedRecordCount: number
         groupCount: number
+        canUndo: boolean
+        canRedo: boolean
+        undoDepth: number
+        redoDepth: number
         latestGroup: { commandKinds: string[]; recordCount: number; summary: string }
       }
       acceptedContainsText: boolean
@@ -243,6 +261,10 @@ describe("template builder sandbox boundary", () => {
       undoableRecordCount: 1,
       rejectedRecordCount: 0,
       groupCount: 1,
+      canUndo: true,
+      canRedo: false,
+      undoDepth: 1,
+      redoDepth: 0,
       latestGroup: {
         commandKinds: ["text.range.replace"],
         recordCount: 1,
@@ -318,6 +340,10 @@ describe("template builder sandbox boundary", () => {
           recordCount: number
           undoableRecordCount: number
           groupCount: number
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
           latestGroup: { commandKinds: string[]; summary: string }
         }
       }
@@ -361,6 +387,10 @@ describe("template builder sandbox boundary", () => {
       recordCount: 1,
       undoableRecordCount: 1,
       groupCount: 1,
+      canUndo: true,
+      canRedo: false,
+      undoDepth: 1,
+      redoDepth: 0,
       latestGroup: {
         commandKinds: ["text.range.replace"],
         summary: "replace text range in cover-header-label",
@@ -431,6 +461,10 @@ describe("template builder sandbox boundary", () => {
           recordCount: number
           undoableRecordCount: number
           groupCount: number
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
           latestGroup: { commandKinds: string[]; summary: string }
         }
       }
@@ -467,6 +501,10 @@ describe("template builder sandbox boundary", () => {
       recordCount: 1,
       undoableRecordCount: 1,
       groupCount: 1,
+      canUndo: true,
+      canRedo: false,
+      undoDepth: 1,
+      redoDepth: 0,
       latestGroup: {
         commandKinds: ["text.insert"],
         summary: "insert text into cover-header-label",
@@ -487,6 +525,186 @@ describe("template builder sandbox boundary", () => {
     ]))
   }, 15_000)
 
+  it("undoes and redoes sandbox text patches through packet responses", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      import { register } from "node:module";
+      import { pathToFileURL } from "node:url";
+
+      register("./ts-loader.mjs", pathToFileURL(process.cwd() + "/scripts/"));
+      const { createTemplateBuilderMutationBridge } = await import("./src/mutationBridge.ts");
+      const fixture = JSON.parse(readFileSync("../../fixtures/product-report-vnext.flowdoc.json", "utf8"));
+      const bridge = createTemplateBuilderMutationBridge(fixture, {
+        fixturePath: "fixtures/product-report-vnext.flowdoc.json",
+      });
+      const replaced = bridge.replaceText({
+        textBlockId: "cover-header-label",
+        text: "Undo redo text",
+      }, { includeSnapshot: false });
+      const undone = bridge.undo({ includeSnapshot: false });
+      const redone = bridge.redo({ includeSnapshot: false });
+      const rejectedRedo = bridge.redo({ includeSnapshot: false });
+
+      console.log(JSON.stringify({
+        replacedOk: replaced.ok,
+        replacedPacket: replaced.packet,
+        replacedPacketHasSections: JSON.stringify(replaced.packet).includes('"sections"'),
+        undoneOk: undone.ok,
+        undonePacket: undone.packet,
+        undonePacketHasSections: JSON.stringify(undone.packet).includes('"sections"'),
+        redoneOk: redone.ok,
+        redonePacket: redone.packet,
+        redonePacketHasSections: JSON.stringify(redone.packet).includes('"sections"'),
+        rejectedRedoOk: rejectedRedo.ok,
+        rejectedRedoPacket: rejectedRedo.packet,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      replacedOk: boolean
+      replacedPacket: {
+        nextRevision: number
+        changedNodes: Array<{ textPreview: string }>
+        authoringHistory: {
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
+          nextUndoGroupId: string
+          nextRedoGroupId: string | null
+        }
+      }
+      replacedPacketHasSections: boolean
+      undoneOk: boolean
+      undonePacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        mutationCount: number
+        changedNodeIds: string[]
+        changedNodes: Array<{ id: string; textPreview: string }>
+        authoringHistory: {
+          recordCount: number
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
+          nextUndoGroupId: string | null
+          nextRedoGroupId: string
+        }
+      }
+      undonePacketHasSections: boolean
+      redoneOk: boolean
+      redonePacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        mutationCount: number
+        changedNodeIds: string[]
+        changedNodes: Array<{ id: string; textPreview: string }>
+        authoringHistory: {
+          recordCount: number
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
+          nextUndoGroupId: string
+          nextRedoGroupId: string | null
+        }
+      }
+      redonePacketHasSections: boolean
+      rejectedRedoOk: boolean
+      rejectedRedoPacket: {
+        baseRevision: number
+        nextRevision: number
+        changedNodeIds: string[]
+        authoringHistory: { canUndo: boolean; canRedo: boolean; undoDepth: number; redoDepth: number }
+        issues: Array<{ code: string }>
+      }
+    }
+
+    expect(result.replacedOk).toBe(true)
+    expect(result.replacedPacket.nextRevision).toBe(1)
+    expect(result.replacedPacket.changedNodes[0].textPreview).toBe("Undo redo text")
+    expect(result.replacedPacketHasSections).toBe(false)
+    expect(result.replacedPacket.authoringHistory).toMatchObject({
+      canUndo: true,
+      canRedo: false,
+      undoDepth: 1,
+      redoDepth: 0,
+      nextUndoGroupId: "authoring-group-1",
+      nextRedoGroupId: null,
+    })
+
+    expect(result.undoneOk).toBe(true)
+    expect(result.undonePacket).toMatchObject({
+      action: "sandbox.undo",
+      baseRevision: 1,
+      nextRevision: 2,
+      mutationCount: 2,
+      changedNodeIds: ["cover-header-label"],
+      changedNodes: [
+        expect.objectContaining({
+          id: "cover-header-label",
+          textPreview: "Confidential Product Report",
+        }),
+      ],
+      authoringHistory: {
+        recordCount: 1,
+        canUndo: false,
+        canRedo: true,
+        undoDepth: 0,
+        redoDepth: 1,
+        nextUndoGroupId: null,
+        nextRedoGroupId: "authoring-group-1",
+      },
+    })
+    expect(result.undonePacketHasSections).toBe(false)
+
+    expect(result.redoneOk).toBe(true)
+    expect(result.redonePacket).toMatchObject({
+      action: "sandbox.redo",
+      baseRevision: 2,
+      nextRevision: 3,
+      mutationCount: 3,
+      changedNodeIds: ["cover-header-label"],
+      changedNodes: [
+        expect.objectContaining({
+          id: "cover-header-label",
+          textPreview: "Undo redo text",
+        }),
+      ],
+      authoringHistory: {
+        recordCount: 1,
+        canUndo: true,
+        canRedo: false,
+        undoDepth: 1,
+        redoDepth: 0,
+        nextUndoGroupId: "authoring-group-1",
+        nextRedoGroupId: null,
+      },
+    })
+    expect(result.redonePacketHasSections).toBe(false)
+
+    expect(result.rejectedRedoOk).toBe(false)
+    expect(result.rejectedRedoPacket).toMatchObject({
+      baseRevision: 3,
+      nextRevision: 3,
+      changedNodeIds: [],
+      authoringHistory: {
+        canUndo: true,
+        canRedo: false,
+        undoDepth: 1,
+        redoDepth: 0,
+      },
+    })
+    expect(result.rejectedRedoPacket.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "nothing-to-redo" }),
+    ]))
+  }, 15_000)
+
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
@@ -499,6 +717,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("packet.baseRevision !== state.snapshot.session.documentRevision")
     expect(appSource).toContain("applyChangePacket(result.packet)")
     expect(appSource).toContain("applyBridgeTextAction")
+    expect(appSource).toContain("applyHistoryAction")
+    expect(appSource).toContain("routeForHistoryAction")
     expect(appSource).toContain("authoringHistory")
     expect(appSource).toContain("History:")
     expect(appSource).toContain("setSnapshotFromRefresh(await fetchSnapshot())")
@@ -506,6 +726,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
     expect(coreBoundarySource).toContain("sandbox.recordAuthoringHistory")
+    expect(coreBoundarySource).toContain("user.undo")
+    expect(coreBoundarySource).toContain("user.redo")
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
   })
 })

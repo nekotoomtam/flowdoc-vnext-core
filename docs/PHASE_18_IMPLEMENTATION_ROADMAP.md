@@ -484,6 +484,34 @@ Acceptance:
   DOM caret mapping, IME composition, live layout renderer, and non-sandbox API
   routes remain deferred.
 
+## Phase 34: Sandbox Undo Redo Execution Boundary
+
+Goal:
+
+- make sandbox text mutation undo/redo executable through bounded patches
+  before caret typing, durable persistence, or structural history work.
+
+Deliverables:
+
+- in-memory undo and redo stacks for accepted sandbox text mutations;
+- bounded text patch records containing target id, before text, and after text;
+- sandbox server routes for undo and redo;
+- undo/redo bridge execution through `text.range.replace`;
+- packet responses for accepted and rejected undo/redo actions;
+- browser inspector controls that use the existing packet cache path;
+- undo/redo boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- accepted replace-block and append-text actions can be undone and redone;
+- undo/redo packet responses remain bounded and omit the full `sections` tree;
+- empty undo/redo stacks reject without changing revision;
+- new accepted text edits clear the redo stack;
+- no full package snapshot history, durable persistence, structural replay,
+  keyboard shortcut handling, DOM caret mapping, IME composition, live layout
+  renderer, or non-sandbox API route is claimed.
+
 ## Later Phases
 
 Goal:

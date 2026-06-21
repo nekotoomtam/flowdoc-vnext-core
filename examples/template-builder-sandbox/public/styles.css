@@ -601,6 +601,13 @@ ul {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.history-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
 .bridge-control input {
   border: 1px solid #cbd7e1;
   border-radius: 6px;
@@ -625,6 +632,21 @@ ul {
 }
 
 .bridge-control button:disabled {
+  background: #d6dde5;
+  border-color: #cbd7e1;
+  color: #667385;
+}
+
+.history-actions button {
+  background: #273343;
+  border: 1px solid #1f2a38;
+  border-radius: 6px;
+  color: #ffffff;
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.history-actions button:disabled {
   background: #d6dde5;
   border-color: #cbd7e1;
   color: #667385;

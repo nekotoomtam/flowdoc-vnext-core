@@ -76,6 +76,9 @@ with a proper bundler/runtime adapter.
 - Phase 33 appends vNext authoring intent history records for accepted bridge
   text transactions and exposes a bounded history summary in snapshots,
   packets, inspector, and status.
+- Phase 34 adds executable sandbox undo/redo for accepted bridge text
+  mutations through bounded in-memory text patches and the existing packet
+  cache path.
 
 ## Non-Goals
 
@@ -88,7 +91,7 @@ Phase 27 does not implement:
 - scheduler or worker queues;
 - backend API routes;
 - save/publish persistence;
-- undo/redo execution;
+- durable/full undo/redo replay beyond sandbox text patches;
 - exact layout, preview, PDF, or DOCX rendering.
 
 ## Extraction Rule

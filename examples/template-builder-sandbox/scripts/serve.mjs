@@ -113,6 +113,40 @@ async function handleApi(request, response, parsedUrl) {
     return true
   }
 
+  if (request.method === "POST" && pathname === "/api/actions/undo") {
+    try {
+      await readJsonBody(request)
+      const result = bridge.undo({
+        includeSnapshot: parsedUrl.searchParams.get("response") !== "packet",
+      })
+      sendJson(response, result.ok ? 200 : 422, result)
+    } catch (error) {
+      sendJson(response, 400, {
+        ok: false,
+        error: error instanceof Error ? error.message : "invalid request",
+        snapshot: bridge.snapshot(),
+      })
+    }
+    return true
+  }
+
+  if (request.method === "POST" && pathname === "/api/actions/redo") {
+    try {
+      await readJsonBody(request)
+      const result = bridge.redo({
+        includeSnapshot: parsedUrl.searchParams.get("response") !== "packet",
+      })
+      sendJson(response, result.ok ? 200 : 422, result)
+    } catch (error) {
+      sendJson(response, 400, {
+        ok: false,
+        error: error instanceof Error ? error.message : "invalid request",
+        snapshot: bridge.snapshot(),
+      })
+    }
+    return true
+  }
+
   if (pathname.startsWith("/api/")) {
     sendJson(response, 404, { ok: false, error: "unknown sandbox api route" })
     return true

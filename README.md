@@ -104,6 +104,9 @@ The package must remain runnable without any parent editor checkout.
 - Sandbox history boundary appends vNext authoring intent history records for
   accepted bridge text transactions and exposes a bounded history summary in
   snapshots, packets, inspector, and status without executing undo/redo yet
+- Sandbox undo/redo boundary replays accepted bridge text mutations through
+  bounded in-memory inverse text patches and the same packet cache path without
+  storing full package snapshots
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -180,6 +183,8 @@ The package must remain runnable without any parent editor checkout.
   contract before DOM caret and IME work
 - `docs/TEMPLATE_BUILDER_HISTORY_BOUNDARY.md`: sandbox authoring history
   summary contract before undo/redo execution
+- `docs/TEMPLATE_BUILDER_UNDO_REDO_BOUNDARY.md`: sandbox text undo/redo replay
+  contract before durable history or caret/IME work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -215,7 +220,7 @@ The package must remain runnable without any parent editor checkout.
 - concrete PDF/DOCX renderer implementation beyond measured-fragment
   consumption contracts
 - durable operation/authoring history persistence outside in-memory helpers
-- concrete sandbox undo/redo execution from authoring history
+- durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes
 - durable browser cache persistence and structural packet application
 - publishing/distribution strategy beyond local package consumption

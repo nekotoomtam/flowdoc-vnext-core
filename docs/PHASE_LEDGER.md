@@ -40,6 +40,7 @@ Parent goal:
 | 31 | Browser runtime cache boundary | done | `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 32 | Explicit text action boundary | done | `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 33 | Sandbox authoring history boundary | done | `docs/TEMPLATE_BUILDER_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 34 | Sandbox undo redo execution boundary | done | `docs/TEMPLATE_BUILDER_UNDO_REDO_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -487,6 +488,32 @@ inverse transaction generation, keyboard shortcuts, focus or caret restoration,
 durable history persistence, per-keystroke typing, IME composition, live layout
 rendering, save/publish persistence, non-sandbox API routes, exact layout,
 preview, PDF, or DOCX rendering.
+
+## Phase 34 Sandbox Undo Redo Execution Boundary
+
+Phase 34 makes sandbox text mutation undo/redo executable without adopting full
+snapshot history or caret typing:
+
+- the mutation bridge owns in-memory undo and redo stacks beside its working
+  package and authoring history summary;
+- each stack entry stores only a group id, source action, target text-block id,
+  before text, and after text;
+- accepted replace and append actions push an undo patch and clear redo;
+- `POST /api/actions/undo` and `POST /api/actions/redo` replay patches through
+  `runVNextTextTransaction(...)` with `text.range.replace`;
+- accepted undo/redo responses use the same bounded change-packet path as
+  other sandbox mutations;
+- empty undo/redo stacks reject without changing revision;
+- packets and snapshots report undo/redo availability, stack depth, and next
+  group ids through `authoringHistory`;
+- the browser inspector exposes undo/redo controls and applies results through
+  the runtime cache path.
+
+This phase intentionally does not implement durable history persistence, full
+package snapshot history, arbitrary structural replay, cross-session replay,
+keyboard shortcuts, caret or focus restoration, per-keystroke typing, IME
+composition, live layout rendering, save/publish persistence, non-sandbox API
+routes, exact layout, preview, PDF, or DOCX rendering.
 
 ## Phase 12 Extraction Record
 

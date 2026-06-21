@@ -20,6 +20,12 @@ export interface TemplateBuilderAuthoringHistorySnapshot {
   undoableRecordCount: number
   rejectedRecordCount: number
   groupCount: number
+  canUndo: boolean
+  canRedo: boolean
+  undoDepth: number
+  redoDepth: number
+  nextUndoGroupId: string | null
+  nextRedoGroupId: string | null
   latestGroup: VNextAuthoringIntentHistoryGroup | null
 }
 
@@ -299,6 +305,12 @@ export function createTemplateBuilderSnapshot(
       undoableRecordCount: 0,
       rejectedRecordCount: 0,
       groupCount: 0,
+      canUndo: false,
+      canRedo: false,
+      undoDepth: 0,
+      redoDepth: 0,
+      nextUndoGroupId: null,
+      nextRedoGroupId: null,
       latestGroup: null,
     },
     session: {
@@ -365,15 +377,15 @@ export function createTemplateBuilderSnapshot(
         action: "user.undo",
         label: "Undo",
         lane: "immediate",
-        status: "planned",
-        reason: "history records are visible, but inverse replay and focus restore are not wired yet",
+        status: "wired",
+        reason: "sandbox text edits can be undone through bounded in-memory inverse text patches",
       },
       {
         action: "user.redo",
         label: "Redo",
         lane: "immediate",
-        status: "planned",
-        reason: "redo waits for the same replay boundary as undo",
+        status: "wired",
+        reason: "sandbox text edits can be redone through bounded in-memory text patches",
       },
       {
         action: "user.typeText",

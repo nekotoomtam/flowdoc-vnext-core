@@ -388,6 +388,12 @@ function renderInspector(snapshot) {
     undoableRecordCount: 0,
     rejectedRecordCount: 0,
     groupCount: 0,
+    canUndo: false,
+    canRedo: false,
+    undoDepth: 0,
+    redoDepth: 0,
+    nextUndoGroupId: null,
+    nextRedoGroupId: null,
     latestGroup: null,
   }
   const latestHistory = history.latestGroup
@@ -481,9 +487,27 @@ function renderInspector(snapshot) {
           <dt>Groups</dt><dd>${history.groupCount}</dd>
           <dt>Undoable</dt><dd>${history.undoableRecordCount}</dd>
           <dt>Rejected</dt><dd>${history.rejectedRecordCount}</dd>
+          <dt>Undo</dt><dd>${history.undoDepth}</dd>
+          <dt>Redo</dt><dd>${history.redoDepth}</dd>
           <dt>Latest</dt><dd>${latestHistory ? escapeHtml(`${latestHistory.groupId}: ${latestHistory.summary}`) : "none"}</dd>
         </dl>
-        <small>Undo and redo execution are planned after the history boundary is stable.</small>
+        <div class="history-actions">
+          <button
+            type="button"
+            data-history-action="undo"
+            ${history.canUndo && !state.bridgeBusy ? "" : "disabled"}
+          >
+            ${state.bridgeBusy ? "Applying" : "Undo"}
+          </button>
+          <button
+            type="button"
+            data-history-action="redo"
+            ${history.canRedo && !state.bridgeBusy ? "" : "disabled"}
+          >
+            ${state.bridgeBusy ? "Applying" : "Redo"}
+          </button>
+        </div>
+        <small>Undo and redo replay only sandbox text patches kept in memory.</small>
       </section>
       <section class="inspector-section">
         <h3>Actions</h3>
@@ -562,6 +586,13 @@ function bindSelectionHandlers() {
       return
     }
 
+    const historyTarget = event.target.closest("[data-history-action]")
+    if (historyTarget && inspector.contains(historyTarget)) {
+      event.stopPropagation()
+      applyHistoryAction(historyTarget.dataset.historyAction)
+      return
+    }
+
     const target = event.target.closest("[data-node-id]")
     if (!target || !inspector.contains(target)) return
     event.stopPropagation()
@@ -590,6 +621,28 @@ function routeForBridgeTextAction(action) {
   return "./api/actions/replace-text?response=packet"
 }
 
+function routeForHistoryAction(action) {
+  if (action === "redo") return "./api/actions/redo?response=packet"
+  return "./api/actions/undo?response=packet"
+}
+
+async function applyMutationResult(result) {
+  let fallbackReason = ""
+
+  if (result.packet) {
+    const packetResult = applyChangePacket(result.packet)
+    if (!packetResult.ok) {
+      fallbackReason = ` ${packetResult.reason}; snapshot refreshed.`
+      setSnapshotFromRefresh(await fetchSnapshot())
+    }
+  } else {
+    fallbackReason = " missing packet; snapshot refreshed."
+    setSnapshotFromRefresh(await fetchSnapshot())
+  }
+
+  return fallbackReason
+}
+
 async function applyBridgeTextAction(action) {
   const node = selectedNode()
   if (!selectedNodeCanUseBridge(node)) return
@@ -608,24 +661,43 @@ async function applyBridgeTextAction(action) {
       method: "POST",
     })
     const result = await response.json()
-    let fallbackReason = ""
-
-    if (result.packet) {
-      const packetResult = applyChangePacket(result.packet)
-      if (!packetResult.ok) {
-        fallbackReason = ` ${packetResult.reason}; snapshot refreshed.`
-        setSnapshotFromRefresh(await fetchSnapshot())
-      }
-    } else {
-      fallbackReason = " missing packet; snapshot refreshed."
-      setSnapshotFromRefresh(await fetchSnapshot())
-    }
+    const fallbackReason = await applyMutationResult(result)
     state.bridgeMessage = result.ok
       ? `applied: ${result.mutation.summary}${fallbackReason}`
       : `rejected: ${(result.issues || []).map((issue) => issue.message).join("; ")}${fallbackReason}`
     state.selectionSource = "bridge"
   } catch (error) {
     state.bridgeMessage = error instanceof Error ? error.message : "bridge request failed"
+  } finally {
+    state.bridgeBusy = false
+    render()
+  }
+}
+
+async function applyHistoryAction(action) {
+  const history = state.snapshot?.authoringHistory
+  if (!history) return
+  if (action === "undo" && !history.canUndo) return
+  if (action === "redo" && !history.canRedo) return
+
+  state.bridgeBusy = true
+  state.bridgeMessage = `Sending ${action} to sandbox bridge...`
+  render()
+
+  try {
+    const response = await fetch(routeForHistoryAction(action), {
+      body: "{}",
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    })
+    const result = await response.json()
+    const fallbackReason = await applyMutationResult(result)
+    state.bridgeMessage = result.ok
+      ? `${action}: ${result.mutation.summary}${fallbackReason}`
+      : `rejected: ${(result.issues || []).map((issue) => issue.message).join("; ")}${fallbackReason}`
+    state.selectionSource = action
+  } catch (error) {
+    state.bridgeMessage = error instanceof Error ? error.message : `${action} request failed`
   } finally {
     state.bridgeBusy = false
     render()

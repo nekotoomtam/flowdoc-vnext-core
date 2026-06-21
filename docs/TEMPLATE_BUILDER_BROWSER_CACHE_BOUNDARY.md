@@ -50,6 +50,10 @@ Phase 33 reuses the same packet path for bounded authoring-history summaries,
 so the browser cache updates history status without receiving full history
 records or a complete snapshot tree.
 
+Phase 34 sends undo/redo results through the same packet path. The browser does
+not replay history locally; it applies changed node summaries returned by the
+sandbox bridge.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.
@@ -71,7 +75,7 @@ Phase 31 does not implement:
 - DOM caret mapping;
 - IME composition;
 - partial text ranges from browser selection;
-- undo/redo execution;
+- durable/full undo/redo replay beyond sandbox text patches;
 - durable authoring history persistence;
 - live layout rendering;
 - structural packet operations;
