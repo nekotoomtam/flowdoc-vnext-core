@@ -1,6 +1,6 @@
 # Large Document Performance Contract
 
-Status: draft architecture reset.
+Status: Phase 25 baseline implemented for core acceptance tests.
 
 Large-document behavior is not a later optimization. It is a core acceptance
 condition for the new architecture.
@@ -85,6 +85,28 @@ Large-document tests and smokes should include:
 - scrolling while layout is settling;
 - undo/redo after a large edit;
 - export request after live layout has been dirty.
+
+## Phase 25 Baseline
+
+The first core harness is implemented in
+`tests/largeDocumentAcceptance.test.ts`:
+
+- generated canonical package with 520 text blocks and a 140-row table;
+- body and table-cell field references with registry/data validation;
+- relationship graph validation for the generated large shape;
+- text transaction near the start of the document remains one text-block dirty
+  scope and marks exact generation stale instead of running exact layout;
+- text transaction near the end of the document remains scoped to the edited
+  text block;
+- generation readiness for the large package is explicit readiness-only:
+  exact layout is `not-run`, artifact rendering is `not-rendered`, and no
+  generated authored document is returned;
+- source guards keep active typing and readiness paths independent from exact
+  pagination/layout/renderer execution.
+
+This baseline intentionally avoids wall-clock timing assertions until the
+visible runtime and concrete scheduling model exist. Current diagnostics focus
+on shape, scope, and dependency boundaries.
 
 ## Budgets
 

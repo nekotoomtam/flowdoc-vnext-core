@@ -31,6 +31,7 @@ Parent goal:
 | 22 | Intent history | done | `src/authoring/intentHistory.ts`; `tests/intentHistory.test.ts` |
 | 23 | Live layout boundary | done | `src/authoring/liveLayoutBoundary.ts`; `tests/liveLayoutBoundary.test.ts` |
 | 24 | Backend generation runtime | done | `src/generation/runtime.ts`; `tests/generationRuntime.test.ts` |
+| 25 | Large document acceptance harness | done | `tests/largeDocumentAcceptance.test.ts` |
 
 ## Current Rule
 
@@ -227,6 +228,30 @@ This phase intentionally does not add concrete API routes, template id/version
 loading, storage/idempotency implementation, exact layout execution, PDF/DOCX
 rendering, generated output artifacts, key history, repeat/collection
 expansion, or package version changes.
+
+## Phase 25 Large Document Acceptance Harness
+
+Phase 25 makes large-document behavior test-visible before visible editor work:
+
+- `tests/largeDocumentAcceptance.test.ts` includes a generated canonical
+  package helper with 520 body text blocks, a 140-row table, body field
+  references, table-cell field references, registry, and data snapshot.
+- relationship graph validation covers the generated large document shape and
+  catches invalid parent/child or orphan-node regressions.
+- a text transaction near the beginning of the large document reports one
+  text-block dirty scope, one parent node, and an explicit exact-generation
+  stale marker without running exact layout.
+- a text transaction near the end of the large document remains scoped to the
+  edited text block and does not widen into table or document scope.
+- generation readiness accepts the large canonical package, validates field
+  data, keeps exact layout `not-run`, keeps artifact rendering `not-rendered`,
+  and returns no generated authored document.
+- source guards prove the large-document typing and readiness paths do not
+  import exact pagination, layout pipeline, or renderer consumption execution.
+
+This phase intentionally does not add browser rendering, viewport scrolling,
+timing budgets, exact layout execution, API routes, PDF/DOCX rendering,
+storage, key history, repeat/collection behavior, or package version changes.
 
 ## Phase 12 Extraction Record
 

@@ -77,6 +77,9 @@ The package must remain runnable without any parent editor checkout.
   requests, separates package/document/key-data diagnostics, reports
   readiness-only status, and keeps artifacts/generated documents out of the
   response until a later renderer phase
+- Large-document acceptance harness generates canonical packages with hundreds
+  of text blocks and large tables, then verifies narrow typing dirty scopes and
+  explicit readiness-only generation behavior
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -169,5 +172,5 @@ The package must remain runnable without any parent editor checkout.
 - concrete PDF/DOCX renderer implementation beyond measured-fragment
   consumption contracts
 - durable operation/authoring history persistence outside in-memory helpers
-- product-level editor acceptance smokes
+- product-level visible editor acceptance smokes
 - publishing/distribution strategy beyond local package consumption
