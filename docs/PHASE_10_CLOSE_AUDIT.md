@@ -107,8 +107,9 @@ Stop for owner review before:
 
 Phase 10 is closed for the vNext core boundary when all of these stay true:
 
-- `npm.cmd --prefix vnext-workspace run check` passes.
-- `npm.cmd run type-check` passes from the parent repository.
+- `npm.cmd run check` passes inside this repository.
+- Parent repository type-check passes when consuming the package through its
+  explicit dependency boundary.
 - vNext source does not import parent editor runtime code.
 - Canonical parser rejects old document versions and prototype node names.
 - Export readiness cannot become `ready` when measured fragments require

@@ -1,8 +1,8 @@
-# vNext Workspace Phase Ledger
+# vNext Core Phase Ledger
 
 Parent goal:
 
-- Build an extractable FlowDoc vNext core that can move to a new repository.
+- Build a standalone FlowDoc vNext core that owns the next document model.
 
 | Phase | Goal | Status | Evidence |
 |---|---|---|---|
@@ -11,36 +11,34 @@ Parent goal:
 | 3 | Package/schema boundary | done | parent repo docs |
 | 4 | Prototype adapter plan | done | parent repo docs |
 | 5 | First schema/graph slice | done | parent repo core slice |
-| 5.5 | Extractable workspace | done | this folder |
+| 5.5 | Extractable package boundary | done | this repository root |
 | 6 | vNext product fixture | done | `fixtures/product-report-vnext.flowdoc.json`; `tests/packageFixture.test.ts` |
 | 7 | Legacy cutoff and canonical-only boundary | done | `README.md`; `docs/WORKSPACE_BOUNDARY.md` |
 | 8 | Canonical package parser/serializer | done | `src/persistence/package.ts`; `tests/packageFixture.test.ts` |
 | 9 | vNext operations | done | `src/operations/documentOperations.ts`; `tests/operations.test.ts` |
 | 10 | Pagination/export integration | done | `docs/PHASE_10_CLOSE_AUDIT.md`; `docs/TABLE_PAGINATION_VNEXT_PLAN.md`; `src/pagination/paginationPlan.ts`; `src/pagination/textMeasurement.ts`; `src/pagination/measuredPagination.ts`; `src/pagination/rendererConsumption.ts`; `src/pagination/exportReadiness.ts`; `tests/paginationPlan.test.ts`; `tests/textMeasurement.test.ts`; `tests/measuredPagination.test.ts`; `tests/rendererConsumption.test.ts`; `tests/exportReadiness.test.ts` |
-| 11 | Editor runtime bridge and generation artifact lane | done | `../docs/EDITOR_VNEXT_RUNTIME_BRIDGE_PLAN.md`; `../docs/EDITOR_VNEXT_IMPORT_BOUNDARY_DECISION.md`; `../docs/EDITOR_GENERATION_BOUNDARY_MAP.md`; `../docs/EDITOR_VNEXT_RUNTIME_FLIP_REVIEW_GATE.md`; `../docs/EDITOR_VNEXT_USABLE_RUNTIME_LEDGER.md`; `../docs/EDITOR_VNEXT_ARTIFACT_GENERATION_LEDGER.md`; `../docs/EDITOR_VNEXT_SVG_PREVIEW_PROOF_LEDGER.md`; `../docs/EDITOR_VNEXT_SVG_PREVIEW_ARTIFACT_ROUTE_LEDGER.md`; `src/editorBridge/runtime.ts`; `tests/editorBridgeRuntime.test.ts`; `../src/app/editor/_components/vnextBridge/editorVNextBridgeHost.ts`; `../src/app/editor/_components/vnextBridge/__tests__/editorVNextBridgeHost.test.ts`; `../src/app/editor/_components/vnextBridge/editorGenerationReadiness.ts`; `../src/app/editor/_components/vnextBridge/__tests__/editorGenerationReadiness.test.ts`; `../src/app/editor/_components/vnextBridge/__tests__/editorVNextOperationPilot.test.ts`; `../src/app/api/vnext/generation/readiness/route.ts`; `../src/app/api/vnext/generation/preview/route.ts`; `../src/app/api/vnext/generation/preview/svg/route.ts` |
-| 12 | Repository extraction readiness | done | `docs/PHASE_12_REPOSITORY_EXTRACTION_CHECKLIST.md`; `tests/extractionBoundary.test.ts`; `npm.cmd --prefix vnext-workspace run check` |
-| 13 | Physical repository move | pending owner target | target repository path/remote and dependency strategy |
+| 11 | Editor runtime bridge and generation artifact lane | done | `src/editorBridge/runtime.ts`; `tests/editorBridgeRuntime.test.ts`; parent consumer evidence lives outside this repository |
+| 12 | Physical repository extraction | done | `docs/PHASE_12_REPOSITORY_EXTRACTION_CHECKLIST.md`; `tests/extractionBoundary.test.ts`; `npm.cmd run check` |
+| 13 | Repository foundation | done | `AGENTS.md`; `docs/LEGACY_MIGRATION_GATE.md`; `docs/PACKAGE_CONSUMPTION_STRATEGY.md`; `.github/workflows/check.yml`; `README.md` |
 
 ## Current Rule
 
-This workspace should prefer isolated vNext implementation over reuse.
+This repository should prefer isolated vNext implementation over reuse.
 Current/prototype structures are reference evidence only and are not accepted
 inputs for exported core. The canonical persisted input is
 `FlowDocPackage.packageVersion = 2` with `document.version = 3`. Any future
 one-off converter must live outside exported core and outside required vNext
 checks.
 
-## Phase 12 Ready-To-Move
+## Phase 12 Extraction Record
 
-Phase 12 is complete for repository extraction readiness. The vNext workspace
-has standalone package files, local type-check/test scripts, canonical vNext
-fixtures, parser/serializer tests, and extraction boundary tests proving
-`src/**` does not import parent app or current core paths.
+Phase 12 is complete for physical repository extraction. This repository has
+standalone package files, local type-check/test scripts, canonical vNext
+fixtures, parser/serializer tests, and boundary tests proving `src/**` does not
+import parent app or current core paths.
 
-The physical move is intentionally separated into Phase 13 because it requires
-owner-provided repository location and dependency strategy. Parent app consumers
-must remain outside the extracted core and continue through the bridge host
-until the new package exists.
+Parent app consumers remain outside the extracted core. They should consume the
+package through an explicit parent bridge/dependency boundary.
 
 ## Phase 10 Close
 
@@ -87,13 +85,12 @@ content across pages, balance columns across multiple pages, finalize TOC page
 references, or render PDF/DOCX beyond the measured-fragment consumption
 contract.
 
-## Phase 11 Next Boundary
+## Phase 11 Parent Bridge Boundary
 
-Phase 11 starts with `../docs/EDITOR_VNEXT_RUNTIME_BRIDGE_PLAN.md`. It must
-connect the current editor runtime to the vNext core through an explicit bridge
-without making legacy/current runtime structures the vNext source of truth. The
-first implementation target should be a read-only vNext bridge runtime inside
-`vnext-workspace`, not a parent editor runtime flip.
+Phase 11 connected the old/current editor environment to vNext through an
+explicit bridge without making legacy/current runtime structures the vNext
+source of truth. Parent adapter docs and routes are external consumer evidence,
+not core ownership.
 
 Current Phase 11 progress:
 
@@ -103,14 +100,12 @@ Current Phase 11 progress:
 - The bridge runtime includes relationship graph, measured pagination,
   renderer-consumption audit, export readiness, and supported operation kinds.
 - Raw/current runtime document input is rejected by the bridge parser.
-- Import boundary is locked: do not move repo yet, do not add this folder to
-  root workspaces yet, and allow parent editor imports only through the Phase
-  11.3 bridge host.
+- Import boundary is locked: parent editor imports should go through its bridge
+  host and package dependency, not through vNext internals.
 - Parent editor bridge host is implemented as a read-only bounded snapshot API.
-- Editor/generation boundary mapping is documented in
-  `../docs/EDITOR_GENERATION_BOUNDARY_MAP.md`: editor-authored template truth,
-  generation request truth, bound runtime view, measured pagination,
-  renderer-consumption, and output artifacts are separate.
+- Editor/generation boundary mapping stays in the parent consumer repository:
+  editor-authored template truth, generation request truth, bound runtime view,
+  measured pagination, renderer-consumption, and output artifacts are separate.
 - Current `/api/paginate` and `/api/export` remain current-runtime-shaped
   endpoints; the vNext bridge remains canonical-package-only.
 - First read-only generation diagnostic consumer is implemented in the parent
@@ -120,11 +115,9 @@ Current Phase 11 progress:
   It runs `text-block.text.replace`, returns validation/history-ready/scope and
   render-invalidation metadata, and reports no current editor state/history/
   selection/pagination/canvas/API side effects.
-- Runtime flip review gate is documented in
-  `../docs/EDITOR_VNEXT_RUNTIME_FLIP_REVIEW_GATE.md`. It passes Phase 11 as a
-  bridge-readiness baseline and blocks visible editor runtime flip until a
-  separate post-Phase-11 plan resolves reducer state, history, canvas,
-  selection, WYSIWYG, pagination, and export/API dependencies.
+- Runtime flip review remains a parent consumer concern. The extracted core
+  exposes canonical package/runtime behavior but does not mutate parent editor
+  state, history, canvas, selection, WYSIWYG, pagination, or export/API paths.
 - Post-Phase-11 generation artifact lanes expose parent-app readiness,
   measured preview artifact, and bounded SVG preview artifact routes without
   replacing current `/api/paginate`, current `/api/export`, editor state,

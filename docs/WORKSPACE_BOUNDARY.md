@@ -1,9 +1,10 @@
-# Workspace Boundary
+# Project Boundary
 
-Status: active boundary for the temporary vNext home.
+Status: active boundary for the FlowDoc vNext core repository.
 
-This folder is designed to be moved to a separate repository. Treat it as a
-future project root, not as a submodule of the current editor implementation.
+This repository is the source of truth for the FlowDoc vNext core. Treat the
+old editor/project implementation as reference evidence only, not as a default
+implementation source.
 
 ## Allowed Dependencies
 
@@ -36,13 +37,27 @@ Old document versions and prototype node names should be rejected by canonical
 vNext parsers. If the project ever needs a one-off converter, keep it outside
 exported core and outside required vNext checks.
 
-## Extraction Rule
+## Rebuild-First Rule
 
-Before this workspace moves to a new repository, it should have:
+Default to new vNext-native implementation. Legacy/current code may be copied
+only when all of these are true:
+
+- the copied unit is small and has a clear owner;
+- it has no dependency on parent editor runtime, current core runtime, DOM
+  state, reducer state, or app routes;
+- names and data contracts are rewritten to vNext terms;
+- canonical parser and operation behavior still reject old/prototype shapes;
+- tests prove the copied behavior at the vNext boundary.
+
+If a legacy unit does not satisfy those rules, rewrite it or leave it behind.
+
+## Repository Rule
+
+This repo must remain runnable without the parent app:
 
 - package-local type-check;
 - package-local tests;
-- vNext product fixture;
+- vNext product fixtures;
 - package v2/document v3 parser and serializer tests;
 - no exported migration or compatibility adapter for old document shapes;
 - no imports from the parent app runtime.

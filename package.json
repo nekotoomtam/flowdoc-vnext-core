@@ -1,31 +1,32 @@
-﻿{
-    "name":  "@flowdoc/vnext-core",
-    "version":  "0.0.0",
-    "private":  true,
-    "type":  "module",
-    "description":  "Extracted FlowDoc vNext core package for the next document model.",
-    "scripts":  {
-                    "type-check":  "tsc --noEmit -p tsconfig.json",
-                    "test":  "vitest run --config vitest.config.ts",
-                    "check":  "npm run type-check \u0026\u0026 npm run test"
-                },
-    "dependencies":  {
-                         "zod":  "^4.3.6"
-                     },
-    "devDependencies":  {
-                            "@types/node":  "^25.6.0",
-                            "typescript":  "^6.0.3",
-                            "vitest":  "^4.1.5"
-                        },
-    "types":  "./src/index.ts",
-    "exports":  {
-                    ".":  "./src/index.ts",
-                    "./fixtures/*":  "./fixtures/*"
-                },
-    "files":  [
-                  "src",
-                  "fixtures",
-                  "docs",
-                  "README.md"
-              ]
+{
+  "name": "@flowdoc/vnext-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone FlowDoc vNext core package for the next document model.",
+  "scripts": {
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --config vitest.config.ts",
+    "check": "npm run type-check && npm run test"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fixtures/*": "./fixtures/*"
+  },
+  "files": [
+    "src",
+    "fixtures",
+    "docs",
+    "README.md",
+    "AGENTS.md"
+  ]
 }

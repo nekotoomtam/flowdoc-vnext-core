@@ -1,138 +1,103 @@
-﻿# FlowDoc vNext Core
+# FlowDoc vNext Core
 
-This is the extracted core package for the FlowDoc vNext document model. It owns the canonical package schema, relationship graph, operations, measured pagination, renderer-consumption contract, and read-only bridge runtime.
+FlowDoc vNext Core is the canonical core package for the next FlowDoc document
+model. It owns document/package schema, relationship graph, operation planning,
+history-ready operation records, measured pagination, renderer-consumption
+contracts, export readiness, and the read-only bridge runtime.
 
-## Boundary
+This repository is rebuild-first. The old FlowDocEditor implementation is
+reference evidence only; legacy/current code enters this repo only after it
+passes `docs/LEGACY_MIGRATION_GATE.md`.
 
-- This package must not import current editor runtime code.
-- Current/prototype code is reference evidence only. It must not enter the
-  exported vNext source path as an accepted input model.
-- Tests must run from this package without depending on the app runtime.
-- Fixtures in this folder should use vNext shape and sanitized data.
-- Package envelope compatibility stays explicit: the canonical vNext persisted
-  input is package v2 containing document v3.
-- Old document versions and prototype node names are rejected by the canonical
-  vNext parser. Any future one-off conversion tool must live outside exported
-  core and outside required vNext checks.
-
-## Local Commands
-
-From this package after dependencies are available:
+## Commands
 
 ```sh
+npm install
 npm run type-check
 npm run test
 npm run check
 ```
 
-From the current parent repository without installing this folder separately:
+CI runs `npm ci` and `npm run check` on push to `main` and on pull requests.
 
-```sh
-../node_modules/.bin/tsc --noEmit -p tsconfig.json
-../node_modules/.bin/vitest run --config vitest.config.ts
-```
+## Package Boundary
 
-## Current Slice
+- Package name: `@flowdoc/vnext-core`
+- Module type: ESM
+- Public entrypoint: `src/index.ts`
+- Fixture export path: `@flowdoc/vnext-core/fixtures/*`
+- Canonical persisted input: package v2 containing document v3
+
+The package must remain runnable without any parent editor checkout.
+
+## Core Rules
+
+- Do not import parent editor runtime, current core runtime, app routes,
+  reducers, renderer state, DOM state, or persistence compatibility paths.
+- Do not accept old/prototype document shapes as canonical vNext input.
+- Do not add compatibility adapters to exported core.
+- Keep package parsing, graph facts, operations, pagination, renderer
+  consumption, export readiness, and history-ready records consistent.
+- Copy legacy/current code only when the unit is small, dependency-clean,
+  rewritten into vNext vocabulary, and covered by vNext tests.
+
+## Current Capability Slice
 
 - Document schema version: `3`
 - Package envelope target: `FlowDocPackage.packageVersion = 2`
 - Implemented baseline nodes: `zone`, `text-block`, `columns`, `column`,
-  `table`, `table-row`, `table-cell`, `toc`, `page-break`, `divider`,
+  `table`, `table-row`, `table-cell`, `toc`, `page-break`, `divider`, and
   `spacer`
-- Implemented graph baseline: parent refs, child indexes, nearest context,
-  capabilities, and relationship diagnostics
-- Product-shaped fixture: `fixtures/product-report-vnext.flowdoc.json`
-- Canonical package boundary: parse, safe-parse, and serialize package v2 with
-  document v3
-- Operation baseline: graph-backed `node.delete`, `node.duplicate`,
-  `node.reorder`, `columns.insert`, `columns.layout.patch`,
-  `text-block.insert`, `text-block.text.replace`, `table.row.insert`, and
-  `table.row.delete`, `table.column.insert`, and `table.column.delete`
-  commands with validation, history policy, render invalidation, and scope
-  metadata
-- Durable history-ready operation record helper for committed and rejected
-  operation results, plus append/replay helpers for operation history records
-- Pagination/export planning boundary: page boxes, source item order,
-  renderer contract, and operation invalidation from canonical vNext documents
-- Measured pagination skeleton: page fragments, forced page breaks, text-block
-  line fragmentation, static header/footer fragments, and page-number inline
-  resolution from canonical vNext documents
-- Text measurement contract: stable cache keys, line boxes, reusable
-  measurement cache, operation invalidation, and pagination fragment metadata
-- Columns pagination skeleton: `widthShare`/gap-based column geometry with
-  measured child fragments and column metadata
-- Table pagination skeleton: row-level page breaks, repeated header row
-  fragments, cell geometry, measured cell text metadata, and over-tall
-  breakable text-cell row splits
-- Table cell block policy: measured text, atomic spacer/divider, generated TOC,
-  and ignored page-break behavior is explicit in fragment metadata/warnings
-- Export readiness gate: measured pagination reports ready, ready-with-warnings,
-  or blocked without letting renderers relayout; renderer-consumption audit
-  blocks export when measured fragments lack geometry or table metadata needed
-  by a fragment-only renderer
-- Table direction plan: `docs/TABLE_PAGINATION_VNEXT_PLAN.md` selects
-  row-level pagination plus splittable cell text before the deferred full table
-  engine path
-- Phase 10 close audit: `docs/PHASE_10_CLOSE_AUDIT.md` marks the vNext core
-  pagination/export boundary complete for bridge work while deferring concrete
-  PDF/DOCX renderers and product smokes
-- Phase 12 extraction checklist:
-  `docs/PHASE_12_REPOSITORY_EXTRACTION_CHECKLIST.md` defines the files to move,
-  the parent consumers to keep out of the new core repository, and the
-  verification gates required before the physical split
-- Extraction boundary tests:
-  `tests/extractionBoundary.test.ts` verify standalone required files and guard
-  `src/**` against parent app/current core imports before the physical split
-- Phase 11 bridge plan: `../docs/EDITOR_VNEXT_RUNTIME_BRIDGE_PLAN.md` starts
-  the editor bridge lane with a read-only vNext bridge runtime target before
-  parent editor runtime integration
-- Phase 11 import boundary: `../docs/EDITOR_VNEXT_IMPORT_BOUNDARY_DECISION.md`
-  keeps this folder in-repo for now and allows parent editor imports only
-  through the parent bridge host
-- Parent editor bridge host:
-  `../src/app/editor/_components/vnextBridge/editorVNextBridgeHost.ts` consumes
-  the vNext public entrypoint and returns bounded read-only readiness snapshots
-- Read-only editor bridge runtime: `src/editorBridge/runtime.ts` composes
-  canonical package parsing, relationship graph, measured pagination,
-  renderer-consumption audit, export readiness, and supported operation kinds
-  without accepting current runtime document input
-- Editor/generation boundary map:
-  `../docs/EDITOR_GENERATION_BOUNDARY_MAP.md` separates editor-authored
-  template truth, generation request data, bound runtime views, measured
-  pagination, renderer-consumption, and preview/export artifacts
-- Parent read-only generation diagnostic:
-  `../src/app/editor/_components/vnextBridge/editorGenerationReadiness.ts`
-  consumes the parent bridge host and reports generation readiness without
-  consuming request data, rendering artifacts, replacing API routes, or
-  mutating editor state
-- Parent operation pilot:
-  `runEditorVNextTextReplaceOperationPilot(...)` in
-  `../src/app/editor/_components/vnextBridge/editorVNextBridgeHost.ts` runs one
-  canonical vNext `text-block.text.replace` operation and returns validation,
-  history-ready, scope, and render-invalidation metadata without applying it to
-  current editor state or exposing a full mutated document
-- Runtime flip review gate:
-  `../docs/EDITOR_VNEXT_RUNTIME_FLIP_REVIEW_GATE.md` passes Phase 11 bridge
-  readiness and blocks visible editor runtime flip until a separate plan
-  resolves current reducer state, history, canvas, selection, WYSIWYG,
-  pagination, and export/API dependencies
-- Parent vNext generation API routes:
-  `../src/app/api/vnext/generation/readiness/route.ts`,
-  `../src/app/api/vnext/generation/preview/route.ts`, and
-  `../src/app/api/vnext/generation/preview/svg/route.ts` expose readiness,
-  measured preview artifact commands, and bounded SVG preview artifacts from
-  canonical package input without replacing current `/api/paginate`,
-  `/api/export`, editor state, history, selection, or canvas behavior
+- Product-shaped fixtures:
+  - `fixtures/product-report-vnext.flowdoc.json`
+  - `fixtures/product-report-vnext-minimal.flowdoc.json`
+- Canonical package parser and serializer with safe parse variants
+- Relationship graph baseline with parent refs, child indexes, nearest
+  context, capabilities, and diagnostics
+- Operation baseline:
+  - `node.delete`
+  - `node.duplicate`
+  - `node.reorder`
+  - `columns.insert`
+  - `columns.layout.patch`
+  - `text-block.insert`
+  - `text-block.text.replace`
+  - `table.row.insert`
+  - `table.row.delete`
+  - `table.column.insert`
+  - `table.column.delete`
+- Operation results include validation, scope, render invalidation, history
+  policy, durable history-ready records, and replay helpers.
+- Pagination/export baseline includes page boxes, source item order, text-block
+  line fragmentation, static header/footer fragments, page-number inline
+  resolution, column fragments, row-level table fragments, splittable text-cell
+  rows, renderer-consumption audit, and export readiness.
+- Read-only editor bridge runtime composes package parsing, graph, measured
+  pagination, renderer-consumption audit, export readiness, and supported
+  operation kinds without accepting current runtime document input.
 
-Not implemented yet:
+## Important Docs
 
-- editor runtime integration;
-- replacement for current `/api/paginate` and `/api/export`;
-- form-slot or submission-state runtime;
-- renderer-backed text measurement profile implementation, non-text table-cell
-  content splitting, multi-page column balancing, and final
-  pagination-aware TOC page resolution;
-- PDF/DOCX renderer implementation beyond the measured-fragment consumption
-  contract;
-- durable operation history persistence outside the in-memory replay helper;
-- product-level editor acceptance smokes.
+- `AGENTS.md`: working agreement for agents in this repo
+- `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
+- `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
+- `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
+- `docs/PHASE_LEDGER.md`: historical vNext core phase ledger
+- `docs/PHASE_10_CLOSE_AUDIT.md`: pagination/export boundary close audit
+- `docs/TABLE_PAGINATION_VNEXT_PLAN.md`: table pagination direction
+- `docs/PHASE_12_REPOSITORY_EXTRACTION_CHECKLIST.md`: extraction record
+
+## Not Implemented Yet
+
+- visible editor runtime integration
+- replacement for current parent `/api/paginate` or `/api/export`
+- form-slot or submission-state runtime
+- renderer-backed text measurement profile implementation
+- non-text table-cell content splitting
+- multi-page column balancing
+- final pagination-aware TOC page resolution
+- concrete PDF/DOCX renderer implementation beyond measured-fragment
+  consumption contracts
+- durable operation history persistence outside the in-memory replay helper
+- product-level editor acceptance smokes
+- publishing/distribution strategy beyond local package consumption

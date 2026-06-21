@@ -1,9 +1,8 @@
 # Table Pagination vNext Plan
 
 This plan owns the vNext table pagination direction for Phase 10.4. Current
-prototype/current table code is evidence only. The exported vNext workspace
-must keep table layout, pagination, measurement, and renderer contracts inside
-the vNext model.
+prototype/current table code is evidence only. This repository must keep table
+layout, pagination, measurement, and renderer contracts inside the vNext model.
 
 ## Decision
 
