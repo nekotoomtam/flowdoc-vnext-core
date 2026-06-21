@@ -65,3 +65,16 @@ Phase 28 does not implement:
 - save/publish persistence;
 - backend API routes;
 - exact layout, preview, PDF, or DOCX rendering.
+
+## Phase 29 Handoff
+
+The next mutation phase should preserve this rule:
+
+```text
+browser action
+  -> sandbox bridge
+  -> @flowdoc/vnext-core transaction
+  -> snapshot refresh
+```
+
+The browser must not patch authored document JSON directly.

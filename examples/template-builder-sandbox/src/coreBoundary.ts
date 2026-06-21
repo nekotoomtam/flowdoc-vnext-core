@@ -4,6 +4,7 @@ import {
   getTables,
   getTextBlocks,
   getZones,
+  projectVNextTextBlockInlines,
   type AuthoredNode,
   type DocumentSection,
   type FlowDocPackageV2DocumentVNext,
@@ -14,6 +15,21 @@ import {
 
 export interface TemplateBuilderSnapshotOptions {
   fixturePath: string
+  runtime?: {
+    mode?: "static-snapshot" | "in-memory-bridge"
+    documentRevision?: number
+    dirtyScopeCount?: number
+    mutationCount?: number
+    lastMutation?: TemplateBuilderSnapshotLastMutation | null
+  }
+}
+
+export interface TemplateBuilderSnapshotLastMutation {
+  action: string
+  status: "applied" | "rejected"
+  targetTextBlockId: string | null
+  summary: string
+  issueCount: number
 }
 
 export interface TemplateBuilderSnapshotNode {
@@ -32,6 +48,8 @@ export interface TemplateBuilderSnapshotNode {
   canBeDeleted: boolean
   canBeDuplicated: boolean
   canBeReordered: boolean
+  canReplacePlainText: boolean
+  textLength: number
   childCount: number
   textPreview: string | null
   fieldRefs: string[]
@@ -70,6 +88,12 @@ export interface TemplateBuilderSnapshot {
     generationStatus: string
     exactLayoutStatus: string
     artifactStatus: string
+  }
+  mutationBridge: {
+    mode: "static-snapshot" | "in-memory-bridge"
+    documentRevision: number
+    mutationCount: number
+    lastMutation: TemplateBuilderSnapshotLastMutation | null
   }
   session: {
     selectionKind: string
@@ -124,6 +148,18 @@ function textPreview(node: AuthoredNode): string | null {
   return preview.length > 120 ? `${preview.slice(0, 117)}...` : preview
 }
 
+function textProjectionFacts(node: AuthoredNode): { canReplacePlainText: boolean; textLength: number } {
+  if (node.type !== "text-block") {
+    return { canReplacePlainText: false, textLength: 0 }
+  }
+
+  const projection = projectVNextTextBlockInlines(node)
+  return {
+    canReplacePlainText: projection.textLength > 0 && projection.segments.every((segment) => segment.editable),
+    textLength: projection.textLength,
+  }
+}
+
 function parentTarget(parentRef: ParentRef | undefined): { parentId: string | null; parentKind: string | null } {
   if (parentRef == null) return { parentId: null, parentKind: null }
 
@@ -149,6 +185,7 @@ function summarizeNode(
   const capabilities = graph.capabilitiesByType[node.type]
   const nearest = graph.nearestByNodeId.get(nodeId)
   const parent = parentTarget(graph.parentByNodeId.get(nodeId))
+  const textFacts = textProjectionFacts(node)
   const nodePath = [...path, node.id]
   const visibleChildIds = depth >= 6 ? [] : childIds
 
@@ -168,6 +205,8 @@ function summarizeNode(
     canBeDeleted: capabilities.canBeDeleted,
     canBeDuplicated: capabilities.canBeDuplicated,
     canBeReordered: capabilities.canBeReordered,
+    canReplacePlainText: textFacts.canReplacePlainText,
+    textLength: textFacts.textLength,
     childCount: childIds.length,
     textPreview: textPreview(node),
     fieldRefs: fieldRefs(node),
@@ -199,6 +238,9 @@ export function createTemplateBuilderSnapshot(
   })
   const usageCounts = fieldUsageCounts(pack)
   const fieldValues = pack.data?.values ?? {}
+  const runtime = options.runtime ?? {}
+  const documentRevision = runtime.documentRevision ?? session.revisions.document
+  const dirtyScopeCount = runtime.dirtyScopeCount ?? session.dirtyScopes.size
 
   return {
     source: "flowdoc-template-builder-sandbox",
@@ -233,10 +275,16 @@ export function createTemplateBuilderSnapshot(
       exactLayoutStatus: readiness.diagnostics.exactLayout.status,
       artifactStatus: readiness.diagnostics.artifact.status,
     },
+    mutationBridge: {
+      mode: runtime.mode ?? "static-snapshot",
+      documentRevision,
+      mutationCount: runtime.mutationCount ?? 0,
+      lastMutation: runtime.lastMutation ?? null,
+    },
     session: {
       selectionKind: session.selection.kind,
-      documentRevision: session.revisions.document,
-      dirtyScopeCount: session.dirtyScopes.size,
+      documentRevision,
+      dirtyScopeCount,
     },
     fields: Object.values(pack.fields.fields).map((field) => ({
       key: field.key,
@@ -264,6 +312,13 @@ export function createTemplateBuilderSnapshot(
         lane: "immediate",
         status: "wired",
         reason: "browser-only selection synchronizes tree, canvas, inspector, and status",
+      },
+      {
+        action: "sandbox.replacePlainTextBlock",
+        label: "Bridge replace",
+        lane: "immediate",
+        status: "wired",
+        reason: "selected plain text blocks can be replaced through the sandbox mutation bridge",
       },
       {
         action: "user.typeText",

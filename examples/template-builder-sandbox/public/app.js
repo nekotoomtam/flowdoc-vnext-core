@@ -1,6 +1,10 @@
 const app = document.querySelector("#app")
 
 const state = {
+  bridgeBusy: false,
+  bridgeMessage: "",
+  lastPacket: null,
+  mutationText: "Edited through the mutation bridge",
   selectedId: null,
   selectionSource: "boot",
   snapshot: null,
@@ -49,6 +53,10 @@ function statusVariant(status) {
   if (status === "wired") return "good"
   if (status === "blocked") return "warn"
   return "neutral"
+}
+
+function selectedNodeCanUseBridge(node) {
+  return Boolean(node && node.type === "text-block" && node.canReplacePlainText)
 }
 
 function actionLabel(action) {
@@ -235,6 +243,7 @@ function renderCanvas(snapshot) {
 function renderInspector(snapshot) {
   const node = selectedNode()
   const parentNode = nodeById(node?.parentId)
+  const canUseBridge = selectedNodeCanUseBridge(node)
   const fieldRows = snapshot.fields.map((field) => `
     <li>
       <span>${escapeHtml(field.label)}</span>
@@ -264,6 +273,12 @@ function renderInspector(snapshot) {
       <em>${escapeHtml(action.lane)}</em>
     </li>
   `).join("")
+  const lastMutation = snapshot.mutationBridge.lastMutation
+  const bridgeMessage = state.bridgeMessage || (
+    lastMutation
+      ? `${lastMutation.status}: ${lastMutation.summary}`
+      : "No mutation has been applied in this sandbox session."
+  )
 
   return `
     <aside class="panel inspector">
@@ -312,6 +327,27 @@ function renderInspector(snapshot) {
         </section>
       ` : ""}
       <section class="inspector-section">
+        <h3>Mutation Bridge</h3>
+        <div class="bridge-control">
+          <input
+            type="text"
+            data-mutation-text
+            value="${escapeHtml(state.mutationText)}"
+            aria-label="Replacement text"
+            ${canUseBridge ? "" : "disabled"}
+          >
+          <button
+            type="button"
+            data-mutation-action="replace-text"
+            ${canUseBridge && !state.bridgeBusy ? "" : "disabled"}
+          >
+            ${state.bridgeBusy ? "Applying" : "Apply through bridge"}
+          </button>
+          <p data-state="${lastMutation?.status || "idle"}">${escapeHtml(bridgeMessage)}</p>
+          ${canUseBridge ? "" : `<small>Select a plain text-block without field refs, page numbers, or line breaks.</small>`}
+        </div>
+      </section>
+      <section class="inspector-section">
         <h3>Actions</h3>
         <ul class="action-list">${actionRows}</ul>
       </section>
@@ -325,12 +361,19 @@ function renderInspector(snapshot) {
 
 function renderStatus(snapshot) {
   const node = selectedNode()
+  const packetLabel = state.lastPacket
+    ? `Packet: ${state.lastPacket.changedNodeIds.length} changed ${state.lastPacket.baseRevision}->${state.lastPacket.nextRevision}`
+    : "Packet: none"
+
   return `
     <footer class="statusbar">
       <span>Selection: ${escapeHtml(node?.id || snapshot.session.selectionKind)}</span>
       <span>Source: ${escapeHtml(state.selectionSource)}</span>
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
+      <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
+      <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
+      <span>${escapeHtml(packetLabel)}</span>
       <span>Dirty scopes: ${snapshot.session.dirtyScopeCount}</span>
       <span>Key data: ${escapeHtml(snapshot.diagnostics.keyDataStatus)}</span>
       <span>Exact layout: ${escapeHtml(snapshot.diagnostics.exactLayoutStatus)}</span>
@@ -366,11 +409,68 @@ function bindSelectionHandlers() {
   })
 
   inspector?.addEventListener("click", (event) => {
+    const actionTarget = event.target.closest("[data-mutation-action]")
+    if (actionTarget && inspector.contains(actionTarget)) {
+      event.stopPropagation()
+      applyBridgeReplaceText()
+      return
+    }
+
     const target = event.target.closest("[data-node-id]")
     if (!target || !inspector.contains(target)) return
     event.stopPropagation()
     selectNode(target.dataset.nodeId, "inspector")
   })
+
+  inspector?.querySelector("[data-mutation-text]")?.addEventListener("input", (event) => {
+    state.mutationText = event.target.value
+  })
+}
+
+async function fetchSnapshot() {
+  try {
+    const apiResponse = await fetch("./api/snapshot", { cache: "no-store" })
+    if (apiResponse.ok) return apiResponse.json()
+  } catch {
+    // Static file fallback keeps the shell inspectable without the mutation bridge.
+  }
+
+  const response = await fetch("./sandbox-snapshot.json", { cache: "no-store" })
+  return response.json()
+}
+
+async function applyBridgeReplaceText() {
+  const node = selectedNode()
+  if (!selectedNodeCanUseBridge(node)) return
+
+  state.bridgeBusy = true
+  state.bridgeMessage = "Sending action to sandbox bridge..."
+  render()
+
+  try {
+    const response = await fetch("./api/actions/replace-text", {
+      body: JSON.stringify({
+        text: state.mutationText,
+        textBlockId: node.id,
+      }),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    })
+    const result = await response.json()
+    if (result.snapshot) {
+      state.snapshot = result.snapshot
+    }
+    state.lastPacket = result.packet || null
+    state.bridgeMessage = result.ok
+      ? `applied: ${result.mutation.summary}`
+      : `rejected: ${(result.issues || []).map((issue) => issue.message).join("; ")}`
+    state.selectionSource = "bridge"
+  } catch (error) {
+    state.bridgeMessage = error instanceof Error ? error.message : "bridge request failed"
+  } finally {
+    state.bridgeBusy = false
+    render()
+  }
 }
 
 function render() {
@@ -395,8 +495,7 @@ function render() {
 
 async function boot() {
   render()
-  const response = await fetch("./sandbox-snapshot.json", { cache: "no-store" })
-  state.snapshot = await response.json()
+  state.snapshot = await fetchSnapshot()
   const firstTextBlock = allNodes(state.snapshot).find((node) => node.type === "text-block")
   state.selectedId = firstTextBlock?.id || allNodes(state.snapshot)[0]?.id || null
   state.selectionSource = "boot"

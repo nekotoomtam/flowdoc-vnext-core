@@ -88,6 +88,13 @@ The package must remain runnable without any parent editor checkout.
 - Sandbox interaction baseline enriches that snapshot with relationship facts
   and keeps browser-only node selection synchronized across tree, canvas,
   inspector, and status without persisting selection into canonical package data
+- Sandbox mutation bridge baseline exposes one safe in-memory replace action
+  that posts from the browser to the sandbox server, calls
+  `runVNextTextTransaction(...)` through the public core boundary, and refreshes
+  the browser from the returned snapshot
+- Sandbox delta boundary adds an optional bounded change-packet response for
+  the replace action so future typing can move changed-node facts without
+  requiring a full snapshot response after every mutation
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -154,6 +161,10 @@ The package must remain runnable without any parent editor checkout.
   boundary for the first visible template builder shell
 - `docs/TEMPLATE_BUILDER_INTERACTION_BOUNDARY.md`: structure-first node
   selection and inspector interaction contract
+- `docs/TEMPLATE_BUILDER_MUTATION_BRIDGE_BOUNDARY.md`: first safe browser to
+  bridge to core mutation path for the sandbox
+- `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md`: bounded change-packet response
+  contract beside the existing sandbox snapshot response
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -170,7 +181,7 @@ The package must remain runnable without any parent editor checkout.
 ## Not Implemented Yet
 
 - visible editor runtime integration beyond the extractable static sandbox
-  shell
+  shell and in-memory sandbox mutation bridge
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, visible typing integration, IME, concrete undo/redo UI, and
@@ -190,4 +201,5 @@ The package must remain runnable without any parent editor checkout.
   consumption contracts
 - durable operation/authoring history persistence outside in-memory helpers
 - product-level visible editor acceptance smokes
+- persistent browser normalized cache that can consume only change packets
 - publishing/distribution strategy beyond local package consumption

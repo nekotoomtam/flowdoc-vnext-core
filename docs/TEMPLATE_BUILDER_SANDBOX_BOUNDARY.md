@@ -62,6 +62,12 @@ with a proper bundler/runtime adapter.
 - Phase 28 adds browser-only node selection and inspector context while keeping
   those interaction facts out of canonical package data and generated snapshot
   persistence.
+- Phase 29 adds one in-memory mutation bridge action for plain text-block
+  replacement. The browser sends the action to the sandbox server, the server
+  calls vNext core, and the browser refreshes from the returned snapshot.
+- Phase 30 adds a packet-only mutation response option so future browser cache
+  work can consume changed-node facts without requiring a complete snapshot
+  payload after every action.
 
 ## Non-Goals
 

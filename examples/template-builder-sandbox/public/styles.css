@@ -582,6 +582,56 @@ ul {
   grid-column: 1 / -1;
 }
 
+.bridge-control {
+  display: grid;
+  gap: 8px;
+}
+
+.bridge-control input {
+  border: 1px solid #cbd7e1;
+  border-radius: 6px;
+  color: #263341;
+  min-height: 34px;
+  min-width: 0;
+  padding: 0 9px;
+}
+
+.bridge-control input:disabled {
+  background: #eef2f6;
+  color: #8a96a5;
+}
+
+.bridge-control button {
+  background: #235f73;
+  border: 1px solid #1c5265;
+  border-radius: 6px;
+  color: #ffffff;
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.bridge-control button:disabled {
+  background: #d6dde5;
+  border-color: #cbd7e1;
+  color: #667385;
+}
+
+.bridge-control p,
+.bridge-control small {
+  color: #667385;
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.bridge-control p[data-state="applied"] {
+  color: #16623e;
+}
+
+.bridge-control p[data-state="rejected"] {
+  color: #855f00;
+}
+
 .statusbar {
   align-items: center;
   background: #273343;

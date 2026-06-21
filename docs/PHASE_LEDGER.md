@@ -35,6 +35,8 @@ Parent goal:
 | 26 | Runtime usage map and action/job contract | done | `docs/RUNTIME_USAGE_MAP.md`; `docs/ACTION_JOB_CONTRACT.md` |
 | 27 | Template builder sandbox boundary | done | `examples/template-builder-sandbox`; `docs/TEMPLATE_BUILDER_SANDBOX_BOUNDARY.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 28 | Structure selection first | done | `docs/TEMPLATE_BUILDER_INTERACTION_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 29 | One safe mutation path | done | `docs/TEMPLATE_BUILDER_MUTATION_BRIDGE_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 30 | Snapshot delta boundary | done | `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -336,6 +338,68 @@ Phase 28 makes sandbox selection meaningful without introducing text mutation:
 This phase intentionally does not implement real typing, DOM caret mapping,
 IME behavior, live layout rendering, undo/redo execution, save/publish
 persistence, backend API routes, exact layout, preview, PDF, or DOCX rendering.
+
+## Phase 29 One Safe Mutation Path
+
+Phase 29 proves a single mutation route before fluid typing work starts:
+
+- the sandbox server now exposes `GET /api/snapshot` and
+  `POST /api/actions/replace-text`.
+- `createTemplateBuilderMutationBridge(...)` owns an in-memory working package
+  initialized from the canonical product fixture.
+- the bridge accepts only selected plain text-block replacement and rejects
+  non-text nodes, empty text, field refs, page numbers, line breaks, and other
+  atomic inline content.
+- accepted mutations call `runVNextTextTransaction(...)` with
+  `text.range.replace` through the public `@flowdoc/vnext-core` boundary.
+- successful mutations update the in-memory package, document revision,
+  mutation count, dirty scope count, and last mutation summary, then return a
+  refreshed snapshot.
+- rejected mutations return issues and a refreshed snapshot without changing
+  the working package.
+- the browser fetches `/api/snapshot`, posts replace actions to the bridge, and
+  rerenders from the returned snapshot; it still does not patch authored JSON
+  directly.
+- `docs/TEMPLATE_BUILDER_MUTATION_BRIDGE_BOUNDARY.md` records the mutation
+  bridge contract.
+- `tests/templateBuilderSandboxBoundary.test.ts` guards the API routes, public
+  core imports, static snapshot bridge metadata, and in-memory mutation
+  behavior.
+
+This phase intentionally does not implement per-keystroke typing, DOM caret
+mapping, IME behavior, partial browser text ranges, undo/redo execution,
+save/publish persistence, backend API routes outside the sandbox server, exact
+layout, preview, PDF, or DOCX rendering.
+
+## Phase 30 Snapshot Delta Boundary
+
+Phase 30 adds a bounded response contract beside the existing full snapshot
+mutation response:
+
+- `POST /api/actions/replace-text` keeps returning a refreshed snapshot by
+  default so the Phase 29 browser path stays stable.
+- `POST /api/actions/replace-text?response=packet` returns a
+  `flowdoc-template-builder-change-packet` without the complete `sections`
+  snapshot tree.
+- the packet includes packet version, action, mutation status, base/next
+  revisions, mutation count, changed node ids, changed node summaries, affected
+  parent ids, dirty scopes, diagnostics status, and issues.
+- accepted packet responses include only the changed text-block summary and
+  dirty scope from the core text transaction.
+- rejected packet responses preserve revision and mutation count and report
+  issues without sending a full snapshot.
+- the browser status bar can show the last packet received while still using
+  the full snapshot path for current rendering.
+- `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md` records the transitional packet
+  contract and the future normalized-cache handoff.
+- `tests/templateBuilderSandboxBoundary.test.ts` guards packet-only mutation
+  behavior and proves the packet response does not carry the full `sections`
+  tree.
+
+This phase intentionally does not implement a persistent browser normalized
+cache, per-keystroke typing, DOM caret mapping, IME behavior, undo/redo
+execution, live layout rendering, save/publish persistence, backend API routes
+outside the sandbox server, exact layout, preview, PDF, or DOCX rendering.
 
 ## Phase 12 Extraction Record
 

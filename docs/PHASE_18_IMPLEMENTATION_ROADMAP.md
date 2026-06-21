@@ -346,6 +346,59 @@ Acceptance:
 - planned or blocked actions are not executable;
 - no real text editing, live layout renderer, route, or persistence is claimed.
 
+## Phase 29: One Safe Mutation Path
+
+Goal:
+
+- prove one browser-to-bridge-to-core mutation path before fluid typing.
+
+Deliverables:
+
+- in-memory sandbox mutation bridge;
+- `GET /api/snapshot` for current working snapshot;
+- `POST /api/actions/replace-text` for selected plain text-block replacement;
+- core-backed `text.range.replace` transaction;
+- refreshed snapshot response after accepted or rejected mutations;
+- mutation bridge status in the snapshot and status bar;
+- browser control for the safe replace action;
+- mutation bridge boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- browser code does not mutate canonical document JSON directly;
+- mutation bridge imports core through `@flowdoc/vnext-core`;
+- only plain text-blocks can be replaced in this phase;
+- rejected mutations do not change the working package;
+- no per-keystroke typing, caret mapping, persistence, live layout renderer, or
+  non-sandbox API route is claimed.
+
+## Phase 30: Snapshot Delta Boundary
+
+Goal:
+
+- add a bounded mutation response shape before per-keystroke typing work makes
+  full snapshot responses too expensive.
+
+Deliverables:
+
+- change packet type for sandbox mutation responses;
+- packet-only response mode for `POST /api/actions/replace-text`;
+- changed node summaries without complete `sections` snapshot payload;
+- dirty scopes and revision metadata in the packet;
+- current browser snapshot path preserved as the default;
+- delta boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- existing snapshot mutation response still works;
+- packet mode omits the full snapshot tree;
+- changed node ids and dirty scopes come from the core mutation path;
+- rejected packet responses do not change revisions or working package state;
+- no browser normalized cache, per-keystroke typing, live layout renderer,
+  persistence, or non-sandbox API route is claimed.
+
 ## Later Phases
 
 Goal:
