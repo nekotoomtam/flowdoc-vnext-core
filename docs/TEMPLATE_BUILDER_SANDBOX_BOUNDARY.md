@@ -59,6 +59,9 @@ with a proper bundler/runtime adapter.
   APIs.
 - Browser-visible state stays outside package serialization.
 - Root tests guard the sandbox boundary.
+- Phase 28 adds browser-only node selection and inspector context while keeping
+  those interaction facts out of canonical package data and generated snapshot
+  persistence.
 
 ## Non-Goals
 

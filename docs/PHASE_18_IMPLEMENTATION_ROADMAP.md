@@ -319,6 +319,33 @@ Acceptance:
 - no real typing, live layout renderer, backend route, or persistence is
   claimed in this phase.
 
+## Phase 28: Structure Selection First
+
+Goal:
+
+- make node selection and inspector context useful before adding typing.
+
+Deliverables:
+
+- snapshot relationship facts for section, zone, parent, path, children,
+  surface, and capabilities;
+- browser-only selected node state;
+- tree/canvas/inspector/status synchronization;
+- nested canvas selection that chooses the nearest clicked node;
+- inspector sections for context, path, capabilities, children, fields, and
+  action states;
+- action-state vocabulary for `wired`, `planned`, and `blocked`;
+- interaction boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- selection state remains outside canonical package data and generated
+  snapshot persistence;
+- inspector uses core-derived snapshot facts, not DOM-derived document truth;
+- planned or blocked actions are not executable;
+- no real text editing, live layout renderer, route, or persistence is claimed.
+
 ## Later Phases
 
 Goal:

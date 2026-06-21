@@ -34,6 +34,7 @@ Parent goal:
 | 25 | Large document acceptance harness | done | `tests/largeDocumentAcceptance.test.ts` |
 | 26 | Runtime usage map and action/job contract | done | `docs/RUNTIME_USAGE_MAP.md`; `docs/ACTION_JOB_CONTRACT.md` |
 | 27 | Template builder sandbox boundary | done | `examples/template-builder-sandbox`; `docs/TEMPLATE_BUILDER_SANDBOX_BOUNDARY.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 28 | Structure selection first | done | `docs/TEMPLATE_BUILDER_INTERACTION_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -308,6 +309,33 @@ template builder shell:
 This phase intentionally does not implement real typing, DOM selection mapping,
 IME behavior, live layout rendering, scheduler queues, backend API routes,
 save/publish persistence, exact layout, preview, PDF, or DOCX rendering.
+
+## Phase 28 Structure Selection First
+
+Phase 28 makes sandbox selection meaningful without introducing text mutation:
+
+- the generated sandbox snapshot now carries core-derived relationship facts
+  for each node: section, zone, parent, path, children, operation surface, and
+  capabilities.
+- the browser shell keeps selected node id and selection source as browser-only
+  state; those facts are not written into package data or the generated
+  snapshot.
+- tree, canvas, inspector links, and status bar synchronize around one selected
+  node id.
+- nested canvas clicks select the nearest clicked node instead of bubbling to
+  an ancestor.
+- the inspector shows selected node details, parent/context, breadcrumb,
+  capabilities, direct children, field references, and action states.
+- action states use `wired`, `planned`, and `blocked` so unavailable work is
+  visible without being executable.
+- `docs/TEMPLATE_BUILDER_INTERACTION_BOUNDARY.md` records the structure-first
+  interaction contract.
+- `tests/templateBuilderSandboxBoundary.test.ts` guards relationship snapshot
+  facts, browser-only selection, and action-state vocabulary.
+
+This phase intentionally does not implement real typing, DOM caret mapping,
+IME behavior, live layout rendering, undo/redo execution, save/publish
+persistence, backend API routes, exact layout, preview, PDF, or DOCX rendering.
 
 ## Phase 12 Extraction Record
 

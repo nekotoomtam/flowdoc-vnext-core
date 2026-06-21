@@ -8,6 +8,7 @@ import {
   type DocumentSection,
   type FlowDocPackageV2DocumentVNext,
   type InlineNode,
+  type ParentRef,
   type RelationshipGraph,
 } from "@flowdoc/vnext-core"
 
@@ -19,9 +20,18 @@ export interface TemplateBuilderSnapshotNode {
   id: string
   type: AuthoredNode["type"]
   role: string | null
+  sectionId: string
+  zoneId: string
+  parentId: string | null
+  parentKind: string | null
+  depth: number
+  path: string[]
   surface: string
   canContainText: boolean
   canSplitAcrossPages: boolean
+  canBeDeleted: boolean
+  canBeDuplicated: boolean
+  canBeReordered: boolean
   childCount: number
   textPreview: string | null
   fieldRefs: string[]
@@ -80,8 +90,10 @@ export interface TemplateBuilderSnapshot {
   }>
   actionLanes: Array<{
     action: string
+    label: string
     lane: string
-    status: "wired" | "planned"
+    status: "wired" | "planned" | "blocked"
+    reason: string
   }>
 }
 
@@ -112,28 +124,54 @@ function textPreview(node: AuthoredNode): string | null {
   return preview.length > 120 ? `${preview.slice(0, 117)}...` : preview
 }
 
+function parentTarget(parentRef: ParentRef | undefined): { parentId: string | null; parentKind: string | null } {
+  if (parentRef == null) return { parentId: null, parentKind: null }
+
+  if (parentRef.kind === "section") return { parentId: parentRef.sectionId, parentKind: "section" }
+  if (parentRef.kind === "zone") return { parentId: parentRef.zoneId, parentKind: "zone" }
+  if (parentRef.kind === "columns") return { parentId: parentRef.columnsId, parentKind: "columns" }
+  if (parentRef.kind === "column") return { parentId: parentRef.columnId, parentKind: "column" }
+  if (parentRef.kind === "table") return { parentId: parentRef.tableId, parentKind: "table" }
+  if (parentRef.kind === "table-row") return { parentId: parentRef.rowId, parentKind: "table-row" }
+
+  return { parentId: parentRef.cellId, parentKind: "table-cell" }
+}
+
 function summarizeNode(
   graph: RelationshipGraph,
   section: DocumentSection,
   nodeId: string,
   depth = 0,
+  path: string[] = [],
 ): TemplateBuilderSnapshotNode {
   const node = section.nodes[nodeId]
   const childIds = graph.childrenByNodeId.get(nodeId) ?? []
   const capabilities = graph.capabilitiesByType[node.type]
+  const nearest = graph.nearestByNodeId.get(nodeId)
+  const parent = parentTarget(graph.parentByNodeId.get(nodeId))
+  const nodePath = [...path, node.id]
   const visibleChildIds = depth >= 6 ? [] : childIds
 
   return {
     id: node.id,
     type: node.type,
     role: nodeRole(node),
+    sectionId: nearest?.sectionId ?? section.id,
+    zoneId: nearest?.zoneId ?? node.id,
+    parentId: parent.parentId,
+    parentKind: parent.parentKind,
+    depth,
+    path: nodePath,
     surface: capabilities.operationSurface,
     canContainText: capabilities.canContainText,
     canSplitAcrossPages: capabilities.canSplitAcrossPages,
+    canBeDeleted: capabilities.canBeDeleted,
+    canBeDuplicated: capabilities.canBeDuplicated,
+    canBeReordered: capabilities.canBeReordered,
     childCount: childIds.length,
     textPreview: textPreview(node),
     fieldRefs: fieldRefs(node),
-    children: visibleChildIds.map((childId) => summarizeNode(graph, section, childId, depth + 1)),
+    children: visibleChildIds.map((childId) => summarizeNode(graph, section, childId, depth + 1, nodePath)),
   }
 }
 
@@ -213,11 +251,48 @@ export function createTemplateBuilderSnapshot(
       zones: section.zoneIds.map((zoneId) => summarizeNode(graph, section, zoneId)),
     })),
     actionLanes: [
-      { action: "user.openTemplate", lane: "immediate", status: "wired" },
-      { action: "user.typeText", lane: "immediate + background-live", status: "planned" },
-      { action: "user.insertFieldRef", lane: "immediate + background-live", status: "planned" },
-      { action: "generation.assess", lane: "immediate", status: "wired" },
-      { action: "generation.renderArtifact", lane: "deferred-exact + external-artifact", status: "planned" },
+      {
+        action: "user.openTemplate",
+        label: "Open",
+        lane: "immediate",
+        status: "wired",
+        reason: "snapshot bridge creates an editable session from canonical package input",
+      },
+      {
+        action: "user.selectNode",
+        label: "Select",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-only selection synchronizes tree, canvas, inspector, and status",
+      },
+      {
+        action: "user.typeText",
+        label: "Type",
+        lane: "immediate + background-live",
+        status: "planned",
+        reason: "text transaction UI waits for a stable selection/context boundary",
+      },
+      {
+        action: "user.insertFieldRef",
+        label: "Insert key",
+        lane: "immediate + background-live",
+        status: "planned",
+        reason: "field insertion will use inline.field-ref.insert after typing selection is wired",
+      },
+      {
+        action: "generation.assess",
+        label: "Diagnostics",
+        lane: "immediate",
+        status: "wired",
+        reason: "snapshot bridge calls generation readiness without rendering artifacts",
+      },
+      {
+        action: "generation.renderArtifact",
+        label: "Render",
+        lane: "deferred-exact + external-artifact",
+        status: "blocked",
+        reason: "exact layout, renderer, storage, and API route are intentionally absent",
+      },
     ],
   }
 }

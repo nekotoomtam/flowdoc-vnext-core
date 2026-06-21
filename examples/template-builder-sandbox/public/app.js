@@ -2,6 +2,7 @@ const app = document.querySelector("#app")
 
 const state = {
   selectedId: null,
+  selectionSource: "boot",
   snapshot: null,
 }
 
@@ -31,6 +32,11 @@ function selectedNode() {
   return allNodes(state.snapshot).find((node) => node.id === state.selectedId) || null
 }
 
+function nodeById(nodeId) {
+  if (!state.snapshot || !nodeId) return null
+  return allNodes(state.snapshot).find((node) => node.id === nodeId) || null
+}
+
 function shortId(id) {
   return id.length > 30 ? `${id.slice(0, 27)}...` : id
 }
@@ -39,8 +45,29 @@ function renderBadge(value, variant = "neutral") {
   return `<span class="badge badge-${variant}">${escapeHtml(value)}</span>`
 }
 
+function statusVariant(status) {
+  if (status === "wired") return "good"
+  if (status === "blocked") return "warn"
+  return "neutral"
+}
+
+function actionLabel(action) {
+  return action.label || action.action.split(".").at(-1) || action.action
+}
+
 function renderToolbar(snapshot) {
   const statusVariant = snapshot.diagnostics.generationStatus === "ready" ? "good" : "warn"
+  const actionButtons = snapshot.actionLanes.map((action) => `
+    <button
+      type="button"
+      title="${escapeHtml(action.reason)}"
+      data-action-status="${escapeHtml(action.status)}"
+      disabled
+    >
+      <span>${escapeHtml(actionLabel(action))}</span>
+      <em>${escapeHtml(action.status)}</em>
+    </button>
+  `).join("")
 
   return `
     <header class="toolbar">
@@ -52,12 +79,7 @@ function renderToolbar(snapshot) {
         </div>
       </div>
       <nav class="toolbar-actions" aria-label="Template actions">
-        <button type="button" title="Save template" disabled>Save</button>
-        <button type="button" title="Undo" disabled>Undo</button>
-        <button type="button" title="Redo" disabled>Redo</button>
-        <button type="button" title="Insert field reference" disabled>Insert key</button>
-        <button type="button" title="Run diagnostics" disabled>Diagnostics</button>
-        <button type="button" title="Generate preview" disabled>Preview</button>
+        ${actionButtons}
       </nav>
       <div class="toolbar-status">
         ${renderBadge(snapshot.diagnostics.generationStatus, statusVariant)}
@@ -79,6 +101,7 @@ function renderTreeNode(node, depth = 0) {
         type="button"
         class="tree-node ${isSelected ? "is-selected" : ""}"
         data-node-id="${escapeHtml(node.id)}"
+        aria-pressed="${isSelected ? "true" : "false"}"
         style="--depth:${depth}"
       >
         <span class="node-type">${escapeHtml(node.type)}</span>
@@ -117,12 +140,16 @@ function renderTextPreview(node) {
   })
 }
 
+function nodeDomAttributes(node) {
+  return `data-node-id="${escapeHtml(node.id)}" data-node-type="${escapeHtml(node.type)}"`
+}
+
 function renderCanvasNode(node) {
   const selectedClass = node.id === state.selectedId ? " is-selected" : ""
 
   if (node.type === "zone") {
     return `
-      <section class="canvas-zone${selectedClass}" data-node-id="${escapeHtml(node.id)}">
+      <section class="canvas-zone${selectedClass}" ${nodeDomAttributes(node)}>
         <div class="zone-label">${escapeHtml(node.role || node.type)}</div>
         ${node.children.map(renderCanvasNode).join("")}
       </section>
@@ -131,7 +158,7 @@ function renderCanvasNode(node) {
 
   if (node.type === "text-block") {
     return `
-      <div class="canvas-text${selectedClass}" data-node-id="${escapeHtml(node.id)}">
+      <div class="canvas-text${selectedClass}" ${nodeDomAttributes(node)}>
         ${renderTextPreview(node)}
       </div>
     `
@@ -139,7 +166,7 @@ function renderCanvasNode(node) {
 
   if (node.type === "columns") {
     return `
-      <div class="canvas-columns${selectedClass}" data-node-id="${escapeHtml(node.id)}">
+      <div class="canvas-columns${selectedClass}" ${nodeDomAttributes(node)}>
         ${node.children.map(renderCanvasNode).join("")}
       </div>
     `
@@ -147,7 +174,7 @@ function renderCanvasNode(node) {
 
   if (node.type === "column") {
     return `
-      <div class="canvas-column${selectedClass}" data-node-id="${escapeHtml(node.id)}">
+      <div class="canvas-column${selectedClass}" ${nodeDomAttributes(node)}>
         ${node.children.map(renderCanvasNode).join("")}
       </div>
     `
@@ -155,22 +182,22 @@ function renderCanvasNode(node) {
 
   if (node.type === "table") {
     return `
-      <div class="canvas-table${selectedClass}" data-node-id="${escapeHtml(node.id)}">
+      <div class="canvas-table${selectedClass}" ${nodeDomAttributes(node)}>
         ${node.children.map(renderCanvasNode).join("")}
       </div>
     `
   }
 
   if (node.type === "table-row") {
-    return `<div class="canvas-table-row${selectedClass}" data-node-id="${escapeHtml(node.id)}">${node.children.map(renderCanvasNode).join("")}</div>`
+    return `<div class="canvas-table-row${selectedClass}" ${nodeDomAttributes(node)}>${node.children.map(renderCanvasNode).join("")}</div>`
   }
 
   if (node.type === "table-cell") {
-    return `<div class="canvas-table-cell${selectedClass}" data-node-id="${escapeHtml(node.id)}">${node.children.map(renderCanvasNode).join("")}</div>`
+    return `<div class="canvas-table-cell${selectedClass}" ${nodeDomAttributes(node)}>${node.children.map(renderCanvasNode).join("")}</div>`
   }
 
   return `
-    <div class="canvas-utility${selectedClass}" data-node-id="${escapeHtml(node.id)}">
+    <div class="canvas-utility${selectedClass}" ${nodeDomAttributes(node)}>
       ${escapeHtml(node.type)}
     </div>
   `
@@ -207,11 +234,34 @@ function renderCanvas(snapshot) {
 
 function renderInspector(snapshot) {
   const node = selectedNode()
+  const parentNode = nodeById(node?.parentId)
   const fieldRows = snapshot.fields.map((field) => `
     <li>
       <span>${escapeHtml(field.label)}</span>
       <strong>${escapeHtml(field.key)}</strong>
       <em>${escapeHtml(field.type)} / ${field.usageCount} refs</em>
+    </li>
+  `).join("")
+  const childRows = node?.children.length
+    ? node.children.map((child) => `
+      <li>
+        <button type="button" class="node-link" data-node-id="${escapeHtml(child.id)}">
+          <span>${escapeHtml(child.type)}</span>
+          <strong>${escapeHtml(shortId(child.id))}</strong>
+        </button>
+      </li>
+    `).join("")
+    : `<li class="empty-row">No direct children</li>`
+  const pathRows = node?.path.map((pathId) => {
+    const pathNode = nodeById(pathId)
+    const label = pathNode ? `${pathNode.type} ${shortId(pathNode.id)}` : shortId(pathId)
+    return `<button type="button" class="crumb" data-node-id="${escapeHtml(pathId)}">${escapeHtml(label)}</button>`
+  }).join("") || ""
+  const actionRows = snapshot.actionLanes.map((action) => `
+    <li>
+      <span>${escapeHtml(actionLabel(action))}</span>
+      ${renderBadge(action.status, statusVariant(action.status))}
+      <em>${escapeHtml(action.lane)}</em>
     </li>
   `).join("")
 
@@ -229,10 +279,41 @@ function renderInspector(snapshot) {
             <dt>Type</dt><dd>${escapeHtml(node.type)}</dd>
             <dt>Role</dt><dd>${escapeHtml(node.role || "none")}</dd>
             <dt>Surface</dt><dd>${escapeHtml(node.surface)}</dd>
+            <dt>Section</dt><dd>${escapeHtml(node.sectionId)}</dd>
+            <dt>Zone</dt><dd>${escapeHtml(node.zoneId)}</dd>
+            <dt>Parent</dt><dd>${
+              parentNode
+                ? `<button type="button" class="node-link compact" data-node-id="${escapeHtml(parentNode.id)}">${escapeHtml(parentNode.type)} ${escapeHtml(shortId(parentNode.id))}</button>`
+                : escapeHtml(node.parentId || "none")
+            }</dd>
             <dt>Children</dt><dd>${node.childCount}</dd>
             <dt>Fields</dt><dd>${node.fieldRefs.length ? node.fieldRefs.map((key) => renderBadge(key, "info")).join("") : "none"}</dd>
           </dl>
         ` : "<p>No node selected.</p>"}
+      </section>
+      ${node ? `
+        <section class="inspector-section">
+          <h3>Path</h3>
+          <div class="crumb-list">${pathRows}</div>
+        </section>
+        <section class="inspector-section">
+          <h3>Capabilities</h3>
+          <div class="capability-grid">
+            <span data-state="${node.canContainText}">Contain text</span>
+            <span data-state="${node.canSplitAcrossPages}">Split page</span>
+            <span data-state="${node.canBeDeleted}">Delete</span>
+            <span data-state="${node.canBeDuplicated}">Duplicate</span>
+            <span data-state="${node.canBeReordered}">Reorder</span>
+          </div>
+        </section>
+        <section class="inspector-section">
+          <h3>Children</h3>
+          <ul class="child-list">${childRows}</ul>
+        </section>
+      ` : ""}
+      <section class="inspector-section">
+        <h3>Actions</h3>
+        <ul class="action-list">${actionRows}</ul>
       </section>
       <section class="inspector-section">
         <h3>Keys</h3>
@@ -243,9 +324,12 @@ function renderInspector(snapshot) {
 }
 
 function renderStatus(snapshot) {
+  const node = selectedNode()
   return `
     <footer class="statusbar">
-      <span>Selection: ${escapeHtml(snapshot.session.selectionKind)}</span>
+      <span>Selection: ${escapeHtml(node?.id || snapshot.session.selectionKind)}</span>
+      <span>Source: ${escapeHtml(state.selectionSource)}</span>
+      <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
       <span>Dirty scopes: ${snapshot.session.dirtyScopeCount}</span>
       <span>Key data: ${escapeHtml(snapshot.diagnostics.keyDataStatus)}</span>
@@ -253,6 +337,40 @@ function renderStatus(snapshot) {
       <span>Artifact: ${escapeHtml(snapshot.diagnostics.artifactStatus)}</span>
     </footer>
   `
+}
+
+function selectNode(nodeId, selectionSource) {
+  if (!nodeById(nodeId)) return
+  state.selectedId = nodeId
+  state.selectionSource = selectionSource
+  render()
+}
+
+function bindSelectionHandlers() {
+  const tree = app.querySelector(".node-tree")
+  const canvas = app.querySelector(".canvas-wrap")
+  const inspector = app.querySelector(".inspector")
+
+  tree?.addEventListener("click", (event) => {
+    const target = event.target.closest(".tree-node[data-node-id]")
+    if (!target || !tree.contains(target)) return
+    event.stopPropagation()
+    selectNode(target.dataset.nodeId, "tree")
+  })
+
+  canvas?.addEventListener("click", (event) => {
+    const target = event.target.closest("[data-node-id]")
+    if (!target || !canvas.contains(target)) return
+    event.stopPropagation()
+    selectNode(target.dataset.nodeId, "canvas")
+  })
+
+  inspector?.addEventListener("click", (event) => {
+    const target = event.target.closest("[data-node-id]")
+    if (!target || !inspector.contains(target)) return
+    event.stopPropagation()
+    selectNode(target.dataset.nodeId, "inspector")
+  })
 }
 
 function render() {
@@ -272,12 +390,7 @@ function render() {
     ${renderStatus(snapshot)}
   `
 
-  app.querySelectorAll("[data-node-id]").forEach((element) => {
-    element.addEventListener("click", () => {
-      state.selectedId = element.dataset.nodeId
-      render()
-    })
-  })
+  bindSelectionHandlers()
 }
 
 async function boot() {
@@ -286,6 +399,7 @@ async function boot() {
   state.snapshot = await response.json()
   const firstTextBlock = allNodes(state.snapshot).find((node) => node.type === "text-block")
   state.selectedId = firstTextBlock?.id || allNodes(state.snapshot)[0]?.id || null
+  state.selectionSource = "boot"
   render()
 }
 

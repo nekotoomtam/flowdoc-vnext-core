@@ -85,6 +85,9 @@ The package must remain runnable without any parent editor checkout.
   the public `@flowdoc/vnext-core` boundary, generates a core-backed browser
   snapshot, and renders the first toolbar/tree/canvas/inspector/status shell
   without adding browser framework dependencies to this core package
+- Sandbox interaction baseline enriches that snapshot with relationship facts
+  and keeps browser-only node selection synchronized across tree, canvas,
+  inspector, and status without persisting selection into canonical package data
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -149,6 +152,8 @@ The package must remain runnable without any parent editor checkout.
   contract for future runtime scheduling
 - `docs/TEMPLATE_BUILDER_SANDBOX_BOUNDARY.md`: extractable sandbox package
   boundary for the first visible template builder shell
+- `docs/TEMPLATE_BUILDER_INTERACTION_BOUNDARY.md`: structure-first node
+  selection and inspector interaction contract
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

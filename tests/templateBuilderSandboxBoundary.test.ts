@@ -59,4 +59,55 @@ describe("template builder sandbox boundary", () => {
     expect(files).not.toContain("/api/export")
     expect(files).not.toContain("FlowDocEditor")
   })
+
+  it("carries core-derived relationship facts in the generated snapshot", () => {
+    const snapshot = readJson("../examples/template-builder-sandbox/public/sandbox-snapshot.json") as {
+      sections: Array<{ zones: Array<Record<string, unknown> & { children: Array<Record<string, unknown>> }> }>
+      actionLanes: Array<{ status: string }>
+    }
+    const coverZone = snapshot.sections[0].zones[0]
+    const coverText = coverZone.children[0]
+
+    expect(coverZone).toMatchObject({
+      id: "cover-first-header",
+      type: "zone",
+      sectionId: "section-cover",
+      zoneId: "cover-first-header",
+      parentId: "section-cover",
+      parentKind: "section",
+      depth: 0,
+      path: ["cover-first-header"],
+      canBeDeleted: false,
+      canBeDuplicated: false,
+      canBeReordered: false,
+    })
+    expect(coverText).toMatchObject({
+      id: "cover-header-label",
+      type: "text-block",
+      sectionId: "section-cover",
+      zoneId: "cover-first-header",
+      parentId: "cover-first-header",
+      parentKind: "zone",
+      depth: 1,
+      path: ["cover-first-header", "cover-header-label"],
+      canContainText: true,
+      canBeDeleted: true,
+      canBeDuplicated: true,
+      canBeReordered: true,
+    })
+    expect(new Set(snapshot.actionLanes.map((action) => action.status))).toEqual(
+      new Set(["wired", "planned", "blocked"]),
+    )
+  })
+
+  it("keeps selected node state browser-only", () => {
+    const snapshotText = readText("../examples/template-builder-sandbox/public/sandbox-snapshot.json")
+    const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+
+    expect(snapshotText).not.toContain("selectedId")
+    expect(snapshotText).not.toContain("selectionSource")
+    expect(appSource).toContain("selectedId")
+    expect(appSource).toContain("selectionSource")
+    expect(appSource).toContain('closest("[data-node-id]")')
+  })
 })
