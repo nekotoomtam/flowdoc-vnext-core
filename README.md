@@ -71,6 +71,9 @@ The package must remain runnable without any parent editor checkout.
   - `table.column.delete`
 - Operation results include validation, scope, render invalidation, history
   policy, durable history-ready records, and replay helpers.
+- Operation kernel contracts are split into command, result, registry,
+  invalidation, and history modules while `runVNextOperation(...)` remains the
+  behavior-preserving applier.
 - Pagination/export baseline includes page boxes, source item order, text-block
   line fragmentation, static header/footer fragments, page-number inline
   resolution, column fragments, row-level table fragments, splittable text-cell
@@ -87,6 +90,7 @@ The package must remain runnable without any parent editor checkout.
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
 - `docs/VNEXT_CORE_REDESIGN_PLAN.md`: target architecture for the next core lane
+- `docs/OPERATION_KERNEL_SPLIT_PLAN.md`: Lane B operation split boundary
 - `docs/PHASE_LEDGER.md`: historical vNext core phase ledger
 - `docs/PHASE_10_CLOSE_AUDIT.md`: pagination/export boundary close audit
 - `docs/TABLE_PAGINATION_VNEXT_PLAN.md`: table pagination direction

@@ -292,6 +292,18 @@ Deliverables:
 - deterministic replay tests;
 - existing operation tests migrated without behavior regression.
 
+Implementation status:
+
+- `src/operations/commands.ts` owns command/source/kind contracts;
+- `src/operations/results.ts` owns issue/scope/result contracts;
+- `src/operations/invalidation.ts` owns scope and render invalidation helpers;
+- `src/operations/history.ts` owns history-ready records and replay with an
+  injected runner;
+- `src/operations/registry.ts` owns the supported operation catalog;
+- `src/operations/documentOperations.ts` remains the behavior-preserving
+  applier and compatibility export surface;
+- `tests/operationKernel.test.ts` covers the split boundaries.
+
 ### Lane C: Layout Pipeline Split
 
 Goal: convert measured pagination into staged, resumable layout pipeline.

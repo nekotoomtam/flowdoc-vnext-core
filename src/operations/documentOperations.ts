@@ -1,241 +1,66 @@
 import type { AuthoredNode, DocumentNode, DocumentSection, InlineNode, TableCellNode, TableRowNode, TextBlockNode, UnitValue } from "../schema/document.js"
-import type { NodeId, ParentRef, RelationshipGraph, SectionId } from "../graph/relationshipGraph.js"
+import type { NodeId, ParentRef, RelationshipGraph } from "../graph/relationshipGraph.js"
 import { buildRelationshipGraph } from "../graph/relationshipGraph.js"
 import { DocumentAssertionError } from "../errors.js"
+import type { VNextOperationCommand } from "./commands.js"
+import type {
+  VNextOperationCommitMetadata,
+  VNextOperationIssue,
+  VNextOperationResult,
+} from "./results.js"
+import type { VNextOperationHistoryRecord, VNextOperationHistoryReplayResult } from "./history.js"
+import { replayVNextOperationHistoryWithRunner } from "./history.js"
+import {
+  createVNextOperationRenderInvalidation as renderInvalidation,
+  createVNextOperationScopeFromNodes as scopeFromNodes,
+} from "./invalidation.js"
 
-export type VNextOperationSource = "user" | "automation" | "system"
-
-export type VNextOperationCommand =
-  | { kind: "node.delete"; source?: VNextOperationSource; nodeId: NodeId }
-  | { kind: "node.duplicate"; source?: VNextOperationSource; nodeId: NodeId }
-  | { kind: "node.reorder"; source?: VNextOperationSource; nodeId: NodeId; toIndex: number }
-  | { kind: "columns.insert"; source?: VNextOperationSource; parentNodeId: NodeId; index: number; columnsId?: NodeId; columnCount: number }
-  | { kind: "columns.layout.patch"; source?: VNextOperationSource; columnsId: NodeId; widthShares: number[] }
-  | { kind: "text-block.insert"; source?: VNextOperationSource; parentNodeId: NodeId; index: number; node: TextBlockNode }
-  | { kind: "text-block.text.replace"; source?: VNextOperationSource; nodeId: NodeId; children: InlineNode[] }
-  | { kind: "table.row.insert"; source?: VNextOperationSource; tableId: NodeId; index: number; rowId?: NodeId }
-  | { kind: "table.row.delete"; source?: VNextOperationSource; rowId: NodeId }
-  | { kind: "table.column.insert"; source?: VNextOperationSource; tableId: NodeId; index: number; width?: UnitValue }
-  | { kind: "table.column.delete"; source?: VNextOperationSource; tableId: NodeId; index: number }
-
-export type VNextOperationKind = VNextOperationCommand["kind"]
-export const VNEXT_OPERATION_KINDS = [
-  "node.delete",
-  "node.duplicate",
-  "node.reorder",
-  "columns.insert",
-  "columns.layout.patch",
-  "text-block.insert",
-  "text-block.text.replace",
-  "table.row.insert",
-  "table.row.delete",
-  "table.column.insert",
-  "table.column.delete",
-] as const satisfies readonly VNextOperationKind[]
-
-export type VNextOperationFailureReason =
-  | "invalid-command"
-  | "invalid-document"
-  | "target-not-found"
-  | "unsupported-target"
-  | "validation-failed"
-
-export interface VNextOperationIssue {
-  severity: "error" | "warning" | "info"
-  code: string
-  path: string
-  nodeId?: NodeId
-  message: string
-}
-
-export interface VNextOperationScope {
-  sectionIds: SectionId[]
-  zoneIds: NodeId[]
-  nodeIds: NodeId[]
-  parentNodeIds: NodeId[]
-  tableIds: NodeId[]
-  textBlockIds: NodeId[]
-}
-
-export interface VNextOperationRenderInvalidation {
-  lane: "node-structure" | "node-layout" | "text-content"
-  affectedNodeIds: NodeId[]
-  affectedSectionIds: SectionId[]
-  pageScope: { kind: "unknown"; reason: "pagination-not-integrated" }
-}
-
-export interface VNextOperationHistoryPolicy {
-  kind: "single-entry"
-  durableIntent: "structure" | "layout" | "content"
-  summary: string
-}
-
-export interface VNextOperationCommitMetadata {
-  kind: VNextOperationKind
-  source: VNextOperationSource
-  targetNodeIds: NodeId[]
-  validationPolicy: "full"
-  historyPolicy: VNextOperationHistoryPolicy
-  renderInvalidation: VNextOperationRenderInvalidation
-  scope: VNextOperationScope
-}
-
-export type VNextOperationResult =
-  | {
-      ok: true
-      command: VNextOperationCommand
-      document: DocumentNode
-      operation: VNextOperationCommitMetadata
-      issues: VNextOperationIssue[]
-    }
-  | {
-      ok: false
-      command: VNextOperationCommand
-      document: DocumentNode
-      reason: VNextOperationFailureReason
-      issues: VNextOperationIssue[]
-    }
-
-export interface VNextOperationHistoryRecord {
-  schemaVersion: 1
-  status: "committed" | "rejected"
-  operationKind: VNextOperationKind
-  source: VNextOperationSource
-  command: VNextOperationCommand
-  targetNodeIds: NodeId[]
-  scope: VNextOperationScope | null
-  historyIntent: VNextOperationHistoryPolicy["durableIntent"] | null
-  validationPolicy: VNextOperationCommitMetadata["validationPolicy"] | null
-  renderInvalidation: VNextOperationRenderInvalidation | null
-  failureReason?: VNextOperationFailureReason
-  issues: VNextOperationIssue[]
-}
-
-export type VNextOperationHistoryReplayResult =
-  | {
-      ok: true
-      document: DocumentNode
-      replayedCount: number
-      skippedRejectedCount: number
-      issues: VNextOperationIssue[]
-    }
-  | {
-      ok: false
-      document: DocumentNode
-      failedRecord: VNextOperationHistoryRecord
-      failedResult: VNextOperationResult
-      replayedCount: number
-      skippedRejectedCount: number
-      issues: VNextOperationIssue[]
-    }
+export type {
+  VNextOperationCommand,
+  VNextOperationKind,
+  VNextOperationSource,
+} from "./commands.js"
+export {
+  VNEXT_OPERATION_KINDS,
+  vNextOperationCommandTargetNodeIds,
+} from "./commands.js"
+export type {
+  VNextOperationCommitMetadata,
+  VNextOperationFailureReason,
+  VNextOperationHistoryPolicy,
+  VNextOperationIssue,
+  VNextOperationRenderInvalidation,
+  VNextOperationResult,
+  VNextOperationScope,
+} from "./results.js"
+export {
+  appendVNextOperationHistoryRecord,
+  createVNextOperationHistoryRecord,
+  replayVNextOperationHistoryWithRunner,
+} from "./history.js"
+export type {
+  VNextOperationHistoryRecord,
+  VNextOperationHistoryReplayResult,
+  VNextOperationRunner,
+} from "./history.js"
+export {
+  createVNextOperationRenderInvalidation,
+  createVNextOperationScopeFromNodes,
+} from "./invalidation.js"
+export {
+  getSupportedVNextOperationKinds,
+  VNEXT_OPERATION_REGISTRY,
+} from "./registry.js"
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
-}
-
-function commandTargetNodeIds(command: VNextOperationCommand): NodeId[] {
-  if (command.kind === "node.delete" || command.kind === "node.duplicate" || command.kind === "node.reorder") {
-    return [command.nodeId]
-  }
-  if (command.kind === "columns.insert") {
-    return command.columnsId == null ? [command.parentNodeId] : [command.parentNodeId, command.columnsId]
-  }
-  if (command.kind === "columns.layout.patch") {
-    return [command.columnsId]
-  }
-  if (command.kind === "text-block.insert") {
-    return [command.parentNodeId, command.node.id]
-  }
-  if (command.kind === "text-block.text.replace") {
-    return [command.nodeId]
-  }
-  if (command.kind === "table.row.insert") {
-    return command.rowId == null ? [command.tableId] : [command.tableId, command.rowId]
-  }
-  if (command.kind === "table.row.delete") {
-    return [command.rowId]
-  }
-  return [command.tableId]
-}
-
-export function createVNextOperationHistoryRecord(result: VNextOperationResult): VNextOperationHistoryRecord {
-  if (result.ok) {
-    return {
-      schemaVersion: 1,
-      status: "committed",
-      operationKind: result.operation.kind,
-      source: result.operation.source,
-      command: cloneJson(result.command),
-      targetNodeIds: result.operation.targetNodeIds,
-      scope: result.operation.scope,
-      historyIntent: result.operation.historyPolicy.durableIntent,
-      validationPolicy: result.operation.validationPolicy,
-      renderInvalidation: result.operation.renderInvalidation,
-      issues: result.issues,
-    }
-  }
-
-  return {
-    schemaVersion: 1,
-    status: "rejected",
-    operationKind: result.command.kind,
-    source: result.command.source ?? "user",
-    command: cloneJson(result.command),
-    targetNodeIds: commandTargetNodeIds(result.command),
-    scope: null,
-    historyIntent: null,
-    validationPolicy: null,
-    renderInvalidation: null,
-    failureReason: result.reason,
-    issues: result.issues,
-  }
-}
-
-export function appendVNextOperationHistoryRecord(
-  records: readonly VNextOperationHistoryRecord[],
-  record: VNextOperationHistoryRecord,
-): VNextOperationHistoryRecord[] {
-  return [...records.map((item) => cloneJson(item)), cloneJson(record)]
 }
 
 export function replayVNextOperationHistory(
   initialDocument: DocumentNode,
   records: readonly VNextOperationHistoryRecord[],
 ): VNextOperationHistoryReplayResult {
-  let document = cloneJson(initialDocument)
-  let replayedCount = 0
-  let skippedRejectedCount = 0
-
-  for (const record of records) {
-    if (record.status === "rejected") {
-      skippedRejectedCount += 1
-      continue
-    }
-
-    const result = runVNextOperation(document, record.command)
-    if (!result.ok) {
-      return {
-        ok: false,
-        document,
-        failedRecord: record,
-        failedResult: result,
-        replayedCount,
-        skippedRejectedCount,
-        issues: result.issues,
-      }
-    }
-
-    document = result.document
-    replayedCount += 1
-  }
-
-  return {
-    ok: true,
-    document,
-    replayedCount,
-    skippedRejectedCount,
-    issues: [],
-  }
+  return replayVNextOperationHistoryWithRunner(initialDocument, records, runVNextOperation)
 }
 
 function issue(
@@ -417,43 +242,6 @@ function collectDescendantIds(graph: RelationshipGraph, nodeId: NodeId): NodeId[
 
   visit(nodeId)
   return result
-}
-
-function scopeFromNodes(graph: RelationshipGraph, nodeIds: NodeId[], parentIds: NodeId[] = []): VNextOperationScope {
-  const sectionIds = new Set<SectionId>()
-  const zoneIds = new Set<NodeId>()
-  const tableIds = new Set<NodeId>()
-  const textBlockIds = new Set<NodeId>()
-
-  nodeIds.forEach((nodeId) => {
-    const sectionId = graph.sectionByNodeId.get(nodeId)
-    const nearest = graph.nearestByNodeId.get(nodeId)
-    if (sectionId != null) sectionIds.add(sectionId)
-    if (nearest?.zoneId != null) zoneIds.add(nearest.zoneId)
-    if (nearest?.tableId != null) tableIds.add(nearest.tableId)
-    if (nearest?.textBlockId != null) textBlockIds.add(nearest.textBlockId)
-  })
-
-  return {
-    sectionIds: [...sectionIds],
-    zoneIds: [...zoneIds],
-    nodeIds: [...new Set(nodeIds)],
-    parentNodeIds: [...new Set(parentIds)],
-    tableIds: [...tableIds],
-    textBlockIds: [...textBlockIds],
-  }
-}
-
-function renderInvalidation(
-  lane: VNextOperationRenderInvalidation["lane"],
-  scope: VNextOperationScope,
-): VNextOperationRenderInvalidation {
-  return {
-    lane,
-    affectedNodeIds: scope.nodeIds,
-    affectedSectionIds: scope.sectionIds,
-    pageScope: { kind: "unknown", reason: "pagination-not-integrated" },
-  }
 }
 
 function commitMutatedDocument(

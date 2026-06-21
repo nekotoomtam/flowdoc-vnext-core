@@ -1,6 +1,7 @@
 import type { RelationshipGraph } from "../graph/relationshipGraph.js"
 import { buildRelationshipGraph } from "../graph/relationshipGraph.js"
-import { VNEXT_OPERATION_KINDS, type VNextOperationKind } from "../operations/documentOperations.js"
+import type { VNextOperationKind } from "../operations/commands.js"
+import { getSupportedVNextOperationKinds } from "../operations/registry.js"
 import type {
   DataSnapshot,
   FieldRegistry,
@@ -89,7 +90,7 @@ export function safeCreateVNextRuntimeSession(
         graph,
         diagnostics: {
           graphIssueCount: graph.diagnostics.issues.length,
-          supportedOperationKinds: VNEXT_OPERATION_KINDS,
+          supportedOperationKinds: getSupportedVNextOperationKinds(),
         },
       },
     }
@@ -114,4 +115,3 @@ export function createVNextRuntimeSession(
 
   return result.session
 }
-
