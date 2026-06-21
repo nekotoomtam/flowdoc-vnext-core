@@ -1871,6 +1871,13 @@
       "reason": "browser-local draft selection derives command target, range preview, and readiness before command execution"
     },
     {
+      "action": "browser.applyDraftTextCommand",
+      "label": "Text command",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser-local insert and replace-selection commands update only the active draft before bridge commit"
+    },
+    {
       "action": "sandbox.recordAuthoringHistory",
       "label": "History",
       "lane": "immediate",

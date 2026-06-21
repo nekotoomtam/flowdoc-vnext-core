@@ -6,6 +6,11 @@ Phase 39 derives a browser-local command context from the active WYSIWYG draft
 selection. It answers where a future command would apply before the sandbox
 actually executes insert, replace, key, or rich text commands.
 
+Phase 40 builds on this context for browser-local plain text insert and
+replace-selection commands. This document remains the context/readiness
+boundary; command execution is recorded in
+`docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md`.
+
 ## Purpose
 
 The active draft flow now has a command map:
@@ -93,7 +98,8 @@ Phase 39 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 
 Phase 39 does not implement:
 
-- command execution from this context;
+- command execution from this context, except the later Phase 40 plain text
+  draft command boundary;
 - replace-selection bridge routes;
 - key/field insertion;
 - rich text toolbar;

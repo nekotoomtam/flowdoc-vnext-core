@@ -46,6 +46,7 @@ Parent goal:
 | 37 | WYSIWYG text draft boundary | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 38 | Draft selection boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 39 | Draft command context boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 40 | Draft text command boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -647,6 +648,32 @@ bridge routes, key/field insertion, rich text toolbar commands,
 `inline.style.patch`, contenteditable editing, DOM range mapping over rich
 inline nodes, IME composition lifecycle, per-keystroke core transactions, or
 live layout rendering during active typing.
+
+## Phase 40 Draft Text Command Boundary
+
+Phase 40 executes the first browser-local text commands from active WYSIWYG
+draft command context:
+
+- `docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md` records implemented
+  commands, truth boundary, visible state, acceptance evidence, and non-goals;
+- `examples/template-builder-sandbox/public/app.js` now owns
+  `draftCommandText`, command action guards, and `applyDraftTextCommand` for
+  browser-local `text.insert` and `text.replaceSelection`;
+- the inspector draft panel now exposes a command text input plus Insert text
+  and Replace selection controls that update only the active draft before
+  commit;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.applyDraftTextCommand` as a browser-local action lane;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves command text stays out
+  of generated snapshots and draft commits still use the existing bridge packet
+  path.
+
+This phase intentionally does not implement key/field insertion, rich text
+toolbar commands, `inline.style.patch`, style-preserving mixed inline edits,
+contenteditable editing, DOM range mapping over rich inline nodes, IME
+composition lifecycle, per-keystroke core transactions, replace-selection
+bridge routes separate from draft commit, or live layout rendering during
+active typing.
 
 ## Phase 12 Extraction Record
 

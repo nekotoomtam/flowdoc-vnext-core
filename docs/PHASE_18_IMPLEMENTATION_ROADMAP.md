@@ -659,6 +659,37 @@ Acceptance:
 - draft commit continues to send only text and target text-block id through the
   mutation bridge packet route.
 
+## Phase 40: Draft Text Command Boundary
+
+Goal:
+
+- execute the first browser-local text commands from active draft command
+  context without adding a new bridge route or mutating canonical state before
+  commit.
+
+Deliverables:
+
+- draft command text browser state;
+- inspector command text input;
+- `text.insert` command button for active drafts;
+- guarded `text.replaceSelection` command button for non-empty draft ranges;
+- browser-local command application that updates only draft text, selection,
+  status, and message;
+- action lane for `browser.applyDraftTextCommand`;
+- source/test evidence that command text stays out of generated snapshots and
+  persistence still goes through the existing draft commit bridge.
+
+Acceptance:
+
+- insert text applies to the active draft without a fetch;
+- replace-selection stays disabled/guarded for collapsed ranges;
+- applied command text marks the draft dirty and collapses selection after the
+  inserted text;
+- commit still sends the whole draft through
+  `/api/actions/replace-text?response=packet`;
+- no key insertion, rich inline patching, IME lifecycle, or live layout render
+  is added in this phase.
+
 ## Later Phases
 
 Goal:

@@ -39,6 +39,8 @@ Implemented:
   the sandbox mutation bridge;
 - browser-local draft selection range tracking while a draft is active;
 - browser-local draft command context and readiness before command execution;
+- browser-local draft text command execution for insert and replace-selection
+  before bridge commit;
 - bounded authoring history, undo/redo, and live-layout summaries after bridge
   commits;
 - boundary tests from the root repository.
@@ -46,7 +48,7 @@ Implemented:
 Not implemented:
 
 - rich text editing;
-- command execution from draft context;
+- key, field, or rich text command execution from draft context;
 - durable DOM selection mapping beyond active textarea drafts;
 - live layout renderer;
 - background job scheduler;

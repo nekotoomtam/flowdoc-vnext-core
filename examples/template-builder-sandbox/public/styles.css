@@ -730,7 +730,8 @@ ul {
   gap: 10px;
 }
 
-.bridge-actions {
+.bridge-actions,
+.draft-command-actions {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -743,7 +744,13 @@ ul {
   margin-top: 10px;
 }
 
-.bridge-control input {
+.draft-command-control {
+  display: grid;
+  gap: 8px;
+}
+
+.bridge-control input,
+.draft-command-control input {
   border: 1px solid #cbd7e1;
   border-radius: 6px;
   color: #263341;
@@ -752,12 +759,14 @@ ul {
   padding: 0 9px;
 }
 
-.bridge-control input:disabled {
+.bridge-control input:disabled,
+.draft-command-control input:disabled {
   background: #eef2f6;
   color: #8a96a5;
 }
 
-.bridge-control button {
+.bridge-control button,
+.draft-command-actions button {
   background: #235f73;
   border: 1px solid #1c5265;
   border-radius: 6px;
@@ -766,7 +775,8 @@ ul {
   padding: 0 10px;
 }
 
-.bridge-control button:disabled {
+.bridge-control button:disabled,
+.draft-command-actions button:disabled {
   background: #d6dde5;
   border-color: #cbd7e1;
   color: #667385;

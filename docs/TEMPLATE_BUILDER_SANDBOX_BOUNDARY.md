@@ -89,13 +89,15 @@ with a proper bundler/runtime adapter.
   draft is active.
 - Phase 39 derives browser-local draft command context and readiness from that
   selection before any command execution is wired.
+- Phase 40 executes browser-local plain text insert and replace-selection
+  commands against the active draft before the existing bridge commit.
 
 ## Non-Goals
 
 The sandbox does not yet implement:
 
 - rich text editing;
-- command execution from draft context;
+- key, field, or rich text command execution from draft context;
 - durable DOM selection mapping beyond active textarea drafts;
 - IME behavior;
 - live layout rendering beyond bounded request summaries;

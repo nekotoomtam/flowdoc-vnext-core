@@ -15,6 +15,7 @@ const state = {
     text: "",
     textBlockId: null,
   },
+  draftCommandText: "",
   lastPacket: null,
   mutationText: "Edited through the mutation bridge",
   runtimeCache: null,
@@ -401,6 +402,87 @@ function draftCommandSummary() {
   return `${insert?.status || "blocked"} insert / ${replace?.status || "blocked"} replace`
 }
 
+function draftCommandTextValue() {
+  return state.draftCommandText || ""
+}
+
+function draftCommandActionCanRun(action, context = deriveDraftCommandContext()) {
+  if (!context.active || state.bridgeBusy || draftCommandTextValue().length === 0) return false
+  if (action === "insert-text") return true
+  if (action === "replace-selection") return !context.collapsed
+  return false
+}
+
+function setDraftCommandMessage(message, status = state.draft.status || "editing") {
+  if (!draftIsActive()) return
+  state.draft = {
+    ...state.draft,
+    message,
+    status,
+  }
+  syncDraftDomState()
+}
+
+function setDraftTextFromCommand(nextText, selectionStart, selectionEnd, message) {
+  const textLength = nextText.length
+  const start = Math.max(0, Math.min(selectionStart, textLength))
+  const end = Math.max(0, Math.min(selectionEnd, textLength))
+
+  state.draft = {
+    ...state.draft,
+    message,
+    selectionDirection: "none",
+    selectionEnd: end,
+    selectionSource: "command",
+    selectionStart: start,
+    status: "editing",
+    text: nextText,
+  }
+
+  const editor = app.querySelector("[data-draft-editor]")
+  if (editor && editor.dataset.draftNodeId === state.draft.textBlockId) {
+    editor.value = nextText
+    editor.setSelectionRange(start, end, "none")
+  }
+
+  syncDraftDomState()
+}
+
+function applyDraftTextCommand(action) {
+  const context = deriveDraftCommandContext()
+
+  if (!context.active) {
+    return
+  }
+
+  const commandText = draftCommandTextValue()
+  if (commandText.length === 0) {
+    setDraftCommandMessage("Type command text before applying a browser-local draft command.")
+    return
+  }
+
+  if (action === "replace-selection" && context.collapsed) {
+    setDraftCommandMessage("Select a non-empty draft range before replacing selection.")
+    return
+  }
+
+  if (action !== "insert-text" && action !== "replace-selection") {
+    return
+  }
+
+  const rangeStart = context.selectionStart ?? state.draft.text.length
+  const rangeEnd = context.selectionEnd ?? rangeStart
+  const nextText = `${state.draft.text.slice(0, rangeStart)}${commandText}${state.draft.text.slice(rangeEnd)}`
+  const nextCursor = rangeStart + commandText.length
+  const actionLabel = action === "replace-selection" ? "replace selection" : "insert text"
+  setDraftTextFromCommand(
+    nextText,
+    nextCursor,
+    nextCursor,
+    `Applied browser-local ${actionLabel}; commit the draft to persist it.`,
+  )
+}
+
 function commandStatusVariant(status) {
   if (status === "ready") return "good"
   if (status === "guarded" || status === "blocked") return "warn"
@@ -521,6 +603,15 @@ function syncDraftDomState() {
       const reason = target.querySelector("[data-draft-command-reason]")
       if (reason) reason.textContent = item.reason
     })
+  })
+  app.querySelectorAll("[data-draft-command-text]").forEach((target) => {
+    target.disabled = !draftIsActive() || state.bridgeBusy
+    if (target !== document.activeElement) {
+      target.value = draftCommandTextValue()
+    }
+  })
+  app.querySelectorAll("[data-draft-command-action]").forEach((target) => {
+    target.disabled = !draftCommandActionCanRun(target.dataset.draftCommandAction, commandContext)
   })
   app.querySelectorAll("[data-draft-statusbar]").forEach((target) => {
     target.textContent = `Draft: ${status}`
@@ -830,6 +921,9 @@ function renderInspector(snapshot) {
   const draftPanelMessage = draftIsActive()
     ? state.draft.message || "Browser draft is active."
     : draftGuard || state.draft.message || "No browser draft is active."
+  const draftCommandInputDisabled = !draftIsActive() || state.bridgeBusy
+  const canInsertDraftCommand = draftCommandActionCanRun("insert-text", commandContext)
+  const canReplaceDraftCommand = draftCommandActionCanRun("replace-selection", commandContext)
   const fieldRows = snapshot.fields.map((field) => `
     <li>
       <span>${escapeHtml(field.label)}</span>
@@ -952,6 +1046,31 @@ function renderInspector(snapshot) {
             <dt>After</dt><dd data-draft-command-after>${escapeHtml(commandContext.afterTextPreview)}</dd>
           </dl>
           ${renderDraftCommandReadiness(commandContext)}
+          <div class="draft-command-control">
+            <input
+              type="text"
+              data-draft-command-text
+              value="${escapeHtml(draftCommandTextValue())}"
+              aria-label="Draft command text"
+              ${draftCommandInputDisabled ? "disabled" : ""}
+            >
+            <div class="draft-command-actions">
+              <button
+                type="button"
+                data-draft-command-action="insert-text"
+                ${canInsertDraftCommand ? "" : "disabled"}
+              >
+                Insert text
+              </button>
+              <button
+                type="button"
+                data-draft-command-action="replace-selection"
+                ${canReplaceDraftCommand ? "" : "disabled"}
+              >
+                Replace selection
+              </button>
+            </div>
+          </div>
           <div class="draft-actions">
             <button
               type="button"
@@ -1168,6 +1287,13 @@ function bindSelectionHandlers() {
   })
 
   inspector?.addEventListener("click", (event) => {
+    const draftCommandTarget = event.target.closest("[data-draft-command-action]")
+    if (draftCommandTarget && inspector.contains(draftCommandTarget)) {
+      event.stopPropagation()
+      applyDraftTextCommand(draftCommandTarget.dataset.draftCommandAction)
+      return
+    }
+
     const draftActionTarget = event.target.closest("[data-draft-action]")
     if (draftActionTarget && inspector.contains(draftActionTarget)) {
       event.stopPropagation()
@@ -1197,6 +1323,11 @@ function bindSelectionHandlers() {
 
   inspector?.querySelector("[data-mutation-text]")?.addEventListener("input", (event) => {
     state.mutationText = event.target.value
+  })
+
+  inspector?.querySelector("[data-draft-command-text]")?.addEventListener("input", (event) => {
+    state.draftCommandText = event.target.value
+    syncDraftDomState()
   })
 }
 
