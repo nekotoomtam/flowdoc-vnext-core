@@ -65,6 +65,14 @@ The package must remain runnable without any parent editor checkout.
   stable model offsets and applies granular text insert, delete, range replace,
   and inline field-ref insert with text-block dirty scope and history intent
   without invoking layout/export
+- Authoring intent history baseline records text transaction outcomes as
+  undo-policy metadata, coalesces repeated typing by merge key, keeps paste and
+  field inserts as single groups, skips selection-only changes from durable
+  history, and records rejected transaction diagnostics
+- Live layout boundary baseline turns selection, authoring history, and dirty
+  scopes into viewport-aware live-layout requests, marks exact generation stale
+  after content/table/node changes, and keeps measured pagination as export
+  truth
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -140,8 +148,9 @@ The package must remain runnable without any parent editor checkout.
 
 - visible editor runtime integration
 - frontend authoring runtime beyond the initial pure editable-session/text
-  transaction contracts, including visible node composition, visible typing
-  integration, IME, undo, and live layout
+  transaction/intent-history/live-layout boundary contracts, including visible
+  node composition, visible typing integration, IME, concrete undo/redo UI, and
+  a concrete browser live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
 - backend generation API that accepts template package plus request data
 - form-slot or submission-state runtime
@@ -154,6 +163,6 @@ The package must remain runnable without any parent editor checkout.
 - final pagination-aware TOC page resolution
 - concrete PDF/DOCX renderer implementation beyond measured-fragment
   consumption contracts
-- durable operation history persistence outside the in-memory replay helper
+- durable operation/authoring history persistence outside in-memory helpers
 - product-level editor acceptance smokes
 - publishing/distribution strategy beyond local package consumption

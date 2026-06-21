@@ -41,6 +41,25 @@ Split block, merge block, inline style patching, IME lifecycle commands,
 undo/redo storage, DOM selection mapping, and live layout scheduling remain
 future phases.
 
+## Phase 22 Baseline
+
+Intent history now records transaction outcomes without binding them to a
+frontend reducer:
+
+- `createVNextAuthoringIntentHistoryRecord(...)` converts text transaction
+  results into committed or rejected authoring intent records.
+- `appendVNextAuthoringIntentHistoryRecord(...)` assigns group ids and merges
+  repeated typing records that share the same merge key/source.
+- paste and IME-flavored text insert records are single-entry groups.
+- `inline.field-ref.insert` creates a single command group.
+- `createVNextSelectionOnlyAuthoringHistoryRecord(...)` marks selection-only
+  changes as non-durable and keeps them out of durable history.
+- rejected text transactions keep diagnostic issues and do not mutate the
+  source document.
+
+Concrete undo/redo storage, inverse edits, focus restoration, DOM selection
+mapping, and visible editor integration remain future phases.
+
 ## Text Position Model
 
 Text positions should be model positions, not page geometry:

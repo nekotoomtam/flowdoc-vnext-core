@@ -1,6 +1,6 @@
 # Live Layout And Exact Generation Plan
 
-Status: draft architecture reset.
+Status: Phase 23 baseline implemented for the pure live-layout boundary.
 
 vNext needs two layout profiles over one shared document model:
 
@@ -22,6 +22,27 @@ Backend exact generation layout
 
 Live layout must not be treated as export-ready by default. Exact generation
 must not be required for every keystroke.
+
+## Phase 23 Baseline
+
+The current baseline defines the boundary contract only:
+
+- `resolveVNextLiveLayoutBoundary(...)` turns selection impact,
+  authoring-history records, or dirty scopes into either no layout work or a
+  live-layout request.
+- selection-only impact returns no layout request and leaves exact generation
+  unchanged.
+- text dirty scopes produce `text-content` requests scoped to the text block
+  and parent node.
+- table dirty scopes produce `table-region` requests scoped to the table and
+  parent node.
+- layout requests carry visible range, affected scope, live layout freshness,
+  and exact generation freshness.
+- exact generation freshness always names `measured-pagination` as the final
+  truth.
+
+The baseline does not execute layout, measure text, update DOM viewport state,
+or feed export readiness from live layout.
 
 ## Live Layout Responsibilities
 

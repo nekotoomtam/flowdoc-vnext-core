@@ -28,6 +28,8 @@ Parent goal:
 | 19 | Key registry and data diagnostics | done | `src/binding/keyDataDiagnostics.ts`; `tests/keyDataDiagnostics.test.ts` |
 | 20 | Editable authoring session | done | `src/authoring/editableSession.ts`; `tests/editableSession.test.ts` |
 | 21 | Text transaction engine | done | `src/authoring/textTransactions.ts`; `tests/textTransactions.test.ts` |
+| 22 | Intent history | done | `src/authoring/intentHistory.ts`; `tests/intentHistory.test.ts` |
+| 23 | Live layout boundary | done | `src/authoring/liveLayoutBoundary.ts`; `tests/liveLayoutBoundary.test.ts` |
 
 ## Current Rule
 
@@ -140,6 +142,62 @@ Phase 21 adds the first pure text-transaction engine for smooth authoring:
 This phase intentionally does not add visible editor integration, DOM selection
 mapping, IME lifecycle, undo/redo storage, split/merge block commands, inline
 style patch commands, live layout, API routes, exact generation, key history,
+repeat/collection behavior, or package version changes.
+
+## Phase 22 Intent History
+
+Phase 22 adds a pure authoring intent-history contract over text transaction
+results:
+
+- `createVNextAuthoringIntentHistoryRecord(...)` converts committed and
+  rejected text transaction results into JSON-serializable authoring intent
+  records.
+- `appendVNextAuthoringIntentHistoryRecord(...)` assigns transaction group ids
+  and coalesces repeated typing-session records with the same merge key/source.
+- `appendVNextAuthoringIntentHistoryResult(...)` combines record creation and
+  append for transaction result flows.
+- `createVNextSelectionOnlyAuthoringHistoryRecord(...)` marks selection-only
+  changes as non-durable so they do not enter durable undo history.
+- `groupVNextAuthoringIntentHistory(...)` summarizes committed/rejected
+  records by group for future undo/redo UI and diagnostics.
+- paste/IME-style insert records are single-entry groups even when backed by
+  `text.insert`.
+- rejected transaction records preserve failure reason and issues without
+  mutating the input document.
+- `tests/intentHistory.test.ts` covers typing coalescing, paste grouping,
+  field-ref insert grouping, non-durable selection changes, rejected
+  diagnostics, and independence from DOM/parent/layout execution.
+
+This phase intentionally does not add concrete undo/redo storage, replay or
+inverse-operation generation, visible editor integration, focus restoration,
+DOM selection mapping, IME lifecycle runtime, live layout, API routes, exact
+generation, key history, repeat/collection behavior, or package version
+changes.
+
+## Phase 23 Live Layout Boundary
+
+Phase 23 adds a pure live-layout boundary without replacing measured
+pagination:
+
+- `resolveVNextLiveLayoutBoundary(...)` accepts selection impact,
+  authoring-history records, or explicit dirty scopes.
+- selection-only impact returns `no-layout-request` and leaves exact generation
+  unchanged.
+- committed text authoring history produces a `text-content` live layout
+  request scoped to the affected text block and parent.
+- table dirty scopes produce a `table-region` live layout request scoped to the
+  affected table and parent.
+- every layout request includes visible range, affected scope, live layout
+  freshness, and an explicit exact-generation stale marker.
+- exact generation declares `finalTruth: "measured-pagination"`; live layout is
+  not export readiness.
+- `tests/liveLayoutBoundary.test.ts` covers selection no-op, text scope,
+  table scope, exact generation stale/unchanged markers, and independence from
+  measured pagination/export readiness execution.
+
+This phase intentionally does not add a browser live-layout renderer, DOM
+viewport integration, text measurement cache, exact layout execution,
+pagination/export readiness replacement, API routes, key history,
 repeat/collection behavior, or package version changes.
 
 ## Phase 12 Extraction Record
