@@ -20,6 +20,11 @@ export interface TemplateBuilderReplaceTextRequest {
   text: string
 }
 
+export interface TemplateBuilderInsertTextAtEndRequest {
+  textBlockId: string
+  text: string
+}
+
 export interface TemplateBuilderMutationIssue {
   severity: "error" | "warning"
   code: string
@@ -30,7 +35,7 @@ export interface TemplateBuilderMutationIssue {
 export interface TemplateBuilderChangePacket {
   source: "flowdoc-template-builder-change-packet"
   packetVersion: 1
-  action: "sandbox.replacePlainTextBlock"
+  action: string
   status: TemplateBuilderSnapshotLastMutation["status"]
   baseRevision: number
   nextRevision: number
@@ -59,6 +64,10 @@ export interface TemplateBuilderMutationResponse {
 
 export interface TemplateBuilderMutationBridge {
   snapshot(): TemplateBuilderSnapshot
+  insertTextAtEnd(
+    request: TemplateBuilderInsertTextAtEndRequest,
+    responseOptions?: TemplateBuilderMutationResponseOptions,
+  ): TemplateBuilderMutationResponse
   replaceText(
     request: TemplateBuilderReplaceTextRequest,
     responseOptions?: TemplateBuilderMutationResponseOptions,
@@ -74,13 +83,14 @@ function cloneJson<T>(value: T): T {
 }
 
 function bridgeMutation(
+  action: string,
   status: TemplateBuilderSnapshotLastMutation["status"],
   targetTextBlockId: string | null,
   summary: string,
   issueCount: number,
 ): TemplateBuilderSnapshotLastMutation {
   return {
-    action: "sandbox.replacePlainTextBlock",
+    action,
     status,
     targetTextBlockId,
     summary,
@@ -94,6 +104,14 @@ function normalizeText(value: unknown): string | null {
   if (trimmed.length === 0) return null
   if (trimmed.length > 240) return trimmed.slice(0, 240)
   return trimmed
+}
+
+function normalizeInsertText(value: unknown): string | null {
+  if (typeof value !== "string") return null
+  if (value.length === 0 || value.trim().length === 0) return null
+  if (/[\r\n]/.test(value)) return null
+  if (value.length > 120) return value.slice(0, 120)
+  return value
 }
 
 function textBlockFromPackage(pack: FlowDocPackageV2DocumentVNext, textBlockId: string): TextBlockNode | null {
@@ -135,7 +153,7 @@ function createChangePacket(input: {
   return {
     source: "flowdoc-template-builder-change-packet",
     packetVersion: 1,
-    action: "sandbox.replacePlainTextBlock",
+    action: input.mutation.action,
     status: input.mutation.status,
     baseRevision: input.baseRevision,
     nextRevision: input.nextRevision,
@@ -202,13 +220,14 @@ export function createTemplateBuilderMutationBridge(
   }
 
   function rejected(
+    action: string,
     textBlockId: string | null,
     summary: string,
     issues: TemplateBuilderMutationIssue[],
     responseOptions?: TemplateBuilderMutationResponseOptions,
   ): TemplateBuilderMutationResponse {
     const baseRevision = documentRevision
-    lastMutation = bridgeMutation("rejected", textBlockId, summary, issues.length)
+    lastMutation = bridgeMutation(action, "rejected", textBlockId, summary, issues.length)
     const snapshot = bridgeSnapshot()
 
     return mutationResponse({
@@ -224,26 +243,126 @@ export function createTemplateBuilderMutationBridge(
     })
   }
 
+  function applyCommittedTransaction(input: {
+    action: string
+    targetTextBlockId: string
+    baseRevision: number
+    document: FlowDocPackageV2DocumentVNext["document"]
+    dirtyScope: VNextTextTransactionDirtyScope
+    summary: string
+    responseOptions?: TemplateBuilderMutationResponseOptions
+  }): TemplateBuilderMutationResponse {
+    workingPackage = serializeFlowDocPackageV2DocumentVNext({
+      ...workingPackage,
+      document: input.document,
+      meta: {
+        ...workingPackage.meta,
+        updatedAt: "sandbox-memory",
+      },
+    })
+    documentRevision += 1
+    mutationCount += 1
+    dirtyScopeCount = 1
+    lastMutation = bridgeMutation(
+      input.action,
+      "applied",
+      input.targetTextBlockId,
+      input.summary,
+      0,
+    )
+
+    return mutationResponse({
+      ok: true,
+      snapshot: bridgeSnapshot(),
+      mutation: lastMutation,
+      issues: [],
+      baseRevision: input.baseRevision,
+      nextRevision: documentRevision,
+      changedNodeIds: [input.targetTextBlockId],
+      dirtyScopes: [input.dirtyScope],
+      responseOptions: input.responseOptions,
+    })
+  }
+
   return {
     snapshot: bridgeSnapshot,
+    insertTextAtEnd(request, responseOptions) {
+      const action = "sandbox.insertPlainTextAtEnd"
+      const text = normalizeInsertText(request.text)
+      if (text == null) {
+        return rejected(action, request.textBlockId ?? null, "insert text was rejected", [
+          issue("invalid-text", "insert text must be a non-empty single-line string up to 120 characters", "text"),
+        ], responseOptions)
+      }
+
+      const textBlock = textBlockFromPackage(workingPackage, request.textBlockId)
+      if (textBlock == null) {
+        return rejected(action, request.textBlockId, "target was rejected", [
+          issue("target-not-text-block", `target "${request.textBlockId}" is not a text-block`, "textBlockId"),
+        ], responseOptions)
+      }
+
+      const projection = projectVNextTextBlockInlines(textBlock)
+      if (projection.segments.some((segment) => !segment.editable)) {
+        return rejected(action, textBlock.id, "target contains atomic inline content", [
+          issue(
+            "non-plain-text-block",
+            "Phase 32 text insert only supports plain text-blocks without field refs, page numbers, or line breaks",
+            "textBlockId",
+          ),
+        ], responseOptions)
+      }
+
+      const baseRevision = documentRevision
+      const transaction = runVNextTextTransaction(workingPackage.document, {
+        kind: "text.insert",
+        source: "user",
+        position: {
+          textBlockId: textBlock.id,
+          offset: projection.textLength,
+        },
+        text,
+        inlineId: `${textBlock.id}-bridge-insert-${mutationCount + 1}`,
+      })
+
+      if (!transaction.ok) {
+        return rejected(action, textBlock.id, "core text transaction was rejected", transaction.issues.map((item) => ({
+          severity: item.severity,
+          code: item.code,
+          message: item.message,
+          path: item.path,
+        })), responseOptions)
+      }
+
+      return applyCommittedTransaction({
+        action,
+        targetTextBlockId: textBlock.id,
+        baseRevision,
+        document: transaction.document,
+        dirtyScope: transaction.transaction.dirtyScope,
+        summary: transaction.transaction.historyIntent.summary,
+        responseOptions,
+      })
+    },
     replaceText(request, responseOptions) {
+      const action = "sandbox.replacePlainTextBlock"
       const text = normalizeText(request.text)
       if (text == null) {
-        return rejected(request.textBlockId ?? null, "replacement text was rejected", [
+        return rejected(action, request.textBlockId ?? null, "replacement text was rejected", [
           issue("invalid-text", "replacement text must be a non-empty string up to 240 characters", "text"),
         ], responseOptions)
       }
 
       const textBlock = textBlockFromPackage(workingPackage, request.textBlockId)
       if (textBlock == null) {
-        return rejected(request.textBlockId, "target was rejected", [
+        return rejected(action, request.textBlockId, "target was rejected", [
           issue("target-not-text-block", `target "${request.textBlockId}" is not a text-block`, "textBlockId"),
         ], responseOptions)
       }
 
       const projection = projectVNextTextBlockInlines(textBlock)
       if (projection.textLength === 0 || projection.segments.some((segment) => !segment.editable)) {
-        return rejected(textBlock.id, "target contains atomic inline content", [
+        return rejected(action, textBlock.id, "target contains atomic inline content", [
           issue(
             "non-plain-text-block",
             "Phase 29 bridge replacement only supports plain text-blocks without field refs, page numbers, or line breaks",
@@ -266,7 +385,7 @@ export function createTemplateBuilderMutationBridge(
       })
 
       if (!transaction.ok) {
-        return rejected(textBlock.id, "core text transaction was rejected", transaction.issues.map((item) => ({
+        return rejected(action, textBlock.id, "core text transaction was rejected", transaction.issues.map((item) => ({
           severity: item.severity,
           code: item.code,
           message: item.message,
@@ -274,33 +393,13 @@ export function createTemplateBuilderMutationBridge(
         })), responseOptions)
       }
 
-      workingPackage = serializeFlowDocPackageV2DocumentVNext({
-        ...workingPackage,
-        document: transaction.document,
-        meta: {
-          ...workingPackage.meta,
-          updatedAt: "sandbox-memory",
-        },
-      })
-      documentRevision += 1
-      mutationCount += 1
-      dirtyScopeCount = 1
-      lastMutation = bridgeMutation(
-        "applied",
-        textBlock.id,
-        transaction.transaction.historyIntent.summary,
-        0,
-      )
-
-      return mutationResponse({
-        ok: true,
-        snapshot: bridgeSnapshot(),
-        mutation: lastMutation,
-        issues: [],
+      return applyCommittedTransaction({
+        action,
+        targetTextBlockId: textBlock.id,
         baseRevision,
-        nextRevision: documentRevision,
-        changedNodeIds: [textBlock.id],
-        dirtyScopes: [transaction.transaction.dirtyScope],
+        document: transaction.document,
+        dirtyScope: transaction.transaction.dirtyScope,
+        summary: transaction.transaction.historyIntent.summary,
         responseOptions,
       })
     },

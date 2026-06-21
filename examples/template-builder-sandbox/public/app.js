@@ -440,16 +440,25 @@ function renderInspector(snapshot) {
             type="text"
             data-mutation-text
             value="${escapeHtml(state.mutationText)}"
-            aria-label="Replacement text"
+            aria-label="Mutation text"
             ${canUseBridge ? "" : "disabled"}
           >
-          <button
-            type="button"
-            data-mutation-action="replace-text"
-            ${canUseBridge && !state.bridgeBusy ? "" : "disabled"}
-          >
-            ${state.bridgeBusy ? "Applying" : "Apply through bridge"}
-          </button>
+          <div class="bridge-actions">
+            <button
+              type="button"
+              data-mutation-action="replace-text"
+              ${canUseBridge && !state.bridgeBusy ? "" : "disabled"}
+            >
+              ${state.bridgeBusy ? "Applying" : "Replace block"}
+            </button>
+            <button
+              type="button"
+              data-mutation-action="insert-text-at-end"
+              ${canUseBridge && !state.bridgeBusy ? "" : "disabled"}
+            >
+              ${state.bridgeBusy ? "Applying" : "Append text"}
+            </button>
+          </div>
           <p data-state="${lastMutation?.status || "idle"}">${escapeHtml(bridgeMessage)}</p>
           ${canUseBridge ? "" : `<small>Select a plain text-block without field refs, page numbers, or line breaks.</small>`}
         </div>
@@ -523,7 +532,7 @@ function bindSelectionHandlers() {
     const actionTarget = event.target.closest("[data-mutation-action]")
     if (actionTarget && inspector.contains(actionTarget)) {
       event.stopPropagation()
-      applyBridgeReplaceText()
+      applyBridgeTextAction(actionTarget.dataset.mutationAction)
       return
     }
 
@@ -550,7 +559,12 @@ async function fetchSnapshot() {
   return response.json()
 }
 
-async function applyBridgeReplaceText() {
+function routeForBridgeTextAction(action) {
+  if (action === "insert-text-at-end") return "./api/actions/insert-text-at-end?response=packet"
+  return "./api/actions/replace-text?response=packet"
+}
+
+async function applyBridgeTextAction(action) {
   const node = selectedNode()
   if (!selectedNodeCanUseBridge(node)) return
 
@@ -559,7 +573,7 @@ async function applyBridgeReplaceText() {
   render()
 
   try {
-    const response = await fetch("./api/actions/replace-text?response=packet", {
+    const response = await fetch(routeForBridgeTextAction(action), {
       body: JSON.stringify({
         text: state.mutationText,
         textBlockId: node.id,

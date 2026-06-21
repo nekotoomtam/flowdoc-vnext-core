@@ -429,6 +429,32 @@ Acceptance:
   persistence, structural packet operation, or non-sandbox API route is
   claimed.
 
+## Phase 32: Explicit Text Action Boundary
+
+Goal:
+
+- move from whole-block replacement only to one granular text transaction
+  action without starting DOM caret or IME work.
+
+Deliverables:
+
+- `sandbox.insertPlainTextAtEnd` bridge action;
+- sandbox server route for insert text at end;
+- `text.insert` core transaction call through the public package boundary;
+- packet response for accepted and rejected insert actions;
+- inspector command that uses the existing browser runtime cache;
+- text action boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- replace-block action still works;
+- append-text action changes only the selected text block;
+- packet responses remain bounded and cache-consumable;
+- field-ref or other atomic text blocks stay rejected in this phase;
+- no DOM caret mapping, IME composition, browser-derived ranges, live layout
+  renderer, persistence, or non-sandbox API route is claimed.
+
 ## Later Phases
 
 Goal:

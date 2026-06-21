@@ -43,6 +43,9 @@ The cache is rebuilt from the current browser snapshot view model after a
 packet applies. That is acceptable in this phase because the goal is response
 ownership and browser-side packet consumption before typing work starts.
 
+Phase 32 reuses this cache path for `sandbox.insertPlainTextAtEnd`, the first
+explicit text-insert action.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.

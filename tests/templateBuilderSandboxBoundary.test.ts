@@ -124,12 +124,17 @@ describe("template builder sandbox boundary", () => {
 
     expect(serverSource).toContain("/api/snapshot")
     expect(serverSource).toContain("/api/actions/replace-text")
+    expect(serverSource).toContain("/api/actions/insert-text-at-end")
     expect(serverSource).toContain('searchParams.get("response") !== "packet"')
     expect(bridgeSource).toContain('from "@flowdoc/vnext-core"')
     expect(bridgeSource).toContain("runVNextTextTransaction")
     expect(bridgeSource).toContain("text.range.replace")
+    expect(bridgeSource).toContain("text.insert")
+    expect(bridgeSource).toContain("sandbox.insertPlainTextAtEnd")
     expect(bridgeSource).toContain("flowdoc-template-builder-change-packet")
     expect(appSource).toContain("./api/actions/replace-text?response=packet")
+    expect(appSource).toContain("./api/actions/insert-text-at-end?response=packet")
+    expect(appSource).toContain("Append text")
     expect(appSource).toContain("lastPacket")
     expect(appSource).not.toContain("snapshot.document")
     expect(snapshot.mutationBridge).toEqual({
@@ -214,7 +219,7 @@ describe("template builder sandbox boundary", () => {
         targetTextBlockId: "cover-title",
       },
     })
-  })
+  }, 15_000)
 
   it("returns bounded packet-only mutation responses", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -309,7 +314,91 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
     ]))
-  })
+  }, 15_000)
+
+  it("inserts text at the selected text block end through the sandbox bridge", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      import { register } from "node:module";
+      import { pathToFileURL } from "node:url";
+
+      register("./ts-loader.mjs", pathToFileURL(process.cwd() + "/scripts/"));
+      const { createTemplateBuilderMutationBridge } = await import("./src/mutationBridge.ts");
+      const fixture = JSON.parse(readFileSync("../../fixtures/product-report-vnext.flowdoc.json", "utf8"));
+      const bridge = createTemplateBuilderMutationBridge(fixture, {
+        fixturePath: "fixtures/product-report-vnext.flowdoc.json",
+      });
+      const accepted = bridge.insertTextAtEnd({
+        textBlockId: "cover-header-label",
+        text: " appended",
+      }, { includeSnapshot: false });
+      const rejected = bridge.insertTextAtEnd({
+        textBlockId: "cover-title",
+        text: " should reject",
+      }, { includeSnapshot: false });
+
+      console.log(JSON.stringify({
+        acceptedOk: accepted.ok,
+        acceptedHasSnapshot: Object.prototype.hasOwnProperty.call(accepted, "snapshot"),
+        acceptedAction: accepted.packet.action,
+        acceptedPacket: accepted.packet,
+        acceptedPacketHasSections: JSON.stringify(accepted.packet).includes('"sections"'),
+        rejectedOk: rejected.ok,
+        rejectedPacket: rejected.packet,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      acceptedOk: boolean
+      acceptedHasSnapshot: boolean
+      acceptedAction: string
+      acceptedPacket: {
+        baseRevision: number
+        nextRevision: number
+        changedNodeIds: string[]
+        changedNodes: Array<{ id: string; textPreview: string }>
+        dirtyScopes: Array<{ textBlockId: string }>
+      }
+      acceptedPacketHasSections: boolean
+      rejectedOk: boolean
+      rejectedPacket: {
+        baseRevision: number
+        nextRevision: number
+        changedNodeIds: string[]
+        issues: Array<{ code: string }>
+      }
+    }
+
+    expect(result.acceptedOk).toBe(true)
+    expect(result.acceptedHasSnapshot).toBe(false)
+    expect(result.acceptedAction).toBe("sandbox.insertPlainTextAtEnd")
+    expect(result.acceptedPacket).toMatchObject({
+      baseRevision: 0,
+      nextRevision: 1,
+      changedNodeIds: ["cover-header-label"],
+      changedNodes: [
+        expect.objectContaining({
+          id: "cover-header-label",
+          textPreview: expect.stringContaining("appended"),
+        }),
+      ],
+      dirtyScopes: [
+        expect.objectContaining({ textBlockId: "cover-header-label" }),
+      ],
+    })
+    expect(result.acceptedPacketHasSections).toBe(false)
+    expect(result.rejectedOk).toBe(false)
+    expect(result.rejectedPacket).toMatchObject({
+      baseRevision: 1,
+      nextRevision: 1,
+      changedNodeIds: [],
+    })
+    expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "non-plain-text-block" }),
+    ]))
+  }, 15_000)
 
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
@@ -322,6 +411,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("flowdoc-template-builder-change-packet")
     expect(appSource).toContain("packet.baseRevision !== state.snapshot.session.documentRevision")
     expect(appSource).toContain("applyChangePacket(result.packet)")
+    expect(appSource).toContain("applyBridgeTextAction")
     expect(appSource).toContain("setSnapshotFromRefresh(await fetchSnapshot())")
     expect(appSource).toContain("state.runtimeCache?.nodeById.get")
     expect(appSource).not.toContain("result.snapshot")

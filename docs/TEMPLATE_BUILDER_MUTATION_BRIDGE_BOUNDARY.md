@@ -32,6 +32,10 @@ The browser never mutates canonical document JSON directly.
 - persistence: in-memory sandbox package only;
 - response: complete refreshed snapshot plus mutation result.
 
+Phase 32 also adds `sandbox.insertPlainTextAtEnd` as the first granular text
+insert action. It uses `text.insert` at the selected text-block projection end
+offset and returns the same mutation packet shape.
+
 ## Runtime Rules
 
 - The bridge owns an in-memory working package initialized from the canonical
@@ -63,6 +67,12 @@ The browser mutation UI now requests packet mode and applies the returned
 packet to a derived runtime cache. The full snapshot response remains available
 for boot, fallback refresh, and non-cache consumers.
 
+## Phase 32 Handoff
+
+The bridge now has both a whole-block replace action and an append-text action.
+The append path is explicit and button-driven; it does not infer browser DOM
+selection, caret position, or IME composition ranges.
+
 ## Non-Goals
 
 Phase 29 and Phase 30 do not implement:
@@ -70,6 +80,7 @@ Phase 29 and Phase 30 do not implement:
 - per-keystroke typing;
 - DOM caret mapping;
 - IME composition;
+- browser-derived text ranges;
 - partial range selection from the browser;
 - persistent browser normalized cache;
 - undo/redo execution;

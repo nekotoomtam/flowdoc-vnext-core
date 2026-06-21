@@ -70,6 +70,9 @@ with a proper bundler/runtime adapter.
   payload after every action.
 - Phase 31 makes the browser consume packet-only bridge responses after boot
   through a derived runtime cache and node index.
+- Phase 32 adds an explicit append-text action that uses `text.insert` through
+  the same bridge, packet, and browser cache path without DOM caret or IME
+  handling.
 
 ## Non-Goals
 

@@ -38,6 +38,7 @@ Parent goal:
 | 29 | One safe mutation path | done | `docs/TEMPLATE_BUILDER_MUTATION_BRIDGE_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 30 | Snapshot delta boundary | done | `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 31 | Browser runtime cache boundary | done | `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 32 | Explicit text action boundary | done | `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -431,6 +432,35 @@ mapping, IME behavior, partial browser text ranges, undo/redo execution, live
 layout rendering, structural packet operations, durable browser cache
 persistence, save/publish persistence, backend API routes outside the sandbox
 server, exact layout, preview, PDF, or DOCX rendering.
+
+## Phase 32 Explicit Text Action Boundary
+
+Phase 32 adds one granular text action without taking on caret or IME work:
+
+- `sandbox.insertPlainTextAtEnd` is exposed through the sandbox mutation bridge.
+- the sandbox server exposes
+  `POST /api/actions/insert-text-at-end`.
+- accepted inserts call `runVNextTextTransaction(...)` with `text.insert`
+  through the public `@flowdoc/vnext-core` boundary.
+- the insert position is the selected text-block projection end offset.
+- insert text is constrained to non-empty single-line text.
+- text blocks with field refs, page numbers, or line breaks stay rejected for
+  this phase.
+- accepted and rejected insert responses use the same change-packet path as the
+  replace action.
+- the browser inspector has explicit `Replace block` and `Append text`
+  commands that both feed the browser runtime cache.
+- `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md` records why DOM caret,
+  IME composition, and browser-derived ranges remain deferred.
+- `tests/templateBuilderSandboxBoundary.test.ts` guards the route, core command,
+  packet behavior, and browser source path.
+
+This phase intentionally does not implement per-keystroke typing, DOM caret
+mapping, IME behavior, browser-derived text ranges, partial range replace from
+selection, undo/redo execution, live layout rendering, structural packet
+operations, durable browser cache persistence, save/publish persistence,
+backend API routes outside the sandbox server, exact layout, preview, PDF, or
+DOCX rendering.
 
 ## Phase 12 Extraction Record
 

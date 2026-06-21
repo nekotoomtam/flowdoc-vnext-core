@@ -587,6 +587,12 @@ ul {
   gap: 8px;
 }
 
+.bridge-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .bridge-control input {
   border: 1px solid #cbd7e1;
   border-radius: 6px;

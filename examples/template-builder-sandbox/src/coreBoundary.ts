@@ -321,6 +321,13 @@ export function createTemplateBuilderSnapshot(
         reason: "selected plain text blocks can be replaced through the sandbox mutation bridge",
       },
       {
+        action: "sandbox.insertPlainTextAtEnd",
+        label: "Append text",
+        lane: "immediate",
+        status: "wired",
+        reason: "selected plain text blocks can receive explicit text.insert actions before caret typing is wired",
+      },
+      {
         action: "browser.applyChangePacket",
         label: "Apply packet",
         lane: "immediate",

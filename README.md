@@ -98,6 +98,9 @@ The package must remain runnable without any parent editor checkout.
 - Sandbox browser cache boundary consumes those change packets in the browser:
   the shell still boots from a full snapshot, then applies packet-only mutation
   responses to a browser-owned runtime cache and snapshot view model
+- Sandbox text action boundary adds an explicit append-text inspector command
+  that calls `text.insert` through the mutation bridge and packet cache path
+  without taking on DOM caret or IME behavior yet
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -170,6 +173,8 @@ The package must remain runnable without any parent editor checkout.
   contract beside the existing sandbox snapshot response
 - `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`: browser runtime cache
   contract for consuming sandbox change packets after boot
+- `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md`: explicit text insert action
+  contract before DOM caret and IME work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
