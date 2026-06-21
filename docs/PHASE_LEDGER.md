@@ -32,6 +32,7 @@ Parent goal:
 | 23 | Live layout boundary | done | `src/authoring/liveLayoutBoundary.ts`; `tests/liveLayoutBoundary.test.ts` |
 | 24 | Backend generation runtime | done | `src/generation/runtime.ts`; `tests/generationRuntime.test.ts` |
 | 25 | Large document acceptance harness | done | `tests/largeDocumentAcceptance.test.ts` |
+| 26 | Runtime usage map and action/job contract | done | `docs/RUNTIME_USAGE_MAP.md`; `docs/ACTION_JOB_CONTRACT.md` |
 
 ## Current Rule
 
@@ -252,6 +253,38 @@ Phase 25 makes large-document behavior test-visible before visible editor work:
 This phase intentionally does not add browser rendering, viewport scrolling,
 timing budgets, exact layout execution, API routes, PDF/DOCX rendering,
 storage, key history, repeat/collection behavior, or package version changes.
+
+## Phase 26 Runtime Usage Map And Action/Job Contract
+
+Phase 26 locks the app-facing design before visible UI/API work:
+
+- `docs/RUNTIME_USAGE_MAP.md` maps how the future frontend template builder and
+  backend generation runtime use the shared core without creating separate
+  document truths.
+- the runtime usage map defines the first editor shell shape at a structural
+  level: toolbar, node tree, document canvas/live view, inspector, and status
+  area.
+- it maps ownership across canonical package state, frontend session state,
+  authoring transactions, live layout requests, backend generation, and
+  artifacts.
+- it documents frontend flows for opening templates, typing, inserting field
+  references, selection changes, saving, and backend readiness/generation.
+- `docs/ACTION_JOB_CONTRACT.md` defines action, command, transaction, intent,
+  job, workflow, and artifact vocabulary.
+- the action/job contract separates immediate, background-live, deferred-exact,
+  and external-artifact lanes to prevent active typing from waiting on exact
+  generation or artifact work.
+- the action/job contract also defines future AI-callable action rules:
+  permission levels, approval gates, audit expectations, safe edit workflow,
+  and hard prohibitions against AI bypassing core transactions, diagnostics,
+  history, dirty scopes, or stale-work checks.
+- it defines stale-work and revision rules for future scheduling, without
+  implementing a queue, worker, browser renderer, or server route.
+
+This phase intentionally does not add React/DOM UI, visual design polish,
+runtime job scheduling, worker queues, API routes, storage, exact rendering,
+PDF/DOCX artifacts, key history, repeat/collection behavior, or package version
+changes.
 
 ## Phase 12 Extraction Record
 

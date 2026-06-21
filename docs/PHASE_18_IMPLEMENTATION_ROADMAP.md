@@ -264,6 +264,34 @@ Acceptance:
 - no implementation may silently reintroduce whole-document typing work;
 - `npm run check` remains green.
 
+## Phase 26: Runtime Usage Map And Action/Job Contract
+
+Goal:
+
+- design the real frontend/backend usage shape before visible UI or route work.
+
+Deliverables:
+
+- runtime usage map for frontend template builder and backend generation;
+- structural editor shell map;
+- state ownership map across frontend, core, backend, and artifacts;
+- action/job/workflow vocabulary;
+- AI-callable action policy;
+- lane contract for immediate, background-live, deferred-exact, and external
+  artifact work;
+- stale-work/revision rules for future scheduling.
+
+Acceptance:
+
+- frontend typing is mapped as immediate local/core work plus bounded live
+  layout follow-up;
+- exact layout/generation remains deferred and cannot enter the keypress path;
+- backend generation is mapped as readiness first, artifacts later;
+- future AI tools are constrained to approved actions, permission gates, audit
+  records, and the same core transaction/job rails as user actions;
+- visible UI implementation can start without guessing state ownership;
+- no React/DOM, route, scheduler, storage, or renderer implementation is added.
+
 ## Later Phases
 
 Goal:

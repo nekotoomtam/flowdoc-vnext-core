@@ -138,6 +138,10 @@ The package must remain runnable without any parent editor checkout.
   for template plus data to artifacts
 - `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`: large-document guardrails for
   rendering, typing, layout, and exact generation
+- `docs/RUNTIME_USAGE_MAP.md`: frontend/backend usage map for how real app
+  actions call the shared core
+- `docs/ACTION_JOB_CONTRACT.md`: action, command, intent, job, and workflow
+  contract for future runtime scheduling
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
