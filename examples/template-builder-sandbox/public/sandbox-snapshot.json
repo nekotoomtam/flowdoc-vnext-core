@@ -51,6 +51,12 @@
     "nextRedoGroupId": null,
     "latestGroup": null
   },
+  "liveLayout": {
+    "mode": "static-snapshot",
+    "requestCount": 0,
+    "exactGenerationStale": false,
+    "lastResult": null
+  },
   "session": {
     "selectionKind": "none",
     "documentRevision": 0,
@@ -1589,6 +1595,13 @@
       "lane": "immediate",
       "status": "wired",
       "reason": "bridge actions append core authoring intent history records for future undo and audit"
+    },
+    {
+      "action": "sandbox.requestLiveLayout",
+      "label": "Live layout",
+      "lane": "background-live",
+      "status": "wired",
+      "reason": "accepted sandbox mutations produce core live-layout request summaries without running exact layout"
     },
     {
       "action": "user.undo",

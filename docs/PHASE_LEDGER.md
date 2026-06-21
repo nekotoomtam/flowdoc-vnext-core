@@ -41,6 +41,7 @@ Parent goal:
 | 32 | Explicit text action boundary | done | `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 33 | Sandbox authoring history boundary | done | `docs/TEMPLATE_BUILDER_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 34 | Sandbox undo redo execution boundary | done | `docs/TEMPLATE_BUILDER_UNDO_REDO_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 35 | Sandbox live layout request boundary | done | `docs/TEMPLATE_BUILDER_LIVE_LAYOUT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -514,6 +515,30 @@ package snapshot history, arbitrary structural replay, cross-session replay,
 keyboard shortcuts, caret or focus restoration, per-keystroke typing, IME
 composition, live layout rendering, save/publish persistence, non-sandbox API
 routes, exact layout, preview, PDF, or DOCX rendering.
+
+## Phase 35 Sandbox Live Layout Request Boundary
+
+Phase 35 connects accepted sandbox text mutations to the existing vNext live
+layout boundary without introducing a live renderer:
+
+- snapshots and change packets now carry a bounded `liveLayout` summary;
+- accepted replace, append, undo, and redo actions call
+  `resolveVNextLiveLayoutBoundary(...)` with the committed text transaction
+  dirty scope;
+- `requestCount` increments only for accepted layout requests;
+- rejected actions keep the previous live-layout summary and do not make a new
+  request;
+- `lastResult` records reason, request id, visible range kind, dirty scope
+  count, affected ids, live-layout freshness, and exact-generation freshness;
+- exact generation can be marked stale, but `finalTruth` remains
+  `measured-pagination` and exact layout remains `not-run`;
+- the browser applies `packet.liveLayout` through the same runtime cache path
+  and reports it in inspector/status.
+
+This phase intentionally does not implement live layout rendering, text
+measurement caches, viewport scheduling, DOM caret mapping, IME composition,
+save/publish persistence, non-sandbox API routes, exact layout, preview, PDF,
+or DOCX rendering.
 
 ## Phase 12 Extraction Record
 

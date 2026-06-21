@@ -88,6 +88,14 @@ text mutations. Undo and redo replay text patches through
 mutations. The stacks store before/after text for a target text block, not full
 package snapshots.
 
+## Phase 35 Handoff
+
+The bridge now forwards committed text transaction dirty scopes to
+`resolveVNextLiveLayoutBoundary(...)`. Snapshots and change packets carry a
+bounded `liveLayout` summary with request count, affected scope, and exact
+stale status. Rejected actions keep the previous summary and do not create a
+new layout request.
+
 ## Non-Goals
 
 Phase 29 and Phase 30 do not implement:
@@ -100,6 +108,7 @@ Phase 29 and Phase 30 do not implement:
 - persistent browser normalized cache;
 - durable/full undo/redo replay beyond sandbox text patches;
 - durable authoring history persistence;
+- live layout rendering beyond bounded request summaries;
 - save/publish persistence;
 - backend API routes outside the sandbox dev server;
 - exact layout, preview, PDF, or DOCX rendering.

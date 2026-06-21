@@ -107,6 +107,10 @@ The package must remain runnable without any parent editor checkout.
 - Sandbox undo/redo boundary replays accepted bridge text mutations through
   bounded in-memory inverse text patches and the same packet cache path without
   storing full package snapshots
+- Sandbox live layout boundary runs accepted sandbox text mutations through the
+  core live-layout request boundary and carries bounded `liveLayout` summaries
+  in snapshots, packets, inspector, and status without rendering live pages or
+  exact layout
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -185,6 +189,8 @@ The package must remain runnable without any parent editor checkout.
   summary contract before undo/redo execution
 - `docs/TEMPLATE_BUILDER_UNDO_REDO_BOUNDARY.md`: sandbox text undo/redo replay
   contract before durable history or caret/IME work
+- `docs/TEMPLATE_BUILDER_LIVE_LAYOUT_BOUNDARY.md`: sandbox live-layout request
+  summary contract before a concrete browser live renderer
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -201,11 +207,12 @@ The package must remain runnable without any parent editor checkout.
 ## Not Implemented Yet
 
 - visible editor runtime integration beyond the extractable static sandbox
-  shell, in-memory sandbox mutation bridge, and bounded history summary
+  shell, in-memory sandbox mutation bridge, and bounded history/live-layout
+  summaries
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
-  node composition, visible typing integration, IME, concrete undo/redo UI, and
-  a concrete browser live-layout renderer
+  node composition, visible typing integration, IME, product-level undo/redo UI,
+  and a concrete browser live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
 - concrete backend API routes, storage, and rendered artifacts on top of the
   generation runtime

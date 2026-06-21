@@ -54,6 +54,10 @@ state, or generated artifacts.
 - Browser controls apply undo/redo packets through the existing runtime cache
   path.
 
+Phase 35 reuses the same accepted undo/redo dirty scopes to produce bounded
+`liveLayout` request summaries. Undo/redo still do not render live pages or run
+exact layout.
+
 ## Non-Goals
 
 Phase 34 does not implement:
@@ -66,7 +70,7 @@ Phase 34 does not implement:
 - caret or focus restoration;
 - per-keystroke typing;
 - IME composition;
-- live layout rendering;
+- live layout rendering beyond bounded request summaries;
 - save/publish persistence;
 - backend API routes outside the sandbox dev server;
 - exact layout, preview, PDF, or DOCX rendering.

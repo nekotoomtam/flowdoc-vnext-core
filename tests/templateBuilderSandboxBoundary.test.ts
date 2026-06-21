@@ -68,6 +68,7 @@ describe("template builder sandbox boundary", () => {
       sections: Array<{ zones: Array<Record<string, unknown> & { children: Array<Record<string, unknown>> }> }>
       actionLanes: Array<{ status: string }>
       authoringHistory: { mode: string; recordCount: number; groupCount: number; latestGroup: unknown }
+      liveLayout: { mode: string; requestCount: number; exactGenerationStale: boolean; lastResult: unknown }
     }
     const coverZone = snapshot.sections[0].zones[0]
     const coverText = coverZone.children[0]
@@ -108,6 +109,12 @@ describe("template builder sandbox boundary", () => {
       groupCount: 0,
       latestGroup: null,
     })
+    expect(snapshot.liveLayout).toEqual({
+      mode: "static-snapshot",
+      requestCount: 0,
+      exactGenerationStale: false,
+      lastResult: null,
+    })
   })
 
   it("keeps selected node state browser-only", () => {
@@ -128,6 +135,7 @@ describe("template builder sandbox boundary", () => {
     const snapshot = readJson("../examples/template-builder-sandbox/public/sandbox-snapshot.json") as {
       mutationBridge: { mode: string; documentRevision: number; mutationCount: number; lastMutation: unknown }
       authoringHistory: { mode: string; recordCount: number; groupCount: number; latestGroup: unknown }
+      liveLayout: { mode: string; requestCount: number; exactGenerationStale: boolean; lastResult: unknown }
     }
 
     expect(serverSource).toContain("/api/snapshot")
@@ -140,6 +148,8 @@ describe("template builder sandbox boundary", () => {
     expect(bridgeSource).toContain("runVNextTextTransaction")
     expect(bridgeSource).toContain("appendVNextAuthoringIntentHistoryResult")
     expect(bridgeSource).toContain("groupVNextAuthoringIntentHistory")
+    expect(bridgeSource).toContain("resolveVNextLiveLayoutBoundary")
+    expect(bridgeSource).toContain("createTemplateBuilderLiveLayoutSnapshot")
     expect(bridgeSource).toContain("TemplateBuilderTextUndoPatch")
     expect(bridgeSource).toContain("text.range.replace")
     expect(bridgeSource).toContain("text.insert")
@@ -148,12 +158,15 @@ describe("template builder sandbox boundary", () => {
     expect(bridgeSource).toContain("sandbox.redo")
     expect(bridgeSource).toContain("flowdoc-template-builder-change-packet")
     expect(bridgeSource).toContain("authoringHistory")
+    expect(bridgeSource).toContain("liveLayout")
     expect(appSource).toContain("./api/actions/replace-text?response=packet")
     expect(appSource).toContain("./api/actions/insert-text-at-end?response=packet")
     expect(appSource).toContain("./api/actions/undo?response=packet")
     expect(appSource).toContain("./api/actions/redo?response=packet")
     expect(appSource).toContain("Append text")
     expect(appSource).toContain("History")
+    expect(appSource).toContain("Live Layout")
+    expect(appSource).toContain("Live layout:")
     expect(appSource).toContain("data-history-action")
     expect(appSource).toContain("lastPacket")
     expect(appSource).not.toContain("snapshot.document")
@@ -176,6 +189,12 @@ describe("template builder sandbox boundary", () => {
       nextUndoGroupId: null,
       nextRedoGroupId: null,
       latestGroup: null,
+    })
+    expect(snapshot.liveLayout).toEqual({
+      mode: "static-snapshot",
+      requestCount: 0,
+      exactGenerationStale: false,
+      lastResult: null,
     })
   })
 
@@ -411,6 +430,142 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
     ]))
+  }, 15_000)
+
+  it("reports live layout request summaries without running exact layout", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      import { register } from "node:module";
+      import { pathToFileURL } from "node:url";
+
+      register("./ts-loader.mjs", pathToFileURL(process.cwd() + "/scripts/"));
+      const { createTemplateBuilderMutationBridge } = await import("./src/mutationBridge.ts");
+      const fixture = JSON.parse(readFileSync("../../fixtures/product-report-vnext.flowdoc.json", "utf8"));
+      const bridge = createTemplateBuilderMutationBridge(fixture, {
+        fixturePath: "fixtures/product-report-vnext.flowdoc.json",
+      });
+      const initial = bridge.snapshot();
+      const accepted = bridge.replaceText({
+        textBlockId: "cover-header-label",
+        text: "Live layout text",
+      }, { includeSnapshot: false });
+      const rejected = bridge.replaceText({
+        textBlockId: "cover-title",
+        text: "Should not replace field refs",
+      }, { includeSnapshot: false });
+      const afterRejected = bridge.snapshot();
+
+      console.log(JSON.stringify({
+        initialLiveLayout: initial.liveLayout,
+        acceptedOk: accepted.ok,
+        acceptedPacket: accepted.packet,
+        acceptedPacketHasSections: JSON.stringify(accepted.packet).includes('"sections"'),
+        rejectedOk: rejected.ok,
+        rejectedPacket: rejected.packet,
+        afterRejectedLiveLayout: afterRejected.liveLayout,
+        exactLayoutStatus: afterRejected.diagnostics.exactLayoutStatus,
+        artifactStatus: afterRejected.diagnostics.artifactStatus,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      initialLiveLayout: {
+        mode: string
+        requestCount: number
+        exactGenerationStale: boolean
+        lastResult: null
+      }
+      acceptedOk: boolean
+      acceptedPacket: {
+        liveLayout: {
+          mode: string
+          requestCount: number
+          exactGenerationStale: boolean
+          lastResult: {
+            kind: string
+            reason: string
+            requestId: string
+            visibleRangeKind: string
+            dirtyScopeCount: number
+            affected: { textBlockIds: string[]; parentNodeIds: string[]; sectionIds: string[] }
+            freshness: {
+              liveLayout: string
+              exactGeneration: { status: string; finalTruth: string }
+            }
+          }
+        }
+      }
+      acceptedPacketHasSections: boolean
+      rejectedOk: boolean
+      rejectedPacket: {
+        liveLayout: {
+          requestCount: number
+          exactGenerationStale: boolean
+          lastResult: { reason: string; affected: { textBlockIds: string[] } }
+        }
+      }
+      afterRejectedLiveLayout: {
+        requestCount: number
+        exactGenerationStale: boolean
+        lastResult: { reason: string; affected: { textBlockIds: string[] } }
+      }
+      exactLayoutStatus: string
+      artifactStatus: string
+    }
+
+    expect(result.initialLiveLayout).toEqual({
+      mode: "in-memory-bridge",
+      requestCount: 0,
+      exactGenerationStale: false,
+      lastResult: null,
+    })
+    expect(result.acceptedOk).toBe(true)
+    expect(result.acceptedPacketHasSections).toBe(false)
+    expect(result.acceptedPacket.liveLayout).toMatchObject({
+      mode: "in-memory-bridge",
+      requestCount: 1,
+      exactGenerationStale: true,
+      lastResult: {
+        kind: "layout-request",
+        reason: "text-content",
+        requestId: "live-layout:text-content:text:cover-header-label,node:cover-header-label,section:section-cover",
+        visibleRangeKind: "unbounded",
+        dirtyScopeCount: 1,
+        affected: {
+          sectionIds: ["section-cover"],
+          parentNodeIds: ["cover-first-header"],
+          textBlockIds: ["cover-header-label"],
+        },
+        freshness: {
+          liveLayout: "stale",
+          exactGeneration: {
+            status: "stale",
+            finalTruth: "measured-pagination",
+          },
+        },
+      },
+    })
+    expect(result.rejectedOk).toBe(false)
+    expect(result.rejectedPacket.liveLayout).toMatchObject({
+      requestCount: 1,
+      exactGenerationStale: true,
+      lastResult: {
+        reason: "text-content",
+        affected: { textBlockIds: ["cover-header-label"] },
+      },
+    })
+    expect(result.afterRejectedLiveLayout).toMatchObject({
+      requestCount: 1,
+      exactGenerationStale: true,
+      lastResult: {
+        reason: "text-content",
+        affected: { textBlockIds: ["cover-header-label"] },
+      },
+    })
+    expect(result.exactLayoutStatus).toBe("not-run")
+    expect(result.artifactStatus).toBe("not-rendered")
   }, 15_000)
 
   it("inserts text at the selected text block end through the sandbox bridge", () => {
@@ -720,12 +875,15 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("applyHistoryAction")
     expect(appSource).toContain("routeForHistoryAction")
     expect(appSource).toContain("authoringHistory")
+    expect(appSource).toContain("liveLayout")
     expect(appSource).toContain("History:")
+    expect(appSource).toContain("Live layout:")
     expect(appSource).toContain("setSnapshotFromRefresh(await fetchSnapshot())")
     expect(appSource).toContain("state.runtimeCache?.nodeById.get")
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
     expect(coreBoundarySource).toContain("sandbox.recordAuthoringHistory")
+    expect(coreBoundarySource).toContain("sandbox.requestLiveLayout")
     expect(coreBoundarySource).toContain("user.undo")
     expect(coreBoundarySource).toContain("user.redo")
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")

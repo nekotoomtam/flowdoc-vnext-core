@@ -123,6 +123,7 @@ function applyChangePacket(packet) {
     ...state.snapshot,
     diagnostics: packet.diagnostics || state.snapshot.diagnostics,
     authoringHistory: packet.authoringHistory || state.snapshot.authoringHistory,
+    liveLayout: packet.liveLayout || state.snapshot.liveLayout,
     mutationBridge: {
       ...state.snapshot.mutationBridge,
       documentRevision: packet.nextRevision,
@@ -397,6 +398,13 @@ function renderInspector(snapshot) {
     latestGroup: null,
   }
   const latestHistory = history.latestGroup
+  const liveLayout = snapshot.liveLayout || {
+    mode: "static-snapshot",
+    requestCount: 0,
+    exactGenerationStale: false,
+    lastResult: null,
+  }
+  const liveLayoutResult = liveLayout.lastResult
   const bridgeMessage = state.bridgeMessage || (
     lastMutation
       ? `${lastMutation.status}: ${lastMutation.summary}`
@@ -510,6 +518,18 @@ function renderInspector(snapshot) {
         <small>Undo and redo replay only sandbox text patches kept in memory.</small>
       </section>
       <section class="inspector-section">
+        <h3>Live Layout</h3>
+        <dl class="detail-list">
+          <dt>Mode</dt><dd>${escapeHtml(liveLayout.mode)}</dd>
+          <dt>Requests</dt><dd>${liveLayout.requestCount}</dd>
+          <dt>Last</dt><dd>${liveLayoutResult ? escapeHtml(`${liveLayoutResult.kind}: ${liveLayoutResult.reason}`) : "none"}</dd>
+          <dt>Dirty scopes</dt><dd>${liveLayoutResult?.dirtyScopeCount || 0}</dd>
+          <dt>Text blocks</dt><dd>${liveLayoutResult?.affected.textBlockIds.length || 0}</dd>
+          <dt>Parents</dt><dd>${liveLayoutResult?.affected.parentNodeIds.length || 0}</dd>
+          <dt>Exact</dt><dd>${renderBadge(liveLayout.exactGenerationStale ? "stale" : "unchanged", liveLayout.exactGenerationStale ? "warn" : "good")}</dd>
+        </dl>
+      </section>
+      <section class="inspector-section">
         <h3>Actions</h3>
         <ul class="action-list">${actionRows}</ul>
       </section>
@@ -532,6 +552,10 @@ function renderStatus(snapshot) {
   const historyLabel = snapshot.authoringHistory
     ? `History: ${snapshot.authoringHistory.recordCount} records ${snapshot.authoringHistory.groupCount} groups`
     : "History: none"
+  const liveLayout = snapshot.liveLayout
+  const liveLayoutLabel = liveLayout?.lastResult
+    ? `Live layout: ${liveLayout.requestCount} ${liveLayout.lastResult.reason} exact ${liveLayout.lastResult.freshness.exactGeneration.status}`
+    : `Live layout: ${liveLayout?.requestCount || 0} requests`
 
   return `
     <footer class="statusbar">
@@ -544,6 +568,7 @@ function renderStatus(snapshot) {
       <span>${escapeHtml(packetLabel)}</span>
       <span>${escapeHtml(cacheLabel)}</span>
       <span>${escapeHtml(historyLabel)}</span>
+      <span>${escapeHtml(liveLayoutLabel)}</span>
       <span>Dirty scopes: ${snapshot.session.dirtyScopeCount}</span>
       <span>Key data: ${escapeHtml(snapshot.diagnostics.keyDataStatus)}</span>
       <span>Exact layout: ${escapeHtml(snapshot.diagnostics.exactLayoutStatus)}</span>

@@ -3,17 +3,21 @@ import {
   createVNextEditableSession,
   groupVNextAuthoringIntentHistory,
   projectVNextTextBlockInlines,
+  resolveVNextLiveLayoutBoundary,
   runVNextTextTransaction,
   serializeFlowDocPackageV2DocumentVNext,
   type FlowDocPackageV2DocumentVNext,
   type TextBlockNode,
   type VNextAuthoringIntentHistoryRecord,
+  type VNextLiveLayoutBoundaryResult,
   type VNextTextTransactionDirtyScope,
   type VNextTextTransactionResult,
 } from "@flowdoc/vnext-core"
 import {
+  createTemplateBuilderLiveLayoutSnapshot,
   createTemplateBuilderSnapshot,
   type TemplateBuilderAuthoringHistorySnapshot,
+  type TemplateBuilderLiveLayoutSnapshot,
   type TemplateBuilderSnapshot,
   type TemplateBuilderSnapshotLastMutation,
   type TemplateBuilderSnapshotNode,
@@ -53,6 +57,7 @@ export interface TemplateBuilderChangePacket {
   dirtyScopes: VNextTextTransactionDirtyScope[]
   diagnostics: TemplateBuilderSnapshot["diagnostics"]
   authoringHistory: TemplateBuilderAuthoringHistorySnapshot
+  liveLayout: TemplateBuilderLiveLayoutSnapshot
   snapshotRequired: boolean
 }
 
@@ -184,6 +189,7 @@ function createChangePacket(input: {
     dirtyScopes,
     diagnostics: cloneJson(input.snapshot.diagnostics),
     authoringHistory: cloneJson(input.snapshot.authoringHistory),
+    liveLayout: cloneJson(input.snapshot.liveLayout),
     snapshotRequired: false,
   }
 }
@@ -249,6 +255,8 @@ export function createTemplateBuilderMutationBridge(
   let authoringHistory: VNextAuthoringIntentHistoryRecord[] = []
   let undoStack: TemplateBuilderTextUndoPatch[] = []
   let redoStack: TemplateBuilderTextUndoPatch[] = []
+  let liveLayoutRequestCount = options.runtime?.liveLayout?.requestCount ?? 0
+  let lastLiveLayoutResult: VNextLiveLayoutBoundaryResult | null = null
 
   function bridgeSnapshot(): TemplateBuilderSnapshot {
     return createTemplateBuilderSnapshot(workingPackage, {
@@ -258,6 +266,11 @@ export function createTemplateBuilderMutationBridge(
         documentRevision,
         dirtyScopeCount,
         authoringHistory: summarizeAuthoringHistory(authoringHistory, "in-memory", undoStack, redoStack),
+        liveLayout: createTemplateBuilderLiveLayoutSnapshot({
+          mode: "in-memory-bridge",
+          requestCount: liveLayoutRequestCount,
+          result: lastLiveLayoutResult,
+        }),
         mutationCount,
         lastMutation,
       },
@@ -269,6 +282,18 @@ export function createTemplateBuilderMutationBridge(
       inputKind: "command",
     })
     return authoringHistory.at(-1) ?? null
+  }
+
+  function rememberLiveLayoutBoundary(dirtyScopes: readonly VNextTextTransactionDirtyScope[]): void {
+    const result = resolveVNextLiveLayoutBoundary({
+      kind: "dirty-scopes",
+      dirtyScopes,
+    })
+
+    if (result.kind === "layout-request") {
+      liveLayoutRequestCount += 1
+    }
+    lastLiveLayoutResult = result
   }
 
   function rememberUndoPatch(input: {
@@ -355,6 +380,7 @@ export function createTemplateBuilderMutationBridge(
       input.summary,
       0,
     )
+    rememberLiveLayoutBoundary([input.dirtyScope])
 
     return mutationResponse({
       ok: true,
@@ -436,6 +462,7 @@ export function createTemplateBuilderMutationBridge(
       input.summary,
       0,
     )
+    rememberLiveLayoutBoundary([transaction.transaction.dirtyScope])
 
     return mutationResponse({
       ok: true,

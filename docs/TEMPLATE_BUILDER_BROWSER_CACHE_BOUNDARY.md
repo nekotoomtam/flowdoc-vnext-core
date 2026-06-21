@@ -54,6 +54,10 @@ Phase 34 sends undo/redo results through the same packet path. The browser does
 not replay history locally; it applies changed node summaries returned by the
 sandbox bridge.
 
+Phase 35 sends `liveLayout` summaries through the same packet path. The browser
+updates request count, affected scope, and exact-stale status without running a
+live layout renderer or exact pagination.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.
@@ -62,8 +66,8 @@ sandbox bridge.
 - The packet base revision must match the browser snapshot revision.
 - Changed node summaries replace matching nodes in the current snapshot view
   model.
-- Mutation bridge metadata, diagnostics, dirty scope count, and document
-  revision are updated from the packet.
+- Mutation bridge metadata, diagnostics, authoring history, live-layout summary,
+  dirty scope count, and document revision are updated from the packet.
 - If a packet is missing, stale, or asks for a snapshot, the browser refreshes
   from `/api/snapshot` and records a fallback snapshot refresh.
 
@@ -77,7 +81,7 @@ Phase 31 does not implement:
 - partial text ranges from browser selection;
 - durable/full undo/redo replay beyond sandbox text patches;
 - durable authoring history persistence;
-- live layout rendering;
+- live layout rendering beyond bounded request summaries;
 - structural packet operations;
 - durable browser cache persistence;
 - save/publish persistence;

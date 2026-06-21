@@ -79,6 +79,9 @@ with a proper bundler/runtime adapter.
 - Phase 34 adds executable sandbox undo/redo for accepted bridge text
   mutations through bounded in-memory text patches and the existing packet
   cache path.
+- Phase 35 adds bounded live-layout request summaries to snapshots and packets
+  using the existing core live-layout boundary, without adding a live renderer
+  or exact layout execution.
 
 ## Non-Goals
 
@@ -87,7 +90,7 @@ Phase 27 does not implement:
 - real typing or text transaction UI;
 - DOM selection mapping;
 - IME behavior;
-- live layout rendering;
+- live layout rendering beyond bounded request summaries;
 - scheduler or worker queues;
 - backend API routes;
 - save/publish persistence;

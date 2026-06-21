@@ -512,6 +512,37 @@ Acceptance:
   keyboard shortcut handling, DOM caret mapping, IME composition, live layout
   renderer, or non-sandbox API route is claimed.
 
+## Phase 35: Sandbox Live Layout Request Boundary
+
+Goal:
+
+- connect accepted sandbox text mutations to the existing live-layout boundary
+  so the visible shell can carry bounded live-layout invalidation summaries
+  before caret typing, viewport scheduling, or a live renderer.
+
+Deliverables:
+
+- `liveLayout` summary in sandbox snapshots;
+- `liveLayout` summary in packet-only mutation responses;
+- mutation bridge call to `resolveVNextLiveLayoutBoundary(...)` using the
+  committed text transaction dirty scope;
+- request counting for accepted layout requests only;
+- browser inspector and status consumption through the existing runtime cache;
+- live-layout boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- accepted replace, append, undo, and redo actions report a `text-content`
+  live-layout request scoped to the affected text block and parent;
+- rejected actions do not increment the live-layout request count;
+- packet responses remain bounded and omit the full `sections` tree;
+- exact generation is marked stale only as a freshness marker and exact layout
+  remains `not-run`;
+- no live layout renderer, text measurement cache, viewport scheduler, DOM
+  caret mapping, IME composition, save/publish persistence, or non-sandbox API
+  route is claimed.
+
 ## Later Phases
 
 Goal:

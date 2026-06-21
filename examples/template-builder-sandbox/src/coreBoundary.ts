@@ -12,6 +12,8 @@ import {
   type ParentRef,
   type RelationshipGraph,
   type VNextAuthoringIntentHistoryGroup,
+  type VNextLiveLayoutAffectedScope,
+  type VNextLiveLayoutBoundaryResult,
 } from "@flowdoc/vnext-core"
 
 export interface TemplateBuilderAuthoringHistorySnapshot {
@@ -29,6 +31,38 @@ export interface TemplateBuilderAuthoringHistorySnapshot {
   latestGroup: VNextAuthoringIntentHistoryGroup | null
 }
 
+export interface TemplateBuilderLiveLayoutSnapshotAffected {
+  sectionIds: string[]
+  zoneIds: string[]
+  nodeIds: string[]
+  parentNodeIds: string[]
+  textBlockIds: string[]
+  tableIds: string[]
+}
+
+export interface TemplateBuilderLiveLayoutSnapshotResult {
+  kind: VNextLiveLayoutBoundaryResult["kind"]
+  reason: string
+  requestId: string | null
+  visibleRangeKind: string
+  dirtyScopeCount: number
+  affected: TemplateBuilderLiveLayoutSnapshotAffected
+  freshness: {
+    liveLayout: string
+    exactGeneration: {
+      status: string
+      finalTruth: string
+    }
+  }
+}
+
+export interface TemplateBuilderLiveLayoutSnapshot {
+  mode: "static-snapshot" | "in-memory-bridge"
+  requestCount: number
+  exactGenerationStale: boolean
+  lastResult: TemplateBuilderLiveLayoutSnapshotResult | null
+}
+
 export interface TemplateBuilderSnapshotOptions {
   fixturePath: string
   runtime?: {
@@ -36,6 +70,7 @@ export interface TemplateBuilderSnapshotOptions {
     documentRevision?: number
     dirtyScopeCount?: number
     authoringHistory?: TemplateBuilderAuthoringHistorySnapshot
+    liveLayout?: TemplateBuilderLiveLayoutSnapshot
     mutationCount?: number
     lastMutation?: TemplateBuilderSnapshotLastMutation | null
   }
@@ -113,6 +148,7 @@ export interface TemplateBuilderSnapshot {
     lastMutation: TemplateBuilderSnapshotLastMutation | null
   }
   authoringHistory: TemplateBuilderAuthoringHistorySnapshot
+  liveLayout: TemplateBuilderLiveLayoutSnapshot
   session: {
     selectionKind: string
     documentRevision: number
@@ -243,6 +279,51 @@ function fieldUsageCounts(pack: FlowDocPackageV2DocumentVNext) {
   return usageCounts
 }
 
+function summarizeLiveLayoutAffected(
+  affected: VNextLiveLayoutAffectedScope,
+): TemplateBuilderLiveLayoutSnapshotAffected {
+  return {
+    sectionIds: [...affected.sectionIds],
+    zoneIds: [...affected.zoneIds],
+    nodeIds: [...affected.nodeIds],
+    parentNodeIds: [...affected.parentNodeIds],
+    textBlockIds: [...affected.textBlockIds],
+    tableIds: [...affected.tableIds],
+  }
+}
+
+export function createTemplateBuilderLiveLayoutSnapshot(input: {
+  mode?: TemplateBuilderLiveLayoutSnapshot["mode"]
+  requestCount?: number
+  result?: VNextLiveLayoutBoundaryResult | null
+} = {}): TemplateBuilderLiveLayoutSnapshot {
+  const result = input.result ?? null
+  const exactGeneration = result?.freshness.exactGeneration
+
+  return {
+    mode: input.mode ?? "static-snapshot",
+    requestCount: input.requestCount ?? 0,
+    exactGenerationStale: exactGeneration?.status === "stale",
+    lastResult: result == null
+      ? null
+      : {
+          kind: result.kind,
+          reason: result.reason,
+          requestId: result.request?.requestId ?? null,
+          visibleRangeKind: result.visibleRange.kind,
+          dirtyScopeCount: result.dirtyScopes.length,
+          affected: summarizeLiveLayoutAffected(result.affected),
+          freshness: {
+            liveLayout: result.freshness.liveLayout,
+            exactGeneration: {
+              status: result.freshness.exactGeneration.status,
+              finalTruth: result.freshness.exactGeneration.finalTruth,
+            },
+          },
+        },
+  }
+}
+
 export function createTemplateBuilderSnapshot(
   value: unknown,
   options: TemplateBuilderSnapshotOptions,
@@ -259,6 +340,7 @@ export function createTemplateBuilderSnapshot(
   const runtime = options.runtime ?? {}
   const documentRevision = runtime.documentRevision ?? session.revisions.document
   const dirtyScopeCount = runtime.dirtyScopeCount ?? session.dirtyScopes.size
+  const liveLayout = runtime.liveLayout ?? createTemplateBuilderLiveLayoutSnapshot()
 
   return {
     source: "flowdoc-template-builder-sandbox",
@@ -313,6 +395,7 @@ export function createTemplateBuilderSnapshot(
       nextRedoGroupId: null,
       latestGroup: null,
     },
+    liveLayout,
     session: {
       selectionKind: session.selection.kind,
       documentRevision,
@@ -372,6 +455,13 @@ export function createTemplateBuilderSnapshot(
         lane: "immediate",
         status: "wired",
         reason: "bridge actions append core authoring intent history records for future undo and audit",
+      },
+      {
+        action: "sandbox.requestLiveLayout",
+        label: "Live layout",
+        lane: "background-live",
+        status: "wired",
+        reason: "accepted sandbox mutations produce core live-layout request summaries without running exact layout",
       },
       {
         action: "user.undo",
