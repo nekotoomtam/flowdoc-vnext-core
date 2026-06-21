@@ -16,6 +16,16 @@ sibling checkout dependency:
 
 This keeps iteration fast while the package API is still stabilizing.
 
+The Phase 27 template builder sandbox uses an in-repository equivalent:
+
+```json
+"@flowdoc/vnext-core": "file:../.."
+```
+
+That path is a local convenience only. If the sandbox moves to a separate
+repository, it should keep the package name and replace the path with the
+chosen dependency strategy.
+
 ## Required Consumer Rules
 
 - Import only the public package entrypoint unless a separate exported subpath
@@ -39,4 +49,3 @@ This keeps iteration fast while the package API is still stabilizing.
 Stay on sibling `file:` dependency until the next consumer lane proves the
 public package API shape. Before shared CI or release work, choose either a git
 dependency or private package registry.
-

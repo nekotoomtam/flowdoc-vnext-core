@@ -33,6 +33,7 @@ Parent goal:
 | 24 | Backend generation runtime | done | `src/generation/runtime.ts`; `tests/generationRuntime.test.ts` |
 | 25 | Large document acceptance harness | done | `tests/largeDocumentAcceptance.test.ts` |
 | 26 | Runtime usage map and action/job contract | done | `docs/RUNTIME_USAGE_MAP.md`; `docs/ACTION_JOB_CONTRACT.md` |
+| 27 | Template builder sandbox boundary | done | `examples/template-builder-sandbox`; `docs/TEMPLATE_BUILDER_SANDBOX_BOUNDARY.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -285,6 +286,28 @@ This phase intentionally does not add React/DOM UI, visual design polish,
 runtime job scheduling, worker queues, API routes, storage, exact rendering,
 PDF/DOCX artifacts, key history, repeat/collection behavior, or package version
 changes.
+
+## Phase 27 Template Builder Sandbox Boundary
+
+Phase 27 creates an extractable package-shaped sandbox for the first visible
+template builder shell:
+
+- `examples/template-builder-sandbox` owns its own package scripts and can run
+  separately from the root core package.
+- the sandbox depends on `@flowdoc/vnext-core` through `file:../..` during
+  local development and imports core from the public package entrypoint.
+- a sandbox Node bridge generates a browser snapshot from the canonical product
+  fixture by calling editable-session and generation-readiness core APIs.
+- the browser shell renders toolbar, node tree, canvas/live-view placeholder,
+  inspector, and status regions from the generated snapshot.
+- `docs/TEMPLATE_BUILDER_SANDBOX_BOUNDARY.md` records the extraction and runtime
+  boundary.
+- `tests/templateBuilderSandboxBoundary.test.ts` guards package extraction,
+  public core import usage, and parent-route independence.
+
+This phase intentionally does not implement real typing, DOM selection mapping,
+IME behavior, live layout rendering, scheduler queues, backend API routes,
+save/publish persistence, exact layout, preview, PDF, or DOCX rendering.
 
 ## Phase 12 Extraction Record
 

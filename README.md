@@ -80,6 +80,11 @@ The package must remain runnable without any parent editor checkout.
 - Large-document acceptance harness generates canonical packages with hundreds
   of text blocks and large tables, then verifies narrow typing dirty scopes and
   explicit readiness-only generation behavior
+- Template builder sandbox baseline lives under
+  `examples/template-builder-sandbox` as an extractable package that depends on
+  the public `@flowdoc/vnext-core` boundary, generates a core-backed browser
+  snapshot, and renders the first toolbar/tree/canvas/inspector/status shell
+  without adding browser framework dependencies to this core package
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -142,6 +147,8 @@ The package must remain runnable without any parent editor checkout.
   actions call the shared core
 - `docs/ACTION_JOB_CONTRACT.md`: action, command, intent, job, and workflow
   contract for future runtime scheduling
+- `docs/TEMPLATE_BUILDER_SANDBOX_BOUNDARY.md`: extractable sandbox package
+  boundary for the first visible template builder shell
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -157,7 +164,8 @@ The package must remain runnable without any parent editor checkout.
 
 ## Not Implemented Yet
 
-- visible editor runtime integration
+- visible editor runtime integration beyond the extractable static sandbox
+  shell
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, visible typing integration, IME, concrete undo/redo UI, and

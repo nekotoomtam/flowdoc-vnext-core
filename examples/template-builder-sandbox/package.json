@@ -1,0 +1,19 @@
+{
+  "name": "@flowdoc/template-builder-sandbox",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Extractable FlowDoc vNext template builder sandbox.",
+  "scripts": {
+    "build": "node ./scripts/run-build-snapshot.mjs",
+    "check": "tsc --noEmit -p tsconfig.json && npm run build",
+    "dev": "npm run build && node ./scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@flowdoc/vnext-core": "file:../.."
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
+  }
+}

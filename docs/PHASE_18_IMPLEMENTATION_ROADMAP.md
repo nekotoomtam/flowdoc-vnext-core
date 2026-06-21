@@ -292,6 +292,33 @@ Acceptance:
 - visible UI implementation can start without guessing state ownership;
 - no React/DOM, route, scheduler, storage, or renderer implementation is added.
 
+## Phase 27: Template Builder Sandbox Boundary
+
+Goal:
+
+- create a repo-shaped sandbox for the first visible template builder shell
+  without moving browser dependencies into the core package.
+
+Deliverables:
+
+- standalone sandbox package under `examples/template-builder-sandbox`;
+- package-local build, check, and dev scripts;
+- local `@flowdoc/vnext-core` dependency through the package boundary;
+- core-backed snapshot bridge for the canonical product fixture;
+- static shell regions for toolbar, node tree, canvas/live view, inspector,
+  and status;
+- extraction boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- sandbox source imports core through `@flowdoc/vnext-core`, not root `src/**`;
+- root package scripts and dependencies remain core-only;
+- the browser shell runs from the sandbox package;
+- generated/editor-only state remains outside canonical package data;
+- no real typing, live layout renderer, backend route, or persistence is
+  claimed in this phase.
+
 ## Later Phases
 
 Goal:

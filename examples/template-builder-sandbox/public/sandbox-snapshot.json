@@ -1,0 +1,796 @@
+{
+  "source": "flowdoc-template-builder-sandbox",
+  "generatedAt": "fixture-snapshot",
+  "boundary": {
+    "corePackage": "@flowdoc/vnext-core",
+    "coreImport": "public-entrypoint",
+    "fixturePath": "fixtures/product-report-vnext.flowdoc.json",
+    "browserRuntime": "static-snapshot"
+  },
+  "template": {
+    "id": "product-report-vnext",
+    "title": "Product Report vNext",
+    "packageVersion": 2,
+    "documentVersion": 3
+  },
+  "counts": {
+    "sections": 3,
+    "zones": 9,
+    "textBlocks": 28,
+    "tables": 1,
+    "nodes": 52,
+    "fields": 6,
+    "dataValues": 6
+  },
+  "diagnostics": {
+    "graphIssueCount": 0,
+    "keyDataStatus": "ready",
+    "keyDataErrors": 0,
+    "keyDataWarnings": 0,
+    "generationStatus": "ready",
+    "exactLayoutStatus": "not-run",
+    "artifactStatus": "not-rendered"
+  },
+  "session": {
+    "selectionKind": "none",
+    "documentRevision": 0,
+    "dirtyScopeCount": 0
+  },
+  "fields": [
+    {
+      "key": "customer.name",
+      "label": "Customer Name",
+      "type": "text",
+      "hasData": true,
+      "usageCount": 3
+    },
+    {
+      "key": "customer.segment",
+      "label": "Customer Segment",
+      "type": "text",
+      "hasData": true,
+      "usageCount": 1
+    },
+    {
+      "key": "report.period",
+      "label": "Report Period",
+      "type": "text",
+      "hasData": true,
+      "usageCount": 2
+    },
+    {
+      "key": "report.total",
+      "label": "Report Total",
+      "type": "number",
+      "hasData": true,
+      "usageCount": 1
+    },
+    {
+      "key": "report.riskLevel",
+      "label": "Risk Level",
+      "type": "enum",
+      "hasData": true,
+      "usageCount": 2
+    },
+    {
+      "key": "prepared.by",
+      "label": "Prepared By",
+      "type": "text",
+      "hasData": true,
+      "usageCount": 2
+    }
+  ],
+  "sections": [
+    {
+      "id": "section-cover",
+      "page": "A4 portrait",
+      "zones": [
+        {
+          "id": "cover-first-header",
+          "type": "zone",
+          "role": "first-page-header",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 1,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "cover-header-label",
+              "type": "text-block",
+              "role": "label",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Confidential Product Report",
+              "fieldRefs": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "cover-body",
+          "type": "zone",
+          "role": "body",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 5,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "cover-title",
+              "type": "text-block",
+              "role": "heading-1",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Product Report for {customer.name}",
+              "fieldRefs": [
+                "customer.name"
+              ],
+              "children": []
+            },
+            {
+              "id": "cover-subtitle",
+              "type": "text-block",
+              "role": "paragraph",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Reporting period: {report.period}",
+              "fieldRefs": [
+                "report.period"
+              ],
+              "children": []
+            },
+            {
+              "id": "cover-meta-columns",
+              "type": "columns",
+              "role": null,
+              "surface": "columns",
+              "canContainText": false,
+              "canSplitAcrossPages": true,
+              "childCount": 2,
+              "textPreview": null,
+              "fieldRefs": [],
+              "children": [
+                {
+                  "id": "cover-meta-left",
+                  "type": "column",
+                  "role": null,
+                  "surface": "columns",
+                  "canContainText": false,
+                  "canSplitAcrossPages": true,
+                  "childCount": 2,
+                  "textPreview": null,
+                  "fieldRefs": [],
+                  "children": [
+                    {
+                      "id": "cover-segment-label",
+                      "type": "text-block",
+                      "role": "label",
+                      "surface": "text-block",
+                      "canContainText": true,
+                      "canSplitAcrossPages": true,
+                      "childCount": 0,
+                      "textPreview": "Segment",
+                      "fieldRefs": [],
+                      "children": []
+                    },
+                    {
+                      "id": "cover-segment-value",
+                      "type": "text-block",
+                      "role": "paragraph",
+                      "surface": "text-block",
+                      "canContainText": true,
+                      "canSplitAcrossPages": true,
+                      "childCount": 0,
+                      "textPreview": "{customer.segment}",
+                      "fieldRefs": [
+                        "customer.segment"
+                      ],
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "cover-meta-right",
+                  "type": "column",
+                  "role": null,
+                  "surface": "columns",
+                  "canContainText": false,
+                  "canSplitAcrossPages": true,
+                  "childCount": 2,
+                  "textPreview": null,
+                  "fieldRefs": [],
+                  "children": [
+                    {
+                      "id": "cover-risk-label",
+                      "type": "text-block",
+                      "role": "label",
+                      "surface": "text-block",
+                      "canContainText": true,
+                      "canSplitAcrossPages": true,
+                      "childCount": 0,
+                      "textPreview": "Risk level",
+                      "fieldRefs": [],
+                      "children": []
+                    },
+                    {
+                      "id": "cover-risk-value",
+                      "type": "text-block",
+                      "role": "paragraph",
+                      "surface": "text-block",
+                      "canContainText": true,
+                      "canSplitAcrossPages": true,
+                      "childCount": 0,
+                      "textPreview": "{report.riskLevel}",
+                      "fieldRefs": [
+                        "report.riskLevel"
+                      ],
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "cover-divider",
+              "type": "divider",
+              "role": null,
+              "surface": "utility",
+              "canContainText": false,
+              "canSplitAcrossPages": false,
+              "childCount": 0,
+              "textPreview": null,
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "cover-note",
+              "type": "text-block",
+              "role": "note",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Prepared by {prepared.by}",
+              "fieldRefs": [
+                "prepared.by"
+              ],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "cover-first-footer",
+          "type": "zone",
+          "role": "first-page-footer",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 1,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "cover-footer-page",
+              "type": "text-block",
+              "role": "label",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Page {page}",
+              "fieldRefs": [],
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-toc",
+      "page": "A4 portrait",
+      "zones": [
+        {
+          "id": "toc-header",
+          "type": "zone",
+          "role": "header",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 1,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "toc-header-title",
+              "type": "text-block",
+              "role": "label",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Product Report",
+              "fieldRefs": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "toc-body",
+          "type": "zone",
+          "role": "body",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 3,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "toc-heading",
+              "type": "text-block",
+              "role": "heading-2",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Contents",
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "toc-generated",
+              "type": "toc",
+              "role": null,
+              "surface": "generated",
+              "canContainText": false,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": null,
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "toc-caption",
+              "type": "text-block",
+              "role": "caption",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Generated entries are render output, not authored child nodes.",
+              "fieldRefs": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "toc-footer",
+          "type": "zone",
+          "role": "footer",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 1,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "toc-footer-page",
+              "type": "text-block",
+              "role": "label",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Page {page}",
+              "fieldRefs": [],
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-body",
+      "page": "A4 portrait",
+      "zones": [
+        {
+          "id": "body-header",
+          "type": "zone",
+          "role": "header",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 1,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "body-header-title",
+              "type": "text-block",
+              "role": "label",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "{customer.name} - {report.period}",
+              "fieldRefs": [
+                "customer.name",
+                "report.period"
+              ],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "body-main",
+          "type": "zone",
+          "role": "body",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 9,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "body-heading",
+              "type": "text-block",
+              "role": "heading-2",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Executive Summary",
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "body-summary",
+              "type": "text-block",
+              "role": "paragraph",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "This report highlights current product health for {customer.name}.",
+              "fieldRefs": [
+                "customer.name"
+              ],
+              "children": []
+            },
+            {
+              "id": "body-list-1",
+              "type": "text-block",
+              "role": "list-item-0",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Review adoption movement against the product baseline.",
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "body-list-2",
+              "type": "text-block",
+              "role": "list-item-0",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Confirm risk items before export readiness review.",
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "body-metrics-heading",
+              "type": "text-block",
+              "role": "heading-3",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Metric Detail",
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "body-metrics-table",
+              "type": "table",
+              "role": null,
+              "surface": "table",
+              "canContainText": false,
+              "canSplitAcrossPages": true,
+              "childCount": 2,
+              "textPreview": null,
+              "fieldRefs": [],
+              "children": [
+                {
+                  "id": "metrics-header-row",
+                  "type": "table-row",
+                  "role": null,
+                  "surface": "table",
+                  "canContainText": false,
+                  "canSplitAcrossPages": true,
+                  "childCount": 3,
+                  "textPreview": null,
+                  "fieldRefs": [],
+                  "children": [
+                    {
+                      "id": "metric-header-name",
+                      "type": "table-cell",
+                      "role": null,
+                      "surface": "table",
+                      "canContainText": false,
+                      "canSplitAcrossPages": true,
+                      "childCount": 1,
+                      "textPreview": null,
+                      "fieldRefs": [],
+                      "children": [
+                        {
+                          "id": "metric-header-name-text",
+                          "type": "text-block",
+                          "role": "label",
+                          "surface": "text-block",
+                          "canContainText": true,
+                          "canSplitAcrossPages": true,
+                          "childCount": 0,
+                          "textPreview": "Metric",
+                          "fieldRefs": [],
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "metric-header-value",
+                      "type": "table-cell",
+                      "role": null,
+                      "surface": "table",
+                      "canContainText": false,
+                      "canSplitAcrossPages": true,
+                      "childCount": 1,
+                      "textPreview": null,
+                      "fieldRefs": [],
+                      "children": [
+                        {
+                          "id": "metric-header-value-text",
+                          "type": "text-block",
+                          "role": "label",
+                          "surface": "text-block",
+                          "canContainText": true,
+                          "canSplitAcrossPages": true,
+                          "childCount": 0,
+                          "textPreview": "Value",
+                          "fieldRefs": [],
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "metric-header-risk",
+                      "type": "table-cell",
+                      "role": null,
+                      "surface": "table",
+                      "canContainText": false,
+                      "canSplitAcrossPages": true,
+                      "childCount": 1,
+                      "textPreview": null,
+                      "fieldRefs": [],
+                      "children": [
+                        {
+                          "id": "metric-header-risk-text",
+                          "type": "text-block",
+                          "role": "label",
+                          "surface": "text-block",
+                          "canContainText": true,
+                          "canSplitAcrossPages": true,
+                          "childCount": 0,
+                          "textPreview": "Risk",
+                          "fieldRefs": [],
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "metrics-data-row",
+                  "type": "table-row",
+                  "role": null,
+                  "surface": "table",
+                  "canContainText": false,
+                  "canSplitAcrossPages": true,
+                  "childCount": 3,
+                  "textPreview": null,
+                  "fieldRefs": [],
+                  "children": [
+                    {
+                      "id": "metric-value-name",
+                      "type": "table-cell",
+                      "role": null,
+                      "surface": "table",
+                      "canContainText": false,
+                      "canSplitAcrossPages": true,
+                      "childCount": 1,
+                      "textPreview": null,
+                      "fieldRefs": [],
+                      "children": [
+                        {
+                          "id": "metric-value-name-text",
+                          "type": "text-block",
+                          "role": "paragraph",
+                          "surface": "text-block",
+                          "canContainText": true,
+                          "canSplitAcrossPages": true,
+                          "childCount": 0,
+                          "textPreview": "Total active items",
+                          "fieldRefs": [],
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "metric-value-total",
+                      "type": "table-cell",
+                      "role": null,
+                      "surface": "table",
+                      "canContainText": false,
+                      "canSplitAcrossPages": true,
+                      "childCount": 1,
+                      "textPreview": null,
+                      "fieldRefs": [],
+                      "children": [
+                        {
+                          "id": "metric-value-total-text",
+                          "type": "text-block",
+                          "role": "paragraph",
+                          "surface": "text-block",
+                          "canContainText": true,
+                          "canSplitAcrossPages": true,
+                          "childCount": 0,
+                          "textPreview": "{report.total}",
+                          "fieldRefs": [
+                            "report.total"
+                          ],
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "metric-value-risk",
+                      "type": "table-cell",
+                      "role": null,
+                      "surface": "table",
+                      "canContainText": false,
+                      "canSplitAcrossPages": true,
+                      "childCount": 1,
+                      "textPreview": null,
+                      "fieldRefs": [],
+                      "children": [
+                        {
+                          "id": "metric-value-risk-text",
+                          "type": "text-block",
+                          "role": "paragraph",
+                          "surface": "text-block",
+                          "canContainText": true,
+                          "canSplitAcrossPages": true,
+                          "childCount": 0,
+                          "textPreview": "{report.riskLevel}",
+                          "fieldRefs": [
+                            "report.riskLevel"
+                          ],
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "body-page-break",
+              "type": "page-break",
+              "role": null,
+              "surface": "utility",
+              "canContainText": false,
+              "canSplitAcrossPages": false,
+              "childCount": 0,
+              "textPreview": null,
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "body-followup-heading",
+              "type": "text-block",
+              "role": "heading-3",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Follow-up",
+              "fieldRefs": [],
+              "children": []
+            },
+            {
+              "id": "body-followup-text",
+              "type": "text-block",
+              "role": "paragraph",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Next review owner: {prepared.by}{line-break}Confirm export parity before runtime bridge work.",
+              "fieldRefs": [
+                "prepared.by"
+              ],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "body-footer",
+          "type": "zone",
+          "role": "footer",
+          "surface": "zone",
+          "canContainText": false,
+          "canSplitAcrossPages": false,
+          "childCount": 1,
+          "textPreview": null,
+          "fieldRefs": [],
+          "children": [
+            {
+              "id": "body-footer-page",
+              "type": "text-block",
+              "role": "label",
+              "surface": "text-block",
+              "canContainText": true,
+              "canSplitAcrossPages": true,
+              "childCount": 0,
+              "textPreview": "Page {page}",
+              "fieldRefs": [],
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actionLanes": [
+    {
+      "action": "user.openTemplate",
+      "lane": "immediate",
+      "status": "wired"
+    },
+    {
+      "action": "user.typeText",
+      "lane": "immediate + background-live",
+      "status": "planned"
+    },
+    {
+      "action": "user.insertFieldRef",
+      "lane": "immediate + background-live",
+      "status": "planned"
+    },
+    {
+      "action": "generation.assess",
+      "lane": "immediate",
+      "status": "wired"
+    },
+    {
+      "action": "generation.renderArtifact",
+      "lane": "deferred-exact + external-artifact",
+      "status": "planned"
+    }
+  ]
+}

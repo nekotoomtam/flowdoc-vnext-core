@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@flowdoc/vnext-core": ["../../src/index.ts"],
+      "@flowdoc/vnext-core/fixtures/*": ["../../fixtures/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "scripts/build-snapshot.ts"]
+}
