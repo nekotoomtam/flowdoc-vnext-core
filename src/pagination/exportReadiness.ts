@@ -1,4 +1,4 @@
-import type { VNextMeasuredPagination, VNextMeasuredPaginationWarning } from "./measuredPagination.js"
+import type { VNextMeasuredPagination, VNextMeasuredPaginationWarning } from "./measuredTypes.js"
 import {
   buildVNextMeasuredRendererConsumption,
   type VNextMeasuredRendererConsumptionIssue,

@@ -6,7 +6,7 @@ import type {
 import type {
   VNextMeasuredPagination,
   VNextMeasuredPaginationOptions,
-} from "../pagination/measuredPagination.js"
+} from "../pagination/measuredTypes.js"
 import { paginateVNextDocument } from "../pagination/measuredPagination.js"
 import type { VNextMeasuredPaginationExportReadiness } from "../pagination/exportReadiness.js"
 import { assessVNextMeasuredPaginationExportReadiness } from "../pagination/exportReadiness.js"

@@ -23,6 +23,7 @@ Parent goal:
 | 14 | Core redesign target and runtime session foundation | done | `docs/VNEXT_CORE_REDESIGN_PLAN.md`; `src/runtime/session.ts`; `tests/runtimeSession.test.ts` |
 | 15 | Operation kernel split | done | `docs/OPERATION_KERNEL_SPLIT_PLAN.md`; `src/operations/commands.ts`; `src/operations/results.ts`; `src/operations/invalidation.ts`; `src/operations/history.ts`; `src/operations/registry.ts`; `tests/operationKernel.test.ts` |
 | 16 | Layout pipeline split | done | `docs/LAYOUT_PIPELINE_SPLIT_PLAN.md`; `src/pagination/layoutPipeline.ts`; `tests/layoutPipeline.test.ts` |
+| 17 | Layout internal extraction baseline | done | `docs/LAYOUT_INTERNAL_EXTRACTION_PLAN.md`; `src/pagination/measuredTypes.ts`; `src/pagination/measuredFragments.ts`; `tests/measuredFragments.test.ts` |
 
 ## Current Rule
 
@@ -109,6 +110,26 @@ existing measured pagination engine:
 This phase intentionally keeps `paginateVNextDocument(...)` as the placement
 engine. Moving actual text/table placement behind resumable job results remains
 a later internal split after the public pipeline contract is stable.
+
+## Phase 17 Layout Internal Extraction Baseline
+
+Phase 17 starts splitting measured pagination internals without changing text,
+table, renderer, or export behavior:
+
+- `measuredTypes.ts` owns measured pagination options, warnings, fragments,
+  pages, and pagination result contracts.
+- `measuredFragments.ts` owns measured page creation, source-item backed
+  fragment creation, geometry rounding, body/static fragment id buckets, and
+  missing-source warnings.
+- `paginateVNextDocument(...)` now uses the measured fragment builder while
+  remaining the behavior-preserving placement engine.
+- renderer/export/layout pipeline and editor bridge consumers import measured
+  contracts from `measuredTypes.ts` instead of the placement engine.
+- `tests/measuredFragments.test.ts` proves fragment builder behavior directly.
+
+This phase intentionally does not change wrap quality, line breaking, table
+splitting, or measurement profile behavior. The next layout-internal target is
+text-block line-slice planning, then wrap quality improvements.
 
 ## Phase 11 Parent Bridge Boundary
 

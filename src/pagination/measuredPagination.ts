@@ -18,10 +18,20 @@ import { buildRelationshipGraph } from "../graph/relationshipGraph.js"
 import {
   buildVNextPaginationPlan,
   type VNextPageBox,
-  type VNextPaginationPlan,
-  type VNextPaginationSourceItem,
-  type VNextPaginationSplitPolicy,
 } from "./paginationPlan.js"
+import {
+  createVNextMeasuredFragmentBuilder,
+  createVNextMeasuredPage,
+} from "./measuredFragments.js"
+import type {
+  FieldValue,
+  VNextMeasuredFragment,
+  VNextMeasuredFragmentKind,
+  VNextMeasuredPage,
+  VNextMeasuredPagination,
+  VNextMeasuredPaginationOptions,
+  VNextMeasuredPaginationWarning,
+} from "./measuredTypes.js"
 import {
   createApproximateVNextTextMeasurer,
   measureVNextText,
@@ -45,85 +55,17 @@ export type {
   VNextTextMeasurementLineBox,
   VNextTextMeasurer,
 } from "./textMeasurement.js"
-
-type FieldValue = string | number | boolean | null
-
-export interface VNextMeasuredPaginationOptions {
-  textMeasurer?: VNextTextMeasurer
-  measurementCache?: VNextTextMeasurementCache
-  measurementProfileId?: string
-  data?: Record<string, FieldValue>
-}
-
-export interface VNextMeasuredPaginationWarning {
-  code:
-    | "forced-overflow"
-    | "missing-source-item"
-    | "static-zone-overflow"
-    | "page-break-in-static-zone-ignored"
-    | "page-break-in-columns-ignored"
-    | "page-break-in-table-cell-ignored"
-    | "toc-page-resolution-pending"
-    | "table-row-forced-overflow"
-  sectionId: SectionId
-  nodeId: NodeId
-  pageIndex?: number
-  message: string
-}
-
-export type VNextMeasuredFragmentKind =
-  | "text"
-  | "block"
-  | "generated"
-  | "forced-break"
-  | "container"
-
-export interface VNextMeasuredFragment {
-  id: string
-  sourceItemId: string
-  sectionId: SectionId
-  zoneId: NodeId
-  zoneRole: ZoneRole
-  nodeId: NodeId
-  nodeType: AuthoredNode["type"]
-  kind: VNextMeasuredFragmentKind
-  pageIndex: number
-  pageNumber: number
-  xPt: number
-  yPt: number
-  widthPt: number
-  heightPt: number
-  sourceOrder: number
-  splitPolicy: VNextPaginationSplitPolicy
-  text?: string
-  lineStart?: number
-  lineEnd?: number
-  continuesFromPreviousPage?: boolean
-  continuesOnNextPage?: boolean
-  metadata?: Record<string, string | number | boolean | null>
-}
-
-export interface VNextMeasuredPage {
-  pageIndex: number
-  sectionId: SectionId
-  sectionPageIndex: number
-  pageNumber: number
-  pageBox: VNextPageBox
-  fragments: VNextMeasuredFragment[]
-  bodyFragmentIds: string[]
-  headerFooterFragmentIds: string[]
-}
-
-export interface VNextMeasuredPagination {
-  documentId: string
-  source: "vnext-pagination-plan"
-  status: "measured-skeleton"
-  measurementStatus: "measured"
-  paginationPlan: VNextPaginationPlan
-  pages: VNextMeasuredPage[]
-  pageCount: number
-  warnings: VNextMeasuredPaginationWarning[]
-}
+export type {
+  FieldValue,
+  VNextMeasuredFragment,
+  VNextMeasuredFragmentExtra,
+  VNextMeasuredFragmentGeometry,
+  VNextMeasuredFragmentKind,
+  VNextMeasuredPage,
+  VNextMeasuredPagination,
+  VNextMeasuredPaginationOptions,
+  VNextMeasuredPaginationWarning,
+} from "./measuredTypes.js"
 
 interface LayoutState {
   page: VNextMeasuredPage
@@ -182,10 +124,6 @@ function inlineText(inlines: readonly InlineNode[], data: Record<string, FieldVa
     if (value != null) return String(value)
     return inline.fallback ?? inline.label ?? inline.key
   }).join("")
-}
-
-function sourceKey(sectionId: SectionId, nodeId: NodeId): string {
-  return `${sectionId}:${nodeId}`
 }
 
 function bodyBottom(pageBox: VNextPageBox): number {
@@ -468,72 +406,18 @@ export function paginateVNextDocument(
     measurementProfileId: options.measurementProfileId,
     data,
   }
-  const sourceItemsByKey = new Map<string, VNextPaginationSourceItem>()
   const pages: VNextMeasuredPage[] = []
   const warnings: VNextMeasuredPaginationWarning[] = []
   let nextAutoPageNumber = 1
-  let fragmentSequence = 0
-
-  paginationPlan.sourceItems.forEach((sourceItem) => {
-    sourceItemsByKey.set(sourceKey(sourceItem.sectionId, sourceItem.nodeId), sourceItem)
-  })
 
   const addWarning = (warning: VNextMeasuredPaginationWarning): void => {
     warnings.push(warning)
   }
-
-  const addFragment = (
-    page: VNextMeasuredPage,
-    zone: ZoneNode,
-    node: AuthoredNode,
-    kind: VNextMeasuredFragmentKind,
-    geometry: { xPt: number; yPt: number; widthPt: number; heightPt: number },
-    extra: Partial<Pick<
-      VNextMeasuredFragment,
-      "text" | "lineStart" | "lineEnd" | "continuesFromPreviousPage" | "continuesOnNextPage" | "metadata"
-    >> = {},
-  ): VNextMeasuredFragment => {
-    const sourceItem = sourceItemsByKey.get(sourceKey(page.sectionId, node.id))
-    if (sourceItem == null) {
-      addWarning({
-        code: "missing-source-item",
-        sectionId: page.sectionId,
-        nodeId: node.id,
-        pageIndex: page.pageIndex,
-        message: `No pagination source item found for node "${node.id}".`,
-      })
-    }
-
-    const fragment: VNextMeasuredFragment = {
-      id: `${page.sectionId}:${node.id}:fragment-${fragmentSequence}`,
-      sourceItemId: sourceItem?.id ?? sourceKey(page.sectionId, node.id),
-      sectionId: page.sectionId,
-      zoneId: zone.id,
-      zoneRole: zone.role,
-      nodeId: node.id,
-      nodeType: node.type,
-      kind,
-      pageIndex: page.pageIndex,
-      pageNumber: page.pageNumber,
-      xPt: Number(geometry.xPt.toFixed(2)),
-      yPt: Number(geometry.yPt.toFixed(2)),
-      widthPt: Number(geometry.widthPt.toFixed(2)),
-      heightPt: Number(geometry.heightPt.toFixed(2)),
-      sourceOrder: sourceItem?.order ?? Number.MAX_SAFE_INTEGER,
-      splitPolicy: sourceItem?.splitPolicy ?? "atomic",
-      ...extra,
-    }
-    fragmentSequence += 1
-    page.fragments.push(fragment)
-
-    if (zone.role === "body") {
-      page.bodyFragmentIds.push(fragment.id)
-    } else {
-      page.headerFooterFragmentIds.push(fragment.id)
-    }
-
-    return fragment
-  }
+  const fragmentBuilder = createVNextMeasuredFragmentBuilder({
+    sourceItems: paginationPlan.sourceItems,
+    addWarning,
+  })
+  const addFragment = fragmentBuilder.addFragment
 
   document.document.sections.forEach((section) => {
     const planSection = paginationPlan.sections.find((candidate) => candidate.sectionId === section.id)
@@ -545,16 +429,13 @@ export function paginateVNextDocument(
     let sectionPageIndex = 0
 
     const createPage = (): VNextMeasuredPage => {
-      const page: VNextMeasuredPage = {
+      const page = createVNextMeasuredPage({
         pageIndex: pages.length,
         sectionId: section.id,
         sectionPageIndex,
         pageNumber: displayStart + sectionPageIndex,
         pageBox,
-        fragments: [],
-        bodyFragmentIds: [],
-        headerFooterFragmentIds: [],
-      }
+      })
       sectionPageIndex += 1
       pages.push(page)
       sectionPages.push(page)

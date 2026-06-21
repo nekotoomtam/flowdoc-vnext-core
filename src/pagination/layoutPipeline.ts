@@ -8,11 +8,13 @@ import {
 } from "./paginationPlan.js"
 import {
   paginateVNextDocument,
-  type VNextMeasuredPage,
-  type VNextMeasuredPagination,
-  type VNextMeasuredPaginationOptions,
-  type VNextMeasuredPaginationWarning,
 } from "./measuredPagination.js"
+import type {
+  VNextMeasuredPage,
+  VNextMeasuredPagination,
+  VNextMeasuredPaginationOptions,
+  VNextMeasuredPaginationWarning,
+} from "./measuredTypes.js"
 import {
   buildVNextMeasuredRendererConsumption,
   type VNextMeasuredRenderCommand,

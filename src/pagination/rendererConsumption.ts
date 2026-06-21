@@ -1,4 +1,4 @@
-import type { VNextMeasuredFragment, VNextMeasuredPagination } from "./measuredPagination.js"
+import type { VNextMeasuredFragment, VNextMeasuredPagination } from "./measuredTypes.js"
 
 type MetadataValue = string | number | boolean | null
 

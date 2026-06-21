@@ -1,6 +1,6 @@
 # vNext Core Redesign Plan
 
-Status: design baseline with Lane C layout pipeline baseline complete.
+Status: design baseline with Lane C internal extraction baseline complete.
 
 This plan defines the target architecture for FlowDoc vNext Core after
 repository extraction. It is intentionally rebuild-first: existing source files
@@ -331,6 +331,9 @@ Implementation status:
 - `paginateVNextDocument(...)` remains the current behavior-preserving
   placement engine until text/table placement internals are split behind the
   pipeline contract.
+- Phase 17 starts that internal split: `measuredTypes.ts` owns shared measured
+  contracts, `measuredFragments.ts` owns page/fragment creation, and
+  `paginateVNextDocument(...)` now uses the shared fragment builder.
 
 ### Lane D: Binding/Form-Slot Preparation
 
@@ -357,16 +360,17 @@ Deliverables:
 
 ## Next Recommended Job
 
-Continue Lane C with internal placement extraction behind the new pipeline
-contract, or move to Lane D if product work needs binding/form-slot semantics
-before deeper pagination internals.
+Continue Lane C by extracting text-block line-slice planning behind the layout
+pipeline contract, then improve wrap quality once the slice boundary has tests.
+Move to Lane D only if product work needs binding/form-slot semantics before
+deeper pagination internals.
 
 Reason:
 
-- the public pipeline API now exists, so the next layout work can move
-  implementation details behind stable stage boundaries;
-- the remaining layout risk is inside text/table placement, not the artifact
-  consumption contract;
+- measured contracts and fragment construction are now outside the placement
+  engine, so text-block layout is the next small internal boundary;
+- the remaining layout risk is inside text/table placement and wrap quality,
+  not the artifact consumption contract;
 - binding/form-slot work can start once the product priority requires request
   data over authored templates.
 

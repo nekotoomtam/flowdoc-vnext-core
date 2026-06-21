@@ -78,6 +78,8 @@ The package must remain runnable without any parent editor checkout.
   line fragmentation, static header/footer fragments, page-number inline
   resolution, column fragments, row-level table fragments, splittable text-cell
   rows, renderer-consumption audit, and export readiness.
+- Measured pagination internals now expose shared measured contracts and a
+  fragment/page builder before deeper text/table layout extraction.
 - Layout pipeline baseline exposes staged planning, measurement-job scheduling,
   bounded measured page/render-command artifact chunks, and complete pipeline
   runs while preserving the existing measured pagination engine.
@@ -95,6 +97,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/VNEXT_CORE_REDESIGN_PLAN.md`: target architecture for the next core lane
 - `docs/OPERATION_KERNEL_SPLIT_PLAN.md`: Lane B operation split boundary
 - `docs/LAYOUT_PIPELINE_SPLIT_PLAN.md`: Lane C layout pipeline split boundary
+- `docs/LAYOUT_INTERNAL_EXTRACTION_PLAN.md`: Phase 17 measured pagination
+  internal split boundary
 - `docs/PHASE_LEDGER.md`: historical vNext core phase ledger
 - `docs/PHASE_10_CLOSE_AUDIT.md`: pagination/export boundary close audit
 - `docs/TABLE_PAGINATION_VNEXT_PLAN.md`: table pagination direction
