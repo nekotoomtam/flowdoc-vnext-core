@@ -111,6 +111,10 @@ The package must remain runnable without any parent editor checkout.
   core live-layout request boundary and carries bounded `liveLayout` summaries
   in snapshots, packets, inspector, and status without rendering live pages or
   exact layout
+- WYSIWYG text draft design lock records the visible editor direction, truth
+  layers, inline-content preservation rules, guarded editability, draft
+  lifecycle, commit/conflict policy, and required rich text return list before
+  visible draft editing is implemented
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -191,6 +195,8 @@ The package must remain runnable without any parent editor checkout.
   contract before durable history or caret/IME work
 - `docs/TEMPLATE_BUILDER_LIVE_LAYOUT_BOUNDARY.md`: sandbox live-layout request
   summary contract before a concrete browser live renderer
+- `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md`: WYSIWYG text draft
+  design lock before visible draft editing implementation
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

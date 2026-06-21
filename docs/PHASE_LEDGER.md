@@ -42,6 +42,7 @@ Parent goal:
 | 33 | Sandbox authoring history boundary | done | `docs/TEMPLATE_BUILDER_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 34 | Sandbox undo redo execution boundary | done | `docs/TEMPLATE_BUILDER_UNDO_REDO_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 35 | Sandbox live layout request boundary | done | `docs/TEMPLATE_BUILDER_LIVE_LAYOUT_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 36 | WYSIWYG text draft design lock | done | `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/TEXT_EDITING_TRANSACTION_PLAN.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` |
 
 ## Current Rule
 
@@ -539,6 +540,32 @@ This phase intentionally does not implement live layout rendering, text
 measurement caches, viewport scheduling, DOM caret mapping, IME composition,
 save/publish persistence, non-sandbox API routes, exact layout, preview, PDF,
 or DOCX rendering.
+
+## Phase 36 WYSIWYG Text Draft Design Lock
+
+Phase 36 records the WYSIWYG document-editor direction before visible draft
+editing is implemented:
+
+- `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md` defines the editor goal,
+  truth layers, visible editing model, text-block content contract, editable
+  eligibility, draft lifecycle, commit policy, conflict policy, history policy,
+  live-layout policy, minimum UI contract, acceptance guardrails, and
+  non-goals;
+- `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md` now marks rich text editing over
+  authored inline text as an explicit runtime goal;
+- `docs/TEXT_EDITING_TRANSACTION_PLAN.md` now records the required rich text
+  return list for `inline.style.patch`, style-preserving edits, mixed inline
+  selection, and style-aware dirty scopes;
+- the design lock explicitly forbids silently flattening field refs, page
+  numbers, line breaks, or styled text runs into a plain string;
+- the next implementation phase should edit on the document canvas while
+  keeping browser draft state separate from canonical document truth.
+
+This phase intentionally does not implement WYSIWYG draft editing code, rich
+text toolbar, inline style patch commands, full DOM caret mapping, IME
+lifecycle, multi-range selection, exact WYSIWYG pagination, live layout
+renderer, save/publish persistence, or backend API routes outside the sandbox
+dev server.
 
 ## Phase 12 Extraction Record
 

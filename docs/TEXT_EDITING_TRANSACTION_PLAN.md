@@ -102,6 +102,23 @@ type TextTransaction =
 These are design names. Implementation may refine names, but it must preserve
 the granular intent.
 
+## Required Rich Text Return List
+
+Rich text editing is not optional for the final document editor. The first
+WYSIWYG text boundary may commit plain text only, but the transaction layer must
+return to:
+
+- `inline.style.patch` for selected text ranges;
+- style-preserving text insert at caret;
+- style-preserving range delete and range replace;
+- split and merge behavior that preserves adjacent text-run styles;
+- paste normalization that can keep allowed inline styles while rejecting
+  unsafe or unsupported markup;
+- atomic field-ref/page-number/line-break boundaries inside mixed rich text;
+- history grouping for style-only and mixed text/style edits;
+- dirty-scope metadata that tells live layout whether a style change can affect
+  geometry.
+
 ## Draft Lifecycle
 
 ```text

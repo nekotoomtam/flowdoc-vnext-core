@@ -543,6 +543,34 @@ Acceptance:
   caret mapping, IME composition, save/publish persistence, or non-sandbox API
   route is claimed.
 
+## Phase 36: WYSIWYG Text Draft Design Lock
+
+Goal:
+
+- lock the WYSIWYG document-editor direction before implementing visible text
+  drafts, so the next phase does not collapse into an inspector textbox or a
+  plain-string editor that blocks rich text, inline fields, caret, IME, and
+  layout work.
+
+Deliverables:
+
+- WYSIWYG draft design-lock document;
+- explicit truth-layer contract for browser draft, browser cache, mutation
+  bridge working package, and canonical package;
+- text-block content contract that forbids silent flattening of inline content;
+- editable eligibility and guarded-block policy;
+- draft lifecycle and conflict policy;
+- rich text return list tied to future transaction/runtime work.
+
+Acceptance:
+
+- the next implementation phase can edit on the document canvas without making
+  browser draft state canonical truth;
+- atomic/rich/mixed text blocks have a guard path before full rich editing;
+- history, undo/redo, and live-layout summaries remain commit-owned;
+- exact layout, artifact rendering, save/publish, full caret mapping, and IME
+  remain out of active typing until explicitly phased.
+
 ## Later Phases
 
 Goal:
@@ -552,7 +580,13 @@ Goal:
 
 Possible later work:
 
-- visible editor integration;
+- WYSIWYG text draft boundary;
+- caret and browser selection mapping;
+- IME composition boundary;
+- required rich text return list: inline style patching, style-preserving
+  insert/delete/replace, rich selection toolbar state, atomic field chips inside
+  mixed text, style-aware history grouping, and style-aware live-layout
+  invalidation;
 - concrete API route work;
 - exact renderer adapters;
 - repeat/collection design;

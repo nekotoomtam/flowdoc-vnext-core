@@ -13,6 +13,7 @@ Provide a smooth, large-document-safe authoring experience for:
 - typing and deleting text;
 - IME composition;
 - selection and caret state;
+- rich text editing over authored inline text;
 - node insertion, movement, duplication, and deletion;
 - field/key placement;
 - local undo and redo by user intent;
@@ -104,6 +105,25 @@ IME composition is first-class:
 
 The runtime must support Thai text input without forcing every key event
 through full document pagination.
+
+## Rich Text Return List
+
+Rich text is a required return item for the document editor path. The runtime
+may start with WYSIWYG plain-text drafts, but it must not flatten, discard, or
+make future rich text editing impossible.
+
+Return to this after the WYSIWYG draft, caret, and IME boundaries are stable:
+
+- inline style patch commands for selected authored text ranges;
+- style-preserving text insert, delete, split, merge, and paste behavior;
+- toolbar/application state for bold, italic, underline, strikethrough, text
+  color, font family, and font size;
+- selection mapping across styled text runs while keeping field-ref,
+  page-number, and line-break nodes atomic;
+- history grouping for style changes and mixed text/style edits;
+- live-layout invalidation that can distinguish geometry-affecting style
+  changes from visual-only changes where safe;
+- export/exact-layout parity for authored inline styles.
 
 ## Node Composition
 
