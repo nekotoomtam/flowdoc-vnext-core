@@ -78,6 +78,9 @@ The package must remain runnable without any parent editor checkout.
   line fragmentation, static header/footer fragments, page-number inline
   resolution, column fragments, row-level table fragments, splittable text-cell
   rows, renderer-consumption audit, and export readiness.
+- Layout pipeline baseline exposes staged planning, measurement-job scheduling,
+  bounded measured page/render-command artifact chunks, and complete pipeline
+  runs while preserving the existing measured pagination engine.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -91,6 +94,7 @@ The package must remain runnable without any parent editor checkout.
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
 - `docs/VNEXT_CORE_REDESIGN_PLAN.md`: target architecture for the next core lane
 - `docs/OPERATION_KERNEL_SPLIT_PLAN.md`: Lane B operation split boundary
+- `docs/LAYOUT_PIPELINE_SPLIT_PLAN.md`: Lane C layout pipeline split boundary
 - `docs/PHASE_LEDGER.md`: historical vNext core phase ledger
 - `docs/PHASE_10_CLOSE_AUDIT.md`: pagination/export boundary close audit
 - `docs/TABLE_PAGINATION_VNEXT_PLAN.md`: table pagination direction
@@ -102,6 +106,8 @@ The package must remain runnable without any parent editor checkout.
 - replacement for current parent `/api/paginate` or `/api/export`
 - form-slot or submission-state runtime
 - renderer-backed text measurement profile implementation
+- fully pausable internal text/table placement engine behind measurement job
+  results
 - non-text table-cell content splitting
 - multi-page column balancing
 - final pagination-aware TOC page resolution

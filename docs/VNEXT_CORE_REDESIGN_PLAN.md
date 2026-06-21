@@ -1,6 +1,6 @@
 # vNext Core Redesign Plan
 
-Status: design baseline with Lane A runtime session foundation started.
+Status: design baseline with Lane C layout pipeline baseline complete.
 
 This plan defines the target architecture for FlowDoc vNext Core after
 repository extraction. It is intentionally rebuild-first: existing source files
@@ -316,6 +316,22 @@ Deliverables:
 - renderer artifact contract;
 - long-document chunk/resume tests.
 
+Implementation status:
+
+- `src/pagination/layoutPipeline.ts` adds the staged layout pipeline contract;
+- `createVNextLayoutPipelinePlan(...)` creates deterministic layout and
+  measurement jobs from pagination source items;
+- `runVNextLayoutPipelineChunk(...)` resumes measurement-job scheduling and
+  emits bounded measured page/render-command artifact chunks;
+- `runVNextLayoutPipeline(...)` returns complete measured pagination,
+  renderer-consumption, and export-readiness artifacts;
+- `tests/layoutPipeline.test.ts` covers stage order, measurement-job
+  chunk/resume, bounded artifact chunks, renderer/export contracts, and
+  source independence;
+- `paginateVNextDocument(...)` remains the current behavior-preserving
+  placement engine until text/table placement internals are split behind the
+  pipeline contract.
+
 ### Lane D: Binding/Form-Slot Preparation
 
 Goal: add architecture for data-driven documents without making generated
@@ -339,19 +355,20 @@ Deliverables:
 - SVG proof artifact builder if it stays core-owned;
 - PDF/DOCX adapter requirements.
 
-## First Recommended Job
+## Next Recommended Job
 
-Start with Lane A: Runtime Session Foundation.
+Continue Lane C with internal placement extraction behind the new pipeline
+contract, or move to Lane D if product work needs binding/form-slot semantics
+before deeper pagination internals.
 
 Reason:
 
-- it creates the new center of the architecture without rewriting every
-  subsystem at once;
-- it lets operations, binding, layout, and export share one canonical runtime
-  context;
-- it replaces editor-bridge naming as the mental model while keeping current
-  tests useful;
-- it is reversible and can be proven with focused tests.
+- the public pipeline API now exists, so the next layout work can move
+  implementation details behind stable stage boundaries;
+- the remaining layout risk is inside text/table placement, not the artifact
+  consumption contract;
+- binding/form-slot work can start once the product priority requires request
+  data over authored templates.
 
 ## Review Gates
 

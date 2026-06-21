@@ -20,8 +20,9 @@ Parent goal:
 | 11 | Editor runtime bridge and generation artifact lane | done | `src/editorBridge/runtime.ts`; `tests/editorBridgeRuntime.test.ts`; parent consumer evidence lives outside this repository |
 | 12 | Physical repository extraction | done | `docs/PHASE_12_REPOSITORY_EXTRACTION_CHECKLIST.md`; `tests/extractionBoundary.test.ts`; `npm.cmd run check` |
 | 13 | Repository foundation | done | `AGENTS.md`; `docs/LEGACY_MIGRATION_GATE.md`; `docs/PACKAGE_CONSUMPTION_STRATEGY.md`; `.github/workflows/check.yml`; `README.md` |
-| 14 | Core redesign target and runtime session foundation | active | `docs/VNEXT_CORE_REDESIGN_PLAN.md`; `src/runtime/session.ts`; `tests/runtimeSession.test.ts` |
+| 14 | Core redesign target and runtime session foundation | done | `docs/VNEXT_CORE_REDESIGN_PLAN.md`; `src/runtime/session.ts`; `tests/runtimeSession.test.ts` |
 | 15 | Operation kernel split | done | `docs/OPERATION_KERNEL_SPLIT_PLAN.md`; `src/operations/commands.ts`; `src/operations/results.ts`; `src/operations/invalidation.ts`; `src/operations/history.ts`; `src/operations/registry.ts`; `tests/operationKernel.test.ts` |
+| 16 | Layout pipeline split | done | `docs/LAYOUT_PIPELINE_SPLIT_PLAN.md`; `src/pagination/layoutPipeline.ts`; `tests/layoutPipeline.test.ts` |
 
 ## Current Rule
 
@@ -86,6 +87,28 @@ renderer-backed measurement profile implementation, split non-text table cell
 content across pages, balance columns across multiple pages, finalize TOC page
 references, or render PDF/DOCX beyond the measured-fragment consumption
 contract.
+
+## Phase 16 Layout Pipeline Split
+
+Phase 16 adds the first vNext-native staged layout pipeline contract over the
+existing measured pagination engine:
+
+- `createVNextLayoutPipelinePlan(...)` turns pagination source items into
+  deterministic layout jobs and measurement jobs.
+- `runVNextLayoutPipelineChunk(...)` provides cursor-based measurement-job
+  scheduling and bounded measured page/render-command artifact chunks.
+- `runVNextLayoutPipeline(...)` returns the complete measured pagination,
+  renderer-consumption, and export-readiness artifacts through one layout
+  pipeline API.
+- artifact chunks preserve the no-relayout renderer contract and include only
+  commands for the bounded page range.
+- `tests/layoutPipeline.test.ts` proves stage order, measurement-job
+  chunk/resume, artifact page chunking, render-command bounds, and source
+  independence.
+
+This phase intentionally keeps `paginateVNextDocument(...)` as the placement
+engine. Moving actual text/table placement behind resumable job results remains
+a later internal split after the public pipeline contract is stable.
 
 ## Phase 11 Parent Bridge Boundary
 
