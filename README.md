@@ -82,6 +82,7 @@ The package must remain runnable without any parent editor checkout.
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
+- `docs/VNEXT_CORE_REDESIGN_PLAN.md`: target architecture for the next core lane
 - `docs/PHASE_LEDGER.md`: historical vNext core phase ledger
 - `docs/PHASE_10_CLOSE_AUDIT.md`: pagination/export boundary close audit
 - `docs/TABLE_PAGINATION_VNEXT_PLAN.md`: table pagination direction
