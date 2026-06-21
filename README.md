@@ -52,6 +52,9 @@ The package must remain runnable without any parent editor checkout.
   - `fixtures/product-report-vnext.flowdoc.json`
   - `fixtures/product-report-vnext-minimal.flowdoc.json`
 - Canonical package parser and serializer with safe parse variants
+- Core runtime session entrypoint that parses canonical packages, builds graph
+  indexes, exposes fields/data, and lists supported operation kinds without
+  invoking layout or parent editor code
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -74,7 +77,8 @@ The package must remain runnable without any parent editor checkout.
   rows, renderer-consumption audit, and export readiness.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
-  operation kinds without accepting current runtime document input.
+  operation kinds through the core runtime session without accepting current
+  runtime document input.
 
 ## Important Docs
 

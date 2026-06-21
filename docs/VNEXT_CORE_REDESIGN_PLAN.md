@@ -1,6 +1,6 @@
 # vNext Core Redesign Plan
 
-Status: design baseline for the next implementation lane.
+Status: design baseline with Lane A runtime session foundation started.
 
 This plan defines the target architecture for FlowDoc vNext Core after
 repository extraction. It is intentionally rebuild-first: existing source files
@@ -248,10 +248,10 @@ Keep the current vocabulary direction, but tighten ownership:
 
 Potential schema changes to evaluate before implementation:
 
-- replace table row `height` with `minHeight` if fixed height is not truly
-  authored;
-- make table span support explicit as `unsupported` or gated until layout can
-  honor it;
+- table row `height` is replaced by `minHeight`; fixed row height needs a later
+  `heightPolicy` design;
+- table span support is excluded from canonical schema until layout can honor
+  it;
 - add stable operation-friendly node creation helpers instead of raw object
   literals in callers;
 - decide whether `field-ref` fallback belongs in inline node, field registry,
@@ -271,6 +271,15 @@ Deliverables:
 - graph/index diagnostics;
 - session-level public type;
 - tests proving no parent dependency and no editor naming required.
+
+Implementation status:
+
+- `src/runtime/session.ts` adds `createVNextRuntimeSession(...)` and
+  `safeCreateVNextRuntimeSession(...)`;
+- `tests/runtimeSession.test.ts` verifies canonical package input, raw input
+  rejection, supported operation kinds, and parent-runtime independence;
+- `src/editorBridge/runtime.ts` now composes through the core runtime session
+  instead of owning parse/graph setup itself.
 
 ### Lane B: Operation Kernel Split
 
@@ -352,4 +361,3 @@ PASS when:
   internals;
 - legacy/current behavior remains evidence-only;
 - `npm run check` remains green after design docs are added.
-

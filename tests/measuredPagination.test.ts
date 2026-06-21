@@ -135,10 +135,10 @@ function columnsDoc(): DocumentNode {
 
 function tablePaginationDoc(): DocumentNode {
   const tableColumns = [{ width: pt(100) }, { width: pt(200) }]
-  const row = (id: string, cells: [string, string], height: number): AuthoredNode => ({
+  const row = (id: string, cells: [string, string], minHeight: number): AuthoredNode => ({
     id,
     type: "table-row",
-    props: { height: pt(height) },
+    props: { minHeight: pt(minHeight) },
     cellIds: [`${id}-c1`, `${id}-c2`],
   })
   const cell = (id: string, textId: string): AuthoredNode => ({
@@ -231,7 +231,7 @@ function splittableCellTableDoc(allowBreak = true): DocumentNode {
             columns: [{ width: pt(100) }],
             rowIds: ["header-row", "data-row"],
           },
-          "header-row": { id: "header-row", type: "table-row", props: { height: pt(30) }, cellIds: ["header-cell"] },
+          "header-row": { id: "header-row", type: "table-row", props: { minHeight: pt(30) }, cellIds: ["header-cell"] },
           "data-row": {
             id: "data-row",
             type: "table-row",

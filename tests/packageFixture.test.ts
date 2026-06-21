@@ -125,6 +125,74 @@ describe("vNext package fixture", () => {
     expect(() => parseFlowDocPackageV2DocumentVNext(pack)).toThrow(FlowDocPackageParseError)
   })
 
+  it("rejects fixed table row height in canonical document v3 packages", () => {
+    const pack = minimalPackage({
+      nodes: {
+        "zone-body": { ...bodyZone(), childIds: ["table"] },
+        table: {
+          id: "table",
+          type: "table",
+          props: {},
+          columns: [{ width: { value: 100, unit: "pt" } }],
+          rowIds: ["row"],
+        },
+        row: {
+          id: "row",
+          type: "table-row",
+          props: { height: { value: 24, unit: "pt" } },
+          cellIds: ["cell"],
+        },
+        cell: {
+          id: "cell",
+          type: "table-cell",
+          props: {},
+          childIds: [],
+        },
+      },
+    })
+
+    const result = safeParseFlowDocPackageV2DocumentVNext(pack)
+
+    expect(result).toMatchObject({ ok: false, reason: "invalid-package" })
+    if (!result.ok) {
+      expect(result.issues.some((issue) => issue.path.includes("row.props"))).toBe(true)
+    }
+  })
+
+  it("rejects table cell spans until the vNext table engine supports them", () => {
+    const pack = minimalPackage({
+      nodes: {
+        "zone-body": { ...bodyZone(), childIds: ["table"] },
+        table: {
+          id: "table",
+          type: "table",
+          props: {},
+          columns: [{ width: { value: 100, unit: "pt" } }],
+          rowIds: ["row"],
+        },
+        row: {
+          id: "row",
+          type: "table-row",
+          props: {},
+          cellIds: ["cell"],
+        },
+        cell: {
+          id: "cell",
+          type: "table-cell",
+          props: { colspan: 2, rowspan: 2 },
+          childIds: [],
+        },
+      },
+    })
+
+    const result = safeParseFlowDocPackageV2DocumentVNext(pack)
+
+    expect(result).toMatchObject({ ok: false, reason: "invalid-package" })
+    if (!result.ok) {
+      expect(result.issues.some((issue) => issue.path.includes("cell.props"))).toBe(true)
+    }
+  })
+
   it("parses package v2 containing document v3 and builds graph facts", () => {
     const pack = parseFixture("product-report-vnext-minimal.flowdoc.json")
     const graph = buildRelationshipGraph(pack.document)

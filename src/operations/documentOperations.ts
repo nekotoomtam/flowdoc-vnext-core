@@ -19,6 +19,20 @@ export type VNextOperationCommand =
   | { kind: "table.column.delete"; source?: VNextOperationSource; tableId: NodeId; index: number }
 
 export type VNextOperationKind = VNextOperationCommand["kind"]
+export const VNEXT_OPERATION_KINDS = [
+  "node.delete",
+  "node.duplicate",
+  "node.reorder",
+  "columns.insert",
+  "columns.layout.patch",
+  "text-block.insert",
+  "text-block.text.replace",
+  "table.row.insert",
+  "table.row.delete",
+  "table.column.insert",
+  "table.column.delete",
+] as const satisfies readonly VNextOperationKind[]
+
 export type VNextOperationFailureReason =
   | "invalid-command"
   | "invalid-document"

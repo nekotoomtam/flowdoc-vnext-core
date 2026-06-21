@@ -31,8 +31,8 @@ splits, and target-specific export quirks belong to the deferred C path.
 
 ## Row Height Semantics
 
-`table-row.props.height`, if kept in the wire schema, must behave as
-**minimum row height**.
+`table-row.props.minHeight` is the only canonical row-height floor in the wire
+schema. Fixed row height is intentionally not supported yet.
 
 Reason:
 
@@ -42,9 +42,9 @@ Reason:
   clipping;
 - export must not need to guess whether content should clip or expand.
 
-Before repository extraction, prefer renaming this field to `minHeight` unless
-there is a strong compatibility reason to keep `height`. If `height` remains,
-tests and docs must keep saying it is minimum height, not fixed height.
+`height` must not be reintroduced unless a later `heightPolicy` design explains
+fixed, minimum, and overflow semantics without clipping long cell content by
+accident.
 
 ## Fragment Shape
 
@@ -185,13 +185,14 @@ Acceptance:
 
 ### 10.4.7 Spans
 
-Status: deferred to C path unless needed to unblock B fixtures.
+Status: excluded from canonical schema until the C path can support it.
 
 Initial B policy:
 
 - span-free tables are the primary supported case;
-- `colspan` may be added before rowspan if it is needed for product fixtures;
-- `rowspan` split behavior is deferred until the row-group algorithm exists.
+- `colspan` and `rowspan` must be rejected by canonical parsers;
+- span support returns only after the grid resolver and row-group split model
+  exist.
 
 Acceptance before enabling spans:
 
@@ -239,7 +240,6 @@ The current 10.4 working tree has:
 
 It does not yet have:
 
-- row minHeight rename or explicit schema migration;
 - splitting for non-text cell children;
 - colspan/rowspan support;
 - concrete PDF/DOCX renderer implementations.
@@ -248,8 +248,8 @@ It does not yet have:
 
 Stop for owner review before:
 
-- changing persisted schema field names such as `height` to `minHeight`;
 - enabling colspan/rowspan pagination;
+- adding fixed row-height or row `heightPolicy` semantics;
 - changing `allowBreak` default semantics;
 - declaring table pagination export-ready;
 - adding a renderer-backed measurement profile.

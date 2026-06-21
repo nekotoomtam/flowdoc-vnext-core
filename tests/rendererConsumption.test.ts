@@ -50,7 +50,7 @@ function splittableTableDoc(): DocumentNode {
             columns: [{ width: pt(100) }],
             rowIds: ["header-row", "data-row"],
           },
-          "header-row": { id: "header-row", type: "table-row", props: { height: pt(30) }, cellIds: ["header-cell"] },
+          "header-row": { id: "header-row", type: "table-row", props: { minHeight: pt(30) }, cellIds: ["header-cell"] },
           "data-row": {
             id: "data-row",
             type: "table-row",

@@ -1,12 +1,8 @@
-import type { RelationshipGraph } from "../graph/relationshipGraph.js"
-import { buildRelationshipGraph } from "../graph/relationshipGraph.js"
 import type { VNextOperationKind } from "../operations/documentOperations.js"
 import type {
   FlowDocPackageParseIssue,
-  FlowDocPackageParseReason,
   FlowDocPackageV2DocumentVNext,
 } from "../persistence/package.js"
-import { safeParseFlowDocPackageV2DocumentVNext } from "../persistence/package.js"
 import type {
   VNextMeasuredPagination,
   VNextMeasuredPaginationOptions,
@@ -16,19 +12,21 @@ import type { VNextMeasuredPaginationExportReadiness } from "../pagination/expor
 import { assessVNextMeasuredPaginationExportReadiness } from "../pagination/exportReadiness.js"
 import type { VNextMeasuredRendererConsumption } from "../pagination/rendererConsumption.js"
 import { buildVNextMeasuredRendererConsumption } from "../pagination/rendererConsumption.js"
+import type {
+  VNextRuntimeSessionFailureReason,
+  VNextRuntimeSessionSource,
+} from "../runtime/session.js"
+import { safeCreateVNextRuntimeSession } from "../runtime/session.js"
+import type { RelationshipGraph } from "../graph/relationshipGraph.js"
 
-export type VNextEditorBridgeRuntimeSource =
-  | "canonical-vnext-package"
-  | "fixture"
+export type VNextEditorBridgeRuntimeSource = VNextRuntimeSessionSource
 
 export type VNextEditorBridgeRuntimeStatus =
   | "ready"
   | "ready-with-warnings"
   | "blocked"
 
-export type VNextEditorBridgeRuntimeFailureReason =
-  | FlowDocPackageParseReason
-  | "invalid-document"
+export type VNextEditorBridgeRuntimeFailureReason = VNextRuntimeSessionFailureReason
 
 export interface VNextEditorBridgeRuntimeOptions extends VNextMeasuredPaginationOptions {
   source?: VNextEditorBridgeRuntimeSource
@@ -66,29 +64,6 @@ export type VNextEditorBridgeRuntimeResult =
       issues: FlowDocPackageParseIssue[]
     }
 
-export const VNEXT_EDITOR_BRIDGE_SUPPORTED_OPERATION_KINDS: readonly VNextOperationKind[] = [
-  "node.delete",
-  "node.duplicate",
-  "node.reorder",
-  "columns.insert",
-  "columns.layout.patch",
-  "text-block.insert",
-  "text-block.text.replace",
-  "table.row.insert",
-  "table.row.delete",
-  "table.column.insert",
-  "table.column.delete",
-]
-
-function graphErrorIssue(error: unknown): FlowDocPackageParseIssue {
-  return {
-    severity: "error",
-    code: "invalid-document",
-    path: "document",
-    message: error instanceof Error ? error.message : "document graph validation failed",
-  }
-}
-
 function statusFromReadiness(
   exportReadiness: VNextMeasuredPaginationExportReadiness,
 ): VNextEditorBridgeRuntimeStatus {
@@ -99,55 +74,49 @@ export function safeCreateVNextEditorBridgeRuntime(
   value: unknown,
   options: VNextEditorBridgeRuntimeOptions = {},
 ): VNextEditorBridgeRuntimeResult {
-  const parsed = safeParseFlowDocPackageV2DocumentVNext(value)
+  const sessionResult = safeCreateVNextRuntimeSession(value, {
+    source: options.source,
+  })
 
-  if (!parsed.ok) {
+  if (!sessionResult.ok) {
     return {
       ok: false,
-      reason: parsed.reason,
-      issues: parsed.issues,
+      reason: sessionResult.reason,
+      issues: sessionResult.issues,
     }
   }
 
-  try {
-    const graph = buildRelationshipGraph(parsed.package.document)
-    const pagination = paginateVNextDocument(parsed.package.document, {
-      ...options,
-      data: options.data ?? parsed.package.data?.values,
-    })
-    const rendererConsumption = buildVNextMeasuredRendererConsumption(pagination)
-    const exportReadiness = assessVNextMeasuredPaginationExportReadiness(pagination)
+  const session = sessionResult.session
+  const pagination = paginateVNextDocument(session.document, {
+    ...options,
+    data: options.data ?? session.data?.values,
+  })
+  const rendererConsumption = buildVNextMeasuredRendererConsumption(pagination)
+  const exportReadiness = assessVNextMeasuredPaginationExportReadiness(pagination)
 
-    return {
-      ok: true,
-      runtime: {
-        source: "vnext-editor-bridge-runtime",
-        sourceKind: options.source ?? "canonical-vnext-package",
-        status: statusFromReadiness(exportReadiness),
-        packageVersion: parsed.package.packageVersion,
-        documentVersion: parsed.package.document.version,
-        package: parsed.package,
-        graph,
-        pagination,
-        rendererConsumption,
-        exportReadiness,
-        diagnostics: {
-          graphIssueCount: graph.diagnostics.issues.length,
-          paginationWarningCount: pagination.warnings.length,
-          rendererBlockingIssueCount: rendererConsumption.blockingIssues.length,
-          rendererWarningIssueCount: rendererConsumption.warningIssues.length,
-          exportBlockingIssueCount: exportReadiness.blockingIssues.length,
-          exportWarningIssueCount: exportReadiness.warningIssues.length,
-          supportedOperationKinds: VNEXT_EDITOR_BRIDGE_SUPPORTED_OPERATION_KINDS,
-        },
+  return {
+    ok: true,
+    runtime: {
+      source: "vnext-editor-bridge-runtime",
+      sourceKind: session.sourceKind,
+      status: statusFromReadiness(exportReadiness),
+      packageVersion: session.packageVersion,
+      documentVersion: session.documentVersion,
+      package: session.package,
+      graph: session.graph,
+      pagination,
+      rendererConsumption,
+      exportReadiness,
+      diagnostics: {
+        graphIssueCount: session.diagnostics.graphIssueCount,
+        paginationWarningCount: pagination.warnings.length,
+        rendererBlockingIssueCount: rendererConsumption.blockingIssues.length,
+        rendererWarningIssueCount: rendererConsumption.warningIssues.length,
+        exportBlockingIssueCount: exportReadiness.blockingIssues.length,
+        exportWarningIssueCount: exportReadiness.warningIssues.length,
+        supportedOperationKinds: session.diagnostics.supportedOperationKinds,
       },
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      reason: "invalid-document",
-      issues: [graphErrorIssue(error)],
-    }
+    },
   }
 }
 

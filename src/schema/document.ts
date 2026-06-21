@@ -161,9 +161,9 @@ export const TableRowNodeSchema = z.object({
   id: z.string().min(1),
   type: z.literal("table-row"),
   props: z.object({
-    height: UnitValueSchema.optional(),
+    minHeight: UnitValueSchema.optional(),
     allowBreak: z.boolean().optional(),
-  }).default({}),
+  }).strict().default({}),
   cellIds: z.array(z.string().min(1)).min(1),
 })
 
@@ -171,11 +171,9 @@ export const TableCellNodeSchema = z.object({
   id: z.string().min(1),
   type: z.literal("table-cell"),
   props: z.object({
-    colspan: z.number().int().min(1).optional(),
-    rowspan: z.number().int().min(1).optional(),
     verticalAlign: z.enum(["top", "middle", "bottom"]).optional(),
     box: BoxStyleSchema.optional(),
-  }).default({}),
+  }).strict().default({}),
   childIds: z.array(z.string().min(1)),
 })
 

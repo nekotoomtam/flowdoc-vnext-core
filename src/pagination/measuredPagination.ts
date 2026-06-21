@@ -356,7 +356,7 @@ function estimateTableRowHeight(
   pageNumber: number,
   context: MeasurementContext,
 ): number {
-  if (row.props.height != null) return unitToPt(row.props.height)
+  const minHeightPt = row.props.minHeight == null ? 0 : unitToPt(row.props.minHeight)
 
   const cellContentHeight = row.cellIds.reduce((maxHeight, cellId) => {
     const cellIndex = row.cellIds.indexOf(cellId)
@@ -367,7 +367,7 @@ function estimateTableRowHeight(
     return Math.max(maxHeight, height)
   }, 0)
 
-  return Math.max(24, cellContentHeight + 8)
+  return Math.max(24, minHeightPt, cellContentHeight + 8)
 }
 
 function estimateNodeHeight(

@@ -89,17 +89,16 @@ from starting:
 - multi-page column balancing;
 - non-text table-cell content splitting;
 - `colspan` and `rowspan` grid pagination;
-- schema rename from `table-row.props.height` to `minHeight`;
 - product-level browser/editor acceptance smokes.
 
 ## Owner Decision Gates
 
 Stop for owner review before:
 
-- changing persisted schema fields such as `height` to `minHeight`;
 - adding a renderer-backed measurement profile;
 - declaring PDF/DOCX export production-ready;
 - enabling `colspan` or `rowspan`;
+- adding fixed row-height or row `heightPolicy` semantics;
 - changing `allowBreak` default semantics;
 - making editor runtime bridge code mutate current runtime paths.
 
