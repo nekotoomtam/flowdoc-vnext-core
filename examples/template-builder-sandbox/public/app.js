@@ -5,6 +5,7 @@ const state = {
   bridgeMessage: "",
   lastPacket: null,
   mutationText: "Edited through the mutation bridge",
+  runtimeCache: null,
   selectedId: null,
   selectionSource: "boot",
   snapshot: null,
@@ -31,14 +32,120 @@ function allNodes(snapshot) {
   return snapshot.sections.flatMap((section) => flattenNodes(section.zones))
 }
 
+function clonePlain(value) {
+  return JSON.parse(JSON.stringify(value))
+}
+
+function createRuntimeCache(snapshot, options = {}) {
+  const previousCache = options.previousCache || null
+  const nodes = allNodes(snapshot)
+  const nodeById = new Map(nodes.map((node) => [node.id, node]))
+  const packetApplied = Boolean(options.packetApplied)
+  const previousPacketCount = previousCache?.packetsApplied || 0
+
+  return {
+    bootRevision: previousCache?.bootRevision ?? snapshot.session.documentRevision,
+    documentRevision: snapshot.session.documentRevision,
+    fallbackSnapshotCount: previousCache?.fallbackSnapshotCount || 0,
+    lastPacketRevision: options.packet?.nextRevision ?? previousCache?.lastPacketRevision ?? null,
+    mode: packetApplied ? "packet-cache" : "snapshot-boot",
+    nodeById,
+    nodeCount: nodes.length,
+    packetsApplied: packetApplied ? previousPacketCount + 1 : previousPacketCount,
+  }
+}
+
+function setSnapshotFromBoot(snapshot) {
+  state.snapshot = snapshot
+  state.runtimeCache = createRuntimeCache(snapshot)
+}
+
+function setSnapshotFromRefresh(snapshot) {
+  const previousCache = state.runtimeCache
+  state.snapshot = snapshot
+  state.runtimeCache = {
+    ...createRuntimeCache(snapshot, { previousCache }),
+    fallbackSnapshotCount: (previousCache?.fallbackSnapshotCount || 0) + 1,
+    mode: "snapshot-refresh",
+  }
+}
+
 function selectedNode() {
   if (!state.snapshot || !state.selectedId) return null
-  return allNodes(state.snapshot).find((node) => node.id === state.selectedId) || null
+  return state.runtimeCache?.nodeById.get(state.selectedId) || null
 }
 
 function nodeById(nodeId) {
   if (!state.snapshot || !nodeId) return null
-  return allNodes(state.snapshot).find((node) => node.id === nodeId) || null
+  return state.runtimeCache?.nodeById.get(nodeId) || null
+}
+
+function replaceChangedNode(node, changedNodes) {
+  const replacement = changedNodes.get(node.id)
+  if (replacement) return clonePlain(replacement)
+
+  let childrenChanged = false
+  const children = node.children.map((child) => {
+    const nextChild = replaceChangedNode(child, changedNodes)
+    if (nextChild !== child) childrenChanged = true
+    return nextChild
+  })
+
+  return childrenChanged ? { ...node, children } : node
+}
+
+function isChangePacket(packet) {
+  return packet?.source === "flowdoc-template-builder-change-packet" && packet.packetVersion === 1
+}
+
+function applyChangePacket(packet) {
+  if (!state.snapshot || !isChangePacket(packet)) {
+    return { ok: false, reason: "invalid change packet" }
+  }
+
+  if (packet.snapshotRequired) {
+    return { ok: false, reason: "packet requested snapshot refresh" }
+  }
+
+  if (packet.baseRevision !== state.snapshot.session.documentRevision) {
+    return {
+      ok: false,
+      reason: `packet base ${packet.baseRevision} did not match local revision ${state.snapshot.session.documentRevision}`,
+    }
+  }
+
+  const changedNodes = new Map((packet.changedNodes || []).map((node) => [node.id, node]))
+  const sections = state.snapshot.sections.map((section) => ({
+    ...section,
+    zones: section.zones.map((zone) => replaceChangedNode(zone, changedNodes)),
+  }))
+  const nextSnapshot = {
+    ...state.snapshot,
+    diagnostics: packet.diagnostics || state.snapshot.diagnostics,
+    mutationBridge: {
+      ...state.snapshot.mutationBridge,
+      documentRevision: packet.nextRevision,
+      lastMutation: packet.mutation,
+      mode: "in-memory-bridge",
+      mutationCount: packet.mutationCount,
+    },
+    sections,
+    session: {
+      ...state.snapshot.session,
+      dirtyScopeCount: packet.dirtyScopes.length,
+      documentRevision: packet.nextRevision,
+    },
+  }
+
+  state.snapshot = nextSnapshot
+  state.lastPacket = packet
+  state.runtimeCache = createRuntimeCache(nextSnapshot, {
+    previousCache: state.runtimeCache,
+    packet,
+    packetApplied: true,
+  })
+
+  return { ok: true, reason: "packet applied" }
 }
 
 function shortId(id) {
@@ -364,6 +471,9 @@ function renderStatus(snapshot) {
   const packetLabel = state.lastPacket
     ? `Packet: ${state.lastPacket.changedNodeIds.length} changed ${state.lastPacket.baseRevision}->${state.lastPacket.nextRevision}`
     : "Packet: none"
+  const cacheLabel = state.runtimeCache
+    ? `Cache: ${state.runtimeCache.mode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.packetsApplied} packets`
+    : "Cache: none"
 
   return `
     <footer class="statusbar">
@@ -374,6 +484,7 @@ function renderStatus(snapshot) {
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
       <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
       <span>${escapeHtml(packetLabel)}</span>
+      <span>${escapeHtml(cacheLabel)}</span>
       <span>Dirty scopes: ${snapshot.session.dirtyScopeCount}</span>
       <span>Key data: ${escapeHtml(snapshot.diagnostics.keyDataStatus)}</span>
       <span>Exact layout: ${escapeHtml(snapshot.diagnostics.exactLayoutStatus)}</span>
@@ -448,7 +559,7 @@ async function applyBridgeReplaceText() {
   render()
 
   try {
-    const response = await fetch("./api/actions/replace-text", {
+    const response = await fetch("./api/actions/replace-text?response=packet", {
       body: JSON.stringify({
         text: state.mutationText,
         textBlockId: node.id,
@@ -457,13 +568,21 @@ async function applyBridgeReplaceText() {
       method: "POST",
     })
     const result = await response.json()
-    if (result.snapshot) {
-      state.snapshot = result.snapshot
+    let fallbackReason = ""
+
+    if (result.packet) {
+      const packetResult = applyChangePacket(result.packet)
+      if (!packetResult.ok) {
+        fallbackReason = ` ${packetResult.reason}; snapshot refreshed.`
+        setSnapshotFromRefresh(await fetchSnapshot())
+      }
+    } else {
+      fallbackReason = " missing packet; snapshot refreshed."
+      setSnapshotFromRefresh(await fetchSnapshot())
     }
-    state.lastPacket = result.packet || null
     state.bridgeMessage = result.ok
-      ? `applied: ${result.mutation.summary}`
-      : `rejected: ${(result.issues || []).map((issue) => issue.message).join("; ")}`
+      ? `applied: ${result.mutation.summary}${fallbackReason}`
+      : `rejected: ${(result.issues || []).map((issue) => issue.message).join("; ")}${fallbackReason}`
     state.selectionSource = "bridge"
   } catch (error) {
     state.bridgeMessage = error instanceof Error ? error.message : "bridge request failed"
@@ -495,7 +614,7 @@ function render() {
 
 async function boot() {
   render()
-  state.snapshot = await fetchSnapshot()
+  setSnapshotFromBoot(await fetchSnapshot())
   const firstTextBlock = allNodes(state.snapshot).find((node) => node.type === "text-block")
   state.selectedId = firstTextBlock?.id || allNodes(state.snapshot)[0]?.id || null
   state.selectionSource = "boot"

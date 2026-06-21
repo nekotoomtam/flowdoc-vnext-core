@@ -321,6 +321,13 @@ export function createTemplateBuilderSnapshot(
         reason: "selected plain text blocks can be replaced through the sandbox mutation bridge",
       },
       {
+        action: "browser.applyChangePacket",
+        label: "Apply packet",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser runtime cache consumes packet-only mutation responses after boot",
+      },
+      {
         action: "user.typeText",
         label: "Type",
         lane: "immediate + background-live",

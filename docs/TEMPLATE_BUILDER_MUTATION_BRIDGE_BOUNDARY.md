@@ -57,6 +57,12 @@ Packet mode must not include the complete snapshot `sections` tree. It should
 carry changed node ids, changed node summaries, dirty scopes, revision numbers,
 diagnostics, and issues.
 
+## Phase 31 Handoff
+
+The browser mutation UI now requests packet mode and applies the returned
+packet to a derived runtime cache. The full snapshot response remains available
+for boot, fallback refresh, and non-cache consumers.
+
 ## Non-Goals
 
 Phase 29 and Phase 30 do not implement:

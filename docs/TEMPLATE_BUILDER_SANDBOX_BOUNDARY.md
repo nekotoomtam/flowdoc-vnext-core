@@ -68,6 +68,8 @@ with a proper bundler/runtime adapter.
 - Phase 30 adds a packet-only mutation response option so future browser cache
   work can consume changed-node facts without requiring a complete snapshot
   payload after every action.
+- Phase 31 makes the browser consume packet-only bridge responses after boot
+  through a derived runtime cache and node index.
 
 ## Non-Goals
 

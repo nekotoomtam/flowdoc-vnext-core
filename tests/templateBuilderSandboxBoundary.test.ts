@@ -129,7 +129,7 @@ describe("template builder sandbox boundary", () => {
     expect(bridgeSource).toContain("runVNextTextTransaction")
     expect(bridgeSource).toContain("text.range.replace")
     expect(bridgeSource).toContain("flowdoc-template-builder-change-packet")
-    expect(appSource).toContain("./api/actions/replace-text")
+    expect(appSource).toContain("./api/actions/replace-text?response=packet")
     expect(appSource).toContain("lastPacket")
     expect(appSource).not.toContain("snapshot.document")
     expect(snapshot.mutationBridge).toEqual({
@@ -309,5 +309,23 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
     ]))
+  })
+
+  it("applies mutation packets through a browser runtime cache", () => {
+    const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
+    const browserCacheDoc = readText("../docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md")
+
+    expect(appSource).toContain("runtimeCache")
+    expect(appSource).toContain("createRuntimeCache")
+    expect(appSource).toContain("applyChangePacket")
+    expect(appSource).toContain("flowdoc-template-builder-change-packet")
+    expect(appSource).toContain("packet.baseRevision !== state.snapshot.session.documentRevision")
+    expect(appSource).toContain("applyChangePacket(result.packet)")
+    expect(appSource).toContain("setSnapshotFromRefresh(await fetchSnapshot())")
+    expect(appSource).toContain("state.runtimeCache?.nodeById.get")
+    expect(appSource).not.toContain("result.snapshot")
+    expect(coreBoundarySource).toContain("browser.applyChangePacket")
+    expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
   })
 })

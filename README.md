@@ -95,6 +95,9 @@ The package must remain runnable without any parent editor checkout.
 - Sandbox delta boundary adds an optional bounded change-packet response for
   the replace action so future typing can move changed-node facts without
   requiring a full snapshot response after every mutation
+- Sandbox browser cache boundary consumes those change packets in the browser:
+  the shell still boots from a full snapshot, then applies packet-only mutation
+  responses to a browser-owned runtime cache and snapshot view model
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -165,6 +168,8 @@ The package must remain runnable without any parent editor checkout.
   bridge to core mutation path for the sandbox
 - `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md`: bounded change-packet response
   contract beside the existing sandbox snapshot response
+- `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`: browser runtime cache
+  contract for consuming sandbox change packets after boot
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -201,5 +206,5 @@ The package must remain runnable without any parent editor checkout.
   consumption contracts
 - durable operation/authoring history persistence outside in-memory helpers
 - product-level visible editor acceptance smokes
-- persistent browser normalized cache that can consume only change packets
+- durable browser cache persistence and structural packet application
 - publishing/distribution strategy beyond local package consumption

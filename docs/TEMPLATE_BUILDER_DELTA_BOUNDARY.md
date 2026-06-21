@@ -47,14 +47,22 @@ Phase 30 may still derive the packet from a refreshed snapshot inside the
 sandbox bridge. That is acceptable for this phase because the contract being
 proved is response shape and ownership, not final server-side compute cost.
 
-The next runtime-cache phase should stop treating a full snapshot as the only
-browser state source after every accepted action.
+Phase 31 stops treating a full snapshot as the only browser state source after
+every accepted action by applying packet-only mutation responses to a
+browser-owned runtime cache.
+
+## Phase 31 Handoff
+
+The browser now uses the packet response mode for the bridge replace action.
+It still keeps a snapshot-shaped view model for rendering, but that view model
+is updated from packet changed-node summaries after boot.
 
 ## Non-Goals
 
 Phase 30 does not implement:
 
 - a persistent browser normalized cache;
+- structural packet operations;
 - per-keystroke typing;
 - DOM caret mapping;
 - IME composition;

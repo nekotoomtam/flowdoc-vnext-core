@@ -399,6 +399,36 @@ Acceptance:
 - no browser normalized cache, per-keystroke typing, live layout renderer,
   persistence, or non-sandbox API route is claimed.
 
+## Phase 31: Browser Runtime Cache Boundary
+
+Goal:
+
+- make the sandbox browser consume change packets after boot instead of using
+  full snapshot responses as the active mutation path.
+
+Deliverables:
+
+- browser runtime cache built from the boot snapshot;
+- node id lookup for selection and inspector reads;
+- packet-only bridge action request from the browser;
+- packet apply path that updates changed node summaries, revisions,
+  diagnostics, mutation metadata, and dirty scope count;
+- revision guard with snapshot refresh fallback;
+- cache status in the shell;
+- browser cache boundary documentation;
+- root boundary tests.
+
+Acceptance:
+
+- `GET /api/snapshot` remains the boot path;
+- mutation UI asks for `?response=packet`;
+- browser source does not read mutation `result.snapshot`;
+- packet apply keeps browser cache derived from, not equal to, canonical
+  package truth;
+- no per-keystroke typing, DOM caret mapping, live layout renderer,
+  persistence, structural packet operation, or non-sandbox API route is
+  claimed.
+
 ## Later Phases
 
 Goal:

@@ -37,6 +37,7 @@ Parent goal:
 | 28 | Structure selection first | done | `docs/TEMPLATE_BUILDER_INTERACTION_BOUNDARY.md`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 29 | One safe mutation path | done | `docs/TEMPLATE_BUILDER_MUTATION_BRIDGE_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 30 | Snapshot delta boundary | done | `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 31 | Browser runtime cache boundary | done | `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -400,6 +401,36 @@ This phase intentionally does not implement a persistent browser normalized
 cache, per-keystroke typing, DOM caret mapping, IME behavior, undo/redo
 execution, live layout rendering, save/publish persistence, backend API routes
 outside the sandbox server, exact layout, preview, PDF, or DOCX rendering.
+
+## Phase 31 Browser Runtime Cache Boundary
+
+Phase 31 makes the browser consume packet-only mutation responses:
+
+- the sandbox shell still boots from `GET /api/snapshot`.
+- after boot, the browser builds a runtime cache with node id lookup, boot
+  revision, current document revision, node count, packet apply count, last
+  packet revision, and fallback snapshot refresh count.
+- selection and inspector node lookup now read from the browser runtime cache
+  instead of flattening the snapshot tree for each lookup.
+- the bridge replace UI posts to
+  `POST /api/actions/replace-text?response=packet`.
+- accepted and rejected packet responses update mutation bridge metadata,
+  diagnostics, dirty scope count, document revision, and changed node summaries
+  in the browser snapshot view model.
+- packets must match the browser's local document revision before they apply.
+- missing, stale, or snapshot-required packets trigger an explicit snapshot
+  refresh fallback.
+- the status bar reports cache mode, node count, and packet apply count.
+- `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md` records the derived-cache
+  contract and the non-canonical ownership rule.
+- `tests/templateBuilderSandboxBoundary.test.ts` guards packet-only browser
+  action routing and runtime-cache source boundaries.
+
+This phase intentionally does not implement per-keystroke typing, DOM caret
+mapping, IME behavior, partial browser text ranges, undo/redo execution, live
+layout rendering, structural packet operations, durable browser cache
+persistence, save/publish persistence, backend API routes outside the sandbox
+server, exact layout, preview, PDF, or DOCX rendering.
 
 ## Phase 12 Extraction Record
 
