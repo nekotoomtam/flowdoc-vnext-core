@@ -55,6 +55,16 @@ The package must remain runnable without any parent editor checkout.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
+- Key/data diagnostics collect authored `field-ref` usages, validate package
+  registry/data snapshots, report generation-readiness status, and preserve
+  template/data separation without materializing bound output
+- Editable authoring session baseline creates a pure browser/Node-safe session
+  from canonical packages with working document, graph/key diagnostics,
+  revisions, empty dirty scopes, and session-only selection state
+- Text transaction engine baseline projects text-block inline children into
+  stable model offsets and applies granular text insert, delete, range replace,
+  and inline field-ref insert with text-block dirty scope and history intent
+  without invoking layout/export
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -93,6 +103,28 @@ The package must remain runnable without any parent editor checkout.
 - `AGENTS.md`: working agreement for agents in this repo
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
+- `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
+  dynamic node-based docgen template builder
+- `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`: implementation phases for the
+  template authoring architecture reset
+- `docs/SHARED_TEMPLATE_CORE_CONTRACT.md`: shared browser/Node-safe core
+  contract for authoring and generation runtimes
+- `docs/NODE_FAMILY_CAPABILITY_MODEL.md`: node family, containment, and
+  capability model that prevents prototype-style node proliferation
+- `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`: frontend editing/runtime plan for
+  smooth typing, selection, IME, dirty scopes, and checkpointing
+- `docs/TEXT_EDITING_TRANSACTION_PLAN.md`: granular text transaction direction
+  for typing, split/merge, inline fields, and history grouping
+- `docs/LIVE_LAYOUT_AND_EXACT_GENERATION_PLAN.md`: live authoring layout versus
+  exact generation layout boundary
+- `docs/KEY_REGISTRY_BINDING_PLAN.md`: field key, data snapshot, binding, and
+  future key-history direction
+- `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
+  for template plus data to artifacts
+- `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`: large-document guardrails for
+  rendering, typing, layout, and exact generation
+- `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
+  FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
 - `docs/VNEXT_CORE_REDESIGN_PLAN.md`: target architecture for the next core lane
 - `docs/OPERATION_KERNEL_SPLIT_PLAN.md`: Lane B operation split boundary
@@ -107,8 +139,13 @@ The package must remain runnable without any parent editor checkout.
 ## Not Implemented Yet
 
 - visible editor runtime integration
+- frontend authoring runtime beyond the initial pure editable-session/text
+  transaction contracts, including visible node composition, visible typing
+  integration, IME, undo, and live layout
 - replacement for current parent `/api/paginate` or `/api/export`
+- backend generation API that accepts template package plus request data
 - form-slot or submission-state runtime
+- key history and key migration records
 - renderer-backed text measurement profile implementation
 - fully pausable internal text/table placement engine behind measurement job
   results

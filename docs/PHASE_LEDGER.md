@@ -24,6 +24,10 @@ Parent goal:
 | 15 | Operation kernel split | done | `docs/OPERATION_KERNEL_SPLIT_PLAN.md`; `src/operations/commands.ts`; `src/operations/results.ts`; `src/operations/invalidation.ts`; `src/operations/history.ts`; `src/operations/registry.ts`; `tests/operationKernel.test.ts` |
 | 16 | Layout pipeline split | done | `docs/LAYOUT_PIPELINE_SPLIT_PLAN.md`; `src/pagination/layoutPipeline.ts`; `tests/layoutPipeline.test.ts` |
 | 17 | Layout internal extraction baseline | done | `docs/LAYOUT_INTERNAL_EXTRACTION_PLAN.md`; `src/pagination/measuredTypes.ts`; `src/pagination/measuredFragments.ts`; `tests/measuredFragments.test.ts` |
+| 18 | Template authoring architecture reset | draft | `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/SHARED_TEMPLATE_CORE_CONTRACT.md`; `docs/NODE_FAMILY_CAPABILITY_MODEL.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/TEXT_EDITING_TRANSACTION_PLAN.md`; `docs/LIVE_LAYOUT_AND_EXACT_GENERATION_PLAN.md`; `docs/KEY_REGISTRY_BINDING_PLAN.md`; `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`; `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`; `docs/LEGACY_REFERENCE_LESSONS.md` |
+| 19 | Key registry and data diagnostics | done | `src/binding/keyDataDiagnostics.ts`; `tests/keyDataDiagnostics.test.ts` |
+| 20 | Editable authoring session | done | `src/authoring/editableSession.ts`; `tests/editableSession.test.ts` |
+| 21 | Text transaction engine | done | `src/authoring/textTransactions.ts`; `tests/textTransactions.test.ts` |
 
 ## Current Rule
 
@@ -33,6 +37,110 @@ inputs for exported core. The canonical persisted input is
 `FlowDocPackage.packageVersion = 2` with `document.version = 3`. Any future
 one-off converter must live outside exported core and outside required vNext
 checks.
+
+## Phase 18 Draft Design Reset
+
+Phase 18 reframes the next architecture around a dynamic node-based docgen
+template builder:
+
+- shared template core remains the common schema, graph, key, validation,
+  operation, and package boundary;
+- implementation should proceed through phase-sized work in
+  `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`, starting with Phase 19 key
+  diagnostics or Phase 20 editable-session contracts;
+- frontend authoring runtime becomes a first-class runtime for smooth typing,
+  selection, IME, node composition, dirty scopes, and live layout;
+- backend generation runtime remains deterministic for template plus data to
+  exact layout, renderer commands, readiness, and output artifacts;
+- node design is governed by families, roles, props, and capabilities rather
+  than prototype-style node proliferation;
+- large-document behavior is an acceptance contract from the start;
+- old FlowDocEditor behavior is reference evidence only and must be classified
+  before influencing vNext work.
+
+This phase is a draft architecture reset, not an implementation claim. It does
+not change package/document versions, add key history, implement repeat
+regions, replace API routes, or flip a visible editor runtime.
+
+## Phase 19 Key/Data Diagnostics
+
+Phase 19 adds the first vNext-native key/data diagnostics for the docgen
+template path:
+
+- `collectVNextDocumentFieldRefUsages(...)` collects authored inline
+  `field-ref` usages from canonical document v3, including section, zone,
+  text-block, inline index, and table row/cell context when present.
+- `assessVNextKeyDataDiagnostics(...)` validates package-level field
+  definitions, authored field references, and optional scalar data snapshots.
+- diagnostics report `ready`, `ready-with-warnings`, or `blocked` without
+  materializing bound output.
+- registry diagnostics catch mismatched record/definition keys, duplicate
+  definition keys, missing definitions, and non-inline `image`/`collection`
+  field references.
+- data diagnostics catch unknown data keys, invalid scalar value types, and
+  unsupported scalar snapshot values for `image`/`collection` fields.
+- the public export surface includes `src/binding/keyDataDiagnostics.ts`
+  through `src/index.ts`.
+- `tests/keyDataDiagnostics.test.ts` covers product fixture usage collection,
+  table-cell field-ref context, missing-definition warnings, registry errors,
+  data snapshot errors, and the standalone usage collector.
+
+This phase intentionally does not bind values into authored documents, write
+resolved values back into `DocumentNode`, add key history, implement required
+field policy, add enum option validation, expand repeat/collection data,
+replace API routes, add frontend editor runtime, or change layout/export
+behavior.
+
+## Phase 20 Editable Authoring Session
+
+Phase 20 adds the first pure authoring-session boundary for the frontend
+runtime direction:
+
+- `createVNextEditableSession(...)` and
+  `safeCreateVNextEditableSession(...)` create a session from canonical package
+  v2/document v3 input only.
+- the session exposes the working package/document, relationship graph,
+  key/data diagnostics, revision counters, empty dirty scopes, and typed
+  session-only selection state.
+- raw/current document-shaped input is rejected before session creation.
+- package serialization keeps selection, revisions, and dirty scopes outside
+  persisted package state.
+- `tests/editableSession.test.ts` covers canonical session creation, raw input
+  rejection, session-only state isolation, selection shape availability, and
+  independence from parent runtime, DOM, layout, and old node names.
+- the public export surface includes `src/authoring/editableSession.ts`
+  through `src/index.ts`.
+
+This phase intentionally does not add visible editor integration, React/DOM
+runtime code, text transactions, undo/redo, live layout, API routes, layout or
+export behavior changes, key history, repeat/collection behavior, or package
+version changes.
+
+## Phase 21 Text Transaction Engine
+
+Phase 21 adds the first pure text-transaction engine for smooth authoring:
+
+- `projectVNextTextBlockInlines(...)` creates stable text-block model offsets
+  over authored inline children, with text nodes editable and atomic inline
+  nodes represented as one model character.
+- `normalizeVNextTextRange(...)` provides a canonical range shape for anchor
+  and focus offsets.
+- `runVNextTextTransaction(...)` supports `text.insert`, `text.delete`,
+  `text.range.replace`, and `inline.field-ref.insert` against canonical
+  document v3 input.
+- field references remain authored atomic inline nodes; plain text delete or
+  replace cannot edit/remove them as ordinary text.
+- successful transactions return the mutated document, text-block dirty scope,
+  and a content history intent/merge key for future authoring history.
+- `tests/textTransactions.test.ts` covers projection offsets, insert/delete,
+  range replace, atomic field-ref insertion/rejection, dirty scope, independence
+  from DOM/parent/layout execution, and the existing coarse
+  `text-block.text.replace` operation remaining available.
+
+This phase intentionally does not add visible editor integration, DOM selection
+mapping, IME lifecycle, undo/redo storage, split/merge block commands, inline
+style patch commands, live layout, API routes, exact generation, key history,
+repeat/collection behavior, or package version changes.
 
 ## Phase 12 Extraction Record
 
