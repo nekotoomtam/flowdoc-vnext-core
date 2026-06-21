@@ -73,6 +73,10 @@ The package must remain runnable without any parent editor checkout.
   scopes into viewport-aware live-layout requests, marks exact generation stale
   after content/table/node changes, and keeps measured pagination as export
   truth
+- Backend generation runtime baseline parses API-facing template package/data
+  requests, separates package/document/key-data diagnostics, reports
+  readiness-only status, and keeps artifacts/generated documents out of the
+  response until a later renderer phase
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -152,7 +156,8 @@ The package must remain runnable without any parent editor checkout.
   node composition, visible typing integration, IME, concrete undo/redo UI, and
   a concrete browser live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
-- backend generation API that accepts template package plus request data
+- concrete backend API routes, storage, and rendered artifacts on top of the
+  generation runtime
 - form-slot or submission-state runtime
 - key history and key migration records
 - renderer-backed text measurement profile implementation

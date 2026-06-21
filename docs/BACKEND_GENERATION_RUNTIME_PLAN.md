@@ -1,6 +1,6 @@
 # Backend Generation Runtime Plan
 
-Status: draft architecture reset.
+Status: Phase 24 baseline implemented for readiness-only runtime contracts.
 
 The backend generation runtime turns canonical template packages and request
 data into deterministic diagnostics and output artifacts. It is the API-facing
@@ -34,6 +34,26 @@ generation request
 Generation output is derived state. It must not mutate the template package,
 frontend session state, selection, history, or saved data unless an explicit
 storage API says so.
+
+## Phase 24 Baseline
+
+The current baseline implements the route-safe readiness layer only:
+
+- `safeParseVNextGenerationRequest(...)` accepts API-facing requests with an
+  inline canonical package, optional request data snapshot, output kind, and
+  request/idempotency metadata.
+- `assessVNextGenerationReadiness(...)` validates package shape, document
+  graph, field registry, and request/package data snapshots.
+- diagnostics separate request, package, document, and key/data issues.
+- request data can override package data for readiness assessment without
+  mutating the template package.
+- exact layout is marked `not-run` with `finalTruth: "measured-pagination"`.
+- artifacts are marked `not-rendered`, and readiness results keep both
+  `artifact` and `generatedDocument` as `null`.
+
+Template id/version loading, concrete API routes, exact layout execution,
+artifact rendering/storage, key history, and repeat/collection expansion remain
+future phases.
 
 ## Request Direction
 

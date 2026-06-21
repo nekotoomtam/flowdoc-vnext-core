@@ -30,6 +30,7 @@ Parent goal:
 | 21 | Text transaction engine | done | `src/authoring/textTransactions.ts`; `tests/textTransactions.test.ts` |
 | 22 | Intent history | done | `src/authoring/intentHistory.ts`; `tests/intentHistory.test.ts` |
 | 23 | Live layout boundary | done | `src/authoring/liveLayoutBoundary.ts`; `tests/liveLayoutBoundary.test.ts` |
+| 24 | Backend generation runtime | done | `src/generation/runtime.ts`; `tests/generationRuntime.test.ts` |
 
 ## Current Rule
 
@@ -199,6 +200,33 @@ This phase intentionally does not add a browser live-layout renderer, DOM
 viewport integration, text measurement cache, exact layout execution,
 pagination/export readiness replacement, API routes, key history,
 repeat/collection behavior, or package version changes.
+
+## Phase 24 Backend Generation Runtime
+
+Phase 24 adds the first API-facing generation runtime contract without
+replacing parent routes:
+
+- `safeParseVNextGenerationRequest(...)` parses generation requests that carry
+  an inline canonical package, optional request data snapshot, output kind, and
+  request/idempotency metadata.
+- `assessVNextGenerationReadiness(...)` performs readiness-only assessment for
+  template package, document graph, and key/data diagnostics.
+- raw/current document-shaped input is rejected through the canonical package
+  parser.
+- request data diagnostics are reported separately from package/document
+  errors, so API users can distinguish bad template input from bad request
+  data.
+- readiness-only results explicitly keep `artifact` and `generatedDocument`
+  null and mark exact layout/artifact rendering as not run.
+- `tests/generationRuntime.test.ts` covers canonical package acceptance, raw
+  document rejection, data diagnostics separated from package errors,
+  readiness-only no-artifact behavior, no generated authored document output,
+  and independence from parent routes/layout/render execution.
+
+This phase intentionally does not add concrete API routes, template id/version
+loading, storage/idempotency implementation, exact layout execution, PDF/DOCX
+rendering, generated output artifacts, key history, repeat/collection
+expansion, or package version changes.
 
 ## Phase 12 Extraction Record
 
