@@ -1245,6 +1245,39 @@ Acceptance:
   mapping, live renderer, route, persistence, or package version change is
   claimed.
 
+## Phase 58: Section Viewport Anchor Boundary
+
+Goal:
+
+- let render passes restore the canvas from a section-relative anchor instead
+  of relying only on raw `scrollTop`, while keeping node anchors as an explicit
+  later upgrade.
+
+Deliverables:
+
+- browser-safe viewport anchor policy module in `public/viewportAnchor.js`;
+- section anchor source/version/mode contract;
+- anchor restore source/version/mode contract;
+- app tracking for `sectionId + offsetInSection` from current measurements;
+- manual apply and settled scroll restore from section anchors;
+- raw `scrollTop` fallback when the section cannot be resolved;
+- app status output for the latest viewport anchor;
+- action lane for `browser.trackViewportAnchor`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- section anchor policy can run in Node without DOM access;
+- app shell owns browser measurement and canvas scroll restoration;
+- synthetic section measurements can restore from a shifted section top;
+- missing sections fall back to bounded raw scrollTop;
+- the visible app reports a `section-body` anchor after scroll-driven rendering;
+- no node anchor, outline jump-to-node, diagnostics/source jump-to-node,
+  caret-relative anchor, measured spacer/virtual list, virtualized renderer
+  scheduler, lazy detail endpoint, structural packet engine, rich text,
+  contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

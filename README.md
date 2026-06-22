@@ -177,6 +177,9 @@ The package must remain runnable without any parent editor checkout.
 - Viewport scroll controller boundary debounces canvas scroll movement into the
   same measurement apply request path before production viewport scheduling or
   virtualized rendering is wired
+- Viewport anchor boundary records section-relative viewport anchors so render
+  passes can restore by `sectionId + offsetInSection` before node anchors and
+  production scroll anchoring are wired
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -307,6 +310,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md`: Phase 57
   debounced viewport scroll controller boundary before production viewport
   scheduling and virtualized rendering
+- `docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md`: Phase 58
+  section-relative viewport anchor boundary before node anchors and production
+  scroll anchoring
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -351,7 +357,7 @@ The package must remain runnable without any parent editor checkout.
 - durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes beyond the sandbox render path
 - durable browser cache persistence, full structural packet application,
-  production scroll anchoring, and true virtualized renderer scheduling beyond
-  the sandbox render-shell, viewport-measurement, manual viewport-apply, and
-  debounced scroll-controller contracts
+  node-aware production scroll anchoring, and true virtualized renderer
+  scheduling beyond the sandbox render-shell, viewport-measurement, manual
+  viewport-apply, debounced scroll-controller, and section-anchor contracts
 - publishing/distribution strategy beyond local package consumption

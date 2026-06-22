@@ -19,6 +19,10 @@ import {
   createSelectionVisibleRangeRequest,
 } from "./visibleRangeRequest.js"
 import {
+  createViewportSectionAnchor,
+  resolveViewportSectionAnchorScrollTop,
+} from "./viewportAnchor.js"
+import {
   createViewportMeasurementApplyRequest,
   createViewportMeasurement,
 } from "./viewportMeasurement.js"
@@ -58,6 +62,8 @@ const state = {
   selectedId: null,
   selectionSource: "boot",
   snapshot: null,
+  viewportAnchor: null,
+  viewportAnchorRestore: null,
   viewportMeasurement: null,
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
@@ -167,6 +173,27 @@ function syncViewportMeasurementStatus() {
   })
 }
 
+function viewportAnchorLabel() {
+  const anchor = state.viewportAnchor
+  if (!anchor) return "Viewport anchor: none"
+  const restored = state.viewportAnchorRestore?.restored ? " restored" : ""
+  return `Viewport anchor: ${anchor.kind} ${anchor.sectionId || "none"} +${Math.round(anchor.offsetInSection)}${restored}`
+}
+
+function syncViewportAnchorStatus() {
+  app.querySelectorAll("[data-viewport-anchor-status]").forEach((target) => {
+    target.textContent = viewportAnchorLabel()
+  })
+}
+
+function setViewportAnchorFromMeasurement(measurement) {
+  if (!measurement) return null
+  const anchor = createViewportSectionAnchor({ measurement })
+  state.viewportAnchor = anchor
+  state.viewportAnchorRestore = null
+  return anchor
+}
+
 function viewportApplyLabel() {
   const apply = state.lastViewportApply
   if (!apply) return "Viewport apply: none"
@@ -217,9 +244,13 @@ function applyViewportMeasurement() {
   }, state.runtimeCache.visibleRangeRequest)
 
   recordViewportApplyResult(applyRequest, measurement)
+  const viewportAnchor = setViewportAnchorFromMeasurement(measurement)
   state.selectionSource = "viewport-apply"
   setVisibleRangeRequest(applyRequest.visibleRangeRequest)
-  render({ restoreCanvasScrollTop: measurement.scrollTop })
+  render({
+    fallbackCanvasScrollTop: measurement.scrollTop,
+    restoreViewportAnchor: viewportAnchor,
+  })
 }
 
 function applySettledViewportScroll() {
@@ -242,9 +273,13 @@ function applySettledViewportScroll() {
   }
 
   recordViewportApplyResult(settled.applyRequest, measurement)
+  const viewportAnchor = setViewportAnchorFromMeasurement(measurement)
   state.selectionSource = "viewport-scroll"
   setVisibleRangeRequest(settled.applyRequest.visibleRangeRequest)
-  render({ restoreCanvasScrollTop: measurement.scrollTop })
+  render({
+    fallbackCanvasScrollTop: measurement.scrollTop,
+    restoreViewportAnchor: viewportAnchor,
+  })
 }
 
 function scheduleViewportScrollApply() {
@@ -254,11 +289,13 @@ function scheduleViewportScrollApply() {
   if (!measurement) return
 
   state.viewportMeasurement = measurement
+  setViewportAnchorFromMeasurement(measurement)
   state.viewportScrollController = recordViewportScroll(state.viewportScrollController, {
     measurement,
     scrollTop: measurement.scrollTop,
   })
   syncViewportMeasurementStatus()
+  syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 
   if (state.viewportScrollTimerId != null) {
@@ -1662,6 +1699,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderWindowLabel)}</span>
       <span>${escapeHtml(renderShellLabel)}</span>
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
+      <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
@@ -2097,15 +2135,34 @@ function render(options = {}) {
 
   bindSelectionHandlers()
   const canvas = app.querySelector(".canvas-wrap")
-  if (canvas && Number.isFinite(options.restoreCanvasScrollTop)) {
+  let viewportMeasurement = readCanvasViewportMeasurement(renderModel)
+  const restoreAnchor = options.restoreViewportAnchor
+  const fallbackScrollTop = options.fallbackCanvasScrollTop ?? options.restoreCanvasScrollTop
+  if (canvas && restoreAnchor) {
+    const anchorRestore = resolveViewportSectionAnchorScrollTop({
+      anchor: restoreAnchor,
+      fallbackScrollTop,
+      measurement: viewportMeasurement,
+    })
+    state.viewportAnchorRestore = anchorRestore
+    state.viewportAnchor = anchorRestore.anchor
     state.viewportScrollRestoring = true
-    canvas.scrollTop = options.restoreCanvasScrollTop
+    canvas.scrollTop = anchorRestore.scrollTop
     window.setTimeout(() => {
       state.viewportScrollRestoring = false
     }, 0)
+    viewportMeasurement = readCanvasViewportMeasurement(renderModel)
+  } else if (canvas && Number.isFinite(fallbackScrollTop)) {
+    state.viewportScrollRestoring = true
+    canvas.scrollTop = fallbackScrollTop
+    window.setTimeout(() => {
+      state.viewportScrollRestoring = false
+    }, 0)
+    viewportMeasurement = readCanvasViewportMeasurement(renderModel)
   }
-  state.viewportMeasurement = readCanvasViewportMeasurement(renderModel)
+  state.viewportMeasurement = viewportMeasurement
   syncViewportMeasurementStatus()
+  syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }
 

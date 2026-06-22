@@ -316,6 +316,11 @@ can now settle into the same measurement apply path, but this is still a
 minimal sandbox controller before measured spacers, production scroll anchoring,
 lazy heavy-detail loading, or true virtualized rendering.
 
+Phase 58 adds a section viewport anchor boundary. The sandbox can restore a
+render pass from `sectionId + offsetInSection` instead of trusting raw
+`scrollTop` alone, while node anchors remain required later for outline
+jump-to-node, diagnostics/source navigation, and caret-aware editing.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

@@ -7,6 +7,9 @@ sandbox. It listens to canvas scroll movement, waits for the movement to
 settle, and then applies the current measured section shell through the same
 visible-range request path proven in Phase 56.
 
+Phase 58 builds on this with a section-relative viewport anchor so controller
+render passes do not have to rely only on raw `scrollTop` restoration.
+
 ## Purpose
 
 The controller is intentionally small:

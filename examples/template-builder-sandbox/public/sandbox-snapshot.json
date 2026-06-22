@@ -1913,6 +1913,13 @@
       "reason": "browser canvas can debounce settled scroll measurements into visible range requests before virtualized scheduling"
     },
     {
+      "action": "browser.trackViewportAnchor",
+      "label": "Viewport anchor",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser canvas can keep a section-relative viewport anchor before node anchors and production scroll anchoring"
+    },
+    {
       "action": "browser.resolveViewportRangeRequest",
       "label": "Viewport request",
       "lane": "immediate",

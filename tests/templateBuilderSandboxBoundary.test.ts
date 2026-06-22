@@ -56,6 +56,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
+      "../examples/template-builder-sandbox/public/viewportAnchor.js",
       "../examples/template-builder-sandbox/public/viewportMeasurement.js",
       "../examples/template-builder-sandbox/public/viewportScrollController.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
@@ -144,6 +145,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.measureViewportShell")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyViewportMeasurement")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.controlViewportScroll")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackViewportAnchor")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -927,6 +929,7 @@ describe("template builder sandbox boundary", () => {
     const renderWindowSource = readText("../examples/template-builder-sandbox/public/renderWindow.js")
     const renderShellSource = readText("../examples/template-builder-sandbox/public/renderShell.js")
     const renderModelSource = readText("../examples/template-builder-sandbox/public/renderModel.js")
+    const viewportAnchorSource = readText("../examples/template-builder-sandbox/public/viewportAnchor.js")
     const viewportMeasurementSource = readText("../examples/template-builder-sandbox/public/viewportMeasurement.js")
     const viewportScrollControllerSource = readText("../examples/template-builder-sandbox/public/viewportScrollController.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
@@ -949,6 +952,7 @@ describe("template builder sandbox boundary", () => {
     const viewportMeasurementDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md")
     const viewportApplyDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md")
     const viewportScrollControllerDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md")
+    const viewportAnchorDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -962,6 +966,9 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("isStoreBackedRenderShellSectionRendered")
     expect(appSource).toContain("renderWindowNodeChildren")
     expect(appSource).toContain("renderCanvasPlaceholder")
+    expect(appSource).toContain('from "./viewportAnchor.js"')
+    expect(appSource).toContain("createViewportSectionAnchor")
+    expect(appSource).toContain("resolveViewportSectionAnchorScrollTop")
     expect(appSource).toContain('from "./viewportMeasurement.js"')
     expect(appSource).toContain("createViewportMeasurement")
     expect(appSource).toContain("createViewportMeasurementApplyRequest")
@@ -974,12 +981,16 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("scheduleViewportScrollApply")
     expect(appSource).toContain("applySettledViewportScroll")
     expect(appSource).toContain("viewportScrollRestoring")
+    expect(appSource).toContain("setViewportAnchorFromMeasurement")
+    expect(appSource).toContain("restoreViewportAnchor")
     expect(appSource).toContain("lastViewportApply")
     expect(appSource).toContain("data-section-id")
     expect(appSource).toContain("data-viewport-apply")
     expect(appSource).toContain("data-viewport-measurement-status")
+    expect(appSource).toContain("data-viewport-anchor-status")
     expect(appSource).toContain("data-viewport-scroll-status")
     expect(appSource).toContain("Measurement:")
+    expect(appSource).toContain("Viewport anchor:")
     expect(appSource).toContain("Viewport apply:")
     expect(appSource).toContain("Scroll controller:")
     expect(appSource).toContain("addEventListener(\"scroll\"")
@@ -1045,6 +1056,15 @@ describe("template builder sandbox boundary", () => {
     expect(renderShellSource).toContain("isRenderShellSectionRendered")
     expect(renderShellSource).not.toContain("document.")
     expect(renderShellSource).not.toContain("querySelector")
+    expect(viewportAnchorSource).toContain("createViewportSectionAnchor")
+    expect(viewportAnchorSource).toContain("resolveViewportSectionAnchorScrollTop")
+    expect(viewportAnchorSource).toContain("flowdoc-viewport-anchor")
+    expect(viewportAnchorSource).toContain("section-shell-anchor")
+    expect(viewportAnchorSource).toContain("section-shell-anchor-restore")
+    expect(viewportAnchorSource).not.toContain("document.")
+    expect(viewportAnchorSource).not.toContain("querySelector")
+    expect(viewportAnchorSource).not.toContain("addEventListener")
+    expect(viewportAnchorSource).not.toContain("setTimeout")
     expect(viewportMeasurementSource).toContain("createViewportMeasurement")
     expect(viewportMeasurementSource).toContain("createViewportFactsFromMeasurement")
     expect(viewportMeasurementSource).toContain("resolveMeasuredViewportRangeRequest")
@@ -1142,6 +1162,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.measureViewportShell")
     expect(coreBoundarySource).toContain("browser.applyViewportMeasurement")
     expect(coreBoundarySource).toContain("browser.controlViewportScroll")
+    expect(coreBoundarySource).toContain("browser.trackViewportAnchor")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1213,6 +1234,12 @@ describe("template builder sandbox boundary", () => {
     expect(viewportScrollControllerDoc).toContain("settleViewportScroll")
     expect(viewportScrollControllerDoc).toContain("browser.controlViewportScroll")
     expect(viewportScrollControllerDoc).toContain("debounced viewport scroll controller")
+    expect(viewportAnchorDoc).toContain("Status: Phase 58 implementation boundary.")
+    expect(viewportAnchorDoc).toContain("viewportAnchor.js")
+    expect(viewportAnchorDoc).toContain("createViewportSectionAnchor")
+    expect(viewportAnchorDoc).toContain("resolveViewportSectionAnchorScrollTop")
+    expect(viewportAnchorDoc).toContain("browser.trackViewportAnchor")
+    expect(viewportAnchorDoc).toContain("Node anchors remain a required later upgrade")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -2173,6 +2200,104 @@ describe("template builder sandbox boundary", () => {
     expect(result.imeStatus).toBe("skipped")
     expect(result.imeSkippedReason).toBe("composition-active")
     expect(result.imeApplyRequest).toBeNull()
+  })
+
+  it("restores viewport scroll from section anchors", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createViewportMeasurement,
+      } = await import("./public/viewportMeasurement.js");
+      const {
+        createViewportSectionAnchor,
+        resolveViewportSectionAnchorScrollTop,
+      } = await import("./public/viewportAnchor.js");
+      const firstMeasurement = createViewportMeasurement({
+        scrollHeight: 2600,
+        scrollTop: 1700,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 700 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 760, height: 700 },
+          { id: "section-body", rendered: false, shellState: "placeholder", top: 1520, height: 900 },
+        ],
+      });
+      const anchor = createViewportSectionAnchor({ measurement: firstMeasurement });
+      const shiftedMeasurement = createViewportMeasurement({
+        scrollHeight: 3000,
+        scrollTop: 0,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: false, shellState: "placeholder", top: 0, height: 700 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 840, height: 700 },
+          { id: "section-body", rendered: true, shellState: "rendered", top: 1660, height: 1100 },
+        ],
+      });
+      const restored = resolveViewportSectionAnchorScrollTop({
+        anchor,
+        fallbackScrollTop: firstMeasurement.scrollTop,
+        measurement: shiftedMeasurement,
+      });
+      const missingMeasurement = createViewportMeasurement({
+        scrollHeight: 1800,
+        scrollTop: 0,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 700 },
+        ],
+      });
+      const missing = resolveViewportSectionAnchorScrollTop({
+        anchor,
+        fallbackScrollTop: 2400,
+        measurement: missingMeasurement,
+      });
+      console.log(JSON.stringify({
+        anchorKind: anchor.kind,
+        anchorMode: anchor.mode,
+        anchorOffset: anchor.offsetInSection,
+        anchorSectionId: anchor.sectionId,
+        anchorSource: anchor.source,
+        missingReason: missing.reason,
+        missingRestored: missing.restored,
+        missingScrollTop: missing.scrollTop,
+        restoreMode: restored.mode,
+        restoreReason: restored.reason,
+        restoreScrollTop: restored.scrollTop,
+        restoreSource: restored.source,
+        restored: restored.restored,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      anchorKind: string
+      anchorMode: string
+      anchorOffset: number
+      anchorSectionId: string
+      anchorSource: string
+      missingReason: string
+      missingRestored: boolean
+      missingScrollTop: number
+      restoreMode: string
+      restoreReason: string
+      restoreScrollTop: number
+      restoreSource: string
+      restored: boolean
+    }
+
+    expect(result.anchorSource).toBe("flowdoc-viewport-anchor")
+    expect(result.anchorMode).toBe("section-shell-anchor")
+    expect(result.anchorKind).toBe("section")
+    expect(result.anchorSectionId).toBe("section-body")
+    expect(result.anchorOffset).toBe(180)
+    expect(result.restoreSource).toBe("flowdoc-viewport-anchor")
+    expect(result.restoreMode).toBe("section-shell-anchor-restore")
+    expect(result.restoreReason).toBe("section-anchor")
+    expect(result.restored).toBe(true)
+    expect(result.restoreScrollTop).toBe(1840)
+    expect(result.missingReason).toBe("section-missing")
+    expect(result.missingRestored).toBe(false)
+    expect(result.missingScrollTop).toBe(1200)
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {

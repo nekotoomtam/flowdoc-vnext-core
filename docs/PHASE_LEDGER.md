@@ -64,6 +64,7 @@ Parent goal:
 | 55 | Viewport section-shell measurement boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 56 | Manual viewport measurement apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 57 | Debounced viewport scroll controller boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportScrollController.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 58 | Section viewport anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1176,6 +1177,38 @@ pruning beyond the existing render shell, lazy heavy-detail routes, structural
 add/delete/move packet application, rich text editing, contenteditable DOM
 mapping, live-layout rendering, persistence, API routes, or package/document
 version changes.
+
+## Phase 58 Section Viewport Anchor Boundary
+
+Phase 58 adds a section-relative viewport anchor over the Phase 55-57
+measurement, apply, and scroll-controller contracts:
+
+- `examples/template-builder-sandbox/public/viewportAnchor.js` owns
+  `VIEWPORT_ANCHOR_SOURCE`,
+  `VIEWPORT_SECTION_ANCHOR_MODE`,
+  `VIEWPORT_SECTION_ANCHOR_RESTORE_MODE`,
+  `createViewportSectionAnchor(...)`, and
+  `resolveViewportSectionAnchorScrollTop(...)` as a DOM-free anchor policy;
+- `examples/template-builder-sandbox/public/app.js` records
+  `sectionId + offsetInSection` from current viewport measurements;
+- manual viewport apply and settled viewport scroll render passes restore from
+  the section anchor first, with raw `scrollTop` kept as fallback;
+- render restore measures the new section shell before resolving the anchor so
+  changed section positions can still produce a stable canvas scroll position;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.trackViewportAnchor` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md` records the Phase 58
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free anchor
+  ownership, app-owned canvas restore, generated action-lane exposure,
+  section-shift restore behavior, and missing-section fallback behavior.
+
+This phase intentionally does not implement node anchors, outline
+jump-to-node, diagnostics/source jump-to-node, caret-relative text block
+anchors, typing-driven live layout pushdown, measured spacer heights,
+virtualized renderer scheduling, lazy heavy-detail routes, structural
+add/delete/move packet application, rich text editing, contenteditable DOM
+mapping, persistence, API routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 
