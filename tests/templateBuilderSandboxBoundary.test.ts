@@ -927,6 +927,27 @@ describe("template builder sandbox boundary", () => {
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
   })
 
+  it("locks the editor north star to normalized large-document lookup", () => {
+    const northStarDoc = readText("../docs/EDITOR_UX_NORTH_STAR.md")
+    const frontendRuntimeDoc = readText("../docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md")
+    const largeDocumentDoc = readText("../docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md")
+    const browserCacheDoc = readText("../docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md")
+
+    expect(northStarDoc).toContain("Status: Phase 43 design boundary.")
+    expect(northStarDoc).toContain("Normalized Editor View Constraint")
+    expect(northStarDoc).toContain("nodeById")
+    expect(northStarDoc).toContain("parentById")
+    expect(northStarDoc).toContain("childrenById")
+    expect(northStarDoc).toContain("visibleNodeIds")
+    expect(northStarDoc).toContain("Booting from a full sandbox snapshot is acceptable")
+    expect(northStarDoc).toContain("not acceptable as the long-term active runtime")
+    expect(northStarDoc).toContain("Canonical authored documents may keep parent-owned ordered ids")
+    expect(frontendRuntimeDoc).toContain("Normalized Editor View")
+    expect(largeDocumentDoc).toContain("normalized/lazy indexes")
+    expect(browserCacheDoc).toContain("The tree snapshot")
+    expect(browserCacheDoc).toContain("active runtime shape for large-document editing")
+  })
+
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")

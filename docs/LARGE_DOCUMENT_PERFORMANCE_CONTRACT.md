@@ -20,6 +20,8 @@ by design.
 - Offscreen pages must not require full DOM/render work.
 - Exact generation may be full-document, but it must run outside the active
   typing path.
+- Active editor selection, lookup, typing, and scroll paths must use
+  normalized/lazy indexes rather than walking a full recursive snapshot tree.
 
 ## Required Mechanisms
 
@@ -47,6 +49,24 @@ Live layout starts from that scope instead of assuming whole-document work.
 The authoring runtime may rebuild small derived indexes after local edits. Full
 graph rebuild remains available for assertion/checkpoint, but it must not be
 required for every typing event.
+
+### Normalized Editor View
+
+The browser editor should keep lightweight runtime indexes for:
+
+- node lookup by id;
+- parent lookup by id;
+- ordered children lookup by id;
+- visible node or page ranges;
+- dirty and changed node ids.
+
+Full recursive tree snapshots may be used for boot, debug, or early sandbox
+rendering, but they must not be the active structure used for every selection,
+typing, scroll, or inspector interaction.
+
+Heavy data should be lazy and scoped to selected, visible, or dirty regions.
+This includes full inline runs, layout geometry, diagnostics, history details,
+and exact-generation artifacts.
 
 ### Local Text Drafts
 
@@ -139,6 +159,7 @@ Diagnostics observe behavior. They must not become hidden behavior rules.
 - Keypress to full package serialize.
 - Keypress to exact export readiness.
 - Keypress to complete page command generation.
+- Keypress or selection change to full recursive tree traversal.
 - Storing paginated fragments in authored document state.
 - Re-rendering offscreen pages to keep export readiness fresh.
 - Letting stale exact layout replace active live editing state.

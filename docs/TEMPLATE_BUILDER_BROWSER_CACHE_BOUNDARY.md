@@ -62,6 +62,13 @@ Phase 37 uses this same packet path for WYSIWYG browser draft commits. Active
 draft text stays local until commit; successful or rejected commits return a
 packet that updates the derived browser view model.
 
+Phase 43 clarifies that this early cache is only the first derived browser
+view. Rebuilding from the current tree-shaped snapshot remains acceptable for
+the small sandbox, but the long-term editor runtime must move toward
+normalized lookup indexes (`nodeById`, `parentById`, `childrenById`, visible
+range ids, and dirty id sets) with lazy heavy-detail access. The tree snapshot
+must not become the active runtime shape for large-document editing.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.

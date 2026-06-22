@@ -133,6 +133,9 @@ The package must remain runnable without any parent editor checkout.
 - Draft composition boundary tracks browser-local IME composition events for
   active drafts and guards range controls, text commands, and commit while
   composition is active
+- Editor UX north star locks the web editor as a first-class product surface
+  and requires normalized/lazy editor view indexes instead of recursive tree
+  snapshots as the active large-document runtime shape
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -231,6 +234,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`: browser-local IME
   composition guard boundary for active drafts before language-specific IME,
   rich DOM mapping, and per-keystroke transactions
+- `docs/EDITOR_UX_NORTH_STAR.md`: Phase 43 editor UX and normalized editor
+  view constraint before deeper WYSIWYG/runtime work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -255,7 +260,8 @@ The package must remain runnable without any parent editor checkout.
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
-  undo/redo UI, and a concrete browser live-layout renderer
+  undo/redo UI, normalized/lazy editor view implementation, and a concrete
+  browser live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
 - concrete backend API routes, storage, and rendered artifacts on top of the
   generation runtime

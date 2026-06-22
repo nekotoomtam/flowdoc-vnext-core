@@ -49,6 +49,7 @@ Parent goal:
 | 40 | Draft text command boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 41 | Draft selection/caret hardening | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 42 | Draft IME composition boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 43 | Editor UX north star and normalized view constraint | done | `docs/EDITOR_UX_NORTH_STAR.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`; `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -731,6 +732,35 @@ rich DOM composition mapping, contenteditable editing, key/field chip insertion
 during composition, `inline.style.patch`, per-keystroke core transactions,
 durable composition persistence, collaboration cursors, or live layout
 rendering during active typing.
+
+## Phase 43 Editor UX North Star And Normalized View Constraint
+
+Phase 43 locks the visible editor direction before deeper WYSIWYG/runtime work:
+
+- `docs/EDITOR_UX_NORTH_STAR.md` is now the Phase 43 design boundary for the
+  browser document editor as a first-class product surface;
+- the minimum WYSIWYG contract requires document-position editing, browser-local
+  draft/caret/selection/IME state, operation-backed commits, bounded packet
+  updates, and large-document-safe lookup;
+- the normalized editor view constraint requires active browser runtime paths
+  to use lookup-first indexes such as `nodeById`, `parentById`, `childrenById`,
+  visible ranges, node order, dirty ids, and changed subtree ids;
+- full recursive tree snapshots remain acceptable for boot, debug, and the
+  early sandbox, but they must not become the active runtime shape for typing,
+  selection, scroll, or inspector lookup;
+- canonical authored nodes may still own semantic ordered child ids such as
+  `childIds`, `columnIds`, `rowIds`, and `cellIds`;
+- `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`,
+  `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`, and
+  `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md` now carry the same
+  normalized/lazy editor view constraint;
+- `tests/templateBuilderSandboxBoundary.test.ts` guards the north-star text so
+  future work cannot silently remove the large-document lookup constraint.
+
+This phase intentionally does not implement a new normalized runtime cache,
+lazy detail endpoint, virtualized renderer, rich text editing, contenteditable
+DOM mapping, concrete live-layout renderer, persistence, API routes, or
+package/document version changes.
 
 ## Phase 12 Extraction Record
 

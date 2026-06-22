@@ -47,6 +47,31 @@ session with graph/key diagnostics, revision counters, empty dirty scopes, and
 session-only selection state. It does not implement visible editor UI, text
 transactions, undo, IME handling, or live layout yet.
 
+## Normalized Editor View
+
+The visible editor runtime must not use a recursive tree snapshot as the active
+working shape for selection, scroll, typing, or inspector lookup.
+
+The runtime should derive a normalized editor view from canonical package and
+core graph facts:
+
+- `nodeById` for direct node reads;
+- `parentById` for upward navigation and commit targets;
+- `childrenById` for ordered traversal;
+- section and zone indexes for scoped rendering;
+- visible node/page ranges for viewport-first work;
+- dirty/changed id sets for packet application.
+
+Heavy data should be loaded or derived only for the selected node, visible
+range, active draft, dirty scope, or opened inspector panel. Heavy data includes
+inline children, measured line fragments, layout geometry, diagnostics,
+history detail, and exact-generation metadata.
+
+Canonical nodes may still own semantic ordered ids such as `childIds`,
+`columnIds`, `rowIds`, and `cellIds`. The browser runtime converts those
+relationships into lookup indexes instead of walking nested `children` trees
+for every interaction.
+
 ## Owned State
 
 The frontend runtime may own:

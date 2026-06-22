@@ -750,6 +750,36 @@ Acceptance:
   mutation count, history, or live-layout request count;
 - commit still persists only through `/api/actions/replace-text?response=packet`.
 
+## Phase 43: Editor UX North Star And Normalized View Constraint
+
+Goal:
+
+- lock the visible web editor as the product north star and prevent recursive
+  tree snapshots from becoming the active large-document runtime shape.
+
+Deliverables:
+
+- Phase 43 status for `docs/EDITOR_UX_NORTH_STAR.md`;
+- minimum WYSIWYG contract for document-position editing, browser-local
+  interaction state, operation-backed commits, and bounded packet updates;
+- normalized editor view constraint for `nodeById`, `parentById`,
+  `childrenById`, visible ranges, flattened node order, dirty ids, and changed
+  subtree ids;
+- lazy heavy-detail policy for inline runs, measured geometry, diagnostics,
+  history detail, live-layout detail, and exact-generation metadata;
+- alignment in frontend runtime, large-document, and browser cache boundary
+  docs;
+- source/test evidence that the north-star constraint remains documented.
+
+Acceptance:
+
+- canonical authored nodes may still own semantic ordered child ids;
+- full tree snapshots are allowed only as boot/debug/early sandbox shapes;
+- active typing, selection, scroll, and inspector lookup are constrained toward
+  normalized/lazy indexes;
+- no new browser runtime implementation, route, persistence, rich text editor,
+  or package version change is claimed.
+
 ## Later Phases
 
 Goal:
