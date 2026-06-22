@@ -1717,6 +1717,39 @@ Acceptance:
   collaboration/conflict merge, backend API exposure, long-term packet storage
   guarantee, or schema change is claimed.
 
+## Phase 72: Structural Mutation Bridge Boundary
+
+Goal:
+
+- let sandbox bridge actions produce structural packet v1 from core structural
+  operations so Phase 71 has a real packet producer before structural UI is
+  wired.
+
+Deliverables:
+
+- bridge methods for text-block insertion, node deletion, and node reorder;
+- local sandbox API routes for those bridge methods;
+- structural packet-only response shape using `createStructuralChangePacket`;
+- core operation execution through `runVNextOperation`;
+- operation-scope to live-layout dirty-scope adapter;
+- action lane entries for the structural bridge actions;
+- boundary documentation and tests.
+
+Acceptance:
+
+- insert text-block bridge responses carry `nodesAdded`, parent `nodesUpdated`,
+  and an `insert` parent-list patch;
+- reorder bridge responses carry a `move` parent-list patch;
+- delete bridge responses carry removed node ids and a `remove` parent-list
+  patch;
+- rejected core operations return rejected structural packets without revision
+  advancement;
+- bridge structural packets apply through browser runtime cache and keep the
+  tree-shaped snapshot immutable;
+- no structural toolbar UI, durable structural undo/redo, persistence,
+  collaboration, offline replay, backend public API exposure, or schema change
+  is claimed.
+
 ## Later Phases
 
 Goal:

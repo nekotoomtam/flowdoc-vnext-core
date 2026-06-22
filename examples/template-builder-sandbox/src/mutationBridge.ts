@@ -1,15 +1,21 @@
 import {
   appendVNextAuthoringIntentHistoryResult,
+  createStructuralChangePacket,
   createVNextEditableSession,
   groupVNextAuthoringIntentHistory,
   projectVNextTextBlockInlines,
   resolveVNextLiveLayoutBoundary,
+  runVNextOperation,
   runVNextTextTransaction,
   serializeFlowDocPackageV2DocumentVNext,
+  type StructuralChangePacket,
   type FlowDocPackageV2DocumentVNext,
   type TextBlockNode,
   type VNextAuthoringIntentHistoryRecord,
+  type VNextLiveLayoutDirtyScope,
   type VNextLiveLayoutBoundaryResult,
+  type VNextOperationCommand,
+  type VNextOperationScope,
   type VNextTextTransactionDirtyScope,
   type VNextTextTransactionResult,
 } from "@flowdoc/vnext-core"
@@ -34,11 +40,28 @@ export interface TemplateBuilderInsertTextAtEndRequest {
   text: string
 }
 
+export interface TemplateBuilderInsertTextBlockRequest {
+  parentNodeId: string
+  index: number
+  text: string
+  nodeId?: string
+}
+
+export interface TemplateBuilderDeleteNodeRequest {
+  nodeId: string
+}
+
+export interface TemplateBuilderReorderNodeRequest {
+  nodeId: string
+  toIndex: number
+}
+
 export interface TemplateBuilderMutationIssue {
-  severity: "error" | "warning"
+  severity: "error" | "warning" | "info"
   code: string
   message: string
   path?: string
+  nodeId?: string
 }
 
 export interface TemplateBuilderChangePacket {
@@ -73,8 +96,24 @@ export interface TemplateBuilderMutationResponse {
   issues: TemplateBuilderMutationIssue[]
 }
 
+export interface TemplateBuilderStructuralMutationResponse {
+  ok: boolean
+  snapshot?: TemplateBuilderSnapshot
+  packet: StructuralChangePacket
+  mutation: TemplateBuilderSnapshotLastMutation
+  issues: TemplateBuilderMutationIssue[]
+}
+
 export interface TemplateBuilderMutationBridge {
   snapshot(): TemplateBuilderSnapshot
+  deleteNode(
+    request: TemplateBuilderDeleteNodeRequest,
+    responseOptions?: TemplateBuilderMutationResponseOptions,
+  ): TemplateBuilderStructuralMutationResponse
+  insertTextBlock(
+    request: TemplateBuilderInsertTextBlockRequest,
+    responseOptions?: TemplateBuilderMutationResponseOptions,
+  ): TemplateBuilderStructuralMutationResponse
   insertTextAtEnd(
     request: TemplateBuilderInsertTextAtEndRequest,
     responseOptions?: TemplateBuilderMutationResponseOptions,
@@ -83,6 +122,10 @@ export interface TemplateBuilderMutationBridge {
     request: TemplateBuilderReplaceTextRequest,
     responseOptions?: TemplateBuilderMutationResponseOptions,
   ): TemplateBuilderMutationResponse
+  reorderNode(
+    request: TemplateBuilderReorderNodeRequest,
+    responseOptions?: TemplateBuilderMutationResponseOptions,
+  ): TemplateBuilderStructuralMutationResponse
   redo(responseOptions?: TemplateBuilderMutationResponseOptions): TemplateBuilderMutationResponse
   undo(responseOptions?: TemplateBuilderMutationResponseOptions): TemplateBuilderMutationResponse
 }
@@ -133,6 +176,41 @@ function normalizeInsertText(value: unknown): string | null {
   if (/[\r\n]/.test(value)) return null
   if (value.length > 120) return value.slice(0, 120)
   return value
+}
+
+function normalizeNodeId(value: unknown): string | null {
+  if (typeof value !== "string") return null
+  const trimmed = value.trim()
+  if (trimmed.length === 0 || trimmed.length > 120) return null
+  if (!/^[A-Za-z0-9._:-]+$/.test(trimmed)) return null
+  return trimmed
+}
+
+function textBlockNode(id: string, text: string): TextBlockNode {
+  return {
+    id,
+    type: "text-block",
+    role: { role: "paragraph" },
+    props: {},
+    children: [{ id: `${id}-inline-1`, type: "text", text }],
+  }
+}
+
+function allPackageNodeIds(pack: FlowDocPackageV2DocumentVNext): Set<string> {
+  return new Set(pack.document.document.sections.flatMap((section) => Object.keys(section.nodes)))
+}
+
+function uniqueStructuralNodeId(pack: FlowDocPackageV2DocumentVNext, preferredId: string | null, parentNodeId: string): string {
+  const usedIds = allPackageNodeIds(pack)
+  const base = preferredId ?? `${parentNodeId}-text-block`
+  if (!usedIds.has(base)) return base
+
+  for (let index = 1; index < 10_000; index += 1) {
+    const candidate = `${base}-${index}`
+    if (!usedIds.has(candidate)) return candidate
+  }
+
+  return `${base}-${Date.now()}`
 }
 
 function textBlockFromPackage(pack: FlowDocPackageV2DocumentVNext, textBlockId: string): TextBlockNode | null {
@@ -194,6 +272,42 @@ function createChangePacket(input: {
   }
 }
 
+function mutationIssuesFromStructuralPacket(packet: StructuralChangePacket): TemplateBuilderMutationIssue[] {
+  return packet.issues.map((item) => ({
+    severity: item.severity,
+    code: item.code,
+    message: item.message,
+    nodeId: item.nodeId,
+    path: item.path,
+  }))
+}
+
+function operationScopeToLiveLayoutDirtyScopes(scope: VNextOperationScope): VNextLiveLayoutDirtyScope[] {
+  if (scope.nodeIds.length === 0) {
+    return scope.sectionIds.length > 0
+      ? [{ kind: "document", sectionIds: scope.sectionIds }]
+      : []
+  }
+
+  const sectionId = scope.sectionIds[0]
+  const zoneId = scope.zoneIds[0]
+  if (sectionId == null || zoneId == null) {
+    return [{ kind: "document", sectionIds: scope.sectionIds }]
+  }
+
+  return scope.nodeIds.map((nodeId) => ({
+    kind: "node",
+    nodeId,
+    parentNodeIds: scope.parentNodeIds,
+    sectionId,
+    zoneId,
+  }))
+}
+
+function operationScopesToLiveLayoutDirtyScopes(scopes: readonly VNextOperationScope[]): VNextLiveLayoutDirtyScope[] {
+  return scopes.flatMap((scope) => operationScopeToLiveLayoutDirtyScopes(scope))
+}
+
 function summarizeAuthoringHistory(
   records: readonly VNextAuthoringIntentHistoryRecord[],
   mode: TemplateBuilderAuthoringHistorySnapshot["mode"],
@@ -232,6 +346,28 @@ function mutationResponse(input: {
   const response: TemplateBuilderMutationResponse = {
     ok: input.ok,
     packet: createChangePacket(input),
+    mutation: input.mutation,
+    issues: input.issues,
+  }
+
+  if (input.responseOptions?.includeSnapshot !== false) {
+    response.snapshot = input.snapshot
+  }
+
+  return response
+}
+
+function structuralMutationResponse(input: {
+  ok: boolean
+  snapshot: TemplateBuilderSnapshot
+  packet: StructuralChangePacket
+  mutation: TemplateBuilderSnapshotLastMutation
+  issues: TemplateBuilderMutationIssue[]
+  responseOptions?: TemplateBuilderMutationResponseOptions
+}): TemplateBuilderStructuralMutationResponse {
+  const response: TemplateBuilderStructuralMutationResponse = {
+    ok: input.ok,
+    packet: input.packet,
     mutation: input.mutation,
     issues: input.issues,
   }
@@ -285,6 +421,19 @@ export function createTemplateBuilderMutationBridge(
   }
 
   function rememberLiveLayoutBoundary(dirtyScopes: readonly VNextTextTransactionDirtyScope[]): void {
+    const result = resolveVNextLiveLayoutBoundary({
+      kind: "dirty-scopes",
+      dirtyScopes,
+    })
+
+    if (result.kind === "layout-request") {
+      liveLayoutRequestCount += 1
+    }
+    lastLiveLayoutResult = result
+  }
+
+  function rememberStructuralLiveLayoutBoundary(operationScopes: readonly VNextOperationScope[]): void {
+    const dirtyScopes = operationScopesToLiveLayoutDirtyScopes(operationScopes)
     const result = resolveVNextLiveLayoutBoundary({
       kind: "dirty-scopes",
       dirtyScopes,
@@ -477,7 +626,103 @@ export function createTemplateBuilderMutationBridge(
     })
   }
 
+  function applyStructuralOperation(input: {
+    action: string
+    command: VNextOperationCommand
+    summary: string
+    responseOptions?: TemplateBuilderMutationResponseOptions
+  }): TemplateBuilderStructuralMutationResponse {
+    const baseRevision = documentRevision
+    const beforeDocument = workingPackage.document
+    const result = runVNextOperation(beforeDocument, input.command)
+    const packet = createStructuralChangePacket({
+      baseRevision,
+      beforeDocument,
+      nextRevision: result.ok ? baseRevision + 1 : baseRevision,
+      result,
+    })
+    const issues = mutationIssuesFromStructuralPacket(packet)
+
+    if (!result.ok) {
+      lastMutation = bridgeMutation(input.action, "rejected", null, input.summary, issues.length)
+      return structuralMutationResponse({
+        ok: false,
+        snapshot: bridgeSnapshot(),
+        packet,
+        mutation: lastMutation,
+        issues,
+        responseOptions: input.responseOptions,
+      })
+    }
+
+    workingPackage = serializeFlowDocPackageV2DocumentVNext({
+      ...workingPackage,
+      document: result.document,
+      meta: {
+        ...workingPackage.meta,
+        updatedAt: "sandbox-memory",
+      },
+    })
+    documentRevision = packet.nextRevision
+    mutationCount += 1
+    dirtyScopeCount = packet.dirtyScopes.length
+    lastMutation = bridgeMutation(
+      input.action,
+      "applied",
+      null,
+      result.operation.historyPolicy.summary,
+      0,
+    )
+    rememberStructuralLiveLayoutBoundary(packet.dirtyScopes)
+
+    return structuralMutationResponse({
+      ok: true,
+      snapshot: bridgeSnapshot(),
+      packet,
+      mutation: lastMutation,
+      issues,
+      responseOptions: input.responseOptions,
+    })
+  }
+
   return {
+    deleteNode(request, responseOptions) {
+      const nodeId = normalizeNodeId(request.nodeId)
+      const action = "sandbox.deleteStructuralNode"
+      return applyStructuralOperation({
+        action,
+        command: { kind: "node.delete", nodeId: nodeId ?? "", source: "user" },
+        responseOptions,
+        summary: nodeId == null ? "delete node was rejected" : `delete node ${nodeId}`,
+      })
+    },
+    insertTextBlock(request, responseOptions) {
+      const action = "sandbox.insertStructuralTextBlock"
+      const parentNodeId = normalizeNodeId(request.parentNodeId)
+      const text = normalizeInsertText(request.text)
+      const requestedNodeId = normalizeNodeId(request.nodeId)
+      const nodeId = uniqueStructuralNodeId(workingPackage, requestedNodeId, parentNodeId ?? "structural-text-block")
+      const index = parentNodeId == null || text == null
+        ? -1
+        : Number.isInteger(request.index)
+          ? request.index
+          : -1
+
+      return applyStructuralOperation({
+        action,
+        command: {
+          kind: "text-block.insert",
+          index,
+          node: textBlockNode(nodeId, text ?? ""),
+          parentNodeId: parentNodeId ?? "",
+          source: "user",
+        },
+        responseOptions,
+        summary: parentNodeId == null || text == null
+          ? "insert text-block was rejected"
+          : `insert text-block ${nodeId}`,
+      })
+    },
     snapshot: bridgeSnapshot,
     insertTextAtEnd(request, responseOptions) {
       const action = "sandbox.insertPlainTextAtEnd"
@@ -623,6 +868,21 @@ export function createTemplateBuilderMutationBridge(
         afterText: text,
         summary: transaction.transaction.historyIntent.summary,
         responseOptions,
+      })
+    },
+    reorderNode(request, responseOptions) {
+      const nodeId = normalizeNodeId(request.nodeId)
+      const action = "sandbox.reorderStructuralNode"
+      return applyStructuralOperation({
+        action,
+        command: {
+          kind: "node.reorder",
+          nodeId: nodeId ?? "",
+          source: "user",
+          toIndex: Number.isInteger(request.toIndex) ? request.toIndex : -1,
+        },
+        responseOptions,
+        summary: nodeId == null ? "reorder node was rejected" : `reorder node ${nodeId}`,
       })
     },
     undo(responseOptions) {

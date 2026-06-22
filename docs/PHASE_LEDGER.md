@@ -78,6 +78,7 @@ Parent goal:
 | 69 | Structural projection boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PROJECTION_BOUNDARY.md`; `src/structure/projection.ts`; `src/index.ts`; `tests/structuralProjection.test.ts` |
 | 70 | Structural packet contract boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_CONTRACT_BOUNDARY.md`; `src/structure/packet.ts`; `src/index.ts`; `tests/structuralPacket.test.ts` |
 | 71 | Structural packet store apply boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 72 | Structural mutation bridge boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_MUTATION_BRIDGE_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1620,6 +1621,35 @@ add/delete/move toolbar behavior, persistence, durable structural packet
 history/replay, multi-user conflict handling, offline replay, backend public
 API exposure, package/document schema changes, or treating structural packet v1
 as the long-term storage format.
+
+## Phase 72 Structural Mutation Bridge Boundary
+
+Phase 72 adds a sandbox producer for structural packet v1:
+
+- `examples/template-builder-sandbox/src/mutationBridge.ts` adds
+  `insertTextBlock(...)`, `deleteNode(...)`, `reorderNode(...)`, and
+  `TemplateBuilderStructuralMutationResponse`;
+- bridge structural actions call `runVNextOperation(...)` and then
+  `createStructuralChangePacket(...)`, keeping core operations as the mutation
+  authority;
+- accepted structural operations update the in-memory canonical package and
+  bridge revision before returning packet-only responses;
+- rejected structural operations return rejected structural packets without
+  revision advancement;
+- operation scopes are adapted to live-layout dirty scopes before
+  `resolveVNextLiveLayoutBoundary(...)`;
+- `examples/template-builder-sandbox/scripts/serve.mjs` exposes local sandbox
+  routes for insert text-block, delete node, and reorder node;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes structural
+  bridge action lanes without adding visible editing controls;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves insert/reorder/delete
+  packet responses, rejected packets, packet-only response shape, runtime cache
+  apply, and snapshot tree immutability.
+
+This phase intentionally does not implement structural toolbar UI, drag/drop
+outline editing, durable structural undo/redo, persistence, backend public API
+exposure, collaboration/conflict merge, offline replay, or package/document
+schema changes.
 
 ## Phase 12 Extraction Record
 

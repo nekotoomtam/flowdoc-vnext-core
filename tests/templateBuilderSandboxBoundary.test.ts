@@ -150,6 +150,9 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.insertStructuralTextBlock")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.deleteStructuralNode")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.reorderStructuralNode")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStoreBackedRenderModel")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveRenderWindow")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createRenderShell")
@@ -220,11 +223,18 @@ describe("template builder sandbox boundary", () => {
     expect(serverSource).toContain("/api/snapshot")
     expect(serverSource).toContain("/api/actions/replace-text")
     expect(serverSource).toContain("/api/actions/insert-text-at-end")
+    expect(serverSource).toContain("/api/actions/insert-text-block")
+    expect(serverSource).toContain("/api/actions/delete-node")
+    expect(serverSource).toContain("/api/actions/reorder-node")
     expect(serverSource).toContain("/api/actions/undo")
     expect(serverSource).toContain("/api/actions/redo")
     expect(serverSource).toContain('searchParams.get("response") !== "packet"')
     expect(bridgeSource).toContain('from "@flowdoc/vnext-core"')
     expect(bridgeSource).toContain("runVNextTextTransaction")
+    expect(bridgeSource).toContain("runVNextOperation")
+    expect(bridgeSource).toContain("createStructuralChangePacket")
+    expect(bridgeSource).toContain("TemplateBuilderStructuralMutationResponse")
+    expect(bridgeSource).toContain("operationScopesToLiveLayoutDirtyScopes")
     expect(bridgeSource).toContain("appendVNextAuthoringIntentHistoryResult")
     expect(bridgeSource).toContain("groupVNextAuthoringIntentHistory")
     expect(bridgeSource).toContain("resolveVNextLiveLayoutBoundary")
@@ -233,6 +243,9 @@ describe("template builder sandbox boundary", () => {
     expect(bridgeSource).toContain("text.range.replace")
     expect(bridgeSource).toContain("text.insert")
     expect(bridgeSource).toContain("sandbox.insertPlainTextAtEnd")
+    expect(bridgeSource).toContain("sandbox.insertStructuralTextBlock")
+    expect(bridgeSource).toContain("sandbox.deleteStructuralNode")
+    expect(bridgeSource).toContain("sandbox.reorderStructuralNode")
     expect(bridgeSource).toContain("sandbox.undo")
     expect(bridgeSource).toContain("sandbox.redo")
     expect(bridgeSource).toContain("flowdoc-template-builder-change-packet")
@@ -242,6 +255,9 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("./api/actions/insert-text-at-end?response=packet")
     expect(appSource).toContain("./api/actions/undo?response=packet")
     expect(appSource).toContain("./api/actions/redo?response=packet")
+    expect(appSource).not.toContain("./api/actions/insert-text-block?response=packet")
+    expect(appSource).not.toContain("./api/actions/delete-node?response=packet")
+    expect(appSource).not.toContain("./api/actions/reorder-node?response=packet")
     expect(appSource).toContain("Append text")
     expect(appSource).toContain("History")
     expect(appSource).toContain("Live Layout")
@@ -513,6 +529,209 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
     ]))
+  }, 15_000)
+
+  it("returns structural packet responses from sandbox structural bridge actions", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      import { register } from "node:module";
+      import { pathToFileURL } from "node:url";
+
+      register("./ts-loader.mjs", pathToFileURL(process.cwd() + "/scripts/"));
+      const { createTemplateBuilderMutationBridge } = await import("./src/mutationBridge.ts");
+      const fixture = JSON.parse(readFileSync("../../fixtures/product-report-vnext.flowdoc.json", "utf8"));
+      const bridge = createTemplateBuilderMutationBridge(fixture, {
+        fixturePath: "fixtures/product-report-vnext.flowdoc.json",
+      });
+      const inserted = bridge.insertTextBlock({
+        parentNodeId: "cover-body",
+        index: 1,
+        nodeId: "phase-72-inserted",
+        text: "Phase 72 structural insert",
+      }, { includeSnapshot: false });
+      const reordered = bridge.reorderNode({
+        nodeId: "phase-72-inserted",
+        toIndex: 0,
+      }, { includeSnapshot: false });
+      const deleted = bridge.deleteNode({
+        nodeId: "phase-72-inserted",
+      }, { includeSnapshot: false });
+      const rejected = bridge.deleteNode({
+        nodeId: "cover-body",
+      }, { includeSnapshot: false });
+      const snapshotAfterDelete = bridge.snapshot();
+
+      console.log(JSON.stringify({
+        deletedHasSnapshot: Object.prototype.hasOwnProperty.call(deleted, "snapshot"),
+        deletedOk: deleted.ok,
+        deletedPacket: deleted.packet,
+        insertedHasSnapshot: Object.prototype.hasOwnProperty.call(inserted, "snapshot"),
+        insertedMutation: inserted.mutation,
+        insertedOk: inserted.ok,
+        insertedPacket: inserted.packet,
+        insertedPacketHasSections: JSON.stringify(inserted.packet).includes('"sections"'),
+        rejectedOk: rejected.ok,
+        rejectedPacket: rejected.packet,
+        reorderedOk: reordered.ok,
+        reorderedPacket: reordered.packet,
+        snapshotAfterDelete: {
+          documentRevision: snapshotAfterDelete.session.documentRevision,
+          exactGenerationStale: snapshotAfterDelete.liveLayout.exactGenerationStale,
+          lastMutation: snapshotAfterDelete.mutationBridge.lastMutation,
+          liveLayoutReason: snapshotAfterDelete.liveLayout.lastResult?.reason ?? null,
+          mutationCount: snapshotAfterDelete.mutationBridge.mutationCount,
+        },
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      deletedHasSnapshot: boolean
+      deletedOk: boolean
+      deletedPacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        nodeIdsRemoved: string[]
+        parentListPatches: Array<{ op: string; before: string[]; after: string[] }>
+        source: string
+        stage: string
+        status: string
+      }
+      insertedHasSnapshot: boolean
+      insertedMutation: { action: string; status: string; summary: string }
+      insertedOk: boolean
+      insertedPacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        nodesAdded: Array<{ id: string; type: string }>
+        nodesUpdated: Array<{ id: string }>
+        parentListPatches: Array<{ op: string; after: string[] }>
+        source: string
+        stage: string
+        status: string
+      }
+      insertedPacketHasSections: boolean
+      rejectedOk: boolean
+      rejectedPacket: {
+        baseRevision: number
+        nextRevision: number
+        status: string
+        nodeIdsRemoved: string[]
+        issues: Array<{ code: string; nodeId: string }>
+      }
+      reorderedOk: boolean
+      reorderedPacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        parentListPatches: Array<{ op: string; nodeId: string; before: string[]; after: string[] }>
+        status: string
+      }
+      snapshotAfterDelete: {
+        documentRevision: number
+        exactGenerationStale: boolean
+        lastMutation: { action: string; status: string; summary: string }
+        liveLayoutReason: string
+        mutationCount: number
+      }
+    }
+
+    expect(result.insertedOk).toBe(true)
+    expect(result.insertedHasSnapshot).toBe(false)
+    expect(result.insertedPacketHasSections).toBe(false)
+    expect(result.insertedMutation).toMatchObject({
+      action: "sandbox.insertStructuralTextBlock",
+      status: "applied",
+      summary: "insert text-block phase-72-inserted",
+    })
+    expect(result.insertedPacket).toMatchObject({
+      action: "text-block.insert",
+      baseRevision: 0,
+      nextRevision: 1,
+      source: "flowdoc-structural-packet",
+      stage: "foundation-bridge",
+      status: "applied",
+    })
+    expect(result.insertedPacket.nodesAdded).toEqual([
+      expect.objectContaining({ id: "phase-72-inserted", type: "text-block" }),
+    ])
+    expect(result.insertedPacket.nodesUpdated.map((node) => node.id)).toEqual(["cover-body"])
+    expect(result.insertedPacket.parentListPatches[0]).toMatchObject({
+      op: "insert",
+      after: [
+        "cover-title",
+        "phase-72-inserted",
+        "cover-subtitle",
+        "cover-meta-columns",
+        "cover-divider",
+        "cover-note",
+      ],
+    })
+
+    expect(result.reorderedOk).toBe(true)
+    expect(result.reorderedPacket).toMatchObject({
+      action: "node.reorder",
+      baseRevision: 1,
+      nextRevision: 2,
+      status: "applied",
+    })
+    expect(result.reorderedPacket.parentListPatches[0]).toMatchObject({
+      nodeId: "phase-72-inserted",
+      op: "move",
+      after: [
+        "phase-72-inserted",
+        "cover-title",
+        "cover-subtitle",
+        "cover-meta-columns",
+        "cover-divider",
+        "cover-note",
+      ],
+    })
+
+    expect(result.deletedOk).toBe(true)
+    expect(result.deletedHasSnapshot).toBe(false)
+    expect(result.deletedPacket).toMatchObject({
+      action: "node.delete",
+      baseRevision: 2,
+      nextRevision: 3,
+      status: "applied",
+    })
+    expect(result.deletedPacket.nodeIdsRemoved).toEqual(["phase-72-inserted"])
+    expect(result.deletedPacket.parentListPatches[0]).toMatchObject({
+      op: "remove",
+      after: [
+        "cover-title",
+        "cover-subtitle",
+        "cover-meta-columns",
+        "cover-divider",
+        "cover-note",
+      ],
+    })
+
+    expect(result.rejectedOk).toBe(false)
+    expect(result.rejectedPacket).toMatchObject({
+      baseRevision: 3,
+      nextRevision: 3,
+      status: "rejected",
+      nodeIdsRemoved: [],
+    })
+    expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "cannot-delete", nodeId: "cover-body" }),
+    ]))
+
+    expect(result.snapshotAfterDelete).toMatchObject({
+      documentRevision: 3,
+      exactGenerationStale: true,
+      liveLayoutReason: "node-structure",
+      mutationCount: 3,
+    })
+    expect(result.snapshotAfterDelete.lastMutation).toMatchObject({
+      action: "sandbox.deleteStructuralNode",
+      status: "rejected",
+    })
   }, 15_000)
 
   it("reports live layout request summaries without running exact layout", () => {
@@ -994,6 +1213,7 @@ describe("template builder sandbox boundary", () => {
     const viewportLazyDetailDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md")
     const viewportLargeDocumentAuditDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md")
     const structuralPacketStoreDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_STORE_BOUNDARY.md")
+    const structuralMutationBridgeDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_MUTATION_BRIDGE_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -1359,6 +1579,9 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.createStructuralRuntimeStore")
     expect(coreBoundarySource).toContain("browser.applyTextPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.applyStructuralPacketToRuntimeStore")
+    expect(coreBoundarySource).toContain("sandbox.insertStructuralTextBlock")
+    expect(coreBoundarySource).toContain("sandbox.deleteStructuralNode")
+    expect(coreBoundarySource).toContain("sandbox.reorderStructuralNode")
     expect(coreBoundarySource).toContain("browser.createStoreBackedRenderModel")
     expect(coreBoundarySource).toContain("browser.resolveRenderWindow")
     expect(coreBoundarySource).toContain("browser.createRenderShell")
@@ -1416,6 +1639,14 @@ describe("template builder sandbox boundary", () => {
     expect(structuralPacketStoreDoc).toContain("structural-packet-direct")
     expect(structuralPacketStoreDoc).toContain("Growth Warning")
     expect(structuralPacketStoreDoc).toContain("does not implement structural command UI")
+    expect(structuralMutationBridgeDoc).toContain("Status: Phase 72 foundation boundary.")
+    expect(structuralMutationBridgeDoc).toContain("createStructuralChangePacket")
+    expect(structuralMutationBridgeDoc).toContain("runVNextOperation")
+    expect(structuralMutationBridgeDoc).toContain("insertTextBlock")
+    expect(structuralMutationBridgeDoc).toContain("deleteNode")
+    expect(structuralMutationBridgeDoc).toContain("reorderNode")
+    expect(structuralMutationBridgeDoc).toContain("Growth Warning")
+    expect(structuralMutationBridgeDoc).toContain("does not implement")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
@@ -4385,6 +4616,114 @@ describe("template builder sandbox boundary", () => {
     expect(result.dirtyNodeIds).toEqual(["cover-body", "phase-71-cache-inserted"])
     expect(result.changedSubtreeIds).toEqual(["cover-body", "phase-71-cache-inserted"])
     expect(result.visibleTotalNodeCount).toBe(53)
+  })
+
+  it("applies sandbox bridge structural packets through the browser runtime cache", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      import { register } from "node:module";
+      import { pathToFileURL } from "node:url";
+
+      register("./ts-loader.mjs", pathToFileURL(process.cwd() + "/scripts/"));
+      const { createTemplateBuilderMutationBridge } = await import("./src/mutationBridge.ts");
+      const {
+        applyChangePacketToRuntime,
+        createBootRuntimeState,
+      } = await import("./public/runtimeCache.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const fixture = JSON.parse(readFileSync("../../fixtures/product-report-vnext.flowdoc.json", "utf8"));
+      const bridge = createTemplateBuilderMutationBridge(fixture, {
+        fixturePath: "fixtures/product-report-vnext.flowdoc.json",
+      });
+      const inserted = bridge.insertTextBlock({
+        parentNodeId: "cover-body",
+        index: 1,
+        nodeId: "phase-72-runtime-inserted",
+        text: "Bridge packet runtime insert",
+      }, { includeSnapshot: false });
+      const reordered = bridge.reorderNode({
+        nodeId: "phase-72-runtime-inserted",
+        toIndex: 0,
+      }, { includeSnapshot: false });
+      const deleted = bridge.deleteNode({
+        nodeId: "phase-72-runtime-inserted",
+      }, { includeSnapshot: false });
+
+      const bootState = createBootRuntimeState(snapshot);
+      const insertState = applyChangePacketToRuntime(bootState.snapshot, bootState.runtimeCache, inserted.packet);
+      const reorderState = applyChangePacketToRuntime(insertState.snapshot, insertState.runtimeCache, reordered.packet);
+      const deleteState = applyChangePacketToRuntime(reorderState.snapshot, reorderState.runtimeCache, deleted.packet);
+
+      console.log(JSON.stringify({
+        deleteChildren: deleteState.runtimeCache.childrenById.get("cover-body"),
+        deleteNodeExists: deleteState.runtimeCache.nodeById.has("phase-72-runtime-inserted"),
+        deleteOk: deleteState.ok,
+        deleteRevision: deleteState.snapshot.session.documentRevision,
+        insertChildren: insertState.runtimeCache.childrenById.get("cover-body"),
+        insertedText: insertState.runtimeCache.nodeById.get("phase-72-runtime-inserted").textPreview,
+        insertOk: insertState.ok,
+        insertRevision: insertState.snapshot.session.documentRevision,
+        reorderChildren: reorderState.runtimeCache.childrenById.get("cover-body"),
+        reorderOk: reorderState.ok,
+        runtimeStoreApplyMode: deleteState.runtimeCache.runtimeStoreApplyMode,
+        runtimeStoreNodeCount: deleteState.runtimeCache.runtimeStore.nodeCount,
+        snapshotInsertedExists: deleteState.snapshot.sections
+          .flatMap((section) => section.zones)
+          .some((node) => node.id === "phase-72-runtime-inserted"),
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      deleteChildren: string[]
+      deleteNodeExists: boolean
+      deleteOk: boolean
+      deleteRevision: number
+      insertChildren: string[]
+      insertedText: string
+      insertOk: boolean
+      insertRevision: number
+      reorderChildren: string[]
+      reorderOk: boolean
+      runtimeStoreApplyMode: string
+      runtimeStoreNodeCount: number
+      snapshotInsertedExists: boolean
+    }
+
+    expect(result.insertOk).toBe(true)
+    expect(result.insertRevision).toBe(1)
+    expect(result.insertedText).toBe("Bridge packet runtime insert")
+    expect(result.insertChildren).toEqual([
+      "cover-title",
+      "phase-72-runtime-inserted",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.reorderOk).toBe(true)
+    expect(result.reorderChildren).toEqual([
+      "phase-72-runtime-inserted",
+      "cover-title",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.deleteOk).toBe(true)
+    expect(result.deleteRevision).toBe(3)
+    expect(result.deleteChildren).toEqual([
+      "cover-title",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.deleteNodeExists).toBe(false)
+    expect(result.runtimeStoreApplyMode).toBe("structural-packet-direct")
+    expect(result.runtimeStoreNodeCount).toBe(52)
+    expect(result.snapshotInsertedExists).toBe(false)
   })
 
   it("builds a store-backed render model from runtime store content", () => {

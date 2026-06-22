@@ -488,6 +488,27 @@ export function createTemplateBuilderSnapshot(
         reason: "selected plain text blocks can receive explicit text.insert actions before caret typing is wired",
       },
       {
+        action: "sandbox.insertStructuralTextBlock",
+        label: "Insert block",
+        lane: "immediate",
+        status: "wired",
+        reason: "sandbox mutation bridge can produce structural packet v1 for text-block insertion without structural UI controls",
+      },
+      {
+        action: "sandbox.deleteStructuralNode",
+        label: "Delete node",
+        lane: "immediate",
+        status: "wired",
+        reason: "sandbox mutation bridge can produce structural packet v1 for core node deletion without durable history",
+      },
+      {
+        action: "sandbox.reorderStructuralNode",
+        label: "Move node",
+        lane: "immediate",
+        status: "wired",
+        reason: "sandbox mutation bridge can produce structural packet v1 for core node reorder before structural toolbar UI",
+      },
+      {
         action: "browser.applyChangePacket",
         label: "Apply packet",
         lane: "immediate",

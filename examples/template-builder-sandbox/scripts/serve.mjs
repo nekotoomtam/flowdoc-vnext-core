@@ -74,43 +74,46 @@ function readJsonBody(request) {
 async function handleApi(request, response, parsedUrl) {
   const pathname = parsedUrl.pathname
 
+  async function handleMutationAction(action) {
+    try {
+      const body = await readJsonBody(request)
+      const result = action(body, {
+        includeSnapshot: parsedUrl.searchParams.get("response") !== "packet",
+      })
+      sendJson(response, result.ok ? 200 : 422, result)
+    } catch (error) {
+      sendJson(response, 400, {
+        ok: false,
+        error: error instanceof Error ? error.message : "invalid request",
+        snapshot: bridge.snapshot(),
+      })
+    }
+    return true
+  }
+
   if (request.method === "GET" && pathname === "/api/snapshot") {
     sendJson(response, 200, bridge.snapshot())
     return true
   }
 
   if (request.method === "POST" && pathname === "/api/actions/replace-text") {
-    try {
-      const body = await readJsonBody(request)
-      const result = bridge.replaceText(body, {
-        includeSnapshot: parsedUrl.searchParams.get("response") !== "packet",
-      })
-      sendJson(response, result.ok ? 200 : 422, result)
-    } catch (error) {
-      sendJson(response, 400, {
-        ok: false,
-        error: error instanceof Error ? error.message : "invalid request",
-        snapshot: bridge.snapshot(),
-      })
-    }
-    return true
+    return handleMutationAction((body, options) => bridge.replaceText(body, options))
   }
 
   if (request.method === "POST" && pathname === "/api/actions/insert-text-at-end") {
-    try {
-      const body = await readJsonBody(request)
-      const result = bridge.insertTextAtEnd(body, {
-        includeSnapshot: parsedUrl.searchParams.get("response") !== "packet",
-      })
-      sendJson(response, result.ok ? 200 : 422, result)
-    } catch (error) {
-      sendJson(response, 400, {
-        ok: false,
-        error: error instanceof Error ? error.message : "invalid request",
-        snapshot: bridge.snapshot(),
-      })
-    }
-    return true
+    return handleMutationAction((body, options) => bridge.insertTextAtEnd(body, options))
+  }
+
+  if (request.method === "POST" && pathname === "/api/actions/insert-text-block") {
+    return handleMutationAction((body, options) => bridge.insertTextBlock(body, options))
+  }
+
+  if (request.method === "POST" && pathname === "/api/actions/delete-node") {
+    return handleMutationAction((body, options) => bridge.deleteNode(body, options))
+  }
+
+  if (request.method === "POST" && pathname === "/api/actions/reorder-node") {
+    return handleMutationAction((body, options) => bridge.reorderNode(body, options))
   }
 
   if (request.method === "POST" && pathname === "/api/actions/undo") {
