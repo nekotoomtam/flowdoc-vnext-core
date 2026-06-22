@@ -901,6 +901,40 @@ Acceptance:
   mapping, live renderer, route, persistence, or package version change is
   claimed.
 
+## Phase 48: Visible Range Request Boundary
+
+Goal:
+
+- separate visible range intent from resolved visible node ids before adding
+  viewport controllers, scroll tracking, lazy detail, or virtualized rendering.
+
+Deliverables:
+
+- browser-safe `public/visibleRangeRequest.js` module;
+- request source/version/kind/reason/budget contract;
+- boot, selection, draft, selection-preserved, and packet-apply request
+  helpers;
+- editor-view storage for both `visibleRangeRequest` and `visibleRange`;
+- runtime-cache exposure of request facts beside resolved range facts;
+- app status output for request reason and anchor;
+- action lane for `browser.updateVisibleRangeRequest`;
+- boundary documentation and root tests.
+
+Acceptance:
+
+- default editor views report a `boot` request and a resolved
+  `section-window` range;
+- selection can request the selected node's section without changing the range
+  resolver's ownership;
+- valid drafts mark the request as draft-preserved;
+- packet application preserves the prior request as `packet-apply`;
+- explicit `maxNodes` remains a budget override, not a fixed product answer;
+- rendering may still show the full sandbox document shell;
+- no DOM scroll tracking, viewport measurement, viewport controller,
+  virtualized rendering, lazy detail endpoint, structural packet engine, rich
+  text, contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

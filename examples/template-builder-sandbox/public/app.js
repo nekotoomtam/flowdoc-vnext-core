@@ -6,7 +6,12 @@ import {
   applyChangePacketToRuntime,
   createBootRuntimeState,
   createRefreshRuntimeState,
+  createVisibleRangeRuntimeState,
 } from "./runtimeCache.js"
+import {
+  createDraftVisibleRangeRequest,
+  createSelectionVisibleRangeRequest,
+} from "./visibleRangeRequest.js"
 
 const app = document.querySelector("#app")
 
@@ -56,6 +61,12 @@ function setSnapshotFromBoot(snapshot) {
 function setSnapshotFromRefresh(snapshot) {
   const runtimeState = createRefreshRuntimeState(snapshot, state.runtimeCache)
   state.snapshot = runtimeState.snapshot
+  state.runtimeCache = runtimeState.runtimeCache
+}
+
+function setVisibleRangeRequest(request) {
+  if (!state.snapshot) return
+  const runtimeState = createVisibleRangeRuntimeState(state.snapshot, state.runtimeCache, request)
   state.runtimeCache = runtimeState.runtimeCache
 }
 
@@ -780,6 +791,9 @@ function startDraftForNode(nodeId, selectionSource = "draft") {
 
   state.selectedId = node.id
   state.selectionSource = selectionSource
+  setVisibleRangeRequest(createSelectionVisibleRangeRequest(node.id, state.runtimeCache?.visibleRangeRequest, {
+    draftActive: draftIsActive(),
+  }))
 
   const guardReason = draftGuardReason(node)
   if (guardReason) {
@@ -788,6 +802,8 @@ function startDraftForNode(nodeId, selectionSource = "draft") {
     render()
     return
   }
+
+  setVisibleRangeRequest(createDraftVisibleRangeRequest(node.id, state.runtimeCache?.visibleRangeRequest))
 
   const text = draftTextForNode(node)
   state.draft = {
@@ -1385,9 +1401,13 @@ function renderStatus(snapshot) {
     ? `Cache: ${state.runtimeCache.mode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.visibleNodeCount} visible ${state.runtimeCache.packetsApplied} packets`
     : "Cache: none"
   const range = state.runtimeCache?.visibleRange
+  const rangeRequest = state.runtimeCache?.visibleRangeRequest
   const visibleRangeLabel = range
     ? `Range: ${range.kind} ${range.nodeCount}/${range.totalNodeCount} nodes ${range.sectionIds.join(",")}`
     : "Range: none"
+  const visibleRangeRequestLabel = rangeRequest
+    ? `Range request: ${rangeRequest.reason} ${rangeRequest.anchorNodeId || rangeRequest.anchorSectionId || "auto"} ${rangeRequest.budget.mode}`
+    : "Range request: none"
   const editorViewLabel = state.runtimeCache
     ? `View: ${state.runtimeCache.viewMode} ${state.runtimeCache.childrenById.size} child indexes ${state.runtimeCache.dirtyNodeCount} dirty`
     : "View: none"
@@ -1405,6 +1425,7 @@ function renderStatus(snapshot) {
       <span>Source: ${escapeHtml(state.selectionSource)}</span>
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
+      <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
       <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
@@ -1429,6 +1450,9 @@ function selectNode(nodeId, selectionSource) {
   if (!nodeById(nodeId)) return
   state.selectedId = nodeId
   state.selectionSource = selectionSource
+  setVisibleRangeRequest(createSelectionVisibleRangeRequest(nodeId, state.runtimeCache?.visibleRangeRequest, {
+    draftActive: draftIsActive(),
+  }))
   render()
 }
 

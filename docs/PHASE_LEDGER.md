@@ -53,6 +53,8 @@ Parent goal:
 | 44 | Modular responsibility contract | done | `docs/MODULAR_RESPONSIBILITY_CONTRACT.md`; `AGENTS.md`; `docs/EDITOR_UX_NORTH_STAR.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 45 | Normalized editor view boundary | done | `docs/TEMPLATE_BUILDER_NORMALIZED_EDITOR_VIEW_BOUNDARY.md`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 46 | Runtime cache module boundary | done | `docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 47 | Visible range boundary | done | `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md`; `examples/template-builder-sandbox/public/visibleRange.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 48 | Visible range request boundary | done | `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/public/visibleRange.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -872,6 +874,37 @@ measurement, actual virtualized rendering, hidden/offscreen DOM pruning, lazy
 heavy-detail routes, structural packet patching without snapshot tree patching,
 rich text editing, contenteditable DOM mapping, live-layout rendering,
 persistence, API routes, or package/document version changes.
+
+## Phase 48 Visible Range Request Boundary
+
+Phase 48 separates visible range intent from resolved visible node ids:
+
+- `examples/template-builder-sandbox/public/visibleRangeRequest.js` owns
+  request source, version, reason, budget, selection, draft, and preserve
+  helpers;
+- `examples/template-builder-sandbox/public/visibleRange.js` now normalizes
+  request records before resolving section windows;
+- `examples/template-builder-sandbox/public/editorView.js` stores both
+  `visibleRangeRequest` and resolved `visibleRange`;
+- `examples/template-builder-sandbox/public/runtimeCache.js` exposes request
+  source/reason facts and preserves the current request across packet
+  application as `packet-apply`;
+- `examples/template-builder-sandbox/public/app.js` sends lightweight
+  selection and draft intents and displays request status;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.updateVisibleRangeRequest` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md` records the Phase
+  48 request boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves boot, selection,
+  draft, selection-preserved, packet-apply, request budget override, and
+  request/range fact separation.
+
+This phase intentionally does not implement DOM scroll tracking, viewport
+measurement, viewport controller ownership, actual virtualized rendering,
+hidden/offscreen DOM pruning, lazy heavy-detail routes, structural packet
+patching without snapshot tree patching, rich text editing, contenteditable DOM
+mapping, live-layout rendering, persistence, API routes, or package/document
+version changes.
 
 ## Phase 12 Extraction Record
 

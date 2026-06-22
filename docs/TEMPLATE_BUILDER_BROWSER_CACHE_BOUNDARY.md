@@ -85,6 +85,11 @@ now carries range kind, visible node count, total node count, and visible
 section ids for future viewport/lazy-detail work while the sandbox still
 renders the full document shell.
 
+Phase 48 adds `public/visibleRangeRequest.js`. The cache now carries both the
+request reason/budget/anchor and the resolved range facts, so selection, draft,
+packet apply, and future viewport work can share one intent contract before
+range resolution.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.

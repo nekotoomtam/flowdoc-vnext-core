@@ -509,6 +509,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser runtime derives bounded visible node ranges before viewport virtualization",
       },
       {
+        action: "browser.updateVisibleRangeRequest",
+        label: "Range request",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser runtime records why a visible range is requested before scroll or viewport controllers",
+      },
+      {
         action: "browser.editTextDraft",
         label: "Draft",
         lane: "immediate + commit",

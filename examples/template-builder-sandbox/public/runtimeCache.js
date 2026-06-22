@@ -1,4 +1,8 @@
 import { createEditorView } from "./editorView.js"
+import {
+  createVisibleRangeRequest,
+  preserveVisibleRangeRequest,
+} from "./visibleRangeRequest.js"
 
 export const RUNTIME_CACHE_SOURCE = "flowdoc-template-builder-runtime-cache"
 
@@ -26,10 +30,22 @@ export function isChangePacket(packet) {
 
 export function createRuntimeCache(snapshot, options = {}) {
   const previousCache = options.previousCache || null
+  const visibleRangeRequestInput =
+    options.visibleRangeRequest
+    || options.visibleRange
+    || (
+      options.packetApplied && previousCache?.visibleRangeRequest
+        ? preserveVisibleRangeRequest(previousCache.visibleRangeRequest)
+        : previousCache?.visibleRangeRequest
+    )
+    || previousCache?.visibleRange?.request
+  const visibleRangeRequest = visibleRangeRequestInput
+    ? createVisibleRangeRequest(visibleRangeRequestInput)
+    : null
   const editorView = createEditorView(snapshot, {
     packet: options.packet,
     previousView: previousCache?.editorView,
-    visibleRange: options.visibleRange || previousCache?.visibleRange?.request,
+    visibleRangeRequest: visibleRangeRequest || undefined,
   })
   const packetApplied = Boolean(options.packetApplied)
   const previousPacketCount = previousCache?.packetsApplied || 0
@@ -56,11 +72,25 @@ export function createRuntimeCache(snapshot, options = {}) {
     visibleNodeCount: editorView.visibleNodeIds.length,
     visibleNodeIds: editorView.visibleNodeIds,
     visibleRange: editorView.visibleRange,
+    visibleRangeRequest: editorView.visibleRangeRequest,
+    visibleRangeRequestReason: editorView.visibleRangeRequest.reason,
+    visibleRangeRequestSource: editorView.visibleRangeRequest.source,
     visibleRangeKind: editorView.visibleRange.kind,
     visibleRangeSource: editorView.visibleRange.source,
     visibleRangeWindowed: editorView.visibleRange.windowed,
     visibleSectionIds: editorView.visibleRange.sectionIds,
     zoneById: editorView.zoneById,
+  }
+}
+
+export function createVisibleRangeRuntimeState(snapshot, previousCache, visibleRangeRequest) {
+  return {
+    runtimeCache: createRuntimeCache(snapshot, {
+      mode: previousCache?.mode || "visible-range",
+      previousCache,
+      visibleRangeRequest,
+    }),
+    snapshot,
   }
 }
 

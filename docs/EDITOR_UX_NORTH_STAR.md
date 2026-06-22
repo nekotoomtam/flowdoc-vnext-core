@@ -268,6 +268,10 @@ virtualization; it is the id-based range shape future rendering, selection,
 lazy detail, and live-layout work must consume instead of assuming the whole
 document is the active visible set.
 
+Phase 48 separates visible range requests from resolved ranges. Selection,
+draft, packet apply, and future viewport work now have a request contract for
+reason, anchor, and budget before the range resolver produces node ids.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

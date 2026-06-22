@@ -52,6 +52,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/src/mutationBridge.ts",
       "../examples/template-builder-sandbox/scripts/build-snapshot.ts",
       "../examples/template-builder-sandbox/scripts/serve.mjs",
+      "../examples/template-builder-sandbox/public/visibleRangeRequest.js",
       "../examples/template-builder-sandbox/public/visibleRange.js",
       "../examples/template-builder-sandbox/public/editorView.js",
       "../examples/template-builder-sandbox/public/runtimeCache.js",
@@ -130,6 +131,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.updateVisibleRangeRequest")
     expect(snapshot.authoringHistory).toMatchObject({
       mode: "static-snapshot",
       recordCount: 0,
@@ -906,12 +908,14 @@ describe("template builder sandbox boundary", () => {
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
+    const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
     const runtimeCacheSource = readText("../examples/template-builder-sandbox/public/runtimeCache.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
     const browserCacheDoc = readText("../docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md")
     const runtimeCacheDoc = readText("../docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md")
     const visibleRangeDoc = readText("../docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md")
+    const visibleRangeRequestDoc = readText("../docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md")
 
     expect(appSource).toContain('from "./editorView.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -922,8 +926,13 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("editorView")
     expect(appSource).toContain("getEditorViewChildren")
     expect(appSource).toContain("getEditorViewSectionRootNodes")
+    expect(appSource).toContain('from "./visibleRangeRequest.js"')
+    expect(appSource).toContain("createSelectionVisibleRangeRequest")
+    expect(appSource).toContain("createDraftVisibleRangeRequest")
+    expect(appSource).toContain("createVisibleRangeRuntimeState")
     expect(appSource).toContain("visibleNodeCount")
     expect(appSource).toContain("Range:")
+    expect(appSource).toContain("Range request:")
     expect(appSource).toContain("viewMode")
     expect(appSource).toContain("applyChangePacket")
     expect(appSource).toContain("applyChangePacket(result.packet)")
@@ -944,21 +953,34 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("packet.baseRevision !==")
     expect(editorViewSource).toContain("createEditorView")
     expect(editorViewSource).toContain('from "./visibleRange.js"')
+    expect(editorViewSource).toContain('from "./visibleRangeRequest.js"')
     expect(editorViewSource).toContain("childrenById")
     expect(editorViewSource).toContain("parentById")
     expect(editorViewSource).toContain("visibleNodeIds")
+    expect(editorViewSource).toContain("visibleRangeRequest")
     expect(editorViewSource).toContain("dirtyNodeIds")
+    expect(visibleRangeRequestSource).toContain("createVisibleRangeRequest")
+    expect(visibleRangeRequestSource).toContain("createSelectionVisibleRangeRequest")
+    expect(visibleRangeRequestSource).toContain("createDraftVisibleRangeRequest")
+    expect(visibleRangeRequestSource).toContain("preserveVisibleRangeRequest")
+    expect(visibleRangeRequestSource).toContain("flowdoc-visible-range-request")
+    expect(visibleRangeRequestSource).not.toContain("document.")
+    expect(visibleRangeRequestSource).not.toContain("querySelector")
     expect(visibleRangeSource).toContain("createVisibleRange")
+    expect(visibleRangeSource).toContain('from "./visibleRangeRequest.js"')
     expect(visibleRangeSource).toContain("section-window")
     expect(visibleRangeSource).not.toContain("document.")
     expect(visibleRangeSource).not.toContain("querySelector")
     expect(runtimeCacheSource).toContain("createRuntimeCache")
     expect(runtimeCacheSource).toContain("createBootRuntimeState")
     expect(runtimeCacheSource).toContain("createRefreshRuntimeState")
+    expect(runtimeCacheSource).toContain("createVisibleRangeRuntimeState")
     expect(runtimeCacheSource).toContain("applyChangePacketToRuntime")
     expect(runtimeCacheSource).toContain("RUNTIME_CACHE_SOURCE")
     expect(runtimeCacheSource).toContain("visibleRange")
+    expect(runtimeCacheSource).toContain("visibleRangeRequest")
     expect(runtimeCacheSource).toContain("visibleRangeKind")
+    expect(runtimeCacheSource).toContain("preserveVisibleRangeRequest")
     expect(runtimeCacheSource).toContain("flowdoc-template-builder-change-packet")
     expect(runtimeCacheSource).toContain("packet.baseRevision !== snapshot.session.documentRevision")
     expect(runtimeCacheSource).not.toContain("document.")
@@ -967,6 +989,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
+    expect(coreBoundarySource).toContain("browser.updateVisibleRangeRequest")
     expect(coreBoundarySource).toContain("sandbox.recordAuthoringHistory")
     expect(coreBoundarySource).toContain("sandbox.requestLiveLayout")
     expect(coreBoundarySource).toContain("user.undo")
@@ -974,6 +997,7 @@ describe("template builder sandbox boundary", () => {
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
     expect(browserCacheDoc).toContain("public/editorView.js")
     expect(browserCacheDoc).toContain("public/runtimeCache.js")
+    expect(browserCacheDoc).toContain("public/visibleRangeRequest.js")
     expect(browserCacheDoc).toContain("public/visibleRange.js")
     expect(runtimeCacheDoc).toContain("Status: Phase 46 implementation boundary.")
     expect(runtimeCacheDoc).toContain("createRuntimeCache")
@@ -984,6 +1008,10 @@ describe("template builder sandbox boundary", () => {
     expect(visibleRangeDoc).toContain("createVisibleRange")
     expect(visibleRangeDoc).toContain("section-window")
     expect(visibleRangeDoc).toContain("does not implement")
+    expect(visibleRangeRequestDoc).toContain("Status: Phase 48 implementation boundary.")
+    expect(visibleRangeRequestDoc).toContain("createVisibleRangeRequest")
+    expect(visibleRangeRequestDoc).toContain("visibleRangeRequest")
+    expect(visibleRangeRequestDoc).toContain("does not implement")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1016,6 +1044,9 @@ describe("template builder sandbox boundary", () => {
         rootZones: getEditorViewSectionRootNodes(view, "section-cover").map((node) => node.id),
         sectionId: view.sectionIdByNodeId.get("cover-title"),
         source: view.source,
+        visibleRangeRequestBudget: view.visibleRangeRequest.budget,
+        visibleRangeRequestReason: view.visibleRangeRequest.reason,
+        visibleRangeRequestSource: view.visibleRangeRequest.source,
         visibleRangeSectionIds: view.visibleRange.sectionIds,
         visibleRangeSource: view.visibleRange.source,
         visibleRangeWindowed: view.visibleRange.windowed,
@@ -1041,6 +1072,9 @@ describe("template builder sandbox boundary", () => {
       source: string
       visibleNodeCount: number
       visibleRangeKind: string
+      visibleRangeRequestBudget: { maxNodes: number | null; mode: string }
+      visibleRangeRequestReason: string
+      visibleRangeRequestSource: string
       visibleRangeSectionIds: string[]
       visibleRangeSource: string
       visibleRangeWindowed: boolean
@@ -1053,6 +1087,9 @@ describe("template builder sandbox boundary", () => {
     expect(result.nodeCount).toBe(52)
     expect(result.visibleNodeCount).toBe(16)
     expect(result.visibleRangeKind).toBe("section-window")
+    expect(result.visibleRangeRequestSource).toBe("flowdoc-visible-range-request")
+    expect(result.visibleRangeRequestReason).toBe("boot")
+    expect(result.visibleRangeRequestBudget).toEqual({ maxNodes: null, mode: "interactive" })
     expect(result.visibleRangeSource).toBe("flowdoc-visible-range")
     expect(result.visibleRangeSectionIds).toEqual(["section-cover"])
     expect(result.visibleRangeWindowed).toBe(true)
@@ -1132,6 +1169,87 @@ describe("template builder sandbox boundary", () => {
     expect(result.windowed).toBe(true)
   })
 
+  it("keeps visible range requests separate from resolved ranges", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const { createBootRuntimeState, createVisibleRangeRuntimeState } = await import("./public/runtimeCache.js");
+      const {
+        createDraftVisibleRangeRequest,
+        createSelectionVisibleRangeRequest,
+        preserveVisibleRangeRequest,
+      } = await import("./public/visibleRangeRequest.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const bootState = createBootRuntimeState(snapshot);
+      const selectionRequest = createSelectionVisibleRangeRequest("body-heading", bootState.runtimeCache.visibleRangeRequest, {
+        budget: { mode: "interactive", maxNodes: 4 },
+      });
+      const selectedState = createVisibleRangeRuntimeState(snapshot, bootState.runtimeCache, selectionRequest);
+      const draftRequest = createDraftVisibleRangeRequest("body-heading", selectedState.runtimeCache.visibleRangeRequest);
+      const draftState = createVisibleRangeRuntimeState(snapshot, selectedState.runtimeCache, draftRequest);
+      const preservedSelection = createSelectionVisibleRangeRequest("cover-header-label", draftState.runtimeCache.visibleRangeRequest, {
+        draftActive: true,
+      });
+      const packetRequest = preserveVisibleRangeRequest(draftState.runtimeCache.visibleRangeRequest, { reason: "packet-apply" });
+      const packetState = createVisibleRangeRuntimeState(snapshot, draftState.runtimeCache, packetRequest);
+      console.log(JSON.stringify({
+        bootReason: bootState.runtimeCache.visibleRangeRequest.reason,
+        bootRequestSource: bootState.runtimeCache.visibleRangeRequestSource,
+        bootRangeSource: bootState.runtimeCache.visibleRangeSource,
+        bootSections: bootState.runtimeCache.visibleRange.sectionIds,
+        selectionBudget: selectedState.runtimeCache.visibleRangeRequest.budget,
+        selectionReason: selectedState.runtimeCache.visibleRangeRequest.reason,
+        selectionSections: selectedState.runtimeCache.visibleRange.sectionIds,
+        selectionVisibleCount: selectedState.runtimeCache.visibleNodeCount,
+        draftPreserve: draftState.runtimeCache.visibleRangeRequest.preserveDuringDraft,
+        draftReason: draftState.runtimeCache.visibleRangeRequest.reason,
+        preservedReason: preservedSelection.reason,
+        preservedFromReason: preservedSelection.preservedFromReason,
+        preservedAnchorNodeId: preservedSelection.anchorNodeId,
+        packetReason: packetState.runtimeCache.visibleRangeRequest.reason,
+        packetPreservedFromReason: packetState.runtimeCache.visibleRangeRequest.preservedFromReason,
+        packetSections: packetState.runtimeCache.visibleRange.sectionIds,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bootRangeSource: string
+      bootReason: string
+      bootRequestSource: string
+      bootSections: string[]
+      draftPreserve: boolean
+      draftReason: string
+      packetPreservedFromReason: string
+      packetReason: string
+      packetSections: string[]
+      preservedAnchorNodeId: string
+      preservedFromReason: string
+      preservedReason: string
+      selectionBudget: { maxNodes: number; mode: string }
+      selectionReason: string
+      selectionSections: string[]
+      selectionVisibleCount: number
+    }
+
+    expect(result.bootReason).toBe("boot")
+    expect(result.bootRequestSource).toBe("flowdoc-visible-range-request")
+    expect(result.bootRangeSource).toBe("flowdoc-visible-range")
+    expect(result.bootSections).toEqual(["section-cover"])
+    expect(result.selectionReason).toBe("selection")
+    expect(result.selectionSections).toEqual(["section-body"])
+    expect(result.selectionBudget).toEqual({ maxNodes: 4, mode: "interactive" })
+    expect(result.selectionVisibleCount).toBe(4)
+    expect(result.draftReason).toBe("draft")
+    expect(result.draftPreserve).toBe(true)
+    expect(result.preservedReason).toBe("selection-preserved")
+    expect(result.preservedFromReason).toBe("draft")
+    expect(result.preservedAnchorNodeId).toBe("body-heading")
+    expect(result.packetReason).toBe("packet-apply")
+    expect(result.packetPreservedFromReason).toBe("draft")
+    expect(result.packetSections).toEqual(["section-body"])
+  })
+
   it("applies change packets through the browser-safe runtime cache module", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       import { readFileSync } from "node:fs";
@@ -1182,6 +1300,8 @@ describe("template builder sandbox boundary", () => {
         bridgeMode: result.snapshot.mutationBridge.mode,
         lastMutationTarget: result.snapshot.mutationBridge.lastMutation.targetTextBlockId,
         visibleNodeCount: result.runtimeCache.visibleNodeCount,
+        visibleRangeRequestReason: result.runtimeCache.visibleRangeRequest.reason,
+        visibleRangeRequestSource: result.runtimeCache.visibleRangeRequest.source,
         visibleRangeKind: result.runtimeCache.visibleRangeKind,
         visibleRangeSectionIds: result.runtimeCache.visibleRange.sectionIds,
         visibleTotalNodeCount: result.runtimeCache.visibleRange.totalNodeCount,
@@ -1203,6 +1323,8 @@ describe("template builder sandbox boundary", () => {
       snapshotRevision: number
       visibleNodeCount: number
       visibleRangeKind: string
+      visibleRangeRequestReason: string
+      visibleRangeRequestSource: string
       visibleRangeSectionIds: string[]
       visibleTotalNodeCount: number
     }
@@ -1218,6 +1340,8 @@ describe("template builder sandbox boundary", () => {
     expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.visibleNodeCount).toBe(16)
+    expect(result.visibleRangeRequestSource).toBe("flowdoc-visible-range-request")
+    expect(result.visibleRangeRequestReason).toBe("packet-apply")
     expect(result.visibleRangeKind).toBe("section-window")
     expect(result.visibleRangeSectionIds).toEqual(["section-cover"])
     expect(result.visibleTotalNodeCount).toBe(52)
@@ -1243,6 +1367,7 @@ describe("template builder sandbox boundary", () => {
     expect(browserCacheDoc).toContain("The tree snapshot")
     expect(browserCacheDoc).toContain("active runtime shape for large-document editing")
     expect(northStarDoc).toContain("Phase 47 replaces the all-node visible range placeholder")
+    expect(northStarDoc).toContain("Phase 48 separates visible range requests from resolved ranges")
   })
 
   it("locks future editor work to modular responsibility boundaries", () => {

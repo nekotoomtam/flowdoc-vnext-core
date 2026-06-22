@@ -89,6 +89,10 @@ Phase 47 moves visible-range calculation into `public/visibleRange.js`.
 `createEditorView(...)` passes editor indexes to that module and stores both
 the resolved `visibleRange` and its `nodeIds`.
 
+Phase 48 adds `visibleRangeRequest` to the editor view. The request records why
+the range was asked for and which budget/anchor should be resolved, while
+`visibleRange` remains the resolved node-id output.
+
 ## Scale Direction
 
 This phase makes the long-term path explicit:

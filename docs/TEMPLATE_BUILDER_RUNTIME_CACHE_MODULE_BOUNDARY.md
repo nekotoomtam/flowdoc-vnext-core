@@ -61,6 +61,11 @@ Phase 47 extends this cache with `visibleRange`, `visibleRangeKind`,
 application preserves the previous visible-range request when rebuilding the
 editor view.
 
+Phase 48 adds `visibleRangeRequest`, `visibleRangeRequestReason`, and
+`visibleRangeRequestSource` beside those resolved range facts. Packet
+application now preserves the previous request as `packet-apply` before the
+range resolver runs.
+
 ## Packet Apply Boundary
 
 `applyChangePacketToRuntime(...)` still patches the current tree-shaped
@@ -92,7 +97,8 @@ Phase 46 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 - `runtimeCache.js` owns change-packet validation and packet source checks;
 - a Node test boots the runtime cache, applies a packet, and verifies updated
   snapshot revision, mutation bridge state, packet count, changed text, dirty
-  ids, changed subtree ids, and visible-range facts.
+  ids, changed subtree ids, visible-range facts, and visible range request
+  facts.
 
 ## Non-Goals
 

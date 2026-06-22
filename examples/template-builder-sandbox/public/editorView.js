@@ -1,4 +1,5 @@
 import { createVisibleRange } from "./visibleRange.js"
+import { createBootVisibleRangeRequest, createVisibleRangeRequest } from "./visibleRangeRequest.js"
 
 export const EDITOR_VIEW_SOURCE = "flowdoc-normalized-editor-view"
 export const EDITOR_VIEW_MODE = "normalized-editor-view"
@@ -78,11 +79,18 @@ export function createEditorView(snapshot, options = {}) {
   }
 
   const previousView = options.previousView || null
+  const visibleRangeRequest = createVisibleRangeRequest(
+    options.visibleRangeRequest
+      || options.visibleRange
+      || previousView?.visibleRangeRequest
+      || previousView?.visibleRange?.request
+      || createBootVisibleRangeRequest(sectionIds[0] || null),
+  )
   const visibleRange = createVisibleRange({
     nodeOrder,
     sectionIdByNodeId,
     sectionIds,
-  }, options.visibleRange || previousView?.visibleRange?.request)
+  }, visibleRangeRequest)
   const visibleNodeIds = visibleRange.nodeIds
   const packetIds = collectPacketIds(options.packet)
 
@@ -105,6 +113,7 @@ export function createEditorView(snapshot, options = {}) {
     version: 1,
     visibleNodeIds,
     visibleRange,
+    visibleRangeRequest: visibleRange.request,
     zoneById,
     zoneIdByNodeId,
   }

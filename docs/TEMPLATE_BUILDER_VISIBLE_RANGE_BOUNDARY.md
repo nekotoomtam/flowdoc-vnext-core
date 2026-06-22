@@ -74,6 +74,10 @@ The visible range supports:
 The runtime cache preserves the prior visible-range request across packet
 application so accepted mutations do not silently reset the current range.
 
+Phase 48 moves request creation and preserve policy into
+`public/visibleRangeRequest.js`. `visibleRange.js` remains the resolver that
+turns a normalized request into concrete node ids.
+
 ## Acceptance Evidence
 
 Phase 47 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:

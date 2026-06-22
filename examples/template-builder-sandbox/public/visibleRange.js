@@ -1,3 +1,5 @@
+import { createVisibleRangeRequest } from "./visibleRangeRequest.js"
+
 export const VISIBLE_RANGE_SOURCE = "flowdoc-visible-range"
 export const VISIBLE_RANGE_KIND = "section-window"
 
@@ -24,18 +26,17 @@ function nodeIdsForSections(nodeOrder, sectionIdByNodeId, sectionIds) {
 function allNodesRange(indexes, options) {
   const nodeOrder = indexes.nodeOrder || []
   const sectionIds = indexes.sectionIds || []
+  const request = createVisibleRangeRequest(options)
 
   return {
-    anchorNodeId: options.anchorNodeId || null,
-    anchorSectionId: options.anchorSectionId || sectionIds[0] || null,
+    anchorNodeId: request.anchorNodeId,
+    anchorSectionId: request.anchorSectionId || sectionIds[0] || null,
     endSectionIndex: sectionIds.length === 0 ? -1 : sectionIds.length - 1,
     kind: "all-nodes",
     maxNodes: nodeOrder.length,
     nodeCount: nodeOrder.length,
     nodeIds: nodeOrder.slice(),
-    request: {
-      kind: "all-nodes",
-    },
+    request,
     sectionCount: sectionIds.length,
     sectionIds: sectionIds.slice(),
     source: VISIBLE_RANGE_SOURCE,
@@ -49,22 +50,23 @@ function allNodesRange(indexes, options) {
 }
 
 export function createVisibleRange(indexes, options = {}) {
+  const request = createVisibleRangeRequest(options)
   const nodeOrder = indexes.nodeOrder || []
   const sectionIds = indexes.sectionIds || []
   const sectionIdByNodeId = indexes.sectionIdByNodeId || new Map()
 
-  if (options.kind === "all-nodes") {
-    return allNodesRange(indexes, options)
+  if (request.kind === "all-nodes") {
+    return allNodesRange(indexes, request)
   }
 
-  const anchorSectionId = options.anchorSectionId
-    || sectionIdByNodeId.get(options.anchorNodeId)
+  const anchorSectionId = request.anchorSectionId
+    || sectionIdByNodeId.get(request.anchorNodeId)
     || sectionIds[0]
     || null
   const anchorIndex = anchorSectionId == null ? -1 : sectionIndex(sectionIds, anchorSectionId)
-  const overscanSectionsBefore = nonNegativeInteger(options.overscanSectionsBefore, 0)
-  const overscanSectionsAfter = nonNegativeInteger(options.overscanSectionsAfter, 0)
-  const maxNodes = positiveInteger(options.maxNodes, nodeOrder.length || 1)
+  const overscanSectionsBefore = nonNegativeInteger(request.overscanSectionsBefore, 0)
+  const overscanSectionsAfter = nonNegativeInteger(request.overscanSectionsAfter, 0)
+  const maxNodes = positiveInteger(request.budget.maxNodes, nodeOrder.length || 1)
   const startSectionIndex = anchorIndex < 0 ? -1 : Math.max(0, anchorIndex - overscanSectionsBefore)
   const endSectionIndex = anchorIndex < 0
     ? -1
@@ -84,14 +86,14 @@ export function createVisibleRange(indexes, options = {}) {
     maxNodes,
     nodeCount: nodeIds.length,
     nodeIds,
-    request: {
-      anchorNodeId: options.anchorNodeId || null,
+    request: createVisibleRangeRequest({
+      ...request,
       anchorSectionId,
-      kind: VISIBLE_RANGE_KIND,
-      maxNodes,
-      overscanSectionsAfter,
-      overscanSectionsBefore,
-    },
+      budget: {
+        ...request.budget,
+        maxNodes: request.budget.maxNodes,
+      },
+    }),
     sectionCount: windowSectionIds.length,
     sectionIds: windowSectionIds,
     source: VISIBLE_RANGE_SOURCE,

@@ -148,6 +148,9 @@ The package must remain runnable without any parent editor checkout.
 - Visible range boundary adds a browser-safe section-window contract so
   normalized editor views can expose bounded visible node ids before DOM scroll
   tracking or virtualized rendering
+- Visible range request boundary separates range intent, reason, and budget
+  from resolved visible node ids so selection, draft, packet, and future
+  viewport work can share one request contract
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -256,6 +259,8 @@ The package must remain runnable without any parent editor checkout.
   runtime-cache module boundary for boot, refresh, and packet apply ownership
 - `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md`: Phase 47 visible range
   boundary for bounded runtime node windows before virtualization
+- `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md`: Phase 48 visible
+  range request boundary for request reason, budget, and preserve policy
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
