@@ -43,6 +43,9 @@ import {
   createViewportVirtualStack,
 } from "./viewportVirtualStack.js"
 import {
+  createViewportLazyDetailPlan,
+} from "./viewportLazyDetail.js"
+import {
   createViewportSchedulerAutomationState,
   runViewportSchedulerAutomation,
 } from "./viewportSchedulerAutomation.js"
@@ -94,6 +97,7 @@ const state = {
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
   viewportScrollTimerId: null,
+  viewportLazyDetail: null,
   viewportVirtualStack: null,
 }
 
@@ -277,6 +281,32 @@ function viewportVirtualStackLabel() {
 function syncViewportVirtualStackStatus() {
   app.querySelectorAll("[data-viewport-virtual-stack-status]").forEach((target) => {
     target.textContent = viewportVirtualStackLabel()
+  })
+}
+
+function activeLazyDetailNodeIds() {
+  return [state.selectedId, state.draft.textBlockId].filter(Boolean)
+}
+
+function updateViewportLazyDetailPlan(renderModel) {
+  state.viewportLazyDetail = createViewportLazyDetailPlan({
+    activeNodeIds: activeLazyDetailNodeIds(),
+    childrenById: renderModel?.childrenById,
+    nodeById: renderModel?.nodeById,
+    parentById: renderModel?.runtimeStore?.parentById,
+    visibleNodeIds: renderModel?.renderWindow?.nodeIds,
+  })
+}
+
+function viewportLazyDetailLabel() {
+  const lazyDetail = state.viewportLazyDetail
+  if (!lazyDetail) return "Lazy detail: pending"
+  return `Lazy detail: ${lazyDetail.deferredCount}/${lazyDetail.heavyNodeCount} deferred ${lazyDetail.visibleNodeCount} visible`
+}
+
+function syncViewportLazyDetailStatus() {
+  app.querySelectorAll("[data-viewport-lazy-detail-status]").forEach((target) => {
+    target.textContent = viewportLazyDetailLabel()
   })
 }
 
@@ -1412,8 +1442,27 @@ function nodeDomAttributes(node) {
   return `data-node-id="${escapeHtml(node.id)}" data-node-type="${escapeHtml(node.type)}"`
 }
 
+function lazyDetailForNode(node) {
+  return state.viewportLazyDetail?.detailByNodeId?.get(node?.id) || null
+}
+
+function renderLazyDetailPlaceholder(node, detail) {
+  return `
+    <div
+      class="canvas-lazy-detail"
+      ${nodeDomAttributes(node)}
+      data-lazy-detail-reason="${escapeHtml(detail.reason)}"
+    >
+      <strong>${escapeHtml(node.type)} detail deferred</strong>
+      <span>${escapeHtml(detail.reason)} / ${detail.subtreeNodeCount} nodes / ${detail.childCount} children</span>
+    </div>
+  `
+}
+
 function renderCanvasNode(node) {
   const selectedClass = node.id === state.selectedId ? " is-selected" : ""
+  const lazyDetail = lazyDetailForNode(node)
+  if (lazyDetail?.deferred) return renderLazyDetailPlaceholder(node, lazyDetail)
 
   if (node.type === "zone") {
     return `
@@ -2004,6 +2053,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderWindowLabel)}</span>
       <span>${escapeHtml(renderShellLabel)}</span>
       <span data-viewport-virtual-stack-status>${escapeHtml(viewportVirtualStackLabel())}</span>
+      <span data-viewport-lazy-detail-status>${escapeHtml(viewportLazyDetailLabel())}</span>
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
       <span data-section-spacer-status>${escapeHtml(viewportSectionSpacerLabel())}</span>
       <span data-section-offset-status>${escapeHtml(viewportSectionOffsetLabel())}</span>
@@ -2441,6 +2491,7 @@ function render(options = {}) {
 
   const renderModel = createStoreBackedRenderModel(snapshot, state.runtimeCache)
   state.renderModel = renderModel
+  updateViewportLazyDetailPlan(renderModel)
   state.viewportVirtualStack = createViewportVirtualStack({
     offsetIndex: state.viewportSectionOffsetIndex,
     renderShell: renderModel.renderShell,
@@ -2493,6 +2544,7 @@ function render(options = {}) {
   syncViewportSchedulerRuntimeStatus()
   syncViewportSchedulerAutomationStatus()
   syncViewportVirtualStackStatus()
+  syncViewportLazyDetailStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }

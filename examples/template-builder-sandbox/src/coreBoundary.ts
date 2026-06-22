@@ -614,6 +614,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser canvas can mount only virtual-stack sections while preserving section spacer geometry",
       },
       {
+        action: "browser.lazyViewportHeavyDetail",
+        label: "Lazy detail",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas can defer heavy node detail inside mounted virtual sections",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

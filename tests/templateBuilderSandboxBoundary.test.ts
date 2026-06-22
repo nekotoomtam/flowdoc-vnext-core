@@ -64,6 +64,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/viewportSchedulerRuntime.js",
       "../examples/template-builder-sandbox/public/viewportSchedulerAutomation.js",
       "../examples/template-builder-sandbox/public/viewportVirtualStack.js",
+      "../examples/template-builder-sandbox/public/viewportLazyDetail.js",
       "../examples/template-builder-sandbox/public/viewportSectionOffsets.js",
       "../examples/template-builder-sandbox/public/viewportSectionSpacers.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
@@ -160,6 +161,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runViewportSchedulerRuntime")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.autoApplyViewportScheduler")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.virtualizeViewportSections")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.lazyViewportHeavyDetail")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -951,6 +953,7 @@ describe("template builder sandbox boundary", () => {
     const viewportSchedulerRuntimeSource = readText("../examples/template-builder-sandbox/public/viewportSchedulerRuntime.js")
     const viewportSchedulerAutomationSource = readText("../examples/template-builder-sandbox/public/viewportSchedulerAutomation.js")
     const viewportVirtualStackSource = readText("../examples/template-builder-sandbox/public/viewportVirtualStack.js")
+    const viewportLazyDetailSource = readText("../examples/template-builder-sandbox/public/viewportLazyDetail.js")
     const viewportSectionOffsetsSource = readText("../examples/template-builder-sandbox/public/viewportSectionOffsets.js")
     const viewportSectionSpacersSource = readText("../examples/template-builder-sandbox/public/viewportSectionSpacers.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
@@ -981,6 +984,7 @@ describe("template builder sandbox boundary", () => {
     const viewportSchedulerRuntimeDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md")
     const viewportSchedulerAutomationDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md")
     const viewportVirtualStackDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md")
+    const viewportLazyDetailDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -1005,6 +1009,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("resolveViewportSectionOffset")
     expect(appSource).toContain('from "./viewportVirtualStack.js"')
     expect(appSource).toContain("createViewportVirtualStack")
+    expect(appSource).toContain('from "./viewportLazyDetail.js"')
+    expect(appSource).toContain("createViewportLazyDetailPlan")
     expect(appSource).toContain('from "./viewportSchedulerAutomation.js"')
     expect(appSource).toContain("createViewportSchedulerAutomationState")
     expect(appSource).toContain("runViewportSchedulerAutomation")
@@ -1039,8 +1045,10 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-viewport-scheduler-runtime-status")
     expect(appSource).toContain("data-viewport-scheduler-automation-status")
     expect(appSource).toContain("data-viewport-virtual-stack-status")
+    expect(appSource).toContain("data-viewport-lazy-detail-status")
     expect(appSource).toContain("data-virtual-section-spacer")
     expect(appSource).toContain("data-viewport-virtualized")
+    expect(appSource).toContain("data-lazy-detail-reason")
     expect(appSource).toContain("data-section-spacer-height")
     expect(appSource).toContain("data-section-spacer-reason")
     expect(appSource).toContain("data-section-spacer-status")
@@ -1054,6 +1062,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("Scheduler runtime:")
     expect(appSource).toContain("Scheduler auto:")
     expect(appSource).toContain("Virtual stack:")
+    expect(appSource).toContain("Lazy detail:")
     expect(appSource).toContain("Section offsets:")
     expect(appSource).toContain("Section spacers:")
     expect(appSource).toContain("Viewport anchor:")
@@ -1102,6 +1111,7 @@ describe("template builder sandbox boundary", () => {
     expect(stylesSource).toContain(".page.is-placeholder")
     expect(stylesSource).toContain(".canvas-placeholder")
     expect(stylesSource).toContain(".virtual-section-spacer")
+    expect(stylesSource).toContain(".canvas-lazy-detail")
     expect(stylesSource).toContain("--section-spacer-height")
     expect(stylesSource).toContain("--virtual-spacer-height")
     expect(runtimeStoreSource).toContain("createRuntimeStore")
@@ -1209,6 +1219,17 @@ describe("template builder sandbox boundary", () => {
     expect(viewportVirtualStackSource).not.toContain("querySelector")
     expect(viewportVirtualStackSource).not.toContain("addEventListener")
     expect(viewportVirtualStackSource).not.toContain("setTimeout")
+    expect(viewportLazyDetailSource).toContain("createViewportLazyDetailPlan")
+    expect(viewportLazyDetailSource).toContain("flowdoc-viewport-lazy-detail")
+    expect(viewportLazyDetailSource).toContain("heavy-node-detail-plan")
+    expect(viewportLazyDetailSource).toContain("DEFAULT_HEAVY_CHILD_COUNT")
+    expect(viewportLazyDetailSource).toContain("DEFAULT_HEAVY_SUBTREE_NODE_COUNT")
+    expect(viewportLazyDetailSource).toContain("DEFAULT_HEAVY_TEXT_LENGTH")
+    expect(viewportLazyDetailSource).toContain("protectedByContext")
+    expect(viewportLazyDetailSource).not.toContain("document.")
+    expect(viewportLazyDetailSource).not.toContain("querySelector")
+    expect(viewportLazyDetailSource).not.toContain("addEventListener")
+    expect(viewportLazyDetailSource).not.toContain("setTimeout")
     expect(viewportSectionOffsetsSource).toContain("createViewportSectionOffsetIndex")
     expect(viewportSectionOffsetsSource).toContain("predictViewportFromSectionOffsets")
     expect(viewportSectionOffsetsSource).toContain("resolveViewportSectionOffset")
@@ -1314,6 +1335,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.runViewportSchedulerRuntime")
     expect(coreBoundarySource).toContain("browser.autoApplyViewportScheduler")
     expect(coreBoundarySource).toContain("browser.virtualizeViewportSections")
+    expect(coreBoundarySource).toContain("browser.lazyViewportHeavyDetail")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1432,6 +1454,12 @@ describe("template builder sandbox boundary", () => {
     expect(viewportVirtualStackDoc).toContain("browser.virtualizeViewportSections")
     expect(viewportVirtualStackDoc).toContain("virtual-section-spacer")
     expect(viewportVirtualStackDoc).toContain("missing offsets fall back")
+    expect(viewportLazyDetailDoc).toContain("Status: Phase 66 implementation boundary.")
+    expect(viewportLazyDetailDoc).toContain("viewportLazyDetail.js")
+    expect(viewportLazyDetailDoc).toContain("createViewportLazyDetailPlan")
+    expect(viewportLazyDetailDoc).toContain("browser.lazyViewportHeavyDetail")
+    expect(viewportLazyDetailDoc).toContain("canvas-lazy-detail")
+    expect(viewportLazyDetailDoc).toContain("active selected/draft ancestor path")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -2780,6 +2808,112 @@ describe("template builder sandbox boundary", () => {
     expect(result.fallbackVirtualized).toBe(false)
     expect(result.fallbackReason).toBe("offset-index-missing")
     expect(result.fallbackMountedSectionCount).toBe(4)
+  })
+
+  it("plans lazy heavy detail without deferring active node paths", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createViewportLazyDetailPlan,
+      } = await import("./public/viewportLazyDetail.js");
+      const nodes = [
+        { id: "zone-body", type: "zone" },
+        { id: "body-metrics-table", type: "table" },
+        { id: "body-row-1", type: "table-row" },
+        { id: "body-cell-1", type: "table-cell" },
+        { id: "body-cell-text", type: "text-block", textLength: 12, textPreview: "Metric" },
+        { id: "cover-meta-columns", type: "columns" },
+        { id: "cover-meta-left", type: "column" },
+        { id: "cover-meta-text", type: "text-block", textLength: 18, textPreview: "Prepared by team" },
+      ];
+      const nodeById = new Map(nodes.map((node) => [node.id, node]));
+      const childrenById = new Map([
+        ["zone-body", ["body-metrics-table", "cover-meta-columns"]],
+        ["body-metrics-table", ["body-row-1"]],
+        ["body-row-1", ["body-cell-1"]],
+        ["body-cell-1", ["body-cell-text"]],
+        ["body-cell-text", []],
+        ["cover-meta-columns", ["cover-meta-left"]],
+        ["cover-meta-left", ["cover-meta-text"]],
+        ["cover-meta-text", []],
+      ]);
+      const parentById = new Map([
+        ["body-metrics-table", "zone-body"],
+        ["body-row-1", "body-metrics-table"],
+        ["body-cell-1", "body-row-1"],
+        ["body-cell-text", "body-cell-1"],
+        ["cover-meta-columns", "zone-body"],
+        ["cover-meta-left", "cover-meta-columns"],
+        ["cover-meta-text", "cover-meta-left"],
+      ]);
+      const inactive = createViewportLazyDetailPlan({
+        childrenById,
+        nodeById,
+        parentById,
+        visibleNodeIds: nodes.map((node) => node.id),
+      });
+      const activeTableChild = createViewportLazyDetailPlan({
+        activeNodeIds: ["body-cell-text"],
+        childrenById,
+        nodeById,
+        parentById,
+        visibleNodeIds: nodes.map((node) => node.id),
+      });
+      const tableDetail = activeTableChild.detailByNodeId.get("body-metrics-table");
+      const columnsDetail = activeTableChild.detailByNodeId.get("cover-meta-columns");
+
+      console.log(JSON.stringify({
+        activeColumnsDeferred: columnsDetail.deferred,
+        activeColumnsReason: columnsDetail.reason,
+        activeDeferredNodeIds: activeTableChild.deferredNodeIds,
+        activeMaterializedNodeIds: activeTableChild.materializedHeavyNodeIds,
+        activeTableDeferred: tableDetail.deferred,
+        activeTableProtected: tableDetail.protectedByContext,
+        activeTableReason: tableDetail.reason,
+        inactiveDeferredNodeIds: inactive.deferredNodeIds,
+        inactiveHeavyNodeIds: inactive.heavyNodeIds,
+        mode: inactive.mode,
+        source: inactive.source,
+        thresholds: inactive.thresholds,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      activeColumnsDeferred: boolean
+      activeColumnsReason: string
+      activeDeferredNodeIds: string[]
+      activeMaterializedNodeIds: string[]
+      activeTableDeferred: boolean
+      activeTableProtected: boolean
+      activeTableReason: string
+      inactiveDeferredNodeIds: string[]
+      inactiveHeavyNodeIds: string[]
+      mode: string
+      source: string
+      thresholds: {
+        childCount: number
+        subtreeNodeCount: number
+        textLength: number
+      }
+    }
+
+    expect(result.source).toBe("flowdoc-viewport-lazy-detail")
+    expect(result.mode).toBe("heavy-node-detail-plan")
+    expect(result.thresholds).toEqual({
+      childCount: 4,
+      subtreeNodeCount: 8,
+      textLength: 320,
+    })
+    expect(result.inactiveHeavyNodeIds).toEqual(["body-metrics-table", "cover-meta-columns"])
+    expect(result.inactiveDeferredNodeIds).toEqual(["body-metrics-table", "cover-meta-columns"])
+    expect(result.activeTableDeferred).toBe(false)
+    expect(result.activeTableProtected).toBe(true)
+    expect(result.activeTableReason).toBe("table-detail")
+    expect(result.activeColumnsDeferred).toBe(true)
+    expect(result.activeColumnsReason).toBe("columns-detail")
+    expect(result.activeMaterializedNodeIds).toEqual(["body-metrics-table"])
+    expect(result.activeDeferredNodeIds).toEqual(["cover-meta-columns"])
   })
 
   it("plans observe-only viewport scheduler candidates from section predictions", () => {

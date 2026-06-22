@@ -53,6 +53,8 @@ Implemented:
   requests;
 - section-level virtual stack rendering that mounts render-window sections and
   preserves off-window geometry with spacers;
+- lazy heavy-detail placeholders for inactive table/column subtrees inside the
+  mounted virtual section window;
 - boundary tests from the root repository.
 
 Not implemented:

@@ -384,6 +384,24 @@ ul {
   font-size: 12px;
 }
 
+.canvas-lazy-detail {
+  background: #f8fafc;
+  border: 1px dashed #b6c4d4;
+  color: #536475;
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+}
+
+.canvas-lazy-detail strong {
+  color: #26384a;
+  font-size: 13px;
+}
+
+.canvas-lazy-detail span {
+  font-size: 12px;
+}
+
 .canvas-zone {
   border: 1px solid #e1e7ee;
   margin-bottom: 14px;

@@ -196,6 +196,8 @@ The package must remain runnable without any parent editor checkout.
   candidates while still stopping before virtualized rendering is claimed
 - Viewport virtual stack boundary mounts only render-window sections and uses
   section spacers for off-window geometry
+- Viewport lazy detail boundary defers inactive heavy node subtrees inside
+  mounted virtual sections
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -347,6 +349,8 @@ The package must remain runnable without any parent editor checkout.
   consumption
 - `docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md`: Phase 65
   section-level virtual stack renderer consumption boundary
+- `docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md`: Phase 66
+  inactive heavy-node detail deferral boundary inside mounted virtual sections
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -395,6 +399,6 @@ The package must remain runnable without any parent editor checkout.
   scheduling beyond the sandbox render-shell, viewport-measurement, manual
   viewport-apply, debounced scroll-controller, section-anchor, section
   spacer/offset, observe-only scheduler-candidate, manual scheduler-apply,
-  scheduler-runtime stale guard, budgeted scheduler-auto, and section virtual
-  stack contracts
+  scheduler-runtime stale guard, budgeted scheduler-auto, section virtual
+  stack, and lazy heavy-detail contracts
 - publishing/distribution strategy beyond local package consumption

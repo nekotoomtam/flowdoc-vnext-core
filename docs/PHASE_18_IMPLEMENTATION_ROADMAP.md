@@ -1521,6 +1521,38 @@ Acceptance:
   mapping, live renderer, route, persistence, or package version change is
   claimed.
 
+## Phase 66: Viewport Lazy Heavy-Detail Boundary
+
+Goal:
+
+- defer inactive heavy node detail inside mounted virtual sections while keeping
+  selected/draft paths materialized and avoiding any API/hydration claim.
+
+Deliverables:
+
+- browser-safe lazy detail module in `public/viewportLazyDetail.js`;
+- lazy detail source/version/mode contract;
+- default heavy-node thresholds;
+- heavy node classification by type, child count, subtree count, and text
+  length;
+- active selected/draft path materialization guard;
+- app renderer placeholders for deferred heavy detail;
+- `Lazy detail: ...` status output;
+- CSS for local lazy-detail placeholders;
+- action lane for `browser.lazyViewportHeavyDetail`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- lazy detail policy can run in Node without DOM access;
+- inactive table/columns detail can be deferred inside the render window;
+- selected-node and draft ancestor paths are not deferred;
+- app renderer consumes lazy detail plans and exposes deferred counts;
+- no backend/API route, async hydration, node-aware jump-to-node, recycled DOM
+  pool, caret-relative anchor, structural packet engine, rich text,
+  contenteditable mapping, live renderer, persistence, or package version
+  change is claimed.
+
 ## Later Phases
 
 Goal:

@@ -72,6 +72,7 @@ Parent goal:
 | 63 | Viewport scheduler runtime boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 64 | Viewport scheduler automation boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerAutomation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 65 | Viewport virtual stack boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportVirtualStack.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 66 | Viewport lazy heavy-detail boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportLazyDetail.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1451,6 +1452,36 @@ node-aware anchors, jump-to-node, recycled DOM pools, caret-aware anchoring,
 structural packet application, rich text editing, contenteditable DOM mapping,
 live-layout rendering, persistence, API routes, or package/document version
 changes.
+
+## Phase 66 Viewport Lazy Heavy-Detail Boundary
+
+Phase 66 adds inactive heavy-node detail deferral inside mounted virtual
+sections:
+
+- `examples/template-builder-sandbox/public/viewportLazyDetail.js` owns lazy
+  detail source, mode, default thresholds, subtree counting, active path
+  protection, and `createViewportLazyDetailPlan`;
+- heavy detail classification is conservative: table/columns types, many direct
+  children, large subtrees, or large text;
+- selected-node and active-draft ancestor paths remain materialized so editing
+  and selection do not disappear behind a placeholder;
+- `examples/template-builder-sandbox/public/app.js` stores
+  `viewportLazyDetail`, reports `Lazy detail: ...`, and renders deferred heavy
+  detail as `canvas-lazy-detail` placeholders;
+- `examples/template-builder-sandbox/public/styles.css` defines the placeholder
+  style without adding an async route or page-level spacer;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.lazyViewportHeavyDetail` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md` records the Phase 66
+  boundary, classification rules, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free lazy detail
+  ownership, action-lane exposure, app renderer consumption, heavy node
+  deferral, and active path materialization.
+
+This phase intentionally does not implement backend/API lazy routes, async
+hydration, node-aware jump-to-node, recycled DOM pools, caret-aware anchoring,
+structural packet application, rich text editing, contenteditable DOM mapping,
+live-layout rendering, persistence, or package/document version changes.
 
 ## Phase 12 Extraction Record
 
