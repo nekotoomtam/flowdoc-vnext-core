@@ -338,7 +338,7 @@ ul {
   background: #ffffff;
   border: 1px solid #cfd8e3;
   box-shadow: 0 12px 30px rgba(50, 63, 77, 0.10);
-  min-height: 720px;
+  min-height: var(--section-spacer-height, 720px);
   padding: 34px;
   width: min(100%, 760px);
 }
@@ -367,7 +367,7 @@ ul {
   display: flex;
   gap: 10px;
   justify-content: center;
-  min-height: 560px;
+  min-height: max(560px, calc(var(--section-spacer-height, 720px) - 160px));
 }
 
 .canvas-placeholder strong {

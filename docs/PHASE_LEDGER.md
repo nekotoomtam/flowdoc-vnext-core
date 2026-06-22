@@ -65,6 +65,7 @@ Parent goal:
 | 56 | Manual viewport measurement apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 57 | Debounced viewport scroll controller boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportScrollController.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 58 | Section viewport anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 59 | Measured section spacer boundary | done | `docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionSpacers.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1209,6 +1210,43 @@ anchors, typing-driven live layout pushdown, measured spacer heights,
 virtualized renderer scheduling, lazy heavy-detail routes, structural
 add/delete/move packet application, rich text editing, contenteditable DOM
 mapping, persistence, API routes, or package/document version changes.
+
+## Phase 59 Measured Section Spacer Boundary
+
+Phase 59 adds measured section spacer facts over the Phase 55-58 viewport
+measurement, scroll, and anchor contracts:
+
+- `examples/template-builder-sandbox/public/viewportSectionSpacers.js` owns
+  `VIEWPORT_SECTION_SPACER_SOURCE`,
+  `VIEWPORT_SECTION_SPACER_MODE`,
+  `DEFAULT_SECTION_SPACER_HEIGHT`,
+  `createViewportSectionSpacerMap(...)`, and
+  `resolveViewportSectionSpacer(...)` as a DOM-free spacer policy;
+- rendered section measurements update measured section heights;
+- placeholder-only measurements use default or previous estimates without
+  overwriting prior rendered measurements;
+- `examples/template-builder-sandbox/public/app.js` keeps a browser-local
+  section spacer map, updates it from viewport measurements, and writes
+  `--section-spacer-height`, `data-section-spacer-height`, and
+  `data-section-spacer-reason` onto section shell pages;
+- `examples/template-builder-sandbox/public/styles.css` uses the spacer height
+  as page and placeholder minimum height;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.trackSectionSpacers` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md` records the Phase 59
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free spacer
+  ownership, app-owned CSS variable application, generated action-lane
+  exposure, rendered-measurement updates, and placeholder-preserve behavior.
+
+This phase intentionally does not implement a virtual list, a top-offset map
+for arbitrary node windows, continuous virtualized renderer scheduling,
+hidden/offscreen DOM pruning beyond the existing render shell, lazy heavy-detail
+routes, node anchors, outline jump-to-node, diagnostics/source jump-to-node,
+caret-relative text block anchors, typing-driven live layout pushdown,
+structural add/delete/move packet application, rich text editing,
+contenteditable DOM mapping, persistence, API routes, or package/document
+version changes.
 
 ## Phase 12 Extraction Record
 

@@ -321,6 +321,11 @@ render pass from `sectionId + offsetInSection` instead of trusting raw
 `scrollTop` alone, while node anchors remain required later for outline
 jump-to-node, diagnostics/source navigation, and caret-aware editing.
 
+Phase 59 adds a measured section spacer boundary. The sandbox can reuse
+rendered section heights as shell/placeholder minimum heights, reducing
+placeholder/detail height shifts before production virtual lists or renderer
+scheduling exist.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

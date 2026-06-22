@@ -1278,6 +1278,40 @@ Acceptance:
   contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 59: Measured Section Spacer Boundary
+
+Goal:
+
+- reuse measured section heights as shell/placeholder spacers so section
+  placeholders are less likely to shift scroll and anchor positions when detail
+  rendering toggles.
+
+Deliverables:
+
+- browser-safe section spacer policy module in `public/viewportSectionSpacers.js`;
+- section spacer source/version/mode contract;
+- rendered-measurement update policy;
+- placeholder-preserve policy so estimates do not overwrite measured heights;
+- app tracking for section spacer facts from viewport measurements;
+- page shell CSS variable output for `--section-spacer-height`;
+- status output for measured versus estimated spacer counts;
+- action lane for `browser.trackSectionSpacers`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- spacer policy can run in Node without DOM access;
+- app shell owns browser measurement and CSS variable application;
+- synthetic rendered measurements update the spacer height for a section;
+- placeholder measurements preserve prior rendered heights;
+- the visible app reports measured section spacers after scroll-driven
+  rendering;
+- no virtual list, top-offset map for arbitrary node windows, virtualized
+  renderer scheduler, lazy detail endpoint, node anchor, outline jump-to-node,
+  diagnostics/source jump-to-node, caret-relative anchor, structural packet
+  engine, rich text, contenteditable mapping, live renderer, route,
+  persistence, or package version change is claimed.
+
 ## Later Phases
 
 Goal:

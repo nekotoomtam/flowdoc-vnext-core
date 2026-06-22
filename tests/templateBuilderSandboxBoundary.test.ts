@@ -59,6 +59,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/viewportAnchor.js",
       "../examples/template-builder-sandbox/public/viewportMeasurement.js",
       "../examples/template-builder-sandbox/public/viewportScrollController.js",
+      "../examples/template-builder-sandbox/public/viewportSectionSpacers.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
       "../examples/template-builder-sandbox/public/visibleRangeRequest.js",
       "../examples/template-builder-sandbox/public/visibleRange.js",
@@ -146,6 +147,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyViewportMeasurement")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.controlViewportScroll")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackViewportAnchor")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackSectionSpacers")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -932,6 +934,7 @@ describe("template builder sandbox boundary", () => {
     const viewportAnchorSource = readText("../examples/template-builder-sandbox/public/viewportAnchor.js")
     const viewportMeasurementSource = readText("../examples/template-builder-sandbox/public/viewportMeasurement.js")
     const viewportScrollControllerSource = readText("../examples/template-builder-sandbox/public/viewportScrollController.js")
+    const viewportSectionSpacersSource = readText("../examples/template-builder-sandbox/public/viewportSectionSpacers.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
     const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
@@ -953,6 +956,7 @@ describe("template builder sandbox boundary", () => {
     const viewportApplyDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md")
     const viewportScrollControllerDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md")
     const viewportAnchorDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md")
+    const sectionSpacerDoc = readText("../docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -969,6 +973,9 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./viewportAnchor.js"')
     expect(appSource).toContain("createViewportSectionAnchor")
     expect(appSource).toContain("resolveViewportSectionAnchorScrollTop")
+    expect(appSource).toContain('from "./viewportSectionSpacers.js"')
+    expect(appSource).toContain("createViewportSectionSpacerMap")
+    expect(appSource).toContain("resolveViewportSectionSpacer")
     expect(appSource).toContain('from "./viewportMeasurement.js"')
     expect(appSource).toContain("createViewportMeasurement")
     expect(appSource).toContain("createViewportMeasurementApplyRequest")
@@ -983,13 +990,18 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("viewportScrollRestoring")
     expect(appSource).toContain("setViewportAnchorFromMeasurement")
     expect(appSource).toContain("restoreViewportAnchor")
+    expect(appSource).toContain("updateViewportSectionSpacers")
     expect(appSource).toContain("lastViewportApply")
     expect(appSource).toContain("data-section-id")
+    expect(appSource).toContain("data-section-spacer-height")
+    expect(appSource).toContain("data-section-spacer-reason")
+    expect(appSource).toContain("data-section-spacer-status")
     expect(appSource).toContain("data-viewport-apply")
     expect(appSource).toContain("data-viewport-measurement-status")
     expect(appSource).toContain("data-viewport-anchor-status")
     expect(appSource).toContain("data-viewport-scroll-status")
     expect(appSource).toContain("Measurement:")
+    expect(appSource).toContain("Section spacers:")
     expect(appSource).toContain("Viewport anchor:")
     expect(appSource).toContain("Viewport apply:")
     expect(appSource).toContain("Scroll controller:")
@@ -1034,6 +1046,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("resolveViewportRangeRequest")
     expect(stylesSource).toContain(".page.is-placeholder")
     expect(stylesSource).toContain(".canvas-placeholder")
+    expect(stylesSource).toContain("--section-spacer-height")
     expect(runtimeStoreSource).toContain("createRuntimeStore")
     expect(runtimeStoreSource).toContain("flowdoc-structural-runtime-store")
     expect(runtimeStoreSource).toContain("applyTextChangePacketToRuntimeStore")
@@ -1086,6 +1099,15 @@ describe("template builder sandbox boundary", () => {
     expect(viewportScrollControllerSource).not.toContain("querySelector")
     expect(viewportScrollControllerSource).not.toContain("addEventListener")
     expect(viewportScrollControllerSource).not.toContain("setTimeout")
+    expect(viewportSectionSpacersSource).toContain("createViewportSectionSpacerMap")
+    expect(viewportSectionSpacersSource).toContain("resolveViewportSectionSpacer")
+    expect(viewportSectionSpacersSource).toContain("flowdoc-section-spacer")
+    expect(viewportSectionSpacersSource).toContain("measured-section-spacer")
+    expect(viewportSectionSpacersSource).toContain("DEFAULT_SECTION_SPACER_HEIGHT")
+    expect(viewportSectionSpacersSource).not.toContain("document.")
+    expect(viewportSectionSpacersSource).not.toContain("querySelector")
+    expect(viewportSectionSpacersSource).not.toContain("addEventListener")
+    expect(viewportSectionSpacersSource).not.toContain("setTimeout")
     expect(viewportControllerSource).toContain("createViewportFacts")
     expect(viewportControllerSource).toContain("resolveViewportRangeRequest")
     expect(viewportControllerSource).toContain("flowdoc-viewport-controller")
@@ -1163,6 +1185,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyViewportMeasurement")
     expect(coreBoundarySource).toContain("browser.controlViewportScroll")
     expect(coreBoundarySource).toContain("browser.trackViewportAnchor")
+    expect(coreBoundarySource).toContain("browser.trackSectionSpacers")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1240,6 +1263,12 @@ describe("template builder sandbox boundary", () => {
     expect(viewportAnchorDoc).toContain("resolveViewportSectionAnchorScrollTop")
     expect(viewportAnchorDoc).toContain("browser.trackViewportAnchor")
     expect(viewportAnchorDoc).toContain("Node anchors remain a required later upgrade")
+    expect(sectionSpacerDoc).toContain("Status: Phase 59 implementation boundary.")
+    expect(sectionSpacerDoc).toContain("viewportSectionSpacers.js")
+    expect(sectionSpacerDoc).toContain("createViewportSectionSpacerMap")
+    expect(sectionSpacerDoc).toContain("resolveViewportSectionSpacer")
+    expect(sectionSpacerDoc).toContain("browser.trackSectionSpacers")
+    expect(sectionSpacerDoc).toContain("Placeholder-only sections use a")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -2298,6 +2327,101 @@ describe("template builder sandbox boundary", () => {
     expect(result.missingReason).toBe("section-missing")
     expect(result.missingRestored).toBe(false)
     expect(result.missingScrollTop).toBe(1200)
+  })
+
+  it("preserves measured section spacer heights over placeholder estimates", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createViewportMeasurement,
+      } = await import("./public/viewportMeasurement.js");
+      const {
+        createViewportSectionSpacerMap,
+        resolveViewportSectionSpacer,
+      } = await import("./public/viewportSectionSpacers.js");
+      const bootMeasurement = createViewportMeasurement({
+        scrollHeight: 2400,
+        scrollTop: 0,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 735 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 760, height: 720 },
+          { id: "section-body", rendered: false, shellState: "placeholder", top: 1520, height: 720 },
+        ],
+      });
+      const bootSpacers = createViewportSectionSpacerMap({ measurement: bootMeasurement });
+      const bodyRenderedMeasurement = createViewportMeasurement({
+        scrollHeight: 3000,
+        scrollTop: 1500,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: false, shellState: "placeholder", top: 0, height: 720 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 760, height: 720 },
+          { id: "section-body", rendered: true, shellState: "rendered", top: 1520, height: 1180 },
+        ],
+      });
+      const measuredSpacers = createViewportSectionSpacerMap({
+        measurement: bodyRenderedMeasurement,
+        previousSpacers: bootSpacers,
+      });
+      const bodyPlaceholderMeasurement = createViewportMeasurement({
+        scrollHeight: 2400,
+        scrollTop: 0,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 735 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 760, height: 720 },
+          { id: "section-body", rendered: false, shellState: "placeholder", top: 1520, height: 720 },
+        ],
+      });
+      const preservedSpacers = createViewportSectionSpacerMap({
+        measurement: bodyPlaceholderMeasurement,
+        previousSpacers: measuredSpacers,
+      });
+      const bodySpacer = resolveViewportSectionSpacer(preservedSpacers, "section-body");
+      const tocSpacer = resolveViewportSectionSpacer(preservedSpacers, "section-toc");
+      const missingSpacer = resolveViewportSectionSpacer(preservedSpacers, "section-missing");
+      console.log(JSON.stringify({
+        bodyHeight: bodySpacer.height,
+        bodyReason: bodySpacer.reason,
+        estimatedSectionCount: preservedSpacers.estimatedSectionCount,
+        measuredSectionCount: preservedSpacers.measuredSectionCount,
+        missingHeight: missingSpacer.height,
+        missingReason: missingSpacer.reason,
+        mode: preservedSpacers.mode,
+        sectionCount: preservedSpacers.sectionCount,
+        source: preservedSpacers.source,
+        tocHeight: tocSpacer.height,
+        tocReason: tocSpacer.reason,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bodyHeight: number
+      bodyReason: string
+      estimatedSectionCount: number
+      measuredSectionCount: number
+      missingHeight: number
+      missingReason: string
+      mode: string
+      sectionCount: number
+      source: string
+      tocHeight: number
+      tocReason: string
+    }
+
+    expect(result.source).toBe("flowdoc-section-spacer")
+    expect(result.mode).toBe("measured-section-spacer")
+    expect(result.sectionCount).toBe(3)
+    expect(result.measuredSectionCount).toBe(2)
+    expect(result.estimatedSectionCount).toBe(1)
+    expect(result.bodyHeight).toBe(1180)
+    expect(result.bodyReason).toBe("measured")
+    expect(result.tocHeight).toBe(720)
+    expect(result.tocReason).toBe("estimated")
+    expect(result.missingHeight).toBe(720)
+    expect(result.missingReason).toBe("default")
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {

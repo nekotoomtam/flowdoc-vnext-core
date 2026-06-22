@@ -180,6 +180,8 @@ The package must remain runnable without any parent editor checkout.
 - Viewport anchor boundary records section-relative viewport anchors so render
   passes can restore by `sectionId + offsetInSection` before node anchors and
   production scroll anchoring are wired
+- Section spacer boundary records measured section heights and reuses them as
+  shell/placeholder minimum heights before a production virtual list is wired
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -313,6 +315,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md`: Phase 58
   section-relative viewport anchor boundary before node anchors and production
   scroll anchoring
+- `docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md`: Phase 59 measured section
+  spacer boundary before production virtual lists and renderer scheduling
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -359,5 +363,6 @@ The package must remain runnable without any parent editor checkout.
 - durable browser cache persistence, full structural packet application,
   node-aware production scroll anchoring, and true virtualized renderer
   scheduling beyond the sandbox render-shell, viewport-measurement, manual
-  viewport-apply, debounced scroll-controller, and section-anchor contracts
+  viewport-apply, debounced scroll-controller, section-anchor, and section
+  spacer contracts
 - publishing/distribution strategy beyond local package consumption

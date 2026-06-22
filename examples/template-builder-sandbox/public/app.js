@@ -31,6 +31,10 @@ import {
   recordViewportScroll,
   settleViewportScroll,
 } from "./viewportScrollController.js"
+import {
+  createViewportSectionSpacerMap,
+  resolveViewportSectionSpacer,
+} from "./viewportSectionSpacers.js"
 
 const app = document.querySelector("#app")
 
@@ -65,6 +69,7 @@ const state = {
   viewportAnchor: null,
   viewportAnchorRestore: null,
   viewportMeasurement: null,
+  viewportSectionSpacers: createViewportSectionSpacerMap(),
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
   viewportScrollTimerId: null,
@@ -186,6 +191,25 @@ function syncViewportAnchorStatus() {
   })
 }
 
+function updateViewportSectionSpacers(measurement) {
+  if (!measurement) return
+  state.viewportSectionSpacers = createViewportSectionSpacerMap({
+    measurement,
+    previousSpacers: state.viewportSectionSpacers,
+  })
+}
+
+function viewportSectionSpacerLabel() {
+  const spacers = state.viewportSectionSpacers
+  return `Section spacers: ${spacers.measuredSectionCount}/${spacers.sectionCount} measured ${spacers.estimatedSectionCount} estimated`
+}
+
+function syncViewportSectionSpacerStatus() {
+  app.querySelectorAll("[data-section-spacer-status]").forEach((target) => {
+    target.textContent = viewportSectionSpacerLabel()
+  })
+}
+
 function setViewportAnchorFromMeasurement(measurement) {
   if (!measurement) return null
   const anchor = createViewportSectionAnchor({ measurement })
@@ -289,12 +313,14 @@ function scheduleViewportScrollApply() {
   if (!measurement) return
 
   state.viewportMeasurement = measurement
+  updateViewportSectionSpacers(measurement)
   setViewportAnchorFromMeasurement(measurement)
   state.viewportScrollController = recordViewportScroll(state.viewportScrollController, {
     measurement,
     scrollTop: measurement.scrollTop,
   })
   syncViewportMeasurementStatus()
+  syncViewportSectionSpacerStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 
@@ -1284,12 +1310,16 @@ function renderCanvas(snapshot, renderModel) {
       <div class="page-stack">
         ${renderSections.map((section) => {
           const rendered = renderShellSectionRendered(section)
+          const spacer = resolveViewportSectionSpacer(state.viewportSectionSpacers, section.id)
 
           return `
           <article
             class="page${rendered ? "" : " is-placeholder"}"
             data-render-shell-state="${rendered ? "rendered" : "placeholder"}"
+            data-section-spacer-height="${escapeHtml(Math.round(spacer.height))}"
+            data-section-spacer-reason="${escapeHtml(spacer.reason)}"
             data-section-id="${escapeHtml(section.id)}"
+            style="--section-spacer-height:${escapeHtml(Math.round(spacer.height))}px"
           >
             <header class="page-heading">
               <strong>${escapeHtml(section.id)}</strong>
@@ -1699,6 +1729,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderWindowLabel)}</span>
       <span>${escapeHtml(renderShellLabel)}</span>
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
+      <span data-section-spacer-status>${escapeHtml(viewportSectionSpacerLabel())}</span>
       <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
@@ -2161,7 +2192,9 @@ function render(options = {}) {
     viewportMeasurement = readCanvasViewportMeasurement(renderModel)
   }
   state.viewportMeasurement = viewportMeasurement
+  updateViewportSectionSpacers(viewportMeasurement)
   syncViewportMeasurementStatus()
+  syncViewportSectionSpacerStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }

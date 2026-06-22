@@ -6,6 +6,9 @@ Phase 58 adds a section-relative viewport anchor to the sandbox. It records the
 current viewport as `sectionId + offsetInSection` and uses that anchor when a
 render pass needs to restore the canvas position.
 
+Phase 59 builds on this with measured section spacers so placeholder/detail
+height changes have a smaller chance of moving that anchor unexpectedly.
+
 ## Purpose
 
 Phase 57 could restore only the previous raw `scrollTop`. That is enough for a

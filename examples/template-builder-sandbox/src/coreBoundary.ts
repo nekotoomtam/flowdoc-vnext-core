@@ -565,6 +565,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser canvas can keep a section-relative viewport anchor before node anchors and production scroll anchoring",
       },
       {
+        action: "browser.trackSectionSpacers",
+        label: "Section spacers",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas can reuse measured section heights as shell spacers before virtualized rendering",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",
