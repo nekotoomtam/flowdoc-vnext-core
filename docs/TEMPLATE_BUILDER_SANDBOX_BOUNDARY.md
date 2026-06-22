@@ -94,6 +94,8 @@ with a proper bundler/runtime adapter.
 - Phase 41 adds browser-local range/caret controls for active drafts so
   cursor start/end, select-all, and replace-selection readiness are reliable
   before rich DOM selection mapping.
+- Phase 42 tracks browser-local IME composition events for active drafts and
+  guards range controls, text commands, and commit while composition is active.
 
 ## Non-Goals
 
@@ -103,6 +105,7 @@ The sandbox does not yet implement:
 - key, field, or rich text command execution from draft context;
 - durable DOM selection mapping beyond active textarea drafts and range
   controls;
+- language-specific IME behavior beyond browser-local composition guards;
 - IME behavior;
 - live layout rendering beyond bounded request summaries;
 - scheduler or worker queues;

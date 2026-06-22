@@ -7,6 +7,9 @@ template-builder sandbox. It adds browser-local range controls so a user can set
 the draft cursor or select the full draft without relying only on textarea
 keyboard or mouse selection events.
 
+Phase 42 builds on this range/caret boundary by adding browser-local IME
+composition guards in `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`.
+
 ## Purpose
 
 The draft text command flow now has a stable selection control path:
@@ -91,7 +94,7 @@ Phase 41 does not implement:
 - key/field chip insertion;
 - `inline.style.patch`;
 - style-preserving mixed inline edits;
-- IME composition lifecycle;
+- language-specific IME behavior beyond the Phase 42 composition guard;
 - per-keystroke core transactions;
 - durable selection persistence;
 - collaboration cursors;

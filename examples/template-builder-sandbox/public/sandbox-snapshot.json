@@ -1885,6 +1885,13 @@
       "reason": "browser-local range controls can set draft cursor and selection without mutating canonical package state"
     },
     {
+      "action": "browser.trackDraftComposition",
+      "label": "IME",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser-local composition events guard draft commands and commit while IME input is active"
+    },
+    {
       "action": "sandbox.recordAuthoringHistory",
       "label": "History",
       "lane": "immediate",

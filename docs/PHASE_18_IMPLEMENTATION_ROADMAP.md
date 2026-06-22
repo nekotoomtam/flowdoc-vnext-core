@@ -721,6 +721,35 @@ Acceptance:
 - rich DOM mapping, key insertion, `inline.style.patch`, and IME lifecycle
   remain future phases.
 
+## Phase 42: Draft IME Composition Boundary
+
+Goal:
+
+- add a browser-local IME composition guard for active textarea drafts before
+  language-specific IME handling, rich DOM selection mapping, or per-keystroke
+  core transactions.
+
+Deliverables:
+
+- draft composition state fields for active drafts;
+- `compositionstart`, `compositionupdate`, and `compositionend` listeners;
+- visible IME/composition status in canvas, inspector, and status bar;
+- command and range controls disabled while composition is active;
+- draft commit disabled and guarded while composition is active;
+- action lane for `browser.trackDraftComposition`;
+- source/test evidence that composition state remains browser-local and does
+  not enter generated snapshots, history, live layout, or bridge routes.
+
+Acceptance:
+
+- active composition marks draft status as composing;
+- insert, replace-selection, range controls, and commit are guarded while
+  composition is active;
+- compositionend returns the draft to normal editing with draft text preserved;
+- selection-only or composition-only state does not change document revision,
+  mutation count, history, or live-layout request count;
+- commit still persists only through `/api/actions/replace-text?response=packet`.
+
 ## Later Phases
 
 Goal:

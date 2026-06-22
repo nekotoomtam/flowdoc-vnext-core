@@ -48,6 +48,7 @@ Parent goal:
 | 39 | Draft command context boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 40 | Draft text command boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 41 | Draft selection/caret hardening | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 42 | Draft IME composition boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -702,6 +703,34 @@ contenteditable editing, multi-range selection, key/field chip insertion,
 `inline.style.patch`, style-preserving mixed inline edits, IME composition
 lifecycle, per-keystroke core transactions, durable selection persistence,
 collaboration cursors, or live layout rendering during active typing.
+
+## Phase 42 Draft IME Composition Boundary
+
+Phase 42 adds a browser-local IME composition guard for active textarea drafts:
+
+- `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md` records composition
+  state, event handling, guarded actions, visible state, acceptance evidence,
+  and non-goals;
+- `examples/template-builder-sandbox/public/app.js` now tracks
+  `isComposing`, `compositionData`, `compositionSource`, and
+  `compositionEventCount` on the active browser draft;
+- the canvas draft textarea listens to `compositionstart`,
+  `compositionupdate`, and `compositionend`;
+- range controls, text commands, and commit are disabled and guarded while IME
+  composition is active;
+- canvas, inspector, and status bar labels expose browser-local composition
+  status;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.trackDraftComposition` as a browser-local action lane;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves composition state stays
+  out of generated snapshots and draft commits still use the existing bridge
+  packet path.
+
+This phase intentionally does not implement language-specific IME behavior,
+rich DOM composition mapping, contenteditable editing, key/field chip insertion
+during composition, `inline.style.patch`, per-keystroke core transactions,
+durable composition persistence, collaboration cursors, or live layout
+rendering during active typing.
 
 ## Phase 12 Extraction Record
 

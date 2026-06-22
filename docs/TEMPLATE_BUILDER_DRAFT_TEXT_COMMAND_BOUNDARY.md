@@ -12,6 +12,8 @@ Phase 41 hardens the selection/caret side of this flow with browser-local range
 controls. This document remains the text command execution boundary; range
 control details live in
 `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`.
+Phase 42 guards these commands while IME composition is active; composition
+details live in `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`.
 
 ## Purpose
 

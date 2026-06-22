@@ -425,7 +425,8 @@ ul {
 }
 
 .canvas-draft-footer > span,
-.draft-control [data-draft-status] {
+.draft-control [data-draft-status],
+.draft-control [data-draft-composition] {
   background: #eef7f8;
   border: 1px solid #b8d9df;
   border-radius: 999px;
@@ -442,6 +443,15 @@ ul {
   background: #fff7e6;
   border-color: #e0c16d;
   color: #855f00;
+}
+
+.canvas-draft-footer > span[data-state="composing"],
+.canvas-draft-footer > span[data-state="active"],
+.draft-control [data-draft-status][data-state="composing"],
+.draft-control [data-draft-composition][data-state="active"] {
+  background: #e7f0ff;
+  border-color: #a8c4ee;
+  color: #24518a;
 }
 
 .canvas-draft-footer > span[data-state="rejected"],

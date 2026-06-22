@@ -5,8 +5,12 @@ const state = {
   bridgeMessage: "",
   draft: {
     baseRevision: null,
+    compositionData: "",
+    compositionEventCount: 0,
+    compositionSource: "idle",
     message: "",
     originalText: "",
+    isComposing: false,
     selectionDirection: "none",
     selectionEnd: null,
     selectionSource: "idle",
@@ -221,11 +225,16 @@ function draftTextForNode(node) {
 }
 
 function draftCanCommit() {
-  return draftIsActive() && draftIsDirty() && !state.bridgeBusy && state.draft.status !== "committing"
+  return draftIsActive()
+    && draftIsDirty()
+    && !state.bridgeBusy
+    && !state.draft.isComposing
+    && state.draft.status !== "committing"
 }
 
 function draftStatusLabel() {
   if (!draftIsActive()) return state.draft.status || "idle"
+  if (state.draft.isComposing) return "composing"
   if (state.draft.status === "committing") return "committing"
   if (state.draft.status === "conflicted") return "conflicted"
   if (state.draft.status === "rejected") return "rejected"
@@ -271,6 +280,13 @@ function draftSelectionLabel() {
   return `${selection.start}-${selection.end} (${selection.length})`
 }
 
+function draftCompositionLabel() {
+  if (!draftIsActive()) return "idle"
+  if (!state.draft.isComposing) return state.draft.compositionSource || "idle"
+  const data = previewText(state.draft.compositionData, "pending")
+  return `${state.draft.compositionSource || "composition"} ${state.draft.compositionEventCount}: ${data}`
+}
+
 function clampDraftOffset(value) {
   const textLength = draftIsActive() ? state.draft.text.length : 0
   if (!Number.isFinite(value)) return textLength
@@ -279,6 +295,14 @@ function clampDraftOffset(value) {
 
 function setDraftSelectionRange(start, end, options = {}) {
   if (!draftIsActive()) return
+  if (state.draft.isComposing) {
+    state.draft = {
+      ...state.draft,
+      message: "Finish IME composition before changing the draft range.",
+    }
+    syncDraftDomState()
+    return
+  }
 
   const selectionStart = clampDraftOffset(start)
   const selectionEnd = clampDraftOffset(end)
@@ -310,6 +334,14 @@ function setDraftSelectionRange(start, end, options = {}) {
 
 function applyDraftSelectionAction(action) {
   if (!draftIsActive()) return
+  if (state.draft.isComposing) {
+    state.draft = {
+      ...state.draft,
+      message: "Finish IME composition before using range controls.",
+    }
+    syncDraftDomState()
+    return
+  }
 
   const textLength = state.draft.text.length
   if (action === "cursor-start") {
@@ -342,6 +374,14 @@ function applyDraftSelectionAction(action) {
 
 function updateDraftSelectionControl(part, value) {
   if (!draftIsActive()) return
+  if (state.draft.isComposing) {
+    state.draft = {
+      ...state.draft,
+      message: "Finish IME composition before editing range inputs.",
+    }
+    syncDraftDomState()
+    return
+  }
   const selection = normalizedDraftSelection()
   const nextValue = Number.parseInt(value, 10)
   if (!Number.isFinite(nextValue)) return
@@ -387,6 +427,35 @@ function draftCommandReadiness(context) {
         label: "Style range",
         status: "planned",
         reason: "requires rich inline range mapping",
+      },
+    ]
+  }
+
+  if (state.draft.isComposing) {
+    return [
+      {
+        command: "text.insert",
+        label: "Insert text",
+        status: "blocked",
+        reason: "IME composition is active; finish composition before applying draft commands",
+      },
+      {
+        command: "text.replaceSelection",
+        label: "Replace selection",
+        status: "blocked",
+        reason: "IME composition is active; finish composition before replacing selection",
+      },
+      {
+        command: "inline.fieldRef.insert",
+        label: "Insert key",
+        status: "planned",
+        reason: "key insertion waits for atomic inline draft support",
+      },
+      {
+        command: "inline.style.patch",
+        label: "Style range",
+        status: "planned",
+        reason: "rich style commands wait for inline range mapping",
       },
     ]
   }
@@ -491,7 +560,7 @@ function draftCommandTextValue() {
 }
 
 function draftCommandActionCanRun(action, context = deriveDraftCommandContext()) {
-  if (!context.active || state.bridgeBusy || draftCommandTextValue().length === 0) return false
+  if (!context.active || state.bridgeBusy || state.draft.isComposing || draftCommandTextValue().length === 0) return false
   if (action === "insert-text") return true
   if (action === "replace-selection") return !context.collapsed
   return false
@@ -537,6 +606,11 @@ function applyDraftTextCommand(action) {
   const context = deriveDraftCommandContext()
 
   if (!context.active) {
+    return
+  }
+
+  if (state.draft.isComposing) {
+    setDraftCommandMessage("Finish IME composition before applying a browser-local draft command.")
     return
   }
 
@@ -591,8 +665,12 @@ function renderDraftCommandReadiness(context = deriveDraftCommandContext()) {
 function resetDraft(status = "idle", message = "") {
   state.draft = {
     baseRevision: null,
+    compositionData: "",
+    compositionEventCount: 0,
+    compositionSource: "idle",
     message,
     originalText: "",
+    isComposing: false,
     selectionDirection: "none",
     selectionEnd: null,
     selectionSource: "idle",
@@ -601,6 +679,38 @@ function resetDraft(status = "idle", message = "") {
     text: "",
     textBlockId: null,
   }
+}
+
+function updateDraftCompositionFromEditor(editor, phase, eventData = "") {
+  if (!draftIsActive()) return
+  if (editor.dataset.draftNodeId !== state.draft.textBlockId) return
+
+  updateDraftSelectionFromEditor(editor, phase)
+
+  if (phase === "compositionend") {
+    state.draft = {
+      ...state.draft,
+      compositionData: "",
+      compositionEventCount: state.draft.compositionEventCount + 1,
+      compositionSource: "compositionend",
+      isComposing: false,
+      message: "IME composition finished. Draft changes are waiting for commit.",
+      status: "editing",
+    }
+    syncDraftDomState()
+    return
+  }
+
+  state.draft = {
+    ...state.draft,
+    compositionData: eventData || "",
+    compositionEventCount: state.draft.compositionEventCount + 1,
+    compositionSource: phase,
+    isComposing: true,
+    message: "IME composition is active. Finish composition before commands or commit.",
+    status: "editing",
+  }
+  syncDraftDomState()
 }
 
 function focusDraftEditor() {
@@ -659,6 +769,10 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-selection-source]").forEach((target) => {
     target.textContent = selection.source
   })
+  app.querySelectorAll("[data-draft-composition]").forEach((target) => {
+    target.textContent = draftCompositionLabel()
+    target.dataset.state = state.draft.isComposing ? "active" : "idle"
+  })
   app.querySelectorAll("[data-draft-command-summary]").forEach((target) => {
     target.textContent = draftCommandSummary()
   })
@@ -690,7 +804,7 @@ function syncDraftDomState() {
     })
   })
   app.querySelectorAll("[data-draft-command-text]").forEach((target) => {
-    target.disabled = !draftIsActive() || state.bridgeBusy
+    target.disabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
     if (target !== document.activeElement) {
       target.value = draftCommandTextValue()
     }
@@ -700,7 +814,7 @@ function syncDraftDomState() {
   })
   app.querySelectorAll("[data-draft-selection-input]").forEach((target) => {
     const part = target.dataset.draftSelectionInput
-    target.disabled = !draftIsActive() || state.bridgeBusy
+    target.disabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
     target.max = String(draftIsActive() ? state.draft.text.length : 0)
     target.min = "0"
     if (target !== document.activeElement) {
@@ -708,7 +822,7 @@ function syncDraftDomState() {
     }
   })
   app.querySelectorAll("[data-draft-selection-action]").forEach((target) => {
-    target.disabled = !draftIsActive() || state.bridgeBusy
+    target.disabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
   })
   app.querySelectorAll("[data-draft-statusbar]").forEach((target) => {
     target.textContent = `Draft: ${status}`
@@ -718,6 +832,9 @@ function syncDraftDomState() {
   })
   app.querySelectorAll("[data-draft-commandbar]").forEach((target) => {
     target.textContent = `Command: ${draftCommandSummary()}`
+  })
+  app.querySelectorAll("[data-draft-compositionbar]").forEach((target) => {
+    target.textContent = `IME: ${draftCompositionLabel()}`
   })
   app.querySelectorAll("[data-draft-action='commit']").forEach((target) => {
     target.disabled = !draftCanCommit()
@@ -754,8 +871,12 @@ function startDraftForNode(nodeId, selectionSource = "draft") {
   const text = draftTextForNode(node)
   state.draft = {
     baseRevision: state.snapshot.session.documentRevision,
+    compositionData: "",
+    compositionEventCount: 0,
+    compositionSource: "idle",
     message: "Draft is open on the canvas.",
     originalText: text,
+    isComposing: false,
     selectionDirection: "none",
     selectionEnd: text.length,
     selectionSource: "start",
@@ -911,6 +1032,7 @@ function renderCanvasNode(node) {
           <div class="canvas-draft-footer">
             <span data-draft-status data-state="${escapeHtml(draftStatusLabel())}">${escapeHtml(draftStatusLabel())}</span>
             <span data-draft-selection>${escapeHtml(draftSelectionLabel())}</span>
+            <span data-draft-composition data-state="${state.draft.isComposing ? "active" : "idle"}">${escapeHtml(draftCompositionLabel())}</span>
             <span data-draft-command-summary>${escapeHtml(draftCommandSummary())}</span>
             <div class="canvas-draft-actions">
               <button
@@ -1018,12 +1140,12 @@ function renderInspector(snapshot) {
   const draftPanelMessage = draftIsActive()
     ? state.draft.message || "Browser draft is active."
     : draftGuard || state.draft.message || "No browser draft is active."
-  const draftCommandInputDisabled = !draftIsActive() || state.bridgeBusy
+  const draftCommandInputDisabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
   const canInsertDraftCommand = draftCommandActionCanRun("insert-text", commandContext)
   const canReplaceDraftCommand = draftCommandActionCanRun("replace-selection", commandContext)
   const draftSelection = normalizedDraftSelection()
   const draftSelectionMax = draftIsActive() ? state.draft.text.length : 0
-  const draftSelectionControlDisabled = !draftIsActive() || state.bridgeBusy
+  const draftSelectionControlDisabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
   const fieldRows = snapshot.fields.map((field) => `
     <li>
       <span>${escapeHtml(field.label)}</span>
@@ -1139,6 +1261,7 @@ function renderInspector(snapshot) {
             <dt>Dirty</dt><dd>${draftIsDirty() ? "yes" : "no"}</dd>
             <dt>Range</dt><dd data-draft-selection>${escapeHtml(draftSelectionLabel())}</dd>
             <dt>Input</dt><dd data-draft-selection-source>${escapeHtml(normalizedDraftSelection().source)}</dd>
+            <dt>IME</dt><dd><span data-draft-composition data-state="${state.draft.isComposing ? "active" : "idle"}">${escapeHtml(draftCompositionLabel())}</span></dd>
             <dt>Command</dt><dd data-draft-command-summary>${escapeHtml(draftCommandSummary())}</dd>
             <dt>Surface</dt><dd data-draft-command-surface>${escapeHtml(commandContext.commandSurface)}</dd>
             <dt>Selected</dt><dd data-draft-command-selected>${escapeHtml(commandContext.selectedTextPreview)}</dd>
@@ -1355,6 +1478,7 @@ function renderStatus(snapshot) {
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
       <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
       <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>
+      <span data-draft-compositionbar>IME: ${escapeHtml(draftCompositionLabel())}</span>
       <span data-draft-commandbar>Command: ${escapeHtml(draftCommandSummary())}</span>
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
       <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
@@ -1420,12 +1544,36 @@ function bindSelectionHandlers() {
 
   draftEditor?.addEventListener("input", (event) => {
     updateDraftSelectionFromEditor(event.target, "input")
+    if (state.draft.isComposing || event.isComposing) {
+      state.draft = {
+        ...state.draft,
+        compositionSource: state.draft.compositionSource === "idle" ? "input-composing" : state.draft.compositionSource,
+        isComposing: true,
+        message: "IME composition is active. Finish composition before commands or commit.",
+        status: "editing",
+      }
+      syncDraftDomState()
+      return
+    }
+
     state.draft = {
       ...state.draft,
       message: "Local draft changes are waiting for commit.",
       status: "editing",
     }
     syncDraftDomState()
+  })
+
+  draftEditor?.addEventListener("compositionstart", (event) => {
+    updateDraftCompositionFromEditor(event.target, "compositionstart", event.data)
+  })
+
+  draftEditor?.addEventListener("compositionupdate", (event) => {
+    updateDraftCompositionFromEditor(event.target, "compositionupdate", event.data)
+  })
+
+  draftEditor?.addEventListener("compositionend", (event) => {
+    updateDraftCompositionFromEditor(event.target, "compositionend", event.data)
   })
 
   ;["click", "focus", "keyup", "mouseup", "select"].forEach((eventName) => {
@@ -1515,6 +1663,17 @@ async function commitDraft() {
   const draft = { ...state.draft }
   const node = draftTargetNode()
   const guardReason = draftGuardReason(node)
+
+  if (draft.isComposing) {
+    state.draft = {
+      ...state.draft,
+      message: "Finish IME composition before committing the draft.",
+      status: "editing",
+    }
+    syncDraftDomState()
+    focusDraftEditor()
+    return
+  }
 
   if (guardReason) {
     state.draft = {
