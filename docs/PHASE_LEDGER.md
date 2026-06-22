@@ -70,6 +70,7 @@ Parent goal:
 | 61 | Viewport scheduler candidate boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerCandidate.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 62 | Viewport scheduler apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerApply.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 63 | Viewport scheduler runtime boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 64 | Viewport scheduler automation boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerAutomation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1388,6 +1389,37 @@ beyond the existing render shell, lazy heavy-detail routes, node anchors,
 caret-aware anchors, structural packet application, rich text editing,
 contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
 package/document version changes.
+
+## Phase 64 Viewport Scheduler Automation Boundary
+
+Phase 64 adds a budgeted automatic scheduler-apply layer before virtualized
+rendering is claimed:
+
+- `examples/template-builder-sandbox/public/viewportSchedulerAutomation.js`
+  owns scheduler automation source, mode, finite default max-node budget,
+  automation state creation, and budgeted runtime apply execution;
+- scheduler automation plans non-observe runtime candidates and applies them
+  through the Phase 63 runtime and Phase 62 apply gate;
+- automation results expose applied, stable, blocked, stale, and skipped
+  states without touching DOM, timers, transport, persistence, or renderer
+  implementation details;
+- `examples/template-builder-sandbox/public/app.js` stores
+  `viewportSchedulerAutomation`, reports `Scheduler auto: ...`, and uses the
+  automation path for both manual candidate apply and scroll-settled auto
+  scheduling;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.autoApplyViewportScheduler` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md` records
+  the Phase 64 boundary, budget rules, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free automation
+  ownership, action-lane exposure, finite default budget, disabled skips,
+  blocked draft guards, and ready visible-range request handoff.
+
+This phase intentionally does not implement a virtual list, hidden/offscreen DOM
+pruning beyond the existing render shell, lazy heavy-detail routes, node
+anchors, jump-to-node, caret-aware anchors, structural packet application, rich
+text editing, contenteditable DOM mapping, live-layout rendering, persistence,
+API routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 

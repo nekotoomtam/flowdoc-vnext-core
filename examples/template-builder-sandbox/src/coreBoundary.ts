@@ -600,6 +600,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser scheduler runtime tracks candidate sequence and stale apply guards before automatic scheduling",
       },
       {
+        action: "browser.autoApplyViewportScheduler",
+        label: "Auto scheduler",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser scheduler can automatically apply budgeted runtime candidates before virtualization",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

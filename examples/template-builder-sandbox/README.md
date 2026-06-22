@@ -49,6 +49,8 @@ Implemented:
   virtualized render scheduling;
 - browser-safe viewport scheduler runtime state for sequence/request-id and
   stale-candidate guards;
+- budgeted automatic viewport scheduler apply for scroll-settled render-window
+  requests;
 - boundary tests from the root repository.
 
 Not implemented:

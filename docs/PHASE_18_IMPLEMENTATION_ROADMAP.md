@@ -1451,6 +1451,43 @@ Acceptance:
   structural packet engine, rich text, contenteditable mapping, live renderer,
   route, persistence, or package version change is claimed.
 
+## Phase 64: Viewport Scheduler Automation Boundary
+
+Goal:
+
+- make viewport scheduler apply happen automatically under a finite render
+  budget while preserving the Phase 62/63 guards and without claiming a
+  virtualized renderer.
+
+Deliverables:
+
+- browser-safe scheduler automation module in
+  `public/viewportSchedulerAutomation.js`;
+- automation source/version/mode contract;
+- finite default scheduler max-node budget;
+- automation state with attempted/applied/blocked/skipped counters;
+- plan/apply wrapper over the Phase 63 runtime;
+- app status output for `Scheduler auto: ...`;
+- scroll-settled auto apply through the scheduler runtime;
+- manual apply routed through the same automation policy;
+- action lane for `browser.autoApplyViewportScheduler`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- scheduler automation policy can run in Node without DOM access;
+- missing scheduler budget receives a finite default max-node cap;
+- ready candidates automatically become visible-range requests through the
+  Phase 63 runtime and Phase 62 apply gate;
+- blocked, stale, stable, disabled, draft, and IME states do not update visible
+  range;
+- `app.js` coordinates browser measurement/render refresh but does not own
+  scheduler budget normalization or automatic apply policy;
+- no virtual list, hidden/offscreen DOM pruning, lazy detail endpoint, node
+  anchor, jump-to-node, caret-relative anchor, structural packet engine, rich
+  text, contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

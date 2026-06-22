@@ -41,7 +41,10 @@ import {
   resolveViewportSectionOffset,
 } from "./viewportSectionOffsets.js"
 import {
-  applyViewportSchedulerRuntimeCandidate,
+  createViewportSchedulerAutomationState,
+  runViewportSchedulerAutomation,
+} from "./viewportSchedulerAutomation.js"
+import {
   createViewportSchedulerRuntimeState,
   planViewportSchedulerRuntimeCandidate,
 } from "./viewportSchedulerRuntime.js"
@@ -83,6 +86,7 @@ const state = {
   viewportSectionPrediction: null,
   viewportSectionSpacers: createViewportSectionSpacerMap(),
   viewportSchedulerApply: null,
+  viewportSchedulerAutomation: createViewportSchedulerAutomationState(),
   viewportSchedulerCandidate: null,
   viewportSchedulerRuntime: createViewportSchedulerRuntimeState(),
   viewportScrollController: createViewportScrollControllerState(),
@@ -326,39 +330,67 @@ function syncViewportSchedulerRuntimeStatus() {
   })
 }
 
-function applyViewportSchedulerCandidate() {
-  if (!state.snapshot || !state.runtimeCache) return
+function viewportSchedulerAutomationLabel() {
+  const automation = state.viewportSchedulerAutomation
+  if (!automation) return "Scheduler auto: idle"
+  const budget = automation.budget
+    ? `${automation.budget.mode}/${automation.budget.maxNodes} ${automation.budget.source || "input"}`
+    : "no-budget"
+  const detail = automation.lastSkippedReason
+    || automation.lastBlockedReason
+    || automation.lastRequestReason
+    || automation.lastAppliedRequestId
+    || "none"
+  return `Scheduler auto: ${automation.status} #${automation.attemptedCount} ${budget} ${detail}`
+}
 
-  const plannedRuntime = planViewportSchedulerRuntimeCandidate(state.viewportSchedulerRuntime, {
+function syncViewportSchedulerAutomationStatus() {
+  app.querySelectorAll("[data-viewport-scheduler-automation-status]").forEach((target) => {
+    target.textContent = viewportSchedulerAutomationLabel()
+  })
+}
+
+function runViewportSchedulerAutomationStep(input = {}) {
+  if (!state.snapshot || !state.runtimeCache) return null
+
+  const automation = runViewportSchedulerAutomation(state.viewportSchedulerAutomation, state.viewportSchedulerRuntime, {
     ...viewportSchedulerCandidateInput({
       observeOnly: false,
-      reason: "scheduler-apply",
+      reason: input.reason,
     }),
-    documentRevision: state.snapshot.session.documentRevision,
-    runtimeRevision: state.runtimeCache.documentRevision,
-  })
-  const appliedRuntime = applyViewportSchedulerRuntimeCandidate(plannedRuntime, {
+    autoApplyEnabled: input.autoApplyEnabled,
     documentRevision: state.snapshot.session.documentRevision,
     draftActive: draftIsActive(),
     isComposing: state.draft.isComposing,
     runtimeRevision: state.runtimeCache.documentRevision,
+    trigger: input.trigger,
+  })
+
+  state.viewportSchedulerAutomation = automation
+  state.viewportSchedulerRuntime = automation.runtime
+  state.viewportSchedulerCandidate = automation.runtime.candidate
+  state.viewportSchedulerApply = automation.runtime.apply
+  return automation
+}
+
+function applyViewportSchedulerCandidate() {
+  const automation = runViewportSchedulerAutomationStep({
+    reason: "scheduler-apply",
     trigger: "manual",
   })
-  const applyRequest = appliedRuntime.apply
+  const applyRequest = automation?.apply
 
-  state.viewportSchedulerRuntime = appliedRuntime
-  state.viewportSchedulerCandidate = appliedRuntime.candidate
-  state.viewportSchedulerApply = applyRequest
-
-  if (!applyRequest.applyReady) {
+  if (!applyRequest?.applyReady) {
     syncViewportSchedulerCandidateStatus()
     syncViewportSchedulerApplyStatus()
     syncViewportSchedulerRuntimeStatus()
+    syncViewportSchedulerAutomationStatus()
     return
   }
 
   const measurement = readCanvasViewportMeasurement(state.renderModel) || state.viewportMeasurement
   const viewportAnchor = measurement ? setViewportAnchorFromMeasurement(measurement) : state.viewportAnchor
+  recordViewportApplyResult(applyRequest, measurement)
   state.selectionSource = "viewport-scheduler"
   setVisibleRangeRequest(applyRequest.request)
   render({
@@ -404,12 +436,13 @@ function viewportRequestBudget() {
 }
 
 function recordViewportApplyResult(applyRequest, measurement) {
+  const visibleRangeRequest = applyRequest.visibleRangeRequest || applyRequest.request || null
   state.lastViewportApply = {
     anchorSectionId: applyRequest.anchorSectionId,
     mode: applyRequest.mode,
-    preserved: applyRequest.preserved,
-    requestReason: applyRequest.visibleRangeRequest.reason,
-    scrollTop: measurement.scrollTop,
+    preserved: Boolean(applyRequest.preserved),
+    requestReason: visibleRangeRequest?.reason || applyRequest.requestReason || "none",
+    scrollTop: measurement?.scrollTop ?? null,
   }
 }
 
@@ -453,15 +486,31 @@ function applySettledViewportScroll() {
       reason: settled.scrollController.lastSkippedReason || "scroll-skipped",
     })
     syncViewportSchedulerCandidateStatus()
+    syncViewportSchedulerApplyStatus()
     syncViewportSchedulerRuntimeStatus()
+    syncViewportSchedulerAutomationStatus()
     syncViewportScrollControllerStatus()
     return
   }
 
-  recordViewportApplyResult(settled.applyRequest, measurement)
+  const automation = runViewportSchedulerAutomationStep({
+    reason: "scroll-settled",
+    trigger: "auto",
+  })
+  const applyRequest = automation?.apply
+  if (!applyRequest?.applyReady) {
+    syncViewportSchedulerCandidateStatus()
+    syncViewportSchedulerApplyStatus()
+    syncViewportSchedulerRuntimeStatus()
+    syncViewportSchedulerAutomationStatus()
+    syncViewportScrollControllerStatus()
+    return
+  }
+
+  recordViewportApplyResult(applyRequest, measurement)
   const viewportAnchor = setViewportAnchorFromMeasurement(measurement)
-  state.selectionSource = "viewport-scroll"
-  setVisibleRangeRequest(settled.applyRequest.visibleRangeRequest)
+  state.selectionSource = "viewport-scheduler-auto"
+  setVisibleRangeRequest(applyRequest.request)
   render({
     fallbackCanvasScrollTop: measurement.scrollTop,
     restoreViewportAnchor: viewportAnchor,
@@ -490,6 +539,7 @@ function scheduleViewportScrollApply() {
   syncViewportSchedulerCandidateStatus()
   syncViewportSchedulerApplyStatus()
   syncViewportSchedulerRuntimeStatus()
+  syncViewportSchedulerAutomationStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 
@@ -1914,6 +1964,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-viewport-scheduler-candidate-status>${escapeHtml(viewportSchedulerCandidateLabel())}</span>
       <span data-viewport-scheduler-apply-status>${escapeHtml(viewportSchedulerApplyLabel())}</span>
       <span data-viewport-scheduler-runtime-status>${escapeHtml(viewportSchedulerRuntimeLabel())}</span>
+      <span data-viewport-scheduler-automation-status>${escapeHtml(viewportSchedulerAutomationLabel())}</span>
       <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
@@ -2388,7 +2439,9 @@ function render(options = {}) {
   syncViewportSectionSpacerStatus()
   syncViewportSectionOffsetStatus()
   syncViewportSchedulerCandidateStatus()
+  syncViewportSchedulerApplyStatus()
   syncViewportSchedulerRuntimeStatus()
+  syncViewportSchedulerAutomationStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }
