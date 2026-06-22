@@ -551,6 +551,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser inspector exposes bounded insert/delete/reorder controls that call sandbox structural packet routes",
       },
       {
+        action: "browser.runStructuralOutlineJump",
+        label: "Outline jump",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser outline navigation selects nodes through node-aware visible range requests and anchor restore",
+      },
+      {
         action: "browser.createStoreBackedRenderModel",
         label: "Render model",
         lane: "immediate",

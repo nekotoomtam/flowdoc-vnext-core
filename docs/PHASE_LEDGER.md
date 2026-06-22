@@ -80,6 +80,7 @@ Parent goal:
 | 71 | Structural packet store apply boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 72 | Structural mutation bridge boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_MUTATION_BRIDGE_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 73 | Structural command UI boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_UI_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 74 | Structural outline jump boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_OUTLINE_JUMP_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralOutlineNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1675,6 +1676,33 @@ Phase 73 exposes bounded structural commands in the sandbox inspector:
 This phase intentionally does not implement drag/drop outline editing,
 multi-select operations, durable structural undo/redo, persistence, backend
 public API exposure, collaboration/conflict merge, offline replay, or
+package/document schema changes.
+
+## Phase 74 Structural Outline Jump Boundary
+
+Phase 74 turns the existing sandbox node tree into an explicit structural
+outline navigation contract:
+
+- `examples/template-builder-sandbox/public/structuralOutlineNavigation.js`
+  owns `STRUCTURAL_OUTLINE_NAVIGATION_SOURCE`,
+  `STRUCTURAL_OUTLINE_NAVIGATION_MODE`, and
+  `createStructuralOutlineJumpRequest(...)`;
+- outline clicks now create a DOM-free jump request before delegating to the
+  existing node selection, visible-range request, and node-anchor restore path;
+- `examples/template-builder-sandbox/public/app.js` records browser-local
+  outline jump state and reports it in the node tree panel without serializing
+  it into the generated snapshot;
+- `examples/template-builder-sandbox/public/styles.css` owns the bounded status
+  row;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.runStructuralOutlineJump`;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module contract,
+  action catalog entry, app wiring, docs, and continued DOM-free ownership.
+
+This phase intentionally does not implement drag/drop outline editing,
+multi-select structural operations, keyboard tree commands, inline outline
+rename, diagnostics/source jump UI, durable structural undo/redo, persistence,
+backend public API exposure, collaboration/conflict merge, offline replay, or
 package/document schema changes.
 
 ## Phase 12 Extraction Record

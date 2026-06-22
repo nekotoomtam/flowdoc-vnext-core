@@ -57,6 +57,9 @@ import {
   createViewportSchedulerRuntimeState,
   planViewportSchedulerRuntimeCandidate,
 } from "./viewportSchedulerRuntime.js"
+import {
+  createStructuralOutlineJumpRequest,
+} from "./structuralOutlineNavigation.js"
 
 const app = document.querySelector("#app")
 
@@ -88,6 +91,7 @@ const state = {
   selectedId: null,
   selectionSource: "boot",
   snapshot: null,
+  structuralOutlineJump: null,
   structuralText: "New structural text block",
   viewportAnchor: null,
   viewportAnchorRestore: null,
@@ -1520,11 +1524,19 @@ function renderTreeNode(node, depth = 0) {
 }
 
 function renderNodeTree(renderModel) {
+  const outlineJump = state.structuralOutlineJump
+  const outlineStatus = outlineJump
+    ? `${outlineJump.ok ? "Ready" : "Blocked"}: ${outlineJump.nodeId ? shortId(outlineJump.nodeId) : outlineJump.reason}`
+    : "Ready"
+
   return `
     <aside class="panel node-tree">
       <div class="panel-heading">
         <h2>Nodes</h2>
         ${renderBadge(`${renderModel.nodeCount} total`, "neutral")}
+      </div>
+      <div class="outline-jump-status" data-outline-jump-status>
+        Outline jump: ${escapeHtml(outlineStatus)}
       </div>
       <div class="tree-scroll">
         ${renderModel.sections.map((section) => `
@@ -2256,7 +2268,7 @@ function renderStatus(snapshot, renderModel) {
   `
 }
 
-function selectNode(nodeId, selectionSource) {
+function selectNode(nodeId, selectionSource, options = {}) {
   if (!nodeById(nodeId)) return
   const nodeAnchor = readCanvasViewportNodeAnchor(nodeId, state.renderModel)
     || createFallbackViewportNodeAnchor(nodeId)
@@ -2264,11 +2276,31 @@ function selectNode(nodeId, selectionSource) {
   state.selectionSource = selectionSource
   state.viewportNodeAnchor = nodeAnchor
   state.viewportNodeAnchorRestore = null
-  setVisibleRangeRequest(createSelectionVisibleRangeRequest(nodeId, state.runtimeCache?.visibleRangeRequest, {
+  const visibleRangeRequest = options.visibleRangeRequest || createSelectionVisibleRangeRequest(nodeId, state.runtimeCache?.visibleRangeRequest, {
     draftActive: draftIsActive(),
-  }))
+  })
+  setVisibleRangeRequest(visibleRangeRequest)
   render({
     restoreViewportAnchor: nodeAnchor || state.viewportAnchor,
+  })
+}
+
+function runStructuralOutlineJump(nodeId) {
+  const jumpRequest = createStructuralOutlineJumpRequest({
+    documentRevision: state.snapshot?.session?.documentRevision,
+    draftActive: draftIsActive(),
+    node: nodeById(nodeId),
+    nodeId,
+    previousVisibleRangeRequest: state.runtimeCache?.visibleRangeRequest,
+  })
+  state.structuralOutlineJump = jumpRequest
+  if (!jumpRequest.ok) {
+    render()
+    return
+  }
+
+  selectNode(jumpRequest.nodeId, jumpRequest.selectionSource, {
+    visibleRangeRequest: jumpRequest.visibleRangeRequest,
   })
 }
 
@@ -2281,7 +2313,7 @@ function bindSelectionHandlers() {
     const target = event.target.closest(".tree-node[data-node-id]")
     if (!target || !tree.contains(target)) return
     event.stopPropagation()
-    selectNode(target.dataset.nodeId, "tree")
+    runStructuralOutlineJump(target.dataset.nodeId)
   })
 
   canvas?.addEventListener("click", (event) => {

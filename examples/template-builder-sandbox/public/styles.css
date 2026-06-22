@@ -216,9 +216,20 @@ h3 {
 }
 
 .tree-scroll {
-  height: calc(100% - 48px);
+  height: calc(100% - 80px);
   overflow: auto;
   padding: 12px;
+}
+
+.outline-jump-status {
+  align-items: center;
+  border-bottom: 1px solid #dce2e9;
+  color: #667385;
+  display: flex;
+  font-size: 11px;
+  font-weight: 700;
+  height: 32px;
+  padding: 0 14px;
 }
 
 .section-tree + .section-tree {

@@ -1779,6 +1779,35 @@ Acceptance:
   backend API exposure, collaboration, offline replay, or schema change is
   claimed.
 
+## Phase 74: Structural Outline Jump Boundary
+
+Goal:
+
+- turn the existing sandbox node tree into an explicit structural outline
+  navigation boundary over runtime node ids, visible-range requests, and
+  node-aware viewport anchor restore.
+
+Deliverables:
+
+- DOM-free structural outline jump request module;
+- outline click binding that delegates through the request module before
+  selecting the node;
+- browser-local outline jump status;
+- action catalog entry for `browser.runStructuralOutlineJump`;
+- boundary documentation and tests proving the outline remains navigation-only.
+
+Acceptance:
+
+- outline clicks use `createStructuralOutlineJumpRequest(...)`;
+- accepted jump requests carry a selection visible-range request;
+- missing node ids are rejected without guessing a fallback;
+- generated snapshots expose the action lane but do not serialize outline jump
+  state;
+- no drag/drop outline editing, multi-select operations, keyboard tree
+  commands, inline outline rename, diagnostics/source jump UI, durable
+  structural undo/redo, persistence, backend API exposure, collaboration,
+  offline replay, or schema change is claimed.
+
 ## Later Phases
 
 Goal:
