@@ -160,6 +160,9 @@ The package must remain runnable without any parent editor checkout.
 - Store-backed render boundary makes sandbox tree/canvas rendering consume a
   runtime-store-backed render model instead of walking tree-shaped snapshot
   sections for active node content
+- Render window boundary derives the active canvas section/node window from the
+  visible-range contract before DOM viewport controllers or virtualized
+  renderer scheduling
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -276,6 +279,8 @@ The package must remain runnable without any parent editor checkout.
   packet application boundary for the browser runtime store
 - `docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md`: Phase 51
   store-backed render model boundary before viewport virtualization
+- `docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md`: Phase 52 render-window
+  boundary between visible ranges and the canvas render path
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -300,7 +305,7 @@ The package must remain runnable without any parent editor checkout.
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
-  undo/redo UI, viewport windowing, lazy heavy-detail routes,
+  undo/redo UI, DOM viewport controllers, lazy heavy-detail routes,
   responsibility-sliced editor modules, and a concrete browser live-layout
   renderer
 - replacement for current parent `/api/paginate` or `/api/export`
@@ -319,5 +324,7 @@ The package must remain runnable without any parent editor checkout.
 - durable operation/authoring history persistence outside in-memory helpers
 - durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes beyond the sandbox render path
-- durable browser cache persistence and full structural packet application
+- durable browser cache persistence, full structural packet application, and
+  true virtualized renderer scheduling beyond the sandbox render-window
+  contract
 - publishing/distribution strategy beyond local package consumption

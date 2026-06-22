@@ -36,6 +36,10 @@ before viewport work.
 
 The render model mode is `store-backed-render-model`.
 
+Phase 52 adds `public/renderWindow.js` on top of this model so the active
+canvas traversal can consume visible-range-derived section and node windows
+without moving that policy into `app.js`.
+
 ## Runtime Ownership
 
 `app.js` now creates a render model during render and uses it for:

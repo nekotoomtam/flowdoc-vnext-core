@@ -58,6 +58,7 @@ Parent goal:
 | 49 | Structural runtime store boundary | done | `docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 50 | Text packet store apply boundary | done | `docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 51 | Store-backed render boundary | done | `docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 52 | Render window boundary | done | `docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderWindow.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -994,6 +995,34 @@ measurement, virtualized rendering, hidden/offscreen DOM pruning, lazy
 heavy-detail routes, structural add/delete/move packet application, rich text
 editing, contenteditable DOM mapping, live-layout rendering, persistence, API
 routes, or package/document version changes.
+
+## Phase 52 Render Window Boundary
+
+Phase 52 adds a browser-safe render-window contract between visible ranges and
+the sandbox canvas render path:
+
+- `examples/template-builder-sandbox/public/renderWindow.js` owns
+  `createRenderWindow(...)`, render-window source/mode, active section ids,
+  active node ids, count metadata, and membership helpers;
+- `examples/template-builder-sandbox/public/renderModel.js` derives a render
+  window from the runtime cache visible range and exposes windowed section root
+  and child helpers beside the full store-backed render model;
+- `examples/template-builder-sandbox/public/app.js` uses render-window helpers
+  for canvas traversal and reports render-window counts in the status bar while
+  leaving full section metadata available for navigation/debug;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.resolveRenderWindow` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md` records the Phase 52
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves browser-safe
+  render-window ownership, generated action-lane exposure, render-model
+  integration, and visible-range-derived window facts.
+
+This phase intentionally does not implement DOM scroll tracking, viewport
+measurement, virtualized renderer scheduling, hidden/offscreen DOM pruning
+schedulers, lazy heavy-detail routes, structural add/delete/move packet
+application, rich text editing, contenteditable DOM mapping, live-layout
+rendering, persistence, API routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 

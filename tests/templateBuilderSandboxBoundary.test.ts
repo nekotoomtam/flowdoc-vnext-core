@@ -53,6 +53,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/scripts/build-snapshot.ts",
       "../examples/template-builder-sandbox/scripts/serve.mjs",
       "../examples/template-builder-sandbox/public/runtimeStore.js",
+      "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
       "../examples/template-builder-sandbox/public/visibleRangeRequest.js",
       "../examples/template-builder-sandbox/public/visibleRange.js",
@@ -134,6 +135,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStoreBackedRenderModel")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveRenderWindow")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.updateVisibleRangeRequest")
@@ -912,6 +914,7 @@ describe("template builder sandbox boundary", () => {
 
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const renderWindowSource = readText("../examples/template-builder-sandbox/public/renderWindow.js")
     const renderModelSource = readText("../examples/template-builder-sandbox/public/renderModel.js")
     const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
@@ -926,6 +929,7 @@ describe("template builder sandbox boundary", () => {
     const runtimeStoreDoc = readText("../docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md")
     const textPacketStoreDoc = readText("../docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md")
     const storeBackedRenderDoc = readText("../docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md")
+    const renderWindowDoc = readText("../docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -933,6 +937,10 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
     expect(appSource).toContain("getStoreBackedRenderSectionRootNodes")
+    expect(appSource).toContain("getStoreBackedRenderWindowChildren")
+    expect(appSource).toContain("getStoreBackedRenderWindowSectionRootNodes")
+    expect(appSource).toContain("getStoreBackedRenderWindowSections")
+    expect(appSource).toContain("renderWindowNodeChildren")
     expect(appSource).toContain("createBootRuntimeState")
     expect(appSource).toContain("createRefreshRuntimeState")
     expect(appSource).toContain("applyChangePacketToRuntime")
@@ -948,6 +956,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("visibleNodeCount")
     expect(appSource).toContain("Range:")
     expect(appSource).toContain("Range request:")
+    expect(appSource).toContain("Render window:")
     expect(appSource).toContain("Store apply:")
     expect(appSource).toContain("viewMode")
     expect(appSource).toContain("applyChangePacket")
@@ -976,10 +985,22 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeStoreSource).toContain("getRuntimeStoreSectionRootNodes")
     expect(runtimeStoreSource).not.toContain("document.")
     expect(runtimeStoreSource).not.toContain("querySelector")
+    expect(renderWindowSource).toContain("createRenderWindow")
+    expect(renderWindowSource).toContain("flowdoc-render-window")
+    expect(renderWindowSource).toContain("visible-range-render-window")
+    expect(renderWindowSource).toContain("isNodeInRenderWindow")
+    expect(renderWindowSource).toContain("isSectionInRenderWindow")
+    expect(renderWindowSource).not.toContain("document.")
+    expect(renderWindowSource).not.toContain("querySelector")
     expect(renderModelSource).toContain("createStoreBackedRenderModel")
+    expect(renderModelSource).toContain('from "./renderWindow.js"')
+    expect(renderModelSource).toContain("createRenderWindow")
     expect(renderModelSource).toContain("flowdoc-store-backed-render-model")
+    expect(renderModelSource).toContain("renderWindow")
     expect(renderModelSource).toContain("getStoreBackedRenderChildren")
     expect(renderModelSource).toContain("getStoreBackedRenderSectionRootNodes")
+    expect(renderModelSource).toContain("getStoreBackedRenderWindowChildren")
+    expect(renderModelSource).toContain("getStoreBackedRenderWindowSectionRootNodes")
     expect(renderModelSource).not.toContain("document.")
     expect(renderModelSource).not.toContain("querySelector")
     expect(editorViewSource).toContain("createEditorView")
@@ -1029,6 +1050,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.createStructuralRuntimeStore")
     expect(coreBoundarySource).toContain("browser.applyTextPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.createStoreBackedRenderModel")
+    expect(coreBoundarySource).toContain("browser.resolveRenderWindow")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
     expect(coreBoundarySource).toContain("browser.updateVisibleRangeRequest")
@@ -1068,6 +1090,11 @@ describe("template builder sandbox boundary", () => {
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
     expect(storeBackedRenderDoc).toContain("does not implement viewport virtualization")
+    expect(storeBackedRenderDoc).toContain("public/renderWindow.js")
+    expect(renderWindowDoc).toContain("Status: Phase 52 implementation boundary.")
+    expect(renderWindowDoc).toContain("createRenderWindow")
+    expect(renderWindowDoc).toContain("visible-range-render-window")
+    expect(renderWindowDoc).toContain("does not implement full viewport virtualization")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1368,6 +1395,79 @@ describe("template builder sandbox boundary", () => {
     expect(result.windowed).toBe(true)
   })
 
+  it("resolves render windows from visible range facts", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createRenderWindow,
+        getRenderWindowSections,
+        isNodeInRenderWindow,
+        isSectionInRenderWindow,
+      } = await import("./public/renderWindow.js");
+      const sections = [
+        { id: "section-cover", page: "A4 portrait", rootZoneIds: ["cover-root"] },
+        { id: "section-body", page: "A4 portrait", rootZoneIds: ["body-root"] },
+        { id: "section-appendix", page: "A4 portrait", rootZoneIds: ["appendix-root"] },
+      ];
+      const window = createRenderWindow({
+        sections,
+        visibleRange: {
+          anchorNodeId: "body-title",
+          anchorSectionId: "section-body",
+          kind: "section-window",
+          maxNodes: 2,
+          nodeIds: ["body-root", "body-title"],
+          request: { reason: "selection" },
+          sectionIds: ["section-body"],
+          totalNodeCount: 20,
+          totalSectionCount: 3,
+          truncated: true,
+          windowed: true,
+        },
+      });
+      console.log(JSON.stringify({
+        activeSections: getRenderWindowSections(window).map((section) => section.id),
+        bodyInWindow: isSectionInRenderWindow(window, "section-body"),
+        coverInWindow: isSectionInRenderWindow(window, "section-cover"),
+        bodyTitleInWindow: isNodeInRenderWindow(window, "body-title"),
+        coverRootInWindow: isNodeInRenderWindow(window, "cover-root"),
+        mode: window.mode,
+        nodeCount: window.nodeCount,
+        reason: window.reason,
+        source: window.source,
+        totalNodeCount: window.totalNodeCount,
+        truncated: window.truncated,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      activeSections: string[]
+      bodyInWindow: boolean
+      coverInWindow: boolean
+      bodyTitleInWindow: boolean
+      coverRootInWindow: boolean
+      mode: string
+      nodeCount: number
+      reason: string
+      source: string
+      totalNodeCount: number
+      truncated: boolean
+    }
+
+    expect(result.source).toBe("flowdoc-render-window")
+    expect(result.mode).toBe("visible-range-render-window")
+    expect(result.reason).toBe("selection")
+    expect(result.activeSections).toEqual(["section-body"])
+    expect(result.bodyInWindow).toBe(true)
+    expect(result.coverInWindow).toBe(false)
+    expect(result.bodyTitleInWindow).toBe(true)
+    expect(result.coverRootInWindow).toBe(false)
+    expect(result.nodeCount).toBe(2)
+    expect(result.totalNodeCount).toBe(20)
+    expect(result.truncated).toBe(true)
+  })
+
   it("keeps visible range requests separate from resolved ranges", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       import { readFileSync } from "node:fs";
@@ -1590,6 +1690,9 @@ describe("template builder sandbox boundary", () => {
         getStoreBackedRenderChildren,
         getStoreBackedRenderNode,
         getStoreBackedRenderSectionRootNodes,
+        getStoreBackedRenderWindowChildren,
+        getStoreBackedRenderWindowSectionRootNodes,
+        getStoreBackedRenderWindowSections,
       } = await import("./public/renderModel.js");
       const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
       function findSnapshotNode(nodes, nodeId) {
@@ -1644,6 +1747,14 @@ describe("template builder sandbox boundary", () => {
         sectionIds: renderModel.sections.map((section) => section.id),
         snapshotTreeText: findSnapshotNode(result.snapshot.sections.flatMap((section) => section.zones), "cover-header-label").textPreview,
         source: renderModel.source,
+        windowRootChildren: getStoreBackedRenderWindowChildren(renderModel, "cover-first-header").map((node) => node.id),
+        windowRootIds: getStoreBackedRenderWindowSectionRootNodes(renderModel, "section-cover").map((node) => node.id),
+        windowSectionIds: getStoreBackedRenderWindowSections(renderModel).map((section) => section.id),
+        renderWindowMode: renderModel.renderWindowMode,
+        renderWindowNodeCount: renderModel.renderWindowNodeCount,
+        renderWindowSource: renderModel.renderWindowSource,
+        renderWindowTotalNodeCount: renderModel.renderWindowTotalNodeCount,
+        renderWindowWindowed: renderModel.renderWindow.windowed,
         visibleSectionIds: renderModel.visibleSectionIds,
       }));
     `], {
@@ -1661,6 +1772,14 @@ describe("template builder sandbox boundary", () => {
       sectionIds: string[]
       snapshotTreeText: string
       source: string
+      windowRootChildren: string[]
+      windowRootIds: string[]
+      windowSectionIds: string[]
+      renderWindowMode: string
+      renderWindowNodeCount: number
+      renderWindowSource: string
+      renderWindowTotalNodeCount: number
+      renderWindowWindowed: boolean
       visibleSectionIds: string[]
     }
 
@@ -1675,6 +1794,15 @@ describe("template builder sandbox boundary", () => {
     expect(result.coverHeaderText).toBe("Render model store text")
     expect(result.snapshotTreeText).toBe("Confidential Product Report")
     expect(result.visibleSectionIds).toEqual(["section-cover"])
+    expect(result.renderWindowSource).toBe("flowdoc-render-window")
+    expect(result.renderWindowMode).toBe("visible-range-render-window")
+    expect(result.renderWindowTotalNodeCount).toBe(52)
+    expect(result.renderWindowNodeCount).toBeGreaterThan(0)
+    expect(result.renderWindowNodeCount).toBeLessThan(result.nodeCount)
+    expect(result.renderWindowWindowed).toBe(true)
+    expect(result.windowSectionIds).toEqual(["section-cover"])
+    expect(result.windowRootIds).toEqual(["cover-first-header", "cover-body", "cover-first-footer"])
+    expect(result.windowRootChildren).toEqual(["cover-header-label"])
   })
 
   it("locks the editor north star to normalized large-document lookup", () => {

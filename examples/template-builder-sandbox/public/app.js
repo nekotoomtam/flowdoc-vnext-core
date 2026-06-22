@@ -3,6 +3,9 @@ import {
   getStoreBackedRenderChildren,
   getStoreBackedRenderNode,
   getStoreBackedRenderSectionRootNodes,
+  getStoreBackedRenderWindowChildren,
+  getStoreBackedRenderWindowSectionRootNodes,
+  getStoreBackedRenderWindowSections,
 } from "./renderModel.js"
 import {
   applyChangePacketToRuntime,
@@ -93,6 +96,14 @@ function nodeChildren(node) {
 
 function sectionRootZones(section) {
   return getStoreBackedRenderSectionRootNodes(state.renderModel, section?.id)
+}
+
+function renderWindowNodeChildren(node) {
+  return getStoreBackedRenderWindowChildren(state.renderModel, node?.id)
+}
+
+function renderWindowSectionRootZones(section) {
+  return getStoreBackedRenderWindowSectionRootNodes(state.renderModel, section?.id)
 }
 
 function applyChangePacket(packet) {
@@ -941,7 +952,7 @@ function renderCanvasNode(node) {
     return `
       <section class="canvas-zone${selectedClass}" ${nodeDomAttributes(node)}>
         <div class="zone-label">${escapeHtml(node.role || node.type)}</div>
-        ${nodeChildren(node).map(renderCanvasNode).join("")}
+        ${renderWindowNodeChildren(node).map(renderCanvasNode).join("")}
       </section>
     `
   }
@@ -1006,7 +1017,7 @@ function renderCanvasNode(node) {
   if (node.type === "columns") {
     return `
       <div class="canvas-columns${selectedClass}" ${nodeDomAttributes(node)}>
-        ${nodeChildren(node).map(renderCanvasNode).join("")}
+        ${renderWindowNodeChildren(node).map(renderCanvasNode).join("")}
       </div>
     `
   }
@@ -1014,7 +1025,7 @@ function renderCanvasNode(node) {
   if (node.type === "column") {
     return `
       <div class="canvas-column${selectedClass}" ${nodeDomAttributes(node)}>
-        ${nodeChildren(node).map(renderCanvasNode).join("")}
+        ${renderWindowNodeChildren(node).map(renderCanvasNode).join("")}
       </div>
     `
   }
@@ -1022,17 +1033,17 @@ function renderCanvasNode(node) {
   if (node.type === "table") {
     return `
       <div class="canvas-table${selectedClass}" ${nodeDomAttributes(node)}>
-        ${nodeChildren(node).map(renderCanvasNode).join("")}
+        ${renderWindowNodeChildren(node).map(renderCanvasNode).join("")}
       </div>
     `
   }
 
   if (node.type === "table-row") {
-    return `<div class="canvas-table-row${selectedClass}" ${nodeDomAttributes(node)}>${nodeChildren(node).map(renderCanvasNode).join("")}</div>`
+    return `<div class="canvas-table-row${selectedClass}" ${nodeDomAttributes(node)}>${renderWindowNodeChildren(node).map(renderCanvasNode).join("")}</div>`
   }
 
   if (node.type === "table-cell") {
-    return `<div class="canvas-table-cell${selectedClass}" ${nodeDomAttributes(node)}>${nodeChildren(node).map(renderCanvasNode).join("")}</div>`
+    return `<div class="canvas-table-cell${selectedClass}" ${nodeDomAttributes(node)}>${renderWindowNodeChildren(node).map(renderCanvasNode).join("")}</div>`
   }
 
   return `
@@ -1043,6 +1054,8 @@ function renderCanvasNode(node) {
 }
 
 function renderCanvas(snapshot, renderModel) {
+  const renderSections = getStoreBackedRenderWindowSections(renderModel)
+
   return `
     <main class="canvas-wrap">
       <div class="canvas-header">
@@ -1054,16 +1067,17 @@ function renderCanvas(snapshot, renderModel) {
           <span>${snapshot.counts.sections} sections</span>
           <span>${snapshot.counts.textBlocks} text blocks</span>
           <span>${snapshot.counts.fields} keys</span>
+          <span>${renderModel.renderWindowSectionCount}/${renderModel.sectionCount} rendered</span>
         </div>
       </div>
       <div class="page-stack">
-        ${renderModel.sections.map((section) => `
+        ${renderSections.map((section) => `
           <article class="page">
             <header class="page-heading">
               <strong>${escapeHtml(section.id)}</strong>
               <span>${escapeHtml(section.page)}</span>
             </header>
-            ${sectionRootZones(section).map(renderCanvasNode).join("")}
+            ${renderWindowSectionRootZones(section).map(renderCanvasNode).join("")}
           </article>
         `).join("")}
       </div>
@@ -1422,6 +1436,10 @@ function renderStatus(snapshot, renderModel) {
   const renderModelLabel = renderModel
     ? `Render: ${renderModel.mode} ${renderModel.sectionCount} sections ${renderModel.nodeCount} nodes`
     : "Render: none"
+  const renderWindow = renderModel?.renderWindow
+  const renderWindowLabel = renderWindow
+    ? `Render window: ${renderWindow.mode} ${renderWindow.nodeCount}/${renderWindow.totalNodeCount} nodes ${renderWindow.sectionIds.join(",")}`
+    : "Render window: none"
   const storeLabel = state.runtimeCache
     ? `Store: ${state.runtimeCache.storeMode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.runtimeStore.sectionCount} sections`
     : "Store: none"
@@ -1444,6 +1462,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(storeLabel)}</span>
       <span>${escapeHtml(storeApplyLabel)}</span>
       <span>${escapeHtml(renderModelLabel)}</span>
+      <span>${escapeHtml(renderWindowLabel)}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
       <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>

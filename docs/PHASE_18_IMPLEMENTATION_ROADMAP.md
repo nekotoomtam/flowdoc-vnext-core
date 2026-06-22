@@ -1040,6 +1040,42 @@ Acceptance:
   contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 52: Render Window Boundary
+
+Goal:
+
+- derive the active canvas render window from the store-backed render model and
+  visible-range contract before DOM viewport controllers, lazy detail, or
+  virtualized renderer scheduling.
+
+Deliverables:
+
+- browser-safe `public/renderWindow.js` module;
+- render-window source/version/mode contract;
+- render-window section ids, node ids, node count, total count, and windowed
+  metadata;
+- render-model integration so window facts sit beside full store-backed model
+  facts;
+- canvas traversal helpers that filter section roots and children through the
+  active render window;
+- app status output for render-window mode/counts;
+- action lane for `browser.resolveRenderWindow`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- render-window construction can run in Node without DOM access;
+- render-window facts are derived from the visible-range contract;
+- canvas traversal consumes render-window helpers instead of deciding active
+  sections in `app.js`;
+- full store-backed render-model section metadata remains available for
+  navigation/debug;
+- no DOM scroll tracking, viewport measurement, virtualized renderer
+  scheduling, hidden/offscreen pruning scheduler, lazy detail endpoint,
+  structural add/delete/move packet application, rich text, contenteditable
+  mapping, live renderer, route, persistence, or package version change is
+  claimed.
+
 ## Later Phases
 
 Goal:
