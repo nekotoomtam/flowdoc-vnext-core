@@ -551,6 +551,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser inspector exposes bounded insert/delete/reorder controls that call sandbox structural packet routes",
       },
       {
+        action: "browser.evaluateStructuralCommandPolicy",
+        label: "Structure policy",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser structural commands derive availability, targets, routes, requests, and selection behavior from a DOM-free policy module",
+      },
+      {
         action: "browser.runStructuralOutlineJump",
         label: "Outline jump",
         lane: "immediate",

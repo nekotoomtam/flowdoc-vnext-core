@@ -64,6 +64,12 @@ import {
   createStructuralDiagnosticItems,
   createStructuralDiagnosticNavigationRequest,
 } from "./structuralDiagnosticsNavigation.js"
+import {
+  createStructuralCommandPolicy,
+  routeForStructuralAction,
+  structuralActionRequest,
+  structuralSelectionAfterResult,
+} from "./structuralCommandPolicy.js"
 
 const app = document.querySelector("#app")
 
@@ -729,50 +735,6 @@ function statusVariant(status) {
 
 function selectedNodeCanUseBridge(node) {
   return Boolean(node && node.type === "text-block" && node.canReplacePlainText)
-}
-
-function nodeCanContainStructuralTextBlock(node) {
-  return Boolean(node && ["zone", "column", "table-cell"].includes(node.type))
-}
-
-function parentChildIds(node) {
-  if (!node?.parentId || !state.runtimeCache?.childrenById) return []
-  return state.runtimeCache.childrenById.get(node.parentId) || []
-}
-
-function structuralInsertTargetForNode(node, mode) {
-  if (!node) return null
-
-  if (mode === "inside" && nodeCanContainStructuralTextBlock(node)) {
-    const childIds = state.runtimeCache?.childrenById.get(node.id) || []
-    return {
-      index: childIds.length,
-      parentNodeId: node.id,
-      selectAfterNodeId: null,
-    }
-  }
-
-  const parentNode = nodeById(node.parentId)
-  if (!nodeCanContainStructuralTextBlock(parentNode)) return null
-  const siblings = parentChildIds(node)
-  const currentIndex = siblings.indexOf(node.id)
-  if (currentIndex < 0) return null
-
-  return {
-    index: currentIndex + 1,
-    parentNodeId: parentNode.id,
-    selectAfterNodeId: node.id,
-  }
-}
-
-function structuralMoveTargetForNode(node, direction) {
-  if (!node?.canBeReordered) return null
-  const siblings = parentChildIds(node)
-  const currentIndex = siblings.indexOf(node.id)
-  if (currentIndex < 0) return null
-  const toIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
-  if (toIndex < 0 || toIndex >= siblings.length) return null
-  return { toIndex }
 }
 
 function selectedNodeCanUseWysiwygDraft(node) {
@@ -1857,16 +1819,20 @@ function renderInspector(snapshot) {
   const commandContext = deriveDraftCommandContext()
   const canStartDraft = Boolean(node && selectedNodeCanUseWysiwygDraft(node) && !draftIsActive())
   const canUseBridge = selectedNodeCanUseBridge(node) && !draftIsActive()
-  const insertInsideTarget = structuralInsertTargetForNode(node, "inside")
-  const insertAfterTarget = structuralInsertTargetForNode(node, "after")
-  const moveUpTarget = structuralMoveTargetForNode(node, "up")
-  const moveDownTarget = structuralMoveTargetForNode(node, "down")
-  const canUseStructuralCommands = Boolean(node && !draftIsActive())
-  const canInsertStructuralInside = Boolean(insertInsideTarget && !state.bridgeBusy && canUseStructuralCommands)
-  const canInsertStructuralAfter = Boolean(insertAfterTarget && !state.bridgeBusy && canUseStructuralCommands)
-  const canDeleteStructuralNode = Boolean(node?.canBeDeleted && !state.bridgeBusy && canUseStructuralCommands)
-  const canMoveStructuralNodeUp = Boolean(moveUpTarget && !state.bridgeBusy && canUseStructuralCommands)
-  const canMoveStructuralNodeDown = Boolean(moveDownTarget && !state.bridgeBusy && canUseStructuralCommands)
+  const structuralPolicy = createStructuralCommandPolicy({
+    bridgeBusy: state.bridgeBusy,
+    childrenById: state.runtimeCache?.childrenById,
+    draftActive: draftIsActive(),
+    node,
+    nodeById: state.runtimeCache?.nodeById,
+    structuralText: state.structuralText,
+  })
+  const canUseStructuralCommands = structuralPolicy.canUseStructuralCommands
+  const canInsertStructuralInside = structuralPolicy.actions["insert-inside"].enabled
+  const canInsertStructuralAfter = structuralPolicy.actions["insert-after"].enabled
+  const canDeleteStructuralNode = structuralPolicy.actions.delete.enabled
+  const canMoveStructuralNodeUp = structuralPolicy.actions["move-up"].enabled
+  const canMoveStructuralNodeDown = structuralPolicy.actions["move-down"].enabled
   const draftGuard = node ? draftGuardReason(node) : "Select a text block before starting a draft."
   const draftTargetLabel = activeDraftNode
     ? `${activeDraftNode.type} ${shortId(activeDraftNode.id)}`
@@ -2703,41 +2669,6 @@ function routeForHistoryAction(action) {
   return "./api/actions/undo?response=packet"
 }
 
-function routeForStructuralAction(action) {
-  if (action === "delete") return "./api/actions/delete-node?response=packet"
-  if (action === "move-up" || action === "move-down") return "./api/actions/reorder-node?response=packet"
-  return "./api/actions/insert-text-block?response=packet"
-}
-
-function structuralActionRequest(action, node) {
-  if (action === "delete") {
-    return {
-      body: { nodeId: node.id },
-      selectNodeId: node.parentId || null,
-    }
-  }
-
-  if (action === "move-up" || action === "move-down") {
-    const target = structuralMoveTargetForNode(node, action === "move-up" ? "up" : "down")
-    if (!target) return null
-    return {
-      body: { nodeId: node.id, toIndex: target.toIndex },
-      selectNodeId: node.id,
-    }
-  }
-
-  const target = structuralInsertTargetForNode(node, action === "insert-inside" ? "inside" : "after")
-  if (!target) return null
-  return {
-    body: {
-      index: target.index,
-      parentNodeId: target.parentNodeId,
-      text: state.structuralText,
-    },
-    selectNodeId: null,
-  }
-}
-
 async function applyMutationResult(result) {
   let fallbackReason = ""
 
@@ -2753,18 +2684,6 @@ async function applyMutationResult(result) {
   }
 
   return fallbackReason
-}
-
-function structuralSelectionAfterResult(result, fallbackNodeId) {
-  if (!result?.ok || !result.packet) return fallbackNodeId
-  if (result.packet.action === "text-block.insert") {
-    return result.packet.nodesAdded?.[0]?.id || fallbackNodeId
-  }
-  if (result.packet.action === "node.delete") {
-    const patch = result.packet.parentListPatches?.[0]
-    return patch?.parentKind === "section" ? null : patch?.parentId || fallbackNodeId
-  }
-  return fallbackNodeId
 }
 
 async function applyBridgeTextAction(action) {
@@ -2813,7 +2732,13 @@ async function applyBridgeStructuralAction(action) {
 
   const node = selectedNode()
   if (!node) return
-  const request = structuralActionRequest(action, node)
+  const request = structuralActionRequest({
+    action,
+    childrenById: state.runtimeCache?.childrenById,
+    node,
+    nodeById: state.runtimeCache?.nodeById,
+    structuralText: state.structuralText,
+  })
   if (!request) return
 
   state.bridgeBusy = true

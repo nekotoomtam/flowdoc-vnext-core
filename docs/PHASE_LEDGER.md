@@ -82,6 +82,7 @@ Parent goal:
 | 73 | Structural command UI boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_UI_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 74 | Structural outline jump boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_OUTLINE_JUMP_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralOutlineNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 75 | Structural diagnostics navigation boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 76 | Structural command policy boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralCommandPolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1733,6 +1734,34 @@ or graph diagnostic semantic changes, automatic issue fixes, structural command
 policy changes, persistence, backend public API exposure,
 collaboration/conflict merge, offline replay, durable history, or
 package/document schema changes.
+
+## Phase 76 Structural Command Policy Boundary
+
+Phase 76 extracts structural command policy out of the app shell:
+
+- `examples/template-builder-sandbox/public/structuralCommandPolicy.js` owns
+  `STRUCTURAL_COMMAND_POLICY_SOURCE`, `STRUCTURAL_COMMAND_POLICY_MODE`,
+  `createStructuralCommandPolicy(...)`, `structuralActionRequest(...)`,
+  `routeForStructuralAction(...)`, and
+  `structuralSelectionAfterResult(...)`;
+- insert/delete/reorder availability, guard reasons, target derivation, bridge
+  route selection, request body creation, and post-result selection behavior
+  are now DOM-free policy behavior;
+- `examples/template-builder-sandbox/public/app.js` delegates structural
+  command enablement and dispatch to the policy module instead of owning state
+  shape, rendering, event binding, transport, mutation application, and command
+  rules together;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.evaluateStructuralCommandPolicy`;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves policy evaluation,
+  route/request/selection-after behavior, source guards, action catalog entry,
+  docs, and continued structural bridge packet flow.
+
+This phase intentionally does not add new structural commands, change the
+Phase 72 route contract, change structural packet v1 shape, implement
+drag/drop, durable structural undo/redo, persistence, backend public API
+exposure, collaboration/conflict merge, offline replay, or package/document
+schema changes.
 
 ## Phase 12 Extraction Record
 

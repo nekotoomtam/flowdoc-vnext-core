@@ -56,6 +56,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js",
       "../examples/template-builder-sandbox/public/structuralOutlineNavigation.js",
       "../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js",
+      "../examples/template-builder-sandbox/public/structuralCommandPolicy.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -153,6 +154,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runStructuralCommandUi")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.evaluateStructuralCommandPolicy")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runStructuralOutlineJump")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runStructuralDiagnosticsNavigation")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.insertStructuralTextBlock")
@@ -438,10 +440,236 @@ describe("template builder sandbox boundary", () => {
     expect(result.documentRequestReason).toBe("document-level")
   })
 
+  it("evaluates structural command policy outside the app shell", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        STRUCTURAL_COMMAND_POLICY_MODE,
+        STRUCTURAL_COMMAND_POLICY_SOURCE,
+        createStructuralCommandPolicy,
+        routeForStructuralAction,
+        structuralActionRequest,
+        structuralSelectionAfterResult,
+      } = await import("./public/structuralCommandPolicy.js");
+
+      const coverBody = { id: "cover-body", type: "zone", parentId: "section-cover" };
+      const coverTitle = {
+        id: "cover-title",
+        type: "text-block",
+        parentId: "cover-body",
+        canBeDeleted: true,
+        canBeReordered: true,
+      };
+      const coverSubtitle = {
+        id: "cover-subtitle",
+        type: "text-block",
+        parentId: "cover-body",
+        canBeDeleted: true,
+        canBeReordered: true,
+      };
+      const lockedTitle = {
+        id: "locked-title",
+        type: "text-block",
+        parentId: "cover-body",
+        canBeDeleted: false,
+        canBeReordered: false,
+      };
+      const nodeById = new Map([
+        ["cover-body", coverBody],
+        ["cover-title", coverTitle],
+        ["cover-subtitle", coverSubtitle],
+        ["locked-title", lockedTitle],
+      ]);
+      const childrenById = new Map([
+        ["cover-body", ["cover-title", "cover-subtitle", "locked-title"]],
+      ]);
+      const titlePolicy = createStructuralCommandPolicy({
+        childrenById,
+        node: coverTitle,
+        nodeById,
+        structuralText: "Inserted from policy",
+      });
+      const bodyPolicy = createStructuralCommandPolicy({
+        childrenById,
+        node: coverBody,
+        nodeById,
+        structuralText: "Inserted from policy",
+      });
+      const busyPolicy = createStructuralCommandPolicy({
+        bridgeBusy: true,
+        childrenById,
+        node: coverTitle,
+        nodeById,
+      });
+      const draftPolicy = createStructuralCommandPolicy({
+        childrenById,
+        draftActive: true,
+        node: coverTitle,
+        nodeById,
+      });
+      const insertRequest = structuralActionRequest({
+        action: "insert-after",
+        childrenById,
+        node: coverTitle,
+        nodeById,
+        structuralText: "Inserted from policy",
+      });
+      const deleteRequest = structuralActionRequest({
+        action: "delete",
+        childrenById,
+        node: coverTitle,
+        nodeById,
+      });
+      const lockedDeleteRequest = structuralActionRequest({
+        action: "delete",
+        childrenById,
+        node: lockedTitle,
+        nodeById,
+      });
+      const moveRequest = structuralActionRequest({
+        action: "move-down",
+        childrenById,
+        node: coverTitle,
+        nodeById,
+      });
+      const insertSelection = structuralSelectionAfterResult({
+        ok: true,
+        packet: { action: "text-block.insert", nodesAdded: [{ id: "inserted-node" }] },
+      }, "fallback");
+      const deleteSelection = structuralSelectionAfterResult({
+        ok: true,
+        packet: {
+          action: "node.delete",
+          parentListPatches: [{ parentKind: "node", parentId: "cover-body" }],
+        },
+      }, "fallback");
+      const sectionDeleteSelection = structuralSelectionAfterResult({
+        ok: true,
+        packet: {
+          action: "node.delete",
+          parentListPatches: [{ parentKind: "section", parentId: "section-cover" }],
+        },
+      }, "fallback");
+
+      console.log(JSON.stringify({
+        bodyInsertInsideEnabled: bodyPolicy.actions["insert-inside"].enabled,
+        bodyInsertInsideTarget: bodyPolicy.actions["insert-inside"].target,
+        busyInsertAfterEnabled: busyPolicy.actions["insert-after"].enabled,
+        busyInsertAfterReason: busyPolicy.actions["insert-after"].reason,
+        constants: {
+          mode: STRUCTURAL_COMMAND_POLICY_MODE,
+          source: STRUCTURAL_COMMAND_POLICY_SOURCE,
+        },
+        deleteRequest,
+        deleteRoute: routeForStructuralAction("delete"),
+        deleteSelection,
+        draftDeleteEnabled: draftPolicy.actions.delete.enabled,
+        draftDeleteReason: draftPolicy.actions.delete.reason,
+        insertRequest,
+        insertRoute: routeForStructuralAction("insert-after"),
+        insertSelection,
+        lockedDeleteRequest,
+        moveRequest,
+        moveRoute: routeForStructuralAction("move-down"),
+        sectionDeleteSelection,
+        source: titlePolicy.source,
+        mode: titlePolicy.mode,
+        titleDeleteEnabled: titlePolicy.actions.delete.enabled,
+        titleInsertAfterEnabled: titlePolicy.actions["insert-after"].enabled,
+        titleInsertAfterReason: titlePolicy.actions["insert-after"].reason,
+        titleInsertAfterTarget: titlePolicy.actions["insert-after"].target,
+        titleInsertInsideEnabled: titlePolicy.actions["insert-inside"].enabled,
+        titleMoveDownEnabled: titlePolicy.actions["move-down"].enabled,
+        titleMoveDownTarget: titlePolicy.actions["move-down"].target,
+        titleMoveUpEnabled: titlePolicy.actions["move-up"].enabled,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bodyInsertInsideEnabled: boolean
+      bodyInsertInsideTarget: { index: number; parentNodeId: string }
+      busyInsertAfterEnabled: boolean
+      busyInsertAfterReason: string
+      constants: { mode: string; source: string }
+      deleteRequest: { body: { nodeId: string }; selectNodeId: string }
+      deleteRoute: string
+      deleteSelection: string
+      draftDeleteEnabled: boolean
+      draftDeleteReason: string
+      insertRequest: { body: { index: number; parentNodeId: string; text: string }; selectNodeId: null }
+      insertRoute: string
+      insertSelection: string
+      lockedDeleteRequest: null
+      moveRequest: { body: { nodeId: string; toIndex: number }; selectNodeId: string }
+      moveRoute: string
+      sectionDeleteSelection: null
+      source: string
+      mode: string
+      titleDeleteEnabled: boolean
+      titleInsertAfterEnabled: boolean
+      titleInsertAfterReason: string
+      titleInsertAfterTarget: { index: number; parentNodeId: string; selectAfterNodeId: string }
+      titleInsertInsideEnabled: boolean
+      titleMoveDownEnabled: boolean
+      titleMoveDownTarget: { toIndex: number }
+      titleMoveUpEnabled: boolean
+    }
+
+    expect(result.source).toBe("flowdoc-structural-command-policy")
+    expect(result.mode).toBe("structural-command-policy")
+    expect(result.source).toBe(result.constants.source)
+    expect(result.mode).toBe(result.constants.mode)
+    expect(result.titleInsertAfterEnabled).toBe(true)
+    expect(result.titleInsertAfterReason).toBe("ready")
+    expect(result.titleInsertAfterTarget).toEqual({
+      index: 1,
+      parentNodeId: "cover-body",
+      selectAfterNodeId: "cover-title",
+    })
+    expect(result.titleInsertInsideEnabled).toBe(false)
+    expect(result.titleMoveUpEnabled).toBe(false)
+    expect(result.titleMoveDownEnabled).toBe(true)
+    expect(result.titleMoveDownTarget).toEqual({ toIndex: 1 })
+    expect(result.titleDeleteEnabled).toBe(true)
+    expect(result.bodyInsertInsideEnabled).toBe(true)
+    expect(result.bodyInsertInsideTarget).toMatchObject({
+      index: 3,
+      parentNodeId: "cover-body",
+    })
+    expect(result.busyInsertAfterEnabled).toBe(false)
+    expect(result.busyInsertAfterReason).toBe("bridge-busy")
+    expect(result.draftDeleteEnabled).toBe(false)
+    expect(result.draftDeleteReason).toBe("draft-active")
+    expect(result.insertRequest).toEqual({
+      body: { index: 1, parentNodeId: "cover-body", text: "Inserted from policy" },
+      reason: "ready",
+      selectNodeId: null,
+    })
+    expect(result.deleteRequest).toEqual({
+      body: { nodeId: "cover-title" },
+      reason: "ready",
+      selectNodeId: "cover-body",
+    })
+    expect(result.lockedDeleteRequest).toBeNull()
+    expect(result.moveRequest).toEqual({
+      body: { nodeId: "cover-title", toIndex: 1 },
+      reason: "ready",
+      selectNodeId: "cover-title",
+    })
+    expect(result.insertRoute).toBe("./api/actions/insert-text-block?response=packet")
+    expect(result.deleteRoute).toBe("./api/actions/delete-node?response=packet")
+    expect(result.moveRoute).toBe("./api/actions/reorder-node?response=packet")
+    expect(result.insertSelection).toBe("inserted-node")
+    expect(result.deleteSelection).toBe("cover-body")
+    expect(result.sectionDeleteSelection).toBeNull()
+  })
+
   it("declares one mutation bridge route without direct browser document mutation", () => {
     const serverSource = readText("../examples/template-builder-sandbox/scripts/serve.mjs")
     const bridgeSource = readText("../examples/template-builder-sandbox/src/mutationBridge.ts")
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const structuralCommandPolicySource = readText("../examples/template-builder-sandbox/public/structuralCommandPolicy.js")
     const snapshot = readJson("../examples/template-builder-sandbox/public/sandbox-snapshot.json") as {
       mutationBridge: { mode: string; documentRevision: number; mutationCount: number; lastMutation: unknown }
       authoringHistory: { mode: string; recordCount: number; groupCount: number; latestGroup: unknown }
@@ -483,9 +711,9 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("./api/actions/insert-text-at-end?response=packet")
     expect(appSource).toContain("./api/actions/undo?response=packet")
     expect(appSource).toContain("./api/actions/redo?response=packet")
-    expect(appSource).toContain("./api/actions/insert-text-block?response=packet")
-    expect(appSource).toContain("./api/actions/delete-node?response=packet")
-    expect(appSource).toContain("./api/actions/reorder-node?response=packet")
+    expect(structuralCommandPolicySource).toContain("./api/actions/insert-text-block?response=packet")
+    expect(structuralCommandPolicySource).toContain("./api/actions/delete-node?response=packet")
+    expect(structuralCommandPolicySource).toContain("./api/actions/reorder-node?response=packet")
     expect(appSource).toContain("data-structure-action")
     expect(appSource).toContain("applyBridgeStructuralAction")
     expect(appSource).toContain("structuralActionRequest")
@@ -1417,6 +1645,7 @@ describe("template builder sandbox boundary", () => {
     const runtimeStoreStructuralPacketSource = readText("../examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js")
     const structuralOutlineNavigationSource = readText("../examples/template-builder-sandbox/public/structuralOutlineNavigation.js")
     const structuralDiagnosticsNavigationSource = readText("../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js")
+    const structuralCommandPolicySource = readText("../examples/template-builder-sandbox/public/structuralCommandPolicy.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -1451,11 +1680,13 @@ describe("template builder sandbox boundary", () => {
     const structuralCommandUiDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_UI_BOUNDARY.md")
     const structuralOutlineJumpDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_OUTLINE_JUMP_BOUNDARY.md")
     const structuralDiagnosticsNavigationDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md")
+    const structuralCommandPolicyDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
     expect(appSource).toContain('from "./structuralOutlineNavigation.js"')
     expect(appSource).toContain('from "./structuralDiagnosticsNavigation.js"')
+    expect(appSource).toContain('from "./structuralCommandPolicy.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
@@ -1568,6 +1799,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("applyBridgeTextAction")
     expect(appSource).toContain("applyBridgeStructuralAction")
     expect(appSource).toContain("routeForStructuralAction")
+    expect(appSource).toContain("createStructuralCommandPolicy")
     expect(appSource).toContain("runStructuralOutlineJump")
     expect(appSource).toContain("createStructuralOutlineJumpRequest")
     expect(appSource).toContain("data-outline-jump-status")
@@ -1579,6 +1811,10 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-diagnostic-node-id")
     expect(appSource).toContain("data-diagnostic-navigation-status")
     expect(appSource).toContain("navigationRequest.selectionSource")
+    expect(appSource).not.toContain("function structuralActionRequest")
+    expect(appSource).not.toContain("function routeForStructuralAction")
+    expect(appSource).not.toContain("function structuralMoveTargetForNode")
+    expect(appSource).not.toContain("function structuralInsertTargetForNode")
     expect(appSource).toContain("data-structural-text")
     expect(appSource).toContain("data-structure-action")
     expect(appSource).toContain("applyHistoryAction")
@@ -1637,6 +1873,14 @@ describe("template builder sandbox boundary", () => {
     expect(structuralDiagnosticsNavigationSource).toContain("createStructuralOutlineJumpRequest")
     expect(structuralDiagnosticsNavigationSource).not.toContain("document.")
     expect(structuralDiagnosticsNavigationSource).not.toContain("querySelector")
+    expect(structuralCommandPolicySource).toContain("STRUCTURAL_COMMAND_POLICY_SOURCE")
+    expect(structuralCommandPolicySource).toContain("STRUCTURAL_COMMAND_POLICY_MODE")
+    expect(structuralCommandPolicySource).toContain("createStructuralCommandPolicy")
+    expect(structuralCommandPolicySource).toContain("structuralActionRequest")
+    expect(structuralCommandPolicySource).toContain("routeForStructuralAction")
+    expect(structuralCommandPolicySource).toContain("structuralSelectionAfterResult")
+    expect(structuralCommandPolicySource).not.toContain("document.")
+    expect(structuralCommandPolicySource).not.toContain("querySelector")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -1852,6 +2096,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyTextPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.applyStructuralPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.runStructuralCommandUi")
+    expect(coreBoundarySource).toContain("browser.evaluateStructuralCommandPolicy")
     expect(coreBoundarySource).toContain("browser.runStructuralOutlineJump")
     expect(coreBoundarySource).toContain("browser.runStructuralDiagnosticsNavigation")
     expect(coreBoundarySource).toContain("sandbox.insertStructuralTextBlock")
@@ -1935,6 +2180,11 @@ describe("template builder sandbox boundary", () => {
     expect(structuralDiagnosticsNavigationDoc).toContain("createStructuralDiagnosticNavigationRequest")
     expect(structuralDiagnosticsNavigationDoc).toContain("browser.runStructuralDiagnosticsNavigation")
     expect(structuralDiagnosticsNavigationDoc).toContain("does not implement a new diagnostics engine")
+    expect(structuralCommandPolicyDoc).toContain("Status: Phase 76 implementation boundary.")
+    expect(structuralCommandPolicyDoc).toContain("createStructuralCommandPolicy")
+    expect(structuralCommandPolicyDoc).toContain("structuralActionRequest")
+    expect(structuralCommandPolicyDoc).toContain("browser.evaluateStructuralCommandPolicy")
+    expect(structuralCommandPolicyDoc).toContain("does not add new structural commands")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")

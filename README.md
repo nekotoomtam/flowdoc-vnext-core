@@ -222,6 +222,9 @@ The package must remain runnable without any parent editor checkout.
   node-aware outline navigation contract over visible range and anchor restore
 - Structural diagnostics navigation boundary lists snapshot/packet diagnostics
   and jumps only node-linked issues through the node-aware selection path
+- Structural command policy boundary extracts insert/delete/reorder command
+  availability, targets, routes, requests, and selection-after behavior from
+  the sandbox app shell
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -393,6 +396,8 @@ The package must remain runnable without any parent editor checkout.
   structural outline jump navigation boundary
 - `docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md`: Phase
   75 structural diagnostics navigation boundary
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md`: Phase 76
+  structural command policy boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

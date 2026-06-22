@@ -1833,6 +1833,30 @@ Acceptance:
 - no new diagnostics engine, auto-fix, persistence, backend API exposure,
   durable history, or schema change is claimed.
 
+## Phase 76: Structural Command Policy Boundary
+
+Goal:
+
+- extract structural insert/delete/reorder command policy out of the sandbox
+  app shell so command availability, targets, routes, request bodies, and
+  post-result selection behavior have a DOM-free owner.
+
+Deliverables:
+
+- browser-safe `structuralCommandPolicy.js` module;
+- app delegation for structural command button state and dispatch;
+- action catalog entry for `browser.evaluateStructuralCommandPolicy`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- policy actions return `enabled`, `reason`, and target metadata;
+- structural route and request body creation live outside `app.js`;
+- post-result selection behavior lives outside `app.js`;
+- UI behavior still calls the Phase 72 bridge routes and packet apply path;
+- no new commands, structural packet shape change, persistence, backend API,
+  durable history, or schema change is claimed.
+
 ## Later Phases
 
 Goal:
