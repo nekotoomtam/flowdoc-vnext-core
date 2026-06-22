@@ -99,6 +99,11 @@ store. The browser updates snapshot metadata for revision and summaries, but
 active changed text comes from `runtimeStore.nodeById` rather than from a
 patched tree section.
 
+Phase 51 adds `public/renderModel.js` above the runtime store. Tree and canvas
+rendering now consume store-backed section roots and node content while
+retaining snapshot metadata for page labels, toolbar facts, diagnostics, and
+action summaries.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.

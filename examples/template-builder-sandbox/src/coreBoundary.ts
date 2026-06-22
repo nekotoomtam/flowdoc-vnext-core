@@ -516,6 +516,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser runtime applies bounded text packets directly to the structural store before full structural packets",
       },
       {
+        action: "browser.createStoreBackedRenderModel",
+        label: "Render model",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser rendering reads section roots and node content from the runtime store before viewport virtualization",
+      },
+      {
         action: "browser.resolveVisibleRange",
         label: "Visible range",
         lane: "immediate",

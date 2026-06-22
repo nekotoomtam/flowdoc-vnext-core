@@ -57,6 +57,7 @@ Parent goal:
 | 48 | Visible range request boundary | done | `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/public/visibleRange.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 49 | Structural runtime store boundary | done | `docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 50 | Text packet store apply boundary | done | `docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 51 | Store-backed render boundary | done | `docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -967,6 +968,32 @@ application, persistent runtime-store storage, lazy heavy-detail routes,
 viewport or scroll controllers, virtualized rendering, hidden/offscreen DOM
 pruning, rich text editing, contenteditable DOM mapping, live-layout rendering,
 persistence, API routes, or package/document version changes.
+
+## Phase 51 Store-Backed Render Boundary
+
+Phase 51 makes the sandbox tree/canvas render path consume a store-backed
+render model:
+
+- `examples/template-builder-sandbox/public/renderModel.js` owns
+  `createStoreBackedRenderModel(...)`, render-model source/mode, section shell
+  creation, node lookup, child lookup, and section root lookup for rendering;
+- `examples/template-builder-sandbox/public/app.js` creates a render model for
+  each render pass and uses it for selected node reads, tree/canvas section
+  roots, recursive node children, inspector child rows, and render status;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.createStoreBackedRenderModel` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md` records the Phase 51
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves browser-safe render
+  model creation, app render ownership, generated action-lane exposure, and
+  post-packet render text coming from the runtime store while the tree-shaped
+  metadata snapshot can still contain old text.
+
+This phase intentionally does not implement DOM scroll tracking, viewport
+measurement, virtualized rendering, hidden/offscreen DOM pruning, lazy
+heavy-detail routes, structural add/delete/move packet application, rich text
+editing, contenteditable DOM mapping, live-layout rendering, persistence, API
+routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 

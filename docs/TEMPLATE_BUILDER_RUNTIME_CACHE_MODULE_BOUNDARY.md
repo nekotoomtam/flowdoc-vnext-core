@@ -75,6 +75,10 @@ The direct text path reports `text-packet-direct`. Snapshot metadata still
 advances for revision, mutation bridge, diagnostics, authoring history, and
 live-layout summaries.
 
+Phase 51 adds `public/renderModel.js` above the cache. The runtime cache still
+owns store/view/range facts; the render model packages those facts with
+snapshot section/page metadata for tree and canvas rendering.
+
 ## Packet Apply Boundary
 
 `applyChangePacketToRuntime(...)` now applies supported text-block change

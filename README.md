@@ -157,6 +157,9 @@ The package must remain runnable without any parent editor checkout.
 - Text packet store boundary applies bounded text-block change packets directly
   to the browser runtime store while keeping full structural packet operations
   deferred
+- Store-backed render boundary makes sandbox tree/canvas rendering consume a
+  runtime-store-backed render model instead of walking tree-shaped snapshot
+  sections for active node content
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -271,6 +274,8 @@ The package must remain runnable without any parent editor checkout.
   runtime store boundary for browser lookup indexes below the editor view
 - `docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md`: Phase 50 direct text
   packet application boundary for the browser runtime store
+- `docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md`: Phase 51
+  store-backed render model boundary before viewport virtualization
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -313,6 +318,6 @@ The package must remain runnable without any parent editor checkout.
   consumption contracts
 - durable operation/authoring history persistence outside in-memory helpers
 - durable/full undo/redo replay beyond sandbox in-memory text patches
-- product-level visible editor acceptance smokes
+- product-level visible editor acceptance smokes beyond the sandbox render path
 - durable browser cache persistence and full structural packet application
 - publishing/distribution strategy beyond local package consumption

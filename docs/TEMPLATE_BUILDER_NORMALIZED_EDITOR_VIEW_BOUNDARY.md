@@ -99,6 +99,10 @@ Phase 49 moves structural traversal and lookup index construction into
 only editor-view facts such as dirty ids, changed ids, visible range requests,
 and resolved visible ranges.
 
+Phase 51 adds `public/renderModel.js` above this store/view path. The app shell
+now renders tree and canvas section roots through the store-backed render model
+instead of importing editor-view traversal helpers directly.
+
 ## Scale Direction
 
 This phase makes the long-term path explicit:
@@ -121,12 +125,17 @@ Phase 45 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 - section root zones and child traversal resolve through index helpers;
 - parent and visible node counts are available without walking the tree from
   the test;
-- `app.js` imports the editor view module and renders through helper calls;
+- `app.js` renders through lookup-first helper calls instead of walking
+  snapshot node children directly;
 - the action lane exposes `browser.createNormalizedEditorView`.
 
 Phase 47 extends the same tests to prove default views use `section-window`,
 explicit bounded ranges can be resolved without DOM access, and `visibleNodeIds`
 comes from `public/visibleRange.js`.
+
+Phase 51 extends the render path with `public/renderModel.js`, proving
+post-packet tree/canvas reads come from the runtime store even when snapshot
+tree text is stale.
 
 ## Non-Goals
 

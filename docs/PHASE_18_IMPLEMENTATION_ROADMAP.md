@@ -1006,6 +1006,40 @@ Acceptance:
   virtualized rendering, rich text, contenteditable mapping, live renderer,
   route, persistence, or package version change is claimed.
 
+## Phase 51: Store-Backed Render Boundary
+
+Goal:
+
+- make the sandbox tree/canvas render path consume a store-backed render model
+  so active node content comes from the runtime store before viewport
+  controllers, lazy detail, or virtualized rendering.
+
+Deliverables:
+
+- browser-safe `public/renderModel.js` module;
+- render model source/version/mode contract;
+- render section shells that combine snapshot page metadata with runtime-store
+  section roots;
+- render helper reads for node, children, and section roots;
+- app shell integration so tree/canvas/inspector child rows use render-model
+  reads instead of walking snapshot section trees;
+- app status output for render model mode/counts;
+- action lane for `browser.createStoreBackedRenderModel`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- render model construction can run in Node without DOM access;
+- app rendering does not iterate `snapshot.sections.map` for tree/canvas
+  section rendering;
+- after a text packet, render model reads changed text from the runtime store
+  even if the metadata snapshot still has stale tree text;
+- snapshot remains available for template/page/action/diagnostic metadata;
+- no DOM scroll tracking, viewport measurement, virtualized rendering, lazy
+  detail endpoint, structural add/delete/move packet application, rich text,
+  contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

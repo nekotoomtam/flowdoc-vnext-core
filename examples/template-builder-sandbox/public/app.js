@@ -1,7 +1,9 @@
 import {
-  getEditorViewChildren,
-  getEditorViewSectionRootNodes,
-} from "./editorView.js"
+  createStoreBackedRenderModel,
+  getStoreBackedRenderChildren,
+  getStoreBackedRenderNode,
+  getStoreBackedRenderSectionRootNodes,
+} from "./renderModel.js"
 import {
   applyChangePacketToRuntime,
   createBootRuntimeState,
@@ -37,6 +39,7 @@ const state = {
   draftCommandText: "",
   lastPacket: null,
   mutationText: "Edited through the mutation bridge",
+  renderModel: null,
   runtimeCache: null,
   selectedId: null,
   selectionSource: "boot",
@@ -72,20 +75,24 @@ function setVisibleRangeRequest(request) {
 
 function selectedNode() {
   if (!state.snapshot || !state.selectedId) return null
-  return state.runtimeCache?.nodeById.get(state.selectedId) || null
+  return getStoreBackedRenderNode(state.renderModel, state.selectedId)
+    || state.runtimeCache?.nodeById.get(state.selectedId)
+    || null
 }
 
 function nodeById(nodeId) {
   if (!state.snapshot || !nodeId) return null
-  return state.runtimeCache?.nodeById.get(nodeId) || null
+  return getStoreBackedRenderNode(state.renderModel, nodeId)
+    || state.runtimeCache?.nodeById.get(nodeId)
+    || null
 }
 
 function nodeChildren(node) {
-  return getEditorViewChildren(state.runtimeCache?.editorView, node?.id)
+  return getStoreBackedRenderChildren(state.renderModel, node?.id)
 }
 
 function sectionRootZones(section) {
-  return getEditorViewSectionRootNodes(state.runtimeCache?.editorView, section?.id)
+  return getStoreBackedRenderSectionRootNodes(state.renderModel, section?.id)
 }
 
 function applyChangePacket(packet) {
@@ -895,15 +902,15 @@ function renderTreeNode(node, depth = 0) {
   `
 }
 
-function renderNodeTree(snapshot) {
+function renderNodeTree(renderModel) {
   return `
     <aside class="panel node-tree">
       <div class="panel-heading">
         <h2>Nodes</h2>
-        ${renderBadge(`${snapshot.counts.nodes} total`, "neutral")}
+        ${renderBadge(`${renderModel.nodeCount} total`, "neutral")}
       </div>
       <div class="tree-scroll">
-        ${snapshot.sections.map((section) => `
+        ${renderModel.sections.map((section) => `
           <section class="section-tree">
             <div class="section-label">${escapeHtml(section.id)} <span>${escapeHtml(section.page)}</span></div>
             <ol>${sectionRootZones(section).map((zone) => renderTreeNode(zone)).join("")}</ol>
@@ -1035,7 +1042,7 @@ function renderCanvasNode(node) {
   `
 }
 
-function renderCanvas(snapshot) {
+function renderCanvas(snapshot, renderModel) {
   return `
     <main class="canvas-wrap">
       <div class="canvas-header">
@@ -1050,7 +1057,7 @@ function renderCanvas(snapshot) {
         </div>
       </div>
       <div class="page-stack">
-        ${snapshot.sections.map((section) => `
+        ${renderModel.sections.map((section) => `
           <article class="page">
             <header class="page-heading">
               <strong>${escapeHtml(section.id)}</strong>
@@ -1084,6 +1091,7 @@ function renderInspector(snapshot) {
   const draftSelection = normalizedDraftSelection()
   const draftSelectionMax = draftIsActive() ? state.draft.text.length : 0
   const draftSelectionControlDisabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
+  const childNodes = node ? nodeChildren(node) : []
   const fieldRows = snapshot.fields.map((field) => `
     <li>
       <span>${escapeHtml(field.label)}</span>
@@ -1091,8 +1099,8 @@ function renderInspector(snapshot) {
       <em>${escapeHtml(field.type)} / ${field.usageCount} refs</em>
     </li>
   `).join("")
-  const childRows = node?.children.length
-    ? node.children.map((child) => `
+  const childRows = childNodes.length
+    ? childNodes.map((child) => `
       <li>
         <button type="button" class="node-link" data-node-id="${escapeHtml(child.id)}">
           <span>${escapeHtml(child.type)}</span>
@@ -1392,7 +1400,7 @@ function renderInspector(snapshot) {
   `
 }
 
-function renderStatus(snapshot) {
+function renderStatus(snapshot, renderModel) {
   const node = selectedNode()
   const packetLabel = state.lastPacket
     ? `Packet: ${state.lastPacket.changedNodeIds.length} changed ${state.lastPacket.baseRevision}->${state.lastPacket.nextRevision}`
@@ -1411,6 +1419,9 @@ function renderStatus(snapshot) {
   const editorViewLabel = state.runtimeCache
     ? `View: ${state.runtimeCache.viewMode} ${state.runtimeCache.childrenById.size} child indexes ${state.runtimeCache.dirtyNodeCount} dirty`
     : "View: none"
+  const renderModelLabel = renderModel
+    ? `Render: ${renderModel.mode} ${renderModel.sectionCount} sections ${renderModel.nodeCount} nodes`
+    : "Render: none"
   const storeLabel = state.runtimeCache
     ? `Store: ${state.runtimeCache.storeMode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.runtimeStore.sectionCount} sections`
     : "Store: none"
@@ -1432,6 +1443,7 @@ function renderStatus(snapshot) {
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
       <span>${escapeHtml(storeLabel)}</span>
       <span>${escapeHtml(storeApplyLabel)}</span>
+      <span>${escapeHtml(renderModelLabel)}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
       <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>
@@ -1834,18 +1846,22 @@ async function applyHistoryAction(action) {
 function render() {
   const snapshot = state.snapshot
   if (!snapshot) {
+    state.renderModel = null
     app.innerHTML = `<div class="loading">Loading sandbox...</div>`
     return
   }
 
+  const renderModel = createStoreBackedRenderModel(snapshot, state.runtimeCache)
+  state.renderModel = renderModel
+
   app.innerHTML = `
     ${renderToolbar(snapshot)}
     <div class="workspace">
-      ${renderNodeTree(snapshot)}
-      ${renderCanvas(snapshot)}
+      ${renderNodeTree(renderModel)}
+      ${renderCanvas(snapshot, renderModel)}
       ${renderInspector(snapshot)}
     </div>
-    ${renderStatus(snapshot)}
+    ${renderStatus(snapshot, renderModel)}
   `
 
   bindSelectionHandlers()

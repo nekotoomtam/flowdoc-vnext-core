@@ -282,6 +282,11 @@ This is not the full structural packet engine, but it prevents safe text-block
 edits from depending on tree-shaped snapshot patching as the active runtime
 path.
 
+Phase 51 adds a store-backed render model for the sandbox tree and canvas. The
+render model still uses snapshot section/page metadata, but node content,
+children, and section roots come from the runtime store before viewport
+virtualization begins.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:
