@@ -168,6 +168,9 @@ The package must remain runnable without any parent editor checkout.
   scheduling is wired
 - Render shell boundary keeps full-document section placeholders in the canvas
   while mounting detailed node content only for the active render window
+- Viewport measurement boundary reads browser-local section shell boxes into
+  normalized viewport facts before scroll event binding or virtualized renderer
+  scheduling is wired
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -290,6 +293,9 @@ The package must remain runnable without any parent editor checkout.
   request boundary before DOM scroll measurement and virtualized rendering
 - `docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md`: Phase 54 full-document
   canvas shell with active-window detail rendering
+- `docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md`: Phase 55
+  section-shell measurement boundary before scroll controllers and virtualized
+  renderer scheduling
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -314,7 +320,7 @@ The package must remain runnable without any parent editor checkout.
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
-  undo/redo UI, DOM scroll measurement, lazy heavy-detail routes,
+  undo/redo UI, DOM scroll event binding, lazy heavy-detail routes,
   responsibility-sliced editor modules, and a concrete browser live-layout
   renderer
 - replacement for current parent `/api/paginate` or `/api/export`
@@ -334,6 +340,6 @@ The package must remain runnable without any parent editor checkout.
 - durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes beyond the sandbox render path
 - durable browser cache persistence, full structural packet application, and
-  true virtualized renderer scheduling beyond the sandbox render-shell
-  placeholder contract
+  true virtualized renderer scheduling beyond the sandbox render-shell and
+  viewport-measurement contracts
 - publishing/distribution strategy beyond local package consumption

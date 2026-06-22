@@ -302,6 +302,11 @@ while mounting detailed content only for the active render window. This gives
 future scroll measurement a full-document shell without claiming virtualized
 rendering yet.
 
+Phase 55 adds a viewport section-shell measurement boundary. The app may read
+browser-local page rectangles, but normalization and anchor-section selection
+live in a browser-safe module that feeds the existing viewport request path.
+It still does not bind scroll events or claim virtualized rendering.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

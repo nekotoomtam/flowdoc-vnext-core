@@ -61,6 +61,7 @@ Parent goal:
 | 52 | Render window boundary | done | `docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderWindow.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 53 | Viewport request boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportController.js`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 54 | Render shell placeholder boundary | done | `docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderShell.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 55 | Viewport section-shell measurement boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1078,6 +1079,34 @@ detailed content bounded to the active render window:
 This phase intentionally does not implement DOM scroll event binding, viewport
 measurement, measured spacer heights, scroll sync, virtualized renderer
 scheduling, hidden/offscreen DOM pruning schedulers, lazy heavy-detail routes,
+structural add/delete/move packet application, rich text editing,
+contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
+package/document version changes.
+
+## Phase 55 Viewport Section-Shell Measurement Boundary
+
+Phase 55 adds a bounded measurement layer between the render shell and the
+existing viewport request contract:
+
+- `examples/template-builder-sandbox/public/viewportMeasurement.js` owns
+  `createViewportMeasurement(...)`, `createViewportFactsFromMeasurement(...)`,
+  `resolveMeasuredViewportRangeRequest(...)`, measurement source/mode,
+  section visibility facts, and anchor-section selection;
+- `examples/template-builder-sandbox/public/app.js` adds `data-section-id` to
+  render-shell pages, reads current page rectangles after render, delegates
+  normalization to the measurement module, and reports read-only measurement
+  status;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.measureViewportShell` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md` records the Phase
+  55 boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves browser-safe
+  measurement ownership, action-lane exposure, synthetic section-box anchoring,
+  and reuse of the existing viewport request path.
+
+This phase intentionally does not implement scroll event binding, automatic
+visible-range switching from scroll, measured spacer heights, virtualized
+renderer scheduling, hidden/offscreen DOM pruning, lazy heavy-detail routes,
 structural add/delete/move packet application, rich text editing,
 contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
 package/document version changes.

@@ -19,8 +19,9 @@ store-backed render model
   -> canvas section placeholders + active detail
 ```
 
-This gives the browser a full-document section shell before DOM measurement,
-spacers, or virtualized rendering exists.
+This gives the browser a full-document section shell before spacers or
+virtualized rendering exists. Phase 55 adds bounded section-shell measurement
+on top of this shell without changing render-shell ownership.
 
 ## Implemented Module
 
@@ -42,8 +43,9 @@ exposes shell facts to the app shell.
 
 `app.js` now iterates render-shell sections for the canvas. A section in the
 active render window renders detailed node content. Other sections render a
-light placeholder page so the canvas has a full-document shell before true
-viewport measurement is added.
+light placeholder page so the canvas has a full-document shell that later
+measurement and scroll controller phases can inspect without mounting every
+node in detail.
 
 ## Acceptance Evidence
 
@@ -60,7 +62,7 @@ Phase 54 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 Phase 54 does not implement virtualized rendering:
 
 - no DOM scroll event binding;
-- no viewport measurement;
+- no viewport measurement in this module;
 - no measured spacer heights;
 - no scroll sync;
 - no hidden/offscreen DOM pruning scheduler;

@@ -57,6 +57,10 @@ Phase 54 adds a render shell above this request path. Viewport requests still
 choose the active detail window; render shell placeholders keep the rest of the
 document represented for future measurement work.
 
+Phase 55 adds `public/viewportMeasurement.js` as a producer of viewport facts
+from section shell boxes. The request resolver remains the owner of turning
+those facts into visible-range requests.
+
 ## Acceptance Evidence
 
 Phase 53 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
@@ -72,7 +76,7 @@ Phase 53 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 Phase 53 does not implement viewport control:
 
 - no DOM scroll event binding;
-- no viewport measurement;
+- no viewport measurement in this module;
 - no spacer or virtual list;
 - no scroll sync;
 - no hidden/offscreen DOM pruning scheduler;

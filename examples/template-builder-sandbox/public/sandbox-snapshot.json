@@ -1892,6 +1892,13 @@
       "reason": "browser canvas keeps section placeholders for the full document while rendering only the active window in detail"
     },
     {
+      "action": "browser.measureViewportShell",
+      "label": "Viewport measure",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser canvas can measure section shell boxes into normalized viewport facts without binding scroll control"
+    },
+    {
       "action": "browser.resolveViewportRangeRequest",
       "label": "Viewport request",
       "lane": "immediate",

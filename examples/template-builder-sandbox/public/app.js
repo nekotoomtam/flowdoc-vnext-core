@@ -18,6 +18,9 @@ import {
   createDraftVisibleRangeRequest,
   createSelectionVisibleRangeRequest,
 } from "./visibleRangeRequest.js"
+import {
+  createViewportMeasurement,
+} from "./viewportMeasurement.js"
 
 const app = document.querySelector("#app")
 
@@ -48,6 +51,7 @@ const state = {
   selectedId: null,
   selectionSource: "boot",
   snapshot: null,
+  viewportMeasurement: null,
 }
 
 function escapeHtml(value) {
@@ -109,6 +113,48 @@ function renderWindowSectionRootZones(section) {
 
 function renderShellSectionRendered(section) {
   return isStoreBackedRenderShellSectionRendered(state.renderModel, section?.id)
+}
+
+function readCanvasViewportMeasurement(renderModel) {
+  const canvas = app.querySelector(".canvas-wrap")
+  if (!canvas || !renderModel) return null
+  const canvasRect = canvas.getBoundingClientRect()
+  const pageElements = [...canvas.querySelectorAll(".page[data-section-id]")]
+  const sections = pageElements.map((pageElement, index) => {
+    const pageRect = pageElement.getBoundingClientRect()
+    const top = pageRect.top - canvasRect.top + canvas.scrollTop
+    const height = pageRect.height
+
+    return {
+      bottom: top + height,
+      height,
+      id: pageElement.dataset.sectionId,
+      index,
+      rendered: pageElement.dataset.renderShellState === "rendered",
+      shellState: pageElement.dataset.renderShellState,
+      top,
+    }
+  })
+
+  return createViewportMeasurement({
+    measuredAtRevision: renderModel.documentRevision,
+    scrollHeight: canvas.scrollHeight,
+    scrollTop: canvas.scrollTop,
+    sections,
+    viewportHeight: canvas.clientHeight || canvasRect.height,
+  })
+}
+
+function viewportMeasurementLabel() {
+  const measurement = state.viewportMeasurement
+  if (!measurement) return "Measurement: pending"
+  return `Measurement: ${measurement.mode} ${measurement.anchorSectionId || "none"} ${measurement.visibleSectionCount}/${measurement.sectionCount} visible`
+}
+
+function syncViewportMeasurementStatus() {
+  app.querySelectorAll("[data-viewport-measurement-status]").forEach((target) => {
+    target.textContent = viewportMeasurementLabel()
+  })
 }
 
 function applyChangePacket(packet) {
@@ -1081,7 +1127,11 @@ function renderCanvas(snapshot, renderModel) {
           const rendered = renderShellSectionRendered(section)
 
           return `
-          <article class="page${rendered ? "" : " is-placeholder"}" data-render-shell-state="${rendered ? "rendered" : "placeholder"}">
+          <article
+            class="page${rendered ? "" : " is-placeholder"}"
+            data-render-shell-state="${rendered ? "rendered" : "placeholder"}"
+            data-section-id="${escapeHtml(section.id)}"
+          >
             <header class="page-heading">
               <strong>${escapeHtml(section.id)}</strong>
               <span>${escapeHtml(section.page)}</span>
@@ -1489,6 +1539,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderModelLabel)}</span>
       <span>${escapeHtml(renderWindowLabel)}</span>
       <span>${escapeHtml(renderShellLabel)}</span>
+      <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
       <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>
@@ -1910,6 +1961,8 @@ function render() {
   `
 
   bindSelectionHandlers()
+  state.viewportMeasurement = readCanvasViewportMeasurement(renderModel)
+  syncViewportMeasurementStatus()
 }
 
 async function boot() {

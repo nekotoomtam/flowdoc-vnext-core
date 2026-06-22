@@ -1142,6 +1142,39 @@ Acceptance:
   contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 55: Viewport Section-Shell Measurement Boundary
+
+Goal:
+
+- add a bounded DOM measurement bridge that turns render-shell page positions
+  into normalized viewport facts before scroll controllers or virtualized
+  renderer scheduling are wired.
+
+Deliverables:
+
+- browser-safe `public/viewportMeasurement.js` module;
+- measurement source/version/mode contract;
+- section shell box normalization for top, bottom, height, visible height, and
+  coverage;
+- most-visible anchor-section selection;
+- conversion from measurement facts into the existing viewport request path;
+- app shell page ids and read-only measurement status;
+- action lane for `browser.measureViewportShell`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- measurement policy can run in Node without DOM access;
+- the app only reads DOM rectangle facts and delegates normalization/anchor
+  policy to the measurement module;
+- synthetic section boxes can produce a viewport request consumed by runtime
+  cache and render window;
+- render shell pages expose stable section ids for future viewport work;
+- no scroll event binding, automatic visible-range switching, measured
+  spacer/virtual list, virtualized renderer scheduler, lazy detail endpoint,
+  structural packet engine, rich text, contenteditable mapping, live renderer,
+  route, persistence, or package version change is claimed.
+
 ## Later Phases
 
 Goal:
