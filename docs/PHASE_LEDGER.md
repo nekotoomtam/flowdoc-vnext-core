@@ -81,6 +81,7 @@ Parent goal:
 | 72 | Structural mutation bridge boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_MUTATION_BRIDGE_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 73 | Structural command UI boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_UI_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 74 | Structural outline jump boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_OUTLINE_JUMP_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralOutlineNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 75 | Structural diagnostics navigation boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1703,6 +1704,34 @@ This phase intentionally does not implement drag/drop outline editing,
 multi-select structural operations, keyboard tree commands, inline outline
 rename, diagnostics/source jump UI, durable structural undo/redo, persistence,
 backend public API exposure, collaboration/conflict merge, offline replay, or
+package/document schema changes.
+
+## Phase 75 Structural Diagnostics Navigation Boundary
+
+Phase 75 adds a bounded diagnostics navigation surface:
+
+- `examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js`
+  owns `STRUCTURAL_DIAGNOSTICS_NAVIGATION_SOURCE`,
+  `STRUCTURAL_DIAGNOSTICS_NAVIGATION_MODE`,
+  `createStructuralDiagnosticItems(...)`, and
+  `createStructuralDiagnosticNavigationRequest(...)`;
+- the sandbox inspector now renders snapshot diagnostics and latest packet
+  issues as a bounded list;
+- document-level diagnostics remain visible but non-clickable;
+- node-linked issues can jump only when their `nodeId` exists in the current
+  runtime node index;
+- accepted diagnostic jumps reuse the Phase 74 outline/node-aware selection
+  visible-range path with `selectionSource: "diagnostics"`;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.runStructuralDiagnosticsNavigation`;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves item normalization,
+  node-linked request behavior, blocked document-level behavior, source guards,
+  action catalog entry, docs, and snapshot exposure.
+
+This phase intentionally does not implement a new diagnostics engine, key-data
+or graph diagnostic semantic changes, automatic issue fixes, structural command
+policy changes, persistence, backend public API exposure,
+collaboration/conflict merge, offline replay, durable history, or
 package/document schema changes.
 
 ## Phase 12 Extraction Record

@@ -55,6 +55,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/runtimeStore.js",
       "../examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js",
       "../examples/template-builder-sandbox/public/structuralOutlineNavigation.js",
+      "../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -153,6 +154,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runStructuralCommandUi")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runStructuralOutlineJump")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runStructuralDiagnosticsNavigation")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.insertStructuralTextBlock")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.deleteStructuralNode")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.reorderStructuralNode")
@@ -305,6 +307,135 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedOk).toBe(false)
     expect(result.rejectedReason).toBe("missing-node")
     expect(result.rejectedVisibleRangeRequest).toBeNull()
+  })
+
+  it("creates structural diagnostics navigation requests without guessing document-level nodes", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        STRUCTURAL_DIAGNOSTICS_NAVIGATION_MODE,
+        STRUCTURAL_DIAGNOSTICS_NAVIGATION_SOURCE,
+        createStructuralDiagnosticItems,
+        createStructuralDiagnosticNavigationRequest,
+      } = await import("./public/structuralDiagnosticsNavigation.js");
+
+      const diagnostics = createStructuralDiagnosticItems({
+        diagnostics: {
+          artifactStatus: "ready",
+          exactLayoutStatus: "ready",
+          generationStatus: "ready-with-warnings",
+          graphIssueCount: 0,
+          keyDataStatus: "ready",
+        },
+        issues: [
+          { code: "node-warning", message: "Node warning", nodeId: "cover-title", severity: "warning" },
+          { code: "missing-node", message: "Missing node", nodeId: "does-not-exist", severity: "error" },
+          { code: "document-warning", message: "Document warning", severity: "warning" },
+        ],
+        knownNodeIds: ["cover-title"],
+      });
+      const nodeItem = diagnostics.items.find((item) => item.code === "node-warning");
+      const missingItem = diagnostics.items.find((item) => item.code === "missing-node");
+      const documentItem = diagnostics.items.find((item) => item.code === "document-warning");
+      const nodeRequest = createStructuralDiagnosticNavigationRequest({
+        documentRevision: 4,
+        item: nodeItem,
+        node: { id: "cover-title", type: "text-block" },
+        previousVisibleRangeRequest: {
+          budget: { maxNodes: 42, mode: "interactive" },
+          overscanSectionsAfter: 1,
+          overscanSectionsBefore: 1,
+        },
+      });
+      const missingRequest = createStructuralDiagnosticNavigationRequest({
+        documentRevision: 4,
+        item: missingItem,
+        node: null,
+      });
+      const documentRequest = createStructuralDiagnosticNavigationRequest({
+        documentRevision: 4,
+        item: documentItem,
+        node: null,
+      });
+
+      console.log(JSON.stringify({
+        constants: {
+          mode: STRUCTURAL_DIAGNOSTICS_NAVIGATION_MODE,
+          source: STRUCTURAL_DIAGNOSTICS_NAVIGATION_SOURCE,
+        },
+        documentCanJump: documentItem.canJump,
+        documentReason: documentItem.reason,
+        documentRequestOk: documentRequest.ok,
+        documentRequestReason: documentRequest.reason,
+        itemCount: diagnostics.itemCount,
+        missingCanJump: missingItem.canJump,
+        missingReason: missingItem.reason,
+        missingRequestOk: missingRequest.ok,
+        missingRequestReason: missingRequest.reason,
+        mode: diagnostics.mode,
+        nodeCanJump: nodeItem.canJump,
+        nodeLinkedCount: diagnostics.nodeLinkedCount,
+        nodeRequestMode: nodeRequest.mode,
+        nodeRequestNodeId: nodeRequest.nodeId,
+        nodeRequestOk: nodeRequest.ok,
+        nodeRequestReason: nodeRequest.reason,
+        nodeRequestSelectionSource: nodeRequest.selectionSource,
+        nodeRequestSource: nodeRequest.source,
+        nodeRequestVisibleAnchor: nodeRequest.visibleRangeRequest.anchorNodeId,
+        nodeRequestVisibleBudget: nodeRequest.visibleRangeRequest.budget,
+        source: diagnostics.source,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      constants: { mode: string; source: string }
+      documentCanJump: boolean
+      documentReason: string
+      documentRequestOk: boolean
+      documentRequestReason: string
+      itemCount: number
+      missingCanJump: boolean
+      missingReason: string
+      missingRequestOk: boolean
+      missingRequestReason: string
+      mode: string
+      nodeCanJump: boolean
+      nodeLinkedCount: number
+      nodeRequestMode: string
+      nodeRequestNodeId: string
+      nodeRequestOk: boolean
+      nodeRequestReason: string
+      nodeRequestSelectionSource: string
+      nodeRequestSource: string
+      nodeRequestVisibleAnchor: string
+      nodeRequestVisibleBudget: { maxNodes: number; mode: string }
+      source: string
+    }
+
+    expect(result.source).toBe("flowdoc-structural-diagnostics-navigation")
+    expect(result.mode).toBe("structural-diagnostics-navigation")
+    expect(result.source).toBe(result.constants.source)
+    expect(result.mode).toBe(result.constants.mode)
+    expect(result.itemCount).toBe(8)
+    expect(result.nodeLinkedCount).toBe(1)
+    expect(result.nodeCanJump).toBe(true)
+    expect(result.nodeRequestOk).toBe(true)
+    expect(result.nodeRequestSource).toBe("flowdoc-structural-diagnostics-navigation")
+    expect(result.nodeRequestMode).toBe("structural-diagnostics-navigation")
+    expect(result.nodeRequestReason).toBe("diagnostic-node")
+    expect(result.nodeRequestSelectionSource).toBe("diagnostics")
+    expect(result.nodeRequestNodeId).toBe("cover-title")
+    expect(result.nodeRequestVisibleAnchor).toBe("cover-title")
+    expect(result.nodeRequestVisibleBudget).toEqual({ maxNodes: 42, mode: "interactive" })
+    expect(result.missingCanJump).toBe(false)
+    expect(result.missingReason).toBe("missing-node")
+    expect(result.missingRequestOk).toBe(false)
+    expect(result.missingRequestReason).toBe("missing-node")
+    expect(result.documentCanJump).toBe(false)
+    expect(result.documentReason).toBe("document-level")
+    expect(result.documentRequestOk).toBe(false)
+    expect(result.documentRequestReason).toBe("document-level")
   })
 
   it("declares one mutation bridge route without direct browser document mutation", () => {
@@ -1285,6 +1416,7 @@ describe("template builder sandbox boundary", () => {
     const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
     const runtimeStoreStructuralPacketSource = readText("../examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js")
     const structuralOutlineNavigationSource = readText("../examples/template-builder-sandbox/public/structuralOutlineNavigation.js")
+    const structuralDiagnosticsNavigationSource = readText("../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -1318,10 +1450,12 @@ describe("template builder sandbox boundary", () => {
     const structuralMutationBridgeDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_MUTATION_BRIDGE_BOUNDARY.md")
     const structuralCommandUiDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_UI_BOUNDARY.md")
     const structuralOutlineJumpDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_OUTLINE_JUMP_BOUNDARY.md")
+    const structuralDiagnosticsNavigationDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
     expect(appSource).toContain('from "./structuralOutlineNavigation.js"')
+    expect(appSource).toContain('from "./structuralDiagnosticsNavigation.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
@@ -1438,6 +1572,13 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("createStructuralOutlineJumpRequest")
     expect(appSource).toContain("data-outline-jump-status")
     expect(appSource).toContain("jumpRequest.selectionSource")
+    expect(appSource).toContain("renderStructuralDiagnosticsNavigation")
+    expect(appSource).toContain("createStructuralDiagnosticItems")
+    expect(appSource).toContain("createStructuralDiagnosticNavigationRequest")
+    expect(appSource).toContain("runStructuralDiagnosticNavigation")
+    expect(appSource).toContain("data-diagnostic-node-id")
+    expect(appSource).toContain("data-diagnostic-navigation-status")
+    expect(appSource).toContain("navigationRequest.selectionSource")
     expect(appSource).toContain("data-structural-text")
     expect(appSource).toContain("data-structure-action")
     expect(appSource).toContain("applyHistoryAction")
@@ -1465,6 +1606,9 @@ describe("template builder sandbox boundary", () => {
     expect(stylesSource).toContain("--virtual-spacer-height")
     expect(stylesSource).toContain(".structure-actions")
     expect(stylesSource).toContain(".outline-jump-status")
+    expect(stylesSource).toContain(".diagnostic-list")
+    expect(stylesSource).toContain(".diagnostic-item")
+    expect(stylesSource).toContain(".diagnostic-target")
     expect(runtimeStoreSource).toContain("createRuntimeStore")
     expect(runtimeStoreSource).toContain("flowdoc-structural-runtime-store")
     expect(runtimeStoreSource).toContain("applyTextChangePacketToRuntimeStore")
@@ -1486,6 +1630,13 @@ describe("template builder sandbox boundary", () => {
     expect(structuralOutlineNavigationSource).toContain("createSelectionVisibleRangeRequest")
     expect(structuralOutlineNavigationSource).not.toContain("document.")
     expect(structuralOutlineNavigationSource).not.toContain("querySelector")
+    expect(structuralDiagnosticsNavigationSource).toContain("STRUCTURAL_DIAGNOSTICS_NAVIGATION_SOURCE")
+    expect(structuralDiagnosticsNavigationSource).toContain("STRUCTURAL_DIAGNOSTICS_NAVIGATION_MODE")
+    expect(structuralDiagnosticsNavigationSource).toContain("createStructuralDiagnosticItems")
+    expect(structuralDiagnosticsNavigationSource).toContain("createStructuralDiagnosticNavigationRequest")
+    expect(structuralDiagnosticsNavigationSource).toContain("createStructuralOutlineJumpRequest")
+    expect(structuralDiagnosticsNavigationSource).not.toContain("document.")
+    expect(structuralDiagnosticsNavigationSource).not.toContain("querySelector")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -1702,6 +1853,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyStructuralPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.runStructuralCommandUi")
     expect(coreBoundarySource).toContain("browser.runStructuralOutlineJump")
+    expect(coreBoundarySource).toContain("browser.runStructuralDiagnosticsNavigation")
     expect(coreBoundarySource).toContain("sandbox.insertStructuralTextBlock")
     expect(coreBoundarySource).toContain("sandbox.deleteStructuralNode")
     expect(coreBoundarySource).toContain("sandbox.reorderStructuralNode")
@@ -1778,6 +1930,11 @@ describe("template builder sandbox boundary", () => {
     expect(structuralOutlineJumpDoc).toContain("createStructuralOutlineJumpRequest")
     expect(structuralOutlineJumpDoc).toContain("browser.runStructuralOutlineJump")
     expect(structuralOutlineJumpDoc).toContain("does not implement drag/drop outline editing")
+    expect(structuralDiagnosticsNavigationDoc).toContain("Status: Phase 75 implementation boundary.")
+    expect(structuralDiagnosticsNavigationDoc).toContain("createStructuralDiagnosticItems")
+    expect(structuralDiagnosticsNavigationDoc).toContain("createStructuralDiagnosticNavigationRequest")
+    expect(structuralDiagnosticsNavigationDoc).toContain("browser.runStructuralDiagnosticsNavigation")
+    expect(structuralDiagnosticsNavigationDoc).toContain("does not implement a new diagnostics engine")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")

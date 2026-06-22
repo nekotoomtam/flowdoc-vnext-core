@@ -60,6 +60,10 @@ import {
 import {
   createStructuralOutlineJumpRequest,
 } from "./structuralOutlineNavigation.js"
+import {
+  createStructuralDiagnosticItems,
+  createStructuralDiagnosticNavigationRequest,
+} from "./structuralDiagnosticsNavigation.js"
 
 const app = document.querySelector("#app")
 
@@ -91,6 +95,7 @@ const state = {
   selectedId: null,
   selectionSource: "boot",
   snapshot: null,
+  structuralDiagnosticsNavigation: null,
   structuralOutlineJump: null,
   structuralText: "New structural text block",
   viewportAnchor: null,
@@ -171,6 +176,18 @@ function renderWindowSectionRootZones(section) {
 
 function renderShellSectionRendered(section) {
   return isStoreBackedRenderShellSectionRendered(state.renderModel, section?.id)
+}
+
+function knownRuntimeNodeIds() {
+  return state.runtimeCache?.nodeById ? [...state.runtimeCache.nodeById.keys()] : []
+}
+
+function structuralDiagnosticItems(snapshot) {
+  return createStructuralDiagnosticItems({
+    diagnostics: snapshot?.diagnostics,
+    issues: state.lastPacket?.issues || [],
+    knownNodeIds: knownRuntimeNodeIds(),
+  })
 }
 
 function readCanvasViewportMeasurement(renderModel) {
@@ -1559,6 +1576,49 @@ function renderTextPreview(node) {
   })
 }
 
+function renderStructuralDiagnosticItem(item) {
+  return `
+    <li class="diagnostic-item" data-state="${escapeHtml(item.severity)}">
+      <div>
+        <strong>${escapeHtml(item.label)}</strong>
+        <span>${escapeHtml(item.message)}</span>
+      </div>
+      ${
+        item.canJump
+          ? `<button
+              type="button"
+              class="node-link compact"
+              data-diagnostic-id="${escapeHtml(item.id)}"
+              data-diagnostic-node-id="${escapeHtml(item.nodeId)}"
+            >Jump</button>`
+          : `<span class="diagnostic-target" data-state="${escapeHtml(item.reason)}">${escapeHtml(item.targetLabel)}</span>`
+      }
+    </li>
+  `
+}
+
+function renderStructuralDiagnosticsNavigation(snapshot) {
+  const diagnosticsNavigation = structuralDiagnosticItems(snapshot)
+  const lastNavigation = state.structuralDiagnosticsNavigation
+  const navigationStatus = lastNavigation
+    ? lastNavigation.ok
+      ? `Jumped to ${shortId(lastNavigation.nodeId)}`
+      : `Blocked: ${lastNavigation.reason}`
+    : `${diagnosticsNavigation.nodeLinkedCount} node-linked`
+
+  return `
+    <section class="inspector-section">
+      <h3>Diagnostics</h3>
+      <ul class="diagnostic-list">
+        ${diagnosticsNavigation.items.map(renderStructuralDiagnosticItem).join("")}
+      </ul>
+      <small data-diagnostic-navigation-status>
+        Diagnostic jump: ${escapeHtml(navigationStatus)}
+      </small>
+    </section>
+  `
+}
+
 function nodeDomAttributes(node) {
   return `data-node-id="${escapeHtml(node.id)}" data-node-type="${escapeHtml(node.type)}"`
 }
@@ -2125,6 +2185,7 @@ function renderInspector(snapshot) {
           <small>${draftIsActive() ? "Draft active" : node ? "Ready" : "No node selected"}</small>
         </div>
       </section>
+      ${renderStructuralDiagnosticsNavigation(snapshot)}
       <section class="inspector-section">
         <h3>History</h3>
         <dl class="detail-list">
@@ -2304,6 +2365,28 @@ function runStructuralOutlineJump(nodeId) {
   })
 }
 
+function runStructuralDiagnosticNavigation(diagnosticId, nodeId) {
+  const items = structuralDiagnosticItems(state.snapshot).items
+  const item = items.find((candidate) => candidate.id === diagnosticId) || { id: diagnosticId, nodeId }
+  const navigationRequest = createStructuralDiagnosticNavigationRequest({
+    documentRevision: state.snapshot?.session?.documentRevision,
+    draftActive: draftIsActive(),
+    item,
+    node: nodeById(nodeId),
+    nodeId,
+    previousVisibleRangeRequest: state.runtimeCache?.visibleRangeRequest,
+  })
+  state.structuralDiagnosticsNavigation = navigationRequest
+  if (!navigationRequest.ok) {
+    render()
+    return
+  }
+
+  selectNode(navigationRequest.nodeId, navigationRequest.selectionSource, {
+    visibleRangeRequest: navigationRequest.visibleRangeRequest,
+  })
+}
+
 function bindSelectionHandlers() {
   const tree = app.querySelector(".node-tree")
   const canvas = app.querySelector(".canvas-wrap")
@@ -2437,6 +2520,16 @@ function bindSelectionHandlers() {
     if (structureTarget && inspector.contains(structureTarget)) {
       event.stopPropagation()
       applyBridgeStructuralAction(structureTarget.dataset.structureAction)
+      return
+    }
+
+    const diagnosticTarget = event.target.closest("[data-diagnostic-node-id]")
+    if (diagnosticTarget && inspector.contains(diagnosticTarget)) {
+      event.stopPropagation()
+      runStructuralDiagnosticNavigation(
+        diagnosticTarget.dataset.diagnosticId,
+        diagnosticTarget.dataset.diagnosticNodeId,
+      )
       return
     }
 

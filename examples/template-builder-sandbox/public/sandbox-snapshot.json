@@ -1913,6 +1913,13 @@
       "reason": "browser outline navigation selects nodes through node-aware visible range requests and anchor restore"
     },
     {
+      "action": "browser.runStructuralDiagnosticsNavigation",
+      "label": "Diagnostics nav",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser diagnostics navigation can jump node-linked issues through the same node-aware selection path"
+    },
+    {
       "action": "browser.createStoreBackedRenderModel",
       "label": "Render model",
       "lane": "immediate",

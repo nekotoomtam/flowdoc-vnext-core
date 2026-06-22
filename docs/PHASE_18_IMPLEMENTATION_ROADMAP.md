@@ -1808,6 +1808,31 @@ Acceptance:
   structural undo/redo, persistence, backend API exposure, collaboration,
   offline replay, or schema change is claimed.
 
+## Phase 75: Structural Diagnostics Navigation Boundary
+
+Goal:
+
+- add a bounded diagnostics navigation surface that lists current
+  snapshot/packet diagnostics and jumps only node-linked issues through the
+  node-aware selection path.
+
+Deliverables:
+
+- DOM-free structural diagnostics navigation module;
+- diagnostics item normalization for snapshot summary and latest packet issues;
+- inspector diagnostics list with document-level and node-linked states;
+- action catalog entry for `browser.runStructuralDiagnosticsNavigation`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- document-level diagnostics are visible but non-clickable;
+- node-linked diagnostics jump only when the node id exists in runtime indexes;
+- accepted diagnostic jumps reuse the Phase 74 visible-range request path;
+- missing-node diagnostics are blocked without fallback guessing;
+- no new diagnostics engine, auto-fix, persistence, backend API exposure,
+  durable history, or schema change is claimed.
+
 ## Later Phases
 
 Goal:
