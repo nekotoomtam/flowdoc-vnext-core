@@ -6,6 +6,10 @@ Phase 59 adds measured section spacer facts to the sandbox. It records section
 heights from browser-local shell measurements and reuses those heights as
 section shell minimum heights on later render passes.
 
+Phase 60 builds on these spacer facts by deriving section offset intervals and
+viewport predictions. Those predictions remain advisory and do not replace DOM
+measurement as the apply/render truth.
+
 ## Purpose
 
 Phase 58 can restore from `sectionId + offsetInSection`, but the shell can

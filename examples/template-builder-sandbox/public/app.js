@@ -35,6 +35,11 @@ import {
   createViewportSectionSpacerMap,
   resolveViewportSectionSpacer,
 } from "./viewportSectionSpacers.js"
+import {
+  createViewportSectionOffsetIndex,
+  predictViewportFromSectionOffsets,
+  resolveViewportSectionOffset,
+} from "./viewportSectionOffsets.js"
 
 const app = document.querySelector("#app")
 
@@ -69,6 +74,8 @@ const state = {
   viewportAnchor: null,
   viewportAnchorRestore: null,
   viewportMeasurement: null,
+  viewportSectionOffsetIndex: null,
+  viewportSectionPrediction: null,
   viewportSectionSpacers: createViewportSectionSpacerMap(),
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
@@ -197,6 +204,7 @@ function updateViewportSectionSpacers(measurement) {
     measurement,
     previousSpacers: state.viewportSectionSpacers,
   })
+  updateViewportSectionOffsets(measurement)
 }
 
 function viewportSectionSpacerLabel() {
@@ -207,6 +215,33 @@ function viewportSectionSpacerLabel() {
 function syncViewportSectionSpacerStatus() {
   app.querySelectorAll("[data-section-spacer-status]").forEach((target) => {
     target.textContent = viewportSectionSpacerLabel()
+  })
+}
+
+function updateViewportSectionOffsets(measurement) {
+  state.viewportSectionOffsetIndex = createViewportSectionOffsetIndex({
+    spacerMap: state.viewportSectionSpacers,
+  })
+  state.viewportSectionPrediction = predictViewportFromSectionOffsets({
+    offsetIndex: state.viewportSectionOffsetIndex,
+    scrollTop: measurement?.scrollTop,
+    viewportHeight: measurement?.viewportHeight,
+  })
+}
+
+function viewportSectionOffsetLabel() {
+  const offsetIndex = state.viewportSectionOffsetIndex
+  const prediction = state.viewportSectionPrediction
+  if (!offsetIndex || !prediction) return "Section offsets: pending"
+  const offset = Number.isFinite(prediction.anchorOffsetInSection)
+    ? Math.round(prediction.anchorOffsetInSection)
+    : "none"
+  return `Section offsets: ${offsetIndex.sectionCount} sections ${prediction.anchorSectionId || "none"} +${offset} ${prediction.visibleSectionCount} visible`
+}
+
+function syncViewportSectionOffsetStatus() {
+  app.querySelectorAll("[data-section-offset-status]").forEach((target) => {
+    target.textContent = viewportSectionOffsetLabel()
   })
 }
 
@@ -321,6 +356,7 @@ function scheduleViewportScrollApply() {
   })
   syncViewportMeasurementStatus()
   syncViewportSectionSpacerStatus()
+  syncViewportSectionOffsetStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 
@@ -1311,11 +1347,14 @@ function renderCanvas(snapshot, renderModel) {
         ${renderSections.map((section) => {
           const rendered = renderShellSectionRendered(section)
           const spacer = resolveViewportSectionSpacer(state.viewportSectionSpacers, section.id)
+          const sectionOffset = resolveViewportSectionOffset(state.viewportSectionOffsetIndex, section.id)
 
           return `
           <article
             class="page${rendered ? "" : " is-placeholder"}"
             data-render-shell-state="${rendered ? "rendered" : "placeholder"}"
+            data-section-offset-bottom="${escapeHtml(Math.round(sectionOffset?.bottom ?? 0))}"
+            data-section-offset-top="${escapeHtml(Math.round(sectionOffset?.top ?? 0))}"
             data-section-spacer-height="${escapeHtml(Math.round(spacer.height))}"
             data-section-spacer-reason="${escapeHtml(spacer.reason)}"
             data-section-id="${escapeHtml(section.id)}"
@@ -1730,6 +1769,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderShellLabel)}</span>
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
       <span data-section-spacer-status>${escapeHtml(viewportSectionSpacerLabel())}</span>
+      <span data-section-offset-status>${escapeHtml(viewportSectionOffsetLabel())}</span>
       <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
@@ -2195,6 +2235,7 @@ function render(options = {}) {
   updateViewportSectionSpacers(viewportMeasurement)
   syncViewportMeasurementStatus()
   syncViewportSectionSpacerStatus()
+  syncViewportSectionOffsetStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }

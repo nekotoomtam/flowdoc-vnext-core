@@ -1312,6 +1312,41 @@ Acceptance:
   engine, rich text, contenteditable mapping, live renderer, route,
   persistence, or package version change is claimed.
 
+## Phase 60: Section Offset Prediction Boundary
+
+Goal:
+
+- derive top/height/bottom section intervals and viewport section predictions
+  from section spacer facts as a root model before virtualized scheduling.
+
+Deliverables:
+
+- browser-safe section offset policy module in `public/viewportSectionOffsets.js`;
+- section offset source/version/mode contract;
+- viewport prediction source/version/mode contract;
+- long-section interval prediction with `offsetInSection`, coverage pixels,
+  and coverage ratios;
+- app tracking for section offset index and current viewport prediction;
+- page shell data attributes for section offset top/bottom;
+- status output for predicted anchor section and visible section count;
+- action lane for `browser.predictViewportSections`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- offset policy can run in Node without DOM access;
+- app shell owns browser measurement and status/data output;
+- synthetic long sections produce stable interval predictions;
+- predictions remain advisory and do not replace DOM measurement for visible
+  range apply/render;
+- the visible app reports a `section-body` prediction after scroll-driven
+  rendering;
+- no virtual list, render-window scheduling from offset predictions, lazy
+  detail endpoint, node anchor, outline jump-to-node, diagnostics/source
+  jump-to-node, caret-relative anchor, structural packet engine, rich text,
+  contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

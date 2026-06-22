@@ -66,6 +66,7 @@ Parent goal:
 | 57 | Debounced viewport scroll controller boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportScrollController.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 58 | Section viewport anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 59 | Measured section spacer boundary | done | `docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionSpacers.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 60 | Section offset prediction boundary | done | `docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionOffsets.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1247,6 +1248,44 @@ caret-relative text block anchors, typing-driven live layout pushdown,
 structural add/delete/move packet application, rich text editing,
 contenteditable DOM mapping, persistence, API routes, or package/document
 version changes.
+
+## Phase 60 Section Offset Prediction Boundary
+
+Phase 60 derives a section offset index and viewport prediction from the Phase
+59 spacer facts:
+
+- `examples/template-builder-sandbox/public/viewportSectionOffsets.js` owns
+  `VIEWPORT_SECTION_OFFSET_SOURCE`,
+  `VIEWPORT_SECTION_OFFSET_MODE`,
+  `VIEWPORT_SECTION_PREDICTION_MODE`,
+  `DEFAULT_SECTION_OFFSET_GAP`,
+  `createViewportSectionOffsetIndex(...)`,
+  `resolveViewportSectionOffset(...)`, and
+  `predictViewportFromSectionOffsets(...)` as a DOM-free offset/prediction
+  policy;
+- long sections are represented as `top/height/bottom` intervals, so
+  predictions can report `offsetInSection`, `coveragePx`, and coverage ratios
+  without assuming one section equals one viewport;
+- `examples/template-builder-sandbox/public/app.js` keeps a browser-local
+  offset index, updates it when spacer facts update, predicts visible sections
+  from current measurement scroll facts, writes `data-section-offset-top` and
+  `data-section-offset-bottom` to shell pages, and reports prediction status;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.predictViewportSections` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md` records the Phase 60
+  boundary, long-section behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free offset
+  ownership, generated action-lane exposure, app-owned prediction status, and
+  long-section interval prediction behavior.
+
+This phase intentionally does not implement a virtual list, render-window
+scheduling from offset predictions, top/bottom spacer elements outside the
+existing page shell, hidden/offscreen DOM pruning beyond the existing render
+shell, lazy heavy-detail routes, node anchors, outline jump-to-node,
+diagnostics/source jump-to-node, caret-relative text block anchors,
+typing-driven live layout pushdown, structural add/delete/move packet
+application, rich text editing, contenteditable DOM mapping, persistence, API
+routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 

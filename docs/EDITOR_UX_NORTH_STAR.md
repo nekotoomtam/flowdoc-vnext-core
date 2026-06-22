@@ -326,6 +326,11 @@ rendered section heights as shell/placeholder minimum heights, reducing
 placeholder/detail height shifts before production virtual lists or renderer
 scheduling exist.
 
+Phase 60 adds a section offset prediction boundary. The sandbox can derive
+top/height/bottom intervals and section-level viewport predictions from spacer
+facts, but these predictions are a root model before node-aware and
+virtualized scheduling, not the final viewport engine.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

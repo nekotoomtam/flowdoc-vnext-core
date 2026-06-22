@@ -572,6 +572,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser canvas can reuse measured section heights as shell spacers before virtualized rendering",
       },
       {
+        action: "browser.predictViewportSections",
+        label: "Viewport predict",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas can predict viewport section coverage from section spacer offsets before virtualized scheduling",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

@@ -59,6 +59,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/viewportAnchor.js",
       "../examples/template-builder-sandbox/public/viewportMeasurement.js",
       "../examples/template-builder-sandbox/public/viewportScrollController.js",
+      "../examples/template-builder-sandbox/public/viewportSectionOffsets.js",
       "../examples/template-builder-sandbox/public/viewportSectionSpacers.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
       "../examples/template-builder-sandbox/public/visibleRangeRequest.js",
@@ -148,6 +149,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.controlViewportScroll")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackViewportAnchor")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackSectionSpacers")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.predictViewportSections")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -934,6 +936,7 @@ describe("template builder sandbox boundary", () => {
     const viewportAnchorSource = readText("../examples/template-builder-sandbox/public/viewportAnchor.js")
     const viewportMeasurementSource = readText("../examples/template-builder-sandbox/public/viewportMeasurement.js")
     const viewportScrollControllerSource = readText("../examples/template-builder-sandbox/public/viewportScrollController.js")
+    const viewportSectionOffsetsSource = readText("../examples/template-builder-sandbox/public/viewportSectionOffsets.js")
     const viewportSectionSpacersSource = readText("../examples/template-builder-sandbox/public/viewportSectionSpacers.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
     const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
@@ -957,6 +960,7 @@ describe("template builder sandbox boundary", () => {
     const viewportScrollControllerDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md")
     const viewportAnchorDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md")
     const sectionSpacerDoc = readText("../docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md")
+    const sectionOffsetDoc = readText("../docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -976,6 +980,10 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./viewportSectionSpacers.js"')
     expect(appSource).toContain("createViewportSectionSpacerMap")
     expect(appSource).toContain("resolveViewportSectionSpacer")
+    expect(appSource).toContain('from "./viewportSectionOffsets.js"')
+    expect(appSource).toContain("createViewportSectionOffsetIndex")
+    expect(appSource).toContain("predictViewportFromSectionOffsets")
+    expect(appSource).toContain("resolveViewportSectionOffset")
     expect(appSource).toContain('from "./viewportMeasurement.js"')
     expect(appSource).toContain("createViewportMeasurement")
     expect(appSource).toContain("createViewportMeasurementApplyRequest")
@@ -990,9 +998,13 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("viewportScrollRestoring")
     expect(appSource).toContain("setViewportAnchorFromMeasurement")
     expect(appSource).toContain("restoreViewportAnchor")
+    expect(appSource).toContain("updateViewportSectionOffsets")
     expect(appSource).toContain("updateViewportSectionSpacers")
     expect(appSource).toContain("lastViewportApply")
     expect(appSource).toContain("data-section-id")
+    expect(appSource).toContain("data-section-offset-bottom")
+    expect(appSource).toContain("data-section-offset-top")
+    expect(appSource).toContain("data-section-offset-status")
     expect(appSource).toContain("data-section-spacer-height")
     expect(appSource).toContain("data-section-spacer-reason")
     expect(appSource).toContain("data-section-spacer-status")
@@ -1001,6 +1013,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-viewport-anchor-status")
     expect(appSource).toContain("data-viewport-scroll-status")
     expect(appSource).toContain("Measurement:")
+    expect(appSource).toContain("Section offsets:")
     expect(appSource).toContain("Section spacers:")
     expect(appSource).toContain("Viewport anchor:")
     expect(appSource).toContain("Viewport apply:")
@@ -1099,6 +1112,18 @@ describe("template builder sandbox boundary", () => {
     expect(viewportScrollControllerSource).not.toContain("querySelector")
     expect(viewportScrollControllerSource).not.toContain("addEventListener")
     expect(viewportScrollControllerSource).not.toContain("setTimeout")
+    expect(viewportSectionOffsetsSource).toContain("createViewportSectionOffsetIndex")
+    expect(viewportSectionOffsetsSource).toContain("predictViewportFromSectionOffsets")
+    expect(viewportSectionOffsetsSource).toContain("resolveViewportSectionOffset")
+    expect(viewportSectionOffsetsSource).toContain("flowdoc-section-offset-index")
+    expect(viewportSectionOffsetsSource).toContain("section-spacer-offset-index")
+    expect(viewportSectionOffsetsSource).toContain("section-offset-viewport-prediction")
+    expect(viewportSectionOffsetsSource).toContain("DEFAULT_SECTION_OFFSET_GAP")
+    expect(viewportSectionOffsetsSource).toContain('from "./viewportSectionSpacers.js"')
+    expect(viewportSectionOffsetsSource).not.toContain("document.")
+    expect(viewportSectionOffsetsSource).not.toContain("querySelector")
+    expect(viewportSectionOffsetsSource).not.toContain("addEventListener")
+    expect(viewportSectionOffsetsSource).not.toContain("setTimeout")
     expect(viewportSectionSpacersSource).toContain("createViewportSectionSpacerMap")
     expect(viewportSectionSpacersSource).toContain("resolveViewportSectionSpacer")
     expect(viewportSectionSpacersSource).toContain("flowdoc-section-spacer")
@@ -1186,6 +1211,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.controlViewportScroll")
     expect(coreBoundarySource).toContain("browser.trackViewportAnchor")
     expect(coreBoundarySource).toContain("browser.trackSectionSpacers")
+    expect(coreBoundarySource).toContain("browser.predictViewportSections")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1269,6 +1295,12 @@ describe("template builder sandbox boundary", () => {
     expect(sectionSpacerDoc).toContain("resolveViewportSectionSpacer")
     expect(sectionSpacerDoc).toContain("browser.trackSectionSpacers")
     expect(sectionSpacerDoc).toContain("Placeholder-only sections use a")
+    expect(sectionOffsetDoc).toContain("Status: Phase 60 implementation boundary.")
+    expect(sectionOffsetDoc).toContain("viewportSectionOffsets.js")
+    expect(sectionOffsetDoc).toContain("createViewportSectionOffsetIndex")
+    expect(sectionOffsetDoc).toContain("predictViewportFromSectionOffsets")
+    expect(sectionOffsetDoc).toContain("browser.predictViewportSections")
+    expect(sectionOffsetDoc).toContain("root model, not the destination")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -2422,6 +2454,109 @@ describe("template builder sandbox boundary", () => {
     expect(result.tocReason).toBe("estimated")
     expect(result.missingHeight).toBe(720)
     expect(result.missingReason).toBe("default")
+  })
+
+  it("predicts viewport coverage from section offset intervals", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createViewportMeasurement,
+      } = await import("./public/viewportMeasurement.js");
+      const {
+        createViewportSectionSpacerMap,
+      } = await import("./public/viewportSectionSpacers.js");
+      const {
+        createViewportSectionOffsetIndex,
+        predictViewportFromSectionOffsets,
+        resolveViewportSectionOffset,
+      } = await import("./public/viewportSectionOffsets.js");
+      const measurement = createViewportMeasurement({
+        scrollHeight: 6200,
+        scrollTop: 3200,
+        viewportHeight: 700,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 831 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 849, height: 720 },
+          { id: "section-body", rendered: true, shellState: "rendered", top: 1587, height: 4200 },
+        ],
+      });
+      const spacerMap = createViewportSectionSpacerMap({ measurement });
+      const offsetIndex = createViewportSectionOffsetIndex({
+        sectionGap: 18,
+        spacerMap,
+      });
+      const bodyOffset = resolveViewportSectionOffset(offsetIndex, "section-body");
+      const missingOffset = resolveViewportSectionOffset(offsetIndex, "section-missing");
+      const prediction = predictViewportFromSectionOffsets({
+        offsetIndex,
+        scrollTop: 3200,
+        viewportHeight: 700,
+      });
+      const boundaryPrediction = predictViewportFromSectionOffsets({
+        offsetIndex,
+        scrollTop: 820,
+        viewportHeight: 90,
+      });
+      const bodyVisible = prediction.visibleSections.find((section) => section.sectionId === "section-body");
+      console.log(JSON.stringify({
+        anchorOffsetInSection: prediction.anchorOffsetInSection,
+        anchorSectionId: prediction.anchorSectionId,
+        bodyBottom: bodyOffset.bottom,
+        bodyCoveragePx: bodyVisible.coveragePx,
+        bodyCoverageRatio: bodyVisible.coverageRatio,
+        bodyOffsetInSection: bodyVisible.offsetInSection,
+        bodyTop: bodyOffset.top,
+        boundaryAnchorSectionId: boundaryPrediction.anchorSectionId,
+        boundaryPredictedSectionIds: boundaryPrediction.predictedSectionIds,
+        mode: offsetIndex.mode,
+        missingOffset,
+        predictedSectionIds: prediction.predictedSectionIds,
+        predictionMode: prediction.mode,
+        sectionCount: offsetIndex.sectionCount,
+        source: offsetIndex.source,
+        totalHeight: offsetIndex.totalHeight,
+        viewportCoverageRatio: bodyVisible.viewportCoverageRatio,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      anchorOffsetInSection: number
+      anchorSectionId: string
+      bodyBottom: number
+      bodyCoveragePx: number
+      bodyCoverageRatio: number
+      bodyOffsetInSection: number
+      bodyTop: number
+      boundaryAnchorSectionId: string
+      boundaryPredictedSectionIds: string[]
+      mode: string
+      missingOffset: null
+      predictedSectionIds: string[]
+      predictionMode: string
+      sectionCount: number
+      source: string
+      totalHeight: number
+      viewportCoverageRatio: number
+    }
+
+    expect(result.source).toBe("flowdoc-section-offset-index")
+    expect(result.mode).toBe("section-spacer-offset-index")
+    expect(result.predictionMode).toBe("section-offset-viewport-prediction")
+    expect(result.sectionCount).toBe(3)
+    expect(result.bodyTop).toBe(1587)
+    expect(result.bodyBottom).toBe(5787)
+    expect(result.totalHeight).toBe(5787)
+    expect(result.anchorSectionId).toBe("section-body")
+    expect(result.anchorOffsetInSection).toBe(1613)
+    expect(result.bodyOffsetInSection).toBe(1613)
+    expect(result.bodyCoveragePx).toBe(700)
+    expect(result.bodyCoverageRatio).toBeCloseTo(700 / 4200)
+    expect(result.viewportCoverageRatio).toBe(1)
+    expect(result.predictedSectionIds).toEqual(["section-body"])
+    expect(result.boundaryPredictedSectionIds).toEqual(["section-cover", "section-toc"])
+    expect(result.boundaryAnchorSectionId).toBe("section-toc")
+    expect(result.missingOffset).toBeNull()
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {
