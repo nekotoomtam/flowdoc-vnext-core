@@ -74,6 +74,7 @@ Parent goal:
 | 65 | Viewport virtual stack boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportVirtualStack.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 66 | Viewport lazy heavy-detail boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportLazyDetail.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 67 | Viewport node anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportNodeAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 68 | Viewport large-document behavior audit | done | `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1510,6 +1511,28 @@ jump UI, caret-relative text anchors, backend/API routes, async lazy detail
 hydration, structural packet application, rich text editing, contenteditable DOM
 mapping, live-layout rendering, persistence, or package/document version
 changes.
+
+## Phase 68 Viewport Large Document Behavior Audit
+
+Phase 68 closes the viewport/virtualization line with a composed large-document
+audit before Structural Runtime work starts:
+
+- `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md` records the audit
+  shape, acceptance evidence, and guardrails;
+- `tests/templateBuilderSandboxBoundary.test.ts` builds a synthetic 72-section
+  / 936-node viewport fixture, then composes scheduler automation,
+  visible-range resolution, render-window/shell creation, virtual stack
+  mounting, lazy heavy-detail planning, node-aware anchor restore, and
+  jump-to-node selection range behavior;
+- the audit proves the active viewport path stays bounded to 3 rendered
+  sections and 39 visible nodes under an 80-node budget while off-window
+  sections remain spacers/placeholders;
+- inactive heavy table detail is deferred, while the active selected table path
+  stays materialized;
+- the audit remains shape-based and does not claim wall-clock performance,
+  recycled DOM pools, async hydration, structural packet application, rich text
+  editing, backend/API routes, persistence, or package/document version
+  changes.
 
 ## Phase 12 Extraction Record
 

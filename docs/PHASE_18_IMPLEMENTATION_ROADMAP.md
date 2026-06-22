@@ -1583,6 +1583,39 @@ Acceptance:
   contenteditable mapping, live renderer, persistence, or package version
   change is claimed.
 
+## Phase 68: Viewport Large Document Behavior Audit
+
+Goal:
+
+- close the viewport/virtualization line with a composed large-document audit
+  before Structural Runtime work starts.
+
+Deliverables:
+
+- boundary documentation in
+  `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md`;
+- synthetic large viewport fixture inside
+  `tests/templateBuilderSandboxBoundary.test.ts`;
+- composed scheduler automation, visible-range, render-window, render-shell,
+  virtual-stack, lazy-detail, node-anchor, and jump-to-node assertions;
+- explicit bounded-node and mounted-section counts;
+- guardrails that keep the audit shape-based rather than timing-sensitive.
+
+Acceptance:
+
+- the audit fixture has at least 72 sections and 900 runtime nodes;
+- scheduler automation moves from the boot section to a far viewport target
+  under a finite node budget;
+- visible range and render shell stay bounded instead of mounting the whole
+  document;
+- virtual stack uses spacers for off-window sections;
+- lazy detail defers inactive heavy nodes while materializing the active path;
+- node-aware anchor restore and jump-to-node behavior work for a far target
+  node;
+- no structural packet engine, schema change, recycled DOM pool, async
+  hydration, outline/diagnostics UI, rich text, route, persistence, or
+  wall-clock performance claim is made.
+
 ## Later Phases
 
 Goal:

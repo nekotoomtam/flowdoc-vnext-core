@@ -989,6 +989,7 @@ describe("template builder sandbox boundary", () => {
     const viewportSchedulerAutomationDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md")
     const viewportVirtualStackDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md")
     const viewportLazyDetailDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md")
+    const viewportLargeDocumentAuditDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -1487,6 +1488,11 @@ describe("template builder sandbox boundary", () => {
     expect(viewportLazyDetailDoc).toContain("browser.lazyViewportHeavyDetail")
     expect(viewportLazyDetailDoc).toContain("canvas-lazy-detail")
     expect(viewportLazyDetailDoc).toContain("active selected/draft ancestor path")
+    expect(viewportLargeDocumentAuditDoc).toContain("Status: Phase 68 behavior audit.")
+    expect(viewportLargeDocumentAuditDoc).toContain("72 ordered sections")
+    expect(viewportLargeDocumentAuditDoc).toContain("936 ordered runtime nodes")
+    expect(viewportLargeDocumentAuditDoc).toContain("39 nodes out of 936 total nodes")
+    expect(viewportLargeDocumentAuditDoc).toContain("node-aware anchor restores the far target node")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -3611,6 +3617,310 @@ describe("template builder sandbox boundary", () => {
     expect(result.draftStatus).toBe("blocked")
     expect(result.draftBlockedReason).toBe("draft-active")
     expect(result.draftRequest).toBeNull()
+  })
+
+  it("audits large-document viewport behavior across scheduler, virtualization, lazy detail, and node anchors", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createVisibleRange,
+      } = await import("./public/visibleRange.js");
+      const {
+        createRenderWindow,
+      } = await import("./public/renderWindow.js");
+      const {
+        createRenderShell,
+      } = await import("./public/renderShell.js");
+      const {
+        createViewportVirtualStack,
+      } = await import("./public/viewportVirtualStack.js");
+      const {
+        createViewportLazyDetailPlan,
+      } = await import("./public/viewportLazyDetail.js");
+      const {
+        createViewportSchedulerRuntimeState,
+      } = await import("./public/viewportSchedulerRuntime.js");
+      const {
+        createViewportSchedulerAutomationState,
+        runViewportSchedulerAutomation,
+      } = await import("./public/viewportSchedulerAutomation.js");
+      const {
+        predictViewportFromSectionOffsets,
+      } = await import("./public/viewportSectionOffsets.js");
+      const {
+        createViewportNodeAnchor,
+        resolveViewportNodeAnchorScrollTop,
+      } = await import("./public/viewportNodeAnchor.js");
+
+      const SECTION_COUNT = 72;
+      const SECTION_HEIGHT = 900;
+      const SECTION_GAP = 18;
+      const BUDGET_MAX_NODES = 80;
+      const targetSectionIndex = 50;
+      const sections = Array.from({ length: SECTION_COUNT }, (_, index) => ({
+        height: SECTION_HEIGHT,
+        id: "section-" + String(index).padStart(2, "0"),
+        page: String(index + 1),
+      }));
+      const nodeById = new Map();
+      const childrenById = new Map();
+      const parentById = new Map();
+      const sectionIdByNodeId = new Map();
+      const nodeOrder = [];
+
+      function addNode(sectionId, node) {
+        nodeById.set(node.id, node);
+        childrenById.set(node.id, []);
+        sectionIdByNodeId.set(node.id, sectionId);
+        nodeOrder.push(node.id);
+      }
+
+      function connect(parentId, childId) {
+        childrenById.set(parentId, [...(childrenById.get(parentId) || []), childId]);
+        parentById.set(childId, parentId);
+      }
+
+      for (const section of sections) {
+        const zoneId = section.id + "-zone";
+        const headingId = section.id + "-heading";
+        const paragraphId = section.id + "-paragraph";
+        const tableId = section.id + "-table";
+        addNode(section.id, { id: zoneId, type: "zone" });
+        addNode(section.id, { id: headingId, type: "text-block", textLength: 24, textPreview: section.id + " heading" });
+        addNode(section.id, { id: paragraphId, type: "text-block", textLength: 180, textPreview: section.id + " body" });
+        addNode(section.id, { id: tableId, type: "table" });
+        connect(zoneId, headingId);
+        connect(zoneId, paragraphId);
+        connect(zoneId, tableId);
+
+        for (let rowIndex = 0; rowIndex < 3; rowIndex += 1) {
+          const rowId = tableId + "-row-" + rowIndex;
+          const cellId = tableId + "-cell-" + rowIndex;
+          const cellTextId = cellId + "-text";
+          addNode(section.id, { id: rowId, type: "table-row" });
+          addNode(section.id, { id: cellId, type: "table-cell" });
+          addNode(section.id, { id: cellTextId, type: "text-block", textLength: 36, textPreview: "cell " + rowIndex });
+          connect(tableId, rowId);
+          connect(rowId, cellId);
+          connect(cellId, cellTextId);
+        }
+      }
+
+      const offsetSections = sections.map((section, index) => {
+        const top = index * (SECTION_HEIGHT + SECTION_GAP);
+        const bottom = top + SECTION_HEIGHT;
+        return {
+          bottom,
+          center: top + SECTION_HEIGHT / 2,
+          gapAfter: SECTION_GAP,
+          height: SECTION_HEIGHT,
+          index,
+          reason: "measured",
+          sectionId: section.id,
+          spacerSource: "flowdoc-viewport-section-spacer",
+          top,
+        };
+      });
+      const offsetIndex = {
+        mode: "section-spacer-offset-index",
+        sectionCount: sections.length,
+        sectionGap: SECTION_GAP,
+        sections: offsetSections,
+        source: "flowdoc-section-offset-index",
+        totalHeight: offsetSections.at(-1).bottom,
+        version: 1,
+      };
+      const targetSectionId = sections[targetSectionIndex].id;
+      const targetNodeId = targetSectionId + "-table-cell-2-text";
+      const targetSectionTop = offsetSections[targetSectionIndex].top;
+      const indexes = {
+        nodeOrder,
+        sectionIdByNodeId,
+        sectionIds: sections.map((section) => section.id),
+      };
+      const prediction = predictViewportFromSectionOffsets({
+        offsetIndex,
+        scrollTop: targetSectionTop + 250,
+        viewportHeight: 600,
+      });
+      const initialRuntime = createViewportSchedulerRuntimeState();
+      const initialAutomation = createViewportSchedulerAutomationState();
+      const automation = runViewportSchedulerAutomation(initialAutomation, initialRuntime, {
+        budget: { maxNodes: BUDGET_MAX_NODES, mode: "viewport" },
+        documentRevision: 68,
+        offsetIndex,
+        prediction,
+        previousRequest: {
+          anchorSectionId: "section-00",
+          budget: { maxNodes: BUDGET_MAX_NODES, mode: "viewport" },
+          reason: "boot",
+        },
+        renderWindow: {
+          anchorSectionId: "section-00",
+          sectionIds: ["section-00"],
+        },
+        runtimeRevision: 68,
+        trigger: "large-doc-audit",
+      });
+      const visibleRange = createVisibleRange(indexes, automation.request);
+      const renderWindow = createRenderWindow({ sections, visibleRange, nodeIds: nodeOrder });
+      const renderShell = createRenderShell({ sections, renderWindow });
+      const virtualStack = createViewportVirtualStack({ offsetIndex, renderShell });
+      const inactiveLazy = createViewportLazyDetailPlan({
+        childrenById,
+        nodeById,
+        parentById,
+        visibleNodeIds: visibleRange.nodeIds,
+      });
+      const activeLazy = createViewportLazyDetailPlan({
+        activeNodeIds: [targetNodeId],
+        childrenById,
+        nodeById,
+        parentById,
+        visibleNodeIds: visibleRange.nodeIds,
+      });
+      const targetTableId = targetSectionId + "-table";
+      const inactiveTargetTable = inactiveLazy.detailByNodeId.get(targetTableId);
+      const activeTargetTable = activeLazy.detailByNodeId.get(targetTableId);
+      const anchor = createViewportNodeAnchor({
+        nodeHeight: 24,
+        nodeId: targetNodeId,
+        nodeTop: targetSectionTop + 430,
+        nodeType: "text-block",
+        revision: 68,
+        scrollTop: 0,
+        sectionId: targetSectionId,
+        sectionTop: targetSectionTop,
+        viewportHeight: 720,
+      });
+      const restored = resolveViewportNodeAnchorScrollTop({
+        anchor,
+        measurement: {
+          scrollHeight: offsetIndex.totalHeight,
+          sections: [
+            { height: SECTION_HEIGHT, id: targetSectionId, top: targetSectionTop + 64 },
+          ],
+          viewportHeight: 720,
+        },
+      });
+      const jumpRange = createVisibleRange(indexes, {
+        anchorNodeId: targetNodeId,
+        budget: { maxNodes: BUDGET_MAX_NODES, mode: "selection" },
+        kind: "section-window",
+        overscanSectionsAfter: 1,
+        overscanSectionsBefore: 1,
+        reason: "selection",
+      });
+      const jumpWindow = createRenderWindow({ sections, visibleRange: jumpRange, nodeIds: nodeOrder });
+      const jumpShell = createRenderShell({ sections, renderWindow: jumpWindow });
+      const jumpStack = createViewportVirtualStack({ offsetIndex, renderShell: jumpShell });
+
+      console.log(JSON.stringify({
+        activeDeferredCount: activeLazy.deferredCount,
+        activeTargetTableDeferred: activeTargetTable.deferred,
+        activeTargetTableProtected: activeTargetTable.protectedByContext,
+        anchorOffsetInSection: anchor.offsetInSection,
+        automationCandidateSectionIds: automation.runtime.candidate.candidateSectionIds,
+        automationRequestReason: automation.request.reason,
+        automationStatus: automation.status,
+        inactiveDeferredCount: inactiveLazy.deferredCount,
+        inactiveHeavyNodeCount: inactiveLazy.heavyNodeCount,
+        inactiveTargetTableDeferred: inactiveTargetTable.deferred,
+        jumpMountedSectionCount: jumpStack.mountedSectionCount,
+        jumpMountedSectionIds: jumpStack.mountedSectionIds,
+        jumpNodeIncluded: jumpRange.nodeIds.includes(targetNodeId),
+        jumpRangeSectionIds: jumpRange.sectionIds,
+        jumpVirtualized: jumpStack.virtualized,
+        predictionAnchorSectionId: prediction.anchorSectionId,
+        restoredReason: restored.reason,
+        restoredScrollTop: restored.scrollTop,
+        restoredStatus: restored.restored,
+        renderShellPlaceholderSectionCount: renderShell.placeholderSectionCount,
+        renderShellRenderedSectionCount: renderShell.renderedSectionCount,
+        targetSectionId,
+        totalNodeCount: nodeOrder.length,
+        totalSectionCount: sections.length,
+        virtualMountedSectionCount: virtualStack.mountedSectionCount,
+        virtualMountedSectionIds: virtualStack.mountedSectionIds,
+        virtualSpacerCount: virtualStack.spacerCount,
+        virtualTopSpacerSectionCount: virtualStack.items[0].sectionCount,
+        virtualized: virtualStack.virtualized,
+        visibleNodeCount: visibleRange.nodeCount,
+        visibleRangeSectionIds: visibleRange.sectionIds,
+        visibleRangeTruncated: visibleRange.truncated,
+        visibleRangeWindowed: visibleRange.windowed,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      activeDeferredCount: number
+      activeTargetTableDeferred: boolean
+      activeTargetTableProtected: boolean
+      anchorOffsetInSection: number
+      automationCandidateSectionIds: string[]
+      automationRequestReason: string
+      automationStatus: string
+      inactiveDeferredCount: number
+      inactiveHeavyNodeCount: number
+      inactiveTargetTableDeferred: boolean
+      jumpMountedSectionCount: number
+      jumpMountedSectionIds: string[]
+      jumpNodeIncluded: boolean
+      jumpRangeSectionIds: string[]
+      jumpVirtualized: boolean
+      predictionAnchorSectionId: string
+      restoredReason: string
+      restoredScrollTop: number
+      restoredStatus: boolean
+      renderShellPlaceholderSectionCount: number
+      renderShellRenderedSectionCount: number
+      targetSectionId: string
+      totalNodeCount: number
+      totalSectionCount: number
+      virtualMountedSectionCount: number
+      virtualMountedSectionIds: string[]
+      virtualSpacerCount: number
+      virtualTopSpacerSectionCount: number
+      virtualized: boolean
+      visibleNodeCount: number
+      visibleRangeSectionIds: string[]
+      visibleRangeTruncated: boolean
+      visibleRangeWindowed: boolean
+    }
+
+    expect(result.totalSectionCount).toBe(72)
+    expect(result.totalNodeCount).toBe(936)
+    expect(result.predictionAnchorSectionId).toBe("section-50")
+    expect(result.automationStatus).toBe("applied")
+    expect(result.automationRequestReason).toBe("viewport")
+    expect(result.automationCandidateSectionIds).toEqual(["section-49", "section-50", "section-51"])
+    expect(result.visibleRangeSectionIds).toEqual(["section-49", "section-50", "section-51"])
+    expect(result.visibleNodeCount).toBe(39)
+    expect(result.visibleRangeWindowed).toBe(true)
+    expect(result.visibleRangeTruncated).toBe(false)
+    expect(result.renderShellRenderedSectionCount).toBe(3)
+    expect(result.renderShellPlaceholderSectionCount).toBe(69)
+    expect(result.virtualized).toBe(true)
+    expect(result.virtualMountedSectionCount).toBe(3)
+    expect(result.virtualMountedSectionIds).toEqual(["section-49", "section-50", "section-51"])
+    expect(result.virtualSpacerCount).toBe(2)
+    expect(result.virtualTopSpacerSectionCount).toBe(49)
+    expect(result.inactiveHeavyNodeCount).toBe(3)
+    expect(result.inactiveDeferredCount).toBe(3)
+    expect(result.inactiveTargetTableDeferred).toBe(true)
+    expect(result.activeTargetTableDeferred).toBe(false)
+    expect(result.activeTargetTableProtected).toBe(true)
+    expect(result.activeDeferredCount).toBe(2)
+    expect(result.anchorOffsetInSection).toBe(430)
+    expect(result.restoredStatus).toBe(true)
+    expect(result.restoredReason).toBe("node-anchor")
+    expect(result.restoredScrollTop).toBe(46394)
+    expect(result.jumpRangeSectionIds).toEqual(["section-49", "section-50", "section-51"])
+    expect(result.jumpNodeIncluded).toBe(true)
+    expect(result.jumpVirtualized).toBe(true)
+    expect(result.jumpMountedSectionCount).toBe(3)
+    expect(result.jumpMountedSectionIds).toEqual(["section-49", "section-50", "section-51"])
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {

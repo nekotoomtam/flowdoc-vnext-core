@@ -200,6 +200,9 @@ The package must remain runnable without any parent editor checkout.
   mounted virtual sections
 - Viewport node anchor boundary restores selection jumps by node id with
   section-relative fallback
+- Viewport large-document audit composes scheduler automation, visible range,
+  render shell, virtual stack, lazy detail, and node anchors against a bounded
+  large section/node set before Structural Runtime work starts
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -355,6 +358,8 @@ The package must remain runnable without any parent editor checkout.
   inactive heavy-node detail deferral boundary inside mounted virtual sections
 - `docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md`: Phase 67
   node-aware selection jump and scroll restore boundary
+- `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md`: Phase 68
+  large-document viewport behavior audit before Structural Runtime work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
