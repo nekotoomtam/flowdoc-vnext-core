@@ -24,9 +24,10 @@ GET /api/snapshot
   -> render and selection read through editor view helpers
 ```
 
-Packet application still patches the tree-shaped snapshot view model, then
-rebuilds the normalized view from the updated snapshot. That keeps Phase 45
-small while moving the active runtime contract in the right direction.
+Phase 45 packet application still patched the tree-shaped snapshot view model,
+then rebuilt the normalized view from the updated snapshot. Phase 50 now lets
+bounded text packets update the runtime store directly before rebuilding the
+normalized view facts.
 
 ## Implemented Module
 
@@ -77,8 +78,8 @@ for status/debug output:
 - packet apply count.
 
 Selection, parent lookup, tree traversal, and canvas traversal use the editor
-view helpers. The snapshot tree remains present as a boot/debug view model and
-as the temporary packet patch target.
+view helpers. The snapshot tree remains present as a boot/debug view model;
+bounded text packets now update the runtime store directly.
 
 Phase 46 moves runtime-cache creation and packet application into
 `public/runtimeCache.js`. The normalized editor view remains owned by

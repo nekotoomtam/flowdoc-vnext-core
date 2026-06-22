@@ -5,8 +5,8 @@ Status: Phase 49 implementation boundary.
 Phase 49 introduces the sandbox structural runtime store. The store owns the
 lookup-first structural indexes that were previously assembled inside the
 normalized editor view module. The tree-shaped snapshot still exists for boot,
-debug, and the current temporary packet patch path, but structural lookup now
-has its own browser-safe owner.
+debug, and fallback refresh behavior, but structural lookup now has its own
+browser-safe owner.
 
 ## Purpose
 
@@ -66,9 +66,10 @@ It still owns editor-view facts such as dirty ids, changed ids,
 the store mode, node count, and section count so smoke tests can verify the
 active browser path.
 
-Packet application still patches the current tree-shaped snapshot and rebuilds
-the runtime store from that updated snapshot. Direct id-based store patching is
-intentionally deferred to the structural packet phase.
+Phase 50 adds a narrow direct text packet path on top of this store:
+`applyTextChangePacketToRuntimeStore(...)` can update changed text-block
+summaries in `nodeById` with apply mode `text-packet-direct`. Full structural
+packet application is still deferred.
 
 ## Acceptance Evidence
 
@@ -83,13 +84,15 @@ Phase 49 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
   facts;
 - runtime-cache packet tests prove rebuilt packet caches still carry store
   facts;
+- Phase 50 tests prove bounded text packets can update store nodes directly
+  while rejecting structural child changes;
 - browser smoke verifies store status and draft packet behavior.
 
 ## Non-Goals
 
 Phase 49 does not implement:
 
-- structural packet application directly against the store;
+- structural add/delete/move packet application directly against the store;
 - persistent runtime-store storage;
 - lazy heavy-detail routes;
 - viewport or scroll controllers;

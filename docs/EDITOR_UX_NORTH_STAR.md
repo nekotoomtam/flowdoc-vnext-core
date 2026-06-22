@@ -277,6 +277,11 @@ store below the editor view. The editor view now consumes store indexes instead
 of owning structural traversal, while direct structural packet application
 remains future work.
 
+Phase 50 adds a narrow text-packet direct apply path into that runtime store.
+This is not the full structural packet engine, but it prevents safe text-block
+edits from depending on tree-shaped snapshot patching as the active runtime
+path.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

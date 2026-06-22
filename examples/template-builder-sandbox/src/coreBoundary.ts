@@ -509,6 +509,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser runtime owns structural lookup indexes before structural packet application",
       },
       {
+        action: "browser.applyTextPacketToRuntimeStore",
+        label: "Text packet store",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser runtime applies bounded text packets directly to the structural store before full structural packets",
+      },
+      {
         action: "browser.resolveVisibleRange",
         label: "Visible range",
         lane: "immediate",

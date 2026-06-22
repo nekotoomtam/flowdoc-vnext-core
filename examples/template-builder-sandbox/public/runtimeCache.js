@@ -1,4 +1,5 @@
 import { createEditorView } from "./editorView.js"
+import { applyTextChangePacketToRuntimeStore } from "./runtimeStore.js"
 import {
   createVisibleRangeRequest,
   preserveVisibleRangeRequest,
@@ -30,6 +31,7 @@ export function isChangePacket(packet) {
 
 export function createRuntimeCache(snapshot, options = {}) {
   const previousCache = options.previousCache || null
+  const runtimeStoreInput = options.runtimeStore || null
   const visibleRangeRequestInput =
     options.visibleRangeRequest
     || options.visibleRange
@@ -45,6 +47,7 @@ export function createRuntimeCache(snapshot, options = {}) {
   const editorView = createEditorView(snapshot, {
     packet: options.packet,
     previousView: previousCache?.editorView,
+    runtimeStore: runtimeStoreInput || undefined,
     visibleRangeRequest: visibleRangeRequest || undefined,
   })
   const packetApplied = Boolean(options.packetApplied)
@@ -68,6 +71,7 @@ export function createRuntimeCache(snapshot, options = {}) {
     packetsApplied: packetApplied ? previousPacketCount + 1 : previousPacketCount,
     parentById: runtimeStore.parentById,
     runtimeStore,
+    runtimeStoreApplyMode: runtimeStore.lastApplyMode || options.runtimeStoreApplyMode || null,
     runtimeStoreMode: runtimeStore.mode,
     runtimeStoreSource: runtimeStore.source,
     sectionById: runtimeStore.sectionById,
@@ -90,10 +94,15 @@ export function createRuntimeCache(snapshot, options = {}) {
 }
 
 export function createVisibleRangeRuntimeState(snapshot, previousCache, visibleRangeRequest) {
+  const runtimeStore = previousCache?.runtimeStore?.documentRevision === snapshot.session.documentRevision
+    ? previousCache.runtimeStore
+    : null
+
   return {
     runtimeCache: createRuntimeCache(snapshot, {
       mode: previousCache?.mode || "visible-range",
       previousCache,
+      runtimeStore,
       visibleRangeRequest,
     }),
     snapshot,
@@ -117,6 +126,27 @@ export function createRefreshRuntimeState(snapshot, previousCache) {
       previousCache,
     }),
     snapshot,
+  }
+}
+
+export function applyChangePacketMetadataToSnapshot(snapshot, packet) {
+  return {
+    ...snapshot,
+    diagnostics: packet.diagnostics || snapshot.diagnostics,
+    authoringHistory: packet.authoringHistory || snapshot.authoringHistory,
+    liveLayout: packet.liveLayout || snapshot.liveLayout,
+    mutationBridge: {
+      ...snapshot.mutationBridge,
+      documentRevision: packet.nextRevision,
+      mode: "in-memory-bridge",
+      mutationCount: packet.mutationCount,
+      lastMutation: packet.mutation,
+    },
+    session: {
+      ...snapshot.session,
+      dirtyScopeCount: (packet.dirtyScopes || []).length,
+      documentRevision: packet.nextRevision,
+    },
   }
 }
 
@@ -145,39 +175,69 @@ export function applyChangePacketToSnapshot(snapshot, packet) {
   return {
     ok: true,
     snapshot: {
-      ...snapshot,
-      diagnostics: packet.diagnostics || snapshot.diagnostics,
-      authoringHistory: packet.authoringHistory || snapshot.authoringHistory,
-      liveLayout: packet.liveLayout || snapshot.liveLayout,
-      mutationBridge: {
-        ...snapshot.mutationBridge,
-        documentRevision: packet.nextRevision,
-        mode: "in-memory-bridge",
-        mutationCount: packet.mutationCount,
-        lastMutation: packet.mutation,
-      },
+      ...applyChangePacketMetadataToSnapshot(snapshot, packet),
       sections,
-      session: {
-        ...snapshot.session,
-        dirtyScopeCount: packet.dirtyScopes.length,
-        documentRevision: packet.nextRevision,
-      },
     },
   }
 }
 
 export function applyChangePacketToRuntime(snapshot, previousCache, packet) {
-  const packetResult = applyChangePacketToSnapshot(snapshot, packet)
-  if (!packetResult.ok) return packetResult
+  if (!snapshot || !isChangePacket(packet)) {
+    return { ok: false, reason: "invalid change packet" }
+  }
+
+  if (packet.snapshotRequired) {
+    return { ok: false, reason: "packet requested snapshot refresh" }
+  }
+
+  const localRevision = previousCache?.runtimeStore?.documentRevision
+    ?? previousCache?.documentRevision
+    ?? snapshot.session.documentRevision
+
+  if (packet.baseRevision !== localRevision) {
+    return {
+      ok: false,
+      reason: `packet base ${packet.baseRevision} did not match local revision ${localRevision}`,
+    }
+  }
+
+  const storeResult = applyTextChangePacketToRuntimeStore(previousCache?.runtimeStore, packet)
+  if (!storeResult.ok) {
+    if (!previousCache?.runtimeStore) {
+      const snapshotResult = applyChangePacketToSnapshot(snapshot, packet)
+      if (!snapshotResult.ok) return snapshotResult
+
+      return {
+        ok: true,
+        packet,
+        runtimeCache: createRuntimeCache(snapshotResult.snapshot, {
+          packet,
+          packetApplied: true,
+          previousCache,
+        }),
+        snapshot: snapshotResult.snapshot,
+      }
+    }
+
+    return {
+      ok: false,
+      reason: `runtime store direct apply rejected: ${storeResult.reason}`,
+    }
+  }
+
+  const packetSnapshot = applyChangePacketMetadataToSnapshot(snapshot, packet)
 
   return {
     ok: true,
     packet,
-    runtimeCache: createRuntimeCache(packetResult.snapshot, {
+    runtimeCache: createRuntimeCache(packetSnapshot, {
       packet,
       packetApplied: true,
       previousCache,
+      runtimeStore: storeResult.runtimeStore,
+      runtimeStoreApplyMode: storeResult.applyMode,
     }),
-    snapshot: packetResult.snapshot,
+    runtimeStoreApplyMode: storeResult.applyMode,
+    snapshot: packetSnapshot,
   }
 }

@@ -76,6 +76,10 @@ Phase 49 moves the structural indexes consumed by range resolution into
 `public/runtimeStore.js`. Request policy remains owned here; store construction
 remains separate from visible-range intent.
 
+Phase 50 preserves an updated runtime store through visible-range request
+changes when the store revision matches the snapshot revision. This keeps
+post-packet range changes from restoring stale tree-shaped text.
+
 ## Current Behavior
 
 - Boot starts from a `boot` request anchored to the first section.

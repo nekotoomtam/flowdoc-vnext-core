@@ -94,14 +94,22 @@ Phase 49 adds `public/runtimeStore.js` below the normalized editor view. The
 browser cache now carries a store-owned structural lookup layer while the
 tree-shaped snapshot remains the boot/debug and temporary packet patch model.
 
+Phase 50 makes supported text-block packets apply directly to the runtime
+store. The browser updates snapshot metadata for revision and summaries, but
+active changed text comes from `runtimeStore.nodeById` rather than from a
+patched tree section.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.
 - A valid packet must have source `flowdoc-template-builder-change-packet` and
   packet version `1`.
-- The packet base revision must match the browser snapshot revision.
-- Changed node summaries replace matching nodes in the current snapshot view
-  model.
+- The packet base revision must match the browser runtime revision.
+- Supported text-block changed node summaries replace matching entries in the
+  runtime store.
+- Snapshot metadata is updated for revision, mutation bridge, diagnostics,
+  authoring history, and live-layout summary; tree sections remain boot/debug
+  payloads for supported text packets.
 - Mutation bridge metadata, diagnostics, authoring history, live-layout summary,
   dirty scope count, and document revision are updated from the packet.
 - If a packet is missing, stale, or asks for a snapshot, the browser refreshes

@@ -56,6 +56,7 @@ Parent goal:
 | 47 | Visible range boundary | done | `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md`; `examples/template-builder-sandbox/public/visibleRange.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 48 | Visible range request boundary | done | `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/public/visibleRange.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 49 | Structural runtime store boundary | done | `docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 50 | Text packet store apply boundary | done | `docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -932,6 +933,36 @@ store:
   editor-view consumption, and packet-cache store facts.
 
 This phase intentionally does not implement direct id-based structural packet
+application, persistent runtime-store storage, lazy heavy-detail routes,
+viewport or scroll controllers, virtualized rendering, hidden/offscreen DOM
+pruning, rich text editing, contenteditable DOM mapping, live-layout rendering,
+persistence, API routes, or package/document version changes.
+
+## Phase 50 Text Packet Store Apply Boundary
+
+Phase 50 lets the existing bounded text-block change packets update the
+browser runtime store directly:
+
+- `examples/template-builder-sandbox/public/runtimeStore.js` owns
+  `applyTextChangePacketToRuntimeStore(...)`, the `text-packet-direct` apply
+  mode, store-copy node replacement, text-block validation, and structural
+  child-id guards;
+- `examples/template-builder-sandbox/public/runtimeCache.js` applies valid text
+  packets to the previous runtime store, updates snapshot metadata separately,
+  rebuilds editor-view facts over the updated store, and preserves that store
+  through visible-range request changes when revisions match;
+- `examples/template-builder-sandbox/public/app.js` reports the latest store
+  apply mode in the status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.applyTextPacketToRuntimeStore` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md` records the Phase 50
+  boundary, acceptance evidence, fallback behavior, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves direct store text
+  packet application, structural-child rejection, packet-cache apply mode,
+  metadata-only snapshot revision updates, and visible-range preservation of
+  updated store text.
+
+This phase intentionally does not implement structural add/delete/move packet
 application, persistent runtime-store storage, lazy heavy-detail routes,
 viewport or scroll controllers, virtualized rendering, hidden/offscreen DOM
 pruning, rich text editing, contenteditable DOM mapping, live-layout rendering,

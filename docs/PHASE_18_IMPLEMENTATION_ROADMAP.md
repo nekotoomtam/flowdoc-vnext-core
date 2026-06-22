@@ -970,6 +970,42 @@ Acceptance:
   mapping, live renderer, route, persistence, or package version change is
   claimed.
 
+## Phase 50: Text Packet Store Apply Boundary
+
+Goal:
+
+- make the existing bounded text-block change packets update the browser
+  structural runtime store directly before moving to full structural packet
+  application, viewport controllers, lazy detail, or virtualized rendering.
+
+Deliverables:
+
+- store-owned text packet apply helper in `public/runtimeStore.js`;
+- `text-packet-direct` apply mode;
+- runtime-cache path that applies text packets to the runtime store before
+  rebuilding editor-view facts;
+- metadata-only snapshot update for revision, mutation bridge, diagnostics,
+  authoring history, and live-layout summaries;
+- visible-range request preservation that keeps the updated store after packet
+  apply;
+- app status output for the latest store apply mode;
+- action lane for `browser.applyTextPacketToRuntimeStore`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- text-block packet application updates `runtimeStore.nodeById` without
+  changing store structural indexes;
+- unsupported structural child changes are rejected by the text packet store
+  helper instead of becoming an accidental structural packet engine;
+- runtime-cache packet state reports `text-packet-direct`;
+- snapshot metadata advances revisions without treating tree sections as the
+  active post-packet content model;
+- visible-range changes after a packet preserve the updated store text;
+- no structural add/delete/move, lazy detail endpoint, viewport controller,
+  virtualized rendering, rich text, contenteditable mapping, live renderer,
+  route, persistence, or package version change is claimed.
+
 ## Later Phases
 
 Goal:

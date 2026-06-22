@@ -131,6 +131,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.updateVisibleRangeRequest")
@@ -920,6 +921,7 @@ describe("template builder sandbox boundary", () => {
     const visibleRangeDoc = readText("../docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md")
     const visibleRangeRequestDoc = readText("../docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md")
     const runtimeStoreDoc = readText("../docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md")
+    const textPacketStoreDoc = readText("../docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md")
 
     expect(appSource).toContain('from "./editorView.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -938,6 +940,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("visibleNodeCount")
     expect(appSource).toContain("Range:")
     expect(appSource).toContain("Range request:")
+    expect(appSource).toContain("Store apply:")
     expect(appSource).toContain("viewMode")
     expect(appSource).toContain("applyChangePacket")
     expect(appSource).toContain("applyChangePacket(result.packet)")
@@ -958,6 +961,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("packet.baseRevision !==")
     expect(runtimeStoreSource).toContain("createRuntimeStore")
     expect(runtimeStoreSource).toContain("flowdoc-structural-runtime-store")
+    expect(runtimeStoreSource).toContain("applyTextChangePacketToRuntimeStore")
+    expect(runtimeStoreSource).toContain("text-packet-direct")
     expect(runtimeStoreSource).toContain("getRuntimeStoreChildren")
     expect(runtimeStoreSource).toContain("getRuntimeStoreSectionRootNodes")
     expect(runtimeStoreSource).not.toContain("document.")
@@ -990,8 +995,11 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeCacheSource).toContain("createRefreshRuntimeState")
     expect(runtimeCacheSource).toContain("createVisibleRangeRuntimeState")
     expect(runtimeCacheSource).toContain("applyChangePacketToRuntime")
+    expect(runtimeCacheSource).toContain("applyTextChangePacketToRuntimeStore")
+    expect(runtimeCacheSource).toContain("applyChangePacketMetadataToSnapshot")
     expect(runtimeCacheSource).toContain("RUNTIME_CACHE_SOURCE")
     expect(runtimeCacheSource).toContain("runtimeStore")
+    expect(runtimeCacheSource).toContain("runtimeStoreApplyMode")
     expect(runtimeCacheSource).toContain("runtimeStoreSource")
     expect(runtimeCacheSource).toContain("visibleRange")
     expect(runtimeCacheSource).toContain("visibleRangeRequest")
@@ -1004,6 +1012,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
     expect(coreBoundarySource).toContain("browser.createStructuralRuntimeStore")
+    expect(coreBoundarySource).toContain("browser.applyTextPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
     expect(coreBoundarySource).toContain("browser.updateVisibleRangeRequest")
@@ -1034,6 +1043,10 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeStoreDoc).toContain("createRuntimeStore")
     expect(runtimeStoreDoc).toContain("structural runtime store")
     expect(runtimeStoreDoc).toContain("does not implement")
+    expect(textPacketStoreDoc).toContain("Status: Phase 50 implementation boundary.")
+    expect(textPacketStoreDoc).toContain("applyTextChangePacketToRuntimeStore")
+    expect(textPacketStoreDoc).toContain("text-packet-direct")
+    expect(textPacketStoreDoc).toContain("does not implement structural add/delete/move")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1209,6 +1222,72 @@ describe("template builder sandbox boundary", () => {
     expect(result.zoneId).toBe("cover-body")
   })
 
+  it("applies text change packets directly to the structural runtime store", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        applyTextChangePacketToRuntimeStore,
+        createRuntimeStore,
+      } = await import("./public/runtimeStore.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const store = createRuntimeStore(snapshot);
+      const changedNode = JSON.parse(JSON.stringify(store.nodeById.get("cover-header-label")));
+      changedNode.plainText = "Direct store packet text";
+      changedNode.textPreview = "Direct store packet text";
+      changedNode.textLength = changedNode.plainText.length;
+      const result = applyTextChangePacketToRuntimeStore(store, {
+        baseRevision: 0,
+        nextRevision: 1,
+        changedNodeIds: ["cover-header-label"],
+        changedNodes: [changedNode],
+      });
+      const structuralResult = applyTextChangePacketToRuntimeStore(store, {
+        baseRevision: 0,
+        nextRevision: 1,
+        changedNodeIds: ["cover-header-label"],
+        changedNodes: [{ ...changedNode, children: [{ id: "new-child" }] }],
+      });
+      console.log(JSON.stringify({
+        applyMode: result.applyMode,
+        changedText: result.runtimeStore.nodeById.get("cover-header-label").textPreview,
+        childIds: result.runtimeStore.childrenById.get("cover-header-label"),
+        currentTextUnchanged: store.nodeById.get("cover-header-label").textPreview,
+        documentRevision: result.runtimeStore.documentRevision,
+        nodeCount: result.runtimeStore.nodeCount,
+        previousRevision: result.runtimeStore.previousRevision,
+        source: result.runtimeStore.source,
+        structuralOk: structuralResult.ok,
+        structuralReason: structuralResult.reason,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      applyMode: string
+      changedText: string
+      childIds: string[]
+      currentTextUnchanged: string
+      documentRevision: number
+      nodeCount: number
+      previousRevision: number
+      source: string
+      structuralOk: boolean
+      structuralReason: string
+    }
+
+    expect(result.source).toBe("flowdoc-structural-runtime-store")
+    expect(result.applyMode).toBe("text-packet-direct")
+    expect(result.changedText).toBe("Direct store packet text")
+    expect(result.currentTextUnchanged).toBe("Confidential Product Report")
+    expect(result.childIds).toEqual([])
+    expect(result.nodeCount).toBe(52)
+    expect(result.documentRevision).toBe(1)
+    expect(result.previousRevision).toBe(0)
+    expect(result.structuralOk).toBe(false)
+    expect(result.structuralReason).toContain("structural child changes")
+  })
+
   it("builds bounded visible ranges without rendering the whole document", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       import { readFileSync } from "node:fs";
@@ -1355,12 +1434,22 @@ describe("template builder sandbox boundary", () => {
       const {
         applyChangePacketToRuntime,
         createBootRuntimeState,
+        createVisibleRangeRuntimeState,
       } = await import("./public/runtimeCache.js");
       const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      function findSnapshotNode(nodes, nodeId) {
+        for (const node of nodes) {
+          if (node.id === nodeId) return node;
+          const child = findSnapshotNode(node.children || [], nodeId);
+          if (child) return child;
+        }
+        return null;
+      }
       const bootState = createBootRuntimeState(snapshot);
       const changedNode = JSON.parse(JSON.stringify(bootState.runtimeCache.nodeById.get("cover-header-label")));
       changedNode.plainText = "Runtime cache packet text";
       changedNode.textPreview = "Runtime cache packet text";
+      changedNode.textLength = changedNode.plainText.length;
       const result = applyChangePacketToRuntime(bootState.snapshot, bootState.runtimeCache, {
         source: "flowdoc-template-builder-change-packet",
         packetVersion: 1,
@@ -1387,6 +1476,10 @@ describe("template builder sandbox boundary", () => {
         liveLayout: bootState.snapshot.liveLayout,
         issues: [],
       });
+      const rangeState = createVisibleRangeRuntimeState(result.snapshot, result.runtimeCache, {
+        anchorNodeId: "cover-header-label",
+        reason: "selection",
+      });
       console.log(JSON.stringify({
         ok: result.ok,
         changedText: result.runtimeCache.nodeById.get("cover-header-label").textPreview,
@@ -1398,9 +1491,12 @@ describe("template builder sandbox boundary", () => {
         runtimeStoreMode: result.runtimeCache.runtimeStoreMode,
         runtimeStoreNodeCount: result.runtimeCache.runtimeStore.nodeCount,
         runtimeStoreSource: result.runtimeCache.runtimeStoreSource,
+        runtimeStoreApplyMode: result.runtimeCache.runtimeStoreApplyMode,
+        snapshotTreeText: findSnapshotNode(result.snapshot.sections.flatMap((section) => section.zones), "cover-header-label").textPreview,
         snapshotRevision: result.snapshot.session.documentRevision,
         bridgeMode: result.snapshot.mutationBridge.mode,
         lastMutationTarget: result.snapshot.mutationBridge.lastMutation.targetTextBlockId,
+        textAfterVisibleRangeChange: rangeState.runtimeCache.nodeById.get("cover-header-label").textPreview,
         visibleNodeCount: result.runtimeCache.visibleNodeCount,
         visibleRangeRequestReason: result.runtimeCache.visibleRangeRequest.reason,
         visibleRangeRequestSource: result.runtimeCache.visibleRangeRequest.source,
@@ -1425,7 +1521,10 @@ describe("template builder sandbox boundary", () => {
       runtimeStoreMode: string
       runtimeStoreNodeCount: number
       runtimeStoreSource: string
+      runtimeStoreApplyMode: string
+      snapshotTreeText: string
       snapshotRevision: number
+      textAfterVisibleRangeChange: string
       visibleNodeCount: number
       visibleRangeKind: string
       visibleRangeRequestReason: string
@@ -1438,6 +1537,7 @@ describe("template builder sandbox boundary", () => {
     expect(result.runtimeSource).toBe("flowdoc-template-builder-runtime-cache")
     expect(result.runtimeStoreSource).toBe("flowdoc-structural-runtime-store")
     expect(result.runtimeStoreMode).toBe("structural-runtime-store")
+    expect(result.runtimeStoreApplyMode).toBe("text-packet-direct")
     expect(result.runtimeStoreNodeCount).toBe(52)
     expect(result.mode).toBe("packet-cache")
     expect(result.packetsApplied).toBe(1)
@@ -1445,6 +1545,8 @@ describe("template builder sandbox boundary", () => {
     expect(result.bridgeMode).toBe("in-memory-bridge")
     expect(result.lastMutationTarget).toBe("cover-header-label")
     expect(result.changedText).toBe("Runtime cache packet text")
+    expect(result.snapshotTreeText).toBe("Confidential Product Report")
+    expect(result.textAfterVisibleRangeChange).toBe("Runtime cache packet text")
     expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.visibleNodeCount).toBe(16)
@@ -1477,6 +1579,7 @@ describe("template builder sandbox boundary", () => {
     expect(northStarDoc).toContain("Phase 47 replaces the all-node visible range placeholder")
     expect(northStarDoc).toContain("Phase 48 separates visible range requests from resolved ranges")
     expect(northStarDoc).toContain("Phase 49 moves structural lookup indexes into a dedicated browser-safe runtime")
+    expect(northStarDoc).toContain("Phase 50 adds a narrow text-packet direct apply path")
   })
 
   it("locks future editor work to modular responsibility boundaries", () => {

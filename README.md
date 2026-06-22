@@ -154,6 +154,9 @@ The package must remain runnable without any parent editor checkout.
 - Structural runtime store boundary gives browser structural indexes their own
   store owner below the editor view before structural packet application or
   virtualized rendering
+- Text packet store boundary applies bounded text-block change packets directly
+  to the browser runtime store while keeping full structural packet operations
+  deferred
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -266,6 +269,8 @@ The package must remain runnable without any parent editor checkout.
   range request boundary for request reason, budget, and preserve policy
 - `docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md`: Phase 49 structural
   runtime store boundary for browser lookup indexes below the editor view
+- `docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md`: Phase 50 direct text
+  packet application boundary for the browser runtime store
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -309,5 +314,5 @@ The package must remain runnable without any parent editor checkout.
 - durable operation/authoring history persistence outside in-memory helpers
 - durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes
-- durable browser cache persistence and structural packet application
+- durable browser cache persistence and full structural packet application
 - publishing/distribution strategy beyond local package consumption

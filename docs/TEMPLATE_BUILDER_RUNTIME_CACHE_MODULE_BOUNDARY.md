@@ -67,28 +67,35 @@ application now preserves the previous request as `packet-apply` before the
 range resolver runs.
 
 Phase 49 adds `runtimeStore`, `runtimeStoreSource`, and `runtimeStoreMode` to
-the cache. The cache still rebuilds the store from the updated tree-shaped
-snapshot after packet application; direct structural packet application is a
-later phase.
+the cache.
+
+Phase 50 adds `runtimeStoreApplyMode` and makes valid bounded text packets use
+`applyTextChangePacketToRuntimeStore(...)` before rebuilding editor-view facts.
+The direct text path reports `text-packet-direct`. Snapshot metadata still
+advances for revision, mutation bridge, diagnostics, authoring history, and
+live-layout summaries.
 
 ## Packet Apply Boundary
 
-`applyChangePacketToRuntime(...)` still patches the current tree-shaped
-snapshot view model before rebuilding the normalized editor view. This is a
-temporary sandbox bridge behavior, not the long-term structural packet engine.
+`applyChangePacketToRuntime(...)` now applies supported text-block change
+packets to the existing runtime store first. It then rebuilds the normalized
+editor view over that updated store. The tree-shaped snapshot is not treated as
+the active post-packet content model for supported text packets.
 
 The boundary is explicit:
 
 ```text
 browser shell
   -> applyChangePacketToRuntime(snapshot, previousCache, packet)
-  -> updated snapshot view model
+  -> updated runtimeStore nodeById for text packets
+  -> metadata-only snapshot revision/status update
   -> updated runtime cache
   -> rebuilt normalized editor view
 ```
 
-This keeps the current UI stable while creating the module seam needed for a
-later structural packet implementation.
+If an old caller has no runtime store, the previous tree-shaped patch helper
+remains as a compatibility fallback. Unsupported structural packet attempts are
+not silently upgraded into a full structural packet engine.
 
 ## Acceptance Evidence
 
@@ -100,10 +107,10 @@ Phase 46 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 - `app.js` no longer defines `createRuntimeCache`, `replaceChangedNode`, or
   packet revision guards;
 - `runtimeCache.js` owns change-packet validation and packet source checks;
-- a Node test boots the runtime cache, applies a packet, and verifies updated
-  snapshot revision, mutation bridge state, packet count, changed text, dirty
-  ids, changed subtree ids, visible-range facts, and visible range request
-  facts.
+- a Node test boots the runtime cache, applies a packet, and verifies
+  `text-packet-direct`, updated metadata snapshot revision, mutation bridge
+  state, packet count, changed store text, dirty ids, changed subtree ids,
+  visible-range facts, and visible range request facts.
 
 ## Non-Goals
 
@@ -111,7 +118,7 @@ Phase 46 does not implement:
 
 - viewport virtualization;
 - lazy heavy-detail routes;
-- structural packet patching without snapshot tree patching;
+- full structural packet application for add/delete/move/reorder;
 - production editor package structure;
 - rich text editing;
 - contenteditable DOM mapping;
