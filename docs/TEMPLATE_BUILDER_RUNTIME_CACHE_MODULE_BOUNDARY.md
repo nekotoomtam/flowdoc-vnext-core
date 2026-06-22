@@ -66,6 +66,11 @@ Phase 48 adds `visibleRangeRequest`, `visibleRangeRequestReason`, and
 application now preserves the previous request as `packet-apply` before the
 range resolver runs.
 
+Phase 49 adds `runtimeStore`, `runtimeStoreSource`, and `runtimeStoreMode` to
+the cache. The cache still rebuilds the store from the updated tree-shaped
+snapshot after packet application; direct structural packet application is a
+later phase.
+
 ## Packet Apply Boundary
 
 `applyChangePacketToRuntime(...)` still patches the current tree-shaped

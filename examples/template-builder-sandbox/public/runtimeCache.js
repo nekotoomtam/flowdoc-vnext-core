@@ -50,24 +50,30 @@ export function createRuntimeCache(snapshot, options = {}) {
   const packetApplied = Boolean(options.packetApplied)
   const previousPacketCount = previousCache?.packetsApplied || 0
   const fallbackSnapshotCount = options.fallbackSnapshotCount ?? previousCache?.fallbackSnapshotCount ?? 0
+  const runtimeStore = editorView.runtimeStore
 
   return {
     bootRevision: previousCache?.bootRevision ?? snapshot.session.documentRevision,
     changedNodeCount: editorView.changedNodeIds.size,
-    childrenById: editorView.childrenById,
+    childrenById: runtimeStore.childrenById,
     documentRevision: snapshot.session.documentRevision,
     dirtyNodeCount: editorView.dirtyNodeIds.size,
     editorView,
     fallbackSnapshotCount,
     lastPacketRevision: options.packet?.nextRevision ?? previousCache?.lastPacketRevision ?? null,
     mode: options.mode || (packetApplied ? "packet-cache" : "snapshot-boot"),
-    nodeById: editorView.nodeById,
-    nodeCount: editorView.nodeOrder.length,
-    nodeOrder: editorView.nodeOrder,
+    nodeById: runtimeStore.nodeById,
+    nodeCount: runtimeStore.nodeOrder.length,
+    nodeOrder: runtimeStore.nodeOrder,
     packetsApplied: packetApplied ? previousPacketCount + 1 : previousPacketCount,
-    parentById: editorView.parentById,
-    sectionById: editorView.sectionById,
+    parentById: runtimeStore.parentById,
+    runtimeStore,
+    runtimeStoreMode: runtimeStore.mode,
+    runtimeStoreSource: runtimeStore.source,
+    sectionById: runtimeStore.sectionById,
     source: RUNTIME_CACHE_SOURCE,
+    storeMode: runtimeStore.mode,
+    storeSource: runtimeStore.source,
     viewMode: editorView.mode,
     visibleNodeCount: editorView.visibleNodeIds.length,
     visibleNodeIds: editorView.visibleNodeIds,
@@ -79,7 +85,7 @@ export function createRuntimeCache(snapshot, options = {}) {
     visibleRangeSource: editorView.visibleRange.source,
     visibleRangeWindowed: editorView.visibleRange.windowed,
     visibleSectionIds: editorView.visibleRange.sectionIds,
-    zoneById: editorView.zoneById,
+    zoneById: runtimeStore.zoneById,
   }
 }
 

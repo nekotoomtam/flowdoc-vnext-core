@@ -1,12 +1,15 @@
+import {
+  createRuntimeStore,
+  getRuntimeStoreChildren,
+  getRuntimeStoreNode,
+  getRuntimeStoreParent,
+  getRuntimeStoreSectionRootNodes,
+} from "./runtimeStore.js"
 import { createVisibleRange } from "./visibleRange.js"
 import { createBootVisibleRangeRequest, createVisibleRangeRequest } from "./visibleRangeRequest.js"
 
 export const EDITOR_VIEW_SOURCE = "flowdoc-normalized-editor-view"
 export const EDITOR_VIEW_MODE = "normalized-editor-view"
-
-function mapValuesById(ids, map) {
-  return ids.map((id) => map.get(id)).filter(Boolean)
-}
 
 function addDirtyScopeIds(dirtyNodeIds, scope) {
   if (!scope) return
@@ -29,67 +32,21 @@ function collectPacketIds(packet) {
 }
 
 export function createEditorView(snapshot, options = {}) {
-  const nodeById = new Map()
-  const parentById = new Map()
-  const childrenById = new Map()
-  const sectionById = new Map()
-  const zoneById = new Map()
-  const sectionIdByNodeId = new Map()
-  const zoneIdByNodeId = new Map()
-  const rootZoneIdsBySectionId = new Map()
-  const nodeOrder = []
-  const sectionIds = []
-
-  for (const section of snapshot.sections) {
-    sectionById.set(section.id, section)
-    sectionIds.push(section.id)
-    rootZoneIdsBySectionId.set(section.id, section.zones.map((zone) => zone.id))
-
-    const stack = section.zones
-      .slice()
-      .reverse()
-      .map((zone) => ({
-        node: zone,
-        parentId: section.id,
-      }))
-
-    while (stack.length > 0) {
-      const { node, parentId } = stack.pop()
-      const childIds = (node.children || []).map((child) => child.id)
-
-      nodeById.set(node.id, node)
-      parentById.set(node.id, parentId ?? node.parentId ?? null)
-      childrenById.set(node.id, childIds)
-      sectionIdByNodeId.set(node.id, node.sectionId || section.id)
-      zoneIdByNodeId.set(node.id, node.zoneId || node.id)
-      nodeOrder.push(node.id)
-
-      if (node.type === "zone") {
-        zoneById.set(node.id, node)
-      }
-
-      for (let index = (node.children || []).length - 1; index >= 0; index -= 1) {
-        const child = node.children[index]
-        stack.push({
-          node: child,
-          parentId: node.id,
-        })
-      }
-    }
-  }
-
   const previousView = options.previousView || null
+  const runtimeStore = options.runtimeStore || createRuntimeStore(snapshot, {
+    previousStore: previousView?.runtimeStore,
+  })
   const visibleRangeRequest = createVisibleRangeRequest(
     options.visibleRangeRequest
       || options.visibleRange
       || previousView?.visibleRangeRequest
       || previousView?.visibleRange?.request
-      || createBootVisibleRangeRequest(sectionIds[0] || null),
+      || createBootVisibleRangeRequest(runtimeStore.sectionIds[0] || null),
   )
   const visibleRange = createVisibleRange({
-    nodeOrder,
-    sectionIdByNodeId,
-    sectionIds,
+    nodeOrder: runtimeStore.nodeOrder,
+    sectionIdByNodeId: runtimeStore.sectionIdByNodeId,
+    sectionIds: runtimeStore.sectionIds,
   }, visibleRangeRequest)
   const visibleNodeIds = visibleRange.nodeIds
   const packetIds = collectPacketIds(options.packet)
@@ -97,44 +54,41 @@ export function createEditorView(snapshot, options = {}) {
   return {
     changedNodeIds: packetIds.changedNodeIds,
     changedSubtreeIds: packetIds.changedSubtreeIds,
-    childrenById,
+    childrenById: runtimeStore.childrenById,
     dirtyNodeIds: packetIds.dirtyNodeIds,
     documentRevision: snapshot.session.documentRevision,
     mode: EDITOR_VIEW_MODE,
-    nodeById,
-    nodeOrder,
-    parentById,
+    nodeById: runtimeStore.nodeById,
+    nodeOrder: runtimeStore.nodeOrder,
+    parentById: runtimeStore.parentById,
     previousRevision: previousView?.documentRevision ?? null,
-    rootZoneIdsBySectionId,
-    sectionById,
-    sectionIdByNodeId,
-    sectionIds,
+    rootZoneIdsBySectionId: runtimeStore.rootZoneIdsBySectionId,
+    runtimeStore,
+    sectionById: runtimeStore.sectionById,
+    sectionIdByNodeId: runtimeStore.sectionIdByNodeId,
+    sectionIds: runtimeStore.sectionIds,
     source: EDITOR_VIEW_SOURCE,
     version: 1,
     visibleNodeIds,
     visibleRange,
     visibleRangeRequest: visibleRange.request,
-    zoneById,
-    zoneIdByNodeId,
+    zoneById: runtimeStore.zoneById,
+    zoneIdByNodeId: runtimeStore.zoneIdByNodeId,
   }
 }
 
 export function getEditorViewNode(view, nodeId) {
-  if (!view || !nodeId) return null
-  return view.nodeById.get(nodeId) || null
+  return getRuntimeStoreNode(view?.runtimeStore, nodeId)
 }
 
 export function getEditorViewParent(view, nodeId) {
-  if (!view || !nodeId) return null
-  return getEditorViewNode(view, view.parentById.get(nodeId))
+  return getRuntimeStoreParent(view?.runtimeStore, nodeId)
 }
 
 export function getEditorViewChildren(view, nodeId) {
-  if (!view || !nodeId) return []
-  return mapValuesById(view.childrenById.get(nodeId) || [], view.nodeById)
+  return getRuntimeStoreChildren(view?.runtimeStore, nodeId)
 }
 
 export function getEditorViewSectionRootNodes(view, sectionId) {
-  if (!view || !sectionId) return []
-  return mapValuesById(view.rootZoneIdsBySectionId.get(sectionId) || [], view.nodeById)
+  return getRuntimeStoreSectionRootNodes(view?.runtimeStore, sectionId)
 }

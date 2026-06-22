@@ -55,6 +55,7 @@ Parent goal:
 | 46 | Runtime cache module boundary | done | `docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 47 | Visible range boundary | done | `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md`; `examples/template-builder-sandbox/public/visibleRange.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 48 | Visible range request boundary | done | `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/public/visibleRange.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 49 | Structural runtime store boundary | done | `docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -905,6 +906,36 @@ hidden/offscreen DOM pruning, lazy heavy-detail routes, structural packet
 patching without snapshot tree patching, rich text editing, contenteditable DOM
 mapping, live-layout rendering, persistence, API routes, or package/document
 version changes.
+
+## Phase 49 Structural Runtime Store Boundary
+
+Phase 49 moves structural lookup indexes into their own browser-safe runtime
+store:
+
+- `examples/template-builder-sandbox/public/runtimeStore.js` owns
+  `createRuntimeStore(...)`, store source/mode, node lookup, parent lookup,
+  child lookup, section root lookup, and structural indexes;
+- `examples/template-builder-sandbox/public/editorView.js` now consumes a
+  runtime store and keeps editor-specific dirty, changed, and visible-range
+  facts above it;
+- `examples/template-builder-sandbox/public/runtimeCache.js` carries
+  `runtimeStore`, `runtimeStoreSource`, and `runtimeStoreMode` beside
+  editor-view and visible-range facts;
+- `examples/template-builder-sandbox/public/app.js` displays active store mode,
+  node count, and section count in the status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.createStructuralRuntimeStore` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md` records the Phase 49 store
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves store source/mode,
+  node count, section count, parent lookup, child lookup, section root lookup,
+  editor-view consumption, and packet-cache store facts.
+
+This phase intentionally does not implement direct id-based structural packet
+application, persistent runtime-store storage, lazy heavy-detail routes,
+viewport or scroll controllers, virtualized rendering, hidden/offscreen DOM
+pruning, rich text editing, contenteditable DOM mapping, live-layout rendering,
+persistence, API routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 

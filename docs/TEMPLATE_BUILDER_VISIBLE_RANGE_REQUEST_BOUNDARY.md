@@ -72,6 +72,10 @@ Packet application preserves the current request and records
 `reason: "packet-apply"` so accepted mutations do not silently reset the
 active visible section.
 
+Phase 49 moves the structural indexes consumed by range resolution into
+`public/runtimeStore.js`. Request policy remains owned here; store construction
+remains separate from visible-range intent.
+
 ## Current Behavior
 
 - Boot starts from a `boot` request anchored to the first section.

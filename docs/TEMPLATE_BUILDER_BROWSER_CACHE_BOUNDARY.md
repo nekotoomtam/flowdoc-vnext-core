@@ -90,6 +90,10 @@ request reason/budget/anchor and the resolved range facts, so selection, draft,
 packet apply, and future viewport work can share one intent contract before
 range resolution.
 
+Phase 49 adds `public/runtimeStore.js` below the normalized editor view. The
+browser cache now carries a store-owned structural lookup layer while the
+tree-shaped snapshot remains the boot/debug and temporary packet patch model.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.

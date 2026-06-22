@@ -52,6 +52,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/src/mutationBridge.ts",
       "../examples/template-builder-sandbox/scripts/build-snapshot.ts",
       "../examples/template-builder-sandbox/scripts/serve.mjs",
+      "../examples/template-builder-sandbox/public/runtimeStore.js",
       "../examples/template-builder-sandbox/public/visibleRangeRequest.js",
       "../examples/template-builder-sandbox/public/visibleRange.js",
       "../examples/template-builder-sandbox/public/editorView.js",
@@ -129,6 +130,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyDraftTextCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.updateVisibleRangeRequest")
@@ -907,6 +909,7 @@ describe("template builder sandbox boundary", () => {
 
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -916,6 +919,7 @@ describe("template builder sandbox boundary", () => {
     const runtimeCacheDoc = readText("../docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md")
     const visibleRangeDoc = readText("../docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md")
     const visibleRangeRequestDoc = readText("../docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md")
+    const runtimeStoreDoc = readText("../docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md")
 
     expect(appSource).toContain('from "./editorView.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -927,6 +931,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("getEditorViewChildren")
     expect(appSource).toContain("getEditorViewSectionRootNodes")
     expect(appSource).toContain('from "./visibleRangeRequest.js"')
+    expect(appSource).toContain("Store:")
     expect(appSource).toContain("createSelectionVisibleRangeRequest")
     expect(appSource).toContain("createDraftVisibleRangeRequest")
     expect(appSource).toContain("createVisibleRangeRuntimeState")
@@ -951,14 +956,23 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("function createRuntimeCache")
     expect(appSource).not.toContain("function replaceChangedNode")
     expect(appSource).not.toContain("packet.baseRevision !==")
+    expect(runtimeStoreSource).toContain("createRuntimeStore")
+    expect(runtimeStoreSource).toContain("flowdoc-structural-runtime-store")
+    expect(runtimeStoreSource).toContain("getRuntimeStoreChildren")
+    expect(runtimeStoreSource).toContain("getRuntimeStoreSectionRootNodes")
+    expect(runtimeStoreSource).not.toContain("document.")
+    expect(runtimeStoreSource).not.toContain("querySelector")
     expect(editorViewSource).toContain("createEditorView")
+    expect(editorViewSource).toContain('from "./runtimeStore.js"')
     expect(editorViewSource).toContain('from "./visibleRange.js"')
     expect(editorViewSource).toContain('from "./visibleRangeRequest.js"')
     expect(editorViewSource).toContain("childrenById")
     expect(editorViewSource).toContain("parentById")
+    expect(editorViewSource).toContain("runtimeStore")
     expect(editorViewSource).toContain("visibleNodeIds")
     expect(editorViewSource).toContain("visibleRangeRequest")
     expect(editorViewSource).toContain("dirtyNodeIds")
+    expect(editorViewSource).not.toContain("const nodeById = new Map")
     expect(visibleRangeRequestSource).toContain("createVisibleRangeRequest")
     expect(visibleRangeRequestSource).toContain("createSelectionVisibleRangeRequest")
     expect(visibleRangeRequestSource).toContain("createDraftVisibleRangeRequest")
@@ -977,6 +991,8 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeCacheSource).toContain("createVisibleRangeRuntimeState")
     expect(runtimeCacheSource).toContain("applyChangePacketToRuntime")
     expect(runtimeCacheSource).toContain("RUNTIME_CACHE_SOURCE")
+    expect(runtimeCacheSource).toContain("runtimeStore")
+    expect(runtimeCacheSource).toContain("runtimeStoreSource")
     expect(runtimeCacheSource).toContain("visibleRange")
     expect(runtimeCacheSource).toContain("visibleRangeRequest")
     expect(runtimeCacheSource).toContain("visibleRangeKind")
@@ -987,6 +1003,7 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeCacheSource).not.toContain("querySelector")
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
+    expect(coreBoundarySource).toContain("browser.createStructuralRuntimeStore")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
     expect(coreBoundarySource).toContain("browser.updateVisibleRangeRequest")
@@ -997,6 +1014,7 @@ describe("template builder sandbox boundary", () => {
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
     expect(browserCacheDoc).toContain("public/editorView.js")
     expect(browserCacheDoc).toContain("public/runtimeCache.js")
+    expect(browserCacheDoc).toContain("public/runtimeStore.js")
     expect(browserCacheDoc).toContain("public/visibleRangeRequest.js")
     expect(browserCacheDoc).toContain("public/visibleRange.js")
     expect(runtimeCacheDoc).toContain("Status: Phase 46 implementation boundary.")
@@ -1012,6 +1030,10 @@ describe("template builder sandbox boundary", () => {
     expect(visibleRangeRequestDoc).toContain("createVisibleRangeRequest")
     expect(visibleRangeRequestDoc).toContain("visibleRangeRequest")
     expect(visibleRangeRequestDoc).toContain("does not implement")
+    expect(runtimeStoreDoc).toContain("Status: Phase 49 implementation boundary.")
+    expect(runtimeStoreDoc).toContain("createRuntimeStore")
+    expect(runtimeStoreDoc).toContain("structural runtime store")
+    expect(runtimeStoreDoc).toContain("does not implement")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1042,6 +1064,11 @@ describe("template builder sandbox boundary", () => {
         nodeCount: view.nodeOrder.length,
         parentId: getEditorViewParent(view, "cover-title")?.id ?? null,
         rootZones: getEditorViewSectionRootNodes(view, "section-cover").map((node) => node.id),
+        runtimeStoreMode: view.runtimeStore.mode,
+        runtimeStoreNodeCount: view.runtimeStore.nodeCount,
+        runtimeStorePreviousRevision: view.runtimeStore.previousRevision,
+        runtimeStoreSectionCount: view.runtimeStore.sectionCount,
+        runtimeStoreSource: view.runtimeStore.source,
         sectionId: view.sectionIdByNodeId.get("cover-title"),
         source: view.source,
         visibleRangeRequestBudget: view.visibleRangeRequest.budget,
@@ -1068,6 +1095,11 @@ describe("template builder sandbox boundary", () => {
       nodeCount: number
       parentId: string
       rootZones: string[]
+      runtimeStoreMode: string
+      runtimeStoreNodeCount: number
+      runtimeStorePreviousRevision: number | null
+      runtimeStoreSectionCount: number
+      runtimeStoreSource: string
       sectionId: string
       source: string
       visibleNodeCount: number
@@ -1084,6 +1116,11 @@ describe("template builder sandbox boundary", () => {
 
     expect(result.source).toBe("flowdoc-normalized-editor-view")
     expect(result.mode).toBe("normalized-editor-view")
+    expect(result.runtimeStoreSource).toBe("flowdoc-structural-runtime-store")
+    expect(result.runtimeStoreMode).toBe("structural-runtime-store")
+    expect(result.runtimeStoreNodeCount).toBe(52)
+    expect(result.runtimeStoreSectionCount).toBe(3)
+    expect(result.runtimeStorePreviousRevision).toBeNull()
     expect(result.nodeCount).toBe(52)
     expect(result.visibleNodeCount).toBe(16)
     expect(result.visibleRangeKind).toBe("section-window")
@@ -1108,6 +1145,68 @@ describe("template builder sandbox boundary", () => {
     expect(result.zoneId).toBe("cover-body")
     expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
+  })
+
+  it("builds structural runtime store indexes before editor view consumption", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        createRuntimeStore,
+        getRuntimeStoreChildren,
+        getRuntimeStoreParent,
+        getRuntimeStoreSectionRootNodes,
+      } = await import("./public/runtimeStore.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const store = createRuntimeStore(snapshot);
+      const rebuilt = createRuntimeStore(snapshot, { previousStore: store });
+      console.log(JSON.stringify({
+        bodyChildren: getRuntimeStoreChildren(store, "cover-body").map((node) => node.id),
+        mode: store.mode,
+        nodeCount: store.nodeCount,
+        parentId: getRuntimeStoreParent(store, "cover-title")?.id ?? null,
+        previousRevision: rebuilt.previousRevision,
+        rootZones: getRuntimeStoreSectionRootNodes(store, "section-cover").map((node) => node.id),
+        sectionCount: store.sectionCount,
+        sectionId: store.sectionIdByNodeId.get("cover-title"),
+        sectionIds: store.sectionIds,
+        source: store.source,
+        zoneId: store.zoneIdByNodeId.get("cover-title"),
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bodyChildren: string[]
+      mode: string
+      nodeCount: number
+      parentId: string
+      previousRevision: number
+      rootZones: string[]
+      sectionCount: number
+      sectionId: string
+      sectionIds: string[]
+      source: string
+      zoneId: string
+    }
+
+    expect(result.source).toBe("flowdoc-structural-runtime-store")
+    expect(result.mode).toBe("structural-runtime-store")
+    expect(result.nodeCount).toBe(52)
+    expect(result.sectionCount).toBe(3)
+    expect(result.sectionIds).toEqual(["section-cover", "section-toc", "section-body"])
+    expect(result.previousRevision).toBe(0)
+    expect(result.rootZones).toEqual(["cover-first-header", "cover-body", "cover-first-footer"])
+    expect(result.bodyChildren).toEqual([
+      "cover-title",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.parentId).toBe("cover-body")
+    expect(result.sectionId).toBe("section-cover")
+    expect(result.zoneId).toBe("cover-body")
   })
 
   it("builds bounded visible ranges without rendering the whole document", () => {
@@ -1296,6 +1395,9 @@ describe("template builder sandbox boundary", () => {
         mode: result.runtimeCache.mode,
         packetsApplied: result.runtimeCache.packetsApplied,
         runtimeSource: result.runtimeCache.source,
+        runtimeStoreMode: result.runtimeCache.runtimeStoreMode,
+        runtimeStoreNodeCount: result.runtimeCache.runtimeStore.nodeCount,
+        runtimeStoreSource: result.runtimeCache.runtimeStoreSource,
         snapshotRevision: result.snapshot.session.documentRevision,
         bridgeMode: result.snapshot.mutationBridge.mode,
         lastMutationTarget: result.snapshot.mutationBridge.lastMutation.targetTextBlockId,
@@ -1320,6 +1422,9 @@ describe("template builder sandbox boundary", () => {
       ok: boolean
       packetsApplied: number
       runtimeSource: string
+      runtimeStoreMode: string
+      runtimeStoreNodeCount: number
+      runtimeStoreSource: string
       snapshotRevision: number
       visibleNodeCount: number
       visibleRangeKind: string
@@ -1331,6 +1436,9 @@ describe("template builder sandbox boundary", () => {
 
     expect(result.ok).toBe(true)
     expect(result.runtimeSource).toBe("flowdoc-template-builder-runtime-cache")
+    expect(result.runtimeStoreSource).toBe("flowdoc-structural-runtime-store")
+    expect(result.runtimeStoreMode).toBe("structural-runtime-store")
+    expect(result.runtimeStoreNodeCount).toBe(52)
     expect(result.mode).toBe("packet-cache")
     expect(result.packetsApplied).toBe(1)
     expect(result.snapshotRevision).toBe(1)
@@ -1368,6 +1476,7 @@ describe("template builder sandbox boundary", () => {
     expect(browserCacheDoc).toContain("active runtime shape for large-document editing")
     expect(northStarDoc).toContain("Phase 47 replaces the all-node visible range placeholder")
     expect(northStarDoc).toContain("Phase 48 separates visible range requests from resolved ranges")
+    expect(northStarDoc).toContain("Phase 49 moves structural lookup indexes into a dedicated browser-safe runtime")
   })
 
   it("locks future editor work to modular responsibility boundaries", () => {

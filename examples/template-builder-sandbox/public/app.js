@@ -1411,6 +1411,9 @@ function renderStatus(snapshot) {
   const editorViewLabel = state.runtimeCache
     ? `View: ${state.runtimeCache.viewMode} ${state.runtimeCache.childrenById.size} child indexes ${state.runtimeCache.dirtyNodeCount} dirty`
     : "View: none"
+  const storeLabel = state.runtimeCache
+    ? `Store: ${state.runtimeCache.storeMode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.runtimeStore.sectionCount} sections`
+    : "Store: none"
   const historyLabel = snapshot.authoringHistory
     ? `History: ${snapshot.authoringHistory.recordCount} records ${snapshot.authoringHistory.groupCount} groups`
     : "History: none"
@@ -1424,6 +1427,7 @@ function renderStatus(snapshot) {
       <span>Selection: ${escapeHtml(node?.id || snapshot.session.selectionKind)}</span>
       <span>Source: ${escapeHtml(state.selectionSource)}</span>
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
+      <span>${escapeHtml(storeLabel)}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
       <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>

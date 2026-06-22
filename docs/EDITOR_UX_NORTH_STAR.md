@@ -272,6 +272,11 @@ Phase 48 separates visible range requests from resolved ranges. Selection,
 draft, packet apply, and future viewport work now have a request contract for
 reason, anchor, and budget before the range resolver produces node ids.
 
+Phase 49 moves structural lookup indexes into a dedicated browser-safe runtime
+store below the editor view. The editor view now consumes store indexes instead
+of owning structural traversal, while direct structural packet application
+remains future work.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

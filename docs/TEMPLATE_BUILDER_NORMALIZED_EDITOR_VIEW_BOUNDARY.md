@@ -93,6 +93,11 @@ Phase 48 adds `visibleRangeRequest` to the editor view. The request records why
 the range was asked for and which budget/anchor should be resolved, while
 `visibleRange` remains the resolved node-id output.
 
+Phase 49 moves structural traversal and lookup index construction into
+`public/runtimeStore.js`. `editorView.js` now consumes `runtimeStore` and owns
+only editor-view facts such as dirty ids, changed ids, visible range requests,
+and resolved visible ranges.
+
 ## Scale Direction
 
 This phase makes the long-term path explicit:

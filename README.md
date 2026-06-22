@@ -151,6 +151,9 @@ The package must remain runnable without any parent editor checkout.
 - Visible range request boundary separates range intent, reason, and budget
   from resolved visible node ids so selection, draft, packet, and future
   viewport work can share one request contract
+- Structural runtime store boundary gives browser structural indexes their own
+  store owner below the editor view before structural packet application or
+  virtualized rendering
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -261,6 +264,8 @@ The package must remain runnable without any parent editor checkout.
   boundary for bounded runtime node windows before virtualization
 - `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_REQUEST_BOUNDARY.md`: Phase 48 visible
   range request boundary for request reason, budget, and preserve policy
+- `docs/TEMPLATE_BUILDER_RUNTIME_STORE_BOUNDARY.md`: Phase 49 structural
+  runtime store boundary for browser lookup indexes below the editor view
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

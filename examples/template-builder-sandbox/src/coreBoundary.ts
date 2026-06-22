@@ -502,6 +502,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser runtime derives lookup-first editor indexes from boot snapshots and packets",
       },
       {
+        action: "browser.createStructuralRuntimeStore",
+        label: "Runtime store",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser runtime owns structural lookup indexes before structural packet application",
+      },
+      {
         action: "browser.resolveVisibleRange",
         label: "Visible range",
         lane: "immediate",

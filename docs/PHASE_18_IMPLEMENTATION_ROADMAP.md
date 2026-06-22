@@ -935,6 +935,41 @@ Acceptance:
   text, contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 49: Structural Runtime Store Boundary
+
+Goal:
+
+- move structural browser indexes into a dedicated runtime store below the
+  editor view before structural packet application, lazy detail, viewport
+  controllers, or virtualized rendering.
+
+Deliverables:
+
+- browser-safe `public/runtimeStore.js` module;
+- store source/version/mode contract;
+- store-owned `nodeById`, `parentById`, `childrenById`, section, zone,
+  section-node, zone-node, root-zone, section-order, and node-order indexes;
+- store helper reads for node, parent, children, and section roots;
+- editor-view integration so editor facts consume a runtime store instead of
+  owning structural traversal;
+- runtime-cache exposure of store facts;
+- app status output for active store mode/counts;
+- action lane for `browser.createStructuralRuntimeStore`;
+- boundary documentation and root tests.
+
+Acceptance:
+
+- `runtimeStore.js` can build store indexes in Node without DOM access;
+- `editorView.js` no longer owns structural map construction;
+- runtime caches carry store source/mode facts through boot and packet apply;
+- packet application may still patch the tree-shaped snapshot and rebuild the
+  store from that snapshot;
+- rendering may still show the full sandbox document shell;
+- no direct id-based structural packet application, lazy detail endpoint,
+  viewport controller, virtualized rendering, rich text, contenteditable
+  mapping, live renderer, route, persistence, or package version change is
+  claimed.
+
 ## Later Phases
 
 Goal:
