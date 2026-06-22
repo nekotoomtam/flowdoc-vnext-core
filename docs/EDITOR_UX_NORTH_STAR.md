@@ -307,6 +307,10 @@ browser-local page rectangles, but normalization and anchor-section selection
 live in a browser-safe module that feeds the existing viewport request path.
 It still does not bind scroll events or claim virtualized rendering.
 
+Phase 56 adds a manual viewport measurement apply boundary. The current
+measurement can deliberately update the visible range and render window, but
+scroll movement still does not automatically drive rendering or scheduling.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

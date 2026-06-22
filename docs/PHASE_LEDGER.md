@@ -62,6 +62,7 @@ Parent goal:
 | 53 | Viewport request boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportController.js`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 54 | Render shell placeholder boundary | done | `docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderShell.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 55 | Viewport section-shell measurement boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 56 | Manual viewport measurement apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1110,6 +1111,35 @@ renderer scheduling, hidden/offscreen DOM pruning, lazy heavy-detail routes,
 structural add/delete/move packet application, rich text editing,
 contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
 package/document version changes.
+
+## Phase 56 Manual Viewport Measurement Apply Boundary
+
+Phase 56 lets the sandbox manually apply the current viewport measurement to
+the visible-range/render-window path:
+
+- `examples/template-builder-sandbox/public/viewportMeasurement.js` owns
+  `VIEWPORT_MEASUREMENT_APPLY_MODE` and
+  `createViewportMeasurementApplyRequest(...)` as a DOM-free manual apply
+  helper over measured viewport requests;
+- `examples/template-builder-sandbox/public/app.js` adds an `Apply viewport`
+  command, stores the latest manual apply summary, applies the resulting
+  visible-range request through `runtimeCache`, and reports apply status;
+- `examples/template-builder-sandbox/public/styles.css` styles the metric-strip
+  apply command without changing the overall layout shell;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.applyViewportMeasurement` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md` records the Phase 56
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves manual apply ownership,
+  generated action-lane exposure, source guards without scroll binding, and
+  synthetic measurement-to-render-window behavior.
+
+This phase intentionally does not implement scroll event binding, automatic
+visible-range switching while scrolling, debounce/throttle scheduling, measured
+spacer heights, virtualized renderer scheduling, hidden/offscreen DOM pruning,
+lazy heavy-detail routes, structural add/delete/move packet application, rich
+text editing, contenteditable DOM mapping, live-layout rendering, persistence,
+API routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 

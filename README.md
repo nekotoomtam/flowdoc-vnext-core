@@ -171,6 +171,9 @@ The package must remain runnable without any parent editor checkout.
 - Viewport measurement boundary reads browser-local section shell boxes into
   normalized viewport facts before scroll event binding or virtualized renderer
   scheduling is wired
+- Viewport apply boundary lets the sandbox manually apply the current measured
+  section shell to the visible-range/render-window path before scroll event
+  binding is wired
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -296,6 +299,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md`: Phase 55
   section-shell measurement boundary before scroll controllers and virtualized
   renderer scheduling
+- `docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md`: Phase 56 manual viewport
+  measurement apply boundary before scroll controllers and virtualized renderer
+  scheduling
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -340,6 +346,6 @@ The package must remain runnable without any parent editor checkout.
 - durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes beyond the sandbox render path
 - durable browser cache persistence, full structural packet application, and
-  true virtualized renderer scheduling beyond the sandbox render-shell and
-  viewport-measurement contracts
+  true virtualized renderer scheduling beyond the sandbox render-shell,
+  viewport-measurement, and manual viewport-apply contracts
 - publishing/distribution strategy beyond local package consumption

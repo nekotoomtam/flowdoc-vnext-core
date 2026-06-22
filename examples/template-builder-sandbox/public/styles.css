@@ -317,6 +317,16 @@ ul {
   padding: 6px 8px;
 }
 
+.metric-strip button {
+  background: #ffffff;
+  border: 1px solid #9fb2c8;
+  border-radius: 6px;
+  color: #1f3b57;
+  cursor: pointer;
+  min-height: 28px;
+  padding: 6px 10px;
+}
+
 .page-stack {
   display: grid;
   gap: 18px;

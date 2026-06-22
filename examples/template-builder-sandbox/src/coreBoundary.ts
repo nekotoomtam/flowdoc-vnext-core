@@ -544,6 +544,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser canvas can measure section shell boxes into normalized viewport facts without binding scroll control",
       },
       {
+        action: "browser.applyViewportMeasurement",
+        label: "Apply viewport",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas can manually apply the current viewport measurement to the visible range before scroll binding",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

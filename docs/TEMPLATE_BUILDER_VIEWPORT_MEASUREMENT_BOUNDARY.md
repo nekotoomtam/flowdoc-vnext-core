@@ -22,6 +22,10 @@ render shell pages
 This lets later scroll controllers and virtualized renderers reuse the same
 request path instead of inventing a second range policy.
 
+Phase 56 builds on this by adding a manual apply boundary. Measurement remains
+the producer of facts; applying those facts is an explicit browser action, not
+automatic scroll behavior.
+
 ## Implemented Module
 
 `examples/template-builder-sandbox/public/viewportMeasurement.js` owns:

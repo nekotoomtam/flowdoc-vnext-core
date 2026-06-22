@@ -141,6 +141,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveRenderWindow")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createRenderShell")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.measureViewportShell")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyViewportMeasurement")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -943,6 +944,7 @@ describe("template builder sandbox boundary", () => {
     const viewportRequestDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md")
     const renderShellDoc = readText("../docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md")
     const viewportMeasurementDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md")
+    const viewportApplyDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -958,10 +960,15 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("renderCanvasPlaceholder")
     expect(appSource).toContain('from "./viewportMeasurement.js"')
     expect(appSource).toContain("createViewportMeasurement")
+    expect(appSource).toContain("createViewportMeasurementApplyRequest")
     expect(appSource).toContain("readCanvasViewportMeasurement")
+    expect(appSource).toContain("applyViewportMeasurement")
+    expect(appSource).toContain("lastViewportApply")
     expect(appSource).toContain("data-section-id")
+    expect(appSource).toContain("data-viewport-apply")
     expect(appSource).toContain("data-viewport-measurement-status")
     expect(appSource).toContain("Measurement:")
+    expect(appSource).toContain("Viewport apply:")
     expect(appSource).toContain("createBootRuntimeState")
     expect(appSource).toContain("createRefreshRuntimeState")
     expect(appSource).toContain("applyChangePacketToRuntime")
@@ -1028,8 +1035,10 @@ describe("template builder sandbox boundary", () => {
     expect(viewportMeasurementSource).toContain("createViewportMeasurement")
     expect(viewportMeasurementSource).toContain("createViewportFactsFromMeasurement")
     expect(viewportMeasurementSource).toContain("resolveMeasuredViewportRangeRequest")
+    expect(viewportMeasurementSource).toContain("createViewportMeasurementApplyRequest")
     expect(viewportMeasurementSource).toContain("flowdoc-viewport-measurement")
     expect(viewportMeasurementSource).toContain("section-shell-measurement")
+    expect(viewportMeasurementSource).toContain("manual-measurement-apply")
     expect(viewportMeasurementSource).toContain('from "./viewportController.js"')
     expect(viewportMeasurementSource).not.toContain("document.")
     expect(viewportMeasurementSource).not.toContain("querySelector")
@@ -1107,6 +1116,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.resolveRenderWindow")
     expect(coreBoundarySource).toContain("browser.createRenderShell")
     expect(coreBoundarySource).toContain("browser.measureViewportShell")
+    expect(coreBoundarySource).toContain("browser.applyViewportMeasurement")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1168,6 +1178,10 @@ describe("template builder sandbox boundary", () => {
     expect(viewportMeasurementDoc).toContain("createViewportMeasurement")
     expect(viewportMeasurementDoc).toContain("section-shell-measurement")
     expect(viewportMeasurementDoc).toContain("does not bind scroll events")
+    expect(viewportApplyDoc).toContain("Status: Phase 56 implementation boundary.")
+    expect(viewportApplyDoc).toContain("createViewportMeasurementApplyRequest")
+    expect(viewportApplyDoc).toContain("manual-measurement-apply")
+    expect(viewportApplyDoc).toContain("no scroll event binding")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1885,6 +1899,98 @@ describe("template builder sandbox boundary", () => {
     expect(result.requestBudget).toEqual({ maxNodes: 6, mode: "viewport" })
     expect(result.visibleRangeSections).toEqual(["section-body"])
     expect(result.renderWindowSections).toEqual(["section-body"])
+  })
+
+  it("manually applies viewport measurements through the visible range path", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        createBootRuntimeState,
+        createVisibleRangeRuntimeState,
+      } = await import("./public/runtimeCache.js");
+      const {
+        createViewportMeasurement,
+        createViewportMeasurementApplyRequest,
+      } = await import("./public/viewportMeasurement.js");
+      const {
+        createStoreBackedRenderModel,
+        getStoreBackedRenderShellSections,
+        getStoreBackedRenderWindowSections,
+      } = await import("./public/renderModel.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const bootState = createBootRuntimeState(snapshot);
+      const measurement = createViewportMeasurement({
+        scrollHeight: 2600,
+        scrollTop: 1450,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 700 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 760, height: 700 },
+          { id: "section-body", rendered: false, shellState: "placeholder", top: 1520, height: 900 },
+        ],
+      });
+      const applyRequest = createViewportMeasurementApplyRequest({
+        budget: { mode: "viewport", maxNodes: 6 },
+        measurement,
+      }, bootState.runtimeCache.visibleRangeRequest);
+      const appliedState = createVisibleRangeRuntimeState(
+        snapshot,
+        bootState.runtimeCache,
+        applyRequest.visibleRangeRequest,
+      );
+      const renderModel = createStoreBackedRenderModel(appliedState.snapshot, appliedState.runtimeCache);
+      console.log(JSON.stringify({
+        anchorSectionId: applyRequest.anchorSectionId,
+        applyMode: applyRequest.mode,
+        applySource: applyRequest.source,
+        bootSections: bootState.runtimeCache.visibleRange.sectionIds,
+        preserved: applyRequest.preserved,
+        renderShellStates: getStoreBackedRenderShellSections(renderModel).map((section) => ({
+          id: section.id,
+          rendered: section.rendered,
+        })),
+        renderWindowSections: getStoreBackedRenderWindowSections(renderModel).map((section) => section.id),
+        requestReason: applyRequest.visibleRangeRequest.reason,
+        requestSource: applyRequest.visibleRangeRequest.source,
+        requestBudget: applyRequest.visibleRangeRequest.budget,
+        visibleNodeCount: appliedState.runtimeCache.visibleNodeCount,
+        visibleRangeSections: appliedState.runtimeCache.visibleRange.sectionIds,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      anchorSectionId: string
+      applyMode: string
+      applySource: string
+      bootSections: string[]
+      preserved: boolean
+      renderShellStates: Array<{ id: string; rendered: boolean }>
+      renderWindowSections: string[]
+      requestBudget: { maxNodes: number; mode: string }
+      requestReason: string
+      requestSource: string
+      visibleNodeCount: number
+      visibleRangeSections: string[]
+    }
+
+    expect(result.applySource).toBe("flowdoc-viewport-measurement")
+    expect(result.applyMode).toBe("manual-measurement-apply")
+    expect(result.anchorSectionId).toBe("section-body")
+    expect(result.preserved).toBe(false)
+    expect(result.bootSections).toEqual(["section-cover"])
+    expect(result.requestSource).toBe("flowdoc-visible-range-request")
+    expect(result.requestReason).toBe("viewport")
+    expect(result.requestBudget).toEqual({ maxNodes: 6, mode: "viewport" })
+    expect(result.visibleRangeSections).toEqual(["section-body"])
+    expect(result.visibleNodeCount).toBe(6)
+    expect(result.renderWindowSections).toEqual(["section-body"])
+    expect(result.renderShellStates).toEqual([
+      { id: "section-cover", rendered: false },
+      { id: "section-toc", rendered: false },
+      { id: "section-body", rendered: true },
+    ])
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {

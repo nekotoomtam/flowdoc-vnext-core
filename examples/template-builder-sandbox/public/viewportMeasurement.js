@@ -2,6 +2,7 @@ import { resolveViewportRangeRequest } from "./viewportController.js"
 
 export const VIEWPORT_MEASUREMENT_SOURCE = "flowdoc-viewport-measurement"
 export const VIEWPORT_MEASUREMENT_MODE = "section-shell-measurement"
+export const VIEWPORT_MEASUREMENT_APPLY_MODE = "manual-measurement-apply"
 
 function nonNegativeNumber(value, fallback = 0) {
   if (!Number.isFinite(value)) return fallback
@@ -134,5 +135,22 @@ export function resolveMeasuredViewportRangeRequest(input = {}, previousRequest 
     version: 1,
     viewportFacts,
     viewportResult,
+  }
+}
+
+export function createViewportMeasurementApplyRequest(input = {}, previousRequest = null) {
+  const measuredRequest = resolveMeasuredViewportRangeRequest(input, previousRequest)
+  const visibleRangeRequest = measuredRequest.viewportResult.visibleRangeRequest
+
+  return {
+    anchorSectionId: measuredRequest.measurement.anchorSectionId,
+    measurement: measuredRequest.measurement,
+    mode: VIEWPORT_MEASUREMENT_APPLY_MODE,
+    preserved: measuredRequest.viewportResult.preserved,
+    source: VIEWPORT_MEASUREMENT_SOURCE,
+    version: 1,
+    viewportFacts: measuredRequest.viewportFacts,
+    viewportResult: measuredRequest.viewportResult,
+    visibleRangeRequest,
   }
 }

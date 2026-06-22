@@ -1175,6 +1175,38 @@ Acceptance:
   structural packet engine, rich text, contenteditable mapping, live renderer,
   route, persistence, or package version change is claimed.
 
+## Phase 56: Manual Viewport Measurement Apply Boundary
+
+Goal:
+
+- let the sandbox apply the current viewport measurement to the
+  visible-range/render-window path through an explicit command before any
+  scroll event binding exists.
+
+Deliverables:
+
+- browser-safe measurement apply helper in `public/viewportMeasurement.js`;
+- manual apply source/version/mode contract;
+- app command to apply the latest measured section shell;
+- runtime-cache update through the existing visible-range request path;
+- render-window/render-shell update after manual apply;
+- app status output for the latest manual apply result;
+- action lane for `browser.applyViewportMeasurement`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- manual apply policy can run in Node without DOM access;
+- app shell does not import viewport controller policy directly;
+- synthetic section boxes can switch the active render window through runtime
+  cache;
+- the visible app exposes a deliberate apply command instead of binding scroll;
+- no scroll event binding, automatic visible-range switching while scrolling,
+  debounce/throttle scheduler, measured spacer/virtual list, virtualized
+  renderer scheduler, lazy detail endpoint, structural packet engine, rich
+  text, contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

@@ -19,6 +19,7 @@ import {
   createSelectionVisibleRangeRequest,
 } from "./visibleRangeRequest.js"
 import {
+  createViewportMeasurementApplyRequest,
   createViewportMeasurement,
 } from "./viewportMeasurement.js"
 
@@ -45,6 +46,7 @@ const state = {
   },
   draftCommandText: "",
   lastPacket: null,
+  lastViewportApply: null,
   mutationText: "Edited through the mutation bridge",
   renderModel: null,
   runtimeCache: null,
@@ -155,6 +157,38 @@ function syncViewportMeasurementStatus() {
   app.querySelectorAll("[data-viewport-measurement-status]").forEach((target) => {
     target.textContent = viewportMeasurementLabel()
   })
+}
+
+function viewportApplyLabel() {
+  const apply = state.lastViewportApply
+  if (!apply) return "Viewport apply: none"
+  return `Viewport apply: ${apply.requestReason} ${apply.anchorSectionId || "none"}${apply.preserved ? " preserved" : ""}`
+}
+
+function applyViewportMeasurement() {
+  if (!state.snapshot || !state.runtimeCache) return
+  const measurement = readCanvasViewportMeasurement(state.renderModel) || state.viewportMeasurement
+  if (!measurement) return
+
+  const applyRequest = createViewportMeasurementApplyRequest({
+    budget: {
+      maxNodes: state.runtimeCache.visibleRangeRequest?.budget?.maxNodes,
+      mode: "viewport",
+    },
+    draftActive: draftIsActive(),
+    measurement,
+  }, state.runtimeCache.visibleRangeRequest)
+
+  state.lastViewportApply = {
+    anchorSectionId: applyRequest.anchorSectionId,
+    mode: applyRequest.mode,
+    preserved: applyRequest.preserved,
+    requestReason: applyRequest.visibleRangeRequest.reason,
+    scrollTop: measurement.scrollTop,
+  }
+  state.selectionSource = "viewport-apply"
+  setVisibleRangeRequest(applyRequest.visibleRangeRequest)
+  render({ restoreCanvasScrollTop: measurement.scrollTop })
 }
 
 function applyChangePacket(packet) {
@@ -1120,6 +1154,14 @@ function renderCanvas(snapshot, renderModel) {
           <span>${snapshot.counts.fields} keys</span>
           <span>${renderModel.renderShellRenderedSectionCount}/${renderModel.renderShellSectionCount} rendered</span>
           <span>${renderModel.renderShellPlaceholderSectionCount} placeholders</span>
+          <button
+            type="button"
+            class="metric-action"
+            data-viewport-apply
+            title="Apply the current measured section shell to the visible range"
+          >
+            Apply viewport
+          </button>
         </div>
       </div>
       <div class="page-stack">
@@ -1540,6 +1582,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderWindowLabel)}</span>
       <span>${escapeHtml(renderShellLabel)}</span>
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
+      <span>${escapeHtml(viewportApplyLabel())}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
       <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>
@@ -1585,6 +1628,13 @@ function bindSelectionHandlers() {
   })
 
   canvas?.addEventListener("click", (event) => {
+    const viewportApplyTarget = event.target.closest("[data-viewport-apply]")
+    if (viewportApplyTarget && canvas.contains(viewportApplyTarget)) {
+      event.stopPropagation()
+      applyViewportMeasurement()
+      return
+    }
+
     const draftActionTarget = event.target.closest("[data-draft-action]")
     if (draftActionTarget && canvas.contains(draftActionTarget)) {
       event.stopPropagation()
@@ -1939,7 +1989,7 @@ async function applyHistoryAction(action) {
   }
 }
 
-function render() {
+function render(options = {}) {
   const snapshot = state.snapshot
   if (!snapshot) {
     state.renderModel = null
@@ -1961,6 +2011,10 @@ function render() {
   `
 
   bindSelectionHandlers()
+  const canvas = app.querySelector(".canvas-wrap")
+  if (canvas && Number.isFinite(options.restoreCanvasScrollTop)) {
+    canvas.scrollTop = options.restoreCanvasScrollTop
+  }
   state.viewportMeasurement = readCanvasViewportMeasurement(renderModel)
   syncViewportMeasurementStatus()
 }
