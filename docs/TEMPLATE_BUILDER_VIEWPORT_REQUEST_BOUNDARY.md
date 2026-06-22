@@ -53,6 +53,10 @@ The result contains a normal `visibleRangeRequest` that the existing runtime
 cache can consume. This lets future DOM scroll measurement become a producer of
 facts instead of a new owner of visible range policy.
 
+Phase 54 adds a render shell above this request path. Viewport requests still
+choose the active detail window; render shell placeholders keep the rest of the
+document represented for future measurement work.
+
 ## Acceptance Evidence
 
 Phase 53 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:

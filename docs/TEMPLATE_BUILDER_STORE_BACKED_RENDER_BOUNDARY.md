@@ -40,6 +40,10 @@ Phase 52 adds `public/renderWindow.js` on top of this model so the active
 canvas traversal can consume visible-range-derived section and node windows
 without moving that policy into `app.js`.
 
+Phase 54 adds `public/renderShell.js` above this model so the canvas can keep a
+full-document section shell while detailed node content remains bounded to the
+active render window.
+
 ## Runtime Ownership
 
 `app.js` now creates a render model during render and uses it for:

@@ -60,6 +60,7 @@ Parent goal:
 | 51 | Store-backed render boundary | done | `docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 52 | Render window boundary | done | `docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderWindow.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 53 | Viewport request boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportController.js`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 54 | Render shell placeholder boundary | done | `docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderShell.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1048,6 +1049,36 @@ This phase intentionally does not implement DOM scroll event binding, viewport
 measurement, spacer or virtual-list rendering, scroll sync, virtualized
 renderer scheduling, hidden/offscreen DOM pruning schedulers, lazy heavy-detail
 routes, structural add/delete/move packet application, rich text editing,
+contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
+package/document version changes.
+
+## Phase 54 Render Shell Placeholder Boundary
+
+Phase 54 adds a full-document render shell for the sandbox canvas while keeping
+detailed content bounded to the active render window:
+
+- `examples/template-builder-sandbox/public/renderShell.js` owns
+  `createRenderShell(...)`, render-shell source/mode, rendered section ids,
+  placeholder section ids, section counts, and section-read helpers;
+- `examples/template-builder-sandbox/public/renderModel.js` derives a render
+  shell after the render window and exposes shell facts beside window facts;
+- `examples/template-builder-sandbox/public/app.js` iterates render-shell
+  sections for the canvas, renders active-window detail, and renders lightweight
+  placeholder pages for sections outside the active window;
+- `examples/template-builder-sandbox/public/styles.css` adds minimal
+  placeholder page styling without claiming real virtualized rendering;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.createRenderShell` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md` records the Phase 54
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves browser-safe render
+  shell ownership, generated action-lane exposure, render-model integration,
+  and full-shell/active-window behavior.
+
+This phase intentionally does not implement DOM scroll event binding, viewport
+measurement, measured spacer heights, scroll sync, virtualized renderer
+scheduling, hidden/offscreen DOM pruning schedulers, lazy heavy-detail routes,
+structural add/delete/move packet application, rich text editing,
 contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
 package/document version changes.
 

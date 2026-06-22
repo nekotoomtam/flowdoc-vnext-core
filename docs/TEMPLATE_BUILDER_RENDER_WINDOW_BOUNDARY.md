@@ -39,6 +39,10 @@ Phase 53 adds `public/viewportController.js` as a future producer of
 visible-range requests. The render window continues to consume resolved visible
 ranges and does not read DOM scroll state directly.
 
+Phase 54 adds `public/renderShell.js` above the render window so the canvas can
+keep full-document section placeholders while detailed node rendering stays
+bounded to the active window.
+
 ## Runtime Ownership
 
 `renderModel.js` creates one render window from the active runtime cache's

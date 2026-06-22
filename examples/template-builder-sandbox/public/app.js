@@ -5,7 +5,8 @@ import {
   getStoreBackedRenderSectionRootNodes,
   getStoreBackedRenderWindowChildren,
   getStoreBackedRenderWindowSectionRootNodes,
-  getStoreBackedRenderWindowSections,
+  getStoreBackedRenderShellSections,
+  isStoreBackedRenderShellSectionRendered,
 } from "./renderModel.js"
 import {
   applyChangePacketToRuntime,
@@ -104,6 +105,10 @@ function renderWindowNodeChildren(node) {
 
 function renderWindowSectionRootZones(section) {
   return getStoreBackedRenderWindowSectionRootNodes(state.renderModel, section?.id)
+}
+
+function renderShellSectionRendered(section) {
+  return isStoreBackedRenderShellSectionRendered(state.renderModel, section?.id)
 }
 
 function applyChangePacket(packet) {
@@ -1054,7 +1059,7 @@ function renderCanvasNode(node) {
 }
 
 function renderCanvas(snapshot, renderModel) {
-  const renderSections = getStoreBackedRenderWindowSections(renderModel)
+  const renderSections = getStoreBackedRenderShellSections(renderModel)
 
   return `
     <main class="canvas-wrap">
@@ -1067,21 +1072,37 @@ function renderCanvas(snapshot, renderModel) {
           <span>${snapshot.counts.sections} sections</span>
           <span>${snapshot.counts.textBlocks} text blocks</span>
           <span>${snapshot.counts.fields} keys</span>
-          <span>${renderModel.renderWindowSectionCount}/${renderModel.sectionCount} rendered</span>
+          <span>${renderModel.renderShellRenderedSectionCount}/${renderModel.renderShellSectionCount} rendered</span>
+          <span>${renderModel.renderShellPlaceholderSectionCount} placeholders</span>
         </div>
       </div>
       <div class="page-stack">
-        ${renderSections.map((section) => `
-          <article class="page">
+        ${renderSections.map((section) => {
+          const rendered = renderShellSectionRendered(section)
+
+          return `
+          <article class="page${rendered ? "" : " is-placeholder"}" data-render-shell-state="${rendered ? "rendered" : "placeholder"}">
             <header class="page-heading">
               <strong>${escapeHtml(section.id)}</strong>
               <span>${escapeHtml(section.page)}</span>
             </header>
-            ${renderWindowSectionRootZones(section).map(renderCanvasNode).join("")}
+            ${rendered
+              ? renderWindowSectionRootZones(section).map(renderCanvasNode).join("")
+              : renderCanvasPlaceholder(section)}
           </article>
-        `).join("")}
+        `
+        }).join("")}
       </div>
     </main>
+  `
+}
+
+function renderCanvasPlaceholder(section) {
+  return `
+    <div class="canvas-placeholder" data-render-shell-placeholder="${escapeHtml(section.id)}">
+      <strong>${escapeHtml(section.id)}</strong>
+      <span>${escapeHtml(section.placeholderReason || "placeholder")}</span>
+    </div>
   `
 }
 
@@ -1440,6 +1461,10 @@ function renderStatus(snapshot, renderModel) {
   const renderWindowLabel = renderWindow
     ? `Render window: ${renderWindow.mode} ${renderWindow.nodeCount}/${renderWindow.totalNodeCount} nodes ${renderWindow.sectionIds.join(",")}`
     : "Render window: none"
+  const renderShell = renderModel?.renderShell
+  const renderShellLabel = renderShell
+    ? `Render shell: ${renderShell.mode} ${renderShell.renderedSectionCount}/${renderShell.sectionCount} rendered ${renderShell.placeholderSectionCount} placeholders`
+    : "Render shell: none"
   const storeLabel = state.runtimeCache
     ? `Store: ${state.runtimeCache.storeMode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.runtimeStore.sectionCount} sections`
     : "Store: none"
@@ -1463,6 +1488,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(storeApplyLabel)}</span>
       <span>${escapeHtml(renderModelLabel)}</span>
       <span>${escapeHtml(renderWindowLabel)}</span>
+      <span>${escapeHtml(renderShellLabel)}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
       <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>

@@ -166,6 +166,8 @@ The package must remain runnable without any parent editor checkout.
 - Viewport request boundary converts normalized viewport facts into
   visible-range requests before DOM scroll measurement or virtualized renderer
   scheduling is wired
+- Render shell boundary keeps full-document section placeholders in the canvas
+  while mounting detailed node content only for the active render window
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -286,6 +288,8 @@ The package must remain runnable without any parent editor checkout.
   boundary between visible ranges and the canvas render path
 - `docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md`: Phase 53 viewport
   request boundary before DOM scroll measurement and virtualized rendering
+- `docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md`: Phase 54 full-document
+  canvas shell with active-window detail rendering
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -330,6 +334,6 @@ The package must remain runnable without any parent editor checkout.
 - durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes beyond the sandbox render path
 - durable browser cache persistence, full structural packet application, and
-  true virtualized renderer scheduling beyond the sandbox render-window
-  contract
+  true virtualized renderer scheduling beyond the sandbox render-shell
+  placeholder contract
 - publishing/distribution strategy beyond local package consumption

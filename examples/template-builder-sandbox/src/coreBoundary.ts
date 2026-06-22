@@ -530,6 +530,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser rendering derives the active render section/node window from the visible range before DOM viewport controllers",
       },
       {
+        action: "browser.createRenderShell",
+        label: "Render shell",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas keeps section placeholders for the full document while rendering only the active window in detail",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

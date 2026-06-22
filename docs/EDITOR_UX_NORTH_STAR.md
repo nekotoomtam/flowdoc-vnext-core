@@ -297,6 +297,11 @@ code must produce normalized viewport facts that resolve to ordinary
 visible-range requests, rather than bypassing the visible-range/render-window
 contracts.
 
+Phase 54 adds a render shell so the canvas can represent every document section
+while mounting detailed content only for the active render window. This gives
+future scroll measurement a full-document shell without claiming virtualized
+rendering yet.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

@@ -333,6 +333,12 @@ ul {
   width: min(100%, 760px);
 }
 
+.page.is-placeholder {
+  background: #f8fafc;
+  border-style: dashed;
+  box-shadow: none;
+}
+
 .page-heading {
   align-items: center;
   border-bottom: 1px solid #e2e8ef;
@@ -342,6 +348,24 @@ ul {
   justify-content: space-between;
   margin-bottom: 22px;
   padding-bottom: 10px;
+}
+
+.canvas-placeholder {
+  align-items: center;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  min-height: 560px;
+}
+
+.canvas-placeholder strong {
+  color: #334155;
+}
+
+.canvas-placeholder span {
+  font-size: 12px;
 }
 
 .canvas-zone {

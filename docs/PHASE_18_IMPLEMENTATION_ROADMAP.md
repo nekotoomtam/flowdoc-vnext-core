@@ -1110,6 +1110,38 @@ Acceptance:
   contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 54: Render Shell / Placeholder Boundary
+
+Goal:
+
+- keep every document section represented in the canvas while detailed node
+  content remains bounded to the active render window.
+
+Deliverables:
+
+- browser-safe `public/renderShell.js` module;
+- render-shell source/version/mode contract;
+- section shell records that mark each section as `rendered` or `placeholder`;
+- render-model integration so shell facts sit beside render-window facts;
+- canvas traversal through render-shell sections;
+- lightweight placeholder pages for sections outside the active render window;
+- action lane for `browser.createRenderShell`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- render-shell construction can run in Node without DOM access;
+- the canvas can show a full-document section shell while only active-window
+  sections mount detailed nodes;
+- render-shell facts report rendered and placeholder section counts;
+- `app.js` consumes render-shell helpers instead of deciding section shell
+  policy directly;
+- no DOM scroll tracking, viewport measurement, measured spacer heights,
+  virtualized renderer scheduling, hidden/offscreen pruning scheduler, lazy
+  detail endpoint, structural add/delete/move packet application, rich text,
+  contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

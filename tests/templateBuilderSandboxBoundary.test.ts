@@ -54,6 +54,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/scripts/serve.mjs",
       "../examples/template-builder-sandbox/public/runtimeStore.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
+      "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
       "../examples/template-builder-sandbox/public/visibleRangeRequest.js",
@@ -137,6 +138,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStoreBackedRenderModel")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveRenderWindow")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createRenderShell")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -916,7 +918,9 @@ describe("template builder sandbox boundary", () => {
 
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const stylesSource = readText("../examples/template-builder-sandbox/public/styles.css")
     const renderWindowSource = readText("../examples/template-builder-sandbox/public/renderWindow.js")
+    const renderShellSource = readText("../examples/template-builder-sandbox/public/renderShell.js")
     const renderModelSource = readText("../examples/template-builder-sandbox/public/renderModel.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
     const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
@@ -934,6 +938,7 @@ describe("template builder sandbox boundary", () => {
     const storeBackedRenderDoc = readText("../docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md")
     const renderWindowDoc = readText("../docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md")
     const viewportRequestDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md")
+    const renderShellDoc = readText("../docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -943,8 +948,10 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("getStoreBackedRenderSectionRootNodes")
     expect(appSource).toContain("getStoreBackedRenderWindowChildren")
     expect(appSource).toContain("getStoreBackedRenderWindowSectionRootNodes")
-    expect(appSource).toContain("getStoreBackedRenderWindowSections")
+    expect(appSource).toContain("getStoreBackedRenderShellSections")
+    expect(appSource).toContain("isStoreBackedRenderShellSectionRendered")
     expect(appSource).toContain("renderWindowNodeChildren")
+    expect(appSource).toContain("renderCanvasPlaceholder")
     expect(appSource).toContain("createBootRuntimeState")
     expect(appSource).toContain("createRefreshRuntimeState")
     expect(appSource).toContain("applyChangePacketToRuntime")
@@ -961,6 +968,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("Range:")
     expect(appSource).toContain("Range request:")
     expect(appSource).toContain("Render window:")
+    expect(appSource).toContain("Render shell:")
     expect(appSource).toContain("Store apply:")
     expect(appSource).toContain("viewMode")
     expect(appSource).toContain("applyChangePacket")
@@ -983,6 +991,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("packet.baseRevision !==")
     expect(appSource).not.toContain("resolveViewportRangeRequest")
     expect(appSource).not.toContain("addEventListener(\"scroll\"")
+    expect(stylesSource).toContain(".page.is-placeholder")
+    expect(stylesSource).toContain(".canvas-placeholder")
     expect(runtimeStoreSource).toContain("createRuntimeStore")
     expect(runtimeStoreSource).toContain("flowdoc-structural-runtime-store")
     expect(runtimeStoreSource).toContain("applyTextChangePacketToRuntimeStore")
@@ -998,6 +1008,13 @@ describe("template builder sandbox boundary", () => {
     expect(renderWindowSource).toContain("isSectionInRenderWindow")
     expect(renderWindowSource).not.toContain("document.")
     expect(renderWindowSource).not.toContain("querySelector")
+    expect(renderShellSource).toContain("createRenderShell")
+    expect(renderShellSource).toContain("flowdoc-render-shell")
+    expect(renderShellSource).toContain("render-window-shell")
+    expect(renderShellSource).toContain("getRenderShellSections")
+    expect(renderShellSource).toContain("isRenderShellSectionRendered")
+    expect(renderShellSource).not.toContain("document.")
+    expect(renderShellSource).not.toContain("querySelector")
     expect(viewportControllerSource).toContain("createViewportFacts")
     expect(viewportControllerSource).toContain("resolveViewportRangeRequest")
     expect(viewportControllerSource).toContain("flowdoc-viewport-controller")
@@ -1007,13 +1024,17 @@ describe("template builder sandbox boundary", () => {
     expect(viewportControllerSource).not.toContain("querySelector")
     expect(renderModelSource).toContain("createStoreBackedRenderModel")
     expect(renderModelSource).toContain('from "./renderWindow.js"')
+    expect(renderModelSource).toContain('from "./renderShell.js"')
     expect(renderModelSource).toContain("createRenderWindow")
+    expect(renderModelSource).toContain("createRenderShell")
     expect(renderModelSource).toContain("flowdoc-store-backed-render-model")
     expect(renderModelSource).toContain("renderWindow")
+    expect(renderModelSource).toContain("renderShell")
     expect(renderModelSource).toContain("getStoreBackedRenderChildren")
     expect(renderModelSource).toContain("getStoreBackedRenderSectionRootNodes")
     expect(renderModelSource).toContain("getStoreBackedRenderWindowChildren")
     expect(renderModelSource).toContain("getStoreBackedRenderWindowSectionRootNodes")
+    expect(renderModelSource).toContain("getStoreBackedRenderShellSections")
     expect(renderModelSource).not.toContain("document.")
     expect(renderModelSource).not.toContain("querySelector")
     expect(editorViewSource).toContain("createEditorView")
@@ -1066,6 +1087,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyTextPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.createStoreBackedRenderModel")
     expect(coreBoundarySource).toContain("browser.resolveRenderWindow")
+    expect(coreBoundarySource).toContain("browser.createRenderShell")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1107,15 +1129,22 @@ describe("template builder sandbox boundary", () => {
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
     expect(storeBackedRenderDoc).toContain("does not implement viewport virtualization")
     expect(storeBackedRenderDoc).toContain("public/renderWindow.js")
+    expect(storeBackedRenderDoc).toContain("public/renderShell.js")
     expect(renderWindowDoc).toContain("Status: Phase 52 implementation boundary.")
     expect(renderWindowDoc).toContain("createRenderWindow")
     expect(renderWindowDoc).toContain("visible-range-render-window")
     expect(renderWindowDoc).toContain("does not implement full viewport virtualization")
     expect(renderWindowDoc).toContain("public/viewportController.js")
+    expect(renderWindowDoc).toContain("public/renderShell.js")
     expect(viewportRequestDoc).toContain("Status: Phase 53 implementation boundary.")
     expect(viewportRequestDoc).toContain("resolveViewportRangeRequest")
     expect(viewportRequestDoc).toContain("viewport-range-request")
     expect(viewportRequestDoc).toContain("does not implement viewport control")
+    expect(viewportRequestDoc).toContain("render shell")
+    expect(renderShellDoc).toContain("Status: Phase 54 implementation boundary.")
+    expect(renderShellDoc).toContain("createRenderShell")
+    expect(renderShellDoc).toContain("render-window-shell")
+    expect(renderShellDoc).toContain("does not implement virtualized rendering")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1489,6 +1518,80 @@ describe("template builder sandbox boundary", () => {
     expect(result.truncated).toBe(true)
   })
 
+  it("creates full render shells with active-window placeholders", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createRenderShell,
+        getRenderShellSections,
+        isRenderShellSectionRendered,
+      } = await import("./public/renderShell.js");
+      const sections = [
+        { id: "section-cover", page: "A4 portrait", rootZoneIds: ["cover-root"] },
+        { id: "section-body", page: "A4 portrait", rootZoneIds: ["body-root"] },
+        { id: "section-appendix", page: "A4 portrait", rootZoneIds: ["appendix-root"] },
+      ];
+      const shell = createRenderShell({
+        sections,
+        renderWindow: {
+          mode: "visible-range-render-window",
+          nodeCount: 2,
+          sectionIds: ["section-body"],
+          totalNodeCount: 20,
+          windowed: true,
+        },
+      });
+      console.log(JSON.stringify({
+        bodyRendered: isRenderShellSectionRendered(shell, "section-body"),
+        coverRendered: isRenderShellSectionRendered(shell, "section-cover"),
+        mode: shell.mode,
+        placeholderIds: shell.placeholderSectionIds,
+        placeholderSectionCount: shell.placeholderSectionCount,
+        renderedIds: shell.renderedSectionIds,
+        renderedSectionCount: shell.renderedSectionCount,
+        sectionStates: getRenderShellSections(shell).map((section) => ({
+          id: section.id,
+          placeholder: section.placeholder,
+          rendered: section.rendered,
+        })),
+        source: shell.source,
+        totalNodeCount: shell.totalNodeCount,
+        windowed: shell.windowed,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bodyRendered: boolean
+      coverRendered: boolean
+      mode: string
+      placeholderIds: string[]
+      placeholderSectionCount: number
+      renderedIds: string[]
+      renderedSectionCount: number
+      sectionStates: Array<{ id: string; placeholder: boolean; rendered: boolean }>
+      source: string
+      totalNodeCount: number
+      windowed: boolean
+    }
+
+    expect(result.source).toBe("flowdoc-render-shell")
+    expect(result.mode).toBe("render-window-shell")
+    expect(result.renderedIds).toEqual(["section-body"])
+    expect(result.placeholderIds).toEqual(["section-cover", "section-appendix"])
+    expect(result.renderedSectionCount).toBe(1)
+    expect(result.placeholderSectionCount).toBe(2)
+    expect(result.bodyRendered).toBe(true)
+    expect(result.coverRendered).toBe(false)
+    expect(result.totalNodeCount).toBe(20)
+    expect(result.windowed).toBe(true)
+    expect(result.sectionStates).toEqual([
+      { id: "section-cover", placeholder: true, rendered: false },
+      { id: "section-body", placeholder: false, rendered: true },
+      { id: "section-appendix", placeholder: true, rendered: false },
+    ])
+  })
+
   it("keeps visible range requests separate from resolved ranges", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       import { readFileSync } from "node:fs";
@@ -1809,9 +1912,11 @@ describe("template builder sandbox boundary", () => {
         getStoreBackedRenderChildren,
         getStoreBackedRenderNode,
         getStoreBackedRenderSectionRootNodes,
+        getStoreBackedRenderShellSections,
         getStoreBackedRenderWindowChildren,
         getStoreBackedRenderWindowSectionRootNodes,
         getStoreBackedRenderWindowSections,
+        isStoreBackedRenderShellSectionRendered,
       } = await import("./public/renderModel.js");
       const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
       function findSnapshotNode(nodes, nodeId) {
@@ -1869,11 +1974,24 @@ describe("template builder sandbox boundary", () => {
         windowRootChildren: getStoreBackedRenderWindowChildren(renderModel, "cover-first-header").map((node) => node.id),
         windowRootIds: getStoreBackedRenderWindowSectionRootNodes(renderModel, "section-cover").map((node) => node.id),
         windowSectionIds: getStoreBackedRenderWindowSections(renderModel).map((section) => section.id),
+        shellSectionIds: getStoreBackedRenderShellSections(renderModel).map((section) => section.id),
+        shellSectionStates: getStoreBackedRenderShellSections(renderModel).map((section) => ({
+          id: section.id,
+          placeholder: section.placeholder,
+          rendered: section.rendered,
+        })),
+        shellCoverRendered: isStoreBackedRenderShellSectionRendered(renderModel, "section-cover"),
+        shellBodyRendered: isStoreBackedRenderShellSectionRendered(renderModel, "section-body"),
         renderWindowMode: renderModel.renderWindowMode,
         renderWindowNodeCount: renderModel.renderWindowNodeCount,
         renderWindowSource: renderModel.renderWindowSource,
         renderWindowTotalNodeCount: renderModel.renderWindowTotalNodeCount,
         renderWindowWindowed: renderModel.renderWindow.windowed,
+        renderShellMode: renderModel.renderShellMode,
+        renderShellPlaceholderSectionCount: renderModel.renderShellPlaceholderSectionCount,
+        renderShellRenderedSectionCount: renderModel.renderShellRenderedSectionCount,
+        renderShellSectionCount: renderModel.renderShellSectionCount,
+        renderShellSource: renderModel.renderShellSource,
         visibleSectionIds: renderModel.visibleSectionIds,
       }));
     `], {
@@ -1894,11 +2012,20 @@ describe("template builder sandbox boundary", () => {
       windowRootChildren: string[]
       windowRootIds: string[]
       windowSectionIds: string[]
+      shellSectionIds: string[]
+      shellSectionStates: Array<{ id: string; placeholder: boolean; rendered: boolean }>
+      shellCoverRendered: boolean
+      shellBodyRendered: boolean
       renderWindowMode: string
       renderWindowNodeCount: number
       renderWindowSource: string
       renderWindowTotalNodeCount: number
       renderWindowWindowed: boolean
+      renderShellMode: string
+      renderShellPlaceholderSectionCount: number
+      renderShellRenderedSectionCount: number
+      renderShellSectionCount: number
+      renderShellSource: string
       visibleSectionIds: string[]
     }
 
@@ -1922,6 +2049,19 @@ describe("template builder sandbox boundary", () => {
     expect(result.windowSectionIds).toEqual(["section-cover"])
     expect(result.windowRootIds).toEqual(["cover-first-header", "cover-body", "cover-first-footer"])
     expect(result.windowRootChildren).toEqual(["cover-header-label"])
+    expect(result.renderShellSource).toBe("flowdoc-render-shell")
+    expect(result.renderShellMode).toBe("render-window-shell")
+    expect(result.renderShellSectionCount).toBe(3)
+    expect(result.renderShellRenderedSectionCount).toBe(1)
+    expect(result.renderShellPlaceholderSectionCount).toBe(2)
+    expect(result.shellCoverRendered).toBe(true)
+    expect(result.shellBodyRendered).toBe(false)
+    expect(result.shellSectionIds).toEqual(["section-cover", "section-toc", "section-body"])
+    expect(result.shellSectionStates).toEqual([
+      { id: "section-cover", placeholder: false, rendered: true },
+      { id: "section-toc", placeholder: true, rendered: false },
+      { id: "section-body", placeholder: true, rendered: false },
+    ])
   })
 
   it("locks the editor north star to normalized large-document lookup", () => {

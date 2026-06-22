@@ -4,6 +4,11 @@ import {
   isNodeInRenderWindow,
   isSectionInRenderWindow,
 } from "./renderWindow.js"
+import {
+  createRenderShell,
+  getRenderShellSections,
+  isRenderShellSectionRendered,
+} from "./renderShell.js"
 
 export const STORE_BACKED_RENDER_MODEL_SOURCE = "flowdoc-store-backed-render-model"
 export const STORE_BACKED_RENDER_MODEL_MODE = "store-backed-render-model"
@@ -46,6 +51,7 @@ export function createStoreBackedRenderModel(snapshot, runtimeCache) {
     sections,
     visibleRange: runtimeCache?.visibleRange || null,
   })
+  const renderShell = createRenderShell({ renderWindow, sections })
 
   return {
     childrenById: runtimeStore?.childrenById || new Map(),
@@ -59,6 +65,12 @@ export function createStoreBackedRenderModel(snapshot, runtimeCache) {
     renderWindowSectionCount: renderWindow.sectionCount,
     renderWindowSource: renderWindow.source,
     renderWindowTotalNodeCount: renderWindow.totalNodeCount,
+    renderShell,
+    renderShellMode: renderShell.mode,
+    renderShellPlaceholderSectionCount: renderShell.placeholderSectionCount,
+    renderShellRenderedSectionCount: renderShell.renderedSectionCount,
+    renderShellSectionCount: renderShell.sectionCount,
+    renderShellSource: renderShell.source,
     runtimeStore,
     sectionCount: sections.length,
     sections,
@@ -97,4 +109,12 @@ export function getStoreBackedRenderWindowSectionRootNodes(renderModel, sectionI
   if (!isSectionInRenderWindow(renderModel?.renderWindow, sectionId)) return []
   return getStoreBackedRenderSectionRootNodes(renderModel, sectionId)
     .filter((node) => isNodeInRenderWindow(renderModel?.renderWindow, node.id))
+}
+
+export function getStoreBackedRenderShellSections(renderModel) {
+  return getRenderShellSections(renderModel?.renderShell)
+}
+
+export function isStoreBackedRenderShellSectionRendered(renderModel, sectionId) {
+  return isRenderShellSectionRendered(renderModel?.renderShell, sectionId)
 }
