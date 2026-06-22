@@ -331,6 +331,11 @@ top/height/bottom intervals and section-level viewport predictions from spacer
 facts, but these predictions are a root model before node-aware and
 virtualized scheduling, not the final viewport engine.
 
+Phase 61 adds a viewport scheduler candidate boundary. The sandbox can dry-run
+which section ids a future scheduler would request from the current viewport
+prediction, including overscan and current render-window deltas, while keeping
+the visible app observe-only so candidate requests do not yet drive rendering.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

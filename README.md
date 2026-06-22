@@ -184,6 +184,9 @@ The package must remain runnable without any parent editor checkout.
   shell/placeholder minimum heights before a production virtual list is wired
 - Section offset boundary derives top/height/bottom intervals and viewport
   section predictions from spacer facts before render scheduling uses them
+- Viewport scheduler candidate boundary dry-runs overscanned section render
+  candidates from viewport predictions before those candidates are allowed to
+  drive a render window
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -321,6 +324,9 @@ The package must remain runnable without any parent editor checkout.
   spacer boundary before production virtual lists and renderer scheduling
 - `docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md`: Phase 60 section offset
   index and viewport prediction boundary before virtualized scheduling
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md`: Phase 61
+  observe-only viewport scheduler candidate boundary before automatic render
+  scheduling
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -367,6 +373,6 @@ The package must remain runnable without any parent editor checkout.
 - durable browser cache persistence, full structural packet application,
   node-aware production scroll anchoring, and true virtualized renderer
   scheduling beyond the sandbox render-shell, viewport-measurement, manual
-  viewport-apply, debounced scroll-controller, section-anchor, and section
-  spacer/offset contracts
+  viewport-apply, debounced scroll-controller, section-anchor, section
+  spacer/offset, and observe-only scheduler-candidate contracts
 - publishing/distribution strategy beyond local package consumption

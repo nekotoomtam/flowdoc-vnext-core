@@ -67,6 +67,7 @@ Parent goal:
 | 58 | Section viewport anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 59 | Measured section spacer boundary | done | `docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionSpacers.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 60 | Section offset prediction boundary | done | `docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionOffsets.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 61 | Viewport scheduler candidate boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerCandidate.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1282,6 +1283,43 @@ This phase intentionally does not implement a virtual list, render-window
 scheduling from offset predictions, top/bottom spacer elements outside the
 existing page shell, hidden/offscreen DOM pruning beyond the existing render
 shell, lazy heavy-detail routes, node anchors, outline jump-to-node,
+diagnostics/source jump-to-node, caret-relative text block anchors,
+typing-driven live layout pushdown, structural add/delete/move packet
+application, rich text editing, contenteditable DOM mapping, persistence, API
+routes, or package/document version changes.
+
+## Phase 61 Viewport Scheduler Candidate Boundary
+
+Phase 61 derives observe-only scheduler candidates from the Phase 60 section
+offset predictions:
+
+- `examples/template-builder-sandbox/public/viewportSchedulerCandidate.js`
+  owns `VIEWPORT_SCHEDULER_CANDIDATE_SOURCE`,
+  `VIEWPORT_SCHEDULER_CANDIDATE_MODE`,
+  `DEFAULT_VIEWPORT_SCHEDULER_OVERSCAN_SECTIONS`, and
+  `createViewportSchedulerCandidate(...)` as a DOM-free candidate policy;
+- candidates expand predicted section ids with overscan, compare those ids
+  against the active render window, and report current/missing/extra section
+  deltas without mutating the visible range;
+- candidates classify confidence as measured, estimated, mixed, or missing
+  from section offset facts;
+- each candidate carries a visible-range request shape and `applyState` /
+  `applyReady` flags, but the sandbox app keeps `observeOnly` behavior;
+- `examples/template-builder-sandbox/public/app.js` stores the latest
+  `viewportSchedulerCandidate` and reports `Viewport candidate: ...` in the
+  status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.planViewportCandidate` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md` records the
+  Phase 61 boundary, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free candidate
+  ownership, generated action-lane exposure, app-owned observe-only status,
+  long-section overscan behavior, and non-observe readiness reporting.
+
+This phase intentionally does not implement automatic render-window scheduling
+from candidate requests, a virtual list, top/bottom spacer elements outside
+the existing page shell, hidden/offscreen DOM pruning beyond the existing
+render shell, lazy heavy-detail routes, node anchors, outline jump-to-node,
 diagnostics/source jump-to-node, caret-relative text block anchors,
 typing-driven live layout pushdown, structural add/delete/move packet
 application, rich text editing, contenteditable DOM mapping, persistence, API

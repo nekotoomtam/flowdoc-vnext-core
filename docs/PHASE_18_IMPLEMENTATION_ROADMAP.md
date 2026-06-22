@@ -1347,6 +1347,43 @@ Acceptance:
   contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 61: Viewport Scheduler Candidate Boundary
+
+Goal:
+
+- derive observe-only scheduler section candidates from viewport section
+  predictions before those candidates are allowed to drive render-window
+  scheduling.
+
+Deliverables:
+
+- browser-safe scheduler candidate policy module in
+  `public/viewportSchedulerCandidate.js`;
+- scheduler candidate source/version/mode contract;
+- overscan expansion from predicted section ids into candidate section ids;
+- current/missing/extra section deltas against the active render window;
+- confidence classification from measured versus estimated section facts;
+- candidate visible-range request shape;
+- `applyState` and `applyReady` flags, with the sandbox app remaining
+  observe-only;
+- app tracking and status output for the current viewport scheduler candidate;
+- action lane for `browser.planViewportCandidate`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- scheduler candidate policy can run in Node without DOM access;
+- app shell owns only measurement/status wiring, not candidate math;
+- long-section predictions produce overscanned candidate section ids;
+- observe-only candidates do not call the render-window apply path;
+- explicit non-observe candidates can report `ready` when the current render
+  window differs;
+- no automatic render-window scheduling from candidate requests, virtual list,
+  hidden/offscreen DOM pruning, lazy detail endpoint, node anchor,
+  outline jump-to-node, diagnostics/source jump-to-node, caret-relative
+  anchor, structural packet engine, rich text, contenteditable mapping, live
+  renderer, route, persistence, or package version change is claimed.
+
 ## Later Phases
 
 Goal:

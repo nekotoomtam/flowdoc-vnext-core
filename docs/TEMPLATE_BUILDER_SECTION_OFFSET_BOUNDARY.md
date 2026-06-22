@@ -7,6 +7,10 @@ section spacer facts. It lets the sandbox reason about section ranges as
 `top/height/bottom` intervals without turning that prediction into the final
 render scheduler.
 
+Phase 61 builds on these offset predictions by deriving observe-only scheduler
+candidates. Those candidates remain dry-run status and do not replace DOM
+measurement or the accepted viewport apply path.
+
 ## Purpose
 
 Phase 59 knows how tall each section shell should be. Phase 60 derives where

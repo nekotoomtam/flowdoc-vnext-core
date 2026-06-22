@@ -1934,6 +1934,13 @@
       "reason": "browser canvas can predict viewport section coverage from section spacer offsets before virtualized scheduling"
     },
     {
+      "action": "browser.planViewportCandidate",
+      "label": "Viewport candidate",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser canvas can dry-run scheduler section candidates before applying virtualized render scheduling"
+    },
+    {
       "action": "browser.resolveViewportRangeRequest",
       "label": "Viewport request",
       "lane": "immediate",

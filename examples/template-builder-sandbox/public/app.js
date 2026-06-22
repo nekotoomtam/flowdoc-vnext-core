@@ -40,6 +40,9 @@ import {
   predictViewportFromSectionOffsets,
   resolveViewportSectionOffset,
 } from "./viewportSectionOffsets.js"
+import {
+  createViewportSchedulerCandidate,
+} from "./viewportSchedulerCandidate.js"
 
 const app = document.querySelector("#app")
 
@@ -77,6 +80,7 @@ const state = {
   viewportSectionOffsetIndex: null,
   viewportSectionPrediction: null,
   viewportSectionSpacers: createViewportSectionSpacerMap(),
+  viewportSchedulerCandidate: null,
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
   viewportScrollTimerId: null,
@@ -227,6 +231,9 @@ function updateViewportSectionOffsets(measurement) {
     scrollTop: measurement?.scrollTop,
     viewportHeight: measurement?.viewportHeight,
   })
+  updateViewportSchedulerCandidate({
+    reason: "measurement",
+  })
 }
 
 function viewportSectionOffsetLabel() {
@@ -242,6 +249,33 @@ function viewportSectionOffsetLabel() {
 function syncViewportSectionOffsetStatus() {
   app.querySelectorAll("[data-section-offset-status]").forEach((target) => {
     target.textContent = viewportSectionOffsetLabel()
+  })
+}
+
+function updateViewportSchedulerCandidate(input = {}) {
+  state.viewportSchedulerCandidate = createViewportSchedulerCandidate({
+    budget: viewportRequestBudget(),
+    offsetIndex: state.viewportSectionOffsetIndex,
+    prediction: state.viewportSectionPrediction,
+    previousRequest: state.runtimeCache?.visibleRangeRequest,
+    reason: input.reason,
+    renderWindow: state.renderModel?.renderWindow,
+    scrollController: state.viewportScrollController,
+  })
+}
+
+function viewportSchedulerCandidateLabel() {
+  const candidate = state.viewportSchedulerCandidate
+  if (!candidate) return "Viewport candidate: pending"
+  const sectionIds = candidate.candidateSectionIds.length > 0
+    ? candidate.candidateSectionIds.join(",")
+    : "none"
+  return `Viewport candidate: ${candidate.applyState} ${candidate.anchorSectionId || "none"} ${sectionIds} ${candidate.confidence}`
+}
+
+function syncViewportSchedulerCandidateStatus() {
+  app.querySelectorAll("[data-viewport-scheduler-candidate-status]").forEach((target) => {
+    target.textContent = viewportSchedulerCandidateLabel()
   })
 }
 
@@ -327,6 +361,10 @@ function applySettledViewportScroll() {
 
   state.viewportScrollController = settled.scrollController
   if (!settled.applyRequest) {
+    updateViewportSchedulerCandidate({
+      reason: settled.scrollController.lastSkippedReason || "scroll-skipped",
+    })
+    syncViewportSchedulerCandidateStatus()
     syncViewportScrollControllerStatus()
     return
   }
@@ -354,9 +392,13 @@ function scheduleViewportScrollApply() {
     measurement,
     scrollTop: measurement.scrollTop,
   })
+  updateViewportSchedulerCandidate({
+    reason: "scroll-pending",
+  })
   syncViewportMeasurementStatus()
   syncViewportSectionSpacerStatus()
   syncViewportSectionOffsetStatus()
+  syncViewportSchedulerCandidateStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 
@@ -1770,6 +1812,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
       <span data-section-spacer-status>${escapeHtml(viewportSectionSpacerLabel())}</span>
       <span data-section-offset-status>${escapeHtml(viewportSectionOffsetLabel())}</span>
+      <span data-viewport-scheduler-candidate-status>${escapeHtml(viewportSchedulerCandidateLabel())}</span>
       <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
@@ -2236,6 +2279,7 @@ function render(options = {}) {
   syncViewportMeasurementStatus()
   syncViewportSectionSpacerStatus()
   syncViewportSectionOffsetStatus()
+  syncViewportSchedulerCandidateStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }
