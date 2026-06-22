@@ -53,6 +53,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/scripts/build-snapshot.ts",
       "../examples/template-builder-sandbox/scripts/serve.mjs",
       "../examples/template-builder-sandbox/public/runtimeStore.js",
+      "../examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -148,6 +149,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStoreBackedRenderModel")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveRenderWindow")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createRenderShell")
@@ -961,6 +963,7 @@ describe("template builder sandbox boundary", () => {
     const viewportSectionSpacersSource = readText("../examples/template-builder-sandbox/public/viewportSectionSpacers.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
     const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
+    const runtimeStoreStructuralPacketSource = readText("../examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -990,6 +993,7 @@ describe("template builder sandbox boundary", () => {
     const viewportVirtualStackDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md")
     const viewportLazyDetailDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md")
     const viewportLargeDocumentAuditDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md")
+    const structuralPacketStoreDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_STORE_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -1134,6 +1138,13 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeStoreSource).toContain("getRuntimeStoreSectionRootNodes")
     expect(runtimeStoreSource).not.toContain("document.")
     expect(runtimeStoreSource).not.toContain("querySelector")
+    expect(runtimeStoreStructuralPacketSource).toContain("applyStructuralChangePacketToRuntimeStore")
+    expect(runtimeStoreStructuralPacketSource).toContain("structural-packet-direct")
+    expect(runtimeStoreStructuralPacketSource).toContain("flowdoc-structural-packet")
+    expect(runtimeStoreStructuralPacketSource).toContain("foundation-bridge")
+    expect(runtimeStoreStructuralPacketSource).toContain("normalizeRuntimeNode")
+    expect(runtimeStoreStructuralPacketSource).not.toContain("document.")
+    expect(runtimeStoreStructuralPacketSource).not.toContain("querySelector")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -1325,6 +1336,10 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeCacheSource).toContain("createVisibleRangeRuntimeState")
     expect(runtimeCacheSource).toContain("applyChangePacketToRuntime")
     expect(runtimeCacheSource).toContain("applyTextChangePacketToRuntimeStore")
+    expect(runtimeCacheSource).toContain("applyStructuralChangePacketToRuntimeStore")
+    expect(runtimeCacheSource).toContain("applyStructuralChangePacketToRuntime")
+    expect(runtimeCacheSource).toContain("applyStructuralPacketMetadataToSnapshot")
+    expect(runtimeCacheSource).toContain('from "./runtimeStoreStructuralPacket.js"')
     expect(runtimeCacheSource).toContain("applyChangePacketMetadataToSnapshot")
     expect(runtimeCacheSource).toContain("RUNTIME_CACHE_SOURCE")
     expect(runtimeCacheSource).toContain("runtimeStore")
@@ -1335,6 +1350,7 @@ describe("template builder sandbox boundary", () => {
     expect(runtimeCacheSource).toContain("visibleRangeKind")
     expect(runtimeCacheSource).toContain("preserveVisibleRangeRequest")
     expect(runtimeCacheSource).toContain("flowdoc-template-builder-change-packet")
+    expect(runtimeCacheSource).toContain("isStructuralChangePacket")
     expect(runtimeCacheSource).toContain("packet.baseRevision !== snapshot.session.documentRevision")
     expect(runtimeCacheSource).not.toContain("document.")
     expect(runtimeCacheSource).not.toContain("querySelector")
@@ -1342,6 +1358,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
     expect(coreBoundarySource).toContain("browser.createStructuralRuntimeStore")
     expect(coreBoundarySource).toContain("browser.applyTextPacketToRuntimeStore")
+    expect(coreBoundarySource).toContain("browser.applyStructuralPacketToRuntimeStore")
     expect(coreBoundarySource).toContain("browser.createStoreBackedRenderModel")
     expect(coreBoundarySource).toContain("browser.resolveRenderWindow")
     expect(coreBoundarySource).toContain("browser.createRenderShell")
@@ -1394,6 +1411,11 @@ describe("template builder sandbox boundary", () => {
     expect(textPacketStoreDoc).toContain("applyTextChangePacketToRuntimeStore")
     expect(textPacketStoreDoc).toContain("text-packet-direct")
     expect(textPacketStoreDoc).toContain("does not implement structural add/delete/move")
+    expect(structuralPacketStoreDoc).toContain("Status: Phase 71 foundation boundary.")
+    expect(structuralPacketStoreDoc).toContain("applyStructuralChangePacketToRuntimeStore")
+    expect(structuralPacketStoreDoc).toContain("structural-packet-direct")
+    expect(structuralPacketStoreDoc).toContain("Growth Warning")
+    expect(structuralPacketStoreDoc).toContain("does not implement structural command UI")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
@@ -1732,6 +1754,160 @@ describe("template builder sandbox boundary", () => {
     expect(result.previousRevision).toBe(0)
     expect(result.structuralOk).toBe(false)
     expect(result.structuralReason).toContain("structural child changes")
+  })
+
+  it("applies structural packets directly to the structural runtime store", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        createRuntimeStore,
+        getRuntimeStoreChildren,
+      } = await import("./public/runtimeStore.js");
+      const {
+        applyStructuralChangePacketToRuntimeStore,
+      } = await import("./public/runtimeStoreStructuralPacket.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const store = createRuntimeStore(snapshot);
+      const beforeChildren = [...store.childrenById.get("cover-body")];
+      const afterChildren = [beforeChildren[0], "phase-71-inserted", ...beforeChildren.slice(1)];
+      const insertedNode = {
+        id: "phase-71-inserted",
+        type: "text-block",
+        role: { role: "paragraph" },
+        props: {},
+        children: [{ id: "phase-71-inserted-inline-1", type: "text", text: "Structural store packet" }],
+      };
+      const insertPacket = {
+        source: "flowdoc-structural-packet",
+        packetVersion: 1,
+        stage: "foundation-bridge",
+        action: "text-block.insert",
+        status: "applied",
+        baseRevision: 0,
+        nextRevision: 1,
+        operation: null,
+        failureReason: null,
+        nodesAdded: [insertedNode],
+        nodesUpdated: [{ id: "cover-body", type: "zone", role: "body", childIds: afterChildren }],
+        nodeIdsRemoved: [],
+        parentListPatches: [{
+          op: "insert",
+          sectionId: "section-cover",
+          parentId: "cover-body",
+          parentKind: "zone",
+          childField: "childIds",
+          nodeId: "phase-71-inserted",
+          toIndex: 1,
+          before: beforeChildren,
+          after: afterChildren,
+        }],
+        changedNodeIds: ["phase-71-inserted", "cover-body"],
+        affectedParentNodeIds: ["cover-body"],
+        dirtyScopes: [{ sectionIds: ["section-cover"], zoneIds: ["cover-body"], nodeIds: ["phase-71-inserted"], parentNodeIds: ["cover-body"], tableIds: [], textBlockIds: ["phase-71-inserted"] }],
+        renderInvalidation: null,
+        issues: [],
+      };
+      const insertResult = applyStructuralChangePacketToRuntimeStore(store, insertPacket);
+      const staleResult = applyStructuralChangePacketToRuntimeStore(store, { ...insertPacket, baseRevision: 99 });
+      const deletePacket = {
+        ...insertPacket,
+        action: "node.delete",
+        baseRevision: 1,
+        nextRevision: 2,
+        nodesAdded: [],
+        nodesUpdated: [{ id: "cover-body", type: "zone", role: "body", childIds: beforeChildren }],
+        nodeIdsRemoved: ["phase-71-inserted"],
+        parentListPatches: [{
+          op: "remove",
+          sectionId: "section-cover",
+          parentId: "cover-body",
+          parentKind: "zone",
+          childField: "childIds",
+          nodeId: "phase-71-inserted",
+          fromIndex: 1,
+          before: afterChildren,
+          after: beforeChildren,
+        }],
+        changedNodeIds: ["cover-body", "phase-71-inserted"],
+        affectedParentNodeIds: ["cover-body"],
+      };
+      const deleteResult = applyStructuralChangePacketToRuntimeStore(insertResult.runtimeStore, deletePacket);
+      console.log(JSON.stringify({
+        deleteChildren: getRuntimeStoreChildren(deleteResult.runtimeStore, "cover-body").map((node) => node.id),
+        deleteNodeExists: deleteResult.runtimeStore.nodeById.has("phase-71-inserted"),
+        deleteNodeCount: deleteResult.runtimeStore.nodeCount,
+        deleteRevision: deleteResult.runtimeStore.documentRevision,
+        insertApplyMode: insertResult.applyMode,
+        insertChildren: getRuntimeStoreChildren(insertResult.runtimeStore, "cover-body").map((node) => node.id),
+        insertDepth: insertResult.runtimeStore.nodeById.get("phase-71-inserted").depth,
+        insertParentId: insertResult.runtimeStore.parentById.get("phase-71-inserted"),
+        insertPlainText: insertResult.runtimeStore.nodeById.get("phase-71-inserted").plainText,
+        insertPreview: insertResult.runtimeStore.nodeById.get("phase-71-inserted").textPreview,
+        insertSectionId: insertResult.runtimeStore.sectionIdByNodeId.get("phase-71-inserted"),
+        insertZoneId: insertResult.runtimeStore.zoneIdByNodeId.get("phase-71-inserted"),
+        originalChildren: getRuntimeStoreChildren(store, "cover-body").map((node) => node.id),
+        originalNodeCount: store.nodeCount,
+        previousRevision: insertResult.runtimeStore.previousRevision,
+        revision: insertResult.runtimeStore.documentRevision,
+        staleOk: staleResult.ok,
+        staleReason: staleResult.reason,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      deleteChildren: string[]
+      deleteNodeCount: number
+      deleteNodeExists: boolean
+      deleteRevision: number
+      insertApplyMode: string
+      insertChildren: string[]
+      insertDepth: number
+      insertParentId: string
+      insertPlainText: string
+      insertPreview: string
+      insertSectionId: string
+      insertZoneId: string
+      originalChildren: string[]
+      originalNodeCount: number
+      previousRevision: number
+      revision: number
+      staleOk: boolean
+      staleReason: string
+    }
+
+    expect(result.insertApplyMode).toBe("structural-packet-direct")
+    expect(result.insertChildren).toEqual([
+      "cover-title",
+      "phase-71-inserted",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.insertPreview).toBe("Structural store packet")
+    expect(result.insertPlainText).toBe("Structural store packet")
+    expect(result.insertParentId).toBe("cover-body")
+    expect(result.insertSectionId).toBe("section-cover")
+    expect(result.insertZoneId).toBe("cover-body")
+    expect(result.insertDepth).toBe(1)
+    expect(result.originalChildren).toEqual([
+      "cover-title",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.originalNodeCount).toBe(52)
+    expect(result.revision).toBe(1)
+    expect(result.previousRevision).toBe(0)
+    expect(result.staleOk).toBe(false)
+    expect(result.staleReason).toContain("did not match runtime store revision")
+    expect(result.deleteChildren).toEqual(result.originalChildren)
+    expect(result.deleteNodeExists).toBe(false)
+    expect(result.deleteNodeCount).toBe(52)
+    expect(result.deleteRevision).toBe(2)
   })
 
   it("builds bounded visible ranges without rendering the whole document", () => {
@@ -4050,6 +4226,165 @@ describe("template builder sandbox boundary", () => {
     expect(result.visibleRangeKind).toBe("section-window")
     expect(result.visibleRangeSectionIds).toEqual(["section-cover"])
     expect(result.visibleTotalNodeCount).toBe(52)
+  })
+
+  it("applies structural packets through the browser-safe runtime cache module", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        applyChangePacketToRuntime,
+        createBootRuntimeState,
+        createVisibleRangeRuntimeState,
+      } = await import("./public/runtimeCache.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      function findSnapshotNode(nodes, nodeId) {
+        for (const node of nodes) {
+          if (node.id === nodeId) return node;
+          const child = findSnapshotNode(node.children || [], nodeId);
+          if (child) return child;
+        }
+        return null;
+      }
+      const bootState = createBootRuntimeState(snapshot);
+      const beforeChildren = [...bootState.runtimeCache.childrenById.get("cover-body")];
+      const afterChildren = [beforeChildren[0], "phase-71-cache-inserted", ...beforeChildren.slice(1)];
+      const packet = {
+        source: "flowdoc-structural-packet",
+        packetVersion: 1,
+        stage: "foundation-bridge",
+        action: "text-block.insert",
+        status: "applied",
+        baseRevision: 0,
+        nextRevision: 1,
+        operation: {
+          kind: "text-block.insert",
+          source: "api",
+          targetNodeIds: ["phase-71-cache-inserted"],
+          validationPolicy: "full",
+          historyPolicy: {
+            kind: "single-entry",
+            durableIntent: "structure",
+            summary: "insert text-block phase-71-cache-inserted",
+          },
+          renderInvalidation: null,
+          scope: {
+            sectionIds: ["section-cover"],
+            zoneIds: ["cover-body"],
+            nodeIds: ["phase-71-cache-inserted"],
+            parentNodeIds: ["cover-body"],
+            tableIds: [],
+            textBlockIds: ["phase-71-cache-inserted"],
+          },
+        },
+        failureReason: null,
+        nodesAdded: [{
+          id: "phase-71-cache-inserted",
+          type: "text-block",
+          role: { role: "paragraph" },
+          props: {},
+          children: [{ id: "phase-71-cache-inserted-inline-1", type: "text", text: "Runtime cache structural packet" }],
+        }],
+        nodesUpdated: [{ id: "cover-body", type: "zone", role: "body", childIds: afterChildren }],
+        nodeIdsRemoved: [],
+        parentListPatches: [{
+          op: "insert",
+          sectionId: "section-cover",
+          parentId: "cover-body",
+          parentKind: "zone",
+          childField: "childIds",
+          nodeId: "phase-71-cache-inserted",
+          toIndex: 1,
+          before: beforeChildren,
+          after: afterChildren,
+        }],
+        changedNodeIds: ["phase-71-cache-inserted", "cover-body"],
+        affectedParentNodeIds: ["cover-body"],
+        dirtyScopes: [{
+          sectionIds: ["section-cover"],
+          zoneIds: ["cover-body"],
+          nodeIds: ["phase-71-cache-inserted"],
+          parentNodeIds: ["cover-body"],
+          tableIds: [],
+          textBlockIds: ["phase-71-cache-inserted"],
+        }],
+        renderInvalidation: { lane: "node-structure", affectedNodeIds: ["phase-71-cache-inserted", "cover-body"], affectedSectionIds: ["section-cover"], pageScope: { kind: "unknown", reason: "pagination-not-integrated" } },
+        issues: [],
+      };
+      const result = applyChangePacketToRuntime(bootState.snapshot, bootState.runtimeCache, packet);
+      const rangeState = createVisibleRangeRuntimeState(result.snapshot, result.runtimeCache, {
+        anchorNodeId: "phase-71-cache-inserted",
+        reason: "selection",
+      });
+      console.log(JSON.stringify({
+        bodyChildren: result.runtimeCache.childrenById.get("cover-body"),
+        bridgeMode: result.snapshot.mutationBridge.mode,
+        changedSubtreeIds: [...result.runtimeCache.editorView.changedSubtreeIds].sort(),
+        dirtyNodeIds: [...result.runtimeCache.editorView.dirtyNodeIds].sort(),
+        insertedInNodeOrder: result.runtimeCache.nodeOrder.includes("phase-71-cache-inserted"),
+        insertedText: result.runtimeCache.nodeById.get("phase-71-cache-inserted").textPreview,
+        lastMutationAction: result.snapshot.mutationBridge.lastMutation.action,
+        lastMutationSummary: result.snapshot.mutationBridge.lastMutation.summary,
+        mode: result.runtimeCache.mode,
+        mutationCount: result.snapshot.mutationBridge.mutationCount,
+        ok: result.ok,
+        packetsApplied: result.runtimeCache.packetsApplied,
+        rangeText: rangeState.runtimeCache.nodeById.get("phase-71-cache-inserted").textPreview,
+        runtimeStoreApplyMode: result.runtimeCache.runtimeStoreApplyMode,
+        runtimeStoreNodeCount: result.runtimeCache.runtimeStore.nodeCount,
+        snapshotInsertedExists: Boolean(findSnapshotNode(result.snapshot.sections.flatMap((section) => section.zones), "phase-71-cache-inserted")),
+        snapshotRevision: result.snapshot.session.documentRevision,
+        visibleTotalNodeCount: result.runtimeCache.visibleRange.totalNodeCount,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bodyChildren: string[]
+      bridgeMode: string
+      changedSubtreeIds: string[]
+      dirtyNodeIds: string[]
+      insertedInNodeOrder: boolean
+      insertedText: string
+      lastMutationAction: string
+      lastMutationSummary: string
+      mode: string
+      mutationCount: number
+      ok: boolean
+      packetsApplied: number
+      rangeText: string
+      runtimeStoreApplyMode: string
+      runtimeStoreNodeCount: number
+      snapshotInsertedExists: boolean
+      snapshotRevision: number
+      visibleTotalNodeCount: number
+    }
+
+    expect(result.ok).toBe(true)
+    expect(result.runtimeStoreApplyMode).toBe("structural-packet-direct")
+    expect(result.runtimeStoreNodeCount).toBe(53)
+    expect(result.mode).toBe("packet-cache")
+    expect(result.packetsApplied).toBe(1)
+    expect(result.snapshotRevision).toBe(1)
+    expect(result.bridgeMode).toBe("in-memory-bridge")
+    expect(result.mutationCount).toBe(1)
+    expect(result.lastMutationAction).toBe("text-block.insert")
+    expect(result.lastMutationSummary).toBe("insert text-block phase-71-cache-inserted")
+    expect(result.insertedText).toBe("Runtime cache structural packet")
+    expect(result.rangeText).toBe("Runtime cache structural packet")
+    expect(result.insertedInNodeOrder).toBe(true)
+    expect(result.snapshotInsertedExists).toBe(false)
+    expect(result.bodyChildren).toEqual([
+      "cover-title",
+      "phase-71-cache-inserted",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.dirtyNodeIds).toEqual(["cover-body", "phase-71-cache-inserted"])
+    expect(result.changedSubtreeIds).toEqual(["cover-body", "phase-71-cache-inserted"])
+    expect(result.visibleTotalNodeCount).toBe(53)
   })
 
   it("builds a store-backed render model from runtime store content", () => {

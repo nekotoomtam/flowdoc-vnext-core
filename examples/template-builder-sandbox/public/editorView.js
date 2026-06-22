@@ -15,6 +15,8 @@ function addDirtyScopeIds(dirtyNodeIds, scope) {
   if (!scope) return
   if (scope.textBlockId) dirtyNodeIds.add(scope.textBlockId)
   if (scope.nodeId) dirtyNodeIds.add(scope.nodeId)
+  ;(scope.textBlockIds || []).forEach((nodeId) => dirtyNodeIds.add(nodeId))
+  ;(scope.nodeIds || []).forEach((nodeId) => dirtyNodeIds.add(nodeId))
   ;(scope.parentNodeIds || []).forEach((nodeId) => dirtyNodeIds.add(nodeId))
 }
 

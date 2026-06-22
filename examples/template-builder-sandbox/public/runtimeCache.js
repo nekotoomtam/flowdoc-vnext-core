@@ -1,6 +1,10 @@
 import { createEditorView } from "./editorView.js"
 import { applyTextChangePacketToRuntimeStore } from "./runtimeStore.js"
 import {
+  applyStructuralChangePacketToRuntimeStore,
+  isStructuralChangePacket,
+} from "./runtimeStoreStructuralPacket.js"
+import {
   createVisibleRangeRequest,
   preserveVisibleRangeRequest,
 } from "./visibleRangeRequest.js"
@@ -150,6 +154,33 @@ export function applyChangePacketMetadataToSnapshot(snapshot, packet) {
   }
 }
 
+export function applyStructuralPacketMetadataToSnapshot(snapshot, packet) {
+  const currentMutationCount = snapshot.mutationBridge?.mutationCount || 0
+  const operationSummary = packet.operation?.historyPolicy?.summary || packet.action
+
+  return {
+    ...snapshot,
+    mutationBridge: {
+      ...snapshot.mutationBridge,
+      documentRevision: packet.nextRevision,
+      lastMutation: {
+        action: packet.action,
+        issueCount: (packet.issues || []).length,
+        status: packet.status,
+        summary: operationSummary,
+        targetTextBlockId: null,
+      },
+      mode: "in-memory-bridge",
+      mutationCount: currentMutationCount + 1,
+    },
+    session: {
+      ...snapshot.session,
+      dirtyScopeCount: (packet.dirtyScopes || []).length,
+      documentRevision: packet.nextRevision,
+    },
+  }
+}
+
 export function applyChangePacketToSnapshot(snapshot, packet) {
   if (!snapshot || !isChangePacket(packet)) {
     return { ok: false, reason: "invalid change packet" }
@@ -182,6 +213,10 @@ export function applyChangePacketToSnapshot(snapshot, packet) {
 }
 
 export function applyChangePacketToRuntime(snapshot, previousCache, packet) {
+  if (isStructuralChangePacket(packet)) {
+    return applyStructuralChangePacketToRuntime(snapshot, previousCache, packet)
+  }
+
   if (!snapshot || !isChangePacket(packet)) {
     return { ok: false, reason: "invalid change packet" }
   }
@@ -226,6 +261,47 @@ export function applyChangePacketToRuntime(snapshot, previousCache, packet) {
   }
 
   const packetSnapshot = applyChangePacketMetadataToSnapshot(snapshot, packet)
+
+  return {
+    ok: true,
+    packet,
+    runtimeCache: createRuntimeCache(packetSnapshot, {
+      packet,
+      packetApplied: true,
+      previousCache,
+      runtimeStore: storeResult.runtimeStore,
+      runtimeStoreApplyMode: storeResult.applyMode,
+    }),
+    runtimeStoreApplyMode: storeResult.applyMode,
+    snapshot: packetSnapshot,
+  }
+}
+
+export function applyStructuralChangePacketToRuntime(snapshot, previousCache, packet) {
+  if (!snapshot || !isStructuralChangePacket(packet)) {
+    return { ok: false, reason: "invalid structural packet" }
+  }
+
+  const localRevision = previousCache?.runtimeStore?.documentRevision
+    ?? previousCache?.documentRevision
+    ?? snapshot.session.documentRevision
+
+  if (packet.baseRevision !== localRevision) {
+    return {
+      ok: false,
+      reason: `structural packet base ${packet.baseRevision} did not match local revision ${localRevision}`,
+    }
+  }
+
+  const storeResult = applyStructuralChangePacketToRuntimeStore(previousCache?.runtimeStore, packet)
+  if (!storeResult.ok) {
+    return {
+      ok: false,
+      reason: `runtime store structural apply rejected: ${storeResult.reason}`,
+    }
+  }
+
+  const packetSnapshot = applyStructuralPacketMetadataToSnapshot(snapshot, packet)
 
   return {
     ok: true,

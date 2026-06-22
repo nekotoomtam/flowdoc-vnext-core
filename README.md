@@ -209,6 +209,9 @@ The package must remain runnable without any parent editor checkout.
 - Structural packet contract boundary defines foundation bridge packets from
   accepted core operation results without making them durable persistence or
   collaboration protocol
+- Structural packet store boundary applies structural packet v1 to browser
+  runtime-store indexes as a local foundation bridge, with a growth warning
+  before persistence, collaboration, offline replay, or backend API exposure
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -370,6 +373,8 @@ The package must remain runnable without any parent editor checkout.
   derived structural projection boundary before structural packet application
 - `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_CONTRACT_BOUNDARY.md`: Phase 70
   structural packet v1 foundation bridge before runtime-store apply
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_STORE_BOUNDARY.md`: Phase 71
+  browser runtime-store structural packet apply boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

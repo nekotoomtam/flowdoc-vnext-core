@@ -1679,6 +1679,44 @@ Acceptance:
   multi-user conflict handling, offline replay, backend API exposure,
   structural packet durability guarantee, or schema change is claimed.
 
+## Phase 71: Structural Packet Store Apply Boundary
+
+Goal:
+
+- let the browser runtime store consume structural packet v1 as a local
+  foundation bridge while keeping structural command UI and durable protocols
+  out of scope.
+
+Deliverables:
+
+- `applyStructuralChangePacketToRuntimeStore(...)` in
+  `public/runtimeStoreStructuralPacket.js`;
+- structural packet source/version/stage/status/revision validation;
+- parent-list stale guards against current runtime-store lists;
+- packet-node normalization from canonical authored-node shape to browser
+  runtime node summaries;
+- derived index rebuild for node, parent, child, section, zone, root, and order
+  maps;
+- runtime-cache route for structural packets through the existing packet-cache
+  path;
+- editor-view dirty scope support for array-shaped structural operation
+  scopes;
+- boundary documentation and tests with growth warning.
+
+Acceptance:
+
+- structural insert packets add runtime nodes and update parent child order;
+- structural delete packets remove nodes and restore parent child order;
+- stale base revisions and malformed parent-list patches are rejected before
+  apply;
+- runtime cache can consume a structural packet without mutating the
+  tree-shaped snapshot;
+- editor-view dirty and changed subtree facts include structural operation
+  scope arrays;
+- no structural command UI, persistence, durable history/replay,
+  collaboration/conflict merge, backend API exposure, long-term packet storage
+  guarantee, or schema change is claimed.
+
 ## Later Phases
 
 Goal:
