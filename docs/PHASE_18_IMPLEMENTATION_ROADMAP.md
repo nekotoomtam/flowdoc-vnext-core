@@ -1857,6 +1857,31 @@ Acceptance:
 - no new commands, structural packet shape change, persistence, backend API,
   durable history, or schema change is claimed.
 
+## Phase 77: Structural Runtime Close Audit
+
+Goal:
+
+- review Phases 69-76 as a Structural Runtime foundation before entering the
+  next WYSIWYG / Editing line.
+
+Deliverables:
+
+- close audit document;
+- PASS / FAIL-BLOCKER / RISK / UNKNOWN sections;
+- risk register split into must-fix-now, track-later, and decision gates;
+- README and phase ledger links;
+- tests that guard the audit contract.
+
+Acceptance:
+
+- audit states whether Structural Runtime can be treated as a usable foundation;
+- audit records that packet v1 is not durable persistence/collaboration/API;
+- audit records that runtime store/render model are browser truth after packet
+  apply;
+- audit records diagnostics node-id limits and missing manual browser QA;
+- no runtime behavior, persistence, backend API, durable history, or schema
+  change is claimed.
+
 ## Later Phases
 
 Goal:

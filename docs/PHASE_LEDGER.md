@@ -83,6 +83,7 @@ Parent goal:
 | 74 | Structural outline jump boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_OUTLINE_JUMP_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralOutlineNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 75 | Structural diagnostics navigation boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 76 | Structural command policy boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralCommandPolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 77 | Structural Runtime close audit | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1762,6 +1763,30 @@ Phase 72 route contract, change structural packet v1 shape, implement
 drag/drop, durable structural undo/redo, persistence, backend public API
 exposure, collaboration/conflict merge, offline replay, or package/document
 schema changes.
+
+## Phase 77 Structural Runtime Close Audit
+
+Phase 77 reviews the completed Structural Runtime foundation from Phases 69-76:
+
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md` records PASS,
+  FAIL/BLOCKER, RISK, UNKNOWN, must-fix-before-WYSIWYG, track-later, decision
+  log, files changed, behavior changed, tests run, and intentionally not
+  changed sections;
+- the audit closes Structural Runtime as a usable foundation, not as production
+  completion;
+- the audit records that structural packet v1 remains foundation transport,
+  sandbox behavior is not production integration, diagnostics jump depends on
+  source-provided `nodeId`, runtime store/render model are browser truth after
+  packet apply, and manual browser QA remains unrecorded;
+- `README.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` link the close
+  audit before the next WYSIWYG / Editing line;
+- `tests/templateBuilderSandboxBoundary.test.ts` guards the audit document and
+  phase ledger entry.
+
+This phase intentionally does not change structural packet shape, sandbox
+bridge routes, runtime-store apply behavior, visible inspector behavior,
+persistence, backend API, durable history, collaboration, offline replay, or
+package/document schema.
 
 ## Phase 12 Extraction Record
 

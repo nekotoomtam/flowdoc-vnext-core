@@ -225,6 +225,8 @@ The package must remain runnable without any parent editor checkout.
 - Structural command policy boundary extracts insert/delete/reorder command
   availability, targets, routes, requests, and selection-after behavior from
   the sandbox app shell
+- Structural Runtime close audit records PASS/RISK/UNKNOWN status after
+  Phases 69-76 before entering the WYSIWYG / Editing line
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -398,6 +400,8 @@ The package must remain runnable without any parent editor checkout.
   75 structural diagnostics navigation boundary
 - `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md`: Phase 76
   structural command policy boundary
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md`: Phase 77
+  Structural Runtime close audit and risk register
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
