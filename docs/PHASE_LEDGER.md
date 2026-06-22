@@ -59,6 +59,7 @@ Parent goal:
 | 50 | Text packet store apply boundary | done | `docs/TEMPLATE_BUILDER_TEXT_PACKET_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStore.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 51 | Store-backed render boundary | done | `docs/TEMPLATE_BUILDER_STORE_BACKED_RENDER_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 52 | Render window boundary | done | `docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderWindow.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 53 | Viewport request boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportController.js`; `examples/template-builder-sandbox/public/visibleRangeRequest.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1023,6 +1024,32 @@ measurement, virtualized renderer scheduling, hidden/offscreen DOM pruning
 schedulers, lazy heavy-detail routes, structural add/delete/move packet
 application, rich text editing, contenteditable DOM mapping, live-layout
 rendering, persistence, API routes, or package/document version changes.
+
+## Phase 53 Viewport Request Boundary
+
+Phase 53 adds a DOM-free viewport request contract before scroll measurement or
+virtualized rendering:
+
+- `examples/template-builder-sandbox/public/viewportController.js` owns
+  `createViewportFacts(...)`, `resolveViewportRangeRequest(...)`, viewport
+  controller source/mode, anchor facts, scroll facts, overscan, budget
+  normalization, and draft-preserve behavior;
+- `examples/template-builder-sandbox/public/visibleRangeRequest.js` records
+  `viewport` and `viewport-preserved` request reasons;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.resolveViewportRangeRequest` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md` records the Phase 53
+  boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves browser-safe viewport
+  request ownership, generated action-lane exposure, runtime-cache/render-window
+  consumption, and preserved draft range behavior.
+
+This phase intentionally does not implement DOM scroll event binding, viewport
+measurement, spacer or virtual-list rendering, scroll sync, virtualized
+renderer scheduling, hidden/offscreen DOM pruning schedulers, lazy heavy-detail
+routes, structural add/delete/move packet application, rich text editing,
+contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
+package/document version changes.
 
 ## Phase 12 Extraction Record
 

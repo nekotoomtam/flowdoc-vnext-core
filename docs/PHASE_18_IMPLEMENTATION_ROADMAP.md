@@ -1076,6 +1076,40 @@ Acceptance:
   mapping, live renderer, route, persistence, or package version change is
   claimed.
 
+## Phase 53: Viewport Request Boundary
+
+Goal:
+
+- define the DOM-free viewport facts and request resolver that future scroll
+  controllers must use before DOM measurement or virtualized rendering is
+  wired.
+
+Deliverables:
+
+- browser-safe `public/viewportController.js` module;
+- viewport controller source/version/mode contract;
+- viewport fact normalization for anchors, scroll positions, viewport size,
+  overscan, and visible-range budgets;
+- resolver that outputs existing `visibleRangeRequest` records;
+- preserved-draft behavior so viewport movement does not replace a protected
+  draft range;
+- action lane for `browser.resolveViewportRangeRequest`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- viewport request construction can run in Node without DOM access;
+- viewport facts produce a visible-range request that runtime cache and render
+  window can consume;
+- draft-preserved visible ranges remain stable when viewport requests arrive;
+- `app.js` does not own viewport request policy or DOM scroll binding in this
+  phase;
+- no DOM scroll tracking, viewport measurement, spacer/virtual list,
+  virtualized renderer scheduling, hidden/offscreen pruning scheduler, lazy
+  detail endpoint, structural add/delete/move packet application, rich text,
+  contenteditable mapping, live renderer, route, persistence, or package
+  version change is claimed.
+
 ## Later Phases
 
 Goal:

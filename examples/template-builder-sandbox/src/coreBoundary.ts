@@ -530,6 +530,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser rendering derives the active render section/node window from the visible range before DOM viewport controllers",
       },
       {
+        action: "browser.resolveViewportRangeRequest",
+        label: "Viewport request",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser viewport facts can produce visible range requests before DOM scroll measurement is wired",
+      },
+      {
         action: "browser.resolveVisibleRange",
         label: "Visible range",
         lane: "immediate",

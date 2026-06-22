@@ -292,6 +292,11 @@ render path. It is still not DOM viewport control or virtualized scheduling,
 but it makes the active canvas section/node window explicit before scroll,
 lazy-detail, and heavy renderer work begins.
 
+Phase 53 adds a viewport request boundary. Future DOM scroll and measurement
+code must produce normalized viewport facts that resolve to ordinary
+visible-range requests, rather than bypassing the visible-range/render-window
+contracts.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

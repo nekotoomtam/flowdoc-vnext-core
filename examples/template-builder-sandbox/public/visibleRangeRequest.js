@@ -11,6 +11,8 @@ export const VISIBLE_RANGE_REQUEST_REASONS = Object.freeze({
   REFRESH: "refresh",
   SELECTION: "selection",
   SELECTION_PRESERVED: "selection-preserved",
+  VIEWPORT: "viewport",
+  VIEWPORT_PRESERVED: "viewport-preserved",
 })
 
 const DEFAULT_BUDGET = Object.freeze({

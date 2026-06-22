@@ -35,6 +35,10 @@ source without changing the canvas traversal contract.
 
 The render window mode is `visible-range-render-window`.
 
+Phase 53 adds `public/viewportController.js` as a future producer of
+visible-range requests. The render window continues to consume resolved visible
+ranges and does not read DOM scroll state directly.
+
 ## Runtime Ownership
 
 `renderModel.js` creates one render window from the active runtime cache's

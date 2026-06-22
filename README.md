@@ -163,6 +163,9 @@ The package must remain runnable without any parent editor checkout.
 - Render window boundary derives the active canvas section/node window from the
   visible-range contract before DOM viewport controllers or virtualized
   renderer scheduling
+- Viewport request boundary converts normalized viewport facts into
+  visible-range requests before DOM scroll measurement or virtualized renderer
+  scheduling is wired
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -281,6 +284,8 @@ The package must remain runnable without any parent editor checkout.
   store-backed render model boundary before viewport virtualization
 - `docs/TEMPLATE_BUILDER_RENDER_WINDOW_BOUNDARY.md`: Phase 52 render-window
   boundary between visible ranges and the canvas render path
+- `docs/TEMPLATE_BUILDER_VIEWPORT_REQUEST_BOUNDARY.md`: Phase 53 viewport
+  request boundary before DOM scroll measurement and virtualized rendering
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -305,7 +310,7 @@ The package must remain runnable without any parent editor checkout.
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
-  undo/redo UI, DOM viewport controllers, lazy heavy-detail routes,
+  undo/redo UI, DOM scroll measurement, lazy heavy-detail routes,
   responsibility-sliced editor modules, and a concrete browser live-layout
   renderer
 - replacement for current parent `/api/paginate` or `/api/export`
