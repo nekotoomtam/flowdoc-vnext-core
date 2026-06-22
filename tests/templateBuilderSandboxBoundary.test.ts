@@ -52,6 +52,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/src/mutationBridge.ts",
       "../examples/template-builder-sandbox/scripts/build-snapshot.ts",
       "../examples/template-builder-sandbox/scripts/serve.mjs",
+      "../examples/template-builder-sandbox/public/visibleRange.js",
       "../examples/template-builder-sandbox/public/editorView.js",
       "../examples/template-builder-sandbox/public/runtimeCache.js",
       "../examples/template-builder-sandbox/public/app.js",
@@ -128,6 +129,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
     expect(snapshot.authoringHistory).toMatchObject({
       mode: "static-snapshot",
       recordCount: 0,
@@ -904,10 +906,12 @@ describe("template builder sandbox boundary", () => {
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
+    const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
     const runtimeCacheSource = readText("../examples/template-builder-sandbox/public/runtimeCache.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
     const browserCacheDoc = readText("../docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md")
     const runtimeCacheDoc = readText("../docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md")
+    const visibleRangeDoc = readText("../docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md")
 
     expect(appSource).toContain('from "./editorView.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -919,6 +923,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("getEditorViewChildren")
     expect(appSource).toContain("getEditorViewSectionRootNodes")
     expect(appSource).toContain("visibleNodeCount")
+    expect(appSource).toContain("Range:")
     expect(appSource).toContain("viewMode")
     expect(appSource).toContain("applyChangePacket")
     expect(appSource).toContain("applyChangePacket(result.packet)")
@@ -938,15 +943,22 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("function replaceChangedNode")
     expect(appSource).not.toContain("packet.baseRevision !==")
     expect(editorViewSource).toContain("createEditorView")
+    expect(editorViewSource).toContain('from "./visibleRange.js"')
     expect(editorViewSource).toContain("childrenById")
     expect(editorViewSource).toContain("parentById")
     expect(editorViewSource).toContain("visibleNodeIds")
     expect(editorViewSource).toContain("dirtyNodeIds")
+    expect(visibleRangeSource).toContain("createVisibleRange")
+    expect(visibleRangeSource).toContain("section-window")
+    expect(visibleRangeSource).not.toContain("document.")
+    expect(visibleRangeSource).not.toContain("querySelector")
     expect(runtimeCacheSource).toContain("createRuntimeCache")
     expect(runtimeCacheSource).toContain("createBootRuntimeState")
     expect(runtimeCacheSource).toContain("createRefreshRuntimeState")
     expect(runtimeCacheSource).toContain("applyChangePacketToRuntime")
     expect(runtimeCacheSource).toContain("RUNTIME_CACHE_SOURCE")
+    expect(runtimeCacheSource).toContain("visibleRange")
+    expect(runtimeCacheSource).toContain("visibleRangeKind")
     expect(runtimeCacheSource).toContain("flowdoc-template-builder-change-packet")
     expect(runtimeCacheSource).toContain("packet.baseRevision !== snapshot.session.documentRevision")
     expect(runtimeCacheSource).not.toContain("document.")
@@ -954,6 +966,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
+    expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
     expect(coreBoundarySource).toContain("sandbox.recordAuthoringHistory")
     expect(coreBoundarySource).toContain("sandbox.requestLiveLayout")
     expect(coreBoundarySource).toContain("user.undo")
@@ -961,10 +974,16 @@ describe("template builder sandbox boundary", () => {
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
     expect(browserCacheDoc).toContain("public/editorView.js")
     expect(browserCacheDoc).toContain("public/runtimeCache.js")
+    expect(browserCacheDoc).toContain("public/visibleRange.js")
     expect(runtimeCacheDoc).toContain("Status: Phase 46 implementation boundary.")
     expect(runtimeCacheDoc).toContain("createRuntimeCache")
     expect(runtimeCacheDoc).toContain("applyChangePacketToRuntime")
     expect(runtimeCacheDoc).toContain("now coordinates state assignment and rendering only")
+    expect(runtimeCacheDoc).toContain("visibleRangeKind")
+    expect(visibleRangeDoc).toContain("Status: Phase 47 implementation boundary.")
+    expect(visibleRangeDoc).toContain("createVisibleRange")
+    expect(visibleRangeDoc).toContain("section-window")
+    expect(visibleRangeDoc).toContain("does not implement")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -997,8 +1016,12 @@ describe("template builder sandbox boundary", () => {
         rootZones: getEditorViewSectionRootNodes(view, "section-cover").map((node) => node.id),
         sectionId: view.sectionIdByNodeId.get("cover-title"),
         source: view.source,
+        visibleRangeSectionIds: view.visibleRange.sectionIds,
+        visibleRangeSource: view.visibleRange.source,
+        visibleRangeWindowed: view.visibleRange.windowed,
         visibleNodeCount: view.visibleNodeIds.length,
         visibleRangeKind: view.visibleRange.kind,
+        visibleTotalNodeCount: view.visibleRange.totalNodeCount,
         zoneId: view.zoneIdByNodeId.get("cover-title"),
       }));
     `], {
@@ -1018,14 +1041,22 @@ describe("template builder sandbox boundary", () => {
       source: string
       visibleNodeCount: number
       visibleRangeKind: string
+      visibleRangeSectionIds: string[]
+      visibleRangeSource: string
+      visibleRangeWindowed: boolean
+      visibleTotalNodeCount: number
       zoneId: string
     }
 
     expect(result.source).toBe("flowdoc-normalized-editor-view")
     expect(result.mode).toBe("normalized-editor-view")
     expect(result.nodeCount).toBe(52)
-    expect(result.visibleNodeCount).toBe(52)
-    expect(result.visibleRangeKind).toBe("all-nodes")
+    expect(result.visibleNodeCount).toBe(16)
+    expect(result.visibleRangeKind).toBe("section-window")
+    expect(result.visibleRangeSource).toBe("flowdoc-visible-range")
+    expect(result.visibleRangeSectionIds).toEqual(["section-cover"])
+    expect(result.visibleRangeWindowed).toBe(true)
+    expect(result.visibleTotalNodeCount).toBe(52)
     expect(result.childIndexCount).toBe(52)
     expect(result.rootZones).toEqual(["cover-first-header", "cover-body", "cover-first-footer"])
     expect(result.coverBodyChildren).toEqual([
@@ -1040,6 +1071,65 @@ describe("template builder sandbox boundary", () => {
     expect(result.zoneId).toBe("cover-body")
     expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
+  })
+
+  it("builds bounded visible ranges without rendering the whole document", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const { createEditorView } = await import("./public/editorView.js");
+      const { createVisibleRange } = await import("./public/visibleRange.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const fullView = createEditorView(snapshot, { visibleRange: { kind: "all-nodes" } });
+      const analysisRange = createVisibleRange({
+        nodeOrder: fullView.nodeOrder,
+        sectionIdByNodeId: fullView.sectionIdByNodeId,
+        sectionIds: fullView.sectionIds,
+      }, {
+        anchorSectionId: "section-body",
+        maxNodes: 4,
+      });
+      console.log(JSON.stringify({
+        allNodeCount: fullView.visibleNodeIds.length,
+        bodyNodesInSection: analysisRange.nodeIds.every((nodeId) => fullView.sectionIdByNodeId.get(nodeId) === "section-body"),
+        defaultKind: createEditorView(snapshot).visibleRange.kind,
+        kind: analysisRange.kind,
+        nodeCount: analysisRange.nodeCount,
+        nodeIds: analysisRange.nodeIds,
+        sectionIds: analysisRange.sectionIds,
+        source: analysisRange.source,
+        totalNodeCount: analysisRange.totalNodeCount,
+        truncated: analysisRange.truncated,
+        windowed: analysisRange.windowed,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      allNodeCount: number
+      bodyNodesInSection: boolean
+      defaultKind: string
+      kind: string
+      nodeCount: number
+      nodeIds: string[]
+      sectionIds: string[]
+      source: string
+      totalNodeCount: number
+      truncated: boolean
+      windowed: boolean
+    }
+
+    expect(result.source).toBe("flowdoc-visible-range")
+    expect(result.defaultKind).toBe("section-window")
+    expect(result.kind).toBe("section-window")
+    expect(result.sectionIds).toEqual(["section-body"])
+    expect(result.nodeCount).toBe(4)
+    expect(result.nodeIds).toHaveLength(4)
+    expect(result.bodyNodesInSection).toBe(true)
+    expect(result.totalNodeCount).toBe(52)
+    expect(result.allNodeCount).toBe(52)
+    expect(result.truncated).toBe(true)
+    expect(result.windowed).toBe(true)
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {
@@ -1091,6 +1181,10 @@ describe("template builder sandbox boundary", () => {
         snapshotRevision: result.snapshot.session.documentRevision,
         bridgeMode: result.snapshot.mutationBridge.mode,
         lastMutationTarget: result.snapshot.mutationBridge.lastMutation.targetTextBlockId,
+        visibleNodeCount: result.runtimeCache.visibleNodeCount,
+        visibleRangeKind: result.runtimeCache.visibleRangeKind,
+        visibleRangeSectionIds: result.runtimeCache.visibleRange.sectionIds,
+        visibleTotalNodeCount: result.runtimeCache.visibleRange.totalNodeCount,
       }));
     `], {
       cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
@@ -1107,6 +1201,10 @@ describe("template builder sandbox boundary", () => {
       packetsApplied: number
       runtimeSource: string
       snapshotRevision: number
+      visibleNodeCount: number
+      visibleRangeKind: string
+      visibleRangeSectionIds: string[]
+      visibleTotalNodeCount: number
     }
 
     expect(result.ok).toBe(true)
@@ -1119,6 +1217,10 @@ describe("template builder sandbox boundary", () => {
     expect(result.changedText).toBe("Runtime cache packet text")
     expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
+    expect(result.visibleNodeCount).toBe(16)
+    expect(result.visibleRangeKind).toBe("section-window")
+    expect(result.visibleRangeSectionIds).toEqual(["section-cover"])
+    expect(result.visibleTotalNodeCount).toBe(52)
   })
 
   it("locks the editor north star to normalized large-document lookup", () => {
@@ -1140,6 +1242,7 @@ describe("template builder sandbox boundary", () => {
     expect(largeDocumentDoc).toContain("normalized/lazy indexes")
     expect(browserCacheDoc).toContain("The tree snapshot")
     expect(browserCacheDoc).toContain("active runtime shape for large-document editing")
+    expect(northStarDoc).toContain("Phase 47 replaces the all-node visible range placeholder")
   })
 
   it("locks future editor work to modular responsibility boundaries", () => {

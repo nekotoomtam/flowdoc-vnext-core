@@ -870,6 +870,37 @@ Acceptance:
   rich text, contenteditable mapping, live renderer, route, persistence, or
   package version change is claimed.
 
+## Phase 47: Visible Range Boundary
+
+Goal:
+
+- replace the all-node visible range placeholder with a bounded browser-safe
+  visible-range contract before real viewport virtualization or lazy detail.
+
+Deliverables:
+
+- browser-safe `public/visibleRange.js` module;
+- default `section-window` visible range;
+- explicit `anchorSectionId` and `anchorNodeId` support;
+- `maxNodes` truncation and window metadata;
+- editor-view integration so `visibleNodeIds` comes from the range contract;
+- runtime-cache exposure of visible range facts;
+- app status output for range kind and node counts;
+- action lane for `browser.resolveVisibleRange`;
+- boundary documentation and root tests.
+
+Acceptance:
+
+- default editor views report `section-window`, not `all-nodes`;
+- `visibleNodeIds` is bounded for the current fixture while total node count
+  remains available;
+- runtime-cache packet application preserves the current visible-range request;
+- rendering may still show the full sandbox document shell;
+- no DOM scroll tracking, viewport measurement, virtualized rendering, lazy
+  detail endpoint, structural packet engine, rich text, contenteditable
+  mapping, live renderer, route, persistence, or package version change is
+  claimed.
+
 ## Later Phases
 
 Goal:

@@ -29,6 +29,7 @@ export function createRuntimeCache(snapshot, options = {}) {
   const editorView = createEditorView(snapshot, {
     packet: options.packet,
     previousView: previousCache?.editorView,
+    visibleRange: options.visibleRange || previousCache?.visibleRange?.request,
   })
   const packetApplied = Boolean(options.packetApplied)
   const previousPacketCount = previousCache?.packetsApplied || 0
@@ -54,6 +55,11 @@ export function createRuntimeCache(snapshot, options = {}) {
     viewMode: editorView.mode,
     visibleNodeCount: editorView.visibleNodeIds.length,
     visibleNodeIds: editorView.visibleNodeIds,
+    visibleRange: editorView.visibleRange,
+    visibleRangeKind: editorView.visibleRange.kind,
+    visibleRangeSource: editorView.visibleRange.source,
+    visibleRangeWindowed: editorView.visibleRange.windowed,
+    visibleSectionIds: editorView.visibleRange.sectionIds,
     zoneById: editorView.zoneById,
   }
 }

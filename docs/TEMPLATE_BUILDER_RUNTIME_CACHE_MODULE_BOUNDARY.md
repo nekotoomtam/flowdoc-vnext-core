@@ -51,9 +51,15 @@ The runtime cache module owns derived browser runtime facts:
 - normalized editor view;
 - node, parent, children, section, zone, node order, visible id, dirty id, and
   changed id indexes.
+- visible range facts from the normalized editor view.
 
 `app.js` now coordinates state assignment and rendering only. It delegates boot,
 refresh, and packet application to `runtimeCache.js`.
+
+Phase 47 extends this cache with `visibleRange`, `visibleRangeKind`,
+`visibleRangeSource`, `visibleRangeWindowed`, and `visibleSectionIds`. Packet
+application preserves the previous visible-range request when rebuilding the
+editor view.
 
 ## Packet Apply Boundary
 
@@ -86,7 +92,7 @@ Phase 46 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 - `runtimeCache.js` owns change-packet validation and packet source checks;
 - a Node test boots the runtime cache, applies a packet, and verifies updated
   snapshot revision, mutation bridge state, packet count, changed text, dirty
-  ids, and changed subtree ids.
+  ids, changed subtree ids, and visible-range facts.
 
 ## Non-Goals
 

@@ -262,6 +262,12 @@ Phase 46 follows by moving runtime-cache and packet-apply ownership into a
 dedicated sandbox module. That keeps the app shell from becoming the long-term
 owner of state shape, packet policy, rendering, and events together.
 
+Phase 47 replaces the all-node visible range placeholder with a bounded
+browser-safe `section-window` contract. It is still not viewport
+virtualization; it is the id-based range shape future rendering, selection,
+lazy detail, and live-layout work must consume instead of assuming the whole
+document is the active visible set.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

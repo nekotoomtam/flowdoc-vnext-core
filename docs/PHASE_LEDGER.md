@@ -840,6 +840,39 @@ production editor package structure, rich text editing, contenteditable DOM
 mapping, concrete live-layout rendering, persistence, API routes, or
 package/document version changes.
 
+## Phase 47 Visible Range Boundary
+
+Phase 47 replaces the normalized editor view's all-node visible range
+placeholder with the first bounded browser-safe range contract:
+
+- `examples/template-builder-sandbox/public/visibleRange.js` owns
+  `createVisibleRange(...)`, `flowdoc-visible-range`, the default
+  `section-window` range kind, anchor resolution, overscan section windows,
+  `maxNodes` truncation, and range metadata;
+- `examples/template-builder-sandbox/public/editorView.js` now derives
+  `visibleNodeIds` from the visible-range module instead of treating every
+  indexed node as visible by default;
+- `examples/template-builder-sandbox/public/runtimeCache.js` carries visible
+  range facts through boot, refresh, and packet application, and preserves the
+  previous visible-range request across accepted packets;
+- `examples/template-builder-sandbox/public/app.js` displays the range kind,
+  visible node count, total node count, and visible section ids in the sandbox
+  status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.resolveVisibleRange` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md` records the Phase 47
+  ownership boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` imports the browser-safe
+  module in Node, proves the default `section-window` range, proves explicit
+  bounded section ranges, and proves runtime-cache packet application preserves
+  range facts.
+
+This phase intentionally does not implement DOM scroll tracking, viewport
+measurement, actual virtualized rendering, hidden/offscreen DOM pruning, lazy
+heavy-detail routes, structural packet patching without snapshot tree patching,
+rich text editing, contenteditable DOM mapping, live-layout rendering,
+persistence, API routes, or package/document version changes.
+
 ## Phase 12 Extraction Record
 
 Phase 12 is complete for physical repository extraction. This repository has

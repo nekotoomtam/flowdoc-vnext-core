@@ -1,3 +1,5 @@
+import { createVisibleRange } from "./visibleRange.js"
+
 export const EDITOR_VIEW_SOURCE = "flowdoc-normalized-editor-view"
 export const EDITOR_VIEW_MODE = "normalized-editor-view"
 
@@ -35,7 +37,6 @@ export function createEditorView(snapshot, options = {}) {
   const zoneIdByNodeId = new Map()
   const rootZoneIdsBySectionId = new Map()
   const nodeOrder = []
-  const visibleNodeIds = []
   const sectionIds = []
 
   for (const section of snapshot.sections) {
@@ -61,7 +62,6 @@ export function createEditorView(snapshot, options = {}) {
       sectionIdByNodeId.set(node.id, node.sectionId || section.id)
       zoneIdByNodeId.set(node.id, node.zoneId || node.id)
       nodeOrder.push(node.id)
-      visibleNodeIds.push(node.id)
 
       if (node.type === "zone") {
         zoneById.set(node.id, node)
@@ -77,8 +77,14 @@ export function createEditorView(snapshot, options = {}) {
     }
   }
 
-  const packetIds = collectPacketIds(options.packet)
   const previousView = options.previousView || null
+  const visibleRange = createVisibleRange({
+    nodeOrder,
+    sectionIdByNodeId,
+    sectionIds,
+  }, options.visibleRange || previousView?.visibleRange?.request)
+  const visibleNodeIds = visibleRange.nodeIds
+  const packetIds = collectPacketIds(options.packet)
 
   return {
     changedNodeIds: packetIds.changedNodeIds,
@@ -98,12 +104,7 @@ export function createEditorView(snapshot, options = {}) {
     source: EDITOR_VIEW_SOURCE,
     version: 1,
     visibleNodeIds,
-    visibleRange: {
-      kind: "all-nodes",
-      nodeCount: visibleNodeIds.length,
-      nodeIds: visibleNodeIds.slice(),
-      sectionIds: sectionIds.slice(),
-    },
+    visibleRange,
     zoneById,
     zoneIdByNodeId,
   }

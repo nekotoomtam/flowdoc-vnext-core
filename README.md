@@ -145,6 +145,9 @@ The package must remain runnable without any parent editor checkout.
 - Runtime cache module boundary moves sandbox boot, refresh, and packet-apply
   cache rules into a browser-safe module so the app shell delegates instead of
   owning cache, packet, render, and event behavior together
+- Visible range boundary adds a browser-safe section-window contract so
+  normalized editor views can expose bounded visible node ids before DOM scroll
+  tracking or virtualized rendering
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -251,6 +254,8 @@ The package must remain runnable without any parent editor checkout.
   normalized editor view boundary for lookup-first sandbox runtime indexes
 - `docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md`: Phase 46
   runtime-cache module boundary for boot, refresh, and packet apply ownership
+- `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md`: Phase 47 visible range
+  boundary for bounded runtime node windows before virtualization
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

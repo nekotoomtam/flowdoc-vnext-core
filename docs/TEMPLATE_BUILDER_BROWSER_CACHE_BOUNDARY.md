@@ -79,6 +79,12 @@ Phase 46 moves boot, refresh, and packet-apply cache rules into
 owns the packet source check, revision guard, tree-shaped patch, or normalized
 view rebuild policy directly.
 
+Phase 47 adds `public/visibleRange.js` and changes the default editor view from
+an all-node visible range placeholder to a bounded `section-window`. The cache
+now carries range kind, visible node count, total node count, and visible
+section ids for future viewport/lazy-detail work while the sandbox still
+renders the full document shell.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.

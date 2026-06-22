@@ -1384,6 +1384,10 @@ function renderStatus(snapshot) {
   const cacheLabel = state.runtimeCache
     ? `Cache: ${state.runtimeCache.mode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.visibleNodeCount} visible ${state.runtimeCache.packetsApplied} packets`
     : "Cache: none"
+  const range = state.runtimeCache?.visibleRange
+  const visibleRangeLabel = range
+    ? `Range: ${range.kind} ${range.nodeCount}/${range.totalNodeCount} nodes ${range.sectionIds.join(",")}`
+    : "Range: none"
   const editorViewLabel = state.runtimeCache
     ? `View: ${state.runtimeCache.viewMode} ${state.runtimeCache.childrenById.size} child indexes ${state.runtimeCache.dirtyNodeCount} dirty`
     : "View: none"
@@ -1401,6 +1405,7 @@ function renderStatus(snapshot) {
       <span>Source: ${escapeHtml(state.selectionSource)}</span>
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
+      <span>${escapeHtml(visibleRangeLabel)}</span>
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
       <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
       <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>

@@ -502,6 +502,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser runtime derives lookup-first editor indexes from boot snapshots and packets",
       },
       {
+        action: "browser.resolveVisibleRange",
+        label: "Visible range",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser runtime derives bounded visible node ranges before viewport virtualization",
+      },
+      {
         action: "browser.editTextDraft",
         label: "Draft",
         lane: "immediate + commit",

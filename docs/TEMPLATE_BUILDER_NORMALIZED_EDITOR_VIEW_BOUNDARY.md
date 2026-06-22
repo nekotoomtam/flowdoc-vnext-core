@@ -54,12 +54,15 @@ The editor view currently derives:
 - `rootZoneIdsBySectionId`;
 - `nodeOrder`;
 - `visibleNodeIds`;
+- `visibleRange`;
 - `dirtyNodeIds`;
 - `changedNodeIds`;
 - `changedSubtreeIds`.
 
-`visibleNodeIds` is intentionally all nodes in this phase. It is a contract
-slot for the future viewport/windowing phase, not a virtualization claim.
+In Phase 45, `visibleNodeIds` was introduced as a contract slot. Phase 47 moves
+that slot behind `public/visibleRange.js`; default editor views now report a
+bounded `section-window` range instead of an all-node placeholder. This is
+still not a virtualization claim.
 
 ## Runtime Cache
 
@@ -81,6 +84,10 @@ Phase 46 moves runtime-cache creation and packet application into
 `public/runtimeCache.js`. The normalized editor view remains owned by
 `public/editorView.js`, while boot, refresh, and packet-triggered rebuilds are
 coordinated by the runtime-cache module instead of the app shell.
+
+Phase 47 moves visible-range calculation into `public/visibleRange.js`.
+`createEditorView(...)` passes editor indexes to that module and stores both
+the resolved `visibleRange` and its `nodeIds`.
 
 ## Scale Direction
 
@@ -106,6 +113,10 @@ Phase 45 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
   the test;
 - `app.js` imports the editor view module and renders through helper calls;
 - the action lane exposes `browser.createNormalizedEditorView`.
+
+Phase 47 extends the same tests to prove default views use `section-window`,
+explicit bounded ranges can be resolved without DOM access, and `visibleNodeIds`
+comes from `public/visibleRange.js`.
 
 ## Non-Goals
 
