@@ -9,6 +9,8 @@ document truth.
 
 Phase 39 derives command context from this selection in
 `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`.
+Phase 41 hardens the same browser-local range with inspector caret/range
+controls in `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`.
 
 ## Purpose
 

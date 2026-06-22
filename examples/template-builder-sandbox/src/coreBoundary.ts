@@ -523,6 +523,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local insert and replace-selection commands update only the active draft before bridge commit",
       },
       {
+        action: "browser.setDraftSelectionRange",
+        label: "Set range",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local range controls can set draft cursor and selection without mutating canonical package state",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",

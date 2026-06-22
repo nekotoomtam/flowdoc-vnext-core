@@ -731,10 +731,15 @@ ul {
 }
 
 .bridge-actions,
-.draft-command-actions {
+.draft-command-actions,
+.draft-selection-actions {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.draft-selection-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .history-actions {
@@ -744,13 +749,32 @@ ul {
   margin-top: 10px;
 }
 
-.draft-command-control {
+.draft-command-control,
+.draft-selection-control {
   display: grid;
   gap: 8px;
 }
 
+.draft-selection-control {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.draft-selection-control label {
+  color: #667385;
+  display: grid;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 4px;
+  text-transform: uppercase;
+}
+
+.draft-selection-actions {
+  grid-column: 1 / -1;
+}
+
 .bridge-control input,
-.draft-command-control input {
+.draft-command-control input,
+.draft-selection-control input {
   border: 1px solid #cbd7e1;
   border-radius: 6px;
   color: #263341;
@@ -760,13 +784,15 @@ ul {
 }
 
 .bridge-control input:disabled,
-.draft-command-control input:disabled {
+.draft-command-control input:disabled,
+.draft-selection-control input:disabled {
   background: #eef2f6;
   color: #8a96a5;
 }
 
 .bridge-control button,
-.draft-command-actions button {
+.draft-command-actions button,
+.draft-selection-actions button {
   background: #235f73;
   border: 1px solid #1c5265;
   border-radius: 6px;
@@ -776,7 +802,8 @@ ul {
 }
 
 .bridge-control button:disabled,
-.draft-command-actions button:disabled {
+.draft-command-actions button:disabled,
+.draft-selection-actions button:disabled {
   background: #d6dde5;
   border-color: #cbd7e1;
   color: #667385;

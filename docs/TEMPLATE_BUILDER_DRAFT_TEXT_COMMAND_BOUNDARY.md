@@ -8,6 +8,11 @@ not mutate canonical package state, authoring history, live layout, or backend
 state until the user commits the whole draft through the existing bridge packet
 route.
 
+Phase 41 hardens the selection/caret side of this flow with browser-local range
+controls. This document remains the text command execution boundary; range
+control details live in
+`docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`.
+
 ## Purpose
 
 The active draft flow is now:

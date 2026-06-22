@@ -690,6 +690,37 @@ Acceptance:
 - no key insertion, rich inline patching, IME lifecycle, or live layout render
   is added in this phase.
 
+## Phase 41: Draft Selection/Caret Hardening
+
+Goal:
+
+- make active textarea draft selection and caret movement reliable enough for
+  plain text insert and replace-selection commands before rich DOM selection
+  mapping.
+
+Deliverables:
+
+- browser-local selection range setter;
+- inspector start/end range inputs;
+- cursor start, cursor end, and select-all actions;
+- clamped selection offsets based on active draft text length;
+- command readiness updates from range controls as well as textarea events;
+- focus restoration to the draft editor after applying text commands;
+- action lane for `browser.setDraftSelectionRange`;
+- source/test evidence that range controls remain browser-local and do not
+  enter generated snapshots, history, live layout, or bridge routes.
+
+Acceptance:
+
+- select-all marks replace-selection ready for an active draft;
+- replace-selection applies to the selected draft range without a fetch;
+- selection-only changes do not change document revision, mutation count,
+  history, or live-layout request count;
+- committed draft text still persists only through
+  `/api/actions/replace-text?response=packet`;
+- rich DOM mapping, key insertion, `inline.style.patch`, and IME lifecycle
+  remain future phases.
+
 ## Later Phases
 
 Goal:

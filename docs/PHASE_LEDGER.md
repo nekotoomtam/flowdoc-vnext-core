@@ -47,6 +47,7 @@ Parent goal:
 | 38 | Draft selection boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 39 | Draft command context boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 40 | Draft text command boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 41 | Draft selection/caret hardening | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -674,6 +675,33 @@ contenteditable editing, DOM range mapping over rich inline nodes, IME
 composition lifecycle, per-keystroke core transactions, replace-selection
 bridge routes separate from draft commit, or live layout rendering during
 active typing.
+
+## Phase 41 Draft Selection/Caret Hardening
+
+Phase 41 hardens active WYSIWYG draft selection and caret handling without
+introducing rich DOM range mapping:
+
+- `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md` records the
+  selection/caret control boundary, command interaction, truth boundary,
+  acceptance evidence, and non-goals;
+- `examples/template-builder-sandbox/public/app.js` now owns
+  `setDraftSelectionRange`, `applyDraftSelectionAction`, and
+  `updateDraftSelectionControl` for browser-local range/caret updates;
+- the inspector draft panel now exposes start/end range inputs plus cursor
+  start, cursor end, and select-all controls;
+- draft text commands now restore focus to the draft editor after applying
+  command text;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.setDraftSelectionRange` as a browser-local action lane;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the range/caret
+  controls remain browser-owned and the draft commit path still uses the
+  existing bridge packet route.
+
+This phase intentionally does not implement rich DOM range mapping,
+contenteditable editing, multi-range selection, key/field chip insertion,
+`inline.style.patch`, style-preserving mixed inline edits, IME composition
+lifecycle, per-keystroke core transactions, durable selection persistence,
+collaboration cursors, or live layout rendering during active typing.
 
 ## Phase 12 Extraction Record
 

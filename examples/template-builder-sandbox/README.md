@@ -41,6 +41,7 @@ Implemented:
 - browser-local draft command context and readiness before command execution;
 - browser-local draft text command execution for insert and replace-selection
   before bridge commit;
+- browser-local draft range/caret controls for cursor start/end and select-all;
 - bounded authoring history, undo/redo, and live-layout summaries after bridge
   commits;
 - boundary tests from the root repository.
@@ -49,7 +50,8 @@ Not implemented:
 
 - rich text editing;
 - key, field, or rich text command execution from draft context;
-- durable DOM selection mapping beyond active textarea drafts;
+- durable DOM selection mapping beyond active textarea drafts and range
+  controls;
 - live layout renderer;
 - background job scheduler;
 - backend API route;

@@ -271,6 +271,90 @@ function draftSelectionLabel() {
   return `${selection.start}-${selection.end} (${selection.length})`
 }
 
+function clampDraftOffset(value) {
+  const textLength = draftIsActive() ? state.draft.text.length : 0
+  if (!Number.isFinite(value)) return textLength
+  return Math.max(0, Math.min(Math.round(value), textLength))
+}
+
+function setDraftSelectionRange(start, end, options = {}) {
+  if (!draftIsActive()) return
+
+  const selectionStart = clampDraftOffset(start)
+  const selectionEnd = clampDraftOffset(end)
+  const direction = options.direction || "none"
+  const source = options.source || "range-control"
+  const rangeStart = Math.min(selectionStart, selectionEnd)
+  const rangeEnd = Math.max(selectionStart, selectionEnd)
+  const targetTextBlockId = state.draft.textBlockId
+
+  const editor = app.querySelector("[data-draft-editor]")
+  if (editor && editor.dataset.draftNodeId === targetTextBlockId) {
+    editor.setSelectionRange(rangeStart, rangeEnd, direction === "backward" ? "backward" : "forward")
+    if (options.focus) {
+      editor.focus()
+    }
+  }
+
+  state.draft = {
+    ...state.draft,
+    message: options.message ?? state.draft.message,
+    selectionDirection: direction,
+    selectionEnd: rangeEnd,
+    selectionSource: source,
+    selectionStart: rangeStart,
+  }
+
+  syncDraftDomState()
+}
+
+function applyDraftSelectionAction(action) {
+  if (!draftIsActive()) return
+
+  const textLength = state.draft.text.length
+  if (action === "cursor-start") {
+    setDraftSelectionRange(0, 0, {
+      focus: true,
+      message: "Draft cursor moved to start.",
+      source: "range-action",
+    })
+    return
+  }
+
+  if (action === "cursor-end") {
+    setDraftSelectionRange(textLength, textLength, {
+      focus: true,
+      message: "Draft cursor moved to end.",
+      source: "range-action",
+    })
+    return
+  }
+
+  if (action === "select-all") {
+    setDraftSelectionRange(0, textLength, {
+      direction: "forward",
+      focus: true,
+      message: "Draft range selected.",
+      source: "range-action",
+    })
+  }
+}
+
+function updateDraftSelectionControl(part, value) {
+  if (!draftIsActive()) return
+  const selection = normalizedDraftSelection()
+  const nextValue = Number.parseInt(value, 10)
+  if (!Number.isFinite(nextValue)) return
+  const nextStart = part === "start" ? nextValue : selection.start ?? 0
+  const nextEnd = part === "end" ? nextValue : selection.end ?? nextStart
+
+  setDraftSelectionRange(nextStart, nextEnd, {
+    direction: "forward",
+    message: "Draft range updated.",
+    source: "range-input",
+  })
+}
+
 function previewText(value, emptyLabel = "empty") {
   if (!value) return emptyLabel
   const compact = value.replaceAll(/\s+/g, " ")
@@ -313,8 +397,8 @@ function draftCommandReadiness(context) {
       label: "Insert text",
       status: "ready",
       reason: context.collapsed
-        ? "cursor can accept plain text insertion in a later command phase"
-        : "range can be replaced by inserted plain text in a later command phase",
+        ? "cursor can accept plain text insertion in the active browser draft"
+        : "selected range can be replaced by inserted plain text in the active browser draft",
     },
     {
       command: "text.replaceSelection",
@@ -322,7 +406,7 @@ function draftCommandReadiness(context) {
       status: context.collapsed ? "guarded" : "ready",
       reason: context.collapsed
         ? "selection is collapsed; replace needs a non-empty range"
-        : "selected range can be replaced in a later command phase",
+        : "selected range can be replaced in the active browser draft",
     },
     {
       command: "inline.fieldRef.insert",
@@ -446,6 +530,7 @@ function setDraftTextFromCommand(nextText, selectionStart, selectionEnd, message
   }
 
   syncDraftDomState()
+  focusDraftEditor()
 }
 
 function applyDraftTextCommand(action) {
@@ -551,6 +636,7 @@ function updateDraftSelectionFromEditor(editor, selectionSource) {
 
 function syncDraftDomState() {
   const status = draftStatusLabel()
+  const selection = normalizedDraftSelection()
   const commandContext = deriveDraftCommandContext()
   const message = state.draft.message || (
     draftIsActive()
@@ -571,7 +657,6 @@ function syncDraftDomState() {
     target.textContent = draftSelectionLabel()
   })
   app.querySelectorAll("[data-draft-selection-source]").forEach((target) => {
-    const selection = normalizedDraftSelection()
     target.textContent = selection.source
   })
   app.querySelectorAll("[data-draft-command-summary]").forEach((target) => {
@@ -612,6 +697,18 @@ function syncDraftDomState() {
   })
   app.querySelectorAll("[data-draft-command-action]").forEach((target) => {
     target.disabled = !draftCommandActionCanRun(target.dataset.draftCommandAction, commandContext)
+  })
+  app.querySelectorAll("[data-draft-selection-input]").forEach((target) => {
+    const part = target.dataset.draftSelectionInput
+    target.disabled = !draftIsActive() || state.bridgeBusy
+    target.max = String(draftIsActive() ? state.draft.text.length : 0)
+    target.min = "0"
+    if (target !== document.activeElement) {
+      target.value = String(part === "end" ? selection.end ?? 0 : selection.start ?? 0)
+    }
+  })
+  app.querySelectorAll("[data-draft-selection-action]").forEach((target) => {
+    target.disabled = !draftIsActive() || state.bridgeBusy
   })
   app.querySelectorAll("[data-draft-statusbar]").forEach((target) => {
     target.textContent = `Draft: ${status}`
@@ -924,6 +1021,9 @@ function renderInspector(snapshot) {
   const draftCommandInputDisabled = !draftIsActive() || state.bridgeBusy
   const canInsertDraftCommand = draftCommandActionCanRun("insert-text", commandContext)
   const canReplaceDraftCommand = draftCommandActionCanRun("replace-selection", commandContext)
+  const draftSelection = normalizedDraftSelection()
+  const draftSelectionMax = draftIsActive() ? state.draft.text.length : 0
+  const draftSelectionControlDisabled = !draftIsActive() || state.bridgeBusy
   const fieldRows = snapshot.fields.map((field) => `
     <li>
       <span>${escapeHtml(field.label)}</span>
@@ -1045,6 +1145,55 @@ function renderInspector(snapshot) {
             <dt>Before</dt><dd data-draft-command-before>${escapeHtml(commandContext.beforeTextPreview)}</dd>
             <dt>After</dt><dd data-draft-command-after>${escapeHtml(commandContext.afterTextPreview)}</dd>
           </dl>
+          <div class="draft-selection-control">
+            <label>
+              <span>Start</span>
+              <input
+                type="number"
+                min="0"
+                max="${draftSelectionMax}"
+                data-draft-selection-input="start"
+                value="${draftSelection.start ?? 0}"
+                aria-label="Draft selection start"
+                ${draftSelectionControlDisabled ? "disabled" : ""}
+              >
+            </label>
+            <label>
+              <span>End</span>
+              <input
+                type="number"
+                min="0"
+                max="${draftSelectionMax}"
+                data-draft-selection-input="end"
+                value="${draftSelection.end ?? 0}"
+                aria-label="Draft selection end"
+                ${draftSelectionControlDisabled ? "disabled" : ""}
+              >
+            </label>
+            <div class="draft-selection-actions">
+              <button
+                type="button"
+                data-draft-selection-action="cursor-start"
+                ${draftSelectionControlDisabled ? "disabled" : ""}
+              >
+                Cursor start
+              </button>
+              <button
+                type="button"
+                data-draft-selection-action="cursor-end"
+                ${draftSelectionControlDisabled ? "disabled" : ""}
+              >
+                Cursor end
+              </button>
+              <button
+                type="button"
+                data-draft-selection-action="select-all"
+                ${draftSelectionControlDisabled ? "disabled" : ""}
+              >
+                Select all
+              </button>
+            </div>
+          </div>
           ${renderDraftCommandReadiness(commandContext)}
           <div class="draft-command-control">
             <input
@@ -1287,6 +1436,13 @@ function bindSelectionHandlers() {
   })
 
   inspector?.addEventListener("click", (event) => {
+    const draftSelectionTarget = event.target.closest("[data-draft-selection-action]")
+    if (draftSelectionTarget && inspector.contains(draftSelectionTarget)) {
+      event.stopPropagation()
+      applyDraftSelectionAction(draftSelectionTarget.dataset.draftSelectionAction)
+      return
+    }
+
     const draftCommandTarget = event.target.closest("[data-draft-command-action]")
     if (draftCommandTarget && inspector.contains(draftCommandTarget)) {
       event.stopPropagation()
@@ -1328,6 +1484,12 @@ function bindSelectionHandlers() {
   inspector?.querySelector("[data-draft-command-text]")?.addEventListener("input", (event) => {
     state.draftCommandText = event.target.value
     syncDraftDomState()
+  })
+
+  inspector?.querySelectorAll("[data-draft-selection-input]").forEach((target) => {
+    target.addEventListener("input", (event) => {
+      updateDraftSelectionControl(event.target.dataset.draftSelectionInput, event.target.value)
+    })
   })
 }
 

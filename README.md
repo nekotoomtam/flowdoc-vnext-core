@@ -127,6 +127,9 @@ The package must remain runnable without any parent editor checkout.
 - Draft text command boundary executes browser-local plain text insert and
   replace-selection commands against the active draft, leaving persistence,
   history, and live layout to the existing draft commit bridge
+- Draft selection/caret boundary adds browser-local range controls for active
+  drafts so cursor movement, select-all, and replace-selection readiness can be
+  driven without relying only on textarea selection events
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -220,6 +223,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md`: browser-local text
   command execution boundary for active drafts before key, rich text, IME, and
   durable DOM selection work
+- `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`: browser-local
+  active draft range/caret hardening before rich DOM mapping and IME work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -238,7 +243,8 @@ The package must remain runnable without any parent editor checkout.
 - visible editor runtime integration beyond the extractable sandbox shell,
   in-memory sandbox mutation bridge, browser-local WYSIWYG text drafts for safe
   text blocks, draft selection range tracking, draft command context readiness,
-  browser-local draft text commands, and bounded history/live-layout summaries
+  browser-local draft text commands, browser-local draft range controls, and
+  bounded history/live-layout summaries
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level

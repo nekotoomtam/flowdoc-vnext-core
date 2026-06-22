@@ -91,6 +91,9 @@ with a proper bundler/runtime adapter.
   selection before any command execution is wired.
 - Phase 40 executes browser-local plain text insert and replace-selection
   commands against the active draft before the existing bridge commit.
+- Phase 41 adds browser-local range/caret controls for active drafts so
+  cursor start/end, select-all, and replace-selection readiness are reliable
+  before rich DOM selection mapping.
 
 ## Non-Goals
 
@@ -98,7 +101,8 @@ The sandbox does not yet implement:
 
 - rich text editing;
 - key, field, or rich text command execution from draft context;
-- durable DOM selection mapping beyond active textarea drafts;
+- durable DOM selection mapping beyond active textarea drafts and range
+  controls;
 - IME behavior;
 - live layout rendering beyond bounded request summaries;
 - scheduler or worker queues;
