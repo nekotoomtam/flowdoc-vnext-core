@@ -75,6 +75,7 @@ Parent goal:
 | 66 | Viewport lazy heavy-detail boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportLazyDetail.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 67 | Viewport node anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportNodeAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 68 | Viewport large-document behavior audit | done | `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 69 | Structural projection boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PROJECTION_BOUNDARY.md`; `src/structure/projection.ts`; `src/index.ts`; `tests/structuralProjection.test.ts` |
 
 ## Current Rule
 
@@ -1533,6 +1534,31 @@ audit before Structural Runtime work starts:
   recycled DOM pools, async hydration, structural packet application, rich text
   editing, backend/API routes, persistence, or package/document version
   changes.
+
+## Phase 69 Structural Projection Boundary
+
+Phase 69 starts the Structural Runtime line with a shared derived projection
+over canonical document and graph facts:
+
+- `src/structure/projection.ts` owns
+  `STRUCTURAL_PROJECTION_SOURCE`, `STRUCTURAL_PROJECTION_MODE`,
+  `STRUCTURAL_PROJECTION_VERSION`, `createStructuralProjection(...)`, and the
+  projection node/section/result contracts;
+- `src/index.ts` exports the projection contracts through the public package
+  boundary;
+- each projection node carries node id/type, section/zone context, parent ref,
+  depth, path, child node ids, children, nearest context, and capability facts;
+- `tests/structuralProjection.test.ts` proves order/depth/parent/path/nearest
+  context/capability alignment with `RelationshipGraph`, injected-graph reuse,
+  and no canonical document mutation;
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_PROJECTION_BOUNDARY.md` records that the
+  projection is a read-only working view, not a persisted schema or mutation
+  authority.
+
+This phase intentionally does not implement structural packet v1, browser
+runtime-store structural apply, add/delete/move command UI, outline or
+diagnostics UI, persistence, package/document schema changes, mutable
+projection editing, or durable history changes.
 
 ## Phase 12 Extraction Record
 

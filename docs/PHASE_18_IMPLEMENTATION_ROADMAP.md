@@ -1616,6 +1616,37 @@ Acceptance:
   hydration, outline/diagnostics UI, rich text, route, persistence, or
   wall-clock performance claim is made.
 
+## Phase 69: Structural Projection Boundary
+
+Goal:
+
+- add a shared derived structural projection so renderers, outline,
+  diagnostics, and future structural operation planning can consume a
+  tree-shaped working view without changing canonical document schema.
+
+Deliverables:
+
+- core projection module in `src/structure/projection.ts`;
+- projection source/version/mode contract;
+- `createStructuralProjection(...)` over `DocumentNode + RelationshipGraph`;
+- section projection with ordered roots;
+- node projection with node id/type, section/zone context, parent, depth, path,
+  child ids, children, nearest context, and capabilities;
+- public export through `src/index.ts`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- projection can be built from canonical document input and an optional
+  injected graph;
+- section roots and child order follow canonical ordered id arrays;
+- depth, parent refs, paths, nearest context, and capabilities align with
+  `RelationshipGraph`;
+- projection creation does not mutate canonical documents;
+- no structural packet engine, runtime-store structural apply, schema change,
+  mutable projection editing, outline/diagnostics UI, persistence, or history
+  change is claimed.
+
 ## Later Phases
 
 Goal:

@@ -203,6 +203,9 @@ The package must remain runnable without any parent editor checkout.
 - Viewport large-document audit composes scheduler automation, visible range,
   render shell, virtual stack, lazy detail, and node anchors against a bounded
   large section/node set before Structural Runtime work starts
+- Structural projection boundary derives read-only tree-shaped working views
+  from canonical `DocumentNode` and `RelationshipGraph` facts without changing
+  the persisted schema
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -360,6 +363,8 @@ The package must remain runnable without any parent editor checkout.
   node-aware selection jump and scroll restore boundary
 - `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md`: Phase 68
   large-document viewport behavior audit before Structural Runtime work
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_PROJECTION_BOUNDARY.md`: Phase 69
+  derived structural projection boundary before structural packet application
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
