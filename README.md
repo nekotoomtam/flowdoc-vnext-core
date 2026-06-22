@@ -187,6 +187,9 @@ The package must remain runnable without any parent editor checkout.
 - Viewport scheduler candidate boundary dry-runs overscanned section render
   candidates from viewport predictions before those candidates are allowed to
   drive a render window
+- Viewport scheduler apply boundary manually gates scheduler candidates into
+  visible-range requests before automatic render scheduling or virtualization
+  is claimed
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -327,6 +330,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md`: Phase 61
   observe-only viewport scheduler candidate boundary before automatic render
   scheduling
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md`: Phase 62
+  guarded manual scheduler-candidate apply boundary before automatic render
+  scheduling
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -374,5 +380,6 @@ The package must remain runnable without any parent editor checkout.
   node-aware production scroll anchoring, and true virtualized renderer
   scheduling beyond the sandbox render-shell, viewport-measurement, manual
   viewport-apply, debounced scroll-controller, section-anchor, section
-  spacer/offset, and observe-only scheduler-candidate contracts
+  spacer/offset, observe-only scheduler-candidate, and manual scheduler-apply
+  contracts
 - publishing/distribution strategy beyond local package consumption

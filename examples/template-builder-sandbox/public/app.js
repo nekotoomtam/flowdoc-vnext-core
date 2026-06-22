@@ -43,6 +43,9 @@ import {
 import {
   createViewportSchedulerCandidate,
 } from "./viewportSchedulerCandidate.js"
+import {
+  createViewportSchedulerApplyRequest,
+} from "./viewportSchedulerApply.js"
 
 const app = document.querySelector("#app")
 
@@ -80,6 +83,7 @@ const state = {
   viewportSectionOffsetIndex: null,
   viewportSectionPrediction: null,
   viewportSectionSpacers: createViewportSectionSpacerMap(),
+  viewportSchedulerApply: null,
   viewportSchedulerCandidate: null,
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
@@ -252,16 +256,21 @@ function syncViewportSectionOffsetStatus() {
   })
 }
 
-function updateViewportSchedulerCandidate(input = {}) {
-  state.viewportSchedulerCandidate = createViewportSchedulerCandidate({
+function viewportSchedulerCandidateInput(input = {}) {
+  return {
     budget: viewportRequestBudget(),
+    observeOnly: input.observeOnly,
     offsetIndex: state.viewportSectionOffsetIndex,
     prediction: state.viewportSectionPrediction,
     previousRequest: state.runtimeCache?.visibleRangeRequest,
     reason: input.reason,
     renderWindow: state.renderModel?.renderWindow,
     scrollController: state.viewportScrollController,
-  })
+  }
+}
+
+function updateViewportSchedulerCandidate(input = {}) {
+  state.viewportSchedulerCandidate = createViewportSchedulerCandidate(viewportSchedulerCandidateInput(input))
 }
 
 function viewportSchedulerCandidateLabel() {
@@ -276,6 +285,57 @@ function viewportSchedulerCandidateLabel() {
 function syncViewportSchedulerCandidateStatus() {
   app.querySelectorAll("[data-viewport-scheduler-candidate-status]").forEach((target) => {
     target.textContent = viewportSchedulerCandidateLabel()
+  })
+}
+
+function viewportSchedulerApplyLabel() {
+  const apply = state.viewportSchedulerApply
+  if (!apply) return "Scheduler apply: none"
+  const sectionIds = apply.candidateSectionIds.length > 0
+    ? apply.candidateSectionIds.join(",")
+    : "none"
+  const detail = apply.blockedReason || apply.requestReason || "ready"
+  return `Scheduler apply: ${apply.applyState} ${apply.anchorSectionId || "none"} ${sectionIds} ${detail}`
+}
+
+function syncViewportSchedulerApplyStatus() {
+  app.querySelectorAll("[data-viewport-scheduler-apply-status]").forEach((target) => {
+    target.textContent = viewportSchedulerApplyLabel()
+  })
+}
+
+function applyViewportSchedulerCandidate() {
+  if (!state.snapshot || !state.runtimeCache) return
+
+  const candidate = createViewportSchedulerCandidate(viewportSchedulerCandidateInput({
+    observeOnly: false,
+    reason: "scheduler-apply",
+  }))
+  const applyRequest = createViewportSchedulerApplyRequest({
+    candidate,
+    documentRevision: state.snapshot.session.documentRevision,
+    draftActive: draftIsActive(),
+    isComposing: state.draft.isComposing,
+    runtimeRevision: state.runtimeCache.documentRevision,
+    trigger: "manual",
+  })
+
+  state.viewportSchedulerCandidate = candidate
+  state.viewportSchedulerApply = applyRequest
+
+  if (!applyRequest.applyReady) {
+    syncViewportSchedulerCandidateStatus()
+    syncViewportSchedulerApplyStatus()
+    return
+  }
+
+  const measurement = readCanvasViewportMeasurement(state.renderModel) || state.viewportMeasurement
+  const viewportAnchor = measurement ? setViewportAnchorFromMeasurement(measurement) : state.viewportAnchor
+  state.selectionSource = "viewport-scheduler"
+  setVisibleRangeRequest(applyRequest.request)
+  render({
+    fallbackCanvasScrollTop: measurement?.scrollTop,
+    restoreViewportAnchor: viewportAnchor,
   })
 }
 
@@ -399,6 +459,7 @@ function scheduleViewportScrollApply() {
   syncViewportSectionSpacerStatus()
   syncViewportSectionOffsetStatus()
   syncViewportSchedulerCandidateStatus()
+  syncViewportSchedulerApplyStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 
@@ -1383,6 +1444,14 @@ function renderCanvas(snapshot, renderModel) {
           >
             Apply viewport
           </button>
+          <button
+            type="button"
+            class="metric-action"
+            data-viewport-scheduler-apply
+            title="Apply the current scheduler candidate through the guarded visible-range path"
+          >
+            Apply candidate
+          </button>
         </div>
       </div>
       <div class="page-stack">
@@ -1813,6 +1882,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-section-spacer-status>${escapeHtml(viewportSectionSpacerLabel())}</span>
       <span data-section-offset-status>${escapeHtml(viewportSectionOffsetLabel())}</span>
       <span data-viewport-scheduler-candidate-status>${escapeHtml(viewportSchedulerCandidateLabel())}</span>
+      <span data-viewport-scheduler-apply-status>${escapeHtml(viewportSchedulerApplyLabel())}</span>
       <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
@@ -1865,6 +1935,13 @@ function bindSelectionHandlers() {
     if (viewportApplyTarget && canvas.contains(viewportApplyTarget)) {
       event.stopPropagation()
       applyViewportMeasurement()
+      return
+    }
+
+    const viewportSchedulerApplyTarget = event.target.closest("[data-viewport-scheduler-apply]")
+    if (viewportSchedulerApplyTarget && canvas.contains(viewportSchedulerApplyTarget)) {
+      event.stopPropagation()
+      applyViewportSchedulerCandidate()
       return
     }
 

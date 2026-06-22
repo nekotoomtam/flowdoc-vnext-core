@@ -1384,6 +1384,36 @@ Acceptance:
   anchor, structural packet engine, rich text, contenteditable mapping, live
   renderer, route, persistence, or package version change is claimed.
 
+## Phase 62: Viewport Scheduler Apply Boundary
+
+Goal:
+
+- let scheduler candidates become visible-range requests through a controlled
+  manual apply gate before automatic scheduling or virtualization is claimed.
+
+Deliverables:
+
+- browser-safe scheduler apply policy module in
+  `public/viewportSchedulerApply.js`;
+- scheduler apply source/version/mode contract;
+- guarded apply request shape over scheduler candidates;
+- draft, IME, revision, source, request, ready, and stable-state gates;
+- app command and status output for `Apply candidate`;
+- action lane for `browser.applyViewportSchedulerCandidate`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- scheduler apply policy can run in Node without DOM access;
+- app shell owns the command binding and runtime-cache update;
+- ready candidates can enter the existing visible-range request path;
+- stable, draft-active, composition-active, and revision-mismatched candidates
+  do not mutate the render window;
+- no automatic render-window scheduling loop, virtual list, hidden/offscreen
+  DOM pruning, lazy detail endpoint, node anchor, caret-relative anchor,
+  structural packet engine, rich text, contenteditable mapping, live renderer,
+  route, persistence, or package version change is claimed.
+
 ## Later Phases
 
 Goal:
@@ -1393,6 +1423,8 @@ Goal:
 
 Possible later work:
 
+- automatic budgeted render scheduling after the manual candidate gate proves
+  stable;
 - rich inline range mapping beyond the textarea draft boundary;
 - durable caret and browser selection mapping;
 - IME composition boundary;

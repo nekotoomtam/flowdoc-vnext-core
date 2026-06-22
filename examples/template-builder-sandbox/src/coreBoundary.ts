@@ -586,6 +586,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser canvas can dry-run scheduler section candidates before applying virtualized render scheduling",
       },
       {
+        action: "browser.applyViewportSchedulerCandidate",
+        label: "Apply candidate",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas can manually gate scheduler candidates into visible-range requests before automatic scheduling",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

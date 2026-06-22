@@ -45,6 +45,8 @@ Implemented:
 - browser-local draft composition guards for IME composition start/update/end;
 - bounded authoring history, undo/redo, and live-layout summaries after bridge
   commits;
+- manual guarded viewport scheduler-candidate apply before automatic
+  virtualized render scheduling;
 - boundary tests from the root repository.
 
 Not implemented:
@@ -55,6 +57,7 @@ Not implemented:
   controls;
 - language-specific IME behavior beyond composition guards;
 - live layout renderer;
+- automatic virtualized render scheduler;
 - background job scheduler;
 - backend API route;
 - save/publish persistence.

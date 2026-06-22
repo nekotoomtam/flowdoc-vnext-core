@@ -68,6 +68,7 @@ Parent goal:
 | 59 | Measured section spacer boundary | done | `docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionSpacers.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 60 | Section offset prediction boundary | done | `docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionOffsets.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 61 | Viewport scheduler candidate boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerCandidate.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 62 | Viewport scheduler apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerApply.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1324,6 +1325,37 @@ diagnostics/source jump-to-node, caret-relative text block anchors,
 typing-driven live layout pushdown, structural add/delete/move packet
 application, rich text editing, contenteditable DOM mapping, persistence, API
 routes, or package/document version changes.
+
+## Phase 62 Viewport Scheduler Apply Boundary
+
+Phase 62 lets the sandbox manually apply a scheduler candidate through a
+guarded visible-range request path:
+
+- `examples/template-builder-sandbox/public/viewportSchedulerApply.js` owns
+  `VIEWPORT_SCHEDULER_APPLY_SOURCE`, `VIEWPORT_SCHEDULER_APPLY_MODE`, and
+  `createViewportSchedulerApplyRequest(...)` as a DOM-free apply gate;
+- the gate blocks missing, mismatched, draft-active, composition-active,
+  revision-mismatched, blocked, not-ready, and stable candidates;
+- `examples/template-builder-sandbox/public/app.js` adds an `Apply candidate`
+  command, creates a non-observe candidate only for that manual apply attempt,
+  then applies the returned request through the existing visible-range path
+  when the gate reports ready;
+- scheduler apply status is tracked separately from candidate status as
+  `Scheduler apply: ...`;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.applyViewportSchedulerCandidate` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md` records the
+  Phase 62 boundary, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free apply-gate
+  ownership, generated action-lane exposure, ready/stable/blocked behavior,
+  and app-owned manual apply wiring.
+
+This phase intentionally does not implement automatic render-window scheduling
+from candidates, continuous budgeted scheduling, a virtual list,
+hidden/offscreen DOM pruning beyond the existing render shell, lazy
+heavy-detail routes, node anchors, caret-aware anchors, structural packet
+application, rich text editing, contenteditable DOM mapping, live-layout
+rendering, persistence, API routes, or package/document version changes.
 
 ## Phase 12 Extraction Record
 
