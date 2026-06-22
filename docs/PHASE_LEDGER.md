@@ -71,6 +71,7 @@ Parent goal:
 | 62 | Viewport scheduler apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerApply.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 63 | Viewport scheduler runtime boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 64 | Viewport scheduler automation boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerAutomation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 65 | Viewport virtual stack boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportVirtualStack.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1420,6 +1421,36 @@ pruning beyond the existing render shell, lazy heavy-detail routes, node
 anchors, jump-to-node, caret-aware anchors, structural packet application, rich
 text editing, contenteditable DOM mapping, live-layout rendering, persistence,
 API routes, or package/document version changes.
+
+## Phase 65 Viewport Virtual Stack Boundary
+
+Phase 65 makes the sandbox renderer consume the render shell through a
+section-level virtual stack:
+
+- `examples/template-builder-sandbox/public/viewportVirtualStack.js` owns
+  virtual stack source, mode, fallback height, and `createViewportVirtualStack`;
+- rendered-window sections become mounted section items while hidden shell
+  sections collapse into virtual spacer items;
+- spacer heights come from section offset facts so the canvas can preserve
+  section-level scroll geometry without mounting every section article;
+- `examples/template-builder-sandbox/public/app.js` stores
+  `viewportVirtualStack`, reports `Virtual stack: ...`, renders section items as
+  pages, and renders spacer items as invisible geometry blocks;
+- `examples/template-builder-sandbox/public/styles.css` defines
+  `.virtual-section-spacer` without presenting it as a page/card;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.virtualizeViewportSections` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md` records the Phase
+  65 boundary, geometry rules, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free virtual stack
+  ownership, action-lane exposure, app renderer consumption, hidden-section
+  spacer collapse, and offset-missing fallback.
+
+This phase intentionally does not implement lazy heavy-detail routes,
+node-aware anchors, jump-to-node, recycled DOM pools, caret-aware anchoring,
+structural packet application, rich text editing, contenteditable DOM mapping,
+live-layout rendering, persistence, API routes, or package/document version
+changes.
 
 ## Phase 12 Extraction Record
 

@@ -51,6 +51,8 @@ Implemented:
   stale-candidate guards;
 - budgeted automatic viewport scheduler apply for scroll-settled render-window
   requests;
+- section-level virtual stack rendering that mounts render-window sections and
+  preserves off-window geometry with spacers;
 - boundary tests from the root repository.
 
 Not implemented:

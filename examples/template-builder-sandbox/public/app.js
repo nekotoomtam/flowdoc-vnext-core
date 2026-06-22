@@ -5,7 +5,6 @@ import {
   getStoreBackedRenderSectionRootNodes,
   getStoreBackedRenderWindowChildren,
   getStoreBackedRenderWindowSectionRootNodes,
-  getStoreBackedRenderShellSections,
   isStoreBackedRenderShellSectionRendered,
 } from "./renderModel.js"
 import {
@@ -40,6 +39,9 @@ import {
   predictViewportFromSectionOffsets,
   resolveViewportSectionOffset,
 } from "./viewportSectionOffsets.js"
+import {
+  createViewportVirtualStack,
+} from "./viewportVirtualStack.js"
 import {
   createViewportSchedulerAutomationState,
   runViewportSchedulerAutomation,
@@ -92,6 +94,7 @@ const state = {
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
   viewportScrollTimerId: null,
+  viewportVirtualStack: null,
 }
 
 function escapeHtml(value) {
@@ -242,6 +245,10 @@ function updateViewportSectionOffsets(measurement) {
   updateViewportSchedulerCandidate({
     reason: "measurement",
   })
+  state.viewportVirtualStack = createViewportVirtualStack({
+    offsetIndex: state.viewportSectionOffsetIndex,
+    renderShell: state.renderModel?.renderShell,
+  })
 }
 
 function viewportSectionOffsetLabel() {
@@ -257,6 +264,19 @@ function viewportSectionOffsetLabel() {
 function syncViewportSectionOffsetStatus() {
   app.querySelectorAll("[data-section-offset-status]").forEach((target) => {
     target.textContent = viewportSectionOffsetLabel()
+  })
+}
+
+function viewportVirtualStackLabel() {
+  const stack = state.viewportVirtualStack
+  if (!stack) return "Virtual stack: pending"
+  const mode = stack.virtualized ? "virtualized" : "full"
+  return `Virtual stack: ${mode} ${stack.mountedSectionCount}/${stack.sectionCount} mounted ${stack.spacerCount} spacers`
+}
+
+function syncViewportVirtualStackStatus() {
+  app.querySelectorAll("[data-viewport-virtual-stack-status]").forEach((target) => {
+    target.textContent = viewportVirtualStackLabel()
   })
 }
 
@@ -1500,8 +1520,53 @@ function renderCanvasNode(node) {
   `
 }
 
-function renderCanvas(snapshot, renderModel) {
-  const renderSections = getStoreBackedRenderShellSections(renderModel)
+function renderCanvasSection(section) {
+  const rendered = renderShellSectionRendered(section)
+  const spacer = resolveViewportSectionSpacer(state.viewportSectionSpacers, section.id)
+  const sectionOffset = resolveViewportSectionOffset(state.viewportSectionOffsetIndex, section.id)
+
+  return `
+    <article
+      class="page${rendered ? "" : " is-placeholder"}"
+      data-render-shell-state="${rendered ? "rendered" : "placeholder"}"
+      data-section-offset-bottom="${escapeHtml(Math.round(sectionOffset?.bottom ?? 0))}"
+      data-section-offset-top="${escapeHtml(Math.round(sectionOffset?.top ?? 0))}"
+      data-section-spacer-height="${escapeHtml(Math.round(spacer.height))}"
+      data-section-spacer-reason="${escapeHtml(spacer.reason)}"
+      data-section-id="${escapeHtml(section.id)}"
+      style="--section-spacer-height:${escapeHtml(Math.round(spacer.height))}px"
+    >
+      <header class="page-heading">
+        <strong>${escapeHtml(section.id)}</strong>
+        <span>${escapeHtml(section.page)}</span>
+      </header>
+      ${rendered
+        ? renderWindowSectionRootZones(section).map(renderCanvasNode).join("")
+        : renderCanvasPlaceholder(section)}
+    </article>
+  `
+}
+
+function renderVirtualStackItem(item) {
+  if (item.type === "section") return renderCanvasSection(item.section)
+
+  return `
+    <div
+      class="virtual-section-spacer"
+      aria-hidden="true"
+      data-virtual-section-spacer="${escapeHtml(item.id)}"
+      data-virtual-section-count="${escapeHtml(item.sectionCount)}"
+      data-virtual-section-ids="${escapeHtml(item.sectionIds.join(","))}"
+      style="--virtual-spacer-height:${escapeHtml(Math.round(item.height))}px"
+    ></div>
+  `
+}
+
+function renderCanvas(snapshot, renderModel, virtualStack) {
+  const stack = virtualStack || createViewportVirtualStack({
+    offsetIndex: state.viewportSectionOffsetIndex,
+    renderShell: renderModel.renderShell,
+  })
 
   return `
     <main class="canvas-wrap">
@@ -1516,6 +1581,7 @@ function renderCanvas(snapshot, renderModel) {
           <span>${snapshot.counts.fields} keys</span>
           <span>${renderModel.renderShellRenderedSectionCount}/${renderModel.renderShellSectionCount} rendered</span>
           <span>${renderModel.renderShellPlaceholderSectionCount} placeholders</span>
+          <span>${stack.mountedSectionCount}/${stack.sectionCount} mounted</span>
           <button
             type="button"
             class="metric-action"
@@ -1534,33 +1600,12 @@ function renderCanvas(snapshot, renderModel) {
           </button>
         </div>
       </div>
-      <div class="page-stack">
-        ${renderSections.map((section) => {
-          const rendered = renderShellSectionRendered(section)
-          const spacer = resolveViewportSectionSpacer(state.viewportSectionSpacers, section.id)
-          const sectionOffset = resolveViewportSectionOffset(state.viewportSectionOffsetIndex, section.id)
-
-          return `
-          <article
-            class="page${rendered ? "" : " is-placeholder"}"
-            data-render-shell-state="${rendered ? "rendered" : "placeholder"}"
-            data-section-offset-bottom="${escapeHtml(Math.round(sectionOffset?.bottom ?? 0))}"
-            data-section-offset-top="${escapeHtml(Math.round(sectionOffset?.top ?? 0))}"
-            data-section-spacer-height="${escapeHtml(Math.round(spacer.height))}"
-            data-section-spacer-reason="${escapeHtml(spacer.reason)}"
-            data-section-id="${escapeHtml(section.id)}"
-            style="--section-spacer-height:${escapeHtml(Math.round(spacer.height))}px"
-          >
-            <header class="page-heading">
-              <strong>${escapeHtml(section.id)}</strong>
-              <span>${escapeHtml(section.page)}</span>
-            </header>
-            ${rendered
-              ? renderWindowSectionRootZones(section).map(renderCanvasNode).join("")
-              : renderCanvasPlaceholder(section)}
-          </article>
-        `
-        }).join("")}
+      <div
+        class="page-stack"
+        data-viewport-virtual-stack="${escapeHtml(stack.reason)}"
+        data-viewport-virtualized="${stack.virtualized ? "true" : "false"}"
+      >
+        ${stack.items.map(renderVirtualStackItem).join("")}
       </div>
     </main>
   `
@@ -1958,6 +2003,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderModelLabel)}</span>
       <span>${escapeHtml(renderWindowLabel)}</span>
       <span>${escapeHtml(renderShellLabel)}</span>
+      <span data-viewport-virtual-stack-status>${escapeHtml(viewportVirtualStackLabel())}</span>
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
       <span data-section-spacer-status>${escapeHtml(viewportSectionSpacerLabel())}</span>
       <span data-section-offset-status>${escapeHtml(viewportSectionOffsetLabel())}</span>
@@ -2395,12 +2441,16 @@ function render(options = {}) {
 
   const renderModel = createStoreBackedRenderModel(snapshot, state.runtimeCache)
   state.renderModel = renderModel
+  state.viewportVirtualStack = createViewportVirtualStack({
+    offsetIndex: state.viewportSectionOffsetIndex,
+    renderShell: renderModel.renderShell,
+  })
 
   app.innerHTML = `
     ${renderToolbar(snapshot)}
     <div class="workspace">
       ${renderNodeTree(renderModel)}
-      ${renderCanvas(snapshot, renderModel)}
+      ${renderCanvas(snapshot, renderModel, state.viewportVirtualStack)}
       ${renderInspector(snapshot)}
     </div>
     ${renderStatus(snapshot, renderModel)}
@@ -2442,6 +2492,7 @@ function render(options = {}) {
   syncViewportSchedulerApplyStatus()
   syncViewportSchedulerRuntimeStatus()
   syncViewportSchedulerAutomationStatus()
+  syncViewportVirtualStackStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }

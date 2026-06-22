@@ -1488,6 +1488,39 @@ Acceptance:
   text, contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 65: Viewport Virtual Stack Boundary
+
+Goal:
+
+- make the sandbox renderer consume render-window output without mounting every
+  section article, while preserving section-level scroll geometry with virtual
+  spacers.
+
+Deliverables:
+
+- browser-safe virtual stack module in `public/viewportVirtualStack.js`;
+- virtual stack source/version/mode contract;
+- section item and spacer item output;
+- offset-backed hidden-section spacer heights;
+- offset-missing fallback that mounts all shell sections for bootstrap;
+- app renderer consumption of virtual stack items;
+- `Virtual stack: ...` status output;
+- CSS for invisible virtual section spacers;
+- action lane for `browser.virtualizeViewportSections`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- virtual stack policy can run in Node without DOM access;
+- hidden sections collapse into spacer items instead of mounted page articles;
+- mounted section ids remain render-shell rendered section ids;
+- app page-stack consumes virtual stack items and exposes mounted count;
+- missing offsets fall back to mounting all sections;
+- no lazy heavy-detail endpoint, node anchor, jump-to-node, recycled DOM pool,
+  caret-relative anchor, structural packet engine, rich text, contenteditable
+  mapping, live renderer, route, persistence, or package version change is
+  claimed.
+
 ## Later Phases
 
 Goal:

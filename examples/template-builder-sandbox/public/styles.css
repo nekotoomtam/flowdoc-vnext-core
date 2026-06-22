@@ -343,6 +343,12 @@ ul {
   width: min(100%, 760px);
 }
 
+.virtual-section-spacer {
+  height: var(--virtual-spacer-height, 0px);
+  pointer-events: none;
+  width: min(100%, 760px);
+}
+
 .page.is-placeholder {
   background: #f8fafc;
   border-style: dashed;

@@ -607,6 +607,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser scheduler can automatically apply budgeted runtime candidates before virtualization",
       },
       {
+        action: "browser.virtualizeViewportSections",
+        label: "Virtual sections",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas can mount only virtual-stack sections while preserving section spacer geometry",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

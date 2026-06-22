@@ -194,6 +194,8 @@ The package must remain runnable without any parent editor checkout.
   and stale apply guards before automatic render scheduling is claimed
 - Viewport scheduler automation boundary automatically applies budgeted runtime
   candidates while still stopping before virtualized rendering is claimed
+- Viewport virtual stack boundary mounts only render-window sections and uses
+  section spacers for off-window geometry
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -343,6 +345,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md`: Phase 64
   budgeted automatic scheduler-apply boundary before virtualized renderer
   consumption
+- `docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md`: Phase 65
+  section-level virtual stack renderer consumption boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -391,5 +395,6 @@ The package must remain runnable without any parent editor checkout.
   scheduling beyond the sandbox render-shell, viewport-measurement, manual
   viewport-apply, debounced scroll-controller, section-anchor, section
   spacer/offset, observe-only scheduler-candidate, manual scheduler-apply,
-  scheduler-runtime stale guard, and budgeted scheduler-auto contracts
+  scheduler-runtime stale guard, budgeted scheduler-auto, and section virtual
+  stack contracts
 - publishing/distribution strategy beyond local package consumption

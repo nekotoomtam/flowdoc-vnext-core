@@ -63,6 +63,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/viewportSchedulerApply.js",
       "../examples/template-builder-sandbox/public/viewportSchedulerRuntime.js",
       "../examples/template-builder-sandbox/public/viewportSchedulerAutomation.js",
+      "../examples/template-builder-sandbox/public/viewportVirtualStack.js",
       "../examples/template-builder-sandbox/public/viewportSectionOffsets.js",
       "../examples/template-builder-sandbox/public/viewportSectionSpacers.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
@@ -158,6 +159,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyViewportSchedulerCandidate")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runViewportSchedulerRuntime")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.autoApplyViewportScheduler")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.virtualizeViewportSections")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -948,6 +950,7 @@ describe("template builder sandbox boundary", () => {
     const viewportSchedulerApplySource = readText("../examples/template-builder-sandbox/public/viewportSchedulerApply.js")
     const viewportSchedulerRuntimeSource = readText("../examples/template-builder-sandbox/public/viewportSchedulerRuntime.js")
     const viewportSchedulerAutomationSource = readText("../examples/template-builder-sandbox/public/viewportSchedulerAutomation.js")
+    const viewportVirtualStackSource = readText("../examples/template-builder-sandbox/public/viewportVirtualStack.js")
     const viewportSectionOffsetsSource = readText("../examples/template-builder-sandbox/public/viewportSectionOffsets.js")
     const viewportSectionSpacersSource = readText("../examples/template-builder-sandbox/public/viewportSectionSpacers.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
@@ -977,6 +980,7 @@ describe("template builder sandbox boundary", () => {
     const viewportSchedulerApplyDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md")
     const viewportSchedulerRuntimeDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md")
     const viewportSchedulerAutomationDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md")
+    const viewportVirtualStackDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -986,7 +990,6 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("getStoreBackedRenderSectionRootNodes")
     expect(appSource).toContain("getStoreBackedRenderWindowChildren")
     expect(appSource).toContain("getStoreBackedRenderWindowSectionRootNodes")
-    expect(appSource).toContain("getStoreBackedRenderShellSections")
     expect(appSource).toContain("isStoreBackedRenderShellSectionRendered")
     expect(appSource).toContain("renderWindowNodeChildren")
     expect(appSource).toContain("renderCanvasPlaceholder")
@@ -1000,6 +1003,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("createViewportSectionOffsetIndex")
     expect(appSource).toContain("predictViewportFromSectionOffsets")
     expect(appSource).toContain("resolveViewportSectionOffset")
+    expect(appSource).toContain('from "./viewportVirtualStack.js"')
+    expect(appSource).toContain("createViewportVirtualStack")
     expect(appSource).toContain('from "./viewportSchedulerAutomation.js"')
     expect(appSource).toContain("createViewportSchedulerAutomationState")
     expect(appSource).toContain("runViewportSchedulerAutomation")
@@ -1033,6 +1038,9 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-viewport-scheduler-apply-status")
     expect(appSource).toContain("data-viewport-scheduler-runtime-status")
     expect(appSource).toContain("data-viewport-scheduler-automation-status")
+    expect(appSource).toContain("data-viewport-virtual-stack-status")
+    expect(appSource).toContain("data-virtual-section-spacer")
+    expect(appSource).toContain("data-viewport-virtualized")
     expect(appSource).toContain("data-section-spacer-height")
     expect(appSource).toContain("data-section-spacer-reason")
     expect(appSource).toContain("data-section-spacer-status")
@@ -1045,6 +1053,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("Scheduler apply:")
     expect(appSource).toContain("Scheduler runtime:")
     expect(appSource).toContain("Scheduler auto:")
+    expect(appSource).toContain("Virtual stack:")
     expect(appSource).toContain("Section offsets:")
     expect(appSource).toContain("Section spacers:")
     expect(appSource).toContain("Viewport anchor:")
@@ -1089,9 +1098,12 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("function replaceChangedNode")
     expect(appSource).not.toContain("packet.baseRevision !==")
     expect(appSource).not.toContain("resolveViewportRangeRequest")
+    expect(appSource).not.toContain("getStoreBackedRenderShellSections")
     expect(stylesSource).toContain(".page.is-placeholder")
     expect(stylesSource).toContain(".canvas-placeholder")
+    expect(stylesSource).toContain(".virtual-section-spacer")
     expect(stylesSource).toContain("--section-spacer-height")
+    expect(stylesSource).toContain("--virtual-spacer-height")
     expect(runtimeStoreSource).toContain("createRuntimeStore")
     expect(runtimeStoreSource).toContain("flowdoc-structural-runtime-store")
     expect(runtimeStoreSource).toContain("applyTextChangePacketToRuntimeStore")
@@ -1188,6 +1200,15 @@ describe("template builder sandbox boundary", () => {
     expect(viewportSchedulerAutomationSource).not.toContain("querySelector")
     expect(viewportSchedulerAutomationSource).not.toContain("addEventListener")
     expect(viewportSchedulerAutomationSource).not.toContain("setTimeout")
+    expect(viewportVirtualStackSource).toContain("createViewportVirtualStack")
+    expect(viewportVirtualStackSource).toContain("flowdoc-viewport-virtual-stack")
+    expect(viewportVirtualStackSource).toContain("section-shell-virtual-stack")
+    expect(viewportVirtualStackSource).toContain("DEFAULT_VIRTUAL_SECTION_HEIGHT")
+    expect(viewportVirtualStackSource).toContain("virtualized-section-shell")
+    expect(viewportVirtualStackSource).not.toContain("document.")
+    expect(viewportVirtualStackSource).not.toContain("querySelector")
+    expect(viewportVirtualStackSource).not.toContain("addEventListener")
+    expect(viewportVirtualStackSource).not.toContain("setTimeout")
     expect(viewportSectionOffsetsSource).toContain("createViewportSectionOffsetIndex")
     expect(viewportSectionOffsetsSource).toContain("predictViewportFromSectionOffsets")
     expect(viewportSectionOffsetsSource).toContain("resolveViewportSectionOffset")
@@ -1292,6 +1313,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyViewportSchedulerCandidate")
     expect(coreBoundarySource).toContain("browser.runViewportSchedulerRuntime")
     expect(coreBoundarySource).toContain("browser.autoApplyViewportScheduler")
+    expect(coreBoundarySource).toContain("browser.virtualizeViewportSections")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1404,6 +1426,12 @@ describe("template builder sandbox boundary", () => {
     expect(viewportSchedulerAutomationDoc).toContain("runViewportSchedulerAutomation")
     expect(viewportSchedulerAutomationDoc).toContain("browser.autoApplyViewportScheduler")
     expect(viewportSchedulerAutomationDoc).toContain("finite default max-node cap")
+    expect(viewportVirtualStackDoc).toContain("Status: Phase 65 implementation boundary.")
+    expect(viewportVirtualStackDoc).toContain("viewportVirtualStack.js")
+    expect(viewportVirtualStackDoc).toContain("createViewportVirtualStack")
+    expect(viewportVirtualStackDoc).toContain("browser.virtualizeViewportSections")
+    expect(viewportVirtualStackDoc).toContain("virtual-section-spacer")
+    expect(viewportVirtualStackDoc).toContain("missing offsets fall back")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -2660,6 +2688,98 @@ describe("template builder sandbox boundary", () => {
     expect(result.boundaryPredictedSectionIds).toEqual(["section-cover", "section-toc"])
     expect(result.boundaryAnchorSectionId).toBe("section-toc")
     expect(result.missingOffset).toBeNull()
+  })
+
+  it("builds a virtual section stack from render shell offsets", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createRenderShell,
+      } = await import("./public/renderShell.js");
+      const {
+        createViewportVirtualStack,
+      } = await import("./public/viewportVirtualStack.js");
+      const sections = [
+        { id: "section-cover", page: "1" },
+        { id: "section-toc", page: "2" },
+        { id: "section-body", page: "3" },
+        { id: "section-appendix", page: "4" },
+      ];
+      const renderShell = createRenderShell({
+        renderWindow: {
+          anchorSectionId: "section-toc",
+          sectionIds: ["section-toc", "section-body"],
+        },
+        sections,
+      });
+      const offsetIndex = {
+        mode: "section-spacer-offset-index",
+        sectionGap: 18,
+        sections: [
+          { bottom: 831, height: 831, index: 0, sectionId: "section-cover", top: 0 },
+          { bottom: 1569, height: 720, index: 1, sectionId: "section-toc", top: 849 },
+          { bottom: 5787, height: 4200, index: 2, sectionId: "section-body", top: 1587 },
+          { bottom: 6605, height: 800, index: 3, sectionId: "section-appendix", top: 5805 },
+        ],
+        source: "flowdoc-section-offset-index",
+        totalHeight: 6605,
+      };
+      const stack = createViewportVirtualStack({ offsetIndex, renderShell });
+      const fallback = createViewportVirtualStack({ renderShell });
+
+      console.log(JSON.stringify({
+        bottomSpacerHeight: stack.bottomSpacerHeight,
+        fallbackMountedSectionCount: fallback.mountedSectionCount,
+        fallbackReason: fallback.reason,
+        fallbackVirtualized: fallback.virtualized,
+        itemTypes: stack.items.map((item) => item.type),
+        mode: stack.mode,
+        mountedSectionCount: stack.mountedSectionCount,
+        mountedSectionIds: stack.mountedSectionIds,
+        reason: stack.reason,
+        sectionCount: stack.sectionCount,
+        source: stack.source,
+        spacerCount: stack.spacerCount,
+        spacerSectionIds: stack.items.filter((item) => item.type === "spacer").map((item) => item.sectionIds),
+        topSpacerHeight: stack.topSpacerHeight,
+        virtualized: stack.virtualized,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bottomSpacerHeight: number
+      fallbackMountedSectionCount: number
+      fallbackReason: string
+      fallbackVirtualized: boolean
+      itemTypes: string[]
+      mode: string
+      mountedSectionCount: number
+      mountedSectionIds: string[]
+      reason: string
+      sectionCount: number
+      source: string
+      spacerCount: number
+      spacerSectionIds: string[][]
+      topSpacerHeight: number
+      virtualized: boolean
+    }
+
+    expect(result.source).toBe("flowdoc-viewport-virtual-stack")
+    expect(result.mode).toBe("section-shell-virtual-stack")
+    expect(result.sectionCount).toBe(4)
+    expect(result.mountedSectionCount).toBe(2)
+    expect(result.mountedSectionIds).toEqual(["section-toc", "section-body"])
+    expect(result.virtualized).toBe(true)
+    expect(result.reason).toBe("virtualized-section-shell")
+    expect(result.itemTypes).toEqual(["spacer", "section", "section", "spacer"])
+    expect(result.spacerCount).toBe(2)
+    expect(result.spacerSectionIds).toEqual([["section-cover"], ["section-appendix"]])
+    expect(result.topSpacerHeight).toBe(831)
+    expect(result.bottomSpacerHeight).toBe(800)
+    expect(result.fallbackVirtualized).toBe(false)
+    expect(result.fallbackReason).toBe("offset-index-missing")
+    expect(result.fallbackMountedSectionCount).toBe(4)
   })
 
   it("plans observe-only viewport scheduler candidates from section predictions", () => {
