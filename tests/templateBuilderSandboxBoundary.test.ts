@@ -53,6 +53,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/scripts/build-snapshot.ts",
       "../examples/template-builder-sandbox/scripts/serve.mjs",
       "../examples/template-builder-sandbox/public/editorView.js",
+      "../examples/template-builder-sandbox/public/runtimeCache.js",
       "../examples/template-builder-sandbox/public/app.js",
       "../examples/template-builder-sandbox/public/styles.css",
     ].map(readText).join("\n")
@@ -903,21 +904,23 @@ describe("template builder sandbox boundary", () => {
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
+    const runtimeCacheSource = readText("../examples/template-builder-sandbox/public/runtimeCache.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
     const browserCacheDoc = readText("../docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md")
+    const runtimeCacheDoc = readText("../docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md")
 
     expect(appSource).toContain('from "./editorView.js"')
+    expect(appSource).toContain('from "./runtimeCache.js"')
     expect(appSource).toContain("runtimeCache")
-    expect(appSource).toContain("createRuntimeCache")
-    expect(appSource).toContain("createEditorView")
+    expect(appSource).toContain("createBootRuntimeState")
+    expect(appSource).toContain("createRefreshRuntimeState")
+    expect(appSource).toContain("applyChangePacketToRuntime")
     expect(appSource).toContain("editorView")
     expect(appSource).toContain("getEditorViewChildren")
     expect(appSource).toContain("getEditorViewSectionRootNodes")
     expect(appSource).toContain("visibleNodeCount")
     expect(appSource).toContain("viewMode")
     expect(appSource).toContain("applyChangePacket")
-    expect(appSource).toContain("flowdoc-template-builder-change-packet")
-    expect(appSource).toContain("packet.baseRevision !== state.snapshot.session.documentRevision")
     expect(appSource).toContain("applyChangePacket(result.packet)")
     expect(appSource).toContain("applyBridgeTextAction")
     expect(appSource).toContain("applyHistoryAction")
@@ -931,11 +934,23 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("node.children.map(renderCanvasNode)")
     expect(appSource).not.toContain("allNodes")
     expect(appSource).not.toContain("flattenNodes")
+    expect(appSource).not.toContain("function createRuntimeCache")
+    expect(appSource).not.toContain("function replaceChangedNode")
+    expect(appSource).not.toContain("packet.baseRevision !==")
     expect(editorViewSource).toContain("createEditorView")
     expect(editorViewSource).toContain("childrenById")
     expect(editorViewSource).toContain("parentById")
     expect(editorViewSource).toContain("visibleNodeIds")
     expect(editorViewSource).toContain("dirtyNodeIds")
+    expect(runtimeCacheSource).toContain("createRuntimeCache")
+    expect(runtimeCacheSource).toContain("createBootRuntimeState")
+    expect(runtimeCacheSource).toContain("createRefreshRuntimeState")
+    expect(runtimeCacheSource).toContain("applyChangePacketToRuntime")
+    expect(runtimeCacheSource).toContain("RUNTIME_CACHE_SOURCE")
+    expect(runtimeCacheSource).toContain("flowdoc-template-builder-change-packet")
+    expect(runtimeCacheSource).toContain("packet.baseRevision !== snapshot.session.documentRevision")
+    expect(runtimeCacheSource).not.toContain("document.")
+    expect(runtimeCacheSource).not.toContain("querySelector")
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
@@ -945,6 +960,11 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("user.redo")
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
     expect(browserCacheDoc).toContain("public/editorView.js")
+    expect(browserCacheDoc).toContain("public/runtimeCache.js")
+    expect(runtimeCacheDoc).toContain("Status: Phase 46 implementation boundary.")
+    expect(runtimeCacheDoc).toContain("createRuntimeCache")
+    expect(runtimeCacheDoc).toContain("applyChangePacketToRuntime")
+    expect(runtimeCacheDoc).toContain("now coordinates state assignment and rendering only")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1018,6 +1038,85 @@ describe("template builder sandbox boundary", () => {
     expect(result.parentId).toBe("cover-body")
     expect(result.sectionId).toBe("section-cover")
     expect(result.zoneId).toBe("cover-body")
+    expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
+    expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
+  })
+
+  it("applies change packets through the browser-safe runtime cache module", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        applyChangePacketToRuntime,
+        createBootRuntimeState,
+      } = await import("./public/runtimeCache.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const bootState = createBootRuntimeState(snapshot);
+      const changedNode = JSON.parse(JSON.stringify(bootState.runtimeCache.nodeById.get("cover-header-label")));
+      changedNode.plainText = "Runtime cache packet text";
+      changedNode.textPreview = "Runtime cache packet text";
+      const result = applyChangePacketToRuntime(bootState.snapshot, bootState.runtimeCache, {
+        source: "flowdoc-template-builder-change-packet",
+        packetVersion: 1,
+        action: "sandbox.replacePlainTextBlock",
+        status: "applied",
+        baseRevision: 0,
+        nextRevision: 1,
+        mutationCount: 1,
+        mutation: {
+          action: "sandbox.replacePlainTextBlock",
+          issueCount: 0,
+          status: "applied",
+          summary: "replace text range in cover-header-label",
+          targetTextBlockId: "cover-header-label",
+        },
+        changedNodeIds: ["cover-header-label"],
+        changedNodes: [changedNode],
+        affectedParentNodeIds: ["cover-first-header"],
+        dirtyScopes: [
+          { textBlockId: "cover-header-label", parentNodeIds: ["cover-first-header"] },
+        ],
+        diagnostics: bootState.snapshot.diagnostics,
+        authoringHistory: bootState.snapshot.authoringHistory,
+        liveLayout: bootState.snapshot.liveLayout,
+        issues: [],
+      });
+      console.log(JSON.stringify({
+        ok: result.ok,
+        changedText: result.runtimeCache.nodeById.get("cover-header-label").textPreview,
+        dirtyNodeIds: [...result.runtimeCache.editorView.dirtyNodeIds].sort(),
+        changedSubtreeIds: [...result.runtimeCache.editorView.changedSubtreeIds].sort(),
+        mode: result.runtimeCache.mode,
+        packetsApplied: result.runtimeCache.packetsApplied,
+        runtimeSource: result.runtimeCache.source,
+        snapshotRevision: result.snapshot.session.documentRevision,
+        bridgeMode: result.snapshot.mutationBridge.mode,
+        lastMutationTarget: result.snapshot.mutationBridge.lastMutation.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      bridgeMode: string
+      changedSubtreeIds: string[]
+      changedText: string
+      dirtyNodeIds: string[]
+      lastMutationTarget: string
+      mode: string
+      ok: boolean
+      packetsApplied: number
+      runtimeSource: string
+      snapshotRevision: number
+    }
+
+    expect(result.ok).toBe(true)
+    expect(result.runtimeSource).toBe("flowdoc-template-builder-runtime-cache")
+    expect(result.mode).toBe("packet-cache")
+    expect(result.packetsApplied).toBe(1)
+    expect(result.snapshotRevision).toBe(1)
+    expect(result.bridgeMode).toBe("in-memory-bridge")
+    expect(result.lastMutationTarget).toBe("cover-header-label")
+    expect(result.changedText).toBe("Runtime cache packet text")
     expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
     expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
   })

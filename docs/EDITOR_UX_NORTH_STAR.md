@@ -258,6 +258,10 @@ Phase 45 starts that target with a sandbox normalized editor view module. It is
 not virtualization yet; it is the lookup-first shape that virtualization, lazy
 detail, hit-testing, and rich editing can build on.
 
+Phase 46 follows by moving runtime-cache and packet-apply ownership into a
+dedicated sandbox module. That keeps the app shell from becoming the long-term
+owner of state shape, packet policy, rendering, and events together.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

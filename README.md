@@ -142,6 +142,9 @@ The package must remain runnable without any parent editor checkout.
 - Normalized editor view boundary adds a browser-safe sandbox module that
   derives lookup-first indexes from boot snapshots and packet-updated view
   models before viewport windowing or lazy heavy-detail routes
+- Runtime cache module boundary moves sandbox boot, refresh, and packet-apply
+  cache rules into a browser-safe module so the app shell delegates instead of
+  owning cache, packet, render, and event behavior together
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -246,6 +249,8 @@ The package must remain runnable without any parent editor checkout.
   file/module guard before deeper editor runtime work
 - `docs/TEMPLATE_BUILDER_NORMALIZED_EDITOR_VIEW_BOUNDARY.md`: Phase 45
   normalized editor view boundary for lookup-first sandbox runtime indexes
+- `docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md`: Phase 46
+  runtime-cache module boundary for boot, refresh, and packet apply ownership
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

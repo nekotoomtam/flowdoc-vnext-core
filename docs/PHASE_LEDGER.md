@@ -52,6 +52,7 @@ Parent goal:
 | 43 | Editor UX north star and normalized view constraint | done | `docs/EDITOR_UX_NORTH_STAR.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`; `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 44 | Modular responsibility contract | done | `docs/MODULAR_RESPONSIBILITY_CONTRACT.md`; `AGENTS.md`; `docs/EDITOR_UX_NORTH_STAR.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 45 | Normalized editor view boundary | done | `docs/TEMPLATE_BUILDER_NORMALIZED_EDITOR_VIEW_BOUNDARY.md`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 46 | Runtime cache module boundary | done | `docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/app.js`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -811,6 +812,33 @@ detail routes, structural packet patching without snapshot tree patching, rich
 text editing, key/field chips, contenteditable mapping, language-specific IME,
 concrete live-layout rendering, persistence, API routes, or package/document
 version changes.
+
+## Phase 46 Runtime Cache Module Boundary
+
+Phase 46 splits runtime-cache and packet-apply ownership out of the sandbox app
+shell:
+
+- `examples/template-builder-sandbox/public/runtimeCache.js` owns
+  `createRuntimeCache`, boot runtime-state creation, refresh runtime-state
+  creation, change-packet validation, snapshot view-model patching, and
+  packet-to-runtime application;
+- `examples/template-builder-sandbox/public/app.js` now delegates boot,
+  refresh, and packet apply to the runtime-cache module while keeping render,
+  event binding, and draft conflict coordination in the shell;
+- runtime-cache creation rebuilds the Phase 45 normalized editor view after
+  boot, refresh, and packet application;
+- `docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md` records the
+  ownership boundary, packet apply boundary, acceptance evidence, and
+  non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves `app.js` no longer owns
+  `createRuntimeCache`, `replaceChangedNode`, or packet revision guards, and
+  imports the browser-safe runtime-cache module in Node to apply a packet.
+
+This phase intentionally does not implement viewport virtualization, lazy
+detail routes, structural packet patching without snapshot tree patching,
+production editor package structure, rich text editing, contenteditable DOM
+mapping, concrete live-layout rendering, persistence, API routes, or
+package/document version changes.
 
 ## Phase 12 Extraction Record
 

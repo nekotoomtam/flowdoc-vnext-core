@@ -77,6 +77,11 @@ Selection, parent lookup, tree traversal, and canvas traversal use the editor
 view helpers. The snapshot tree remains present as a boot/debug view model and
 as the temporary packet patch target.
 
+Phase 46 moves runtime-cache creation and packet application into
+`public/runtimeCache.js`. The normalized editor view remains owned by
+`public/editorView.js`, while boot, refresh, and packet-triggered rebuilds are
+coordinated by the runtime-cache module instead of the app shell.
+
 ## Scale Direction
 
 This phase makes the long-term path explicit:

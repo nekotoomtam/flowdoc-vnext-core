@@ -1,8 +1,12 @@
 import {
-  createEditorView,
   getEditorViewChildren,
   getEditorViewSectionRootNodes,
 } from "./editorView.js"
+import {
+  applyChangePacketToRuntime,
+  createBootRuntimeState,
+  createRefreshRuntimeState,
+} from "./runtimeCache.js"
 
 const app = document.querySelector("#app")
 
@@ -43,55 +47,16 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;")
 }
 
-function clonePlain(value) {
-  return JSON.parse(JSON.stringify(value))
-}
-
-function createRuntimeCache(snapshot, options = {}) {
-  const previousCache = options.previousCache || null
-  const editorView = createEditorView(snapshot, {
-    packet: options.packet,
-    previousView: previousCache?.editorView,
-  })
-  const packetApplied = Boolean(options.packetApplied)
-  const previousPacketCount = previousCache?.packetsApplied || 0
-
-  return {
-    bootRevision: previousCache?.bootRevision ?? snapshot.session.documentRevision,
-    changedNodeCount: editorView.changedNodeIds.size,
-    childrenById: editorView.childrenById,
-    documentRevision: snapshot.session.documentRevision,
-    dirtyNodeCount: editorView.dirtyNodeIds.size,
-    editorView,
-    fallbackSnapshotCount: previousCache?.fallbackSnapshotCount || 0,
-    lastPacketRevision: options.packet?.nextRevision ?? previousCache?.lastPacketRevision ?? null,
-    mode: packetApplied ? "packet-cache" : "snapshot-boot",
-    nodeById: editorView.nodeById,
-    nodeCount: editorView.nodeOrder.length,
-    nodeOrder: editorView.nodeOrder,
-    packetsApplied: packetApplied ? previousPacketCount + 1 : previousPacketCount,
-    parentById: editorView.parentById,
-    sectionById: editorView.sectionById,
-    viewMode: editorView.mode,
-    visibleNodeCount: editorView.visibleNodeIds.length,
-    visibleNodeIds: editorView.visibleNodeIds,
-    zoneById: editorView.zoneById,
-  }
-}
-
 function setSnapshotFromBoot(snapshot) {
-  state.snapshot = snapshot
-  state.runtimeCache = createRuntimeCache(snapshot)
+  const runtimeState = createBootRuntimeState(snapshot)
+  state.snapshot = runtimeState.snapshot
+  state.runtimeCache = runtimeState.runtimeCache
 }
 
 function setSnapshotFromRefresh(snapshot) {
-  const previousCache = state.runtimeCache
-  state.snapshot = snapshot
-  state.runtimeCache = {
-    ...createRuntimeCache(snapshot, { previousCache }),
-    fallbackSnapshotCount: (previousCache?.fallbackSnapshotCount || 0) + 1,
-    mode: "snapshot-refresh",
-  }
+  const runtimeState = createRefreshRuntimeState(snapshot, state.runtimeCache)
+  state.snapshot = runtimeState.snapshot
+  state.runtimeCache = runtimeState.runtimeCache
 }
 
 function selectedNode() {
@@ -112,72 +77,13 @@ function sectionRootZones(section) {
   return getEditorViewSectionRootNodes(state.runtimeCache?.editorView, section?.id)
 }
 
-function replaceChangedNode(node, changedNodes) {
-  const replacement = changedNodes.get(node.id)
-  if (replacement) return clonePlain(replacement)
-
-  let childrenChanged = false
-  const children = node.children.map((child) => {
-    const nextChild = replaceChangedNode(child, changedNodes)
-    if (nextChild !== child) childrenChanged = true
-    return nextChild
-  })
-
-  return childrenChanged ? { ...node, children } : node
-}
-
-function isChangePacket(packet) {
-  return packet?.source === "flowdoc-template-builder-change-packet" && packet.packetVersion === 1
-}
-
 function applyChangePacket(packet) {
-  if (!state.snapshot || !isChangePacket(packet)) {
-    return { ok: false, reason: "invalid change packet" }
-  }
+  const packetResult = applyChangePacketToRuntime(state.snapshot, state.runtimeCache, packet)
+  if (!packetResult.ok) return packetResult
 
-  if (packet.snapshotRequired) {
-    return { ok: false, reason: "packet requested snapshot refresh" }
-  }
-
-  if (packet.baseRevision !== state.snapshot.session.documentRevision) {
-    return {
-      ok: false,
-      reason: `packet base ${packet.baseRevision} did not match local revision ${state.snapshot.session.documentRevision}`,
-    }
-  }
-
-  const changedNodes = new Map((packet.changedNodes || []).map((node) => [node.id, node]))
-  const sections = state.snapshot.sections.map((section) => ({
-    ...section,
-    zones: section.zones.map((zone) => replaceChangedNode(zone, changedNodes)),
-  }))
-  const nextSnapshot = {
-    ...state.snapshot,
-    diagnostics: packet.diagnostics || state.snapshot.diagnostics,
-    authoringHistory: packet.authoringHistory || state.snapshot.authoringHistory,
-    liveLayout: packet.liveLayout || state.snapshot.liveLayout,
-    mutationBridge: {
-      ...state.snapshot.mutationBridge,
-      documentRevision: packet.nextRevision,
-      lastMutation: packet.mutation,
-      mode: "in-memory-bridge",
-      mutationCount: packet.mutationCount,
-    },
-    sections,
-    session: {
-      ...state.snapshot.session,
-      dirtyScopeCount: packet.dirtyScopes.length,
-      documentRevision: packet.nextRevision,
-    },
-  }
-
-  state.snapshot = nextSnapshot
+  state.snapshot = packetResult.snapshot
   state.lastPacket = packet
-  state.runtimeCache = createRuntimeCache(nextSnapshot, {
-    previousCache: state.runtimeCache,
-    packet,
-    packetApplied: true,
-  })
+  state.runtimeCache = packetResult.runtimeCache
 
   if (
     draftIsActive()

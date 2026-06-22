@@ -839,6 +839,37 @@ Acceptance:
 - no virtualization, lazy detail endpoint, rich text, contenteditable mapping,
   live renderer, route, persistence, or package version change is claimed.
 
+## Phase 46: Runtime Cache Module Boundary
+
+Goal:
+
+- split sandbox runtime-cache and packet-apply behavior out of the app shell
+  before adding viewport, lazy detail, structural packet, or live renderer
+  behavior.
+
+Deliverables:
+
+- browser-safe `public/runtimeCache.js` module;
+- boot runtime-state creation helper;
+- snapshot refresh runtime-state helper;
+- packet validation and packet source checks;
+- packet-to-snapshot patch helper for the current sandbox view model;
+- packet-to-runtime helper that rebuilds the normalized editor view;
+- app shell delegation instead of direct cache/packet ownership;
+- boundary documentation and root tests.
+
+Acceptance:
+
+- `app.js` no longer defines `createRuntimeCache`, `replaceChangedNode`, or
+  packet revision guards;
+- runtime-cache helpers can run in Node tests without DOM access;
+- packet application still preserves current sandbox behavior and rebuilds the
+  normalized editor view;
+- the tree-shaped snapshot patch remains explicitly temporary;
+- no viewport virtualization, lazy detail endpoint, structural packet engine,
+  rich text, contenteditable mapping, live renderer, route, persistence, or
+  package version change is claimed.
+
 ## Later Phases
 
 Goal:

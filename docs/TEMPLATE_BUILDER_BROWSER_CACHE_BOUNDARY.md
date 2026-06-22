@@ -74,6 +74,11 @@ patches the tree-shaped snapshot view model after packets, then rebuilds the
 editor view, but selection and render traversal now have lookup-first indexes
 owned by `public/editorView.js`.
 
+Phase 46 moves boot, refresh, and packet-apply cache rules into
+`public/runtimeCache.js`. The app shell delegates to that module and no longer
+owns the packet source check, revision guard, tree-shaped patch, or normalized
+view rebuild policy directly.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.
