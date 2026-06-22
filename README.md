@@ -198,6 +198,8 @@ The package must remain runnable without any parent editor checkout.
   section spacers for off-window geometry
 - Viewport lazy detail boundary defers inactive heavy node subtrees inside
   mounted virtual sections
+- Viewport node anchor boundary restores selection jumps by node id with
+  section-relative fallback
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -351,6 +353,8 @@ The package must remain runnable without any parent editor checkout.
   section-level virtual stack renderer consumption boundary
 - `docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md`: Phase 66
   inactive heavy-node detail deferral boundary inside mounted virtual sections
+- `docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md`: Phase 67
+  node-aware selection jump and scroll restore boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -400,5 +404,5 @@ The package must remain runnable without any parent editor checkout.
   viewport-apply, debounced scroll-controller, section-anchor, section
   spacer/offset, observe-only scheduler-candidate, manual scheduler-apply,
   scheduler-runtime stale guard, budgeted scheduler-auto, section virtual
-  stack, and lazy heavy-detail contracts
+  stack, lazy heavy-detail, and node-aware anchor contracts
 - publishing/distribution strategy beyond local package consumption

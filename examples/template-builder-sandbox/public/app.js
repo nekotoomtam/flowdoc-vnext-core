@@ -22,6 +22,10 @@ import {
   resolveViewportSectionAnchorScrollTop,
 } from "./viewportAnchor.js"
 import {
+  createViewportNodeAnchor,
+  resolveViewportNodeAnchorScrollTop,
+} from "./viewportNodeAnchor.js"
+import {
   createViewportMeasurementApplyRequest,
   createViewportMeasurement,
 } from "./viewportMeasurement.js"
@@ -86,6 +90,8 @@ const state = {
   snapshot: null,
   viewportAnchor: null,
   viewportAnchorRestore: null,
+  viewportNodeAnchor: null,
+  viewportNodeAnchorRestore: null,
   viewportMeasurement: null,
   viewportSectionOffsetIndex: null,
   viewportSectionPrediction: null,
@@ -192,6 +198,51 @@ function readCanvasViewportMeasurement(renderModel) {
   })
 }
 
+function readCanvasViewportNodeAnchor(nodeId, renderModel) {
+  const canvas = app.querySelector(".canvas-wrap")
+  if (!canvas || !renderModel || !nodeId) return null
+
+  const nodeElement = [...canvas.querySelectorAll("[data-node-id]")]
+    .find((element) => element.dataset.nodeId === nodeId)
+  const sectionElement = nodeElement?.closest(".page[data-section-id]")
+  if (!nodeElement || !sectionElement) return null
+
+  const canvasRect = canvas.getBoundingClientRect()
+  const nodeRect = nodeElement.getBoundingClientRect()
+  const sectionRect = sectionElement.getBoundingClientRect()
+  const nodeTop = nodeRect.top - canvasRect.top + canvas.scrollTop
+  const sectionTop = sectionRect.top - canvasRect.top + canvas.scrollTop
+
+  return createViewportNodeAnchor({
+    measuredAtRevision: renderModel.documentRevision,
+    nodeHeight: nodeRect.height,
+    nodeId,
+    nodeTop,
+    nodeType: nodeElement.dataset.nodeType,
+    scrollTop: canvas.scrollTop,
+    sectionId: sectionElement.dataset.sectionId,
+    sectionTop,
+    viewportHeight: canvas.clientHeight || canvasRect.height,
+  })
+}
+
+function createFallbackViewportNodeAnchor(nodeId) {
+  if (!nodeId) return null
+  const node = nodeById(nodeId)
+  const sectionId = state.runtimeCache?.sectionIdByNodeId.get(nodeId)
+  if (!node || !sectionId) return null
+
+  return createViewportNodeAnchor({
+    measuredAtRevision: state.renderModel?.documentRevision ?? state.snapshot?.session?.documentRevision,
+    nodeId,
+    nodeType: node.type,
+    offsetInSection: 0,
+    scrollTop: state.viewportMeasurement?.scrollTop,
+    sectionId,
+    viewportHeight: state.viewportMeasurement?.viewportHeight,
+  })
+}
+
 function viewportMeasurementLabel() {
   const measurement = state.viewportMeasurement
   if (!measurement) return "Measurement: pending"
@@ -214,6 +265,19 @@ function viewportAnchorLabel() {
 function syncViewportAnchorStatus() {
   app.querySelectorAll("[data-viewport-anchor-status]").forEach((target) => {
     target.textContent = viewportAnchorLabel()
+  })
+}
+
+function viewportNodeAnchorLabel() {
+  const anchor = state.viewportNodeAnchor
+  if (!anchor) return "Node anchor: none"
+  const restored = state.viewportNodeAnchorRestore?.restored ? " restored" : ""
+  return `Node anchor: ${anchor.nodeId || "none"} ${anchor.sectionId || "none"} +${Math.round(anchor.offsetInSection)}${restored}`
+}
+
+function syncViewportNodeAnchorStatus() {
+  app.querySelectorAll("[data-viewport-node-anchor-status]").forEach((target) => {
+    target.textContent = viewportNodeAnchorLabel()
   })
 }
 
@@ -2062,6 +2126,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-viewport-scheduler-runtime-status>${escapeHtml(viewportSchedulerRuntimeLabel())}</span>
       <span data-viewport-scheduler-automation-status>${escapeHtml(viewportSchedulerAutomationLabel())}</span>
       <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
+      <span data-viewport-node-anchor-status>${escapeHtml(viewportNodeAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
@@ -2088,12 +2153,18 @@ function renderStatus(snapshot, renderModel) {
 
 function selectNode(nodeId, selectionSource) {
   if (!nodeById(nodeId)) return
+  const nodeAnchor = readCanvasViewportNodeAnchor(nodeId, state.renderModel)
+    || createFallbackViewportNodeAnchor(nodeId)
   state.selectedId = nodeId
   state.selectionSource = selectionSource
+  state.viewportNodeAnchor = nodeAnchor
+  state.viewportNodeAnchorRestore = null
   setVisibleRangeRequest(createSelectionVisibleRangeRequest(nodeId, state.runtimeCache?.visibleRangeRequest, {
     draftActive: draftIsActive(),
   }))
-  render()
+  render({
+    restoreViewportAnchor: nodeAnchor || state.viewportAnchor,
+  })
 }
 
 function bindSelectionHandlers() {
@@ -2513,13 +2584,27 @@ function render(options = {}) {
   const restoreAnchor = options.restoreViewportAnchor
   const fallbackScrollTop = options.fallbackCanvasScrollTop ?? options.restoreCanvasScrollTop
   if (canvas && restoreAnchor) {
-    const anchorRestore = resolveViewportSectionAnchorScrollTop({
-      anchor: restoreAnchor,
-      fallbackScrollTop,
-      measurement: viewportMeasurement,
-    })
-    state.viewportAnchorRestore = anchorRestore
-    state.viewportAnchor = anchorRestore.anchor
+    const effectiveAnchor = restoreAnchor.kind === "node"
+      ? readCanvasViewportNodeAnchor(restoreAnchor.nodeId, renderModel) || restoreAnchor
+      : restoreAnchor
+    const anchorRestore = effectiveAnchor.kind === "node"
+      ? resolveViewportNodeAnchorScrollTop({
+        anchor: effectiveAnchor,
+        fallbackScrollTop,
+        measurement: viewportMeasurement,
+      })
+      : resolveViewportSectionAnchorScrollTop({
+        anchor: effectiveAnchor,
+        fallbackScrollTop,
+        measurement: viewportMeasurement,
+      })
+    if (effectiveAnchor.kind === "node") {
+      state.viewportNodeAnchorRestore = anchorRestore
+      state.viewportNodeAnchor = anchorRestore.anchor
+    } else {
+      state.viewportAnchorRestore = anchorRestore
+      state.viewportAnchor = anchorRestore.anchor
+    }
     state.viewportScrollRestoring = true
     canvas.scrollTop = anchorRestore.scrollTop
     window.setTimeout(() => {
@@ -2546,6 +2631,7 @@ function render(options = {}) {
   syncViewportVirtualStackStatus()
   syncViewportLazyDetailStatus()
   syncViewportAnchorStatus()
+  syncViewportNodeAnchorStatus()
   syncViewportScrollControllerStatus()
 }
 

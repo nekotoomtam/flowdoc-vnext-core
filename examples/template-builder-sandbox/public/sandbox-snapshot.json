@@ -1920,6 +1920,13 @@
       "reason": "browser canvas can keep a section-relative viewport anchor before node anchors and production scroll anchoring"
     },
     {
+      "action": "browser.restoreViewportNodeAnchor",
+      "label": "Node anchor",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser canvas can restore selection jumps from node-aware viewport anchors"
+    },
+    {
       "action": "browser.trackSectionSpacers",
       "label": "Section spacers",
       "lane": "immediate",

@@ -73,6 +73,7 @@ Parent goal:
 | 64 | Viewport scheduler automation boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_AUTOMATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerAutomation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 65 | Viewport virtual stack boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_VIRTUAL_STACK_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportVirtualStack.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 66 | Viewport lazy heavy-detail boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_LAZY_DETAIL_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportLazyDetail.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 67 | Viewport node anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportNodeAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1482,6 +1483,33 @@ This phase intentionally does not implement backend/API lazy routes, async
 hydration, node-aware jump-to-node, recycled DOM pools, caret-aware anchoring,
 structural packet application, rich text editing, contenteditable DOM mapping,
 live-layout rendering, persistence, or package/document version changes.
+
+## Phase 67 Viewport Node Anchor Boundary
+
+Phase 67 adds node-aware selection jump and scroll restore:
+
+- `examples/template-builder-sandbox/public/viewportNodeAnchor.js` owns node
+  anchor source, mode, restore mode, normalization, and scroll-top resolution;
+- node anchors capture node id, node type, section id, and section-relative node
+  offset from browser-provided rectangle facts;
+- `examples/template-builder-sandbox/public/app.js` reads mounted node rects,
+  creates runtime-store fallback anchors when nodes are not mounted, re-reads
+  node rects after render, and restores selection jumps with node anchors;
+- node-anchor status is reported as `Node anchor: ...` beside the existing
+  section anchor status;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.restoreViewportNodeAnchor` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md` records the Phase 67
+  boundary, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free node-anchor
+  ownership, action-lane exposure, app selection restore wiring, node anchor
+  restore math, and missing-section fallback.
+
+This phase intentionally does not implement outline jump UI, diagnostics/source
+jump UI, caret-relative text anchors, backend/API routes, async lazy detail
+hydration, structural packet application, rich text editing, contenteditable DOM
+mapping, live-layout rendering, persistence, or package/document version
+changes.
 
 ## Phase 12 Extraction Record
 

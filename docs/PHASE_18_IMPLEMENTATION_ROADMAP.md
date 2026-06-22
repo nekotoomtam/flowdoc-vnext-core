@@ -1553,6 +1553,36 @@ Acceptance:
   contenteditable mapping, live renderer, persistence, or package version
   change is claimed.
 
+## Phase 67: Viewport Node Anchor Boundary
+
+Goal:
+
+- make selection jumps restore scroll by node id when possible while retaining
+  section-anchor fallback and avoiding outline/diagnostics/caret scope.
+
+Deliverables:
+
+- browser-safe node anchor module in `public/viewportNodeAnchor.js`;
+- node anchor source/version/mode contract;
+- node anchor restore source/version/mode contract;
+- app node-rect fact reader in the browser shell;
+- fallback node anchors from runtime-store section indexes;
+- render restore path that re-reads newly mounted node rects;
+- `Node anchor: ...` status output;
+- action lane for `browser.restoreViewportNodeAnchor`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- node anchor policy can run in Node without DOM access;
+- node anchors resolve against section measurement and clamp to scroll bounds;
+- missing sections fall back without claiming restore success;
+- selection changes pass a node-aware restore anchor into render;
+- no outline jump UI, diagnostics/source jump UI, caret-relative text anchor,
+  backend/API route, async hydration, structural packet engine, rich text,
+  contenteditable mapping, live renderer, persistence, or package version
+  change is claimed.
+
 ## Later Phases
 
 Goal:

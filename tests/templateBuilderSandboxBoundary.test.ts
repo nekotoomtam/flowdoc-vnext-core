@@ -57,6 +57,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
       "../examples/template-builder-sandbox/public/viewportAnchor.js",
+      "../examples/template-builder-sandbox/public/viewportNodeAnchor.js",
       "../examples/template-builder-sandbox/public/viewportMeasurement.js",
       "../examples/template-builder-sandbox/public/viewportScrollController.js",
       "../examples/template-builder-sandbox/public/viewportSchedulerCandidate.js",
@@ -154,6 +155,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyViewportMeasurement")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.controlViewportScroll")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackViewportAnchor")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.restoreViewportNodeAnchor")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackSectionSpacers")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.predictViewportSections")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planViewportCandidate")
@@ -946,6 +948,7 @@ describe("template builder sandbox boundary", () => {
     const renderShellSource = readText("../examples/template-builder-sandbox/public/renderShell.js")
     const renderModelSource = readText("../examples/template-builder-sandbox/public/renderModel.js")
     const viewportAnchorSource = readText("../examples/template-builder-sandbox/public/viewportAnchor.js")
+    const viewportNodeAnchorSource = readText("../examples/template-builder-sandbox/public/viewportNodeAnchor.js")
     const viewportMeasurementSource = readText("../examples/template-builder-sandbox/public/viewportMeasurement.js")
     const viewportScrollControllerSource = readText("../examples/template-builder-sandbox/public/viewportScrollController.js")
     const viewportSchedulerCandidateSource = readText("../examples/template-builder-sandbox/public/viewportSchedulerCandidate.js")
@@ -977,6 +980,7 @@ describe("template builder sandbox boundary", () => {
     const viewportApplyDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md")
     const viewportScrollControllerDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md")
     const viewportAnchorDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_ANCHOR_BOUNDARY.md")
+    const viewportNodeAnchorDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md")
     const sectionSpacerDoc = readText("../docs/TEMPLATE_BUILDER_SECTION_SPACER_BOUNDARY.md")
     const sectionOffsetDoc = readText("../docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md")
     const viewportSchedulerCandidateDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md")
@@ -1000,6 +1004,9 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./viewportAnchor.js"')
     expect(appSource).toContain("createViewportSectionAnchor")
     expect(appSource).toContain("resolveViewportSectionAnchorScrollTop")
+    expect(appSource).toContain('from "./viewportNodeAnchor.js"')
+    expect(appSource).toContain("createViewportNodeAnchor")
+    expect(appSource).toContain("resolveViewportNodeAnchorScrollTop")
     expect(appSource).toContain('from "./viewportSectionSpacers.js"')
     expect(appSource).toContain("createViewportSectionSpacerMap")
     expect(appSource).toContain("resolveViewportSectionSpacer")
@@ -1030,6 +1037,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("applySettledViewportScroll")
     expect(appSource).toContain("viewportScrollRestoring")
     expect(appSource).toContain("setViewportAnchorFromMeasurement")
+    expect(appSource).toContain("readCanvasViewportNodeAnchor")
+    expect(appSource).toContain("createFallbackViewportNodeAnchor")
     expect(appSource).toContain("restoreViewportAnchor")
     expect(appSource).toContain("updateViewportSchedulerCandidate")
     expect(appSource).toContain("updateViewportSectionOffsets")
@@ -1046,6 +1055,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-viewport-scheduler-automation-status")
     expect(appSource).toContain("data-viewport-virtual-stack-status")
     expect(appSource).toContain("data-viewport-lazy-detail-status")
+    expect(appSource).toContain("data-viewport-node-anchor-status")
     expect(appSource).toContain("data-virtual-section-spacer")
     expect(appSource).toContain("data-viewport-virtualized")
     expect(appSource).toContain("data-lazy-detail-reason")
@@ -1063,6 +1073,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("Scheduler auto:")
     expect(appSource).toContain("Virtual stack:")
     expect(appSource).toContain("Lazy detail:")
+    expect(appSource).toContain("Node anchor:")
     expect(appSource).toContain("Section offsets:")
     expect(appSource).toContain("Section spacers:")
     expect(appSource).toContain("Viewport anchor:")
@@ -1145,6 +1156,15 @@ describe("template builder sandbox boundary", () => {
     expect(viewportAnchorSource).not.toContain("querySelector")
     expect(viewportAnchorSource).not.toContain("addEventListener")
     expect(viewportAnchorSource).not.toContain("setTimeout")
+    expect(viewportNodeAnchorSource).toContain("createViewportNodeAnchor")
+    expect(viewportNodeAnchorSource).toContain("resolveViewportNodeAnchorScrollTop")
+    expect(viewportNodeAnchorSource).toContain("flowdoc-viewport-node-anchor")
+    expect(viewportNodeAnchorSource).toContain("node-aware-scroll-anchor")
+    expect(viewportNodeAnchorSource).toContain("node-aware-anchor-restore")
+    expect(viewportNodeAnchorSource).not.toContain("document.")
+    expect(viewportNodeAnchorSource).not.toContain("querySelector")
+    expect(viewportNodeAnchorSource).not.toContain("addEventListener")
+    expect(viewportNodeAnchorSource).not.toContain("setTimeout")
     expect(viewportMeasurementSource).toContain("createViewportMeasurement")
     expect(viewportMeasurementSource).toContain("createViewportFactsFromMeasurement")
     expect(viewportMeasurementSource).toContain("resolveMeasuredViewportRangeRequest")
@@ -1328,6 +1348,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyViewportMeasurement")
     expect(coreBoundarySource).toContain("browser.controlViewportScroll")
     expect(coreBoundarySource).toContain("browser.trackViewportAnchor")
+    expect(coreBoundarySource).toContain("browser.restoreViewportNodeAnchor")
     expect(coreBoundarySource).toContain("browser.trackSectionSpacers")
     expect(coreBoundarySource).toContain("browser.predictViewportSections")
     expect(coreBoundarySource).toContain("browser.planViewportCandidate")
@@ -1413,6 +1434,12 @@ describe("template builder sandbox boundary", () => {
     expect(viewportAnchorDoc).toContain("resolveViewportSectionAnchorScrollTop")
     expect(viewportAnchorDoc).toContain("browser.trackViewportAnchor")
     expect(viewportAnchorDoc).toContain("Node anchors remain a required later upgrade")
+    expect(viewportNodeAnchorDoc).toContain("Status: Phase 67 implementation boundary.")
+    expect(viewportNodeAnchorDoc).toContain("viewportNodeAnchor.js")
+    expect(viewportNodeAnchorDoc).toContain("createViewportNodeAnchor")
+    expect(viewportNodeAnchorDoc).toContain("resolveViewportNodeAnchorScrollTop")
+    expect(viewportNodeAnchorDoc).toContain("browser.restoreViewportNodeAnchor")
+    expect(viewportNodeAnchorDoc).toContain("node-aware viewport anchor")
     expect(sectionSpacerDoc).toContain("Status: Phase 59 implementation boundary.")
     expect(sectionSpacerDoc).toContain("viewportSectionSpacers.js")
     expect(sectionSpacerDoc).toContain("createViewportSectionSpacerMap")
@@ -2515,6 +2542,110 @@ describe("template builder sandbox boundary", () => {
     expect(result.restoreReason).toBe("section-anchor")
     expect(result.restored).toBe(true)
     expect(result.restoreScrollTop).toBe(1840)
+    expect(result.missingReason).toBe("section-missing")
+    expect(result.missingRestored).toBe(false)
+    expect(result.missingScrollTop).toBe(1200)
+  })
+
+  it("restores viewport scroll from node-aware anchors", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createViewportMeasurement,
+      } = await import("./public/viewportMeasurement.js");
+      const {
+        createViewportNodeAnchor,
+        resolveViewportNodeAnchorScrollTop,
+      } = await import("./public/viewportNodeAnchor.js");
+      const anchor = createViewportNodeAnchor({
+        measuredAtRevision: 8,
+        nodeHeight: 44,
+        nodeId: "body-metrics-table",
+        nodeTop: 1900,
+        nodeType: "table",
+        scrollTop: 1700,
+        sectionId: "section-body",
+        sectionTop: 1520,
+        viewportHeight: 600,
+      });
+      const shiftedMeasurement = createViewportMeasurement({
+        measuredAtRevision: 9,
+        scrollHeight: 3600,
+        scrollTop: 0,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: false, shellState: "placeholder", top: 0, height: 700 },
+          { id: "section-body", rendered: true, shellState: "rendered", top: 1680, height: 1400 },
+        ],
+      });
+      const restored = resolveViewportNodeAnchorScrollTop({
+        anchor,
+        fallbackScrollTop: 1700,
+        measurement: shiftedMeasurement,
+      });
+      const missingMeasurement = createViewportMeasurement({
+        scrollHeight: 1800,
+        scrollTop: 0,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 700 },
+        ],
+      });
+      const missing = resolveViewportNodeAnchorScrollTop({
+        anchor,
+        fallbackScrollTop: 2400,
+        measurement: missingMeasurement,
+      });
+      console.log(JSON.stringify({
+        anchorKind: anchor.kind,
+        anchorMode: anchor.mode,
+        anchorNodeId: anchor.nodeId,
+        anchorNodeType: anchor.nodeType,
+        anchorOffset: anchor.offsetInSection,
+        anchorSectionId: anchor.sectionId,
+        anchorSource: anchor.source,
+        missingReason: missing.reason,
+        missingRestored: missing.restored,
+        missingScrollTop: missing.scrollTop,
+        restoreMode: restored.mode,
+        restoreReason: restored.reason,
+        restoreScrollTop: restored.scrollTop,
+        restoreSource: restored.source,
+        restored: restored.restored,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      anchorKind: string
+      anchorMode: string
+      anchorNodeId: string
+      anchorNodeType: string
+      anchorOffset: number
+      anchorSectionId: string
+      anchorSource: string
+      missingReason: string
+      missingRestored: boolean
+      missingScrollTop: number
+      restoreMode: string
+      restoreReason: string
+      restoreScrollTop: number
+      restoreSource: string
+      restored: boolean
+    }
+
+    expect(result.anchorSource).toBe("flowdoc-viewport-node-anchor")
+    expect(result.anchorMode).toBe("node-aware-scroll-anchor")
+    expect(result.anchorKind).toBe("node")
+    expect(result.anchorNodeId).toBe("body-metrics-table")
+    expect(result.anchorNodeType).toBe("table")
+    expect(result.anchorSectionId).toBe("section-body")
+    expect(result.anchorOffset).toBe(380)
+    expect(result.restoreSource).toBe("flowdoc-viewport-node-anchor")
+    expect(result.restoreMode).toBe("node-aware-anchor-restore")
+    expect(result.restoreReason).toBe("node-anchor")
+    expect(result.restored).toBe(true)
+    expect(result.restoreScrollTop).toBe(2060)
     expect(result.missingReason).toBe("section-missing")
     expect(result.missingRestored).toBe(false)
     expect(result.missingScrollTop).toBe(1200)
