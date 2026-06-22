@@ -1647,6 +1647,38 @@ Acceptance:
   mutable projection editing, outline/diagnostics UI, persistence, or history
   change is claimed.
 
+## Phase 70: Structural Packet Contract Boundary
+
+Goal:
+
+- define a foundation structural packet contract that describes accepted core
+  operation results for future browser runtime-store structural apply.
+
+Deliverables:
+
+- core packet module in `src/structure/packet.ts`;
+- packet source/version/stage contract;
+- `createStructuralChangePacket(...)` from before-document plus operation
+  result;
+- `validateStructuralChangePacket(...)`;
+- separate node map changes and ordered parent-list patches;
+- rejected packet shape that does not advance revision;
+- growth warning documentation that packet v1 is not durable persistence,
+  collaboration, or backend public API;
+- tests and boundary documentation.
+
+Acceptance:
+
+- insert operations produce added nodes and insert list patches;
+- delete operations produce removed subtree ids and remove list patches;
+- reorder operations produce move list patches;
+- rejected operations produce diagnostics without structural changes or
+  revision advancement;
+- malformed applied packets fail validation before runtime-store apply phases;
+- no browser runtime-store structural apply, UI command, persistence,
+  multi-user conflict handling, offline replay, backend API exposure,
+  structural packet durability guarantee, or schema change is claimed.
+
 ## Later Phases
 
 Goal:

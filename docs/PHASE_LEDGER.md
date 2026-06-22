@@ -76,6 +76,7 @@ Parent goal:
 | 67 | Viewport node anchor boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_NODE_ANCHOR_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportNodeAnchor.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 68 | Viewport large-document behavior audit | done | `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 69 | Structural projection boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PROJECTION_BOUNDARY.md`; `src/structure/projection.ts`; `src/index.ts`; `tests/structuralProjection.test.ts` |
+| 70 | Structural packet contract boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_CONTRACT_BOUNDARY.md`; `src/structure/packet.ts`; `src/index.ts`; `tests/structuralPacket.test.ts` |
 
 ## Current Rule
 
@@ -1559,6 +1560,32 @@ This phase intentionally does not implement structural packet v1, browser
 runtime-store structural apply, add/delete/move command UI, outline or
 diagnostics UI, persistence, package/document schema changes, mutable
 projection editing, or durable history changes.
+
+## Phase 70 Structural Packet Contract Boundary
+
+Phase 70 defines structural packet v1 as a foundation bridge from accepted core
+operation results to future browser runtime-store apply:
+
+- `src/structure/packet.ts` owns `STRUCTURAL_PACKET_SOURCE`,
+  `STRUCTURAL_PACKET_VERSION`, `STRUCTURAL_PACKET_STAGE`,
+  `createStructuralChangePacket(...)`, `validateStructuralChangePacket(...)`,
+  and the packet/list-patch contracts;
+- `src/index.ts` exports the packet contracts through the public package
+  boundary;
+- packet v1 separates node map changes (`nodesAdded`, `nodesUpdated`,
+  `nodeIdsRemoved`) from ordered parent-list changes (`parentListPatches`);
+- rejected packets carry diagnostics without structural changes and without
+  revision advancement;
+- `tests/structuralPacket.test.ts` proves insert, delete subtree, reorder,
+  rejected packet, and validation behavior;
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_CONTRACT_BOUNDARY.md` records the
+  design rationale and growth warning that packet v1 is a foundation bridge,
+  not a durable persistence, collaboration, or backend public API contract.
+
+This phase intentionally does not implement browser runtime-store structural
+apply, sandbox structural command UI, persistence, multi-user conflict
+handling, offline replay, backend public API exposure, structural packet
+durability guarantees, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 

@@ -206,6 +206,9 @@ The package must remain runnable without any parent editor checkout.
 - Structural projection boundary derives read-only tree-shaped working views
   from canonical `DocumentNode` and `RelationshipGraph` facts without changing
   the persisted schema
+- Structural packet contract boundary defines foundation bridge packets from
+  accepted core operation results without making them durable persistence or
+  collaboration protocol
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -365,6 +368,8 @@ The package must remain runnable without any parent editor checkout.
   large-document viewport behavior audit before Structural Runtime work
 - `docs/TEMPLATE_BUILDER_STRUCTURAL_PROJECTION_BOUNDARY.md`: Phase 69
   derived structural projection boundary before structural packet application
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_CONTRACT_BOUNDARY.md`: Phase 70
+  structural packet v1 foundation bridge before runtime-store apply
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
