@@ -63,6 +63,7 @@ Parent goal:
 | 54 | Render shell placeholder boundary | done | `docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md`; `examples/template-builder-sandbox/public/renderShell.js`; `examples/template-builder-sandbox/public/renderModel.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 55 | Viewport section-shell measurement boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 56 | Manual viewport measurement apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportMeasurement.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 57 | Debounced viewport scroll controller boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportScrollController.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1140,6 +1141,41 @@ spacer heights, virtualized renderer scheduling, hidden/offscreen DOM pruning,
 lazy heavy-detail routes, structural add/delete/move packet application, rich
 text editing, contenteditable DOM mapping, live-layout rendering, persistence,
 API routes, or package/document version changes.
+
+## Phase 57 Debounced Viewport Scroll Controller Boundary
+
+Phase 57 adds a minimal scroll controller over the Phase 55/56 measurement and
+apply contracts:
+
+- `examples/template-builder-sandbox/public/viewportScrollController.js` owns
+  `VIEWPORT_SCROLL_CONTROLLER_SOURCE`,
+  `VIEWPORT_SCROLL_CONTROLLER_MODE`,
+  `DEFAULT_VIEWPORT_SCROLL_DEBOUNCE_MS`,
+  `createViewportScrollControllerState(...)`,
+  `recordViewportScroll(...)`, and `settleViewportScroll(...)` as a DOM-free
+  controller policy;
+- `examples/template-builder-sandbox/public/app.js` binds the canvas `scroll`
+  event, records pending movement, debounces settled scroll, applies the current
+  measured section shell through the existing visible-range request path, and
+  reports controller status;
+- automatic scroll apply is skipped while a browser draft or IME composition is
+  active;
+- scroll restore after render is guarded so restoring the measured scroll
+  position does not create a controller loop;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.controlViewportScroll` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md` records the
+  Phase 57 boundary, current behavior, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free controller
+  ownership, app-owned scroll binding, generated action-lane exposure,
+  settled-scroll-to-render-window behavior, and draft/IME skip behavior.
+
+This phase intentionally does not implement measured spacer heights, a virtual
+list, continuous throttled virtualized renderer scheduling, hidden/offscreen DOM
+pruning beyond the existing render shell, lazy heavy-detail routes, structural
+add/delete/move packet application, rich text editing, contenteditable DOM
+mapping, live-layout rendering, persistence, API routes, or package/document
+version changes.
 
 ## Phase 12 Extraction Record
 

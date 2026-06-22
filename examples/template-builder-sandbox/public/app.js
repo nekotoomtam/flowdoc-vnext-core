@@ -22,6 +22,11 @@ import {
   createViewportMeasurementApplyRequest,
   createViewportMeasurement,
 } from "./viewportMeasurement.js"
+import {
+  createViewportScrollControllerState,
+  recordViewportScroll,
+  settleViewportScroll,
+} from "./viewportScrollController.js"
 
 const app = document.querySelector("#app")
 
@@ -54,6 +59,9 @@ const state = {
   selectionSource: "boot",
   snapshot: null,
   viewportMeasurement: null,
+  viewportScrollController: createViewportScrollControllerState(),
+  viewportScrollRestoring: false,
+  viewportScrollTimerId: null,
 }
 
 function escapeHtml(value) {
@@ -165,20 +173,29 @@ function viewportApplyLabel() {
   return `Viewport apply: ${apply.requestReason} ${apply.anchorSectionId || "none"}${apply.preserved ? " preserved" : ""}`
 }
 
-function applyViewportMeasurement() {
-  if (!state.snapshot || !state.runtimeCache) return
-  const measurement = readCanvasViewportMeasurement(state.renderModel) || state.viewportMeasurement
-  if (!measurement) return
+function viewportScrollControllerLabel() {
+  const controller = state.viewportScrollController
+  const anchor = controller.status === "applied"
+    ? controller.lastAppliedAnchorSectionId
+    : controller.lastMeasuredAnchorSectionId
+  const skipped = controller.lastSkippedReason ? ` ${controller.lastSkippedReason}` : ""
+  return `Scroll controller: ${controller.status} ${anchor || "none"} e${controller.eventCount}/a${controller.appliedCount}/s${controller.skippedCount}${skipped}`
+}
 
-  const applyRequest = createViewportMeasurementApplyRequest({
-    budget: {
-      maxNodes: state.runtimeCache.visibleRangeRequest?.budget?.maxNodes,
-      mode: "viewport",
-    },
-    draftActive: draftIsActive(),
-    measurement,
-  }, state.runtimeCache.visibleRangeRequest)
+function syncViewportScrollControllerStatus() {
+  app.querySelectorAll("[data-viewport-scroll-status]").forEach((target) => {
+    target.textContent = viewportScrollControllerLabel()
+  })
+}
 
+function viewportRequestBudget() {
+  return {
+    maxNodes: state.runtimeCache?.visibleRangeRequest?.budget?.maxNodes,
+    mode: "viewport",
+  }
+}
+
+function recordViewportApplyResult(applyRequest, measurement) {
   state.lastViewportApply = {
     anchorSectionId: applyRequest.anchorSectionId,
     mode: applyRequest.mode,
@@ -186,9 +203,72 @@ function applyViewportMeasurement() {
     requestReason: applyRequest.visibleRangeRequest.reason,
     scrollTop: measurement.scrollTop,
   }
+}
+
+function applyViewportMeasurement() {
+  if (!state.snapshot || !state.runtimeCache) return
+  const measurement = readCanvasViewportMeasurement(state.renderModel) || state.viewportMeasurement
+  if (!measurement) return
+
+  const applyRequest = createViewportMeasurementApplyRequest({
+    budget: viewportRequestBudget(),
+    draftActive: draftIsActive(),
+    measurement,
+  }, state.runtimeCache.visibleRangeRequest)
+
+  recordViewportApplyResult(applyRequest, measurement)
   state.selectionSource = "viewport-apply"
   setVisibleRangeRequest(applyRequest.visibleRangeRequest)
   render({ restoreCanvasScrollTop: measurement.scrollTop })
+}
+
+function applySettledViewportScroll() {
+  state.viewportScrollTimerId = null
+  if (!state.snapshot || !state.runtimeCache) return
+
+  const measurement = readCanvasViewportMeasurement(state.renderModel) || state.viewportMeasurement
+  const settled = settleViewportScroll(state.viewportScrollController, {
+    budget: viewportRequestBudget(),
+    draftActive: draftIsActive(),
+    isComposing: state.draft.isComposing,
+    measurement,
+    previousRequest: state.runtimeCache.visibleRangeRequest,
+  })
+
+  state.viewportScrollController = settled.scrollController
+  if (!settled.applyRequest) {
+    syncViewportScrollControllerStatus()
+    return
+  }
+
+  recordViewportApplyResult(settled.applyRequest, measurement)
+  state.selectionSource = "viewport-scroll"
+  setVisibleRangeRequest(settled.applyRequest.visibleRangeRequest)
+  render({ restoreCanvasScrollTop: measurement.scrollTop })
+}
+
+function scheduleViewportScrollApply() {
+  if (!state.snapshot || !state.runtimeCache || state.viewportScrollRestoring) return
+
+  const measurement = readCanvasViewportMeasurement(state.renderModel)
+  if (!measurement) return
+
+  state.viewportMeasurement = measurement
+  state.viewportScrollController = recordViewportScroll(state.viewportScrollController, {
+    measurement,
+    scrollTop: measurement.scrollTop,
+  })
+  syncViewportMeasurementStatus()
+  syncViewportScrollControllerStatus()
+
+  if (state.viewportScrollTimerId != null) {
+    window.clearTimeout(state.viewportScrollTimerId)
+  }
+
+  state.viewportScrollTimerId = window.setTimeout(
+    applySettledViewportScroll,
+    state.viewportScrollController.debounceMs,
+  )
 }
 
 function applyChangePacket(packet) {
@@ -1583,6 +1663,7 @@ function renderStatus(snapshot, renderModel) {
       <span>${escapeHtml(renderShellLabel)}</span>
       <span data-viewport-measurement-status>${escapeHtml(viewportMeasurementLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
+      <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
       <span>${escapeHtml(editorViewLabel)}</span>
       <span>${escapeHtml(visibleRangeRequestLabel)}</span>
       <span>${escapeHtml(visibleRangeLabel)}</span>
@@ -1651,6 +1732,10 @@ function bindSelectionHandlers() {
     if (!target || !canvas.contains(target)) return
     event.stopPropagation()
     selectNode(target.dataset.nodeId, "canvas")
+  })
+
+  canvas?.addEventListener("scroll", () => {
+    scheduleViewportScrollApply()
   })
 
   canvas?.addEventListener("dblclick", (event) => {
@@ -2013,10 +2098,15 @@ function render(options = {}) {
   bindSelectionHandlers()
   const canvas = app.querySelector(".canvas-wrap")
   if (canvas && Number.isFinite(options.restoreCanvasScrollTop)) {
+    state.viewportScrollRestoring = true
     canvas.scrollTop = options.restoreCanvasScrollTop
+    window.setTimeout(() => {
+      state.viewportScrollRestoring = false
+    }, 0)
   }
   state.viewportMeasurement = readCanvasViewportMeasurement(renderModel)
   syncViewportMeasurementStatus()
+  syncViewportScrollControllerStatus()
 }
 
 async function boot() {

@@ -57,6 +57,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
       "../examples/template-builder-sandbox/public/viewportMeasurement.js",
+      "../examples/template-builder-sandbox/public/viewportScrollController.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
       "../examples/template-builder-sandbox/public/visibleRangeRequest.js",
       "../examples/template-builder-sandbox/public/visibleRange.js",
@@ -142,6 +143,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createRenderShell")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.measureViewportShell")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyViewportMeasurement")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.controlViewportScroll")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -926,6 +928,7 @@ describe("template builder sandbox boundary", () => {
     const renderShellSource = readText("../examples/template-builder-sandbox/public/renderShell.js")
     const renderModelSource = readText("../examples/template-builder-sandbox/public/renderModel.js")
     const viewportMeasurementSource = readText("../examples/template-builder-sandbox/public/viewportMeasurement.js")
+    const viewportScrollControllerSource = readText("../examples/template-builder-sandbox/public/viewportScrollController.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
     const runtimeStoreSource = readText("../examples/template-builder-sandbox/public/runtimeStore.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
@@ -945,6 +948,7 @@ describe("template builder sandbox boundary", () => {
     const renderShellDoc = readText("../docs/TEMPLATE_BUILDER_RENDER_SHELL_BOUNDARY.md")
     const viewportMeasurementDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_MEASUREMENT_BOUNDARY.md")
     const viewportApplyDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md")
+    const viewportScrollControllerDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -961,14 +965,24 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./viewportMeasurement.js"')
     expect(appSource).toContain("createViewportMeasurement")
     expect(appSource).toContain("createViewportMeasurementApplyRequest")
+    expect(appSource).toContain('from "./viewportScrollController.js"')
+    expect(appSource).toContain("createViewportScrollControllerState")
+    expect(appSource).toContain("recordViewportScroll")
+    expect(appSource).toContain("settleViewportScroll")
     expect(appSource).toContain("readCanvasViewportMeasurement")
     expect(appSource).toContain("applyViewportMeasurement")
+    expect(appSource).toContain("scheduleViewportScrollApply")
+    expect(appSource).toContain("applySettledViewportScroll")
+    expect(appSource).toContain("viewportScrollRestoring")
     expect(appSource).toContain("lastViewportApply")
     expect(appSource).toContain("data-section-id")
     expect(appSource).toContain("data-viewport-apply")
     expect(appSource).toContain("data-viewport-measurement-status")
+    expect(appSource).toContain("data-viewport-scroll-status")
     expect(appSource).toContain("Measurement:")
     expect(appSource).toContain("Viewport apply:")
+    expect(appSource).toContain("Scroll controller:")
+    expect(appSource).toContain("addEventListener(\"scroll\"")
     expect(appSource).toContain("createBootRuntimeState")
     expect(appSource).toContain("createRefreshRuntimeState")
     expect(appSource).toContain("applyChangePacketToRuntime")
@@ -1007,7 +1021,6 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).not.toContain("function replaceChangedNode")
     expect(appSource).not.toContain("packet.baseRevision !==")
     expect(appSource).not.toContain("resolveViewportRangeRequest")
-    expect(appSource).not.toContain("addEventListener(\"scroll\"")
     expect(stylesSource).toContain(".page.is-placeholder")
     expect(stylesSource).toContain(".canvas-placeholder")
     expect(runtimeStoreSource).toContain("createRuntimeStore")
@@ -1042,6 +1055,17 @@ describe("template builder sandbox boundary", () => {
     expect(viewportMeasurementSource).toContain('from "./viewportController.js"')
     expect(viewportMeasurementSource).not.toContain("document.")
     expect(viewportMeasurementSource).not.toContain("querySelector")
+    expect(viewportScrollControllerSource).toContain("createViewportScrollControllerState")
+    expect(viewportScrollControllerSource).toContain("recordViewportScroll")
+    expect(viewportScrollControllerSource).toContain("settleViewportScroll")
+    expect(viewportScrollControllerSource).toContain("flowdoc-viewport-scroll-controller")
+    expect(viewportScrollControllerSource).toContain("debounced-measurement-apply")
+    expect(viewportScrollControllerSource).toContain("DEFAULT_VIEWPORT_SCROLL_DEBOUNCE_MS")
+    expect(viewportScrollControllerSource).toContain('from "./viewportMeasurement.js"')
+    expect(viewportScrollControllerSource).not.toContain("document.")
+    expect(viewportScrollControllerSource).not.toContain("querySelector")
+    expect(viewportScrollControllerSource).not.toContain("addEventListener")
+    expect(viewportScrollControllerSource).not.toContain("setTimeout")
     expect(viewportControllerSource).toContain("createViewportFacts")
     expect(viewportControllerSource).toContain("resolveViewportRangeRequest")
     expect(viewportControllerSource).toContain("flowdoc-viewport-controller")
@@ -1117,6 +1141,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.createRenderShell")
     expect(coreBoundarySource).toContain("browser.measureViewportShell")
     expect(coreBoundarySource).toContain("browser.applyViewportMeasurement")
+    expect(coreBoundarySource).toContain("browser.controlViewportScroll")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1182,6 +1207,12 @@ describe("template builder sandbox boundary", () => {
     expect(viewportApplyDoc).toContain("createViewportMeasurementApplyRequest")
     expect(viewportApplyDoc).toContain("manual-measurement-apply")
     expect(viewportApplyDoc).toContain("no scroll event binding")
+    expect(viewportScrollControllerDoc).toContain("Status: Phase 57 implementation boundary.")
+    expect(viewportScrollControllerDoc).toContain("viewportScrollController.js")
+    expect(viewportScrollControllerDoc).toContain("recordViewportScroll")
+    expect(viewportScrollControllerDoc).toContain("settleViewportScroll")
+    expect(viewportScrollControllerDoc).toContain("browser.controlViewportScroll")
+    expect(viewportScrollControllerDoc).toContain("debounced viewport scroll controller")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -1991,6 +2022,157 @@ describe("template builder sandbox boundary", () => {
       { id: "section-toc", rendered: false },
       { id: "section-body", rendered: true },
     ])
+  })
+
+  it("settles viewport scroll through the measurement apply path", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        createBootRuntimeState,
+        createVisibleRangeRuntimeState,
+      } = await import("./public/runtimeCache.js");
+      const {
+        createViewportMeasurement,
+      } = await import("./public/viewportMeasurement.js");
+      const {
+        createViewportScrollControllerState,
+        recordViewportScroll,
+        settleViewportScroll,
+      } = await import("./public/viewportScrollController.js");
+      const {
+        createStoreBackedRenderModel,
+        getStoreBackedRenderShellSections,
+        getStoreBackedRenderWindowSections,
+      } = await import("./public/renderModel.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const bootState = createBootRuntimeState(snapshot);
+      const measurement = createViewportMeasurement({
+        scrollHeight: 2600,
+        scrollTop: 1450,
+        viewportHeight: 600,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 700 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 760, height: 700 },
+          { id: "section-body", rendered: false, shellState: "placeholder", top: 1520, height: 900 },
+        ],
+      });
+      const controller = createViewportScrollControllerState({ debounceMs: 180 });
+      const pending = recordViewportScroll(controller, {
+        measurement,
+        scrollTop: measurement.scrollTop,
+      });
+      const settled = settleViewportScroll(pending, {
+        budget: { mode: "viewport", maxNodes: 6 },
+        measurement,
+        previousRequest: bootState.runtimeCache.visibleRangeRequest,
+      });
+      const appliedState = createVisibleRangeRuntimeState(
+        snapshot,
+        bootState.runtimeCache,
+        settled.applyRequest.visibleRangeRequest,
+      );
+      const renderModel = createStoreBackedRenderModel(appliedState.snapshot, appliedState.runtimeCache);
+      const draftPending = recordViewportScroll(settled.scrollController, { measurement });
+      const draftSkipped = settleViewportScroll(draftPending, {
+        draftActive: true,
+        measurement,
+        previousRequest: appliedState.runtimeCache.visibleRangeRequest,
+      });
+      const imePending = recordViewportScroll(settled.scrollController, { measurement });
+      const imeSkipped = settleViewportScroll(imePending, {
+        draftActive: true,
+        isComposing: true,
+        measurement,
+        previousRequest: appliedState.runtimeCache.visibleRangeRequest,
+      });
+      console.log(JSON.stringify({
+        applyMode: settled.applyRequest.mode,
+        applySource: settled.applyRequest.source,
+        bootSections: bootState.runtimeCache.visibleRange.sectionIds,
+        controllerMode: controller.mode,
+        controllerSource: controller.source,
+        debounceMs: controller.debounceMs,
+        draftApplyRequest: draftSkipped.applyRequest,
+        draftSkippedReason: draftSkipped.scrollController.lastSkippedReason,
+        draftStatus: draftSkipped.scrollController.status,
+        imeApplyRequest: imeSkipped.applyRequest,
+        imeSkippedReason: imeSkipped.scrollController.lastSkippedReason,
+        imeStatus: imeSkipped.scrollController.status,
+        lastAppliedAnchorSectionId: settled.scrollController.lastAppliedAnchorSectionId,
+        lastSettledEventCount: settled.scrollController.lastSettledEventCount,
+        pendingEventCount: pending.eventCount,
+        pendingStatus: pending.status,
+        renderShellStates: getStoreBackedRenderShellSections(renderModel).map((section) => ({
+          id: section.id,
+          rendered: section.rendered,
+        })),
+        renderWindowSections: getStoreBackedRenderWindowSections(renderModel).map((section) => section.id),
+        requestReason: settled.applyRequest.visibleRangeRequest.reason,
+        requestSource: settled.applyRequest.visibleRangeRequest.source,
+        settledAppliedCount: settled.scrollController.appliedCount,
+        settledPending: settled.scrollController.pending,
+        settledStatus: settled.scrollController.status,
+        visibleRangeSections: appliedState.runtimeCache.visibleRange.sectionIds,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      applyMode: string
+      applySource: string
+      bootSections: string[]
+      controllerMode: string
+      controllerSource: string
+      debounceMs: number
+      draftApplyRequest: null
+      draftSkippedReason: string
+      draftStatus: string
+      imeApplyRequest: null
+      imeSkippedReason: string
+      imeStatus: string
+      lastAppliedAnchorSectionId: string
+      lastSettledEventCount: number
+      pendingEventCount: number
+      pendingStatus: string
+      renderShellStates: Array<{ id: string; rendered: boolean }>
+      renderWindowSections: string[]
+      requestReason: string
+      requestSource: string
+      settledAppliedCount: number
+      settledPending: boolean
+      settledStatus: string
+      visibleRangeSections: string[]
+    }
+
+    expect(result.controllerSource).toBe("flowdoc-viewport-scroll-controller")
+    expect(result.controllerMode).toBe("debounced-measurement-apply")
+    expect(result.debounceMs).toBe(180)
+    expect(result.pendingStatus).toBe("pending")
+    expect(result.pendingEventCount).toBe(1)
+    expect(result.settledStatus).toBe("applied")
+    expect(result.settledPending).toBe(false)
+    expect(result.settledAppliedCount).toBe(1)
+    expect(result.lastSettledEventCount).toBe(1)
+    expect(result.applySource).toBe("flowdoc-viewport-measurement")
+    expect(result.applyMode).toBe("manual-measurement-apply")
+    expect(result.lastAppliedAnchorSectionId).toBe("section-body")
+    expect(result.bootSections).toEqual(["section-cover"])
+    expect(result.requestSource).toBe("flowdoc-visible-range-request")
+    expect(result.requestReason).toBe("viewport")
+    expect(result.visibleRangeSections).toEqual(["section-body"])
+    expect(result.renderWindowSections).toEqual(["section-body"])
+    expect(result.renderShellStates).toEqual([
+      { id: "section-cover", rendered: false },
+      { id: "section-toc", rendered: false },
+      { id: "section-body", rendered: true },
+    ])
+    expect(result.draftStatus).toBe("skipped")
+    expect(result.draftSkippedReason).toBe("draft-active")
+    expect(result.draftApplyRequest).toBeNull()
+    expect(result.imeStatus).toBe("skipped")
+    expect(result.imeSkippedReason).toBe("composition-active")
+    expect(result.imeApplyRequest).toBeNull()
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {

@@ -551,6 +551,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser canvas can manually apply the current viewport measurement to the visible range before scroll binding",
       },
       {
+        action: "browser.controlViewportScroll",
+        label: "Scroll control",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser canvas can debounce settled scroll measurements into visible range requests before virtualized scheduling",
+      },
+      {
         action: "browser.resolveViewportRangeRequest",
         label: "Viewport request",
         lane: "immediate",

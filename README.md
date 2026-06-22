@@ -172,8 +172,11 @@ The package must remain runnable without any parent editor checkout.
   normalized viewport facts before scroll event binding or virtualized renderer
   scheduling is wired
 - Viewport apply boundary lets the sandbox manually apply the current measured
-  section shell to the visible-range/render-window path before scroll event
-  binding is wired
+  section shell to the visible-range/render-window path as an explicit recovery
+  and debugging command
+- Viewport scroll controller boundary debounces canvas scroll movement into the
+  same measurement apply request path before production viewport scheduling or
+  virtualized rendering is wired
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -300,8 +303,10 @@ The package must remain runnable without any parent editor checkout.
   section-shell measurement boundary before scroll controllers and virtualized
   renderer scheduling
 - `docs/TEMPLATE_BUILDER_VIEWPORT_APPLY_BOUNDARY.md`: Phase 56 manual viewport
-  measurement apply boundary before scroll controllers and virtualized renderer
-  scheduling
+  measurement apply boundary and explicit recovery command
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md`: Phase 57
+  debounced viewport scroll controller boundary before production viewport
+  scheduling and virtualized rendering
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -326,9 +331,9 @@ The package must remain runnable without any parent editor checkout.
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
-  undo/redo UI, DOM scroll event binding, lazy heavy-detail routes,
-  responsibility-sliced editor modules, and a concrete browser live-layout
-  renderer
+  undo/redo UI, production viewport/scroll scheduling, lazy heavy-detail
+  routes, responsibility-sliced editor modules, and a concrete browser
+  live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
 - concrete backend API routes, storage, and rendered artifacts on top of the
   generation runtime
@@ -345,7 +350,8 @@ The package must remain runnable without any parent editor checkout.
 - durable operation/authoring history persistence outside in-memory helpers
 - durable/full undo/redo replay beyond sandbox in-memory text patches
 - product-level visible editor acceptance smokes beyond the sandbox render path
-- durable browser cache persistence, full structural packet application, and
-  true virtualized renderer scheduling beyond the sandbox render-shell,
-  viewport-measurement, and manual viewport-apply contracts
+- durable browser cache persistence, full structural packet application,
+  production scroll anchoring, and true virtualized renderer scheduling beyond
+  the sandbox render-shell, viewport-measurement, manual viewport-apply, and
+  debounced scroll-controller contracts
 - publishing/distribution strategy beyond local package consumption

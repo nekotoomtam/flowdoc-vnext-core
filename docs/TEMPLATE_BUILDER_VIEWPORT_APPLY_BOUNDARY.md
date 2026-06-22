@@ -2,9 +2,12 @@
 
 Status: Phase 56 implementation boundary.
 
-Phase 56 lets the sandbox manually apply the current viewport measurement to
-the existing visible-range request path. It proves the pipeline from measured
+Phase 56 let the sandbox manually apply the current viewport measurement to
+the existing visible-range request path. It proved the pipeline from measured
 section shells into the render window without binding scroll events.
+
+Phase 57 builds on this by adding a debounced scroll controller. The manual
+apply command remains available as an explicit debugging and recovery command.
 
 ## Purpose
 
@@ -40,7 +43,7 @@ measurement input and produces the same request shape consumed by
 
 ## App Integration
 
-`examples/template-builder-sandbox/public/app.js` now:
+At the Phase 56 boundary, `examples/template-builder-sandbox/public/app.js`:
 
 - keeps the latest viewport measurement in browser-local state;
 - exposes an `Apply viewport` command in the canvas metric strip;
@@ -48,8 +51,10 @@ measurement input and produces the same request shape consumed by
 - updates the runtime cache through the existing visible-range request path;
 - reports the latest manual viewport apply result in the status bar.
 
-The app restores the measured canvas scroll position for that manual apply
-render pass only. It does not subscribe to scroll events.
+The app restored the measured canvas scroll position for that manual apply
+render pass only. Phase 56 itself had no scroll event binding; the later
+debounced scroll controller is documented separately in
+`docs/TEMPLATE_BUILDER_VIEWPORT_SCROLL_CONTROLLER_BOUNDARY.md`.
 
 ## Acceptance Evidence
 
@@ -65,7 +70,7 @@ Phase 56 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
 
 ## Non-Goals
 
-Phase 56 does not implement a viewport controller:
+Phase 56 did not implement a viewport controller:
 
 - no scroll event binding;
 - no automatic visible-range switching while scrolling;

@@ -311,6 +311,11 @@ Phase 56 adds a manual viewport measurement apply boundary. The current
 measurement can deliberately update the visible range and render window, but
 scroll movement still does not automatically drive rendering or scheduling.
 
+Phase 57 adds a debounced viewport scroll controller boundary. Scroll movement
+can now settle into the same measurement apply path, but this is still a
+minimal sandbox controller before measured spacers, production scroll anchoring,
+lazy heavy-detail loading, or true virtualized rendering.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

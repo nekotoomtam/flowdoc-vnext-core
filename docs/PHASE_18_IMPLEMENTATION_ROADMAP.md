@@ -1207,6 +1207,44 @@ Acceptance:
   text, contenteditable mapping, live renderer, route, persistence, or package
   version change is claimed.
 
+## Phase 57: Debounced Viewport Scroll Controller Boundary
+
+Goal:
+
+- let canvas scroll movement drive the existing viewport measurement apply path
+  after the scroll position settles, while keeping controller policy separate
+  from DOM and timer ownership.
+
+Deliverables:
+
+- browser-safe scroll controller state/policy module in
+  `public/viewportScrollController.js`;
+- pending/settled controller statuses with source/version/mode metadata;
+- canvas scroll event binding owned by `public/app.js`;
+- debounced settle scheduler that applies the current measurement through the
+  existing visible-range request path;
+- guard that skips automatic apply while a browser draft or IME composition is
+  active;
+- scroll restore guard after render;
+- app status output for the latest scroll controller state;
+- action lane for `browser.controlViewportScroll`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- scroll controller policy can run in Node without DOM access;
+- app shell owns browser scroll events and timers instead of hiding them in the
+  controller module;
+- synthetic settled scroll can switch the active render window through runtime
+  cache;
+- draft/IME activity can skip automatic scroll apply;
+- the visible app can switch detailed rendering after scroll settles without
+  pressing `Apply viewport`;
+- no measured spacer/virtual list, continuous virtualized renderer scheduler,
+  lazy detail endpoint, structural packet engine, rich text, contenteditable
+  mapping, live renderer, route, persistence, or package version change is
+  claimed.
+
 ## Later Phases
 
 Goal:
