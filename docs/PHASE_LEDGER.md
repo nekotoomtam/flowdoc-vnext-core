@@ -50,6 +50,7 @@ Parent goal:
 | 41 | Draft selection/caret hardening | done | `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 42 | Draft IME composition boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 43 | Editor UX north star and normalized view constraint | done | `docs/EDITOR_UX_NORTH_STAR.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`; `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 44 | Modular responsibility contract | done | `docs/MODULAR_RESPONSIBILITY_CONTRACT.md`; `AGENTS.md`; `docs/EDITOR_UX_NORTH_STAR.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -761,6 +762,27 @@ This phase intentionally does not implement a new normalized runtime cache,
 lazy detail endpoint, virtualized renderer, rich text editing, contenteditable
 DOM mapping, concrete live-layout renderer, persistence, API routes, or
 package/document version changes.
+
+## Phase 44 Modular Responsibility Contract
+
+Phase 44 records the file/module split guard before deeper editor runtime work:
+
+- `docs/MODULAR_RESPONSIBILITY_CONTRACT.md` defines responsibility-based file
+  splitting, split triggers, allowed coordinators, the current sandbox
+  exception, review questions, and non-goals;
+- `AGENTS.md` now tells future agents not to grow monolithic files that own
+  state shape, event binding, rendering, transport, mutation application,
+  diagnostics, and command policy together;
+- `docs/EDITOR_UX_NORTH_STAR.md` now carries the modular runtime rule beside
+  the normalized editor view constraint;
+- `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` now treats responsibility slicing
+  as a roadmap principle and Phase 44 acceptance boundary;
+- `tests/templateBuilderSandboxBoundary.test.ts` guards the modularity contract
+  so future work cannot silently remove it.
+
+This phase intentionally does not refactor the sandbox browser runtime,
+introduce new implementation modules, create a production editor package, add
+routes, change public APIs, or change package/document versions.
 
 ## Phase 12 Extraction Record
 

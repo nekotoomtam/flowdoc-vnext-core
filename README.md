@@ -136,6 +136,9 @@ The package must remain runnable without any parent editor checkout.
 - Editor UX north star locks the web editor as a first-class product surface
   and requires normalized/lazy editor view indexes instead of recursive tree
   snapshots as the active large-document runtime shape
+- Modular responsibility contract requires future editor/runtime work to split
+  by real behavior ownership instead of growing monolithic state/event/render/
+  transport files
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -236,6 +239,8 @@ The package must remain runnable without any parent editor checkout.
   rich DOM mapping, and per-keystroke transactions
 - `docs/EDITOR_UX_NORTH_STAR.md`: Phase 43 editor UX and normalized editor
   view constraint before deeper WYSIWYG/runtime work
+- `docs/MODULAR_RESPONSIBILITY_CONTRACT.md`: Phase 44 responsibility-sliced
+  file/module guard before deeper editor runtime work
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -260,8 +265,9 @@ The package must remain runnable without any parent editor checkout.
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
-  undo/redo UI, normalized/lazy editor view implementation, and a concrete
-  browser live-layout renderer
+  undo/redo UI, normalized/lazy editor view implementation,
+  responsibility-sliced editor modules, and a concrete browser live-layout
+  renderer
 - replacement for current parent `/api/paginate` or `/api/export`
 - concrete backend API routes, storage, and rendered artifacts on top of the
   generation runtime

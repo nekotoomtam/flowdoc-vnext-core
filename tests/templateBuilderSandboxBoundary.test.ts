@@ -948,6 +948,24 @@ describe("template builder sandbox boundary", () => {
     expect(browserCacheDoc).toContain("active runtime shape for large-document editing")
   })
 
+  it("locks future editor work to modular responsibility boundaries", () => {
+    const modularDoc = readText("../docs/MODULAR_RESPONSIBILITY_CONTRACT.md")
+    const northStarDoc = readText("../docs/EDITOR_UX_NORTH_STAR.md")
+    const roadmapDoc = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
+    const agentsDoc = readText("../AGENTS.md")
+
+    expect(modularDoc).toContain("Status: Phase 44 design boundary.")
+    expect(modularDoc).toContain("Split by responsibility, not by arbitrary size.")
+    expect(modularDoc).toContain("Coordinator files should delegate quickly")
+    expect(modularDoc).toContain("The sandbox browser file currently carries multiple concerns")
+    expect(modularDoc).toContain("not acceptable for the production editor runtime")
+    expect(modularDoc).toContain("Which file owns the new behavior?")
+    expect(northStarDoc).toContain("Modular Runtime Rule")
+    expect(northStarDoc).toContain("docs/MODULAR_RESPONSIBILITY_CONTRACT.md")
+    expect(roadmapDoc).toContain("Phase 44: Modular Responsibility Contract")
+    expect(agentsDoc).toContain("Split implementation by real responsibility boundaries")
+  })
+
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")

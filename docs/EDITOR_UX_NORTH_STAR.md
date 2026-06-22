@@ -116,6 +116,27 @@ The runtime may use different shapes for different jobs:
 Any phase that makes the browser re-walk a full recursive tree during active
 typing, selection, or scroll should be rejected or split before implementation.
 
+## Modular Runtime Rule
+
+The editor runtime must not become one file that owns all state, events,
+commands, transport, packet application, rendering, layout reconciliation, and
+diagnostics.
+
+Implementation should split by responsibility before adding deeper behavior:
+
+- normalized view indexes;
+- draft/edit buffer state;
+- selection, caret, and IME state;
+- command readiness and command execution;
+- mutation transport and packet application;
+- visual projection and renderer overlays;
+- live-layout request/reconciliation;
+- diagnostics and recovery policy.
+
+`docs/MODULAR_RESPONSIBILITY_CONTRACT.md` owns the detailed file/module split
+rule. The north star is simple: make the editor feel direct without recreating
+the old "everything knows everything" runtime.
+
 ## Non-Negotiables
 
 - The web editor is a first-class product surface.
@@ -131,6 +152,8 @@ typing, selection, or scroll should be rejected or split before implementation.
 - Long-document editing must be an acceptance target, not a later polish item.
 - Normalized/lazy editor view is a required runtime constraint, not a late
   optimization.
+- Responsibility-sliced modules are required before the editor runtime gains
+  rich text, key chips, durable DOM mapping, virtualization, or live rendering.
 - API/export are important consumers, but they do not replace editor UX.
 
 ## Browser Editing Runtime Responsibilities

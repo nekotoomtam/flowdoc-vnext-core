@@ -30,6 +30,9 @@ truth. It is evidence only.
 6. Every strong architecture claim must cite file/function/test evidence.
 7. Prefer small, reversible patches, but continue through the delegated job
    until the active plan is complete or blocked.
+8. Split implementation by real responsibility boundaries. Do not grow
+   monolithic files that own state shape, event binding, rendering, transport,
+   mutation application, diagnostics, and command policy together.
 
 ## Required Review Output
 
@@ -52,4 +55,3 @@ When reviewing or handing off broad work, include:
 - `docs/LEGACY_MIGRATION_GATE.md`
 - `docs/PHASE_LEDGER.md`
 - the tests for the touched subsystem
-

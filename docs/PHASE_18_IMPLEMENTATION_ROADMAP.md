@@ -27,6 +27,8 @@ Build a dynamic node-based docgen template builder with:
 - Keep every patch small and reversible.
 - Add tests before claiming behavior.
 - Prefer browser-safe and Node-safe shared contracts.
+- Split implementation by real responsibility boundaries before files become
+  state/event/render/transport/diagnostic catch-alls.
 - Do not copy the old editor runtime.
 - Do not let exact generation layout become the active typing path.
 - Do not add node types for role/style/workflow variants.
@@ -779,6 +781,35 @@ Acceptance:
   normalized/lazy indexes;
 - no new browser runtime implementation, route, persistence, rich text editor,
   or package version change is claimed.
+
+## Phase 44: Modular Responsibility Contract
+
+Goal:
+
+- prevent vNext editor/runtime work from growing into monolithic files that own
+  unrelated behavior concerns.
+
+Deliverables:
+
+- `docs/MODULAR_RESPONSIBILITY_CONTRACT.md` as the Phase 44 responsibility
+  split boundary;
+- working-agreement rule for responsibility-sliced implementation;
+- editor north-star alignment that forbids one runtime file from owning state,
+  events, commands, transport, packet application, rendering, layout
+  reconciliation, and diagnostics together;
+- roadmap and ledger entries for the modularity guard;
+- source/test evidence that future work keeps the guard documented.
+
+Acceptance:
+
+- future phases must identify which module owns new behavior and which file is
+  only coordinating it;
+- coordinator files remain thin and delegate to responsibility-specific
+  modules;
+- the current sandbox browser file remains a temporary exception, not the
+  production editor runtime shape;
+- no refactor, route, package version change, or production editor package is
+  claimed in this phase.
 
 ## Later Phases
 
