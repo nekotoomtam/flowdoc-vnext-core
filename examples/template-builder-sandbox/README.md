@@ -47,6 +47,8 @@ Implemented:
   commits;
 - manual guarded viewport scheduler-candidate apply before automatic
   virtualized render scheduling;
+- browser-safe viewport scheduler runtime state for sequence/request-id and
+  stale-candidate guards;
 - boundary tests from the root repository.
 
 Not implemented:

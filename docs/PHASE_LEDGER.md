@@ -69,6 +69,7 @@ Parent goal:
 | 60 | Section offset prediction boundary | done | `docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSectionOffsets.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 61 | Viewport scheduler candidate boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerCandidate.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 62 | Viewport scheduler apply boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerApply.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 63 | Viewport scheduler runtime boundary | done | `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md`; `examples/template-builder-sandbox/public/viewportSchedulerRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1356,6 +1357,37 @@ hidden/offscreen DOM pruning beyond the existing render shell, lazy
 heavy-detail routes, node anchors, caret-aware anchors, structural packet
 application, rich text editing, contenteditable DOM mapping, live-layout
 rendering, persistence, API routes, or package/document version changes.
+
+## Phase 63 Viewport Scheduler Runtime Boundary
+
+Phase 63 adds a browser-safe runtime state layer around viewport scheduler
+candidates before automatic scheduling is claimed:
+
+- `examples/template-builder-sandbox/public/viewportSchedulerRuntime.js` owns
+  scheduler source, mode, version, runtime state creation, candidate planning,
+  and candidate apply runtime checks;
+- runtime-planned candidates receive a monotonic scheduler sequence,
+  deterministic request id, signature, and document/runtime revision facts;
+- stale candidates are blocked before the Phase 62 apply gate can return a
+  visible-range request;
+- `examples/template-builder-sandbox/public/app.js` stores
+  `viewportSchedulerRuntime`, reports `Scheduler runtime: ...`, and delegates
+  candidate/apply policy to the runtime module while keeping DOM measurement
+  and render refresh in the browser shell;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.runViewportSchedulerRuntime` as a wired browser action lane;
+- `docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md` records the
+  Phase 63 boundary, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves DOM-free runtime
+  ownership, action-lane exposure, sequence/request-id planning, stale drops,
+  and ready apply handoff through the Phase 62 gate.
+
+This phase intentionally does not implement automatic render-window scheduling,
+continuous background scheduling, a virtual list, hidden/offscreen DOM pruning
+beyond the existing render shell, lazy heavy-detail routes, node anchors,
+caret-aware anchors, structural packet application, rich text editing,
+contenteditable DOM mapping, live-layout rendering, persistence, API routes, or
+package/document version changes.
 
 ## Phase 12 Extraction Record
 

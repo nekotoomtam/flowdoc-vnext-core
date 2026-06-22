@@ -41,11 +41,10 @@ import {
   resolveViewportSectionOffset,
 } from "./viewportSectionOffsets.js"
 import {
-  createViewportSchedulerCandidate,
-} from "./viewportSchedulerCandidate.js"
-import {
-  createViewportSchedulerApplyRequest,
-} from "./viewportSchedulerApply.js"
+  applyViewportSchedulerRuntimeCandidate,
+  createViewportSchedulerRuntimeState,
+  planViewportSchedulerRuntimeCandidate,
+} from "./viewportSchedulerRuntime.js"
 
 const app = document.querySelector("#app")
 
@@ -85,6 +84,7 @@ const state = {
   viewportSectionSpacers: createViewportSectionSpacerMap(),
   viewportSchedulerApply: null,
   viewportSchedulerCandidate: null,
+  viewportSchedulerRuntime: createViewportSchedulerRuntimeState(),
   viewportScrollController: createViewportScrollControllerState(),
   viewportScrollRestoring: false,
   viewportScrollTimerId: null,
@@ -270,7 +270,13 @@ function viewportSchedulerCandidateInput(input = {}) {
 }
 
 function updateViewportSchedulerCandidate(input = {}) {
-  state.viewportSchedulerCandidate = createViewportSchedulerCandidate(viewportSchedulerCandidateInput(input))
+  state.viewportSchedulerRuntime = planViewportSchedulerRuntimeCandidate(state.viewportSchedulerRuntime, {
+    ...viewportSchedulerCandidateInput(input),
+    documentRevision: state.snapshot?.session?.documentRevision,
+    runtimeRevision: state.runtimeCache?.documentRevision,
+  })
+  state.viewportSchedulerCandidate = state.viewportSchedulerRuntime.candidate
+  state.viewportSchedulerApply = state.viewportSchedulerRuntime.apply
 }
 
 function viewportSchedulerCandidateLabel() {
@@ -304,28 +310,50 @@ function syncViewportSchedulerApplyStatus() {
   })
 }
 
+function viewportSchedulerRuntimeLabel() {
+  const runtime = state.viewportSchedulerRuntime
+  if (!runtime) return "Scheduler runtime: idle"
+  const detail = runtime.lastBlockedReason
+    || runtime.lastAppliedRequestId
+    || runtime.pendingRequestId
+    || "none"
+  return `Scheduler runtime: ${runtime.status} #${runtime.sequence} ${detail}`
+}
+
+function syncViewportSchedulerRuntimeStatus() {
+  app.querySelectorAll("[data-viewport-scheduler-runtime-status]").forEach((target) => {
+    target.textContent = viewportSchedulerRuntimeLabel()
+  })
+}
+
 function applyViewportSchedulerCandidate() {
   if (!state.snapshot || !state.runtimeCache) return
 
-  const candidate = createViewportSchedulerCandidate(viewportSchedulerCandidateInput({
-    observeOnly: false,
-    reason: "scheduler-apply",
-  }))
-  const applyRequest = createViewportSchedulerApplyRequest({
-    candidate,
+  const plannedRuntime = planViewportSchedulerRuntimeCandidate(state.viewportSchedulerRuntime, {
+    ...viewportSchedulerCandidateInput({
+      observeOnly: false,
+      reason: "scheduler-apply",
+    }),
+    documentRevision: state.snapshot.session.documentRevision,
+    runtimeRevision: state.runtimeCache.documentRevision,
+  })
+  const appliedRuntime = applyViewportSchedulerRuntimeCandidate(plannedRuntime, {
     documentRevision: state.snapshot.session.documentRevision,
     draftActive: draftIsActive(),
     isComposing: state.draft.isComposing,
     runtimeRevision: state.runtimeCache.documentRevision,
     trigger: "manual",
   })
+  const applyRequest = appliedRuntime.apply
 
-  state.viewportSchedulerCandidate = candidate
+  state.viewportSchedulerRuntime = appliedRuntime
+  state.viewportSchedulerCandidate = appliedRuntime.candidate
   state.viewportSchedulerApply = applyRequest
 
   if (!applyRequest.applyReady) {
     syncViewportSchedulerCandidateStatus()
     syncViewportSchedulerApplyStatus()
+    syncViewportSchedulerRuntimeStatus()
     return
   }
 
@@ -425,6 +453,7 @@ function applySettledViewportScroll() {
       reason: settled.scrollController.lastSkippedReason || "scroll-skipped",
     })
     syncViewportSchedulerCandidateStatus()
+    syncViewportSchedulerRuntimeStatus()
     syncViewportScrollControllerStatus()
     return
   }
@@ -460,6 +489,7 @@ function scheduleViewportScrollApply() {
   syncViewportSectionOffsetStatus()
   syncViewportSchedulerCandidateStatus()
   syncViewportSchedulerApplyStatus()
+  syncViewportSchedulerRuntimeStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 
@@ -1883,6 +1913,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-section-offset-status>${escapeHtml(viewportSectionOffsetLabel())}</span>
       <span data-viewport-scheduler-candidate-status>${escapeHtml(viewportSchedulerCandidateLabel())}</span>
       <span data-viewport-scheduler-apply-status>${escapeHtml(viewportSchedulerApplyLabel())}</span>
+      <span data-viewport-scheduler-runtime-status>${escapeHtml(viewportSchedulerRuntimeLabel())}</span>
       <span data-viewport-anchor-status>${escapeHtml(viewportAnchorLabel())}</span>
       <span>${escapeHtml(viewportApplyLabel())}</span>
       <span data-viewport-scroll-status>${escapeHtml(viewportScrollControllerLabel())}</span>
@@ -2357,6 +2388,7 @@ function render(options = {}) {
   syncViewportSectionSpacerStatus()
   syncViewportSectionOffsetStatus()
   syncViewportSchedulerCandidateStatus()
+  syncViewportSchedulerRuntimeStatus()
   syncViewportAnchorStatus()
   syncViewportScrollControllerStatus()
 }

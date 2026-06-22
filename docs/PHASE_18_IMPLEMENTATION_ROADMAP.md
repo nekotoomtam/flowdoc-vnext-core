@@ -1414,6 +1414,43 @@ Acceptance:
   structural packet engine, rich text, contenteditable mapping, live renderer,
   route, persistence, or package version change is claimed.
 
+## Phase 63: Viewport Scheduler Runtime Boundary
+
+Goal:
+
+- move scheduler sequence, request-id, runtime status, and stale-candidate
+  policy out of `app.js` before automatic scheduling or virtualization is
+  claimed.
+
+Deliverables:
+
+- browser-safe scheduler runtime module in
+  `public/viewportSchedulerRuntime.js`;
+- scheduler runtime source/version/mode contract;
+- runtime state with sequence, pending request id, applied/blocked/stale
+  counters, and last-blocked reason;
+- candidate planning wrapper over the Phase 61 candidate helper;
+- runtime apply wrapper over the Phase 62 apply gate;
+- stale-candidate checks for request id, sequence, document revision, and
+  runtime revision;
+- app status output for `Scheduler runtime: ...`;
+- action lane for `browser.runViewportSchedulerRuntime`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- scheduler runtime policy can run in Node without DOM access;
+- runtime-planned candidates receive stable scheduler request ids;
+- stale candidates are rejected before changing the visible range;
+- ready candidates still enter the existing visible-range request path through
+  the Phase 62 apply gate;
+- `app.js` coordinates DOM measurement/render refresh but does not own
+  scheduler sequence, request-id, or stale-candidate policy;
+- no automatic render-window scheduling loop, virtual list, hidden/offscreen
+  DOM pruning, lazy detail endpoint, node anchor, caret-relative anchor,
+  structural packet engine, rich text, contenteditable mapping, live renderer,
+  route, persistence, or package version change is claimed.
+
 ## Later Phases
 
 Goal:

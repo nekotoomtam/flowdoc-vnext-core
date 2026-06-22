@@ -61,6 +61,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/viewportScrollController.js",
       "../examples/template-builder-sandbox/public/viewportSchedulerCandidate.js",
       "../examples/template-builder-sandbox/public/viewportSchedulerApply.js",
+      "../examples/template-builder-sandbox/public/viewportSchedulerRuntime.js",
       "../examples/template-builder-sandbox/public/viewportSectionOffsets.js",
       "../examples/template-builder-sandbox/public/viewportSectionSpacers.js",
       "../examples/template-builder-sandbox/public/viewportController.js",
@@ -154,6 +155,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.predictViewportSections")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planViewportCandidate")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyViewportSchedulerCandidate")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.runViewportSchedulerRuntime")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveViewportRangeRequest")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveVisibleRange")
@@ -942,6 +944,7 @@ describe("template builder sandbox boundary", () => {
     const viewportScrollControllerSource = readText("../examples/template-builder-sandbox/public/viewportScrollController.js")
     const viewportSchedulerCandidateSource = readText("../examples/template-builder-sandbox/public/viewportSchedulerCandidate.js")
     const viewportSchedulerApplySource = readText("../examples/template-builder-sandbox/public/viewportSchedulerApply.js")
+    const viewportSchedulerRuntimeSource = readText("../examples/template-builder-sandbox/public/viewportSchedulerRuntime.js")
     const viewportSectionOffsetsSource = readText("../examples/template-builder-sandbox/public/viewportSectionOffsets.js")
     const viewportSectionSpacersSource = readText("../examples/template-builder-sandbox/public/viewportSectionSpacers.js")
     const viewportControllerSource = readText("../examples/template-builder-sandbox/public/viewportController.js")
@@ -969,6 +972,7 @@ describe("template builder sandbox boundary", () => {
     const sectionOffsetDoc = readText("../docs/TEMPLATE_BUILDER_SECTION_OFFSET_BOUNDARY.md")
     const viewportSchedulerCandidateDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_CANDIDATE_BOUNDARY.md")
     const viewportSchedulerApplyDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_APPLY_BOUNDARY.md")
+    const viewportSchedulerRuntimeDoc = readText("../docs/TEMPLATE_BUILDER_VIEWPORT_SCHEDULER_RUNTIME_BOUNDARY.md")
 
     expect(appSource).toContain('from "./renderModel.js"')
     expect(appSource).toContain('from "./runtimeCache.js"')
@@ -992,10 +996,10 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("createViewportSectionOffsetIndex")
     expect(appSource).toContain("predictViewportFromSectionOffsets")
     expect(appSource).toContain("resolveViewportSectionOffset")
-    expect(appSource).toContain('from "./viewportSchedulerCandidate.js"')
-    expect(appSource).toContain("createViewportSchedulerCandidate")
-    expect(appSource).toContain('from "./viewportSchedulerApply.js"')
-    expect(appSource).toContain("createViewportSchedulerApplyRequest")
+    expect(appSource).toContain('from "./viewportSchedulerRuntime.js"')
+    expect(appSource).toContain("planViewportSchedulerRuntimeCandidate")
+    expect(appSource).toContain("applyViewportSchedulerRuntimeCandidate")
+    expect(appSource).toContain("createViewportSchedulerRuntimeState")
     expect(appSource).toContain('from "./viewportMeasurement.js"')
     expect(appSource).toContain("createViewportMeasurement")
     expect(appSource).toContain("createViewportMeasurementApplyRequest")
@@ -1021,6 +1025,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-viewport-scheduler-candidate-status")
     expect(appSource).toContain("data-viewport-scheduler-apply")
     expect(appSource).toContain("data-viewport-scheduler-apply-status")
+    expect(appSource).toContain("data-viewport-scheduler-runtime-status")
     expect(appSource).toContain("data-section-spacer-height")
     expect(appSource).toContain("data-section-spacer-reason")
     expect(appSource).toContain("data-section-spacer-status")
@@ -1031,6 +1036,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("Measurement:")
     expect(appSource).toContain("Viewport candidate:")
     expect(appSource).toContain("Scheduler apply:")
+    expect(appSource).toContain("Scheduler runtime:")
     expect(appSource).toContain("Section offsets:")
     expect(appSource).toContain("Section spacers:")
     expect(appSource).toContain("Viewport anchor:")
@@ -1150,6 +1156,18 @@ describe("template builder sandbox boundary", () => {
     expect(viewportSchedulerApplySource).not.toContain("querySelector")
     expect(viewportSchedulerApplySource).not.toContain("addEventListener")
     expect(viewportSchedulerApplySource).not.toContain("setTimeout")
+    expect(viewportSchedulerRuntimeSource).toContain("createViewportSchedulerRuntimeState")
+    expect(viewportSchedulerRuntimeSource).toContain("planViewportSchedulerRuntimeCandidate")
+    expect(viewportSchedulerRuntimeSource).toContain("applyViewportSchedulerRuntimeCandidate")
+    expect(viewportSchedulerRuntimeSource).toContain("flowdoc-viewport-scheduler-runtime")
+    expect(viewportSchedulerRuntimeSource).toContain("bounded-section-window-scheduler")
+    expect(viewportSchedulerRuntimeSource).toContain("stale-candidate")
+    expect(viewportSchedulerRuntimeSource).toContain('from "./viewportSchedulerCandidate.js"')
+    expect(viewportSchedulerRuntimeSource).toContain('from "./viewportSchedulerApply.js"')
+    expect(viewportSchedulerRuntimeSource).not.toContain("document.")
+    expect(viewportSchedulerRuntimeSource).not.toContain("querySelector")
+    expect(viewportSchedulerRuntimeSource).not.toContain("addEventListener")
+    expect(viewportSchedulerRuntimeSource).not.toContain("setTimeout")
     expect(viewportSectionOffsetsSource).toContain("createViewportSectionOffsetIndex")
     expect(viewportSectionOffsetsSource).toContain("predictViewportFromSectionOffsets")
     expect(viewportSectionOffsetsSource).toContain("resolveViewportSectionOffset")
@@ -1252,6 +1270,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.predictViewportSections")
     expect(coreBoundarySource).toContain("browser.planViewportCandidate")
     expect(coreBoundarySource).toContain("browser.applyViewportSchedulerCandidate")
+    expect(coreBoundarySource).toContain("browser.runViewportSchedulerRuntime")
     expect(coreBoundarySource).toContain("browser.resolveViewportRangeRequest")
     expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("browser.resolveVisibleRange")
@@ -1352,6 +1371,12 @@ describe("template builder sandbox boundary", () => {
     expect(viewportSchedulerApplyDoc).toContain("createViewportSchedulerApplyRequest")
     expect(viewportSchedulerApplyDoc).toContain("browser.applyViewportSchedulerCandidate")
     expect(viewportSchedulerApplyDoc).toContain("does not implement the final viewport scheduler")
+    expect(viewportSchedulerRuntimeDoc).toContain("Status: Phase 63 implementation boundary.")
+    expect(viewportSchedulerRuntimeDoc).toContain("viewportSchedulerRuntime.js")
+    expect(viewportSchedulerRuntimeDoc).toContain("planViewportSchedulerRuntimeCandidate")
+    expect(viewportSchedulerRuntimeDoc).toContain("applyViewportSchedulerRuntimeCandidate")
+    expect(viewportSchedulerRuntimeDoc).toContain("browser.runViewportSchedulerRuntime")
+    expect(viewportSchedulerRuntimeDoc).toContain("stale candidates are dropped")
   })
 
   it("builds normalized editor view indexes from the sandbox snapshot", () => {
@@ -2868,6 +2893,156 @@ describe("template builder sandbox boundary", () => {
     expect(result.stableBlockedReason).toBe("render-window-stable")
     expect(result.draftBlockedReason).toBe("draft-active")
     expect(result.revisionBlockedReason).toBe("revision-mismatch")
+  })
+
+  it("runs viewport scheduler runtime state before automatic scheduling", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createViewportMeasurement,
+      } = await import("./public/viewportMeasurement.js");
+      const {
+        createViewportSectionSpacerMap,
+      } = await import("./public/viewportSectionSpacers.js");
+      const {
+        createViewportSectionOffsetIndex,
+        predictViewportFromSectionOffsets,
+      } = await import("./public/viewportSectionOffsets.js");
+      const {
+        applyViewportSchedulerRuntimeCandidate,
+        createViewportSchedulerRuntimeState,
+        planViewportSchedulerRuntimeCandidate,
+      } = await import("./public/viewportSchedulerRuntime.js");
+      const measurement = createViewportMeasurement({
+        measuredAtRevision: 9,
+        scrollHeight: 6200,
+        scrollTop: 3200,
+        viewportHeight: 700,
+        sections: [
+          { id: "section-cover", rendered: true, shellState: "rendered", top: 0, height: 831 },
+          { id: "section-toc", rendered: false, shellState: "placeholder", top: 849, height: 720 },
+          { id: "section-body", rendered: true, shellState: "rendered", top: 1587, height: 4200 },
+        ],
+      });
+      const spacerMap = createViewportSectionSpacerMap({ measurement });
+      const offsetIndex = createViewportSectionOffsetIndex({ sectionGap: 18, spacerMap });
+      const prediction = predictViewportFromSectionOffsets({
+        offsetIndex,
+        scrollTop: 3200,
+        viewportHeight: 700,
+      });
+      const baseInput = {
+        budget: { maxNodes: 80, mode: "viewport" },
+        documentRevision: 9,
+        observeOnly: false,
+        offsetIndex,
+        prediction,
+        previousRequest: {
+          anchorSectionId: "section-cover",
+          budget: { maxNodes: 80, mode: "viewport" },
+          reason: "boot",
+        },
+        renderWindow: {
+          anchorSectionId: "section-cover",
+          sectionIds: ["section-cover"],
+        },
+        runtimeRevision: 9,
+      };
+      const initial = createViewportSchedulerRuntimeState();
+      const planned = planViewportSchedulerRuntimeCandidate(initial, baseInput);
+      const readyApplied = applyViewportSchedulerRuntimeCandidate(planned, {
+        documentRevision: 9,
+        runtimeRevision: 9,
+        trigger: "manual",
+      });
+      const newerPlan = planViewportSchedulerRuntimeCandidate(planned, {
+        ...baseInput,
+        reason: "newer-scroll",
+      });
+      const staleApplied = applyViewportSchedulerRuntimeCandidate(newerPlan, {
+        candidate: planned.candidate,
+        documentRevision: 9,
+        runtimeRevision: 9,
+        trigger: "manual",
+      });
+      const revisionStale = applyViewportSchedulerRuntimeCandidate(planned, {
+        documentRevision: 10,
+        runtimeRevision: 9,
+        trigger: "manual",
+      });
+      const undecoratedApplied = applyViewportSchedulerRuntimeCandidate(planned, {
+        candidate: {
+          ...planned.candidate,
+          schedulerRequestId: undefined,
+          schedulerSequence: undefined,
+          schedulerSource: undefined,
+        },
+        documentRevision: 9,
+        runtimeRevision: 9,
+        trigger: "manual",
+      });
+      console.log(JSON.stringify({
+        initialStatus: initial.status,
+        plannedCandidateRequestId: planned.candidate.schedulerRequestId,
+        plannedCandidateSequence: planned.candidate.schedulerSequence,
+        plannedPendingRequestId: planned.pendingRequestId,
+        plannedSequence: planned.sequence,
+        plannedSource: planned.source,
+        plannedStatus: planned.status,
+        readyApplyReady: readyApplied.apply.applyReady,
+        readyApplySource: readyApplied.apply.source,
+        readyLastAppliedRequestId: readyApplied.lastAppliedRequestId,
+        readyStatus: readyApplied.status,
+        revisionBlockedReason: revisionStale.apply.blockedReason,
+        revisionStatus: revisionStale.status,
+        staleBlockedReason: staleApplied.apply.blockedReason,
+        staleDroppedCount: staleApplied.staleDroppedCount,
+        staleStatus: staleApplied.status,
+        undecoratedBlockedReason: undecoratedApplied.apply.blockedReason,
+        undecoratedStatus: undecoratedApplied.status,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      initialStatus: string
+      plannedCandidateRequestId: string
+      plannedCandidateSequence: number
+      plannedPendingRequestId: string
+      plannedSequence: number
+      plannedSource: string
+      plannedStatus: string
+      readyApplyReady: boolean
+      readyApplySource: string
+      readyLastAppliedRequestId: string
+      readyStatus: string
+      revisionBlockedReason: string
+      revisionStatus: string
+      staleBlockedReason: string
+      staleDroppedCount: number
+      staleStatus: string
+      undecoratedBlockedReason: string
+      undecoratedStatus: string
+    }
+
+    expect(result.initialStatus).toBe("idle")
+    expect(result.plannedSource).toBe("flowdoc-viewport-scheduler-runtime")
+    expect(result.plannedStatus).toBe("ready")
+    expect(result.plannedSequence).toBe(1)
+    expect(result.plannedCandidateSequence).toBe(1)
+    expect(result.plannedCandidateRequestId).toContain("viewport-scheduler:1:")
+    expect(result.plannedPendingRequestId).toBe(result.plannedCandidateRequestId)
+    expect(result.readyApplySource).toBe("flowdoc-viewport-scheduler-apply")
+    expect(result.readyApplyReady).toBe(true)
+    expect(result.readyStatus).toBe("applied")
+    expect(result.readyLastAppliedRequestId).toBe(result.plannedCandidateRequestId)
+    expect(result.staleStatus).toBe("stale")
+    expect(result.staleBlockedReason).toBe("stale-candidate")
+    expect(result.staleDroppedCount).toBe(1)
+    expect(result.revisionStatus).toBe("stale")
+    expect(result.revisionBlockedReason).toBe("stale-candidate")
+    expect(result.undecoratedStatus).toBe("stale")
+    expect(result.undecoratedBlockedReason).toBe("stale-candidate")
   })
 
   it("applies change packets through the browser-safe runtime cache module", () => {
