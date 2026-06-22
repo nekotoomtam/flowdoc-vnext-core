@@ -51,6 +51,7 @@ Parent goal:
 | 42 | Draft IME composition boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 43 | Editor UX north star and normalized view constraint | done | `docs/EDITOR_UX_NORTH_STAR.md`; `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`; `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`; `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 44 | Modular responsibility contract | done | `docs/MODULAR_RESPONSIBILITY_CONTRACT.md`; `AGENTS.md`; `docs/EDITOR_UX_NORTH_STAR.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 45 | Normalized editor view boundary | done | `docs/TEMPLATE_BUILDER_NORMALIZED_EDITOR_VIEW_BOUNDARY.md`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -783,6 +784,33 @@ Phase 44 records the file/module split guard before deeper editor runtime work:
 This phase intentionally does not refactor the sandbox browser runtime,
 introduce new implementation modules, create a production editor package, add
 routes, change public APIs, or change package/document versions.
+
+## Phase 45 Normalized Editor View Boundary
+
+Phase 45 adds the first lookup-first browser editor view:
+
+- `examples/template-builder-sandbox/public/editorView.js` owns browser-safe
+  normalized editor view creation and helper reads;
+- the editor view derives `nodeById`, `parentById`, `childrenById`,
+  `sectionById`, `zoneById`, section/zone node indexes, root zone ids,
+  `nodeOrder`, `visibleNodeIds`, dirty ids, changed ids, and changed subtree
+  ids;
+- the browser runtime cache now stores the editor view and exposes view mode,
+  visible node count, child index count, and dirty node count for status/debug;
+- tree and canvas rendering traverse through editor view helpers instead of
+  directly mapping recursive `node.children` in render code;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.createNormalizedEditorView` as a wired action lane;
+- `docs/TEMPLATE_BUILDER_NORMALIZED_EDITOR_VIEW_BOUNDARY.md` records the
+  boundary, scale direction, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` imports the browser-safe
+  module in Node and proves the expected indexes from the sandbox snapshot.
+
+This phase intentionally does not implement viewport virtualization, lazy
+detail routes, structural packet patching without snapshot tree patching, rich
+text editing, key/field chips, contenteditable mapping, language-specific IME,
+concrete live-layout rendering, persistence, API routes, or package/document
+version changes.
 
 ## Phase 12 Extraction Record
 

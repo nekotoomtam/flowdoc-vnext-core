@@ -254,6 +254,10 @@ Normalized Editor View Boundary:
 After that contract exists, text-block line-slice extraction and wrap quality
 work can continue with the editor UX target in view.
 
+Phase 45 starts that target with a sandbox normalized editor view module. It is
+not virtualization yet; it is the lookup-first shape that virtualization, lazy
+detail, hit-testing, and rich editing can build on.
+
 ## Drift Warning
 
 If planning starts to describe FlowDoc mainly as:

@@ -495,6 +495,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser runtime cache consumes packet-only mutation responses after boot",
       },
       {
+        action: "browser.createNormalizedEditorView",
+        label: "View index",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser runtime derives lookup-first editor indexes from boot snapshots and packets",
+      },
+      {
         action: "browser.editTextDraft",
         label: "Draft",
         lane: "immediate + commit",

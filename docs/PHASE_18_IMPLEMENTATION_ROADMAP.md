@@ -811,6 +811,34 @@ Acceptance:
 - no refactor, route, package version change, or production editor package is
   claimed in this phase.
 
+## Phase 45: Normalized Editor View Boundary
+
+Goal:
+
+- add the first lookup-first browser editor view so the sandbox no longer
+  treats the recursive snapshot tree as the only active traversal shape.
+
+Deliverables:
+
+- browser-safe `public/editorView.js` module;
+- normalized indexes for node, parent, children, section, zone, node order,
+  visible ids, changed ids, changed subtree ids, and dirty ids;
+- runtime cache ownership of the editor view;
+- tree and canvas render traversal through editor view helper calls;
+- status/debug output for editor view mode and visible/index counts;
+- action lane for `browser.createNormalizedEditorView`;
+- boundary documentation and root tests.
+
+Acceptance:
+
+- boot still uses the existing full snapshot;
+- packet application may still patch the current snapshot view model;
+- active selection and render traversal have a normalized lookup path;
+- `visibleNodeIds` exists as an all-node placeholder for future viewport
+  windowing;
+- no virtualization, lazy detail endpoint, rich text, contenteditable mapping,
+  live renderer, route, persistence, or package version change is claimed.
+
 ## Later Phases
 
 Goal:

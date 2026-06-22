@@ -139,6 +139,9 @@ The package must remain runnable without any parent editor checkout.
 - Modular responsibility contract requires future editor/runtime work to split
   by real behavior ownership instead of growing monolithic state/event/render/
   transport files
+- Normalized editor view boundary adds a browser-safe sandbox module that
+  derives lookup-first indexes from boot snapshots and packet-updated view
+  models before viewport windowing or lazy heavy-detail routes
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -241,6 +244,8 @@ The package must remain runnable without any parent editor checkout.
   view constraint before deeper WYSIWYG/runtime work
 - `docs/MODULAR_RESPONSIBILITY_CONTRACT.md`: Phase 44 responsibility-sliced
   file/module guard before deeper editor runtime work
+- `docs/TEMPLATE_BUILDER_NORMALIZED_EDITOR_VIEW_BOUNDARY.md`: Phase 45
+  normalized editor view boundary for lookup-first sandbox runtime indexes
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -265,7 +270,7 @@ The package must remain runnable without any parent editor checkout.
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
-  undo/redo UI, normalized/lazy editor view implementation,
+  undo/redo UI, viewport windowing, lazy heavy-detail routes,
   responsibility-sliced editor modules, and a concrete browser live-layout
   renderer
 - replacement for current parent `/api/paginate` or `/api/export`

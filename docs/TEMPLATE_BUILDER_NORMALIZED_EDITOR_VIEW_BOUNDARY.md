@@ -1,0 +1,119 @@
+# Template Builder Normalized Editor View Boundary
+
+Status: Phase 45 implementation boundary.
+
+Phase 45 adds the first browser-side normalized editor view for the
+template-builder sandbox. The sandbox still boots from the existing full
+snapshot, but active lookup and render traversal now have a lookup-first view
+owned by a separate browser module.
+
+## Purpose
+
+The previous browser cache already built `nodeById`, but rendering still walked
+the recursive snapshot tree directly. That was fine for early proof-of-life
+work, but it would become a scale trap if every future selection, scroll,
+inspector read, or render pass depended on tree traversal.
+
+The Phase 45 flow is:
+
+```text
+GET /api/snapshot
+  -> tree-shaped boot snapshot
+  -> createEditorView(...)
+  -> nodeById / parentById / childrenById / visibleNodeIds
+  -> render and selection read through editor view helpers
+```
+
+Packet application still patches the tree-shaped snapshot view model, then
+rebuilds the normalized view from the updated snapshot. That keeps Phase 45
+small while moving the active runtime contract in the right direction.
+
+## Implemented Module
+
+`examples/template-builder-sandbox/public/editorView.js` owns:
+
+- `createEditorView(...)`;
+- `getEditorViewNode(...)`;
+- `getEditorViewParent(...)`;
+- `getEditorViewChildren(...)`;
+- `getEditorViewSectionRootNodes(...)`.
+
+The module has no DOM dependency and can run in browser or Node tests.
+
+## Indexes
+
+The editor view currently derives:
+
+- `nodeById`;
+- `parentById`;
+- `childrenById`;
+- `sectionById`;
+- `zoneById`;
+- `sectionIdByNodeId`;
+- `zoneIdByNodeId`;
+- `rootZoneIdsBySectionId`;
+- `nodeOrder`;
+- `visibleNodeIds`;
+- `dirtyNodeIds`;
+- `changedNodeIds`;
+- `changedSubtreeIds`.
+
+`visibleNodeIds` is intentionally all nodes in this phase. It is a contract
+slot for the future viewport/windowing phase, not a virtualization claim.
+
+## Runtime Cache
+
+The browser runtime cache now stores the editor view and exposes summary facts
+for status/debug output:
+
+- view mode;
+- node count;
+- visible node count;
+- child index count;
+- dirty node count;
+- packet apply count.
+
+Selection, parent lookup, tree traversal, and canvas traversal use the editor
+view helpers. The snapshot tree remains present as a boot/debug view model and
+as the temporary packet patch target.
+
+## Scale Direction
+
+This phase makes the long-term path explicit:
+
+- find nodes by id first;
+- follow parent/children indexes for traversal;
+- keep visible ranges as ids;
+- apply packets by changed ids;
+- load or derive heavy details only for selected, visible, or dirty scopes.
+
+The implementation still renders all nodes because viewport windowing is a
+future phase. The important change is that the runtime now has the normalized
+shape that windowing and lazy detail can build on.
+
+## Acceptance Evidence
+
+Phase 45 is covered by `tests/templateBuilderSandboxBoundary.test.ts`:
+
+- `editorView.js` builds the expected indexes from the sandbox snapshot;
+- section root zones and child traversal resolve through index helpers;
+- parent and visible node counts are available without walking the tree from
+  the test;
+- `app.js` imports the editor view module and renders through helper calls;
+- the action lane exposes `browser.createNormalizedEditorView`.
+
+## Non-Goals
+
+Phase 45 does not implement:
+
+- viewport virtualization;
+- lazy detail routes;
+- structural packet patching without snapshot tree patching;
+- rich text editing;
+- key/field chips;
+- contenteditable DOM mapping;
+- language-specific IME behavior;
+- concrete live layout rendering;
+- save/publish persistence;
+- backend API routes outside the sandbox dev server;
+- package/document version changes.

@@ -52,6 +52,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/src/mutationBridge.ts",
       "../examples/template-builder-sandbox/scripts/build-snapshot.ts",
       "../examples/template-builder-sandbox/scripts/serve.mjs",
+      "../examples/template-builder-sandbox/public/editorView.js",
       "../examples/template-builder-sandbox/public/app.js",
       "../examples/template-builder-sandbox/public/styles.css",
     ].map(readText).join("\n")
@@ -125,6 +126,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyDraftTextCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createNormalizedEditorView")
     expect(snapshot.authoringHistory).toMatchObject({
       mode: "static-snapshot",
       recordCount: 0,
@@ -900,11 +902,19 @@ describe("template builder sandbox boundary", () => {
 
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
     const browserCacheDoc = readText("../docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md")
 
+    expect(appSource).toContain('from "./editorView.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createRuntimeCache")
+    expect(appSource).toContain("createEditorView")
+    expect(appSource).toContain("editorView")
+    expect(appSource).toContain("getEditorViewChildren")
+    expect(appSource).toContain("getEditorViewSectionRootNodes")
+    expect(appSource).toContain("visibleNodeCount")
+    expect(appSource).toContain("viewMode")
     expect(appSource).toContain("applyChangePacket")
     expect(appSource).toContain("flowdoc-template-builder-change-packet")
     expect(appSource).toContain("packet.baseRevision !== state.snapshot.session.documentRevision")
@@ -918,13 +928,98 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("Live layout:")
     expect(appSource).toContain("setSnapshotFromRefresh(await fetchSnapshot())")
     expect(appSource).toContain("state.runtimeCache?.nodeById.get")
+    expect(appSource).not.toContain("node.children.map(renderCanvasNode)")
+    expect(appSource).not.toContain("allNodes")
+    expect(appSource).not.toContain("flattenNodes")
+    expect(editorViewSource).toContain("createEditorView")
+    expect(editorViewSource).toContain("childrenById")
+    expect(editorViewSource).toContain("parentById")
+    expect(editorViewSource).toContain("visibleNodeIds")
+    expect(editorViewSource).toContain("dirtyNodeIds")
     expect(appSource).not.toContain("result.snapshot")
     expect(coreBoundarySource).toContain("browser.applyChangePacket")
+    expect(coreBoundarySource).toContain("browser.createNormalizedEditorView")
     expect(coreBoundarySource).toContain("sandbox.recordAuthoringHistory")
     expect(coreBoundarySource).toContain("sandbox.requestLiveLayout")
     expect(coreBoundarySource).toContain("user.undo")
     expect(coreBoundarySource).toContain("user.redo")
     expect(browserCacheDoc).toContain("The browser cache is not canonical document truth")
+    expect(browserCacheDoc).toContain("public/editorView.js")
+  })
+
+  it("builds normalized editor view indexes from the sandbox snapshot", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      const {
+        createEditorView,
+        getEditorViewChildren,
+        getEditorViewParent,
+        getEditorViewSectionRootNodes,
+      } = await import("./public/editorView.js");
+      const snapshot = JSON.parse(readFileSync("./public/sandbox-snapshot.json", "utf8"));
+      const view = createEditorView(snapshot, {
+        packet: {
+          changedNodeIds: ["cover-header-label"],
+          affectedParentNodeIds: ["cover-first-header"],
+          dirtyScopes: [
+            { textBlockId: "cover-header-label", parentNodeIds: ["cover-first-header"] },
+          ],
+        },
+      });
+      console.log(JSON.stringify({
+        changedSubtreeIds: [...view.changedSubtreeIds].sort(),
+        childIndexCount: view.childrenById.size,
+        coverBodyChildren: getEditorViewChildren(view, "cover-body").map((node) => node.id),
+        dirtyNodeIds: [...view.dirtyNodeIds].sort(),
+        mode: view.mode,
+        nodeCount: view.nodeOrder.length,
+        parentId: getEditorViewParent(view, "cover-title")?.id ?? null,
+        rootZones: getEditorViewSectionRootNodes(view, "section-cover").map((node) => node.id),
+        sectionId: view.sectionIdByNodeId.get("cover-title"),
+        source: view.source,
+        visibleNodeCount: view.visibleNodeIds.length,
+        visibleRangeKind: view.visibleRange.kind,
+        zoneId: view.zoneIdByNodeId.get("cover-title"),
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      changedSubtreeIds: string[]
+      childIndexCount: number
+      coverBodyChildren: string[]
+      dirtyNodeIds: string[]
+      mode: string
+      nodeCount: number
+      parentId: string
+      rootZones: string[]
+      sectionId: string
+      source: string
+      visibleNodeCount: number
+      visibleRangeKind: string
+      zoneId: string
+    }
+
+    expect(result.source).toBe("flowdoc-normalized-editor-view")
+    expect(result.mode).toBe("normalized-editor-view")
+    expect(result.nodeCount).toBe(52)
+    expect(result.visibleNodeCount).toBe(52)
+    expect(result.visibleRangeKind).toBe("all-nodes")
+    expect(result.childIndexCount).toBe(52)
+    expect(result.rootZones).toEqual(["cover-first-header", "cover-body", "cover-first-footer"])
+    expect(result.coverBodyChildren).toEqual([
+      "cover-title",
+      "cover-subtitle",
+      "cover-meta-columns",
+      "cover-divider",
+      "cover-note",
+    ])
+    expect(result.parentId).toBe("cover-body")
+    expect(result.sectionId).toBe("section-cover")
+    expect(result.zoneId).toBe("cover-body")
+    expect(result.dirtyNodeIds).toEqual(["cover-first-header", "cover-header-label"])
+    expect(result.changedSubtreeIds).toEqual(["cover-first-header", "cover-header-label"])
   })
 
   it("locks the editor north star to normalized large-document lookup", () => {

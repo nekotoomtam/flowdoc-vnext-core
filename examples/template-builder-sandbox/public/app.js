@@ -1,3 +1,9 @@
+import {
+  createEditorView,
+  getEditorViewChildren,
+  getEditorViewSectionRootNodes,
+} from "./editorView.js"
+
 const app = document.querySelector("#app")
 
 const state = {
@@ -37,38 +43,39 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;")
 }
 
-function flattenNodes(nodes, output = []) {
-  for (const node of nodes) {
-    output.push(node)
-    flattenNodes(node.children, output)
-  }
-  return output
-}
-
-function allNodes(snapshot) {
-  return snapshot.sections.flatMap((section) => flattenNodes(section.zones))
-}
-
 function clonePlain(value) {
   return JSON.parse(JSON.stringify(value))
 }
 
 function createRuntimeCache(snapshot, options = {}) {
   const previousCache = options.previousCache || null
-  const nodes = allNodes(snapshot)
-  const nodeById = new Map(nodes.map((node) => [node.id, node]))
+  const editorView = createEditorView(snapshot, {
+    packet: options.packet,
+    previousView: previousCache?.editorView,
+  })
   const packetApplied = Boolean(options.packetApplied)
   const previousPacketCount = previousCache?.packetsApplied || 0
 
   return {
     bootRevision: previousCache?.bootRevision ?? snapshot.session.documentRevision,
+    changedNodeCount: editorView.changedNodeIds.size,
+    childrenById: editorView.childrenById,
     documentRevision: snapshot.session.documentRevision,
+    dirtyNodeCount: editorView.dirtyNodeIds.size,
+    editorView,
     fallbackSnapshotCount: previousCache?.fallbackSnapshotCount || 0,
     lastPacketRevision: options.packet?.nextRevision ?? previousCache?.lastPacketRevision ?? null,
     mode: packetApplied ? "packet-cache" : "snapshot-boot",
-    nodeById,
-    nodeCount: nodes.length,
+    nodeById: editorView.nodeById,
+    nodeCount: editorView.nodeOrder.length,
+    nodeOrder: editorView.nodeOrder,
     packetsApplied: packetApplied ? previousPacketCount + 1 : previousPacketCount,
+    parentById: editorView.parentById,
+    sectionById: editorView.sectionById,
+    viewMode: editorView.mode,
+    visibleNodeCount: editorView.visibleNodeIds.length,
+    visibleNodeIds: editorView.visibleNodeIds,
+    zoneById: editorView.zoneById,
   }
 }
 
@@ -95,6 +102,14 @@ function selectedNode() {
 function nodeById(nodeId) {
   if (!state.snapshot || !nodeId) return null
   return state.runtimeCache?.nodeById.get(nodeId) || null
+}
+
+function nodeChildren(node) {
+  return getEditorViewChildren(state.runtimeCache?.editorView, node?.id)
+}
+
+function sectionRootZones(section) {
+  return getEditorViewSectionRootNodes(state.runtimeCache?.editorView, section?.id)
 }
 
 function replaceChangedNode(node, changedNodes) {
@@ -936,8 +951,9 @@ function renderToolbar(snapshot) {
 
 function renderTreeNode(node, depth = 0) {
   const isSelected = node.id === state.selectedId
-  const children = node.children.length > 0
-    ? `<ol>${node.children.map((child) => renderTreeNode(child, depth + 1)).join("")}</ol>`
+  const children = nodeChildren(node)
+  const childTree = children.length > 0
+    ? `<ol>${children.map((child) => renderTreeNode(child, depth + 1)).join("")}</ol>`
     : ""
 
   return `
@@ -952,7 +968,7 @@ function renderTreeNode(node, depth = 0) {
         <span class="node-type">${escapeHtml(node.type)}</span>
         <span class="node-id">${escapeHtml(shortId(node.id))}</span>
       </button>
-      ${children}
+      ${childTree}
     </li>
   `
 }
@@ -968,7 +984,7 @@ function renderNodeTree(snapshot) {
         ${snapshot.sections.map((section) => `
           <section class="section-tree">
             <div class="section-label">${escapeHtml(section.id)} <span>${escapeHtml(section.page)}</span></div>
-            <ol>${section.zones.map((zone) => renderTreeNode(zone)).join("")}</ol>
+            <ol>${sectionRootZones(section).map((zone) => renderTreeNode(zone)).join("")}</ol>
           </section>
         `).join("")}
       </div>
@@ -996,7 +1012,7 @@ function renderCanvasNode(node) {
     return `
       <section class="canvas-zone${selectedClass}" ${nodeDomAttributes(node)}>
         <div class="zone-label">${escapeHtml(node.role || node.type)}</div>
-        ${node.children.map(renderCanvasNode).join("")}
+        ${nodeChildren(node).map(renderCanvasNode).join("")}
       </section>
     `
   }
@@ -1061,7 +1077,7 @@ function renderCanvasNode(node) {
   if (node.type === "columns") {
     return `
       <div class="canvas-columns${selectedClass}" ${nodeDomAttributes(node)}>
-        ${node.children.map(renderCanvasNode).join("")}
+        ${nodeChildren(node).map(renderCanvasNode).join("")}
       </div>
     `
   }
@@ -1069,7 +1085,7 @@ function renderCanvasNode(node) {
   if (node.type === "column") {
     return `
       <div class="canvas-column${selectedClass}" ${nodeDomAttributes(node)}>
-        ${node.children.map(renderCanvasNode).join("")}
+        ${nodeChildren(node).map(renderCanvasNode).join("")}
       </div>
     `
   }
@@ -1077,17 +1093,17 @@ function renderCanvasNode(node) {
   if (node.type === "table") {
     return `
       <div class="canvas-table${selectedClass}" ${nodeDomAttributes(node)}>
-        ${node.children.map(renderCanvasNode).join("")}
+        ${nodeChildren(node).map(renderCanvasNode).join("")}
       </div>
     `
   }
 
   if (node.type === "table-row") {
-    return `<div class="canvas-table-row${selectedClass}" ${nodeDomAttributes(node)}>${node.children.map(renderCanvasNode).join("")}</div>`
+    return `<div class="canvas-table-row${selectedClass}" ${nodeDomAttributes(node)}>${nodeChildren(node).map(renderCanvasNode).join("")}</div>`
   }
 
   if (node.type === "table-cell") {
-    return `<div class="canvas-table-cell${selectedClass}" ${nodeDomAttributes(node)}>${node.children.map(renderCanvasNode).join("")}</div>`
+    return `<div class="canvas-table-cell${selectedClass}" ${nodeDomAttributes(node)}>${nodeChildren(node).map(renderCanvasNode).join("")}</div>`
   }
 
   return `
@@ -1118,7 +1134,7 @@ function renderCanvas(snapshot) {
               <strong>${escapeHtml(section.id)}</strong>
               <span>${escapeHtml(section.page)}</span>
             </header>
-            ${section.zones.map(renderCanvasNode).join("")}
+            ${sectionRootZones(section).map(renderCanvasNode).join("")}
           </article>
         `).join("")}
       </div>
@@ -1460,8 +1476,11 @@ function renderStatus(snapshot) {
     ? `Packet: ${state.lastPacket.changedNodeIds.length} changed ${state.lastPacket.baseRevision}->${state.lastPacket.nextRevision}`
     : "Packet: none"
   const cacheLabel = state.runtimeCache
-    ? `Cache: ${state.runtimeCache.mode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.packetsApplied} packets`
+    ? `Cache: ${state.runtimeCache.mode} ${state.runtimeCache.nodeCount} nodes ${state.runtimeCache.visibleNodeCount} visible ${state.runtimeCache.packetsApplied} packets`
     : "Cache: none"
+  const editorViewLabel = state.runtimeCache
+    ? `View: ${state.runtimeCache.viewMode} ${state.runtimeCache.childrenById.size} child indexes ${state.runtimeCache.dirtyNodeCount} dirty`
+    : "View: none"
   const historyLabel = snapshot.authoringHistory
     ? `History: ${snapshot.authoringHistory.recordCount} records ${snapshot.authoringHistory.groupCount} groups`
     : "History: none"
@@ -1475,6 +1494,7 @@ function renderStatus(snapshot) {
       <span>Selection: ${escapeHtml(node?.id || snapshot.session.selectionKind)}</span>
       <span>Source: ${escapeHtml(state.selectionSource)}</span>
       <span>Surface: ${escapeHtml(node?.surface || "none")}</span>
+      <span>${escapeHtml(editorViewLabel)}</span>
       <span>Doc rev: ${snapshot.session.documentRevision}</span>
       <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
       <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>
@@ -1891,8 +1911,11 @@ function render() {
 async function boot() {
   render()
   setSnapshotFromBoot(await fetchSnapshot())
-  const firstTextBlock = allNodes(state.snapshot).find((node) => node.type === "text-block")
-  state.selectedId = firstTextBlock?.id || allNodes(state.snapshot)[0]?.id || null
+  const bootNodes = state.runtimeCache.visibleNodeIds
+    .map((nodeId) => state.runtimeCache.nodeById.get(nodeId))
+    .filter(Boolean)
+  const firstTextBlock = bootNodes.find((node) => node.type === "text-block")
+  state.selectedId = firstTextBlock?.id || bootNodes[0]?.id || null
   state.selectionSource = "boot"
   render()
 }

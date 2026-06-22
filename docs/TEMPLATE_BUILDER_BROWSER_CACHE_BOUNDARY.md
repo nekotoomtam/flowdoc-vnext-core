@@ -69,6 +69,11 @@ normalized lookup indexes (`nodeById`, `parentById`, `childrenById`, visible
 range ids, and dirty id sets) with lazy heavy-detail access. The tree snapshot
 must not become the active runtime shape for large-document editing.
 
+Phase 45 adds the first normalized editor view module. The sandbox still
+patches the tree-shaped snapshot view model after packets, then rebuilds the
+editor view, but selection and render traversal now have lookup-first indexes
+owned by `public/editorView.js`.
+
 ## Packet Apply Rules
 
 - The browser asks the mutation route for `?response=packet`.
