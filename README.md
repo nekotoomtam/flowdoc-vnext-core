@@ -215,6 +215,9 @@ The package must remain runnable without any parent editor checkout.
 - Structural mutation bridge boundary lets sandbox bridge actions produce
   structural packet v1 from core insert/delete/reorder operations before
   structural toolbar UI, persistence, or durable history
+- Structural command UI boundary exposes bounded inspector insert/delete/reorder
+  controls that call structural packet routes and apply through the browser
+  runtime cache
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -380,6 +383,8 @@ The package must remain runnable without any parent editor checkout.
   browser runtime-store structural packet apply boundary
 - `docs/TEMPLATE_BUILDER_STRUCTURAL_MUTATION_BRIDGE_BOUNDARY.md`: Phase 72
   sandbox structural mutation bridge packet producer boundary
+- `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_UI_BOUNDARY.md`: Phase 73
+  bounded inspector structural command UI boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

@@ -79,6 +79,7 @@ Parent goal:
 | 70 | Structural packet contract boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_CONTRACT_BOUNDARY.md`; `src/structure/packet.ts`; `src/index.ts`; `tests/structuralPacket.test.ts` |
 | 71 | Structural packet store apply boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_PACKET_STORE_BOUNDARY.md`; `examples/template-builder-sandbox/public/runtimeStoreStructuralPacket.js`; `examples/template-builder-sandbox/public/runtimeCache.js`; `examples/template-builder-sandbox/public/editorView.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 72 | Structural mutation bridge boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_MUTATION_BRIDGE_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 73 | Structural command UI boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_UI_BOUNDARY.md`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1650,6 +1651,31 @@ This phase intentionally does not implement structural toolbar UI, drag/drop
 outline editing, durable structural undo/redo, persistence, backend public API
 exposure, collaboration/conflict merge, offline replay, or package/document
 schema changes.
+
+## Phase 73 Structural Command UI Boundary
+
+Phase 73 exposes bounded structural commands in the sandbox inspector:
+
+- `examples/template-builder-sandbox/public/app.js` adds structure action state,
+  target derivation, route selection, request bodies, packet apply, and
+  post-command selection behavior;
+- inspector controls can insert a text block inside a selected container, insert
+  after a selected child, move a reorderable node up/down, and delete a
+  deletable node;
+- structural commands call the Phase 72 sandbox routes and reuse the existing
+  `applyMutationResult(...)` packet/fallback path;
+- `examples/template-builder-sandbox/public/styles.css` keeps the compact
+  action grid layout bounded;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.runStructuralCommandUi`;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the UI source contract,
+  route usage, action catalog entry, and continued packet/runtime-cache
+  behavior from Phase 72.
+
+This phase intentionally does not implement drag/drop outline editing,
+multi-select operations, durable structural undo/redo, persistence, backend
+public API exposure, collaboration/conflict merge, offline replay, or
+package/document schema changes.
 
 ## Phase 12 Extraction Record
 

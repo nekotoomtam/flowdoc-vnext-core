@@ -544,6 +544,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser runtime applies structural packet v1 to store indexes as a foundation bridge, not durable persistence",
       },
       {
+        action: "browser.runStructuralCommandUi",
+        label: "Structure UI",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser inspector exposes bounded insert/delete/reorder controls that call sandbox structural packet routes",
+      },
+      {
         action: "browser.createStoreBackedRenderModel",
         label: "Render model",
         lane: "immediate",

@@ -1750,6 +1750,35 @@ Acceptance:
   collaboration, offline replay, backend public API exposure, or schema change
   is claimed.
 
+## Phase 73: Structural Command UI Boundary
+
+Goal:
+
+- expose bounded inspector controls for structural insert/delete/reorder using
+  the Phase 72 bridge routes and Phase 71 runtime-cache apply path.
+
+Deliverables:
+
+- inspector structure command panel;
+- structural text-block insert text input;
+- insert-inside and insert-after commands;
+- move-up and move-down commands;
+- delete command;
+- command target derivation from runtime store parent/child facts;
+- post-command selection behavior;
+- action catalog entry and boundary documentation.
+
+Acceptance:
+
+- structural UI actions call packet-only bridge routes;
+- app code does not mutate document shape directly;
+- command availability is guarded by selected node type and runtime
+  capabilities;
+- returned packets are applied through the existing runtime cache path;
+- no drag/drop outline editing, durable structural undo/redo, persistence,
+  backend API exposure, collaboration, offline replay, or schema change is
+  claimed.
+
 ## Later Phases
 
 Goal:

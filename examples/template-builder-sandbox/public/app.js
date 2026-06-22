@@ -88,6 +88,7 @@ const state = {
   selectedId: null,
   selectionSource: "boot",
   snapshot: null,
+  structuralText: "New structural text block",
   viewportAnchor: null,
   viewportAnchorRestore: null,
   viewportNodeAnchor: null,
@@ -707,6 +708,50 @@ function statusVariant(status) {
 
 function selectedNodeCanUseBridge(node) {
   return Boolean(node && node.type === "text-block" && node.canReplacePlainText)
+}
+
+function nodeCanContainStructuralTextBlock(node) {
+  return Boolean(node && ["zone", "column", "table-cell"].includes(node.type))
+}
+
+function parentChildIds(node) {
+  if (!node?.parentId || !state.runtimeCache?.childrenById) return []
+  return state.runtimeCache.childrenById.get(node.parentId) || []
+}
+
+function structuralInsertTargetForNode(node, mode) {
+  if (!node) return null
+
+  if (mode === "inside" && nodeCanContainStructuralTextBlock(node)) {
+    const childIds = state.runtimeCache?.childrenById.get(node.id) || []
+    return {
+      index: childIds.length,
+      parentNodeId: node.id,
+      selectAfterNodeId: null,
+    }
+  }
+
+  const parentNode = nodeById(node.parentId)
+  if (!nodeCanContainStructuralTextBlock(parentNode)) return null
+  const siblings = parentChildIds(node)
+  const currentIndex = siblings.indexOf(node.id)
+  if (currentIndex < 0) return null
+
+  return {
+    index: currentIndex + 1,
+    parentNodeId: parentNode.id,
+    selectAfterNodeId: node.id,
+  }
+}
+
+function structuralMoveTargetForNode(node, direction) {
+  if (!node?.canBeReordered) return null
+  const siblings = parentChildIds(node)
+  const currentIndex = siblings.indexOf(node.id)
+  if (currentIndex < 0) return null
+  const toIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
+  if (toIndex < 0 || toIndex >= siblings.length) return null
+  return { toIndex }
 }
 
 function selectedNodeCanUseWysiwygDraft(node) {
@@ -1740,6 +1785,16 @@ function renderInspector(snapshot) {
   const commandContext = deriveDraftCommandContext()
   const canStartDraft = Boolean(node && selectedNodeCanUseWysiwygDraft(node) && !draftIsActive())
   const canUseBridge = selectedNodeCanUseBridge(node) && !draftIsActive()
+  const insertInsideTarget = structuralInsertTargetForNode(node, "inside")
+  const insertAfterTarget = structuralInsertTargetForNode(node, "after")
+  const moveUpTarget = structuralMoveTargetForNode(node, "up")
+  const moveDownTarget = structuralMoveTargetForNode(node, "down")
+  const canUseStructuralCommands = Boolean(node && !draftIsActive())
+  const canInsertStructuralInside = Boolean(insertInsideTarget && !state.bridgeBusy && canUseStructuralCommands)
+  const canInsertStructuralAfter = Boolean(insertAfterTarget && !state.bridgeBusy && canUseStructuralCommands)
+  const canDeleteStructuralNode = Boolean(node?.canBeDeleted && !state.bridgeBusy && canUseStructuralCommands)
+  const canMoveStructuralNodeUp = Boolean(moveUpTarget && !state.bridgeBusy && canUseStructuralCommands)
+  const canMoveStructuralNodeDown = Boolean(moveDownTarget && !state.bridgeBusy && canUseStructuralCommands)
   const draftGuard = node ? draftGuardReason(node) : "Select a text block before starting a draft."
   const draftTargetLabel = activeDraftNode
     ? `${activeDraftNode.type} ${shortId(activeDraftNode.id)}`
@@ -2006,6 +2061,56 @@ function renderInspector(snapshot) {
           </div>
           <p data-state="${lastMutation?.status || "idle"}">${escapeHtml(bridgeMessage)}</p>
           ${canUseBridge ? "" : `<small>${draftIsActive() ? "Finish the active browser draft before using direct bridge actions." : "Select a plain text-block without field refs, page numbers, or line breaks."}</small>`}
+        </div>
+      </section>
+      <section class="inspector-section">
+        <h3>Structure</h3>
+        <div class="bridge-control structure-control">
+          <input
+            type="text"
+            data-structural-text
+            value="${escapeHtml(state.structuralText)}"
+            aria-label="Structural text block"
+            ${canUseStructuralCommands ? "" : "disabled"}
+          >
+          <div class="bridge-actions structure-actions">
+            <button
+              type="button"
+              data-structure-action="insert-inside"
+              ${canInsertStructuralInside ? "" : "disabled"}
+            >
+              Insert inside
+            </button>
+            <button
+              type="button"
+              data-structure-action="insert-after"
+              ${canInsertStructuralAfter ? "" : "disabled"}
+            >
+              Insert after
+            </button>
+            <button
+              type="button"
+              data-structure-action="move-up"
+              ${canMoveStructuralNodeUp ? "" : "disabled"}
+            >
+              Move up
+            </button>
+            <button
+              type="button"
+              data-structure-action="move-down"
+              ${canMoveStructuralNodeDown ? "" : "disabled"}
+            >
+              Move down
+            </button>
+            <button
+              type="button"
+              data-structure-action="delete"
+              ${canDeleteStructuralNode ? "" : "disabled"}
+            >
+              Delete
+            </button>
+          </div>
+          <small>${draftIsActive() ? "Draft active" : node ? "Ready" : "No node selected"}</small>
         </div>
       </section>
       <section class="inspector-section">
@@ -2296,6 +2401,13 @@ function bindSelectionHandlers() {
       return
     }
 
+    const structureTarget = event.target.closest("[data-structure-action]")
+    if (structureTarget && inspector.contains(structureTarget)) {
+      event.stopPropagation()
+      applyBridgeStructuralAction(structureTarget.dataset.structureAction)
+      return
+    }
+
     const historyTarget = event.target.closest("[data-history-action]")
     if (historyTarget && inspector.contains(historyTarget)) {
       event.stopPropagation()
@@ -2311,6 +2423,10 @@ function bindSelectionHandlers() {
 
   inspector?.querySelector("[data-mutation-text]")?.addEventListener("input", (event) => {
     state.mutationText = event.target.value
+  })
+
+  inspector?.querySelector("[data-structural-text]")?.addEventListener("input", (event) => {
+    state.structuralText = event.target.value
   })
 
   inspector?.querySelector("[data-draft-command-text]")?.addEventListener("input", (event) => {
@@ -2462,6 +2578,41 @@ function routeForHistoryAction(action) {
   return "./api/actions/undo?response=packet"
 }
 
+function routeForStructuralAction(action) {
+  if (action === "delete") return "./api/actions/delete-node?response=packet"
+  if (action === "move-up" || action === "move-down") return "./api/actions/reorder-node?response=packet"
+  return "./api/actions/insert-text-block?response=packet"
+}
+
+function structuralActionRequest(action, node) {
+  if (action === "delete") {
+    return {
+      body: { nodeId: node.id },
+      selectNodeId: node.parentId || null,
+    }
+  }
+
+  if (action === "move-up" || action === "move-down") {
+    const target = structuralMoveTargetForNode(node, action === "move-up" ? "up" : "down")
+    if (!target) return null
+    return {
+      body: { nodeId: node.id, toIndex: target.toIndex },
+      selectNodeId: node.id,
+    }
+  }
+
+  const target = structuralInsertTargetForNode(node, action === "insert-inside" ? "inside" : "after")
+  if (!target) return null
+  return {
+    body: {
+      index: target.index,
+      parentNodeId: target.parentNodeId,
+      text: state.structuralText,
+    },
+    selectNodeId: null,
+  }
+}
+
 async function applyMutationResult(result) {
   let fallbackReason = ""
 
@@ -2477,6 +2628,18 @@ async function applyMutationResult(result) {
   }
 
   return fallbackReason
+}
+
+function structuralSelectionAfterResult(result, fallbackNodeId) {
+  if (!result?.ok || !result.packet) return fallbackNodeId
+  if (result.packet.action === "text-block.insert") {
+    return result.packet.nodesAdded?.[0]?.id || fallbackNodeId
+  }
+  if (result.packet.action === "node.delete") {
+    const patch = result.packet.parentListPatches?.[0]
+    return patch?.parentKind === "section" ? null : patch?.parentId || fallbackNodeId
+  }
+  return fallbackNodeId
 }
 
 async function applyBridgeTextAction(action) {
@@ -2510,6 +2673,49 @@ async function applyBridgeTextAction(action) {
     state.selectionSource = "bridge"
   } catch (error) {
     state.bridgeMessage = error instanceof Error ? error.message : "bridge request failed"
+  } finally {
+    state.bridgeBusy = false
+    render()
+  }
+}
+
+async function applyBridgeStructuralAction(action) {
+  if (draftIsActive()) {
+    state.bridgeMessage = "Finish the active browser draft before structural actions."
+    render()
+    return
+  }
+
+  const node = selectedNode()
+  if (!node) return
+  const request = structuralActionRequest(action, node)
+  if (!request) return
+
+  state.bridgeBusy = true
+  state.bridgeMessage = "Sending structural action to sandbox bridge..."
+  render()
+
+  try {
+    const response = await fetch(routeForStructuralAction(action), {
+      body: JSON.stringify(request.body),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    })
+    const result = await response.json()
+    const fallbackReason = await applyMutationResult(result)
+    state.bridgeMessage = result.ok
+      ? `structure: ${result.mutation.summary}${fallbackReason}`
+      : `rejected: ${(result.issues || []).map((issue) => issue.message).join("; ")}${fallbackReason}`
+    state.selectionSource = "structure"
+
+    const nextSelectionId = structuralSelectionAfterResult(result, request.selectNodeId || node.id)
+    if (nextSelectionId && nodeById(nextSelectionId)) {
+      state.bridgeBusy = false
+      selectNode(nextSelectionId, "structure")
+      return
+    }
+  } catch (error) {
+    state.bridgeMessage = error instanceof Error ? error.message : "structural action request failed"
   } finally {
     state.bridgeBusy = false
     render()
