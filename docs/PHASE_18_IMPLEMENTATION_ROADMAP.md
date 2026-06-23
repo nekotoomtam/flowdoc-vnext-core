@@ -3974,6 +3974,32 @@ Acceptance:
   backend route, renderer artifact output, collaboration behavior, or
   package/document schema change is introduced.
 
+## Phase 142: Real Browser Timing Smoke Boundary
+
+Goal:
+
+- add a conservative browser-runtime timing smoke for the sandbox without
+  turning it into a production benchmark suite.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/scripts/browser-smoke.mjs`;
+- `tests/browserTimingSmoke.test.ts`;
+- `docs/BROWSER_TIMING_SMOKE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- smoke emits timing JSON for boot, visible range apply, scroll update,
+  selection jump, structural command apply, rich inline draft open, and rich
+  inline commit;
+- thresholds are explicit and conservative;
+- script remains dependency-free and records `browserDriver = "not-bound"`;
+- no Playwright/Puppeteer dependency is added to core;
+- no production performance claim, strict production threshold, renderer
+  artifact output, storage/backend route, collaboration behavior, or
+  package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

@@ -6,6 +6,7 @@
   "description": "Extractable FlowDoc vNext template builder sandbox.",
   "scripts": {
     "build": "node ./scripts/run-build-snapshot.mjs",
+    "browser-smoke": "node ./scripts/browser-smoke.mjs",
     "check": "tsc --noEmit -p tsconfig.json && npm run build",
     "dev": "npm run build && node ./scripts/serve.mjs"
   },

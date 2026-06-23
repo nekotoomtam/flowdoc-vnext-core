@@ -451,6 +451,10 @@ The package must remain runnable without any parent editor checkout.
   sandbox viewport, runtime cache/store, structural packets, rich inline
   commit, undo/redo, and live/exact stale signals in one product-like sequence
   without claiming production editor readiness.
+- Browser timing smoke boundary adds a dependency-free sandbox timing script
+  for boot, visible range, scroll, selection, structural command, rich inline
+  draft, and rich inline commit operations while keeping browser-driver and
+  production benchmark claims unbound.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -548,6 +552,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/PRODUCT_EDITOR_INTEGRATION_SMOKE_BOUNDARY.md`: Phase 141 sandbox
   product editor integration smoke before browser timing or production editor
   claims
+- `docs/BROWSER_TIMING_SMOKE_BOUNDARY.md`: Phase 142 dependency-free sandbox
+  browser timing smoke before real browser-driver benchmark commitments
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

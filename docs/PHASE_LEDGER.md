@@ -148,6 +148,7 @@ Parent goal:
 | 139 | Durable layout and artifact job boundary | done | `docs/ARTIFACT_JOB_BOUNDARY.md`; `src/generation/artifactJob.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJob.test.ts` |
 | 140 | Storage adapter interface boundary | done | `docs/STORAGE_ADAPTER_BOUNDARY.md`; `src/persistence/storageAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageAdapter.test.ts` |
 | 141 | Product editor integration smoke boundary | done | `docs/PRODUCT_EDITOR_INTEGRATION_SMOKE_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/productEditorIntegrationSmoke.test.ts` |
+| 142 | Browser timing smoke boundary | done | `docs/BROWSER_TIMING_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/scripts/browser-smoke.mjs`; `examples/template-builder-sandbox/package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/browserTimingSmoke.test.ts` |
 
 ## Current Rule
 
@@ -3697,6 +3698,26 @@ This phase intentionally does not claim production editor readiness, run real
 browser timing, introduce React/DOM integration, import old FlowDocEditor,
 write storage, add backend routes, produce renderer artifacts, implement
 collaboration/offline behavior, or change package/document schema.
+
+## Phase 142 Browser Timing Smoke Boundary
+
+Phase 142 adds a conservative timing smoke for the sandbox runtime path:
+
+- `examples/template-builder-sandbox/scripts/browser-smoke.mjs` emits JSON
+  timing output for initial boot, node selection jump, visible range apply,
+  scroll update, structural command apply, rich inline draft open, and rich
+  inline commit;
+- `examples/template-builder-sandbox/package.json` exposes `npm run
+  browser-smoke`;
+- the smoke records `browserDriver = "not-bound"`,
+  `productionBenchmark = false`, and conservative threshold metadata;
+- `tests/browserTimingSmoke.test.ts` runs the script and guards against adding
+  Playwright/Puppeteer dependencies to core.
+
+This phase intentionally does not add a browser driver dependency, claim
+production browser performance readiness, set strict production thresholds,
+perform screenshot/interaction QA, produce renderer artifacts, write storage,
+add backend routes, or change package/document schema.
 
 ## Phase 12 Extraction Record
 
