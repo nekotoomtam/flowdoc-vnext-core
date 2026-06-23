@@ -1,0 +1,109 @@
+{
+  "smokeId": "rustybuzz-shaping-smoke-v1",
+  "policyRevision": "shaping-smoke-policy-v1",
+  "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1",
+  "measurementProfileStatus": "stable",
+  "outputShapeVersion": "glyph-line-box-v1",
+  "bindProductionMeasurement": false,
+  "adapterDecision": {
+    "decisionId": "rustybuzz-icu4x-adapter-v1",
+    "placement": "external-adapter-package",
+    "executesShapingInCore": false,
+    "readsFontFilesInCore": false,
+    "importsWasmInCore": false
+  },
+  "availableFontAssetIds": [
+    "sarabun-regular",
+    "sarabun-bold",
+    "sarabun-italic",
+    "sarabun-bold-italic",
+    "noto-sans-thai-regular",
+    "noto-sans-thai-bold"
+  ],
+  "availableSampleIds": [
+    "thai-greeting-no-space",
+    "thai-combining-marks",
+    "mixed-report-title",
+    "thai-currency-number",
+    "mixed-product-name",
+    "page-summary-label"
+  ],
+  "cases": [
+    {
+      "caseId": "shape-thai-greeting-sarabun-regular",
+      "sampleId": "thai-greeting-no-space",
+      "fontId": "sarabun-regular",
+      "styleKey": "paragraph",
+      "outputShapeVersion": "glyph-line-box-v1",
+      "requiredFacts": [
+        "glyph-id",
+        "glyph-advance",
+        "glyph-offset",
+        "cluster-map",
+        "text-range",
+        "line-box"
+      ],
+      "expectsClusterMapping": true,
+      "expectsAdvanceWidth": true,
+      "expectsGlyphOffsets": true,
+      "notes": "Basic no-space Thai shaping smoke for the primary regular face."
+    },
+    {
+      "caseId": "shape-thai-combining-sarabun-regular",
+      "sampleId": "thai-combining-marks",
+      "fontId": "sarabun-regular",
+      "styleKey": "paragraph",
+      "outputShapeVersion": "glyph-line-box-v1",
+      "requiredFacts": [
+        "glyph-id",
+        "glyph-advance",
+        "glyph-offset",
+        "cluster-map",
+        "text-range",
+        "line-box"
+      ],
+      "expectsClusterMapping": true,
+      "expectsAdvanceWidth": true,
+      "expectsGlyphOffsets": true,
+      "notes": "Thai combining marks must preserve cluster and offset evidence."
+    },
+    {
+      "caseId": "shape-mixed-heading-sarabun-bold",
+      "sampleId": "mixed-report-title",
+      "fontId": "sarabun-bold",
+      "styleKey": "heading-xl",
+      "outputShapeVersion": "glyph-line-box-v1",
+      "requiredFacts": [
+        "glyph-id",
+        "glyph-advance",
+        "glyph-offset",
+        "cluster-map",
+        "text-range",
+        "line-box"
+      ],
+      "expectsClusterMapping": true,
+      "expectsAdvanceWidth": true,
+      "expectsGlyphOffsets": true,
+      "notes": "Mixed Thai, Latin, and digits through the bold heading face."
+    },
+    {
+      "caseId": "shape-thai-currency-noto-fallback",
+      "sampleId": "thai-currency-number",
+      "fontId": "noto-sans-thai-regular",
+      "styleKey": "paragraph",
+      "outputShapeVersion": "glyph-line-box-v1",
+      "requiredFacts": [
+        "glyph-id",
+        "glyph-advance",
+        "glyph-offset",
+        "cluster-map",
+        "text-range",
+        "line-box"
+      ],
+      "expectsClusterMapping": true,
+      "expectsAdvanceWidth": true,
+      "expectsGlyphOffsets": true,
+      "notes": "Fallback Thai face with digits and punctuation."
+    }
+  ]
+}

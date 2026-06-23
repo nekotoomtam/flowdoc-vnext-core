@@ -113,6 +113,7 @@ Parent goal:
 | 104 | Measurement profile identity contract | done | `docs/MEASUREMENT_PROFILE_IDENTITY_CONTRACT.md`; `src/renderer/measurementProfileIdentity.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/measurementProfileIdentity.test.ts` |
 | 105 | Rust/WASM text engine boundary decision | done | `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`; `src/renderer/rustWasmTextEngineBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustWasmTextEngineBoundary.test.ts` |
 | 106 | Thai corpus/oracle boundary | done | `docs/THAI_CORPUS_ORACLE_BOUNDARY.md`; `fixtures/thai-measurement-corpus.v1.json`; `src/renderer/thaiCorpusBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/thaiCorpusBoundary.test.ts` |
+| 107 | Rustybuzz shaping smoke boundary | done | `docs/RUSTYBUZZ_SHAPING_SMOKE_BOUNDARY.md`; `fixtures/rustybuzz-shaping-smoke.v1.json`; `src/renderer/rustybuzzShapingSmoke.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustybuzzShapingSmoke.test.ts` |
 
 ## Current Rule
 
@@ -2736,6 +2737,32 @@ This phase intentionally does not execute ICU4X, Intl.Segmenter, LibThai,
 PyThaiNLP, or AttaCut, compute expected breakpoints, shape glyphs, replace
 measured pagination, mutate package/document data, write artifacts or storage
 records, add backend routes, or change package/document schema.
+
+## Phase 107 Rustybuzz Shaping Smoke Boundary
+
+Phase 107 defines shaping smoke cases before executing rustybuzz:
+
+- `fixtures/rustybuzz-shaping-smoke.v1.json` records initial smoke cases for
+  no-space Thai, Thai combining marks, mixed Thai/Latin/digit heading text, and
+  Thai currency text across Sarabun and Noto Sans Thai copied assets;
+- `src/renderer/rustybuzzShapingSmoke.ts` validates stable smoke ids, stable
+  measurement profile identity, external adapter placement, known copied font
+  asset ids, known Thai corpus sample ids, output shape version, and required
+  glyph fact coverage;
+- smoke cases require glyph ids, advances, offsets, cluster maps, source text
+  ranges, and line box facts;
+- production binding, unstable profile identity, direct core dependency
+  placement, core shaping execution, core font-file reads, core WASM imports,
+  unknown references, duplicate case ids, output shape mismatch, and missing
+  shaping facts block;
+- `tests/rustybuzzShapingSmoke.test.ts` proves fixture readiness, blockers,
+  source independence, and documentation trail.
+
+This phase intentionally does not import rustybuzz/HarfBuzz, build or load
+WASM, read font files, execute shaping, record actual glyph facts, execute
+segmentation or Thai oracles, replace measured pagination, mutate
+package/document data, write artifacts or storage records, add backend routes,
+or change package/document schema.
 
 ## Phase 12 Extraction Record
 

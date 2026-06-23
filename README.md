@@ -344,6 +344,9 @@ The package must remain runnable without any parent editor checkout.
 - Thai corpus/oracle boundary adds the first Thai measurement corpus and
   comparison contract for ICU4X, Intl.Segmenter, and Thai oracle candidates
   before segmentation execution.
+- Rustybuzz shaping smoke boundary defines the copied-font, Thai-corpus, and
+  measurement-profile-backed shape cases that a future external adapter must
+  satisfy before production measurement binding.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -402,6 +405,8 @@ The package must remain runnable without any parent editor checkout.
   boundary decision before adapter package or WASM build work
 - `docs/THAI_CORPUS_ORACLE_BOUNDARY.md`: Phase 106 Thai corpus/oracle boundary
   before ICU4X/Intl/Thai oracle execution
+- `docs/RUSTYBUZZ_SHAPING_SMOKE_BOUNDARY.md`: Phase 107 rustybuzz shaping
+  smoke boundary before adapter-owned glyph fact execution
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -603,6 +608,8 @@ The package must remain runnable without any parent editor checkout.
   bundle beyond the Phase 105 boundary decision
 - concrete ICU4X, Intl.Segmenter, LibThai, PyThaiNLP, or AttaCut execution
   beyond the Phase 106 corpus/oracle boundary
+- concrete rustybuzz/HarfBuzz shaping, WASM loading, glyph fact capture, or
+  production measurement binding beyond the Phase 107 shaping smoke boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

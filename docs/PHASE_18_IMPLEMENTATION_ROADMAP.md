@@ -2929,6 +2929,39 @@ Acceptance:
 - no segmenter/oracle library is imported or executed;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 107: Rustybuzz Shaping Smoke Boundary
+
+Goal:
+
+- define the first rustybuzz shaping smoke contract over copied font assets,
+  Thai corpus samples, and the stable measurement profile identity without
+  executing rustybuzz, loading WASM, or replacing pagination measurement.
+
+Deliverables:
+
+- shaping smoke boundary planner in `src/renderer/rustybuzzShapingSmoke.ts`;
+- public exports for rustybuzz shaping smoke source/mode constants and
+  `createVNextRustybuzzShapingSmokePlan(...)`;
+- fixture at `fixtures/rustybuzz-shaping-smoke.v1.json`;
+- smoke cases covering no-space Thai, Thai combining marks, mixed
+  Thai/Latin/digit heading text, and Thai currency text;
+- required shaping facts for glyph ids, advances, offsets, cluster maps,
+  source text ranges, and line box facts;
+- blockers for production binding, unstable profile identity, direct core
+  dependency placement, core shaping execution, core font-file reads, core WASM
+  imports, unknown font/sample references, duplicate case ids, output shape
+  mismatch, and missing shaping facts;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- smoke cases reference copied font assets from Phase 103 and corpus samples
+  from Phase 106;
+- smoke execution remains adapter-owned work beyond the core package boundary;
+- no rustybuzz/HarfBuzz/WASM/font parser library is imported or executed;
+- production measurement binding remains blocked;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:
