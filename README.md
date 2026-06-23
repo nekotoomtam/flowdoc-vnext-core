@@ -447,6 +447,10 @@ The package must remain runnable without any parent editor checkout.
   rich inline, artifact manifest, and artifact job storage collection contracts
   with expected revision, idempotency key, and optional write-token shapes
   before any concrete backend choice.
+- Product editor integration smoke boundary composes the template-builder
+  sandbox viewport, runtime cache/store, structural packets, rich inline
+  commit, undo/redo, and live/exact stale signals in one product-like sequence
+  without claiming production editor readiness.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -541,6 +545,9 @@ The package must remain runnable without any parent editor checkout.
   record boundary before workers, queues, concrete rendering, or storage
 - `docs/STORAGE_ADAPTER_BOUNDARY.md`: Phase 140 storage adapter interface
   boundary before choosing a concrete database, object store, or browser store
+- `docs/PRODUCT_EDITOR_INTEGRATION_SMOKE_BOUNDARY.md`: Phase 141 sandbox
+  product editor integration smoke before browser timing or production editor
+  claims
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

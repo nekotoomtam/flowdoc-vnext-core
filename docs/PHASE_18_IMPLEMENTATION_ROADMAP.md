@@ -3946,6 +3946,34 @@ Acceptance:
   network call, auth/authz implementation, backend route, or package/document
   schema change is introduced.
 
+## Phase 141: Product Editor Integration Smoke Boundary
+
+Goal:
+
+- compose viewport, structural runtime, and WYSIWYG foundations in a
+  product-editor-like sandbox scenario without claiming production editor
+  readiness.
+
+Deliverables:
+
+- `tests/productEditorIntegrationSmoke.test.ts`;
+- `docs/PRODUCT_EDITOR_INTEGRATION_SMOKE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- smoke boots the template-builder sandbox mutation bridge from a canonical
+  vNext package fixture;
+- outline selection jump, bounded visible range, and render window are
+  composed;
+- structural insert, delete, and reorder actions route through packets;
+- rich inline commit marks exact generation stale;
+- rich inline undo/redo replay remains functional;
+- render window stays bounded;
+- no React/DOM production integration, old FlowDocEditor import, storage,
+  backend route, renderer artifact output, collaboration behavior, or
+  package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

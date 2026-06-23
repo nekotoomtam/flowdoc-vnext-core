@@ -147,6 +147,7 @@ Parent goal:
 | 138 | Backend artifact route contract boundary | done | `docs/ARTIFACT_API_ROUTE_BOUNDARY.md`; `src/generation/artifactApiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactApiRoute.test.ts` |
 | 139 | Durable layout and artifact job boundary | done | `docs/ARTIFACT_JOB_BOUNDARY.md`; `src/generation/artifactJob.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJob.test.ts` |
 | 140 | Storage adapter interface boundary | done | `docs/STORAGE_ADAPTER_BOUNDARY.md`; `src/persistence/storageAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageAdapter.test.ts` |
+| 141 | Product editor integration smoke boundary | done | `docs/PRODUCT_EDITOR_INTEGRATION_SMOKE_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/productEditorIntegrationSmoke.test.ts` |
 
 ## Current Rule
 
@@ -3676,6 +3677,26 @@ Phase 140 defines concrete-backend-free storage interfaces:
 This phase intentionally does not choose or implement Postgres, S3, filesystem
 storage, browser storage, Redis, migrations, auth/authz, backend routes,
 storage writes, queue writes, or package/document schema changes.
+
+## Phase 141 Product Editor Integration Smoke Boundary
+
+Phase 141 adds a product-editor-like sandbox composition smoke:
+
+- `tests/productEditorIntegrationSmoke.test.ts` boots the
+  `examples/template-builder-sandbox` mutation bridge from the canonical
+  product-report fixture;
+- the smoke composes outline selection jump, bounded visible range, runtime
+  cache/store, render window, structural command policy, structural packets,
+  rich inline commit, undo, redo, and live/exact stale signaling;
+- structural insert/delete/reorder operations route through packets;
+- rich inline commit marks exact generation stale and remains undo/redo
+  replayable;
+- visible/render window stays bounded at 8 nodes in the smoke.
+
+This phase intentionally does not claim production editor readiness, run real
+browser timing, introduce React/DOM integration, import old FlowDocEditor,
+write storage, add backend routes, produce renderer artifacts, implement
+collaboration/offline behavior, or change package/document schema.
 
 ## Phase 12 Extraction Record
 
