@@ -2895,6 +2895,40 @@ Acceptance:
 - production measurement binding remains blocked;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 106: Thai Corpus / Oracle Boundary
+
+Goal:
+
+- add a small Thai measurement corpus and oracle comparison boundary before
+  executing ICU4X, Intl.Segmenter, LibThai, PyThaiNLP, AttaCut, shaping, or
+  pagination replacement.
+
+Deliverables:
+
+- Thai corpus boundary planner in `src/renderer/thaiCorpusBoundary.ts`;
+- public exports for Thai corpus source/mode constants and
+  `createVNextThaiCorpusPlan(...)`;
+- fixture at `fixtures/thai-measurement-corpus.v1.json`;
+- samples covering Thai text, Thai text without spaces, combining marks,
+  grapheme/caret concerns, mixed Thai/Latin text, digits, punctuation, and
+  mixed scripts;
+- primary segmenter policy for ICU4X, comparison baseline policy for
+  Intl.Segmenter, and Thai oracle candidates for LibThai/PyThaiNLP/AttaCut;
+- blockers for runtime-dependent primary segmenter, missing oracle, missing
+  samples, duplicate sample ids, non-Thai locale, and missing category
+  coverage;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- corpus coverage includes Thai, no-space Thai, combining marks, Latin, digits,
+  punctuation, and mixed-script samples;
+- ICU4X is recorded as primary deterministic candidate;
+- Intl.Segmenter remains a comparison baseline, not primary truth;
+- Thai oracle candidates are recorded before production confidence is claimed;
+- no segmenter/oracle library is imported or executed;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

@@ -341,6 +341,9 @@ The package must remain runnable without any parent editor checkout.
 - Rust/WASM text engine boundary keeps rustybuzz/ICU4X in a future external
   adapter package that returns renderer-backed measurement facts instead of
   making vNext core import WASM directly.
+- Thai corpus/oracle boundary adds the first Thai measurement corpus and
+  comparison contract for ICU4X, Intl.Segmenter, and Thai oracle candidates
+  before segmentation execution.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -397,6 +400,8 @@ The package must remain runnable without any parent editor checkout.
   profile identity contract before concrete rustybuzz/ICU4X execution
 - `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`: Phase 105 Rust/WASM text engine
   boundary decision before adapter package or WASM build work
+- `docs/THAI_CORPUS_ORACLE_BOUNDARY.md`: Phase 106 Thai corpus/oracle boundary
+  before ICU4X/Intl/Thai oracle execution
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -596,6 +601,8 @@ The package must remain runnable without any parent editor checkout.
   contract
 - concrete Rust/WASM adapter package, WASM build, runtime loader, or ICU4X data
   bundle beyond the Phase 105 boundary decision
+- concrete ICU4X, Intl.Segmenter, LibThai, PyThaiNLP, or AttaCut execution
+  beyond the Phase 106 corpus/oracle boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

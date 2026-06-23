@@ -112,6 +112,7 @@ Parent goal:
 | 103 | Font asset copy/hash evidence | done | `docs/FONT_ASSET_COPY_HASH_EVIDENCE.md`; `assets/fonts/font-assets.v1.json`; `assets/fonts/Sarabun/*`; `assets/fonts/Noto_Sans_Thai/*`; `package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontAssetEvidence.test.ts` |
 | 104 | Measurement profile identity contract | done | `docs/MEASUREMENT_PROFILE_IDENTITY_CONTRACT.md`; `src/renderer/measurementProfileIdentity.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/measurementProfileIdentity.test.ts` |
 | 105 | Rust/WASM text engine boundary decision | done | `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`; `src/renderer/rustWasmTextEngineBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustWasmTextEngineBoundary.test.ts` |
+| 106 | Thai corpus/oracle boundary | done | `docs/THAI_CORPUS_ORACLE_BOUNDARY.md`; `fixtures/thai-measurement-corpus.v1.json`; `src/renderer/thaiCorpusBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/thaiCorpusBoundary.test.ts` |
 
 ## Current Rule
 
@@ -2710,6 +2711,29 @@ work:
 
 This phase intentionally does not create an adapter package, install Rust/JS
 dependencies, build or load WASM, execute shaping or segmentation, replace
+measured pagination, mutate package/document data, write artifacts or storage
+records, add backend routes, or change package/document schema.
+
+## Phase 106 Thai Corpus / Oracle Boundary
+
+Phase 106 adds a corpus and oracle comparison boundary before executing
+segmentation:
+
+- `fixtures/thai-measurement-corpus.v1.json` records Thai, no-space Thai,
+  combining mark, mixed Thai/Latin, digit, punctuation, and mixed-script
+  samples;
+- `src/renderer/thaiCorpusBoundary.ts` validates corpus coverage, primary
+  segmenter policy, comparison segmenters, and Thai oracle candidates;
+- ICU4X is recorded as the primary deterministic candidate, Intl.Segmenter as
+  browser/runtime comparison baseline, and LibThai/PyThaiNLP/AttaCut as Thai
+  oracle candidates;
+- runtime-dependent primary segmentation, missing oracle, duplicate sample ids,
+  missing samples, non-Thai locale, and missing coverage block;
+- `tests/thaiCorpusBoundary.test.ts` proves fixture coverage, blockers, source
+  independence, and documentation trail.
+
+This phase intentionally does not execute ICU4X, Intl.Segmenter, LibThai,
+PyThaiNLP, or AttaCut, compute expected breakpoints, shape glyphs, replace
 measured pagination, mutate package/document data, write artifacts or storage
 records, add backend routes, or change package/document schema.
 

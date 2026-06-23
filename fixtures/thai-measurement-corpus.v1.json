@@ -1,0 +1,77 @@
+{
+  "corpusId": "thai-measurement-corpus-v1",
+  "policyRevision": "thai-corpus-policy-v1",
+  "primarySegmenter": {
+    "segmenterId": "icu4x-segmenter",
+    "engine": "icu4x",
+    "runtimeDependent": false
+  },
+  "comparisonSegmenters": [
+    {
+      "segmenterId": "intl-segmenter",
+      "engine": "intl-segmenter",
+      "runtimeDependent": true
+    }
+  ],
+  "oracleCandidates": [
+    {
+      "oracleId": "libthai-reference",
+      "engine": "libthai",
+      "status": "planned"
+    },
+    {
+      "oracleId": "pythainlp-reference",
+      "engine": "pythainlp",
+      "status": "planned"
+    },
+    {
+      "oracleId": "attacut-reference",
+      "engine": "attacut",
+      "status": "planned"
+    }
+  ],
+  "samples": [
+    {
+      "sampleId": "thai-greeting-no-space",
+      "text": "สวัสดีครับตูม",
+      "locale": "th",
+      "categories": ["thai", "thai-no-space", "caret"],
+      "notes": "Basic Thai text without spaces."
+    },
+    {
+      "sampleId": "thai-combining-marks",
+      "text": "กำลังทดสอบภาษาไทย",
+      "locale": "th",
+      "categories": ["thai", "thai-no-space", "combining-mark", "grapheme"],
+      "notes": "Thai vowels and tone marks must keep caret/grapheme mapping stable."
+    },
+    {
+      "sampleId": "mixed-report-title",
+      "text": "รายงานยอดขาย Q2 2026",
+      "locale": "th",
+      "categories": ["thai", "latin", "digit", "space", "mixed-script"],
+      "notes": "Thai title with Latin quarter marker and year."
+    },
+    {
+      "sampleId": "thai-currency-number",
+      "text": "ราคา 1,234.56 บาท",
+      "locale": "th",
+      "categories": ["thai", "digit", "punctuation", "space"],
+      "notes": "Numbers and punctuation should not create surprising line breaks."
+    },
+    {
+      "sampleId": "mixed-product-name",
+      "text": "FlowDoc วัดข้อความไทยให้ตรง PDF",
+      "locale": "th",
+      "categories": ["thai", "latin", "space", "mixed-script"],
+      "notes": "Product and output acronym mixed with Thai text."
+    },
+    {
+      "sampleId": "page-summary-label",
+      "text": "หน้า 1/10: สรุปผล",
+      "locale": "th",
+      "categories": ["thai", "digit", "punctuation", "space"],
+      "notes": "Page label with slash and colon punctuation."
+    }
+  ]
+}
