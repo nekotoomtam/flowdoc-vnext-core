@@ -2999,6 +2999,34 @@ Acceptance:
   `VNextTextMeasurementDraft`;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 109: Text Engine Evidence Acceptance Boundary
+
+Goal:
+
+- validate adapter-produced glyph and line evidence before any pagination-facing
+  measurement draft handoff.
+
+Deliverables:
+
+- text engine evidence acceptance planner in
+  `src/renderer/textEngineEvidenceAcceptance.ts`;
+- public exports for text engine evidence acceptance source/mode constants and
+  `createVNextTextEngineEvidenceAcceptancePlan(...)`;
+- validation that evidence request id, measurement profile id, output shape,
+  engine revisions, deterministic engine flag, glyph facts, cluster ranges, line
+  box facts, and line glyph coverage match the adapter request;
+- blockers for production binding, core engine execution, pagination draft
+  mutation, request/profile/output/engine mismatch, missing evidence, malformed
+  glyph facts, malformed line boxes, and incomplete glyph coverage;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- accepted evidence remains on the glyph fact evidence lane;
+- accepted evidence does not create or mutate `VNextTextMeasurementDraft`;
+- no rustybuzz/HarfBuzz/ICU4X/WASM/font parser library is imported or executed;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

@@ -350,6 +350,9 @@ The package must remain runnable without any parent editor checkout.
 - Text engine adapter SPI boundary keeps glyph facts on a separate evidence
   lane and maps Phase 107 smoke cases into future external adapter requests
   without changing the pagination measurement draft.
+- Text engine evidence acceptance boundary validates adapter-produced glyph and
+  line box facts while deliberately keeping pagination draft creation as a
+  later handoff.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -412,6 +415,8 @@ The package must remain runnable without any parent editor checkout.
   smoke boundary before adapter-owned glyph fact execution
 - `docs/TEXT_ENGINE_ADAPTER_SPI_BOUNDARY.md`: Phase 108 text engine adapter
   SPI boundary before external adapter implementation
+- `docs/TEXT_ENGINE_EVIDENCE_ACCEPTANCE_BOUNDARY.md`: Phase 109 text engine
+  evidence acceptance boundary before pagination draft handoff
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -617,6 +622,8 @@ The package must remain runnable without any parent editor checkout.
   production measurement binding beyond the Phase 107 shaping smoke boundary
 - concrete text engine adapter package implementation, glyph evidence capture,
   or pagination draft mutation beyond the Phase 108 adapter SPI boundary
+- concrete pagination draft creation from glyph evidence beyond the Phase 109
+  evidence acceptance boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

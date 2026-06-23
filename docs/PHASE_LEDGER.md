@@ -115,6 +115,7 @@ Parent goal:
 | 106 | Thai corpus/oracle boundary | done | `docs/THAI_CORPUS_ORACLE_BOUNDARY.md`; `fixtures/thai-measurement-corpus.v1.json`; `src/renderer/thaiCorpusBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/thaiCorpusBoundary.test.ts` |
 | 107 | Rustybuzz shaping smoke boundary | done | `docs/RUSTYBUZZ_SHAPING_SMOKE_BOUNDARY.md`; `fixtures/rustybuzz-shaping-smoke.v1.json`; `src/renderer/rustybuzzShapingSmoke.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustybuzzShapingSmoke.test.ts` |
 | 108 | Text engine adapter SPI boundary | done | `docs/TEXT_ENGINE_ADAPTER_SPI_BOUNDARY.md`; `src/renderer/textEngineAdapterSpi.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineAdapterSpi.test.ts` |
+| 109 | Text engine evidence acceptance boundary | done | `docs/TEXT_ENGINE_EVIDENCE_ACCEPTANCE_BOUNDARY.md`; `src/renderer/textEngineEvidenceAcceptance.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineEvidenceAcceptance.test.ts` |
 
 ## Current Rule
 
@@ -2793,6 +2794,30 @@ dependencies, build or load WASM, execute shaping or segmentation, read font
 files, capture real glyph evidence, mutate `VNextTextMeasurementDraft`, replace
 measured pagination, mutate package/document data, write artifacts or storage
 records, add backend routes, or change package/document schema.
+
+## Phase 109 Text Engine Evidence Acceptance Boundary
+
+Phase 109 validates adapter evidence before pagination draft handoff:
+
+- `src/renderer/textEngineEvidenceAcceptance.ts` accepts or blocks text engine
+  adapter evidence as data, not as engine execution;
+- accepted evidence must match the original adapter request, measurement
+  profile id, output shape version, expected engine revisions, deterministic
+  engine flag, glyph facts, line box facts, and line glyph coverage;
+- production binding, core engine execution, pagination draft mutation,
+  request/profile/output/engine mismatch, missing glyphs or line boxes,
+  malformed glyph facts, malformed line box facts, and incomplete line glyph
+  coverage block;
+- accepted evidence remains on the glyph fact evidence lane and reports
+  `producesMeasurementDraft: false`;
+- `tests/textEngineEvidenceAcceptance.test.ts` proves accepted evidence,
+  blockers, source independence, and documentation trail.
+
+This phase intentionally does not create an adapter package, install Rust/JS
+dependencies, build or load WASM, execute shaping or segmentation, read font
+files, capture real glyph evidence, create pagination drafts, replace measured
+pagination, mutate package/document data, write artifacts or storage records,
+add backend routes, or change package/document schema.
 
 ## Phase 12 Extraction Record
 
