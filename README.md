@@ -248,6 +248,9 @@ The package must remain runnable without any parent editor checkout.
   insertion not-run until a later rich inline execution phase
 - Style-aware history boundary groups ready rich inline intents through
   `data-draft-style-history` while keeping durable history not-written
+- WYSIWYG close audit records PASS/RISK/UNKNOWN status for the current
+  browser-local editing foundation before backend, persistence, and exact
+  renderer phases continue
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -437,6 +440,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local field chip inline boundary
 - `docs/TEMPLATE_BUILDER_STYLE_AWARE_HISTORY_BOUNDARY.md`: Phase 84
   browser-local style-aware history boundary
+- `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md`: Phase 85 WYSIWYG foundation
+  close audit and risk register
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

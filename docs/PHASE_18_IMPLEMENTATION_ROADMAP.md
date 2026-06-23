@@ -2137,6 +2137,35 @@ Acceptance:
 - no undo/redo behavior, style-aware live layout, backend API, renderer output,
   or package/document schema change is claimed.
 
+## Phase 85: WYSIWYG Close Audit
+
+Goal:
+
+- close the current WYSIWYG / Editing foundation pass with explicit
+  PASS/FAIL/RISK/UNKNOWN status before backend, persistence, exact renderer, or
+  production rich editing work continues.
+
+Deliverables:
+
+- close audit in `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md`;
+- PASS evidence for Phases 78-84 browser-local modules and action lanes;
+- FAIL/BLOCKER record;
+- RISK and UNKNOWN lists for rich inline execution, contenteditable mapping,
+  production IME, style-aware live layout, renderer parity, persistence,
+  collaboration, and durable undo/redo;
+- files changed / behavior changed / tests run / risks left /
+  intentionally-not-changed records;
+- README, ledger, and boundary test coverage.
+
+Acceptance:
+
+- audit cites the relevant modules and tests;
+- audit does not claim production WYSIWYG completion;
+- audit confirms package/document schema, backend API, persistence,
+  collaboration, durable history, exact renderer, and export adapters were not
+  changed;
+- focused boundary tests and root checks pass.
+
 ## Later Phases
 
 Goal:

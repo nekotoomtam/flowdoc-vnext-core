@@ -91,6 +91,7 @@ Parent goal:
 | 82 | Toolbar state boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 83 | Field chip inline boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInline.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 84 | Style-aware history boundary | done | `docs/TEMPLATE_BUILDER_STYLE_AWARE_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftStyleHistory.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 85 | WYSIWYG close audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -2040,6 +2041,29 @@ This phase intentionally does not append durable history, modify
 insert field refs, create style-aware live layout invalidation, run exact
 layout, alter renderer output, add backend API routes, add
 storage/collaboration behavior, or change package/document schema.
+
+## Phase 85 WYSIWYG Close Audit
+
+Phase 85 closes the current WYSIWYG / Editing foundation pass for Phases 78-84:
+
+- `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md` records PASS/FAIL/RISK/UNKNOWN
+  status for the browser-local editing foundation;
+- PASS covers the draft runtime, draft layout push, IME guard, style patch
+  planning, toolbar state, field chip inline, style-aware history, app-shell
+  consumption, action lanes, and boundary tests;
+- FAIL / BLOCKER records no blocker for closing this foundation pass;
+- RISK records that rich inline execution, toolbar dispatch, field chip
+  insertion, style-aware durable history, and contenteditable/rich range
+  mapping remain future work;
+- UNKNOWN records production IME behavior, active mark detection, style-aware
+  live layout invalidation, renderer parity, persistence, collaboration,
+  backend API, and durable undo/redo;
+- the audit records files changed, behavior changed, tests run, risks left, and
+  intentionally-not-changed areas.
+
+This phase intentionally does not implement new runtime behavior, package
+schema changes, backend API routes, persistence, collaboration, exact renderer
+adapters, export adapters, or durable history changes.
 
 ## Phase 12 Extraction Record
 
