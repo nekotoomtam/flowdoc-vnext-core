@@ -1,0 +1,130 @@
+{
+  "source": "flowdoc-rustybuzz-native-smoke",
+  "shaperRevision": "rustybuzz-0.20.1",
+  "fontId": "sarabun-regular",
+  "fontPath": "../../assets/fonts/Sarabun/Sarabun-Regular.ttf",
+  "text": "สวัสดีครับตูม",
+  "textByteLength": 39,
+  "textScalarCount": 13,
+  "unitsPerEm": 1000,
+  "glyphCount": 13,
+  "glyphs": [
+    {
+      "index": 0,
+      "glyphId": 481,
+      "cluster": 0,
+      "xAdvance": 580,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 1,
+      "glyphId": 478,
+      "cluster": 3,
+      "xAdvance": 512,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 2,
+      "glyphId": 733,
+      "cluster": 3,
+      "xAdvance": 0,
+      "yAdvance": 0,
+      "xOffset": -10,
+      "yOffset": 0
+    },
+    {
+      "index": 3,
+      "glyphId": 481,
+      "cluster": 9,
+      "xAdvance": 580,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 4,
+      "glyphId": 457,
+      "cluster": 12,
+      "xAdvance": 592,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 5,
+      "glyphId": 754,
+      "cluster": 12,
+      "xAdvance": 0,
+      "yAdvance": 0,
+      "xOffset": -10,
+      "yOffset": 0
+    },
+    {
+      "index": 6,
+      "glyphId": 435,
+      "cluster": 18,
+      "xAdvance": 603,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 7,
+      "glyphId": 472,
+      "cluster": 21,
+      "xAdvance": 484,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 8,
+      "glyphId": 733,
+      "cluster": 21,
+      "xAdvance": 0,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 9,
+      "glyphId": 463,
+      "cluster": 27,
+      "xAdvance": 645,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 10,
+      "glyphId": 458,
+      "cluster": 30,
+      "xAdvance": 607,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 11,
+      "glyphId": 769,
+      "cluster": 30,
+      "xAdvance": 0,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    },
+    {
+      "index": 12,
+      "glyphId": 470,
+      "cluster": 36,
+      "xAdvance": 614,
+      "yAdvance": 0,
+      "xOffset": 0,
+      "yOffset": 0
+    }
+  ]
+}

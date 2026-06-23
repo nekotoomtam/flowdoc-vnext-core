@@ -3112,6 +3112,39 @@ Acceptance:
 - production measurement binding remains blocked;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 113: Text Engine Rustybuzz Smoke Package Boundary
+
+Goal:
+
+- execute the first real rustybuzz smoke path inside the external adapter
+  package while keeping vNext core independent from Rust, WASM, font-file
+  reads, and production measurement binding.
+
+Deliverables:
+
+- package-local Rust smoke crate under
+  `packages/text-engine-rust-wasm/rust-shaper`;
+- pinned `rustybuzz = "=0.20.1"` dependency for the smoke crate;
+- CLI smoke that reads a copied vNext font asset, shapes supplied text, and
+  prints raw glyph ids, clusters, advances, offsets, glyph count, and
+  units-per-em as JSON;
+- raw package-local smoke-output fixture from the first successful Sarabun
+  smoke run, kept separate from accepted FlowDoc glyph evidence;
+- package script for the bounded smoke command;
+- tests proving real rustybuzz execution stays outside `src/**` and outside the
+  TypeScript adapter evidence path;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- the rustybuzz dependency is package-local to the external adapter lane;
+- copied vNext font assets can be passed to the smoke command explicitly;
+- core `src/**` still does not import the adapter package, rustybuzz, WASM, or
+  font-file access;
+- WASM build/loading remains recorded as a separate gap until toolchain and
+  runtime loader phases land;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

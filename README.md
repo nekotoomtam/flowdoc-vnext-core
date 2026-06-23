@@ -362,6 +362,9 @@ The package must remain runnable without any parent editor checkout.
 - Text engine adapter package scaffold creates the external
   `@flowdoc/text-engine-rust-wasm` package lane with deterministic mock
   evidence before rustybuzz/WASM implementation.
+- Text engine rustybuzz smoke package boundary adds the first package-local
+  rustybuzz execution path under `packages/text-engine-rust-wasm/rust-shaper`
+  while keeping core source independent from Rust/WASM/font-file access.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -432,6 +435,8 @@ The package must remain runnable without any parent editor checkout.
   adapter lane close audit before external adapter package implementation
 - `docs/TEXT_ENGINE_ADAPTER_PACKAGE_SCAFFOLD.md`: Phase 112 external text
   engine adapter package scaffold before rustybuzz/WASM smoke
+- `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_PACKAGE_BOUNDARY.md`: Phase 113 package-
+  local rustybuzz smoke execution before WASM loading or production binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -645,6 +650,9 @@ The package must remain runnable without any parent editor checkout.
   text engine adapter lane close audit
 - concrete rustybuzz/WASM shaping inside `@flowdoc/text-engine-rust-wasm`
   beyond the Phase 112 package scaffold
+- concrete WASM build/loading, TypeScript adapter binding to real glyph facts,
+  or production measurement replacement beyond the Phase 113 package-local
+  rustybuzz smoke
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

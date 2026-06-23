@@ -119,6 +119,7 @@ Parent goal:
 | 110 | Text engine measurement draft handoff boundary | done | `docs/TEXT_ENGINE_MEASUREMENT_DRAFT_HANDOFF_BOUNDARY.md`; `src/renderer/textEngineMeasurementDraftHandoff.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineMeasurementDraftHandoff.test.ts` |
 | 111 | Text engine adapter lane close audit | done | `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterLaneCloseAudit.test.ts` |
 | 112 | Text engine adapter package scaffold | done | `docs/TEXT_ENGINE_ADAPTER_PACKAGE_SCAFFOLD.md`; `packages/text-engine-rust-wasm`; `tsconfig.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterPackageScaffold.test.ts` |
+| 113 | Text engine rustybuzz smoke package boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_PACKAGE_BOUNDARY.md`; `packages/text-engine-rust-wasm/rust-shaper`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.sarabun.v1.json`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `.gitignore`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
 
 ## Current Rule
 
@@ -2895,6 +2896,33 @@ WASM, execute shaping or segmentation, read font files, capture real glyph
 evidence, bind production measurement, replace measured pagination, mutate
 package/document data, write artifacts or storage records, add backend routes,
 or change package/document schema.
+
+## Phase 113 Text Engine Rustybuzz Smoke Package Boundary
+
+Phase 113 adds the first real rustybuzz execution path inside the external
+adapter package:
+
+- `packages/text-engine-rust-wasm/rust-shaper` owns a package-local Rust smoke
+  crate named `flowdoc-rustybuzz-smoke`;
+- the smoke crate pins `rustybuzz = "=0.20.1"`;
+- the smoke CLI reads an explicit copied vNext font path, shapes supplied text,
+  and prints raw glyph ids, clusters, advances, offsets, glyph count, and
+  units-per-em as JSON;
+- a package-local raw smoke-output fixture records the successful Sarabun run
+  for review without treating those glyphs as accepted FlowDoc evidence;
+- `packages/text-engine-rust-wasm/package.json` exposes bounded
+  `rustybuzz:smoke` and `rustybuzz:build` commands;
+- the TypeScript adapter remains mocked and the core package still does not
+  import the adapter package, rustybuzz, WASM, or font-file access;
+- WASM build/loading remains a separate gap because this workstation currently
+  has `cargo`/`rustc` but no `wasm-pack` or `wasm-bindgen` on `PATH`;
+- `tests/textEngineRustybuzzSmokePackage.test.ts` proves package ownership,
+  root dependency independence, blocker documentation, and phase trail.
+
+This phase intentionally does not execute ICU4X, build or load WASM, map raw
+rustybuzz clusters into accepted FlowDoc evidence, bind production measurement,
+replace measured pagination, mutate package/document data, write artifacts or
+storage records, add backend routes, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

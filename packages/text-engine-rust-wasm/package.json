@@ -10,6 +10,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "rustybuzz:smoke": "cargo run --manifest-path rust-shaper/Cargo.toml -- ../../assets/fonts/Sarabun/Sarabun-Regular.ttf \"สวัสดีครับตูม\" sarabun-regular",
+    "rustybuzz:build": "cargo build --manifest-path rust-shaper/Cargo.toml",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "npm run type-check"
   },
