@@ -347,6 +347,9 @@ The package must remain runnable without any parent editor checkout.
 - Rustybuzz shaping smoke boundary defines the copied-font, Thai-corpus, and
   measurement-profile-backed shape cases that a future external adapter must
   satisfy before production measurement binding.
+- Text engine adapter SPI boundary keeps glyph facts on a separate evidence
+  lane and maps Phase 107 smoke cases into future external adapter requests
+  without changing the pagination measurement draft.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -407,6 +410,8 @@ The package must remain runnable without any parent editor checkout.
   before ICU4X/Intl/Thai oracle execution
 - `docs/RUSTYBUZZ_SHAPING_SMOKE_BOUNDARY.md`: Phase 107 rustybuzz shaping
   smoke boundary before adapter-owned glyph fact execution
+- `docs/TEXT_ENGINE_ADAPTER_SPI_BOUNDARY.md`: Phase 108 text engine adapter
+  SPI boundary before external adapter implementation
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -610,6 +615,8 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 106 corpus/oracle boundary
 - concrete rustybuzz/HarfBuzz shaping, WASM loading, glyph fact capture, or
   production measurement binding beyond the Phase 107 shaping smoke boundary
+- concrete text engine adapter package implementation, glyph evidence capture,
+  or pagination draft mutation beyond the Phase 108 adapter SPI boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

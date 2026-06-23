@@ -114,6 +114,7 @@ Parent goal:
 | 105 | Rust/WASM text engine boundary decision | done | `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`; `src/renderer/rustWasmTextEngineBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustWasmTextEngineBoundary.test.ts` |
 | 106 | Thai corpus/oracle boundary | done | `docs/THAI_CORPUS_ORACLE_BOUNDARY.md`; `fixtures/thai-measurement-corpus.v1.json`; `src/renderer/thaiCorpusBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/thaiCorpusBoundary.test.ts` |
 | 107 | Rustybuzz shaping smoke boundary | done | `docs/RUSTYBUZZ_SHAPING_SMOKE_BOUNDARY.md`; `fixtures/rustybuzz-shaping-smoke.v1.json`; `src/renderer/rustybuzzShapingSmoke.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustybuzzShapingSmoke.test.ts` |
+| 108 | Text engine adapter SPI boundary | done | `docs/TEXT_ENGINE_ADAPTER_SPI_BOUNDARY.md`; `src/renderer/textEngineAdapterSpi.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineAdapterSpi.test.ts` |
 
 ## Current Rule
 
@@ -2763,6 +2764,35 @@ WASM, read font files, execute shaping, record actual glyph facts, execute
 segmentation or Thai oracles, replace measured pagination, mutate
 package/document data, write artifacts or storage records, add backend routes,
 or change package/document schema.
+
+## Phase 108 Text Engine Adapter SPI Boundary
+
+Phase 108 defines the future text engine adapter SPI without implementing the
+adapter:
+
+- `src/renderer/textEngineAdapterSpi.ts` defines adapter request records,
+  future adapter evidence records, glyph fact fields, line box fact fields,
+  and a pure readiness planner;
+- Phase 107 shaping smoke cases can be mapped into adapter requests using
+  copied font asset ids, Thai corpus sample text, stable measurement profile
+  identity, and a positive available width;
+- the selected contract keeps glyph facts on a
+  `glyph-facts-separate-from-pagination-draft` evidence lane and defers the
+  pagination-facing line draft to a later
+  `derive-line-draft-from-accepted-evidence` mapper;
+- production binding, unstable measurement profile identity, direct core
+  dependency placement, core engine/WASM imports, core font-file reads, core
+  shaping/segmentation execution, missing engine revisions, nondeterminism,
+  unknown references, missing shaping facts, and bad request widths block;
+- `tests/textEngineAdapterSpi.test.ts` proves smoke-to-request mapping,
+  blockers, evidence-lane separation, source independence, and documentation
+  trail.
+
+This phase intentionally does not create an adapter package, install Rust/JS
+dependencies, build or load WASM, execute shaping or segmentation, read font
+files, capture real glyph evidence, mutate `VNextTextMeasurementDraft`, replace
+measured pagination, mutate package/document data, write artifacts or storage
+records, add backend routes, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

@@ -2962,6 +2962,43 @@ Acceptance:
 - production measurement binding remains blocked;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 108: Text Engine Adapter SPI Boundary
+
+Goal:
+
+- define the request/evidence SPI that a future external text engine adapter
+  must implement while keeping glyph facts separate from the current
+  pagination-facing text measurement draft.
+
+Deliverables:
+
+- text engine adapter SPI planner in `src/renderer/textEngineAdapterSpi.ts`;
+- public exports for text engine adapter SPI source/mode constants and
+  `createVNextTextEngineAdapterSpiPlan(...)`;
+- adapter request contracts carrying measurement profile id, text, corpus
+  sample id, font id, style key, available width, output shape version, and
+  requested glyph facts;
+- future evidence contracts for glyph ids, advances, offsets, cluster ranges,
+  and line box facts;
+- smoke-to-request mapping from Phase 107 cases and Phase 106 corpus samples;
+- evidence-lane contract:
+  `glyph-facts-separate-from-pagination-draft`;
+- blockers for production binding, unstable profile identity, direct core
+  dependency placement, core engine/WASM imports, core font-file reads, core
+  shaping/segmentation execution, missing engine revisions, nondeterminism,
+  unknown font/sample references, missing shaping facts, and invalid request
+  width;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- Phase 107 smoke cases can be converted into adapter requests without running
+  an engine;
+- core does not import rustybuzz/HarfBuzz/ICU4X/WASM/font parser dependencies;
+- glyph facts remain adapter evidence and do not mutate
+  `VNextTextMeasurementDraft`;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:
