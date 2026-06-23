@@ -246,6 +246,8 @@ The package must remain runnable without any parent editor checkout.
 - Field chip inline boundary surfaces catalog-backed field chip insertion
   intent through `data-draft-field-chip-inline` while keeping field-ref
   insertion not-run until a later rich inline execution phase
+- Style-aware history boundary groups ready rich inline intents through
+  `data-draft-style-history` while keeping durable history not-written
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -433,6 +435,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local toolbar state boundary
 - `docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md`: Phase 83
   browser-local field chip inline boundary
+- `docs/TEMPLATE_BUILDER_STYLE_AWARE_HISTORY_BOUNDARY.md`: Phase 84
+  browser-local style-aware history boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

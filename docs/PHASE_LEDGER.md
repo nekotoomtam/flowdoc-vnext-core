@@ -90,6 +90,7 @@ Parent goal:
 | 81 | Rich inline style patch boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftInlineStylePatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 82 | Toolbar state boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 83 | Field chip inline boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInline.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 84 | Style-aware history boundary | done | `docs/TEMPLATE_BUILDER_STYLE_AWARE_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftStyleHistory.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -2002,6 +2003,43 @@ mapping, edit field keys, migrate key history, create style-aware history
 records, request live layout, run exact layout, alter renderer output, add
 backend API routes, add storage/collaboration behavior, or change
 package/document schema.
+
+## Phase 84 Style-aware History Boundary
+
+Phase 84 groups ready rich inline draft intents into browser-local style-aware
+history summaries without appending durable history or changing
+`authoringHistory`:
+
+- `examples/template-builder-sandbox/public/draftStyleHistory.js` owns
+  `DRAFT_STYLE_HISTORY_SOURCE`, `DRAFT_STYLE_HISTORY_MODE`,
+  `createDraftStyleHistory(...)`, and `draftStyleHistoryLabel(...)`;
+- style-aware history summaries collect planned intents from ready style patch
+  and field chip summaries;
+- planned intent kinds cover `inline.style.patch` and
+  `inline.fieldRef.insert`;
+- summaries expose the active draft merge-key shape for later grouping;
+- summaries explicitly keep `history.status = "not-recorded"`,
+  `durableHistory.status = "not-written"`, `coreTransaction.status =
+  "not-run"`, `liveLayout.status = "not-requested"`, and
+  `exactGeneration.status = "deferred-until-commit"`;
+- `examples/template-builder-sandbox/public/app.js` renders
+  `data-draft-style-history` in the canvas draft footer, inspector draft panel,
+  and status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes the
+  `browser.planDraftStyleHistory` action lane;
+- `docs/TEMPLATE_BUILDER_STYLE_AWARE_HISTORY_BOUNDARY.md` records the
+  style-aware history boundary, truth model, acceptance evidence, and
+  non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module can run in
+  Node, collects planned rich inline intents, keeps history unrecorded and
+  durable history unwritten, blocks during composition, and guards app-shell
+  wiring.
+
+This phase intentionally does not append durable history, modify
+`authoringHistory`, implement undo/redo for style changes, apply inline style,
+insert field refs, create style-aware live layout invalidation, run exact
+layout, alter renderer output, add backend API routes, add
+storage/collaboration behavior, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

@@ -2100,6 +2100,43 @@ Acceptance:
 - no visible field picker, field-ref insertion, key history, backend API,
   renderer output, or package/document schema change is claimed.
 
+## Phase 84: Style-aware History Boundary
+
+Goal:
+
+- group ready rich inline draft intents into browser-local style-aware history
+  summaries without appending durable history or changing `authoringHistory`.
+
+Deliverables:
+
+- browser-safe style-aware history module in `public/draftStyleHistory.js`;
+- style-aware history source/mode constants;
+- planned intent collection from ready style patch and field chip summaries;
+- intent kind labels for `inline.style.patch` and `inline.fieldRef.insert`;
+- active draft merge-key shape;
+- idle/guarded/composing/planned status and reason derivation;
+- explicit `history.status = "not-recorded"`;
+- explicit `durableHistory.status = "not-written"`;
+- explicit `coreTransaction.status = "not-run"`;
+- explicit `liveLayout.status = "not-requested"`;
+- explicit `exactGeneration.status = "deferred-until-commit"`;
+- canvas, inspector, and status-bar consumption through
+  `data-draft-style-history`;
+- action lane for `browser.planDraftStyleHistory`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- style-aware history state can run in Node without DOM access;
+- ready style patch and field chip summaries can become planned history
+  intents;
+- planned intents keep history status not-recorded;
+- active composition blocks style-aware history planning;
+- durable history, core transactions, authoringHistory, live layout, and exact
+  output remain unrun/unchanged;
+- no undo/redo behavior, style-aware live layout, backend API, renderer output,
+  or package/document schema change is claimed.
+
 ## Later Phases
 
 Goal:

@@ -789,6 +789,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local field chip summaries expose catalog-backed caret insertion intent without applying inline field refs",
       },
       {
+        action: "browser.planDraftStyleHistory",
+        label: "Style history",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local style-aware history summaries plan rich inline intent grouping without appending durable history",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",
