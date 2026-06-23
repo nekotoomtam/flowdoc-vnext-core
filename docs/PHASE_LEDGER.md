@@ -100,6 +100,7 @@ Parent goal:
 | 91 | Submission state boundary | done | `docs/SUBMISSION_STATE_BOUNDARY.md`; `src/workflow/submissionState.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/submissionState.test.ts` |
 | 92 | Persistence close audit | done | `docs/PERSISTENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/persistenceCloseAudit.test.ts` |
 | 93 | PDF renderer adapter boundary | done | `docs/PDF_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/pdfAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pdfRendererAdapter.test.ts` |
+| 94 | DOCX renderer adapter boundary | done | `docs/DOCX_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/docxAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/docxRendererAdapter.test.ts` |
 
 ## Current Rule
 
@@ -2340,6 +2341,40 @@ PDF file writes, artifact storage, font embedding, image embedding, vector
 drawing fidelity, accessibility tags, page metadata, renderer-backed text
 measurement, exact layout execution, DOCX output, preview output, backend
 routes, storage adapters, or package/document schema changes.
+
+## Phase 94 DOCX Renderer Adapter Boundary
+
+Phase 94 adds a DOCX renderer adapter contract without rendering DOCX bytes:
+
+- `src/renderer/docxAdapter.ts` owns
+  `VNEXT_DOCX_RENDERER_ADAPTER_SOURCE`,
+  `VNEXT_DOCX_RENDERER_ADAPTER_MODE`, and
+  `createVNextDocxRendererAdapterPlan(...)`;
+- the adapter consumes `VNextMeasuredRendererConsumption`, not authored
+  documents;
+- consumable measured render commands become JSON-serializable DOCX assembly
+  commands with measured bounds and optional text/table metadata;
+- blocked renderer consumption produces a blocked adapter plan and no assembly
+  commands;
+- the DOCX renderer contract consumes measured render commands, forbids
+  relayout, does not require authored documents for layout, and does not use
+  source documents for structure in this boundary;
+- artifact metadata remains `kind = "docx"`, `status = "not-rendered"`,
+  `bytes = null`, and `storageId = null`;
+- `src/index.ts` exports the DOCX adapter boundary through the public package
+  entry;
+- `docs/DOCX_RENDERER_ADAPTER_BOUNDARY.md` records ownership, truth boundary,
+  acceptance evidence, and non-goals;
+- `tests/docxRendererAdapter.test.ts` proves ready assembly plans, blocked
+  input, source independence from concrete DOCX libraries, parent runtime, DOM,
+  routes, authored document input, pagination, layout, and export readiness,
+  plus README/roadmap/ledger traceability.
+
+This phase intentionally does not implement concrete DOCX rendering, DOCX
+bytes, DOCX file writes, artifact storage, style mapping, numbering,
+headers/footers, table fidelity, media embedding, accessibility metadata,
+renderer-backed text measurement, exact layout execution, PDF output, preview
+output, backend routes, storage adapters, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 

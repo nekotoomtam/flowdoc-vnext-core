@@ -74,6 +74,9 @@ The package must remain runnable without any parent editor checkout.
 - PDF renderer adapter boundary converts measured renderer consumption into a
   PDF draw plan and not-rendered artifact manifest without concrete PDF bytes,
   storage writes, authored-document input, or relayout
+- DOCX renderer adapter boundary converts measured renderer consumption into a
+  DOCX assembly plan and not-rendered artifact manifest without concrete DOCX
+  bytes, storage writes, authored-document input, or relayout
 - Editable authoring session baseline creates a pure browser/Node-safe session
   from canonical packages with working document, graph/key diagnostics,
   revisions, empty dirty scopes, and session-only selection state
@@ -343,6 +346,8 @@ The package must remain runnable without any parent editor checkout.
   foundation close audit and risk register
 - `docs/PDF_RENDERER_ADAPTER_BOUNDARY.md`: Phase 93 PDF renderer adapter plan
   boundary before concrete PDF rendering or artifact storage
+- `docs/DOCX_RENDERER_ADAPTER_BOUNDARY.md`: Phase 94 DOCX renderer adapter
+  plan boundary before concrete DOCX rendering or artifact storage
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness

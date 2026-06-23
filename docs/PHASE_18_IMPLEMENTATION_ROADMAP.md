@@ -2442,6 +2442,39 @@ Acceptance:
   readiness, or renderer execution;
 - package/document schema remains unchanged.
 
+## Phase 94: DOCX Renderer Adapter Boundary
+
+Goal:
+
+- add a pure DOCX renderer adapter plan over measured renderer consumption
+  without implementing concrete DOCX rendering, DOCX bytes, storage writes, or
+  renderer-side relayout.
+
+Deliverables:
+
+- DOCX renderer adapter in `src/renderer/docxAdapter.ts`;
+- public exports for DOCX adapter source/mode constants and
+  `createVNextDocxRendererAdapterPlan(...)`;
+- DOCX assembly command shape derived from measured render commands;
+- no-relayout DOCX renderer contract;
+- artifact manifest with `status = "not-rendered"`, `bytes = null`, and
+  `storageId = null`;
+- blocked renderer-consumption handling that emits no assembly commands;
+- boundary tests for ready assembly plans, blocked input, source independence,
+  and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- adapter consumes measured renderer commands, not authored documents;
+- ready renderer consumption produces JSON-serializable DOCX assembly plans;
+- blocked renderer consumption blocks DOCX assembly commands;
+- DOCX artifacts remain not-rendered and byte/storage fields remain null;
+- the boundary does not import concrete DOCX libraries, storage adapters,
+  server frameworks, parent app routes, DOM APIs, pagination, layout, export
+  readiness, or renderer execution;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:
