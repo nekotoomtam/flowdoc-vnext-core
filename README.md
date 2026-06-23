@@ -443,6 +443,10 @@ The package must remain runnable without any parent editor checkout.
   lifecycle transitions for queued, layout-running, rendering, rendered,
   failed, cancelled, and retry states without worker, queue, renderer, route,
   or storage execution.
+- Storage adapter interface boundary defines typed package/session, history,
+  rich inline, artifact manifest, and artifact job storage collection contracts
+  with expected revision, idempotency key, and optional write-token shapes
+  before any concrete backend choice.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -535,6 +539,8 @@ The package must remain runnable without any parent editor checkout.
   contract boundary before concrete server routes or storage lookups
 - `docs/ARTIFACT_JOB_BOUNDARY.md`: Phase 139 durable layout and artifact job
   record boundary before workers, queues, concrete rendering, or storage
+- `docs/STORAGE_ADAPTER_BOUNDARY.md`: Phase 140 storage adapter interface
+  boundary before choosing a concrete database, object store, or browser store
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

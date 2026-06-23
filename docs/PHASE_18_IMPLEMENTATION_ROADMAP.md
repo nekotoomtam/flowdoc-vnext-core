@@ -3916,6 +3916,36 @@ Acceptance:
   execution, concrete layout execution, or package/document schema change is
   introduced.
 
+## Phase 140: Storage Adapter Interface Boundary
+
+Goal:
+
+- define storage adapter interfaces for packages, sessions, history, artifacts,
+  and jobs without choosing a concrete database or object store.
+
+Deliverables:
+
+- `src/persistence/storageAdapter.ts`;
+- `docs/STORAGE_ADAPTER_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests using a test-local mock adapter for expected revision, idempotency
+  replay, write-token metadata, collection coverage, dependency cleanliness,
+  and documentation trail.
+
+Acceptance:
+
+- interface-only storage collections are defined for package/session records,
+  durable histories, rich inline session persistence, artifact manifests, and
+  artifact jobs;
+- write requests include `expectedRevision`, `idempotencyKey`, and optional
+  `writeToken`;
+- read/write result envelopes are JSON-safe and explicit;
+- mock adapter proves conflict and idempotency behavior without becoming core
+  storage implementation;
+- no concrete database, object store, filesystem write, browser storage,
+  network call, auth/authz implementation, backend route, or package/document
+  schema change is introduced.
+
 ## Later Phases
 
 Goal:

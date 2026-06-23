@@ -1,6 +1,7 @@
 export * from "./schema/document.js"
 export * from "./graph/relationshipGraph.js"
 export * from "./persistence/package.js"
+export * from "./persistence/storageAdapter.js"
 export * from "./operations/documentOperations.js"
 export * from "./runtime/session.js"
 export * from "./structure/projection.js"

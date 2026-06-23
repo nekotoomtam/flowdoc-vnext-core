@@ -146,6 +146,7 @@ Parent goal:
 | 137 | Artifact manifest and storage boundary | done | `docs/ARTIFACT_MANIFEST_BOUNDARY.md`; `src/generation/artifactManifest.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactManifest.test.ts` |
 | 138 | Backend artifact route contract boundary | done | `docs/ARTIFACT_API_ROUTE_BOUNDARY.md`; `src/generation/artifactApiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactApiRoute.test.ts` |
 | 139 | Durable layout and artifact job boundary | done | `docs/ARTIFACT_JOB_BOUNDARY.md`; `src/generation/artifactJob.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJob.test.ts` |
+| 140 | Storage adapter interface boundary | done | `docs/STORAGE_ADAPTER_BOUNDARY.md`; `src/persistence/storageAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageAdapter.test.ts` |
 
 ## Current Rule
 
@@ -3655,6 +3656,26 @@ Phase 139 adds durable artifact job records and pure transition helpers:
 This phase intentionally does not run workers, write queues, execute layout,
 call renderer packages, write storage, add backend routes, stream artifact
 bytes, or change package/document schema.
+
+## Phase 140 Storage Adapter Interface Boundary
+
+Phase 140 defines concrete-backend-free storage interfaces:
+
+- `src/persistence/storageAdapter.ts` exports typed collection contracts for
+  package/session records, durable histories, rich inline session persistence,
+  artifact manifests, and artifact jobs;
+- write requests include `expectedRevision`, required `idempotencyKey`, and
+  optional `writeToken`;
+- read/write results return JSON-safe envelopes with revision, key, kind,
+  metadata, conflict details, issues, and explicit no-backend contracts;
+- pure helper functions shape read/write outcomes without performing storage;
+- `tests/storageAdapter.test.ts` keeps the in-memory mock local to tests and
+  proves idempotent replay, expected-revision conflict, write-token echoing,
+  collection coverage, dependency cleanliness, and phase trail updates.
+
+This phase intentionally does not choose or implement Postgres, S3, filesystem
+storage, browser storage, Redis, migrations, auth/authz, backend routes,
+storage writes, queue writes, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 
