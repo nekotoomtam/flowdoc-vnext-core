@@ -120,6 +120,7 @@ Parent goal:
 | 111 | Text engine adapter lane close audit | done | `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterLaneCloseAudit.test.ts` |
 | 112 | Text engine adapter package scaffold | done | `docs/TEXT_ENGINE_ADAPTER_PACKAGE_SCAFFOLD.md`; `packages/text-engine-rust-wasm`; `tsconfig.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterPackageScaffold.test.ts` |
 | 113 | Text engine rustybuzz smoke package boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_PACKAGE_BOUNDARY.md`; `packages/text-engine-rust-wasm/rust-shaper`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.sarabun.v1.json`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `.gitignore`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
+| 114 | Text engine rustybuzz raw mapping boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_RAW_MAPPING_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rustybuzzRawMapping.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzRawMapping.test.ts`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
 
 ## Current Rule
 
@@ -2923,6 +2924,35 @@ This phase intentionally does not execute ICU4X, build or load WASM, map raw
 rustybuzz clusters into accepted FlowDoc evidence, bind production measurement,
 replace measured pagination, mutate package/document data, write artifacts or
 storage records, add backend routes, or change package/document schema.
+
+## Phase 114 Text Engine Rustybuzz Raw Mapping Boundary
+
+Phase 114 converts raw rustybuzz smoke output into FlowDoc adapter evidence:
+
+- `packages/text-engine-rust-wasm/src/rustybuzzRawMapping.ts` owns the raw
+  mapping behavior separately from the mock adapter scaffold;
+- raw UTF-8 byte clusters are mapped into UTF-16 text ranges before becoming
+  `clusterStartOffset` and `clusterEndOffset`;
+- raw font-unit advances and offsets are scaled to point units by
+  `fontSizePt / unitsPerEm`;
+- the mapper validates request text/font, shaper revision, glyph count, UTF-8
+  byte length, scalar count, glyph ids, advances, offsets, and cluster
+  boundaries before producing evidence;
+- the mapped Sarabun smoke fixture passes Phase 109 evidence acceptance while
+  still emitting a missing-WASM-digest warning;
+- unsafe cluster boundaries, mismatched font ids, mismatched shaper revisions,
+  nondeterministic engines, glyph count mismatches, and production binding are
+  blocked;
+- the core package still does not import the adapter package, rustybuzz, WASM,
+  or font-file access;
+- `tests/textEngineRustybuzzRawMapping.test.ts` proves mapping, blockers,
+  package independence, and documentation trail.
+
+This phase intentionally does not execute ICU4X, build or load WASM, run
+browser/worker loaders, perform multi-line wrapping, compare Thai oracle line
+breaks, bind production measurement, replace measured pagination, mutate
+package/document data, write artifacts or storage records, add backend routes,
+or change package/document schema.
 
 ## Phase 12 Extraction Record
 

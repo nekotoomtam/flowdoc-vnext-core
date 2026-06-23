@@ -3145,6 +3145,36 @@ Acceptance:
   runtime loader phases land;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 114: Text Engine Rustybuzz Raw Mapping Boundary
+
+Goal:
+
+- convert raw rustybuzz smoke JSON into adapter evidence by explicitly mapping
+  UTF-8 byte clusters to UTF-16 text ranges and font units to point units.
+
+Deliverables:
+
+- package-local raw mapper under
+  `packages/text-engine-rust-wasm/src/rustybuzzRawMapping.ts`;
+- validation for request text/font, shaper revision, glyph count, byte length,
+  scalar count, glyph ids, advances, offsets, and UTF-8 cluster boundaries;
+- mapping contract that records cluster input/output units and advance
+  input/output units;
+- single-line smoke line box generation for acceptance-boundary validation;
+- tests proving mapped raw Sarabun evidence passes Phase 109 acceptance;
+- tests proving unsafe raw clusters and mismatched metadata are blocked;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- raw rustybuzz byte clusters are never used directly as FlowDoc offsets;
+- mapped evidence uses UTF-16 text ranges and point units;
+- the mapper remains package-local and core `src/**` still does not import the
+  adapter package, rustybuzz, WASM, or font-file access;
+- WASM loading, ICU4X line breaks, and production measurement binding remain
+  blocked;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

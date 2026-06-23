@@ -6,6 +6,8 @@ import type {
   VNextTextEngineAdapterRequest,
 } from "@flowdoc/vnext-core"
 
+export * from "./rustybuzzRawMapping.js"
+
 export const FLOWDOC_TEXT_ENGINE_RUST_WASM_ADAPTER_SOURCE = "flowdoc-text-engine-rust-wasm-adapter"
 export const FLOWDOC_TEXT_ENGINE_RUST_WASM_ADAPTER_MODE = "mock-evidence-adapter-scaffold"
 export const FLOWDOC_TEXT_ENGINE_RUST_WASM_ADAPTER_PACKAGE = "@flowdoc/text-engine-rust-wasm"
