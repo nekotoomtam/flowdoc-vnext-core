@@ -418,6 +418,9 @@ The package must remain runnable without any parent editor checkout.
 - Text engine rustybuzz smoke corpus boundary expands native rustybuzz raw
   fixtures and evidence mapping across every Phase 107 smoke case before WASM
   parity or ICU4X line breaking.
+- Text engine line wrap evidence boundary consumes rustybuzz glyph advances and
+  Thai line-break evidence to produce multi-line adapter line boxes while
+  keeping break reasons outside the public line-box fact shape.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -496,6 +499,8 @@ The package must remain runnable without any parent editor checkout.
   rustybuzz evidence mapping before WASM loading or production binding
 - `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_CORPUS_BOUNDARY.md`: Phase 115 native
   rustybuzz smoke corpus coverage before WASM parity or ICU4X line breaking
+- `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`: Phase 133 multi-line wrap
+  evidence boundary before renderer-backed provider binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -747,9 +752,9 @@ The package must remain runnable without any parent editor checkout.
   rustybuzz smoke
 - concrete multi-line wrap, ICU4X line breaks, WASM artifact loading, or
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
-- concrete native/WASM parity, ICU4X execution, multi-line wrapping, or
-  production measurement replacement beyond the Phase 132 line-break evidence
-  manifest boundary
+- concrete native/WASM parity, ICU4X execution, renderer-backed provider
+  binding, or production measurement replacement beyond the Phase 133
+  multi-line wrap evidence boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 130 rich inline live/exact parity

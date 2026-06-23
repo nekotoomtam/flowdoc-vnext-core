@@ -139,6 +139,7 @@ Parent goal:
 | 130 | Rich inline live/exact parity audit | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineLiveExactParityAudit.test.ts` |
 | 131 | Five-lane project progress index | done | `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fiveLaneProjectProgressIndex.test.ts` |
 | 132 | ICU4X line-break evidence manifest boundary | done | `docs/THAI_LINE_BREAK_EVIDENCE_BOUNDARY.md`; `fixtures/thai-line-break-evidence.v1.json`; `src/renderer/thaiLineBreakEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/thaiLineBreakEvidence.test.ts` |
+| 133 | Multi-line wrap evidence boundary | done | `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/lineWrapEvidence.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `src/renderer/textEngineEvidenceAcceptance.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineLineWrapEvidence.test.ts` |
 
 ## Current Rule
 
@@ -3494,6 +3495,30 @@ PyThaiNLP, or AttaCut; compute line boxes; implement multi-line wrapping;
 replace pagination measurement; bind production measurement; add renderer,
 DOM, WASM, or text-engine dependencies; write artifacts; or change
 package/document schema.
+
+## Phase 133 Multi-Line Wrap Evidence Boundary
+
+Phase 133 turns accepted glyph evidence plus break opportunities into
+multi-line line-box evidence:
+
+- `packages/text-engine-rust-wasm/src/lineWrapEvidence.ts` consumes adapter
+  requests, accepted rustybuzz glyph evidence, Phase 132 Thai line-break
+  entries, and `availableWidthPt`;
+- it emits adapter evidence with multi-line `lineBoxes` while preserving glyph
+  facts on the evidence lane;
+- break kind and break reason are recorded in line-wrap summaries instead of
+  widening the public `VNextTextEngineAdapterLineBoxFact` shape;
+- `src/renderer/textEngineEvidenceAcceptance.ts` now rejects overlapping glyph
+  coverage, not only missing glyph coverage;
+- `tests/textEngineLineWrapEvidence.test.ts` proves existing smoke corpus
+  wrapping, narrow/wide width behavior, evidence acceptance, measurement draft
+  handoff, overlap rejection, package/core dependency cleanliness, and phase
+  trail updates.
+
+This phase intentionally does not change `VNextTextMeasurementDraft`, replace
+pagination measurement, bind production measurement, run ICU4X/rustybuzz/WASM,
+implement justification, hyphenation, bidi, renderer artifact output, storage
+writes, backend routes, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 

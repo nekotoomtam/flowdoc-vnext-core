@@ -3709,6 +3709,39 @@ Acceptance:
 - no segmentation engine, renderer, pagination, storage, schema, or production
   measurement behavior is introduced.
 
+## Phase 133: Multi-Line Wrap Evidence Boundary
+
+Goal:
+
+- consume rustybuzz glyph advances plus Thai line-break opportunities and
+  produce multi-line adapter line boxes that existing evidence acceptance and
+  measurement draft handoff can accept.
+
+Deliverables:
+
+- `packages/text-engine-rust-wasm/src/lineWrapEvidence.ts` package-local wrap
+  evidence boundary;
+- public package export from `packages/text-engine-rust-wasm/src/index.ts`;
+- exact-once line glyph coverage validation in
+  `src/renderer/textEngineEvidenceAcceptance.ts`;
+- `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests for Thai-only, Thai without spaces, mixed Thai/Latin, combining marks,
+  digits/punctuation, narrow width, wide width, acceptance/handoff, overlap
+  rejection, dependency cleanliness, and documentation trail.
+
+Acceptance:
+
+- existing rustybuzz smoke corpus evidence can be wrapped into multiple line
+  boxes using Phase 132 break opportunities;
+- produced evidence passes `createVNextTextEngineEvidenceAcceptancePlan(...)`;
+- accepted evidence passes
+  `createVNextTextEngineMeasurementDraftHandoffPlan(...)`;
+- break reason and break kind stay in the wrap summary instead of widening
+  public adapter line boxes;
+- `VNextTextMeasurementDraft`, pagination measurement, renderer output,
+  production measurement binding, and package/document schema remain unchanged.
+
 ## Later Phases
 
 Goal:

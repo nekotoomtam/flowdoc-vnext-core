@@ -285,18 +285,20 @@ function validateLineGlyphCoverage(
 ): void {
   if (evidence.glyphs.length === 0 || evidence.lineBoxes.length === 0) return
 
-  const covered = new Set<number>()
+  const coverageCounts = Array.from({ length: evidence.glyphs.length }, () => 0)
   evidence.lineBoxes.forEach((lineBox) => {
     for (let index = lineBox.glyphStartIndex; index < lineBox.glyphEndIndex; index += 1) {
-      covered.add(index)
+      if (index >= 0 && index < coverageCounts.length) {
+        coverageCounts[index] += 1
+      }
     }
   })
 
-  if (covered.size !== evidence.glyphs.length) {
+  if (coverageCounts.some((count) => count !== 1)) {
     blockingIssues.push(issue(
       "blocking",
       "line-glyph-coverage-incomplete",
-      "Line boxes must cover every accepted glyph exactly through their glyph ranges.",
+      "Line boxes must cover every accepted glyph exactly once through their glyph ranges.",
       request.requestId,
     ))
   }
