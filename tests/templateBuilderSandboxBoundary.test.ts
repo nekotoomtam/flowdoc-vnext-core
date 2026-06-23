@@ -60,6 +60,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftRuntime.js",
       "../examples/template-builder-sandbox/public/draftLayoutPush.js",
       "../examples/template-builder-sandbox/public/draftImePolicy.js",
+      "../examples/template-builder-sandbox/public/draftInlineStylePatch.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -156,6 +157,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveDraftRuntimeState")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.pushTextDraftLayout")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.hardenDraftIme")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftInlineStylePatch")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
@@ -1655,6 +1657,7 @@ describe("template builder sandbox boundary", () => {
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
     const draftLayoutPushSource = readText("../examples/template-builder-sandbox/public/draftLayoutPush.js")
     const draftImePolicySource = readText("../examples/template-builder-sandbox/public/draftImePolicy.js")
+    const draftInlineStylePatchSource = readText("../examples/template-builder-sandbox/public/draftInlineStylePatch.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -1694,6 +1697,7 @@ describe("template builder sandbox boundary", () => {
     const draftRuntimeDoc = readText("../docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
     const draftLayoutPushDoc = readText("../docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md")
     const draftImePolicyDoc = readText("../docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md")
+    const draftInlineStylePatchDoc = readText("../docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md")
     const readmeDoc = readText("../README.md")
     const phaseLedgerDoc = readText("../docs/PHASE_LEDGER.md")
     const roadmapDoc = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
@@ -1706,6 +1710,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
+    expect(appSource).toContain('from "./draftInlineStylePatch.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
@@ -1929,6 +1934,16 @@ describe("template builder sandbox boundary", () => {
     expect(draftImePolicySource).not.toContain("document.")
     expect(draftImePolicySource).not.toContain("querySelector")
     expect(draftImePolicySource).not.toContain("fetch(")
+    expect(draftInlineStylePatchSource).toContain("DRAFT_INLINE_STYLE_PATCH_SOURCE")
+    expect(draftInlineStylePatchSource).toContain("DRAFT_INLINE_STYLE_PATCH_MODE")
+    expect(draftInlineStylePatchSource).toContain("createDraftInlineStylePatch")
+    expect(draftInlineStylePatchSource).toContain("draftInlineStylePatchLabel")
+    expect(draftInlineStylePatchSource).toContain("inline.style.patch")
+    expect(draftInlineStylePatchSource).toContain("not-run")
+    expect(draftInlineStylePatchSource).toContain("not-applied")
+    expect(draftInlineStylePatchSource).not.toContain("document.")
+    expect(draftInlineStylePatchSource).not.toContain("querySelector")
+    expect(draftInlineStylePatchSource).not.toContain("fetch(")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -2258,22 +2273,30 @@ describe("template builder sandbox boundary", () => {
     expect(draftImePolicyDoc).toContain("public/draftImePolicy.js")
     expect(draftImePolicyDoc).toContain("generic IME guard boundary")
     expect(draftImePolicyDoc).toContain("does not implement language-specific IME")
+    expect(draftInlineStylePatchDoc).toContain("Status: Phase 81 implementation boundary.")
+    expect(draftInlineStylePatchDoc).toContain("public/draftInlineStylePatch.js")
+    expect(draftInlineStylePatchDoc).toContain("style patch request boundary")
+    expect(draftInlineStylePatchDoc).toContain("does not apply inline style")
     expect(readmeDoc).toContain("Structural Runtime close audit records PASS/RISK/UNKNOWN status")
     expect(readmeDoc).toContain("Draft runtime module boundary")
     expect(readmeDoc).toContain("Text draft layout push boundary")
     expect(readmeDoc).toContain("Draft IME hardening boundary")
+    expect(readmeDoc).toContain("Rich inline style patch boundary")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md")
+    expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md")
     expect(phaseLedgerDoc).toContain("| 77 | Structural Runtime close audit | done |")
     expect(phaseLedgerDoc).toContain("| 78 | Draft runtime module boundary | done |")
     expect(phaseLedgerDoc).toContain("| 79 | Text draft layout push boundary | done |")
     expect(phaseLedgerDoc).toContain("| 80 | Draft IME hardening boundary | done |")
+    expect(phaseLedgerDoc).toContain("| 81 | Rich inline style patch boundary | done |")
     expect(roadmapDoc).toContain("## Phase 77: Structural Runtime Close Audit")
     expect(roadmapDoc).toContain("## Phase 78: Draft Runtime Module Boundary")
     expect(roadmapDoc).toContain("## Phase 79: Text Draft Layout Push Boundary")
     expect(roadmapDoc).toContain("## Phase 80: Draft IME Hardening Boundary")
+    expect(roadmapDoc).toContain("## Phase 81: Rich Inline Style Patch Boundary")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
@@ -5944,11 +5967,149 @@ describe("template builder sandbox boundary", () => {
     expect(result.settledLabel).toBe("IME guard: settled")
   })
 
+  it("models inline style patch requests without applying rich inline runs", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const {
+        DRAFT_INLINE_STYLE_PATCH_MODE,
+        DRAFT_INLINE_STYLE_PATCH_SOURCE,
+        createDraftInlineStylePatch,
+        draftInlineStylePatchLabel,
+      } = await import("./public/draftInlineStylePatch.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const idle = createDraftInlineStylePatch(null);
+      const draft = createDraftStateForNode(node, { baseRevision: 11 });
+      const guarded = createDraftInlineStylePatch(draft);
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "range-test",
+      }).draft;
+      const ready = createDraftInlineStylePatch(rangedDraft, {
+        styleMark: "italic",
+      });
+      const composingDraft = updateDraftComposition(rangedDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 5,
+        selectionSource: "compositionstart",
+        selectionStart: 0,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftInlineStylePatch(composingDraft, {
+        styleMark: "underline",
+      });
+      const fallback = createDraftInlineStylePatch(rangedDraft, {
+        styleMark: "unknown",
+      });
+
+      console.log(JSON.stringify({
+        composingCanRequest: composing.canRequestPatch,
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_INLINE_STYLE_PATCH_MODE,
+          source: DRAFT_INLINE_STYLE_PATCH_SOURCE,
+        },
+        fallbackMark: fallback.patch.mark,
+        guardedCanRequest: guarded.canRequestPatch,
+        guardedLabel: draftInlineStylePatchLabel(guarded),
+        guardedReason: guarded.reason,
+        guardedStatus: guarded.status,
+        idleLabel: draftInlineStylePatchLabel(idle),
+        idleStatus: idle.status,
+        readyApplication: ready.application.status,
+        readyCanRequest: ready.canRequestPatch,
+        readyCommand: ready.command,
+        readyCore: ready.coreTransaction.status,
+        readyExact: ready.exactGeneration.status,
+        readyHistory: ready.history.status,
+        readyLabel: draftInlineStylePatchLabel(ready),
+        readyLive: ready.liveLayout.status,
+        readyMark: ready.patch.mark,
+        readyPreview: ready.selectedTextPreview,
+        readyRangeLength: ready.range.length,
+        readyReason: ready.reason,
+        readyStatus: ready.status,
+        target: ready.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingCanRequest: boolean
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      fallbackMark: string
+      guardedCanRequest: boolean
+      guardedLabel: string
+      guardedReason: string
+      guardedStatus: string
+      idleLabel: string
+      idleStatus: string
+      readyApplication: string
+      readyCanRequest: boolean
+      readyCommand: string
+      readyCore: string
+      readyExact: string
+      readyHistory: string
+      readyLabel: string
+      readyLive: string
+      readyMark: string
+      readyPreview: string
+      readyRangeLength: number
+      readyReason: string
+      readyStatus: string
+      target: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-inline-style-patch")
+    expect(result.constants.mode).toBe("browser-local-inline-style-patch-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Style patch: idle")
+    expect(result.guardedStatus).toBe("guarded")
+    expect(result.guardedReason).toBe("collapsed-selection")
+    expect(result.guardedCanRequest).toBe(false)
+    expect(result.guardedLabel).toBe("Style patch: select text")
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyReason).toBe("selected-range")
+    expect(result.readyCanRequest).toBe(true)
+    expect(result.readyCommand).toBe("inline.style.patch")
+    expect(result.readyMark).toBe("italic")
+    expect(result.readyRangeLength).toBe(5)
+    expect(result.readyPreview).toBe("Hello")
+    expect(result.readyApplication).toBe("not-applied")
+    expect(result.readyCore).toBe("not-run")
+    expect(result.readyHistory).toBe("not-recorded")
+    expect(result.readyLive).toBe("not-requested")
+    expect(result.readyExact).toBe("deferred-until-commit")
+    expect(result.readyLabel).toBe("Style patch: italic 5 chars ready")
+    expect(result.target).toBe("cover-header-label")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+    expect(result.composingCanRequest).toBe(false)
+    expect(result.fallbackMark).toBe("bold")
+  })
+
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
     const draftLayoutPushSource = readText("../examples/template-builder-sandbox/public/draftLayoutPush.js")
     const draftImePolicySource = readText("../examples/template-builder-sandbox/public/draftImePolicy.js")
+    const draftInlineStylePatchSource = readText("../examples/template-builder-sandbox/public/draftInlineStylePatch.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -5965,9 +6126,11 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.resolveDraftRuntimeState")
     expect(coreBoundarySource).toContain("browser.pushTextDraftLayout")
     expect(coreBoundarySource).toContain("browser.hardenDraftIme")
+    expect(coreBoundarySource).toContain("browser.planDraftInlineStylePatch")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
+    expect(appSource).toContain('from "./draftInlineStylePatch.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
     expect(draftLayoutPushSource).toContain("not-requested")
@@ -5977,6 +6140,10 @@ describe("template builder sandbox boundary", () => {
     expect(draftImePolicySource).toContain("canChangeRange")
     expect(draftImePolicySource).toContain("canCommitDraft")
     expect(draftImePolicySource).toContain("deferred-until-commit")
+    expect(draftInlineStylePatchSource).toContain("createDraftInlineStylePatch")
+    expect(draftInlineStylePatchSource).toContain("inline.style.patch")
+    expect(draftInlineStylePatchSource).toContain("not-run")
+    expect(draftInlineStylePatchSource).toContain("not-applied")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -5999,6 +6166,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-composition")
     expect(appSource).toContain("data-draft-compositionbar")
     expect(appSource).toContain("data-draft-ime-policy")
+    expect(appSource).toContain("data-draft-style-patch")
     expect(appSource).toContain("data-draft-command-summary")
     expect(appSource).toContain("data-draft-command-selected")
     expect(appSource).toContain("data-draft-command-text")

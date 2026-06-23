@@ -87,6 +87,7 @@ Parent goal:
 | 78 | Draft runtime module boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 79 | Text draft layout push boundary | done | `docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftLayoutPush.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 80 | Draft IME hardening boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftImePolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 81 | Rich inline style patch boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftInlineStylePatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1890,6 +1891,42 @@ chips, toolbar state, durable selection persistence, per-keystroke core
 transactions, live layout rendering during active typing, exact layout during
 active typing, renderer-backed measurement, backend API routes, storage,
 collaboration, or package/document schema changes.
+
+## Phase 81 Rich Inline Style Patch Boundary
+
+Phase 81 models browser-local rich inline style patch intent for selected
+WYSIWYG draft ranges without applying authored inline style runs or changing
+package truth:
+
+- `examples/template-builder-sandbox/public/draftInlineStylePatch.js` owns
+  `DRAFT_INLINE_STYLE_PATCH_SOURCE`, `DRAFT_INLINE_STYLE_PATCH_MODE`,
+  `createDraftInlineStylePatch(...)`, and
+  `draftInlineStylePatchLabel(...)`;
+- style patch summaries report idle/guarded/composing/ready state, selected
+  range start/end/length, bounded selected text preview, target text-block id,
+  and supported mark intent for bold, italic, underline, and strikethrough;
+- summaries explicitly keep `application.status = "not-applied"`,
+  `coreTransaction.status = "not-run"`, `history.status = "not-recorded"`,
+  `liveLayout.status = "not-requested"`, and `exactGeneration.status =
+  "deferred-until-commit"`;
+- `examples/template-builder-sandbox/public/app.js` renders
+  `data-draft-style-patch` in the canvas draft footer, inspector draft panel,
+  and status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes the
+  `browser.planDraftInlineStylePatch` action lane;
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md` records the style
+  patch request boundary, truth model, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module can run in
+  Node, guards collapsed selections and active composition, reports ready
+  summaries for selected ranges, leaves core/style/history/live/exact work
+  unrun, and guards app-shell wiring.
+
+This phase intentionally does not apply inline style, implement rich inline
+range mapping, mutate authored inline runs, change `draftRuntime.js` command
+execution, introduce toolbar buttons or toolbar state, add field/key chips,
+create style-aware history records, request live layout, run exact layout,
+alter renderer output, add backend API routes, add storage/collaboration
+behavior, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

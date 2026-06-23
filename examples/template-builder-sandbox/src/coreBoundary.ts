@@ -768,6 +768,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local IME policy centralizes composition guards for draft commands, range controls, and commit without changing package state",
       },
       {
+        action: "browser.planDraftInlineStylePatch",
+        label: "Style patch",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local inline style patch summaries model selected-range style intent without applying inline runs or core transactions",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",

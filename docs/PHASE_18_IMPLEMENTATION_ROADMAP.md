@@ -1983,6 +1983,45 @@ Acceptance:
   editing, field chips, toolbar state, backend API, or package/document schema
   change is claimed.
 
+## Phase 81: Rich Inline Style Patch Boundary
+
+Goal:
+
+- model browser-local inline style patch intent for selected WYSIWYG draft
+  ranges without applying authored inline style runs or changing package truth.
+
+Deliverables:
+
+- browser-safe inline style patch boundary module in
+  `public/draftInlineStylePatch.js`;
+- inline style patch source/mode constants;
+- supported style marks for the boundary: bold, italic, underline, and
+  strikethrough;
+- selected range start/end/length facts and bounded selected text preview;
+- idle/guarded/composing/ready status and reason derivation;
+- explicit `application.status = "not-applied"`;
+- explicit `coreTransaction.status = "not-run"`;
+- explicit `history.status = "not-recorded"`;
+- explicit `liveLayout.status = "not-requested"`;
+- explicit `exactGeneration.status = "deferred-until-commit"`;
+- canvas, inspector, and status-bar consumption through
+  `data-draft-style-patch`;
+- action lane for `browser.planDraftInlineStylePatch`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- style patch policy can run in Node without DOM access;
+- collapsed selections remain guarded;
+- active composition blocks style patch requests;
+- non-collapsed selected ranges can produce ready style patch summaries;
+- ready summaries still do not apply inline style, run core transactions,
+  append history, request live layout, or run exact output;
+- `draftRuntime.js` command readiness can continue to mark
+  `inline.style.patch` as planned until a real rich inline execution phase;
+- no toolbar state, field chips, style-aware history, backend API, renderer
+  output, or package/document schema change is claimed.
+
 ## Later Phases
 
 Goal:
