@@ -2264,6 +2264,44 @@ Acceptance:
   replay, layout, pagination, or renderer execution;
 - package/document schema remains unchanged.
 
+## Phase 89: Key History / Migration Boundary
+
+Goal:
+
+- add a pure key history migration planning boundary without implementing key
+  migration execution, key history persistence, aliases, deprecated keys, or
+  package/schema changes.
+
+Deliverables:
+
+- key history migration planner in `src/binding/keyHistory.ts`;
+- public exports for key history source/mode constants and
+  `createVNextKeyHistoryMigrationPlan(...)`;
+- migration intent shapes for field-key rename and field-type change;
+- affected field-ref usage and data-key summaries;
+- validation for empty keys, same-key renames, missing source keys, target key
+  collisions, missing type-change keys, invalid target types, and non-inline
+  type changes that would break inline field refs;
+- explicit markers that registry mutation, document field-ref mutation, data
+  migration, key-history writes, external compatibility checks, and package
+  version changes are not implemented;
+- boundary tests for planned renames, blocked migration intents, source
+  independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- rename and type-change plans report affected registry/data/field-ref facts
+  without mutating canonical package truth;
+- unsafe intents are blocked before package mutation;
+- inline `field-ref` keys remain authored truth until a future executor phase;
+- key history writes remain `not-written`;
+- package version changes remain `false`;
+- the boundary does not import storage adapters, server frameworks, parent app
+  routes, DOM/browser storage APIs, package parse/serialize, text transaction
+  execution, operation execution, layout, pagination, or renderer execution;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:
@@ -2285,7 +2323,7 @@ Possible later work:
 - concrete API route work;
 - exact renderer adapters;
 - repeat/collection design;
-- key history design;
+- key migration execution, aliases/deprecated keys, and key history stores;
 - concrete session storage adapters and durable history stores;
 - durable undo/redo replay and selection restoration;
 - collaboration storage design.

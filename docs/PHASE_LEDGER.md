@@ -95,6 +95,7 @@ Parent goal:
 | 86 | Generation API route boundary | done | `docs/GENERATION_API_ROUTE_BOUNDARY.md`; `src/generation/apiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/generationApiRoute.test.ts` |
 | 87 | Session storage boundary | done | `docs/SESSION_STORAGE_BOUNDARY.md`; `src/authoring/sessionStorage.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/sessionStorage.test.ts` |
 | 88 | Durable history / undo-redo boundary | done | `docs/DURABLE_HISTORY_BOUNDARY.md`; `src/authoring/durableHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/durableHistory.test.ts` |
+| 89 | Key history / migration boundary | done | `docs/KEY_HISTORY_MIGRATION_BOUNDARY.md`; `src/binding/keyHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/keyHistory.test.ts` |
 
 ## Current Rule
 
@@ -2163,6 +2164,42 @@ execution, inverse patch generation, operation-history unification, structural
 undo/redo replay, cross-session replay, focus/caret/selection restoration,
 offline replay, collaboration, exact layout execution, renderer adapter output,
 artifact storage, backend authentication, rate limiting, or package/document
+schema changes.
+
+## Phase 89 Key History / Migration Boundary
+
+Phase 89 prepares key-history migration planning without mutating package,
+document, registry, data, or history truth:
+
+- `src/binding/keyHistory.ts` owns
+  `VNEXT_KEY_HISTORY_SOURCE`, `VNEXT_KEY_HISTORY_MODE`, and
+  `createVNextKeyHistoryMigrationPlan(...)`;
+- migration intents cover `field-key.rename` and `field-type.change`;
+- plans collect affected inline field-ref usage through
+  `collectVNextDocumentFieldRefUsages(...)` and report affected data keys;
+- validation blocks empty keys, same-key renames, missing source keys, target
+  key collisions, missing type-change keys, unsupported target types, and
+  non-inline type changes that would break authored field refs;
+- events report planned or blocked status while keeping registry mutation,
+  document field-ref mutation, data migration, and key-history writes
+  not-applied/not-written;
+- application status keeps registry mutation, document field-ref mutation, data
+  migration, key-history writes, and package version changes not-run/false;
+- `src/index.ts` exports the key history migration boundary through the public
+  package entry;
+- `docs/KEY_HISTORY_MIGRATION_BOUNDARY.md` records the ownership, truth
+  boundary, acceptance evidence, and non-goals;
+- `tests/keyHistory.test.ts` proves planned renames, blocked migration intents,
+  no package truth mutation, source independence from storage adapters, parent
+  runtime, DOM, routes, package parse/serialize, transactions, operations,
+  layout, and pagination, plus README/roadmap/ledger traceability.
+
+This phase intentionally does not implement key migration execution, key
+history persistence, aliases, deprecated keys, external API compatibility
+checks, required field policy, registry schema changes, package/document
+version changes, data value migration, authored field-ref mutation, undo/redo
+integration, collaboration, backend routes, storage adapters, exact layout
+execution, renderer adapter output, artifact storage, or package/document
 schema changes.
 
 ## Phase 12 Extraction Record

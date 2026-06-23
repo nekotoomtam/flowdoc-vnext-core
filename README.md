@@ -58,6 +58,10 @@ The package must remain runnable without any parent editor checkout.
 - Key/data diagnostics collect authored `field-ref` usages, validate package
   registry/data snapshots, report generation-readiness status, and preserve
   template/data separation without materializing bound output
+- Key history migration boundary plans field-key rename and field-type change
+  intent against registry, inline usage, and data-key impact while keeping
+  registry/document/data mutation, history writes, and package version changes
+  out of this phase
 - Editable authoring session baseline creates a pure browser/Node-safe session
   from canonical packages with working document, graph/key diagnostics,
   revisions, empty dirty scopes, and session-only selection state
@@ -317,6 +321,8 @@ The package must remain runnable without any parent editor checkout.
   exact generation layout boundary
 - `docs/KEY_REGISTRY_BINDING_PLAN.md`: field key, data snapshot, binding, and
   future key-history direction
+- `docs/KEY_HISTORY_MIGRATION_BOUNDARY.md`: Phase 89 key history migration
+  plan boundary before key migration execution or key history persistence
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
@@ -491,7 +497,7 @@ The package must remain runnable without any parent editor checkout.
   history, and rendered artifacts on top of the generation runtime route and
   session storage record boundaries
 - form-slot or submission-state runtime
-- key history and key migration records
+- key history persistence, aliases/deprecated keys, and key migration execution
 - renderer-backed text measurement profile implementation
 - fully pausable internal text/table placement engine behind measurement job
   results
