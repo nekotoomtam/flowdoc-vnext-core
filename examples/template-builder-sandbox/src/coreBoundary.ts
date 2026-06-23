@@ -747,6 +747,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local composition events guard draft commands and commit while IME input is active",
       },
       {
+        action: "browser.resolveDraftRuntimeState",
+        label: "Draft runtime",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local draft state, caret selection, command readiness, text commands, and IME guards are owned by a browser-safe runtime module",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",

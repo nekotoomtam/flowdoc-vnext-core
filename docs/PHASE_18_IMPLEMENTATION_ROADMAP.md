@@ -1882,6 +1882,41 @@ Acceptance:
 - no runtime behavior, persistence, backend API, durable history, or schema
   change is claimed.
 
+## Phase 78: Draft Runtime Module Boundary
+
+Goal:
+
+- extract browser-local WYSIWYG draft state, caret/selection normalization,
+  command context, text command policy, and IME composition guards out of the
+  sandbox app shell before richer editing behavior is added.
+
+Deliverables:
+
+- browser-safe draft runtime module in `public/draftRuntime.js`;
+- draft runtime source/mode constants;
+- idle and active draft state helpers;
+- normalized caret/selection model for textarea drafts;
+- range-control and selection-input policy outside `app.js`;
+- command context/readiness and browser-local insert/replace command policy
+  outside `app.js`;
+- composition start/update/end guard state outside `app.js`;
+- app-shell delegation while preserving DOM focus, render, fetch, and packet
+  coordination in `app.js`;
+- action lane for the draft runtime/caret boundary;
+- boundary documentation and tests.
+
+Acceptance:
+
+- draft runtime policy can run in Node without DOM access;
+- `app.js` delegates draft state transitions and command policy to the module;
+- active draft selection remains browser-local and is not serialized into
+  snapshots, packages, history, or live-layout requests;
+- command readiness keeps field insertion and style patching planned;
+- draft commits still use the existing bridge packet route;
+- no contenteditable mapping, rich inline editing, field chips,
+  per-keystroke core transactions, live renderer, persistence, backend API, or
+  package/document schema change is claimed.
+
 ## Later Phases
 
 Goal:

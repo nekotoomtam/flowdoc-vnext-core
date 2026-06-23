@@ -84,6 +84,7 @@ Parent goal:
 | 75 | Structural diagnostics navigation boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 76 | Structural command policy boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralCommandPolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 77 | Structural Runtime close audit | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 78 | Draft runtime module boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1787,6 +1788,40 @@ This phase intentionally does not change structural packet shape, sandbox
 bridge routes, runtime-store apply behavior, visible inspector behavior,
 persistence, backend API, durable history, collaboration, offline replay, or
 package/document schema.
+
+## Phase 78 Draft Runtime Module Boundary
+
+Phase 78 starts the next WYSIWYG / Editing foundation line by extracting draft
+runtime policy out of the sandbox app shell:
+
+- `examples/template-builder-sandbox/public/draftRuntime.js` owns
+  `DRAFT_RUNTIME_SOURCE`, `DRAFT_RUNTIME_MODE`,
+  `DRAFT_CARET_SELECTION_MODE`, draft state creation, draft active/dirty/
+  commit/status helpers, guarded eligibility messaging, normalized local
+  caret/selection facts, range-control state transitions, textarea selection
+  and input state transitions, composition state transitions, command context,
+  command readiness, and browser-local insert/replace-selection command
+  application;
+- `examples/template-builder-sandbox/public/app.js` imports the draft runtime
+  module and remains responsible for DOM event binding, textarea selection
+  writes, focus restoration, rendering, bridge fetches, packet application,
+  viewport coordination, and structural coordination;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes the
+  `browser.resolveDraftRuntimeState` action lane so snapshots advertise the new
+  draft runtime/caret boundary;
+- `docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md` records the
+  boundary, caret selection model, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module can run in
+  Node, keeps draft selection browser-local, blocks selection/commands while
+  composition is active, preserves planned rich/field commands, and keeps
+  app-shell behavior delegated.
+
+This phase intentionally does not implement contenteditable DOM mapping, rich
+inline range mapping, `inline.style.patch`, field/key chips, per-keystroke core
+transactions, live layout rendering during active typing, exact layout/export
+readiness from drafts, durable selection persistence, production editor
+integration, backend API routes, storage, collaboration, or package/document
+schema changes.
 
 ## Phase 12 Extraction Record
 

@@ -57,6 +57,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/structuralOutlineNavigation.js",
       "../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js",
       "../examples/template-builder-sandbox/public/structuralCommandPolicy.js",
+      "../examples/template-builder-sandbox/public/draftRuntime.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -150,6 +151,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyDraftTextCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveDraftRuntimeState")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
@@ -1646,6 +1648,7 @@ describe("template builder sandbox boundary", () => {
     const structuralOutlineNavigationSource = readText("../examples/template-builder-sandbox/public/structuralOutlineNavigation.js")
     const structuralDiagnosticsNavigationSource = readText("../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js")
     const structuralCommandPolicySource = readText("../examples/template-builder-sandbox/public/structuralCommandPolicy.js")
+    const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -1682,6 +1685,7 @@ describe("template builder sandbox boundary", () => {
     const structuralDiagnosticsNavigationDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_DIAGNOSTICS_NAVIGATION_BOUNDARY.md")
     const structuralCommandPolicyDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md")
     const structuralRuntimeCloseAuditDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
+    const draftRuntimeDoc = readText("../docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
     const readmeDoc = readText("../README.md")
     const phaseLedgerDoc = readText("../docs/PHASE_LEDGER.md")
     const roadmapDoc = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
@@ -1691,6 +1695,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./structuralOutlineNavigation.js"')
     expect(appSource).toContain('from "./structuralDiagnosticsNavigation.js"')
     expect(appSource).toContain('from "./structuralCommandPolicy.js"')
+    expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
@@ -1885,6 +1890,17 @@ describe("template builder sandbox boundary", () => {
     expect(structuralCommandPolicySource).toContain("structuralSelectionAfterResult")
     expect(structuralCommandPolicySource).not.toContain("document.")
     expect(structuralCommandPolicySource).not.toContain("querySelector")
+    expect(draftRuntimeSource).toContain("DRAFT_RUNTIME_SOURCE")
+    expect(draftRuntimeSource).toContain("DRAFT_RUNTIME_MODE")
+    expect(draftRuntimeSource).toContain("DRAFT_CARET_SELECTION_MODE")
+    expect(draftRuntimeSource).toContain("createDraftStateForNode")
+    expect(draftRuntimeSource).toContain("normalizeDraftSelection")
+    expect(draftRuntimeSource).toContain("deriveDraftCommandContext")
+    expect(draftRuntimeSource).toContain("applyDraftTextCommand")
+    expect(draftRuntimeSource).toContain("updateDraftComposition")
+    expect(draftRuntimeSource).not.toContain("document.")
+    expect(draftRuntimeSource).not.toContain("querySelector")
+    expect(draftRuntimeSource).not.toContain("fetch(")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -2202,10 +2218,18 @@ describe("template builder sandbox boundary", () => {
     expect(structuralRuntimeCloseAuditDoc).toContain("runtime store/render model are the current browser truth after packet apply")
     expect(structuralRuntimeCloseAuditDoc).toContain("Phase 77 changes only documentation and tests")
     expect(structuralRuntimeCloseAuditDoc).toContain("Phase 76 moved command target")
+    expect(draftRuntimeDoc).toContain("Status: Phase 78 implementation boundary.")
+    expect(draftRuntimeDoc).toContain("public/draftRuntime.js")
+    expect(draftRuntimeDoc).toContain("Caret Selection Model")
+    expect(draftRuntimeDoc).toContain("does not implement")
     expect(readmeDoc).toContain("Structural Runtime close audit records PASS/RISK/UNKNOWN status")
+    expect(readmeDoc).toContain("Draft runtime module boundary")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
+    expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
     expect(phaseLedgerDoc).toContain("| 77 | Structural Runtime close audit | done |")
+    expect(phaseLedgerDoc).toContain("| 78 | Draft runtime module boundary | done |")
     expect(roadmapDoc).toContain("## Phase 77: Structural Runtime Close Audit")
+    expect(roadmapDoc).toContain("## Phase 78: Draft Runtime Module Boundary")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
@@ -5493,8 +5517,158 @@ describe("template builder sandbox boundary", () => {
     expect(agentsDoc).toContain("Split implementation by real responsibility boundaries")
   })
 
+  it("extracts draft runtime and caret selection policy outside the app shell", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        DRAFT_CARET_SELECTION_MODE,
+        DRAFT_RUNTIME_MODE,
+        DRAFT_RUNTIME_SOURCE,
+        applyDraftSelectionAction,
+        applyDraftTextCommand,
+        createDraftStateForNode,
+        createIdleDraftState,
+        deriveDraftCommandContext,
+        draftCanCommit,
+        draftCommandSummary,
+        draftCompositionLabel,
+        draftSelectionLabel,
+        normalizeDraftSelection,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-title",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      let draft = createDraftStateForNode(node, { baseRevision: 3 });
+      const initialSelection = normalizeDraftSelection(draft);
+      const selected = updateDraftSelectionRange(draft, 0, 5, {
+        direction: "forward",
+        source: "range-test",
+      });
+      draft = selected.draft;
+      const context = deriveDraftCommandContext(draft);
+      const replaced = applyDraftTextCommand(draft, {
+        action: "replace-selection",
+        commandText: "Hi",
+        context,
+      });
+      draft = replaced.draft;
+      const composing = updateDraftComposition(draft, {
+        draftNodeId: "cover-title",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 2,
+        selectionSource: "compositionstart",
+        selectionStart: 2,
+        value: draft.text,
+      });
+      const composingContext = deriveDraftCommandContext(composing.draft);
+      const blockedRange = applyDraftSelectionAction(composing.draft, "select-all");
+      const blockedCommand = applyDraftTextCommand(composing.draft, {
+        action: "insert-text",
+        commandText: "!",
+        context: composingContext,
+      });
+      const ended = updateDraftComposition(composing.draft, {
+        draftNodeId: "cover-title",
+        phase: "compositionend",
+        selectionDirection: "none",
+        selectionEnd: 2,
+        selectionSource: "compositionend",
+        selectionStart: 2,
+        value: composing.draft.text,
+      });
+      const inactiveContext = deriveDraftCommandContext(createIdleDraftState());
+
+      console.log(JSON.stringify({
+        blockedCommandReason: blockedCommand.reason,
+        blockedRangeReason: blockedRange.reason,
+        canCommitAfterReplace: draftCanCommit(draft),
+        compositionLabel: draftCompositionLabel(composing.draft),
+        constants: {
+          caretMode: DRAFT_CARET_SELECTION_MODE,
+          mode: DRAFT_RUNTIME_MODE,
+          source: DRAFT_RUNTIME_SOURCE,
+        },
+        contextFieldStatus: context.readiness.find((item) => item.command === "inline.fieldRef.insert").status,
+        contextReplaceStatus: context.readiness.find((item) => item.command === "text.replaceSelection").status,
+        contextSource: context.source,
+        contextStyleStatus: context.readiness.find((item) => item.command === "inline.style.patch").status,
+        endedCompositionActive: ended.draft.isComposing,
+        endedCompositionSource: ended.draft.compositionSource,
+        initialCaretMode: initialSelection.mode,
+        initialLabel: draftSelectionLabel(createDraftStateForNode(node, { baseRevision: 3 })),
+        inactiveInsertStatus: inactiveContext.readiness.find((item) => item.command === "text.insert").status,
+        replacedApplied: replaced.applied,
+        replacedSelectionEnd: draft.selectionEnd,
+        replacedSelectionStart: draft.selectionStart,
+        replacedText: draft.text,
+        selectedEnd: selected.selection.end,
+        selectedStart: selected.selection.start,
+        summary: draftCommandSummary(draft),
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      blockedCommandReason: string
+      blockedRangeReason: string
+      canCommitAfterReplace: boolean
+      compositionLabel: string
+      constants: { caretMode: string; mode: string; source: string }
+      contextFieldStatus: string
+      contextReplaceStatus: string
+      contextSource: string
+      contextStyleStatus: string
+      endedCompositionActive: boolean
+      endedCompositionSource: string
+      initialCaretMode: string
+      initialLabel: string
+      inactiveInsertStatus: string
+      replacedApplied: boolean
+      replacedSelectionEnd: number
+      replacedSelectionStart: number
+      replacedText: string
+      selectedEnd: number
+      selectedStart: number
+      summary: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-runtime")
+    expect(result.constants.mode).toBe("browser-local-draft-runtime")
+    expect(result.constants.caretMode).toBe("browser-local-caret-selection")
+    expect(result.initialCaretMode).toBe(result.constants.caretMode)
+    expect(result.initialLabel).toBe("cursor 11")
+    expect(result.selectedStart).toBe(0)
+    expect(result.selectedEnd).toBe(5)
+    expect(result.contextSource).toBe(result.constants.source)
+    expect(result.contextReplaceStatus).toBe("ready")
+    expect(result.contextFieldStatus).toBe("planned")
+    expect(result.contextStyleStatus).toBe("planned")
+    expect(result.replacedApplied).toBe(true)
+    expect(result.replacedText).toBe("Hi world")
+    expect(result.replacedSelectionStart).toBe(2)
+    expect(result.replacedSelectionEnd).toBe(2)
+    expect(result.canCommitAfterReplace).toBe(true)
+    expect(result.summary).toBe("ready insert / guarded replace")
+    expect(result.compositionLabel).toContain("compositionstart")
+    expect(result.blockedRangeReason).toBe("composition-active")
+    expect(result.blockedCommandReason).toBe("composition-active")
+    expect(result.endedCompositionActive).toBe(false)
+    expect(result.endedCompositionSource).toBe("compositionend")
+    expect(result.inactiveInsertStatus).toBe("blocked")
+  })
+
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -5508,12 +5682,14 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.applyDraftTextCommand")
     expect(coreBoundarySource).toContain("browser.setDraftSelectionRange")
     expect(coreBoundarySource).toContain("browser.trackDraftComposition")
-    expect(appSource).toContain("draftTextForNode")
+    expect(coreBoundarySource).toContain("browser.resolveDraftRuntimeState")
+    expect(appSource).toContain('from "./draftRuntime.js"')
+    expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
     expect(appSource).toContain("deriveDraftCommandContext")
-    expect(appSource).toContain("draftCommandReadiness")
+    expect(draftRuntimeSource).toContain("draftCommandReadiness")
     expect(appSource).toContain("draftCommandSummary")
     expect(appSource).toContain("applyDraftTextCommand")
     expect(appSource).toContain("draftCommandActionCanRun")
@@ -5522,7 +5698,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("setDraftSelectionRange")
     expect(appSource).toContain("applyDraftSelectionAction")
     expect(appSource).toContain("updateDraftSelectionControl")
-    expect(appSource).toContain("node?.plainText")
+    expect(draftRuntimeSource).toContain("node?.plainText")
     expect(appSource).toContain("data-draft-editor")
     expect(appSource).toContain("data-draft-selection")
     expect(appSource).toContain("data-draft-selection-input")
@@ -5546,13 +5722,15 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("compositionend")
     expect(appSource).toContain("isComposing")
     expect(appSource).toContain("Finish IME composition")
-    expect(appSource).toContain("Applied browser-local")
+    expect(draftRuntimeSource).toContain("Applied browser-local")
     expect(appSource).toContain("focusDraftEditor()")
     expect(appSource).toContain("selectionDirection")
     expect(appSource).toContain("selectionSource")
-    expect(appSource).toContain("text.replaceSelection")
-    expect(appSource).toContain("inline.fieldRef.insert")
-    expect(appSource).toContain("inline.style.patch")
+    expect(draftRuntimeSource).toContain("text.replaceSelection")
+    expect(draftRuntimeSource).toContain("inline.fieldRef.insert")
+    expect(draftRuntimeSource).toContain("inline.style.patch")
+    expect(draftRuntimeSource).not.toContain("fetch(")
+    expect(draftRuntimeSource).not.toContain("querySelector")
     expect(appSource).toContain("draft.baseRevision !== state.snapshot.session.documentRevision")
     expect(appSource).toContain("routeForBridgeTextAction(\"replace-text\")")
     expect(appSource).toContain("applyMutationResult(result)")

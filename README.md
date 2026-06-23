@@ -227,6 +227,10 @@ The package must remain runnable without any parent editor checkout.
   the sandbox app shell
 - Structural Runtime close audit records PASS/RISK/UNKNOWN status after
   Phases 69-76 before entering the WYSIWYG / Editing line
+- Draft runtime module boundary extracts browser-local WYSIWYG draft state,
+  caret/selection normalization, command readiness, draft text commands, and
+  IME composition guards out of the sandbox app shell before rich inline,
+  field-chip, or contenteditable work
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -402,6 +406,8 @@ The package must remain runnable without any parent editor checkout.
   structural command policy boundary
 - `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md`: Phase 77
   Structural Runtime close audit and risk register
+- `docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md`: Phase 78
+  browser-local draft runtime and caret/selection module boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -421,8 +427,8 @@ The package must remain runnable without any parent editor checkout.
   in-memory sandbox mutation bridge, browser-local WYSIWYG text drafts for safe
   text blocks, draft selection range tracking, draft command context readiness,
   browser-local draft text commands, browser-local draft range controls,
-  browser-local draft composition guards, and bounded history/live-layout
-  summaries
+  browser-local draft composition guards, extracted draft runtime module
+  ownership, and bounded history/live-layout summaries
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level
