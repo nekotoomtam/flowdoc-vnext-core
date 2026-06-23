@@ -3287,6 +3287,35 @@ Acceptance:
   backend API, persistence, collaboration, and WASM/text-engine execution stay
   deferred/off.
 
+## Phase 119: Toolbar Command Dispatch Boundary
+
+Goal:
+
+- wire visible draft toolbar style commands through the Phase 118 rich inline
+  execution boundary.
+
+Scope:
+
+- browser-safe `draftToolbarCommandDispatch.js` module;
+- inspector toolbar buttons through `data-draft-toolbar-command`;
+- app evidence through `data-draft-toolbar-dispatch`;
+- action lane for `browser.dispatchDraftToolbarCommand`;
+- tests for ready, dispatched, blocked, guarded, composing, and idle paths;
+- README, ledger, and phase documentation.
+
+Acceptance:
+
+- dispatch requires ready toolbar control state and rich inline execution for
+  the requested style mark;
+- command dispatch produces browser-local patch results, not canonical package
+  mutations;
+- active mark state remains explicit and guarded while unknown;
+- collapsed ranges, composition, unsupported style marks, inactive drafts, and
+  unready rich inline execution remain guarded or blocked;
+- package mutation, core transaction, history, live layout, exact output,
+  backend API, persistence, collaboration, and WASM/text-engine execution stay
+  deferred/off.
+
 ## Later Phases
 
 Goal:

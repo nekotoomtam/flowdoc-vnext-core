@@ -796,6 +796,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local draft toolbar state exposes style control readiness without dispatching toolbar commands",
       },
       {
+        action: "browser.dispatchDraftToolbarCommand",
+        label: "Toolbar cmd",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local toolbar commands dispatch through rich inline patch execution without mutating package state",
+      },
+      {
         action: "browser.planDraftFieldChipInline",
         label: "Field chips",
         lane: "immediate",

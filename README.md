@@ -290,6 +290,9 @@ The package must remain runnable without any parent editor checkout.
 - Rich inline patch execution boundary consumes mapped ranges and style intent
   to record browser-local styled-run facts while keeping package mutation,
   history, live layout, exact output, and backend calls deferred
+- Toolbar command dispatch boundary routes visible draft style controls through
+  rich inline execution while keeping active mark detection guarded and package
+  mutation deferred
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -612,6 +615,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local contenteditable range mapping boundary
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_PATCH_EXECUTION_BOUNDARY.md`: Phase 118
   browser-local rich inline patch execution boundary
+- `docs/TEMPLATE_BUILDER_TOOLBAR_COMMAND_DISPATCH_BOUNDARY.md`: Phase 119
+  browser-local toolbar command dispatch boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -684,8 +689,8 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete production contenteditable DOM binding, canonical rich inline style
-  commit, toolbar command dispatch, field chip insertion, or WYSIWYG production
-  editing beyond the Phase 118 rich inline patch execution boundary
+  commit, field chip insertion, or WYSIWYG production editing beyond the Phase
+  119 toolbar command dispatch boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

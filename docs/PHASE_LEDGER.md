@@ -125,6 +125,7 @@ Parent goal:
 | 116 | WYSIWYG re-entry audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygReentryAudit.test.ts` |
 | 117 | Contenteditable range mapping boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_RANGE_MAPPING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 118 | Rich inline patch execution boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_PATCH_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 119 | Toolbar command dispatch boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_COMMAND_DISPATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3069,6 +3070,31 @@ chips, merge overlapping styled runs, mutate canonical package state, write
 durable history, request live layout, run exact output, add backend routes,
 add persistence, add collaboration behavior, or execute WASM/text-engine
 measurement.
+
+## Phase 119 Toolbar Command Dispatch Boundary
+
+Phase 119 wires visible draft toolbar commands through the Phase 118 executor:
+
+- `examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js`
+  owns a browser-safe dispatcher for style toolbar commands;
+- inspector draft controls render `data-draft-toolbar-command` buttons for
+  supported style marks and dispatch results surface through
+  `data-draft-toolbar-dispatch`;
+- dispatch requires ready toolbar control state and rich inline execution for
+  the selected mark;
+- active mark state remains explicit and guarded as
+  `unknown-until-rich-inline-mapping`;
+- unsupported marks, collapsed ranges, unready rich inline execution, inactive
+  drafts, and IME composition are guarded or blocked explicitly;
+- tests prove ready, dispatched, rich-inline-blocked, control-blocked,
+  unsupported, composing, and idle paths while package mutation, core
+  transactions, durable history, live layout, exact output, backend API calls,
+  and text-engine execution stay deferred/off.
+
+This phase intentionally does not implement field chip insertion, production
+toolbar placement, active mark detection, toggle/merge semantics, canonical
+inline mutation, durable history writes, live layout, exact output, backend
+routes, persistence, collaboration behavior, or WASM/text-engine measurement.
 
 ## Phase 12 Extraction Record
 

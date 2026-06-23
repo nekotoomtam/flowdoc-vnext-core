@@ -124,6 +124,10 @@ import {
   createDraftRichInlinePatchExecution,
   draftRichInlinePatchExecutionLabel as draftRichInlinePatchExecutionLabelState,
 } from "./draftRichInlinePatchExecution.js"
+import {
+  createDraftToolbarCommandDispatch,
+  draftToolbarCommandDispatchLabel as draftToolbarCommandDispatchLabelState,
+} from "./draftToolbarCommandDispatch.js"
 
 const app = document.querySelector("#app")
 
@@ -138,7 +142,10 @@ const state = {
   draftInlineStylePatch: createDraftInlineStylePatch(createIdleDraftState()),
   draftLayoutPush: createDraftLayoutPush(createIdleDraftState()),
   draftRichInlinePatchExecution: createDraftRichInlinePatchExecution(createIdleDraftState()),
+  draftSelectedStyleMark: "bold",
   draftStyleHistory: createDraftStyleHistory(createIdleDraftState()),
+  draftToolbarCommandDispatch: createDraftToolbarCommandDispatch(createIdleDraftState()),
+  draftToolbarCommandRequest: null,
   draftToolbarState: createDraftToolbarState(createIdleDraftState()),
   lastPacket: null,
   lastViewportApply: null,
@@ -886,7 +893,7 @@ function draftContenteditableRangeMappingLabel() {
 
 function updateDraftInlineStylePatch() {
   state.draftInlineStylePatch = createDraftInlineStylePatch(state.draft, {
-    styleMark: "bold",
+    styleMark: state.draftSelectedStyleMark,
   })
 }
 
@@ -913,6 +920,33 @@ function draftToolbarStateLabel() {
   return draftToolbarStateLabelState(state.draftToolbarState)
 }
 
+function updateDraftToolbarCommandDispatch() {
+  state.draftToolbarCommandDispatch = createDraftToolbarCommandDispatch(state.draft, {
+    command: state.draftToolbarCommandRequest,
+    requested: Boolean(state.draftToolbarCommandRequest?.requested),
+    richInlinePatchExecution: state.draftRichInlinePatchExecution,
+    styleMark: state.draftSelectedStyleMark,
+    toolbarState: state.draftToolbarState,
+  })
+}
+
+function draftToolbarCommandDispatchLabel() {
+  return draftToolbarCommandDispatchLabelState(state.draftToolbarCommandDispatch)
+}
+
+function clearDraftToolbarCommandRequest() {
+  state.draftToolbarCommandRequest = null
+}
+
+function dispatchDraftToolbarCommand(styleMark) {
+  state.draftSelectedStyleMark = styleMark || "bold"
+  state.draftToolbarCommandRequest = {
+    requested: true,
+    styleMark: state.draftSelectedStyleMark,
+  }
+  syncDraftDomState()
+}
+
 function updateDraftFieldChipInline() {
   state.draftFieldChipInline = createDraftFieldChipInline(state.draft, {
     fields: state.snapshot?.fields,
@@ -937,6 +971,7 @@ function draftStyleHistoryLabel() {
 function setDraftSelectionRange(start, end, options = {}) {
   const result = updateDraftSelectionRange(state.draft, start, end, options)
   state.draft = result.draft
+  clearDraftToolbarCommandRequest()
   const selection = result.selection
   const targetTextBlockId = state.draft.textBlockId
 
@@ -960,6 +995,7 @@ function setDraftSelectionRange(start, end, options = {}) {
 function applyDraftSelectionAction(action) {
   const result = applyDraftSelectionActionState(state.draft, action)
   state.draft = result.draft
+  clearDraftToolbarCommandRequest()
   if (!result.blocked && result.focus) {
     const editor = app.querySelector("[data-draft-editor]")
     if (editor && editor.dataset.draftNodeId === state.draft.textBlockId) {
@@ -978,6 +1014,7 @@ function applyDraftSelectionAction(action) {
 function updateDraftSelectionControl(part, value) {
   const result = updateDraftSelectionControlState(state.draft, part, value)
   state.draft = result.draft
+  clearDraftToolbarCommandRequest()
   syncDraftDomState()
 }
 
@@ -1010,6 +1047,7 @@ function applyDraftTextCommand(action) {
     context: deriveDraftCommandContext(),
   })
   state.draft = result.draft
+  clearDraftToolbarCommandRequest()
   if (!result.applied) {
     syncDraftDomState()
     return
@@ -1045,8 +1083,38 @@ function renderDraftCommandReadiness(context = deriveDraftCommandContext()) {
   `
 }
 
+function draftToolbarCommandGlyph(mark) {
+  if (mark === "bold") return "B"
+  if (mark === "italic") return "I"
+  if (mark === "underline") return "U"
+  if (mark === "strikethrough") return "S"
+  return mark.slice(0, 1).toUpperCase()
+}
+
+function renderDraftToolbarControls() {
+  const controls = state.draftToolbarState.controls || []
+  return `
+    <div class="draft-toolbar-controls" data-draft-toolbar-controls>
+      ${controls.map((control) => `
+        <button
+          type="button"
+          title="${escapeHtml(control.reason)}"
+          aria-label="${escapeHtml(control.mark)}"
+          data-draft-toolbar-command="${escapeHtml(control.mark)}"
+          data-state="${escapeHtml(state.draftSelectedStyleMark === control.mark ? state.draftToolbarCommandDispatch.status : control.status)}"
+          ${!draftIsActive() || state.bridgeBusy || !control.enabled ? "disabled" : ""}
+        >
+          <span>${escapeHtml(draftToolbarCommandGlyph(control.mark))}</span>
+        </button>
+      `).join("")}
+    </div>
+  `
+}
+
 function resetDraft(status = "idle", message = "") {
   state.draft = createIdleDraftState({ message, status })
+  state.draftSelectedStyleMark = "bold"
+  clearDraftToolbarCommandRequest()
 }
 
 function updateDraftCompositionFromEditor(editor, phase, eventData = "") {
@@ -1061,6 +1129,7 @@ function updateDraftCompositionFromEditor(editor, phase, eventData = "") {
     value: editor.value,
   })
   state.draft = result.draft
+  clearDraftToolbarCommandRequest()
   syncDraftDomState()
 }
 
@@ -1088,6 +1157,7 @@ function updateDraftSelectionFromEditor(editor, selectionSource) {
     value: editor.value,
   })
   state.draft = result.draft
+  clearDraftToolbarCommandRequest()
 }
 
 function syncDraftDomState() {
@@ -1096,6 +1166,7 @@ function syncDraftDomState() {
   updateDraftInlineStylePatch()
   updateDraftRichInlinePatchExecution()
   updateDraftToolbarState()
+  updateDraftToolbarCommandDispatch()
   updateDraftFieldChipInline()
   updateDraftStyleHistory()
   updateDraftLayoutPush()
@@ -1154,6 +1225,18 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-toolbar-state]").forEach((target) => {
     target.textContent = draftToolbarStateLabel()
     target.dataset.state = state.draftToolbarState.status
+  })
+  app.querySelectorAll("[data-draft-toolbar-dispatch]").forEach((target) => {
+    target.textContent = draftToolbarCommandDispatchLabel()
+    target.dataset.state = state.draftToolbarCommandDispatch.status
+  })
+  app.querySelectorAll("[data-draft-toolbar-command]").forEach((target) => {
+    const mark = target.dataset.draftToolbarCommand
+    const control = state.draftToolbarState.controls.find((candidate) => candidate.mark === mark)
+    target.disabled = !draftIsActive() || state.bridgeBusy || !control?.enabled
+    target.dataset.state = state.draftSelectedStyleMark === mark
+      ? state.draftToolbarCommandDispatch.status
+      : control?.status || "idle"
   })
   app.querySelectorAll("[data-draft-field-chip-inline]").forEach((target) => {
     target.textContent = draftFieldChipInlineLabel()
@@ -1265,6 +1348,8 @@ function startDraftForNode(nodeId, selectionSource = "draft") {
     message: "Draft is open on the canvas.",
     selectionSource: "start",
   })
+  state.draftSelectedStyleMark = "bold"
+  clearDraftToolbarCommandRequest()
   render()
   focusDraftEditor()
 }
@@ -1491,6 +1576,7 @@ function renderCanvasNode(node) {
             <span data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</span>
             <span data-draft-rich-inline-execution data-state="${escapeHtml(state.draftRichInlinePatchExecution.status)}">${escapeHtml(draftRichInlinePatchExecutionLabel())}</span>
             <span data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</span>
+            <span data-draft-toolbar-dispatch data-state="${escapeHtml(state.draftToolbarCommandDispatch.status)}">${escapeHtml(draftToolbarCommandDispatchLabel())}</span>
             <span data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</span>
             <span data-draft-style-history data-state="${escapeHtml(state.draftStyleHistory.status)}">${escapeHtml(draftStyleHistoryLabel())}</span>
             <div class="canvas-draft-actions">
@@ -1813,6 +1899,7 @@ function renderInspector(snapshot) {
             <dt>Style patch</dt><dd data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</dd>
             <dt>Rich inline</dt><dd data-draft-rich-inline-execution data-state="${escapeHtml(state.draftRichInlinePatchExecution.status)}">${escapeHtml(draftRichInlinePatchExecutionLabel())}</dd>
             <dt>Toolbar</dt><dd data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</dd>
+            <dt>Dispatch</dt><dd data-draft-toolbar-dispatch data-state="${escapeHtml(state.draftToolbarCommandDispatch.status)}">${escapeHtml(draftToolbarCommandDispatchLabel())}</dd>
             <dt>Field chips</dt><dd data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</dd>
             <dt>Style history</dt><dd data-draft-style-history data-state="${escapeHtml(state.draftStyleHistory.status)}">${escapeHtml(draftStyleHistoryLabel())}</dd>
             <dt>Command</dt><dd data-draft-command-summary>${escapeHtml(draftCommandSummary())}</dd>
@@ -1822,6 +1909,7 @@ function renderInspector(snapshot) {
             <dt>Before</dt><dd data-draft-command-before>${escapeHtml(commandContext.beforeTextPreview)}</dd>
             <dt>After</dt><dd data-draft-command-after>${escapeHtml(commandContext.afterTextPreview)}</dd>
           </dl>
+          ${renderDraftToolbarControls()}
           <div class="draft-selection-control">
             <label>
               <span>Start</span>
@@ -2138,6 +2226,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-style-patch>${escapeHtml(draftInlineStylePatchLabel())}</span>
       <span data-draft-rich-inline-execution>${escapeHtml(draftRichInlinePatchExecutionLabel())}</span>
       <span data-draft-toolbar-state>${escapeHtml(draftToolbarStateLabel())}</span>
+      <span data-draft-toolbar-dispatch>${escapeHtml(draftToolbarCommandDispatchLabel())}</span>
       <span data-draft-field-chip-inline>${escapeHtml(draftFieldChipInlineLabel())}</span>
       <span data-draft-style-history>${escapeHtml(draftStyleHistoryLabel())}</span>
       <span data-draft-commandbar>Command: ${escapeHtml(draftCommandSummary())}</span>
@@ -2284,6 +2373,7 @@ function bindSelectionHandlers() {
       value: event.target.value,
     })
     state.draft = result.draft
+    clearDraftToolbarCommandRequest()
     syncDraftDomState()
   })
 
@@ -2318,6 +2408,13 @@ function bindSelectionHandlers() {
     if (draftCommandTarget && inspector.contains(draftCommandTarget)) {
       event.stopPropagation()
       applyDraftTextCommand(draftCommandTarget.dataset.draftCommandAction)
+      return
+    }
+
+    const draftToolbarTarget = event.target.closest("[data-draft-toolbar-command]")
+    if (draftToolbarTarget && inspector.contains(draftToolbarTarget)) {
+      event.stopPropagation()
+      dispatchDraftToolbarCommand(draftToolbarTarget.dataset.draftToolbarCommand)
       return
     }
 

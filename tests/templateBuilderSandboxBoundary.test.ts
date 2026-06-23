@@ -66,6 +66,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftStyleHistory.js",
       "../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js",
       "../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js",
+      "../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -166,6 +167,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftInlineStylePatch")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.executeRichInlinePatch")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveDraftToolbarState")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.dispatchDraftToolbarCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftFieldChipInline")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftStyleHistory")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
@@ -6877,6 +6879,253 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingReason).toBe("composition-active")
   })
 
+  it("dispatches toolbar style commands through rich inline execution", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const { createDraftContenteditableRangeMapping } = await import("./public/draftContenteditableRangeMapping.js");
+      const { createDraftInlineStylePatch } = await import("./public/draftInlineStylePatch.js");
+      const { createDraftRichInlinePatchExecution } = await import("./public/draftRichInlinePatchExecution.js");
+      const { createDraftToolbarState } = await import("./public/draftToolbarState.js");
+      const {
+        DRAFT_TOOLBAR_COMMAND_DISPATCH_MODE,
+        DRAFT_TOOLBAR_COMMAND_DISPATCH_SOURCE,
+        createDraftToolbarCommandDispatch,
+        draftToolbarCommandDispatchLabel,
+      } = await import("./public/draftToolbarCommandDispatch.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const segment = {
+        draftEnd: 11,
+        draftStart: 0,
+        kind: "plain-text",
+        segmentId: "seg-1",
+        text: "Hello world",
+      };
+      const selection = {
+        anchorOffset: 0,
+        anchorSegmentId: "seg-1",
+        focusOffset: 5,
+        focusSegmentId: "seg-1",
+        source: "toolbar-range-test",
+      };
+      const idle = createDraftToolbarCommandDispatch(null);
+      const draft = createDraftStateForNode(node, { baseRevision: 14 });
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "toolbar-dispatch-test",
+      }).draft;
+      const toolbarState = createDraftToolbarState(rangedDraft);
+      const rangeMapping = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [segment],
+        selection,
+      });
+      const italicStylePatch = createDraftInlineStylePatch(rangedDraft, {
+        styleMark: "italic",
+      });
+      const italicExecution = createDraftRichInlinePatchExecution(rangedDraft, {
+        inlineStylePatch: italicStylePatch,
+        rangeMapping,
+      });
+      const ready = createDraftToolbarCommandDispatch(rangedDraft, {
+        richInlinePatchExecution: italicExecution,
+        styleMark: "italic",
+        toolbarState,
+      });
+      const dispatched = createDraftToolbarCommandDispatch(rangedDraft, {
+        requested: true,
+        richInlinePatchExecution: italicExecution,
+        styleMark: "italic",
+        toolbarState,
+      });
+      const boldExecution = createDraftRichInlinePatchExecution(rangedDraft, {
+        inlineStylePatch: createDraftInlineStylePatch(rangedDraft, { styleMark: "bold" }),
+        rangeMapping,
+      });
+      const richBlocked = createDraftToolbarCommandDispatch(rangedDraft, {
+        requested: true,
+        richInlinePatchExecution: boldExecution,
+        styleMark: "italic",
+        toolbarState,
+      });
+      const collapsedDraft = updateDraftSelectionRange(draft, 5, 5, {
+        source: "toolbar-collapsed-test",
+      }).draft;
+      const collapsed = createDraftToolbarCommandDispatch(collapsedDraft, {
+        requested: true,
+        richInlinePatchExecution: createDraftRichInlinePatchExecution(collapsedDraft, {
+          inlineStylePatch: createDraftInlineStylePatch(collapsedDraft, { styleMark: "italic" }),
+          rangeMapping: createDraftContenteditableRangeMapping(collapsedDraft, {
+            segments: [segment],
+            selection: {
+              anchorOffset: 5,
+              anchorSegmentId: "seg-1",
+              focusOffset: 5,
+              focusSegmentId: "seg-1",
+              source: "toolbar-collapsed-range",
+            },
+          }),
+        }),
+        styleMark: "italic",
+        toolbarState: createDraftToolbarState(collapsedDraft),
+      });
+      const unsupported = createDraftToolbarCommandDispatch(rangedDraft, {
+        requested: true,
+        richInlinePatchExecution: italicExecution,
+        styleMark: "rainbow",
+        toolbarState,
+      });
+      const composingDraft = updateDraftComposition(rangedDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 5,
+        selectionSource: "compositionstart",
+        selectionStart: 0,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftToolbarCommandDispatch(composingDraft, {
+        requested: true,
+        richInlinePatchExecution: italicExecution,
+        styleMark: "italic",
+        toolbarState,
+      });
+
+      console.log(JSON.stringify({
+        collapsedLabel: draftToolbarCommandDispatchLabel(collapsed),
+        collapsedReason: collapsed.reason,
+        collapsedStatus: collapsed.status,
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_TOOLBAR_COMMAND_DISPATCH_MODE,
+          source: DRAFT_TOOLBAR_COMMAND_DISPATCH_SOURCE,
+        },
+        dispatchedActiveMarkGuarded: dispatched.activeMark.guarded,
+        dispatchedActiveMarkStatus: dispatched.activeMark.status,
+        dispatchedApplication: dispatched.application.status,
+        dispatchedBackend: dispatched.backendApi.status,
+        dispatchedCommand: dispatched.command.kind,
+        dispatchedCommandStatus: dispatched.commandDispatch.status,
+        dispatchedCore: dispatched.coreTransaction.status,
+        dispatchedExact: dispatched.exactGeneration.status,
+        dispatchedHistory: dispatched.history.status,
+        dispatchedLabel: draftToolbarCommandDispatchLabel(dispatched),
+        dispatchedLive: dispatched.liveLayout.status,
+        dispatchedMark: dispatched.command.mark,
+        dispatchedPackage: dispatched.packageMutation.status,
+        dispatchedPatchResult: dispatched.patchResult.status,
+        dispatchedReason: dispatched.reason,
+        dispatchedRun: dispatched.patchResult.styledRuns[0],
+        dispatchedStatus: dispatched.status,
+        idleLabel: draftToolbarCommandDispatchLabel(idle),
+        idleStatus: idle.status,
+        readyApplication: ready.application.status,
+        readyCommandStatus: ready.commandDispatch.status,
+        readyLabel: draftToolbarCommandDispatchLabel(ready),
+        readyReason: ready.reason,
+        readyStatus: ready.status,
+        richBlockedLabel: draftToolbarCommandDispatchLabel(richBlocked),
+        richBlockedReason: richBlocked.reason,
+        richBlockedStatus: richBlocked.status,
+        unsupportedLabel: draftToolbarCommandDispatchLabel(unsupported),
+        unsupportedReason: unsupported.reason,
+        unsupportedStatus: unsupported.status,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      collapsedLabel: string
+      collapsedReason: string
+      collapsedStatus: string
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      dispatchedActiveMarkGuarded: boolean
+      dispatchedActiveMarkStatus: string
+      dispatchedApplication: string
+      dispatchedBackend: string
+      dispatchedCommand: string
+      dispatchedCommandStatus: string
+      dispatchedCore: string
+      dispatchedExact: string
+      dispatchedHistory: string
+      dispatchedLabel: string
+      dispatchedLive: string
+      dispatchedMark: string
+      dispatchedPackage: string
+      dispatchedPatchResult: string
+      dispatchedReason: string
+      dispatchedRun: { mark: string; range: { end: number; start: number }; selectedText: string }
+      dispatchedStatus: string
+      idleLabel: string
+      idleStatus: string
+      readyApplication: string
+      readyCommandStatus: string
+      readyLabel: string
+      readyReason: string
+      readyStatus: string
+      richBlockedLabel: string
+      richBlockedReason: string
+      richBlockedStatus: string
+      unsupportedLabel: string
+      unsupportedReason: string
+      unsupportedStatus: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-toolbar-command-dispatch")
+    expect(result.constants.mode).toBe("browser-local-toolbar-command-dispatch-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Toolbar dispatch: idle")
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyReason).toBe("toolbar-command-ready")
+    expect(result.readyCommandStatus).toBe("waiting-for-command")
+    expect(result.readyApplication).toBe("not-applied")
+    expect(result.readyLabel).toBe("Toolbar dispatch: italic ready")
+    expect(result.dispatchedStatus).toBe("dispatched")
+    expect(result.dispatchedReason).toBe("toolbar-command-dispatched")
+    expect(result.dispatchedCommandStatus).toBe("browser-local-dispatched")
+    expect(result.dispatchedApplication).toBe("browser-local-patch-result")
+    expect(result.dispatchedCommand).toBe("inline.style.patch")
+    expect(result.dispatchedMark).toBe("italic")
+    expect(result.dispatchedPatchResult).toBe("created")
+    expect(result.dispatchedRun.mark).toBe("italic")
+    expect(result.dispatchedRun.range.start).toBe(0)
+    expect(result.dispatchedRun.range.end).toBe(5)
+    expect(result.dispatchedRun.selectedText).toBe("Hello")
+    expect(result.dispatchedActiveMarkGuarded).toBe(true)
+    expect(result.dispatchedActiveMarkStatus).toBe("unknown-until-rich-inline-mapping")
+    expect(result.dispatchedCore).toBe("not-run")
+    expect(result.dispatchedHistory).toBe("not-recorded")
+    expect(result.dispatchedLive).toBe("not-requested")
+    expect(result.dispatchedExact).toBe("deferred-until-commit")
+    expect(result.dispatchedPackage).toBe("deferred-until-commit")
+    expect(result.dispatchedBackend).toBe("not-called")
+    expect(result.dispatchedLabel).toBe("Toolbar dispatch: italic local")
+    expect(result.richBlockedStatus).toBe("guarded")
+    expect(result.richBlockedReason).toBe("rich-inline-execution-not-ready")
+    expect(result.richBlockedLabel).toBe("Toolbar dispatch: rich inline blocked")
+    expect(result.collapsedStatus).toBe("guarded")
+    expect(result.collapsedReason).toBe("toolbar-control-not-ready")
+    expect(result.collapsedLabel).toBe("Toolbar dispatch: control blocked")
+    expect(result.unsupportedStatus).toBe("blocked")
+    expect(result.unsupportedReason).toBe("unsupported-style-command")
+    expect(result.unsupportedLabel).toBe("Toolbar dispatch: unsupported")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+  })
+
   it("plans style-aware history without recording durable history", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       const {
@@ -7017,6 +7266,7 @@ describe("template builder sandbox boundary", () => {
 
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
+    const stylesSource = readText("../examples/template-builder-sandbox/public/styles.css")
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
     const draftLayoutPushSource = readText("../examples/template-builder-sandbox/public/draftLayoutPush.js")
     const draftImePolicySource = readText("../examples/template-builder-sandbox/public/draftImePolicy.js")
@@ -7026,6 +7276,7 @@ describe("template builder sandbox boundary", () => {
     const draftStyleHistorySource = readText("../examples/template-builder-sandbox/public/draftStyleHistory.js")
     const draftContenteditableRangeMappingSource = readText("../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js")
     const draftRichInlinePatchExecutionSource = readText("../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js")
+    const draftToolbarCommandDispatchSource = readText("../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -7048,6 +7299,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.planDraftStyleHistory")
     expect(coreBoundarySource).toContain("browser.mapContenteditableRange")
     expect(coreBoundarySource).toContain("browser.executeRichInlinePatch")
+    expect(coreBoundarySource).toContain("browser.dispatchDraftToolbarCommand")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
@@ -7057,6 +7309,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftStyleHistory.js"')
     expect(appSource).toContain('from "./draftContenteditableRangeMapping.js"')
     expect(appSource).toContain('from "./draftRichInlinePatchExecution.js"')
+    expect(appSource).toContain('from "./draftToolbarCommandDispatch.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
     expect(draftLayoutPushSource).toContain("not-requested")
@@ -7092,6 +7345,11 @@ describe("template builder sandbox boundary", () => {
     expect(draftRichInlinePatchExecutionSource).toContain("browser-local-style-run-recorded")
     expect(draftRichInlinePatchExecutionSource).toContain("deferred-until-commit")
     expect(draftRichInlinePatchExecutionSource).toContain("not-called")
+    expect(draftToolbarCommandDispatchSource).toContain("createDraftToolbarCommandDispatch")
+    expect(draftToolbarCommandDispatchSource).toContain("browser-local-dispatched")
+    expect(draftToolbarCommandDispatchSource).toContain("rich-inline-execution-not-ready")
+    expect(draftToolbarCommandDispatchSource).toContain("unsupported-style-command")
+    expect(draftToolbarCommandDispatchSource).toContain("unknown-until-rich-inline-execution")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -7118,6 +7376,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-style-patch")
     expect(appSource).toContain("data-draft-rich-inline-execution")
     expect(appSource).toContain("data-draft-toolbar-state")
+    expect(appSource).toContain("data-draft-toolbar-command")
+    expect(appSource).toContain("data-draft-toolbar-dispatch")
     expect(appSource).toContain("data-draft-field-chip-inline")
     expect(appSource).toContain("data-draft-style-history")
     expect(appSource).toContain("data-draft-command-summary")
@@ -7141,6 +7401,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("focusDraftEditor()")
     expect(appSource).toContain("selectionDirection")
     expect(appSource).toContain("selectionSource")
+    expect(appSource).toContain("dispatchDraftToolbarCommand")
+    expect(stylesSource).toContain(".draft-toolbar-controls")
     expect(draftRuntimeSource).toContain("text.replaceSelection")
     expect(draftRuntimeSource).toContain("inline.fieldRef.insert")
     expect(draftRuntimeSource).toContain("inline.style.patch")

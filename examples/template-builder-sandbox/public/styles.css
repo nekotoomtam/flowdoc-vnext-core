@@ -854,10 +854,15 @@ ul {
 
 .bridge-actions,
 .draft-command-actions,
+.draft-toolbar-controls,
 .draft-selection-actions {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.draft-toolbar-controls {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .draft-selection-actions {
@@ -918,21 +923,29 @@ ul {
 
 .bridge-control button,
 .draft-command-actions button,
+.draft-toolbar-controls button,
 .draft-selection-actions button {
   background: #235f73;
   border: 1px solid #1c5265;
   border-radius: 6px;
   color: #ffffff;
+  font-weight: 800;
   min-height: 34px;
   padding: 0 10px;
 }
 
 .bridge-control button:disabled,
 .draft-command-actions button:disabled,
+.draft-toolbar-controls button:disabled,
 .draft-selection-actions button:disabled {
   background: #d6dde5;
   border-color: #cbd7e1;
   color: #667385;
+}
+
+.draft-toolbar-controls button[data-state="dispatched"] {
+  background: #1f7a4d;
+  border-color: #16623e;
 }
 
 .history-actions button {
