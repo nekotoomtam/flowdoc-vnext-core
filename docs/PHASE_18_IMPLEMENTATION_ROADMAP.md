@@ -3652,6 +3652,34 @@ Acceptance:
 - primary contenteditable input, storage writes, collaboration, renderer
   artifacts, and WASM/text-engine replacement remain out of scope.
 
+## Phase 131: Five-Lane Project Progress Index
+
+Goal:
+
+- consolidate the project roadmap into one current-status index across
+  Viewport / Virtualization, Structural Runtime, WYSIWYG / Editing,
+  Backend / API / Persistence, and Exact Output / Renderer.
+
+Deliverables:
+
+- progress index in `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md`;
+- lane table with phase coverage, current level, completed foundation,
+  production gaps, and recommended order;
+- PASS/RISK/UNKNOWN consolidation using phase ledger, roadmap, and close audit
+  evidence;
+- README, phase ledger, and roadmap updates;
+- drift test proving the index names all five lanes and cites the key evidence
+  docs.
+
+Acceptance:
+
+- each lane clearly names what has been completed, what level it has reached,
+  what remains before production, and which docs/tests prove the status;
+- the index does not claim runtime behavior, production completion, storage,
+  renderer artifacts, collaboration, or primary contenteditable input;
+- future phase planning can use the index to choose the next lane without
+  rereading the entire phase ledger first.
+
 ## Later Phases
 
 Goal:

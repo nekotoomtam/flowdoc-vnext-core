@@ -137,6 +137,7 @@ Parent goal:
 | 128 | Production contenteditable surface hardening boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSurfaceHardening.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 129 | Rich inline persistence/session boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `src/authoring/richInlineSessionPersistence.ts`; `src/index.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineSessionPersistence.test.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 130 | Rich inline live/exact parity audit | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineLiveExactParityAudit.test.ts` |
+| 131 | Five-lane project progress index | done | `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fiveLaneProjectProgressIndex.test.ts` |
 
 ## Current Rule
 
@@ -3434,6 +3435,36 @@ This phase intentionally does not add runtime behavior, package/document schema
 changes, parent editor imports, legacy runtime adoption, storage writes,
 backend API routes, collaboration behavior, renderer artifact output, ICU4X
 execution, or WASM/text-engine measurement replacement.
+
+## Phase 131 Five-Lane Project Progress Index
+
+Phase 131 consolidates the active project roadmap into one five-lane progress
+index:
+
+- `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md` maps Viewport / Virtualization,
+  Structural Runtime, WYSIWYG / Editing, Backend / API / Persistence, and Exact
+  Output / Renderer;
+- the index records phase coverage, current level, completed foundation work,
+  remaining production gaps, recommended order, PASS, FAIL/BLOCKER, RISK,
+  UNKNOWN, files changed, behavior changed, tests run, risks left, and
+  intentionally not changed;
+- Viewport / Virtualization is summarized from Phases 45-68 and
+  `docs/TEMPLATE_BUILDER_VIEWPORT_LARGE_DOCUMENT_AUDIT.md`;
+- Structural Runtime is summarized from Phases 69-77 and
+  `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md`;
+- WYSIWYG / Editing is summarized from Phases 36-42, 78-85, and 116-130;
+- Backend / API / Persistence is summarized from Phases 86-92 plus Phase 129
+  rich inline session persistence;
+- Exact Output / Renderer is summarized from Phases 93-115, including the
+  renderer adapter close audit and text-engine/rustybuzz evidence lane;
+- `tests/fiveLaneProjectProgressIndex.test.ts` proves the index names all five
+  lanes, keeps production non-goals explicit, and links README, roadmap, and
+  ledger updates.
+
+This phase intentionally does not add runtime behavior, package/document schema
+changes, parent editor imports, legacy runtime adoption, backend routes,
+storage adapters, renderer artifact output, collaboration behavior, or
+production contenteditable input.
 
 ## Phase 12 Extraction Record
 

@@ -315,6 +315,14 @@ The package must remain runnable without any parent editor checkout.
 - WYSIWYG execution close audit closes the Phase 122-125 foundation pass as
   capture -> plan -> commit bridge evidence while keeping production editing
   risks explicit
+- Rich inline undo/redo replay, production contenteditable surface hardening,
+  rich inline session persistence, and rich inline live/exact parity audit
+  carry the WYSIWYG / Editing foundation through Phase 130 without claiming
+  renderer artifacts, storage adapters, collaboration, or production primary
+  input
+- Five-lane project progress index consolidates Viewport / Virtualization,
+  Structural Runtime, WYSIWYG / Editing, Backend / API / Persistence, and
+  Exact Output / Renderer status into one roadmap audit
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -662,6 +670,8 @@ The package must remain runnable without any parent editor checkout.
   129 rich inline persistence/session record boundary
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md`: Phase 130
   rich inline live/exact parity audit
+- `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md`: Phase 131 five-lane project
+  progress index and roadmap audit
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
