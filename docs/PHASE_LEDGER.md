@@ -111,6 +111,7 @@ Parent goal:
 | 102 | Font ownership clearing boundary | done | `docs/FONT_OWNERSHIP_CLEARING_BOUNDARY.md`; `src/renderer/fontOwnership.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontOwnership.test.ts` |
 | 103 | Font asset copy/hash evidence | done | `docs/FONT_ASSET_COPY_HASH_EVIDENCE.md`; `assets/fonts/font-assets.v1.json`; `assets/fonts/Sarabun/*`; `assets/fonts/Noto_Sans_Thai/*`; `package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontAssetEvidence.test.ts` |
 | 104 | Measurement profile identity contract | done | `docs/MEASUREMENT_PROFILE_IDENTITY_CONTRACT.md`; `src/renderer/measurementProfileIdentity.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/measurementProfileIdentity.test.ts` |
+| 105 | Rust/WASM text engine boundary decision | done | `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`; `src/renderer/rustWasmTextEngineBoundary.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustWasmTextEngineBoundary.test.ts` |
 
 ## Current Rule
 
@@ -2688,6 +2689,29 @@ This phase intentionally does not read font files, compute hashes, import
 rustybuzz/HarfBuzz/ICU4X, execute shaping or segmentation, replace measured
 pagination, mutate package/document data, write artifacts or storage records,
 add backend routes, or change package/document schema.
+
+## Phase 105 Rust/WASM Text Engine Boundary Decision
+
+Phase 105 clears the Rust/WASM package boundary for future rustybuzz + ICU4X
+work:
+
+- `src/renderer/rustWasmTextEngineBoundary.ts` records the selected external
+  adapter package direction and keeps vNext core free of direct WASM/Rust
+  imports;
+- the future adapter must consume measurement profile identity and provide
+  renderer-backed text measurement facts;
+- direct core dependencies, core-owned WASM builds, missing renderer adapter
+  handoff, unpinned engine/data revisions, nondeterminism, missing runtime
+  targets, network runtime requirements, and production binding block;
+- missing WASM digest remains a warning for the spike and must be resolved
+  before production measurement;
+- `tests/rustWasmTextEngineBoundary.test.ts` proves the decision, blockers,
+  source independence, and documentation trail.
+
+This phase intentionally does not create an adapter package, install Rust/JS
+dependencies, build or load WASM, execute shaping or segmentation, replace
+measured pagination, mutate package/document data, write artifacts or storage
+records, add backend routes, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

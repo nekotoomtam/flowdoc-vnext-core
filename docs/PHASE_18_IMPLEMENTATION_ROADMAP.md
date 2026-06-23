@@ -2861,6 +2861,40 @@ Acceptance:
   schema;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 105: Rust/WASM Text Engine Boundary Decision
+
+Goal:
+
+- decide where the future rustybuzz + ICU4X text engine may live while keeping
+  the vNext core package dependency-clean and deterministic.
+
+Deliverables:
+
+- Rust/WASM text engine boundary planner in
+  `src/renderer/rustWasmTextEngineBoundary.ts`;
+- public exports for Rust/WASM text engine source/mode constants and
+  `createVNextRustWasmTextEngineBoundaryPlan(...)`;
+- selected placement: future external adapter package that provides
+  renderer-backed text measurement facts;
+- core contract forbidding direct WASM imports and Rust/WASM build ownership;
+- runtime contract for Node/browser/worker targets without network runtime
+  dependency;
+- blockers for direct core dependency, core WASM imports, core-owned WASM
+  builds, missing renderer-backed adapter handoff, missing revisions,
+  nondeterministic engines, missing runtime targets, and network runtime
+  requirements;
+- warning for missing WASM digest before production measurement;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- rustybuzz + ICU4X are cleared only as future external adapter work;
+- vNext core does not import Rust, WASM, font parser, browser, or renderer
+  dependencies;
+- the adapter must feed the existing renderer-backed text measurement boundary;
+- production measurement binding remains blocked;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:
