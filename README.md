@@ -312,6 +312,9 @@ The package must remain runnable without any parent editor checkout.
   a vNext-native in-memory package mutation with history-ready records and
   live/exact invalidation summaries, while keeping persistence and rendering
   out of scope
+- WYSIWYG execution close audit closes the Phase 122-125 foundation pass as
+  capture -> plan -> commit bridge evidence while keeping production editing
+  risks explicit
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -649,6 +652,8 @@ The package must remain runnable without any parent editor checkout.
   canonical rich inline commit planning boundary before bridge execution
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_BRIDGE_BOUNDARY.md`: Phase 125
   rich inline commit bridge boundary for accepted Phase 124 plans
+- `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_CLOSE_AUDIT.md`: Phase 126
+  WYSIWYG execution close audit and post-125 risk list
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -722,8 +727,7 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete production contenteditable DOM binding, rich undo/redo replay,
   persistence-backed rich inline commits, collaboration, renderer output, or
-  WYSIWYG production editing beyond the Phase 125 rich inline commit bridge
-  boundary
+  WYSIWYG production editing beyond the Phase 126 WYSIWYG execution close audit
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

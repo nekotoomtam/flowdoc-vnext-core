@@ -132,6 +132,7 @@ Parent goal:
 | 123 | Contenteditable segment capture boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SEGMENT_CAPTURE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 124 | Rich inline commit planning boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_PLANNING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 125 | Rich inline commit bridge boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_BRIDGE_BOUNDARY.md`; `src/authoring/richInlineCommit.ts`; `src/authoring/intentHistory.ts`; `src/index.ts`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineCommit.test.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 126 | WYSIWYG execution close audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygExecutionCloseAudit.test.ts` |
 
 ## Current Rule
 
@@ -3281,6 +3282,34 @@ This phase intentionally does not add package/document schema changes, parent
 editor imports, legacy runtime adoption, rich undo/redo replay, durable
 persistence writes, collaboration behavior, renderer artifact output, ICU4X
 execution, or WASM/text-engine measurement replacement.
+
+## Phase 126 WYSIWYG Execution Close Audit
+
+Phase 126 closes the Phase 122-125 WYSIWYG execution foundation pass:
+
+- `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_CLOSE_AUDIT.md` records PASS,
+  FAIL/BLOCKER, RISK, UNKNOWN, recommended next cards, files changed,
+  behavior changed, tests run, risks left, and intentionally not changed;
+- PASS confirms rich inline state normalization, contenteditable segment
+  capture, canonical commit planning, and the vNext-native rich inline commit
+  bridge;
+- FAIL/BLOCKER confirms no blocker prevents closing the foundation pass, while
+  explicitly refusing to call production WYSIWYG complete;
+- RISK keeps rich undo/redo replay, full inline replacement versus granular
+  transactions, production DOM range/caret/IME hardening, durable key history,
+  exact renderer parity, persistence, and collaboration open;
+- UNKNOWN records the remaining operation-shape, replay, contenteditable,
+  collaboration, and text-engine participation questions;
+- next cards are Phase 127 rich undo/redo replay, Phase 128 production
+  contenteditable surface hardening, Phase 129 rich inline persistence/session,
+  and Phase 130 rich inline live/exact parity audit;
+- `tests/wysiwygExecutionCloseAudit.test.ts` proves the audit cites Phase
+  122-125 docs, code, tests, risks, and phase-trail updates.
+
+This phase intentionally does not add runtime behavior, package/document schema
+changes, parent editor imports, legacy runtime adoption, durable persistence
+writes, collaboration behavior, renderer artifact output, ICU4X execution, or
+WASM/text-engine measurement replacement.
 
 ## Phase 12 Extraction Record
 

@@ -3501,6 +3501,32 @@ Acceptance:
 - persistence, collaboration, renderer output, and WASM/text-engine replacement
   remain out of scope.
 
+## Phase 126: WYSIWYG Execution Close Audit
+
+Goal:
+
+- close the Phase 122-125 WYSIWYG execution foundation pass and decide the next
+  risk-bearing lanes without claiming production WYSIWYG completion.
+
+Deliverables:
+
+- close audit in
+  `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_CLOSE_AUDIT.md`;
+- PASS/FAIL/RISK/UNKNOWN review of rich inline state, contenteditable segment
+  capture, commit planning, and commit bridge execution;
+- explicit next cards for rich undo/redo replay, production contenteditable
+  hardening, rich persistence/session behavior, and rich live/exact parity;
+- tests proving the close audit cites Phase 122-125 docs, code, and tests.
+
+Acceptance:
+
+- confirms Phase 122-125 evidence as a foundation close only;
+- confirms no parent runtime import, legacy runtime adoption, old document
+  shape acceptance, persistence write, collaboration behavior, renderer output,
+  or WASM/text-engine execution was introduced;
+- records remaining production gaps with phase-ready labels;
+- does not add runtime behavior.
+
 ## Later Phases
 
 Goal:
