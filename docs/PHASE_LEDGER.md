@@ -93,6 +93,7 @@ Parent goal:
 | 84 | Style-aware history boundary | done | `docs/TEMPLATE_BUILDER_STYLE_AWARE_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftStyleHistory.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 85 | WYSIWYG close audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 86 | Generation API route boundary | done | `docs/GENERATION_API_ROUTE_BOUNDARY.md`; `src/generation/apiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/generationApiRoute.test.ts` |
+| 87 | Session storage boundary | done | `docs/SESSION_STORAGE_BOUNDARY.md`; `src/authoring/sessionStorage.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/sessionStorage.test.ts` |
 
 ## Current Rule
 
@@ -2094,6 +2095,37 @@ template id/version loading, session storage, idempotency persistence, exact
 layout execution, renderer adapter output, PDF/DOCX/preview artifacts, artifact
 storage, collaboration, backend authentication, rate limiting, or
 package/document schema changes.
+
+## Phase 87 Session Storage Boundary
+
+Phase 87 prepares canonical package snapshots for future app-owned persistence
+without adding a concrete storage adapter:
+
+- `src/authoring/sessionStorage.ts` owns
+  `VNEXT_SESSION_STORAGE_SOURCE`, `VNEXT_SESSION_STORAGE_MODE`, and
+  `createVNextSessionStorageRecord(...)`;
+- the record carries a serialized package v2/document v3 snapshot and a
+  storage manifest with package id/version, document version, document
+  revision, dirty-scope count, optional storage key, reason, and
+  `storageStatus = "not-written"`;
+- persisted-state flags explicitly mark package truth as persisted and
+  selection, dirty scopes, revisions, diagnostics, graph, viewport, live
+  layout, exact layout, and authoring history as not persisted;
+- `src/index.ts` exports the session storage boundary through the public
+  package entry;
+- `docs/SESSION_STORAGE_BOUNDARY.md` records the ownership, truth boundary,
+  acceptance evidence, and non-goals;
+- `tests/sessionStorage.test.ts` proves canonical-only package snapshots,
+  dirty-session manifest metadata, source independence from storage adapters,
+  parent runtime, DOM, routes, layout, and pagination, plus README/roadmap/
+  ledger traceability.
+
+This phase intentionally does not implement filesystem/database/browser
+storage, a concrete server route, template id/version loading, idempotency
+persistence, durable authoring history, undo/redo persistence, offline replay,
+collaboration, artifact storage, exact layout execution, renderer adapter
+output, backend authentication, rate limiting, or package/document schema
+changes.
 
 ## Phase 12 Extraction Record
 

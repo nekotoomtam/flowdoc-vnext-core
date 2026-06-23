@@ -2196,6 +2196,38 @@ Acceptance:
 - route adapter does not import server frameworks, parent app routes, storage,
   exact layout, measured pagination, renderer consumption, or export readiness.
 
+## Phase 87: Session Storage Boundary
+
+Goal:
+
+- add a pure editable-session storage record boundary without implementing a
+  concrete storage adapter, route, durable history store, or artifact storage.
+
+Deliverables:
+
+- session storage record creator in `src/authoring/sessionStorage.ts`;
+- public exports for session storage source/mode constants and
+  `createVNextSessionStorageRecord(...)`;
+- canonical package snapshot produced through package serialization;
+- manifest with package/document version facts, document revision,
+  dirty-scope count, optional storage key, reason, and write status;
+- explicit persisted-state flags for package versus session/runtime-only
+  state;
+- boundary tests for canonical-only package snapshots, session-only exclusion,
+  source independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- storage records contain a package v2/document v3 snapshot and manifest;
+- selection, dirty scopes, revisions, diagnostics, graph, viewport, live
+  layout, exact layout, and authoring history are not persisted into the
+  package snapshot;
+- storage status remains `not-written`;
+- the boundary does not import storage adapters, server frameworks, parent app
+  routes, DOM/browser storage APIs, layout, pagination, or renderer execution;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:
@@ -2218,7 +2250,8 @@ Possible later work:
 - exact renderer adapters;
 - repeat/collection design;
 - key history design;
-- collaborative/session storage design.
+- concrete session storage adapters and durable history persistence;
+- collaboration storage design.
 
 ## First Recommended Implementation Phase
 

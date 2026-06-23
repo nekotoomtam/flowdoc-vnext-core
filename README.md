@@ -80,6 +80,10 @@ The package must remain runnable without any parent editor checkout.
 - Generation API route boundary wraps readiness-only generation requests in a
   pure HTTP-shaped response contract without adding a concrete server route,
   storage, exact layout, or artifact rendering
+- Session storage boundary prepares canonical package storage records from
+  editable sessions while explicitly excluding selection, dirty scopes,
+  diagnostics, graph, viewport, live layout, exact layout, and durable history
+  from persisted package truth
 - Large-document acceptance harness generates canonical packages with hundreds
   of text blocks and large tables, then verifies narrow typing dirty scopes and
   explicit readiness-only generation behavior
@@ -312,6 +316,8 @@ The package must remain runnable without any parent editor checkout.
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
   route response boundary before concrete server/storage/artifact work
+- `docs/SESSION_STORAGE_BOUNDARY.md`: Phase 87 canonical package session
+  storage record boundary before concrete storage adapters or durable history
 - `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`: large-document guardrails for
   rendering, typing, layout, and exact generation
 - `docs/RUNTIME_USAGE_MAP.md`: frontend/backend usage map for how real app
@@ -476,8 +482,9 @@ The package must remain runnable without any parent editor checkout.
   routes, responsibility-sliced editor modules, and a concrete browser
   live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
-- concrete backend server routes, storage, and rendered artifacts on top of the
-  generation runtime route boundary
+- concrete backend server routes, storage adapters/writes, durable session
+  history, and rendered artifacts on top of the generation runtime route and
+  session storage record boundaries
 - form-slot or submission-state runtime
 - key history and key migration records
 - renderer-backed text measurement profile implementation
