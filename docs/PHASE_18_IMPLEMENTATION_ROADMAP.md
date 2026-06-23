@@ -2516,6 +2516,41 @@ Acceptance:
   pagination execution, layout pipeline execution, or renderer consumption;
 - package/document schema remains unchanged.
 
+## Phase 96: Pausable Layout Job Engine
+
+Goal:
+
+- add a pure pausable layout job engine over `VNextLayoutPipelinePlan.jobs`
+  without implementing concrete layout execution, text/table placement,
+  renderer execution, cursor persistence, backend routes, or package/document
+  mutation.
+
+Deliverables:
+
+- pausable layout job engine in `src/pagination/layoutJobEngine.ts`;
+- public exports for pausable layout job engine source/mode constants and
+  `runVNextPausableLayoutJobEngineChunk(...)`;
+- JSON-serializable cursor with `jobOffset` and completed source item ids;
+- bounded chunk execution over layout pipeline jobs;
+- dependency blocking for malformed plans or invalid resume cursors that skip
+  required source-item completion;
+- engine contract that records `executesConcreteLayout = false`,
+  `mayRelayoutDocument = false`, `mutatesDocument = false`, and
+  `storesCursor = false`;
+- boundary tests for pause/resume, dependency blocking, source independence, and
+  documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- engine consumes a `VNextLayoutPipelinePlan`, not authored documents;
+- repeated bounded chunks can advance all plan jobs in dependency order;
+- invalid resume cursors block instead of silently running dependent jobs;
+- the boundary does not call pagination execution, layout pipeline execution,
+  renderer consumption, export readiness, renderer libraries, storage adapters,
+  server frameworks, parent app routes, DOM APIs, or persistence;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

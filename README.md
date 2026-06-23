@@ -308,6 +308,9 @@ The package must remain runnable without any parent editor checkout.
 - Layout pipeline baseline exposes staged planning, measurement-job scheduling,
   bounded measured page/render-command artifact chunks, and complete pipeline
   runs while preserving the existing measured pagination engine.
+- Pausable layout job engine boundary advances layout pipeline plan jobs through
+  bounded resumable cursors without executing concrete layout, relayouting
+  documents, storing cursors, or invoking renderers.
 - Renderer-backed text measurement boundary exposes profile readiness plans and
   a strict `VNextTextMeasurer` adapter for external renderer facts without
   concrete renderer imports, document relayout, or schema changes.
@@ -354,6 +357,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md`: Phase 95
   renderer-backed text measurement profile adapter boundary before concrete
   renderer measurement engines
+- `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
+  engine boundary before concrete layout execution or cursor persistence
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
@@ -532,8 +537,8 @@ The package must remain runnable without any parent editor checkout.
 - key history persistence, aliases/deprecated keys, and key migration execution
 - concrete renderer-backed text measurement engines beyond the Phase 95
   profile adapter boundary
-- fully pausable internal text/table placement engine behind measurement job
-  results
+- concrete internal text/table placement execution behind pausable layout job
+  records
 - non-text table-cell content splitting
 - multi-page column balancing
 - final pagination-aware TOC page resolution

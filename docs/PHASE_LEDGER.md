@@ -102,6 +102,7 @@ Parent goal:
 | 93 | PDF renderer adapter boundary | done | `docs/PDF_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/pdfAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pdfRendererAdapter.test.ts` |
 | 94 | DOCX renderer adapter boundary | done | `docs/DOCX_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/docxAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/docxRendererAdapter.test.ts` |
 | 95 | Renderer-backed text measurement boundary | done | `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md`; `src/renderer/textMeasurementAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rendererTextMeasurementAdapter.test.ts` |
+| 96 | Pausable layout job engine | done | `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`; `src/pagination/layoutJobEngine.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/layoutJobEngine.test.ts` |
 
 ## Current Rule
 
@@ -2418,6 +2419,40 @@ text metrics, DOCX text metrics, canvas/headless execution, font loading, text
 shaping, kerning, hyphenation, bidi shaping, measurement storage, backend
 routes, renderer-backed pagination execution, exact layout execution, concrete
 artifact output, or package/document schema changes.
+
+## Phase 96 Pausable Layout Job Engine
+
+Phase 96 adds a pausable layout job engine over layout pipeline plans without
+executing concrete layout:
+
+- `src/pagination/layoutJobEngine.ts` owns
+  `VNEXT_PAUSABLE_LAYOUT_JOB_ENGINE_SOURCE`,
+  `VNEXT_PAUSABLE_LAYOUT_JOB_ENGINE_MODE`, and
+  `runVNextPausableLayoutJobEngineChunk(...)`;
+- the engine consumes `VNextLayoutPipelinePlan.jobs`, not authored documents;
+- chunks are bounded by `maxJobs` and return a JSON cursor with `jobOffset` and
+  completed source item ids;
+- repeated chunks can advance every plan job in dependency order while keeping
+  stage counts and job results serializable;
+- invalid resume cursors that skip dependency completion block with explicit
+  dependency issues instead of silently running dependent work;
+- the engine contract records executesConcreteLayout = `false`,
+  mayRelayoutDocument = `false`, mutatesDocument = `false`, and
+  storesCursor = `false`;
+- `src/index.ts` exports the pausable layout job engine boundary through the
+  public package entry;
+- `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md` records ownership, truth
+  boundary, acceptance evidence, and non-goals;
+- `tests/layoutJobEngine.test.ts` proves bounded pause/resume, dependency
+  blocking, source independence from concrete pagination, renderer libraries,
+  parent runtime, DOM, storage, authored document input, layout execution, and
+  renderer consumption, plus README/roadmap/ledger traceability.
+
+This phase intentionally does not implement concrete layout execution, text
+measurement execution, table placement, deep table splitting, TOC resolution,
+renderer-backed pagination execution, artifact output, backend routes, storage
+adapters, cursor persistence, worker queues, cancellation runtime,
+prioritization runtime, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 
