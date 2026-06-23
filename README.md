@@ -303,6 +303,9 @@ The package must remain runnable without any parent editor checkout.
   line fragmentation, static header/footer fragments, page-number inline
   resolution, column fragments, row-level table fragments, splittable text-cell
   rows, renderer-consumption audit, and export readiness.
+- Deep table split boundary classifies table rows and cell-child policies for
+  text-line split readiness while explicitly blocking deferred non-text or mixed
+  cell content before a concrete deep table split engine exists.
 - Measured pagination internals now expose shared measured contracts and a
   fragment/page builder before deeper text/table layout extraction.
 - Layout pipeline baseline exposes staged planning, measurement-job scheduling,
@@ -359,6 +362,8 @@ The package must remain runnable without any parent editor checkout.
   renderer measurement engines
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
+- `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
+  boundary before concrete non-text table-cell splitting
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
@@ -539,7 +544,8 @@ The package must remain runnable without any parent editor checkout.
   profile adapter boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
-- non-text table-cell content splitting
+- concrete non-text table-cell content splitting beyond the Phase 97 readiness
+  boundary
 - multi-page column balancing
 - final pagination-aware TOC page resolution
 - concrete PDF/DOCX renderer implementation beyond measured-command adapter

@@ -2551,6 +2551,47 @@ Acceptance:
   server frameworks, parent app routes, DOM APIs, or persistence;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 97: Deep Table Split Boundary
+
+Goal:
+
+- add a pure deep table split readiness boundary over canonical document v3
+  table structure without implementing concrete non-text table-cell splitting,
+  pagination execution, text measurement execution, renderer execution, storage
+  writes, or package/document mutation.
+
+Deliverables:
+
+- deep table split readiness planner in `src/pagination/deepTableSplit.ts`;
+- public exports for deep table split source/mode constants and
+  `createVNextDeepTableSplitPlan(...)`;
+- row strategy classification for text-line split candidates, explicit atomic
+  rows, empty rows, and blocked deep-content rows;
+- cell child policy classification for splittable text, atomic blocks,
+  generated atomic content, ignored page breaks, and unsupported children;
+- blocking issues for missing rows/cells, unsupported children, and deferred
+  non-text table-cell child splitting;
+- engine contract that records `executesPagination = false`,
+  `executesConcreteLayout = false`, `mayRelayoutDocument = false`,
+  `mutatesDocument = false`, and `supportsNonTextChildSplit = false`;
+- boundary tests for text-only readiness, mixed/non-text blocking, source
+  independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- boundary consumes canonical document v3 table structure and does not accept
+  legacy/prototype table shapes;
+- text-only breakable rows are classified as current line-range split
+  candidates;
+- breakable rows with non-text or mixed cell children are blocked rather than
+  silently claimed as deep-splittable;
+- `allowBreak = false` rows remain explicit atomic rows;
+- the boundary does not call pagination execution, layout pipeline execution,
+  renderer consumption, export readiness, renderer libraries, storage adapters,
+  server frameworks, parent app routes, DOM APIs, or persistence;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

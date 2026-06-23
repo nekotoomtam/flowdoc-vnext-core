@@ -103,6 +103,7 @@ Parent goal:
 | 94 | DOCX renderer adapter boundary | done | `docs/DOCX_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/docxAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/docxRendererAdapter.test.ts` |
 | 95 | Renderer-backed text measurement boundary | done | `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md`; `src/renderer/textMeasurementAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rendererTextMeasurementAdapter.test.ts` |
 | 96 | Pausable layout job engine | done | `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`; `src/pagination/layoutJobEngine.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/layoutJobEngine.test.ts` |
+| 97 | Deep table split boundary | done | `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`; `src/pagination/deepTableSplit.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/deepTableSplit.test.ts` |
 
 ## Current Rule
 
@@ -2453,6 +2454,43 @@ measurement execution, table placement, deep table splitting, TOC resolution,
 renderer-backed pagination execution, artifact output, backend routes, storage
 adapters, cursor persistence, worker queues, cancellation runtime,
 prioritization runtime, or package/document schema changes.
+
+## Phase 97 Deep Table Split Boundary
+
+Phase 97 adds a deep table split readiness boundary without implementing
+concrete non-text table-cell splitting:
+
+- `src/pagination/deepTableSplit.ts` owns
+  `VNEXT_DEEP_TABLE_SPLIT_SOURCE`, `VNEXT_DEEP_TABLE_SPLIT_MODE`, and
+  `createVNextDeepTableSplitPlan(...)`;
+- the boundary consumes canonical document v3 table structure and does not
+  accept legacy/prototype table shapes;
+- row strategies distinguish current `text-line-range` candidates,
+  `atomic-row`, `empty-row`, and `blocked-deep-content`;
+- cell child policies distinguish `splittable-text`, `atomic-block`,
+  `generated-atomic`, `ignored-page-break`, and `unsupported`;
+- breakable rows with non-text or mixed cell children block with explicit
+  deferred deep-split issues instead of being silently treated as ready;
+- `allowBreak = false` rows remain explicit atomic rows even when they contain
+  non-text cell children;
+- the engine contract records executesPagination = `false`,
+  executesConcreteLayout = `false`, mayRelayoutDocument = `false`,
+  mutatesDocument = `false`, supportsTextLineSplit = `true`, and
+  supportsNonTextChildSplit = `false`;
+- `src/index.ts` exports the deep table split boundary through the public
+  package entry;
+- `docs/DEEP_TABLE_SPLIT_BOUNDARY.md` records ownership, truth boundary,
+  acceptance evidence, and non-goals;
+- `tests/deepTableSplit.test.ts` proves text-only readiness, mixed/non-text
+  blocking, source independence from concrete pagination, renderer libraries,
+  parent runtime, DOM, storage, layout execution, and renderer consumption, plus
+  README/roadmap/ledger traceability.
+
+This phase intentionally does not implement concrete deep table splitting,
+non-text cell fragmentation, row group splitting, spans, border collapsing,
+nested repeated content, table layout rewrite, text measurement execution,
+pagination execution, renderer output, artifact output, backend routes, storage
+adapters, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 
