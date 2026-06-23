@@ -2592,6 +2592,43 @@ Acceptance:
   server frameworks, parent app routes, DOM APIs, or persistence;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 98: Final TOC / Page Resolution Boundary
+
+Goal:
+
+- add a pure post-pagination TOC/page reference resolution boundary over
+  canonical document v3 and existing measured pagination output without
+  executing pagination, relayout, renderer output, text measurement, storage
+  writes, or package/document mutation.
+
+Deliverables:
+
+- final page resolution planner in `src/pagination/pageResolution.ts`;
+- public exports for final page resolution source/mode constants and
+  `resolveVNextFinalPageReferences(...)`;
+- TOC entry output with heading id, heading text, heading level, page index, and
+  page number;
+- page-number inline status preserving the fact that inline page numbers are
+  already resolved inside measured pagination;
+- blocked handling for document/pagination id mismatch;
+- partial handling for headings without measured fragments;
+- resolution contract that records `mayRelayoutDocument = false`,
+  `mutatesDocument = false`, `mutatesMeasuredPagination = false`, and
+  `writesArtifacts = false`;
+- boundary tests for resolved TOC page references, mismatch blocking, source
+  independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- boundary consumes canonical document v3 plus `VNextMeasuredPagination`;
+- TOC heading entries resolve from measured fragment page indexes/numbers;
+- document/pagination id mismatch blocks rather than producing stale references;
+- the boundary does not call pagination execution, layout pipeline execution,
+  renderer consumption, export readiness, renderer libraries, storage adapters,
+  server frameworks, parent app routes, DOM APIs, or persistence;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

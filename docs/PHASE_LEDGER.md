@@ -104,6 +104,7 @@ Parent goal:
 | 95 | Renderer-backed text measurement boundary | done | `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md`; `src/renderer/textMeasurementAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rendererTextMeasurementAdapter.test.ts` |
 | 96 | Pausable layout job engine | done | `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`; `src/pagination/layoutJobEngine.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/layoutJobEngine.test.ts` |
 | 97 | Deep table split boundary | done | `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`; `src/pagination/deepTableSplit.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/deepTableSplit.test.ts` |
+| 98 | Final TOC / page resolution boundary | done | `docs/FINAL_TOC_PAGE_RESOLUTION_BOUNDARY.md`; `src/pagination/pageResolution.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pageResolution.test.ts` |
 
 ## Current Rule
 
@@ -2491,6 +2492,41 @@ non-text cell fragmentation, row group splitting, spans, border collapsing,
 nested repeated content, table layout rewrite, text measurement execution,
 pagination execution, renderer output, artifact output, backend routes, storage
 adapters, or package/document schema changes.
+
+## Phase 98 Final TOC / Page Resolution Boundary
+
+Phase 98 adds post-pagination TOC/page reference resolution without executing
+pagination or mutating measured output:
+
+- `src/pagination/pageResolution.ts` owns
+  `VNEXT_FINAL_PAGE_RESOLUTION_SOURCE`,
+  `VNEXT_FINAL_PAGE_RESOLUTION_MODE`, and
+  `resolveVNextFinalPageReferences(...)`;
+- the boundary consumes canonical document v3 plus `VNextMeasuredPagination`;
+- TOC entries resolve heading node id, heading text, heading level, page index,
+  and page number from measured fragments;
+- inline page-number status records that page-number inline output is already
+  resolved inside measured pagination;
+- document/pagination id mismatch blocks instead of producing stale page
+  references;
+- missing heading fragments produce partial resolution warnings;
+- the resolution contract records mayRelayoutDocument = `false`,
+  mutatesDocument = `false`, mutatesMeasuredPagination = `false`, and
+  writesArtifacts = `false`;
+- `src/index.ts` exports the final page resolution boundary through the public
+  package entry;
+- `docs/FINAL_TOC_PAGE_RESOLUTION_BOUNDARY.md` records ownership, truth
+  boundary, acceptance evidence, and non-goals;
+- `tests/pageResolution.test.ts` proves TOC heading page resolution,
+  page-number inline status, document/pagination mismatch blocking, source
+  independence from concrete pagination, renderer libraries, parent runtime,
+  DOM, storage, layout execution, and renderer consumption, plus
+  README/roadmap/ledger traceability.
+
+This phase intentionally does not implement pagination execution, renderer
+execution, text measurement execution, TOC text rewrite, TOC reflow, generated
+document mutation, measured fragment mutation, artifact output, backend routes,
+storage adapters, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 

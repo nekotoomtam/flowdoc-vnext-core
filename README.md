@@ -303,6 +303,9 @@ The package must remain runnable without any parent editor checkout.
   line fragmentation, static header/footer fragments, page-number inline
   resolution, column fragments, row-level table fragments, splittable text-cell
   rows, renderer-consumption audit, and export readiness.
+- Final TOC/page resolution boundary maps TOC heading entries to measured page
+  indexes/numbers after pagination without relayout, fragment mutation, or
+  renderer execution.
 - Deep table split boundary classifies table rows and cell-child policies for
   text-line split readiness while explicitly blocking deferred non-text or mixed
   cell content before a concrete deep table split engine exists.
@@ -364,6 +367,8 @@ The package must remain runnable without any parent editor checkout.
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
   boundary before concrete non-text table-cell splitting
+- `docs/FINAL_TOC_PAGE_RESOLUTION_BOUNDARY.md`: Phase 98 final TOC/page
+  resolution boundary before TOC text rewrite, reflow, or renderer output
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
@@ -547,7 +552,8 @@ The package must remain runnable without any parent editor checkout.
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
   boundary
 - multi-page column balancing
-- final pagination-aware TOC page resolution
+- concrete TOC text rewrite/reflow beyond the Phase 98 final page-reference
+  resolution boundary
 - concrete PDF/DOCX renderer implementation beyond measured-command adapter
   contracts
 - concrete durable operation/authoring history storage adapters and writes
