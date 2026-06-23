@@ -116,6 +116,10 @@ import {
   createDraftStyleHistory,
   draftStyleHistoryLabel as draftStyleHistoryLabelState,
 } from "./draftStyleHistory.js"
+import {
+  createDraftContenteditableRangeMapping,
+  draftContenteditableRangeMappingLabel as draftContenteditableRangeMappingLabelState,
+} from "./draftContenteditableRangeMapping.js"
 
 const app = document.querySelector("#app")
 
@@ -124,6 +128,7 @@ const state = {
   bridgeMessage: "",
   draft: createIdleDraftState(),
   draftCommandText: "",
+  draftContenteditableRangeMapping: createDraftContenteditableRangeMapping(createIdleDraftState()),
   draftFieldChipInline: createDraftFieldChipInline(createIdleDraftState()),
   draftImePolicy: createDraftImePolicy(createIdleDraftState()),
   draftInlineStylePatch: createDraftInlineStylePatch(createIdleDraftState()),
@@ -833,6 +838,47 @@ function draftImePolicyLabel() {
   return draftImePolicyLabelState(state.draftImePolicy)
 }
 
+function draftContenteditableSegmentId() {
+  return state.draft.textBlockId ? `${state.draft.textBlockId}:plain-text` : "draft:plain-text"
+}
+
+function draftContenteditableSegments() {
+  if (!draftIsActive()) return []
+  return [{
+    draftEnd: state.draft.text.length,
+    draftStart: 0,
+    kind: "plain-text",
+    segmentId: draftContenteditableSegmentId(),
+    text: state.draft.text,
+  }]
+}
+
+function draftContenteditableSelection() {
+  if (!draftIsActive()) return null
+  const selection = normalizedDraftSelection()
+  const segmentId = draftContenteditableSegmentId()
+  const backward = selection.direction === "backward"
+  return {
+    anchorOffset: backward ? selection.end : selection.start,
+    anchorSegmentId: segmentId,
+    direction: selection.direction,
+    focusOffset: backward ? selection.start : selection.end,
+    focusSegmentId: segmentId,
+    source: selection.source,
+  }
+}
+
+function updateDraftContenteditableRangeMapping() {
+  state.draftContenteditableRangeMapping = createDraftContenteditableRangeMapping(state.draft, {
+    segments: draftContenteditableSegments(),
+    selection: draftContenteditableSelection(),
+  })
+}
+
+function draftContenteditableRangeMappingLabel() {
+  return draftContenteditableRangeMappingLabelState(state.draftContenteditableRangeMapping)
+}
+
 function updateDraftInlineStylePatch() {
   state.draftInlineStylePatch = createDraftInlineStylePatch(state.draft, {
     styleMark: "bold",
@@ -1030,6 +1076,7 @@ function updateDraftSelectionFromEditor(editor, selectionSource) {
 
 function syncDraftDomState() {
   updateDraftImePolicy()
+  updateDraftContenteditableRangeMapping()
   updateDraftInlineStylePatch()
   updateDraftToolbarState()
   updateDraftFieldChipInline()
@@ -1074,6 +1121,10 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-ime-policy]").forEach((target) => {
     target.textContent = draftImePolicyLabel()
     target.dataset.state = draftImePolicy.status
+  })
+  app.querySelectorAll("[data-draft-contenteditable-range]").forEach((target) => {
+    target.textContent = draftContenteditableRangeMappingLabel()
+    target.dataset.state = state.draftContenteditableRangeMapping.status
   })
   app.querySelectorAll("[data-draft-style-patch]").forEach((target) => {
     target.textContent = draftInlineStylePatchLabel()
@@ -1415,6 +1466,7 @@ function renderCanvasNode(node) {
             <span data-draft-command-summary>${escapeHtml(draftCommandSummary())}</span>
             <span data-draft-layout-push data-state="${escapeHtml(state.draftLayoutPush.status)}">${escapeHtml(draftLayoutPushLabel())}</span>
             <span data-draft-ime-policy data-state="${escapeHtml(state.draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</span>
+            <span data-draft-contenteditable-range data-state="${escapeHtml(state.draftContenteditableRangeMapping.status)}">${escapeHtml(draftContenteditableRangeMappingLabel())}</span>
             <span data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</span>
             <span data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</span>
             <span data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</span>
@@ -1735,6 +1787,7 @@ function renderInspector(snapshot) {
             <dt>Input</dt><dd data-draft-selection-source>${escapeHtml(normalizedDraftSelection().source)}</dd>
             <dt>IME</dt><dd><span data-draft-composition data-state="${state.draft.isComposing ? "active" : "idle"}">${escapeHtml(draftCompositionLabel())}</span></dd>
             <dt>IME guard</dt><dd data-draft-ime-policy data-state="${escapeHtml(draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</dd>
+            <dt>DOM range</dt><dd data-draft-contenteditable-range data-state="${escapeHtml(state.draftContenteditableRangeMapping.status)}">${escapeHtml(draftContenteditableRangeMappingLabel())}</dd>
             <dt>Style patch</dt><dd data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</dd>
             <dt>Toolbar</dt><dd data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</dd>
             <dt>Field chips</dt><dd data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</dd>
@@ -2058,6 +2111,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>
       <span data-draft-compositionbar>IME: ${escapeHtml(draftCompositionLabel())}</span>
       <span data-draft-ime-policy>${escapeHtml(draftImePolicyLabel())}</span>
+      <span data-draft-contenteditable-range>${escapeHtml(draftContenteditableRangeMappingLabel())}</span>
       <span data-draft-style-patch>${escapeHtml(draftInlineStylePatchLabel())}</span>
       <span data-draft-toolbar-state>${escapeHtml(draftToolbarStateLabel())}</span>
       <span data-draft-field-chip-inline>${escapeHtml(draftFieldChipInlineLabel())}</span>

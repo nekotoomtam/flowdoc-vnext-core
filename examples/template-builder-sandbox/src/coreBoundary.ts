@@ -719,6 +719,13 @@ export function createTemplateBuilderSnapshot(
         reason: "active browser drafts track local textarea selection ranges without mutating canonical package state",
       },
       {
+        action: "browser.mapContenteditableRange",
+        label: "DOM range",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local contenteditable range mapping consumes bounded segment facts and maps them to FlowDoc UTF-16 draft offsets without mutating package state",
+      },
+      {
         action: "browser.deriveDraftCommandContext",
         label: "Command ctx",
         lane: "immediate",

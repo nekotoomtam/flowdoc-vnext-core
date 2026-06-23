@@ -284,6 +284,9 @@ The package must remain runnable without any parent editor checkout.
   foundation with the Phase 113-115 text-engine evidence lane and defines
   managed cards through contenteditable range mapping, rich inline execution,
   toolbar dispatch, and field chip insertion
+- Contenteditable range mapping boundary maps bounded segment facts into
+  FlowDoc UTF-16 draft offsets while blocking styled-run, atomic-inline, and
+  text-mismatch cases before rich inline execution
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -602,6 +605,8 @@ The package must remain runnable without any parent editor checkout.
   close audit and risk register
 - `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md`: Phase 116 WYSIWYG
   production-editing re-entry audit and Phase 117-120 card plan
+- `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_RANGE_MAPPING_BOUNDARY.md`: Phase 117
+  browser-local contenteditable range mapping boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -673,9 +678,9 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
-- concrete contenteditable mapping, rich inline style execution, toolbar
-  command dispatch, field chip insertion, or WYSIWYG production editing beyond
-  the Phase 116 re-entry audit
+- concrete production contenteditable DOM binding, rich inline style execution,
+  toolbar command dispatch, field chip insertion, or WYSIWYG production editing
+  beyond the Phase 117 range mapping boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

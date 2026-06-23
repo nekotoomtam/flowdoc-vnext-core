@@ -123,6 +123,7 @@ Parent goal:
 | 114 | Text engine rustybuzz raw mapping boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_RAW_MAPPING_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rustybuzzRawMapping.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzRawMapping.test.ts`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
 | 115 | Text engine rustybuzz smoke corpus boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_CORPUS_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.corpus.v1.json`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.*.v1.json`; `packages/text-engine-rust-wasm/src/rustybuzzSmokeCorpus.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokeCorpus.test.ts` |
 | 116 | WYSIWYG re-entry audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygReentryAudit.test.ts` |
+| 117 | Contenteditable range mapping boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_RANGE_MAPPING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3014,6 +3015,33 @@ rich inline execution, toolbar dispatch, field chip insertion, package/document
 schema changes, parent runtime imports, legacy runtime adoption, package
 mutation, history writes, live layout requests, exact renderer output, backend
 routes, persistence, collaboration, or WASM execution.
+
+## Phase 117 Contenteditable Range Mapping Boundary
+
+Phase 117 adds the first managed WYSIWYG re-entry implementation card after the
+Phase 116 audit:
+
+- `examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js`
+  owns a browser-safe mapper from bounded segment facts to FlowDoc UTF-16 draft
+  ranges;
+- the mapper reports `utf16-code-unit-offset` ranges and blocks styled runs,
+  atomic inline/field-chip segments, segment coverage drift, text mismatch, and
+  invalid endpoint facts before rich inline execution;
+- `examples/template-builder-sandbox/public/app.js` wires the mapper into the
+  existing draft sync path and surfaces `data-draft-contenteditable-range` in
+  the canvas draft footer, inspector, and status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` adds
+  `browser.mapContenteditableRange` as a wired browser-local action lane;
+- tests execute ready, composing, styled-run, atomic-inline, and text-mismatch
+  paths while proving package mutation, durable history, live layout, exact
+  output, and text-engine execution stay off.
+
+This phase intentionally does not replace the textarea with a production
+contenteditable surface, bind the DOM `Range` API inside the mapper, apply rich
+inline style runs, insert field refs, dispatch toolbar commands, mutate package
+state, write durable history, request live layout, run exact output, add backend
+routes, add persistence, add collaboration behavior, or execute WASM/text-engine
+measurement.
 
 ## Phase 12 Extraction Record
 

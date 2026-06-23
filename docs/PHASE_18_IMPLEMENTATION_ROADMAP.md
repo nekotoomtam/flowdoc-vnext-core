@@ -3231,6 +3231,35 @@ Acceptance:
 - no package/document schema, runtime behavior, history, live layout, exact
   output, backend, persistence, collaboration, or WASM behavior changes.
 
+## Phase 117: Contenteditable Range Mapping Boundary
+
+Goal:
+
+- add the first managed Phase 116 follow-up by mapping bounded
+  contenteditable-like segment facts into FlowDoc draft UTF-16 ranges.
+
+Scope:
+
+- browser-safe `draftContenteditableRangeMapping.js` module;
+- app evidence through `data-draft-contenteditable-range`;
+- action lane for `browser.mapContenteditableRange`;
+- executable tests for ready, composing, styled-run, atomic-inline, and
+  text-mismatch paths;
+- README, ledger, and phase documentation.
+
+Acceptance:
+
+- plain segment facts map anchor/focus endpoints to
+  `utf16-code-unit-offset` ranges;
+- styled runs, atomic inline/field-chip segments, invalid segment coverage,
+  text mismatch, and invalid endpoints block explicitly;
+- mapper output keeps application not-applied, core transaction not-run,
+  history not-recorded, live layout not-requested, exact generation deferred,
+  and text engine not-executed;
+- no production DOM `Range` binding, package mutation, rich inline execution,
+  toolbar dispatch, field-ref insertion, persistence, backend, collaboration,
+  exact output, live layout, or WASM execution.
+
 ## Later Phases
 
 Goal:

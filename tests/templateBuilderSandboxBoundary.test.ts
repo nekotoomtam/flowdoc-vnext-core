@@ -64,6 +64,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftToolbarState.js",
       "../examples/template-builder-sandbox/public/draftFieldChipInline.js",
       "../examples/template-builder-sandbox/public/draftStyleHistory.js",
+      "../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -153,6 +154,7 @@ describe("template builder sandbox boundary", () => {
       new Set(["wired", "planned", "blocked"]),
     )
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftSelection")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.mapContenteditableRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.deriveDraftCommandContext")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyDraftTextCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
@@ -6448,6 +6450,208 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingCanRequest).toBe(false)
   })
 
+  it("maps contenteditable segment facts to draft UTF-16 ranges without core mutations", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const {
+        DRAFT_CONTENTEDITABLE_RANGE_MAPPING_MODE,
+        DRAFT_CONTENTEDITABLE_RANGE_MAPPING_SOURCE,
+        DRAFT_CONTENTEDITABLE_RANGE_UNIT,
+        createDraftContenteditableRangeMapping,
+        draftContenteditableRangeMappingLabel,
+      } = await import("./public/draftContenteditableRangeMapping.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const segment = {
+        draftEnd: 11,
+        draftStart: 0,
+        kind: "plain-text",
+        segmentId: "seg-1",
+        text: "Hello world",
+      };
+      const selection = {
+        anchorOffset: 0,
+        anchorSegmentId: "seg-1",
+        direction: "forward",
+        focusOffset: 5,
+        focusSegmentId: "seg-1",
+        source: "dom-range-test",
+      };
+      const idle = createDraftContenteditableRangeMapping(null);
+      const draft = createDraftStateForNode(node, { baseRevision: 14 });
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "contenteditable-range-test",
+      }).draft;
+      const ready = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [segment],
+        selection,
+      });
+      const backward = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [segment],
+        selection: {
+          anchorOffset: 11,
+          anchorSegmentId: "seg-1",
+          focusOffset: 6,
+          focusSegmentId: "seg-1",
+          source: "dom-backward-test",
+        },
+      });
+      const styled = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [{ ...segment, kind: "styled-text" }],
+        selection,
+      });
+      const atomic = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [{ ...segment, kind: "field-chip" }],
+        selection,
+      });
+      const mismatch = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [{ ...segment, text: "Hello brave" }],
+        selection,
+      });
+      const composingDraft = updateDraftComposition(rangedDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 5,
+        selectionSource: "compositionstart",
+        selectionStart: 0,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftContenteditableRangeMapping(composingDraft, {
+        segments: [segment],
+        selection,
+      });
+
+      console.log(JSON.stringify({
+        atomicLabel: draftContenteditableRangeMappingLabel(atomic),
+        atomicReason: atomic.reason,
+        atomicStatus: atomic.status,
+        backwardDirection: backward.range.direction,
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_CONTENTEDITABLE_RANGE_MAPPING_MODE,
+          source: DRAFT_CONTENTEDITABLE_RANGE_MAPPING_SOURCE,
+          unit: DRAFT_CONTENTEDITABLE_RANGE_UNIT,
+        },
+        idleLabel: draftContenteditableRangeMappingLabel(idle),
+        idleStatus: idle.status,
+        mismatchLabel: draftContenteditableRangeMappingLabel(mismatch),
+        mismatchReason: mismatch.reason,
+        mismatchStatus: mismatch.status,
+        readyApplication: ready.application.status,
+        readyCanMap: ready.canMapRange,
+        readyContenteditable: ready.contenteditable.status,
+        readyCore: ready.coreTransaction.status,
+        readyExact: ready.exactGeneration.status,
+        readyHistory: ready.history.status,
+        readyLabel: draftContenteditableRangeMappingLabel(ready),
+        readyLive: ready.liveLayout.status,
+        readyRangeCollapsed: ready.range.collapsed,
+        readyRangeEnd: ready.range.end,
+        readyRangeLength: ready.range.length,
+        readyRangeSource: ready.range.source,
+        readyRangeStart: ready.range.start,
+        readyRangeUnit: ready.range.unit,
+        readyReason: ready.reason,
+        readySegmentCount: ready.segmentCount,
+        readyStatus: ready.status,
+        readyTextEngine: ready.textEngine.status,
+        styledLabel: draftContenteditableRangeMappingLabel(styled),
+        styledReason: styled.reason,
+        styledStatus: styled.status,
+        target: ready.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      atomicLabel: string
+      atomicReason: string
+      atomicStatus: string
+      backwardDirection: string
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string; unit: string }
+      idleLabel: string
+      idleStatus: string
+      mismatchLabel: string
+      mismatchReason: string
+      mismatchStatus: string
+      readyApplication: string
+      readyCanMap: boolean
+      readyContenteditable: string
+      readyCore: string
+      readyExact: string
+      readyHistory: string
+      readyLabel: string
+      readyLive: string
+      readyRangeCollapsed: boolean
+      readyRangeEnd: number
+      readyRangeLength: number
+      readyRangeSource: string
+      readyRangeStart: number
+      readyRangeUnit: string
+      readyReason: string
+      readySegmentCount: number
+      readyStatus: string
+      readyTextEngine: string
+      styledLabel: string
+      styledReason: string
+      styledStatus: string
+      target: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-contenteditable-range-mapping")
+    expect(result.constants.mode).toBe("browser-local-contenteditable-range-mapping-boundary")
+    expect(result.constants.unit).toBe("utf16-code-unit-offset")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Contenteditable range: idle")
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyReason).toBe("contenteditable-range-mapped")
+    expect(result.readyCanMap).toBe(true)
+    expect(result.readyRangeStart).toBe(0)
+    expect(result.readyRangeEnd).toBe(5)
+    expect(result.readyRangeLength).toBe(5)
+    expect(result.readyRangeCollapsed).toBe(false)
+    expect(result.readyRangeUnit).toBe("utf16-code-unit-offset")
+    expect(result.readyRangeSource).toBe("dom-range-test")
+    expect(result.readySegmentCount).toBe(1)
+    expect(result.readyContenteditable).toBe("not-bound")
+    expect(result.readyApplication).toBe("not-applied")
+    expect(result.readyCore).toBe("not-run")
+    expect(result.readyHistory).toBe("not-recorded")
+    expect(result.readyLive).toBe("not-requested")
+    expect(result.readyExact).toBe("deferred-until-commit")
+    expect(result.readyTextEngine).toBe("not-executed")
+    expect(result.readyLabel).toBe("Contenteditable range: 0-5 mapped")
+    expect(result.target).toBe("cover-header-label")
+    expect(result.backwardDirection).toBe("backward")
+    expect(result.styledStatus).toBe("blocked")
+    expect(result.styledReason).toBe("styled-run-needs-rich-inline-mapping")
+    expect(result.styledLabel).toBe("Contenteditable range: styled run blocked")
+    expect(result.atomicStatus).toBe("blocked")
+    expect(result.atomicReason).toBe("atomic-inline-needs-inline-node-mapping")
+    expect(result.atomicLabel).toBe("Contenteditable range: atomic inline blocked")
+    expect(result.mismatchStatus).toBe("blocked")
+    expect(result.mismatchReason).toBe("text-mismatch")
+    expect(result.mismatchLabel).toBe("Contenteditable range: text mismatch")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+  })
+
   it("plans style-aware history without recording durable history", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       const {
@@ -6595,6 +6799,7 @@ describe("template builder sandbox boundary", () => {
     const draftToolbarStateSource = readText("../examples/template-builder-sandbox/public/draftToolbarState.js")
     const draftFieldChipInlineSource = readText("../examples/template-builder-sandbox/public/draftFieldChipInline.js")
     const draftStyleHistorySource = readText("../examples/template-builder-sandbox/public/draftStyleHistory.js")
+    const draftContenteditableRangeMappingSource = readText("../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -6615,6 +6820,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.resolveDraftToolbarState")
     expect(coreBoundarySource).toContain("browser.planDraftFieldChipInline")
     expect(coreBoundarySource).toContain("browser.planDraftStyleHistory")
+    expect(coreBoundarySource).toContain("browser.mapContenteditableRange")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
@@ -6622,6 +6828,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftToolbarState.js"')
     expect(appSource).toContain('from "./draftFieldChipInline.js"')
     expect(appSource).toContain('from "./draftStyleHistory.js"')
+    expect(appSource).toContain('from "./draftContenteditableRangeMapping.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
     expect(draftLayoutPushSource).toContain("not-requested")
@@ -6646,6 +6853,12 @@ describe("template builder sandbox boundary", () => {
     expect(draftStyleHistorySource).toContain("createDraftStyleHistory")
     expect(draftStyleHistorySource).toContain("not-recorded")
     expect(draftStyleHistorySource).toContain("not-written")
+    expect(draftContenteditableRangeMappingSource).toContain("createDraftContenteditableRangeMapping")
+    expect(draftContenteditableRangeMappingSource).toContain("utf16-code-unit-offset")
+    expect(draftContenteditableRangeMappingSource).toContain("styled-run-needs-rich-inline-mapping")
+    expect(draftContenteditableRangeMappingSource).toContain("atomic-inline-needs-inline-node-mapping")
+    expect(draftContenteditableRangeMappingSource).toContain("not-bound")
+    expect(draftContenteditableRangeMappingSource).toContain("not-executed")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -6668,6 +6881,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-composition")
     expect(appSource).toContain("data-draft-compositionbar")
     expect(appSource).toContain("data-draft-ime-policy")
+    expect(appSource).toContain("data-draft-contenteditable-range")
     expect(appSource).toContain("data-draft-style-patch")
     expect(appSource).toContain("data-draft-toolbar-state")
     expect(appSource).toContain("data-draft-field-chip-inline")
