@@ -368,6 +368,9 @@ The package must remain runnable without any parent editor checkout.
 - Text engine rustybuzz raw mapping boundary converts package-local raw
   rustybuzz UTF-8 byte clusters and font units into adapter evidence UTF-16
   ranges and point units before any production binding.
+- Text engine rustybuzz smoke corpus boundary expands native rustybuzz raw
+  fixtures and evidence mapping across every Phase 107 smoke case before WASM
+  parity or ICU4X line breaking.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -442,6 +445,8 @@ The package must remain runnable without any parent editor checkout.
   local rustybuzz smoke execution before WASM loading or production binding
 - `docs/TEXT_ENGINE_RUSTYBUZZ_RAW_MAPPING_BOUNDARY.md`: Phase 114 raw
   rustybuzz evidence mapping before WASM loading or production binding
+- `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_CORPUS_BOUNDARY.md`: Phase 115 native
+  rustybuzz smoke corpus coverage before WASM parity or ICU4X line breaking
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -660,6 +665,8 @@ The package must remain runnable without any parent editor checkout.
   rustybuzz smoke
 - concrete multi-line wrap, ICU4X line breaks, WASM artifact loading, or
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
+- concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
+  production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

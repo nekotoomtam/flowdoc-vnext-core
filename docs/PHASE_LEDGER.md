@@ -121,6 +121,7 @@ Parent goal:
 | 112 | Text engine adapter package scaffold | done | `docs/TEXT_ENGINE_ADAPTER_PACKAGE_SCAFFOLD.md`; `packages/text-engine-rust-wasm`; `tsconfig.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterPackageScaffold.test.ts` |
 | 113 | Text engine rustybuzz smoke package boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_PACKAGE_BOUNDARY.md`; `packages/text-engine-rust-wasm/rust-shaper`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.sarabun.v1.json`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `.gitignore`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
 | 114 | Text engine rustybuzz raw mapping boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_RAW_MAPPING_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rustybuzzRawMapping.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzRawMapping.test.ts`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
+| 115 | Text engine rustybuzz smoke corpus boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_CORPUS_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.corpus.v1.json`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.*.v1.json`; `packages/text-engine-rust-wasm/src/rustybuzzSmokeCorpus.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokeCorpus.test.ts` |
 
 ## Current Rule
 
@@ -2953,6 +2954,36 @@ browser/worker loaders, perform multi-line wrapping, compare Thai oracle line
 breaks, bind production measurement, replace measured pagination, mutate
 package/document data, write artifacts or storage records, add backend routes,
 or change package/document schema.
+
+## Phase 115 Text Engine Rustybuzz Smoke Corpus Boundary
+
+Phase 115 expands native rustybuzz smoke coverage across every Phase 107 smoke
+case:
+
+- raw rustybuzz fixtures now cover Sarabun regular greeting, Sarabun regular
+  combining marks, Sarabun bold mixed heading text, and Noto Sans Thai currency
+  fallback text;
+- `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.corpus.v1.json`
+  lists one raw output fixture per Phase 107 case;
+- `packages/text-engine-rust-wasm/src/rustybuzzSmokeCorpus.ts` builds adapter
+  requests from Phase 107 cases plus Thai corpus samples and maps each raw
+  output through Phase 114;
+- the corpus harness records case, sample, font, style, glyph, zero-advance,
+  and repeated-cluster coverage;
+- every mapped case passes Phase 109 evidence acceptance while keeping
+  missing-WASM-digest warnings visible;
+- partial or duplicate corpus evidence is blocked;
+- the core package still does not import the adapter package, rustybuzz, WASM,
+  or font-file access;
+- `tests/textEngineRustybuzzSmokeCorpus.test.ts` proves corpus mapping,
+  acceptance, blockers, package independence, and documentation trail.
+
+This phase intentionally does not execute ICU4X, build or load WASM, run
+browser/worker loaders, perform native/WASM parity comparison, perform
+multi-line wrapping, compare Thai oracle line breaks, bind production
+measurement, replace measured pagination, mutate package/document data, write
+artifacts or storage records, add backend routes, or change package/document
+schema.
 
 ## Phase 12 Extraction Record
 

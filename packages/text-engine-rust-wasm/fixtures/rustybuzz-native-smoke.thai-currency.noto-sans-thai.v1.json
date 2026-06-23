@@ -1,0 +1,30 @@
+{
+  "source": "flowdoc-rustybuzz-native-smoke",
+  "shaperRevision": "rustybuzz-0.20.1",
+  "fontId": "noto-sans-thai-regular",
+  "fontPath": "../../assets/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf",
+  "text": "ราคา 1,234.56 บาท",
+  "textByteLength": 31,
+  "textScalarCount": 17,
+  "unitsPerEm": 1000,
+  "glyphCount": 17,
+  "glyphs": [
+    { "index": 0, "glyphId": 73, "cluster": 0, "xAdvance": 488, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 1, "glyphId": 78, "cluster": 3, "xAdvance": 406, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 2, "glyphId": 26, "cluster": 6, "xAdvance": 614, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 3, "glyphId": 78, "cluster": 9, "xAdvance": 406, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 4, "glyphId": 103, "cluster": 12, "xAdvance": 260, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 5, "glyphId": 376, "cluster": 13, "xAdvance": 572, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 6, "glyphId": 285, "cluster": 14, "xAdvance": 268, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 7, "glyphId": 426, "cluster": 15, "xAdvance": 572, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 8, "glyphId": 423, "cluster": 16, "xAdvance": 572, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 9, "glyphId": 320, "cluster": 17, "xAdvance": 572, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 10, "glyphId": 387, "cluster": 18, "xAdvance": 268, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 11, "glyphId": 319, "cluster": 19, "xAdvance": 572, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 12, "glyphId": 416, "cluster": 20, "xAdvance": 572, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 13, "glyphId": 103, "cluster": 21, "xAdvance": 260, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 14, "glyphId": 5, "cluster": 22, "xAdvance": 604, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 15, "glyphId": 78, "cluster": 25, "xAdvance": 406, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 16, "glyphId": 109, "cluster": 28, "xAdvance": 609, "yAdvance": 0, "xOffset": 0, "yOffset": 0 }
+  ]
+}

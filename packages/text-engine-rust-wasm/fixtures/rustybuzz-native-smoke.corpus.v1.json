@@ -1,0 +1,32 @@
+{
+  "manifestVersion": 1,
+  "policyRevision": "rustybuzz-native-smoke-corpus-policy-v1",
+  "sourceSmokeId": "rustybuzz-shaping-smoke-v1",
+  "rawOutputShape": "rustybuzz-native-smoke-json",
+  "fixtures": [
+    {
+      "caseId": "shape-thai-greeting-sarabun-regular",
+      "sampleId": "thai-greeting-no-space",
+      "fontId": "sarabun-regular",
+      "path": "packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.sarabun.v1.json"
+    },
+    {
+      "caseId": "shape-thai-combining-sarabun-regular",
+      "sampleId": "thai-combining-marks",
+      "fontId": "sarabun-regular",
+      "path": "packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.thai-combining.sarabun.v1.json"
+    },
+    {
+      "caseId": "shape-mixed-heading-sarabun-bold",
+      "sampleId": "mixed-report-title",
+      "fontId": "sarabun-bold",
+      "path": "packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.mixed-heading.sarabun-bold.v1.json"
+    },
+    {
+      "caseId": "shape-thai-currency-noto-fallback",
+      "sampleId": "thai-currency-number",
+      "fontId": "noto-sans-thai-regular",
+      "path": "packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.thai-currency.noto-sans-thai.v1.json"
+    }
+  ]
+}

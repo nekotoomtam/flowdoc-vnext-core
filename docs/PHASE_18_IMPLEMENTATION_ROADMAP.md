@@ -3175,6 +3175,36 @@ Acceptance:
   blocked;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 115: Text Engine Rustybuzz Smoke Corpus Boundary
+
+Goal:
+
+- run the native rustybuzz smoke/mapping lane across every Phase 107 smoke case
+  instead of a single Sarabun sample.
+
+Deliverables:
+
+- raw rustybuzz smoke fixtures for all Phase 107 smoke cases;
+- package-local raw fixture manifest;
+- corpus harness under
+  `packages/text-engine-rust-wasm/src/rustybuzzSmokeCorpus.ts`;
+- coverage summary across cases, samples, fonts, styles, glyphs,
+  zero-advance glyphs, and repeated-cluster cases;
+- tests proving all mapped cases pass Phase 109 evidence acceptance;
+- tests proving partial or duplicate corpus evidence is blocked;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- every Phase 107 smoke case has a raw rustybuzz fixture;
+- every raw fixture maps through Phase 114 into adapter evidence;
+- every mapped evidence object passes Phase 109 evidence acceptance;
+- the harness remains package-local and core `src/**` still does not import the
+  adapter package, rustybuzz, WASM, or font-file access;
+- WASM parity, ICU4X line breaks, multi-line wrapping, and production
+  measurement binding remain blocked;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

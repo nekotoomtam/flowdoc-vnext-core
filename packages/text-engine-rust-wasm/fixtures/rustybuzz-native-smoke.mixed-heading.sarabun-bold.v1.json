@@ -1,0 +1,33 @@
+{
+  "source": "flowdoc-rustybuzz-native-smoke",
+  "shaperRevision": "rustybuzz-0.20.1",
+  "fontId": "sarabun-bold",
+  "fontPath": "../../assets/fonts/Sarabun/Sarabun-Bold.ttf",
+  "text": "รายงานยอดขาย Q2 2026",
+  "textByteLength": 44,
+  "textScalarCount": 20,
+  "unitsPerEm": 1000,
+  "glyphCount": 20,
+  "glyphs": [
+    { "index": 0, "glyphId": 472, "cluster": 0, "xAdvance": 498, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 1, "glyphId": 488, "cluster": 3, "xAdvance": 510, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 2, "glyphId": 471, "cluster": 6, "xAdvance": 587, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 3, "glyphId": 438, "cluster": 9, "xAdvance": 482, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 4, "glyphId": 488, "cluster": 12, "xAdvance": 510, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 5, "glyphId": 462, "cluster": 15, "xAdvance": 650, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 6, "glyphId": 471, "cluster": 18, "xAdvance": 587, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 7, "glyphId": 485, "cluster": 21, "xAdvance": 601, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 8, "glyphId": 457, "cluster": 24, "xAdvance": 614, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 9, "glyphId": 433, "cluster": 27, "xAdvance": 632, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 10, "glyphId": 488, "cluster": 30, "xAdvance": 510, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 11, "glyphId": 471, "cluster": 33, "xAdvance": 587, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 12, "glyphId": 3, "cluster": 36, "xAdvance": 233, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 13, "glyphId": 140, "cluster": 37, "xAdvance": 690, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 14, "glyphId": 499, "cluster": 38, "xAdvance": 565, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 15, "glyphId": 3, "cluster": 39, "xAdvance": 233, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 16, "glyphId": 499, "cluster": 40, "xAdvance": 565, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 17, "glyphId": 497, "cluster": 41, "xAdvance": 565, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 18, "glyphId": 499, "cluster": 42, "xAdvance": 565, "yAdvance": 0, "xOffset": 0, "yOffset": 0 },
+    { "index": 19, "glyphId": 503, "cluster": 43, "xAdvance": 565, "yAdvance": 0, "xOffset": 0, "yOffset": 0 }
+  ]
+}
