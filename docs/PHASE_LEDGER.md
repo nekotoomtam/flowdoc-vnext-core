@@ -138,6 +138,7 @@ Parent goal:
 | 129 | Rich inline persistence/session boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `src/authoring/richInlineSessionPersistence.ts`; `src/index.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineSessionPersistence.test.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 130 | Rich inline live/exact parity audit | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineLiveExactParityAudit.test.ts` |
 | 131 | Five-lane project progress index | done | `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fiveLaneProjectProgressIndex.test.ts` |
+| 132 | ICU4X line-break evidence manifest boundary | done | `docs/THAI_LINE_BREAK_EVIDENCE_BOUNDARY.md`; `fixtures/thai-line-break-evidence.v1.json`; `src/renderer/thaiLineBreakEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/thaiLineBreakEvidence.test.ts` |
 
 ## Current Rule
 
@@ -3465,6 +3466,34 @@ This phase intentionally does not add runtime behavior, package/document schema
 changes, parent editor imports, legacy runtime adoption, backend routes,
 storage adapters, renderer artifact output, collaboration behavior, or
 production contenteditable input.
+
+## Phase 132 ICU4X Line-Break Evidence Manifest Boundary
+
+Phase 132 creates a separate Thai line-break evidence manifest before
+multi-line wrapping:
+
+- `fixtures/thai-line-break-evidence.v1.json` records ICU4X primary candidate
+  and Intl.Segmenter comparison baseline break opportunities for every Phase
+  106 Thai corpus sample;
+- the neutral `fixtures/thai-measurement-corpus.v1.json` remains source-only
+  corpus text and is not mutated with expected breakpoints;
+- `src/renderer/thaiLineBreakEvidence.ts` validates evidence ids, corpus sample
+  references, candidate roles, deterministic engine/data revisions, UTF-16
+  break offsets, final breaks, and dependency-clean execution policy;
+- Intl.Segmenter entries are blocked from becoming primary truth;
+- `docs/THAI_LINE_BREAK_EVIDENCE_BOUNDARY.md` records PASS/RISK/UNKNOWN,
+  files changed, behavior changed, tests run, risks left, and intentionally
+  not changed;
+- `tests/thaiLineBreakEvidence.test.ts` proves manifest validation, corpus
+  neutrality, duplicate/unknown sample rejection, deterministic revision
+  requirements, invalid offset blocking, dependency cleanliness, and phase
+  trail updates.
+
+This phase intentionally does not execute ICU4X, Intl.Segmenter, LibThai,
+PyThaiNLP, or AttaCut; compute line boxes; implement multi-line wrapping;
+replace pagination measurement; bind production measurement; add renderer,
+DOM, WASM, or text-engine dependencies; write artifacts; or change
+package/document schema.
 
 ## Phase 12 Extraction Record
 

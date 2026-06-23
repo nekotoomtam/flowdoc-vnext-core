@@ -3680,6 +3680,35 @@ Acceptance:
 - future phase planning can use the index to choose the next lane without
   rereading the entire phase ledger first.
 
+## Phase 132: ICU4X Line-Break Evidence Manifest Boundary
+
+Goal:
+
+- create a separate line-break evidence manifest for Thai corpus samples
+  without mutating the neutral Thai corpus fixture.
+
+Deliverables:
+
+- `fixtures/thai-line-break-evidence.v1.json` with ICU4X primary candidate and
+  Intl.Segmenter comparison baseline break opportunities;
+- `src/renderer/thaiLineBreakEvidence.ts` pure validator over corpus sample ids,
+  candidate roles, engine/data revisions, UTF-16 offsets, and break kinds;
+- `docs/THAI_LINE_BREAK_EVIDENCE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests proving corpus neutrality, unknown sample/duplicate id rejection,
+  deterministic revision requirements, Intl baseline policy, dependency
+  cleanliness, and documentation trail.
+
+Acceptance:
+
+- line-break evidence validates separately from the source Thai corpus;
+- every evidence entry references an existing corpus sample id;
+- ICU4X is the only primary deterministic candidate;
+- Intl.Segmenter is comparison baseline only;
+- offsets are UTF-16 code unit positions and include the final sample break;
+- no segmentation engine, renderer, pagination, storage, schema, or production
+  measurement behavior is introduced.
+
 ## Later Phases
 
 Goal:

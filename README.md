@@ -387,6 +387,10 @@ The package must remain runnable without any parent editor checkout.
 - Thai corpus/oracle boundary adds the first Thai measurement corpus and
   comparison contract for ICU4X, Intl.Segmenter, and Thai oracle candidates
   before segmentation execution.
+- Thai line-break evidence manifest boundary records ICU4X primary candidate
+  and Intl.Segmenter comparison break opportunities in a separate UTF-16
+  evidence fixture without mutating the neutral Thai corpus or computing line
+  boxes.
 - Rustybuzz shaping smoke boundary defines the copied-font, Thai-corpus, and
   measurement-profile-backed shape cases that a future external adapter must
   satisfy before production measurement binding.
@@ -472,6 +476,8 @@ The package must remain runnable without any parent editor checkout.
   boundary decision before adapter package or WASM build work
 - `docs/THAI_CORPUS_ORACLE_BOUNDARY.md`: Phase 106 Thai corpus/oracle boundary
   before ICU4X/Intl/Thai oracle execution
+- `docs/THAI_LINE_BREAK_EVIDENCE_BOUNDARY.md`: Phase 132 ICU4X line-break
+  evidence manifest boundary before multi-line wrapping
 - `docs/RUSTYBUZZ_SHAPING_SMOKE_BOUNDARY.md`: Phase 107 rustybuzz shaping
   smoke boundary before adapter-owned glyph fact execution
 - `docs/TEXT_ENGINE_ADAPTER_SPI_BOUNDARY.md`: Phase 108 text engine adapter
@@ -723,7 +729,7 @@ The package must remain runnable without any parent editor checkout.
 - concrete Rust/WASM adapter package, WASM build, runtime loader, or ICU4X data
   bundle beyond the Phase 105 boundary decision
 - concrete ICU4X, Intl.Segmenter, LibThai, PyThaiNLP, or AttaCut execution
-  beyond the Phase 106 corpus/oracle boundary
+  beyond the Phase 132 line-break evidence manifest boundary
 - concrete rustybuzz/HarfBuzz shaping, WASM loading, glyph fact capture, or
   production measurement binding beyond the Phase 107 shaping smoke boundary
 - concrete text engine adapter package implementation, glyph evidence capture,
@@ -741,8 +747,9 @@ The package must remain runnable without any parent editor checkout.
   rustybuzz smoke
 - concrete multi-line wrap, ICU4X line breaks, WASM artifact loading, or
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
-- concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
-  production measurement replacement beyond the Phase 115 smoke corpus harness
+- concrete native/WASM parity, ICU4X execution, multi-line wrapping, or
+  production measurement replacement beyond the Phase 132 line-break evidence
+  manifest boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 130 rich inline live/exact parity

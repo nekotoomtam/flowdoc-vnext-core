@@ -1,0 +1,273 @@
+{
+  "manifestId": "thai-line-break-evidence-v1",
+  "policyRevision": "thai-line-break-evidence-policy-v1",
+  "corpusId": "thai-measurement-corpus-v1",
+  "entries": [
+    {
+      "evidenceId": "icu4x:thai-greeting-no-space:v1",
+      "sampleId": "thai-greeting-no-space",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "icu4x-segmenter",
+        "engine": "icu4x",
+        "role": "primary-deterministic",
+        "runtimeDependent": false,
+        "engineRevision": "icu4x-line-break-planned-v1",
+        "dataRevision": "icu4x-data-planned-v1",
+        "lineBreakPolicy": "icu4x-uax14-thai-v1"
+      },
+      "breaks": [
+        { "offset": 6, "kind": "word" },
+        { "offset": 10, "kind": "word" },
+        { "offset": 13, "kind": "mandatory" }
+      ],
+      "warnings": ["seeded-evidence-not-engine-executed"]
+    },
+    {
+      "evidenceId": "intl:thai-greeting-no-space:v1",
+      "sampleId": "thai-greeting-no-space",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "intl-segmenter",
+        "engine": "intl-segmenter",
+        "role": "comparison-baseline",
+        "runtimeDependent": true,
+        "engineRevision": "ecma402-intl-segmenter-baseline-v1",
+        "dataRevision": "runtime-dependent",
+        "lineBreakPolicy": "intl-segmenter-thai-comparison-v1"
+      },
+      "breaks": [
+        { "offset": 6, "kind": "word" },
+        { "offset": 10, "kind": "word" },
+        { "offset": 13, "kind": "mandatory" }
+      ],
+      "warnings": ["runtime-dependent-comparison-baseline"]
+    },
+    {
+      "evidenceId": "icu4x:thai-combining-marks:v1",
+      "sampleId": "thai-combining-marks",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "icu4x-segmenter",
+        "engine": "icu4x",
+        "role": "primary-deterministic",
+        "runtimeDependent": false,
+        "engineRevision": "icu4x-line-break-planned-v1",
+        "dataRevision": "icu4x-data-planned-v1",
+        "lineBreakPolicy": "icu4x-uax14-thai-v1"
+      },
+      "breaks": [
+        { "offset": 5, "kind": "word" },
+        { "offset": 10, "kind": "word" },
+        { "offset": 14, "kind": "word" },
+        { "offset": 17, "kind": "mandatory" }
+      ],
+      "warnings": ["seeded-evidence-not-engine-executed"]
+    },
+    {
+      "evidenceId": "intl:thai-combining-marks:v1",
+      "sampleId": "thai-combining-marks",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "intl-segmenter",
+        "engine": "intl-segmenter",
+        "role": "comparison-baseline",
+        "runtimeDependent": true,
+        "engineRevision": "ecma402-intl-segmenter-baseline-v1",
+        "dataRevision": "runtime-dependent",
+        "lineBreakPolicy": "intl-segmenter-thai-comparison-v1"
+      },
+      "breaks": [
+        { "offset": 5, "kind": "word" },
+        { "offset": 10, "kind": "word" },
+        { "offset": 14, "kind": "word" },
+        { "offset": 17, "kind": "mandatory" }
+      ],
+      "warnings": ["runtime-dependent-comparison-baseline"]
+    },
+    {
+      "evidenceId": "icu4x:mixed-report-title:v1",
+      "sampleId": "mixed-report-title",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "icu4x-segmenter",
+        "engine": "icu4x",
+        "role": "primary-deterministic",
+        "runtimeDependent": false,
+        "engineRevision": "icu4x-line-break-planned-v1",
+        "dataRevision": "icu4x-data-planned-v1",
+        "lineBreakPolicy": "icu4x-uax14-thai-v1"
+      },
+      "breaks": [
+        { "offset": 12, "kind": "word" },
+        { "offset": 13, "kind": "space" },
+        { "offset": 15, "kind": "word" },
+        { "offset": 16, "kind": "space" },
+        { "offset": 20, "kind": "mandatory" }
+      ],
+      "warnings": ["seeded-evidence-not-engine-executed"]
+    },
+    {
+      "evidenceId": "intl:mixed-report-title:v1",
+      "sampleId": "mixed-report-title",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "intl-segmenter",
+        "engine": "intl-segmenter",
+        "role": "comparison-baseline",
+        "runtimeDependent": true,
+        "engineRevision": "ecma402-intl-segmenter-baseline-v1",
+        "dataRevision": "runtime-dependent",
+        "lineBreakPolicy": "intl-segmenter-thai-comparison-v1"
+      },
+      "breaks": [
+        { "offset": 12, "kind": "word" },
+        { "offset": 13, "kind": "space" },
+        { "offset": 15, "kind": "word" },
+        { "offset": 16, "kind": "space" },
+        { "offset": 20, "kind": "mandatory" }
+      ],
+      "warnings": ["runtime-dependent-comparison-baseline"]
+    },
+    {
+      "evidenceId": "icu4x:thai-currency-number:v1",
+      "sampleId": "thai-currency-number",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "icu4x-segmenter",
+        "engine": "icu4x",
+        "role": "primary-deterministic",
+        "runtimeDependent": false,
+        "engineRevision": "icu4x-line-break-planned-v1",
+        "dataRevision": "icu4x-data-planned-v1",
+        "lineBreakPolicy": "icu4x-uax14-thai-v1"
+      },
+      "breaks": [
+        { "offset": 4, "kind": "word" },
+        { "offset": 5, "kind": "space" },
+        { "offset": 13, "kind": "word" },
+        { "offset": 14, "kind": "space" },
+        { "offset": 17, "kind": "mandatory" }
+      ],
+      "warnings": ["seeded-evidence-not-engine-executed"]
+    },
+    {
+      "evidenceId": "intl:thai-currency-number:v1",
+      "sampleId": "thai-currency-number",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "intl-segmenter",
+        "engine": "intl-segmenter",
+        "role": "comparison-baseline",
+        "runtimeDependent": true,
+        "engineRevision": "ecma402-intl-segmenter-baseline-v1",
+        "dataRevision": "runtime-dependent",
+        "lineBreakPolicy": "intl-segmenter-thai-comparison-v1"
+      },
+      "breaks": [
+        { "offset": 4, "kind": "word" },
+        { "offset": 5, "kind": "space" },
+        { "offset": 13, "kind": "word" },
+        { "offset": 14, "kind": "space" },
+        { "offset": 17, "kind": "mandatory" }
+      ],
+      "warnings": ["runtime-dependent-comparison-baseline"]
+    },
+    {
+      "evidenceId": "icu4x:mixed-product-name:v1",
+      "sampleId": "mixed-product-name",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "icu4x-segmenter",
+        "engine": "icu4x",
+        "role": "primary-deterministic",
+        "runtimeDependent": false,
+        "engineRevision": "icu4x-line-break-planned-v1",
+        "dataRevision": "icu4x-data-planned-v1",
+        "lineBreakPolicy": "icu4x-uax14-thai-v1"
+      },
+      "breaks": [
+        { "offset": 7, "kind": "word" },
+        { "offset": 8, "kind": "space" },
+        { "offset": 11, "kind": "word" },
+        { "offset": 18, "kind": "word" },
+        { "offset": 21, "kind": "word" },
+        { "offset": 24, "kind": "word" },
+        { "offset": 27, "kind": "word" },
+        { "offset": 28, "kind": "space" },
+        { "offset": 31, "kind": "mandatory" }
+      ],
+      "warnings": ["seeded-evidence-not-engine-executed"]
+    },
+    {
+      "evidenceId": "intl:mixed-product-name:v1",
+      "sampleId": "mixed-product-name",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "intl-segmenter",
+        "engine": "intl-segmenter",
+        "role": "comparison-baseline",
+        "runtimeDependent": true,
+        "engineRevision": "ecma402-intl-segmenter-baseline-v1",
+        "dataRevision": "runtime-dependent",
+        "lineBreakPolicy": "intl-segmenter-thai-comparison-v1"
+      },
+      "breaks": [
+        { "offset": 7, "kind": "word" },
+        { "offset": 8, "kind": "space" },
+        { "offset": 11, "kind": "word" },
+        { "offset": 18, "kind": "word" },
+        { "offset": 21, "kind": "word" },
+        { "offset": 24, "kind": "word" },
+        { "offset": 27, "kind": "word" },
+        { "offset": 28, "kind": "space" },
+        { "offset": 31, "kind": "mandatory" }
+      ],
+      "warnings": ["runtime-dependent-comparison-baseline"]
+    },
+    {
+      "evidenceId": "icu4x:page-summary-label:v1",
+      "sampleId": "page-summary-label",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "icu4x-segmenter",
+        "engine": "icu4x",
+        "role": "primary-deterministic",
+        "runtimeDependent": false,
+        "engineRevision": "icu4x-line-break-planned-v1",
+        "dataRevision": "icu4x-data-planned-v1",
+        "lineBreakPolicy": "icu4x-uax14-thai-v1"
+      },
+      "breaks": [
+        { "offset": 4, "kind": "word" },
+        { "offset": 5, "kind": "space" },
+        { "offset": 10, "kind": "punctuation" },
+        { "offset": 11, "kind": "space" },
+        { "offset": 17, "kind": "mandatory" }
+      ],
+      "warnings": ["seeded-evidence-not-engine-executed"]
+    },
+    {
+      "evidenceId": "intl:page-summary-label:v1",
+      "sampleId": "page-summary-label",
+      "locale": "th",
+      "candidate": {
+        "candidateId": "intl-segmenter",
+        "engine": "intl-segmenter",
+        "role": "comparison-baseline",
+        "runtimeDependent": true,
+        "engineRevision": "ecma402-intl-segmenter-baseline-v1",
+        "dataRevision": "runtime-dependent",
+        "lineBreakPolicy": "intl-segmenter-thai-comparison-v1"
+      },
+      "breaks": [
+        { "offset": 4, "kind": "word" },
+        { "offset": 5, "kind": "space" },
+        { "offset": 10, "kind": "punctuation" },
+        { "offset": 11, "kind": "space" },
+        { "offset": 17, "kind": "mandatory" }
+      ],
+      "warnings": ["runtime-dependent-comparison-baseline"]
+    }
+  ]
+}
