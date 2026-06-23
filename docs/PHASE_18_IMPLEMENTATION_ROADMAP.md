@@ -2228,6 +2228,42 @@ Acceptance:
   routes, DOM/browser storage APIs, layout, pagination, or renderer execution;
 - package/document schema remains unchanged.
 
+## Phase 88: Durable History / Undo-redo Boundary
+
+Goal:
+
+- add a pure durable-ready authoring history snapshot boundary with undo/redo
+  metadata, without implementing a concrete history store or replay engine.
+
+Deliverables:
+
+- durable history snapshot creator in `src/authoring/durableHistory.ts`;
+- public exports for durable history source/mode constants and
+  `createVNextDurableHistorySnapshot(...)`;
+- committed and rejected authoring intent records cloned into a JSON-ready
+  snapshot;
+- non-durable selection-only records skipped with manifest counts;
+- grouped authoring history summaries;
+- undo/redo metadata for can-undo/can-redo and stack depth;
+- explicit markers that storage writes, replay execution, inverse patches,
+  full package snapshots, and selection restore are not implemented;
+- boundary tests for record cloning, non-durable filtering, rejected
+  diagnostics, redo metadata, source independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- durable snapshots carry authoring history records and groups without storing
+  package snapshots or editor/runtime state;
+- rejected diagnostic records remain auditable while selection-only records
+  stay non-durable;
+- undo/redo reports metadata only with `executionStatus = "not-run"`;
+- storage status remains `not-written`;
+- the boundary does not import storage adapters, server frameworks, parent app
+  routes, DOM/browser storage APIs, text transaction execution, operation
+  replay, layout, pagination, or renderer execution;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:
@@ -2250,7 +2286,8 @@ Possible later work:
 - exact renderer adapters;
 - repeat/collection design;
 - key history design;
-- concrete session storage adapters and durable history persistence;
+- concrete session storage adapters and durable history stores;
+- durable undo/redo replay and selection restoration;
 - collaboration storage design.
 
 ## First Recommended Implementation Phase

@@ -69,6 +69,9 @@ The package must remain runnable without any parent editor checkout.
   undo-policy metadata, coalesces repeated typing by merge key, keeps paste and
   field inserts as single groups, skips selection-only changes from durable
   history, and records rejected transaction diagnostics
+- Durable history boundary snapshots authoring intent records into
+  durable-ready JSON with undo/redo metadata while keeping storage writes,
+  inverse patch replay, package snapshots, and selection restoration deferred
 - Live layout boundary baseline turns selection, authoring history, and dirty
   scopes into viewport-aware live-layout requests, marks exact generation stale
   after content/table/node changes, and keeps measured pagination as export
@@ -308,6 +311,8 @@ The package must remain runnable without any parent editor checkout.
   smooth typing, selection, IME, dirty scopes, and checkpointing
 - `docs/TEXT_EDITING_TRANSACTION_PLAN.md`: granular text transaction direction
   for typing, split/merge, inline fields, and history grouping
+- `docs/DURABLE_HISTORY_BOUNDARY.md`: Phase 88 durable-ready authoring history
+  and undo/redo metadata boundary before durable stores or replay execution
 - `docs/LIVE_LAYOUT_AND_EXACT_GENERATION_PLAN.md`: live authoring layout versus
   exact generation layout boundary
 - `docs/KEY_REGISTRY_BINDING_PLAN.md`: field key, data snapshot, binding, and
@@ -495,8 +500,9 @@ The package must remain runnable without any parent editor checkout.
 - final pagination-aware TOC page resolution
 - concrete PDF/DOCX renderer implementation beyond measured-fragment
   consumption contracts
-- durable operation/authoring history persistence outside in-memory helpers
-- durable/full undo/redo replay beyond sandbox in-memory text patches
+- concrete durable operation/authoring history storage adapters and writes
+- durable/full undo/redo execution beyond metadata and sandbox in-memory text
+  patches
 - product-level visible editor acceptance smokes beyond the sandbox render path
 - durable browser cache persistence, full structural packet application,
   node-aware production scroll anchoring, and true virtualized renderer

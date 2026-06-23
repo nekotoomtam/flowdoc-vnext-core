@@ -94,6 +94,7 @@ Parent goal:
 | 85 | WYSIWYG close audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 86 | Generation API route boundary | done | `docs/GENERATION_API_ROUTE_BOUNDARY.md`; `src/generation/apiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/generationApiRoute.test.ts` |
 | 87 | Session storage boundary | done | `docs/SESSION_STORAGE_BOUNDARY.md`; `src/authoring/sessionStorage.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/sessionStorage.test.ts` |
+| 88 | Durable history / undo-redo boundary | done | `docs/DURABLE_HISTORY_BOUNDARY.md`; `src/authoring/durableHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/durableHistory.test.ts` |
 
 ## Current Rule
 
@@ -2126,6 +2127,43 @@ persistence, durable authoring history, undo/redo persistence, offline replay,
 collaboration, artifact storage, exact layout execution, renderer adapter
 output, backend authentication, rate limiting, or package/document schema
 changes.
+
+## Phase 88 Durable History / Undo-redo Boundary
+
+Phase 88 prepares authoring intent history for future durable persistence while
+keeping undo/redo execution out of the core storage boundary:
+
+- `src/authoring/durableHistory.ts` owns
+  `VNEXT_DURABLE_HISTORY_SOURCE`, `VNEXT_DURABLE_HISTORY_MODE`, and
+  `createVNextDurableHistorySnapshot(...)`;
+- the snapshot carries JSON-cloned committed and rejected authoring intent
+  records, grouped authoring history summaries, optional redo records, and a
+  manifest;
+- non-durable selection-only records are skipped and counted instead of being
+  persisted;
+- the manifest reports record counts, redo record counts, undoable counts,
+  diagnostic counts, skipped non-durable counts, group counts, and
+  `storageStatus = "not-written"`;
+- undo/redo metadata reports can-undo/can-redo plus stack depth while keeping
+  `executionStatus = "not-run"`, inverse patches `not-stored`, full package
+  snapshots `false`, and selection restore `not-persisted`;
+- `src/index.ts` exports the durable history boundary through the public
+  package entry;
+- `docs/DURABLE_HISTORY_BOUNDARY.md` records the ownership, truth boundary,
+  acceptance evidence, and non-goals;
+- `tests/durableHistory.test.ts` proves record cloning, non-durable filtering,
+  rejected diagnostic retention, redo metadata, source independence from
+  storage adapters, parent runtime, DOM, routes, transaction execution,
+  operation replay, layout, and pagination, plus README/roadmap/ledger
+  traceability.
+
+This phase intentionally does not implement filesystem/database/browser
+storage, a concrete server route, durable history writes, full undo/redo
+execution, inverse patch generation, operation-history unification, structural
+undo/redo replay, cross-session replay, focus/caret/selection restoration,
+offline replay, collaboration, exact layout execution, renderer adapter output,
+artifact storage, backend authentication, rate limiting, or package/document
+schema changes.
 
 ## Phase 12 Extraction Record
 
