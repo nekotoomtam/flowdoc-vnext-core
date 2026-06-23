@@ -62,6 +62,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftImePolicy.js",
       "../examples/template-builder-sandbox/public/draftInlineStylePatch.js",
       "../examples/template-builder-sandbox/public/draftToolbarState.js",
+      "../examples/template-builder-sandbox/public/draftFieldChipInline.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -160,6 +161,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.hardenDraftIme")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftInlineStylePatch")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveDraftToolbarState")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftFieldChipInline")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
@@ -1661,6 +1663,7 @@ describe("template builder sandbox boundary", () => {
     const draftImePolicySource = readText("../examples/template-builder-sandbox/public/draftImePolicy.js")
     const draftInlineStylePatchSource = readText("../examples/template-builder-sandbox/public/draftInlineStylePatch.js")
     const draftToolbarStateSource = readText("../examples/template-builder-sandbox/public/draftToolbarState.js")
+    const draftFieldChipInlineSource = readText("../examples/template-builder-sandbox/public/draftFieldChipInline.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -1702,6 +1705,7 @@ describe("template builder sandbox boundary", () => {
     const draftImePolicyDoc = readText("../docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md")
     const draftInlineStylePatchDoc = readText("../docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md")
     const draftToolbarStateDoc = readText("../docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md")
+    const draftFieldChipInlineDoc = readText("../docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md")
     const readmeDoc = readText("../README.md")
     const phaseLedgerDoc = readText("../docs/PHASE_LEDGER.md")
     const roadmapDoc = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
@@ -1716,6 +1720,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftImePolicy.js"')
     expect(appSource).toContain('from "./draftInlineStylePatch.js"')
     expect(appSource).toContain('from "./draftToolbarState.js"')
+    expect(appSource).toContain('from "./draftFieldChipInline.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
@@ -1959,6 +1964,16 @@ describe("template builder sandbox boundary", () => {
     expect(draftToolbarStateSource).not.toContain("document.")
     expect(draftToolbarStateSource).not.toContain("querySelector")
     expect(draftToolbarStateSource).not.toContain("fetch(")
+    expect(draftFieldChipInlineSource).toContain("DRAFT_FIELD_CHIP_INLINE_SOURCE")
+    expect(draftFieldChipInlineSource).toContain("DRAFT_FIELD_CHIP_INLINE_MODE")
+    expect(draftFieldChipInlineSource).toContain("createDraftFieldChipInline")
+    expect(draftFieldChipInlineSource).toContain("draftFieldChipInlineLabel")
+    expect(draftFieldChipInlineSource).toContain("inline.fieldRef.insert")
+    expect(draftFieldChipInlineSource).toContain("not-applied")
+    expect(draftFieldChipInlineSource).toContain("not-run")
+    expect(draftFieldChipInlineSource).not.toContain("document.")
+    expect(draftFieldChipInlineSource).not.toContain("querySelector")
+    expect(draftFieldChipInlineSource).not.toContain("fetch(")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -2296,30 +2311,38 @@ describe("template builder sandbox boundary", () => {
     expect(draftToolbarStateDoc).toContain("public/draftToolbarState.js")
     expect(draftToolbarStateDoc).toContain("toolbar state boundary")
     expect(draftToolbarStateDoc).toContain("does not dispatch toolbar commands")
+    expect(draftFieldChipInlineDoc).toContain("Status: Phase 83 implementation boundary.")
+    expect(draftFieldChipInlineDoc).toContain("public/draftFieldChipInline.js")
+    expect(draftFieldChipInlineDoc).toContain("field chip inline boundary")
+    expect(draftFieldChipInlineDoc).toContain("does not insert field refs")
     expect(readmeDoc).toContain("Structural Runtime close audit records PASS/RISK/UNKNOWN status")
     expect(readmeDoc).toContain("Draft runtime module boundary")
     expect(readmeDoc).toContain("Text draft layout push boundary")
     expect(readmeDoc).toContain("Draft IME hardening boundary")
     expect(readmeDoc).toContain("Rich inline style patch boundary")
     expect(readmeDoc).toContain("Toolbar state boundary")
+    expect(readmeDoc).toContain("Field chip inline boundary")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md")
+    expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md")
     expect(phaseLedgerDoc).toContain("| 77 | Structural Runtime close audit | done |")
     expect(phaseLedgerDoc).toContain("| 78 | Draft runtime module boundary | done |")
     expect(phaseLedgerDoc).toContain("| 79 | Text draft layout push boundary | done |")
     expect(phaseLedgerDoc).toContain("| 80 | Draft IME hardening boundary | done |")
     expect(phaseLedgerDoc).toContain("| 81 | Rich inline style patch boundary | done |")
     expect(phaseLedgerDoc).toContain("| 82 | Toolbar state boundary | done |")
+    expect(phaseLedgerDoc).toContain("| 83 | Field chip inline boundary | done |")
     expect(roadmapDoc).toContain("## Phase 77: Structural Runtime Close Audit")
     expect(roadmapDoc).toContain("## Phase 78: Draft Runtime Module Boundary")
     expect(roadmapDoc).toContain("## Phase 79: Text Draft Layout Push Boundary")
     expect(roadmapDoc).toContain("## Phase 80: Draft IME Hardening Boundary")
     expect(roadmapDoc).toContain("## Phase 81: Rich Inline Style Patch Boundary")
     expect(roadmapDoc).toContain("## Phase 82: Toolbar State Boundary")
+    expect(roadmapDoc).toContain("## Phase 83: Field Chip Inline Boundary")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
@@ -6254,6 +6277,144 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingEnabled).toBe(0)
   })
 
+  it("models field chip inline requests without inserting field refs", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const {
+        DRAFT_FIELD_CHIP_INLINE_MODE,
+        DRAFT_FIELD_CHIP_INLINE_SOURCE,
+        createDraftFieldChipInline,
+        draftFieldChipInlineLabel,
+      } = await import("./public/draftFieldChipInline.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const fields = [
+        { hasData: true, key: "customer.name", label: "Customer", type: "string", usageCount: 2 },
+        { hasData: false, key: "report.date", label: "Report date", type: "date", usageCount: 1 },
+      ];
+      const idle = createDraftFieldChipInline(null, { fields });
+      const draft = createDraftStateForNode(node, { baseRevision: 13 });
+      const ready = createDraftFieldChipInline(draft, {
+        fields,
+        selectedFieldKey: "report.date",
+      });
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "field-chip-test",
+      }).draft;
+      const rangeGuard = createDraftFieldChipInline(rangedDraft, { fields });
+      const noFields = createDraftFieldChipInline(draft, { fields: [] });
+      const composingDraft = updateDraftComposition(draft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 11,
+        selectionSource: "compositionstart",
+        selectionStart: 11,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftFieldChipInline(composingDraft, { fields });
+
+      console.log(JSON.stringify({
+        composingCanRequest: composing.canRequestInsert,
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_FIELD_CHIP_INLINE_MODE,
+          source: DRAFT_FIELD_CHIP_INLINE_SOURCE,
+        },
+        idleLabel: draftFieldChipInlineLabel(idle),
+        idleStatus: idle.status,
+        noFieldsLabel: draftFieldChipInlineLabel(noFields),
+        noFieldsReason: noFields.reason,
+        rangeGuardCanRequest: rangeGuard.canRequestInsert,
+        rangeGuardLabel: draftFieldChipInlineLabel(rangeGuard),
+        rangeGuardReason: rangeGuard.reason,
+        rangeGuardStatus: rangeGuard.status,
+        readyCanRequest: ready.canRequestInsert,
+        readyCommand: ready.command,
+        readyCore: ready.coreTransaction.status,
+        readyExact: ready.exactGeneration.status,
+        readyFieldCount: ready.fieldCount,
+        readyHistory: ready.history.status,
+        readyInsertionPosition: ready.insertion.position,
+        readyInsertionStatus: ready.insertion.status,
+        readyLabel: draftFieldChipInlineLabel(ready),
+        readyLive: ready.liveLayout.status,
+        readySelected: ready.chips.find((chip) => chip.selected).key,
+        readyStatus: ready.status,
+        target: ready.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingCanRequest: boolean
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      noFieldsLabel: string
+      noFieldsReason: string
+      rangeGuardCanRequest: boolean
+      rangeGuardLabel: string
+      rangeGuardReason: string
+      rangeGuardStatus: string
+      readyCanRequest: boolean
+      readyCommand: string
+      readyCore: string
+      readyExact: string
+      readyFieldCount: number
+      readyHistory: string
+      readyInsertionPosition: number
+      readyInsertionStatus: string
+      readyLabel: string
+      readyLive: string
+      readySelected: string
+      readyStatus: string
+      target: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-field-chip-inline")
+    expect(result.constants.mode).toBe("browser-local-field-chip-inline-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Field chips: idle")
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyCanRequest).toBe(true)
+    expect(result.readyCommand).toBe("inline.fieldRef.insert")
+    expect(result.readyFieldCount).toBe(2)
+    expect(result.readySelected).toBe("report.date")
+    expect(result.readyInsertionPosition).toBe(11)
+    expect(result.readyInsertionStatus).toBe("not-applied")
+    expect(result.readyCore).toBe("not-run")
+    expect(result.readyHistory).toBe("not-recorded")
+    expect(result.readyLive).toBe("not-requested")
+    expect(result.readyExact).toBe("deferred-until-commit")
+    expect(result.readyLabel).toBe("Field chips: 2 ready")
+    expect(result.target).toBe("cover-header-label")
+    expect(result.rangeGuardStatus).toBe("guarded")
+    expect(result.rangeGuardReason).toBe("range-selection-needs-inline-mapping")
+    expect(result.rangeGuardCanRequest).toBe(false)
+    expect(result.rangeGuardLabel).toBe("Field chips: cursor only")
+    expect(result.noFieldsReason).toBe("no-field-catalog")
+    expect(result.noFieldsLabel).toBe("Field chips: no fields")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+    expect(result.composingCanRequest).toBe(false)
+  })
+
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
@@ -6261,6 +6422,7 @@ describe("template builder sandbox boundary", () => {
     const draftImePolicySource = readText("../examples/template-builder-sandbox/public/draftImePolicy.js")
     const draftInlineStylePatchSource = readText("../examples/template-builder-sandbox/public/draftInlineStylePatch.js")
     const draftToolbarStateSource = readText("../examples/template-builder-sandbox/public/draftToolbarState.js")
+    const draftFieldChipInlineSource = readText("../examples/template-builder-sandbox/public/draftFieldChipInline.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -6279,11 +6441,13 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.hardenDraftIme")
     expect(coreBoundarySource).toContain("browser.planDraftInlineStylePatch")
     expect(coreBoundarySource).toContain("browser.resolveDraftToolbarState")
+    expect(coreBoundarySource).toContain("browser.planDraftFieldChipInline")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
     expect(appSource).toContain('from "./draftInlineStylePatch.js"')
     expect(appSource).toContain('from "./draftToolbarState.js"')
+    expect(appSource).toContain('from "./draftFieldChipInline.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
     expect(draftLayoutPushSource).toContain("not-requested")
@@ -6301,6 +6465,10 @@ describe("template builder sandbox boundary", () => {
     expect(draftToolbarStateSource).toContain("unknown-until-rich-inline-mapping")
     expect(draftToolbarStateSource).toContain("not-wired")
     expect(draftToolbarStateSource).toContain("not-run")
+    expect(draftFieldChipInlineSource).toContain("createDraftFieldChipInline")
+    expect(draftFieldChipInlineSource).toContain("inline.fieldRef.insert")
+    expect(draftFieldChipInlineSource).toContain("not-applied")
+    expect(draftFieldChipInlineSource).toContain("not-run")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -6325,6 +6493,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-ime-policy")
     expect(appSource).toContain("data-draft-style-patch")
     expect(appSource).toContain("data-draft-toolbar-state")
+    expect(appSource).toContain("data-draft-field-chip-inline")
     expect(appSource).toContain("data-draft-command-summary")
     expect(appSource).toContain("data-draft-command-selected")
     expect(appSource).toContain("data-draft-command-text")

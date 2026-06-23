@@ -2060,6 +2060,46 @@ Acceptance:
   style-aware history, backend API, renderer output, or package/document schema
   change is claimed.
 
+## Phase 83: Field Chip Inline Boundary
+
+Goal:
+
+- surface catalog-backed field chip inline intent for active WYSIWYG draft
+  carets without inserting authored `field-ref` nodes or changing package
+  truth.
+
+Deliverables:
+
+- browser-safe field chip inline module in `public/draftFieldChipInline.js`;
+- field chip inline source/mode constants;
+- bounded field catalog normalization from snapshot field summaries;
+- selected field key marking;
+- caret insertion position facts;
+- idle/guarded/composing/ready status and reason derivation;
+- explicit `command = "inline.fieldRef.insert"`;
+- explicit `insertion.status = "not-applied"`;
+- explicit `coreTransaction.status = "not-run"`;
+- explicit `history.status = "not-recorded"`;
+- explicit `liveLayout.status = "not-requested"`;
+- explicit `exactGeneration.status = "deferred-until-commit"`;
+- canvas, inspector, and status-bar consumption through
+  `data-draft-field-chip-inline`;
+- action lane for `browser.planDraftFieldChipInline`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- field chip inline state can run in Node without DOM access;
+- snapshot field summaries can be normalized into bounded chip summaries;
+- caret selections can produce ready field chip insert-request summaries;
+- non-collapsed selected ranges remain guarded until rich inline range mapping
+  exists;
+- active composition blocks field chip requests;
+- insertion, core transactions, history, live layout, and exact output remain
+  unrun;
+- no visible field picker, field-ref insertion, key history, backend API,
+  renderer output, or package/document schema change is claimed.
+
 ## Later Phases
 
 Goal:

@@ -108,6 +108,10 @@ import {
   createDraftToolbarState,
   draftToolbarStateLabel as draftToolbarStateLabelState,
 } from "./draftToolbarState.js"
+import {
+  createDraftFieldChipInline,
+  draftFieldChipInlineLabel as draftFieldChipInlineLabelState,
+} from "./draftFieldChipInline.js"
 
 const app = document.querySelector("#app")
 
@@ -116,6 +120,7 @@ const state = {
   bridgeMessage: "",
   draft: createIdleDraftState(),
   draftCommandText: "",
+  draftFieldChipInline: createDraftFieldChipInline(createIdleDraftState()),
   draftImePolicy: createDraftImePolicy(createIdleDraftState()),
   draftInlineStylePatch: createDraftInlineStylePatch(createIdleDraftState()),
   draftLayoutPush: createDraftLayoutPush(createIdleDraftState()),
@@ -841,6 +846,16 @@ function draftToolbarStateLabel() {
   return draftToolbarStateLabelState(state.draftToolbarState)
 }
 
+function updateDraftFieldChipInline() {
+  state.draftFieldChipInline = createDraftFieldChipInline(state.draft, {
+    fields: state.snapshot?.fields,
+  })
+}
+
+function draftFieldChipInlineLabel() {
+  return draftFieldChipInlineLabelState(state.draftFieldChipInline)
+}
+
 function setDraftSelectionRange(start, end, options = {}) {
   const result = updateDraftSelectionRange(state.draft, start, end, options)
   state.draft = result.draft
@@ -1001,6 +1016,7 @@ function syncDraftDomState() {
   updateDraftImePolicy()
   updateDraftInlineStylePatch()
   updateDraftToolbarState()
+  updateDraftFieldChipInline()
   updateDraftLayoutPush()
   const status = draftStatusLabel()
   const selection = normalizedDraftSelection()
@@ -1049,6 +1065,10 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-toolbar-state]").forEach((target) => {
     target.textContent = draftToolbarStateLabel()
     target.dataset.state = state.draftToolbarState.status
+  })
+  app.querySelectorAll("[data-draft-field-chip-inline]").forEach((target) => {
+    target.textContent = draftFieldChipInlineLabel()
+    target.dataset.state = state.draftFieldChipInline.status
   })
   app.querySelectorAll("[data-draft-command-target]").forEach((target) => {
     target.textContent = commandContext.targetTextBlockId || "none"
@@ -1376,6 +1396,7 @@ function renderCanvasNode(node) {
             <span data-draft-ime-policy data-state="${escapeHtml(state.draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</span>
             <span data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</span>
             <span data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</span>
+            <span data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</span>
             <div class="canvas-draft-actions">
               <button
                 type="button"
@@ -1694,6 +1715,7 @@ function renderInspector(snapshot) {
             <dt>IME guard</dt><dd data-draft-ime-policy data-state="${escapeHtml(draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</dd>
             <dt>Style patch</dt><dd data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</dd>
             <dt>Toolbar</dt><dd data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</dd>
+            <dt>Field chips</dt><dd data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</dd>
             <dt>Command</dt><dd data-draft-command-summary>${escapeHtml(draftCommandSummary())}</dd>
             <dt>Layout</dt><dd data-draft-layout-push data-state="${escapeHtml(state.draftLayoutPush.status)}">${escapeHtml(draftLayoutPushLabel())}</dd>
             <dt>Surface</dt><dd data-draft-command-surface>${escapeHtml(commandContext.commandSurface)}</dd>
@@ -2015,6 +2037,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-ime-policy>${escapeHtml(draftImePolicyLabel())}</span>
       <span data-draft-style-patch>${escapeHtml(draftInlineStylePatchLabel())}</span>
       <span data-draft-toolbar-state>${escapeHtml(draftToolbarStateLabel())}</span>
+      <span data-draft-field-chip-inline>${escapeHtml(draftFieldChipInlineLabel())}</span>
       <span data-draft-commandbar>Command: ${escapeHtml(draftCommandSummary())}</span>
       <span data-draft-layout-push>${escapeHtml(draftLayoutPushLabel())}</span>
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
@@ -2548,6 +2571,7 @@ function render(options = {}) {
   updateDraftImePolicy()
   updateDraftInlineStylePatch()
   updateDraftToolbarState()
+  updateDraftFieldChipInline()
   updateDraftLayoutPush()
   const renderModel = createStoreBackedRenderModel(snapshot, state.runtimeCache)
   state.renderModel = renderModel

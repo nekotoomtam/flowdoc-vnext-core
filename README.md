@@ -243,6 +243,9 @@ The package must remain runnable without any parent editor checkout.
 - Toolbar state boundary exposes browser-local style control readiness through
   `data-draft-toolbar-state` while keeping toolbar dispatch not-wired until a
   later command phase
+- Field chip inline boundary surfaces catalog-backed field chip insertion
+  intent through `data-draft-field-chip-inline` while keeping field-ref
+  insertion not-run until a later rich inline execution phase
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -428,6 +431,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local rich inline style patch request boundary
 - `docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md`: Phase 82
   browser-local toolbar state boundary
+- `docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md`: Phase 83
+  browser-local field chip inline boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

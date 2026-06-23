@@ -89,6 +89,7 @@ Parent goal:
 | 80 | Draft IME hardening boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftImePolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 81 | Rich inline style patch boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftInlineStylePatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 82 | Toolbar state boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 83 | Field chip inline boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInline.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1965,6 +1966,42 @@ style, implement rich inline range mapping, add field/key chips, create
 style-aware history records, request live layout, run exact layout, alter
 renderer output, add backend API routes, add storage/collaboration behavior, or
 change package/document schema.
+
+## Phase 83 Field Chip Inline Boundary
+
+Phase 83 surfaces catalog-backed field chip inline intent for active WYSIWYG
+draft carets without inserting authored `field-ref` nodes or changing package
+truth:
+
+- `examples/template-builder-sandbox/public/draftFieldChipInline.js` owns
+  `DRAFT_FIELD_CHIP_INLINE_SOURCE`, `DRAFT_FIELD_CHIP_INLINE_MODE`,
+  `createDraftFieldChipInline(...)`, and `draftFieldChipInlineLabel(...)`;
+- field chip summaries normalize bounded snapshot field facts, selected field
+  key marking, caret insertion position, target text-block id, and chip count;
+- summaries guard non-collapsed ranges with
+  `range-selection-needs-inline-mapping`;
+- summaries explicitly keep `command = "inline.fieldRef.insert"`,
+  `insertion.status = "not-applied"`, `coreTransaction.status = "not-run"`,
+  `history.status = "not-recorded"`, `liveLayout.status = "not-requested"`,
+  and `exactGeneration.status = "deferred-until-commit"`;
+- `examples/template-builder-sandbox/public/app.js` renders
+  `data-draft-field-chip-inline` in the canvas draft footer, inspector draft
+  panel, and status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes the
+  `browser.planDraftFieldChipInline` action lane;
+- `docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md` records the field chip
+  inline boundary, truth model, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module can run in
+  Node, normalizes field catalogs, reports ready summaries for caret
+  selections, guards selected ranges and active composition, leaves
+  insertion/core/history/live/exact work unrun, and guards app-shell wiring.
+
+This phase intentionally does not insert field refs, add a visible field
+picker, modify draft text with chip placeholders, implement rich inline range
+mapping, edit field keys, migrate key history, create style-aware history
+records, request live layout, run exact layout, alter renderer output, add
+backend API routes, add storage/collaboration behavior, or change
+package/document schema.
 
 ## Phase 12 Extraction Record
 
