@@ -455,6 +455,9 @@ The package must remain runnable without any parent editor checkout.
   for boot, visible range, scroll, selection, structural command, rich inline
   draft, and rich inline commit operations while keeping browser-driver and
   production benchmark claims unbound.
+- WYSIWYG primary input decision gate recommends hybrid managed cards with a
+  hardened contenteditable island for the active text block, while explicitly
+  rejecting full-document contenteditable as the v1 production primary input.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -554,6 +557,8 @@ The package must remain runnable without any parent editor checkout.
   claims
 - `docs/BROWSER_TIMING_SMOKE_BOUNDARY.md`: Phase 142 dependency-free sandbox
   browser timing smoke before real browser-driver benchmark commitments
+- `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md`: Phase 143 primary input
+  decision gate before implementing production WYSIWYG input
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

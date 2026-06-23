@@ -149,6 +149,7 @@ Parent goal:
 | 140 | Storage adapter interface boundary | done | `docs/STORAGE_ADAPTER_BOUNDARY.md`; `src/persistence/storageAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageAdapter.test.ts` |
 | 141 | Product editor integration smoke boundary | done | `docs/PRODUCT_EDITOR_INTEGRATION_SMOKE_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/productEditorIntegrationSmoke.test.ts` |
 | 142 | Browser timing smoke boundary | done | `docs/BROWSER_TIMING_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/scripts/browser-smoke.mjs`; `examples/template-builder-sandbox/package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/browserTimingSmoke.test.ts` |
+| 143 | WYSIWYG primary input decision gate | done | `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygPrimaryInputDecisionGate.test.ts` |
 
 ## Current Rule
 
@@ -3718,6 +3719,25 @@ This phase intentionally does not add a browser driver dependency, claim
 production browser performance readiness, set strict production thresholds,
 perform screenshot/interaction QA, produce renderer artifacts, write storage,
 add backend routes, or change package/document schema.
+
+## Phase 143 WYSIWYG Primary Input Decision Gate
+
+Phase 143 records the first production WYSIWYG input recommendation:
+
+- `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md` compares full-document
+  contenteditable, textarea draft island, renderer-owned segment stream, and
+  hybrid managed cards with a hardened contenteditable island;
+- the matrix evaluates Thai IME, caret/range mapping, field chips, rich inline
+  style, copy/paste/delete, undo/redo, exact renderer parity, collaboration
+  readiness, and implementation risk;
+- the recommended v1 path is hybrid managed cards with a hardened
+  contenteditable island for the active text block;
+- the decision explicitly rejects full-document contenteditable as the v1
+  production primary input.
+
+This phase intentionally does not implement production input, rewrite the
+editor, add collaboration behavior, write storage, add backend routes, produce
+renderer artifacts, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

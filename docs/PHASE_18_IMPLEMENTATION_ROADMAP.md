@@ -4000,6 +4000,32 @@ Acceptance:
   artifact output, storage/backend route, collaboration behavior, or
   package/document schema change is introduced.
 
+## Phase 143: WYSIWYG Primary Input Decision Gate
+
+Goal:
+
+- decide the first production WYSIWYG primary input direction without
+  implementing it.
+
+Deliverables:
+
+- `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md`;
+- `tests/wysiwygPrimaryInputDecisionGate.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- decision matrix compares full-document contenteditable, textarea draft
+  island, renderer-owned segment stream, and hybrid managed cards with a
+  hardened contenteditable island;
+- criteria include Thai IME, caret/range mapping, field chips, rich inline
+  style, copy/paste/delete, undo/redo, exact renderer parity, collaboration
+  readiness, and implementation risk;
+- recommendation is explicit;
+- no production input implementation, editor rewrite, collaboration behavior,
+  storage/backend route, renderer artifact output, or package/document schema
+  change is introduced.
+
 ## Later Phases
 
 Goal:
