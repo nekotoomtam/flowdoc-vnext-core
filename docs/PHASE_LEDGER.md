@@ -135,6 +135,7 @@ Parent goal:
 | 126 | WYSIWYG execution close audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygExecutionCloseAudit.test.ts` |
 | 127 | Rich inline undo/redo replay boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_UNDO_REDO_REPLAY_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 128 | Production contenteditable surface hardening boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSurfaceHardening.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 129 | Rich inline persistence/session boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `src/authoring/richInlineSessionPersistence.ts`; `src/index.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineSessionPersistence.test.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3375,6 +3376,35 @@ it becomes the primary editing input:
 This phase intentionally does not add package/document schema changes, parent
 editor imports, legacy runtime adoption, durable persistence/session writes,
 collaboration behavior, renderer artifact output, ICU4X execution, or
+WASM/text-engine measurement replacement.
+
+## Phase 129 Rich Inline Persistence/Session Boundary
+
+Phase 129 prepares rich inline commits for future session persistence without
+implementing a storage adapter:
+
+- `src/authoring/richInlineSessionPersistence.ts` owns
+  `createVNextRichInlineSessionPersistenceRecord(...)` and
+  `createVNextRichInlineReplayPatchRecord(...)`;
+- the record composes a Phase 87 canonical package session storage record and a
+  Phase 88 durable history snapshot;
+- rich inline replay patches store before/after vNext inline children, target
+  text block id, group id, history sequence, field-key summary, validation
+  status, and storage/replay statuses;
+- invalid replay patch payloads report validation issues without running replay;
+- `src/index.ts` exports the rich inline session persistence boundary;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `sandbox.planRichInlineSessionPersistence`;
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md` records
+  PASS, FAIL/BLOCKER, RISK, UNKNOWN, files changed, behavior changed, tests run,
+  risks left, and intentionally not changed;
+- `tests/richInlineSessionPersistence.test.ts` proves package/history/replay
+  payload composition, invalid replay patch reporting, JSON safety, source
+  independence, and phase-trail updates.
+
+This phase intentionally does not add package/document schema changes, parent
+editor imports, legacy runtime adoption, durable storage writes, backend API
+routes, collaboration behavior, renderer artifact output, ICU4X execution, or
 WASM/text-engine measurement replacement.
 
 ## Phase 12 Extraction Record

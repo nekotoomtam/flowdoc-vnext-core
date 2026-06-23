@@ -2214,6 +2214,13 @@
       "reason": "sandbox undo/redo replays rich inline commit patches through the vNext-native rich inline replacement boundary"
     },
     {
+      "action": "sandbox.planRichInlineSessionPersistence",
+      "label": "Rich session",
+      "lane": "commit",
+      "status": "wired",
+      "reason": "core rich inline session persistence records can bind package snapshots, durable history, and replay patches before storage writes"
+    },
+    {
       "action": "browser.planDraftStyleHistory",
       "label": "Style history",
       "lane": "immediate",

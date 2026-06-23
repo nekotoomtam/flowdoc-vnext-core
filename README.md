@@ -658,6 +658,8 @@ The package must remain runnable without any parent editor checkout.
   rich inline undo/redo replay boundary for sandbox bridge history patches
 - `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`: Phase
   128 production contenteditable surface hardening boundary
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`: Phase
+  129 rich inline persistence/session record boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -729,9 +731,9 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
-- concrete primary contenteditable editing input, persistence-backed rich inline
-  commits, collaboration, renderer output, or WYSIWYG production editing beyond
-  the Phase 128 contenteditable surface hardening boundary
+- concrete primary contenteditable editing input, rich inline storage adapter
+  writes/routes, collaboration, renderer output, or WYSIWYG production editing
+  beyond the Phase 129 rich inline session persistence boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

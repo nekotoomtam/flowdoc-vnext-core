@@ -3590,6 +3590,38 @@ Acceptance:
 - package mutation, persistence, collaboration, renderer output, and
   WASM/text-engine replacement remain out of scope.
 
+## Phase 129: Rich Inline Persistence / Session Boundary
+
+Goal:
+
+- prepare rich inline commits and replay patches for future session
+  persistence without implementing a concrete storage adapter.
+
+Deliverables:
+
+- core record creator at
+  `src/authoring/richInlineSessionPersistence.ts`;
+- rich inline replay patch records with before/after vNext inline children,
+  target text block id, group id, history sequence, field-key summary,
+  validation status, and not-run replay status;
+- composition with Phase 87 canonical package session storage records and
+  Phase 88 durable history snapshots;
+- public export through `src/index.ts`;
+- action lane for `sandbox.planRichInlineSessionPersistence`;
+- boundary doc in
+  `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`;
+- tests proving package/history/replay payload composition, invalid replay
+  patch reporting, JSON safety, source independence, and phase-trail updates.
+
+Acceptance:
+
+- accepted rich inline commits can produce a JSON-safe persistence record that
+  contains package truth, durable authoring history, and rich replay patches;
+- invalid replay patch payloads are reported without running replay;
+- storage writes, backend routes, replay execution, selection restoration,
+  collaboration, renderer output, and WASM/text-engine replacement remain out
+  of scope.
+
 ## Later Phases
 
 Goal:
