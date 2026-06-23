@@ -435,6 +435,10 @@ The package must remain runnable without any parent editor checkout.
   rendered artifacts, including profile ids, media metadata, byte length,
   sha256, storage key, bounded failure summaries, and explicit not-written
   storage status.
+- Artifact API route boundary defines pure HTTP-shaped contracts for artifact
+  generation requests, status checks, session artifact lists, and download
+  metadata without starting a server, reading storage, executing auth, or
+  streaming bytes.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -523,6 +527,8 @@ The package must remain runnable without any parent editor checkout.
   PDF artifact spike package before storage or production fidelity
 - `docs/ARTIFACT_MANIFEST_BOUNDARY.md`: Phase 137 artifact manifest and
   storage-record boundary before production storage adapters
+- `docs/ARTIFACT_API_ROUTE_BOUNDARY.md`: Phase 138 backend artifact route
+  contract boundary before concrete server routes or storage lookups
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

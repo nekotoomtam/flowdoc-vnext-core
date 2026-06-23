@@ -3858,6 +3858,34 @@ Acceptance:
   package import, production storage behavior, or package/document schema
   change is introduced.
 
+## Phase 138: Backend Artifact Route Contract Boundary
+
+Goal:
+
+- define route-safe response contracts for requesting, checking, listing, and
+  retrieving artifact metadata without concrete server routes or storage.
+
+Deliverables:
+
+- `src/generation/artifactApiRoute.ts`;
+- `docs/ARTIFACT_API_ROUTE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests for valid/invalid route shapes, idempotency key representation,
+  permission placeholders, retry-safe status responses, metadata-only download
+  responses, dependency cleanliness, and documentation trail.
+
+Acceptance:
+
+- artifact generation requests create planned manifest responses with
+  idempotency keys;
+- status, list, and download metadata contracts consume caller-supplied
+  artifact manifests without storage lookup;
+- permission context is required but remains `checked: false`;
+- retry-safe polling metadata is explicit;
+- no server, network call, storage read/write, renderer execution, auth/authz
+  implementation, byte streaming, or package/document schema change is
+  introduced.
+
 ## Later Phases
 
 Goal:

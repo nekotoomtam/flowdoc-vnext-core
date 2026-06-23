@@ -144,6 +144,7 @@ Parent goal:
 | 135 | Renderer-backed text measurement provider bridge | done | `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/rendererBackedTextEngineProvider.test.ts` |
 | 136 | External minimal PDF artifact spike package | done | `docs/PDF_RENDERER_SPIKE_PACKAGE_BOUNDARY.md`; `packages/pdf-renderer-spike/package.json`; `packages/pdf-renderer-spike/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererSpike.test.ts` |
 | 137 | Artifact manifest and storage boundary | done | `docs/ARTIFACT_MANIFEST_BOUNDARY.md`; `src/generation/artifactManifest.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactManifest.test.ts` |
+| 138 | Backend artifact route contract boundary | done | `docs/ARTIFACT_API_ROUTE_BOUNDARY.md`; `src/generation/artifactApiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactApiRoute.test.ts` |
 
 ## Current Rule
 
@@ -3611,6 +3612,26 @@ Phase 137 defines the core artifact manifest storage-record lifecycle:
 This phase intentionally does not write files, write databases or object
 storage, import concrete renderer packages, add backend routes, run PDF/DOCX
 rendering, change generation readiness, or change package/document schema.
+
+## Phase 138 Backend Artifact Route Contract Boundary
+
+Phase 138 adds HTTP-shaped artifact route contracts without concrete routes:
+
+- `src/generation/artifactApiRoute.ts` exports helpers for
+  `artifact.request`, `artifact.status`, `artifact.listSession`, and
+  `artifact.downloadMetadata`;
+- generation requests require idempotency keys and return planned artifact
+  manifest records;
+- status responses expose retry-safe polling metadata for planned/rendering
+  artifacts;
+- list and download metadata helpers consume caller-supplied artifact manifests
+  without storage lookup;
+- permission context is required but marked `checked: false`;
+- download metadata never includes bytes, streams, or signed URLs.
+
+This phase intentionally does not start a server, add backend routes, read or
+write storage, execute auth/authz, call renderer packages, stream artifact
+bytes, create durable jobs, or change package/document schema.
 
 ## Phase 12 Extraction Record
 
