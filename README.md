@@ -353,6 +353,9 @@ The package must remain runnable without any parent editor checkout.
 - Text engine evidence acceptance boundary validates adapter-produced glyph and
   line box facts while deliberately keeping pagination draft creation as a
   later handoff.
+- Text engine measurement draft handoff boundary maps accepted evidence into
+  the existing pagination-facing draft while dropping glyph facts from the
+  draft shape.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -417,6 +420,8 @@ The package must remain runnable without any parent editor checkout.
   SPI boundary before external adapter implementation
 - `docs/TEXT_ENGINE_EVIDENCE_ACCEPTANCE_BOUNDARY.md`: Phase 109 text engine
   evidence acceptance boundary before pagination draft handoff
+- `docs/TEXT_ENGINE_MEASUREMENT_DRAFT_HANDOFF_BOUNDARY.md`: Phase 110 text
+  engine measurement draft handoff before production measurement binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -624,6 +629,8 @@ The package must remain runnable without any parent editor checkout.
   or pagination draft mutation beyond the Phase 108 adapter SPI boundary
 - concrete pagination draft creation from glyph evidence beyond the Phase 109
   evidence acceptance boundary
+- concrete production measurement binding or pagination measurer replacement
+  beyond the Phase 110 measurement draft handoff boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

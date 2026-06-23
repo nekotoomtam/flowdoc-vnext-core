@@ -3027,6 +3027,36 @@ Acceptance:
 - no rustybuzz/HarfBuzz/ICU4X/WASM/font parser library is imported or executed;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 110: Text Engine Measurement Draft Handoff Boundary
+
+Goal:
+
+- transform accepted text engine evidence into the current
+  pagination-facing `VNextTextMeasurementDraft` without adding glyph facts to
+  the draft or replacing pagination measurement.
+
+Deliverables:
+
+- measurement draft handoff planner in
+  `src/renderer/textEngineMeasurementDraftHandoff.ts`;
+- public exports for measurement draft handoff source/mode constants and
+  `createVNextTextEngineMeasurementDraftHandoffPlan(...)`;
+- derivation of draft lines from accepted evidence text ranges;
+- derivation of draft line boxes, width, height, and line height from accepted
+  line box facts;
+- blockers for production binding, non-accepted evidence, missing accepted
+  evidence, request/profile/output mismatch, core engine execution, evidence
+  mutation, attaching glyph facts to the draft, replacing pagination measurer,
+  and malformed line ranges or metrics;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- accepted evidence can produce a `VNextTextMeasurementDraft`;
+- glyph facts are dropped from the draft and remain available only as evidence;
+- no rustybuzz/HarfBuzz/ICU4X/WASM/font parser library is imported or executed;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

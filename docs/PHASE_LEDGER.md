@@ -116,6 +116,7 @@ Parent goal:
 | 107 | Rustybuzz shaping smoke boundary | done | `docs/RUSTYBUZZ_SHAPING_SMOKE_BOUNDARY.md`; `fixtures/rustybuzz-shaping-smoke.v1.json`; `src/renderer/rustybuzzShapingSmoke.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rustybuzzShapingSmoke.test.ts` |
 | 108 | Text engine adapter SPI boundary | done | `docs/TEXT_ENGINE_ADAPTER_SPI_BOUNDARY.md`; `src/renderer/textEngineAdapterSpi.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineAdapterSpi.test.ts` |
 | 109 | Text engine evidence acceptance boundary | done | `docs/TEXT_ENGINE_EVIDENCE_ACCEPTANCE_BOUNDARY.md`; `src/renderer/textEngineEvidenceAcceptance.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineEvidenceAcceptance.test.ts` |
+| 110 | Text engine measurement draft handoff boundary | done | `docs/TEXT_ENGINE_MEASUREMENT_DRAFT_HANDOFF_BOUNDARY.md`; `src/renderer/textEngineMeasurementDraftHandoff.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineMeasurementDraftHandoff.test.ts` |
 
 ## Current Rule
 
@@ -2818,6 +2819,29 @@ dependencies, build or load WASM, execute shaping or segmentation, read font
 files, capture real glyph evidence, create pagination drafts, replace measured
 pagination, mutate package/document data, write artifacts or storage records,
 add backend routes, or change package/document schema.
+
+## Phase 110 Text Engine Measurement Draft Handoff Boundary
+
+Phase 110 maps accepted evidence into the existing pagination-facing draft:
+
+- `src/renderer/textEngineMeasurementDraftHandoff.ts` derives
+  `VNextTextMeasurementDraft` lines and line boxes from accepted text engine
+  evidence plus the original adapter request text;
+- glyph facts remain on the separate evidence lane and are not attached to
+  `VNextTextMeasurementDraft`;
+- production binding, non-accepted evidence, missing accepted evidence, request
+  or profile mismatch, unsafe handoff policy, engine execution, evidence
+  mutation, glyph-fact attachment, pagination measurer replacement, malformed
+  line ranges, and invalid line metrics block;
+- `tests/textEngineMeasurementDraftHandoff.test.ts` proves successful handoff,
+  blockers, source independence, and documentation trail.
+
+This phase intentionally does not create an adapter package, install Rust/JS
+dependencies, build or load WASM, execute shaping or segmentation, read font
+files, capture real glyph evidence, attach glyph facts to the draft, bind
+production measurement, replace measured pagination, mutate package/document
+data, write artifacts or storage records, add backend routes, or change
+package/document schema.
 
 ## Phase 12 Extraction Record
 
