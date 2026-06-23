@@ -3343,6 +3343,36 @@ Acceptance:
   transaction, history, live layout, exact output, backend API, persistence,
   collaboration, and WASM/text-engine execution stay deferred/off.
 
+## Phase 121: WYSIWYG Execution Re-baseline Audit
+
+Goal:
+
+- close the first post-re-entry WYSIWYG execution pass after Phases 117-120 and
+  sequence the next browser-local-to-canonical editing cards.
+
+Deliverables:
+
+- re-baseline audit in
+  `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md`;
+- PASS/FAIL/RISK/UNKNOWN review of Phase 117 contenteditable range mapping,
+  Phase 118 rich inline patch execution, Phase 119 toolbar dispatch, and Phase
+  120 field chip insert execution;
+- explicit phase cards for Phases 122-126;
+- tests proving the audit does not claim production DOM binding or canonical
+  rich inline commits;
+- README and ledger updates.
+
+Acceptance:
+
+- Phase 117-120 browser-local execution evidence remains visible and linked;
+- package mutation, canonical field-ref insertion, durable history, live
+  layout, exact output, backend API, persistence, collaboration, and
+  WASM/text-engine execution remain explicitly deferred/off;
+- next cards start with browser-local rich inline state consolidation before
+  production contenteditable capture or canonical commit execution;
+- no package/document schema, runtime behavior, backend, persistence,
+  collaboration, renderer, or WASM behavior changes.
+
 ## Later Phases
 
 Goal:

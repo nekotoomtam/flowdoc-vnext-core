@@ -127,6 +127,7 @@ Parent goal:
 | 118 | Rich inline patch execution boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_PATCH_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 119 | Toolbar command dispatch boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_COMMAND_DISPATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 120 | Field chip insert execution boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INSERT_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 121 | WYSIWYG execution re-baseline audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygExecutionRebaselineAudit.test.ts` |
 
 ## Current Rule
 
@@ -3123,6 +3124,33 @@ This phase intentionally does not implement canonical field-ref insertion, key
 migration writes, production field picker UI, mixed rich inline normalization,
 durable history writes, live layout, exact output, backend routes, persistence,
 collaboration behavior, or WASM/text-engine measurement.
+
+## Phase 121 WYSIWYG Execution Re-baseline Audit
+
+Phase 121 closes the first WYSIWYG execution pass after Phases 117-120:
+
+- `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md` records PASS,
+  FAIL/BLOCKER, RISK, and UNKNOWN status for the browser-local execution
+  evidence built in Phases 117-120;
+- PASS confirms the contenteditable range mapper, rich inline patch executor,
+  toolbar command dispatcher, and field chip insert executor are browser-safe
+  and covered by sandbox boundary tests;
+- RISK records that the active surface remains textarea-driven, styled runs and
+  atomic chips are not yet a unified rich inline draft model, active mark
+  detection/toggle semantics are unknown, and canonical field-ref/package
+  commits remain future work;
+- UNKNOWN records production DOM segment capture, mixed inline normalization,
+  canonical transaction layering, renderer/text-engine participation,
+  undo/redo, collaboration, and persistence behavior;
+- phase cards for Phases 122-126 define browser-local rich inline state,
+  production contenteditable segment capture, canonical commit planning, rich
+  inline commit bridge execution, and a close audit.
+
+This phase intentionally does not add runtime behavior, production
+contenteditable DOM binding, canonical rich inline commit, field-ref insertion,
+key migration writes, package/document schema changes, parent runtime imports,
+legacy runtime adoption, durable history writes, live layout requests, exact
+renderer output, backend routes, persistence, collaboration, or WASM execution.
 
 ## Phase 12 Extraction Record
 

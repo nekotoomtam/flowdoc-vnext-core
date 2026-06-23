@@ -296,6 +296,9 @@ The package must remain runnable without any parent editor checkout.
 - Field chip insert execution boundary records browser-local atomic chip facts
   from mapped carets and field catalog intent while keeping canonical field-ref
   mutation and key migration deferred
+- WYSIWYG execution re-baseline audit records that Phases 117-120 proved
+  browser-local execution evidence, not production DOM binding or canonical
+  rich inline commits, and sequences Phases 122-126
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -622,6 +625,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local toolbar command dispatch boundary
 - `docs/TEMPLATE_BUILDER_FIELD_CHIP_INSERT_EXECUTION_BOUNDARY.md`: Phase 120
   browser-local field chip insert execution boundary
+- `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md`: Phase 121
+  WYSIWYG execution re-baseline audit and Phase 122-126 card plan
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -695,7 +700,7 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete production contenteditable DOM binding, canonical rich inline style
   commit, canonical field-ref insertion, or WYSIWYG production editing beyond
-  the Phase 120 field chip insert execution boundary
+  the Phase 121 execution re-baseline audit
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
