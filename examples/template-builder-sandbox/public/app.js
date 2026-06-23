@@ -113,6 +113,10 @@ import {
   draftFieldChipInlineLabel as draftFieldChipInlineLabelState,
 } from "./draftFieldChipInline.js"
 import {
+  createDraftFieldChipInsertExecution,
+  draftFieldChipInsertExecutionLabel as draftFieldChipInsertExecutionLabelState,
+} from "./draftFieldChipInsertExecution.js"
+import {
   createDraftStyleHistory,
   draftStyleHistoryLabel as draftStyleHistoryLabelState,
 } from "./draftStyleHistory.js"
@@ -138,6 +142,7 @@ const state = {
   draftCommandText: "",
   draftContenteditableRangeMapping: createDraftContenteditableRangeMapping(createIdleDraftState()),
   draftFieldChipInline: createDraftFieldChipInline(createIdleDraftState()),
+  draftFieldChipInsertExecution: createDraftFieldChipInsertExecution(createIdleDraftState()),
   draftImePolicy: createDraftImePolicy(createIdleDraftState()),
   draftInlineStylePatch: createDraftInlineStylePatch(createIdleDraftState()),
   draftLayoutPush: createDraftLayoutPush(createIdleDraftState()),
@@ -957,6 +962,18 @@ function draftFieldChipInlineLabel() {
   return draftFieldChipInlineLabelState(state.draftFieldChipInline)
 }
 
+function updateDraftFieldChipInsertExecution() {
+  state.draftFieldChipInsertExecution = createDraftFieldChipInsertExecution(state.draft, {
+    fieldChipInline: state.draftFieldChipInline,
+    rangeMapping: state.draftContenteditableRangeMapping,
+    richInlinePatchExecution: state.draftRichInlinePatchExecution,
+  })
+}
+
+function draftFieldChipInsertExecutionLabel() {
+  return draftFieldChipInsertExecutionLabelState(state.draftFieldChipInsertExecution)
+}
+
 function updateDraftStyleHistory() {
   state.draftStyleHistory = createDraftStyleHistory(state.draft, {
     fieldChipInline: state.draftFieldChipInline,
@@ -1168,6 +1185,7 @@ function syncDraftDomState() {
   updateDraftToolbarState()
   updateDraftToolbarCommandDispatch()
   updateDraftFieldChipInline()
+  updateDraftFieldChipInsertExecution()
   updateDraftStyleHistory()
   updateDraftLayoutPush()
   const status = draftStatusLabel()
@@ -1241,6 +1259,10 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-field-chip-inline]").forEach((target) => {
     target.textContent = draftFieldChipInlineLabel()
     target.dataset.state = state.draftFieldChipInline.status
+  })
+  app.querySelectorAll("[data-draft-field-chip-insert]").forEach((target) => {
+    target.textContent = draftFieldChipInsertExecutionLabel()
+    target.dataset.state = state.draftFieldChipInsertExecution.status
   })
   app.querySelectorAll("[data-draft-style-history]").forEach((target) => {
     target.textContent = draftStyleHistoryLabel()
@@ -1578,6 +1600,7 @@ function renderCanvasNode(node) {
             <span data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</span>
             <span data-draft-toolbar-dispatch data-state="${escapeHtml(state.draftToolbarCommandDispatch.status)}">${escapeHtml(draftToolbarCommandDispatchLabel())}</span>
             <span data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</span>
+            <span data-draft-field-chip-insert data-state="${escapeHtml(state.draftFieldChipInsertExecution.status)}">${escapeHtml(draftFieldChipInsertExecutionLabel())}</span>
             <span data-draft-style-history data-state="${escapeHtml(state.draftStyleHistory.status)}">${escapeHtml(draftStyleHistoryLabel())}</span>
             <div class="canvas-draft-actions">
               <button
@@ -1901,6 +1924,7 @@ function renderInspector(snapshot) {
             <dt>Toolbar</dt><dd data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</dd>
             <dt>Dispatch</dt><dd data-draft-toolbar-dispatch data-state="${escapeHtml(state.draftToolbarCommandDispatch.status)}">${escapeHtml(draftToolbarCommandDispatchLabel())}</dd>
             <dt>Field chips</dt><dd data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</dd>
+            <dt>Field insert</dt><dd data-draft-field-chip-insert data-state="${escapeHtml(state.draftFieldChipInsertExecution.status)}">${escapeHtml(draftFieldChipInsertExecutionLabel())}</dd>
             <dt>Style history</dt><dd data-draft-style-history data-state="${escapeHtml(state.draftStyleHistory.status)}">${escapeHtml(draftStyleHistoryLabel())}</dd>
             <dt>Command</dt><dd data-draft-command-summary>${escapeHtml(draftCommandSummary())}</dd>
             <dt>Layout</dt><dd data-draft-layout-push data-state="${escapeHtml(state.draftLayoutPush.status)}">${escapeHtml(draftLayoutPushLabel())}</dd>
@@ -2228,6 +2252,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-toolbar-state>${escapeHtml(draftToolbarStateLabel())}</span>
       <span data-draft-toolbar-dispatch>${escapeHtml(draftToolbarCommandDispatchLabel())}</span>
       <span data-draft-field-chip-inline>${escapeHtml(draftFieldChipInlineLabel())}</span>
+      <span data-draft-field-chip-insert>${escapeHtml(draftFieldChipInsertExecutionLabel())}</span>
       <span data-draft-style-history>${escapeHtml(draftStyleHistoryLabel())}</span>
       <span data-draft-commandbar>Command: ${escapeHtml(draftCommandSummary())}</span>
       <span data-draft-layout-push>${escapeHtml(draftLayoutPushLabel())}</span>

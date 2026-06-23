@@ -126,6 +126,7 @@ Parent goal:
 | 117 | Contenteditable range mapping boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_RANGE_MAPPING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 118 | Rich inline patch execution boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_PATCH_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 119 | Toolbar command dispatch boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_COMMAND_DISPATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 120 | Field chip insert execution boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INSERT_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3095,6 +3096,33 @@ This phase intentionally does not implement field chip insertion, production
 toolbar placement, active mark detection, toggle/merge semantics, canonical
 inline mutation, durable history writes, live layout, exact output, backend
 routes, persistence, collaboration behavior, or WASM/text-engine measurement.
+
+## Phase 120 Field Chip Insert Execution Boundary
+
+Phase 120 executes field chip intent into browser-local atomic chip facts:
+
+- `examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js`
+  owns a browser-safe executor for mapped caret field chip insertion;
+- the executor consumes Phase 117 caret mapping and Phase 83 field chip intent;
+- ready inserts record atomic chip facts with field key, label, type, data
+  status, usage count, placeholder, position, and source command;
+- plain draft text is preserved and existing browser-local styled runs can be
+  carried forward;
+- non-collapsed ranges, missing field catalogs, unsupported rich inline state,
+  inactive drafts, and IME composition are guarded or blocked explicitly;
+- `examples/template-builder-sandbox/public/app.js` surfaces
+  `data-draft-field-chip-insert`;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` adds
+  `browser.executeDraftFieldChipInsert`;
+- tests prove inserted, no-field, non-collapsed, unsupported-rich-inline,
+  composing, and idle paths while package mutation, key migration, core
+  transactions, durable history, live layout, exact output, backend API calls,
+  and text-engine execution stay deferred/off.
+
+This phase intentionally does not implement canonical field-ref insertion, key
+migration writes, production field picker UI, mixed rich inline normalization,
+durable history writes, live layout, exact output, backend routes, persistence,
+collaboration behavior, or WASM/text-engine measurement.
 
 ## Phase 12 Extraction Record
 

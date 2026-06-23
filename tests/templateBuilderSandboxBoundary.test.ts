@@ -63,6 +63,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftInlineStylePatch.js",
       "../examples/template-builder-sandbox/public/draftToolbarState.js",
       "../examples/template-builder-sandbox/public/draftFieldChipInline.js",
+      "../examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js",
       "../examples/template-builder-sandbox/public/draftStyleHistory.js",
       "../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js",
       "../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js",
@@ -169,6 +170,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveDraftToolbarState")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.dispatchDraftToolbarCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftFieldChipInline")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.executeDraftFieldChipInsert")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftStyleHistory")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
@@ -7126,6 +7128,228 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingReason).toBe("composition-active")
   })
 
+  it("executes field chip inserts into browser-local atomic chip facts", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const { createDraftContenteditableRangeMapping } = await import("./public/draftContenteditableRangeMapping.js");
+      const { createDraftFieldChipInline } = await import("./public/draftFieldChipInline.js");
+      const {
+        DRAFT_FIELD_CHIP_INSERT_EXECUTION_MODE,
+        DRAFT_FIELD_CHIP_INSERT_EXECUTION_SOURCE,
+        createDraftFieldChipInsertExecution,
+        draftFieldChipInsertExecutionLabel,
+      } = await import("./public/draftFieldChipInsertExecution.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const fields = [
+        { hasData: true, key: "customer.name", label: "Customer", type: "string", usageCount: 2 },
+        { hasData: false, key: "report.date", label: "Report date", type: "date", usageCount: 1 },
+      ];
+      const segment = {
+        draftEnd: 11,
+        draftStart: 0,
+        kind: "plain-text",
+        segmentId: "seg-1",
+        text: "Hello world",
+      };
+      const idle = createDraftFieldChipInsertExecution(null);
+      const draft = createDraftStateForNode(node, { baseRevision: 14 });
+      const caretDraft = updateDraftSelectionRange(draft, 5, 5, {
+        source: "field-insert-caret-test",
+      }).draft;
+      const caretRange = createDraftContenteditableRangeMapping(caretDraft, {
+        segments: [segment],
+        selection: {
+          anchorOffset: 5,
+          anchorSegmentId: "seg-1",
+          focusOffset: 5,
+          focusSegmentId: "seg-1",
+          source: "field-insert-range",
+        },
+      });
+      const fieldChipInline = createDraftFieldChipInline(caretDraft, {
+        fields,
+        selectedFieldKey: "customer.name",
+      });
+      const inserted = createDraftFieldChipInsertExecution(caretDraft, {
+        browserInlineState: {
+          status: "patched",
+          styledRuns: [{ mark: "bold", range: { start: 0, end: 5 } }],
+        },
+        fieldChipInline,
+        rangeMapping: caretRange,
+      });
+      const noFields = createDraftFieldChipInsertExecution(caretDraft, {
+        fieldChipInline: createDraftFieldChipInline(caretDraft, { fields: [] }),
+        rangeMapping: caretRange,
+      });
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "field-insert-range-guard-test",
+      }).draft;
+      const nonCollapsed = createDraftFieldChipInsertExecution(rangedDraft, {
+        fieldChipInline: createDraftFieldChipInline(rangedDraft, { fields }),
+        rangeMapping: createDraftContenteditableRangeMapping(rangedDraft, {
+          segments: [segment],
+          selection: {
+            anchorOffset: 0,
+            anchorSegmentId: "seg-1",
+            focusOffset: 5,
+            focusSegmentId: "seg-1",
+            source: "field-insert-noncollapsed-range",
+          },
+        }),
+      });
+      const unsupportedRich = createDraftFieldChipInsertExecution(caretDraft, {
+        browserInlineState: { status: "unsupported" },
+        fieldChipInline,
+        rangeMapping: caretRange,
+      });
+      const composingDraft = updateDraftComposition(caretDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 5,
+        selectionSource: "compositionstart",
+        selectionStart: 5,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftFieldChipInsertExecution(composingDraft, {
+        fieldChipInline,
+        rangeMapping: caretRange,
+      });
+
+      console.log(JSON.stringify({
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_FIELD_CHIP_INSERT_EXECUTION_MODE,
+          source: DRAFT_FIELD_CHIP_INSERT_EXECUTION_SOURCE,
+        },
+        idleLabel: draftFieldChipInsertExecutionLabel(idle),
+        idleStatus: idle.status,
+        insertedApplication: inserted.application.status,
+        insertedBackend: inserted.backendApi.status,
+        insertedCanInsert: inserted.canInsertChip,
+        insertedChip: inserted.browserInlineState.atomicChips[0],
+        insertedChipCount: inserted.browserInlineState.atomicChipCount,
+        insertedCommand: inserted.command,
+        insertedCore: inserted.coreTransaction.status,
+        insertedExact: inserted.exactGeneration.status,
+        insertedHistory: inserted.history.status,
+        insertedKeyMigration: inserted.keyMigration.status,
+        insertedLabel: draftFieldChipInsertExecutionLabel(inserted),
+        insertedLive: inserted.liveLayout.status,
+        insertedPackage: inserted.packageMutation.status,
+        insertedPlainText: inserted.browserInlineState.plainText,
+        insertedPlainTextPreserved: inserted.browserInlineState.plainTextPreserved,
+        insertedReason: inserted.reason,
+        insertedState: inserted.browserInlineState.status,
+        insertedStatus: inserted.status,
+        insertedStyledRunCount: inserted.browserInlineState.styledRuns.length,
+        noFieldsLabel: draftFieldChipInsertExecutionLabel(noFields),
+        noFieldsReason: noFields.reason,
+        noFieldsStatus: noFields.status,
+        nonCollapsedLabel: draftFieldChipInsertExecutionLabel(nonCollapsed),
+        nonCollapsedReason: nonCollapsed.reason,
+        nonCollapsedStatus: nonCollapsed.status,
+        unsupportedLabel: draftFieldChipInsertExecutionLabel(unsupportedRich),
+        unsupportedReason: unsupportedRich.reason,
+        unsupportedStatus: unsupportedRich.status,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      insertedApplication: string
+      insertedBackend: string
+      insertedCanInsert: boolean
+      insertedChip: { fieldKey: string; hasData: boolean; label: string; placeholder: string; position: number; sourceCommand: string; type: string; usageCount: number }
+      insertedChipCount: number
+      insertedCommand: string
+      insertedCore: string
+      insertedExact: string
+      insertedHistory: string
+      insertedKeyMigration: string
+      insertedLabel: string
+      insertedLive: string
+      insertedPackage: string
+      insertedPlainText: string
+      insertedPlainTextPreserved: boolean
+      insertedReason: string
+      insertedState: string
+      insertedStatus: string
+      insertedStyledRunCount: number
+      noFieldsLabel: string
+      noFieldsReason: string
+      noFieldsStatus: string
+      nonCollapsedLabel: string
+      nonCollapsedReason: string
+      nonCollapsedStatus: string
+      unsupportedLabel: string
+      unsupportedReason: string
+      unsupportedStatus: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-field-chip-insert-execution")
+    expect(result.constants.mode).toBe("browser-local-field-chip-insert-execution-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Field insert: idle")
+    expect(result.insertedStatus).toBe("inserted")
+    expect(result.insertedReason).toBe("browser-local-field-chip-inserted")
+    expect(result.insertedCanInsert).toBe(true)
+    expect(result.insertedCommand).toBe("inline.fieldRef.insert")
+    expect(result.insertedApplication).toBe("applied-to-browser-local-inline-state")
+    expect(result.insertedPlainText).toBe("Hello world")
+    expect(result.insertedPlainTextPreserved).toBe(true)
+    expect(result.insertedState).toBe("patched")
+    expect(result.insertedChipCount).toBe(1)
+    expect(result.insertedChip.fieldKey).toBe("customer.name")
+    expect(result.insertedChip.label).toBe("Customer")
+    expect(result.insertedChip.type).toBe("string")
+    expect(result.insertedChip.position).toBe(5)
+    expect(result.insertedChip.placeholder).toBe("{{customer.name}}")
+    expect(result.insertedChip.hasData).toBe(true)
+    expect(result.insertedChip.usageCount).toBe(2)
+    expect(result.insertedChip.sourceCommand).toBe("inline.fieldRef.insert")
+    expect(result.insertedStyledRunCount).toBe(1)
+    expect(result.insertedCore).toBe("not-run")
+    expect(result.insertedHistory).toBe("not-recorded")
+    expect(result.insertedLive).toBe("not-requested")
+    expect(result.insertedExact).toBe("deferred-until-commit")
+    expect(result.insertedPackage).toBe("deferred-until-commit")
+    expect(result.insertedKeyMigration).toBe("deferred-until-commit")
+    expect(result.insertedBackend).toBe("not-called")
+    expect(result.insertedLabel).toBe("Field insert: customer.name local")
+    expect(result.noFieldsStatus).toBe("guarded")
+    expect(result.noFieldsReason).toBe("no-field-catalog")
+    expect(result.noFieldsLabel).toBe("Field insert: no fields")
+    expect(result.nonCollapsedStatus).toBe("guarded")
+    expect(result.nonCollapsedReason).toBe("range-not-collapsed")
+    expect(result.nonCollapsedLabel).toBe("Field insert: range blocked")
+    expect(result.unsupportedStatus).toBe("blocked")
+    expect(result.unsupportedReason).toBe("unsupported-rich-inline-state")
+    expect(result.unsupportedLabel).toBe("Field insert: rich inline blocked")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+  })
+
   it("plans style-aware history without recording durable history", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       const {
@@ -7273,6 +7497,7 @@ describe("template builder sandbox boundary", () => {
     const draftInlineStylePatchSource = readText("../examples/template-builder-sandbox/public/draftInlineStylePatch.js")
     const draftToolbarStateSource = readText("../examples/template-builder-sandbox/public/draftToolbarState.js")
     const draftFieldChipInlineSource = readText("../examples/template-builder-sandbox/public/draftFieldChipInline.js")
+    const draftFieldChipInsertExecutionSource = readText("../examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js")
     const draftStyleHistorySource = readText("../examples/template-builder-sandbox/public/draftStyleHistory.js")
     const draftContenteditableRangeMappingSource = readText("../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js")
     const draftRichInlinePatchExecutionSource = readText("../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js")
@@ -7300,12 +7525,14 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.mapContenteditableRange")
     expect(coreBoundarySource).toContain("browser.executeRichInlinePatch")
     expect(coreBoundarySource).toContain("browser.dispatchDraftToolbarCommand")
+    expect(coreBoundarySource).toContain("browser.executeDraftFieldChipInsert")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
     expect(appSource).toContain('from "./draftInlineStylePatch.js"')
     expect(appSource).toContain('from "./draftToolbarState.js"')
     expect(appSource).toContain('from "./draftFieldChipInline.js"')
+    expect(appSource).toContain('from "./draftFieldChipInsertExecution.js"')
     expect(appSource).toContain('from "./draftStyleHistory.js"')
     expect(appSource).toContain('from "./draftContenteditableRangeMapping.js"')
     expect(appSource).toContain('from "./draftRichInlinePatchExecution.js"')
@@ -7331,6 +7558,11 @@ describe("template builder sandbox boundary", () => {
     expect(draftFieldChipInlineSource).toContain("inline.fieldRef.insert")
     expect(draftFieldChipInlineSource).toContain("not-applied")
     expect(draftFieldChipInlineSource).toContain("not-run")
+    expect(draftFieldChipInsertExecutionSource).toContain("createDraftFieldChipInsertExecution")
+    expect(draftFieldChipInsertExecutionSource).toContain("inline.fieldRef.insert")
+    expect(draftFieldChipInsertExecutionSource).toContain("browser-local-field-chip-inserted")
+    expect(draftFieldChipInsertExecutionSource).toContain("unsupported-rich-inline-state")
+    expect(draftFieldChipInsertExecutionSource).toContain("deferred-until-commit")
     expect(draftStyleHistorySource).toContain("createDraftStyleHistory")
     expect(draftStyleHistorySource).toContain("not-recorded")
     expect(draftStyleHistorySource).toContain("not-written")
@@ -7379,6 +7611,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-toolbar-command")
     expect(appSource).toContain("data-draft-toolbar-dispatch")
     expect(appSource).toContain("data-draft-field-chip-inline")
+    expect(appSource).toContain("data-draft-field-chip-insert")
     expect(appSource).toContain("data-draft-style-history")
     expect(appSource).toContain("data-draft-command-summary")
     expect(appSource).toContain("data-draft-command-selected")

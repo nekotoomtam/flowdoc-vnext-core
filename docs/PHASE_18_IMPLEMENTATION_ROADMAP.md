@@ -3316,6 +3316,33 @@ Acceptance:
   backend API, persistence, collaboration, and WASM/text-engine execution stay
   deferred/off.
 
+## Phase 120: Field Chip Insert Execution Boundary
+
+Goal:
+
+- execute ready field chip insertion intent into browser-local atomic chip facts
+  at mapped caret positions.
+
+Scope:
+
+- browser-safe `draftFieldChipInsertExecution.js` module;
+- app evidence through `data-draft-field-chip-insert`;
+- action lane for `browser.executeDraftFieldChipInsert`;
+- tests for inserted, guarded, blocked, composing, and idle paths;
+- README, ledger, and phase documentation.
+
+Acceptance:
+
+- ready Phase 117 caret mapping and Phase 83 field chip intent produce one
+  browser-local atomic chip fact;
+- plain draft text is preserved and existing browser-local styled runs can be
+  carried forward;
+- non-collapsed ranges, missing field catalog, unsupported rich inline state,
+  inactive drafts, and composition remain guarded or blocked;
+- canonical field-ref mutation, key migration, package mutation, core
+  transaction, history, live layout, exact output, backend API, persistence,
+  collaboration, and WASM/text-engine execution stay deferred/off.
+
 ## Later Phases
 
 Goal:

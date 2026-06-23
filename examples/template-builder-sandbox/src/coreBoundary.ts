@@ -810,6 +810,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local field chip summaries expose catalog-backed caret insertion intent without applying inline field refs",
       },
       {
+        action: "browser.executeDraftFieldChipInsert",
+        label: "Field insert",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local field chip insert execution records atomic chip facts from mapped carets without mutating package state",
+      },
+      {
         action: "browser.planDraftStyleHistory",
         label: "Style history",
         lane: "immediate",
