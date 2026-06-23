@@ -2022,6 +2022,44 @@ Acceptance:
 - no toolbar state, field chips, style-aware history, backend API, renderer
   output, or package/document schema change is claimed.
 
+## Phase 82: Toolbar State Boundary
+
+Goal:
+
+- expose browser-local toolbar control readiness for active WYSIWYG draft
+  ranges without dispatching toolbar commands or detecting authored rich inline
+  marks.
+
+Deliverables:
+
+- browser-safe toolbar state module in `public/draftToolbarState.js`;
+- toolbar state source/mode constants;
+- style control summaries for bold, italic, underline, and strikethrough;
+- selected range start/end/length facts;
+- idle/guarded/composing/ready status and reason derivation;
+- explicit `activeState = "unknown-until-rich-inline-mapping"`;
+- explicit `commandDispatch.status = "not-wired"`;
+- explicit `coreTransaction.status = "not-run"`;
+- explicit `history.status = "not-recorded"`;
+- explicit `exactGeneration.status = "deferred-until-commit"`;
+- canvas, inspector, and status-bar consumption through
+  `data-draft-toolbar-state`;
+- action lane for `browser.resolveDraftToolbarState`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- toolbar state can run in Node without DOM access;
+- collapsed selections keep future style controls guarded;
+- active composition blocks future style controls;
+- non-collapsed selected ranges enable the four future style controls;
+- active mark state remains unknown until rich inline mapping exists;
+- toolbar dispatch, core transactions, history, live layout, and exact output
+  remain unrun;
+- no visible toolbar buttons, toolbar command dispatch, field chips,
+  style-aware history, backend API, renderer output, or package/document schema
+  change is claimed.
+
 ## Later Phases
 
 Goal:

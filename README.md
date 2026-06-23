@@ -240,6 +240,9 @@ The package must remain runnable without any parent editor checkout.
 - Rich inline style patch boundary models browser-local selected-range style
   intent, surfaces `data-draft-style-patch`, and keeps core style transactions
   not-run until a later rich inline execution phase
+- Toolbar state boundary exposes browser-local style control readiness through
+  `data-draft-toolbar-state` while keeping toolbar dispatch not-wired until a
+  later command phase
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -423,6 +426,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local draft IME hardening boundary
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md`: Phase 81
   browser-local rich inline style patch request boundary
+- `docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md`: Phase 82
+  browser-local toolbar state boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

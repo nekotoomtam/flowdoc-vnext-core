@@ -2130,6 +2130,13 @@
       "reason": "browser-local inline style patch summaries model selected-range style intent without applying inline runs or core transactions"
     },
     {
+      "action": "browser.resolveDraftToolbarState",
+      "label": "Toolbar state",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser-local draft toolbar state exposes style control readiness without dispatching toolbar commands"
+    },
+    {
       "action": "sandbox.recordAuthoringHistory",
       "label": "History",
       "lane": "immediate",

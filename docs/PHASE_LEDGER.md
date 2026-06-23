@@ -88,6 +88,7 @@ Parent goal:
 | 79 | Text draft layout push boundary | done | `docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftLayoutPush.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 80 | Draft IME hardening boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftImePolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 81 | Rich inline style patch boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STYLE_PATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftInlineStylePatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 82 | Toolbar state boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1927,6 +1928,43 @@ execution, introduce toolbar buttons or toolbar state, add field/key chips,
 create style-aware history records, request live layout, run exact layout,
 alter renderer output, add backend API routes, add storage/collaboration
 behavior, or change package/document schema.
+
+## Phase 82 Toolbar State Boundary
+
+Phase 82 exposes browser-local toolbar control readiness for active WYSIWYG
+draft ranges without dispatching toolbar commands or detecting authored rich
+inline marks:
+
+- `examples/template-builder-sandbox/public/draftToolbarState.js` owns
+  `DRAFT_TOOLBAR_STATE_SOURCE`, `DRAFT_TOOLBAR_STATE_MODE`,
+  `createDraftToolbarState(...)`, and `draftToolbarStateLabel(...)`;
+- toolbar summaries report idle/guarded/composing/ready state, selected range
+  start/end/length, target text-block id, enabled control count, active control
+  count, and style control facts for bold, italic, underline, and
+  strikethrough;
+- style controls explicitly keep `activeState =
+  "unknown-until-rich-inline-mapping"`;
+- summaries explicitly keep `commandDispatch.status = "not-wired"`,
+  `coreTransaction.status = "not-run"`, `history.status = "not-recorded"`, and
+  `exactGeneration.status = "deferred-until-commit"`;
+- `examples/template-builder-sandbox/public/app.js` renders
+  `data-draft-toolbar-state` in the canvas draft footer, inspector draft panel,
+  and status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes the
+  `browser.resolveDraftToolbarState` action lane;
+- `docs/TEMPLATE_BUILDER_TOOLBAR_STATE_BOUNDARY.md` records the toolbar state
+  boundary, truth model, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module can run in
+  Node, guards collapsed selections and active composition, enables four style
+  controls for selected ranges, leaves active mark state unknown, keeps
+  dispatch/core/history/exact work unrun, and guards app-shell wiring.
+
+This phase intentionally does not dispatch toolbar commands, add visible
+toolbar buttons, detect active inline marks from authored runs, apply inline
+style, implement rich inline range mapping, add field/key chips, create
+style-aware history records, request live layout, run exact layout, alter
+renderer output, add backend API routes, add storage/collaboration behavior, or
+change package/document schema.
 
 ## Phase 12 Extraction Record
 
