@@ -660,6 +660,8 @@ The package must remain runnable without any parent editor checkout.
   128 production contenteditable surface hardening boundary
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`: Phase
   129 rich inline persistence/session record boundary
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md`: Phase 130
+  rich inline live/exact parity audit
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -732,8 +734,9 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete primary contenteditable editing input, rich inline storage adapter
-  writes/routes, collaboration, renderer output, or WYSIWYG production editing
-  beyond the Phase 129 rich inline session persistence boundary
+  writes/routes, collaboration, renderer artifact output, or final WYSIWYG
+  production editing close beyond the Phase 130 rich inline live/exact parity
+  audit
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

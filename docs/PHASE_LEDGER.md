@@ -136,6 +136,7 @@ Parent goal:
 | 127 | Rich inline undo/redo replay boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_UNDO_REDO_REPLAY_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 128 | Production contenteditable surface hardening boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSurfaceHardening.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 129 | Rich inline persistence/session boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `src/authoring/richInlineSessionPersistence.ts`; `src/index.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineSessionPersistence.test.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 130 | Rich inline live/exact parity audit | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineLiveExactParityAudit.test.ts` |
 
 ## Current Rule
 
@@ -3406,6 +3407,33 @@ This phase intentionally does not add package/document schema changes, parent
 editor imports, legacy runtime adoption, durable storage writes, backend API
 routes, collaboration behavior, renderer artifact output, ICU4X execution, or
 WASM/text-engine measurement replacement.
+
+## Phase 130 Rich Inline Live/Exact Parity Audit
+
+Phase 130 audits rich inline live/exact stale-signal parity after commit,
+undo/redo replay, contenteditable surface hardening, and session persistence:
+
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md` records PASS,
+  FAIL/BLOCKER, RISK, UNKNOWN, files changed, behavior changed, tests run,
+  risks left, and intentionally not changed;
+- accepted `runVNextRichInlineCommit(...)` results keep text-block dirty
+  scopes and `renderInvalidation.exactGenerationStale = true` on the
+  `text-content` lane;
+- the sandbox bridge calls `rememberLiveLayoutBoundary(...)` after rich inline
+  commit, rich undo, and rich redo, producing bounded packet `liveLayout`
+  summaries through `resolveVNextLiveLayoutBoundary(...)`;
+- the packet summaries expose stale live layout, stale exact generation, and
+  `measured-pagination` as the final exact-generation truth;
+- rich inline session persistence records continue to exclude `liveLayout`,
+  `exactLayout`, and renderer `artifacts`;
+- `tests/richInlineLiveExactParityAudit.test.ts` proves core commit parity,
+  sandbox commit/undo/redo parity, persistence exclusion, and phase-trail
+  updates.
+
+This phase intentionally does not add runtime behavior, package/document schema
+changes, parent editor imports, legacy runtime adoption, storage writes,
+backend API routes, collaboration behavior, renderer artifact output, ICU4X
+execution, or WASM/text-engine measurement replacement.
 
 ## Phase 12 Extraction Record
 

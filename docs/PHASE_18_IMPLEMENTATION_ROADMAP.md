@@ -3622,6 +3622,36 @@ Acceptance:
   collaboration, renderer output, and WASM/text-engine replacement remain out
   of scope.
 
+## Phase 130: Rich Inline Live/Exact Parity Audit
+
+Goal:
+
+- audit the rich inline commit/replay/session trail for live layout and exact
+  generation stale-signal parity without implementing renderer artifacts.
+
+Deliverables:
+
+- audit doc in
+  `docs/TEMPLATE_BUILDER_RICH_INLINE_LIVE_EXACT_PARITY_AUDIT.md`;
+- tests proving direct rich inline commit dirty scopes mark live layout and
+  exact generation stale;
+- tests proving sandbox rich inline commit, undo, and redo packets expose the
+  same bounded `liveLayout` stale summary;
+- tests proving rich inline session persistence records continue to exclude
+  live layout, exact layout, and renderer artifacts;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- accepted rich inline commits and replay mutations carry text-content dirty
+  scopes into `resolveVNextLiveLayoutBoundary(...)`;
+- packet `liveLayout` summaries expose stale live layout and stale exact
+  generation with `measured-pagination` as the final truth;
+- persistence stays package/history/replay-only and does not store live/exact
+  renderer truth;
+- primary contenteditable input, storage writes, collaboration, renderer
+  artifacts, and WASM/text-engine replacement remain out of scope.
+
 ## Later Phases
 
 Goal:
