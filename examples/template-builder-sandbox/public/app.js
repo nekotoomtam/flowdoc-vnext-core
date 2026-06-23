@@ -129,6 +129,10 @@ import {
   draftContenteditableSegmentCaptureLabel as draftContenteditableSegmentCaptureLabelState,
 } from "./draftContenteditableSegmentCapture.js"
 import {
+  createDraftContenteditableSurfaceHardening,
+  draftContenteditableSurfaceHardeningLabel as draftContenteditableSurfaceHardeningLabelState,
+} from "./draftContenteditableSurfaceHardening.js"
+import {
   createDraftRichInlinePatchExecution,
   draftRichInlinePatchExecutionLabel as draftRichInlinePatchExecutionLabelState,
 } from "./draftRichInlinePatchExecution.js"
@@ -154,6 +158,7 @@ const state = {
   draftCommandText: "",
   draftContenteditableRangeMapping: createDraftContenteditableRangeMapping(createIdleDraftState()),
   draftContenteditableSegmentCapture: createDraftContenteditableSegmentCapture(createIdleDraftState()),
+  draftContenteditableSurfaceHardening: createDraftContenteditableSurfaceHardening(createIdleDraftState()),
   draftFieldChipInline: createDraftFieldChipInline(createIdleDraftState()),
   draftFieldChipInsertExecution: createDraftFieldChipInsertExecution(createIdleDraftState()),
   draftImePolicy: createDraftImePolicy(createIdleDraftState()),
@@ -940,6 +945,19 @@ function draftContenteditableRangeMappingLabel() {
   return draftContenteditableRangeMappingLabelState(state.draftContenteditableRangeMapping)
 }
 
+function updateDraftContenteditableSurfaceHardening(options = {}) {
+  const surfaceRoot = options.useDom === false ? null : draftContenteditableSurfaceRoot()
+  state.draftContenteditableSurfaceHardening = createDraftContenteditableSurfaceHardening(state.draft, {
+    rangeMapping: state.draftContenteditableRangeMapping,
+    segmentCapture: state.draftContenteditableSegmentCapture,
+    surface: surfaceRoot || draftContenteditableFallbackSurface(),
+  })
+}
+
+function draftContenteditableSurfaceHardeningLabel() {
+  return draftContenteditableSurfaceHardeningLabelState(state.draftContenteditableSurfaceHardening)
+}
+
 function updateDraftInlineStylePatch() {
   state.draftInlineStylePatch = createDraftInlineStylePatch(state.draft, {
     styleMark: state.draftSelectedStyleMark,
@@ -1249,6 +1267,7 @@ function syncDraftDomState() {
   updateDraftContenteditableSurfaceDom()
   updateDraftContenteditableSegmentCapture()
   updateDraftContenteditableRangeMapping()
+  updateDraftContenteditableSurfaceHardening()
   updateDraftInlineStylePatch()
   updateDraftRichInlinePatchExecution()
   updateDraftToolbarState()
@@ -1306,6 +1325,10 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-contenteditable-range]").forEach((target) => {
     target.textContent = draftContenteditableRangeMappingLabel()
     target.dataset.state = state.draftContenteditableRangeMapping.status
+  })
+  app.querySelectorAll("[data-draft-contenteditable-surface-hardening]").forEach((target) => {
+    target.textContent = draftContenteditableSurfaceHardeningLabel()
+    target.dataset.state = state.draftContenteditableSurfaceHardening.status
   })
   app.querySelectorAll("[data-draft-style-patch]").forEach((target) => {
     target.textContent = draftInlineStylePatchLabel()
@@ -1692,6 +1715,7 @@ function renderCanvasNode(node) {
             <span data-draft-ime-policy data-state="${escapeHtml(state.draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</span>
             <span data-draft-contenteditable-segment-capture data-state="${escapeHtml(state.draftContenteditableSegmentCapture.status)}">${escapeHtml(draftContenteditableSegmentCaptureLabel())}</span>
             <span data-draft-contenteditable-range data-state="${escapeHtml(state.draftContenteditableRangeMapping.status)}">${escapeHtml(draftContenteditableRangeMappingLabel())}</span>
+            <span data-draft-contenteditable-surface-hardening data-state="${escapeHtml(state.draftContenteditableSurfaceHardening.status)}">${escapeHtml(draftContenteditableSurfaceHardeningLabel())}</span>
             <span data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</span>
             <span data-draft-rich-inline-execution data-state="${escapeHtml(state.draftRichInlinePatchExecution.status)}">${escapeHtml(draftRichInlinePatchExecutionLabel())}</span>
             <span data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</span>
@@ -2026,6 +2050,7 @@ function renderInspector(snapshot) {
             <dt>IME guard</dt><dd data-draft-ime-policy data-state="${escapeHtml(draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</dd>
             <dt>Segments</dt><dd data-draft-contenteditable-segment-capture data-state="${escapeHtml(state.draftContenteditableSegmentCapture.status)}">${escapeHtml(draftContenteditableSegmentCaptureLabel())}</dd>
             <dt>DOM range</dt><dd data-draft-contenteditable-range data-state="${escapeHtml(state.draftContenteditableRangeMapping.status)}">${escapeHtml(draftContenteditableRangeMappingLabel())}</dd>
+            <dt>Surface</dt><dd data-draft-contenteditable-surface-hardening data-state="${escapeHtml(state.draftContenteditableSurfaceHardening.status)}">${escapeHtml(draftContenteditableSurfaceHardeningLabel())}</dd>
             <dt>Style patch</dt><dd data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</dd>
             <dt>Rich inline</dt><dd data-draft-rich-inline-execution data-state="${escapeHtml(state.draftRichInlinePatchExecution.status)}">${escapeHtml(draftRichInlinePatchExecutionLabel())}</dd>
             <dt>Toolbar</dt><dd data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</dd>
@@ -2364,6 +2389,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-ime-policy>${escapeHtml(draftImePolicyLabel())}</span>
       <span data-draft-contenteditable-segment-capture>${escapeHtml(draftContenteditableSegmentCaptureLabel())}</span>
       <span data-draft-contenteditable-range>${escapeHtml(draftContenteditableRangeMappingLabel())}</span>
+      <span data-draft-contenteditable-surface-hardening>${escapeHtml(draftContenteditableSurfaceHardeningLabel())}</span>
       <span data-draft-style-patch>${escapeHtml(draftInlineStylePatchLabel())}</span>
       <span data-draft-rich-inline-execution>${escapeHtml(draftRichInlinePatchExecutionLabel())}</span>
       <span data-draft-toolbar-state>${escapeHtml(draftToolbarStateLabel())}</span>
@@ -3002,6 +3028,7 @@ function render(options = {}) {
   updateDraftImePolicy()
   updateDraftContenteditableSegmentCapture({ useDom: false })
   updateDraftContenteditableRangeMapping()
+  updateDraftContenteditableSurfaceHardening({ useDom: false })
   updateDraftInlineStylePatch()
   updateDraftRichInlinePatchExecution()
   updateDraftToolbarState()

@@ -2088,6 +2088,13 @@
       "reason": "browser-local contenteditable range mapping consumes bounded segment facts and maps them to FlowDoc UTF-16 draft offsets without mutating package state"
     },
     {
+      "action": "browser.hardenContenteditableSurface",
+      "label": "Surface hardening",
+      "lane": "immediate",
+      "status": "wired",
+      "reason": "browser-local production contenteditable surface hardening resolves nested selection facts and drift guards before package mutation"
+    },
+    {
       "action": "browser.deriveDraftCommandContext",
       "label": "Command ctx",
       "lane": "immediate",

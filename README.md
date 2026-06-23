@@ -656,6 +656,8 @@ The package must remain runnable without any parent editor checkout.
   WYSIWYG execution close audit and post-125 risk list
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_UNDO_REDO_REPLAY_BOUNDARY.md`: Phase 127
   rich inline undo/redo replay boundary for sandbox bridge history patches
+- `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`: Phase
+  128 production contenteditable surface hardening boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -727,9 +729,9 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
-- concrete production contenteditable DOM binding, persistence-backed rich
-  inline commits, collaboration, renderer output, or WYSIWYG production editing
-  beyond the Phase 127 rich inline undo/redo replay boundary
+- concrete primary contenteditable editing input, persistence-backed rich inline
+  commits, collaboration, renderer output, or WYSIWYG production editing beyond
+  the Phase 128 contenteditable surface hardening boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

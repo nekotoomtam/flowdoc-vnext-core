@@ -133,6 +133,8 @@ Parent goal:
 | 124 | Rich inline commit planning boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_PLANNING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 125 | Rich inline commit bridge boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_BRIDGE_BOUNDARY.md`; `src/authoring/richInlineCommit.ts`; `src/authoring/intentHistory.ts`; `src/index.ts`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineCommit.test.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 126 | WYSIWYG execution close audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygExecutionCloseAudit.test.ts` |
+| 127 | Rich inline undo/redo replay boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_UNDO_REDO_REPLAY_BOUNDARY.md`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 128 | Production contenteditable surface hardening boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSurfaceHardening.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3337,6 +3339,38 @@ undo/redo bridge:
 - `tests/templateBuilderSandboxBoundary.test.ts` proves rich commit -> undo ->
   redo packet behavior, action-lane exposure, bridge-source guardrails, and the
   unchanged plain text undo/redo path.
+
+This phase intentionally does not add package/document schema changes, parent
+editor imports, legacy runtime adoption, durable persistence/session writes,
+collaboration behavior, renderer artifact output, ICU4X execution, or
+WASM/text-engine measurement replacement.
+
+## Phase 128 Production Contenteditable Surface Hardening Boundary
+
+Phase 128 hardens the browser-local production contenteditable surface before
+it becomes the primary editing input:
+
+- `examples/template-builder-sandbox/public/draftContenteditableSurfaceHardening.js`
+  owns `createDraftContenteditableSurfaceHardening(...)` and the label helper;
+- the hardening layer consumes Phase 123 segment capture and Phase 117 range
+  mapping summaries without mutating package state;
+- nested DOM-like selection endpoints resolve back to segment id, UTF-16
+  offset, absolute draft value, direction, collapsed state, and caret affinity;
+- root id drift, target drift, plain text drift, selection drift, segment
+  capture readiness, range mapper status, and IME composition are recorded as
+  explicit guards;
+- styled-run content can still harden the surface even when the older plain
+  range mapper blocks styled ranges;
+- `examples/template-builder-sandbox/public/app.js` exposes
+  `data-draft-contenteditable-surface-hardening`;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.hardenContenteditableSurface`;
+- `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`
+  records PASS, FAIL/BLOCKER, RISK, UNKNOWN, files changed, behavior changed,
+  tests run, risks left, and intentionally not changed;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves ready nested-selection
+  hardening, styled range-mapper guard carry-through, blocked drift cases,
+  composition guard behavior, action-lane exposure, and source guardrails.
 
 This phase intentionally does not add package/document schema changes, parent
 editor imports, legacy runtime adoption, durable persistence/session writes,

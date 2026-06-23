@@ -3556,6 +3556,40 @@ Acceptance:
 - persistence, collaboration, renderer output, and WASM/text-engine replacement
   remain out of scope.
 
+## Phase 128: Production Contenteditable Surface Hardening Boundary
+
+Goal:
+
+- harden the browser-local production contenteditable surface before it becomes
+  the primary editing input.
+
+Deliverables:
+
+- browser-safe hardening module at
+  `examples/template-builder-sandbox/public/draftContenteditableSurfaceHardening.js`;
+- nested DOM-like selection endpoint resolution back to segment id, UTF-16
+  offset, absolute draft value, direction, collapsed state, and caret affinity;
+- drift guards for root id, target text block, plain text, selection endpoint,
+  segment capture readiness, range mapper status, and IME composition;
+- action lane for `browser.hardenContenteditableSurface`;
+- visible sandbox summaries through `data-draft-contenteditable-surface-hardening`;
+- boundary doc in
+  `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SURFACE_HARDENING_BOUNDARY.md`;
+- tests proving ready nested-selection hardening, styled range-mapper guard
+  carry-through, blocked drift cases, composition guard behavior, and unchanged
+  package mutation boundaries.
+
+Acceptance:
+
+- a contenteditable root with nested text nodes can resolve DOM-like selection
+  endpoints into deterministic vNext draft offsets;
+- styled-run content does not get flattened only to satisfy the old plain range
+  mapper;
+- root/target/text/selection drift and IME composition are blocked before
+  package mutation;
+- package mutation, persistence, collaboration, renderer output, and
+  WASM/text-engine replacement remain out of scope.
+
 ## Later Phases
 
 Goal:

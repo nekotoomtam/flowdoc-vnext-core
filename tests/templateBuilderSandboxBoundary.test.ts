@@ -162,6 +162,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftSelection")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.captureContenteditableSegments")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.mapContenteditableRange")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.hardenContenteditableSurface")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.deriveDraftCommandContext")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyDraftTextCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
@@ -7322,6 +7323,280 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingReason).toBe("composition-active")
   })
 
+  it("hardens production contenteditable surface facts before package mutation", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const {
+        createDraftContenteditableSegmentCapture,
+      } = await import("./public/draftContenteditableSegmentCapture.js");
+      const { createDraftContenteditableRangeMapping } = await import("./public/draftContenteditableRangeMapping.js");
+      const {
+        DRAFT_CONTENTEDITABLE_SURFACE_HARDENING_MODE,
+        DRAFT_CONTENTEDITABLE_SURFACE_HARDENING_SOURCE,
+        createDraftContenteditableSurfaceHardening,
+        draftContenteditableSurfaceHardeningLabel,
+      } = await import("./public/draftContenteditableSurfaceHardening.js");
+
+      function textNode(text) {
+        return { nodeType: 3, textContent: text };
+      }
+
+      function element(dataset, children = [], textContent = "") {
+        const node = { dataset, nodeType: 1, childNodes: children, textContent };
+        children.forEach((child) => {
+          child.parentNode = node;
+        });
+        return node;
+      }
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const draft = updateDraftSelectionRange(createDraftStateForNode(node, { baseRevision: 14 }), 1, 9, {
+        source: "production-contenteditable-test",
+      }).draft;
+      const helloText = textNode("Hello ");
+      const helloWrapper = element({ inlineWrapper: "strong" }, [helloText], "Hello ");
+      const plainSegment = element({
+        contenteditableSegmentId: "plain-seg",
+        contenteditableSegmentKind: "plain-text",
+      }, [helloWrapper], "Hello ");
+      const worldText = textNode("world");
+      const worldWrapper = element({ inlineWrapper: "em" }, [worldText], "world");
+      const styledSegment = element({
+        contenteditableSegmentId: "styled-seg",
+        contenteditableSegmentKind: "styled-run",
+        styleMarks: "bold",
+      }, [worldWrapper], "world");
+      const surface = {
+        contentEditable: "true",
+        rootId: "cover-header-label:contenteditable-surface",
+        targetTextBlockId: "cover-header-label",
+        childNodes: [plainSegment, styledSegment],
+      };
+      plainSegment.parentNode = surface;
+      styledSegment.parentNode = surface;
+
+      const capture = createDraftContenteditableSegmentCapture(draft, { surface });
+      const rangeMapping = createDraftContenteditableRangeMapping(draft, {
+        segments: capture.segments,
+        selection: capture.selection,
+      });
+      const ready = createDraftContenteditableSurfaceHardening(draft, {
+        rangeMapping,
+        segmentCapture: capture,
+        selection: {
+          anchorNode: helloText,
+          anchorOffset: 1,
+          direction: "forward",
+          focusNode: worldText,
+          focusOffset: 3,
+          source: "real-dom-selection",
+        },
+        surface,
+      });
+      const offsetBlocked = createDraftContenteditableSurfaceHardening(draft, {
+        rangeMapping,
+        segmentCapture: capture,
+        selection: {
+          anchorOffset: 99,
+          anchorSegmentId: "plain-seg",
+          focusOffset: 99,
+          focusSegmentId: "plain-seg",
+        },
+        surface,
+      });
+      const rootBlocked = createDraftContenteditableSurfaceHardening(draft, {
+        rangeMapping,
+        segmentCapture: capture,
+        selection: capture.selection,
+        surface: { ...surface, rootId: "other-root" },
+      });
+      const targetBlocked = createDraftContenteditableSurfaceHardening(draft, {
+        rangeMapping,
+        segmentCapture: capture,
+        selection: capture.selection,
+        surface: { ...surface, targetTextBlockId: "other-node" },
+      });
+      const composingDraft = updateDraftComposition(draft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "forward",
+        selectionEnd: 9,
+        selectionSource: "compositionstart",
+        selectionStart: 1,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftContenteditableSurfaceHardening(composingDraft, {
+        rangeMapping,
+        segmentCapture: capture,
+        selection: capture.selection,
+        surface,
+      });
+      const idle = createDraftContenteditableSurfaceHardening(null);
+
+      console.log(JSON.stringify({
+        composingCanUse: composing.canUseProductionSurface,
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_CONTENTEDITABLE_SURFACE_HARDENING_MODE,
+          source: DRAFT_CONTENTEDITABLE_SURFACE_HARDENING_SOURCE,
+        },
+        idleLabel: draftContenteditableSurfaceHardeningLabel(idle),
+        idleStatus: idle.status,
+        offsetBlockedLabel: draftContenteditableSurfaceHardeningLabel(offsetBlocked),
+        offsetBlockedReason: offsetBlocked.reason,
+        offsetBlockedStatus: offsetBlocked.status,
+        readyAnchorAffinity: ready.selection.anchor.affinity,
+        readyAnchorOffset: ready.selection.anchor.offset,
+        readyAnchorSegment: ready.selection.anchor.segmentId,
+        readyBackend: ready.backendApi.status,
+        readyCanUse: ready.canUseProductionSurface,
+        readyContenteditableSource: ready.contenteditable.source,
+        readyContenteditableStatus: ready.contenteditable.status,
+        readyCore: ready.coreTransaction.status,
+        readyExact: ready.exactGeneration.status,
+        readyGuardBidi: ready.guards.bidiCaretAffinity,
+        readyGuardNested: ready.guards.nestedInline,
+        readyGuardRangeMapping: ready.guards.rangeMapping,
+        readyGuardSelection: ready.guards.selection,
+        readyGuardText: ready.guards.text,
+        readyHistory: ready.history.status,
+        readyLabel: draftContenteditableSurfaceHardeningLabel(ready),
+        readyLive: ready.liveLayout.status,
+        readyManagedSegments: ready.contenteditable.managedSegmentCount,
+        readyMode: ready.mode,
+        readyPackageMutation: ready.packageMutation.status,
+        readyRangeMappingReason: ready.rangeMapping.reason,
+        readyRangeMappingStatus: ready.rangeMapping.status,
+        readyReason: ready.reason,
+        readySegmentCaptureStatus: ready.segmentCapture.status,
+        readySelectionDirection: ready.selection.direction,
+        readySelectionEnd: ready.selection.end,
+        readySelectionSource: ready.selection.source,
+        readySelectionStart: ready.selection.start,
+        readyStatus: ready.status,
+        readyTextDrift: ready.contenteditable.textDrift,
+        readyTextEngine: ready.textEngine.status,
+        rootBlockedLabel: draftContenteditableSurfaceHardeningLabel(rootBlocked),
+        rootBlockedReason: rootBlocked.reason,
+        rootBlockedStatus: rootBlocked.status,
+        targetBlockedReason: targetBlocked.reason,
+        targetBlockedStatus: targetBlocked.status,
+        target: ready.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingCanUse: boolean
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      offsetBlockedLabel: string
+      offsetBlockedReason: string
+      offsetBlockedStatus: string
+      readyAnchorAffinity: string
+      readyAnchorOffset: number
+      readyAnchorSegment: string
+      readyBackend: string
+      readyCanUse: boolean
+      readyContenteditableSource: string
+      readyContenteditableStatus: string
+      readyCore: string
+      readyExact: string
+      readyGuardBidi: string
+      readyGuardNested: string
+      readyGuardRangeMapping: string
+      readyGuardSelection: string
+      readyGuardText: string
+      readyHistory: string
+      readyLabel: string
+      readyLive: string
+      readyManagedSegments: number
+      readyMode: string
+      readyPackageMutation: string
+      readyRangeMappingReason: string
+      readyRangeMappingStatus: string
+      readyReason: string
+      readySegmentCaptureStatus: string
+      readySelectionDirection: string
+      readySelectionEnd: number
+      readySelectionSource: string
+      readySelectionStart: number
+      readyStatus: string
+      readyTextDrift: string
+      readyTextEngine: string
+      rootBlockedLabel: string
+      rootBlockedReason: string
+      rootBlockedStatus: string
+      targetBlockedReason: string
+      targetBlockedStatus: string
+      target: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-contenteditable-surface-hardening")
+    expect(result.constants.mode).toBe("browser-local-production-contenteditable-surface-hardening-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Surface hardening: idle")
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyReason).toBe("contenteditable-surface-hardened")
+    expect(result.readyCanUse).toBe(true)
+    expect(result.readyMode).toBe("browser-local-production-contenteditable-surface-hardening-boundary")
+    expect(result.readyContenteditableStatus).toBe("bound")
+    expect(result.readyContenteditableSource).toBe("browser-owned-dom-inspection")
+    expect(result.readyManagedSegments).toBe(2)
+    expect(result.readyTextDrift).toBe("none")
+    expect(result.readySegmentCaptureStatus).toBe("ready")
+    expect(result.readyRangeMappingStatus).toBe("blocked")
+    expect(result.readyRangeMappingReason).toBe("styled-run-needs-rich-inline-mapping")
+    expect(result.readyGuardRangeMapping).toBe("blocked")
+    expect(result.readyGuardSelection).toBe("resolved")
+    expect(result.readyGuardText).toBe("matched")
+    expect(result.readyGuardNested).toBe("flat")
+    expect(result.readyGuardBidi).toBe("pending-renderer-measurement")
+    expect(result.readySelectionSource).toBe("browser-dom-selection")
+    expect(result.readySelectionDirection).toBe("forward")
+    expect(result.readySelectionStart).toBe(1)
+    expect(result.readySelectionEnd).toBe(9)
+    expect(result.readyAnchorSegment).toBe("plain-seg")
+    expect(result.readyAnchorOffset).toBe(1)
+    expect(result.readyAnchorAffinity).toBe("inside")
+    expect(result.readyCore).toBe("not-run")
+    expect(result.readyHistory).toBe("not-recorded")
+    expect(result.readyLive).toBe("not-requested")
+    expect(result.readyExact).toBe("deferred-until-commit")
+    expect(result.readyBackend).toBe("not-called")
+    expect(result.readyPackageMutation).toBe("deferred-until-commit")
+    expect(result.readyTextEngine).toBe("not-executed")
+    expect(result.readyLabel).toBe("Surface hardening: ready")
+    expect(result.target).toBe("cover-header-label")
+    expect(result.offsetBlockedStatus).toBe("blocked")
+    expect(result.offsetBlockedReason).toBe("selection-offset-out-of-range")
+    expect(result.offsetBlockedLabel).toBe("Surface hardening: selection blocked")
+    expect(result.rootBlockedStatus).toBe("blocked")
+    expect(result.rootBlockedReason).toBe("root-id-mismatch")
+    expect(result.rootBlockedLabel).toBe("Surface hardening: root drift")
+    expect(result.targetBlockedStatus).toBe("blocked")
+    expect(result.targetBlockedReason).toBe("target-mismatch")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+    expect(result.composingCanUse).toBe(false)
+  })
+
   it("executes rich inline style patches into browser-local styled-run facts", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       const {
@@ -8728,6 +9003,7 @@ describe("template builder sandbox boundary", () => {
     const draftStyleHistorySource = readText("../examples/template-builder-sandbox/public/draftStyleHistory.js")
     const draftContenteditableSegmentCaptureSource = readText("../examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js")
     const draftContenteditableRangeMappingSource = readText("../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js")
+    const draftContenteditableSurfaceHardeningSource = readText("../examples/template-builder-sandbox/public/draftContenteditableSurfaceHardening.js")
     const draftRichInlinePatchExecutionSource = readText("../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js")
     const draftToolbarCommandDispatchSource = readText("../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js")
     const draftRichInlineStateSource = readText("../examples/template-builder-sandbox/public/draftRichInlineState.js")
@@ -8754,6 +9030,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.planDraftStyleHistory")
     expect(coreBoundarySource).toContain("browser.captureContenteditableSegments")
     expect(coreBoundarySource).toContain("browser.mapContenteditableRange")
+    expect(coreBoundarySource).toContain("browser.hardenContenteditableSurface")
     expect(coreBoundarySource).toContain("browser.executeRichInlinePatch")
     expect(coreBoundarySource).toContain("browser.dispatchDraftToolbarCommand")
     expect(coreBoundarySource).toContain("browser.executeDraftFieldChipInsert")
@@ -8770,6 +9047,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftStyleHistory.js"')
     expect(appSource).toContain('from "./draftContenteditableSegmentCapture.js"')
     expect(appSource).toContain('from "./draftContenteditableRangeMapping.js"')
+    expect(appSource).toContain('from "./draftContenteditableSurfaceHardening.js"')
     expect(appSource).toContain('from "./draftRichInlinePatchExecution.js"')
     expect(appSource).toContain('from "./draftToolbarCommandDispatch.js"')
     expect(appSource).toContain('from "./draftRichInlineState.js"')
@@ -8815,6 +9093,12 @@ describe("template builder sandbox boundary", () => {
     expect(draftContenteditableRangeMappingSource).toContain("atomic-inline-needs-inline-node-mapping")
     expect(draftContenteditableRangeMappingSource).toContain("not-bound")
     expect(draftContenteditableRangeMappingSource).toContain("not-executed")
+    expect(draftContenteditableSurfaceHardeningSource).toContain("createDraftContenteditableSurfaceHardening")
+    expect(draftContenteditableSurfaceHardeningSource).toContain("browser-local-production-contenteditable-surface-hardening-boundary")
+    expect(draftContenteditableSurfaceHardeningSource).toContain("browser-dom-selection")
+    expect(draftContenteditableSurfaceHardeningSource).toContain("selection-offset-out-of-range")
+    expect(draftContenteditableSurfaceHardeningSource).toContain("pending-renderer-measurement")
+    expect(draftContenteditableSurfaceHardeningSource).toContain("not-called")
     expect(draftRichInlinePatchExecutionSource).toContain("createDraftRichInlinePatchExecution")
     expect(draftRichInlinePatchExecutionSource).toContain("applied-to-browser-local-inline-state")
     expect(draftRichInlinePatchExecutionSource).toContain("browser-local-style-run-recorded")
@@ -8862,6 +9146,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-contenteditable-surface")
     expect(appSource).toContain("data-draft-contenteditable-segment-capture")
     expect(appSource).toContain("data-draft-contenteditable-range")
+    expect(appSource).toContain("data-draft-contenteditable-surface-hardening")
     expect(appSource).toContain("data-draft-style-patch")
     expect(appSource).toContain("data-draft-rich-inline-execution")
     expect(appSource).toContain("data-draft-toolbar-state")
