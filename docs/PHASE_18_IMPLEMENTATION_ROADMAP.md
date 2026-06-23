@@ -2302,6 +2302,45 @@ Acceptance:
   execution, operation execution, layout, pagination, or renderer execution;
 - package/document schema remains unchanged.
 
+## Phase 90: Repeat / Collection / Form-slot Boundary
+
+Goal:
+
+- add a pure readiness boundary for repeat regions, collection binding, and
+  form slots without implementing repeat expansion, collection payload schema,
+  form-slot schema, submission state, or package/document schema changes.
+
+Deliverables:
+
+- repeat/collection/form-slot readiness helper in
+  `src/binding/repeatCollectionFormSlots.ts`;
+- public exports for repeat/collection/form-slot source/mode constants and
+  `assessVNextRepeatCollectionFormSlotReadiness(...)`;
+- collection field detection from the package field registry;
+- affected inline field-ref usage and scalar data-key facts;
+- explicit repeat-region, form-slot, submission-state, collection-binding, and
+  repeat-expansion statuses;
+- validation for collection fields used as inline scalar refs and collection
+  fields supplied through scalar data snapshots;
+- boundary tests for scalar-only readiness, blocked collection misuse, source
+  independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- scalar-only packages remain ready while repeat regions and form slots are
+  explicitly reported as not modeled;
+- collection fields are visible in the boundary result before materialization
+  exists;
+- collection fields used inline or supplied through scalar data snapshots are
+  blocked;
+- repeat expansion, collection binding, form-slot materialization, submission
+  state, document mutation, and package version changes remain not-run/false;
+- the boundary does not import storage adapters, server frameworks, parent app
+  routes, DOM/browser storage APIs, package parse/serialize, text transaction
+  execution, operation execution, layout, pagination, or renderer execution;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:
@@ -2322,7 +2361,7 @@ Possible later work:
   invalidation;
 - concrete API route work;
 - exact renderer adapters;
-- repeat/collection design;
+- repeat/collection materialization and form-slot schema/runtime;
 - key migration execution, aliases/deprecated keys, and key history stores;
 - concrete session storage adapters and durable history stores;
 - durable undo/redo replay and selection restoration;

@@ -96,6 +96,7 @@ Parent goal:
 | 87 | Session storage boundary | done | `docs/SESSION_STORAGE_BOUNDARY.md`; `src/authoring/sessionStorage.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/sessionStorage.test.ts` |
 | 88 | Durable history / undo-redo boundary | done | `docs/DURABLE_HISTORY_BOUNDARY.md`; `src/authoring/durableHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/durableHistory.test.ts` |
 | 89 | Key history / migration boundary | done | `docs/KEY_HISTORY_MIGRATION_BOUNDARY.md`; `src/binding/keyHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/keyHistory.test.ts` |
+| 90 | Repeat / collection / form-slot boundary | done | `docs/REPEAT_COLLECTION_FORM_SLOT_BOUNDARY.md`; `src/binding/repeatCollectionFormSlots.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/repeatCollectionFormSlots.test.ts` |
 
 ## Current Rule
 
@@ -2201,6 +2202,43 @@ version changes, data value migration, authored field-ref mutation, undo/redo
 integration, collaboration, backend routes, storage adapters, exact layout
 execution, renderer adapter output, artifact storage, or package/document
 schema changes.
+
+## Phase 90 Repeat / Collection / Form-slot Boundary
+
+Phase 90 makes repeat, collection, and form-slot readiness explicit without
+adding materialization behavior or schema changes:
+
+- `src/binding/repeatCollectionFormSlots.ts` owns
+  `VNEXT_REPEAT_COLLECTION_FORM_SLOT_SOURCE`,
+  `VNEXT_REPEAT_COLLECTION_FORM_SLOT_MODE`, and
+  `assessVNextRepeatCollectionFormSlotReadiness(...)`;
+- collection fields are detected from the package field registry and reported
+  with affected inline field-ref ids and scalar data-key presence;
+- repeat regions and form slots are reported as `not-modeled`;
+- submission state, repeat expansion, collection binding, form-slot
+  materialization, document mutation, and package version changes are
+  not-run/false;
+- collection fields used as inline scalar refs are blocked before collection
+  binding exists;
+- collection fields supplied through the current scalar data snapshot are
+  blocked before a collection payload schema exists;
+- `src/index.ts` exports the repeat/collection/form-slot boundary through the
+  public package entry;
+- `docs/REPEAT_COLLECTION_FORM_SLOT_BOUNDARY.md` records the ownership, truth
+  boundary, acceptance evidence, and non-goals;
+- `tests/repeatCollectionFormSlots.test.ts` proves scalar-only readiness,
+  blocked collection misuse, no package truth mutation, source independence
+  from storage adapters, parent runtime, DOM, routes, package parse/serialize,
+  transactions, operations, layout, and pagination, plus README/roadmap/ledger
+  traceability.
+
+This phase intentionally does not implement repeat region nodes, collection
+binding, collection payload schema, form-slot schema, submission/reviewer
+workflows, repeat expansion, collection row identity, item-level pagination
+policy, data-source adapters, authored field-ref mutation, backend routes,
+storage adapters, collaboration, exact layout execution, renderer adapter
+output, artifact storage, package/document version changes, or
+package/document schema changes.
 
 ## Phase 12 Extraction Record
 
