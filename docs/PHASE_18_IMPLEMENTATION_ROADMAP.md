@@ -2708,6 +2708,48 @@ Acceptance:
   browser, storage, server, parent-app, or legacy runtime dependencies;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 101: Font Registry Spike Boundary
+
+Goal:
+
+- add a pure font registry spike boundary that records Thai font asset,
+  license, hash, target, and style-key mapping facts before font files are
+  copied, read, hashed, persisted, or used by a concrete measurement engine.
+
+Deliverables:
+
+- font registry spike planner in `src/renderer/fontRegistrySpike.ts`;
+- public exports for font registry spike source/mode constants and
+  `createVNextFontRegistrySpikePlan(...)`;
+- asset facts for font id, family, style, weight, format, role, availability,
+  source reference, target reference, license, hash, revision, and supported
+  scripts;
+- style-key mapping facts from measured-pagination style keys to primary and
+  fallback font ids;
+- `measurementFontAssets` projection compatible with the Phase 100 text
+  measurement engine spike plan;
+- profile candidate id built from registry id, policy revision, font ids, and
+  sha256 hashes;
+- blocking issues for production measurement binding, missing registry/policy
+  identity, duplicate font ids, invalid font facts, available fonts without
+  vNext workspace targets, legacy target paths, missing/unverified licenses,
+  missing/non-sha256 hashes, missing primary Thai fonts, and broken required
+  style mappings;
+- warning issues for legacy source references that remain evidence only;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- Sarabun and Noto Sans Thai can be represented as a Thai measurement font set
+  with verified license/hash facts and style-key mappings;
+- old FlowDocEditor font paths can appear only as non-canonical source
+  references, never as vNext target paths;
+- registry facts can feed the Phase 100 engine spike without reading files;
+- missing license/hash facts and broken required style mappings block;
+- the boundary does not read or copy font files, compute hashes, import font
+  parsers/renderers, bind production pagination, or mutate schema;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

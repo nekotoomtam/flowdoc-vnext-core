@@ -107,6 +107,7 @@ Parent goal:
 | 98 | Final TOC / page resolution boundary | done | `docs/FINAL_TOC_PAGE_RESOLUTION_BOUNDARY.md`; `src/pagination/pageResolution.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pageResolution.test.ts` |
 | 99 | Exact output close audit | done | `docs/EXACT_OUTPUT_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/exactOutputCloseAudit.test.ts` |
 | 100 | Text measurement engine spike boundary | done | `docs/TEXT_MEASUREMENT_ENGINE_SPIKE_BOUNDARY.md`; `src/renderer/textMeasurementEngineSpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textMeasurementEngineSpike.test.ts` |
+| 101 | Font registry spike boundary | done | `docs/FONT_REGISTRY_SPIKE_BOUNDARY.md`; `src/renderer/fontRegistrySpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontRegistrySpike.test.ts` |
 
 ## Current Rule
 
@@ -2584,6 +2585,32 @@ readers, storage adapters, backend routes, workers, or legacy runtime code. It
 does not read font files, relayout documents, replace measured pagination,
 mutate package/document data, write artifacts, or change package/document
 schema.
+
+## Phase 101 Font Registry Spike Boundary
+
+Phase 101 adds a pure font registry spike boundary for the Thai measurement
+path before any font file operations or concrete measurement engine work:
+
+- `src/renderer/fontRegistrySpike.ts` records font assets, source references,
+  vNext target references, license facts, sha256 hash facts, supported scripts,
+  style-key mappings, profile identity ingredients, and next steps;
+- Sarabun and Noto Sans Thai can be represented as primary/fallback Thai font
+  assets and projected into Phase 100 `measurementFontAssets`;
+- old FlowDocEditor font paths are allowed only as non-canonical source
+  references and are blocked if used as vNext target paths;
+- available assets block without verified license facts, sha256 hashes, and
+  workspace public-font targets;
+- required style mappings block when they point at missing or unavailable font
+  assets;
+- `tests/fontRegistrySpike.test.ts` proves ready Thai font registration,
+  Phase 100 engine-spike handoff, legacy target blocking, license/hash
+  blocking, required style mapping validation, source independence, and
+  documentation trail.
+
+This phase intentionally does not copy or move font files, read font bytes,
+compute hashes, import font parsers, install dependencies, bind production
+pagination, replace measured pagination, mutate package/document data, write
+artifacts or storage records, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

@@ -326,6 +326,9 @@ The package must remain runnable without any parent editor checkout.
 - Text measurement engine spike boundary records font, HarfBuzz shaping,
   ICU4X/Intl.Segmenter line-break, and Thai oracle comparison readiness before
   any concrete engine can replace pagination measurement.
+- Font registry spike boundary records Sarabun/Noto Sans Thai asset, license,
+  hash, target, and style-key mapping facts before font files are copied or
+  used by a concrete measurement engine.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -372,6 +375,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_MEASUREMENT_ENGINE_SPIKE_BOUNDARY.md`: Phase 100 text
   measurement engine spike boundary before HarfBuzz/ICU4X/Intl/Thai oracle
   implementation
+- `docs/FONT_REGISTRY_SPIKE_BOUNDARY.md`: Phase 101 font registry spike
+  boundary before font file copy/hash scanning or concrete measurement use
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -560,6 +565,8 @@ The package must remain runnable without any parent editor checkout.
   profile adapter and Phase 100 engine spike boundary
 - concrete HarfBuzz, ICU4X, Intl.Segmenter, LibThai, PyThaiNLP, AttaCut, font
   registry, or font hash execution beyond the Phase 100 spike plan
+- concrete font file copy, font file hash scanning, or persisted font registry
+  beyond the Phase 101 registry spike boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
