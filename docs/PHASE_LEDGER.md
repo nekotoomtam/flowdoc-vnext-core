@@ -110,6 +110,7 @@ Parent goal:
 | 101 | Font registry spike boundary | done | `docs/FONT_REGISTRY_SPIKE_BOUNDARY.md`; `src/renderer/fontRegistrySpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontRegistrySpike.test.ts` |
 | 102 | Font ownership clearing boundary | done | `docs/FONT_OWNERSHIP_CLEARING_BOUNDARY.md`; `src/renderer/fontOwnership.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontOwnership.test.ts` |
 | 103 | Font asset copy/hash evidence | done | `docs/FONT_ASSET_COPY_HASH_EVIDENCE.md`; `assets/fonts/font-assets.v1.json`; `assets/fonts/Sarabun/*`; `assets/fonts/Noto_Sans_Thai/*`; `package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontAssetEvidence.test.ts` |
+| 104 | Measurement profile identity contract | done | `docs/MEASUREMENT_PROFILE_IDENTITY_CONTRACT.md`; `src/renderer/measurementProfileIdentity.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/measurementProfileIdentity.test.ts` |
 
 ## Current Rule
 
@@ -2664,6 +2665,29 @@ rustybuzz/HarfBuzz, run ICU4X, create browser public-font mirrors, bind
 production pagination, replace measured pagination, render PDF/DOCX output,
 write artifacts or storage records, add backend routes, or change
 package/document schema.
+
+## Phase 104 Measurement Profile Identity Contract
+
+Phase 104 locks deterministic `measurementProfileId` construction before
+concrete text engine execution:
+
+- `src/renderer/measurementProfileIdentity.ts` creates stable profile identity
+  plans from copied font hashes, style-key mappings, shaper identity, segmenter
+  identity/data, line-break policy, fallback policy, and output shape;
+- profile ids change when font hashes, shaper revisions, segmenter data
+  revisions, or policy inputs change;
+- `Intl.Segmenter` remains valid as comparison evidence but is blocked as
+  runtime-dependent primary profile truth;
+- missing hashes, broken style mappings, missing engine revisions, blocked
+  package boundaries, unsupported fallback policy, and production binding block;
+- `tests/measurementProfileIdentity.test.ts` proves stable ids from Phase 103
+  font evidence, drift-sensitive identity, blocking behavior, source
+  independence, and documentation trail.
+
+This phase intentionally does not read font files, compute hashes, import
+rustybuzz/HarfBuzz/ICU4X, execute shaping or segmentation, replace measured
+pagination, mutate package/document data, write artifacts or storage records,
+add backend routes, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

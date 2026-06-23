@@ -2825,6 +2825,42 @@ Acceptance:
 - the package file list includes `assets`;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 104: Measurement Profile Identity Contract
+
+Goal:
+
+- define stable `measurementProfileId` construction from copied font hashes,
+  style mappings, shaping engine identity, segmentation data identity,
+  line-break policy, fallback policy, and output shape before any concrete
+  measurement engine runs.
+
+Deliverables:
+
+- measurement profile identity planner in
+  `src/renderer/measurementProfileIdentity.ts`;
+- public exports for measurement profile identity source/mode constants and
+  `createVNextMeasurementProfileIdentityPlan(...)`;
+- identity ingredients for font assets, style mappings, shaper identity,
+  segmenter identity, fallback policy, and output shape version;
+- deterministic `measurementProfileId` parts that change when font hashes,
+  shaper revision, segmenter revision/data, or policy inputs change;
+- blocking issues for production binding, missing font hashes, broken style
+  mappings, missing engine revisions, nondeterministic/runtime-dependent
+  primary segmentation, blocked package boundaries, unsupported fallback
+  policy, and missing output shape;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- copied Phase 103 font hashes can produce a stable profile id;
+- changing a font hash, shaper revision, or segmenter data revision changes the
+  profile id;
+- `Intl.Segmenter` is blocked as primary truth when runtime-dependent;
+- the contract does not read font files, compute hashes, import engines,
+  execute shaping/segmentation, replace pagination measurement, or mutate
+  schema;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

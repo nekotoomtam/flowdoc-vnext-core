@@ -335,6 +335,9 @@ The package must remain runnable without any parent editor checkout.
 - Font asset copy/hash evidence adds the initial Sarabun and Noto Sans Thai
   package font files under `assets/fonts`, records OFL evidence, and verifies
   sha256 hashes from vNext-owned target copies.
+- Measurement profile identity contract derives stable `measurementProfileId`
+  strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
+  line-break policy, fallback policy, and output shape.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -387,6 +390,8 @@ The package must remain runnable without any parent editor checkout.
   boundary before font file copy, package metadata updates, or hash scanning
 - `docs/FONT_ASSET_COPY_HASH_EVIDENCE.md`: Phase 103 font asset copy/hash
   evidence before font parsing, shaping, line breaking, or production binding
+- `docs/MEASUREMENT_PROFILE_IDENTITY_CONTRACT.md`: Phase 104 measurement
+  profile identity contract before concrete rustybuzz/ICU4X execution
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -582,6 +587,8 @@ The package must remain runnable without any parent editor checkout.
 - concrete font parsing, glyph inspection, browser public-font mirrors,
   rustybuzz/HarfBuzz shaping, or ICU4X line breaking beyond the Phase 103
   copied font/hash evidence
+- concrete measurement engine execution beyond the Phase 104 profile identity
+  contract
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
