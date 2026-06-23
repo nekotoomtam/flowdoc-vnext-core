@@ -122,6 +122,7 @@ Parent goal:
 | 113 | Text engine rustybuzz smoke package boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_PACKAGE_BOUNDARY.md`; `packages/text-engine-rust-wasm/rust-shaper`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.sarabun.v1.json`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `.gitignore`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
 | 114 | Text engine rustybuzz raw mapping boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_RAW_MAPPING_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rustybuzzRawMapping.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzRawMapping.test.ts`; `tests/textEngineRustybuzzSmokePackage.test.ts` |
 | 115 | Text engine rustybuzz smoke corpus boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_CORPUS_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.corpus.v1.json`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.*.v1.json`; `packages/text-engine-rust-wasm/src/rustybuzzSmokeCorpus.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokeCorpus.test.ts` |
+| 116 | WYSIWYG re-entry audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygReentryAudit.test.ts` |
 
 ## Current Rule
 
@@ -2984,6 +2985,35 @@ multi-line wrapping, compare Thai oracle line breaks, bind production
 measurement, replace measured pagination, mutate package/document data, write
 artifacts or storage records, add backend routes, or change package/document
 schema.
+
+## Phase 116 WYSIWYG Re-entry Audit
+
+Phase 116 re-enters the WYSIWYG / Editing lane after the text-engine work:
+
+- `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md` connects the Phase 85
+  WYSIWYG foundation close audit with the Phase 113-115 rustybuzz evidence
+  lane;
+- PASS confirms draft runtime, layout preview, IME guard, style planning,
+  toolbar state, field-chip planning, and style-aware history modules remain
+  the browser-local foundation;
+- RISK records that textarea/plain-text editing, planning-only rich inline
+  summaries, `app.js` surface coordination, contenteditable range drift, and
+  native-only text-engine evidence are still future production risks;
+- UNKNOWN records production IME behavior, active rich-inline mark detection,
+  exact renderer/export parity, durable undo/redo grouping, collaboration, and
+  persistence behavior;
+- phase cards for Phases 117-120 define contenteditable DOM range mapping,
+  rich inline range patch execution, toolbar command dispatch, and field chip
+  insert execution boundaries;
+- tests guard that the audit does not claim runtime behavior, package mutation,
+  history writes, live layout, exact output, contenteditable execution, or WASM
+  execution.
+
+This phase intentionally does not implement contenteditable runtime behavior,
+rich inline execution, toolbar dispatch, field chip insertion, package/document
+schema changes, parent runtime imports, legacy runtime adoption, package
+mutation, history writes, live layout requests, exact renderer output, backend
+routes, persistence, collaboration, or WASM execution.
 
 ## Phase 12 Extraction Record
 

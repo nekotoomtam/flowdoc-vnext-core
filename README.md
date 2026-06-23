@@ -280,6 +280,10 @@ The package must remain runnable without any parent editor checkout.
 - WYSIWYG close audit records PASS/RISK/UNKNOWN status for the current
   browser-local editing foundation before backend, persistence, and exact
   renderer phases continue
+- WYSIWYG re-entry audit reconnects the Phase 85 browser-local editing
+  foundation with the Phase 113-115 text-engine evidence lane and defines
+  managed cards through contenteditable range mapping, rich inline execution,
+  toolbar dispatch, and field chip insertion
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -596,6 +600,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local style-aware history boundary
 - `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md`: Phase 85 WYSIWYG foundation
   close audit and risk register
+- `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md`: Phase 116 WYSIWYG
+  production-editing re-entry audit and Phase 117-120 card plan
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -667,6 +673,9 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
+- concrete contenteditable mapping, rich inline style execution, toolbar
+  command dispatch, field chip insertion, or WYSIWYG production editing beyond
+  the Phase 116 re-entry audit
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

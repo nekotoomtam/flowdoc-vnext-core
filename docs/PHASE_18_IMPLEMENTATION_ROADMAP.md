@@ -3205,6 +3205,32 @@ Acceptance:
   measurement binding remain blocked;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 116: WYSIWYG Re-entry Audit
+
+Goal:
+
+- re-enter the WYSIWYG / Editing lane after the text-engine evidence work and
+  define managed phase cards through Phase 120.
+
+Deliverables:
+
+- re-entry audit in `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md`;
+- PASS/FAIL/RISK/UNKNOWN review linking Phase 85 and Phases 113-115;
+- explicit phase cards for Phases 117-120;
+- tests proving the audit does not claim runtime behavior or production rich
+  editing;
+- README and ledger updates.
+
+Acceptance:
+
+- Phase 85 browser-local foundation remains the WYSIWYG starting point;
+- Phase 113-115 text-engine evidence remains visible for future caret/range
+  work through UTF-16 FlowDoc offsets, not raw rustybuzz byte clusters;
+- contenteditable mapping, rich inline patch execution, toolbar dispatch, and
+  field chip insertion are sequenced as separate boundaries;
+- no package/document schema, runtime behavior, history, live layout, exact
+  output, backend, persistence, collaboration, or WASM behavior changes.
+
 ## Later Phases
 
 Goal:
