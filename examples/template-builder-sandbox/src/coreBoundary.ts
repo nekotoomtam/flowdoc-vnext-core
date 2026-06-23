@@ -831,6 +831,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local rich inline state consolidates styled-run and atomic chip facts before canonical commit planning",
       },
       {
+        action: "browser.planRichInlineCommit",
+        label: "Commit plan",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local rich inline state can be mapped to canonical vNext inline commit facts without applying package mutation",
+      },
+      {
         action: "browser.planDraftStyleHistory",
         label: "Style history",
         lane: "immediate",

@@ -130,6 +130,7 @@ Parent goal:
 | 121 | WYSIWYG execution re-baseline audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygExecutionRebaselineAudit.test.ts` |
 | 122 | Browser-local rich inline state boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 123 | Contenteditable segment capture boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SEGMENT_CAPTURE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 124 | Rich inline commit planning boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_PLANNING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3211,6 +3212,38 @@ inline commit, canonical field-ref insertion, key migration writes,
 package/document schema changes, durable history writes, live layout requests,
 exact renderer output, backend routes, persistence, collaboration behavior,
 ICU4X execution, or WASM/text-engine measurement.
+
+## Phase 124 Rich Inline Commit Planning Boundary
+
+Phase 124 maps browser-local rich inline draft state into canonical vNext commit
+facts without executing mutation:
+
+- `examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js` owns
+  the browser-safe planning contract;
+- the planner consumes Phase 122 `browserRichInlineState` records;
+- text segments become planned canonical `text` inline children with vNext style
+  objects for bold, italic, underline, and strikethrough;
+- atomic chip segments become planned canonical `field-ref` inline children
+  with key, label, and fallback metadata;
+- the plan records the intended `text-block.rich-inline.replace` operation,
+  dirty-scope requirement, history intent, key-history check, renderer
+  invalidation, live-layout invalidation, and exact-output stale marker;
+- stale revision, non-ready rich state, target drift, text drift, unsupported
+  overlap, missing field keys, unsupported style marks, invalid segment ranges,
+  and segment text mismatch are blocked;
+- `examples/template-builder-sandbox/public/app.js` surfaces
+  `data-draft-rich-inline-commit-plan`;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.planRichInlineCommit`;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves planned style+field
+  commits, text-only commits, stale revision blocking, text mismatch blocking,
+  missing field-key blocking, overlap blocking, and composition guard behavior.
+
+This phase intentionally does not execute package mutation, canonical field-ref
+insertion, key migration writes, package/document schema changes, durable
+history writes, live layout requests, exact renderer output, backend routes,
+persistence, collaboration behavior, ICU4X execution, or WASM/text-engine
+measurement.
 
 ## Phase 12 Extraction Record
 

@@ -3434,6 +3434,40 @@ Acceptance:
   insertion, durable history, live layout, exact output, backend API,
   persistence, collaboration, and WASM/text-engine execution stay deferred/off.
 
+## Phase 124: Canonical Rich Inline Commit Planning Boundary
+
+Goal:
+
+- map browser-local rich inline draft state to canonical vNext inline commit
+  facts without executing package mutation.
+
+Deliverables:
+
+- browser-safe commit planner module at
+  `examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js`;
+- visible sandbox summary through `data-draft-rich-inline-commit-plan`;
+- action lane for `browser.planRichInlineCommit`;
+- boundary doc in
+  `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_PLANNING_BOUNDARY.md`;
+- tests proving planned style+field commits, text-only commits, stale revision
+  blocking, text mismatch blocking, missing field-key blocking, overlap
+  blocking, and composition guard paths.
+
+Acceptance:
+
+- browser-local text segments map to planned canonical `text` inline children
+  with vNext style objects;
+- browser-local atomic chips map to planned canonical `field-ref` inline
+  children with key/label/fallback metadata;
+- required transaction, dirty-scope, history, key-history, renderer
+  invalidation, live-layout invalidation, and exact-output stale facts are
+  named;
+- unsupported overlap, stale revision, missing field key, target drift, and
+  text mismatch are blocked;
+- package mutation, canonical field-ref insertion execution, durable history,
+  live layout execution, exact output execution, backend API, persistence,
+  collaboration, and WASM/text-engine execution stay deferred/off.
+
 ## Later Phases
 
 Goal:

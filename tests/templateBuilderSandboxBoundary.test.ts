@@ -70,6 +70,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js",
       "../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js",
       "../examples/template-builder-sandbox/public/draftRichInlineState.js",
+      "../examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -175,6 +176,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftFieldChipInline")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.executeDraftFieldChipInsert")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.normalizeDraftRichInlineState")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planRichInlineCommit")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftStyleHistory")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
@@ -7871,6 +7873,329 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingReason).toBe("composition-active")
   })
 
+  it("plans canonical rich inline commits without mutating package state", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const { createDraftContenteditableRangeMapping } = await import("./public/draftContenteditableRangeMapping.js");
+      const { createDraftInlineStylePatch } = await import("./public/draftInlineStylePatch.js");
+      const { createDraftFieldChipInline } = await import("./public/draftFieldChipInline.js");
+      const { createDraftRichInlinePatchExecution } = await import("./public/draftRichInlinePatchExecution.js");
+      const { createDraftFieldChipInsertExecution } = await import("./public/draftFieldChipInsertExecution.js");
+      const { createDraftRichInlineState } = await import("./public/draftRichInlineState.js");
+      const {
+        DRAFT_RICH_INLINE_COMMIT_PLAN_MODE,
+        DRAFT_RICH_INLINE_COMMIT_PLAN_SOURCE,
+        createDraftRichInlineCommitPlan,
+        draftRichInlineCommitPlanLabel,
+      } = await import("./public/draftRichInlineCommitPlan.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const fields = [
+        { hasData: true, key: "customer.name", label: "Customer", type: "string", usageCount: 2 },
+      ];
+      const segment = {
+        draftEnd: 11,
+        draftStart: 0,
+        kind: "plain-text",
+        segmentId: "seg-1",
+        text: "Hello world",
+      };
+      const idle = createDraftRichInlineCommitPlan(null);
+      const draft = createDraftStateForNode(node, { baseRevision: 14 });
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "commit-plan-style-test",
+      }).draft;
+      const styleRange = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [segment],
+        selection: {
+          anchorOffset: 0,
+          anchorSegmentId: "seg-1",
+          focusOffset: 5,
+          focusSegmentId: "seg-1",
+          source: "commit-plan-style-range",
+        },
+      });
+      const stylePatch = createDraftInlineStylePatch(rangedDraft, {
+        styleMark: "bold",
+      });
+      const richInlinePatchExecution = createDraftRichInlinePatchExecution(rangedDraft, {
+        inlineStylePatch: stylePatch,
+        rangeMapping: styleRange,
+      });
+      const caretDraft = updateDraftSelectionRange(draft, 5, 5, {
+        source: "commit-plan-field-test",
+      }).draft;
+      const caretRange = createDraftContenteditableRangeMapping(caretDraft, {
+        segments: [segment],
+        selection: {
+          anchorOffset: 5,
+          anchorSegmentId: "seg-1",
+          focusOffset: 5,
+          focusSegmentId: "seg-1",
+          source: "commit-plan-field-range",
+        },
+      });
+      const fieldChipInline = createDraftFieldChipInline(caretDraft, {
+        fields,
+        selectedFieldKey: "customer.name",
+      });
+      const fieldChipInsertExecution = createDraftFieldChipInsertExecution(caretDraft, {
+        fieldChipInline,
+        rangeMapping: caretRange,
+        richInlinePatchExecution,
+      });
+      const richInlineState = createDraftRichInlineState(caretDraft, {
+        fieldChipInsertExecution,
+        richInlinePatchExecution,
+      });
+      const planned = createDraftRichInlineCommitPlan(caretDraft, {
+        documentRevision: 14,
+        richInlineState,
+      });
+      const textOnly = createDraftRichInlineCommitPlan(draft, {
+        documentRevision: 14,
+        richInlineState: createDraftRichInlineState(draft),
+      });
+      const stale = createDraftRichInlineCommitPlan(caretDraft, {
+        documentRevision: 15,
+        richInlineState,
+      });
+      const mismatch = createDraftRichInlineCommitPlan(caretDraft, {
+        browserRichInlineState: {
+          plainText: "Hello brave",
+          plainTextPreserved: true,
+          segments: [{ end: 11, kind: "text", start: 0, styleMarks: [], text: "Hello brave" }],
+          status: "normalized",
+          targetTextBlockId: "cover-header-label",
+          textLength: 11,
+        },
+        documentRevision: 14,
+      });
+      const missingField = createDraftRichInlineCommitPlan(caretDraft, {
+        browserRichInlineState: {
+          atomicChipCount: 1,
+          atomicChips: [{ position: 5 }],
+          plainText: "Hello world",
+          plainTextPreserved: true,
+          segments: [
+            { end: 5, kind: "text", start: 0, styleMarks: [], text: "Hello" },
+            { kind: "atomic-chip", label: "Missing", position: 5 },
+            { end: 11, kind: "text", start: 5, styleMarks: [], text: " world" },
+          ],
+          status: "normalized",
+          targetTextBlockId: "cover-header-label",
+          textLength: 11,
+        },
+        documentRevision: 14,
+      });
+      const overlap = createDraftRichInlineCommitPlan(caretDraft, {
+        browserRichInlineState: {
+          plainText: "Hello world",
+          plainTextPreserved: true,
+          segments: [{ end: 11, kind: "text", start: 0, styleMarks: [], text: "Hello world" }],
+          status: "normalized",
+          styledRuns: [
+            { enabled: true, mark: "bold", range: { start: 0, end: 5, unit: "utf16-code-unit-offset" } },
+            { enabled: true, mark: "italic", range: { start: 3, end: 7, unit: "utf16-code-unit-offset" } },
+          ],
+          targetTextBlockId: "cover-header-label",
+          textLength: 11,
+        },
+        documentRevision: 14,
+      });
+      const composingDraft = updateDraftComposition(caretDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 5,
+        selectionSource: "compositionstart",
+        selectionStart: 5,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftRichInlineCommitPlan(composingDraft, {
+        documentRevision: 14,
+        richInlineState,
+      });
+
+      console.log(JSON.stringify({
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_RICH_INLINE_COMMIT_PLAN_MODE,
+          source: DRAFT_RICH_INLINE_COMMIT_PLAN_SOURCE,
+        },
+        idleLabel: draftRichInlineCommitPlanLabel(idle),
+        idleStatus: idle.status,
+        missingFieldLabel: draftRichInlineCommitPlanLabel(missingField),
+        missingFieldReason: missingField.reason,
+        missingFieldStatus: missingField.status,
+        mismatchLabel: draftRichInlineCommitPlanLabel(mismatch),
+        mismatchReason: mismatch.reason,
+        mismatchStatus: mismatch.status,
+        overlapLabel: draftRichInlineCommitPlanLabel(overlap),
+        overlapReason: overlap.reason,
+        overlapStatus: overlap.status,
+        plannedApplication: planned.application.status,
+        plannedBackend: planned.backendApi.status,
+        plannedCanPlan: planned.canPlanCommit,
+        plannedChildren: planned.canonicalCommit.plannedInlineChildren,
+        plannedCore: planned.coreTransaction.status,
+        plannedDirtyScope: planned.canonicalCommit.dirtyScope.status,
+        plannedDurable: planned.durableHistory.status,
+        plannedExact: planned.exactGeneration.status,
+        plannedFieldKeys: planned.canonicalCommit.fieldKeys,
+        plannedHistory: planned.history.status,
+        plannedHistorySummary: planned.canonicalCommit.historyIntent.summary,
+        plannedKeyHistory: planned.keyHistory.status,
+        plannedLabel: draftRichInlineCommitPlanLabel(planned),
+        plannedLive: planned.liveLayout.status,
+        plannedOperationKind: planned.canonicalCommit.operationKind,
+        plannedPackage: planned.packageMutation.status,
+        plannedPersistence: planned.persistence.status,
+        plannedPlanId: planned.canonicalCommit.planId,
+        plannedReason: planned.reason,
+        plannedRenderer: planned.canonicalCommit.rendererInvalidation.status,
+        plannedSourceSegmentCount: planned.canonicalCommit.sourceState.segmentCount,
+        plannedStatus: planned.status,
+        plannedTextEngine: planned.textEngine.status,
+        plannedTransaction: planned.canonicalCommit.transaction.status,
+        staleLabel: draftRichInlineCommitPlanLabel(stale),
+        staleReason: stale.reason,
+        staleStatus: stale.status,
+        target: planned.targetTextBlockId,
+        textOnlyChildCount: textOnly.canonicalCommit.inlineChildCount,
+        textOnlyKeyHistory: textOnly.keyHistory.status,
+        textOnlyStatus: textOnly.status,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      missingFieldLabel: string
+      missingFieldReason: string
+      missingFieldStatus: string
+      mismatchLabel: string
+      mismatchReason: string
+      mismatchStatus: string
+      overlapLabel: string
+      overlapReason: string
+      overlapStatus: string
+      plannedApplication: string
+      plannedBackend: string
+      plannedCanPlan: boolean
+      plannedChildren: Array<{ fallback?: string; id: string; key?: string; label?: string; style?: { fontWeight?: string }; text?: string; type: string }>
+      plannedCore: string
+      plannedDirtyScope: string
+      plannedDurable: string
+      plannedExact: string
+      plannedFieldKeys: string[]
+      plannedHistory: string
+      plannedHistorySummary: string
+      plannedKeyHistory: string
+      plannedLabel: string
+      plannedLive: string
+      plannedOperationKind: string
+      plannedPackage: string
+      plannedPersistence: string
+      plannedPlanId: string
+      plannedReason: string
+      plannedRenderer: string
+      plannedSourceSegmentCount: number
+      plannedStatus: string
+      plannedTextEngine: string
+      plannedTransaction: string
+      staleLabel: string
+      staleReason: string
+      staleStatus: string
+      target: string
+      textOnlyChildCount: number
+      textOnlyKeyHistory: string
+      textOnlyStatus: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-rich-inline-commit-plan")
+    expect(result.constants.mode).toBe("browser-local-rich-inline-commit-planning-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Commit plan: idle")
+    expect(result.plannedStatus).toBe("planned")
+    expect(result.plannedReason).toBe("canonical-rich-inline-commit-planned")
+    expect(result.plannedCanPlan).toBe(true)
+    expect(result.plannedOperationKind).toBe("text-block.rich-inline.replace")
+    expect(result.plannedPlanId).toBe("cover-header-label:rich-inline-commit:14")
+    expect(result.plannedChildren.map((child) => child.type)).toEqual(["text", "field-ref", "text"])
+    expect(result.plannedChildren[0]).toMatchObject({
+      id: "cover-header-label-commit-text-1",
+      style: { fontWeight: "bold" },
+      text: "Hello",
+      type: "text",
+    })
+    expect(result.plannedChildren[1]).toMatchObject({
+      fallback: "{{customer.name}}",
+      id: "cover-header-label-commit-field-customer-name-2",
+      key: "customer.name",
+      label: "Customer",
+      type: "field-ref",
+    })
+    expect(result.plannedChildren[2]).toMatchObject({
+      id: "cover-header-label-commit-text-3",
+      text: " world",
+      type: "text",
+    })
+    expect(result.plannedFieldKeys).toEqual(["customer.name"])
+    expect(result.plannedSourceSegmentCount).toBe(3)
+    expect(result.plannedDirtyScope).toBe("planned-at-commit")
+    expect(result.plannedTransaction).toBe("planned-not-run")
+    expect(result.plannedCore).toBe("planned-not-run")
+    expect(result.plannedHistory).toBe("planned-not-recorded")
+    expect(result.plannedDurable).toBe("not-written")
+    expect(result.plannedHistorySummary).toBe("commit rich inline draft for cover-header-label")
+    expect(result.plannedKeyHistory).toBe("field-ref-usage-check-planned")
+    expect(result.plannedLive).toBe("invalidation-planned")
+    expect(result.plannedExact).toBe("stale-after-commit")
+    expect(result.plannedRenderer).toBe("planned-after-commit")
+    expect(result.plannedPackage).toBe("planned-not-applied")
+    expect(result.plannedApplication).toBe("not-applied")
+    expect(result.plannedBackend).toBe("not-called")
+    expect(result.plannedPersistence).toBe("not-written")
+    expect(result.plannedTextEngine).toBe("not-executed")
+    expect(result.plannedLabel).toBe("Commit plan: 3 inline children")
+    expect(result.target).toBe("cover-header-label")
+    expect(result.textOnlyStatus).toBe("planned")
+    expect(result.textOnlyChildCount).toBe(1)
+    expect(result.textOnlyKeyHistory).toBe("not-required")
+    expect(result.staleStatus).toBe("blocked")
+    expect(result.staleReason).toBe("stale-draft-revision")
+    expect(result.staleLabel).toBe("Commit plan: stale draft")
+    expect(result.mismatchStatus).toBe("blocked")
+    expect(result.mismatchReason).toBe("text-mismatch")
+    expect(result.mismatchLabel).toBe("Commit plan: text mismatch")
+    expect(result.missingFieldStatus).toBe("blocked")
+    expect(result.missingFieldReason).toBe("missing-field-key")
+    expect(result.missingFieldLabel).toBe("Commit plan: field key blocked")
+    expect(result.overlapStatus).toBe("blocked")
+    expect(result.overlapReason).toBe("unsupported-overlap")
+    expect(result.overlapLabel).toBe("Commit plan: overlap blocked")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+  })
+
   it("plans style-aware history without recording durable history", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       const {
@@ -8025,6 +8350,7 @@ describe("template builder sandbox boundary", () => {
     const draftRichInlinePatchExecutionSource = readText("../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js")
     const draftToolbarCommandDispatchSource = readText("../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js")
     const draftRichInlineStateSource = readText("../examples/template-builder-sandbox/public/draftRichInlineState.js")
+    const draftRichInlineCommitPlanSource = readText("../examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -8051,6 +8377,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.dispatchDraftToolbarCommand")
     expect(coreBoundarySource).toContain("browser.executeDraftFieldChipInsert")
     expect(coreBoundarySource).toContain("browser.normalizeDraftRichInlineState")
+    expect(coreBoundarySource).toContain("browser.planRichInlineCommit")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
@@ -8064,6 +8391,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftRichInlinePatchExecution.js"')
     expect(appSource).toContain('from "./draftToolbarCommandDispatch.js"')
     expect(appSource).toContain('from "./draftRichInlineState.js"')
+    expect(appSource).toContain('from "./draftRichInlineCommitPlan.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
     expect(draftLayoutPushSource).toContain("not-requested")
@@ -8120,6 +8448,13 @@ describe("template builder sandbox boundary", () => {
     expect(draftRichInlineStateSource).toContain("overlapping-style-runs")
     expect(draftRichInlineStateSource).toContain("deferred-until-commit")
     expect(draftRichInlineStateSource).toContain("not-called")
+    expect(draftRichInlineCommitPlanSource).toContain("createDraftRichInlineCommitPlan")
+    expect(draftRichInlineCommitPlanSource).toContain("canonical-rich-inline-commit-planned")
+    expect(draftRichInlineCommitPlanSource).toContain("text-block.rich-inline.replace")
+    expect(draftRichInlineCommitPlanSource).toContain("stale-draft-revision")
+    expect(draftRichInlineCommitPlanSource).toContain("missing-field-key")
+    expect(draftRichInlineCommitPlanSource).toContain("planned-not-applied")
+    expect(draftRichInlineCommitPlanSource).toContain("not-called")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -8153,6 +8488,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-field-chip-inline")
     expect(appSource).toContain("data-draft-field-chip-insert")
     expect(appSource).toContain("data-draft-rich-inline-state")
+    expect(appSource).toContain("data-draft-rich-inline-commit-plan")
     expect(appSource).toContain("data-draft-style-history")
     expect(appSource).toContain("data-draft-command-summary")
     expect(appSource).toContain("data-draft-command-selected")

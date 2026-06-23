@@ -305,6 +305,9 @@ The package must remain runnable without any parent editor checkout.
 - Contenteditable segment capture boundary reads browser-owned
   contenteditable-style segment facts into the Phase 117 mapper shape while
   keeping production DOM binding and canonical rich inline commit deferred
+- Rich inline commit planning boundary maps browser-local rich inline state to
+  canonical vNext inline child facts and commit effects while keeping package
+  mutation execution deferred
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -638,6 +641,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SEGMENT_CAPTURE_BOUNDARY.md`: Phase
   123 browser-local contenteditable segment capture boundary before production
   DOM binding
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_PLANNING_BOUNDARY.md`: Phase 124
+  canonical rich inline commit planning boundary before bridge execution
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -710,8 +715,8 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete production contenteditable DOM binding, canonical rich inline style
-  commit, canonical field-ref insertion, or WYSIWYG production editing beyond
-  the Phase 123 browser-local contenteditable segment capture boundary
+  commit execution, canonical field-ref insertion execution, or WYSIWYG
+  production editing beyond the Phase 124 rich inline commit planning boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
