@@ -3260,6 +3260,33 @@ Acceptance:
   toolbar dispatch, field-ref insertion, persistence, backend, collaboration,
   exact output, live layout, or WASM execution.
 
+## Phase 118: Rich Inline Patch Execution Boundary
+
+Goal:
+
+- execute ready rich inline style patch intent into browser-local styled-run
+  facts using the Phase 117 mapped range.
+
+Scope:
+
+- browser-safe `draftRichInlinePatchExecution.js` module;
+- app evidence through `data-draft-rich-inline-execution`;
+- action lane for `browser.executeRichInlinePatch`;
+- executable tests for applied, guarded, blocked, and composing paths;
+- README, ledger, and phase documentation.
+
+Acceptance:
+
+- ready Phase 117 range mapping and Phase 81 style intent produce one bounded
+  browser-local styled run;
+- plain draft text is preserved while styled-run facts record mark, enabled
+  state, range, selected text, and source command;
+- collapsed/unready style or range states remain guarded; target mismatches and
+  unsupported marks remain blocked; composition remains composing;
+- package mutation, core transaction, history, live layout, exact output,
+  backend API, persistence, collaboration, and WASM/text-engine execution stay
+  deferred/off.
+
 ## Later Phases
 
 Goal:

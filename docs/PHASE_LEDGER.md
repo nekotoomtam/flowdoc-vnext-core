@@ -124,6 +124,7 @@ Parent goal:
 | 115 | Text engine rustybuzz smoke corpus boundary | done | `docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_CORPUS_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.corpus.v1.json`; `packages/text-engine-rust-wasm/fixtures/rustybuzz-native-smoke.*.v1.json`; `packages/text-engine-rust-wasm/src/rustybuzzSmokeCorpus.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `packages/text-engine-rust-wasm/README.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRustybuzzSmokeCorpus.test.ts` |
 | 116 | WYSIWYG re-entry audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_REENTRY_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygReentryAudit.test.ts` |
 | 117 | Contenteditable range mapping boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_RANGE_MAPPING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 118 | Rich inline patch execution boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_PATCH_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3041,6 +3042,32 @@ contenteditable surface, bind the DOM `Range` API inside the mapper, apply rich
 inline style runs, insert field refs, dispatch toolbar commands, mutate package
 state, write durable history, request live layout, run exact output, add backend
 routes, add persistence, add collaboration behavior, or execute WASM/text-engine
+measurement.
+
+## Phase 118 Rich Inline Patch Execution Boundary
+
+Phase 118 consumes the Phase 117 mapped range and Phase 81 style intent:
+
+- `examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js`
+  owns a browser-safe executor that records local styled-run facts for ready
+  selected ranges;
+- the executor preserves plain draft text while recording mark, enabled state,
+  UTF-16 range, selected text preview, and source command;
+- unready style/range inputs remain guarded, target mismatches and unsupported
+  marks are blocked, and IME composition keeps execution in composing state;
+- `examples/template-builder-sandbox/public/app.js` surfaces
+  `data-draft-rich-inline-execution` in the canvas draft footer, inspector, and
+  status bar;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` adds
+  `browser.executeRichInlinePatch` as a wired browser-local action lane;
+- tests prove applied, guarded, blocked, and composing paths while package
+  mutation, core transactions, durable history, live layout, exact output,
+  backend API calls, and text-engine execution stay deferred/off.
+
+This phase intentionally does not wire visible toolbar commands, insert field
+chips, merge overlapping styled runs, mutate canonical package state, write
+durable history, request live layout, run exact output, add backend routes,
+add persistence, add collaboration behavior, or execute WASM/text-engine
 measurement.
 
 ## Phase 12 Extraction Record

@@ -287,6 +287,9 @@ The package must remain runnable without any parent editor checkout.
 - Contenteditable range mapping boundary maps bounded segment facts into
   FlowDoc UTF-16 draft offsets while blocking styled-run, atomic-inline, and
   text-mismatch cases before rich inline execution
+- Rich inline patch execution boundary consumes mapped ranges and style intent
+  to record browser-local styled-run facts while keeping package mutation,
+  history, live layout, exact output, and backend calls deferred
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -607,6 +610,8 @@ The package must remain runnable without any parent editor checkout.
   production-editing re-entry audit and Phase 117-120 card plan
 - `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_RANGE_MAPPING_BOUNDARY.md`: Phase 117
   browser-local contenteditable range mapping boundary
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_PATCH_EXECUTION_BOUNDARY.md`: Phase 118
+  browser-local rich inline patch execution boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -678,9 +683,9 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
-- concrete production contenteditable DOM binding, rich inline style execution,
-  toolbar command dispatch, field chip insertion, or WYSIWYG production editing
-  beyond the Phase 117 range mapping boundary
+- concrete production contenteditable DOM binding, canonical rich inline style
+  commit, toolbar command dispatch, field chip insertion, or WYSIWYG production
+  editing beyond the Phase 118 rich inline patch execution boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

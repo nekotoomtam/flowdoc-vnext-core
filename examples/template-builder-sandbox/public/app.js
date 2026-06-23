@@ -120,6 +120,10 @@ import {
   createDraftContenteditableRangeMapping,
   draftContenteditableRangeMappingLabel as draftContenteditableRangeMappingLabelState,
 } from "./draftContenteditableRangeMapping.js"
+import {
+  createDraftRichInlinePatchExecution,
+  draftRichInlinePatchExecutionLabel as draftRichInlinePatchExecutionLabelState,
+} from "./draftRichInlinePatchExecution.js"
 
 const app = document.querySelector("#app")
 
@@ -133,6 +137,7 @@ const state = {
   draftImePolicy: createDraftImePolicy(createIdleDraftState()),
   draftInlineStylePatch: createDraftInlineStylePatch(createIdleDraftState()),
   draftLayoutPush: createDraftLayoutPush(createIdleDraftState()),
+  draftRichInlinePatchExecution: createDraftRichInlinePatchExecution(createIdleDraftState()),
   draftStyleHistory: createDraftStyleHistory(createIdleDraftState()),
   draftToolbarState: createDraftToolbarState(createIdleDraftState()),
   lastPacket: null,
@@ -889,6 +894,17 @@ function draftInlineStylePatchLabel() {
   return draftInlineStylePatchLabelState(state.draftInlineStylePatch)
 }
 
+function updateDraftRichInlinePatchExecution() {
+  state.draftRichInlinePatchExecution = createDraftRichInlinePatchExecution(state.draft, {
+    inlineStylePatch: state.draftInlineStylePatch,
+    rangeMapping: state.draftContenteditableRangeMapping,
+  })
+}
+
+function draftRichInlinePatchExecutionLabel() {
+  return draftRichInlinePatchExecutionLabelState(state.draftRichInlinePatchExecution)
+}
+
 function updateDraftToolbarState() {
   state.draftToolbarState = createDraftToolbarState(state.draft)
 }
@@ -1078,6 +1094,7 @@ function syncDraftDomState() {
   updateDraftImePolicy()
   updateDraftContenteditableRangeMapping()
   updateDraftInlineStylePatch()
+  updateDraftRichInlinePatchExecution()
   updateDraftToolbarState()
   updateDraftFieldChipInline()
   updateDraftStyleHistory()
@@ -1129,6 +1146,10 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-style-patch]").forEach((target) => {
     target.textContent = draftInlineStylePatchLabel()
     target.dataset.state = state.draftInlineStylePatch.status
+  })
+  app.querySelectorAll("[data-draft-rich-inline-execution]").forEach((target) => {
+    target.textContent = draftRichInlinePatchExecutionLabel()
+    target.dataset.state = state.draftRichInlinePatchExecution.status
   })
   app.querySelectorAll("[data-draft-toolbar-state]").forEach((target) => {
     target.textContent = draftToolbarStateLabel()
@@ -1468,6 +1489,7 @@ function renderCanvasNode(node) {
             <span data-draft-ime-policy data-state="${escapeHtml(state.draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</span>
             <span data-draft-contenteditable-range data-state="${escapeHtml(state.draftContenteditableRangeMapping.status)}">${escapeHtml(draftContenteditableRangeMappingLabel())}</span>
             <span data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</span>
+            <span data-draft-rich-inline-execution data-state="${escapeHtml(state.draftRichInlinePatchExecution.status)}">${escapeHtml(draftRichInlinePatchExecutionLabel())}</span>
             <span data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</span>
             <span data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</span>
             <span data-draft-style-history data-state="${escapeHtml(state.draftStyleHistory.status)}">${escapeHtml(draftStyleHistoryLabel())}</span>
@@ -1789,6 +1811,7 @@ function renderInspector(snapshot) {
             <dt>IME guard</dt><dd data-draft-ime-policy data-state="${escapeHtml(draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</dd>
             <dt>DOM range</dt><dd data-draft-contenteditable-range data-state="${escapeHtml(state.draftContenteditableRangeMapping.status)}">${escapeHtml(draftContenteditableRangeMappingLabel())}</dd>
             <dt>Style patch</dt><dd data-draft-style-patch data-state="${escapeHtml(state.draftInlineStylePatch.status)}">${escapeHtml(draftInlineStylePatchLabel())}</dd>
+            <dt>Rich inline</dt><dd data-draft-rich-inline-execution data-state="${escapeHtml(state.draftRichInlinePatchExecution.status)}">${escapeHtml(draftRichInlinePatchExecutionLabel())}</dd>
             <dt>Toolbar</dt><dd data-draft-toolbar-state data-state="${escapeHtml(state.draftToolbarState.status)}">${escapeHtml(draftToolbarStateLabel())}</dd>
             <dt>Field chips</dt><dd data-draft-field-chip-inline data-state="${escapeHtml(state.draftFieldChipInline.status)}">${escapeHtml(draftFieldChipInlineLabel())}</dd>
             <dt>Style history</dt><dd data-draft-style-history data-state="${escapeHtml(state.draftStyleHistory.status)}">${escapeHtml(draftStyleHistoryLabel())}</dd>
@@ -2113,6 +2136,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-ime-policy>${escapeHtml(draftImePolicyLabel())}</span>
       <span data-draft-contenteditable-range>${escapeHtml(draftContenteditableRangeMappingLabel())}</span>
       <span data-draft-style-patch>${escapeHtml(draftInlineStylePatchLabel())}</span>
+      <span data-draft-rich-inline-execution>${escapeHtml(draftRichInlinePatchExecutionLabel())}</span>
       <span data-draft-toolbar-state>${escapeHtml(draftToolbarStateLabel())}</span>
       <span data-draft-field-chip-inline>${escapeHtml(draftFieldChipInlineLabel())}</span>
       <span data-draft-style-history>${escapeHtml(draftStyleHistoryLabel())}</span>

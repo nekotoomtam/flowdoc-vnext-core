@@ -782,6 +782,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local inline style patch summaries model selected-range style intent without applying inline runs or core transactions",
       },
       {
+        action: "browser.executeRichInlinePatch",
+        label: "Rich inline",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local rich inline patch execution records styled-run facts from mapped draft ranges without mutating package state",
+      },
+      {
         action: "browser.resolveDraftToolbarState",
         label: "Toolbar state",
         lane: "immediate",
