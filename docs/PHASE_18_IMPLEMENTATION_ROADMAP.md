@@ -4050,6 +4050,35 @@ Acceptance:
 - no operation schema change, collaboration behavior, storage/backend route,
   renderer artifact output, or package/document schema change is introduced.
 
+## Phase 145: First Vertical Slice Release Candidate Plan
+
+Goal:
+
+- define the smallest single-user release-candidate path from canonical
+  template/report input to minimal artifact evidence without implementing
+  production binding.
+
+Deliverables:
+
+- `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md`;
+- `tests/firstVerticalSliceReadiness.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- candidate flow includes canonical package load, field binding diagnostics,
+  browser-local authoring session, structural edit, rich inline commit, exact
+  generation stale signal, renderer-backed measurement evidence, minimal PDF
+  artifact bytes, artifact manifest/job records, and storage adapter boundary;
+- single-user scope is explicit;
+- production launch, collaboration/offline, full WYSIWYG input, default
+  measurement replacement, concrete server/storage, full PDF fidelity, DOCX,
+  parent runtime flip, and package/document schema changes are explicitly out
+  of scope;
+- required prior evidence docs are listed;
+- no runtime behavior, operation schema, storage/backend route, renderer
+  production binding, or package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

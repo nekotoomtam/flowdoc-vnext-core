@@ -151,6 +151,7 @@ Parent goal:
 | 142 | Browser timing smoke boundary | done | `docs/BROWSER_TIMING_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/scripts/browser-smoke.mjs`; `examples/template-builder-sandbox/package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/browserTimingSmoke.test.ts` |
 | 143 | WYSIWYG primary input decision gate | done | `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygPrimaryInputDecisionGate.test.ts` |
 | 144 | Granular rich inline operation decision boundary | done | `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineOperationDecision.test.ts` |
+| 145 | First vertical slice release candidate plan | done | `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/firstVerticalSliceReadiness.test.ts` |
 
 ## Current Rule
 
@@ -3758,6 +3759,27 @@ Phase 144 records the v1 rich inline operation policy:
 This phase intentionally does not change operation schema, implement
 collaboration/offline behavior, write storage, add backend routes, produce
 renderer artifacts, or change package/document schema.
+
+## Phase 145 First Vertical Slice Release Candidate Plan
+
+Phase 145 scopes the first single-user release-candidate path:
+
+- `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md` defines the canonical template/report
+  to minimal artifact evidence flow;
+- the candidate flow includes field binding, browser-local authoring,
+  structural edit, rich inline commit, exact generation stale signal,
+  renderer-backed measurement evidence, minimal PDF bytes, artifact
+  manifest/job records, and storage adapter boundary;
+- `tests/firstVerticalSliceReadiness.test.ts` guards the required prior
+  evidence docs, single-user scope, and non-production exclusions;
+- the plan explicitly blocks production launch, collaboration/offline, full
+  WYSIWYG input, default measurement replacement, concrete server/storage,
+  full PDF fidelity, DOCX, parent runtime flip, and package/document schema
+  change claims.
+
+This phase intentionally does not implement the release candidate, change
+runtime behavior, change operation schema, write storage, add backend routes,
+bind a production renderer, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

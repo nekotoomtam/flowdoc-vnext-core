@@ -461,6 +461,11 @@ The package must remain runnable without any parent editor checkout.
 - Rich inline operation decision boundary accepts full inline-child replacement
   for the v1 single-user vertical slice while making granular operations a
   prerequisite for collaboration/offline claims.
+- First vertical slice RC plan scopes the first single-user path from canonical
+  template/report input through field binding, browser-local authoring, rich
+  inline stale exact generation, renderer-backed measurement evidence, minimal
+  PDF artifact bytes, artifact records, and storage-record boundary without
+  claiming production launch readiness.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -564,6 +569,8 @@ The package must remain runnable without any parent editor checkout.
   decision gate before implementing production WYSIWYG input
 - `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md`: Phase 144 rich inline
   operation granularity decision before collaboration/offline replay claims
+- `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md`: Phase 145 first vertical slice
+  release candidate plan before concrete production binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
