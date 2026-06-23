@@ -50,9 +50,9 @@ Noto Sans Thai Bold
 
 Sarabun is the primary Thai family for early layout samples. Noto Sans Thai is
 the fallback/comparison family. The old font folder may identify the source
-asset names, but it must not become a canonical vNext path. A later file
-operation phase should copy selected assets into a vNext-owned location and
-then compute sha256 hashes from those copied files.
+asset names, but it must not become a canonical vNext path. Phase 103 copies
+the selected assets into `assets/fonts` and records sha256 hashes from those
+copied vNext-owned target files.
 
 ## Truth
 

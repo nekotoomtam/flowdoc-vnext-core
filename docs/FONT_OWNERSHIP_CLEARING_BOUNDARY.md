@@ -24,11 +24,10 @@ old FlowDocEditor public/fonts
   -> optional public/fonts mirror for browser serving only
 ```
 
-`assets/fonts` is the canonical target root for the measurement spike. A future
-file-operation phase may add the actual font files there and update package
-distribution metadata. `public/fonts` may exist later as a browser-serving
-mirror, but it must not define measurement identity, profile hashes, or cache
-keys.
+`assets/fonts` is the canonical target root for the measurement spike. Phase
+103 adds the initial copied font files and hash evidence there. `public/fonts`
+may exist later as a browser-serving mirror, but it must not define measurement
+identity, profile hashes, or cache keys.
 
 ## Boundary
 

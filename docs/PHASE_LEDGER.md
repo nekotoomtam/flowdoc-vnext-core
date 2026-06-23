@@ -109,6 +109,7 @@ Parent goal:
 | 100 | Text measurement engine spike boundary | done | `docs/TEXT_MEASUREMENT_ENGINE_SPIKE_BOUNDARY.md`; `src/renderer/textMeasurementEngineSpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textMeasurementEngineSpike.test.ts` |
 | 101 | Font registry spike boundary | done | `docs/FONT_REGISTRY_SPIKE_BOUNDARY.md`; `src/renderer/fontRegistrySpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontRegistrySpike.test.ts` |
 | 102 | Font ownership clearing boundary | done | `docs/FONT_OWNERSHIP_CLEARING_BOUNDARY.md`; `src/renderer/fontOwnership.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontOwnership.test.ts` |
+| 103 | Font asset copy/hash evidence | done | `docs/FONT_ASSET_COPY_HASH_EVIDENCE.md`; `assets/fonts/font-assets.v1.json`; `assets/fonts/Sarabun/*`; `assets/fonts/Noto_Sans_Thai/*`; `package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontAssetEvidence.test.ts` |
 
 ## Current Rule
 
@@ -2637,6 +2638,31 @@ This phase intentionally does not copy or move font files, read font bytes,
 compute hashes, mutate `package.json`, import font parsers, install
 dependencies, bind production pagination, replace measured pagination, mutate
 package/document data, write artifacts or storage records, or change
+package/document schema.
+
+## Phase 103 Font Asset Copy / Hash Evidence
+
+Phase 103 performs the first vNext-owned font file operation for the Thai
+measurement path:
+
+- Sarabun Regular, Bold, Italic, and Bold Italic were copied under
+  `assets/fonts/Sarabun`;
+- Noto Sans Thai Regular and Bold were copied under
+  `assets/fonts/Noto_Sans_Thai/static`;
+- Sarabun and Noto Sans Thai OFL license files were copied under
+  `assets/fonts`;
+- `assets/fonts/font-assets.v1.json` records byte sizes, sha256 hashes,
+  verified OFL facts, non-canonical source references, package-font-asset
+  target paths, and initial style-key mappings;
+- `package.json` now includes `assets` in the package file list;
+- `tests/fontAssetEvidence.test.ts` recomputes hashes from copied target files,
+  checks license text, validates package file metadata, and proves Phase 101
+  registry plus Phase 100 engine-spike handoff without production binding.
+
+This phase intentionally does not parse font bytes, inspect glyphs, run
+rustybuzz/HarfBuzz, run ICU4X, create browser public-font mirrors, bind
+production pagination, replace measured pagination, render PDF/DOCX output,
+write artifacts or storage records, add backend routes, or change
 package/document schema.
 
 ## Phase 12 Extraction Record

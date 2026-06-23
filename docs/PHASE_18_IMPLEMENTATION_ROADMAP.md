@@ -2792,6 +2792,39 @@ Acceptance:
   schema;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 103: Font Asset Copy / Hash Evidence
+
+Goal:
+
+- copy the selected Thai font files into the vNext-owned package asset root and
+  record sha256 evidence from those target copies before any font parser,
+  shaping engine, line breaker, renderer, or production measurement binding is
+  introduced.
+
+Deliverables:
+
+- copied Sarabun and Noto Sans Thai font files under `assets/fonts`;
+- copied OFL license files under `assets/fonts`;
+- font asset evidence manifest at `assets/fonts/font-assets.v1.json`;
+- sha256 hashes and byte sizes computed from copied vNext-owned target files;
+- non-canonical source references to the old FlowDocEditor font folder;
+- package distribution metadata includes `assets`;
+- boundary documentation and ledger/README updates;
+- focused tests that recompute file hashes and validate registry/engine spike
+  handoff.
+
+Acceptance:
+
+- copied target files exist under `assets/fonts` only;
+- manifest hash authority is `vnext-target-copy`;
+- old FlowDocEditor paths remain source references with `canonical = false`;
+- every copied font and license file has a matching byte size and sha256 hash;
+- OFL license files are present for Sarabun and Noto Sans Thai;
+- the manifest can feed Phase 101 font registry facts and Phase 100 measurement
+  engine spike facts without replacing pagination measurement;
+- the package file list includes `assets`;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

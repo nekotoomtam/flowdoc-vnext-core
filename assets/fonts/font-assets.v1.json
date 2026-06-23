@@ -1,0 +1,191 @@
+{
+  "manifestVersion": 1,
+  "policyId": "thai-font-assets-v1",
+  "assetRoot": "assets/fonts",
+  "hashAlgorithm": "sha256",
+  "hashAuthority": "vnext-target-copy",
+  "generatedBy": "phase-103-font-asset-copy-hash-evidence",
+  "productionMeasurementBinding": false,
+  "licenseFiles": [
+    {
+      "licenseId": "OFL-1.1",
+      "family": "Sarabun",
+      "path": "assets/fonts/Sarabun/OFL.txt",
+      "bytes": 4481,
+      "sha256": "be28652aa304594809e7174cd0206f8b9381a719a581fc429955c04de0f3ad1a"
+    },
+    {
+      "licenseId": "OFL-1.1",
+      "family": "Noto Sans Thai",
+      "path": "assets/fonts/Noto_Sans_Thai/OFL.txt",
+      "bytes": 4473,
+      "sha256": "917b77d971a644ae57343452c19642c48989dba27816350444dbda63b1323db2"
+    }
+  ],
+  "fontAssets": [
+    {
+      "fontId": "sarabun-regular",
+      "family": "Sarabun",
+      "style": "normal",
+      "weight": 400,
+      "format": "ttf",
+      "role": "primary-thai",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "FlowDocEditor/public/fonts/Sarabun/Sarabun-Regular.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/Sarabun/Sarabun-Regular.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/Sarabun/OFL.txt"
+      },
+      "bytes": 83080,
+      "sha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d"
+    },
+    {
+      "fontId": "sarabun-bold",
+      "family": "Sarabun",
+      "style": "normal",
+      "weight": 700,
+      "format": "ttf",
+      "role": "style-variant",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "FlowDocEditor/public/fonts/Sarabun/Sarabun-Bold.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/Sarabun/Sarabun-Bold.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/Sarabun/OFL.txt"
+      },
+      "bytes": 82592,
+      "sha256": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+    },
+    {
+      "fontId": "sarabun-italic",
+      "family": "Sarabun",
+      "style": "italic",
+      "weight": 400,
+      "format": "ttf",
+      "role": "style-variant",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "FlowDocEditor/public/fonts/Sarabun/Sarabun-Italic.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/Sarabun/Sarabun-Italic.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/Sarabun/OFL.txt"
+      },
+      "bytes": 86024,
+      "sha256": "fb86138e0cf99786db40715a84df51508766371e2f1f2822faf22cba6563acc7"
+    },
+    {
+      "fontId": "sarabun-bold-italic",
+      "family": "Sarabun",
+      "style": "italic",
+      "weight": 700,
+      "format": "ttf",
+      "role": "style-variant",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "FlowDocEditor/public/fonts/Sarabun/Sarabun-BoldItalic.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/Sarabun/Sarabun-BoldItalic.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/Sarabun/OFL.txt"
+      },
+      "bytes": 85636,
+      "sha256": "a497ef98fad371e04bc64076b213da00c05a84881494ee36a4c61922c65ff7ef"
+    },
+    {
+      "fontId": "noto-sans-thai-regular",
+      "family": "Noto Sans Thai",
+      "style": "normal",
+      "weight": 400,
+      "format": "ttf",
+      "role": "fallback-thai",
+      "supportedScripts": ["Thai"],
+      "sourceReference": {
+        "path": "FlowDocEditor/public/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/Noto_Sans_Thai/OFL.txt"
+      },
+      "bytes": 47484,
+      "sha256": "9acb585d8662ca4ed1b1cf5889dfa1393f8555103b3986e1ea1e3af4faef70bd"
+    },
+    {
+      "fontId": "noto-sans-thai-bold",
+      "family": "Noto Sans Thai",
+      "style": "normal",
+      "weight": 700,
+      "format": "ttf",
+      "role": "comparison",
+      "supportedScripts": ["Thai"],
+      "sourceReference": {
+        "path": "FlowDocEditor/public/fonts/Noto_Sans_Thai/static/NotoSansThai-Bold.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/Noto_Sans_Thai/static/NotoSansThai-Bold.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/Noto_Sans_Thai/OFL.txt"
+      },
+      "bytes": 47480,
+      "sha256": "0be544f347b3ab6382bdc2b555a783727a4858a3dc140670406924670967d916"
+    }
+  ],
+  "styleMappings": [
+    {
+      "styleKey": "paragraph",
+      "primaryFontId": "sarabun-regular",
+      "fallbackFontIds": ["noto-sans-thai-regular"],
+      "required": true
+    },
+    {
+      "styleKey": "heading-xl",
+      "primaryFontId": "sarabun-bold",
+      "fallbackFontIds": ["noto-sans-thai-bold", "noto-sans-thai-regular"],
+      "required": true
+    },
+    {
+      "styleKey": "text-block:paragraph",
+      "primaryFontId": "sarabun-regular",
+      "fallbackFontIds": ["noto-sans-thai-regular"],
+      "required": true
+    }
+  ]
+}

@@ -25,6 +25,7 @@
   "files": [
     "src",
     "fixtures",
+    "assets",
     "docs",
     "README.md",
     "AGENTS.md"
