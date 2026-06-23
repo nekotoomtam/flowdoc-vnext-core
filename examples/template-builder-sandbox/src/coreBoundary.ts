@@ -754,6 +754,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local draft state, caret selection, command readiness, text commands, and IME guards are owned by a browser-safe runtime module",
       },
       {
+        action: "browser.pushTextDraftLayout",
+        label: "Draft layout",
+        lane: "immediate",
+        status: "wired",
+        reason: "active browser drafts surface bounded local layout-preview summaries without requesting live or exact layout during typing",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",

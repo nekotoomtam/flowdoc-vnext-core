@@ -85,6 +85,7 @@ Parent goal:
 | 76 | Structural command policy boundary | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/structuralCommandPolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 77 | Structural Runtime close audit | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 78 | Draft runtime module boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 79 | Text draft layout push boundary | done | `docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftLayoutPush.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1822,6 +1823,39 @@ transactions, live layout rendering during active typing, exact layout/export
 readiness from drafts, durable selection persistence, production editor
 integration, backend API routes, storage, collaboration, or package/document
 schema changes.
+
+## Phase 79 Text Draft Layout Push Boundary
+
+Phase 79 gives active browser-local WYSIWYG drafts a bounded layout-preview
+summary without making draft text canonical truth:
+
+- `examples/template-builder-sandbox/public/draftLayoutPush.js` owns
+  `DRAFT_LAYOUT_PUSH_SOURCE`, `DRAFT_LAYOUT_PUSH_MODE`,
+  `createDraftLayoutPush(...)`, and `draftLayoutPushLabel(...)`;
+- draft layout push summaries report idle/stable/preview/composing state,
+  active target id, base/current document revision, text length, text delta,
+  local preview text, and selection offsets;
+- summaries explicitly keep `liveLayout.status = "not-requested"`,
+  `liveLayout.request = null`, `exactGeneration.status = "not-run"`, and
+  `localPreviewOnly = true`;
+- `examples/template-builder-sandbox/public/app.js` renders
+  `data-draft-layout-push` in the canvas draft footer, inspector draft panel,
+  and status bar while keeping DOM, focus, fetch, packet, viewport, and
+  structural coordination in the app shell;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes the
+  `browser.pushTextDraftLayout` action lane;
+- `docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md` records the
+  boundary, truth model, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module can run in
+  Node, keeps draft push summaries local, leaves live layout unrequested and
+  exact generation not-run, and guards app-shell wiring.
+
+This phase intentionally does not implement live layout rendering during active
+typing, exact layout during active typing, renderer-backed measurement, line
+wrapping, page breaking, page geometry, contenteditable DOM mapping, rich
+inline range mapping, field/key chips, per-keystroke core transactions, durable
+history or persistence, backend API routes, storage, collaboration, or
+package/document schema changes.
 
 ## Phase 12 Extraction Record
 

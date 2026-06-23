@@ -58,6 +58,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js",
       "../examples/template-builder-sandbox/public/structuralCommandPolicy.js",
       "../examples/template-builder-sandbox/public/draftRuntime.js",
+      "../examples/template-builder-sandbox/public/draftLayoutPush.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -152,6 +153,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.setDraftSelectionRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveDraftRuntimeState")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.pushTextDraftLayout")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
@@ -1649,6 +1651,7 @@ describe("template builder sandbox boundary", () => {
     const structuralDiagnosticsNavigationSource = readText("../examples/template-builder-sandbox/public/structuralDiagnosticsNavigation.js")
     const structuralCommandPolicySource = readText("../examples/template-builder-sandbox/public/structuralCommandPolicy.js")
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
+    const draftLayoutPushSource = readText("../examples/template-builder-sandbox/public/draftLayoutPush.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -1686,6 +1689,7 @@ describe("template builder sandbox boundary", () => {
     const structuralCommandPolicyDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_COMMAND_POLICY_BOUNDARY.md")
     const structuralRuntimeCloseAuditDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
     const draftRuntimeDoc = readText("../docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
+    const draftLayoutPushDoc = readText("../docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md")
     const readmeDoc = readText("../README.md")
     const phaseLedgerDoc = readText("../docs/PHASE_LEDGER.md")
     const roadmapDoc = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
@@ -1696,6 +1700,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./structuralDiagnosticsNavigation.js"')
     expect(appSource).toContain('from "./structuralCommandPolicy.js"')
     expect(appSource).toContain('from "./draftRuntime.js"')
+    expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
@@ -1901,6 +1906,15 @@ describe("template builder sandbox boundary", () => {
     expect(draftRuntimeSource).not.toContain("document.")
     expect(draftRuntimeSource).not.toContain("querySelector")
     expect(draftRuntimeSource).not.toContain("fetch(")
+    expect(draftLayoutPushSource).toContain("DRAFT_LAYOUT_PUSH_SOURCE")
+    expect(draftLayoutPushSource).toContain("DRAFT_LAYOUT_PUSH_MODE")
+    expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
+    expect(draftLayoutPushSource).toContain("draftLayoutPushLabel")
+    expect(draftLayoutPushSource).toContain("not-requested")
+    expect(draftLayoutPushSource).toContain("not-run")
+    expect(draftLayoutPushSource).not.toContain("document.")
+    expect(draftLayoutPushSource).not.toContain("querySelector")
+    expect(draftLayoutPushSource).not.toContain("fetch(")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -2222,14 +2236,22 @@ describe("template builder sandbox boundary", () => {
     expect(draftRuntimeDoc).toContain("public/draftRuntime.js")
     expect(draftRuntimeDoc).toContain("Caret Selection Model")
     expect(draftRuntimeDoc).toContain("does not implement")
+    expect(draftLayoutPushDoc).toContain("Status: Phase 79 implementation boundary.")
+    expect(draftLayoutPushDoc).toContain("public/draftLayoutPush.js")
+    expect(draftLayoutPushDoc).toContain("local preview boundary")
+    expect(draftLayoutPushDoc).toContain("exactGeneration.status = \"not-run\"")
     expect(readmeDoc).toContain("Structural Runtime close audit records PASS/RISK/UNKNOWN status")
     expect(readmeDoc).toContain("Draft runtime module boundary")
+    expect(readmeDoc).toContain("Text draft layout push boundary")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
+    expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md")
     expect(phaseLedgerDoc).toContain("| 77 | Structural Runtime close audit | done |")
     expect(phaseLedgerDoc).toContain("| 78 | Draft runtime module boundary | done |")
+    expect(phaseLedgerDoc).toContain("| 79 | Text draft layout push boundary | done |")
     expect(roadmapDoc).toContain("## Phase 77: Structural Runtime Close Audit")
     expect(roadmapDoc).toContain("## Phase 78: Draft Runtime Module Boundary")
+    expect(roadmapDoc).toContain("## Phase 79: Text Draft Layout Push Boundary")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
@@ -5666,9 +5688,112 @@ describe("template builder sandbox boundary", () => {
     expect(result.inactiveInsertStatus).toBe("blocked")
   })
 
+  it("surfaces text draft layout push summaries without requesting live or exact layout", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const { createDraftStateForNode } = await import("./public/draftRuntime.js");
+      const {
+        DRAFT_LAYOUT_PUSH_MODE,
+        DRAFT_LAYOUT_PUSH_SOURCE,
+        createDraftLayoutPush,
+        draftLayoutPushLabel,
+      } = await import("./public/draftLayoutPush.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-title",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const idle = createDraftLayoutPush(null, { documentRevision: 8 });
+      const stableDraft = createDraftStateForNode(node, { baseRevision: 8 });
+      const stable = createDraftLayoutPush(stableDraft, { documentRevision: 8 });
+      const previewDraft = { ...stableDraft, text: "Hello wider world", selectionStart: 17, selectionEnd: 17 };
+      const preview = createDraftLayoutPush(previewDraft, { documentRevision: 8 });
+      const composingDraft = {
+        ...previewDraft,
+        compositionData: "ime",
+        compositionSource: "compositionupdate",
+        isComposing: true,
+      };
+      const composing = createDraftLayoutPush(composingDraft, { documentRevision: 8 });
+
+      console.log(JSON.stringify({
+        composingExact: composing.exactGeneration.status,
+        composingLabel: draftLayoutPushLabel(composing),
+        composingLive: composing.liveLayout.status,
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_LAYOUT_PUSH_MODE,
+          source: DRAFT_LAYOUT_PUSH_SOURCE,
+        },
+        idleLabel: draftLayoutPushLabel(idle),
+        idleStatus: idle.status,
+        previewDelta: preview.textLengthDelta,
+        previewExact: preview.exactGeneration.status,
+        previewLabel: draftLayoutPushLabel(preview),
+        previewLive: preview.liveLayout.status,
+        previewLocalOnly: preview.localPreviewOnly,
+        previewReason: preview.reason,
+        previewStatus: preview.status,
+        stableDelta: stable.textLengthDelta,
+        stableReason: stable.reason,
+        stableStatus: stable.status,
+        target: preview.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingExact: string
+      composingLabel: string
+      composingLive: string
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      previewDelta: number
+      previewExact: string
+      previewLabel: string
+      previewLive: string
+      previewLocalOnly: boolean
+      previewReason: string
+      previewStatus: string
+      stableDelta: number
+      stableReason: string
+      stableStatus: string
+      target: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-layout-push")
+    expect(result.constants.mode).toBe("browser-local-draft-layout-preview")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Draft layout: idle")
+    expect(result.stableStatus).toBe("stable")
+    expect(result.stableReason).toBe("no-local-change")
+    expect(result.stableDelta).toBe(0)
+    expect(result.previewStatus).toBe("preview")
+    expect(result.previewReason).toBe("local-draft-preview")
+    expect(result.previewDelta).toBe(6)
+    expect(result.previewLive).toBe("not-requested")
+    expect(result.previewExact).toBe("not-run")
+    expect(result.previewLocalOnly).toBe(true)
+    expect(result.previewLabel).toContain("+6 chars")
+    expect(result.target).toBe("cover-title")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+    expect(result.composingLive).toBe("not-requested")
+    expect(result.composingExact).toBe("not-run")
+    expect(result.composingLabel).toContain("composition-active")
+  })
+
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
+    const draftLayoutPushSource = readText("../examples/template-builder-sandbox/public/draftLayoutPush.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -5683,8 +5808,13 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.setDraftSelectionRange")
     expect(coreBoundarySource).toContain("browser.trackDraftComposition")
     expect(coreBoundarySource).toContain("browser.resolveDraftRuntimeState")
+    expect(coreBoundarySource).toContain("browser.pushTextDraftLayout")
     expect(appSource).toContain('from "./draftRuntime.js"')
+    expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
+    expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
+    expect(draftLayoutPushSource).toContain("not-requested")
+    expect(draftLayoutPushSource).toContain("not-run")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -5711,6 +5841,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-command-text")
     expect(appSource).toContain("data-draft-command-action")
     expect(appSource).toContain("data-draft-commandbar")
+    expect(appSource).toContain("data-draft-layout-push")
     expect(appSource).toContain("data-draft-action=\"commit\"")
     expect(appSource).toContain("insert-text")
     expect(appSource).toContain("replace-selection")

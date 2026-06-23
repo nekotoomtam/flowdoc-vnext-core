@@ -231,6 +231,9 @@ The package must remain runnable without any parent editor checkout.
   caret/selection normalization, command readiness, draft text commands, and
   IME composition guards out of the sandbox app shell before rich inline,
   field-chip, or contenteditable work
+- Text draft layout push boundary surfaces a bounded browser-local layout
+  preview summary for active drafts while explicitly keeping live layout
+  unrequested and exact generation not-run until commit
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -408,6 +411,8 @@ The package must remain runnable without any parent editor checkout.
   Structural Runtime close audit and risk register
 - `docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md`: Phase 78
   browser-local draft runtime and caret/selection module boundary
+- `docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md`: Phase 79
+  browser-local text draft layout push boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -428,7 +433,8 @@ The package must remain runnable without any parent editor checkout.
   text blocks, draft selection range tracking, draft command context readiness,
   browser-local draft text commands, browser-local draft range controls,
   browser-local draft composition guards, extracted draft runtime module
-  ownership, and bounded history/live-layout summaries
+  ownership, browser-local draft layout push summaries, and bounded
+  history/live-layout summaries
 - frontend authoring runtime beyond the initial pure editable-session/text
   transaction/intent-history/live-layout boundary contracts, including visible
   node composition, rich text editing, caret mapping, IME, product-level

@@ -92,6 +92,10 @@ import {
   updateDraftSelectionFromEditor as updateDraftSelectionFromEditorState,
   updateDraftSelectionRange,
 } from "./draftRuntime.js"
+import {
+  createDraftLayoutPush,
+  draftLayoutPushLabel as draftLayoutPushLabelState,
+} from "./draftLayoutPush.js"
 
 const app = document.querySelector("#app")
 
@@ -100,6 +104,7 @@ const state = {
   bridgeMessage: "",
   draft: createIdleDraftState(),
   draftCommandText: "",
+  draftLayoutPush: createDraftLayoutPush(createIdleDraftState()),
   lastPacket: null,
   lastViewportApply: null,
   mutationText: "Edited through the mutation bridge",
@@ -784,6 +789,16 @@ function draftCompositionLabel() {
   return draftCompositionLabelState(state.draft)
 }
 
+function updateDraftLayoutPush() {
+  state.draftLayoutPush = createDraftLayoutPush(state.draft, {
+    documentRevision: state.snapshot?.session.documentRevision,
+  })
+}
+
+function draftLayoutPushLabel() {
+  return draftLayoutPushLabelState(state.draftLayoutPush)
+}
+
 function setDraftSelectionRange(start, end, options = {}) {
   const result = updateDraftSelectionRange(state.draft, start, end, options)
   state.draft = result.draft
@@ -941,6 +956,7 @@ function updateDraftSelectionFromEditor(editor, selectionSource) {
 }
 
 function syncDraftDomState() {
+  updateDraftLayoutPush()
   const status = draftStatusLabel()
   const selection = normalizedDraftSelection()
   const commandContext = deriveDraftCommandContext()
@@ -971,6 +987,10 @@ function syncDraftDomState() {
   })
   app.querySelectorAll("[data-draft-command-summary]").forEach((target) => {
     target.textContent = draftCommandSummary()
+  })
+  app.querySelectorAll("[data-draft-layout-push]").forEach((target) => {
+    target.textContent = draftLayoutPushLabel()
+    target.dataset.state = state.draftLayoutPush.status
   })
   app.querySelectorAll("[data-draft-command-target]").forEach((target) => {
     target.textContent = commandContext.targetTextBlockId || "none"
@@ -1294,6 +1314,7 @@ function renderCanvasNode(node) {
             <span data-draft-selection>${escapeHtml(draftSelectionLabel())}</span>
             <span data-draft-composition data-state="${state.draft.isComposing ? "active" : "idle"}">${escapeHtml(draftCompositionLabel())}</span>
             <span data-draft-command-summary>${escapeHtml(draftCommandSummary())}</span>
+            <span data-draft-layout-push data-state="${escapeHtml(state.draftLayoutPush.status)}">${escapeHtml(draftLayoutPushLabel())}</span>
             <div class="canvas-draft-actions">
               <button
                 type="button"
@@ -1609,6 +1630,7 @@ function renderInspector(snapshot) {
             <dt>Input</dt><dd data-draft-selection-source>${escapeHtml(normalizedDraftSelection().source)}</dd>
             <dt>IME</dt><dd><span data-draft-composition data-state="${state.draft.isComposing ? "active" : "idle"}">${escapeHtml(draftCompositionLabel())}</span></dd>
             <dt>Command</dt><dd data-draft-command-summary>${escapeHtml(draftCommandSummary())}</dd>
+            <dt>Layout</dt><dd data-draft-layout-push data-state="${escapeHtml(state.draftLayoutPush.status)}">${escapeHtml(draftLayoutPushLabel())}</dd>
             <dt>Surface</dt><dd data-draft-command-surface>${escapeHtml(commandContext.commandSurface)}</dd>
             <dt>Selected</dt><dd data-draft-command-selected>${escapeHtml(commandContext.selectedTextPreview)}</dd>
             <dt>Before</dt><dd data-draft-command-before>${escapeHtml(commandContext.beforeTextPreview)}</dd>
@@ -1926,6 +1948,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>
       <span data-draft-compositionbar>IME: ${escapeHtml(draftCompositionLabel())}</span>
       <span data-draft-commandbar>Command: ${escapeHtml(draftCommandSummary())}</span>
+      <span data-draft-layout-push>${escapeHtml(draftLayoutPushLabel())}</span>
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
       <span>Mutations: ${snapshot.mutationBridge.mutationCount}</span>
       <span>${escapeHtml(packetLabel)}</span>
@@ -2453,6 +2476,7 @@ function render(options = {}) {
     return
   }
 
+  updateDraftLayoutPush()
   const renderModel = createStoreBackedRenderModel(snapshot, state.runtimeCache)
   state.renderModel = renderModel
   updateViewportLazyDetailPlan(renderModel)

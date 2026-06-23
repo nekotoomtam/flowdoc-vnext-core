@@ -1917,6 +1917,38 @@ Acceptance:
   per-keystroke core transactions, live renderer, persistence, backend API, or
   package/document schema change is claimed.
 
+## Phase 79: Text Draft Layout Push Boundary
+
+Goal:
+
+- surface a bounded browser-local layout preview summary for active WYSIWYG
+  text drafts without turning draft text into canonical document truth or
+  running live/exact layout during typing.
+
+Deliverables:
+
+- browser-safe draft layout push module in `public/draftLayoutPush.js`;
+- draft layout push source/mode constants;
+- local idle/stable/preview/composing status and reason derivation;
+- text length and delta facts for the active draft;
+- explicit `liveLayout.status = "not-requested"`;
+- explicit `exactGeneration.status = "not-run"`;
+- canvas, inspector, and status-bar consumption;
+- action lane for the draft layout push boundary;
+- boundary documentation and tests.
+
+Acceptance:
+
+- draft layout push policy can run in Node without DOM access;
+- active draft changes update only browser-local preview summaries;
+- composing drafts remain guarded and do not create live layout requests;
+- exact generation remains not-run until a committed bridge transaction;
+- app consumption does not call core layout, pagination, generation, history,
+  persistence, or packet application from active typing;
+- no renderer-backed measurement, line wrapping, page geometry,
+  contenteditable mapping, rich inline editing, field chips, backend API, or
+  package/document schema change is claimed.
+
 ## Later Phases
 
 Goal:
