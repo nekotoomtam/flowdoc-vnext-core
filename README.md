@@ -356,6 +356,9 @@ The package must remain runnable without any parent editor checkout.
 - Text engine measurement draft handoff boundary maps accepted evidence into
   the existing pagination-facing draft while dropping glyph facts from the
   draft shape.
+- Text engine adapter lane close audit records the core-side pass from
+  measurement profile identity through adapter request, evidence acceptance, and
+  measurement draft handoff without claiming concrete engine execution.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -422,6 +425,8 @@ The package must remain runnable without any parent editor checkout.
   evidence acceptance boundary before pagination draft handoff
 - `docs/TEXT_ENGINE_MEASUREMENT_DRAFT_HANDOFF_BOUNDARY.md`: Phase 110 text
   engine measurement draft handoff before production measurement binding
+- `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md`: Phase 111 text engine
+  adapter lane close audit before external adapter package implementation
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -631,6 +636,8 @@ The package must remain runnable without any parent editor checkout.
   evidence acceptance boundary
 - concrete production measurement binding or pagination measurer replacement
   beyond the Phase 110 measurement draft handoff boundary
+- concrete rustybuzz/WASM adapter package implementation beyond the Phase 111
+  text engine adapter lane close audit
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

@@ -117,6 +117,7 @@ Parent goal:
 | 108 | Text engine adapter SPI boundary | done | `docs/TEXT_ENGINE_ADAPTER_SPI_BOUNDARY.md`; `src/renderer/textEngineAdapterSpi.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineAdapterSpi.test.ts` |
 | 109 | Text engine evidence acceptance boundary | done | `docs/TEXT_ENGINE_EVIDENCE_ACCEPTANCE_BOUNDARY.md`; `src/renderer/textEngineEvidenceAcceptance.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineEvidenceAcceptance.test.ts` |
 | 110 | Text engine measurement draft handoff boundary | done | `docs/TEXT_ENGINE_MEASUREMENT_DRAFT_HANDOFF_BOUNDARY.md`; `src/renderer/textEngineMeasurementDraftHandoff.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineMeasurementDraftHandoff.test.ts` |
+| 111 | Text engine adapter lane close audit | done | `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterLaneCloseAudit.test.ts` |
 
 ## Current Rule
 
@@ -2842,6 +2843,31 @@ files, capture real glyph evidence, attach glyph facts to the draft, bind
 production measurement, replace measured pagination, mutate package/document
 data, write artifacts or storage records, add backend routes, or change
 package/document schema.
+
+## Phase 111 Text Engine Adapter Lane Close Audit
+
+Phase 111 closes the core-side text engine adapter/evidence lane foundation:
+
+- `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md` records PASS, FAIL / BLOCKER,
+  RISK, UNKNOWN, files changed, behavior changed, tests run, risks left, and
+  intentionally not changed for Phases 104-110;
+- the audit confirms the core now has a pure contract lane from measurement
+  profile identity through adapter request, evidence acceptance, and
+  measurement draft handoff;
+- glyph facts remain separate evidence and are not part of
+  `VNextTextMeasurementDraft`;
+- remaining work is explicitly external adapter implementation, pinned
+  rustybuzz/ICU4X/WASM artifacts, real glyph evidence capture, Thai oracle
+  comparison, cross-runtime determinism proof, renderer-backed provider wiring,
+  and caret/selection cluster-map consumers;
+- `tests/textEngineAdapterLaneCloseAudit.test.ts` proves the audit trail.
+
+This phase intentionally does not add runtime behavior, create an adapter
+package, install Rust/JS dependencies, build or load WASM, execute shaping or
+segmentation, read font files, capture real glyph evidence, bind production
+measurement, replace measured pagination, mutate package/document data, write
+artifacts or storage records, add backend routes, or change package/document
+schema.
 
 ## Phase 12 Extraction Record
 

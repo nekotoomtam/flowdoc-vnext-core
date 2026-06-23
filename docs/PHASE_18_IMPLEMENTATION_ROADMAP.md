@@ -3057,6 +3057,31 @@ Acceptance:
 - no rustybuzz/HarfBuzz/ICU4X/WASM/font parser library is imported or executed;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 111: Text Engine Adapter Lane Close Audit
+
+Goal:
+
+- close the core-side text engine adapter/evidence lane foundation and make the
+  remaining adapter/runtime risks explicit.
+
+Deliverables:
+
+- close audit in `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md`;
+- audit coverage for Phases 104-110;
+- PASS / FAIL-BLOCKER / RISK / UNKNOWN sections;
+- files changed, behavior changed, tests run, risks left, and intentionally not
+  changed sections;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- the audit confirms the core contract lane is complete from measurement
+  profile identity through adapter request, evidence acceptance, and measurement
+  draft handoff;
+- the audit does not claim concrete rustybuzz/WASM/ICU4X execution;
+- remaining risks are explicitly external adapter/runtime work;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:
