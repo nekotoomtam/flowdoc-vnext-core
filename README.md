@@ -439,6 +439,10 @@ The package must remain runnable without any parent editor checkout.
   generation requests, status checks, session artifact lists, and download
   metadata without starting a server, reading storage, executing auth, or
   streaming bytes.
+- Artifact job boundary defines durable layout/artifact job records and pure
+  lifecycle transitions for queued, layout-running, rendering, rendered,
+  failed, cancelled, and retry states without worker, queue, renderer, route,
+  or storage execution.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -529,6 +533,8 @@ The package must remain runnable without any parent editor checkout.
   storage-record boundary before production storage adapters
 - `docs/ARTIFACT_API_ROUTE_BOUNDARY.md`: Phase 138 backend artifact route
   contract boundary before concrete server routes or storage lookups
+- `docs/ARTIFACT_JOB_BOUNDARY.md`: Phase 139 durable layout and artifact job
+  record boundary before workers, queues, concrete rendering, or storage
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

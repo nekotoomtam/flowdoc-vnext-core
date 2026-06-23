@@ -145,6 +145,7 @@ Parent goal:
 | 136 | External minimal PDF artifact spike package | done | `docs/PDF_RENDERER_SPIKE_PACKAGE_BOUNDARY.md`; `packages/pdf-renderer-spike/package.json`; `packages/pdf-renderer-spike/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererSpike.test.ts` |
 | 137 | Artifact manifest and storage boundary | done | `docs/ARTIFACT_MANIFEST_BOUNDARY.md`; `src/generation/artifactManifest.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactManifest.test.ts` |
 | 138 | Backend artifact route contract boundary | done | `docs/ARTIFACT_API_ROUTE_BOUNDARY.md`; `src/generation/artifactApiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactApiRoute.test.ts` |
+| 139 | Durable layout and artifact job boundary | done | `docs/ARTIFACT_JOB_BOUNDARY.md`; `src/generation/artifactJob.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJob.test.ts` |
 
 ## Current Rule
 
@@ -3632,6 +3633,28 @@ Phase 138 adds HTTP-shaped artifact route contracts without concrete routes:
 This phase intentionally does not start a server, add backend routes, read or
 write storage, execute auth/authz, call renderer packages, stream artifact
 bytes, create durable jobs, or change package/document schema.
+
+## Phase 139 Durable Layout And Artifact Job Boundary
+
+Phase 139 adds durable artifact job records and pure transition helpers:
+
+- `src/generation/artifactJob.ts` exports
+  `createVNextArtifactJobPlan(...)` and `advanceVNextArtifactJob(...)`;
+- queued job records carry package/session refs, layout/measurement/renderer
+  profile ids, requested format/media type, cursor/progress metadata,
+  cancellation state, retry count, bounded error state, and a planned artifact
+  manifest reference;
+- valid transitions advance queued -> layout-running -> layout-complete ->
+  rendering -> rendered;
+- fail, cancel, and retry transitions are explicit and bounded;
+- rendered manifests must match job artifact/profile/format identity;
+- `tests/artifactJob.test.ts` proves valid/invalid transitions, retry limit,
+  cancellation, manifest identity checks, dependency cleanliness, and phase
+  trail updates.
+
+This phase intentionally does not run workers, write queues, execute layout,
+call renderer packages, write storage, add backend routes, stream artifact
+bytes, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

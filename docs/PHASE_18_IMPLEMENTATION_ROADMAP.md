@@ -3886,6 +3886,36 @@ Acceptance:
   implementation, byte streaming, or package/document schema change is
   introduced.
 
+## Phase 139: Durable Layout Job / Artifact Job Boundary
+
+Goal:
+
+- extend the pausable layout job idea toward durable artifact generation jobs
+  without concrete worker execution.
+
+Deliverables:
+
+- `src/generation/artifactJob.ts`;
+- `docs/ARTIFACT_JOB_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests for valid status transitions, invalid transition blocking, retry
+  limits, cancellation flags, bounded errors, manifest identity checks,
+  dependency cleanliness, and documentation trail.
+
+Acceptance:
+
+- job records include job id, package/session reference, layout profile,
+  measurement profile, renderer profile, requested format, cursor/progress,
+  cancellation flag, retry count, artifact manifest reference, and bounded
+  error summary;
+- pure helpers advance queued -> layout-running -> layout-complete ->
+  rendering -> rendered;
+- fail, cancel, and retry semantics are explicit;
+- invalid transitions are blocked;
+- no worker runtime, queue, file/storage write, backend route, renderer
+  execution, concrete layout execution, or package/document schema change is
+  introduced.
+
 ## Later Phases
 
 Goal:
