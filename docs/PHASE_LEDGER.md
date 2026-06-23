@@ -143,6 +143,7 @@ Parent goal:
 | 134 | WASM / ICU4X runtime identity and digest boundary | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`; `packages/text-engine-rust-wasm/src/runtimeIdentity.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentity.test.ts` |
 | 135 | Renderer-backed text measurement provider bridge | done | `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/rendererBackedTextEngineProvider.test.ts` |
 | 136 | External minimal PDF artifact spike package | done | `docs/PDF_RENDERER_SPIKE_PACKAGE_BOUNDARY.md`; `packages/pdf-renderer-spike/package.json`; `packages/pdf-renderer-spike/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererSpike.test.ts` |
+| 137 | Artifact manifest and storage boundary | done | `docs/ARTIFACT_MANIFEST_BOUNDARY.md`; `src/generation/artifactManifest.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactManifest.test.ts` |
 
 ## Current Rule
 
@@ -3590,6 +3591,26 @@ This phase intentionally does not add PDF renderer dependencies to core, import
 the spike package from core, claim production PDF fidelity, implement DOCX,
 write files or storage records, add backend routes, or change package/document
 schema.
+
+## Phase 137 Artifact Manifest And Storage Boundary
+
+Phase 137 defines the core artifact manifest storage-record lifecycle:
+
+- `src/generation/artifactManifest.ts` exports
+  `createVNextArtifactManifestPlan(...)`, source/mode constants, lifecycle
+  statuses, format/media metadata, profile ids, byte length, sha256,
+  `storageKey`, and bounded error summaries;
+- rendered records require positive byte length, sha256, and a storage key;
+- planned and rendering records keep bytes and hashes explicitly null;
+- failed records require bounded error summaries and reject partial byte/hash
+  payloads;
+- the record always exposes `storageStatus = "not-written"`;
+- `tests/artifactManifest.test.ts` proves lifecycle validation, explicit
+  missing/null fields, dependency cleanliness, and phase trail updates.
+
+This phase intentionally does not write files, write databases or object
+storage, import concrete renderer packages, add backend routes, run PDF/DOCX
+rendering, change generation readiness, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

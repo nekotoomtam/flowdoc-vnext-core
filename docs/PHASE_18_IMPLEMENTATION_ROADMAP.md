@@ -3830,6 +3830,34 @@ Acceptance:
 - no DOCX output, storage write, backend route, production PDF fidelity claim,
   or package/document schema change is introduced.
 
+## Phase 137: Artifact Manifest And Storage Boundary
+
+Goal:
+
+- define a core artifact manifest and storage-record lifecycle without
+  implementing production storage.
+
+Deliverables:
+
+- `src/generation/artifactManifest.ts`;
+- `docs/ARTIFACT_MANIFEST_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests for rendered/planned/rendering/failed lifecycle records, bounded error
+  summaries, explicit missing/null fields, storage side-effect guards, and
+  documentation trail.
+
+Acceptance:
+
+- manifest records validate `artifactId`, source package/session identity,
+  renderer and measurement profile ids, format, media type, byte length,
+  sha256, storage key, created time, lifecycle status, and failure summary;
+- rendered records require positive byte length, sha256, and storage key;
+- failed records require bounded error summaries;
+- storage status remains `not-written`;
+- no file writes, database writes, storage adapter, backend route, renderer
+  package import, production storage behavior, or package/document schema
+  change is introduced.
+
 ## Later Phases
 
 Goal:

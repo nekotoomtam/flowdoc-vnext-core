@@ -431,6 +431,10 @@ The package must remain runnable without any parent editor checkout.
 - PDF renderer spike package boundary adds a private dependency-free external
   package that consumes vNext PDF adapter plans and emits minimal text-only PDF
   bytes plus a local not-stored artifact manifest.
+- Artifact manifest boundary defines the core storage-record lifecycle for
+  rendered artifacts, including profile ids, media metadata, byte length,
+  sha256, storage key, bounded failure summaries, and explicit not-written
+  storage status.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -517,6 +521,8 @@ The package must remain runnable without any parent editor checkout.
   renderer-backed text measurement provider bridge before default binding
 - `docs/PDF_RENDERER_SPIKE_PACKAGE_BOUNDARY.md`: Phase 136 external minimal
   PDF artifact spike package before storage or production fidelity
+- `docs/ARTIFACT_MANIFEST_BOUNDARY.md`: Phase 137 artifact manifest and
+  storage-record boundary before production storage adapters
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
