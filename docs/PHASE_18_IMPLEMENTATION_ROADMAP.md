@@ -2409,6 +2409,39 @@ Acceptance:
   writes, exact renderer, and export adapters were not changed;
 - focused boundary tests and root checks pass.
 
+## Phase 93: PDF Renderer Adapter Boundary
+
+Goal:
+
+- add a pure PDF renderer adapter plan over measured renderer consumption
+  without implementing concrete PDF rendering, PDF bytes, storage writes, or
+  renderer-side relayout.
+
+Deliverables:
+
+- PDF renderer adapter in `src/renderer/pdfAdapter.ts`;
+- public exports for PDF adapter source/mode constants and
+  `createVNextPdfRendererAdapterPlan(...)`;
+- PDF draw command shape derived from measured render commands;
+- no-relayout PDF renderer contract;
+- artifact manifest with `status = "not-rendered"`, `bytes = null`, and
+  `storageId = null`;
+- blocked renderer-consumption handling that emits no draw commands;
+- boundary tests for ready draw plans, blocked input, source independence, and
+  documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- adapter consumes measured renderer commands, not authored documents;
+- ready renderer consumption produces JSON-serializable PDF draw plans;
+- blocked renderer consumption blocks PDF draw commands;
+- PDF artifacts remain not-rendered and byte/storage fields remain null;
+- the boundary does not import concrete PDF libraries, storage adapters,
+  server frameworks, parent app routes, DOM APIs, pagination, layout, export
+  readiness, or renderer execution;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:

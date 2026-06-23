@@ -99,6 +99,7 @@ Parent goal:
 | 90 | Repeat / collection / form-slot boundary | done | `docs/REPEAT_COLLECTION_FORM_SLOT_BOUNDARY.md`; `src/binding/repeatCollectionFormSlots.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/repeatCollectionFormSlots.test.ts` |
 | 91 | Submission state boundary | done | `docs/SUBMISSION_STATE_BOUNDARY.md`; `src/workflow/submissionState.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/submissionState.test.ts` |
 | 92 | Persistence close audit | done | `docs/PERSISTENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/persistenceCloseAudit.test.ts` |
+| 93 | PDF renderer adapter boundary | done | `docs/PDF_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/pdfAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pdfRendererAdapter.test.ts` |
 
 ## Current Rule
 
@@ -2305,6 +2306,40 @@ This phase intentionally does not implement new runtime behavior, package
 schema changes, concrete backend routes, storage writes, durable replay, key
 migration execution, repeat expansion, form-slot runtime, submission workflow,
 exact renderer adapters, export adapters, or artifact output.
+
+## Phase 93 PDF Renderer Adapter Boundary
+
+Phase 93 adds the first exact-output renderer adapter contract without
+rendering PDF bytes:
+
+- `src/renderer/pdfAdapter.ts` owns
+  `VNEXT_PDF_RENDERER_ADAPTER_SOURCE`,
+  `VNEXT_PDF_RENDERER_ADAPTER_MODE`, and
+  `createVNextPdfRendererAdapterPlan(...)`;
+- the adapter consumes `VNextMeasuredRendererConsumption`, not authored
+  documents;
+- consumable measured render commands become JSON-serializable PDF draw
+  commands with measured bounds and optional text/table metadata;
+- blocked renderer consumption produces a blocked adapter plan and no draw
+  commands;
+- the PDF renderer contract consumes measured render commands, forbids relayout,
+  and does not require authored documents for layout;
+- artifact metadata remains `kind = "pdf"`, `status = "not-rendered"`,
+  `bytes = null`, and `storageId = null`;
+- `src/index.ts` exports the PDF adapter boundary through the public package
+  entry;
+- `docs/PDF_RENDERER_ADAPTER_BOUNDARY.md` records ownership, truth boundary,
+  acceptance evidence, and non-goals;
+- `tests/pdfRendererAdapter.test.ts` proves ready draw plans, blocked input,
+  source independence from concrete PDF libraries, parent runtime, DOM, routes,
+  authored document input, pagination, layout, and export readiness, plus
+  README/roadmap/ledger traceability.
+
+This phase intentionally does not implement concrete PDF rendering, PDF bytes,
+PDF file writes, artifact storage, font embedding, image embedding, vector
+drawing fidelity, accessibility tags, page metadata, renderer-backed text
+measurement, exact layout execution, DOCX output, preview output, backend
+routes, storage adapters, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 

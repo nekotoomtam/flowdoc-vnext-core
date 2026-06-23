@@ -71,6 +71,9 @@ The package must remain runnable without any parent editor checkout.
 - Persistence close audit records PASS/RISK/UNKNOWN status for the current
   backend/API/persistence foundation without claiming production persistence,
   workflow, migration, collection, or artifact behavior
+- PDF renderer adapter boundary converts measured renderer consumption into a
+  PDF draw plan and not-rendered artifact manifest without concrete PDF bytes,
+  storage writes, authored-document input, or relayout
 - Editable authoring session baseline creates a pure browser/Node-safe session
   from canonical packages with working document, graph/key diagnostics,
   revisions, empty dirty scopes, and session-only selection state
@@ -338,6 +341,8 @@ The package must remain runnable without any parent editor checkout.
   state boundary before workflow storage, routes, or reviewer runtime
 - `docs/PERSISTENCE_CLOSE_AUDIT.md`: Phase 92 Backend / API / Persistence
   foundation close audit and risk register
+- `docs/PDF_RENDERER_ADAPTER_BOUNDARY.md`: Phase 93 PDF renderer adapter plan
+  boundary before concrete PDF rendering or artifact storage
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
@@ -520,8 +525,8 @@ The package must remain runnable without any parent editor checkout.
 - non-text table-cell content splitting
 - multi-page column balancing
 - final pagination-aware TOC page resolution
-- concrete PDF/DOCX renderer implementation beyond measured-fragment
-  consumption contracts
+- concrete PDF/DOCX renderer implementation beyond measured-command adapter
+  contracts
 - concrete durable operation/authoring history storage adapters and writes
 - durable/full undo/redo execution beyond metadata and sandbox in-memory text
   patches
