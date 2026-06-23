@@ -428,6 +428,9 @@ The package must remain runnable without any parent editor checkout.
   text-engine evidence through wrap, acceptance, and handoff into the existing
   renderer-backed `VNextTextMeasurer` adapter while keeping default pagination
   measurement unchanged.
+- PDF renderer spike package boundary adds a private dependency-free external
+  package that consumes vNext PDF adapter plans and emits minimal text-only PDF
+  bytes plus a local not-stored artifact manifest.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -512,6 +515,8 @@ The package must remain runnable without any parent editor checkout.
   runtime identity and digest boundary before parity-ready claims
 - `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`: Phase 135
   renderer-backed text measurement provider bridge before default binding
+- `docs/PDF_RENDERER_SPIKE_PACKAGE_BOUNDARY.md`: Phase 136 external minimal
+  PDF artifact spike package before storage or production fidelity
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -778,7 +783,7 @@ The package must remain runnable without any parent editor checkout.
 - concrete TOC text rewrite/reflow beyond the Phase 98 final page-reference
   resolution boundary
 - concrete PDF/DOCX renderer implementation beyond measured-command adapter
-  contracts
+  contracts, except for the external Phase 136 text-only PDF bytes spike
 - concrete durable operation/authoring history storage adapters and writes
 - durable/full undo/redo execution beyond metadata and sandbox in-memory text
   patches

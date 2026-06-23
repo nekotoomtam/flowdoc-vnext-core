@@ -3804,6 +3804,32 @@ Acceptance:
   production binding, renderer output, artifact bytes, and package/document
   schema remain unchanged.
 
+## Phase 136: External Minimal PDF Artifact Spike Package
+
+Goal:
+
+- create an external/private PDF spike package that consumes FlowDoc PDF adapter
+  plans and produces minimal text-only PDF bytes.
+
+Deliverables:
+
+- `packages/pdf-renderer-spike/package.json`;
+- `packages/pdf-renderer-spike/src/index.ts`;
+- `docs/PDF_RENDERER_SPIKE_PACKAGE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests for non-empty PDF bytes, stable artifact manifest shape, blocked unsafe
+  inputs, external dependency cleanliness, and documentation trail.
+
+Acceptance:
+
+- external package consumes public core PDF adapter output;
+- minimal PDF bytes are produced without adding PDF libraries to core;
+- artifact manifest records media type, byte length, sha256, profile ids,
+  local-only status, and not-stored status;
+- core does not import the spike package;
+- no DOCX output, storage write, backend route, production PDF fidelity claim,
+  or package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

@@ -142,6 +142,7 @@ Parent goal:
 | 133 | Multi-line wrap evidence boundary | done | `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/lineWrapEvidence.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `src/renderer/textEngineEvidenceAcceptance.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineLineWrapEvidence.test.ts` |
 | 134 | WASM / ICU4X runtime identity and digest boundary | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`; `packages/text-engine-rust-wasm/src/runtimeIdentity.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentity.test.ts` |
 | 135 | Renderer-backed text measurement provider bridge | done | `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/rendererBackedTextEngineProvider.test.ts` |
+| 136 | External minimal PDF artifact spike package | done | `docs/PDF_RENDERER_SPIKE_PACKAGE_BOUNDARY.md`; `packages/pdf-renderer-spike/package.json`; `packages/pdf-renderer-spike/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererSpike.test.ts` |
 
 ## Current Rule
 
@@ -3569,6 +3570,26 @@ This phase intentionally does not replace `measureVNextText(...)` defaults,
 mutate pagination cache/invalidation contracts, import the provider into core,
 run PDF/DOCX rendering, produce artifact bytes, bind production measurement, or
 change package/document schema.
+
+## Phase 136 External Minimal PDF Artifact Spike Package
+
+Phase 136 creates the first external PDF byte-producing spike:
+
+- `packages/pdf-renderer-spike` is a private dependency-free package that
+  consumes public core `VNextPdfRendererAdapterPlan` output;
+- `packages/pdf-renderer-spike/src/index.ts` writes minimal PDF syntax for page
+  boxes and text draw commands using built-in Helvetica;
+- the spike returns bytes and a local artifact manifest with media type, byte
+  length, sha256, renderer profile id, measurement profile id,
+  `storageStatus = "not-stored"`, and `localOnly = true`;
+- `tests/pdfRendererSpike.test.ts` proves non-empty bytes, stable manifest
+  hashing, blocked unsafe inputs, core dependency cleanliness, and phase trail
+  updates.
+
+This phase intentionally does not add PDF renderer dependencies to core, import
+the spike package from core, claim production PDF fidelity, implement DOCX,
+write files or storage records, add backend routes, or change package/document
+schema.
 
 ## Phase 12 Extraction Record
 
