@@ -2341,6 +2341,43 @@ Acceptance:
   execution, operation execution, layout, pagination, or renderer execution;
 - package/document schema remains unchanged.
 
+## Phase 91: Submission State Boundary
+
+Goal:
+
+- add a pure external submission state boundary without implementing workflow
+  storage, submission/reviewer routes, permissions, approval gates, or package/
+  document/data mutation.
+
+Deliverables:
+
+- submission state record helper in `src/workflow/submissionState.ts`;
+- public exports for submission state source/mode constants and
+  `createVNextSubmissionStateRecord(...)`;
+- workflow status values for not-started, draft, submitted, approved, and
+  rejected;
+- validation for missing template id, invalid revisions, missing submission
+  id, and missing reviewer id;
+- scope flags that keep package, document node, data snapshot, and editor
+  session state out of the submission record;
+- explicit markers that package mutation, document mutation, data mutation,
+  history writes, storage writes, route dispatch, and package version changes
+  are not implemented;
+- boundary tests for ready submitted records, blocked incomplete review state,
+  source independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- submission state records are JSON-serializable external workflow metadata;
+- submitted/reviewed states are validated before any workflow write exists;
+- package, document, data snapshot, and editor session scopes remain false;
+- workflow storage and route dispatch remain not-written/not-run;
+- the boundary does not import storage adapters, server frameworks, parent app
+  routes, DOM/browser storage APIs, package parse/serialize, text transaction
+  execution, operation execution, layout, pagination, or renderer execution;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:
@@ -2362,6 +2399,7 @@ Possible later work:
 - concrete API route work;
 - exact renderer adapters;
 - repeat/collection materialization and form-slot schema/runtime;
+- submission/reviewer workflow storage, routes, permissions, and runtime;
 - key migration execution, aliases/deprecated keys, and key history stores;
 - concrete session storage adapters and durable history stores;
 - durable undo/redo replay and selection restoration;

@@ -97,6 +97,7 @@ Parent goal:
 | 88 | Durable history / undo-redo boundary | done | `docs/DURABLE_HISTORY_BOUNDARY.md`; `src/authoring/durableHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/durableHistory.test.ts` |
 | 89 | Key history / migration boundary | done | `docs/KEY_HISTORY_MIGRATION_BOUNDARY.md`; `src/binding/keyHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/keyHistory.test.ts` |
 | 90 | Repeat / collection / form-slot boundary | done | `docs/REPEAT_COLLECTION_FORM_SLOT_BOUNDARY.md`; `src/binding/repeatCollectionFormSlots.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/repeatCollectionFormSlots.test.ts` |
+| 91 | Submission state boundary | done | `docs/SUBMISSION_STATE_BOUNDARY.md`; `src/workflow/submissionState.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/submissionState.test.ts` |
 
 ## Current Rule
 
@@ -2239,6 +2240,42 @@ policy, data-source adapters, authored field-ref mutation, backend routes,
 storage adapters, collaboration, exact layout execution, renderer adapter
 output, artifact storage, package/document version changes, or
 package/document schema changes.
+
+## Phase 91 Submission State Boundary
+
+Phase 91 models submission/reviewer workflow state as external metadata instead
+of authored package truth:
+
+- `src/workflow/submissionState.ts` owns
+  `VNEXT_SUBMISSION_STATE_SOURCE`, `VNEXT_SUBMISSION_STATE_MODE`, and
+  `createVNextSubmissionStateRecord(...)`;
+- workflow statuses cover `not-started`, `draft`, `submitted`, `approved`, and
+  `rejected`;
+- validation blocks missing template ids, invalid document/data revisions,
+  missing submission ids for submitted/reviewed states, and missing reviewer
+  ids for approved/rejected states;
+- scope flags keep package, document node, data snapshot, and editor session
+  state out of the submission record while marking external submission state as
+  true;
+- application status keeps package mutation, document mutation, data mutation,
+  history writes, storage writes, route dispatch, and package version changes
+  not-run/not-written/false;
+- `src/index.ts` exports the submission state boundary through the public
+  package entry;
+- `docs/SUBMISSION_STATE_BOUNDARY.md` records the ownership, truth boundary,
+  acceptance evidence, and non-goals;
+- `tests/submissionState.test.ts` proves submitted records, blocked incomplete
+  review state, no package truth mutation, source independence from storage
+  adapters, parent runtime, DOM, routes, package parse/serialize,
+  transactions, operations, layout, and pagination, plus README/roadmap/ledger
+  traceability.
+
+This phase intentionally does not implement workflow storage,
+submission/reviewer routes, review permissions, approval gates,
+notification/audit systems, form-slot runtime, data snapshot mutation,
+package/document mutation, package/document version changes, durable history
+integration, collaboration, exact layout execution, renderer adapter output,
+artifact storage, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 

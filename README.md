@@ -65,6 +65,9 @@ The package must remain runnable without any parent editor checkout.
 - Repeat / collection / form-slot boundary reports collection field impact,
   blocks collection inline/data misuse, and keeps repeat regions, collection
   binding, form slots, submission state, and package version changes not-run
+- Submission state boundary creates external workflow records for draft/
+  submitted/reviewed states while keeping workflow storage, routes, package
+  mutation, data mutation, and editor session state outside canonical truth
 - Editable authoring session baseline creates a pure browser/Node-safe session
   from canonical packages with working document, graph/key diagnostics,
   revisions, empty dirty scopes, and session-only selection state
@@ -328,6 +331,8 @@ The package must remain runnable without any parent editor checkout.
   plan boundary before key migration execution or key history persistence
 - `docs/REPEAT_COLLECTION_FORM_SLOT_BOUNDARY.md`: Phase 90 repeat,
   collection, and form-slot readiness boundary before schema/materialization
+- `docs/SUBMISSION_STATE_BOUNDARY.md`: Phase 91 external submission workflow
+  state boundary before workflow storage, routes, or reviewer runtime
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
@@ -501,8 +506,8 @@ The package must remain runnable without any parent editor checkout.
 - concrete backend server routes, storage adapters/writes, durable session
   history, and rendered artifacts on top of the generation runtime route and
   session storage record boundaries
-- repeat/collection materialization, form-slot schema/runtime, and submission
-  state runtime
+- repeat/collection materialization and form-slot schema/runtime
+- submission/reviewer workflow storage, routes, permissions, and runtime
 - key history persistence, aliases/deprecated keys, and key migration execution
 - renderer-backed text measurement profile implementation
 - fully pausable internal text/table placement engine behind measurement job
