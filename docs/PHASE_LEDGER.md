@@ -92,6 +92,7 @@ Parent goal:
 | 83 | Field chip inline boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INLINE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInline.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 84 | Style-aware history boundary | done | `docs/TEMPLATE_BUILDER_STYLE_AWARE_HISTORY_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftStyleHistory.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 85 | WYSIWYG close audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 86 | Generation API route boundary | done | `docs/GENERATION_API_ROUTE_BOUNDARY.md`; `src/generation/apiRoute.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/generationApiRoute.test.ts` |
 
 ## Current Rule
 
@@ -2064,6 +2065,35 @@ Phase 85 closes the current WYSIWYG / Editing foundation pass for Phases 78-84:
 This phase intentionally does not implement new runtime behavior, package
 schema changes, backend API routes, persistence, collaboration, exact renderer
 adapters, export adapters, or durable history changes.
+
+## Phase 86 Generation API Route Boundary
+
+Phase 86 wraps the readiness-only generation runtime in a pure route-response
+boundary without adding a concrete server route:
+
+- `src/generation/apiRoute.ts` owns
+  `VNEXT_GENERATION_API_ROUTE_SOURCE`, `VNEXT_GENERATION_API_ROUTE_MODE`,
+  `VNEXT_GENERATION_API_ROUTE_ACTION`, and
+  `createVNextGenerationApiRouteResponse(...)`;
+- the adapter accepts HTTP-shaped method/body input and returns a JSON
+  response envelope with `httpStatus`, no-store JSON headers, allowed methods,
+  readiness result, issues, `artifact: null`, and `generatedDocument: null`;
+- valid `POST` requests return `httpStatus = 200`, including valid requests
+  whose readiness result is diagnostically blocked;
+- invalid request or package shapes return `httpStatus = 400`;
+- non-`POST` methods return `httpStatus = 405` with `allow = "POST"`;
+- `src/index.ts` exports the route boundary through the public package entry;
+- `docs/GENERATION_API_ROUTE_BOUNDARY.md` records the route adapter ownership,
+  status mapping, truth boundary, acceptance evidence, and non-goals;
+- `tests/generationApiRoute.test.ts` proves route-safe responses and guards the
+  module from server frameworks, parent routes, storage, exact layout,
+  measured pagination, renderer consumption, and export readiness.
+
+This phase intentionally does not implement a concrete HTTP server route,
+template id/version loading, session storage, idempotency persistence, exact
+layout execution, renderer adapter output, PDF/DOCX/preview artifacts, artifact
+storage, collaboration, backend authentication, rate limiting, or
+package/document schema changes.
 
 ## Phase 12 Extraction Record
 

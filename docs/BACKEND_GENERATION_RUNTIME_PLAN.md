@@ -55,6 +55,21 @@ Template id/version loading, concrete API routes, exact layout execution,
 artifact rendering/storage, key history, and repeat/collection expansion remain
 future phases.
 
+## Phase 86 Route Boundary
+
+The current route boundary implements a pure response adapter only:
+
+- `createVNextGenerationApiRouteResponse(...)` accepts HTTP-shaped method/body
+  input and calls `assessVNextGenerationReadiness(...)`;
+- valid `POST` requests return a JSON readiness envelope;
+- invalid request or package shapes map to bounded 400 responses;
+- non-`POST` methods map to 405 with `allow = "POST"`;
+- artifacts and generated documents remain `null`.
+
+This is not a concrete server route. Template id/version loading, exact layout
+execution, artifact rendering/storage, session storage, idempotency persistence,
+key history, and repeat/collection expansion remain future phases.
+
 ## Request Direction
 
 Suggested long-term shape:

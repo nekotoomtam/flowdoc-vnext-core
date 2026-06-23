@@ -2166,6 +2166,36 @@ Acceptance:
   changed;
 - focused boundary tests and root checks pass.
 
+## Phase 86: Generation API Route Boundary
+
+Goal:
+
+- add a pure generation readiness route-response boundary without implementing
+  a concrete server route, storage, exact layout, or artifact rendering.
+
+Deliverables:
+
+- route adapter in `src/generation/apiRoute.ts`;
+- public exports for route source/mode/action constants and
+  `createVNextGenerationApiRouteResponse(...)`;
+- method policy for `POST`;
+- HTTP-shaped status/header/body envelope;
+- explicit separation between route status and generation readiness status;
+- invalid method, invalid request, valid readiness-blocked, and valid ready
+  response tests;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- valid POST generation readiness requests produce route-safe JSON envelopes;
+- invalid request or package shapes map to 400 responses;
+- valid requests with readiness blockers remain 200 transport responses with
+  blocked readiness diagnostics;
+- non-POST methods map to 405 with `allow = "POST"`;
+- artifacts and generated documents remain `null`;
+- route adapter does not import server frameworks, parent app routes, storage,
+  exact layout, measured pagination, renderer consumption, or export readiness.
+
 ## Later Phases
 
 Goal:

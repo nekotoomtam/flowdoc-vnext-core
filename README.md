@@ -77,6 +77,9 @@ The package must remain runnable without any parent editor checkout.
   requests, separates package/document/key-data diagnostics, reports
   readiness-only status, and keeps artifacts/generated documents out of the
   response until a later renderer phase
+- Generation API route boundary wraps readiness-only generation requests in a
+  pure HTTP-shaped response contract without adding a concrete server route,
+  storage, exact layout, or artifact rendering
 - Large-document acceptance harness generates canonical packages with hundreds
   of text blocks and large tables, then verifies narrow typing dirty scopes and
   explicit readiness-only generation behavior
@@ -307,6 +310,8 @@ The package must remain runnable without any parent editor checkout.
   future key-history direction
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
+- `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
+  route response boundary before concrete server/storage/artifact work
 - `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`: large-document guardrails for
   rendering, typing, layout, and exact generation
 - `docs/RUNTIME_USAGE_MAP.md`: frontend/backend usage map for how real app
@@ -471,8 +476,8 @@ The package must remain runnable without any parent editor checkout.
   routes, responsibility-sliced editor modules, and a concrete browser
   live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
-- concrete backend API routes, storage, and rendered artifacts on top of the
-  generation runtime
+- concrete backend server routes, storage, and rendered artifacts on top of the
+  generation runtime route boundary
 - form-slot or submission-state runtime
 - key history and key migration records
 - renderer-backed text measurement profile implementation
