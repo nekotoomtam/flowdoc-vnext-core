@@ -68,6 +68,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js",
       "../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js",
       "../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js",
+      "../examples/template-builder-sandbox/public/draftRichInlineState.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -171,6 +172,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.dispatchDraftToolbarCommand")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftFieldChipInline")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.executeDraftFieldChipInsert")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.normalizeDraftRichInlineState")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftStyleHistory")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
@@ -7350,6 +7352,246 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingReason).toBe("composition-active")
   })
 
+  it("normalizes browser-local rich inline state before canonical commit planning", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const { createDraftContenteditableRangeMapping } = await import("./public/draftContenteditableRangeMapping.js");
+      const { createDraftInlineStylePatch } = await import("./public/draftInlineStylePatch.js");
+      const { createDraftFieldChipInline } = await import("./public/draftFieldChipInline.js");
+      const { createDraftRichInlinePatchExecution } = await import("./public/draftRichInlinePatchExecution.js");
+      const { createDraftFieldChipInsertExecution } = await import("./public/draftFieldChipInsertExecution.js");
+      const {
+        DRAFT_RICH_INLINE_STATE_MODE,
+        DRAFT_RICH_INLINE_STATE_SOURCE,
+        createDraftRichInlineState,
+        draftRichInlineStateLabel,
+      } = await import("./public/draftRichInlineState.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const fields = [
+        { hasData: true, key: "customer.name", label: "Customer", type: "string", usageCount: 2 },
+      ];
+      const segment = {
+        draftEnd: 11,
+        draftStart: 0,
+        kind: "plain-text",
+        segmentId: "seg-1",
+        text: "Hello world",
+      };
+      const idle = createDraftRichInlineState(null);
+      const draft = createDraftStateForNode(node, { baseRevision: 14 });
+      const textOnly = createDraftRichInlineState(draft);
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "rich-state-style-test",
+      }).draft;
+      const styleRange = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: [segment],
+        selection: {
+          anchorOffset: 0,
+          anchorSegmentId: "seg-1",
+          focusOffset: 5,
+          focusSegmentId: "seg-1",
+          source: "rich-state-style-range",
+        },
+      });
+      const stylePatch = createDraftInlineStylePatch(rangedDraft, {
+        styleMark: "bold",
+      });
+      const richInlinePatchExecution = createDraftRichInlinePatchExecution(rangedDraft, {
+        inlineStylePatch: stylePatch,
+        rangeMapping: styleRange,
+      });
+      const caretDraft = updateDraftSelectionRange(draft, 5, 5, {
+        source: "rich-state-field-test",
+      }).draft;
+      const caretRange = createDraftContenteditableRangeMapping(caretDraft, {
+        segments: [segment],
+        selection: {
+          anchorOffset: 5,
+          anchorSegmentId: "seg-1",
+          focusOffset: 5,
+          focusSegmentId: "seg-1",
+          source: "rich-state-field-range",
+        },
+      });
+      const fieldChipInline = createDraftFieldChipInline(caretDraft, {
+        fields,
+        selectedFieldKey: "customer.name",
+      });
+      const fieldChipInsertExecution = createDraftFieldChipInsertExecution(caretDraft, {
+        fieldChipInline,
+        rangeMapping: caretRange,
+        richInlinePatchExecution,
+      });
+      const ready = createDraftRichInlineState(caretDraft, {
+        fieldChipInsertExecution,
+        richInlinePatchExecution,
+      });
+      const overlap = createDraftRichInlineState(draft, {
+        browserInlineState: {
+          plainText: "Hello world",
+          plainTextPreserved: true,
+          status: "patched",
+          styledRuns: [
+            { enabled: true, mark: "bold", range: { start: 0, end: 5, unit: "utf16-code-unit-offset" }, runId: "bold-0-5" },
+            { enabled: true, mark: "italic", range: { start: 3, end: 7, unit: "utf16-code-unit-offset" }, runId: "italic-3-7" },
+          ],
+        },
+      });
+      const composingDraft = updateDraftComposition(caretDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 5,
+        selectionSource: "compositionstart",
+        selectionStart: 5,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftRichInlineState(composingDraft, {
+        fieldChipInsertExecution,
+        richInlinePatchExecution,
+      });
+
+      console.log(JSON.stringify({
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_RICH_INLINE_STATE_MODE,
+          source: DRAFT_RICH_INLINE_STATE_SOURCE,
+        },
+        idleLabel: draftRichInlineStateLabel(idle),
+        idleStatus: idle.status,
+        overlapCanNormalize: overlap.canNormalizeState,
+        overlapLabel: draftRichInlineStateLabel(overlap),
+        overlapReason: overlap.reason,
+        overlapStatus: overlap.status,
+        readyApplication: ready.application.status,
+        readyAtomicChipCount: ready.browserRichInlineState.atomicChipCount,
+        readyBackend: ready.backendApi.status,
+        readyCanNormalize: ready.canNormalizeState,
+        readyChip: ready.browserRichInlineState.atomicChips[0],
+        readyCommandReadiness: ready.commandReadiness.canonicalCommit,
+        readyCore: ready.coreTransaction.status,
+        readyExact: ready.exactGeneration.status,
+        readyHistory: ready.history.status,
+        readyLabel: draftRichInlineStateLabel(ready),
+        readyLive: ready.liveLayout.status,
+        readyOrdering: ready.browserRichInlineState.ordering,
+        readyPackage: ready.packageMutation.status,
+        readyPlainText: ready.browserRichInlineState.plainText,
+        readyPlainTextPreserved: ready.browserRichInlineState.plainTextPreserved,
+        readyReason: ready.reason,
+        readySegmentCount: ready.browserRichInlineState.segmentCount,
+        readySegmentKinds: ready.browserRichInlineState.segments.map((item) => item.kind),
+        readySegmentStyleMarks: ready.browserRichInlineState.segments.find((item) => item.kind === "text" && item.start === 0).styleMarks,
+        readyState: ready.browserRichInlineState.status,
+        readyStatus: ready.status,
+        readyStyledRunCount: ready.browserRichInlineState.styledRunCount,
+        readyTextEngine: ready.textEngine.status,
+        readyTextLength: ready.browserRichInlineState.textLength,
+        target: ready.targetTextBlockId,
+        textOnlyLabel: draftRichInlineStateLabel(textOnly),
+        textOnlySegmentCount: textOnly.browserRichInlineState.segmentCount,
+        textOnlyStatus: textOnly.status,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      overlapCanNormalize: boolean
+      overlapLabel: string
+      overlapReason: string
+      overlapStatus: string
+      readyApplication: string
+      readyAtomicChipCount: number
+      readyBackend: string
+      readyCanNormalize: boolean
+      readyChip: { fieldKey: string; label: string; position: number; placeholder: string; sourceCommand: string }
+      readyCommandReadiness: string
+      readyCore: string
+      readyExact: string
+      readyHistory: string
+      readyLabel: string
+      readyLive: string
+      readyOrdering: string
+      readyPackage: string
+      readyPlainText: string
+      readyPlainTextPreserved: boolean
+      readyReason: string
+      readySegmentCount: number
+      readySegmentKinds: string[]
+      readySegmentStyleMarks: string[]
+      readyState: string
+      readyStatus: string
+      readyStyledRunCount: number
+      readyTextEngine: string
+      readyTextLength: number
+      target: string
+      textOnlyLabel: string
+      textOnlySegmentCount: number
+      textOnlyStatus: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-rich-inline-state")
+    expect(result.constants.mode).toBe("browser-local-rich-inline-state-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Rich state: idle")
+    expect(result.textOnlyStatus).toBe("ready")
+    expect(result.textOnlyLabel).toBe("Rich state: text only")
+    expect(result.textOnlySegmentCount).toBe(1)
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyReason).toBe("browser-local-rich-inline-state-normalized")
+    expect(result.readyCanNormalize).toBe(true)
+    expect(result.readyApplication).toBe("browser-local-state-normalized")
+    expect(result.readyState).toBe("normalized")
+    expect(result.readyPlainText).toBe("Hello world")
+    expect(result.readyPlainTextPreserved).toBe(true)
+    expect(result.readyTextLength).toBe(11)
+    expect(result.readyStyledRunCount).toBe(1)
+    expect(result.readyAtomicChipCount).toBe(1)
+    expect(result.readySegmentKinds).toEqual(["text", "atomic-chip", "text"])
+    expect(result.readySegmentStyleMarks).toEqual(["bold"])
+    expect(result.readyChip.fieldKey).toBe("customer.name")
+    expect(result.readyChip.label).toBe("Customer")
+    expect(result.readyChip.position).toBe(5)
+    expect(result.readyChip.placeholder).toBe("{{customer.name}}")
+    expect(result.readyChip.sourceCommand).toBe("inline.fieldRef.insert")
+    expect(result.readyOrdering).toBe("utf16-position-then-kind")
+    expect(result.readyCommandReadiness).toBe("planned-next-phase")
+    expect(result.readyCore).toBe("not-run")
+    expect(result.readyHistory).toBe("not-recorded")
+    expect(result.readyLive).toBe("not-requested")
+    expect(result.readyExact).toBe("deferred-until-commit")
+    expect(result.readyPackage).toBe("deferred-until-commit")
+    expect(result.readyBackend).toBe("not-called")
+    expect(result.readyTextEngine).toBe("not-executed")
+    expect(result.readyLabel).toBe("Rich state: 1 styles/1 chips")
+    expect(result.target).toBe("cover-header-label")
+    expect(result.overlapStatus).toBe("blocked")
+    expect(result.overlapReason).toBe("overlapping-style-runs")
+    expect(result.overlapCanNormalize).toBe(false)
+    expect(result.overlapLabel).toBe("Rich state: overlap blocked")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+  })
+
   it("plans style-aware history without recording durable history", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       const {
@@ -7502,6 +7744,7 @@ describe("template builder sandbox boundary", () => {
     const draftContenteditableRangeMappingSource = readText("../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js")
     const draftRichInlinePatchExecutionSource = readText("../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js")
     const draftToolbarCommandDispatchSource = readText("../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js")
+    const draftRichInlineStateSource = readText("../examples/template-builder-sandbox/public/draftRichInlineState.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -7526,6 +7769,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.executeRichInlinePatch")
     expect(coreBoundarySource).toContain("browser.dispatchDraftToolbarCommand")
     expect(coreBoundarySource).toContain("browser.executeDraftFieldChipInsert")
+    expect(coreBoundarySource).toContain("browser.normalizeDraftRichInlineState")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
@@ -7537,6 +7781,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftContenteditableRangeMapping.js"')
     expect(appSource).toContain('from "./draftRichInlinePatchExecution.js"')
     expect(appSource).toContain('from "./draftToolbarCommandDispatch.js"')
+    expect(appSource).toContain('from "./draftRichInlineState.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
     expect(draftLayoutPushSource).toContain("not-requested")
@@ -7582,6 +7827,11 @@ describe("template builder sandbox boundary", () => {
     expect(draftToolbarCommandDispatchSource).toContain("rich-inline-execution-not-ready")
     expect(draftToolbarCommandDispatchSource).toContain("unsupported-style-command")
     expect(draftToolbarCommandDispatchSource).toContain("unknown-until-rich-inline-execution")
+    expect(draftRichInlineStateSource).toContain("createDraftRichInlineState")
+    expect(draftRichInlineStateSource).toContain("browser-local-rich-inline-state-normalized")
+    expect(draftRichInlineStateSource).toContain("overlapping-style-runs")
+    expect(draftRichInlineStateSource).toContain("deferred-until-commit")
+    expect(draftRichInlineStateSource).toContain("not-called")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -7612,6 +7862,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-toolbar-dispatch")
     expect(appSource).toContain("data-draft-field-chip-inline")
     expect(appSource).toContain("data-draft-field-chip-insert")
+    expect(appSource).toContain("data-draft-rich-inline-state")
     expect(appSource).toContain("data-draft-style-history")
     expect(appSource).toContain("data-draft-command-summary")
     expect(appSource).toContain("data-draft-command-selected")

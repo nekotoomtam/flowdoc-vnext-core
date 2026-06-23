@@ -3373,6 +3373,35 @@ Acceptance:
 - no package/document schema, runtime behavior, backend, persistence,
   collaboration, renderer, or WASM behavior changes.
 
+## Phase 122: Browser-local Rich Inline State Boundary
+
+Goal:
+
+- consolidate browser-local plain text, styled-run facts, toolbar patch
+  results, and atomic field-chip facts into one normalized rich inline draft
+  state before canonical commit planning.
+
+Deliverables:
+
+- browser-safe rich inline state module at
+  `examples/template-builder-sandbox/public/draftRichInlineState.js`;
+- visible sandbox summary through `data-draft-rich-inline-state`;
+- action lane for `browser.normalizeDraftRichInlineState`;
+- boundary doc in `docs/TEMPLATE_BUILDER_RICH_INLINE_STATE_BOUNDARY.md`;
+- tests proving text-only, ready style-plus-chip, overlapping-style blocked,
+  and composing paths.
+
+Acceptance:
+
+- styled runs and atomic chips are deterministically ordered by UTF-16
+  positions;
+- plain draft text is preserved and text drift is blocked;
+- overlapping/ambiguous rich inline facts are blocked instead of silently
+  flattened;
+- package mutation, canonical field-ref insertion, durable history, live
+  layout, exact output, backend API, persistence, collaboration, and
+  WASM/text-engine execution stay deferred/off.
+
 ## Later Phases
 
 Goal:

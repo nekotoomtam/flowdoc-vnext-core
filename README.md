@@ -299,6 +299,9 @@ The package must remain runnable without any parent editor checkout.
 - WYSIWYG execution re-baseline audit records that Phases 117-120 proved
   browser-local execution evidence, not production DOM binding or canonical
   rich inline commits, and sequences Phases 122-126
+- Rich inline state boundary consolidates browser-local styled-run and atomic
+  field-chip facts into one deterministic draft state while blocking overlap
+  ambiguity before canonical commit planning
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -627,6 +630,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local field chip insert execution boundary
 - `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md`: Phase 121
   WYSIWYG execution re-baseline audit and Phase 122-126 card plan
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_STATE_BOUNDARY.md`: Phase 122
+  browser-local rich inline state boundary before canonical commit planning
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -700,7 +705,7 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete production contenteditable DOM binding, canonical rich inline style
   commit, canonical field-ref insertion, or WYSIWYG production editing beyond
-  the Phase 121 execution re-baseline audit
+  the Phase 122 browser-local rich inline state boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

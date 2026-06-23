@@ -128,6 +128,7 @@ Parent goal:
 | 119 | Toolbar command dispatch boundary | done | `docs/TEMPLATE_BUILDER_TOOLBAR_COMMAND_DISPATCH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/public/styles.css`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 120 | Field chip insert execution boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INSERT_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 121 | WYSIWYG execution re-baseline audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygExecutionRebaselineAudit.test.ts` |
+| 122 | Browser-local rich inline state boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3151,6 +3152,33 @@ contenteditable DOM binding, canonical rich inline commit, field-ref insertion,
 key migration writes, package/document schema changes, parent runtime imports,
 legacy runtime adoption, durable history writes, live layout requests, exact
 renderer output, backend routes, persistence, collaboration, or WASM execution.
+
+## Phase 122 Browser-local Rich Inline State Boundary
+
+Phase 122 consolidates the browser-local WYSIWYG execution facts from Phases
+118-120:
+
+- `examples/template-builder-sandbox/public/draftRichInlineState.js` owns the
+  browser-safe rich inline state normalizer;
+- the normalizer consumes styled-run facts, toolbar patch results, and atomic
+  field-chip facts while preserving active draft plain text;
+- styled runs and atomic chips are deterministically ordered by UTF-16
+  positions before canonical commit planning;
+- overlapping style runs, duplicate/ambiguous chips, target drift, text drift,
+  invalid ranges, invalid chip positions, and chip/style interior ambiguity are
+  blocked explicitly;
+- `examples/template-builder-sandbox/public/app.js` surfaces
+  `data-draft-rich-inline-state`;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.normalizeDraftRichInlineState`;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves idle, text-only, ready
+  style-plus-chip, overlapping-style blocked, and composing paths.
+
+This phase intentionally does not implement production contenteditable DOM
+segment capture, canonical rich inline commit, canonical field-ref insertion,
+key migration writes, package/document schema changes, durable history writes,
+live layout requests, exact renderer output, backend routes, persistence,
+collaboration behavior, ICU4X execution, or WASM/text-engine measurement.
 
 ## Phase 12 Extraction Record
 
