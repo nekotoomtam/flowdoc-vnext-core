@@ -323,6 +323,9 @@ The package must remain runnable without any parent editor checkout.
 - Renderer-backed text measurement boundary exposes profile readiness plans and
   a strict `VNextTextMeasurer` adapter for external renderer facts without
   concrete renderer imports, document relayout, or schema changes.
+- Text measurement engine spike boundary records font, HarfBuzz shaping,
+  ICU4X/Intl.Segmenter line-break, and Thai oracle comparison readiness before
+  any concrete engine can replace pagination measurement.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -366,6 +369,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md`: Phase 95
   renderer-backed text measurement profile adapter boundary before concrete
   renderer measurement engines
+- `docs/TEXT_MEASUREMENT_ENGINE_SPIKE_BOUNDARY.md`: Phase 100 text
+  measurement engine spike boundary before HarfBuzz/ICU4X/Intl/Thai oracle
+  implementation
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -551,7 +557,9 @@ The package must remain runnable without any parent editor checkout.
 - submission/reviewer workflow storage, routes, permissions, and runtime
 - key history persistence, aliases/deprecated keys, and key migration execution
 - concrete renderer-backed text measurement engines beyond the Phase 95
-  profile adapter boundary
+  profile adapter and Phase 100 engine spike boundary
+- concrete HarfBuzz, ICU4X, Intl.Segmenter, LibThai, PyThaiNLP, AttaCut, font
+  registry, or font hash execution beyond the Phase 100 spike plan
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

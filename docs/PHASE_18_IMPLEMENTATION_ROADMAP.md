@@ -2660,6 +2660,54 @@ Acceptance:
   writes, network writes, and measured pagination mutation were not changed;
 - focused boundary tests and root checks pass.
 
+## Phase 100: Text Measurement Engine Spike Boundary
+
+Goal:
+
+- add a pure text measurement engine spike boundary that records font assets,
+  shaping candidates, line-break candidates, Thai oracle candidates, cache
+  profile ingredients, and production-binding blockers before any concrete
+  measurement engine replaces pagination measurement.
+
+Deliverables:
+
+- text measurement engine spike planner in
+  `src/renderer/textMeasurementEngineSpike.ts`;
+- public exports for text measurement engine spike source/mode constants and
+  `createVNextTextMeasurementEngineSpikePlan(...)`;
+- font asset readiness facts for family, style, weight, format, source,
+  license, revision, availability, and optional hash;
+- shaping candidate facts for HarfBuzz or future engines, including glyph
+  advances, cluster mapping, complex text, determinism, and package boundary;
+- line-break candidate facts for ICU4X, Intl.Segmenter, UAX #14/libunibreak,
+  LibThai, PyThaiNLP, AttaCut, or custom engines;
+- explicit roles for primary candidate, comparison baseline, Thai oracle, and
+  rejected candidates;
+- profile candidate id built from font, shaper, line-break, and policy
+  ingredients;
+- blocking issues for production pagination binding, missing fonts, missing or
+  unsafe primary shaper, missing or unsafe primary line breaker, runtime-
+  dependent primary line breaking, missing Thai support, and missing Unicode
+  line-break policy;
+- warnings for unavailable comparison fonts, unhashed available fonts, and
+  missing Thai oracle coverage;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- HarfBuzz plus ICU4X can be represented as the primary deterministic spike
+  path with Intl.Segmenter as comparison-only baseline and a Thai oracle path
+  recorded separately;
+- Intl.Segmenter is blocked when selected as the primary truth because it is
+  runtime-dependent;
+- production pagination measurement replacement is explicitly blocked by this
+  spike boundary;
+- profile identity is stable only when required font hashes and engine
+  revisions are recorded;
+- the boundary does not import concrete shaping, segmentation, renderer,
+  browser, storage, server, parent-app, or legacy runtime dependencies;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

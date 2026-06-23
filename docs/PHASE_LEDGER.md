@@ -106,6 +106,7 @@ Parent goal:
 | 97 | Deep table split boundary | done | `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`; `src/pagination/deepTableSplit.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/deepTableSplit.test.ts` |
 | 98 | Final TOC / page resolution boundary | done | `docs/FINAL_TOC_PAGE_RESOLUTION_BOUNDARY.md`; `src/pagination/pageResolution.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pageResolution.test.ts` |
 | 99 | Exact output close audit | done | `docs/EXACT_OUTPUT_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/exactOutputCloseAudit.test.ts` |
+| 100 | Text measurement engine spike boundary | done | `docs/TEXT_MEASUREMENT_ENGINE_SPIKE_BOUNDARY.md`; `src/renderer/textMeasurementEngineSpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textMeasurementEngineSpike.test.ts` |
 
 ## Current Rule
 
@@ -2554,6 +2555,35 @@ schema changes, parent runtime imports, legacy runtime adoption, concrete
 renderer libraries, DOM/canvas/headless execution, pagination relayout,
 measured pagination mutation, generated document mutation, artifact writes,
 storage writes, network writes, backend routes, or worker runtime.
+
+## Phase 100 Text Measurement Engine Spike Boundary
+
+Phase 100 adds an executable spike planning boundary for the renderer-backed
+text measurement risk without importing or executing concrete measurement
+engines:
+
+- `src/renderer/textMeasurementEngineSpike.ts` records font assets, shaping
+  candidates, line-break candidates, Thai oracle candidates, profile identity
+  ingredients, decision rows, blocking issues, warnings, and next steps;
+- HarfBuzz can be represented as the primary shaping candidate, ICU4X as the
+  deterministic primary line-break candidate, Intl.Segmenter as a comparison
+  baseline, and LibThai/PyThaiNLP/AttaCut style tools as Thai oracle paths;
+- the spike blocks production pagination binding, missing available fonts,
+  missing or unsafe primary shaping, missing or unsafe primary line breaking,
+  runtime-dependent primary line breaking, missing Thai support, and missing
+  Unicode line-break policy;
+- font hashes and engine revisions are part of the profile candidate identity
+  so measurement cache/profile drift is visible before production use;
+- `tests/textMeasurementEngineSpike.test.ts` proves ready spike planning,
+  Intl.Segmenter primary blocking, production-binding blocking, font profile
+  identity, source independence, and documentation trail.
+
+This phase intentionally does not install HarfBuzz, ICU4X, Intl.Segmenter,
+LibThai, PyThaiNLP, AttaCut, browser canvas, PDF/DOCX renderer libraries, font
+readers, storage adapters, backend routes, workers, or legacy runtime code. It
+does not read font files, relayout documents, replace measured pagination,
+mutate package/document data, write artifacts, or change package/document
+schema.
 
 ## Phase 12 Extraction Record
 
