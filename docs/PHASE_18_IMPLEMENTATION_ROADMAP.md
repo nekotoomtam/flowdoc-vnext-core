@@ -1949,6 +1949,40 @@ Acceptance:
   contenteditable mapping, rich inline editing, field chips, backend API, or
   package/document schema change is claimed.
 
+## Phase 80: Draft IME Hardening Boundary
+
+Goal:
+
+- centralize browser-local WYSIWYG draft IME guard policy without claiming
+  language-specific production IME behavior or changing package truth.
+
+Deliverables:
+
+- browser-safe draft IME policy module in `public/draftImePolicy.js`;
+- draft IME policy source/mode constants;
+- idle/ready/composing/settled status and reason derivation;
+- command, range-control, and commit guard booleans;
+- explicit `languageProfile = "generic-ime"` default;
+- explicit `exactGeneration.status = "deferred-until-commit"`;
+- canvas, inspector, and status-bar consumption through
+  `data-draft-ime-policy`;
+- action lane for `browser.hardenDraftIme`;
+- boundary documentation and tests.
+
+Acceptance:
+
+- draft IME policy can run in Node without DOM access;
+- active composition blocks draft commands, range controls, and commit through
+  one policy summary;
+- settled composition re-enables browser-local draft affordances while leaving
+  final bridge commit as the only package mutation path;
+- exact generation remains deferred until committed bridge transactions;
+- app consumption does not call core layout, pagination, generation, history,
+  persistence, or packet application from active composition;
+- no language-specific IME engine, contenteditable mapping, rich inline
+  editing, field chips, toolbar state, backend API, or package/document schema
+  change is claimed.
+
 ## Later Phases
 
 Goal:

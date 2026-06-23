@@ -96,6 +96,10 @@ import {
   createDraftLayoutPush,
   draftLayoutPushLabel as draftLayoutPushLabelState,
 } from "./draftLayoutPush.js"
+import {
+  createDraftImePolicy,
+  draftImePolicyLabel as draftImePolicyLabelState,
+} from "./draftImePolicy.js"
 
 const app = document.querySelector("#app")
 
@@ -104,6 +108,7 @@ const state = {
   bridgeMessage: "",
   draft: createIdleDraftState(),
   draftCommandText: "",
+  draftImePolicy: createDraftImePolicy(createIdleDraftState()),
   draftLayoutPush: createDraftLayoutPush(createIdleDraftState()),
   lastPacket: null,
   lastViewportApply: null,
@@ -771,6 +776,7 @@ function draftGuardReason(node) {
 
 function draftCanCommit() {
   return draftCanCommitState(state.draft, { bridgeBusy: state.bridgeBusy })
+    && state.draftImePolicy.canCommitDraft
 }
 
 function draftStatusLabel() {
@@ -797,6 +803,14 @@ function updateDraftLayoutPush() {
 
 function draftLayoutPushLabel() {
   return draftLayoutPushLabelState(state.draftLayoutPush)
+}
+
+function updateDraftImePolicy() {
+  state.draftImePolicy = createDraftImePolicy(state.draft)
+}
+
+function draftImePolicyLabel() {
+  return draftImePolicyLabelState(state.draftImePolicy)
 }
 
 function setDraftSelectionRange(start, end, options = {}) {
@@ -956,10 +970,12 @@ function updateDraftSelectionFromEditor(editor, selectionSource) {
 }
 
 function syncDraftDomState() {
+  updateDraftImePolicy()
   updateDraftLayoutPush()
   const status = draftStatusLabel()
   const selection = normalizedDraftSelection()
   const commandContext = deriveDraftCommandContext()
+  const draftImePolicy = state.draftImePolicy
   const message = state.draft.message || (
     draftIsActive()
       ? draftIsDirty()
@@ -992,6 +1008,10 @@ function syncDraftDomState() {
     target.textContent = draftLayoutPushLabel()
     target.dataset.state = state.draftLayoutPush.status
   })
+  app.querySelectorAll("[data-draft-ime-policy]").forEach((target) => {
+    target.textContent = draftImePolicyLabel()
+    target.dataset.state = draftImePolicy.status
+  })
   app.querySelectorAll("[data-draft-command-target]").forEach((target) => {
     target.textContent = commandContext.targetTextBlockId || "none"
   })
@@ -1020,7 +1040,7 @@ function syncDraftDomState() {
     })
   })
   app.querySelectorAll("[data-draft-command-text]").forEach((target) => {
-    target.disabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
+    target.disabled = !draftIsActive() || state.bridgeBusy || draftImePolicy.commandsBlocked
     if (target !== document.activeElement) {
       target.value = draftCommandTextValue()
     }
@@ -1030,7 +1050,7 @@ function syncDraftDomState() {
   })
   app.querySelectorAll("[data-draft-selection-input]").forEach((target) => {
     const part = target.dataset.draftSelectionInput
-    target.disabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
+    target.disabled = !draftIsActive() || state.bridgeBusy || draftImePolicy.rangeControlsBlocked
     target.max = String(draftIsActive() ? state.draft.text.length : 0)
     target.min = "0"
     if (target !== document.activeElement) {
@@ -1038,7 +1058,7 @@ function syncDraftDomState() {
     }
   })
   app.querySelectorAll("[data-draft-selection-action]").forEach((target) => {
-    target.disabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
+    target.disabled = !draftIsActive() || state.bridgeBusy || draftImePolicy.rangeControlsBlocked
   })
   app.querySelectorAll("[data-draft-statusbar]").forEach((target) => {
     target.textContent = `Draft: ${status}`
@@ -1315,6 +1335,7 @@ function renderCanvasNode(node) {
             <span data-draft-composition data-state="${state.draft.isComposing ? "active" : "idle"}">${escapeHtml(draftCompositionLabel())}</span>
             <span data-draft-command-summary>${escapeHtml(draftCommandSummary())}</span>
             <span data-draft-layout-push data-state="${escapeHtml(state.draftLayoutPush.status)}">${escapeHtml(draftLayoutPushLabel())}</span>
+            <span data-draft-ime-policy data-state="${escapeHtml(state.draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</span>
             <div class="canvas-draft-actions">
               <button
                 type="button"
@@ -1483,6 +1504,7 @@ function renderInspector(snapshot) {
   const parentNode = nodeById(node?.parentId)
   const activeDraftNode = draftTargetNode()
   const commandContext = deriveDraftCommandContext()
+  const draftImePolicy = state.draftImePolicy
   const canStartDraft = Boolean(node && selectedNodeCanUseWysiwygDraft(node) && !draftIsActive())
   const canUseBridge = selectedNodeCanUseBridge(node) && !draftIsActive()
   const structuralPolicy = createStructuralCommandPolicy({
@@ -1506,12 +1528,12 @@ function renderInspector(snapshot) {
   const draftPanelMessage = draftIsActive()
     ? state.draft.message || "Browser draft is active."
     : draftGuard || state.draft.message || "No browser draft is active."
-  const draftCommandInputDisabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
+  const draftCommandInputDisabled = !draftIsActive() || state.bridgeBusy || draftImePolicy.commandsBlocked
   const canInsertDraftCommand = draftCommandActionCanRun("insert-text", commandContext)
   const canReplaceDraftCommand = draftCommandActionCanRun("replace-selection", commandContext)
   const draftSelection = normalizedDraftSelection()
   const draftSelectionMax = draftIsActive() ? state.draft.text.length : 0
-  const draftSelectionControlDisabled = !draftIsActive() || state.bridgeBusy || state.draft.isComposing
+  const draftSelectionControlDisabled = !draftIsActive() || state.bridgeBusy || draftImePolicy.rangeControlsBlocked
   const childNodes = node ? nodeChildren(node) : []
   const fieldRows = snapshot.fields.map((field) => `
     <li>
@@ -1629,6 +1651,7 @@ function renderInspector(snapshot) {
             <dt>Range</dt><dd data-draft-selection>${escapeHtml(draftSelectionLabel())}</dd>
             <dt>Input</dt><dd data-draft-selection-source>${escapeHtml(normalizedDraftSelection().source)}</dd>
             <dt>IME</dt><dd><span data-draft-composition data-state="${state.draft.isComposing ? "active" : "idle"}">${escapeHtml(draftCompositionLabel())}</span></dd>
+            <dt>IME guard</dt><dd data-draft-ime-policy data-state="${escapeHtml(draftImePolicy.status)}">${escapeHtml(draftImePolicyLabel())}</dd>
             <dt>Command</dt><dd data-draft-command-summary>${escapeHtml(draftCommandSummary())}</dd>
             <dt>Layout</dt><dd data-draft-layout-push data-state="${escapeHtml(state.draftLayoutPush.status)}">${escapeHtml(draftLayoutPushLabel())}</dd>
             <dt>Surface</dt><dd data-draft-command-surface>${escapeHtml(commandContext.commandSurface)}</dd>
@@ -1947,6 +1970,7 @@ function renderStatus(snapshot, renderModel) {
       <span data-draft-statusbar>Draft: ${escapeHtml(draftStatusLabel())}</span>
       <span data-draft-selectionbar>Draft selection: ${escapeHtml(draftSelectionLabel())}</span>
       <span data-draft-compositionbar>IME: ${escapeHtml(draftCompositionLabel())}</span>
+      <span data-draft-ime-policy>${escapeHtml(draftImePolicyLabel())}</span>
       <span data-draft-commandbar>Command: ${escapeHtml(draftCommandSummary())}</span>
       <span data-draft-layout-push>${escapeHtml(draftLayoutPushLabel())}</span>
       <span>Bridge: ${escapeHtml(snapshot.mutationBridge.mode)}</span>
@@ -2214,8 +2238,9 @@ async function commitDraft() {
   const draft = { ...state.draft }
   const node = draftTargetNode()
   const guardReason = draftGuardReason(node)
+  const imePolicy = createDraftImePolicy(draft)
 
-  if (draft.isComposing) {
+  if (!imePolicy.canCommitDraft) {
     state.draft = {
       ...state.draft,
       message: "Finish IME composition before committing the draft.",
@@ -2476,6 +2501,7 @@ function render(options = {}) {
     return
   }
 
+  updateDraftImePolicy()
   updateDraftLayoutPush()
   const renderModel = createStoreBackedRenderModel(snapshot, state.runtimeCache)
   state.renderModel = renderModel

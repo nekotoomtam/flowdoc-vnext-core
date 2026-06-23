@@ -86,6 +86,7 @@ Parent goal:
 | 77 | Structural Runtime close audit | done | `docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 78 | Draft runtime module boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRuntime.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 79 | Text draft layout push boundary | done | `docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftLayoutPush.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 80 | Draft IME hardening boundary | done | `docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftImePolicy.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -1856,6 +1857,39 @@ wrapping, page breaking, page geometry, contenteditable DOM mapping, rich
 inline range mapping, field/key chips, per-keystroke core transactions, durable
 history or persistence, backend API routes, storage, collaboration, or
 package/document schema changes.
+
+## Phase 80 Draft IME Hardening Boundary
+
+Phase 80 centralizes browser-local WYSIWYG draft IME guard policy without
+making draft composition a package, history, renderer, or export truth:
+
+- `examples/template-builder-sandbox/public/draftImePolicy.js` owns
+  `DRAFT_IME_POLICY_SOURCE`, `DRAFT_IME_POLICY_MODE`,
+  `createDraftImePolicy(...)`, and `draftImePolicyLabel(...)`;
+- policy summaries report idle/ready/composing/settled state, reason,
+  composition source/event/data-preview facts, target text-block id, command
+  guard, range-control guard, commit guard, and bounded language profile;
+- summaries explicitly keep `languageProfile = "generic-ime"` by default and
+  `exactGeneration.status = "deferred-until-commit"`;
+- `examples/template-builder-sandbox/public/app.js` renders
+  `data-draft-ime-policy` in the canvas draft footer, inspector draft panel,
+  and status bar while using the policy for draft command/range disabled state
+  and commit guard messaging;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes the
+  `browser.hardenDraftIme` action lane;
+- `docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md` records the generic
+  IME guard boundary, truth model, acceptance evidence, and non-goals;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves the module can run in
+  Node, blocks draft command/range/commit affordances while composing,
+  re-enables them after composition settles, keeps exact output deferred until
+  commit, and guards app-shell wiring.
+
+This phase intentionally does not implement language-specific production IME
+behavior, contenteditable DOM mapping, rich inline range mapping, field/key
+chips, toolbar state, durable selection persistence, per-keystroke core
+transactions, live layout rendering during active typing, exact layout during
+active typing, renderer-backed measurement, backend API routes, storage,
+collaboration, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 

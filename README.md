@@ -234,6 +234,9 @@ The package must remain runnable without any parent editor checkout.
 - Text draft layout push boundary surfaces a bounded browser-local layout
   preview summary for active drafts while explicitly keeping live layout
   unrequested and exact generation not-run until commit
+- Draft IME hardening boundary centralizes browser-local composition guards in
+  a policy module, surfaces `data-draft-ime-policy`, and keeps exact output
+  deferred until bridge commit
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -413,6 +416,8 @@ The package must remain runnable without any parent editor checkout.
   browser-local draft runtime and caret/selection module boundary
 - `docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md`: Phase 79
   browser-local text draft layout push boundary
+- `docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md`: Phase 80
+  browser-local draft IME hardening boundary
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options

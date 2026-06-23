@@ -59,6 +59,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/structuralCommandPolicy.js",
       "../examples/template-builder-sandbox/public/draftRuntime.js",
       "../examples/template-builder-sandbox/public/draftLayoutPush.js",
+      "../examples/template-builder-sandbox/public/draftImePolicy.js",
       "../examples/template-builder-sandbox/public/renderWindow.js",
       "../examples/template-builder-sandbox/public/renderShell.js",
       "../examples/template-builder-sandbox/public/renderModel.js",
@@ -154,6 +155,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftComposition")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.resolveDraftRuntimeState")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.pushTextDraftLayout")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.hardenDraftIme")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyStructuralPacketToRuntimeStore")
@@ -1652,6 +1654,7 @@ describe("template builder sandbox boundary", () => {
     const structuralCommandPolicySource = readText("../examples/template-builder-sandbox/public/structuralCommandPolicy.js")
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
     const draftLayoutPushSource = readText("../examples/template-builder-sandbox/public/draftLayoutPush.js")
+    const draftImePolicySource = readText("../examples/template-builder-sandbox/public/draftImePolicy.js")
     const editorViewSource = readText("../examples/template-builder-sandbox/public/editorView.js")
     const visibleRangeRequestSource = readText("../examples/template-builder-sandbox/public/visibleRangeRequest.js")
     const visibleRangeSource = readText("../examples/template-builder-sandbox/public/visibleRange.js")
@@ -1690,6 +1693,7 @@ describe("template builder sandbox boundary", () => {
     const structuralRuntimeCloseAuditDoc = readText("../docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
     const draftRuntimeDoc = readText("../docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
     const draftLayoutPushDoc = readText("../docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md")
+    const draftImePolicyDoc = readText("../docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md")
     const readmeDoc = readText("../README.md")
     const phaseLedgerDoc = readText("../docs/PHASE_LEDGER.md")
     const roadmapDoc = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
@@ -1701,6 +1705,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./structuralCommandPolicy.js"')
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
+    expect(appSource).toContain('from "./draftImePolicy.js"')
     expect(appSource).toContain("runtimeCache")
     expect(appSource).toContain("createStoreBackedRenderModel")
     expect(appSource).toContain("getStoreBackedRenderChildren")
@@ -1915,6 +1920,15 @@ describe("template builder sandbox boundary", () => {
     expect(draftLayoutPushSource).not.toContain("document.")
     expect(draftLayoutPushSource).not.toContain("querySelector")
     expect(draftLayoutPushSource).not.toContain("fetch(")
+    expect(draftImePolicySource).toContain("DRAFT_IME_POLICY_SOURCE")
+    expect(draftImePolicySource).toContain("DRAFT_IME_POLICY_MODE")
+    expect(draftImePolicySource).toContain("createDraftImePolicy")
+    expect(draftImePolicySource).toContain("draftImePolicyLabel")
+    expect(draftImePolicySource).toContain("generic-ime")
+    expect(draftImePolicySource).toContain("deferred-until-commit")
+    expect(draftImePolicySource).not.toContain("document.")
+    expect(draftImePolicySource).not.toContain("querySelector")
+    expect(draftImePolicySource).not.toContain("fetch(")
     expect(renderWindowSource).toContain("createRenderWindow")
     expect(renderWindowSource).toContain("flowdoc-render-window")
     expect(renderWindowSource).toContain("visible-range-render-window")
@@ -2240,18 +2254,26 @@ describe("template builder sandbox boundary", () => {
     expect(draftLayoutPushDoc).toContain("public/draftLayoutPush.js")
     expect(draftLayoutPushDoc).toContain("local preview boundary")
     expect(draftLayoutPushDoc).toContain("exactGeneration.status = \"not-run\"")
+    expect(draftImePolicyDoc).toContain("Status: Phase 80 implementation boundary.")
+    expect(draftImePolicyDoc).toContain("public/draftImePolicy.js")
+    expect(draftImePolicyDoc).toContain("generic IME guard boundary")
+    expect(draftImePolicyDoc).toContain("does not implement language-specific IME")
     expect(readmeDoc).toContain("Structural Runtime close audit records PASS/RISK/UNKNOWN status")
     expect(readmeDoc).toContain("Draft runtime module boundary")
     expect(readmeDoc).toContain("Text draft layout push boundary")
+    expect(readmeDoc).toContain("Draft IME hardening boundary")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_STRUCTURAL_RUNTIME_CLOSE_AUDIT.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_RUNTIME_MODULE_BOUNDARY.md")
     expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_TEXT_DRAFT_LAYOUT_PUSH_BOUNDARY.md")
+    expect(readmeDoc).toContain("docs/TEMPLATE_BUILDER_DRAFT_IME_HARDENING_BOUNDARY.md")
     expect(phaseLedgerDoc).toContain("| 77 | Structural Runtime close audit | done |")
     expect(phaseLedgerDoc).toContain("| 78 | Draft runtime module boundary | done |")
     expect(phaseLedgerDoc).toContain("| 79 | Text draft layout push boundary | done |")
+    expect(phaseLedgerDoc).toContain("| 80 | Draft IME hardening boundary | done |")
     expect(roadmapDoc).toContain("## Phase 77: Structural Runtime Close Audit")
     expect(roadmapDoc).toContain("## Phase 78: Draft Runtime Module Boundary")
     expect(roadmapDoc).toContain("## Phase 79: Text Draft Layout Push Boundary")
+    expect(roadmapDoc).toContain("## Phase 80: Draft IME Hardening Boundary")
     expect(storeBackedRenderDoc).toContain("Status: Phase 51 implementation boundary.")
     expect(storeBackedRenderDoc).toContain("createStoreBackedRenderModel")
     expect(storeBackedRenderDoc).toContain("store-backed-render-model")
@@ -5790,10 +5812,143 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingLabel).toContain("composition-active")
   })
 
+  it("centralizes draft IME guards without changing package truth", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+      } = await import("./public/draftRuntime.js");
+      const {
+        DRAFT_IME_POLICY_MODE,
+        DRAFT_IME_POLICY_SOURCE,
+        createDraftImePolicy,
+        draftImePolicyLabel,
+      } = await import("./public/draftImePolicy.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const idle = createDraftImePolicy(null);
+      const draft = createDraftStateForNode(node, { baseRevision: 9 });
+      const ready = createDraftImePolicy(draft);
+      const startedDraft = updateDraftComposition(draft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 11,
+        selectionSource: "compositionstart",
+        selectionStart: 11,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftImePolicy(startedDraft, {
+        languageProfile: "generic-cjk",
+      });
+      const settledDraft = updateDraftComposition(startedDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionend",
+        selectionDirection: "none",
+        selectionEnd: 11,
+        selectionSource: "compositionend",
+        selectionStart: 11,
+        value: "Hello world",
+      }).draft;
+      const settled = createDraftImePolicy(settledDraft);
+
+      console.log(JSON.stringify({
+        composingCanChangeRange: composing.canChangeRange,
+        composingCanCommit: composing.canCommitDraft,
+        composingCanRunCommand: composing.canRunDraftCommand,
+        composingCommandsBlocked: composing.commandsBlocked,
+        composingExact: composing.exactGeneration.status,
+        composingLabel: draftImePolicyLabel(composing),
+        composingProfile: composing.languageProfile,
+        composingReason: composing.reason,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_IME_POLICY_MODE,
+          source: DRAFT_IME_POLICY_SOURCE,
+        },
+        idleLabel: draftImePolicyLabel(idle),
+        idleStatus: idle.status,
+        readyCanRunCommand: ready.canRunDraftCommand,
+        readyExact: ready.exactGeneration.status,
+        readyProfile: ready.languageProfile,
+        readyStatus: ready.status,
+        settledCanCommit: settled.canCommitDraft,
+        settledCommandsBlocked: settled.commandsBlocked,
+        settledLabel: draftImePolicyLabel(settled),
+        settledReason: settled.reason,
+        settledSource: settled.compositionSource,
+        settledStatus: settled.status,
+        target: composing.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingCanChangeRange: boolean
+      composingCanCommit: boolean
+      composingCanRunCommand: boolean
+      composingCommandsBlocked: boolean
+      composingExact: string
+      composingLabel: string
+      composingProfile: string
+      composingReason: string
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      readyCanRunCommand: boolean
+      readyExact: string
+      readyProfile: string
+      readyStatus: string
+      settledCanCommit: boolean
+      settledCommandsBlocked: boolean
+      settledLabel: string
+      settledReason: string
+      settledSource: string
+      settledStatus: string
+      target: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-ime-policy")
+    expect(result.constants.mode).toBe("browser-local-ime-guard")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("IME guard: idle")
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyCanRunCommand).toBe(true)
+    expect(result.readyProfile).toBe("generic-ime")
+    expect(result.readyExact).toBe("deferred-until-commit")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+    expect(result.composingCanChangeRange).toBe(false)
+    expect(result.composingCanRunCommand).toBe(false)
+    expect(result.composingCanCommit).toBe(false)
+    expect(result.composingCommandsBlocked).toBe(true)
+    expect(result.composingExact).toBe("deferred-until-commit")
+    expect(result.composingProfile).toBe("generic-cjk")
+    expect(result.composingLabel).toContain("IME guard: composing")
+    expect(result.target).toBe("cover-header-label")
+    expect(result.settledStatus).toBe("settled")
+    expect(result.settledSource).toBe("compositionend")
+    expect(result.settledReason).toBe("composition-settled")
+    expect(result.settledCommandsBlocked).toBe(false)
+    expect(result.settledCanCommit).toBe(true)
+    expect(result.settledLabel).toBe("IME guard: settled")
+  })
+
   it("keeps WYSIWYG browser drafts local until bridge commit", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
     const draftRuntimeSource = readText("../examples/template-builder-sandbox/public/draftRuntime.js")
     const draftLayoutPushSource = readText("../examples/template-builder-sandbox/public/draftLayoutPush.js")
+    const draftImePolicySource = readText("../examples/template-builder-sandbox/public/draftImePolicy.js")
     const coreBoundarySource = readText("../examples/template-builder-sandbox/src/coreBoundary.ts")
 
     expect(coreBoundarySource).toContain("plainText")
@@ -5809,12 +5964,19 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.trackDraftComposition")
     expect(coreBoundarySource).toContain("browser.resolveDraftRuntimeState")
     expect(coreBoundarySource).toContain("browser.pushTextDraftLayout")
+    expect(coreBoundarySource).toContain("browser.hardenDraftIme")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
+    expect(appSource).toContain('from "./draftImePolicy.js"')
     expect(draftRuntimeSource).toContain("draftTextForNode")
     expect(draftLayoutPushSource).toContain("createDraftLayoutPush")
     expect(draftLayoutPushSource).toContain("not-requested")
     expect(draftLayoutPushSource).toContain("not-run")
+    expect(draftImePolicySource).toContain("createDraftImePolicy")
+    expect(draftImePolicySource).toContain("canRunDraftCommand")
+    expect(draftImePolicySource).toContain("canChangeRange")
+    expect(draftImePolicySource).toContain("canCommitDraft")
+    expect(draftImePolicySource).toContain("deferred-until-commit")
     expect(appSource).toContain("draftSelectionLabel")
     expect(appSource).toContain("normalizedDraftSelection")
     expect(appSource).toContain("updateDraftSelectionFromEditor")
@@ -5836,6 +5998,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-selectionbar")
     expect(appSource).toContain("data-draft-composition")
     expect(appSource).toContain("data-draft-compositionbar")
+    expect(appSource).toContain("data-draft-ime-policy")
     expect(appSource).toContain("data-draft-command-summary")
     expect(appSource).toContain("data-draft-command-selected")
     expect(appSource).toContain("data-draft-command-text")

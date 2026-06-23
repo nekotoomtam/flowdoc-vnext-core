@@ -761,6 +761,13 @@ export function createTemplateBuilderSnapshot(
         reason: "active browser drafts surface bounded local layout-preview summaries without requesting live or exact layout during typing",
       },
       {
+        action: "browser.hardenDraftIme",
+        label: "IME guard",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-local IME policy centralizes composition guards for draft commands, range controls, and commit without changing package state",
+      },
+      {
         action: "sandbox.recordAuthoringHistory",
         label: "History",
         lane: "immediate",
