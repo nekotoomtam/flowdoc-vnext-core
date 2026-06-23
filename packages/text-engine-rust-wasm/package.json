@@ -1,0 +1,19 @@
+{
+  "name": "@flowdoc/text-engine-rust-wasm",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "External FlowDoc text engine adapter scaffold for future rustybuzz and ICU4X integration.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "test": "npm run type-check"
+  },
+  "dependencies": {
+    "@flowdoc/vnext-core": "file:../.."
+  }
+}

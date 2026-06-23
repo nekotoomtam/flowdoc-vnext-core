@@ -3082,6 +3082,36 @@ Acceptance:
 - remaining risks are explicitly external adapter/runtime work;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 112: Text Engine Adapter Package Scaffold
+
+Goal:
+
+- create the external adapter package lane before real rustybuzz/WASM or ICU4X
+  implementation.
+
+Deliverables:
+
+- package scaffold at `packages/text-engine-rust-wasm`;
+- package metadata for `@flowdoc/text-engine-rust-wasm`;
+- adapter source that imports public core contracts with type-only
+  `@flowdoc/vnext-core` imports;
+- local TypeScript config resolution for the public `@flowdoc/vnext-core`
+  package name;
+- deterministic mock evidence provider returning
+  `VNextTextEngineAdapterEvidence`;
+- tests proving Phase 108 requests can flow through the package, Phase 109 can
+  accept mock evidence, and Phase 110 can derive a draft;
+- tests proving core `src/**` does not import the adapter package back;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- the adapter package exists outside core source;
+- mock evidence can complete the request/evidence/handoff lane;
+- no rustybuzz/HarfBuzz/ICU4X/WASM/font parser library is imported or executed;
+- production measurement binding remains blocked;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

@@ -118,6 +118,7 @@ Parent goal:
 | 109 | Text engine evidence acceptance boundary | done | `docs/TEXT_ENGINE_EVIDENCE_ACCEPTANCE_BOUNDARY.md`; `src/renderer/textEngineEvidenceAcceptance.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineEvidenceAcceptance.test.ts` |
 | 110 | Text engine measurement draft handoff boundary | done | `docs/TEXT_ENGINE_MEASUREMENT_DRAFT_HANDOFF_BOUNDARY.md`; `src/renderer/textEngineMeasurementDraftHandoff.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textEngineMeasurementDraftHandoff.test.ts` |
 | 111 | Text engine adapter lane close audit | done | `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterLaneCloseAudit.test.ts` |
+| 112 | Text engine adapter package scaffold | done | `docs/TEXT_ENGINE_ADAPTER_PACKAGE_SCAFFOLD.md`; `packages/text-engine-rust-wasm`; `tsconfig.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineAdapterPackageScaffold.test.ts` |
 
 ## Current Rule
 
@@ -2868,6 +2869,32 @@ segmentation, read font files, capture real glyph evidence, bind production
 measurement, replace measured pagination, mutate package/document data, write
 artifacts or storage records, add backend routes, or change package/document
 schema.
+
+## Phase 112 Text Engine Adapter Package Scaffold
+
+Phase 112 creates the external text engine adapter package scaffold:
+
+- `packages/text-engine-rust-wasm` declares `@flowdoc/text-engine-rust-wasm`
+  as the future adapter package;
+- `packages/text-engine-rust-wasm/src/index.ts` consumes public
+  `@flowdoc/vnext-core` contracts with type-only imports and returns
+  deterministic mock `VNextTextEngineAdapterEvidence`;
+- root and package TypeScript configs resolve the public `@flowdoc/vnext-core`
+  package name for local type-checks without making core import the adapter
+  back;
+- Phase 108 requests can flow through the scaffold, Phase 109 can accept the
+  mock evidence, and Phase 110 can derive a draft from it;
+- the root core `src/**` does not import the adapter package back;
+- production binding, real rustybuzz/HarfBuzz/ICU4X/WASM execution, font-file
+  reads, and pagination measurer replacement remain blocked;
+- `tests/textEngineAdapterPackageScaffold.test.ts` proves package scaffold
+  behavior, blockers, boundary independence, and documentation trail.
+
+This phase intentionally does not install Rust/JS dependencies, build or load
+WASM, execute shaping or segmentation, read font files, capture real glyph
+evidence, bind production measurement, replace measured pagination, mutate
+package/document data, write artifacts or storage records, add backend routes,
+or change package/document schema.
 
 ## Phase 12 Extraction Record
 

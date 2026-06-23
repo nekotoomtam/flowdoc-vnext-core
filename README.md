@@ -359,6 +359,9 @@ The package must remain runnable without any parent editor checkout.
 - Text engine adapter lane close audit records the core-side pass from
   measurement profile identity through adapter request, evidence acceptance, and
   measurement draft handoff without claiming concrete engine execution.
+- Text engine adapter package scaffold creates the external
+  `@flowdoc/text-engine-rust-wasm` package lane with deterministic mock
+  evidence before rustybuzz/WASM implementation.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -427,6 +430,8 @@ The package must remain runnable without any parent editor checkout.
   engine measurement draft handoff before production measurement binding
 - `docs/TEXT_ENGINE_ADAPTER_LANE_CLOSE_AUDIT.md`: Phase 111 text engine
   adapter lane close audit before external adapter package implementation
+- `docs/TEXT_ENGINE_ADAPTER_PACKAGE_SCAFFOLD.md`: Phase 112 external text
+  engine adapter package scaffold before rustybuzz/WASM smoke
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -638,6 +643,8 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 110 measurement draft handoff boundary
 - concrete rustybuzz/WASM adapter package implementation beyond the Phase 111
   text engine adapter lane close audit
+- concrete rustybuzz/WASM shaping inside `@flowdoc/text-engine-rust-wasm`
+  beyond the Phase 112 package scaffold
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
