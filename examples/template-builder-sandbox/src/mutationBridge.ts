@@ -144,12 +144,24 @@ export interface TemplateBuilderMutationBridge {
 }
 
 interface TemplateBuilderTextUndoPatch {
+  kind: "plain-text"
   groupId: string
   sourceAction: string
   targetTextBlockId: string
   beforeText: string
   afterText: string
 }
+
+interface TemplateBuilderRichInlineUndoPatch {
+  kind: "rich-inline"
+  groupId: string
+  sourceAction: string
+  targetTextBlockId: string
+  beforeChildren: InlineNode[]
+  afterChildren: InlineNode[]
+}
+
+type TemplateBuilderUndoPatch = TemplateBuilderTextUndoPatch | TemplateBuilderRichInlineUndoPatch
 
 interface TemplateBuilderRichInlineCommitPlan {
   status: "planned"
@@ -166,6 +178,10 @@ function issue(code: string, message: string, path = ""): TemplateBuilderMutatio
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
+}
+
+function cloneInlineChildren(children: readonly InlineNode[]): InlineNode[] {
+  return children.map((child) => cloneJson(child))
 }
 
 function bridgeMutation(
@@ -369,8 +385,8 @@ function operationScopesToLiveLayoutDirtyScopes(scopes: readonly VNextOperationS
 function summarizeAuthoringHistory(
   records: readonly VNextAuthoringIntentHistoryRecord[],
   mode: TemplateBuilderAuthoringHistorySnapshot["mode"],
-  undoStack: readonly TemplateBuilderTextUndoPatch[],
-  redoStack: readonly TemplateBuilderTextUndoPatch[],
+  undoStack: readonly TemplateBuilderUndoPatch[],
+  redoStack: readonly TemplateBuilderUndoPatch[],
 ): TemplateBuilderAuthoringHistorySnapshot {
   const groups = groupVNextAuthoringIntentHistory(records)
 
@@ -447,8 +463,8 @@ export function createTemplateBuilderMutationBridge(
   let dirtyScopeCount = options.runtime?.dirtyScopeCount ?? 0
   let lastMutation: TemplateBuilderSnapshotLastMutation | null = options.runtime?.lastMutation ?? null
   let authoringHistory: VNextAuthoringIntentHistoryRecord[] = []
-  let undoStack: TemplateBuilderTextUndoPatch[] = []
-  let redoStack: TemplateBuilderTextUndoPatch[] = []
+  let undoStack: TemplateBuilderUndoPatch[] = []
+  let redoStack: TemplateBuilderUndoPatch[] = []
   let liveLayoutRequestCount = options.runtime?.liveLayout?.requestCount ?? 0
   let lastLiveLayoutResult: VNextLiveLayoutBoundaryResult | null = null
 
@@ -523,11 +539,35 @@ export function createTemplateBuilderMutationBridge(
     undoStack = [
       ...undoStack,
       {
+        kind: "plain-text",
         groupId: input.historyRecord.groupId ?? `authoring-group-${undoStack.length + 1}`,
         sourceAction: input.action,
         targetTextBlockId: input.targetTextBlockId,
         beforeText: input.beforeText,
         afterText: input.afterText,
+      },
+    ]
+    redoStack = []
+  }
+
+  function rememberRichInlineUndoPatch(input: {
+    action: string
+    historyRecord: VNextAuthoringIntentHistoryRecord | null
+    targetTextBlockId: string
+    beforeChildren: readonly InlineNode[]
+    afterChildren: readonly InlineNode[]
+  }): void {
+    if (input.historyRecord?.historyAction !== "undoable") return
+
+    undoStack = [
+      ...undoStack,
+      {
+        kind: "rich-inline",
+        groupId: input.historyRecord.groupId ?? `authoring-group-${undoStack.length + 1}`,
+        sourceAction: input.action,
+        targetTextBlockId: input.targetTextBlockId,
+        beforeChildren: cloneInlineChildren(input.beforeChildren),
+        afterChildren: cloneInlineChildren(input.afterChildren),
       },
     ]
     redoStack = []
@@ -613,6 +653,7 @@ export function createTemplateBuilderMutationBridge(
   function applyCommittedRichInline(input: {
     action: string
     baseRevision: number
+    beforeChildren: readonly InlineNode[]
     result: Extract<VNextRichInlineCommitResult, { ok: true }>
     responseOptions?: TemplateBuilderMutationResponseOptions
   }): TemplateBuilderMutationResponse {
@@ -627,7 +668,14 @@ export function createTemplateBuilderMutationBridge(
     documentRevision += 1
     mutationCount += 1
     dirtyScopeCount = 1
-    appendRichInlineHistory(input.result)
+    const historyRecord = appendRichInlineHistory(input.result)
+    rememberRichInlineUndoPatch({
+      action: input.action,
+      historyRecord,
+      targetTextBlockId: input.result.transaction.targetTextBlockId,
+      beforeChildren: input.beforeChildren,
+      afterChildren: input.result.command.children,
+    })
     rememberLiveLayoutBoundary([input.result.transaction.dirtyScope])
     lastMutation = bridgeMutation(
       input.action,
@@ -651,6 +699,35 @@ export function createTemplateBuilderMutationBridge(
   }
 
   function applyHistoryPatch(input: {
+    action: "sandbox.undo" | "sandbox.redo"
+    direction: "undo" | "redo"
+    patch: TemplateBuilderUndoPatch
+    summary: string
+    responseOptions?: TemplateBuilderMutationResponseOptions
+    onCommitted: () => void
+  }): TemplateBuilderMutationResponse {
+    if (input.patch.kind === "rich-inline") {
+      return applyRichInlineHistoryPatch({
+        action: input.action,
+        patch: input.patch,
+        targetChildren: input.direction === "undo" ? input.patch.beforeChildren : input.patch.afterChildren,
+        summary: input.summary,
+        responseOptions: input.responseOptions,
+        onCommitted: input.onCommitted,
+      })
+    }
+
+    return applyPlainTextHistoryPatch({
+      action: input.action,
+      patch: input.patch,
+      targetText: input.direction === "undo" ? input.patch.beforeText : input.patch.afterText,
+      summary: input.summary,
+      responseOptions: input.responseOptions,
+      onCommitted: input.onCommitted,
+    })
+  }
+
+  function applyPlainTextHistoryPatch(input: {
     action: "sandbox.undo" | "sandbox.redo"
     patch: TemplateBuilderTextUndoPatch
     targetText: string
@@ -728,6 +805,72 @@ export function createTemplateBuilderMutationBridge(
       nextRevision: documentRevision,
       changedNodeIds: [textBlock.id],
       dirtyScopes: [transaction.transaction.dirtyScope],
+      responseOptions: input.responseOptions,
+    })
+  }
+
+  function applyRichInlineHistoryPatch(input: {
+    action: "sandbox.undo" | "sandbox.redo"
+    patch: TemplateBuilderRichInlineUndoPatch
+    targetChildren: readonly InlineNode[]
+    summary: string
+    responseOptions?: TemplateBuilderMutationResponseOptions
+    onCommitted: () => void
+  }): TemplateBuilderMutationResponse {
+    const textBlock = textBlockFromPackage(workingPackage, input.patch.targetTextBlockId)
+    if (textBlock == null) {
+      return rejected(input.action, input.patch.targetTextBlockId, `${input.action} was rejected`, [
+        issue("target-not-text-block", `target "${input.patch.targetTextBlockId}" is not a text-block`, "textBlockId"),
+      ], input.responseOptions)
+    }
+
+    const baseRevision = documentRevision
+    const result = runVNextRichInlineCommit(workingPackage.document, {
+      kind: "text-block.rich-inline.replace",
+      source: "user",
+      textBlockId: textBlock.id,
+      children: cloneInlineChildren(input.targetChildren),
+    })
+
+    if (!result.ok) {
+      return rejected(input.action, textBlock.id, "core rich inline replay was rejected", result.issues.map((item) => ({
+        severity: item.severity,
+        code: item.code,
+        message: item.message,
+        path: item.path,
+      })), input.responseOptions)
+    }
+
+    workingPackage = serializeFlowDocPackageV2DocumentVNext({
+      ...workingPackage,
+      document: result.document,
+      meta: {
+        ...workingPackage.meta,
+        updatedAt: "sandbox-memory",
+      },
+    })
+    documentRevision += 1
+    mutationCount += 1
+    dirtyScopeCount = 1
+    input.onCommitted()
+    lastMutation = bridgeMutation(
+      input.action,
+      "applied",
+      textBlock.id,
+      input.summary,
+      0,
+    )
+    rememberLiveLayoutBoundary([result.transaction.dirtyScope])
+
+    return mutationResponse({
+      ok: true,
+      snapshot: bridgeSnapshot(),
+      mutation: lastMutation,
+      issues: [],
+      baseRevision,
+      nextRevision: documentRevision,
+      changedNodeIds: [textBlock.id],
+      dirtyScopes: [result.transaction.dirtyScope],
       responseOptions: input.responseOptions,
     })
   }
@@ -915,6 +1058,7 @@ export function createTemplateBuilderMutationBridge(
       }
 
       const baseRevision = documentRevision
+      const beforeTextBlock = textBlockFromPackage(workingPackage, plan.targetTextBlockId)
       const result = runVNextRichInlineCommit(workingPackage.document, {
         kind: "text-block.rich-inline.replace",
         source: "user",
@@ -932,9 +1076,16 @@ export function createTemplateBuilderMutationBridge(
         })), responseOptions)
       }
 
+      if (beforeTextBlock == null) {
+        return rejected(action, plan.targetTextBlockId, "rich inline commit was rejected", [
+          issue("target-not-text-block", `target "${plan.targetTextBlockId}" is not a text-block`, "textBlockId"),
+        ], responseOptions)
+      }
+
       return applyCommittedRichInline({
         action,
         baseRevision,
+        beforeChildren: beforeTextBlock.children,
         result,
         responseOptions,
       })
@@ -951,7 +1102,7 @@ export function createTemplateBuilderMutationBridge(
       return applyHistoryPatch({
         action,
         patch,
-        targetText: patch.afterText,
+        direction: "redo",
         summary: `redo ${patch.groupId}`,
         responseOptions,
         onCommitted: () => {
@@ -1050,7 +1201,7 @@ export function createTemplateBuilderMutationBridge(
       return applyHistoryPatch({
         action,
         patch,
-        targetText: patch.beforeText,
+        direction: "undo",
         summary: `undo ${patch.groupId}`,
         responseOptions,
         onCommitted: () => {

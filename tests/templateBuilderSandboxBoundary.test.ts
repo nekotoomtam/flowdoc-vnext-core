@@ -178,6 +178,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.normalizeDraftRichInlineState")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planRichInlineCommit")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.commitRichInlineDraft")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.replayRichInlineHistory")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftStyleHistory")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
@@ -729,6 +730,11 @@ describe("template builder sandbox boundary", () => {
     expect(bridgeSource).toContain("resolveVNextLiveLayoutBoundary")
     expect(bridgeSource).toContain("createTemplateBuilderLiveLayoutSnapshot")
     expect(bridgeSource).toContain("TemplateBuilderTextUndoPatch")
+    expect(bridgeSource).toContain("TemplateBuilderRichInlineUndoPatch")
+    expect(bridgeSource).toContain("rememberRichInlineUndoPatch")
+    expect(bridgeSource).toContain("applyRichInlineHistoryPatch")
+    expect(bridgeSource).toContain("beforeChildren")
+    expect(bridgeSource).toContain("afterChildren")
     expect(bridgeSource).toContain("text.range.replace")
     expect(bridgeSource).toContain("text.insert")
     expect(bridgeSource).toContain("sandbox.insertPlainTextAtEnd")
@@ -1012,8 +1018,8 @@ describe("template builder sandbox boundary", () => {
       recordCount: 1,
       undoableRecordCount: 1,
       groupCount: 1,
-      canUndo: false,
-      undoDepth: 0,
+      canUndo: true,
+      undoDepth: 1,
       latestGroup: {
         commandKinds: ["text-block.rich-inline.replace"],
         summary: "commit rich inline replacement in cover-header-label",
@@ -1038,6 +1044,237 @@ describe("template builder sandbox boundary", () => {
     expect(result.invalidIssues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "invalid-rich-inline-plan" }),
     ]))
+  }, 15_000)
+
+  it("replays rich inline commits through sandbox undo and redo", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      import { register } from "node:module";
+      import { pathToFileURL } from "node:url";
+
+      register("./ts-loader.mjs", pathToFileURL(process.cwd() + "/scripts/"));
+      const { createTemplateBuilderMutationBridge } = await import("./src/mutationBridge.ts");
+      const fixture = JSON.parse(readFileSync("../../fixtures/product-report-vnext.flowdoc.json", "utf8"));
+      const bridge = createTemplateBuilderMutationBridge(fixture, {
+        fixturePath: "fixtures/product-report-vnext.flowdoc.json",
+      });
+      const plan = {
+        status: "planned",
+        operationKind: "text-block.rich-inline.replace",
+        targetTextBlockId: "cover-header-label",
+        baseRevision: 0,
+        documentRevision: 0,
+        plannedInlineChildren: [
+          { id: "cover-header-label-rich-1", type: "text", text: "Hello ", style: { fontWeight: "bold" } },
+          { id: "cover-header-label-rich-2", type: "field-ref", key: "customer.name", label: "Customer", fallback: "{{customer.name}}" },
+          { id: "cover-header-label-rich-3", type: "text", text: " world" },
+        ],
+      };
+      const committed = bridge.commitRichInline({ plan }, { includeSnapshot: false });
+      const undone = bridge.undo({ includeSnapshot: false });
+      const redone = bridge.redo({ includeSnapshot: false });
+
+      console.log(JSON.stringify({
+        committedOk: committed.ok,
+        committedPacket: committed.packet,
+        committedPacketHasSections: JSON.stringify(committed.packet).includes('"sections"'),
+        undoneOk: undone.ok,
+        undonePacket: undone.packet,
+        undonePacketHasSections: JSON.stringify(undone.packet).includes('"sections"'),
+        redoneOk: redone.ok,
+        redonePacket: redone.packet,
+        redonePacketHasSections: JSON.stringify(redone.packet).includes('"sections"'),
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      committedOk: boolean
+      committedPacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        mutationCount: number
+        changedNodeIds: string[]
+        changedNodes: Array<{
+          canUseWysiwygDraft: boolean
+          hasAtomicInline: boolean
+          hasStyledText: boolean
+          id: string
+          textPreview: string
+        }>
+        authoringHistory: {
+          recordCount: number
+          undoableRecordCount: number
+          groupCount: number
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
+          nextUndoGroupId: string
+          nextRedoGroupId: string | null
+          latestGroup: { commandKinds: string[]; summary: string }
+        }
+        liveLayout: { requestCount: number; exactGenerationStale: boolean; lastResult: { dirtyScopeCount: number } }
+      }
+      committedPacketHasSections: boolean
+      undoneOk: boolean
+      undonePacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        mutationCount: number
+        changedNodeIds: string[]
+        changedNodes: Array<{
+          canUseWysiwygDraft: boolean
+          hasAtomicInline: boolean
+          hasStyledText: boolean
+          id: string
+          textPreview: string
+        }>
+        authoringHistory: {
+          recordCount: number
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
+          nextUndoGroupId: string | null
+          nextRedoGroupId: string
+        }
+        liveLayout: { requestCount: number; exactGenerationStale: boolean; lastResult: { dirtyScopeCount: number } }
+      }
+      undonePacketHasSections: boolean
+      redoneOk: boolean
+      redonePacket: {
+        action: string
+        baseRevision: number
+        nextRevision: number
+        mutationCount: number
+        changedNodeIds: string[]
+        changedNodes: Array<{
+          canUseWysiwygDraft: boolean
+          hasAtomicInline: boolean
+          hasStyledText: boolean
+          id: string
+          textPreview: string
+        }>
+        authoringHistory: {
+          recordCount: number
+          canUndo: boolean
+          canRedo: boolean
+          undoDepth: number
+          redoDepth: number
+          nextUndoGroupId: string
+          nextRedoGroupId: string | null
+        }
+        liveLayout: { requestCount: number; exactGenerationStale: boolean; lastResult: { dirtyScopeCount: number } }
+      }
+      redonePacketHasSections: boolean
+    }
+
+    expect(result.committedOk).toBe(true)
+    expect(result.committedPacket).toMatchObject({
+      action: "sandbox.commitRichInline",
+      baseRevision: 0,
+      nextRevision: 1,
+      mutationCount: 1,
+      changedNodeIds: ["cover-header-label"],
+      changedNodes: [
+        expect.objectContaining({
+          canUseWysiwygDraft: false,
+          hasAtomicInline: true,
+          hasStyledText: true,
+          id: "cover-header-label",
+        }),
+      ],
+      authoringHistory: {
+        recordCount: 1,
+        undoableRecordCount: 1,
+        groupCount: 1,
+        canUndo: true,
+        canRedo: false,
+        undoDepth: 1,
+        redoDepth: 0,
+        nextUndoGroupId: "authoring-group-1",
+        nextRedoGroupId: null,
+        latestGroup: {
+          commandKinds: ["text-block.rich-inline.replace"],
+          summary: "commit rich inline replacement in cover-header-label",
+        },
+      },
+      liveLayout: {
+        requestCount: 1,
+        exactGenerationStale: true,
+        lastResult: { dirtyScopeCount: 1 },
+      },
+    })
+    expect(result.committedPacketHasSections).toBe(false)
+
+    expect(result.undoneOk).toBe(true)
+    expect(result.undonePacket).toMatchObject({
+      action: "sandbox.undo",
+      baseRevision: 1,
+      nextRevision: 2,
+      mutationCount: 2,
+      changedNodeIds: ["cover-header-label"],
+      changedNodes: [
+        expect.objectContaining({
+          canUseWysiwygDraft: true,
+          hasAtomicInline: false,
+          hasStyledText: false,
+          id: "cover-header-label",
+          textPreview: "Confidential Product Report",
+        }),
+      ],
+      authoringHistory: {
+        recordCount: 1,
+        canUndo: false,
+        canRedo: true,
+        undoDepth: 0,
+        redoDepth: 1,
+        nextUndoGroupId: null,
+        nextRedoGroupId: "authoring-group-1",
+      },
+      liveLayout: {
+        requestCount: 2,
+        exactGenerationStale: true,
+        lastResult: { dirtyScopeCount: 1 },
+      },
+    })
+    expect(result.undonePacketHasSections).toBe(false)
+
+    expect(result.redoneOk).toBe(true)
+    expect(result.redonePacket).toMatchObject({
+      action: "sandbox.redo",
+      baseRevision: 2,
+      nextRevision: 3,
+      mutationCount: 3,
+      changedNodeIds: ["cover-header-label"],
+      changedNodes: [
+        expect.objectContaining({
+          canUseWysiwygDraft: false,
+          hasAtomicInline: true,
+          hasStyledText: true,
+          id: "cover-header-label",
+        }),
+      ],
+      authoringHistory: {
+        recordCount: 1,
+        canUndo: true,
+        canRedo: false,
+        undoDepth: 1,
+        redoDepth: 0,
+        nextUndoGroupId: "authoring-group-1",
+        nextRedoGroupId: null,
+      },
+      liveLayout: {
+        requestCount: 3,
+        exactGenerationStale: true,
+        lastResult: { dirtyScopeCount: 1 },
+      },
+    })
+    expect(result.redonePacketHasSections).toBe(false)
   }, 15_000)
 
   it("returns bounded packet-only mutation responses", () => {

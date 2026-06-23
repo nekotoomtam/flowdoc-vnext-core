@@ -3527,6 +3527,35 @@ Acceptance:
 - records remaining production gaps with phase-ready labels;
 - does not add runtime behavior.
 
+## Phase 127: Rich Inline Undo/Redo Replay Boundary
+
+Goal:
+
+- replay accepted rich inline commit patches through sandbox undo/redo using
+  the vNext-native rich inline replacement helper.
+
+Deliverables:
+
+- mutation bridge undo/redo patch union for plain text and rich inline patches;
+- rich inline before/after child capture when accepted plans commit;
+- rich inline history replay helper that calls `runVNextRichInlineCommit(...)`;
+- action lane for `sandbox.replayRichInlineHistory`;
+- boundary doc in
+  `docs/TEMPLATE_BUILDER_RICH_INLINE_UNDO_REDO_REPLAY_BOUNDARY.md`;
+- tests proving rich commit -> undo -> redo packet behavior and unchanged
+  plain text undo/redo behavior.
+
+Acceptance:
+
+- accepted rich inline commits become undoable in the sandbox bridge;
+- undo restores the previous vNext inline children and redo restores styled
+  text plus field chips;
+- replay updates revision, mutation count, dirty scopes, bounded packets, and
+  live/exact invalidation summaries;
+- replay does not route rich inline content through plain text transactions;
+- persistence, collaboration, renderer output, and WASM/text-engine replacement
+  remain out of scope.
+
 ## Later Phases
 
 Goal:

@@ -654,6 +654,8 @@ The package must remain runnable without any parent editor checkout.
   rich inline commit bridge boundary for accepted Phase 124 plans
 - `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_CLOSE_AUDIT.md`: Phase 126
   WYSIWYG execution close audit and post-125 risk list
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_UNDO_REDO_REPLAY_BOUNDARY.md`: Phase 127
+  rich inline undo/redo replay boundary for sandbox bridge history patches
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -725,9 +727,9 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
-- concrete production contenteditable DOM binding, rich undo/redo replay,
-  persistence-backed rich inline commits, collaboration, renderer output, or
-  WYSIWYG production editing beyond the Phase 126 WYSIWYG execution close audit
+- concrete production contenteditable DOM binding, persistence-backed rich
+  inline commits, collaboration, renderer output, or WYSIWYG production editing
+  beyond the Phase 127 rich inline undo/redo replay boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

@@ -3311,6 +3311,38 @@ changes, parent editor imports, legacy runtime adoption, durable persistence
 writes, collaboration behavior, renderer artifact output, ICU4X execution, or
 WASM/text-engine measurement replacement.
 
+## Phase 127 Rich Inline Undo/Redo Replay Boundary
+
+Phase 127 makes accepted rich inline commits replayable through the sandbox
+undo/redo bridge:
+
+- `examples/template-builder-sandbox/src/mutationBridge.ts` stores undo/redo
+  patches as a union of plain text patches and rich inline before/after inline
+  children;
+- accepted rich inline commits capture the original text-block children and the
+  committed rich inline children after `runVNextRichInlineCommit(...)`
+  succeeds;
+- rich undo/redo replay uses `runVNextRichInlineCommit(...)` directly instead
+  of routing styled text or field chips through the plain text transaction
+  boundary;
+- replay updates the in-memory package, document revision, mutation count,
+  bounded change packet, dirty scope, and live/exact invalidation summary;
+- plain text undo/redo behavior remains covered by its existing packet
+  regression test;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `sandbox.replayRichInlineHistory`;
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_UNDO_REDO_REPLAY_BOUNDARY.md` records
+  PASS, FAIL/BLOCKER, RISK, UNKNOWN, files changed, behavior changed, tests run,
+  risks left, and intentionally not changed;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves rich commit -> undo ->
+  redo packet behavior, action-lane exposure, bridge-source guardrails, and the
+  unchanged plain text undo/redo path.
+
+This phase intentionally does not add package/document schema changes, parent
+editor imports, legacy runtime adoption, durable persistence/session writes,
+collaboration behavior, renderer artifact output, ICU4X execution, or
+WASM/text-engine measurement replacement.
+
 ## Phase 12 Extraction Record
 
 Phase 12 is complete for physical repository extraction. This repository has

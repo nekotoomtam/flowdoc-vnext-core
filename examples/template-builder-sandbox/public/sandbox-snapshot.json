@@ -2200,6 +2200,13 @@
       "reason": "sandbox bridge consumes Phase 124 rich inline commit plans and applies vNext-native package mutations with history-ready records"
     },
     {
+      "action": "sandbox.replayRichInlineHistory",
+      "label": "Rich replay",
+      "lane": "commit",
+      "status": "wired",
+      "reason": "sandbox undo/redo replays rich inline commit patches through the vNext-native rich inline replacement boundary"
+    },
+    {
       "action": "browser.planDraftStyleHistory",
       "label": "Style history",
       "lane": "immediate",
