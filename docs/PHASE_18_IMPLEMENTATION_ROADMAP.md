@@ -4026,6 +4026,30 @@ Acceptance:
   storage/backend route, renderer artifact output, or package/document schema
   change is introduced.
 
+## Phase 144: Granular Rich Inline Operation Decision Boundary
+
+Goal:
+
+- decide whether rich inline commits stay full inline-child replacement for v1
+  or move immediately to granular operations.
+
+Deliverables:
+
+- `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md`;
+- `tests/richInlineOperationDecision.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- current full replacement operation is audited against range style patch,
+  field chip insert/remove, and text insert/delete with mark context options;
+- v1 policy is explicit;
+- collaboration/offline risk is documented;
+- guard tests prove current source remains replacement-only unless a later
+  phase changes schema intentionally;
+- no operation schema change, collaboration behavior, storage/backend route,
+  renderer artifact output, or package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

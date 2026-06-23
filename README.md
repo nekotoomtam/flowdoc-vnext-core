@@ -458,6 +458,9 @@ The package must remain runnable without any parent editor checkout.
 - WYSIWYG primary input decision gate recommends hybrid managed cards with a
   hardened contenteditable island for the active text block, while explicitly
   rejecting full-document contenteditable as the v1 production primary input.
+- Rich inline operation decision boundary accepts full inline-child replacement
+  for the v1 single-user vertical slice while making granular operations a
+  prerequisite for collaboration/offline claims.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -559,6 +562,8 @@ The package must remain runnable without any parent editor checkout.
   browser timing smoke before real browser-driver benchmark commitments
 - `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md`: Phase 143 primary input
   decision gate before implementing production WYSIWYG input
+- `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md`: Phase 144 rich inline
+  operation granularity decision before collaboration/offline replay claims
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

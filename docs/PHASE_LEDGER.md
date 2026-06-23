@@ -150,6 +150,7 @@ Parent goal:
 | 141 | Product editor integration smoke boundary | done | `docs/PRODUCT_EDITOR_INTEGRATION_SMOKE_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/productEditorIntegrationSmoke.test.ts` |
 | 142 | Browser timing smoke boundary | done | `docs/BROWSER_TIMING_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/scripts/browser-smoke.mjs`; `examples/template-builder-sandbox/package.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/browserTimingSmoke.test.ts` |
 | 143 | WYSIWYG primary input decision gate | done | `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygPrimaryInputDecisionGate.test.ts` |
+| 144 | Granular rich inline operation decision boundary | done | `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineOperationDecision.test.ts` |
 
 ## Current Rule
 
@@ -3737,6 +3738,25 @@ Phase 143 records the first production WYSIWYG input recommendation:
 
 This phase intentionally does not implement production input, rewrite the
 editor, add collaboration behavior, write storage, add backend routes, produce
+renderer artifacts, or change package/document schema.
+
+## Phase 144 Granular Rich Inline Operation Decision Boundary
+
+Phase 144 records the v1 rich inline operation policy:
+
+- `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md` compares full inline-child
+  replacement, range style patch operations, field chip insert/remove
+  operations, and text insert/delete with mark context;
+- `text-block.rich-inline.replace` remains accepted for the first single-user
+  vertical slice;
+- full replacement is explicitly not collaboration-safe or offline-merge-safe;
+- granular operations become required before collaboration, offline replay, or
+  renderer-owned segment stream editing claims;
+- `tests/richInlineOperationDecision.test.ts` guards the current replacement
+  source shape and phase trail.
+
+This phase intentionally does not change operation schema, implement
+collaboration/offline behavior, write storage, add backend routes, produce
 renderer artifacts, or change package/document schema.
 
 ## Phase 12 Extraction Record
