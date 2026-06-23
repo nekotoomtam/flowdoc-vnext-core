@@ -719,6 +719,13 @@ export function createTemplateBuilderSnapshot(
         reason: "active browser drafts track local textarea selection ranges without mutating canonical package state",
       },
       {
+        action: "browser.captureContenteditableSegments",
+        label: "Segment capture",
+        lane: "immediate",
+        status: "wired",
+        reason: "browser-owned contenteditable-style surfaces can emit bounded segment facts before range mapping or package mutation",
+      },
+      {
         action: "browser.mapContenteditableRange",
         label: "DOM range",
         lane: "immediate",

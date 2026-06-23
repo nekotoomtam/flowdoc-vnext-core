@@ -129,6 +129,7 @@ Parent goal:
 | 120 | Field chip insert execution boundary | done | `docs/TEMPLATE_BUILDER_FIELD_CHIP_INSERT_EXECUTION_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 121 | WYSIWYG execution re-baseline audit | done | `docs/TEMPLATE_BUILDER_WYSIWYG_EXECUTION_REBASELINE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygExecutionRebaselineAudit.test.ts` |
 | 122 | Browser-local rich inline state boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 123 | Contenteditable segment capture boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SEGMENT_CAPTURE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3179,6 +3180,37 @@ segment capture, canonical rich inline commit, canonical field-ref insertion,
 key migration writes, package/document schema changes, durable history writes,
 live layout requests, exact renderer output, backend routes, persistence,
 collaboration behavior, ICU4X execution, or WASM/text-engine measurement.
+
+## Phase 123 Contenteditable Segment Capture Boundary
+
+Phase 123 inserts a bounded browser-local capture step before Phase 117 range
+mapping:
+
+- `examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js`
+  owns the contenteditable-style segment capture contract;
+- the capture boundary accepts explicit surface segment facts or DOM-like
+  `childNodes`/`children` from a contenteditable root;
+- it normalizes plain text, styled-run marks, atomic field-chip metadata,
+  UTF-16 draft offsets, and selection endpoints into the Phase 117 mapper
+  shape;
+- it blocks missing surfaces, non-contenteditable roots, target drift, text
+  drift, unsupported segment kinds, invalid segment ranges, missing atomic
+  field keys, missing selection endpoints, and out-of-range offsets;
+- `examples/template-builder-sandbox/public/app.js` surfaces
+  `data-draft-contenteditable-segment-capture` and maintains a hidden
+  contenteditable-style capture surface for active drafts;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `browser.captureContenteditableSegments`;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves ready plain capture,
+  DOM-like styled/atomic capture, range-mapper handoff, blocked root/text/target
+  cases, and composition guard behavior.
+
+This phase intentionally does not implement production contenteditable DOM
+binding, rich inline range mapping for styled/atomic nodes, canonical rich
+inline commit, canonical field-ref insertion, key migration writes,
+package/document schema changes, durable history writes, live layout requests,
+exact renderer output, backend routes, persistence, collaboration behavior,
+ICU4X execution, or WASM/text-engine measurement.
 
 ## Phase 12 Extraction Record
 

@@ -65,6 +65,7 @@ describe("template builder sandbox boundary", () => {
       "../examples/template-builder-sandbox/public/draftFieldChipInline.js",
       "../examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js",
       "../examples/template-builder-sandbox/public/draftStyleHistory.js",
+      "../examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js",
       "../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js",
       "../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js",
       "../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js",
@@ -158,6 +159,7 @@ describe("template builder sandbox boundary", () => {
       new Set(["wired", "planned", "blocked"]),
     )
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.trackDraftSelection")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.captureContenteditableSegments")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.mapContenteditableRange")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.deriveDraftCommandContext")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyDraftTextCommand")
@@ -6458,6 +6460,283 @@ describe("template builder sandbox boundary", () => {
     expect(result.composingCanRequest).toBe(false)
   })
 
+  it("captures contenteditable-style surface segments before range mapping", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      const {
+        createDraftStateForNode,
+        updateDraftComposition,
+        updateDraftSelectionRange,
+      } = await import("./public/draftRuntime.js");
+      const {
+        DRAFT_CONTENTEDITABLE_SEGMENT_CAPTURE_MODE,
+        DRAFT_CONTENTEDITABLE_SEGMENT_CAPTURE_SOURCE,
+        createDraftContenteditableSegmentCapture,
+        draftContenteditableSegmentCaptureLabel,
+      } = await import("./public/draftContenteditableSegmentCapture.js");
+      const { createDraftContenteditableRangeMapping } = await import("./public/draftContenteditableRangeMapping.js");
+
+      const node = {
+        canUseWysiwygDraft: true,
+        id: "cover-header-label",
+        plainText: "Hello world",
+        textPreview: "Hello world",
+        type: "text-block",
+      };
+      const draft = createDraftStateForNode(node, { baseRevision: 14 });
+      const rangedDraft = updateDraftSelectionRange(draft, 0, 5, {
+        source: "contenteditable-capture-test",
+      }).draft;
+      const plainSurface = {
+        contentEditable: "true",
+        rootId: "cover-header-label:contenteditable-surface",
+        segments: [{
+          draftEnd: 11,
+          draftStart: 0,
+          kind: "plain-text",
+          segmentId: "plain-seg",
+          text: "Hello world",
+        }],
+        targetTextBlockId: "cover-header-label",
+      };
+      const ready = createDraftContenteditableSegmentCapture(rangedDraft, {
+        surface: plainSurface,
+      });
+      const readyMapping = createDraftContenteditableRangeMapping(rangedDraft, {
+        segments: ready.segments,
+        selection: ready.selection,
+      });
+
+      const collapsedDraft = updateDraftSelectionRange(draft, 11, 11, {
+        source: "contenteditable-dom-capture-test",
+      }).draft;
+      const styledSurface = {
+        contentEditable: "true",
+        rootId: "cover-header-label:contenteditable-surface",
+        targetTextBlockId: "cover-header-label",
+        childNodes: [
+          {
+            dataset: {
+              contenteditableSegmentId: "plain-seg",
+              contenteditableSegmentKind: "plain-text",
+            },
+            nodeType: 1,
+            textContent: "Hello ",
+          },
+          {
+            dataset: {
+              contenteditableSegmentId: "styled-seg",
+              contenteditableSegmentKind: "styled-run",
+              styleMarks: "bold",
+            },
+            nodeType: 1,
+            textContent: "world",
+          },
+          {
+            dataset: {
+              contenteditableSegmentId: "field-seg",
+              contenteditableSegmentKind: "field-chip",
+              fieldKey: "customer.name",
+              placeholder: "Customer name",
+            },
+            nodeType: 1,
+            textContent: "",
+          },
+        ],
+      };
+      const styled = createDraftContenteditableSegmentCapture(collapsedDraft, {
+        surface: styledSurface,
+      });
+      const styledMapping = createDraftContenteditableRangeMapping(collapsedDraft, {
+        segments: styled.segments,
+        selection: styled.selection,
+      });
+
+      const mismatch = createDraftContenteditableSegmentCapture(rangedDraft, {
+        surface: {
+          ...plainSurface,
+          segments: [{ ...plainSurface.segments[0], text: "Hello brave" }],
+        },
+      });
+      const rootBlocked = createDraftContenteditableSegmentCapture(rangedDraft, {
+        surface: {
+          ...plainSurface,
+          contentEditable: "false",
+        },
+      });
+      const targetBlocked = createDraftContenteditableSegmentCapture(rangedDraft, {
+        surface: {
+          ...plainSurface,
+          targetTextBlockId: "other-node",
+        },
+      });
+      const composingDraft = updateDraftComposition(rangedDraft, {
+        draftNodeId: "cover-header-label",
+        eventData: "ime",
+        phase: "compositionstart",
+        selectionDirection: "none",
+        selectionEnd: 5,
+        selectionSource: "compositionstart",
+        selectionStart: 0,
+        value: "Hello world",
+      }).draft;
+      const composing = createDraftContenteditableSegmentCapture(composingDraft, {
+        surface: plainSurface,
+      });
+      const idle = createDraftContenteditableSegmentCapture(null);
+
+      console.log(JSON.stringify({
+        composingCanCapture: composing.canCaptureSegments,
+        composingReason: composing.reason,
+        composingSegmentCount: composing.segmentCount,
+        composingStatus: composing.status,
+        constants: {
+          mode: DRAFT_CONTENTEDITABLE_SEGMENT_CAPTURE_MODE,
+          source: DRAFT_CONTENTEDITABLE_SEGMENT_CAPTURE_SOURCE,
+        },
+        idleLabel: draftContenteditableSegmentCaptureLabel(idle),
+        idleStatus: idle.status,
+        mismatchLabel: draftContenteditableSegmentCaptureLabel(mismatch),
+        mismatchReason: mismatch.reason,
+        mismatchStatus: mismatch.status,
+        readyBackend: ready.backendApi.status,
+        readyCanCapture: ready.canCaptureSegments,
+        readyContenteditable: ready.contenteditable.status,
+        readyContenteditableSource: ready.contenteditable.source,
+        readyCore: ready.coreTransaction.status,
+        readyExact: ready.exactGeneration.status,
+        readyHistory: ready.history.status,
+        readyLabel: draftContenteditableSegmentCaptureLabel(ready),
+        readyLive: ready.liveLayout.status,
+        readyMappingEnd: readyMapping.range.end,
+        readyMappingStart: readyMapping.range.start,
+        readyMappingStatus: readyMapping.status,
+        readyPlainText: ready.plainText,
+        readyReason: ready.reason,
+        readySegmentCount: ready.segmentCount,
+        readySegmentTextLength: ready.segments[0].textLength,
+        readySelectionSource: ready.selection.source,
+        readyStatus: ready.status,
+        readyTextEngine: ready.textEngine.status,
+        rootBlockedLabel: draftContenteditableSegmentCaptureLabel(rootBlocked),
+        rootBlockedReason: rootBlocked.reason,
+        rootBlockedStatus: rootBlocked.status,
+        styledAtomicFieldKey: styled.segments[2].fieldKey,
+        styledAtomicPlaceholder: styled.segments[2].placeholder,
+        styledContenteditableSource: styled.contenteditable.source,
+        styledMappingReason: styledMapping.reason,
+        styledMappingStatus: styledMapping.status,
+        styledPlainText: styled.plainText,
+        styledSegmentCount: styled.segmentCount,
+        styledSelectionOffset: styled.selection.anchorOffset,
+        styledSelectionSegment: styled.selection.anchorSegmentId,
+        styledStatus: styled.status,
+        styledStyleMarks: styled.segments[1].styleMarks,
+        targetBlockedReason: targetBlocked.reason,
+        targetBlockedStatus: targetBlocked.status,
+        target: ready.targetTextBlockId,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      composingCanCapture: boolean
+      composingReason: string
+      composingSegmentCount: number
+      composingStatus: string
+      constants: { mode: string; source: string }
+      idleLabel: string
+      idleStatus: string
+      mismatchLabel: string
+      mismatchReason: string
+      mismatchStatus: string
+      readyBackend: string
+      readyCanCapture: boolean
+      readyContenteditable: string
+      readyContenteditableSource: string
+      readyCore: string
+      readyExact: string
+      readyHistory: string
+      readyLabel: string
+      readyLive: string
+      readyMappingEnd: number
+      readyMappingStart: number
+      readyMappingStatus: string
+      readyPlainText: string
+      readyReason: string
+      readySegmentCount: number
+      readySegmentTextLength: number
+      readySelectionSource: string
+      readyStatus: string
+      readyTextEngine: string
+      rootBlockedLabel: string
+      rootBlockedReason: string
+      rootBlockedStatus: string
+      styledAtomicFieldKey: string
+      styledAtomicPlaceholder: string
+      styledContenteditableSource: string
+      styledMappingReason: string
+      styledMappingStatus: string
+      styledPlainText: string
+      styledSegmentCount: number
+      styledSelectionOffset: number
+      styledSelectionSegment: string
+      styledStatus: string
+      styledStyleMarks: string[]
+      targetBlockedReason: string
+      targetBlockedStatus: string
+      target: string
+    }
+
+    expect(result.constants.source).toBe("flowdoc-template-builder-draft-contenteditable-segment-capture")
+    expect(result.constants.mode).toBe("browser-local-contenteditable-segment-capture-boundary")
+    expect(result.idleStatus).toBe("idle")
+    expect(result.idleLabel).toBe("Segment capture: idle")
+    expect(result.readyStatus).toBe("ready")
+    expect(result.readyReason).toBe("contenteditable-segments-captured")
+    expect(result.readyCanCapture).toBe(true)
+    expect(result.readySegmentCount).toBe(1)
+    expect(result.readyPlainText).toBe("Hello world")
+    expect(result.readySegmentTextLength).toBe(11)
+    expect(result.readySelectionSource).toBe("contenteditable-capture-test")
+    expect(result.readyContenteditable).toBe("captured")
+    expect(result.readyContenteditableSource).toBe("bounded-surface-facts")
+    expect(result.readyCore).toBe("not-run")
+    expect(result.readyHistory).toBe("not-recorded")
+    expect(result.readyLive).toBe("not-requested")
+    expect(result.readyExact).toBe("deferred-until-commit")
+    expect(result.readyBackend).toBe("not-called")
+    expect(result.readyTextEngine).toBe("not-executed")
+    expect(result.readyLabel).toBe("Segment capture: 1 captured")
+    expect(result.readyMappingStatus).toBe("ready")
+    expect(result.readyMappingStart).toBe(0)
+    expect(result.readyMappingEnd).toBe(5)
+    expect(result.target).toBe("cover-header-label")
+    expect(result.styledStatus).toBe("ready")
+    expect(result.styledSegmentCount).toBe(3)
+    expect(result.styledPlainText).toBe("Hello world")
+    expect(result.styledContenteditableSource).toBe("browser-owned-dom-inspection")
+    expect(result.styledStyleMarks).toEqual(["bold"])
+    expect(result.styledAtomicFieldKey).toBe("customer.name")
+    expect(result.styledAtomicPlaceholder).toBe("Customer name")
+    expect(result.styledSelectionSegment).toBe("styled-seg")
+    expect(result.styledSelectionOffset).toBe(5)
+    expect(result.styledMappingStatus).toBe("blocked")
+    expect(result.styledMappingReason).toBe("styled-run-needs-rich-inline-mapping")
+    expect(result.mismatchStatus).toBe("blocked")
+    expect(result.mismatchReason).toBe("text-mismatch")
+    expect(result.mismatchLabel).toBe("Segment capture: text mismatch")
+    expect(result.rootBlockedStatus).toBe("blocked")
+    expect(result.rootBlockedReason).toBe("contenteditable-root-missing")
+    expect(result.rootBlockedLabel).toBe("Segment capture: root blocked")
+    expect(result.targetBlockedStatus).toBe("blocked")
+    expect(result.targetBlockedReason).toBe("target-mismatch")
+    expect(result.composingStatus).toBe("composing")
+    expect(result.composingReason).toBe("composition-active")
+    expect(result.composingCanCapture).toBe(false)
+    expect(result.composingSegmentCount).toBe(0)
+  })
+
   it("maps contenteditable segment facts to draft UTF-16 ranges without core mutations", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
       const {
@@ -7741,6 +8020,7 @@ describe("template builder sandbox boundary", () => {
     const draftFieldChipInlineSource = readText("../examples/template-builder-sandbox/public/draftFieldChipInline.js")
     const draftFieldChipInsertExecutionSource = readText("../examples/template-builder-sandbox/public/draftFieldChipInsertExecution.js")
     const draftStyleHistorySource = readText("../examples/template-builder-sandbox/public/draftStyleHistory.js")
+    const draftContenteditableSegmentCaptureSource = readText("../examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js")
     const draftContenteditableRangeMappingSource = readText("../examples/template-builder-sandbox/public/draftContenteditableRangeMapping.js")
     const draftRichInlinePatchExecutionSource = readText("../examples/template-builder-sandbox/public/draftRichInlinePatchExecution.js")
     const draftToolbarCommandDispatchSource = readText("../examples/template-builder-sandbox/public/draftToolbarCommandDispatch.js")
@@ -7765,6 +8045,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.resolveDraftToolbarState")
     expect(coreBoundarySource).toContain("browser.planDraftFieldChipInline")
     expect(coreBoundarySource).toContain("browser.planDraftStyleHistory")
+    expect(coreBoundarySource).toContain("browser.captureContenteditableSegments")
     expect(coreBoundarySource).toContain("browser.mapContenteditableRange")
     expect(coreBoundarySource).toContain("browser.executeRichInlinePatch")
     expect(coreBoundarySource).toContain("browser.dispatchDraftToolbarCommand")
@@ -7778,6 +8059,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain('from "./draftFieldChipInline.js"')
     expect(appSource).toContain('from "./draftFieldChipInsertExecution.js"')
     expect(appSource).toContain('from "./draftStyleHistory.js"')
+    expect(appSource).toContain('from "./draftContenteditableSegmentCapture.js"')
     expect(appSource).toContain('from "./draftContenteditableRangeMapping.js"')
     expect(appSource).toContain('from "./draftRichInlinePatchExecution.js"')
     expect(appSource).toContain('from "./draftToolbarCommandDispatch.js"')
@@ -7811,6 +8093,12 @@ describe("template builder sandbox boundary", () => {
     expect(draftStyleHistorySource).toContain("createDraftStyleHistory")
     expect(draftStyleHistorySource).toContain("not-recorded")
     expect(draftStyleHistorySource).toContain("not-written")
+    expect(draftContenteditableSegmentCaptureSource).toContain("createDraftContenteditableSegmentCapture")
+    expect(draftContenteditableSegmentCaptureSource).toContain("contenteditable-segments-captured")
+    expect(draftContenteditableSegmentCaptureSource).toContain("contenteditable-root-missing")
+    expect(draftContenteditableSegmentCaptureSource).toContain("text-mismatch")
+    expect(draftContenteditableSegmentCaptureSource).toContain("not-called")
+    expect(draftContenteditableSegmentCaptureSource).toContain("not-executed")
     expect(draftContenteditableRangeMappingSource).toContain("createDraftContenteditableRangeMapping")
     expect(draftContenteditableRangeMappingSource).toContain("utf16-code-unit-offset")
     expect(draftContenteditableRangeMappingSource).toContain("styled-run-needs-rich-inline-mapping")
@@ -7854,6 +8142,8 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-composition")
     expect(appSource).toContain("data-draft-compositionbar")
     expect(appSource).toContain("data-draft-ime-policy")
+    expect(appSource).toContain("data-draft-contenteditable-surface")
+    expect(appSource).toContain("data-draft-contenteditable-segment-capture")
     expect(appSource).toContain("data-draft-contenteditable-range")
     expect(appSource).toContain("data-draft-style-patch")
     expect(appSource).toContain("data-draft-rich-inline-execution")

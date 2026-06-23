@@ -3402,6 +3402,38 @@ Acceptance:
   layout, exact output, backend API, persistence, collaboration, and
   WASM/text-engine execution stay deferred/off.
 
+## Phase 123: Contenteditable Segment Capture Boundary
+
+Goal:
+
+- insert a bounded browser-local segment capture step before Phase 117 range
+  mapping so future contenteditable surfaces can emit deterministic text,
+  styled-run, and atomic-chip facts without mutating canonical package state.
+
+Deliverables:
+
+- browser-safe segment capture module at
+  `examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js`;
+- visible sandbox summary through
+  `data-draft-contenteditable-segment-capture`;
+- hidden contenteditable-style draft capture surface in the sandbox app;
+- action lane for `browser.captureContenteditableSegments`;
+- boundary doc in
+  `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SEGMENT_CAPTURE_BOUNDARY.md`;
+- tests proving ready plain capture, DOM-like styled/atomic capture,
+  range-mapper handoff, root/text/target blockers, and composition guard paths.
+
+Acceptance:
+
+- captured plain-text segment facts can feed Phase 117 mapping;
+- styled-run marks and atomic field-chip metadata are preserved as browser-local
+  evidence;
+- non-contenteditable roots, target drift, text drift, invalid segment facts,
+  missing atomic keys, and invalid selection endpoints are blocked;
+- package mutation, canonical rich inline commit, canonical field-ref
+  insertion, durable history, live layout, exact output, backend API,
+  persistence, collaboration, and WASM/text-engine execution stay deferred/off.
+
 ## Later Phases
 
 Goal:

@@ -302,6 +302,9 @@ The package must remain runnable without any parent editor checkout.
 - Rich inline state boundary consolidates browser-local styled-run and atomic
   field-chip facts into one deterministic draft state while blocking overlap
   ambiguity before canonical commit planning
+- Contenteditable segment capture boundary reads browser-owned
+  contenteditable-style segment facts into the Phase 117 mapper shape while
+  keeping production DOM binding and canonical rich inline commit deferred
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -632,6 +635,9 @@ The package must remain runnable without any parent editor checkout.
   WYSIWYG execution re-baseline audit and Phase 122-126 card plan
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_STATE_BOUNDARY.md`: Phase 122
   browser-local rich inline state boundary before canonical commit planning
+- `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SEGMENT_CAPTURE_BOUNDARY.md`: Phase
+  123 browser-local contenteditable segment capture boundary before production
+  DOM binding
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -705,7 +711,7 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 115 smoke corpus harness
 - concrete production contenteditable DOM binding, canonical rich inline style
   commit, canonical field-ref insertion, or WYSIWYG production editing beyond
-  the Phase 122 browser-local rich inline state boundary
+  the Phase 123 browser-local contenteditable segment capture boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
