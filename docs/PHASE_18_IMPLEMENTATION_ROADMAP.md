@@ -3742,6 +3742,39 @@ Acceptance:
 - `VNextTextMeasurementDraft`, pagination measurement, renderer output,
   production measurement binding, and package/document schema remain unchanged.
 
+## Phase 134: WASM / ICU4X Runtime Identity And Digest Boundary
+
+Goal:
+
+- define the external text-engine runtime identity and digest gate before
+  native/WASM parity or production measurement can be claimed.
+
+Deliverables:
+
+- `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`;
+- `packages/text-engine-rust-wasm/src/runtimeIdentity.ts`;
+- package export from `packages/text-engine-rust-wasm/src/index.ts`;
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests for identity validation, measurement-profile alignment, missing digest
+  blocking when parity-ready is claimed, missing runtime revision blocking,
+  valid parity-ready contract shape, dependency cleanliness, and documentation
+  trail.
+
+Acceptance:
+
+- runtime identity records rustybuzz revision, ICU4X revision, ICU4X data
+  revision, font hashes, measurement profile id, output shape, runtime targets,
+  and WASM digest status;
+- missing rustybuzz/ICU4X/data revisions block;
+- missing WASM digest is allowed as identity-only warning but blocks
+  `parity-ready`;
+- native/WASM comparison shape exists but is not claimed as run until matching
+  evidence exists;
+- no WASM loading, ICU4X execution, production measurement binding, renderer
+  output, pagination replacement, storage, backend route, or schema change is
+  introduced.
+
 ## Later Phases
 
 Goal:

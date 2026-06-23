@@ -140,6 +140,7 @@ Parent goal:
 | 131 | Five-lane project progress index | done | `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fiveLaneProjectProgressIndex.test.ts` |
 | 132 | ICU4X line-break evidence manifest boundary | done | `docs/THAI_LINE_BREAK_EVIDENCE_BOUNDARY.md`; `fixtures/thai-line-break-evidence.v1.json`; `src/renderer/thaiLineBreakEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/thaiLineBreakEvidence.test.ts` |
 | 133 | Multi-line wrap evidence boundary | done | `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/lineWrapEvidence.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `src/renderer/textEngineEvidenceAcceptance.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineLineWrapEvidence.test.ts` |
+| 134 | WASM / ICU4X runtime identity and digest boundary | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`; `packages/text-engine-rust-wasm/src/runtimeIdentity.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentity.test.ts` |
 
 ## Current Rule
 
@@ -3519,6 +3520,29 @@ This phase intentionally does not change `VNextTextMeasurementDraft`, replace
 pagination measurement, bind production measurement, run ICU4X/rustybuzz/WASM,
 implement justification, hyphenation, bidi, renderer artifact output, storage
 writes, backend routes, or package/document schema changes.
+
+## Phase 134 WASM / ICU4X Runtime Identity And Digest Boundary
+
+Phase 134 records external text-engine runtime identity before parity-ready
+claims:
+
+- `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`
+  records adapter package name, measurement profile id, output shape, runtime
+  targets, rustybuzz revision, ICU4X revision, ICU4X data revision, font
+  hashes, WASM digest status, and native/WASM comparison shape;
+- `packages/text-engine-rust-wasm/src/runtimeIdentity.ts` validates the
+  manifest and blocks missing rustybuzz, ICU4X, ICU4X data, font hash, required
+  compared fact, or parity-ready digest/comparison evidence;
+- the current fixture is `identity-only` and keeps WASM digest pending as a
+  warning instead of claiming full parity;
+- `tests/textEngineRuntimeIdentity.test.ts` proves identity validation,
+  measurement profile ingredient alignment, parity-ready digest blocking,
+  revision/hash/fact blocking, dependency cleanliness, and phase trail updates.
+
+This phase intentionally does not build, import, load, or execute WASM; run
+ICU4X; run native/WASM comparison; bind production measurement; replace
+pagination measurement; produce renderer artifacts; write storage; add backend
+routes; or change package/document schema.
 
 ## Phase 12 Extraction Record
 
