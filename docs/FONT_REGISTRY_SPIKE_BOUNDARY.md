@@ -73,7 +73,10 @@ This boundary must not:
 
 Legacy font paths are allowed only as non-canonical source references. A font
 asset becomes measurement-ready only when the registry facts point at a
-vNext-owned target path and include verified license and sha256 hash facts.
+vNext-owned package/public target path and include verified license and sha256
+hash facts. Phase 102 further narrows measurement identity to
+`package-font-asset` targets under `assets/fonts`; public paths remain
+browser-serving mirrors.
 
 ## Acceptance Evidence
 

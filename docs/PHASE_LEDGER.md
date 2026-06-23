@@ -108,6 +108,7 @@ Parent goal:
 | 99 | Exact output close audit | done | `docs/EXACT_OUTPUT_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/exactOutputCloseAudit.test.ts` |
 | 100 | Text measurement engine spike boundary | done | `docs/TEXT_MEASUREMENT_ENGINE_SPIKE_BOUNDARY.md`; `src/renderer/textMeasurementEngineSpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/textMeasurementEngineSpike.test.ts` |
 | 101 | Font registry spike boundary | done | `docs/FONT_REGISTRY_SPIKE_BOUNDARY.md`; `src/renderer/fontRegistrySpike.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontRegistrySpike.test.ts` |
+| 102 | Font ownership clearing boundary | done | `docs/FONT_OWNERSHIP_CLEARING_BOUNDARY.md`; `src/renderer/fontOwnership.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/fontOwnership.test.ts` |
 
 ## Current Rule
 
@@ -2599,7 +2600,7 @@ path before any font file operations or concrete measurement engine work:
 - old FlowDocEditor font paths are allowed only as non-canonical source
   references and are blocked if used as vNext target paths;
 - available assets block without verified license facts, sha256 hashes, and
-  workspace public-font targets;
+  vNext-owned package/workspace font targets;
 - required style mappings block when they point at missing or unavailable font
   assets;
 - `tests/fontRegistrySpike.test.ts` proves ready Thai font registration,
@@ -2611,6 +2612,32 @@ This phase intentionally does not copy or move font files, read font bytes,
 compute hashes, import font parsers, install dependencies, bind production
 pagination, replace measured pagination, mutate package/document data, write
 artifacts or storage records, or change package/document schema.
+
+## Phase 102 Font Ownership Clearing Boundary
+
+Phase 102 clears the font ownership risk before any file operation or concrete
+measurement engine work:
+
+- `src/renderer/fontOwnership.ts` selects package font assets under
+  `assets/fonts` as measurement identity and keeps browser `public/fonts` paths
+  as optional mirrors only;
+- old FlowDocEditor font paths may seed planned copy records only as
+  non-canonical source references;
+- sha256 hashes must be computed from the copied vNext-owned target files, not
+  from source references or browser mirrors;
+- planned copy records map source evidence paths to `package-font-asset`
+  targets without copying files in this phase;
+- Phase 101 registry facts now allow `package-font-asset` targets once the
+  copy/hash/license facts exist;
+- `tests/fontOwnership.test.ts` proves package font asset ownership, public/
+  legacy root blocking, legacy target blocking, source-derived hash blocking,
+  registry handoff, source independence, and documentation trail.
+
+This phase intentionally does not copy or move font files, read font bytes,
+compute hashes, mutate `package.json`, import font parsers, install
+dependencies, bind production pagination, replace measured pagination, mutate
+package/document data, write artifacts or storage records, or change
+package/document schema.
 
 ## Phase 12 Extraction Record
 

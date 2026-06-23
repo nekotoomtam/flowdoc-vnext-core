@@ -2750,6 +2750,48 @@ Acceptance:
   parsers/renderers, bind production pagination, or mutate schema;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 102: Font Ownership Clearing Boundary
+
+Goal:
+
+- clear the font ownership risk by selecting the vNext-owned package asset root,
+  browser mirror policy, and hash authority before any font file copy, hash
+  scan, package metadata update, or concrete measurement engine integration.
+
+Deliverables:
+
+- font ownership planner in `src/renderer/fontOwnership.ts`;
+- public exports for font ownership source/mode constants and
+  `createVNextFontOwnershipPlan(...)`;
+- canonical owner decision: package font assets under `assets/fonts`;
+- browser mirror decision: `public/fonts` may serve copied fonts but must not
+  define measurement identity, hashes, or cache keys;
+- planned copy records from non-canonical source references to vNext-owned
+  package asset targets;
+- registry update policy requiring `package-font-asset` targets, verified
+  licenses, and sha256 hashes computed from copied vNext target files;
+- blocking issues for public/legacy/absolute canonical roots, source references
+  marked canonical, legacy targets, target paths outside the canonical root,
+  parent directory segments, browser-public canonical targets, and hashes
+  derived from source references or browser mirrors;
+- warning issues for old FlowDocEditor source references that remain evidence
+  only;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- `assets/fonts` is cleared as the measurement identity root;
+- old FlowDocEditor font paths can seed planned copy records only as
+  non-canonical source references;
+- `public/fonts` is mirror-only and cannot be measurement identity;
+- hashes must be computed from the copied vNext-owned target files;
+- Phase 101 font registry facts accept `package-font-asset` targets after the
+  copy/hash step;
+- the boundary does not read or copy font files, compute hashes, update package
+  metadata, import font parsers/renderers, bind production pagination, or mutate
+  schema;
+- package/document schema and measured pagination behavior remain unchanged.
+
 ## Later Phases
 
 Goal:

@@ -26,7 +26,7 @@ export type VNextFontRegistrySpikeIssueCode =
   | "missing-font-family"
   | "unsupported-font-format"
   | "invalid-font-weight"
-  | "available-font-without-workspace-target"
+  | "available-font-without-vnext-target"
   | "legacy-path-as-target"
   | "legacy-source-reference"
   | "missing-font-license"
@@ -341,11 +341,15 @@ export function createVNextFontRegistrySpikePlan(input: VNextFontRegistrySpikeIn
     }
 
     if (asset.availability === "available") {
-      if (asset.target.kind !== "workspace-public-font" || asset.target.path == null || asset.target.path.trim().length === 0) {
+      if (
+        (asset.target.kind !== "workspace-public-font" && asset.target.kind !== "package-font-asset")
+        || asset.target.path == null
+        || asset.target.path.trim().length === 0
+      ) {
         blockingIssues.push(issue(
           "blocking",
-          "available-font-without-workspace-target",
-          "Available font registry assets must have a workspace public-font target path.",
+          "available-font-without-vnext-target",
+          "Available font registry assets must have a vNext-owned package or workspace font target path.",
           asset.fontId,
         ))
       }

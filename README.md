@@ -329,6 +329,9 @@ The package must remain runnable without any parent editor checkout.
 - Font registry spike boundary records Sarabun/Noto Sans Thai asset, license,
   hash, target, and style-key mapping facts before font files are copied or
   used by a concrete measurement engine.
+- Font ownership clearing boundary selects package font assets under
+  `assets/fonts` as measurement identity while keeping browser `public/fonts`
+  paths as optional mirrors only.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -377,6 +380,8 @@ The package must remain runnable without any parent editor checkout.
   implementation
 - `docs/FONT_REGISTRY_SPIKE_BOUNDARY.md`: Phase 101 font registry spike
   boundary before font file copy/hash scanning or concrete measurement use
+- `docs/FONT_OWNERSHIP_CLEARING_BOUNDARY.md`: Phase 102 font ownership clearing
+  boundary before font file copy, package metadata updates, or hash scanning
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -567,6 +572,8 @@ The package must remain runnable without any parent editor checkout.
   registry, or font hash execution beyond the Phase 100 spike plan
 - concrete font file copy, font file hash scanning, or persisted font registry
   beyond the Phase 101 registry spike boundary
+- concrete package font assets under `assets/fonts`, package metadata updates,
+  or browser public-font mirrors beyond the Phase 102 ownership decision
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness
