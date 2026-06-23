@@ -3775,6 +3775,35 @@ Acceptance:
   output, pagination replacement, storage, backend route, or schema change is
   introduced.
 
+## Phase 135: Renderer-Backed Text Measurement Provider Bridge
+
+Goal:
+
+- bridge accepted text-engine evidence into
+  `createVNextRendererBackedTextMeasurer(...)` through an external provider
+  while keeping production measurement disabled by default.
+
+Deliverables:
+
+- `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts`;
+- package export from `packages/text-engine-rust-wasm/src/index.ts`;
+- `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates;
+- tests for provider measurement through wrap/acceptance/handoff, wrong
+  profile blocking, missing line-box profile blocking, drift reports, default
+  measurement independence, dependency cleanliness, and documentation trail.
+
+Acceptance:
+
+- external provider can produce `VNextTextMeasurementDraft` through the
+  existing renderer-backed adapter;
+- wrong `measurementProfileId` is blocked by the core renderer-backed measurer;
+- missing line-box capability is blocked by the existing renderer profile plan;
+- drift reports compare approximate and renderer-backed draft summaries;
+- default `measureVNextText(...)` behavior, pagination cache/invalidation,
+  production binding, renderer output, artifact bytes, and package/document
+  schema remain unchanged.
+
 ## Later Phases
 
 Goal:

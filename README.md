@@ -424,6 +424,10 @@ The package must remain runnable without any parent editor checkout.
 - Text engine runtime identity boundary records rustybuzz, ICU4X, ICU4X data,
   font-hash, output-shape, runtime-target, and WASM digest gate evidence before
   native/WASM parity or production measurement binding is claimed.
+- Text engine renderer-backed provider bridge routes external accepted
+  text-engine evidence through wrap, acceptance, and handoff into the existing
+  renderer-backed `VNextTextMeasurer` adapter while keeping default pagination
+  measurement unchanged.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -506,6 +510,8 @@ The package must remain runnable without any parent editor checkout.
   evidence boundary before renderer-backed provider binding
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`: Phase 134 WASM / ICU4X
   runtime identity and digest boundary before parity-ready claims
+- `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`: Phase 135
+  renderer-backed text measurement provider bridge before default binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -757,9 +763,9 @@ The package must remain runnable without any parent editor checkout.
   rustybuzz smoke
 - concrete multi-line wrap, ICU4X line breaks, WASM artifact loading, or
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
-- concrete native/WASM parity execution, ICU4X execution, renderer-backed
-  provider binding, or production measurement replacement beyond the Phase 134
-  runtime identity and digest boundary
+- concrete native/WASM parity execution, ICU4X execution, default
+  renderer-backed provider binding, or production measurement replacement
+  beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 130 rich inline live/exact parity

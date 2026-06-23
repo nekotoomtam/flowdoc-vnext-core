@@ -141,6 +141,7 @@ Parent goal:
 | 132 | ICU4X line-break evidence manifest boundary | done | `docs/THAI_LINE_BREAK_EVIDENCE_BOUNDARY.md`; `fixtures/thai-line-break-evidence.v1.json`; `src/renderer/thaiLineBreakEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/thaiLineBreakEvidence.test.ts` |
 | 133 | Multi-line wrap evidence boundary | done | `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/lineWrapEvidence.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `src/renderer/textEngineEvidenceAcceptance.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineLineWrapEvidence.test.ts` |
 | 134 | WASM / ICU4X runtime identity and digest boundary | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`; `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`; `packages/text-engine-rust-wasm/src/runtimeIdentity.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentity.test.ts` |
+| 135 | Renderer-backed text measurement provider bridge | done | `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`; `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts`; `packages/text-engine-rust-wasm/src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/rendererBackedTextEngineProvider.test.ts` |
 
 ## Current Rule
 
@@ -3543,6 +3544,31 @@ This phase intentionally does not build, import, load, or execute WASM; run
 ICU4X; run native/WASM comparison; bind production measurement; replace
 pagination measurement; produce renderer artifacts; write storage; add backend
 routes; or change package/document schema.
+
+## Phase 135 Renderer-Backed Text Measurement Provider Bridge
+
+Phase 135 bridges accepted text-engine evidence into the existing renderer-
+backed text measurement adapter:
+
+- `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts` creates an
+  external provider bridge over selected glyph evidence and Thai line-break
+  evidence;
+- provider measurement runs through Phase 133 wrap evidence, Phase 109 evidence
+  acceptance, and Phase 110 measurement draft handoff before returning a
+  `VNextTextMeasurementDraft`;
+- call sites can wrap the provider with
+  `createVNextRendererBackedTextMeasurer(...)`;
+- drift reports compare approximate and renderer-backed draft summaries without
+  mutating pagination cache or invalidation behavior;
+- `tests/rendererBackedTextEngineProvider.test.ts` proves provider measurement,
+  profile mismatch blocking, line-box capability blocking, drift reports,
+  dependency cleanliness, default measurement independence, and phase trail
+  updates.
+
+This phase intentionally does not replace `measureVNextText(...)` defaults,
+mutate pagination cache/invalidation contracts, import the provider into core,
+run PDF/DOCX rendering, produce artifact bytes, bind production measurement, or
+change package/document schema.
 
 ## Phase 12 Extraction Record
 
