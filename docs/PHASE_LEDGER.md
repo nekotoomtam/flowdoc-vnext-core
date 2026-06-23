@@ -105,6 +105,7 @@ Parent goal:
 | 96 | Pausable layout job engine | done | `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`; `src/pagination/layoutJobEngine.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/layoutJobEngine.test.ts` |
 | 97 | Deep table split boundary | done | `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`; `src/pagination/deepTableSplit.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/deepTableSplit.test.ts` |
 | 98 | Final TOC / page resolution boundary | done | `docs/FINAL_TOC_PAGE_RESOLUTION_BOUNDARY.md`; `src/pagination/pageResolution.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pageResolution.test.ts` |
+| 99 | Exact output close audit | done | `docs/EXACT_OUTPUT_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/exactOutputCloseAudit.test.ts` |
 
 ## Current Rule
 
@@ -2527,6 +2528,32 @@ This phase intentionally does not implement pagination execution, renderer
 execution, text measurement execution, TOC text rewrite, TOC reflow, generated
 document mutation, measured fragment mutation, artifact output, backend routes,
 storage adapters, or package/document schema changes.
+
+## Phase 99 Exact Output Close Audit
+
+Phase 99 closes the current Exact Output / Renderer foundation pass for
+Phases 93-98:
+
+- `docs/EXACT_OUTPUT_CLOSE_AUDIT.md` records PASS/FAIL/RISK/UNKNOWN evidence
+  for the current exact-output boundary set;
+- PASS evidence cites `src/renderer/pdfAdapter.ts`,
+  `src/renderer/docxAdapter.ts`, `src/renderer/textMeasurementAdapter.ts`,
+  `src/pagination/layoutJobEngine.ts`, `src/pagination/deepTableSplit.ts`, and
+  `src/pagination/pageResolution.ts`;
+- RISK/UNKNOWN sections keep concrete PDF/DOCX renderers, renderer-backed text
+  measurement engines, concrete pausable layout execution, deep non-text table
+  splitting, TOC text rewrite/reflow, artifact storage, backend routes, and
+  worker runtime as future work;
+- files changed, behavior changed, tests run, risks left, and intentionally not
+  changed sections make the handoff explicit;
+- `tests/exactOutputCloseAudit.test.ts` proves the audit trail does not claim
+  concrete rendering, artifact storage, backend runtime, or write behavior.
+
+This phase intentionally does not implement runtime behavior, package/document
+schema changes, parent runtime imports, legacy runtime adoption, concrete
+renderer libraries, DOM/canvas/headless execution, pagination relayout,
+measured pagination mutation, generated document mutation, artifact writes,
+storage writes, network writes, backend routes, or worker runtime.
 
 ## Phase 12 Extraction Record
 

@@ -306,6 +306,9 @@ The package must remain runnable without any parent editor checkout.
 - Final TOC/page resolution boundary maps TOC heading entries to measured page
   indexes/numbers after pagination without relayout, fragment mutation, or
   renderer execution.
+- Exact output close audit records PASS/RISK/UNKNOWN status for the current
+  renderer/exact-output foundation without claiming concrete PDF/DOCX bytes,
+  artifact storage, renderer jobs, or generated output delivery.
 - Deep table split boundary classifies table rows and cell-child policies for
   text-line split readiness while explicitly blocking deferred non-text or mixed
   cell content before a concrete deep table split engine exists.
@@ -369,6 +372,8 @@ The package must remain runnable without any parent editor checkout.
   boundary before concrete non-text table-cell splitting
 - `docs/FINAL_TOC_PAGE_RESOLUTION_BOUNDARY.md`: Phase 98 final TOC/page
   resolution boundary before TOC text rewrite, reflow, or renderer output
+- `docs/EXACT_OUTPUT_CLOSE_AUDIT.md`: Phase 99 Exact Output / Renderer
+  foundation close audit and risk register
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness

@@ -2629,6 +2629,37 @@ Acceptance:
   server frameworks, parent app routes, DOM APIs, or persistence;
 - package/document schema and measured pagination behavior remain unchanged.
 
+## Phase 99: Exact Output Close Audit
+
+Goal:
+
+- close the current Exact Output / Renderer foundation pass by recording
+  PASS/FAIL/RISK/UNKNOWN evidence for Phases 93-98 without implementing new
+  runtime behavior.
+
+Deliverables:
+
+- close audit in `docs/EXACT_OUTPUT_CLOSE_AUDIT.md`;
+- PASS evidence for PDF adapter, DOCX adapter, renderer-backed text
+  measurement boundary, pausable layout job engine, deep table split readiness,
+  and final TOC/page resolution;
+- RISK/UNKNOWN sections that explicitly keep concrete renderers, renderer
+  measurement engines, deep layout execution, TOC reflow, artifact storage,
+  backend routes, and worker runtime as future work;
+- files changed, behavior changed, tests run, risks left, and intentionally not
+  changed sections;
+- README, phase ledger, and test coverage updates.
+
+Acceptance:
+
+- audit cites the relevant modules, docs, and tests;
+- audit does not claim concrete PDF/DOCX bytes, artifact storage, renderer
+  measurement execution, deep table split execution, TOC text rewrite/reflow,
+  backend routes, or worker runtime;
+- audit confirms package/document schema, parent runtime imports, storage
+  writes, network writes, and measured pagination mutation were not changed;
+- focused boundary tests and root checks pass.
+
 ## Later Phases
 
 Goal:

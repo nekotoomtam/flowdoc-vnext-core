@@ -1,0 +1,37 @@
+import { readFileSync } from "node:fs"
+import { describe, expect, it } from "vitest"
+
+describe("vNext exact output close audit", () => {
+  it("documents the exact output renderer foundation pass without claiming concrete rendering", () => {
+    const readText = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")
+    const auditDoc = readText("../docs/EXACT_OUTPUT_CLOSE_AUDIT.md")
+    const readme = readText("../README.md")
+    const ledger = readText("../docs/PHASE_LEDGER.md")
+    const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
+
+    expect(auditDoc).toContain("Status: Phase 99 close audit.")
+    expect(auditDoc).toContain("This audit does not implement new runtime behavior.")
+    expect(auditDoc).toContain("## PASS")
+    expect(auditDoc).toContain("## FAIL / BLOCKER")
+    expect(auditDoc).toContain("## RISK")
+    expect(auditDoc).toContain("## UNKNOWN")
+    expect(auditDoc).toContain("## Files Changed In This Pass")
+    expect(auditDoc).toContain("## Behavior Changed")
+    expect(auditDoc).toContain("## Tests Run")
+    expect(auditDoc).toContain("## Risks Left")
+    expect(auditDoc).toContain("## Intentionally Not Changed")
+    expect(auditDoc).toContain("src/renderer/pdfAdapter.ts")
+    expect(auditDoc).toContain("src/renderer/docxAdapter.ts")
+    expect(auditDoc).toContain("src/renderer/textMeasurementAdapter.ts")
+    expect(auditDoc).toContain("src/pagination/layoutJobEngine.ts")
+    expect(auditDoc).toContain("src/pagination/deepTableSplit.ts")
+    expect(auditDoc).toContain("src/pagination/pageResolution.ts")
+    expect(auditDoc).toContain("No concrete PDF/DOCX renderer libraries.")
+    expect(auditDoc).toContain("No artifact bytes, filesystem writes, storage writes, or network writes.")
+    expect(auditDoc).toContain("No backend route or worker runtime.")
+    expect(readme).toContain("Exact output close audit")
+    expect(readme).toContain("docs/EXACT_OUTPUT_CLOSE_AUDIT.md")
+    expect(ledger).toContain("| 99 | Exact output close audit | done |")
+    expect(roadmap).toContain("## Phase 99: Exact Output Close Audit")
+  })
+})
