@@ -98,6 +98,7 @@ Parent goal:
 | 89 | Key history / migration boundary | done | `docs/KEY_HISTORY_MIGRATION_BOUNDARY.md`; `src/binding/keyHistory.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/keyHistory.test.ts` |
 | 90 | Repeat / collection / form-slot boundary | done | `docs/REPEAT_COLLECTION_FORM_SLOT_BOUNDARY.md`; `src/binding/repeatCollectionFormSlots.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/repeatCollectionFormSlots.test.ts` |
 | 91 | Submission state boundary | done | `docs/SUBMISSION_STATE_BOUNDARY.md`; `src/workflow/submissionState.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/submissionState.test.ts` |
+| 92 | Persistence close audit | done | `docs/PERSISTENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/persistenceCloseAudit.test.ts` |
 
 ## Current Rule
 
@@ -2276,6 +2277,34 @@ notification/audit systems, form-slot runtime, data snapshot mutation,
 package/document mutation, package/document version changes, durable history
 integration, collaboration, exact layout execution, renderer adapter output,
 artifact storage, or package/document schema changes.
+
+## Phase 92 Persistence Close Audit
+
+Phase 92 closes the current Backend / API / Persistence foundation pass for
+Phases 86-91:
+
+- `docs/PERSISTENCE_CLOSE_AUDIT.md` records PASS/FAIL/RISK/UNKNOWN status for
+  the route, session storage, durable history, key migration, repeat/
+  collection/form-slot, and submission state boundaries;
+- PASS covers `src/generation/apiRoute.ts`, `src/authoring/sessionStorage.ts`,
+  `src/authoring/durableHistory.ts`, `src/binding/keyHistory.ts`,
+  `src/binding/repeatCollectionFormSlots.ts`, and
+  `src/workflow/submissionState.ts`;
+- FAIL / BLOCKER records no blocker for closing this foundation pass;
+- RISK records that storage adapters, durable replay, key migration execution,
+  repeat/collection materialization, form-slot runtime, submission workflow,
+  and artifact storage remain future work;
+- UNKNOWN records production storage, backend auth/idempotency, collaboration,
+  offline replay, renderer/artifact integration, and product workflow rules;
+- the audit records files changed, behavior changed, tests run, risks left,
+  and intentionally-not-changed areas;
+- `tests/persistenceCloseAudit.test.ts` guards the audit sections and phase
+  trail.
+
+This phase intentionally does not implement new runtime behavior, package
+schema changes, concrete backend routes, storage writes, durable replay, key
+migration execution, repeat expansion, form-slot runtime, submission workflow,
+exact renderer adapters, export adapters, or artifact output.
 
 ## Phase 12 Extraction Record
 

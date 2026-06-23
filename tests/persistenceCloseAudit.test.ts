@@ -1,0 +1,37 @@
+import { readFileSync } from "node:fs"
+import { describe, expect, it } from "vitest"
+
+describe("vNext persistence close audit", () => {
+  it("documents the backend API persistence foundation pass without claiming production persistence", () => {
+    const readText = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")
+    const auditDoc = readText("../docs/PERSISTENCE_CLOSE_AUDIT.md")
+    const readme = readText("../README.md")
+    const ledger = readText("../docs/PHASE_LEDGER.md")
+    const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
+
+    expect(auditDoc).toContain("Status: Phase 92 close audit.")
+    expect(auditDoc).toContain("This audit does not implement new runtime behavior.")
+    expect(auditDoc).toContain("## PASS")
+    expect(auditDoc).toContain("## FAIL / BLOCKER")
+    expect(auditDoc).toContain("## RISK")
+    expect(auditDoc).toContain("## UNKNOWN")
+    expect(auditDoc).toContain("## Files Changed In This Pass")
+    expect(auditDoc).toContain("## Behavior Changed")
+    expect(auditDoc).toContain("## Tests Run")
+    expect(auditDoc).toContain("## Risks Left")
+    expect(auditDoc).toContain("## Intentionally Not Changed")
+    expect(auditDoc).toContain("src/generation/apiRoute.ts")
+    expect(auditDoc).toContain("src/authoring/sessionStorage.ts")
+    expect(auditDoc).toContain("src/authoring/durableHistory.ts")
+    expect(auditDoc).toContain("src/binding/keyHistory.ts")
+    expect(auditDoc).toContain("src/binding/repeatCollectionFormSlots.ts")
+    expect(auditDoc).toContain("src/workflow/submissionState.ts")
+    expect(auditDoc).toContain("No concrete backend server route.")
+    expect(auditDoc).toContain("No filesystem, database, browser storage, or network storage writes.")
+    expect(auditDoc).toContain("No exact renderer, PDF, DOCX, preview, or artifact adapter.")
+    expect(readme).toContain("Persistence close audit")
+    expect(readme).toContain("docs/PERSISTENCE_CLOSE_AUDIT.md")
+    expect(ledger).toContain("| 92 | Persistence close audit | done |")
+    expect(roadmap).toContain("## Phase 92: Persistence Close Audit")
+  })
+})

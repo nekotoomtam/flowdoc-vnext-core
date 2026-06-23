@@ -2378,6 +2378,37 @@ Acceptance:
   execution, operation execution, layout, pagination, or renderer execution;
 - package/document schema remains unchanged.
 
+## Phase 92: Persistence Close Audit
+
+Goal:
+
+- close the current Backend / API / Persistence foundation pass with explicit
+  PASS/FAIL/RISK/UNKNOWN status before exact renderer, concrete storage, or
+  production workflow work continues.
+
+Deliverables:
+
+- close audit in `docs/PERSISTENCE_CLOSE_AUDIT.md`;
+- PASS evidence for Phases 86-91 route, session storage, durable history, key
+  migration, repeat/collection/form-slot, and submission state boundaries;
+- FAIL/BLOCKER record;
+- RISK and UNKNOWN lists for concrete storage, durable replay, key migration
+  execution, collection/form-slot materialization, submission workflow,
+  backend auth/idempotency, and artifact storage;
+- files changed / behavior changed / tests run / risks left /
+  intentionally-not-changed records;
+- README, ledger, and boundary test coverage.
+
+Acceptance:
+
+- audit cites the relevant modules, docs, and tests;
+- audit does not claim production persistence, concrete backend routes,
+  workflow runtime, key migration execution, collection materialization,
+  exact renderer adapters, or artifact output;
+- audit confirms package/document schema, parent runtime imports, storage
+  writes, exact renderer, and export adapters were not changed;
+- focused boundary tests and root checks pass.
+
 ## Later Phases
 
 Goal:

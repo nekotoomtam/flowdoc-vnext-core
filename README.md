@@ -68,6 +68,9 @@ The package must remain runnable without any parent editor checkout.
 - Submission state boundary creates external workflow records for draft/
   submitted/reviewed states while keeping workflow storage, routes, package
   mutation, data mutation, and editor session state outside canonical truth
+- Persistence close audit records PASS/RISK/UNKNOWN status for the current
+  backend/API/persistence foundation without claiming production persistence,
+  workflow, migration, collection, or artifact behavior
 - Editable authoring session baseline creates a pure browser/Node-safe session
   from canonical packages with working document, graph/key diagnostics,
   revisions, empty dirty scopes, and session-only selection state
@@ -333,6 +336,8 @@ The package must remain runnable without any parent editor checkout.
   collection, and form-slot readiness boundary before schema/materialization
 - `docs/SUBMISSION_STATE_BOUNDARY.md`: Phase 91 external submission workflow
   state boundary before workflow storage, routes, or reviewer runtime
+- `docs/PERSISTENCE_CLOSE_AUDIT.md`: Phase 92 Backend / API / Persistence
+  foundation close audit and risk register
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
