@@ -2475,6 +2475,47 @@ Acceptance:
   readiness, or renderer execution;
 - package/document schema remains unchanged.
 
+## Phase 95: Renderer-backed Text Measurement Boundary
+
+Goal:
+
+- add a pure renderer-backed text measurement profile boundary that can adapt
+  external renderer measurement facts into the existing vNext text measurement
+  contract without implementing a concrete renderer, DOM bridge, PDF/DOCX text
+  metrics, storage writes, or layout relayout.
+
+Deliverables:
+
+- renderer-backed text measurement adapter in
+  `src/renderer/textMeasurementAdapter.ts`;
+- public exports for renderer text measurement source/mode constants,
+  `createVNextRendererTextMeasurementProfilePlan(...)`, and
+  `createVNextRendererBackedTextMeasurer(...)`;
+- JSON-serializable profile readiness plan for renderer engine, revision,
+  units, determinism, and required capabilities;
+- strict profile-id alignment between `measurementProfileId` and the
+  renderer-backed measurer so cache identity cannot silently drift;
+- blocked profile handling for missing profile ids, unavailable profiles,
+  non-point units, missing line boxes, missing style-key support, and missing
+  available-width support;
+- boundary tests for ready plans, provider adaptation, blocked profiles, cache
+  profile-id alignment, source independence, and documentation trail;
+- boundary documentation and ledger/README updates.
+
+Acceptance:
+
+- adapter uses the existing `VNextTextMeasurer` interface and does not replace
+  `measureVNextText(...)` as the cache/invalidation truth;
+- ready profiles can wrap an external measurement provider and return
+  `VNextTextMeasurementDraft` values through the existing measurement path;
+- blocked profiles cannot create a measurer;
+- renderer contract keeps `mayRelayoutDocument = false` and does not require
+  authored document input for layout;
+- the boundary does not import concrete browser/PDF/DOCX renderer libraries,
+  storage adapters, server frameworks, parent app routes, DOM APIs,
+  pagination execution, layout pipeline execution, or renderer consumption;
+- package/document schema remains unchanged.
+
 ## Later Phases
 
 Goal:

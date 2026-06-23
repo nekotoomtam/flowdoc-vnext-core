@@ -308,6 +308,9 @@ The package must remain runnable without any parent editor checkout.
 - Layout pipeline baseline exposes staged planning, measurement-job scheduling,
   bounded measured page/render-command artifact chunks, and complete pipeline
   runs while preserving the existing measured pagination engine.
+- Renderer-backed text measurement boundary exposes profile readiness plans and
+  a strict `VNextTextMeasurer` adapter for external renderer facts without
+  concrete renderer imports, document relayout, or schema changes.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -348,6 +351,9 @@ The package must remain runnable without any parent editor checkout.
   boundary before concrete PDF rendering or artifact storage
 - `docs/DOCX_RENDERER_ADAPTER_BOUNDARY.md`: Phase 94 DOCX renderer adapter
   plan boundary before concrete DOCX rendering or artifact storage
+- `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md`: Phase 95
+  renderer-backed text measurement profile adapter boundary before concrete
+  renderer measurement engines
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
 - `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
@@ -524,7 +530,8 @@ The package must remain runnable without any parent editor checkout.
 - repeat/collection materialization and form-slot schema/runtime
 - submission/reviewer workflow storage, routes, permissions, and runtime
 - key history persistence, aliases/deprecated keys, and key migration execution
-- renderer-backed text measurement profile implementation
+- concrete renderer-backed text measurement engines beyond the Phase 95
+  profile adapter boundary
 - fully pausable internal text/table placement engine behind measurement job
   results
 - non-text table-cell content splitting

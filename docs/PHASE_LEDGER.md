@@ -101,6 +101,7 @@ Parent goal:
 | 92 | Persistence close audit | done | `docs/PERSISTENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/persistenceCloseAudit.test.ts` |
 | 93 | PDF renderer adapter boundary | done | `docs/PDF_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/pdfAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/pdfRendererAdapter.test.ts` |
 | 94 | DOCX renderer adapter boundary | done | `docs/DOCX_RENDERER_ADAPTER_BOUNDARY.md`; `src/renderer/docxAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/docxRendererAdapter.test.ts` |
+| 95 | Renderer-backed text measurement boundary | done | `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md`; `src/renderer/textMeasurementAdapter.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `tests/rendererTextMeasurementAdapter.test.ts` |
 
 ## Current Rule
 
@@ -2375,6 +2376,48 @@ bytes, DOCX file writes, artifact storage, style mapping, numbering,
 headers/footers, table fidelity, media embedding, accessibility metadata,
 renderer-backed text measurement, exact layout execution, PDF output, preview
 output, backend routes, storage adapters, or package/document schema changes.
+
+## Phase 95 Renderer-backed Text Measurement Boundary
+
+Phase 95 adds a renderer-backed text measurement profile adapter without
+implementing a concrete renderer measurement engine:
+
+- `src/renderer/textMeasurementAdapter.ts` owns
+  `VNEXT_RENDERER_TEXT_MEASUREMENT_SOURCE`,
+  `VNEXT_RENDERER_TEXT_MEASUREMENT_MODE`,
+  `createVNextRendererTextMeasurementProfilePlan(...)`, and
+  `createVNextRendererBackedTextMeasurer(...)`;
+- the profile plan records renderer engine, revision, point-unit support,
+  determinism, and required capabilities for line boxes, style keys, and
+  available width;
+- blocked profiles cannot create a measurer when profile ids are missing, the
+  profile is unavailable, output units are not points, line boxes are missing,
+  style keys are unsupported, or available width is unsupported;
+- nondeterministic profiles remain visible as warnings rather than silently
+  passing as stable exact measurement;
+- the adapter wraps an external provider behind `VNextTextMeasurer` and passes
+  cache key, text hash, style key, renderer engine, and profile revision into
+  the provider;
+- the adapter requires input `measurementProfileId` to match the renderer-backed
+  profile id so measurement cache identity cannot silently drift;
+- the renderer contract consumes `vnext-text-measurement-input`, produces
+  `vnext-text-measurement-draft`, uses point units, forbids document relayout,
+  and does not require authored documents for layout;
+- `src/index.ts` exports the renderer-backed text measurement boundary through
+  the public package entry;
+- `docs/RENDERER_BACKED_TEXT_MEASUREMENT_BOUNDARY.md` records ownership, truth
+  boundary, acceptance evidence, and non-goals;
+- `tests/rendererTextMeasurementAdapter.test.ts` proves ready profile plans,
+  external provider adaptation, blocked profile behavior, cache profile-id
+  alignment, source independence from concrete renderers, parent runtime, DOM,
+  routes, authored document input, pagination execution, layout execution, and
+  renderer consumption, plus README/roadmap/ledger traceability.
+
+This phase intentionally does not implement a browser measurement bridge, PDF
+text metrics, DOCX text metrics, canvas/headless execution, font loading, text
+shaping, kerning, hyphenation, bidi shaping, measurement storage, backend
+routes, renderer-backed pagination execution, exact layout execution, concrete
+artifact output, or package/document schema changes.
 
 ## Phase 12 Extraction Record
 
