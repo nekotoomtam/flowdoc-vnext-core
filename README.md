@@ -308,6 +308,10 @@ The package must remain runnable without any parent editor checkout.
 - Rich inline commit planning boundary maps browser-local rich inline state to
   canonical vNext inline child facts and commit effects while keeping package
   mutation execution deferred
+- Rich inline commit bridge boundary executes accepted Phase 124 plans through
+  a vNext-native in-memory package mutation with history-ready records and
+  live/exact invalidation summaries, while keeping persistence and rendering
+  out of scope
 - Relationship graph baseline with parent refs, child indexes, nearest
   context, capabilities, and diagnostics
 - Operation baseline:
@@ -643,6 +647,8 @@ The package must remain runnable without any parent editor checkout.
   DOM binding
 - `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_PLANNING_BOUNDARY.md`: Phase 124
   canonical rich inline commit planning boundary before bridge execution
+- `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_BRIDGE_BOUNDARY.md`: Phase 125
+  rich inline commit bridge boundary for accepted Phase 124 plans
 - `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
   FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
@@ -714,9 +720,10 @@ The package must remain runnable without any parent editor checkout.
   production measurement replacement beyond the Phase 114 raw rustybuzz mapping
 - concrete native/WASM parity, ICU4X line breaks, multi-line wrapping, or
   production measurement replacement beyond the Phase 115 smoke corpus harness
-- concrete production contenteditable DOM binding, canonical rich inline style
-  commit execution, canonical field-ref insertion execution, or WYSIWYG
-  production editing beyond the Phase 124 rich inline commit planning boundary
+- concrete production contenteditable DOM binding, rich undo/redo replay,
+  persistence-backed rich inline commits, collaboration, renderer output, or
+  WYSIWYG production editing beyond the Phase 125 rich inline commit bridge
+  boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

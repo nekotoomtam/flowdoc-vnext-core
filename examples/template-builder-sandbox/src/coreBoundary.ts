@@ -838,6 +838,13 @@ export function createTemplateBuilderSnapshot(
         reason: "browser-local rich inline state can be mapped to canonical vNext inline commit facts without applying package mutation",
       },
       {
+        action: "sandbox.commitRichInlineDraft",
+        label: "Rich commit",
+        lane: "commit",
+        status: "wired",
+        reason: "sandbox bridge consumes Phase 124 rich inline commit plans and applies vNext-native package mutations with history-ready records",
+      },
+      {
         action: "browser.planDraftStyleHistory",
         label: "Style history",
         lane: "immediate",

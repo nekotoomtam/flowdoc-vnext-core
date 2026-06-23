@@ -3468,6 +3468,39 @@ Acceptance:
   live layout execution, exact output execution, backend API, persistence,
   collaboration, and WASM/text-engine execution stay deferred/off.
 
+## Phase 125: Rich Inline Commit Bridge Boundary
+
+Goal:
+
+- execute accepted Phase 124 rich inline commit plans through a vNext-native
+  in-memory package mutation path.
+
+Deliverables:
+
+- core rich inline commit helper at `src/authoring/richInlineCommit.ts`;
+- history-ready rich inline command records through the authoring history
+  boundary;
+- sandbox mutation bridge method and API route for Phase 124 plans;
+- app action for `commit-rich-inline` separate from the plain text commit path;
+- action lane for `sandbox.commitRichInlineDraft`;
+- boundary doc in
+  `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_BRIDGE_BOUNDARY.md`;
+- tests proving core replacement, bridge packet updates, history-ready records,
+  stale-plan rejection, invalid-plan rejection, live/exact invalidation, and
+  package/DOM independence.
+
+Acceptance:
+
+- bridge execution consumes Phase 124 `text-block.rich-inline.replace` plans
+  only;
+- package mutation and history-ready records are produced through vNext-native
+  code, not parent runtime code;
+- live/exact outputs are invalidated through existing contracts without
+  rendering artifacts;
+- stale plan revisions and invalid inline children are rejected before mutation;
+- persistence, collaboration, renderer output, and WASM/text-engine replacement
+  remain out of scope.
+
 ## Later Phases
 
 Goal:

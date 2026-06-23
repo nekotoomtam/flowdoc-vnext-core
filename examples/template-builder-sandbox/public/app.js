@@ -836,6 +836,18 @@ function draftCanCommit() {
     && state.draftImePolicy.canCommitDraft
 }
 
+function draftHasRichInlineCommitPlan() {
+  const sourceState = state.draftRichInlineCommitPlan.canonicalCommit?.sourceState
+  return Boolean(sourceState && (sourceState.styledRunCount > 0 || sourceState.atomicChipCount > 0))
+}
+
+function draftCanCommitRichInline() {
+  return draftIsActive()
+    && !state.bridgeBusy
+    && state.draftRichInlineCommitPlan.canPlanCommit
+    && draftHasRichInlineCommitPlan()
+}
+
 function draftStatusLabel() {
   return draftStatusLabelState(state.draft)
 }
@@ -1402,6 +1414,9 @@ function syncDraftDomState() {
   app.querySelectorAll("[data-draft-action='commit']").forEach((target) => {
     target.disabled = !draftCanCommit()
   })
+  app.querySelectorAll("[data-draft-action='commit-rich-inline']").forEach((target) => {
+    target.disabled = !draftCanCommitRichInline()
+  })
 }
 
 function startDraftForNode(nodeId, selectionSource = "draft") {
@@ -1693,6 +1708,13 @@ function renderCanvasNode(node) {
                 ${draftCanCommit() ? "" : "disabled"}
               >
                 Commit
+              </button>
+              <button
+                type="button"
+                data-draft-action="commit-rich-inline"
+                ${draftCanCommitRichInline() ? "" : "disabled"}
+              >
+                Commit rich
               </button>
               <button type="button" data-draft-action="cancel">Cancel</button>
             </div>
@@ -2111,6 +2133,13 @@ function renderInspector(snapshot) {
               ${draftCanCommit() ? "" : "disabled"}
             >
               Commit
+            </button>
+            <button
+              type="button"
+              data-draft-action="commit-rich-inline"
+              ${draftCanCommitRichInline() ? "" : "disabled"}
+            >
+              Commit rich
             </button>
             <button
               type="button"
@@ -2610,6 +2639,11 @@ function applyDraftAction(action, nodeId) {
 
   if (action === "commit") {
     commitDraft()
+    return
+  }
+
+  if (action === "commit-rich-inline") {
+    commitRichInlineDraft()
   }
 }
 
@@ -2713,6 +2747,85 @@ async function commitDraft() {
   }
 }
 
+async function commitRichInlineDraft() {
+  if (!draftIsActive() || state.bridgeBusy) return
+
+  const draft = { ...state.draft }
+  const plan = state.draftRichInlineCommitPlan
+  const imePolicy = createDraftImePolicy(draft)
+
+  if (!imePolicy.canCommitDraft) {
+    state.draft = {
+      ...state.draft,
+      message: "Finish IME composition before committing rich inline changes.",
+      status: "editing",
+    }
+    syncDraftDomState()
+    focusDraftEditor()
+    return
+  }
+
+  if (!draftCanCommitRichInline()) {
+    state.draft = {
+      ...state.draft,
+      message: plan.reason === "stale-draft-revision"
+        ? "Refresh the draft before committing rich inline changes."
+        : "No ready rich inline commit plan is available.",
+      status: plan.status === "blocked" ? "blocked" : "editing",
+    }
+    syncDraftDomState()
+    focusDraftEditor()
+    return
+  }
+
+  state.bridgeBusy = true
+  state.bridgeMessage = "Committing rich inline draft through sandbox bridge..."
+  state.draft = {
+    ...state.draft,
+    message: "Committing rich inline draft through sandbox bridge...",
+    status: "committing",
+  }
+  render()
+
+  try {
+    const response = await fetch(routeForRichInlineCommit(), {
+      body: JSON.stringify({
+        plan: plan.canonicalCommit,
+      }),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    })
+    const result = await response.json()
+    const fallbackReason = await applyMutationResult(result)
+    if (result.ok) {
+      resetDraft("rich-committed", `Committed rich inline draft through bridge.${fallbackReason}`)
+      state.selectedId = draft.textBlockId
+      state.selectionSource = "rich-inline-commit"
+      state.bridgeMessage = `rich inline committed: ${result.mutation.summary}${fallbackReason}`
+    } else {
+      const issueMessage = (result.issues || []).map((issue) => issue.message).join("; ") || "bridge rejected rich inline draft"
+      state.draft = {
+        ...draft,
+        message: `${issueMessage}${fallbackReason}`,
+        status: "rejected",
+      }
+      state.bridgeMessage = `rich inline rejected: ${issueMessage}${fallbackReason}`
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "rich inline commit failed"
+    state.draft = {
+      ...draft,
+      message,
+      status: "rejected",
+    }
+    state.bridgeMessage = message
+  } finally {
+    state.bridgeBusy = false
+    render()
+    if (draftIsActive()) focusDraftEditor()
+  }
+}
+
 async function fetchSnapshot() {
   try {
     const apiResponse = await fetch("./api/snapshot", { cache: "no-store" })
@@ -2728,6 +2841,10 @@ async function fetchSnapshot() {
 function routeForBridgeTextAction(action) {
   if (action === "insert-text-at-end") return "./api/actions/insert-text-at-end?response=packet"
   return "./api/actions/replace-text?response=packet"
+}
+
+function routeForRichInlineCommit() {
+  return "./api/actions/commit-rich-inline?response=packet"
 }
 
 function routeForHistoryAction(action) {

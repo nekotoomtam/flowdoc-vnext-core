@@ -131,6 +131,7 @@ Parent goal:
 | 122 | Browser-local rich inline state boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_STATE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineState.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 123 | Contenteditable segment capture boundary | done | `docs/TEMPLATE_BUILDER_CONTENTEDITABLE_SEGMENT_CAPTURE_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftContenteditableSegmentCapture.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
 | 124 | Rich inline commit planning boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_PLANNING_BOUNDARY.md`; `examples/template-builder-sandbox/public/draftRichInlineCommitPlan.js`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateBuilderSandboxBoundary.test.ts` |
+| 125 | Rich inline commit bridge boundary | done | `docs/TEMPLATE_BUILDER_RICH_INLINE_COMMIT_BRIDGE_BOUNDARY.md`; `src/authoring/richInlineCommit.ts`; `src/authoring/intentHistory.ts`; `src/index.ts`; `examples/template-builder-sandbox/src/mutationBridge.ts`; `examples/template-builder-sandbox/scripts/serve.mjs`; `examples/template-builder-sandbox/public/app.js`; `examples/template-builder-sandbox/src/coreBoundary.ts`; `examples/template-builder-sandbox/public/sandbox-snapshot.json`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineCommit.test.ts`; `tests/templateBuilderSandboxBoundary.test.ts` |
 
 ## Current Rule
 
@@ -3244,6 +3245,42 @@ insertion, key migration writes, package/document schema changes, durable
 history writes, live layout requests, exact renderer output, backend routes,
 persistence, collaboration behavior, ICU4X execution, or WASM/text-engine
 measurement.
+
+## Phase 125 Rich Inline Commit Bridge Boundary
+
+Phase 125 executes the first bounded canonical rich inline commit path:
+
+- `src/authoring/richInlineCommit.ts` owns `runVNextRichInlineCommit(...)` and
+  `createVNextRichInlineCommitHistoryRecord(...)`;
+- the core helper validates vNext inline children, rejects duplicate inline ids
+  and unsupported targets, replaces text-block inline children, rebuilds graph
+  and projection facts, returns text-block dirty scope, records field-ref
+  key-history facts, and marks exact output stale through render invalidation;
+- `src/authoring/intentHistory.ts` now allows
+  `text-block.rich-inline.replace` history-ready command records;
+- `examples/template-builder-sandbox/src/mutationBridge.ts` exposes
+  `commitRichInline(...)`, accepts only Phase 124 planned
+  `text-block.rich-inline.replace` plans, rejects stale revisions, appends the
+  rich history record, updates the in-memory package, increments document
+  revision, and returns bounded change packets;
+- `examples/template-builder-sandbox/scripts/serve.mjs` exposes
+  `/api/actions/commit-rich-inline`;
+- `examples/template-builder-sandbox/public/app.js` adds a separate
+  `commit-rich-inline` draft action without changing the plain draft commit
+  path;
+- `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
+  `sandbox.commitRichInlineDraft`;
+- `tests/richInlineCommit.test.ts` proves core replacement, history-ready
+  records, dirty scope, key-history facts, render invalidation, duplicate-id
+  rejection, unsupported-target rejection, and DOM/package independence;
+- `tests/templateBuilderSandboxBoundary.test.ts` proves bridge success,
+  stale-plan rejection, invalid-plan rejection, bounded packets, history-ready
+  summaries, and live/exact invalidation summaries.
+
+This phase intentionally does not add package/document schema changes, parent
+editor imports, legacy runtime adoption, rich undo/redo replay, durable
+persistence writes, collaboration behavior, renderer artifact output, ICU4X
+execution, or WASM/text-engine measurement replacement.
 
 ## Phase 12 Extraction Record
 

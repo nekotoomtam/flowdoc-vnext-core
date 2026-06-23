@@ -177,6 +177,7 @@ describe("template builder sandbox boundary", () => {
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.executeDraftFieldChipInsert")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.normalizeDraftRichInlineState")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planRichInlineCommit")
+    expect(snapshot.actionLanes.map((action) => action.action)).toContain("sandbox.commitRichInlineDraft")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.planDraftStyleHistory")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.createStructuralRuntimeStore")
     expect(snapshot.actionLanes.map((action) => action.action)).toContain("browser.applyTextPacketToRuntimeStore")
@@ -707,6 +708,7 @@ describe("template builder sandbox boundary", () => {
     expect(serverSource).toContain("/api/snapshot")
     expect(serverSource).toContain("/api/actions/replace-text")
     expect(serverSource).toContain("/api/actions/insert-text-at-end")
+    expect(serverSource).toContain("/api/actions/commit-rich-inline")
     expect(serverSource).toContain("/api/actions/insert-text-block")
     expect(serverSource).toContain("/api/actions/delete-node")
     expect(serverSource).toContain("/api/actions/reorder-node")
@@ -715,11 +717,14 @@ describe("template builder sandbox boundary", () => {
     expect(serverSource).toContain('searchParams.get("response") !== "packet"')
     expect(bridgeSource).toContain('from "@flowdoc/vnext-core"')
     expect(bridgeSource).toContain("runVNextTextTransaction")
+    expect(bridgeSource).toContain("runVNextRichInlineCommit")
+    expect(bridgeSource).toContain("createVNextRichInlineCommitHistoryRecord")
     expect(bridgeSource).toContain("runVNextOperation")
     expect(bridgeSource).toContain("createStructuralChangePacket")
     expect(bridgeSource).toContain("TemplateBuilderStructuralMutationResponse")
     expect(bridgeSource).toContain("operationScopesToLiveLayoutDirtyScopes")
     expect(bridgeSource).toContain("appendVNextAuthoringIntentHistoryResult")
+    expect(bridgeSource).toContain("appendVNextAuthoringIntentHistoryRecord")
     expect(bridgeSource).toContain("groupVNextAuthoringIntentHistory")
     expect(bridgeSource).toContain("resolveVNextLiveLayoutBoundary")
     expect(bridgeSource).toContain("createTemplateBuilderLiveLayoutSnapshot")
@@ -727,6 +732,7 @@ describe("template builder sandbox boundary", () => {
     expect(bridgeSource).toContain("text.range.replace")
     expect(bridgeSource).toContain("text.insert")
     expect(bridgeSource).toContain("sandbox.insertPlainTextAtEnd")
+    expect(bridgeSource).toContain("sandbox.commitRichInline")
     expect(bridgeSource).toContain("sandbox.insertStructuralTextBlock")
     expect(bridgeSource).toContain("sandbox.deleteStructuralNode")
     expect(bridgeSource).toContain("sandbox.reorderStructuralNode")
@@ -737,6 +743,7 @@ describe("template builder sandbox boundary", () => {
     expect(bridgeSource).toContain("liveLayout")
     expect(appSource).toContain("./api/actions/replace-text?response=packet")
     expect(appSource).toContain("./api/actions/insert-text-at-end?response=packet")
+    expect(appSource).toContain("./api/actions/commit-rich-inline?response=packet")
     expect(appSource).toContain("./api/actions/undo?response=packet")
     expect(appSource).toContain("./api/actions/redo?response=packet")
     expect(structuralCommandPolicySource).toContain("./api/actions/insert-text-block?response=packet")
@@ -754,6 +761,7 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-editor")
     expect(appSource).toContain("startDraftForNode")
     expect(appSource).toContain("commitDraft")
+    expect(appSource).toContain("commitRichInlineDraft")
     expect(appSource).toContain("lastPacket")
     expect(appSource).not.toContain("snapshot.document")
     expect(bridgeSource).not.toContain("browser.editTextDraft")
@@ -894,6 +902,142 @@ describe("template builder sandbox boundary", () => {
       recordCount: 1,
       groupCount: 1,
     })
+  }, 15_000)
+
+  it("commits Phase 124 rich inline plans through the sandbox bridge", () => {
+    const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
+      import { readFileSync } from "node:fs";
+      import { register } from "node:module";
+      import { pathToFileURL } from "node:url";
+
+      register("./ts-loader.mjs", pathToFileURL(process.cwd() + "/scripts/"));
+      const { createTemplateBuilderMutationBridge } = await import("./src/mutationBridge.ts");
+      const fixture = JSON.parse(readFileSync("../../fixtures/product-report-vnext.flowdoc.json", "utf8"));
+      const bridge = createTemplateBuilderMutationBridge(fixture, {
+        fixturePath: "fixtures/product-report-vnext.flowdoc.json",
+      });
+      const plan = {
+        status: "planned",
+        operationKind: "text-block.rich-inline.replace",
+        targetTextBlockId: "cover-header-label",
+        baseRevision: 0,
+        documentRevision: 0,
+        plannedInlineChildren: [
+          { id: "cover-header-label-rich-1", type: "text", text: "Hello ", style: { fontWeight: "bold" } },
+          { id: "cover-header-label-rich-2", type: "field-ref", key: "customer.name", label: "Customer", fallback: "{{customer.name}}" },
+          { id: "cover-header-label-rich-3", type: "text", text: " world" },
+        ],
+      };
+      const accepted = bridge.commitRichInline({ plan }, { includeSnapshot: false });
+      const stale = bridge.commitRichInline({ plan }, { includeSnapshot: false });
+      const invalid = bridge.commitRichInline({
+        plan: { ...plan, status: "not-created" },
+      }, { includeSnapshot: false });
+
+      console.log(JSON.stringify({
+        acceptedOk: accepted.ok,
+        acceptedHasSnapshot: Object.prototype.hasOwnProperty.call(accepted, "snapshot"),
+        acceptedMutation: accepted.mutation,
+        acceptedPacket: accepted.packet,
+        acceptedPreview: JSON.stringify(accepted.packet.changedNodes),
+        invalidIssues: invalid.issues,
+        invalidOk: invalid.ok,
+        staleIssues: stale.issues,
+        staleOk: stale.ok,
+        stalePacket: stale.packet,
+      }));
+    `], {
+      cwd: new URL("../examples/template-builder-sandbox", import.meta.url),
+      encoding: "utf8",
+    })
+    const result = JSON.parse(output) as {
+      acceptedOk: boolean
+      acceptedHasSnapshot: boolean
+      acceptedMutation: { action: string; status: string; summary: string; targetTextBlockId: string }
+      acceptedPacket: {
+        baseRevision: number
+        nextRevision: number
+        mutationCount: number
+        changedNodeIds: string[]
+        changedNodes: Array<{ canUseWysiwygDraft: boolean; hasAtomicInline: boolean; hasStyledText: boolean; id: string; textPreview: string }>
+        dirtyScopes: Array<{ textBlockId: string; parentNodeIds: string[] }>
+        authoringHistory: {
+          recordCount: number
+          undoableRecordCount: number
+          groupCount: number
+          canUndo: boolean
+          undoDepth: number
+          latestGroup: { commandKinds: string[]; summary: string }
+        }
+        liveLayout: { requestCount: number; exactGenerationStale: boolean; lastResult: { dirtyScopeCount: number } }
+      }
+      acceptedPreview: string
+      invalidIssues: Array<{ code: string }>
+      invalidOk: boolean
+      staleIssues: Array<{ code: string }>
+      staleOk: boolean
+      stalePacket: { baseRevision: number; nextRevision: number; mutationCount: number; changedNodeIds: string[] }
+    }
+
+    expect(result.acceptedOk).toBe(true)
+    expect(result.acceptedHasSnapshot).toBe(false)
+    expect(result.acceptedMutation).toMatchObject({
+      action: "sandbox.commitRichInline",
+      status: "applied",
+      targetTextBlockId: "cover-header-label",
+      summary: "commit rich inline replacement in cover-header-label",
+    })
+    expect(result.acceptedPacket).toMatchObject({
+      baseRevision: 0,
+      nextRevision: 1,
+      mutationCount: 1,
+      changedNodeIds: ["cover-header-label"],
+      changedNodes: [
+        expect.objectContaining({
+          canUseWysiwygDraft: false,
+          hasAtomicInline: true,
+          hasStyledText: true,
+          id: "cover-header-label",
+        }),
+      ],
+      dirtyScopes: [
+        expect.objectContaining({
+          textBlockId: "cover-header-label",
+          parentNodeIds: ["cover-first-header"],
+        }),
+      ],
+    })
+    expect(result.acceptedPreview).toContain("customer.name")
+    expect(result.acceptedPacket.authoringHistory).toMatchObject({
+      recordCount: 1,
+      undoableRecordCount: 1,
+      groupCount: 1,
+      canUndo: false,
+      undoDepth: 0,
+      latestGroup: {
+        commandKinds: ["text-block.rich-inline.replace"],
+        summary: "commit rich inline replacement in cover-header-label",
+      },
+    })
+    expect(result.acceptedPacket.liveLayout).toMatchObject({
+      requestCount: 1,
+      exactGenerationStale: true,
+      lastResult: { dirtyScopeCount: 1 },
+    })
+    expect(result.staleOk).toBe(false)
+    expect(result.stalePacket).toMatchObject({
+      baseRevision: 1,
+      nextRevision: 1,
+      mutationCount: 1,
+      changedNodeIds: [],
+    })
+    expect(result.staleIssues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "stale-rich-inline-plan" }),
+    ]))
+    expect(result.invalidOk).toBe(false)
+    expect(result.invalidIssues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "invalid-rich-inline-plan" }),
+    ]))
   }, 15_000)
 
   it("returns bounded packet-only mutation responses", () => {
@@ -8378,6 +8522,7 @@ describe("template builder sandbox boundary", () => {
     expect(coreBoundarySource).toContain("browser.executeDraftFieldChipInsert")
     expect(coreBoundarySource).toContain("browser.normalizeDraftRichInlineState")
     expect(coreBoundarySource).toContain("browser.planRichInlineCommit")
+    expect(coreBoundarySource).toContain("sandbox.commitRichInlineDraft")
     expect(appSource).toContain('from "./draftRuntime.js"')
     expect(appSource).toContain('from "./draftLayoutPush.js"')
     expect(appSource).toContain('from "./draftImePolicy.js"')
@@ -8497,6 +8642,9 @@ describe("template builder sandbox boundary", () => {
     expect(appSource).toContain("data-draft-commandbar")
     expect(appSource).toContain("data-draft-layout-push")
     expect(appSource).toContain("data-draft-action=\"commit\"")
+    expect(appSource).toContain("data-draft-action=\"commit-rich-inline\"")
+    expect(appSource).toContain("routeForRichInlineCommit()")
+    expect(appSource).toContain("./api/actions/commit-rich-inline?response=packet")
     expect(appSource).toContain("insert-text")
     expect(appSource).toContain("replace-selection")
     expect(appSource).toContain("select-all")

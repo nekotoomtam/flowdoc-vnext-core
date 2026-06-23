@@ -1,4 +1,5 @@
 import type { NodeId } from "../graph/relationshipGraph.js"
+import type { InlineNode } from "../schema/document.js"
 import type { VNextEditableSelection } from "./editableSession.js"
 import type {
   VNextTextTransactionCommand,
@@ -27,7 +28,17 @@ export type VNextAuthoringHistoryAction =
 
 export type VNextAuthoringIntentCommandKind =
   | VNextTextTransactionCommand["kind"]
+  | "text-block.rich-inline.replace"
   | "selection.change"
+
+export type VNextAuthoringIntentCommand =
+  | VNextTextTransactionCommand
+  | {
+      kind: "text-block.rich-inline.replace"
+      source?: VNextTextTransactionSource
+      textBlockId: NodeId
+      children: readonly InlineNode[]
+    }
 
 export type VNextAuthoringCoalescingPolicy =
   | { kind: "typing-session"; mergeKey: string }
@@ -43,7 +54,7 @@ export interface VNextAuthoringIntentHistoryRecord {
   source: VNextTextTransactionSource
   inputKind: VNextAuthoringIntentInputKind
   commandKind: VNextAuthoringIntentCommandKind
-  command: VNextTextTransactionCommand | null
+  command: VNextAuthoringIntentCommand | null
   targetTextBlockId: NodeId | null
   dirtyScopes: VNextTextTransactionDirtyScope[]
   mergeKey: string | null

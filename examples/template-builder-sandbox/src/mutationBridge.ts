@@ -1,21 +1,26 @@
 import {
   appendVNextAuthoringIntentHistoryResult,
+  appendVNextAuthoringIntentHistoryRecord,
   createStructuralChangePacket,
   createVNextEditableSession,
+  createVNextRichInlineCommitHistoryRecord,
   groupVNextAuthoringIntentHistory,
   projectVNextTextBlockInlines,
   resolveVNextLiveLayoutBoundary,
   runVNextOperation,
+  runVNextRichInlineCommit,
   runVNextTextTransaction,
   serializeFlowDocPackageV2DocumentVNext,
   type StructuralChangePacket,
   type FlowDocPackageV2DocumentVNext,
+  type InlineNode,
   type TextBlockNode,
   type VNextAuthoringIntentHistoryRecord,
   type VNextLiveLayoutDirtyScope,
   type VNextLiveLayoutBoundaryResult,
   type VNextOperationCommand,
   type VNextOperationScope,
+  type VNextRichInlineCommitResult,
   type VNextTextTransactionDirtyScope,
   type VNextTextTransactionResult,
 } from "@flowdoc/vnext-core"
@@ -54,6 +59,10 @@ export interface TemplateBuilderDeleteNodeRequest {
 export interface TemplateBuilderReorderNodeRequest {
   nodeId: string
   toIndex: number
+}
+
+export interface TemplateBuilderRichInlineCommitRequest {
+  plan: unknown
 }
 
 export interface TemplateBuilderMutationIssue {
@@ -118,6 +127,10 @@ export interface TemplateBuilderMutationBridge {
     request: TemplateBuilderInsertTextAtEndRequest,
     responseOptions?: TemplateBuilderMutationResponseOptions,
   ): TemplateBuilderMutationResponse
+  commitRichInline(
+    request: TemplateBuilderRichInlineCommitRequest,
+    responseOptions?: TemplateBuilderMutationResponseOptions,
+  ): TemplateBuilderMutationResponse
   replaceText(
     request: TemplateBuilderReplaceTextRequest,
     responseOptions?: TemplateBuilderMutationResponseOptions,
@@ -136,6 +149,15 @@ interface TemplateBuilderTextUndoPatch {
   targetTextBlockId: string
   beforeText: string
   afterText: string
+}
+
+interface TemplateBuilderRichInlineCommitPlan {
+  status: "planned"
+  operationKind: "text-block.rich-inline.replace"
+  targetTextBlockId: string
+  baseRevision: number | null
+  documentRevision: number | null
+  plannedInlineChildren: InlineNode[]
 }
 
 function issue(code: string, message: string, path = ""): TemplateBuilderMutationIssue {
@@ -184,6 +206,42 @@ function normalizeNodeId(value: unknown): string | null {
   if (trimmed.length === 0 || trimmed.length > 120) return null
   if (!/^[A-Za-z0-9._:-]+$/.test(trimmed)) return null
   return trimmed
+}
+
+function normalizeRichInlineCommitPlan(value: unknown): TemplateBuilderRichInlineCommitPlan | null {
+  if (value == null || typeof value !== "object") return null
+  const candidate = value as {
+    baseRevision?: unknown
+    documentRevision?: unknown
+    operationKind?: unknown
+    plannedInlineChildren?: unknown
+    status?: unknown
+    targetTextBlockId?: unknown
+  }
+  const targetTextBlockId = normalizeNodeId(candidate.targetTextBlockId)
+  const baseRevision = typeof candidate.baseRevision === "number" && Number.isInteger(candidate.baseRevision)
+    ? candidate.baseRevision
+    : null
+  const documentRevision = typeof candidate.documentRevision === "number" && Number.isInteger(candidate.documentRevision)
+    ? candidate.documentRevision
+    : null
+  if (
+    candidate.status !== "planned"
+    || candidate.operationKind !== "text-block.rich-inline.replace"
+    || targetTextBlockId == null
+    || !Array.isArray(candidate.plannedInlineChildren)
+  ) {
+    return null
+  }
+
+  return {
+    status: "planned",
+    operationKind: "text-block.rich-inline.replace",
+    targetTextBlockId,
+    baseRevision,
+    documentRevision,
+    plannedInlineChildren: candidate.plannedInlineChildren as InlineNode[],
+  }
 }
 
 function textBlockNode(id: string, text: string): TextBlockNode {
@@ -420,6 +478,14 @@ export function createTemplateBuilderMutationBridge(
     return authoringHistory.at(-1) ?? null
   }
 
+  function appendRichInlineHistory(result: VNextRichInlineCommitResult): VNextAuthoringIntentHistoryRecord | null {
+    authoringHistory = appendVNextAuthoringIntentHistoryRecord(
+      authoringHistory,
+      createVNextRichInlineCommitHistoryRecord(result, { inputKind: "command" }),
+    )
+    return authoringHistory.at(-1) ?? null
+  }
+
   function rememberLiveLayoutBoundary(dirtyScopes: readonly VNextTextTransactionDirtyScope[]): void {
     const result = resolveVNextLiveLayoutBoundary({
       kind: "dirty-scopes",
@@ -540,6 +606,46 @@ export function createTemplateBuilderMutationBridge(
       nextRevision: documentRevision,
       changedNodeIds: [input.targetTextBlockId],
       dirtyScopes: [input.dirtyScope],
+      responseOptions: input.responseOptions,
+    })
+  }
+
+  function applyCommittedRichInline(input: {
+    action: string
+    baseRevision: number
+    result: Extract<VNextRichInlineCommitResult, { ok: true }>
+    responseOptions?: TemplateBuilderMutationResponseOptions
+  }): TemplateBuilderMutationResponse {
+    workingPackage = serializeFlowDocPackageV2DocumentVNext({
+      ...workingPackage,
+      document: input.result.document,
+      meta: {
+        ...workingPackage.meta,
+        updatedAt: "sandbox-memory",
+      },
+    })
+    documentRevision += 1
+    mutationCount += 1
+    dirtyScopeCount = 1
+    appendRichInlineHistory(input.result)
+    rememberLiveLayoutBoundary([input.result.transaction.dirtyScope])
+    lastMutation = bridgeMutation(
+      input.action,
+      "applied",
+      input.result.transaction.targetTextBlockId,
+      input.result.transaction.historyIntent.summary,
+      0,
+    )
+
+    return mutationResponse({
+      ok: true,
+      snapshot: bridgeSnapshot(),
+      mutation: lastMutation,
+      issues: [],
+      baseRevision: input.baseRevision,
+      nextRevision: documentRevision,
+      changedNodeIds: [input.result.transaction.targetTextBlockId],
+      dirtyScopes: [input.result.transaction.dirtyScope],
       responseOptions: input.responseOptions,
     })
   }
@@ -783,6 +889,53 @@ export function createTemplateBuilderMutationBridge(
         beforeText: projection.text,
         afterText: `${projection.text}${text}`,
         summary: transaction.transaction.historyIntent.summary,
+        responseOptions,
+      })
+    },
+    commitRichInline(request, responseOptions) {
+      const action = "sandbox.commitRichInline"
+      const plan = normalizeRichInlineCommitPlan(request.plan)
+      if (plan == null) {
+        return rejected(action, null, "rich inline commit was rejected", [
+          issue("invalid-rich-inline-plan", "commit-rich-inline requires a planned Phase 124 rich inline commit plan", "plan"),
+        ], responseOptions)
+      }
+
+      if (
+        (plan.documentRevision != null && plan.documentRevision !== documentRevision)
+        || (plan.baseRevision != null && plan.baseRevision !== documentRevision)
+      ) {
+        return rejected(action, plan.targetTextBlockId, "rich inline commit was rejected", [
+          issue(
+            "stale-rich-inline-plan",
+            `rich inline plan revision does not match document revision ${documentRevision}`,
+            "plan.documentRevision",
+          ),
+        ], responseOptions)
+      }
+
+      const baseRevision = documentRevision
+      const result = runVNextRichInlineCommit(workingPackage.document, {
+        kind: "text-block.rich-inline.replace",
+        source: "user",
+        textBlockId: plan.targetTextBlockId,
+        children: plan.plannedInlineChildren,
+      })
+
+      if (!result.ok) {
+        appendRichInlineHistory(result)
+        return rejected(action, plan.targetTextBlockId, "core rich inline commit was rejected", result.issues.map((item) => ({
+          severity: item.severity,
+          code: item.code,
+          message: item.message,
+          path: item.path,
+        })), responseOptions)
+      }
+
+      return applyCommittedRichInline({
+        action,
+        baseRevision,
+        result,
         responseOptions,
       })
     },

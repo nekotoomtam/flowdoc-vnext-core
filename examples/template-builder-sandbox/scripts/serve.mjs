@@ -104,6 +104,10 @@ async function handleApi(request, response, parsedUrl) {
     return handleMutationAction((body, options) => bridge.insertTextAtEnd(body, options))
   }
 
+  if (request.method === "POST" && pathname === "/api/actions/commit-rich-inline") {
+    return handleMutationAction((body, options) => bridge.commitRichInline(body, options))
+  }
+
   if (request.method === "POST" && pathname === "/api/actions/insert-text-block") {
     return handleMutationAction((body, options) => bridge.insertTextBlock(body, options))
   }
