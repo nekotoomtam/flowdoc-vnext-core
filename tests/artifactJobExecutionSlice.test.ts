@@ -255,7 +255,7 @@ describe("artifact job execution slice", () => {
     expect(storedManifest.record.value.status).toBe("failed")
   })
 
-  it("documents Phase 177 and advances the current roadmap to Phase 178", () => {
+  it("documents Phase 177 and preserves the historical Phase 178 handoff", () => {
     const source = readText("../packages/internal-alpha-runner/src/artifactJobExecution.ts")
     const packageJson = readText("../packages/internal-alpha-runner/package.json")
     const doc = readText("../docs/ARTIFACT_JOB_EXECUTION_SLICE.md")
@@ -289,8 +289,10 @@ describe("artifact job execution slice", () => {
     expect(readme).toContain("docs/ARTIFACT_JOB_EXECUTION_SLICE.md")
     expect(ledger).toContain("| 177 | Artifact job execution slice | done |")
     expect(roadmap).toContain("## Phase 177: Artifact Job Execution Slice")
+    expect(roadmap).toContain("## Historical Phase 177 Handoff")
     expect(roadmap).toContain("Current next step after Phase 177:")
     expect(roadmap).toContain("Phase 178: PDF Renderer Decision Gate")
+    expect(roadmap).toContain("Phase 178 is now complete")
     expect(routeTest).toContain("historical Phase 177 handoff")
   })
 })

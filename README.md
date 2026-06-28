@@ -584,6 +584,9 @@ The package must remain runnable without any parent editor checkout.
   job through minimal PDF spike bytes, filesystem byte storage, rendered
   manifest, and rendered job status without claiming production renderer or
   backend readiness.
+- PDF renderer decision gate keeps the dependency-free minimal PDF spike as
+  internal-alpha evidence only and defers production renderer package selection
+  until after measurement rollout evidence.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -758,6 +761,8 @@ The package must remain runnable without any parent editor checkout.
   storage binding before artifact job execution
 - `docs/ARTIFACT_JOB_EXECUTION_SLICE.md`: Phase 177 artifact job execution
   slice before the PDF renderer decision gate
+- `docs/PDF_RENDERER_DECISION_GATE.md`: Phase 178 PDF renderer decision gate
+  before measurement rollout
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

@@ -184,6 +184,7 @@ Parent goal:
 | 175 | Storage-backed RC roundtrip smoke | done | `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageBackedRcRoundtripSmoke.test.ts`; `tests/artifactByteStoreSlice.test.ts`; `tsconfig.json`; `vitest.config.ts` |
 | 176 | Backend route contract to storage binding | done | `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/backendRouteStorageBinding.test.ts`; `tests/storageBackedRcRoundtripSmoke.test.ts` |
 | 177 | Artifact job execution slice | done | `packages/internal-alpha-runner/src/artifactJobExecution.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `docs/ARTIFACT_JOB_EXECUTION_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJobExecutionSlice.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tsconfig.json`; `vitest.config.ts` |
+| 178 | PDF renderer decision gate | done | `docs/PDF_RENDERER_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererDecisionGate.test.ts`; `tests/artifactJobExecutionSlice.test.ts` |
 
 ## Current Rule
 
@@ -4573,6 +4574,22 @@ production PDF/DOCX renderer, production contenteditable or browser readiness
 claim, package/document schema change, collaboration/offline behavior, or
 legacy editor runtime copy. Record writes and byte writes remain
 non-transactional internal-alpha evidence.
+
+## Phase 178 PDF Renderer Decision Gate
+
+Phase 178 decides the PDF renderer direction after artifact job execution:
+
+- keep `@flowdoc/pdf-renderer-spike` for internal-alpha vertical slice evidence
+  only;
+- do not choose or add a production PDF renderer package in this phase;
+- do not harden the spike into a production fidelity renderer;
+- defer production renderer package selection until measurement rollout and
+  internal-alpha vertical slice evidence are clearer;
+- keep DOCX, browser print-to-PDF, backend routes, workers/queues, auth/authz,
+  package/document schema changes, collaboration/offline, and legacy editor
+  runtime copy out of scope.
+
+Next recommended phase: Phase 179 Measurement Rollout Gate.
 
 ## Phase 12 Extraction Record
 

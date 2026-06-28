@@ -5019,6 +5019,39 @@ Acceptance:
   package/document schema change, production input readiness claim,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 178: PDF Renderer Decision Gate
+
+Goal:
+
+- decide whether to continue hardening the minimal PDF spike for internal-alpha
+  evidence or choose a production PDF renderer package lane.
+
+Decision:
+
+- continue using the existing dependency-free minimal PDF spike for
+  internal-alpha vertical slice evidence only;
+- do not choose or add a production PDF renderer package in Phase 178;
+- defer production renderer-package selection until measurement rollout and the
+  internal-alpha vertical slice make fidelity gaps easier to attribute.
+
+Deliverables:
+
+- `docs/PDF_RENDERER_DECISION_GATE.md`;
+- `tests/pdfRendererDecisionGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 177 roadmap guard update.
+
+Acceptance:
+
+- Phase 136 minimal PDF spike evidence is referenced;
+- Phase 177 artifact job execution evidence is referenced;
+- the decision keeps the PDF spike internal-alpha only;
+- production PDF renderer readiness remains blocked;
+- no production PDF package, DOCX renderer, browser print driver, worker, queue,
+  backend route, auth/authz, package/document schema change, production input
+  readiness claim, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5048,10 +5081,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 177:
+Current next step after Phase 178:
 
 ```text
-Phase 178: PDF Renderer Decision Gate
+Phase 179: Measurement Rollout Gate
 ```
 
 Reason:
@@ -5082,11 +5115,25 @@ Reason:
   opening a concrete server route;
 - Phase 177 now executes the artifact job slice from queued job through minimal
   PDF spike bytes, byte storage, and manifest/job status updates;
-- the next safe lane is deciding whether to harden the dependency-free PDF
-  spike for internal alpha or choose a production renderer package lane;
+- Phase 178 now keeps the dependency-free PDF spike as internal-alpha evidence
+  only and defers production renderer package selection;
+- the next safe lane is deciding whether renderer-backed measurement evidence
+  can support the selected internal-alpha slice under profile/drift/digest
+  gates;
 - it keeps production contenteditable, full-document contenteditable,
-  collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
-  and legacy editor runtime work out of scope.
+  collaboration/offline, backend route, production PDF/DOCX renderer,
+  package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 177 Handoff
+
+Current next step after Phase 177:
+
+```text
+Phase 178: PDF Renderer Decision Gate
+```
+
+That was the Phase 177 handoff recommendation. Phase 178 is now complete, so
+it is no longer the current next step after Phase 178.
 
 ## Historical Phase 176 Handoff
 
