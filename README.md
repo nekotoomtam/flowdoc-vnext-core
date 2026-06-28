@@ -553,6 +553,10 @@ The package must remain runnable without any parent editor checkout.
   lifecycle, command policy, DOM binding smoke, and commit bridge smoke into a
   JSON-safe report and planned rich-inline bridge request without production
   contenteditable binding.
+- Guarded input paste/delete/field-chip slice composes the runtime slice with
+  paste/delete preflight so plain paste, unsafe paste blocking, structural
+  delete blocking, and atomic field-chip command intents are JSON-safe before
+  production clipboard binding.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -709,6 +713,8 @@ The package must remain runnable without any parent editor checkout.
   plan before the first runtime slice
 - `docs/GUARDED_INPUT_RUNTIME_SLICE.md`: Phase 169 sandbox-local guarded input
   runtime slice before paste/delete/field-chip input integration
+- `docs/GUARDED_INPUT_PASTE_DELETE_FIELD_CHIP_SLICE.md`: Phase 170
+  paste/delete/field-chip slice before the input integration close audit
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

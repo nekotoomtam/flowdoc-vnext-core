@@ -176,6 +176,7 @@ Parent goal:
 | 167 | Browser matrix decision | done | `docs/HYBRID_INPUT_BROWSER_MATRIX_DECISION.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 168 | Guarded input integration plan | done | `docs/GUARDED_INPUT_INTEGRATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 169 | Guarded input runtime slice 1 | done | `examples/template-builder-sandbox/public/guardedInputRuntimeSlice.js`; `docs/GUARDED_INPUT_RUNTIME_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 170 | Guarded input paste/delete/field-chip slice | done | `examples/template-builder-sandbox/public/guardedInputPasteDeleteFieldChipSlice.js`; `docs/GUARDED_INPUT_PASTE_DELETE_FIELD_CHIP_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4350,6 +4351,30 @@ browser automation dependency to core, require a browser driver in core check,
 change package/document schema, add storage/backend routes, add PDF/DOCX
 renderer work, add collaboration/offline behavior, or copy legacy editor
 runtime.
+
+## Phase 170 Guarded Input Paste/Delete/Field-chip Slice
+
+Phase 170 implements the sandbox-local paste/delete/field-chip input slice:
+
+- `examples/template-builder-sandbox/public/guardedInputPasteDeleteFieldChipSlice.js`
+  composes the Phase 169 runtime slice with paste/delete preflight;
+- plain paste and normalized paste produce JSON-safe decisions;
+- unsafe rich paste and arbitrary DOM HTML are blocked;
+- delete/backspace near a field chip transforms into explicit atomic
+  field-chip command intent;
+- field-chip copy and replace-with-text remain atomic command facts;
+- field-chip internal edit, structural delete, and composition-active actions
+  are blocked;
+- `tests/guardedInputPasteDeleteFieldChipSlice.test.ts` proves paste,
+  unsafe paste, delete near chip, blocked unsafe deletes, direct field-chip
+  commands, dependency cleanliness, docs, roadmap, and phase trail behavior.
+
+This phase intentionally does not implement production contenteditable, claim
+production browser readiness, bind production clipboard events, implement
+full-document contenteditable, add a browser automation dependency to core,
+require a browser driver in core check, change package/document schema, add
+storage/backend routes, add PDF/DOCX renderer work, add collaboration/offline
+behavior, or copy legacy editor runtime.
 
 ## Phase 12 Extraction Record
 

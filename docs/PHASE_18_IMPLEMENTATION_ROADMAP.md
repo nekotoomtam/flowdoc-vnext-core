@@ -4741,6 +4741,36 @@ Acceptance:
   storage/backend route, PDF/DOCX renderer work, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 170: Paste/Delete/Field-chip Input Slice
+
+Goal:
+
+- implement the sandbox-local paste/delete/field-chip input slice over the
+  guarded runtime slice.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/guardedInputPasteDeleteFieldChipSlice.js`;
+- `docs/GUARDED_INPUT_PASTE_DELETE_FIELD_CHIP_SLICE.md`;
+- `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- plain paste and normalized paste are JSON-safe;
+- unsafe rich paste and arbitrary DOM HTML are blocked;
+- delete/backspace near field chips transforms into explicit atomic field-chip
+  command intent;
+- field-chip copy and replace-with-text remain atomic command facts;
+- field-chip internal edit, structural delete, and composition-active actions
+  are blocked;
+- no production contenteditable implementation, production browser readiness
+  claim, production clipboard binding, full-document contenteditable, browser
+  automation dependency in core, browser driver requirement in core check,
+  package/document schema change, storage/backend route, PDF/DOCX renderer
+  work, collaboration/offline behavior, or legacy editor runtime copy is
+  introduced.
+
 ## Later Phases
 
 Goal:
@@ -4770,10 +4800,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 169:
+Current next step after Phase 170:
 
 ```text
-Phase 170: Paste/Delete/Field-chip Input Slice
+Phase 171: Input Integration Close Audit
 ```
 
 Reason:
@@ -4786,8 +4816,10 @@ Reason:
   refreshes packets, and how fallback/commit bridge routing stays guarded;
 - Phase 169 now composes the first sandbox-local runtime slice and planned
   bridge request without applying package mutation;
-- the next safe implementation slice is paste/delete/field-chip input
-  hardening over that runtime slice;
+- Phase 170 now covers paste/delete/field-chip input hardening over that
+  runtime slice;
+- the next safe phase is a close audit deciding what is proven, blocked, risky,
+  or still unknown before any production contenteditable binding;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
@@ -4796,7 +4828,7 @@ Reason:
 
 The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
 That was the historical first implementation recommendation from the Phase 18
-reset, not the current next step after Phase 169.
+reset, not the current next step after Phase 170.
 
 Historical first phase:
 
