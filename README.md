@@ -498,6 +498,9 @@ The package must remain runnable without any parent editor checkout.
 - Hybrid managed card input implementation plan turns the Phase 143 input
   decision into ownership, guard, fallback, and follow-up phase boundaries
   without implementing production contenteditable behavior.
+- Hybrid input runtime ownership boundary adds a browser-safe classifier for
+  managed card selection, one active text-block island, textarea fallback, and
+  rejected input targets while keeping canonical package truth unmutated.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -619,6 +622,9 @@ The package must remain runnable without any parent editor checkout.
   vertical slice RC foundation pass
 - `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md`: Phase 153 plan
   boundary for the selected hybrid managed card input model
+- `docs/HYBRID_INPUT_RUNTIME_OWNERSHIP_BOUNDARY.md`: Phase 154 browser-local
+  input runtime ownership boundary before active island lifecycle or DOM
+  binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -875,8 +881,8 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 130 rich inline live/exact parity
-  audit
+  production editing close beyond the Phase 154 input runtime ownership
+  boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
 - concrete non-text table-cell content splitting beyond the Phase 97 readiness

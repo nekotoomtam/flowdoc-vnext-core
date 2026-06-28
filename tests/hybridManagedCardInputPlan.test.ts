@@ -84,12 +84,13 @@ describe("hybrid managed card input implementation plan", () => {
     expect(roadmap).toContain("## Phase 153: Hybrid Managed Card Input Implementation Plan")
   })
 
-  it("keeps the roadmap next step current after Phase 153", () => {
+  it("keeps the roadmap next step current after the Phase 153 plan lane starts moving", () => {
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
     expect(roadmap).toContain("## Current Next Recommended Phase")
-    expect(roadmap).toContain("Current next step after Phase 153:")
-    expect(roadmap).toContain("Phase 154: Input Runtime Ownership Boundary")
+    expect(roadmap).toContain("## Phase 154: Input Runtime Ownership Boundary")
+    expect(roadmap).toContain("Current next step after Phase 154:")
+    expect(roadmap).toContain("Phase 155: Active Text-Block Island Boundary")
     expect(roadmap).toContain("## Historical Phase 18 First Implementation Recommendation")
     expect(roadmap).toContain("historical first implementation recommendation from the Phase 18")
     expect(roadmap).toContain("not the current next step after Phase 153")

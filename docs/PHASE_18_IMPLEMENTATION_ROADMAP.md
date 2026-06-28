@@ -4284,6 +4284,36 @@ Acceptance:
   work, legacy editor runtime copy, or package/document schema change is
   introduced.
 
+## Phase 154: Input Runtime Ownership Boundary
+
+Goal:
+
+- create the first implementation boundary for hybrid managed card input
+  ownership before active island lifecycle, DOM binding, or commit execution.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/inputRuntimeOwnership.js`;
+- `docs/HYBRID_INPUT_RUNTIME_OWNERSHIP_BOUNDARY.md`;
+- `tests/hybridInputRuntimeOwnership.test.ts`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- runtime ownership can identify no active target, managed card selection,
+  active text-block island, textarea fallback, and rejected targets;
+- ownership facts include active node id, active text-block id, mode, reason,
+  allowed commands, blocked commands, fallback reason, and command readiness;
+- unsupported targets, full-document contenteditable, raw DOM HTML package
+  truth, non-text island requests, invalid fallback requests, missing node ids,
+  and multiple active islands return explicit rejection reasons;
+- only one active text-block island can be selected;
+- IME composition blocks commit bridge preparation;
+- browser-local ownership facts are separated from canonical package truth;
+- no DOM binding, production contenteditable behavior, document mutation,
+  storage/backend route, PDF/DOCX renderer work, package/document schema
+  change, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4313,19 +4343,20 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 153:
+Current next step after Phase 154:
 
 ```text
-Phase 154: Input Runtime Ownership Boundary
+Phase 155: Active Text-Block Island Boundary
 ```
 
 Reason:
 
-- Phase 153 is complete as a plan-only boundary for hybrid managed card input;
-- the next safe implementation slice is ownership, not browser DOM binding;
-- it should define managed card runtime, active text-block island runtime,
-  command policy, commit bridge, fallback textarea path, and app-shell
-  integration before production input behavior begins;
+- Phase 154 now classifies ownership without binding DOM events or mutating
+  package data;
+- the next safe implementation slice is the active text-block island lifecycle
+  state model;
+- it should define inactive/opening/active/composing/dirty/committing/rejected/
+  closed transitions before DOM binding or commit bridge execution begins;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

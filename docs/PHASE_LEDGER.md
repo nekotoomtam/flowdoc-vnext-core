@@ -160,6 +160,7 @@ Parent goal:
 | 151 | End-to-end RC report smoke | done | `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcEndToEnd.test.ts` |
 | 152 | RC close audit | done | `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcCloseAudit.test.ts` |
 | 153 | Hybrid managed card input implementation plan | done | `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 154 | Input runtime ownership boundary | done | `docs/HYBRID_INPUT_RUNTIME_OWNERSHIP_BOUNDARY.md`; `examples/template-builder-sandbox/public/inputRuntimeOwnership.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputRuntimeOwnership.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -3944,6 +3945,33 @@ This phase intentionally does not implement production contenteditable,
 full-document contenteditable, collaboration/offline behavior, storage/backend
 routes, PDF/DOCX renderer work, legacy editor runtime copy, or
 package/document schema changes.
+
+## Phase 154 Input Runtime Ownership Boundary
+
+Phase 154 implements the first browser-local ownership classifier for the
+selected hybrid managed card input lane:
+
+- `examples/template-builder-sandbox/public/inputRuntimeOwnership.js` defines
+  the ownership source/mode constants, target types, rejection reasons,
+  command readiness shape, target classifier, and summary label;
+- ownership can classify `none`, `managed-card-selection`,
+  `active-text-block-island`, `textarea-fallback`, and `rejected` targets;
+- ownership facts include active node id, active text-block id, target type,
+  reason, allowed commands, blocked commands, fallback reason, command
+  readiness, owner responsibilities, browser-local status, canonical package
+  truth status, core commit status, and production readiness status;
+- unsupported targets, full-document contenteditable, raw DOM HTML package
+  truth, non-text island requests, invalid fallback requests, missing node ids,
+  and multiple active islands return explicit rejection reasons;
+- IME composition blocks commit bridge preparation;
+- `tests/hybridInputRuntimeOwnership.test.ts` proves the pure ownership
+  decisions, one-island guard, composition commit guard, dependency cleanliness,
+  docs, roadmap, and phase trail.
+
+This phase intentionally does not bind DOM events, implement production
+contenteditable behavior, commit document mutations, add storage/backend
+routes, add PDF/DOCX renderer work, copy legacy editor runtime, or change
+package/document schema.
 
 ## Phase 12 Extraction Record
 
