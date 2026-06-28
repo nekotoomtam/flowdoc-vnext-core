@@ -4402,6 +4402,30 @@ require a browser driver in core check, change package/document schema, add
 storage/backend routes, add PDF/DOCX renderer work, add collaboration/offline
 behavior, or copy legacy editor runtime.
 
+## Pre-Phase 172 Risk / Unknown Register
+
+Before Phase 172 storage choice work, the risk / unknown register sharpens
+what storage must not assume:
+
+- guarded input evidence remains internal-alpha sandbox evidence, not
+  production input truth;
+- production contenteditable, browser, clipboard, and collaboration/offline
+  readiness remain blocked;
+- Thai IME, browser-driver matrix, artifact retention, fallback UX, granular
+  rich-inline operations, and storage durability remain explicit unknowns;
+- storage candidates must label input/browser readiness as dependency risk and
+  must not add backend routes, schema changes, renderer work, or browser
+  automation to core as part of the choice gate;
+- `tests/prePhase172RiskUnknownRegister.test.ts` proves the register, storage
+  gate rule, risk buckets, unknowns, roadmap, and phase trail.
+
+This register intentionally does not implement storage/backend routes, change
+package/document schema, implement production contenteditable, claim
+production browser readiness, bind production clipboard events, add browser
+automation dependencies to core, require a browser driver in core check, add
+PDF/DOCX renderer work, add collaboration/offline behavior, or copy legacy
+editor runtime.
+
 ## Phase 12 Extraction Record
 
 Phase 12 is complete for physical repository extraction. This repository has

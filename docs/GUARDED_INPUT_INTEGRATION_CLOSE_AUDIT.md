@@ -100,7 +100,9 @@ Blocked for production readiness:
 ## Files Changed
 
 - `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`
+- `docs/PRE_PHASE_172_RISK_UNKNOWN_REGISTER.md`
 - `tests/guardedInputIntegrationCloseAudit.test.ts`
+- `tests/prePhase172RiskUnknownRegister.test.ts`
 - `README.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `docs/PHASE_LEDGER.md`
@@ -145,6 +147,9 @@ Blocked for production readiness:
 - Production input binding remains a separate design and implementation lane.
 - Browser-driver matrix evidence remains optional/sandbox-local.
 - Concrete storage choice for serious v1 remains unresolved.
+- The pre-Phase 172 risk / unknown register sharpens what storage must not
+  assume before concrete storage choice work begins:
+  `docs/PRE_PHASE_172_RISK_UNKNOWN_REGISTER.md`.
 
 ## Intentionally Not Changed
 

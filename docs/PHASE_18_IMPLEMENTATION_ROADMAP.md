@@ -4800,6 +4800,34 @@ Acceptance:
   work, collaboration/offline behavior, or legacy editor runtime copy is
   introduced.
 
+## Pre-Phase 172 Risk / Unknown Register
+
+Goal:
+
+- sharpen the RISK / UNKNOWN surface before Phase 172 chooses concrete storage
+  constraints.
+
+Deliverables:
+
+- `docs/PRE_PHASE_172_RISK_UNKNOWN_REGISTER.md`;
+- `tests/prePhase172RiskUnknownRegister.test.ts`;
+- README, phase ledger, roadmap, and close-audit guard updates.
+
+Acceptance:
+
+- storage choice cannot inherit production input, browser, clipboard, or
+  collaboration/offline readiness claims from Phase 166-171;
+- input/browser evidence, commit/rich-inline semantics, app-shell/fallback
+  ownership, and storage-coupling risks are separated;
+- unknowns for production contenteditable, browser-driver evidence, Thai IME,
+  product fallback UX, granular rich-inline operations, and storage durability
+  remain explicit;
+- Phase 172 remains the next phase, but only as a concrete storage choice gate;
+- no storage/backend route, package/document schema change, production
+  contenteditable implementation, production browser readiness claim,
+  production clipboard binding, PDF/DOCX renderer work, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4849,6 +4877,8 @@ Reason:
   runtime slice;
 - Phase 171 now closes the guarded input lane as internal-alpha sandbox
   evidence while keeping production input claims blocked;
+- the pre-Phase 172 risk / unknown register makes storage-coupling assumptions
+  explicit before storage choices are accepted;
 - the next safe lane is a concrete storage choice gate for serious v1 rather
   than more input foundation expansion;
 - it keeps production contenteditable, full-document contenteditable,
