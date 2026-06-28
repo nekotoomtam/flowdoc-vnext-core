@@ -155,6 +155,7 @@ Parent goal:
 | 146 | First vertical slice RC orchestrator boundary | done | `docs/VERTICAL_SLICE_RC_ORCHESTRATOR_BOUNDARY.md`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRc.test.ts` |
 | 147 | RC scenario fixture boundary | done | `docs/VERTICAL_SLICE_RC_SCENARIO_BOUNDARY.md`; `fixtures/vertical-slice-rc-report.v1.flowdoc.json`; `fixtures/vertical-slice-rc-scenario.v1.json`; `src/generation/verticalSliceScenario.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceScenario.test.ts` |
 | 148 | RC measurement selection and drift gate | done | `docs/VERTICAL_SLICE_MEASUREMENT_GATE_BOUNDARY.md`; `src/generation/verticalSliceMeasurementGate.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceMeasurementGate.test.ts` |
+| 149 | RC artifact production bridge | done | `docs/VERTICAL_SLICE_ARTIFACT_BRIDGE_BOUNDARY.md`; `src/generation/verticalSliceArtifactBridge.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceArtifactBridge.test.ts` |
 
 ## Current Rule
 
@@ -3844,6 +3845,24 @@ This phase intentionally does not import the external text-engine package,
 execute renderer-backed provider code, replace default pagination measurement,
 mutate pagination/cache behavior, bind production measurement, or change
 package/document schema.
+
+## Phase 149 RC Artifact Production Bridge
+
+Phase 149 adds an RC artifact summary bridge:
+
+- `src/generation/verticalSliceArtifactBridge.ts` consumes caller-supplied PDF
+  spike manifest summaries plus core artifact manifest and job records;
+- artifact id, renderer profile id, measurement profile id, media type, byte
+  length, sha256, manifest, and job identity must align;
+- successful and failed artifact production are represented without claiming
+  production fidelity;
+- `tests/verticalSliceArtifactBridge.test.ts` proves success, failure,
+  missing-byte/hash blocking, storage-status guarding, dependency cleanliness,
+  and phase trail updates.
+
+This phase intentionally does not import `packages/pdf-renderer-spike` into
+core, render bytes, write files/storage, add backend routes, claim production
+PDF fidelity, add DOCX output, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

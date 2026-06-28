@@ -4162,6 +4162,29 @@ Acceptance:
   pagination measurement replacement, pagination mutation, production
   measurement binding, or package/document schema change is introduced.
 
+## Phase 149: RC Artifact Production Bridge
+
+Goal:
+
+- compose caller-supplied PDF spike output summaries with artifact manifest and
+  artifact job records for the RC report.
+
+Deliverables:
+
+- `src/generation/verticalSliceArtifactBridge.ts`;
+- `tests/verticalSliceArtifactBridge.test.ts`;
+- `docs/VERTICAL_SLICE_ARTIFACT_BRIDGE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- successful and failed artifact production summaries can be represented;
+- missing byteLength, sha256, mediaType, and identity mismatches block;
+- storageStatus remains not-stored/not-written before storage simulation;
+- no `packages/pdf-renderer-spike` import into core, file/storage write,
+  backend route, renderer execution, PDF fidelity claim, DOCX output, or
+  package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

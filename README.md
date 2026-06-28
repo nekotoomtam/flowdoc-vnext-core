@@ -479,6 +479,10 @@ The package must remain runnable without any parent editor checkout.
   approximate measurement summaries by `measurementProfileId`, reports drift,
   digest, and native/WASM parity status, and keeps default pagination
   measurement unchanged.
+- Vertical slice artifact bridge composes caller-supplied PDF spike manifest
+  summaries with core artifact manifest/job records into RC artifact summaries
+  without importing the external PDF spike package, writing storage, adding
+  routes, or claiming PDF fidelity.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -590,6 +594,8 @@ The package must remain runnable without any parent editor checkout.
   boundary before measurement/artifact/storage summary gates
 - `docs/VERTICAL_SLICE_MEASUREMENT_GATE_BOUNDARY.md`: Phase 148 RC measurement
   selection and drift gate before artifact/storage composition
+- `docs/VERTICAL_SLICE_ARTIFACT_BRIDGE_BOUNDARY.md`: Phase 149 RC artifact
+  summary bridge before storage simulation
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
