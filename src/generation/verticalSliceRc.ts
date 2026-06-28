@@ -79,6 +79,7 @@ export interface VNextVerticalSliceRcStorageCollectionSummary {
   status: VNextVerticalSliceRcStorageStatus
   key: string
   revision: number | null
+  writeStatus?: string
 }
 
 export interface VNextVerticalSliceRcStorageSummary {

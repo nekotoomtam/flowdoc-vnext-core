@@ -483,6 +483,10 @@ The package must remain runnable without any parent editor checkout.
   summaries with core artifact manifest/job records into RC artifact summaries
   without importing the external PDF spike package, writing storage, adding
   routes, or claiming PDF fidelity.
+- Vertical slice storage simulation summarizes storage adapter write results
+  for package/session, durable history, rich inline session, artifact manifest,
+  and artifact job records while representing idempotent replay and revision
+  conflicts without choosing a concrete backend.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -596,6 +600,8 @@ The package must remain runnable without any parent editor checkout.
   selection and drift gate before artifact/storage composition
 - `docs/VERTICAL_SLICE_ARTIFACT_BRIDGE_BOUNDARY.md`: Phase 149 RC artifact
   summary bridge before storage simulation
+- `docs/VERTICAL_SLICE_STORAGE_SIMULATION_BOUNDARY.md`: Phase 150 RC storage
+  simulation boundary before the end-to-end RC smoke
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

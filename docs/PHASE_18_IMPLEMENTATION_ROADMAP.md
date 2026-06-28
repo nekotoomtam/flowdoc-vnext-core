@@ -4185,6 +4185,29 @@ Acceptance:
   backend route, renderer execution, PDF fidelity claim, DOCX output, or
   package/document schema change is introduced.
 
+## Phase 150: RC Storage Simulation Boundary
+
+Goal:
+
+- summarize storage adapter write results for RC package/session, history,
+  rich inline, artifact manifest, and artifact job records without choosing a
+  concrete backend.
+
+Deliverables:
+
+- `src/generation/verticalSliceStorageSimulation.ts`;
+- `tests/verticalSliceStorageSimulation.test.ts`;
+- `docs/VERTICAL_SLICE_STORAGE_SIMULATION_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- RC records can be evaluated through storage adapter contracts;
+- expected revision conflict is represented;
+- idempotent replay is represented;
+- no concrete backend, real storage write, auth/authz, backend route, storage
+  adapter interface rewrite, or package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

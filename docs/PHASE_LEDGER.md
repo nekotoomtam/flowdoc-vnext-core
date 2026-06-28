@@ -156,6 +156,7 @@ Parent goal:
 | 147 | RC scenario fixture boundary | done | `docs/VERTICAL_SLICE_RC_SCENARIO_BOUNDARY.md`; `fixtures/vertical-slice-rc-report.v1.flowdoc.json`; `fixtures/vertical-slice-rc-scenario.v1.json`; `src/generation/verticalSliceScenario.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceScenario.test.ts` |
 | 148 | RC measurement selection and drift gate | done | `docs/VERTICAL_SLICE_MEASUREMENT_GATE_BOUNDARY.md`; `src/generation/verticalSliceMeasurementGate.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceMeasurementGate.test.ts` |
 | 149 | RC artifact production bridge | done | `docs/VERTICAL_SLICE_ARTIFACT_BRIDGE_BOUNDARY.md`; `src/generation/verticalSliceArtifactBridge.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceArtifactBridge.test.ts` |
+| 150 | RC storage simulation boundary | done | `docs/VERTICAL_SLICE_STORAGE_SIMULATION_BOUNDARY.md`; `src/generation/verticalSliceStorageSimulation.ts`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceStorageSimulation.test.ts` |
 
 ## Current Rule
 
@@ -3863,6 +3864,23 @@ Phase 149 adds an RC artifact summary bridge:
 This phase intentionally does not import `packages/pdf-renderer-spike` into
 core, render bytes, write files/storage, add backend routes, claim production
 PDF fidelity, add DOCX output, or change package/document schema.
+
+## Phase 150 RC Storage Simulation Boundary
+
+Phase 150 adds an RC storage simulation summary:
+
+- `src/generation/verticalSliceStorageSimulation.ts` consumes
+  caller-supplied `VNextStorageWriteResult` values and returns the Phase 146
+  storage summary shape;
+- test-local mocks exercise package/session, durable history, rich inline
+  session, artifact manifest, and artifact job collection writes;
+- expected revision conflicts and idempotent replay are represented;
+- `tests/verticalSliceStorageSimulation.test.ts` proves summary status,
+  conflicts, invalid requests, dependency cleanliness, and phase trail updates.
+
+This phase intentionally does not choose Postgres, S3, filesystem, browser
+storage, Redis, or any concrete backend; perform real storage writes; add
+auth/authz; add backend routes; or change package/document schema.
 
 ## Phase 12 Extraction Record
 
