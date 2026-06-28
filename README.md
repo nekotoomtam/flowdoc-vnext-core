@@ -487,6 +487,10 @@ The package must remain runnable without any parent editor checkout.
   for package/session, durable history, rich inline session, artifact manifest,
   and artifact job records while representing idempotent replay and revision
   conflicts without choosing a concrete backend.
+- Vertical slice RC end-to-end smoke composes the scenario, key diagnostics,
+  rich inline commit, exact stale signal, measurement gate, artifact bridge,
+  storage simulation, and RC report builder into one bounded report without
+  claiming production launch readiness.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -602,6 +606,8 @@ The package must remain runnable without any parent editor checkout.
   summary bridge before storage simulation
 - `docs/VERTICAL_SLICE_STORAGE_SIMULATION_BOUNDARY.md`: Phase 150 RC storage
   simulation boundary before the end-to-end RC smoke
+- `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md`: Phase 151 bounded end-to-end
+  RC report smoke before close audit
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

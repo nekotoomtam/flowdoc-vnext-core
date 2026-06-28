@@ -157,6 +157,7 @@ Parent goal:
 | 148 | RC measurement selection and drift gate | done | `docs/VERTICAL_SLICE_MEASUREMENT_GATE_BOUNDARY.md`; `src/generation/verticalSliceMeasurementGate.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceMeasurementGate.test.ts` |
 | 149 | RC artifact production bridge | done | `docs/VERTICAL_SLICE_ARTIFACT_BRIDGE_BOUNDARY.md`; `src/generation/verticalSliceArtifactBridge.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceArtifactBridge.test.ts` |
 | 150 | RC storage simulation boundary | done | `docs/VERTICAL_SLICE_STORAGE_SIMULATION_BOUNDARY.md`; `src/generation/verticalSliceStorageSimulation.ts`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceStorageSimulation.test.ts` |
+| 151 | End-to-end RC report smoke | done | `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcEndToEnd.test.ts` |
 
 ## Current Rule
 
@@ -3881,6 +3882,24 @@ Phase 150 adds an RC storage simulation summary:
 This phase intentionally does not choose Postgres, S3, filesystem, browser
 storage, Redis, or any concrete backend; perform real storage writes; add
 auth/authz; add backend routes; or change package/document schema.
+
+## Phase 151 End-To-End RC Report Smoke
+
+Phase 151 composes the first bounded RC report:
+
+- `tests/verticalSliceRcEndToEnd.test.ts` loads the RC package/scenario
+  fixtures, runs key diagnostics, applies the rich inline edit, confirms exact
+  generation stale status, runs the measurement gate, artifact bridge, storage
+  simulation, and final RC report builder;
+- `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md` records PASS/RISK/UNKNOWN and
+  remaining non-production limits;
+- the report carries PASS, RISK, UNKNOWN, and
+  intentionallyNotProductionReady lists.
+
+This phase intentionally does not add a real browser driver, real storage
+backend, production PDF renderer, production launch readiness claim,
+collaboration/offline behavior, backend route, or package/document schema
+change.
 
 ## Phase 12 Extraction Record
 

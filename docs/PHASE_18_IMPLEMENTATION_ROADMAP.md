@@ -4208,6 +4208,31 @@ Acceptance:
 - no concrete backend, real storage write, auth/authz, backend route, storage
   adapter interface rewrite, or package/document schema change is introduced.
 
+## Phase 151: End-To-End RC Report Smoke
+
+Goal:
+
+- run one bounded end-to-end smoke that composes the Phase 146-150 RC
+  boundaries into a final RC readiness report.
+
+Deliverables:
+
+- `tests/verticalSliceRcEndToEnd.test.ts`;
+- `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- one bounded RC report is produced;
+- the report includes PASS, RISK, UNKNOWN, and
+  intentionallyNotProductionReady;
+- scenario, key diagnostics, rich inline commit, exact stale signal,
+  measurement gate, artifact bridge, storage simulation, and report builder
+  compose;
+- no real browser driver, real storage backend, production PDF renderer,
+  launch readiness claim, collaboration/offline behavior, route, or
+  package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:
