@@ -169,6 +169,7 @@ Parent goal:
 | 160 | Paste/delete preflight boundary | done | `docs/PASTE_DELETE_PREFLIGHT_BOUNDARY.md`; `examples/template-builder-sandbox/public/pasteDeletePreflight.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pasteDeletePreflight.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 161 | Renderer segment and hit-test evidence boundary | done | `docs/RENDERER_SEGMENT_HIT_TEST_EVIDENCE_BOUNDARY.md`; `src/renderer/segmentHitTestEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/segmentHitTestEvidence.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/activeIslandCommitBridge.test.ts` |
 | 162 | Hybrid input foundation close audit | done | `docs/HYBRID_INPUT_FOUNDATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 163 | Hybrid input browser QA boundary | done | `docs/HYBRID_INPUT_BROWSER_QA_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserQa.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-qa.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts` |
 
 ## Current Rule
 
@@ -4180,6 +4181,33 @@ This phase intentionally does not implement production contenteditable,
 full-document contenteditable, collaboration/offline behavior, storage/backend
 routes, PDF/DOCX renderer work, package/document schema changes, or legacy
 editor runtime copy.
+
+## Phase 163 Hybrid Input Browser QA Boundary
+
+Phase 163 implements a sandbox-local browser QA evidence boundary:
+
+- `examples/template-builder-sandbox/public/hybridInputBrowserQa.js` defines
+  browser QA source/mode constants, case ids, report creation, and labels;
+- `examples/template-builder-sandbox/scripts/hybrid-input-browser-qa.mjs`
+  outputs the report as JSON without adding a browser driver dependency;
+- report cases cover selection start/end, caret move, IME composition
+  lifecycle, plain text paste, blocked rich/unsafe paste, delete/backspace near
+  field chip, active island commit, fallback behavior, and single active
+  text-block island guard;
+- unsafe rich paste remains blocked and does not become package truth;
+- active island ownership remains limited to one text block;
+- field-chip atomics remain guarded by preflight command transform;
+- `tests/hybridInputBrowserQa.test.ts` proves report shape, case evidence,
+  optional script execution, dependency cleanliness, documentation, roadmap,
+  and phase trail.
+- `tests/hybridInputFoundationCloseAudit.test.ts` keeps the Phase 162 trail
+  current after the roadmap advances to Phase 164.
+
+This phase intentionally does not claim production contenteditable readiness,
+implement full-document contenteditable, copy old FlowDocEditor runtime, change
+package/document schema, add storage/backend routes, add collaboration/offline
+behavior, add renderer/PDF/DOCX work, or require Playwright/Puppeteer in core
+check.
 
 ## Phase 12 Extraction Record
 

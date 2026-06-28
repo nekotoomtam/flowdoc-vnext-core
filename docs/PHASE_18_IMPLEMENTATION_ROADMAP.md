@@ -4542,6 +4542,37 @@ Acceptance:
   work, package/document schema change, or legacy editor runtime copy is
   introduced.
 
+## Phase 163: Hybrid Input Browser QA Boundary
+
+Goal:
+
+- create a browser-QA/evidence boundary for hybrid active text-block island
+  input without claiming production readiness.
+
+Deliverables:
+
+- `docs/HYBRID_INPUT_BROWSER_QA_BOUNDARY.md`;
+- `examples/template-builder-sandbox/public/hybridInputBrowserQa.js`;
+- `examples/template-builder-sandbox/scripts/hybrid-input-browser-qa.mjs`;
+- `tests/hybridInputBrowserQa.test.ts`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- browser QA report shape exists and is JSON-safe;
+- selection start/end, caret move, IME lifecycle, plain text paste, blocked
+  rich/unsafe paste, delete/backspace near field chip, active island commit,
+  fallback behavior, and single active text-block island guard have evidence or
+  explicit blocked/fallback status;
+- unsafe DOM behavior does not become package truth;
+- active island ownership remains limited to one text block;
+- field-chip atomics remain guarded;
+- browser driver usage remains optional and sandbox-local;
+- no production contenteditable readiness claim, full-document contenteditable,
+  old FlowDocEditor runtime copy, package/document schema change, storage/
+  backend route, collaboration/offline behavior, renderer/PDF/DOCX work, or
+  browser driver requirement in core check is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4571,20 +4602,21 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 162:
+Current next step after Phase 163:
 
 ```text
-Phase 163: Hybrid Input Browser QA Boundary
+Phase 164: Optional Browser Driver Smoke Boundary
 ```
 
 Reason:
 
-- Phase 162 closes the hybrid input foundation pass while keeping production
-  input readiness blocked;
-- the next safe implementation slice is browser-driver QA over real selection,
-  caret, IME, paste, delete, and active island focus behavior;
-- it should remain an evidence boundary before production contenteditable
-  binding;
+- Phase 163 now provides sandbox-local JSON-safe evidence for selection, caret,
+  IME, paste, delete, commit, fallback, and one-island guards;
+- the next safe implementation slice is optional browser-driver smoke that can
+  compare those evidence cases against real browser behavior when the sandbox
+  dependency strategy is ready;
+- it should remain optional and sandbox-local before production contenteditable
+  binding or core check dependency changes;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

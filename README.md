@@ -527,6 +527,10 @@ The package must remain runnable without any parent editor checkout.
 - Hybrid input foundation close audit closes Phases 154-161 as a bounded
   evidence path, keeps production input readiness blocked, and recommends a
   browser-QA-first next lane.
+- Hybrid input browser QA boundary adds an optional sandbox-local JSON-safe
+  report for selection, caret, IME, paste, delete, active island commit,
+  fallback, and one-island guard evidence without requiring a browser driver in
+  core check.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -669,6 +673,8 @@ The package must remain runnable without any parent editor checkout.
   segment and hit-test evidence boundary before hybrid input close audit
 - `docs/HYBRID_INPUT_FOUNDATION_CLOSE_AUDIT.md`: Phase 162 close audit for the
   hybrid managed card input foundation pass before browser QA
+- `docs/HYBRID_INPUT_BROWSER_QA_BOUNDARY.md`: Phase 163 optional sandbox-local
+  hybrid input browser QA evidence boundary before browser driver smoke
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -925,7 +931,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 162 hybrid input foundation audit
+  production editing close beyond the Phase 163 browser QA evidence boundary
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
