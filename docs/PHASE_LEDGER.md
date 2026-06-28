@@ -179,6 +179,7 @@ Parent goal:
 | 170 | Guarded input paste/delete/field-chip slice | done | `examples/template-builder-sandbox/public/guardedInputPasteDeleteFieldChipSlice.js`; `docs/GUARDED_INPUT_PASTE_DELETE_FIELD_CHIP_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 171 | Guarded input integration close audit | done | `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationCloseAudit.test.ts`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 172 | Concrete storage choice gate | done | `docs/CONCRETE_STORAGE_CHOICE_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/concreteStorageChoiceGate.test.ts`; `tests/prePhase172RiskUnknownRegister.test.ts`; `tests/guardedInputIntegrationCloseAudit.test.ts`; roadmap guard tests |
+| 173 | External file-backed storage adapter slice | done | `packages/storage-file-json/package.json`; `packages/storage-file-json/tsconfig.json`; `packages/storage-file-json/src/index.ts`; `docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageFileJsonAdapter.test.ts`; `vitest.config.ts` |
 
 ## Current Rule
 
@@ -4447,6 +4448,31 @@ This phase intentionally does not implement a concrete adapter, write files,
 add SQLite/native dependencies, write artifact bytes, add backend routes,
 implement auth/authz, change package/document schema, claim production
 input/browser/clipboard readiness, add PDF/DOCX renderer work, add
+collaboration/offline behavior, or copy legacy editor runtime.
+
+## Phase 173 External File-Backed Storage Adapter Slice
+
+Phase 173 implements the first concrete internal-alpha record adapter outside
+core:
+
+- package: `@flowdoc/storage-file-json`;
+- package path: `packages/storage-file-json`;
+- it imports public storage request/envelope helpers from
+  `@flowdoc/vnext-core`;
+- it stores package/session, durable history, rich inline session, artifact
+  manifest, and artifact job records as JSON envelopes;
+- it proves read-after-write, idempotencyKey replay, stale expectedRevision
+  conflict, and revision increment;
+- artifact manifest/job remain records only and do not write artifact bytes;
+- `tests/storageFileJsonAdapter.test.ts` proves behavior, package boundary,
+  core dependency cleanliness, documentation, and the Phase 174 next lane.
+
+This phase intentionally does not place the concrete adapter in core, modify
+`src/persistence/storageAdapter.ts` into a concrete adapter, add filesystem or
+database writes to core, add SQLite/native dependencies, claim multi-record
+transaction atomicity, write artifact bytes, add backend routes, implement
+auth/authz, change package/document schema, assume production contenteditable
+or browser/clipboard readiness, add PDF/DOCX renderer work, add
 collaboration/offline behavior, or copy legacy editor runtime.
 
 ## Phase 12 Extraction Record

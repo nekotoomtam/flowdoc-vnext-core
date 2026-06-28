@@ -4859,6 +4859,39 @@ Acceptance:
   claim, PDF/DOCX renderer work, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 173: External File-Backed Storage Adapter Slice
+
+Goal:
+
+- implement the first concrete internal-alpha storage adapter outside
+  `@flowdoc/vnext-core`.
+
+Deliverables:
+
+- `packages/storage-file-json/package.json`;
+- `packages/storage-file-json/tsconfig.json`;
+- `packages/storage-file-json/src/index.ts`;
+- `docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md`;
+- `tests/storageFileJsonAdapter.test.ts`;
+- `vitest.config.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- the adapter lives in `packages/storage-file-json`, not in core source;
+- it consumes public storage adapter request/envelope helpers from
+  `@flowdoc/vnext-core`;
+- package/session, durable history, rich inline session, artifact manifest, and
+  artifact job records can be stored as JSON record envelopes;
+- read-after-write, idempotencyKey replay, expectedRevision conflict, and
+  revision increment are covered by tests;
+- artifact manifest/job are records only and do not write bytes;
+- no filesystem/database writes are added to core;
+- no SQLite/native dependency, multi-record transaction claim, backend route,
+  auth/authz, package/document schema change, production input/browser/
+  clipboard readiness claim, PDF/DOCX renderer work, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4888,10 +4921,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 172:
+Current next step after Phase 173:
 
 ```text
-Phase 173: External File-Backed Storage Adapter Slice
+Phase 174: Artifact Byte Store Slice
 ```
 
 Reason:
@@ -4912,17 +4945,30 @@ Reason:
   explicit before storage choices are accepted;
 - Phase 172 now selects an external file-backed JSON record adapter as the
   first concrete internal-alpha storage path;
-- the next safe lane is implementing that adapter outside
-  `@flowdoc/vnext-core` in `packages/storage-file-json`;
+- Phase 173 now implements that adapter outside `@flowdoc/vnext-core` in
+  `packages/storage-file-json`;
+- the next safe lane is storing artifact bytes separately from record
+  envelopes, with digest and manifest consistency checks;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
+
+## Historical Phase 172 Handoff
+
+Current next step after Phase 172:
+
+```text
+Phase 173: External File-Backed Storage Adapter Slice
+```
+
+That was the Phase 172 handoff recommendation. Phase 173 is now complete, so
+it is no longer the current next step after Phase 173.
 
 ## Historical Phase 18 First Implementation Recommendation
 
 The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
 That was the historical first implementation recommendation from the Phase 18
-reset, not the current next step after Phase 172.
+reset, not the current next step after Phase 172 or Phase 173.
 
 Historical first phase:
 

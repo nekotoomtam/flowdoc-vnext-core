@@ -566,6 +566,10 @@ The package must remain runnable without any parent editor checkout.
 - Concrete storage choice gate selects `packages/storage-file-json` as the
   first external internal-alpha record adapter path, defers SQLite/native
   dependency risk, and keeps artifact bytes for a later byte-store slice.
+- External file-backed storage adapter slice implements
+  `@flowdoc/storage-file-json` outside core with real JSON record
+  read-after-write, idempotency replay, expectedRevision conflicts, and
+  revision increments while leaving artifact bytes to Phase 174.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -730,6 +734,8 @@ The package must remain runnable without any parent editor checkout.
   register before concrete storage choice
 - `docs/CONCRETE_STORAGE_CHOICE_GATE.md`: Phase 172 concrete storage choice
   gate before the external file-backed storage adapter slice
+- `docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md`: Phase 173 external
+  file-backed storage adapter slice before artifact byte storage
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -941,9 +947,10 @@ The package must remain runnable without any parent editor checkout.
   routes, responsibility-sliced editor modules, and a concrete browser
   live-layout renderer
 - replacement for current parent `/api/paginate` or `/api/export`
-- concrete backend server routes, storage adapters/writes, durable session
-  history, and rendered artifacts on top of the generation runtime route and
-  session storage record boundaries
+- concrete backend server routes, production storage readiness, durable
+  server-bound session/history stores, artifact byte storage, and rendered
+  artifact retrieval on top of the generation runtime route and session storage
+  record boundaries
 - repeat/collection materialization and form-slot schema/runtime
 - submission/reviewer workflow storage, routes, permissions, and runtime
 - key history persistence, aliases/deprecated keys, and key migration execution
