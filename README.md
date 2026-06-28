@@ -546,6 +546,9 @@ The package must remain runnable without any parent editor checkout.
 - Browser matrix decision bounds v1 input support to the Windows
   Chromium/Edge path with English and Thai input evidence while deferring
   Firefox, Safari, mobile, complex CJK IME, and broad cross-browser parity.
+- Guarded input integration plan assigns the active text-block island mount,
+  app-shell packet refresh, fallback textarea path, unsupported-block behavior,
+  and commit bridge route before runtime slice implementation.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -698,6 +701,8 @@ The package must remain runnable without any parent editor checkout.
   threshold plan before browser matrix decision
 - `docs/HYBRID_INPUT_BROWSER_MATRIX_DECISION.md`: Phase 167 v1 browser/OS/IME
   matrix decision before guarded input integration planning
+- `docs/GUARDED_INPUT_INTEGRATION_PLAN.md`: Phase 168 guarded input integration
+  plan before the first runtime slice
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

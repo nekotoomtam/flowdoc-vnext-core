@@ -174,6 +174,7 @@ Parent goal:
 | 165 | Hybrid input browser evidence close audit | done | `docs/HYBRID_INPUT_BROWSER_EVIDENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 166 | Hybrid input hardening threshold plan | done | `docs/HYBRID_INPUT_HARDENING_THRESHOLD_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 167 | Browser matrix decision | done | `docs/HYBRID_INPUT_BROWSER_MATRIX_DECISION.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 168 | Guarded input integration plan | done | `docs/GUARDED_INPUT_INTEGRATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4301,6 +4302,29 @@ This phase intentionally does not implement production contenteditable, add a
 browser automation dependency to core, require a browser driver in core check,
 change package/document schema, add storage/backend routes, add PDF/DOCX
 renderer work, or add collaboration/offline behavior.
+
+## Phase 168 Guarded Input Integration Plan
+
+Phase 168 defines the guarded integration plan for the hybrid active
+text-block island:
+
+- managed card runtime, active text-block island runtime, command policy,
+  commit bridge, fallback textarea path, and app-shell integration ownership
+  are separated;
+- browser-local state is separated from the accepted vNext core commit truth;
+- styled runs, atomic inline field chips, IME composition, selection/caret,
+  paste/delete, and unsupported blocks have guard policy;
+- active block packet refresh, stale revision rejection, fallback behavior, and
+  `text-block.rich-inline.replace` commit bridge routing are explicit;
+- `tests/guardedInputIntegrationPlan.test.ts` proves ownership, browser-local
+  versus core truth, guard policy, packet refresh, roadmap, and phase trail.
+
+This phase intentionally does not implement production contenteditable, claim
+production browser readiness, implement full-document contenteditable, add a
+browser automation dependency to core, require a browser driver in core check,
+change package/document schema, add storage/backend routes, add PDF/DOCX
+renderer work, add collaboration/offline behavior, or copy legacy editor
+runtime.
 
 ## Phase 12 Extraction Record
 

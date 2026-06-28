@@ -4683,6 +4683,35 @@ Acceptance:
   change, storage/backend route, PDF/DOCX renderer work, or
   collaboration/offline behavior is introduced.
 
+## Phase 168: Guarded Input Integration Plan
+
+Goal:
+
+- define the guarded integration plan for the active text-block island before
+  implementing a runtime slice.
+
+Deliverables:
+
+- `docs/GUARDED_INPUT_INTEGRATION_PLAN.md`;
+- `tests/guardedInputIntegrationPlan.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- ownership boundaries are explicit for managed card runtime, active
+  text-block island runtime, command policy, commit bridge, fallback textarea
+  path, and app-shell integration;
+- browser-local state is separated from what may commit into vNext core;
+- styled runs, atomic inline field chips, IME composition, selection/caret,
+  paste/delete, and unsupported blocks have guard policy;
+- active block packet refresh, stale revision rejection, fallback, and commit
+  bridge route are explicit;
+- no production contenteditable implementation, production browser readiness
+  claim, full-document contenteditable, browser automation dependency in core,
+  browser driver requirement in core check, package/document schema change,
+  storage/backend route, PDF/DOCX renderer work, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4712,10 +4741,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 167:
+Current next step after Phase 168:
 
 ```text
-Phase 168: Guarded Input Integration Plan
+Phase 169: Guarded Input Runtime Slice 1
 ```
 
 Reason:
@@ -4724,9 +4753,10 @@ Reason:
   hybrid input hardening;
 - Phase 167 applies those thresholds to a narrow Windows Chromium/Edge plus
   English/Thai input matrix;
-- the next safe implementation slice is a guarded internal-alpha integration
-  plan that decides where the active island mounts and how it refreshes packets
-  without implementing production contenteditable yet;
+- Phase 168 now defines where the active island mounts, how the app shell
+  refreshes packets, and how fallback/commit bridge routing stays guarded;
+- the next safe implementation slice is a runtime slice over that plan without
+  claiming production contenteditable readiness;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
@@ -4735,7 +4765,7 @@ Reason:
 
 The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
 That was the historical first implementation recommendation from the Phase 18
-reset, not the current next step after Phase 153.
+reset, not the current next step after Phase 168.
 
 Historical first phase:
 
