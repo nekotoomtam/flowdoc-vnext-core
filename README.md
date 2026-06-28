@@ -535,6 +535,10 @@ The package must remain runnable without any parent editor checkout.
   for externally supplied driver facts over focus, selection/caret, typing,
   IME, paste, unsafe paste blocking, field-chip delete guard, and active island
   commit without adding automation dependencies to core check.
+- Hybrid input browser evidence close audit closes Phases 163-164 as a browser
+  evidence lane, keeps production browser/contenteditable readiness blocked,
+  and recommends a hardening-threshold plan before driver matrix or production
+  binding work.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -681,6 +685,8 @@ The package must remain runnable without any parent editor checkout.
   hybrid input browser QA evidence boundary before browser driver smoke
 - `docs/HYBRID_INPUT_OPTIONAL_BROWSER_DRIVER_SMOKE_BOUNDARY.md`: Phase 164
   optional browser driver smoke boundary before browser evidence close audit
+- `docs/HYBRID_INPUT_BROWSER_EVIDENCE_CLOSE_AUDIT.md`: Phase 165 close audit
+  for the hybrid input browser evidence lane before hardening thresholds
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -937,7 +943,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 164 optional browser driver smoke
+  production editing close beyond the Phase 165 browser evidence close audit
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records

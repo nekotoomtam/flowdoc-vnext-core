@@ -4606,6 +4606,32 @@ Acceptance:
   copy, package/document schema change, storage/backend route, PDF/DOCX
   renderer work, or collaboration/offline behavior is introduced.
 
+## Phase 165: Hybrid Input Browser Evidence Close Audit
+
+Goal:
+
+- close the Phase 163-164 browser evidence lane and decide the next guarded
+  input lane before production contenteditable binding.
+
+Deliverables:
+
+- `docs/HYBRID_INPUT_BROWSER_EVIDENCE_CLOSE_AUDIT.md`;
+- `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- Phase 163 sandbox-local QA evidence is audited;
+- Phase 164 optional browser-driver evidence intake is audited;
+- proven selection/caret, IME/composition, paste/delete, field-chip guard,
+  active island commit, and fallback behavior evidence is summarized;
+- production blockers remain visible;
+- next lane recommendation is clear;
+- no production contenteditable binding, production browser readiness claim,
+  browser driver requirement in core check, browser automation dependency in
+  `@flowdoc/vnext-core`, package/document schema change, storage/backend route,
+  PDF/DOCX renderer work, or collaboration/offline behavior is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4635,19 +4661,23 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 164:
+Current next step after Phase 165:
 
 ```text
-Phase 165: Hybrid Input Browser Evidence Close Audit
+Phase 166: Hybrid Input Hardening Threshold Plan
 ```
 
 Reason:
 
 - Phase 163 provides sandbox-local JSON-safe browser QA evidence;
-- Phase 164 now defines optional browser-driver evidence intake and blocked
+- Phase 164 defines optional browser-driver evidence intake and blocked
   no-driver reporting without changing core check dependencies;
-- the next safe implementation slice is a close audit for the browser evidence
-  lane before planning any production contenteditable binding;
+- Phase 165 closes the browser evidence lane while keeping production browser
+  and contenteditable readiness blocked;
+- the next safe implementation slice is an explicit threshold plan for
+  selection/caret, IME, paste/delete, field-chip atomics, commit bridge drift,
+  JSON-safe reporting, and blocked/unknown status policy before driver matrix
+  or production contenteditable binding work;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

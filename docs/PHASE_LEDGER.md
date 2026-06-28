@@ -171,6 +171,7 @@ Parent goal:
 | 162 | Hybrid input foundation close audit | done | `docs/HYBRID_INPUT_FOUNDATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 163 | Hybrid input browser QA boundary | done | `docs/HYBRID_INPUT_BROWSER_QA_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserQa.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-qa.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts` |
 | 164 | Optional browser driver smoke boundary | done | `docs/HYBRID_INPUT_OPTIONAL_BROWSER_DRIVER_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserDriverSmoke.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-driver-smoke.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 165 | Hybrid input browser evidence close audit | done | `docs/HYBRID_INPUT_BROWSER_EVIDENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4236,6 +4237,29 @@ browser automation dependency to `@flowdoc/vnext-core`, claim production
 browser/contenteditable readiness, implement full-document contenteditable,
 copy old FlowDocEditor runtime, change package/document schema, add
 storage/backend routes, add PDF/DOCX renderer work, or add collaboration/
+offline behavior.
+
+## Phase 165 Hybrid Input Browser Evidence Close Audit
+
+Phase 165 closes the browser evidence lane across Phases 163-164:
+
+- Phase 163 sandbox-local browser QA evidence proves JSON-safe reports for
+  selection/caret, IME/composition, paste/delete, field-chip guard, active
+  island commit, fallback behavior, and one active text-block island ownership;
+- Phase 164 optional browser-driver smoke evidence intake proves missing driver
+  facts are blocked safely and externally supplied driver facts can be
+  summarized without adding browser automation dependencies;
+- production browser readiness and production contenteditable readiness remain
+  blocked;
+- production blockers, risks, unknowns, files changed, behavior changed, tests
+  run, and intentional non-work are recorded;
+- Phase 166 is recommended as a Hybrid Input Hardening Threshold Plan before
+  browser driver matrix or production contenteditable binding work.
+
+This phase intentionally does not implement production contenteditable binding,
+claim production browser readiness, require a browser driver in core check, add
+Playwright/Puppeteer to `@flowdoc/vnext-core`, change package/document schema,
+add storage/backend routes, add PDF/DOCX renderer work, or add collaboration/
 offline behavior.
 
 ## Phase 12 Extraction Record
