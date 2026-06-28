@@ -4311,11 +4311,32 @@ Possible later work:
 - durable undo/redo replay and selection restoration;
 - collaboration storage design.
 
-## First Recommended Implementation Phase
+## Current Next Recommended Phase
 
-Start with Phase 19 or Phase 20.
+Current next step after Phase 153:
 
-Recommended first phase:
+```text
+Phase 154: Input Runtime Ownership Boundary
+```
+
+Reason:
+
+- Phase 153 is complete as a plan-only boundary for hybrid managed card input;
+- the next safe implementation slice is ownership, not browser DOM binding;
+- it should define managed card runtime, active text-block island runtime,
+  command policy, commit bridge, fallback textarea path, and app-shell
+  integration before production input behavior begins;
+- it keeps production contenteditable, full-document contenteditable,
+  collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
+  and legacy editor runtime work out of scope.
+
+## Historical Phase 18 First Implementation Recommendation
+
+The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
+That was the historical first implementation recommendation from the Phase 18
+reset, not the current next step after Phase 153.
+
+Historical first phase:
 
 ```text
 Phase 19: Key Registry And Data Diagnostics
@@ -4330,7 +4351,7 @@ Reason:
 - it strengthens the template/data separation before authoring sessions mutate
   anything.
 
-Alternative first phase:
+Historical alternative first phase:
 
 ```text
 Phase 20: Editable Authoring Session
@@ -4346,6 +4367,13 @@ Reason:
 
 Do not start these without a separate accepted design:
 
+- production contenteditable implementation;
+- full-document contenteditable;
+- collaboration/offline behavior;
+- storage/backend route;
+- PDF/DOCX renderer work;
+- package/document schema change;
+- legacy editor runtime copy;
 - key history persistence;
 - repeat region expansion;
 - collection binding;
