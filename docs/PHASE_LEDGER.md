@@ -153,6 +153,7 @@ Parent goal:
 | 144 | Granular rich inline operation decision boundary | done | `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineOperationDecision.test.ts` |
 | 145 | First vertical slice release candidate plan | done | `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/firstVerticalSliceReadiness.test.ts` |
 | 146 | First vertical slice RC orchestrator boundary | done | `docs/VERTICAL_SLICE_RC_ORCHESTRATOR_BOUNDARY.md`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRc.test.ts` |
+| 147 | RC scenario fixture boundary | done | `docs/VERTICAL_SLICE_RC_SCENARIO_BOUNDARY.md`; `fixtures/vertical-slice-rc-report.v1.flowdoc.json`; `fixtures/vertical-slice-rc-scenario.v1.json`; `src/generation/verticalSliceScenario.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceScenario.test.ts` |
 
 ## Current Rule
 
@@ -3802,6 +3803,28 @@ This phase intentionally does not load fixtures, call browser APIs, start
 server routes, create workers/queues, write storage, import external text
 engine or PDF spike packages into core, execute renderers, replace default
 measurement, claim production readiness, or change package/document schema.
+
+## Phase 147 RC Scenario Fixture Boundary
+
+Phase 147 adds the first RC scenario fixture:
+
+- `fixtures/vertical-slice-rc-report.v1.flowdoc.json` is a canonical package
+  v2/document v3 report fixture;
+- `fixtures/vertical-slice-rc-scenario.v1.json` declares the scenario id,
+  intended `text-block.rich-inline.replace` edit, field-ref chip case, expected
+  stale exact generation, expected PDF artifact, and expected storage
+  collections;
+- `src/generation/verticalSliceScenario.ts` validates package/scenario inputs
+  supplied by callers and returns a Phase 146 report seed;
+- `tests/verticalSliceScenario.test.ts` proves canonical parsing, node/field
+  reference validation, Phase 146 feed compatibility, dependency cleanliness,
+  and phase trail updates.
+
+This phase intentionally does not mutate existing fixtures, accept
+old/prototype document shapes, add repeat/collection materialization, add
+workflow/reviewer runtime, load files inside the source helper, call browser
+APIs, write storage, start routes, execute renderers, import external spike
+packages, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

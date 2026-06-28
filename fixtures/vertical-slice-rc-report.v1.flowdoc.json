@@ -1,0 +1,103 @@
+{
+  "packageVersion": 2,
+  "kind": "document",
+  "id": "vertical-slice-rc-report",
+  "meta": {
+    "title": "Vertical Slice RC Report",
+    "createdAt": "2026-06-24T00:00:00.000Z",
+    "updatedAt": "2026-06-24T00:00:00.000Z"
+  },
+  "fields": {
+    "version": 1,
+    "fields": {
+      "customer.name": {
+        "key": "customer.name",
+        "label": "Customer Name",
+        "type": "text",
+        "fallback": "Customer"
+      },
+      "report.period": {
+        "key": "report.period",
+        "label": "Report Period",
+        "type": "text",
+        "fallback": "Current Period"
+      },
+      "report.total": {
+        "key": "report.total",
+        "label": "Report Total",
+        "type": "number"
+      }
+    }
+  },
+  "data": {
+    "version": 1,
+    "values": {
+      "customer.name": "Example Customer",
+      "report.period": "Q2 2026",
+      "report.total": 42
+    }
+  },
+  "document": {
+    "version": 3,
+    "document": {
+      "id": "vertical-slice-rc-report",
+      "meta": {
+        "title": "Vertical Slice RC Report"
+      },
+      "sections": [
+        {
+          "id": "section-main",
+          "type": "section",
+          "page": {
+            "size": "A4",
+            "orientation": "portrait",
+            "margin": {
+              "top": { "value": 72, "unit": "pt" },
+              "right": { "value": 72, "unit": "pt" },
+              "bottom": { "value": 72, "unit": "pt" },
+              "left": { "value": 72, "unit": "pt" }
+            }
+          },
+          "zoneIds": ["zone-main-body"],
+          "nodes": {
+            "zone-main-body": {
+              "id": "zone-main-body",
+              "type": "zone",
+              "role": "body",
+              "childIds": ["report-title", "report-summary", "report-total-line"]
+            },
+            "report-title": {
+              "id": "report-title",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 1 },
+              "props": {},
+              "children": [
+                { "id": "report-title-prefix", "type": "text", "text": "Quarterly report for " },
+                { "id": "report-title-customer", "type": "field-ref", "key": "customer.name", "fallback": "Customer" }
+              ]
+            },
+            "report-summary": {
+              "id": "report-summary",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [
+                { "id": "report-summary-text", "type": "text", "text": "Initial summary awaiting RC edit." }
+              ]
+            },
+            "report-total-line": {
+              "id": "report-total-line",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [
+                { "id": "report-total-label", "type": "text", "text": "Total: " },
+                { "id": "report-total-field", "type": "field-ref", "key": "report.total", "fallback": "0" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

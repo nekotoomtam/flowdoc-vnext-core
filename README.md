@@ -471,6 +471,10 @@ The package must remain runnable without any parent editor checkout.
   into PASS, RISK, UNKNOWN, FAIL / BLOCKER, and intentionally-not-production
   readiness lists without loading fixtures, writing storage, running renderers,
   importing external packages, or claiming production readiness.
+- Vertical slice RC scenario boundary adds the first canonical package
+  v2/document v3 RC report fixture plus scenario metadata for a rich inline
+  replacement, field-ref chip case, stale exact generation expectation, PDF
+  artifact expectation, and storage collection expectation.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -578,6 +582,8 @@ The package must remain runnable without any parent editor checkout.
   release candidate plan before concrete production binding
 - `docs/VERTICAL_SLICE_RC_ORCHESTRATOR_BOUNDARY.md`: Phase 146 input-driven
   first vertical slice RC report boundary before scenario/gate composition
+- `docs/VERTICAL_SLICE_RC_SCENARIO_BOUNDARY.md`: Phase 147 RC scenario fixture
+  boundary before measurement/artifact/storage summary gates
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

@@ -4107,6 +4107,36 @@ Acceptance:
   execution, external package import, default measurement replacement,
   production binding, or package/document schema change is introduced.
 
+## Phase 147: RC Scenario Fixture Boundary
+
+Goal:
+
+- create the first product-shaped RC scenario fixture that can feed the Phase
+  146 report builder.
+
+Deliverables:
+
+- `fixtures/vertical-slice-rc-report.v1.flowdoc.json`;
+- `fixtures/vertical-slice-rc-scenario.v1.json`;
+- `src/generation/verticalSliceScenario.ts`;
+- `tests/verticalSliceScenario.test.ts`;
+- `docs/VERTICAL_SLICE_RC_SCENARIO_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- scenario fixture parses as canonical package v2/document v3;
+- scenario metadata includes scenario id, intended rich inline edit, expected
+  stale exact generation, expected artifact format, expected storage
+  collections, and a field-ref chip case;
+- scenario references valid node ids and field ids;
+- scenario can feed the Phase 146 report builder without the builder loading
+  fixtures;
+- no existing fixture mutation, old/prototype document shape,
+  repeat/collection materialization, workflow/reviewer runtime, browser API,
+  storage write, renderer execution, external spike import, or
+  package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

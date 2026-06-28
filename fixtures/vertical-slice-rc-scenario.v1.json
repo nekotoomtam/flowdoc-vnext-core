@@ -1,0 +1,37 @@
+{
+  "scenarioVersion": 1,
+  "scenarioId": "vertical-slice-rc-report-v1",
+  "packageFixture": "vertical-slice-rc-report.v1.flowdoc.json",
+  "packageId": "vertical-slice-rc-report",
+  "rcId": "rc:vertical-slice-report-v1",
+  "sessionId": "session:vertical-slice-report-v1",
+  "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:rc",
+  "rendererProfileId": "pdf-spike-profile-v1",
+  "artifactId": "artifact:vertical-slice-report-v1:pdf",
+  "intendedEdit": {
+    "operationKind": "text-block.rich-inline.replace",
+    "targetTextBlockId": "report-summary",
+    "replacementChildren": [
+      { "id": "report-summary-edit-prefix", "type": "text", "text": "Updated RC summary for " },
+      { "id": "report-summary-edit-customer", "type": "field-ref", "key": "customer.name", "fallback": "Customer" },
+      { "id": "report-summary-edit-suffix", "type": "text", "text": " covering " },
+      { "id": "report-summary-edit-period", "type": "field-ref", "key": "report.period", "fallback": "Current Period" },
+      { "id": "report-summary-edit-end", "type": "text", "text": "." }
+    ]
+  },
+  "fieldChip": {
+    "inlineId": "report-summary-edit-customer",
+    "fieldKey": "customer.name"
+  },
+  "expected": {
+    "exactGeneration": "stale",
+    "artifactFormat": "pdf",
+    "storageCollectionsTouched": [
+      "package-session",
+      "durable-history",
+      "rich-inline-session",
+      "artifact-manifest",
+      "artifact-job"
+    ]
+  }
+}
