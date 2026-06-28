@@ -4233,6 +4233,28 @@ Acceptance:
   launch readiness claim, collaboration/offline behavior, route, or
   package/document schema change is introduced.
 
+## Phase 152: RC Close Audit
+
+Goal:
+
+- close the first vertical slice RC foundation pass and explicitly decide what
+  is proved versus still risky.
+
+Deliverables:
+
+- `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md`;
+- `tests/verticalSliceRcCloseAudit.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- close audit summarizes the proven vertical slice path;
+- production blockers, risks left, and unknowns remain visible;
+- next recommended lane is clear;
+- no production readiness claim, production WYSIWYG input, production storage,
+  production renderer fidelity, collaboration/offline behavior, route, or
+  package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

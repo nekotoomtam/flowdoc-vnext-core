@@ -491,6 +491,10 @@ The package must remain runnable without any parent editor checkout.
   rich inline commit, exact stale signal, measurement gate, artifact bridge,
   storage simulation, and RC report builder into one bounded report without
   claiming production launch readiness.
+- Vertical slice RC close audit closes the first RC foundation pass as a
+  bounded single-user evidence path, keeps production blockers visible, and
+  recommends the hybrid managed card input implementation plan as the next
+  lane.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -608,6 +612,8 @@ The package must remain runnable without any parent editor checkout.
   simulation boundary before the end-to-end RC smoke
 - `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md`: Phase 151 bounded end-to-end
   RC report smoke before close audit
+- `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md`: Phase 152 close audit for the first
+  vertical slice RC foundation pass
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

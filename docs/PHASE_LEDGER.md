@@ -158,6 +158,7 @@ Parent goal:
 | 149 | RC artifact production bridge | done | `docs/VERTICAL_SLICE_ARTIFACT_BRIDGE_BOUNDARY.md`; `src/generation/verticalSliceArtifactBridge.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceArtifactBridge.test.ts` |
 | 150 | RC storage simulation boundary | done | `docs/VERTICAL_SLICE_STORAGE_SIMULATION_BOUNDARY.md`; `src/generation/verticalSliceStorageSimulation.ts`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceStorageSimulation.test.ts` |
 | 151 | End-to-end RC report smoke | done | `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcEndToEnd.test.ts` |
+| 152 | RC close audit | done | `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcCloseAudit.test.ts` |
 
 ## Current Rule
 
@@ -3900,6 +3901,26 @@ This phase intentionally does not add a real browser driver, real storage
 backend, production PDF renderer, production launch readiness claim,
 collaboration/offline behavior, backend route, or package/document schema
 change.
+
+## Phase 152 RC Close Audit
+
+Phase 152 closes the first vertical slice RC foundation pass:
+
+- `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md` summarizes the proven path from
+  input-driven report builder through scenario, measurement gate, artifact
+  bridge, storage simulation, and E2E smoke;
+- production blockers remain explicit: production WYSIWYG input, concrete
+  storage/backend, production PDF fidelity, default measurement replacement,
+  native/WASM digest parity, collaboration/offline, and schema changes;
+- next recommended lane is Phase 153 Hybrid Managed Card Input Implementation
+  Plan;
+- `tests/verticalSliceRcCloseAudit.test.ts` guards the audit content and phase
+  trail.
+
+This phase intentionally does not claim production readiness, implement
+production WYSIWYG input, choose concrete storage, add backend routes, close
+production renderer fidelity, replace default measurement, implement
+collaboration/offline behavior, or change package/document schema.
 
 ## Phase 12 Extraction Record
 
