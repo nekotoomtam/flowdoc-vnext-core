@@ -466,6 +466,11 @@ The package must remain runnable without any parent editor checkout.
   inline stale exact generation, renderer-backed measurement evidence, minimal
   PDF artifact bytes, artifact records, and storage-record boundary without
   claiming production launch readiness.
+- Vertical slice RC orchestrator boundary adds an input-driven, JSON-safe
+  single-user report builder that composes caller-supplied evidence summaries
+  into PASS, RISK, UNKNOWN, FAIL / BLOCKER, and intentionally-not-production
+  readiness lists without loading fixtures, writing storage, running renderers,
+  importing external packages, or claiming production readiness.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -571,6 +576,8 @@ The package must remain runnable without any parent editor checkout.
   operation granularity decision before collaboration/offline replay claims
 - `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md`: Phase 145 first vertical slice
   release candidate plan before concrete production binding
+- `docs/VERTICAL_SLICE_RC_ORCHESTRATOR_BOUNDARY.md`: Phase 146 input-driven
+  first vertical slice RC report boundary before scenario/gate composition
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

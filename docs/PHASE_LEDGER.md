@@ -152,6 +152,7 @@ Parent goal:
 | 143 | WYSIWYG primary input decision gate | done | `docs/WYSIWYG_PRIMARY_INPUT_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wysiwygPrimaryInputDecisionGate.test.ts` |
 | 144 | Granular rich inline operation decision boundary | done | `docs/RICH_INLINE_OPERATION_DECISION_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/richInlineOperationDecision.test.ts` |
 | 145 | First vertical slice release candidate plan | done | `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/firstVerticalSliceReadiness.test.ts` |
+| 146 | First vertical slice RC orchestrator boundary | done | `docs/VERTICAL_SLICE_RC_ORCHESTRATOR_BOUNDARY.md`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRc.test.ts` |
 
 ## Current Rule
 
@@ -3780,6 +3781,27 @@ Phase 145 scopes the first single-user release-candidate path:
 This phase intentionally does not implement the release candidate, change
 runtime behavior, change operation schema, write storage, add backend routes,
 bind a production renderer, or change package/document schema.
+
+## Phase 146 First Vertical Slice RC Orchestrator Boundary
+
+Phase 146 adds the first RC report builder:
+
+- `src/generation/verticalSliceRc.ts` exports a pure input-driven
+  `createVNextVerticalSliceRcReport(...)` boundary;
+- the report carries rc/package/session/profile/artifact identities, exact
+  stale status, measurement summary, artifact byte/digest/storage summary,
+  storage summary, evidence lane summaries, PASS/RISK/UNKNOWN/FAIL-BLOCKER
+  lists, and intentionally-not-production-ready claims;
+- required evidence lanes cover canonical package, key/data diagnostics,
+  authoring session, rich inline commit, exact generation, measurement,
+  artifact, artifact job, and storage;
+- `tests/verticalSliceRc.test.ts` proves JSON safety, missing-input blocking,
+  dependency cleanliness, and phase trail updates.
+
+This phase intentionally does not load fixtures, call browser APIs, start
+server routes, create workers/queues, write storage, import external text
+engine or PDF spike packages into core, execute renderers, replace default
+measurement, claim production readiness, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

@@ -4079,6 +4079,34 @@ Acceptance:
 - no runtime behavior, operation schema, storage/backend route, renderer
   production binding, or package/document schema change is introduced.
 
+## Phase 146: First Vertical Slice RC Orchestrator Boundary
+
+Goal:
+
+- add a pure input-driven RC report builder that receives caller-supplied
+  summaries and returns one bounded JSON-safe readiness report.
+
+Deliverables:
+
+- `src/generation/verticalSliceRc.ts`;
+- `tests/verticalSliceRc.test.ts`;
+- `docs/VERTICAL_SLICE_RC_ORCHESTRATOR_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- report includes rcId, packageId, sessionId, measurementProfileId,
+  rendererProfileId, artifactId, exact generation status, byte length/digest
+  status, storage status, PASS, RISK, UNKNOWN, FAIL / BLOCKER, and
+  intentionally-not-production-ready lists;
+- missing package/session/measurement/artifact ids and missing evidence lanes
+  block or report explicitly;
+- builder is input-driven and does not load fixtures or call later phase
+  helpers;
+- no UI, server route, worker, queue, storage write, browser API, renderer
+  execution, external package import, default measurement replacement,
+  production binding, or package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:
