@@ -501,6 +501,10 @@ The package must remain runnable without any parent editor checkout.
 - Hybrid input runtime ownership boundary adds a browser-safe classifier for
   managed card selection, one active text-block island, textarea fallback, and
   rejected input targets while keeping canonical package truth unmutated.
+- Active text-block island boundary adds a DOM-free lifecycle model for one
+  active text block, including selection facts, IME composition guard, dirty
+  state, commit-request readiness, cross-block rejection, and explicit close
+  reasons without committing to vNext core.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -625,6 +629,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/HYBRID_INPUT_RUNTIME_OWNERSHIP_BOUNDARY.md`: Phase 154 browser-local
   input runtime ownership boundary before active island lifecycle or DOM
   binding
+- `docs/ACTIVE_TEXT_BLOCK_ISLAND_BOUNDARY.md`: Phase 155 browser-local active
+  text-block island lifecycle before command policy, DOM binding, or commit
+  bridge execution
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -881,7 +888,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 154 input runtime ownership
+  production editing close beyond the Phase 155 active text-block island
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records

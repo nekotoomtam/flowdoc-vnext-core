@@ -161,6 +161,7 @@ Parent goal:
 | 152 | RC close audit | done | `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcCloseAudit.test.ts` |
 | 153 | Hybrid managed card input implementation plan | done | `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 154 | Input runtime ownership boundary | done | `docs/HYBRID_INPUT_RUNTIME_OWNERSHIP_BOUNDARY.md`; `examples/template-builder-sandbox/public/inputRuntimeOwnership.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputRuntimeOwnership.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 155 | Active text-block island boundary | done | `docs/ACTIVE_TEXT_BLOCK_ISLAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/activeTextBlockIsland.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockIsland.test.ts` |
 
 ## Current Rule
 
@@ -3972,6 +3973,32 @@ This phase intentionally does not bind DOM events, implement production
 contenteditable behavior, commit document mutations, add storage/backend
 routes, add PDF/DOCX renderer work, copy legacy editor runtime, or change
 package/document schema.
+
+## Phase 155 Active Text-Block Island Boundary
+
+Phase 155 implements the browser-local active text-block island lifecycle after
+Phase 154 ownership selects an island target:
+
+- `examples/template-builder-sandbox/public/activeTextBlockIsland.js` defines
+  the active island source/mode constants, lifecycle states, transition
+  helpers, commit readiness helper, and label helper;
+- lifecycle states cover inactive, opening, active, composing, dirty,
+  committing, rejected, and closed;
+- state tracks text-block id, draft text, rich segment summary, normalized
+  UTF-16 selection facts, composition status, dirty flag, fallback
+  eligibility, commit request facts, and close reason;
+- IME composition blocks commit request;
+- cross-block selection and draft updates are rejected;
+- closing a dirty island without a commit is explicit;
+- `tests/activeTextBlockIsland.test.ts` proves lifecycle transitions,
+  composition guard behavior, cross-block rejection, close reasons, dependency
+  cleanliness, docs, roadmap, and phase trail.
+
+This phase intentionally does not use DOM Selection/Range objects, commit to
+vNext core, handle paste/delete semantics, support cross-block selection, claim
+production IME readiness, bind DOM events, add storage/backend routes, add
+PDF/DOCX renderer work, copy legacy editor runtime, or change package/document
+schema.
 
 ## Phase 12 Extraction Record
 

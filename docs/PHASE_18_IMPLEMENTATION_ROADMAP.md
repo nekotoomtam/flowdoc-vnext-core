@@ -4314,6 +4314,35 @@ Acceptance:
   storage/backend route, PDF/DOCX renderer work, package/document schema
   change, or legacy editor runtime copy is introduced.
 
+## Phase 155: Active Text-Block Island Boundary
+
+Goal:
+
+- implement the browser-local active text-block island state model before real
+  DOM events, command execution, or commit bridge behavior.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/activeTextBlockIsland.js`;
+- `docs/ACTIVE_TEXT_BLOCK_ISLAND_BOUNDARY.md`;
+- `tests/activeTextBlockIsland.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- active island lifecycle supports inactive, opening, active, composing, dirty,
+  committing, rejected, and closed states;
+- state tracks text-block id, draft text, rich segment summary, normalized
+  UTF-16 selection facts, composition status, dirty flag, fallback eligibility,
+  commit request facts, and close reason;
+- IME composition blocks commit request;
+- cross-block selection and draft updates are rejected;
+- dirty state and closing without commit are explicit;
+- no DOM Selection/Range objects, vNext core commit, paste/delete handling,
+  cross-block selection support, production IME readiness claim, storage/
+  backend route, PDF/DOCX renderer work, package/document schema change, or
+  legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4343,20 +4372,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 154:
+Current next step after Phase 155:
 
 ```text
-Phase 155: Active Text-Block Island Boundary
+Phase 156: Hybrid Command Policy Boundary
 ```
 
 Reason:
 
-- Phase 154 now classifies ownership without binding DOM events or mutating
-  package data;
-- the next safe implementation slice is the active text-block island lifecycle
-  state model;
-- it should define inactive/opening/active/composing/dirty/committing/rejected/
-  closed transitions before DOM binding or commit bridge execution begins;
+- Phase 155 now models active island lifecycle without DOM binding or vNext
+  core commits;
+- the next safe implementation slice is command policy, not command execution;
+- it should decide whether commands are ready, fallback, or blocked before DOM
+  binding or commit bridge execution begins;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
