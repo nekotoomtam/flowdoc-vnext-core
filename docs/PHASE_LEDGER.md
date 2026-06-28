@@ -162,6 +162,7 @@ Parent goal:
 | 153 | Hybrid managed card input implementation plan | done | `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 154 | Input runtime ownership boundary | done | `docs/HYBRID_INPUT_RUNTIME_OWNERSHIP_BOUNDARY.md`; `examples/template-builder-sandbox/public/inputRuntimeOwnership.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputRuntimeOwnership.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 155 | Active text-block island boundary | done | `docs/ACTIVE_TEXT_BLOCK_ISLAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/activeTextBlockIsland.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockIsland.test.ts` |
+| 156 | Hybrid command policy boundary | done | `docs/HYBRID_INPUT_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputCommandPolicy.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputCommandPolicy.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -3999,6 +4000,34 @@ vNext core, handle paste/delete semantics, support cross-block selection, claim
 production IME readiness, bind DOM events, add storage/backend routes, add
 PDF/DOCX renderer work, copy legacy editor runtime, or change package/document
 schema.
+
+## Phase 156 Hybrid Command Policy Boundary
+
+Phase 156 implements the DOM-free command policy matrix for the hybrid input
+lane:
+
+- `examples/template-builder-sandbox/public/hybridInputCommandPolicy.js`
+  defines command kind constants, readiness constants, rejection reason
+  constants, the policy evaluator, and label helper;
+- command kinds cover text insert/delete, selection replace, rich inline style
+  toggle, field chip insert/delete, text paste, rich paste, commit, and cancel;
+- policy results return ready, fallback, or blocked with target type,
+  execution mode, command, and reason;
+- IME composition blocks destructive commands and commit;
+- field chip internals cannot be edited as raw text;
+- cross-block selection, unsupported HTML paste, structural boundary delete,
+  and ambiguous style overlap are blocked explicitly;
+- textarea fallback keeps plain-text commands ready while rich commands fall
+  back;
+- `tests/hybridInputCommandPolicy.test.ts` proves active island readiness,
+  composition blocking, field-chip internal blocking, paste/delete blocking,
+  textarea fallback, managed card behavior, dependency cleanliness, docs,
+  roadmap, and phase trail.
+
+This phase intentionally does not execute commands, mutate package data, bind
+DOM events, implement field-chip behavior beyond policy decisions, add
+storage/backend routes, add PDF/DOCX renderer work, copy legacy editor runtime,
+or change package/document schema.
 
 ## Phase 12 Extraction Record
 

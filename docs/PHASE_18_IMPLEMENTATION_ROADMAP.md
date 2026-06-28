@@ -4343,6 +4343,36 @@ Acceptance:
   backend route, PDF/DOCX renderer work, package/document schema change, or
   legacy editor runtime copy is introduced.
 
+## Phase 156: Hybrid Command Policy Boundary
+
+Goal:
+
+- create the command policy layer that decides whether commands are ready,
+  should fall back to textarea/plain-text behavior, or are blocked.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/hybridInputCommandPolicy.js`;
+- `docs/HYBRID_INPUT_COMMAND_POLICY_BOUNDARY.md`;
+- `tests/hybridInputCommandPolicy.test.ts`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- command kinds cover text insert/delete, selection replace, rich inline style
+  toggle, field chip insert/delete, text paste, rich paste, commit, and cancel;
+- commands return ready, fallback, or blocked readiness;
+- IME composition blocks destructive commands and commit;
+- field chip internals cannot be edited as raw text;
+- cross-block selection, unsupported HTML paste, structural boundary delete,
+  and ambiguous style overlap are blocked with explicit reasons;
+- textarea fallback keeps plain-text commands ready while rich commands fall
+  back;
+- no command execution, package data mutation, DOM binding, field-chip
+  implementation beyond command policy, storage/backend route, PDF/DOCX
+  renderer work, package/document schema change, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4372,19 +4402,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 155:
+Current next step after Phase 156:
 
 ```text
-Phase 156: Hybrid Command Policy Boundary
+Phase 157: DOM Binding Smoke Boundary
 ```
 
 Reason:
 
-- Phase 155 now models active island lifecycle without DOM binding or vNext
-  core commits;
-- the next safe implementation slice is command policy, not command execution;
-- it should decide whether commands are ready, fallback, or blocked before DOM
-  binding or commit bridge execution begins;
+- Phase 156 now decides command readiness without executing commands;
+- the next safe implementation slice is a bounded DOM binding smoke, not
+  production DOM range support;
+- it should expose JSON-safe capture facts for one active text block before
+  commit bridge execution begins;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
