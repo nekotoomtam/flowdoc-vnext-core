@@ -4988,6 +4988,37 @@ Acceptance:
   claim, collaboration/offline behavior, or legacy editor runtime copy is
   introduced.
 
+## Phase 177: Artifact Job Execution Slice
+
+Goal:
+
+- execute the artifact job slice from request-shaped job input through minimal
+  PDF spike bytes, artifact byte storage, and final manifest/job status.
+
+Deliverables:
+
+- `packages/internal-alpha-runner/src/artifactJobExecution.ts`;
+- `packages/internal-alpha-runner/src/index.ts`;
+- `docs/ARTIFACT_JOB_EXECUTION_SLICE.md`;
+- `tests/artifactJobExecutionSlice.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- queued artifact job and planned manifest records are persisted first;
+- layout/render lifecycle transitions are advanced through public core job
+  helpers;
+- the external minimal PDF spike package produces bytes on the successful path;
+- PDF bytes are written and read through the filesystem artifact byte store;
+- rendered manifests include byteLength, sha256, and storageKey evidence;
+- rendered manifests pass byte-store consistency checks;
+- rendered job and manifest records are persisted and reloaded;
+- blocked PDF spike execution persists failed job and failed manifest records;
+- reports are JSON-safe and do not include raw bytes;
+- no worker, queue, server route, auth/authz, production PDF/DOCX renderer,
+  package/document schema change, production input readiness claim,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5017,10 +5048,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 176:
+Current next step after Phase 177:
 
 ```text
-Phase 177: Artifact Job Execution Slice
+Phase 178: PDF Renderer Decision Gate
 ```
 
 Reason:
@@ -5049,11 +5080,24 @@ Reason:
   artifact byte storage and reloads the stored facts;
 - Phase 176 now binds route-shaped helpers to concrete record storage without
   opening a concrete server route;
-- the next safe lane is executing the artifact job slice from request through
-  minimal PDF spike bytes, byte storage, and manifest/job status updates;
+- Phase 177 now executes the artifact job slice from queued job through minimal
+  PDF spike bytes, byte storage, and manifest/job status updates;
+- the next safe lane is deciding whether to harden the dependency-free PDF
+  spike for internal alpha or choose a production renderer package lane;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
+
+## Historical Phase 176 Handoff
+
+Current next step after Phase 176:
+
+```text
+Phase 177: Artifact Job Execution Slice
+```
+
+That was the Phase 176 handoff recommendation. Phase 177 is now complete, so
+it is no longer the current next step after Phase 177.
 
 ## Historical Phase 175 Handoff
 

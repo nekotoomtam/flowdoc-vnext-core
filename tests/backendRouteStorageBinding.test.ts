@@ -321,7 +321,7 @@ describe("backend route contract to storage binding", () => {
     })
   })
 
-  it("documents Phase 176 and advances the current roadmap to Phase 177", () => {
+  it("documents Phase 176 and preserves the historical Phase 177 handoff", () => {
     const source = readText("../packages/internal-alpha-runner/src/storageRouteBinding.ts")
     const doc = readText("../docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md")
     const phase175Test = readText("./storageBackedRcRoundtripSmoke.test.ts")
@@ -350,8 +350,10 @@ describe("backend route contract to storage binding", () => {
     expect(readme).toContain("docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md")
     expect(ledger).toContain("| 176 | Backend route contract to storage binding | done |")
     expect(roadmap).toContain("## Phase 176: Backend Route Contract To Storage Binding")
+    expect(roadmap).toContain("## Historical Phase 176 Handoff")
     expect(roadmap).toContain("Current next step after Phase 176:")
     expect(roadmap).toContain("Phase 177: Artifact Job Execution Slice")
+    expect(roadmap).toContain("Phase 177 is now complete")
     expect(phase175Test).toContain("historical Phase 176 handoff")
   })
 })

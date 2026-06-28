@@ -580,6 +580,10 @@ The package must remain runnable without any parent editor checkout.
 - Backend route storage binding boundary adds route-shaped helpers over the
   concrete record adapter for session save/load and artifact request/status/
   metadata without registering a server route or streaming bytes.
+- Artifact job execution slice runs the internal-alpha job path from queued
+  job through minimal PDF spike bytes, filesystem byte storage, rendered
+  manifest, and rendered job status without claiming production renderer or
+  backend readiness.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -752,6 +756,8 @@ The package must remain runnable without any parent editor checkout.
   roundtrip smoke before route-shaped storage binding
 - `docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md`: Phase 176 route-shaped
   storage binding before artifact job execution
+- `docs/ARTIFACT_JOB_EXECUTION_SLICE.md`: Phase 177 artifact job execution
+  slice before the PDF renderer decision gate
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

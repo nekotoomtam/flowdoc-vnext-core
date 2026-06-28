@@ -183,6 +183,7 @@ Parent goal:
 | 174 | Artifact byte store slice | done | `packages/storage-file-json/src/index.ts`; `docs/ARTIFACT_BYTE_STORE_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactByteStoreSlice.test.ts`; `tests/storageFileJsonAdapter.test.ts` |
 | 175 | Storage-backed RC roundtrip smoke | done | `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageBackedRcRoundtripSmoke.test.ts`; `tests/artifactByteStoreSlice.test.ts`; `tsconfig.json`; `vitest.config.ts` |
 | 176 | Backend route contract to storage binding | done | `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/backendRouteStorageBinding.test.ts`; `tests/storageBackedRcRoundtripSmoke.test.ts` |
+| 177 | Artifact job execution slice | done | `packages/internal-alpha-runner/src/artifactJobExecution.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `docs/ARTIFACT_JOB_EXECUTION_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJobExecutionSlice.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tsconfig.json`; `vitest.config.ts` |
 
 ## Current Rule
 
@@ -4551,6 +4552,27 @@ This phase intentionally does not register HTTP server routes, execute
 auth/authz, stream artifact bytes, read artifact bytes, run a renderer, claim
 production backend or storage readiness, change package/document schema, add
 collaboration/offline behavior, or copy legacy editor runtime.
+
+## Phase 177 Artifact Job Execution Slice
+
+Phase 177 adds an external internal-alpha artifact job executor:
+
+- package: `@flowdoc/internal-alpha-runner`;
+- helper: `runFlowDocArtifactJobExecutionSlice(...)`;
+- consumes public core artifact job and manifest contracts;
+- calls the existing external minimal PDF spike package;
+- writes and reloads artifact bytes through the filesystem byte store;
+- persists planned, rendering, rendered, and failed manifest states as record
+  envelopes;
+- persists queued, rendered, and failed artifact job states as record
+  envelopes;
+- returns a JSON-safe report with no raw PDF bytes.
+
+This phase intentionally does not add a worker, queue, server route, auth/authz,
+production PDF/DOCX renderer, production contenteditable or browser readiness
+claim, package/document schema change, collaboration/offline behavior, or
+legacy editor runtime copy. Record writes and byte writes remain
+non-transactional internal-alpha evidence.
 
 ## Phase 12 Extraction Record
 

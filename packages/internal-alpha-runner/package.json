@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@flowdoc/vnext-core": "file:../..",
-    "@flowdoc/storage-file-json": "file:../storage-file-json"
+    "@flowdoc/storage-file-json": "file:../storage-file-json",
+    "@flowdoc/pdf-renderer-spike": "file:../pdf-renderer-spike"
   }
 }

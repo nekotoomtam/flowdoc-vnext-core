@@ -9,6 +9,7 @@
     "paths": {
       "@flowdoc/vnext-core": ["src/index.ts"],
       "@flowdoc/storage-file-json": ["packages/storage-file-json/src/index.ts"],
+      "@flowdoc/pdf-renderer-spike": ["packages/pdf-renderer-spike/src/index.ts"],
       "@flowdoc/internal-alpha-runner": ["packages/internal-alpha-runner/src/index.ts"]
     },
     "esModuleInterop": true,
