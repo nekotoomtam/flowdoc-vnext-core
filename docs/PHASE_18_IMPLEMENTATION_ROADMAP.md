@@ -4922,6 +4922,41 @@ Acceptance:
   work, collaboration/offline behavior, or legacy editor runtime copy is
   introduced.
 
+## Phase 175: Storage-Backed RC Roundtrip Smoke
+
+Goal:
+
+- run the first RC scenario through concrete internal-alpha record storage and
+  artifact byte storage, then feed the reloaded facts into the RC report.
+
+Deliverables:
+
+- `packages/internal-alpha-runner/package.json`;
+- `packages/internal-alpha-runner/tsconfig.json`;
+- `packages/internal-alpha-runner/src/index.ts`;
+- `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`;
+- `docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md`;
+- `tests/storageBackedRcRoundtripSmoke.test.ts`;
+- `tests/artifactByteStoreSlice.test.ts`;
+- root test/type alias updates plus README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- the runner accepts caller-provided package/scenario fixture values and does
+  not load fixtures itself;
+- the RC rich inline edit path runs and stales exact generation;
+- package/session, durable history, rich inline session, artifact manifest, and
+  artifact job records are written and reloaded through concrete file-backed
+  storage;
+- artifact bytes are written, read back, and checked against a rendered
+  manifest;
+- the RC report summarizes concrete storage facts while keeping production
+  readiness blocked;
+- no backend route, auth/authz, package/document schema change, production
+  storage readiness claim, multi-record transaction claim, renderer execution,
+  PDF/DOCX production work, collaboration/offline behavior, or legacy editor
+  runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4951,10 +4986,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 174:
+Current next step after Phase 175:
 
 ```text
-Phase 175: Storage-backed RC Roundtrip Smoke
+Phase 176: Backend Route Contract To Storage Binding
 ```
 
 Reason:
@@ -4979,11 +5014,24 @@ Reason:
   `packages/storage-file-json`;
 - Phase 174 now stores artifact bytes separately from record envelopes, with
   digest and manifest consistency checks;
-- the next safe lane is running the RC vertical slice through concrete record
-  storage plus artifact byte storage and reloading the stored facts;
+- Phase 175 now runs the RC vertical slice through concrete record storage plus
+  artifact byte storage and reloads the stored facts;
+- the next safe lane is route-shaped helpers that bind those storage operations
+  without opening a concrete server route;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
+
+## Historical Phase 174 Handoff
+
+Current next step after Phase 174:
+
+```text
+Phase 175: Storage-backed RC Roundtrip Smoke
+```
+
+That was the Phase 174 handoff recommendation. Phase 175 is now complete, so
+it is no longer the current next step after Phase 175.
 
 ## Historical Phase 173 Handoff
 

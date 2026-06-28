@@ -181,6 +181,7 @@ Parent goal:
 | 172 | Concrete storage choice gate | done | `docs/CONCRETE_STORAGE_CHOICE_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/concreteStorageChoiceGate.test.ts`; `tests/prePhase172RiskUnknownRegister.test.ts`; `tests/guardedInputIntegrationCloseAudit.test.ts`; roadmap guard tests |
 | 173 | External file-backed storage adapter slice | done | `packages/storage-file-json/package.json`; `packages/storage-file-json/tsconfig.json`; `packages/storage-file-json/src/index.ts`; `docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageFileJsonAdapter.test.ts`; `vitest.config.ts` |
 | 174 | Artifact byte store slice | done | `packages/storage-file-json/src/index.ts`; `docs/ARTIFACT_BYTE_STORE_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactByteStoreSlice.test.ts`; `tests/storageFileJsonAdapter.test.ts` |
+| 175 | Storage-backed RC roundtrip smoke | done | `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageBackedRcRoundtripSmoke.test.ts`; `tests/artifactByteStoreSlice.test.ts`; `tsconfig.json`; `vitest.config.ts` |
 
 ## Current Rule
 
@@ -4502,6 +4503,31 @@ bytes, add backend routes, implement auth/authz, change package/document
 schema, claim production storage readiness, assume production contenteditable
 or browser/clipboard readiness, add PDF/DOCX renderer work, add
 collaboration/offline behavior, or copy legacy editor runtime.
+
+## Phase 175 Storage-Backed RC Roundtrip Smoke
+
+Phase 175 adds the first internal-alpha integration runner over concrete
+storage:
+
+- package: `@flowdoc/internal-alpha-runner`;
+- runner: `runFlowDocStorageBackedRcRoundtripSmoke(...)`;
+- fixture loading remains caller-owned;
+- the runner validates the RC scenario, applies the rich inline commit, creates
+  session/history/rich-inline/artifact manifest/artifact job records, writes
+  those records through `@flowdoc/storage-file-json`, writes artifact bytes,
+  reloads records and bytes, checks manifest consistency, and emits a JSON-safe
+  RC report;
+- concrete storage evidence is external to core and feeds the existing
+  input-driven RC report instead of changing core's storage contracts;
+- `tests/storageBackedRcRoundtripSmoke.test.ts` proves concrete record writes,
+  byte writes, reloads, manifest consistency, report status, docs, roadmap, and
+  phase trail.
+
+This phase intentionally does not add backend routes, implement auth/authz,
+claim production storage readiness, make record-plus-byte writes atomic, run a
+PDF renderer, change package/document schema, assume production contenteditable
+or browser/clipboard readiness, add collaboration/offline behavior, or copy
+legacy editor runtime.
 
 ## Phase 12 Extraction Record
 

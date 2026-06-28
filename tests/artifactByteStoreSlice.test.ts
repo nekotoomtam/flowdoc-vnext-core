@@ -275,7 +275,7 @@ describe("artifact byte store slice", () => {
     })
   })
 
-  it("documents Phase 174 and advances the current roadmap to Phase 175", () => {
+  it("documents Phase 174 and keeps the historical Phase 175 handoff", () => {
     const source = readText("../packages/storage-file-json/src/index.ts")
     const doc = readText("../docs/ARTIFACT_BYTE_STORE_SLICE.md")
     const phase173Doc = readText("../docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md")
@@ -303,9 +303,12 @@ describe("artifact byte store slice", () => {
     expect(readme).toContain("Artifact byte store slice")
     expect(readme).toContain("docs/ARTIFACT_BYTE_STORE_SLICE.md")
     expect(ledger).toContain("| 174 | Artifact byte store slice | done |")
+    expect(roadmap).toContain("## Historical Phase 174 Handoff")
     expect(roadmap).toContain("## Phase 174: Artifact Byte Store Slice")
     expect(roadmap).toContain("Current next step after Phase 174:")
     expect(roadmap).toContain("Phase 175: Storage-backed RC Roundtrip Smoke")
+    expect(roadmap).toContain("Current next step after Phase 175:")
+    expect(roadmap).toContain("Phase 176: Backend Route Contract To Storage Binding")
     expect(phase173Test).toContain("historical Phase 174 handoff")
   })
 })

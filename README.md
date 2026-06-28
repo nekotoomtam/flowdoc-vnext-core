@@ -574,6 +574,9 @@ The package must remain runnable without any parent editor checkout.
   `@flowdoc/storage-file-json` with sha256 computation, read-back, missing
   artifact errors, and manifest-to-byte consistency checks while keeping
   record writes and byte writes non-transactional.
+- Storage-backed RC roundtrip smoke adds `@flowdoc/internal-alpha-runner` and
+  runs the first RC scenario through concrete file-backed records plus artifact
+  bytes before route-shaped storage binding.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -742,6 +745,8 @@ The package must remain runnable without any parent editor checkout.
   file-backed storage adapter slice before artifact byte storage
 - `docs/ARTIFACT_BYTE_STORE_SLICE.md`: Phase 174 artifact byte store slice
   before storage-backed RC roundtrip smoke
+- `docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md`: Phase 175 storage-backed RC
+  roundtrip smoke before route-shaped storage binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
