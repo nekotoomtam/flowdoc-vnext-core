@@ -495,6 +495,9 @@ The package must remain runnable without any parent editor checkout.
   bounded single-user evidence path, keeps production blockers visible, and
   recommends the hybrid managed card input implementation plan as the next
   lane.
+- Hybrid managed card input implementation plan turns the Phase 143 input
+  decision into ownership, guard, fallback, and follow-up phase boundaries
+  without implementing production contenteditable behavior.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -614,6 +617,8 @@ The package must remain runnable without any parent editor checkout.
   RC report smoke before close audit
 - `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md`: Phase 152 close audit for the first
   vertical slice RC foundation pass
+- `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md`: Phase 153 plan
+  boundary for the selected hybrid managed card input model
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

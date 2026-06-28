@@ -4255,6 +4255,35 @@ Acceptance:
   production renderer fidelity, collaboration/offline behavior, route, or
   package/document schema change is introduced.
 
+## Phase 153: Hybrid Managed Card Input Implementation Plan
+
+Goal:
+
+- turn the Phase 143 hybrid managed card input decision into implementation
+  phase boundaries without implementing production DOM/contenteditable behavior.
+
+Deliverables:
+
+- `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md`;
+- `tests/hybridManagedCardInputPlan.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- ownership boundaries cover managed card runtime, active text-block island
+  runtime, command policy, commit bridge, fallback textarea path, and app-shell
+  integration;
+- browser-local state and vNext core commit facts are separated;
+- guard policy covers styled runs, atomic inline field chips, IME composition,
+  selection/caret, paste/delete, and unsupported blocks;
+- fallback policy for textarea/plain-text editing is explicit;
+- follow-up phases include input runtime ownership boundary, active text block
+  island boundary, DOM binding smoke, and commit bridge smoke;
+- no production contenteditable implementation, full-document contenteditable,
+  collaboration/offline behavior, storage/backend route, PDF/DOCX renderer
+  work, legacy editor runtime copy, or package/document schema change is
+  introduced.
+
 ## Later Phases
 
 Goal:

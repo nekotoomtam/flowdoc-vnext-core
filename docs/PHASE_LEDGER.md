@@ -159,6 +159,7 @@ Parent goal:
 | 150 | RC storage simulation boundary | done | `docs/VERTICAL_SLICE_STORAGE_SIMULATION_BOUNDARY.md`; `src/generation/verticalSliceStorageSimulation.ts`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceStorageSimulation.test.ts` |
 | 151 | End-to-end RC report smoke | done | `docs/VERTICAL_SLICE_RC_END_TO_END_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcEndToEnd.test.ts` |
 | 152 | RC close audit | done | `docs/VERTICAL_SLICE_RC_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRcCloseAudit.test.ts` |
+| 153 | Hybrid managed card input implementation plan | done | `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -3921,6 +3922,28 @@ This phase intentionally does not claim production readiness, implement
 production WYSIWYG input, choose concrete storage, add backend routes, close
 production renderer fidelity, replace default measurement, implement
 collaboration/offline behavior, or change package/document schema.
+
+## Phase 153 Hybrid Managed Card Input Implementation Plan
+
+Phase 153 turns the Phase 143 input decision into implementation-sized
+boundaries:
+
+- `docs/HYBRID_MANAGED_CARD_INPUT_IMPLEMENTATION_PLAN.md` defines ownership
+  boundaries for managed cards, the active text-block island, command policy,
+  commit bridge, fallback textarea path, and app-shell integration;
+- browser-local DOM, selection/caret, IME, segment, toolbar, paste/delete, and
+  fallback buffer state are separated from vNext core commit facts;
+- guard policies cover styled runs, atomic field chips, IME composition,
+  selection/caret, paste/delete, and unsupported blocks;
+- Phase 144 `text-block.rich-inline.replace` remains accepted only for the v1
+  single-user path and not collaboration/offline claims;
+- `tests/hybridManagedCardInputPlan.test.ts` guards plan-only status, Phase
+  143/144 references, non-production claims, and phase trail updates.
+
+This phase intentionally does not implement production contenteditable,
+full-document contenteditable, collaboration/offline behavior, storage/backend
+routes, PDF/DOCX renderer work, legacy editor runtime copy, or
+package/document schema changes.
 
 ## Phase 12 Extraction Record
 
