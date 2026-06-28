@@ -549,6 +549,10 @@ The package must remain runnable without any parent editor checkout.
 - Guarded input integration plan assigns the active text-block island mount,
   app-shell packet refresh, fallback textarea path, unsupported-block behavior,
   and commit bridge route before runtime slice implementation.
+- Guarded input runtime slice composes sandbox-local ownership, active island
+  lifecycle, command policy, DOM binding smoke, and commit bridge smoke into a
+  JSON-safe report and planned rich-inline bridge request without production
+  contenteditable binding.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -703,6 +707,8 @@ The package must remain runnable without any parent editor checkout.
   matrix decision before guarded input integration planning
 - `docs/GUARDED_INPUT_INTEGRATION_PLAN.md`: Phase 168 guarded input integration
   plan before the first runtime slice
+- `docs/GUARDED_INPUT_RUNTIME_SLICE.md`: Phase 169 sandbox-local guarded input
+  runtime slice before paste/delete/field-chip input integration
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

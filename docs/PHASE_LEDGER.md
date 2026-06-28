@@ -175,6 +175,7 @@ Parent goal:
 | 166 | Hybrid input hardening threshold plan | done | `docs/HYBRID_INPUT_HARDENING_THRESHOLD_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 167 | Browser matrix decision | done | `docs/HYBRID_INPUT_BROWSER_MATRIX_DECISION.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 168 | Guarded input integration plan | done | `docs/GUARDED_INPUT_INTEGRATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 169 | Guarded input runtime slice 1 | done | `examples/template-builder-sandbox/public/guardedInputRuntimeSlice.js`; `docs/GUARDED_INPUT_RUNTIME_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4318,6 +4319,30 @@ text-block island:
   `text-block.rich-inline.replace` commit bridge routing are explicit;
 - `tests/guardedInputIntegrationPlan.test.ts` proves ownership, browser-local
   versus core truth, guard policy, packet refresh, roadmap, and phase trail.
+
+This phase intentionally does not implement production contenteditable, claim
+production browser readiness, implement full-document contenteditable, add a
+browser automation dependency to core, require a browser driver in core check,
+change package/document schema, add storage/backend routes, add PDF/DOCX
+renderer work, add collaboration/offline behavior, or copy legacy editor
+runtime.
+
+## Phase 169 Guarded Input Runtime Slice 1
+
+Phase 169 implements the first sandbox-local guarded input runtime slice:
+
+- `examples/template-builder-sandbox/public/guardedInputRuntimeSlice.js`
+  composes runtime ownership, active text-block island lifecycle, command
+  policy, DOM binding smoke, and active island commit bridge smoke;
+- one eligible active text block can produce a JSON-safe accepted report and a
+  planned `text-block.rich-inline.replace` bridge request;
+- selection/caret facts remain UTF-16 offsets;
+- composition-active commit is blocked;
+- fallback textarea and unsupported target paths are explicit;
+- packet refresh after accepted bridge planning is required;
+- `tests/guardedInputRuntimeSlice.test.ts` proves accepted, composition
+  blocked, fallback, unsupported, dependency cleanliness, docs, roadmap, and
+  phase trail behavior.
 
 This phase intentionally does not implement production contenteditable, claim
 production browser readiness, implement full-document contenteditable, add a

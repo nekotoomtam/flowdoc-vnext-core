@@ -4712,6 +4712,35 @@ Acceptance:
   storage/backend route, PDF/DOCX renderer work, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 169: Guarded Input Runtime Slice 1
+
+Goal:
+
+- implement the first sandbox-local guarded input runtime slice that composes
+  accepted ownership, active island lifecycle, command policy, DOM binding
+  smoke, and commit bridge smoke.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/guardedInputRuntimeSlice.js`;
+- `docs/GUARDED_INPUT_RUNTIME_SLICE.md`;
+- `tests/guardedInputRuntimeSlice.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- one eligible active text block can produce a JSON-safe accepted report and a
+  planned `text-block.rich-inline.replace` bridge request;
+- selection/caret facts remain UTF-16 offsets;
+- IME composition-active commit is blocked;
+- fallback textarea and unsupported-block paths are explicit;
+- packet refresh is required after accepted bridge planning;
+- no production contenteditable implementation, production browser readiness
+  claim, full-document contenteditable, browser automation dependency in core,
+  browser driver requirement in core check, package/document schema change,
+  storage/backend route, PDF/DOCX renderer work, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4741,10 +4770,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 168:
+Current next step after Phase 169:
 
 ```text
-Phase 169: Guarded Input Runtime Slice 1
+Phase 170: Paste/Delete/Field-chip Input Slice
 ```
 
 Reason:
@@ -4755,8 +4784,10 @@ Reason:
   English/Thai input matrix;
 - Phase 168 now defines where the active island mounts, how the app shell
   refreshes packets, and how fallback/commit bridge routing stays guarded;
-- the next safe implementation slice is a runtime slice over that plan without
-  claiming production contenteditable readiness;
+- Phase 169 now composes the first sandbox-local runtime slice and planned
+  bridge request without applying package mutation;
+- the next safe implementation slice is paste/delete/field-chip input
+  hardening over that runtime slice;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
@@ -4765,7 +4796,7 @@ Reason:
 
 The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
 That was the historical first implementation recommendation from the Phase 18
-reset, not the current next step after Phase 168.
+reset, not the current next step after Phase 169.
 
 Historical first phase:
 
