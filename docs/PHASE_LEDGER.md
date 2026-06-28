@@ -166,6 +166,7 @@ Parent goal:
 | 157 | DOM binding smoke boundary | done | `docs/ACTIVE_TEXT_BLOCK_DOM_BINDING_SMOKE.md`; `examples/template-builder-sandbox/public/activeTextBlockDomBinding.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockDomBinding.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 158 | Active island commit bridge smoke | done | `docs/ACTIVE_ISLAND_COMMIT_BRIDGE_SMOKE.md`; `examples/template-builder-sandbox/public/activeIslandCommitBridge.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeIslandCommitBridge.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 159 | Field chip command boundary | done | `docs/FIELD_CHIP_COMMAND_BOUNDARY.md`; `src/authoring/fieldChipCommands.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fieldChipCommands.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 160 | Paste/delete preflight boundary | done | `docs/PASTE_DELETE_PREFLIGHT_BOUNDARY.md`; `examples/template-builder-sandbox/public/pasteDeletePreflight.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pasteDeletePreflight.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4100,6 +4101,30 @@ This phase intentionally does not bind DOM events, implement collaboration
 semantics, change package/document schema, allow arbitrary chip internals to
 become editable text, add storage/backend routes, add PDF/DOCX renderer work,
 copy legacy editor runtime, or claim production contenteditable readiness.
+
+## Phase 160 Paste/Delete Preflight Boundary
+
+Phase 160 implements browser-local preflight for paste and delete decisions:
+
+- `examples/template-builder-sandbox/public/pasteDeletePreflight.js` defines
+  source/mode constants, normalized actions, the preflight helper, and label
+  helper;
+- preflight handles plain text paste, rich text paste summary, unsupported HTML
+  paste, delete selection, backspace near field chip, delete across chip
+  boundary, delete across structural boundary, and IME composition guard;
+- results return allow, transform, fallback, or reject;
+- field chip and structural boundaries are protected;
+- unsafe HTML is rejected or normalized;
+- `tests/pasteDeletePreflight.test.ts` proves paste normalization, rich paste
+  fallback/transform/reject, field-chip boundary transform/reject, structural
+  delete rejection, composition guard, dependency cleanliness, docs, roadmap,
+  and phase trail.
+
+This phase intentionally does not use arbitrary pasted HTML as package truth,
+allow structural boundary delete, commit while IME composition is active,
+implement browser clipboard integration, add storage/backend routes, add
+PDF/DOCX renderer work, copy legacy editor runtime, or change package/document
+schema.
 
 ## Phase 12 Extraction Record
 

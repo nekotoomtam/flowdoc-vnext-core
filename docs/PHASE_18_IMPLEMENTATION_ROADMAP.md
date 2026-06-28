@@ -4458,6 +4458,33 @@ Acceptance:
   change, arbitrary chip internals as editable text, storage/backend route,
   PDF/DOCX renderer work, or legacy editor runtime copy is introduced.
 
+## Phase 160: Paste / Delete Preflight Boundary
+
+Goal:
+
+- define paste and delete preflight logic for the active text-block island
+  before production input uses it.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/pasteDeletePreflight.js`;
+- `tests/pasteDeletePreflight.test.ts`;
+- `docs/PASTE_DELETE_PREFLIGHT_BOUNDARY.md`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- preflight handles plain text paste, rich text paste summary, unsupported HTML
+  paste, delete selection, backspace near field chip, delete across chip
+  boundary, delete across structural boundary, and IME composition guard;
+- normalized action returns allow, transform, fallback, or reject;
+- unsafe HTML is rejected or normalized;
+- field chip and structural boundaries are protected;
+- no arbitrary pasted HTML as package truth, structural boundary delete, commit
+  while IME composition is active, browser clipboard integration, storage/
+  backend route, PDF/DOCX renderer work, package/document schema change, or
+  legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4487,19 +4514,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 159:
+Current next step after Phase 160:
 
 ```text
-Phase 160: Paste / Delete Preflight Boundary
+Phase 161: Renderer Segment / Hit-Test Evidence Boundary
 ```
 
 Reason:
 
-- Phase 159 now defines field-chip command contracts and keeps chips atomic;
-- the next safe implementation slice is paste/delete preflight for text,
-  unsupported HTML, chip boundaries, and structural boundaries;
-- it should classify allow/transform/fallback/reject before browser clipboard
-  integration begins;
+- Phase 160 now classifies paste/delete decisions without browser clipboard
+  integration or package mutation;
+- the next safe implementation slice is renderer segment and hit-test evidence
+  shape for future caret/selection parity;
+- it should stay evidence-only before production renderer execution begins;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

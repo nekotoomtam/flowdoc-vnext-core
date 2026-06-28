@@ -517,6 +517,10 @@ The package must remain runnable without any parent editor checkout.
 - Field chip command boundary exposes pure authoring contracts for delete,
   copy, paste, replace-with-text, and blocked internal edits while preserving
   field-key visibility and routing safe mutations toward rich inline intent.
+- Paste/delete preflight boundary classifies plain text paste, rich paste,
+  delete selection, field-chip boundary delete, structural boundary delete, and
+  IME composition guards as allow, transform, fallback, or reject before
+  browser clipboard integration.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -653,6 +657,8 @@ The package must remain runnable without any parent editor checkout.
   hardening
 - `docs/FIELD_CHIP_COMMAND_BOUNDARY.md`: Phase 159 field chip command
   contracts before paste/delete preflight and production clipboard binding
+- `docs/PASTE_DELETE_PREFLIGHT_BOUNDARY.md`: Phase 160 browser-local
+  paste/delete preflight boundary before renderer segment hit-test evidence
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -909,7 +915,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 159 field chip command
+  production editing close beyond the Phase 160 paste/delete preflight
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
