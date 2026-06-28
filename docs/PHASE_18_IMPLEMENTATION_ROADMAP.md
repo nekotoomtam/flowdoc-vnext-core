@@ -4828,6 +4828,37 @@ Acceptance:
   production clipboard binding, PDF/DOCX renderer work, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 172: Concrete Storage Choice Gate
+
+Goal:
+
+- choose the first concrete internal-alpha storage direction without
+  implementing a storage adapter, route, auth/authz, artifact byte store, or
+  production storage backend.
+
+Deliverables:
+
+- `docs/CONCRETE_STORAGE_CHOICE_GATE.md`;
+- `tests/concreteStorageChoiceGate.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- one internal-alpha path is selected: external file-backed JSON record adapter
+  in `packages/storage-file-json`;
+- filesystem JSON, SQLite, Postgres, browser storage, and S3/object store are
+  compared;
+- SQLite plus filesystem artifacts remains a later hardening path, not a
+  required dependency for Phase 173;
+- record storage and artifact byte storage are separated;
+- what the adapter stores, what it does not store, migration risks, and
+  artifact byte strategy are explicit;
+- no concrete storage adapter implementation, filesystem/database write in
+  core, SQLite/native dependency, artifact byte write, backend route, auth/authz,
+  package/document schema change, production input/browser/clipboard readiness
+  claim, PDF/DOCX renderer work, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4857,10 +4888,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 171:
+Current next step after Phase 172:
 
 ```text
-Phase 172: Concrete Storage Choice Gate
+Phase 173: External File-Backed Storage Adapter Slice
 ```
 
 Reason:
@@ -4879,8 +4910,10 @@ Reason:
   evidence while keeping production input claims blocked;
 - the pre-Phase 172 risk / unknown register makes storage-coupling assumptions
   explicit before storage choices are accepted;
-- the next safe lane is a concrete storage choice gate for serious v1 rather
-  than more input foundation expansion;
+- Phase 172 now selects an external file-backed JSON record adapter as the
+  first concrete internal-alpha storage path;
+- the next safe lane is implementing that adapter outside
+  `@flowdoc/vnext-core` in `packages/storage-file-json`;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
@@ -4889,7 +4922,7 @@ Reason:
 
 The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
 That was the historical first implementation recommendation from the Phase 18
-reset, not the current next step after Phase 171.
+reset, not the current next step after Phase 172.
 
 Historical first phase:
 

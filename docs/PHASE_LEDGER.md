@@ -178,6 +178,7 @@ Parent goal:
 | 169 | Guarded input runtime slice 1 | done | `examples/template-builder-sandbox/public/guardedInputRuntimeSlice.js`; `docs/GUARDED_INPUT_RUNTIME_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 170 | Guarded input paste/delete/field-chip slice | done | `examples/template-builder-sandbox/public/guardedInputPasteDeleteFieldChipSlice.js`; `docs/GUARDED_INPUT_PASTE_DELETE_FIELD_CHIP_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 171 | Guarded input integration close audit | done | `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationCloseAudit.test.ts`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 172 | Concrete storage choice gate | done | `docs/CONCRETE_STORAGE_CHOICE_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/concreteStorageChoiceGate.test.ts`; `tests/prePhase172RiskUnknownRegister.test.ts`; `tests/guardedInputIntegrationCloseAudit.test.ts`; roadmap guard tests |
 
 ## Current Rule
 
@@ -4425,6 +4426,28 @@ production browser readiness, bind production clipboard events, add browser
 automation dependencies to core, require a browser driver in core check, add
 PDF/DOCX renderer work, add collaboration/offline behavior, or copy legacy
 editor runtime.
+
+## Phase 172 Concrete Storage Choice Gate
+
+Phase 172 chooses the first internal-alpha storage direction:
+
+- immediate path: external file-backed JSON record adapter;
+- package target: `packages/storage-file-json`;
+- artifact bytes are deferred to a separate filesystem byte-store slice;
+- SQLite plus filesystem artifacts remains a later hardening path, not a
+  required Phase 173 dependency;
+- Postgres, browser storage, and S3/object storage are deferred;
+- the adapter may store package/session, durable history, rich inline session,
+  artifact manifest, and artifact job records only;
+- `tests/concreteStorageChoiceGate.test.ts` proves the decision, option
+  comparison, record/byte separation, storage gate assumptions, roadmap, and
+  phase trail.
+
+This phase intentionally does not implement a concrete adapter, write files,
+add SQLite/native dependencies, write artifact bytes, add backend routes,
+implement auth/authz, change package/document schema, claim production
+input/browser/clipboard readiness, add PDF/DOCX renderer work, add
+collaboration/offline behavior, or copy legacy editor runtime.
 
 ## Phase 12 Extraction Record
 

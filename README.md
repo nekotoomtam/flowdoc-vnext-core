@@ -563,6 +563,9 @@ The package must remain runnable without any parent editor checkout.
 - Pre-Phase 172 risk / unknown register sharpens input, browser, commit,
   fallback, field-chip, and storage-coupling risks so the storage choice gate
   cannot inherit production input readiness claims by accident.
+- Concrete storage choice gate selects `packages/storage-file-json` as the
+  first external internal-alpha record adapter path, defers SQLite/native
+  dependency risk, and keeps artifact bytes for a later byte-store slice.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -725,6 +728,8 @@ The package must remain runnable without any parent editor checkout.
   the guarded input integration lane before concrete storage choice
 - `docs/PRE_PHASE_172_RISK_UNKNOWN_REGISTER.md`: pre-Phase 172 risk / unknown
   register before concrete storage choice
+- `docs/CONCRETE_STORAGE_CHOICE_GATE.md`: Phase 172 concrete storage choice
+  gate before the external file-backed storage adapter slice
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
