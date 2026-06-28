@@ -4429,6 +4429,35 @@ Acceptance:
   route, PDF/DOCX renderer work, package/document schema change, or legacy
   editor runtime copy is introduced.
 
+## Phase 159: Field Chip Delete / Copy / Paste Command Boundary
+
+Goal:
+
+- define and test v1 field-chip commands for the hybrid active island.
+
+Deliverables:
+
+- `src/authoring/fieldChipCommands.ts`;
+- `src/index.ts`;
+- `tests/fieldChipCommands.test.ts`;
+- `docs/FIELD_CHIP_COMMAND_BOUNDARY.md`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- command contracts cover field-chip delete, copy, paste,
+  replace-with-text, and blocked internal edit;
+- field chips remain atomic managed inline units;
+- field key visibility is preserved in command facts;
+- safe delete, paste, and replace-with-text produce rich inline replacement
+  intent;
+- copy produces clipboard facts and no mutation intent;
+- internal chip edit, cross-block selection, missing chip, missing field key,
+  and missing clipboard field chip are blocked;
+- no DOM event binding, collaboration semantics, package/document schema
+  change, arbitrary chip internals as editable text, storage/backend route,
+  PDF/DOCX renderer work, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4458,19 +4487,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 158:
+Current next step after Phase 159:
 
 ```text
-Phase 159: Field Chip Delete / Copy / Paste Command Boundary
+Phase 160: Paste / Delete Preflight Boundary
 ```
 
 Reason:
 
-- Phase 158 now proves accepted capture facts can route through the existing
-  rich inline commit bridge;
-- the next safe implementation slice is field-chip delete/copy/paste command
-  contracts before broader paste/delete hardening;
-- it should keep field chips atomic and prevent internal raw-text edits;
+- Phase 159 now defines field-chip command contracts and keeps chips atomic;
+- the next safe implementation slice is paste/delete preflight for text,
+  unsupported HTML, chip boundaries, and structural boundaries;
+- it should classify allow/transform/fallback/reject before browser clipboard
+  integration begins;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

@@ -165,6 +165,7 @@ Parent goal:
 | 156 | Hybrid command policy boundary | done | `docs/HYBRID_INPUT_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputCommandPolicy.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputCommandPolicy.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 157 | DOM binding smoke boundary | done | `docs/ACTIVE_TEXT_BLOCK_DOM_BINDING_SMOKE.md`; `examples/template-builder-sandbox/public/activeTextBlockDomBinding.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockDomBinding.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 158 | Active island commit bridge smoke | done | `docs/ACTIVE_ISLAND_COMMIT_BRIDGE_SMOKE.md`; `examples/template-builder-sandbox/public/activeIslandCommitBridge.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeIslandCommitBridge.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 159 | Field chip command boundary | done | `docs/FIELD_CHIP_COMMAND_BOUNDARY.md`; `src/authoring/fieldChipCommands.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fieldChipCommands.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4076,6 +4077,29 @@ This phase intentionally does not implement granular rich inline operations,
 claim collaboration/offline safety, commit raw contenteditable HTML, bypass the
 rich inline commit boundary, add storage/backend routes, add PDF/DOCX renderer
 work, copy legacy editor runtime, or change package/document schema.
+
+## Phase 159 Field Chip Command Boundary
+
+Phase 159 implements pure authoring contracts for field-chip commands:
+
+- `src/authoring/fieldChipCommands.ts` defines source/mode constants, command
+  kinds, clipboard facts, field-chip facts, rich inline intent facts, and
+  `createFieldChipCommand(...)`;
+- `src/index.ts` exports the field-chip command boundary;
+- commands cover delete, copy, paste, replace-with-text, and blocked internal
+  edit;
+- safe delete, paste, and replace-with-text produce planned
+  `text-block.rich-inline.replace` intent;
+- copy produces field-chip clipboard facts without mutation intent;
+- internal chip edits, cross-block selection, missing chip, missing field key,
+  and missing clipboard field chip are blocked explicitly;
+- `tests/fieldChipCommands.test.ts` proves safe command intents, copy behavior,
+  blocked unsafe facts, export boundary, docs, roadmap, and phase trail.
+
+This phase intentionally does not bind DOM events, implement collaboration
+semantics, change package/document schema, allow arbitrary chip internals to
+become editable text, add storage/backend routes, add PDF/DOCX renderer work,
+copy legacy editor runtime, or claim production contenteditable readiness.
 
 ## Phase 12 Extraction Record
 

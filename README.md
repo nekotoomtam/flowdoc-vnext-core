@@ -514,6 +514,9 @@ The package must remain runnable without any parent editor checkout.
 - Active island commit bridge smoke converts accepted island capture facts into
   `text-block.rich-inline.replace` requests and proves the existing sandbox
   rich inline mutation bridge preserves packet refresh and exact stale signals.
+- Field chip command boundary exposes pure authoring contracts for delete,
+  copy, paste, replace-with-text, and blocked internal edits while preserving
+  field-key visibility and routing safe mutations toward rich inline intent.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -648,6 +651,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/ACTIVE_ISLAND_COMMIT_BRIDGE_SMOKE.md`: Phase 158 active island capture
   to rich inline commit bridge smoke before field-chip and paste/delete
   hardening
+- `docs/FIELD_CHIP_COMMAND_BOUNDARY.md`: Phase 159 field chip command
+  contracts before paste/delete preflight and production clipboard binding
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -904,7 +909,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 158 active island commit bridge
+  production editing close beyond the Phase 159 field chip command
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
