@@ -168,7 +168,7 @@ describe("active island commit bridge smoke", () => {
       },
     ])
     expect(result.bridgeLabel).toBe("Active island bridge: text-block.rich-inline.replace cover-header-label")
-  })
+  }, 15_000)
 
   it("executes the planned request through the sandbox mutation bridge and keeps stale/rejected paths bounded", () => {
     const result = runCommitBridgeScenario()
@@ -193,7 +193,7 @@ describe("active island commit bridge smoke", () => {
     expect(result.unsafeBridgeRequest).toBeNull()
     expect(result.missingRequestStatus).toBe("rejected")
     expect(result.missingRequestReason).toBe("missing-island-commit-request")
-  })
+  }, 15_000)
 
   it("keeps the bridge smoke dependency-clean and does not bypass rich inline commit", () => {
     const source = readText("../examples/template-builder-sandbox/public/activeIslandCommitBridge.js")

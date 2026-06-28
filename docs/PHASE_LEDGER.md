@@ -167,6 +167,7 @@ Parent goal:
 | 158 | Active island commit bridge smoke | done | `docs/ACTIVE_ISLAND_COMMIT_BRIDGE_SMOKE.md`; `examples/template-builder-sandbox/public/activeIslandCommitBridge.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeIslandCommitBridge.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 159 | Field chip command boundary | done | `docs/FIELD_CHIP_COMMAND_BOUNDARY.md`; `src/authoring/fieldChipCommands.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fieldChipCommands.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 160 | Paste/delete preflight boundary | done | `docs/PASTE_DELETE_PREFLIGHT_BOUNDARY.md`; `examples/template-builder-sandbox/public/pasteDeletePreflight.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pasteDeletePreflight.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 161 | Renderer segment and hit-test evidence boundary | done | `docs/RENDERER_SEGMENT_HIT_TEST_EVIDENCE_BOUNDARY.md`; `src/renderer/segmentHitTestEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/segmentHitTestEvidence.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/activeIslandCommitBridge.test.ts` |
 
 ## Current Rule
 
@@ -4125,6 +4126,31 @@ allow structural boundary delete, commit while IME composition is active,
 implement browser clipboard integration, add storage/backend routes, add
 PDF/DOCX renderer work, copy legacy editor runtime, or change package/document
 schema.
+
+## Phase 161 Renderer Segment / Hit-Test Evidence Boundary
+
+Phase 161 implements renderer segment and hit-test evidence validation:
+
+- `src/renderer/segmentHitTestEvidence.ts` defines source/mode constants,
+  segment facts, hit-test request/response facts, validation, and hit-test
+  evidence helpers;
+- `src/index.ts` exports the evidence boundary;
+- segment facts cover segment id, text-block id, inline child id, UTF-16
+  range, glyph range, line index, box geometry, atomic flag, field-chip flag,
+  and style facts;
+- hit-test evidence can return exact, nearest, low, or none confidence with
+  affinity and nearest offset;
+- invalid UTF-16 ranges and non-atomic field-chip segments are blocked;
+- `tests/segmentHitTestEvidence.test.ts` proves valid evidence, field-chip
+  atomic representation, hit-test uncertainty, invalid range blocking, export
+  boundary, docs, roadmap, and phase trail.
+- `tests/activeIslandCommitBridge.test.ts` keeps the existing Phase 158
+  browser-adjacent spawn checks bounded under full-suite timing.
+
+This phase intentionally does not execute a renderer, bind DOM selection,
+replace the contenteditable range mapper, claim caret parity, require
+production measurement binding, add storage/backend routes, add PDF/DOCX
+renderer work, copy legacy editor runtime, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

@@ -4485,6 +4485,36 @@ Acceptance:
   backend route, PDF/DOCX renderer work, package/document schema change, or
   legacy editor runtime copy is introduced.
 
+## Phase 161: Renderer Segment / Hit-Test Evidence Boundary
+
+Goal:
+
+- define the evidence shape for renderer-backed segments and hit-test facts
+  before future caret/selection parity work.
+
+Deliverables:
+
+- `src/renderer/segmentHitTestEvidence.ts`;
+- `src/index.ts`;
+- `tests/segmentHitTestEvidence.test.ts`;
+- `docs/RENDERER_SEGMENT_HIT_TEST_EVIDENCE_BOUNDARY.md`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- segment facts include segment id, text-block id, inline child id, UTF-16
+  range, glyph range, line index, x/y/width/height box, atomic flag, field-chip
+  flag, and style facts;
+- hit-test request/response includes point, nearest offset, segment id,
+  affinity, and confidence;
+- invalid UTF-16 ranges are blocked;
+- field-chip atomic segments can be represented;
+- hit-test output can express uncertainty;
+- no renderer execution, DOM selection binding, contenteditable range mapper
+  replacement, caret parity claim, production measurement binding, storage/
+  backend route, PDF/DOCX renderer work, package/document schema change, or
+  legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4514,19 +4544,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 160:
+Current next step after Phase 161:
 
 ```text
-Phase 161: Renderer Segment / Hit-Test Evidence Boundary
+Phase 162: Hybrid Input Close Audit
 ```
 
 Reason:
 
-- Phase 160 now classifies paste/delete decisions without browser clipboard
-  integration or package mutation;
-- the next safe implementation slice is renderer segment and hit-test evidence
-  shape for future caret/selection parity;
-- it should stay evidence-only before production renderer execution begins;
+- Phase 161 now defines renderer segment and hit-test evidence without
+  executing a renderer or claiming caret parity;
+- the next safe implementation slice is the close audit for Phases 154-161;
+- it should record what is proved, risky, and unknown before choosing the next
+  lane;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
