@@ -4573,6 +4573,39 @@ Acceptance:
   backend route, collaboration/offline behavior, renderer/PDF/DOCX work, or
   browser driver requirement in core check is introduced.
 
+## Phase 164: Optional Browser Driver Smoke Boundary
+
+Goal:
+
+- create an optional browser-driver smoke boundary for the hybrid active
+  text-block island sandbox path without requiring a browser driver in core
+  check.
+
+Deliverables:
+
+- `docs/HYBRID_INPUT_OPTIONAL_BROWSER_DRIVER_SMOKE_BOUNDARY.md`;
+- `examples/template-builder-sandbox/public/hybridInputBrowserDriverSmoke.js`;
+- `examples/template-builder-sandbox/scripts/hybrid-input-browser-driver-smoke.mjs`;
+- `tests/hybridInputBrowserDriverSmoke.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- optional browser-driver report shape exists and is JSON-safe;
+- missing browser driver facts produce explicit blocked status instead of core
+  check failure;
+- externally supplied driver facts can cover focus active text-block island,
+  selection/caret movement, plain typing, IME/composition evidence when
+  available, plain paste, blocked unsafe paste, delete/backspace near field
+  chip, and active island commit;
+- unsafe DOM behavior does not become package truth;
+- active island evidence stays limited to the sandbox path;
+- no browser driver requirement in core `npm run check`, browser automation
+  dependency in `@flowdoc/vnext-core`, production browser/contenteditable
+  readiness claim, full-document contenteditable, old FlowDocEditor runtime
+  copy, package/document schema change, storage/backend route, PDF/DOCX
+  renderer work, or collaboration/offline behavior is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4602,21 +4635,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 163:
+Current next step after Phase 164:
 
 ```text
-Phase 164: Optional Browser Driver Smoke Boundary
+Phase 165: Hybrid Input Browser Evidence Close Audit
 ```
 
 Reason:
 
-- Phase 163 now provides sandbox-local JSON-safe evidence for selection, caret,
-  IME, paste, delete, commit, fallback, and one-island guards;
-- the next safe implementation slice is optional browser-driver smoke that can
-  compare those evidence cases against real browser behavior when the sandbox
-  dependency strategy is ready;
-- it should remain optional and sandbox-local before production contenteditable
-  binding or core check dependency changes;
+- Phase 163 provides sandbox-local JSON-safe browser QA evidence;
+- Phase 164 now defines optional browser-driver evidence intake and blocked
+  no-driver reporting without changing core check dependencies;
+- the next safe implementation slice is a close audit for the browser evidence
+  lane before planning any production contenteditable binding;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

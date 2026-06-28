@@ -170,6 +170,7 @@ Parent goal:
 | 161 | Renderer segment and hit-test evidence boundary | done | `docs/RENDERER_SEGMENT_HIT_TEST_EVIDENCE_BOUNDARY.md`; `src/renderer/segmentHitTestEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/segmentHitTestEvidence.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/activeIslandCommitBridge.test.ts` |
 | 162 | Hybrid input foundation close audit | done | `docs/HYBRID_INPUT_FOUNDATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 163 | Hybrid input browser QA boundary | done | `docs/HYBRID_INPUT_BROWSER_QA_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserQa.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-qa.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts` |
+| 164 | Optional browser driver smoke boundary | done | `docs/HYBRID_INPUT_OPTIONAL_BROWSER_DRIVER_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserDriverSmoke.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-driver-smoke.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4208,6 +4209,34 @@ implement full-document contenteditable, copy old FlowDocEditor runtime, change
 package/document schema, add storage/backend routes, add collaboration/offline
 behavior, add renderer/PDF/DOCX work, or require Playwright/Puppeteer in core
 check.
+
+## Phase 164 Optional Browser Driver Smoke Boundary
+
+Phase 164 implements optional browser-driver smoke evidence intake for the
+hybrid active text-block island sandbox path:
+
+- `examples/template-builder-sandbox/public/hybridInputBrowserDriverSmoke.js`
+  defines optional driver smoke source/mode constants, case ids, report
+  creation, and labels;
+- `examples/template-builder-sandbox/scripts/hybrid-input-browser-driver-smoke.mjs`
+  outputs JSON reports and can consume externally supplied driver facts through
+  environment JSON/path inputs;
+- no browser driver facts produces an explicit blocked report instead of
+  failing core check;
+- supplied driver facts can prove focus, selection/caret movement, plain
+  typing, IME composition, plain paste, unsafe paste blocking, field-chip
+  delete guard, and active island commit evidence;
+- unsafe DOM behavior remains blocked and does not become package truth;
+- `tests/hybridInputBrowserDriverSmoke.test.ts` proves blocked no-driver
+  output, supplied driver evidence output, script behavior, dependency
+  cleanliness, documentation, roadmap, and phase trail.
+
+This phase intentionally does not require a browser driver in core check, add a
+browser automation dependency to `@flowdoc/vnext-core`, claim production
+browser/contenteditable readiness, implement full-document contenteditable,
+copy old FlowDocEditor runtime, change package/document schema, add
+storage/backend routes, add PDF/DOCX renderer work, or add collaboration/
+offline behavior.
 
 ## Phase 12 Extraction Record
 
