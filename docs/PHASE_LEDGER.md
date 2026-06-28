@@ -168,6 +168,7 @@ Parent goal:
 | 159 | Field chip command boundary | done | `docs/FIELD_CHIP_COMMAND_BOUNDARY.md`; `src/authoring/fieldChipCommands.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/fieldChipCommands.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 160 | Paste/delete preflight boundary | done | `docs/PASTE_DELETE_PREFLIGHT_BOUNDARY.md`; `examples/template-builder-sandbox/public/pasteDeletePreflight.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pasteDeletePreflight.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 161 | Renderer segment and hit-test evidence boundary | done | `docs/RENDERER_SEGMENT_HIT_TEST_EVIDENCE_BOUNDARY.md`; `src/renderer/segmentHitTestEvidence.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/segmentHitTestEvidence.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/activeIslandCommitBridge.test.ts` |
+| 162 | Hybrid input foundation close audit | done | `docs/HYBRID_INPUT_FOUNDATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4151,6 +4152,34 @@ This phase intentionally does not execute a renderer, bind DOM selection,
 replace the contenteditable range mapper, claim caret parity, require
 production measurement binding, add storage/backend routes, add PDF/DOCX
 renderer work, copy legacy editor runtime, or change package/document schema.
+
+## Phase 162 Hybrid Input Foundation Close Audit
+
+Phase 162 closes the hybrid managed card input foundation pass across Phases
+154-161:
+
+- Phase 154 proves browser-local ownership classification for managed cards,
+  active text-block islands, textarea fallback, and rejected targets;
+- Phase 155 proves the DOM-free active island lifecycle and commit-request
+  readiness facts;
+- Phase 156 proves the command policy matrix before execution;
+- Phase 157 proves JSON-safe DOM binding smoke facts without DOM Range/
+  Selection parity;
+- Phase 158 proves the active island commit bridge can route through the
+  existing rich inline replacement bridge;
+- Phase 159 proves atomic field-chip command contracts;
+- Phase 160 proves paste/delete preflight classification;
+- Phase 161 proves renderer segment and hit-test evidence facts without
+  renderer execution or caret parity.
+
+The audit keeps production input readiness blocked. Phase 163 is recommended
+as a Hybrid Input Browser QA Boundary before production contenteditable
+binding.
+
+This phase intentionally does not implement production contenteditable,
+full-document contenteditable, collaboration/offline behavior, storage/backend
+routes, PDF/DOCX renderer work, package/document schema changes, or legacy
+editor runtime copy.
 
 ## Phase 12 Extraction Record
 

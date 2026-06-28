@@ -4515,6 +4515,33 @@ Acceptance:
   backend route, PDF/DOCX renderer work, package/document schema change, or
   legacy editor runtime copy is introduced.
 
+## Phase 162: Hybrid Input Close Audit
+
+Goal:
+
+- close the hybrid managed card input foundation pass across Phases 154-161 and
+  recommend the next guarded lane.
+
+Deliverables:
+
+- `docs/HYBRID_INPUT_FOUNDATION_CLOSE_AUDIT.md`;
+- `tests/hybridInputFoundationCloseAudit.test.ts`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- the audit cites Phase 154 input runtime ownership, Phase 155 active island
+  lifecycle, Phase 156 command policy, Phase 157 DOM binding smoke, Phase 158
+  commit bridge smoke, Phase 159 field-chip commands, Phase 160 paste/delete
+  preflight, and Phase 161 renderer segment hit-test evidence;
+- the audit states that production input readiness is not achieved;
+- production blockers, risks, and unknowns remain explicit;
+- the next recommended lane is Phase 163: Hybrid Input Browser QA Boundary;
+- no production contenteditable implementation, full-document contenteditable,
+  collaboration/offline behavior, storage/backend route, PDF/DOCX renderer
+  work, package/document schema change, or legacy editor runtime copy is
+  introduced.
+
 ## Later Phases
 
 Goal:
@@ -4544,19 +4571,20 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 161:
+Current next step after Phase 162:
 
 ```text
-Phase 162: Hybrid Input Close Audit
+Phase 163: Hybrid Input Browser QA Boundary
 ```
 
 Reason:
 
-- Phase 161 now defines renderer segment and hit-test evidence without
-  executing a renderer or claiming caret parity;
-- the next safe implementation slice is the close audit for Phases 154-161;
-- it should record what is proved, risky, and unknown before choosing the next
-  lane;
+- Phase 162 closes the hybrid input foundation pass while keeping production
+  input readiness blocked;
+- the next safe implementation slice is browser-driver QA over real selection,
+  caret, IME, paste, delete, and active island focus behavior;
+- it should remain an evidence boundary before production contenteditable
+  binding;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
