@@ -543,6 +543,9 @@ The package must remain runnable without any parent editor checkout.
   policy for selection/caret, IME, paste/delete, field-chip atomicity, active
   island commit, fallback behavior, and JSON-safe report completeness before a
   browser matrix is chosen.
+- Browser matrix decision bounds v1 input support to the Windows
+  Chromium/Edge path with English and Thai input evidence while deferring
+  Firefox, Safari, mobile, complex CJK IME, and broad cross-browser parity.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -693,6 +696,8 @@ The package must remain runnable without any parent editor checkout.
   for the hybrid input browser evidence lane before hardening thresholds
 - `docs/HYBRID_INPUT_HARDENING_THRESHOLD_PLAN.md`: Phase 166 hardening
   threshold plan before browser matrix decision
+- `docs/HYBRID_INPUT_BROWSER_MATRIX_DECISION.md`: Phase 167 v1 browser/OS/IME
+  matrix decision before guarded input integration planning
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

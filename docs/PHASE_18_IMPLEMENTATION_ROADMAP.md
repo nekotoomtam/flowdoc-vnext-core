@@ -4657,6 +4657,32 @@ Acceptance:
   backend route, PDF/DOCX renderer work, or collaboration/offline behavior is
   introduced.
 
+## Phase 167: Browser Matrix Decision
+
+Goal:
+
+- choose the minimum browser/OS/IME matrix for the v1 hybrid active text-block
+  island path.
+
+Deliverables:
+
+- `docs/HYBRID_INPUT_BROWSER_MATRIX_DECISION.md`;
+- `tests/hybridInputBrowserMatrixDecision.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- Windows Chromium-family and Microsoft Edge are selected for v1;
+- English and Thai input paths are selected for v1;
+- IME composition lifecycle evidence is required for the selected path;
+- Firefox, Safari, mobile, complex CJK IME, Linux, macOS, and broad
+  cross-browser visual caret parity are deferred;
+- Phase 166 thresholds are mapped to the selected matrix;
+- no production contenteditable implementation, browser automation dependency
+  in core, browser driver requirement in core check, package/document schema
+  change, storage/backend route, PDF/DOCX renderer work, or
+  collaboration/offline behavior is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4686,19 +4712,21 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 166:
+Current next step after Phase 167:
 
 ```text
-Phase 167: Browser Matrix Decision
+Phase 168: Guarded Input Integration Plan
 ```
 
 Reason:
 
 - Phase 166 now defines the PASS/WARNING/BLOCKED/UNKNOWN threshold policy for
   hybrid input hardening;
-- the next safe implementation slice is a narrow v1 browser/OS/IME matrix
-  decision that applies those thresholds without trying to support every
-  browser;
+- Phase 167 applies those thresholds to a narrow Windows Chromium/Edge plus
+  English/Thai input matrix;
+- the next safe implementation slice is a guarded internal-alpha integration
+  plan that decides where the active island mounts and how it refreshes packets
+  without implementing production contenteditable yet;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

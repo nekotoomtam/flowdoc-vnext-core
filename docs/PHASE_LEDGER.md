@@ -173,6 +173,7 @@ Parent goal:
 | 164 | Optional browser driver smoke boundary | done | `docs/HYBRID_INPUT_OPTIONAL_BROWSER_DRIVER_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserDriverSmoke.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-driver-smoke.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 165 | Hybrid input browser evidence close audit | done | `docs/HYBRID_INPUT_BROWSER_EVIDENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 166 | Hybrid input hardening threshold plan | done | `docs/HYBRID_INPUT_HARDENING_THRESHOLD_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 167 | Browser matrix decision | done | `docs/HYBRID_INPUT_BROWSER_MATRIX_DECISION.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4281,6 +4282,25 @@ This phase intentionally does not implement production contenteditable, choose
 a browser matrix, add browser automation dependencies to core, change
 package/document schema, add storage/backend routes, add PDF/DOCX renderer
 work, or add collaboration/offline behavior.
+
+## Phase 167 Browser Matrix Decision
+
+Phase 167 chooses the minimum v1 browser/OS/IME matrix:
+
+- v1 accepts Windows Chromium-family and Microsoft Edge as the named product
+  browser target;
+- v1 requires English and Thai input paths plus IME composition lifecycle
+  evidence;
+- Firefox, Safari, mobile, complex CJK IME, Linux, macOS, and broad
+  cross-browser visual caret parity are deferred;
+- Phase 166 thresholds are mapped to the selected v1 matrix;
+- `tests/hybridInputBrowserMatrixDecision.test.ts` proves matrix selection,
+  deferrals, threshold mapping, hard limits, roadmap, and phase trail.
+
+This phase intentionally does not implement production contenteditable, add a
+browser automation dependency to core, require a browser driver in core check,
+change package/document schema, add storage/backend routes, add PDF/DOCX
+renderer work, or add collaboration/offline behavior.
 
 ## Phase 12 Extraction Record
 
