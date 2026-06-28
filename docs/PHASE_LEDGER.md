@@ -172,6 +172,7 @@ Parent goal:
 | 163 | Hybrid input browser QA boundary | done | `docs/HYBRID_INPUT_BROWSER_QA_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserQa.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-qa.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridManagedCardInputPlan.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts` |
 | 164 | Optional browser driver smoke boundary | done | `docs/HYBRID_INPUT_OPTIONAL_BROWSER_DRIVER_SMOKE_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputBrowserDriverSmoke.js`; `examples/template-builder-sandbox/scripts/hybrid-input-browser-driver-smoke.mjs`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 165 | Hybrid input browser evidence close audit | done | `docs/HYBRID_INPUT_BROWSER_EVIDENCE_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 166 | Hybrid input hardening threshold plan | done | `docs/HYBRID_INPUT_HARDENING_THRESHOLD_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4261,6 +4262,25 @@ claim production browser readiness, require a browser driver in core check, add
 Playwright/Puppeteer to `@flowdoc/vnext-core`, change package/document schema,
 add storage/backend routes, add PDF/DOCX renderer work, or add collaboration/
 offline behavior.
+
+## Phase 166 Hybrid Input Hardening Threshold Plan
+
+Phase 166 defines hybrid input hardening thresholds before browser matrix or
+guarded input integration planning:
+
+- PASS/WARNING/BLOCKED/UNKNOWN policy is explicit;
+- thresholds cover selection/caret, IME composition, paste/delete, field-chip
+  atomicity, active island commit, fallback behavior, and JSON-safe report
+  completeness;
+- v1 blockers are separated from warnings that may remain visible;
+- `tests/hybridInputHardeningThresholdPlan.test.ts` proves the threshold
+  policy, v1 blocker/warning separation, documentation, roadmap, and phase
+  trail.
+
+This phase intentionally does not implement production contenteditable, choose
+a browser matrix, add browser automation dependencies to core, change
+package/document schema, add storage/backend routes, add PDF/DOCX renderer
+work, or add collaboration/offline behavior.
 
 ## Phase 12 Extraction Record
 

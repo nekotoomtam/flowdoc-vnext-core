@@ -539,6 +539,10 @@ The package must remain runnable without any parent editor checkout.
   evidence lane, keeps production browser/contenteditable readiness blocked,
   and recommends a hardening-threshold plan before driver matrix or production
   binding work.
+- Hybrid input hardening threshold plan defines PASS/WARNING/BLOCKED/UNKNOWN
+  policy for selection/caret, IME, paste/delete, field-chip atomicity, active
+  island commit, fallback behavior, and JSON-safe report completeness before a
+  browser matrix is chosen.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -687,6 +691,8 @@ The package must remain runnable without any parent editor checkout.
   optional browser driver smoke boundary before browser evidence close audit
 - `docs/HYBRID_INPUT_BROWSER_EVIDENCE_CLOSE_AUDIT.md`: Phase 165 close audit
   for the hybrid input browser evidence lane before hardening thresholds
+- `docs/HYBRID_INPUT_HARDENING_THRESHOLD_PLAN.md`: Phase 166 hardening
+  threshold plan before browser matrix decision
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -943,7 +949,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 165 browser evidence close audit
+  production editing close beyond the Phase 166 hardening threshold plan
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records

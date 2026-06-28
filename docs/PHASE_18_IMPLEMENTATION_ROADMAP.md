@@ -4632,6 +4632,31 @@ Acceptance:
   `@flowdoc/vnext-core`, package/document schema change, storage/backend route,
   PDF/DOCX renderer work, or collaboration/offline behavior is introduced.
 
+## Phase 166: Hybrid Input Hardening Threshold Plan
+
+Goal:
+
+- define PASS/WARNING/BLOCKED/UNKNOWN thresholds that decide whether hybrid
+  input can move toward guarded internal-alpha integration.
+
+Deliverables:
+
+- `docs/HYBRID_INPUT_HARDENING_THRESHOLD_PLAN.md`;
+- `tests/hybridInputHardeningThresholdPlan.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- PASS/WARNING/BLOCKED/UNKNOWN policy is explicit;
+- thresholds cover selection/caret, IME composition, paste/delete, field-chip
+  atomicity, active island commit, fallback behavior, and JSON-safe report
+  completeness;
+- failures that block v1 are separated from warnings that can remain visible;
+- no production contenteditable implementation, browser matrix choice, browser
+  automation dependency in core, package/document schema change, storage/
+  backend route, PDF/DOCX renderer work, or collaboration/offline behavior is
+  introduced.
+
 ## Later Phases
 
 Goal:
@@ -4661,23 +4686,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 165:
+Current next step after Phase 166:
 
 ```text
-Phase 166: Hybrid Input Hardening Threshold Plan
+Phase 167: Browser Matrix Decision
 ```
 
 Reason:
 
-- Phase 163 provides sandbox-local JSON-safe browser QA evidence;
-- Phase 164 defines optional browser-driver evidence intake and blocked
-  no-driver reporting without changing core check dependencies;
-- Phase 165 closes the browser evidence lane while keeping production browser
-  and contenteditable readiness blocked;
-- the next safe implementation slice is an explicit threshold plan for
-  selection/caret, IME, paste/delete, field-chip atomics, commit bridge drift,
-  JSON-safe reporting, and blocked/unknown status policy before driver matrix
-  or production contenteditable binding work;
+- Phase 166 now defines the PASS/WARNING/BLOCKED/UNKNOWN threshold policy for
+  hybrid input hardening;
+- the next safe implementation slice is a narrow v1 browser/OS/IME matrix
+  decision that applies those thresholds without trying to support every
+  browser;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
