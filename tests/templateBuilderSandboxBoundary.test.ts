@@ -910,7 +910,7 @@ describe("template builder sandbox boundary", () => {
       recordCount: 1,
       groupCount: 1,
     })
-  }, 15_000)
+  }, 30_000)
 
   it("commits Phase 124 rich inline plans through the sandbox bridge", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `

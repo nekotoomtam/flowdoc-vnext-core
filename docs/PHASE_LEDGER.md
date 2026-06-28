@@ -177,6 +177,7 @@ Parent goal:
 | 168 | Guarded input integration plan | done | `docs/GUARDED_INPUT_INTEGRATION_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 169 | Guarded input runtime slice 1 | done | `examples/template-builder-sandbox/public/guardedInputRuntimeSlice.js`; `docs/GUARDED_INPUT_RUNTIME_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 170 | Guarded input paste/delete/field-chip slice | done | `examples/template-builder-sandbox/public/guardedInputPasteDeleteFieldChipSlice.js`; `docs/GUARDED_INPUT_PASTE_DELETE_FIELD_CHIP_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 171 | Guarded input integration close audit | done | `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationCloseAudit.test.ts`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4368,6 +4369,31 @@ Phase 170 implements the sandbox-local paste/delete/field-chip input slice:
 - `tests/guardedInputPasteDeleteFieldChipSlice.test.ts` proves paste,
   unsafe paste, delete near chip, blocked unsafe deletes, direct field-chip
   commands, dependency cleanliness, docs, roadmap, and phase trail behavior.
+
+This phase intentionally does not implement production contenteditable, claim
+production browser readiness, bind production clipboard events, implement
+full-document contenteditable, add a browser automation dependency to core,
+require a browser driver in core check, change package/document schema, add
+storage/backend routes, add PDF/DOCX renderer work, add collaboration/offline
+behavior, or copy legacy editor runtime.
+
+## Phase 171 Guarded Input Integration Close Audit
+
+Phase 171 closes the guarded hybrid input integration lane across Phases
+166-170:
+
+- Phase 166 hardening thresholds, Phase 167 browser matrix, Phase 168
+  integration plan, Phase 169 runtime slice, and Phase 170 paste/delete/
+  field-chip slice are audited together;
+- proven selection/caret, active island commit, IME/composition blocking,
+  paste/delete, field-chip atomicity, fallback, and packet refresh evidence is
+  summarized;
+- production blockers remain visible;
+- the decision accepts internal-alpha sandbox evidence only and blocks
+  production contenteditable, browser, clipboard, collaboration/offline, and
+  storage/backend readiness claims;
+- `tests/guardedInputIntegrationCloseAudit.test.ts` proves evidence coverage,
+  blocker visibility, decision language, docs, roadmap, and phase trail.
 
 This phase intentionally does not implement production contenteditable, claim
 production browser readiness, bind production clipboard events, implement

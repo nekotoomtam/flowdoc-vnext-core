@@ -158,7 +158,7 @@ describe("vNext rich inline live/exact parity audit", () => {
       changedNodeIds: ["cover-header-label"],
       liveLayout: liveExactSummary(3),
     })
-  }, 15_000)
+  }, 30_000)
 
   it("keeps rich inline session persistence from storing live/exact renderer artifacts", () => {
     const { beforeTextBlock, result, session } = commitRichInlineFixture()

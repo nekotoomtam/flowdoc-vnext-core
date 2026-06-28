@@ -4771,6 +4771,35 @@ Acceptance:
   work, collaboration/offline behavior, or legacy editor runtime copy is
   introduced.
 
+## Phase 171: Input Integration Close Audit
+
+Goal:
+
+- close the guarded hybrid input integration lane and decide what is proven,
+  blocked, risky, or unknown before any production input binding.
+
+Deliverables:
+
+- `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`;
+- `tests/guardedInputIntegrationCloseAudit.test.ts`;
+- README, phase ledger, roadmap, and roadmap guard updates.
+
+Acceptance:
+
+- Phases 166-170 are audited together;
+- proven selection/caret, active island commit, IME/composition blocking,
+  paste/delete, field-chip atomicity, fallback, and packet refresh evidence is
+  summarized;
+- production blockers remain visible;
+- the decision accepts internal-alpha sandbox evidence only and blocks
+  production contenteditable/browser/clipboard/collaboration readiness claims;
+- no production contenteditable implementation, production browser readiness
+  claim, production clipboard binding, full-document contenteditable, browser
+  automation dependency in core, browser driver requirement in core check,
+  package/document schema change, storage/backend route, PDF/DOCX renderer
+  work, collaboration/offline behavior, or legacy editor runtime copy is
+  introduced.
+
 ## Later Phases
 
 Goal:
@@ -4800,10 +4829,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 170:
+Current next step after Phase 171:
 
 ```text
-Phase 171: Input Integration Close Audit
+Phase 172: Concrete Storage Choice Gate
 ```
 
 Reason:
@@ -4818,8 +4847,10 @@ Reason:
   bridge request without applying package mutation;
 - Phase 170 now covers paste/delete/field-chip input hardening over that
   runtime slice;
-- the next safe phase is a close audit deciding what is proven, blocked, risky,
-  or still unknown before any production contenteditable binding;
+- Phase 171 now closes the guarded input lane as internal-alpha sandbox
+  evidence while keeping production input claims blocked;
+- the next safe lane is a concrete storage choice gate for serious v1 rather
+  than more input foundation expansion;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
@@ -4828,7 +4859,7 @@ Reason:
 
 The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
 That was the historical first implementation recommendation from the Phase 18
-reset, not the current next step after Phase 170.
+reset, not the current next step after Phase 171.
 
 Historical first phase:
 

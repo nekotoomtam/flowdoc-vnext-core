@@ -557,6 +557,9 @@ The package must remain runnable without any parent editor checkout.
   paste/delete preflight so plain paste, unsafe paste blocking, structural
   delete blocking, and atomic field-chip command intents are JSON-safe before
   production clipboard binding.
+- Guarded input integration close audit accepts the Phase 166-170 lane as
+  internal-alpha sandbox evidence while keeping production contenteditable,
+  browser, clipboard, collaboration/offline, and storage claims blocked.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -715,6 +718,8 @@ The package must remain runnable without any parent editor checkout.
   runtime slice before paste/delete/field-chip input integration
 - `docs/GUARDED_INPUT_PASTE_DELETE_FIELD_CHIP_SLICE.md`: Phase 170
   paste/delete/field-chip slice before the input integration close audit
+- `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`: Phase 171 close audit for
+  the guarded input integration lane before concrete storage choice
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
