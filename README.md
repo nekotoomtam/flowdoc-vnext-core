@@ -475,6 +475,10 @@ The package must remain runnable without any parent editor checkout.
   v2/document v3 RC report fixture plus scenario metadata for a rich inline
   replacement, field-ref chip case, stale exact generation expectation, PDF
   artifact expectation, and storage collection expectation.
+- Vertical slice measurement gate compares caller-supplied renderer-backed and
+  approximate measurement summaries by `measurementProfileId`, reports drift,
+  digest, and native/WASM parity status, and keeps default pagination
+  measurement unchanged.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -584,6 +588,8 @@ The package must remain runnable without any parent editor checkout.
   first vertical slice RC report boundary before scenario/gate composition
 - `docs/VERTICAL_SLICE_RC_SCENARIO_BOUNDARY.md`: Phase 147 RC scenario fixture
   boundary before measurement/artifact/storage summary gates
+- `docs/VERTICAL_SLICE_MEASUREMENT_GATE_BOUNDARY.md`: Phase 148 RC measurement
+  selection and drift gate before artifact/storage composition
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

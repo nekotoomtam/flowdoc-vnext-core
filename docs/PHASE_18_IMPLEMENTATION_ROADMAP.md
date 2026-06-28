@@ -4137,6 +4137,31 @@ Acceptance:
   storage write, renderer execution, external spike import, or
   package/document schema change is introduced.
 
+## Phase 148: RC Measurement Selection And Drift Gate
+
+Goal:
+
+- add an RC-level gate that selects caller-supplied renderer-backed
+  measurement evidence by `measurementProfileId` and reports drift against
+  approximate measurement.
+
+Deliverables:
+
+- `src/generation/verticalSliceMeasurementGate.ts`;
+- `tests/verticalSliceMeasurementGate.test.ts`;
+- `docs/VERTICAL_SLICE_MEASUREMENT_GATE_BOUNDARY.md`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- wrong `measurementProfileId` blocks;
+- missing renderer-backed or approximate line boxes block;
+- drift over tolerance reports warning or blocked based on policy;
+- digest and native/WASM parity status remain visible;
+- no external text-engine import, renderer-backed provider execution, default
+  pagination measurement replacement, pagination mutation, production
+  measurement binding, or package/document schema change is introduced.
+
 ## Later Phases
 
 Goal:

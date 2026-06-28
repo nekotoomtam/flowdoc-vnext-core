@@ -154,6 +154,7 @@ Parent goal:
 | 145 | First vertical slice release candidate plan | done | `docs/FIRST_VERTICAL_SLICE_RC_PLAN.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/firstVerticalSliceReadiness.test.ts` |
 | 146 | First vertical slice RC orchestrator boundary | done | `docs/VERTICAL_SLICE_RC_ORCHESTRATOR_BOUNDARY.md`; `src/generation/verticalSliceRc.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceRc.test.ts` |
 | 147 | RC scenario fixture boundary | done | `docs/VERTICAL_SLICE_RC_SCENARIO_BOUNDARY.md`; `fixtures/vertical-slice-rc-report.v1.flowdoc.json`; `fixtures/vertical-slice-rc-scenario.v1.json`; `src/generation/verticalSliceScenario.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceScenario.test.ts` |
+| 148 | RC measurement selection and drift gate | done | `docs/VERTICAL_SLICE_MEASUREMENT_GATE_BOUNDARY.md`; `src/generation/verticalSliceMeasurementGate.ts`; `src/index.ts`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/verticalSliceMeasurementGate.test.ts` |
 
 ## Current Rule
 
@@ -3825,6 +3826,24 @@ old/prototype document shapes, add repeat/collection materialization, add
 workflow/reviewer runtime, load files inside the source helper, call browser
 APIs, write storage, start routes, execute renderers, import external spike
 packages, or change package/document schema.
+
+## Phase 148 RC Measurement Selection And Drift Gate
+
+Phase 148 adds an RC measurement summary gate:
+
+- `src/generation/verticalSliceMeasurementGate.ts` compares caller-supplied
+  renderer-backed and approximate measurement summaries;
+- the gate blocks wrong `measurementProfileId` and missing line boxes;
+- drift over tolerance becomes warning or blocker based on caller policy;
+- digest and native/WASM parity status remain visible in the summary;
+- `tests/verticalSliceMeasurementGate.test.ts` proves profile blocking, line
+  box blocking, drift policy, digest/parity visibility, dependency cleanliness,
+  and phase trail updates.
+
+This phase intentionally does not import the external text-engine package,
+execute renderer-backed provider code, replace default pagination measurement,
+mutate pagination/cache behavior, bind production measurement, or change
+package/document schema.
 
 ## Phase 12 Extraction Record
 
