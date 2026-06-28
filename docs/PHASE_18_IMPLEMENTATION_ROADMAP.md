@@ -4957,6 +4957,37 @@ Acceptance:
   PDF/DOCX production work, collaboration/offline behavior, or legacy editor
   runtime copy is introduced.
 
+## Phase 176: Backend Route Contract To Storage Binding
+
+Goal:
+
+- bind route-shaped helper functions to the concrete file-backed record storage
+  adapter without opening a server route.
+
+Deliverables:
+
+- `packages/internal-alpha-runner/src/storageRouteBinding.ts`;
+- `packages/internal-alpha-runner/src/index.ts`;
+- `docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md`;
+- `tests/backendRouteStorageBinding.test.ts`;
+- `tests/storageBackedRcRoundtripSmoke.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- session load/save helpers read and write package/session records;
+- artifact generation request helper creates planned artifact manifest and
+  queued artifact job records;
+- artifact status helper reads artifact job records;
+- artifact metadata helper reads artifact manifest records;
+- method mismatch, missing records, and storage conflicts return bounded
+  route-shaped responses;
+- response bodies remain JSON-safe and keep `bytes: null`;
+- no HTTP server route, auth/authz execution, artifact byte streaming, renderer
+  execution, package/document schema change, production storage readiness
+  claim, collaboration/offline behavior, or legacy editor runtime copy is
+  introduced.
+
 ## Later Phases
 
 Goal:
@@ -4986,10 +5017,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 175:
+Current next step after Phase 176:
 
 ```text
-Phase 176: Backend Route Contract To Storage Binding
+Phase 177: Artifact Job Execution Slice
 ```
 
 Reason:
@@ -5016,11 +5047,24 @@ Reason:
   digest and manifest consistency checks;
 - Phase 175 now runs the RC vertical slice through concrete record storage plus
   artifact byte storage and reloads the stored facts;
-- the next safe lane is route-shaped helpers that bind those storage operations
-  without opening a concrete server route;
+- Phase 176 now binds route-shaped helpers to concrete record storage without
+  opening a concrete server route;
+- the next safe lane is executing the artifact job slice from request through
+  minimal PDF spike bytes, byte storage, and manifest/job status updates;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
+
+## Historical Phase 175 Handoff
+
+Current next step after Phase 175:
+
+```text
+Phase 176: Backend Route Contract To Storage Binding
+```
+
+That was the Phase 175 handoff recommendation. Phase 176 is now complete, so
+it is no longer the current next step after Phase 176.
 
 ## Historical Phase 174 Handoff
 

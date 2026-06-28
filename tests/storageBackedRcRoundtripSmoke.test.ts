@@ -151,7 +151,7 @@ describe("storage-backed RC roundtrip smoke", () => {
     })
   })
 
-  it("documents Phase 175 and advances the current roadmap to Phase 176", () => {
+  it("documents Phase 175 and keeps the historical Phase 176 handoff", () => {
     const runnerSource = readText("../packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts")
     const doc = readText("../docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md")
     const phase174Test = readText("./artifactByteStoreSlice.test.ts")
@@ -178,9 +178,12 @@ describe("storage-backed RC roundtrip smoke", () => {
     expect(readme).toContain("Storage-backed RC roundtrip smoke")
     expect(readme).toContain("docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md")
     expect(ledger).toContain("| 175 | Storage-backed RC roundtrip smoke | done |")
+    expect(roadmap).toContain("## Historical Phase 175 Handoff")
     expect(roadmap).toContain("## Phase 175: Storage-Backed RC Roundtrip Smoke")
     expect(roadmap).toContain("Current next step after Phase 175:")
     expect(roadmap).toContain("Phase 176: Backend Route Contract To Storage Binding")
+    expect(roadmap).toContain("Current next step after Phase 176:")
+    expect(roadmap).toContain("Phase 177: Artifact Job Execution Slice")
     expect(phase174Test).toContain("historical Phase 175 handoff")
   })
 })

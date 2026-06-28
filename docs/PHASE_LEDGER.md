@@ -182,6 +182,7 @@ Parent goal:
 | 173 | External file-backed storage adapter slice | done | `packages/storage-file-json/package.json`; `packages/storage-file-json/tsconfig.json`; `packages/storage-file-json/src/index.ts`; `docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageFileJsonAdapter.test.ts`; `vitest.config.ts` |
 | 174 | Artifact byte store slice | done | `packages/storage-file-json/src/index.ts`; `docs/ARTIFACT_BYTE_STORE_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactByteStoreSlice.test.ts`; `tests/storageFileJsonAdapter.test.ts` |
 | 175 | Storage-backed RC roundtrip smoke | done | `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageBackedRcRoundtripSmoke.test.ts`; `tests/artifactByteStoreSlice.test.ts`; `tsconfig.json`; `vitest.config.ts` |
+| 176 | Backend route contract to storage binding | done | `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/backendRouteStorageBinding.test.ts`; `tests/storageBackedRcRoundtripSmoke.test.ts` |
 
 ## Current Rule
 
@@ -4528,6 +4529,28 @@ claim production storage readiness, make record-plus-byte writes atomic, run a
 PDF renderer, change package/document schema, assume production contenteditable
 or browser/clipboard readiness, add collaboration/offline behavior, or copy
 legacy editor runtime.
+
+## Phase 176 Backend Route Contract To Storage Binding
+
+Phase 176 binds route-shaped helper functions to concrete record storage:
+
+- package: `@flowdoc/internal-alpha-runner`;
+- helper: `createFlowDocStorageRouteBinding(...)`;
+- session save/load calls the concrete package/session collection;
+- artifact request creates planned artifact manifest and queued artifact job
+  records;
+- artifact status reads artifact job records;
+- artifact metadata reads artifact manifest records;
+- responses are JSON-safe, include method/status/header/body shape, keep
+  `bytes: null`, and declare `serverRoute: false`;
+- `tests/backendRouteStorageBinding.test.ts` proves session save/load,
+  conflict/missing/method handling, artifact request/status/metadata, docs,
+  roadmap, and phase trail.
+
+This phase intentionally does not register HTTP server routes, execute
+auth/authz, stream artifact bytes, read artifact bytes, run a renderer, claim
+production backend or storage readiness, change package/document schema, add
+collaboration/offline behavior, or copy legacy editor runtime.
 
 ## Phase 12 Extraction Record
 

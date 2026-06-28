@@ -577,6 +577,9 @@ The package must remain runnable without any parent editor checkout.
 - Storage-backed RC roundtrip smoke adds `@flowdoc/internal-alpha-runner` and
   runs the first RC scenario through concrete file-backed records plus artifact
   bytes before route-shaped storage binding.
+- Backend route storage binding boundary adds route-shaped helpers over the
+  concrete record adapter for session save/load and artifact request/status/
+  metadata without registering a server route or streaming bytes.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -747,6 +750,8 @@ The package must remain runnable without any parent editor checkout.
   before storage-backed RC roundtrip smoke
 - `docs/STORAGE_BACKED_RC_ROUNDTRIP_SMOKE.md`: Phase 175 storage-backed RC
   roundtrip smoke before route-shaped storage binding
+- `docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md`: Phase 176 route-shaped
+  storage binding before artifact job execution
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
