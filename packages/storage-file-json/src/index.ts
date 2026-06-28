@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import {
@@ -21,6 +22,13 @@ import type {
 export const FLOWDOC_FILE_JSON_STORAGE_SOURCE = "flowdoc-file-json-storage-adapter"
 export const FLOWDOC_FILE_JSON_STORAGE_MODE = "external-file-backed-json-record-storage"
 export const FLOWDOC_FILE_JSON_STORAGE_PACKAGE = "@flowdoc/storage-file-json"
+export const FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE = "flowdoc-file-json-artifact-byte-store"
+export const FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE = "external-file-backed-artifact-byte-store"
+
+const ARTIFACT_BYTE_DIRECTORY_NAME = "artifact-bytes"
+const ARTIFACT_BYTE_STORAGE_KEY_PREFIX = "artifact-bytes-v1"
+const SHA256_HEX = /^[a-f0-9]{64}$/u
+const ARTIFACT_BYTE_STORAGE_KEY = /^artifact-bytes-v1\.([A-Za-z0-9_-]+)\.([a-f0-9]{64})\.bin$/u
 
 export type FlowDocFileJsonStorageWriteStatus =
   | "written"
@@ -33,6 +41,27 @@ export type FlowDocFileJsonStorageReadStatus =
   | "found"
   | "not-found"
   | "invalid-request"
+  | "io-error"
+
+export type FlowDocFileJsonArtifactByteWriteStatus =
+  | "written"
+  | "invalid-request"
+  | "digest-mismatch"
+  | "io-error"
+
+export type FlowDocFileJsonArtifactByteReadStatus =
+  | "found"
+  | "missing"
+  | "invalid-request"
+  | "digest-mismatch"
+  | "io-error"
+
+export type FlowDocFileJsonArtifactByteConsistencyStatus =
+  | "consistent"
+  | "inconsistent"
+  | "missing"
+  | "invalid-manifest"
+  | "digest-mismatch"
   | "io-error"
 
 export interface FlowDocFileJsonStorageAdapterContracts {
@@ -49,6 +78,26 @@ export interface FlowDocFileJsonStorageAdapterContracts {
   schemaMigration: false
   artifactByteWrites: false
   multiRecordTransactions: false
+  productionStorageReady: false
+}
+
+export interface FlowDocFileJsonArtifactByteStoreContracts {
+  externalPackage: true
+  importsCoreAsPublicPackage: true
+  concreteBackend: "filesystem-artifact-bytes"
+  filesystemWrites: true
+  recordEnvelopeWrites: false
+  databaseWrites: false
+  objectStorageWrites: false
+  browserStorageWrites: false
+  networkCalls: false
+  authzExecution: false
+  schemaMigration: false
+  artifactByteWrites: true
+  manifestMutation: false
+  multiRecordTransactions: false
+  rendererExecution: false
+  backendRoute: false
   productionStorageReady: false
 }
 
@@ -79,6 +128,25 @@ export interface FlowDocFileJsonStorageAdapterPlan {
     revision: "increments-on-accepted-update"
   }
   contracts: FlowDocFileJsonStorageAdapterContracts
+}
+
+export interface FlowDocFileJsonArtifactByteStorePlan {
+  source: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+  mode: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+  status: "internal-alpha-byte-store"
+  adapterPackageName: typeof FLOWDOC_FILE_JSON_STORAGE_PACKAGE
+  corePackageName: "@flowdoc/vnext-core"
+  rootDirectory: string
+  byteDirectoryName: typeof ARTIFACT_BYTE_DIRECTORY_NAME
+  storageKeyFormat: "artifact-bytes-v1.<base64url-artifact-id>.<sha256>.bin"
+  consistencyCheck: {
+    readsBytes: true
+    comparesArtifactId: true
+    comparesByteLength: true
+    comparesSha256: true
+    mutatesManifest: false
+  }
+  contracts: FlowDocFileJsonArtifactByteStoreContracts
 }
 
 export type FlowDocFileJsonStorageWriteResult<TRecord> =
@@ -134,6 +202,90 @@ export type FlowDocFileJsonStorageReadResult<TRecord> =
       contracts: FlowDocFileJsonStorageAdapterContracts
     }
 
+export interface FlowDocFileJsonArtifactByteMetadata {
+  artifactId: string
+  mediaType: string | null
+  byteLength: number
+  sha256: string
+  storageKey: string
+  filePath: string
+}
+
+export interface FlowDocFileJsonArtifactByteWriteRequest {
+  artifactId: string
+  mediaType: string
+  bytes: Uint8Array
+  expectedSha256?: string | null
+}
+
+export interface FlowDocFileJsonArtifactByteReadRequest {
+  storageKey: string
+}
+
+export type FlowDocFileJsonArtifactByteWriteResult =
+  | {
+      ok: true
+      source: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+      mode: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+      status: "written"
+      artifact: FlowDocFileJsonArtifactByteMetadata
+      issues: []
+      contracts: FlowDocFileJsonArtifactByteStoreContracts
+    }
+  | {
+      ok: false
+      source: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+      mode: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+      status: "invalid-request" | "digest-mismatch" | "io-error"
+      artifact: null
+      issues: VNextStorageOperationIssue[]
+      contracts: FlowDocFileJsonArtifactByteStoreContracts
+    }
+
+export type FlowDocFileJsonArtifactByteReadResult =
+  | {
+      ok: true
+      source: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+      mode: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+      status: "found"
+      artifact: FlowDocFileJsonArtifactByteMetadata
+      bytes: Uint8Array
+      issues: []
+      contracts: FlowDocFileJsonArtifactByteStoreContracts
+    }
+  | {
+      ok: false
+      source: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+      mode: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+      status: "missing" | "invalid-request" | "digest-mismatch" | "io-error"
+      artifact: FlowDocFileJsonArtifactByteMetadata | null
+      bytes: null
+      issues: VNextStorageOperationIssue[]
+      contracts: FlowDocFileJsonArtifactByteStoreContracts
+    }
+
+export type FlowDocFileJsonArtifactByteConsistencyResult =
+  | {
+      ok: true
+      source: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+      mode: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+      status: "consistent"
+      manifest: VNextArtifactManifestRecord
+      artifact: FlowDocFileJsonArtifactByteMetadata
+      issues: []
+      contracts: FlowDocFileJsonArtifactByteStoreContracts
+    }
+  | {
+      ok: false
+      source: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+      mode: typeof FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+      status: "inconsistent" | "missing" | "invalid-manifest" | "digest-mismatch" | "io-error"
+      manifest: VNextArtifactManifestRecord | null
+      artifact: FlowDocFileJsonArtifactByteMetadata | null
+      issues: VNextStorageOperationIssue[]
+      contracts: FlowDocFileJsonArtifactByteStoreContracts
+    }
+
 export interface FlowDocFileJsonStorageAdapter {
   source: typeof FLOWDOC_FILE_JSON_STORAGE_SOURCE
   mode: typeof FLOWDOC_FILE_JSON_STORAGE_MODE
@@ -148,6 +300,10 @@ export interface FlowDocFileJsonStorageAdapter {
 }
 
 export interface FlowDocFileJsonStorageAdapterInput {
+  rootDirectory: string
+}
+
+export interface FlowDocFileJsonArtifactByteStoreInput {
   rootDirectory: string
 }
 
@@ -166,6 +322,28 @@ function contracts(): FlowDocFileJsonStorageAdapterContracts {
     schemaMigration: false,
     artifactByteWrites: false,
     multiRecordTransactions: false,
+    productionStorageReady: false,
+  }
+}
+
+function artifactByteContracts(): FlowDocFileJsonArtifactByteStoreContracts {
+  return {
+    externalPackage: true,
+    importsCoreAsPublicPackage: true,
+    concreteBackend: "filesystem-artifact-bytes",
+    filesystemWrites: true,
+    recordEnvelopeWrites: false,
+    databaseWrites: false,
+    objectStorageWrites: false,
+    browserStorageWrites: false,
+    networkCalls: false,
+    authzExecution: false,
+    schemaMigration: false,
+    artifactByteWrites: true,
+    manifestMutation: false,
+    multiRecordTransactions: false,
+    rendererExecution: false,
+    backendRoute: false,
     productionStorageReady: false,
   }
 }
@@ -196,6 +374,14 @@ function storageKeyFor(key: string): string {
   return Buffer.from(key, "utf8").toString("base64url")
 }
 
+function artifactByteStorageKeyFor(artifactId: string, sha256: string): string {
+  return `${ARTIFACT_BYTE_STORAGE_KEY_PREFIX}.${Buffer.from(artifactId, "utf8").toString("base64url")}.${sha256}.bin`
+}
+
+function sha256Hex(bytes: Uint8Array): string {
+  return createHash("sha256").update(bytes).digest("hex")
+}
+
 function isNoEntryError(error: unknown): boolean {
   return typeof error === "object" && error != null && "code" in error && error.code === "ENOENT"
 }
@@ -203,6 +389,150 @@ function isNoEntryError(error: unknown): boolean {
 function issueFromError(code: string, path: string, message: string, error: unknown): VNextStorageOperationIssue {
   const reason = error instanceof Error ? error.message : String(error)
   return issue(code, path, `${message}: ${reason}`)
+}
+
+function nonEmptyValue(value: unknown, path: string, issues: VNextStorageOperationIssue[]): string | null {
+  if (typeof value === "string" && value.trim().length > 0) return value
+
+  issues.push(issue("invalid-string", path, `${path} must be a non-empty string`))
+  return null
+}
+
+function validateExpectedSha256(value: unknown, issues: VNextStorageOperationIssue[]): string | null {
+  if (value == null) return null
+  if (typeof value === "string" && SHA256_HEX.test(value)) return value
+
+  issues.push(issue("invalid-sha256", "expectedSha256", "expectedSha256 must be null or a 64 character lowercase hex digest"))
+  return null
+}
+
+function validateBytes(value: unknown, issues: VNextStorageOperationIssue[]): Uint8Array | null {
+  if (value instanceof Uint8Array && value.byteLength > 0) return value
+
+  issues.push(issue("invalid-bytes", "bytes", "bytes must be a non-empty Uint8Array"))
+  return null
+}
+
+function parseArtifactByteStorageKey(storageKey: string, issues: VNextStorageOperationIssue[]): {
+  artifactId: string
+  sha256: string
+} | null {
+  const match = ARTIFACT_BYTE_STORAGE_KEY.exec(storageKey)
+
+  if (match == null) {
+    issues.push(issue("invalid-storage-key", "storageKey", "storageKey must use artifact-bytes-v1.<base64url-artifact-id>.<sha256>.bin"))
+    return null
+  }
+
+  const encodedArtifactId = match[1]
+  const sha256 = match[2]
+  const artifactId = Buffer.from(encodedArtifactId, "base64url").toString("utf8")
+
+  if (artifactId.trim().length === 0) {
+    issues.push(issue("invalid-storage-key-artifact-id", "storageKey", "storageKey must encode a non-empty artifact id"))
+    return null
+  }
+
+  return {
+    artifactId,
+    sha256,
+  }
+}
+
+function artifactByteWriteResult(
+  artifact: FlowDocFileJsonArtifactByteMetadata,
+): FlowDocFileJsonArtifactByteWriteResult {
+  return {
+    ok: true,
+    source: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE,
+    mode: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE,
+    status: "written",
+    artifact,
+    issues: [],
+    contracts: artifactByteContracts(),
+  }
+}
+
+function blockedArtifactByteWriteResult(
+  status: "invalid-request" | "digest-mismatch" | "io-error",
+  issues: VNextStorageOperationIssue[],
+): FlowDocFileJsonArtifactByteWriteResult {
+  return {
+    ok: false,
+    source: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE,
+    mode: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE,
+    status,
+    artifact: null,
+    issues,
+    contracts: artifactByteContracts(),
+  }
+}
+
+function artifactByteReadResult(
+  artifact: FlowDocFileJsonArtifactByteMetadata,
+  bytes: Uint8Array,
+): FlowDocFileJsonArtifactByteReadResult {
+  return {
+    ok: true,
+    source: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE,
+    mode: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE,
+    status: "found",
+    artifact,
+    bytes: new Uint8Array(bytes),
+    issues: [],
+    contracts: artifactByteContracts(),
+  }
+}
+
+function blockedArtifactByteReadResult(
+  status: "missing" | "invalid-request" | "digest-mismatch" | "io-error",
+  issues: VNextStorageOperationIssue[],
+  artifact: FlowDocFileJsonArtifactByteMetadata | null,
+): FlowDocFileJsonArtifactByteReadResult {
+  return {
+    ok: false,
+    source: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE,
+    mode: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE,
+    status,
+    artifact,
+    bytes: null,
+    issues,
+    contracts: artifactByteContracts(),
+  }
+}
+
+function artifactByteConsistencyResult(
+  manifest: VNextArtifactManifestRecord,
+  artifact: FlowDocFileJsonArtifactByteMetadata,
+): FlowDocFileJsonArtifactByteConsistencyResult {
+  return {
+    ok: true,
+    source: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE,
+    mode: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE,
+    status: "consistent",
+    manifest: cloneJson(manifest),
+    artifact,
+    issues: [],
+    contracts: artifactByteContracts(),
+  }
+}
+
+function blockedArtifactByteConsistencyResult(
+  status: "inconsistent" | "missing" | "invalid-manifest" | "digest-mismatch" | "io-error",
+  issues: VNextStorageOperationIssue[],
+  manifest: VNextArtifactManifestRecord | null,
+  artifact: FlowDocFileJsonArtifactByteMetadata | null,
+): FlowDocFileJsonArtifactByteConsistencyResult {
+  return {
+    ok: false,
+    source: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE,
+    mode: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE,
+    status,
+    manifest: manifest == null ? null : cloneJson(manifest),
+    artifact,
+    issues,
+    contracts: artifactByteContracts(),
+  }
 }
 
 function validateStoredEnvelope<TRecord>(
@@ -429,6 +759,187 @@ export class FlowDocFileJsonStorageCollection<TRecord> {
   }
 }
 
+export class FlowDocFileJsonArtifactByteStore {
+  readonly source = FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE
+  readonly mode = FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE
+  readonly rootDirectory: string
+  readonly byteDirectory: string
+  readonly contracts = artifactByteContracts()
+
+  constructor(rootDirectory: string) {
+    this.rootDirectory = rootDirectory
+    this.byteDirectory = join(rootDirectory, ARTIFACT_BYTE_DIRECTORY_NAME)
+  }
+
+  plan(): FlowDocFileJsonArtifactByteStorePlan {
+    return createFlowDocFileJsonArtifactByteStorePlan(this.rootDirectory)
+  }
+
+  async write(request: FlowDocFileJsonArtifactByteWriteRequest): Promise<FlowDocFileJsonArtifactByteWriteResult> {
+    const issues: VNextStorageOperationIssue[] = []
+    const artifactId = nonEmptyValue(request.artifactId, "artifactId", issues)
+    const mediaType = nonEmptyValue(request.mediaType, "mediaType", issues)
+    const bytes = validateBytes(request.bytes, issues)
+    const expectedSha256 = validateExpectedSha256(request.expectedSha256, issues)
+
+    if (artifactId == null || mediaType == null || bytes == null || issues.length > 0) {
+      return blockedArtifactByteWriteResult("invalid-request", issues)
+    }
+
+    const sha256 = sha256Hex(bytes)
+
+    if (expectedSha256 != null && expectedSha256 !== sha256) {
+      return blockedArtifactByteWriteResult("digest-mismatch", [
+        issue("expected-sha256-mismatch", "expectedSha256", "expectedSha256 does not match the supplied bytes"),
+      ])
+    }
+
+    const storageKey = artifactByteStorageKeyFor(artifactId, sha256)
+    const filePath = this.filePathForStorageKey(storageKey)
+    const artifact: FlowDocFileJsonArtifactByteMetadata = {
+      artifactId,
+      mediaType,
+      byteLength: bytes.byteLength,
+      sha256,
+      storageKey,
+      filePath,
+    }
+
+    try {
+      await mkdir(this.byteDirectory, { recursive: true })
+      await writeFile(filePath, Buffer.from(bytes))
+    } catch (error) {
+      return blockedArtifactByteWriteResult("io-error", [
+        issueFromError("artifact-byte-write-failed", "filePath", "failed to write artifact bytes", error),
+      ])
+    }
+
+    return artifactByteWriteResult(artifact)
+  }
+
+  async read(request: FlowDocFileJsonArtifactByteReadRequest): Promise<FlowDocFileJsonArtifactByteReadResult> {
+    const issues: VNextStorageOperationIssue[] = []
+    const storageKey = nonEmptyValue(request.storageKey, "storageKey", issues)
+
+    if (storageKey == null || issues.length > 0) {
+      return blockedArtifactByteReadResult("invalid-request", issues, null)
+    }
+
+    const parsed = parseArtifactByteStorageKey(storageKey, issues)
+
+    if (parsed == null || issues.length > 0) {
+      return blockedArtifactByteReadResult("invalid-request", issues, null)
+    }
+
+    const filePath = this.filePathForStorageKey(storageKey)
+
+    try {
+      const bytes = await readFile(filePath)
+      const actualSha256 = sha256Hex(bytes)
+      const artifact: FlowDocFileJsonArtifactByteMetadata = {
+        artifactId: parsed.artifactId,
+        mediaType: null,
+        byteLength: bytes.byteLength,
+        sha256: actualSha256,
+        storageKey,
+        filePath,
+      }
+
+      if (actualSha256 !== parsed.sha256) {
+        return blockedArtifactByteReadResult("digest-mismatch", [
+          issue("stored-byte-digest-mismatch", "sha256", "stored artifact bytes do not match the storageKey digest"),
+        ], artifact)
+      }
+
+      return artifactByteReadResult(artifact, bytes)
+    } catch (error) {
+      if (isNoEntryError(error)) {
+        return blockedArtifactByteReadResult("missing", [
+          issue("artifact-bytes-missing", "storageKey", "artifact bytes were not found for storageKey"),
+        ], {
+          artifactId: parsed.artifactId,
+          mediaType: null,
+          byteLength: 0,
+          sha256: parsed.sha256,
+          storageKey,
+          filePath,
+        })
+      }
+
+      return blockedArtifactByteReadResult("io-error", [
+        issueFromError("artifact-byte-read-failed", "filePath", "failed to read artifact bytes", error),
+      ], null)
+    }
+  }
+
+  async verifyManifestConsistency(
+    manifest: VNextArtifactManifestRecord,
+  ): Promise<FlowDocFileJsonArtifactByteConsistencyResult> {
+    const issues = this.validateManifestForConsistency(manifest)
+
+    if (issues.length > 0 || manifest.storageKey == null) {
+      return blockedArtifactByteConsistencyResult("invalid-manifest", issues, manifest, null)
+    }
+
+    const readResult = await this.read({ storageKey: manifest.storageKey })
+
+    if (!readResult.ok) {
+      const status = readResult.status === "invalid-request" ? "invalid-manifest" : readResult.status
+      return blockedArtifactByteConsistencyResult(status, readResult.issues, manifest, readResult.artifact)
+    }
+
+    if (readResult.artifact.artifactId !== manifest.artifactId) {
+      issues.push(issue("artifact-id-mismatch", "artifactId", "manifest artifactId does not match byte-store artifactId"))
+    }
+
+    if (readResult.artifact.byteLength !== manifest.byteLength) {
+      issues.push(issue("byte-length-mismatch", "byteLength", "manifest byteLength does not match stored bytes"))
+    }
+
+    if (readResult.artifact.sha256 !== manifest.sha256) {
+      issues.push(issue("sha256-mismatch", "sha256", "manifest sha256 does not match stored bytes"))
+    }
+
+    if (readResult.artifact.storageKey !== manifest.storageKey) {
+      issues.push(issue("storage-key-mismatch", "storageKey", "manifest storageKey does not match byte-store storageKey"))
+    }
+
+    if (issues.length > 0) {
+      return blockedArtifactByteConsistencyResult("inconsistent", issues, manifest, readResult.artifact)
+    }
+
+    return artifactByteConsistencyResult(manifest, readResult.artifact)
+  }
+
+  private validateManifestForConsistency(manifest: VNextArtifactManifestRecord): VNextStorageOperationIssue[] {
+    const issues: VNextStorageOperationIssue[] = []
+
+    nonEmptyValue(manifest.artifactId, "artifactId", issues)
+
+    if (manifest.status !== "rendered") {
+      issues.push(issue("artifact-not-rendered", "status", "only rendered artifact manifests can be checked against stored bytes"))
+    }
+
+    if (manifest.byteLength == null || !Number.isInteger(manifest.byteLength) || manifest.byteLength <= 0) {
+      issues.push(issue("invalid-byte-length", "byteLength", "rendered artifact manifests require a positive byteLength"))
+    }
+
+    if (typeof manifest.sha256 !== "string" || !SHA256_HEX.test(manifest.sha256)) {
+      issues.push(issue("invalid-sha256", "sha256", "rendered artifact manifests require a 64 character lowercase hex digest"))
+    }
+
+    if (typeof manifest.storageKey !== "string" || manifest.storageKey.trim().length === 0) {
+      issues.push(issue("invalid-storage-key", "storageKey", "rendered artifact manifests require a storageKey"))
+    }
+
+    return issues
+  }
+
+  private filePathForStorageKey(storageKey: string): string {
+    return join(this.byteDirectory, storageKey)
+  }
+}
+
 export function createFlowDocFileJsonStorageAdapterPlan(rootDirectory: string): FlowDocFileJsonStorageAdapterPlan {
   return {
     source: FLOWDOC_FILE_JSON_STORAGE_SOURCE,
@@ -453,6 +964,29 @@ export function createFlowDocFileJsonStorageAdapterPlan(rootDirectory: string): 
   }
 }
 
+export function createFlowDocFileJsonArtifactByteStorePlan(
+  rootDirectory: string,
+): FlowDocFileJsonArtifactByteStorePlan {
+  return {
+    source: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_SOURCE,
+    mode: FLOWDOC_FILE_JSON_ARTIFACT_BYTE_STORE_MODE,
+    status: "internal-alpha-byte-store",
+    adapterPackageName: FLOWDOC_FILE_JSON_STORAGE_PACKAGE,
+    corePackageName: "@flowdoc/vnext-core",
+    rootDirectory: resolve(rootDirectory),
+    byteDirectoryName: ARTIFACT_BYTE_DIRECTORY_NAME,
+    storageKeyFormat: "artifact-bytes-v1.<base64url-artifact-id>.<sha256>.bin",
+    consistencyCheck: {
+      readsBytes: true,
+      comparesArtifactId: true,
+      comparesByteLength: true,
+      comparesSha256: true,
+      mutatesManifest: false,
+    },
+    contracts: artifactByteContracts(),
+  }
+}
+
 export function createFlowDocFileJsonStorageAdapter(
   input: FlowDocFileJsonStorageAdapterInput,
 ): FlowDocFileJsonStorageAdapter {
@@ -470,4 +1004,10 @@ export function createFlowDocFileJsonStorageAdapter(
     artifactJobs: new FlowDocFileJsonStorageCollection(rootDirectory, "artifact-job", "artifact-job"),
     plan: () => createFlowDocFileJsonStorageAdapterPlan(rootDirectory),
   }
+}
+
+export function createFlowDocFileJsonArtifactByteStore(
+  input: FlowDocFileJsonArtifactByteStoreInput,
+): FlowDocFileJsonArtifactByteStore {
+  return new FlowDocFileJsonArtifactByteStore(resolve(input.rootDirectory))
 }

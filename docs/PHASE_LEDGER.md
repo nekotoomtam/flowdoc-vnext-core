@@ -180,6 +180,7 @@ Parent goal:
 | 171 | Guarded input integration close audit | done | `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/guardedInputIntegrationCloseAudit.test.ts`; `tests/guardedInputPasteDeleteFieldChipSlice.test.ts`; `tests/guardedInputRuntimeSlice.test.ts`; `tests/guardedInputIntegrationPlan.test.ts`; `tests/hybridInputBrowserMatrixDecision.test.ts`; `tests/hybridInputHardeningThresholdPlan.test.ts`; `tests/hybridInputBrowserEvidenceCloseAudit.test.ts`; `tests/hybridInputBrowserDriverSmoke.test.ts`; `tests/hybridInputBrowserQa.test.ts`; `tests/hybridInputFoundationCloseAudit.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 172 | Concrete storage choice gate | done | `docs/CONCRETE_STORAGE_CHOICE_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/concreteStorageChoiceGate.test.ts`; `tests/prePhase172RiskUnknownRegister.test.ts`; `tests/guardedInputIntegrationCloseAudit.test.ts`; roadmap guard tests |
 | 173 | External file-backed storage adapter slice | done | `packages/storage-file-json/package.json`; `packages/storage-file-json/tsconfig.json`; `packages/storage-file-json/src/index.ts`; `docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/storageFileJsonAdapter.test.ts`; `vitest.config.ts` |
+| 174 | Artifact byte store slice | done | `packages/storage-file-json/src/index.ts`; `docs/ARTIFACT_BYTE_STORE_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactByteStoreSlice.test.ts`; `tests/storageFileJsonAdapter.test.ts` |
 
 ## Current Rule
 
@@ -4472,6 +4473,33 @@ This phase intentionally does not place the concrete adapter in core, modify
 database writes to core, add SQLite/native dependencies, claim multi-record
 transaction atomicity, write artifact bytes, add backend routes, implement
 auth/authz, change package/document schema, assume production contenteditable
+or browser/clipboard readiness, add PDF/DOCX renderer work, add
+collaboration/offline behavior, or copy legacy editor runtime.
+
+## Phase 174 Artifact Byte Store Slice
+
+Phase 174 adds a separate filesystem artifact byte store in the external
+storage package:
+
+- package: `@flowdoc/storage-file-json`;
+- byte store factory: `createFlowDocFileJsonArtifactByteStore(...)`;
+- bytes are stored under an `artifact-bytes` directory owned by the caller's
+  filesystem root;
+- storage keys include the base64url artifact id and sha256 digest;
+- writes compute sha256 and return byte length, digest, storage key, and file
+  path metadata;
+- reads return stored bytes and verify the storage key digest;
+- missing artifacts return a bounded `missing` result;
+- rendered manifests can be checked against stored byte facts without mutating
+  the manifest schema;
+- `tests/artifactByteStoreSlice.test.ts` proves write/read behavior, missing
+  artifacts, manifest consistency, record/byte-store separation, docs, roadmap,
+  and phase trail.
+
+This phase intentionally does not place byte writes in core, add SQLite/native
+dependencies, claim multi-record transaction atomicity between records and
+bytes, add backend routes, implement auth/authz, change package/document
+schema, claim production storage readiness, assume production contenteditable
 or browser/clipboard readiness, add PDF/DOCX renderer work, add
 collaboration/offline behavior, or copy legacy editor runtime.
 

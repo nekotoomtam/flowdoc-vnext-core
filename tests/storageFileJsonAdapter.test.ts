@@ -237,11 +237,12 @@ describe("external file-backed JSON storage adapter", () => {
     })
 
     expect(wrongCollection.ok).toBe(false)
+    if (wrongCollection.ok) throw new Error("expected wrong collection read to fail")
     expect(wrongCollection.status).toBe("invalid-request")
     expect(wrongCollection.issues[0]?.code).toBe("kind-mismatch")
   })
 
-  it("documents the external package boundary and the Phase 174 next lane", () => {
+  it("documents the external package boundary and the historical Phase 174 handoff", () => {
     const packageJson = readText("../packages/storage-file-json/package.json")
     const source = readText("../packages/storage-file-json/src/index.ts")
     const coreStorageSource = readText("../src/persistence/storageAdapter.ts")
@@ -273,8 +274,11 @@ describe("external file-backed JSON storage adapter", () => {
     expect(readme).toContain("docs/EXTERNAL_FILE_BACKED_STORAGE_ADAPTER_SLICE.md")
     expect(ledger).toContain("| 173 | External file-backed storage adapter slice | done |")
     expect(roadmap).toContain("## Phase 173: External File-Backed Storage Adapter Slice")
+    expect(roadmap).toContain("## Historical Phase 173 Handoff")
     expect(roadmap).toContain("Current next step after Phase 173:")
     expect(roadmap).toContain("Phase 174: Artifact Byte Store Slice")
+    expect(roadmap).toContain("Current next step after Phase 174:")
+    expect(roadmap).toContain("Phase 175: Storage-backed RC Roundtrip Smoke")
   })
 
   it("exposes a JSON-safe adapter plan that keeps core dependency and production claims bounded", () => {

@@ -4892,6 +4892,36 @@ Acceptance:
   clipboard readiness claim, PDF/DOCX renderer work, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 174: Artifact Byte Store Slice
+
+Goal:
+
+- store artifact bytes in an internal-alpha filesystem byte store beside the
+  external file-backed JSON record adapter.
+
+Deliverables:
+
+- `packages/storage-file-json/src/index.ts`;
+- `docs/ARTIFACT_BYTE_STORE_SLICE.md`;
+- `tests/artifactByteStoreSlice.test.ts`;
+- `tests/storageFileJsonAdapter.test.ts`;
+- README, phase ledger, and roadmap updates.
+
+Acceptance:
+
+- non-empty artifact bytes can be written to a caller-provided filesystem root;
+- `sha256` is computed from stored bytes;
+- stored bytes can be read back by `storageKey`;
+- missing artifacts return a bounded adapter-owned result;
+- rendered artifact manifests can be checked against stored byte facts for
+  artifact id, byte length, sha256, and storage key consistency;
+- the Phase 173 record adapter remains separate from byte writes and still
+  reports `artifactByteWrites: false`;
+- no backend route, auth/authz, package/document schema change, production
+  storage readiness claim, multi-record transaction claim, PDF/DOCX renderer
+  work, collaboration/offline behavior, or legacy editor runtime copy is
+  introduced.
+
 ## Later Phases
 
 Goal:
@@ -4921,10 +4951,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 173:
+Current next step after Phase 174:
 
 ```text
-Phase 174: Artifact Byte Store Slice
+Phase 175: Storage-backed RC Roundtrip Smoke
 ```
 
 Reason:
@@ -4947,11 +4977,24 @@ Reason:
   first concrete internal-alpha storage path;
 - Phase 173 now implements that adapter outside `@flowdoc/vnext-core` in
   `packages/storage-file-json`;
-- the next safe lane is storing artifact bytes separately from record
-  envelopes, with digest and manifest consistency checks;
+- Phase 174 now stores artifact bytes separately from record envelopes, with
+  digest and manifest consistency checks;
+- the next safe lane is running the RC vertical slice through concrete record
+  storage plus artifact byte storage and reloading the stored facts;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.
+
+## Historical Phase 173 Handoff
+
+Current next step after Phase 173:
+
+```text
+Phase 174: Artifact Byte Store Slice
+```
+
+That was the Phase 173 handoff recommendation. Phase 174 is now complete, so
+it is no longer the current next step after Phase 174.
 
 ## Historical Phase 172 Handoff
 
@@ -4968,7 +5011,7 @@ it is no longer the current next step after Phase 173.
 
 The Phase 18 reset originally recommended starting with Phase 19 or Phase 20.
 That was the historical first implementation recommendation from the Phase 18
-reset, not the current next step after Phase 172 or Phase 173.
+reset, not the current next step after Phase 172, Phase 173, or Phase 174.
 
 Historical first phase:
 
