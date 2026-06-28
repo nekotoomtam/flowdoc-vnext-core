@@ -163,6 +163,7 @@ Parent goal:
 | 154 | Input runtime ownership boundary | done | `docs/HYBRID_INPUT_RUNTIME_OWNERSHIP_BOUNDARY.md`; `examples/template-builder-sandbox/public/inputRuntimeOwnership.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputRuntimeOwnership.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 155 | Active text-block island boundary | done | `docs/ACTIVE_TEXT_BLOCK_ISLAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/activeTextBlockIsland.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockIsland.test.ts` |
 | 156 | Hybrid command policy boundary | done | `docs/HYBRID_INPUT_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputCommandPolicy.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputCommandPolicy.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 157 | DOM binding smoke boundary | done | `docs/ACTIVE_TEXT_BLOCK_DOM_BINDING_SMOKE.md`; `examples/template-builder-sandbox/public/activeTextBlockDomBinding.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockDomBinding.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4028,6 +4029,30 @@ This phase intentionally does not execute commands, mutate package data, bind
 DOM events, implement field-chip behavior beyond policy decisions, add
 storage/backend routes, add PDF/DOCX renderer work, copy legacy editor runtime,
 or change package/document schema.
+
+## Phase 157 DOM Binding Smoke Boundary
+
+Phase 157 implements a bounded JSON-safe DOM binding smoke for one active
+text-block island:
+
+- `examples/template-builder-sandbox/public/activeTextBlockDomBinding.js`
+  defines the DOM binding smoke source/mode constants, capture helper, and
+  label helper;
+- accepted capture facts include active node id, text-block id, text snapshot,
+  text length, UTF-16 selection start/end, composition active flag, and safe
+  status;
+- unsafe captures are rejected for missing active island, missing surface,
+  missing contenteditable root, target mismatch, text mismatch, missing or
+  out-of-range offsets, and DOM Range/object selection facts;
+- DOM state remains browser-local and JSON-safe;
+- `tests/activeTextBlockDomBinding.test.ts` proves accepted capture facts,
+  composition facts, unsafe diagnostics, dependency cleanliness, docs,
+  roadmap, and phase trail.
+
+This phase intentionally does not claim production DOM range support, support
+all browsers, handle paste/delete semantics, commit to core, implement
+production contenteditable behavior, add storage/backend routes, add PDF/DOCX
+renderer work, copy legacy editor runtime, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

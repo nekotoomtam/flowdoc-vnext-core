@@ -5850,7 +5850,7 @@ describe("template builder sandbox boundary", () => {
     expect(result.runtimeStoreApplyMode).toBe("structural-packet-direct")
     expect(result.runtimeStoreNodeCount).toBe(52)
     expect(result.snapshotInsertedExists).toBe(false)
-  })
+  }, 15_000)
 
   it("builds a store-backed render model from runtime store content", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `

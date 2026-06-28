@@ -4373,6 +4373,35 @@ Acceptance:
   renderer work, package/document schema change, or legacy editor runtime copy
   is introduced.
 
+## Phase 157: DOM Binding Smoke Boundary
+
+Goal:
+
+- add the first guarded DOM-binding smoke for one active text-block island as
+  JSON-safe capture facts.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/activeTextBlockDomBinding.js`;
+- `docs/ACTIVE_TEXT_BLOCK_DOM_BINDING_SMOKE.md`;
+- `tests/activeTextBlockDomBinding.test.ts`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- one active text block can expose a contenteditable island smoke;
+- captured facts include active node id, text-block id, text snapshot,
+  selection start/end as UTF-16 offsets, composition active flag, safe/unsafe
+  capture status, and diagnostics;
+- unsafe captures are rejected for missing surface, missing contenteditable
+  root, target mismatch, text mismatch, missing/out-of-range offsets, and DOM
+  Range/object selection facts;
+- DOM state remains browser-local and JSON-safe;
+- no production DOM range support, all-browser support claim, paste/delete
+  semantics, core commit, production contenteditable implementation, storage/
+  backend route, PDF/DOCX renderer work, package/document schema change, or
+  legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4402,19 +4431,20 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 156:
+Current next step after Phase 157:
 
 ```text
-Phase 157: DOM Binding Smoke Boundary
+Phase 158: Active Island Commit Bridge Smoke
 ```
 
 Reason:
 
-- Phase 156 now decides command readiness without executing commands;
-- the next safe implementation slice is a bounded DOM binding smoke, not
-  production DOM range support;
-- it should expose JSON-safe capture facts for one active text block before
-  commit bridge execution begins;
+- Phase 157 now emits bounded JSON-safe capture facts without production DOM
+  range support;
+- the next safe implementation slice is converting accepted capture facts into
+  the existing rich inline commit path;
+- it should preserve rejected/unsafe capture behavior before storage or
+  production input claims begin;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

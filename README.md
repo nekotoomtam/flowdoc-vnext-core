@@ -508,6 +508,9 @@ The package must remain runnable without any parent editor checkout.
 - Hybrid command policy boundary adds a DOM-free ready/fallback/blocked matrix
   for text, rich inline, field-chip, paste, commit, and cancel commands before
   any command execution or package mutation.
+- Active text-block DOM binding smoke captures JSON-safe contenteditable-like
+  surface facts, UTF-16 selection offsets, text snapshots, active node id, and
+  composition state for one active island without production DOM range support.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -637,6 +640,8 @@ The package must remain runnable without any parent editor checkout.
   bridge execution
 - `docs/HYBRID_INPUT_COMMAND_POLICY_BOUNDARY.md`: Phase 156 command policy
   boundary before DOM binding, command execution, or package mutation
+- `docs/ACTIVE_TEXT_BLOCK_DOM_BINDING_SMOKE.md`: Phase 157 JSON-safe active
+  text-block DOM binding smoke before commit bridge execution
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -893,7 +898,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 156 hybrid command policy
+  production editing close beyond the Phase 157 DOM binding smoke
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
