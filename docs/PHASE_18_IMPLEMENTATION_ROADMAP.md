@@ -4402,6 +4402,33 @@ Acceptance:
   backend route, PDF/DOCX renderer work, package/document schema change, or
   legacy editor runtime copy is introduced.
 
+## Phase 158: Active Island Commit Bridge Smoke
+
+Goal:
+
+- connect accepted active-island facts to the existing vNext rich inline commit
+  path in a bounded sandbox smoke.
+
+Deliverables:
+
+- `examples/template-builder-sandbox/public/activeIslandCommitBridge.js`;
+- `tests/activeIslandCommitBridge.test.ts`;
+- `docs/ACTIVE_ISLAND_COMMIT_BRIDGE_SMOKE.md`;
+- README, phase ledger, roadmap, and Phase 153 roadmap guard updates.
+
+Acceptance:
+
+- accepted island capture facts convert into a `text-block.rich-inline.replace`
+  bridge request;
+- the request routes through the existing `sandbox.commitRichInline` mutation
+  bridge in tests;
+- accepted commit preserves packet refresh and live/exact stale signal;
+- rejected or unsafe island facts do not produce a bridge request;
+- no granular rich inline operations, collaboration/offline safety claim, raw
+  contenteditable HTML commit, rich inline boundary bypass, storage/backend
+  route, PDF/DOCX renderer work, package/document schema change, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -4431,20 +4458,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 157:
+Current next step after Phase 158:
 
 ```text
-Phase 158: Active Island Commit Bridge Smoke
+Phase 159: Field Chip Delete / Copy / Paste Command Boundary
 ```
 
 Reason:
 
-- Phase 157 now emits bounded JSON-safe capture facts without production DOM
-  range support;
-- the next safe implementation slice is converting accepted capture facts into
-  the existing rich inline commit path;
-- it should preserve rejected/unsafe capture behavior before storage or
-  production input claims begin;
+- Phase 158 now proves accepted capture facts can route through the existing
+  rich inline commit bridge;
+- the next safe implementation slice is field-chip delete/copy/paste command
+  contracts before broader paste/delete hardening;
+- it should keep field chips atomic and prevent internal raw-text edits;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, storage/backend, PDF/DOCX, package/document schema,
   and legacy editor runtime work out of scope.

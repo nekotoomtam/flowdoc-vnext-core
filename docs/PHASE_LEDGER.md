@@ -164,6 +164,7 @@ Parent goal:
 | 155 | Active text-block island boundary | done | `docs/ACTIVE_TEXT_BLOCK_ISLAND_BOUNDARY.md`; `examples/template-builder-sandbox/public/activeTextBlockIsland.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockIsland.test.ts` |
 | 156 | Hybrid command policy boundary | done | `docs/HYBRID_INPUT_COMMAND_POLICY_BOUNDARY.md`; `examples/template-builder-sandbox/public/hybridInputCommandPolicy.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/hybridInputCommandPolicy.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 | 157 | DOM binding smoke boundary | done | `docs/ACTIVE_TEXT_BLOCK_DOM_BINDING_SMOKE.md`; `examples/template-builder-sandbox/public/activeTextBlockDomBinding.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeTextBlockDomBinding.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
+| 158 | Active island commit bridge smoke | done | `docs/ACTIVE_ISLAND_COMMIT_BRIDGE_SMOKE.md`; `examples/template-builder-sandbox/public/activeIslandCommitBridge.js`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/activeIslandCommitBridge.test.ts`; `tests/hybridManagedCardInputPlan.test.ts` |
 
 ## Current Rule
 
@@ -4053,6 +4054,28 @@ This phase intentionally does not claim production DOM range support, support
 all browsers, handle paste/delete semantics, commit to core, implement
 production contenteditable behavior, add storage/backend routes, add PDF/DOCX
 renderer work, copy legacy editor runtime, or change package/document schema.
+
+## Phase 158 Active Island Commit Bridge Smoke
+
+Phase 158 implements a bounded active-island capture to rich inline commit
+bridge smoke:
+
+- `examples/template-builder-sandbox/public/activeIslandCommitBridge.js`
+  defines source/mode constants, the v1 `text-block.rich-inline.replace`
+  operation kind, bridge request builder, and label helper;
+- accepted capture facts become a `sandbox.commitRichInline` request with a
+  planned rich inline replacement operation;
+- `tests/activeIslandCommitBridge.test.ts` sends the generated request through
+  the existing sandbox mutation bridge and verifies packet refresh plus
+  live/exact stale signal;
+- stale and unsafe paths remain rejected and do not produce new bridge
+  requests;
+- runtime cache refresh stays bounded to packet response expectations.
+
+This phase intentionally does not implement granular rich inline operations,
+claim collaboration/offline safety, commit raw contenteditable HTML, bypass the
+rich inline commit boundary, add storage/backend routes, add PDF/DOCX renderer
+work, copy legacy editor runtime, or change package/document schema.
 
 ## Phase 12 Extraction Record
 

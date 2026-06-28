@@ -511,6 +511,9 @@ The package must remain runnable without any parent editor checkout.
 - Active text-block DOM binding smoke captures JSON-safe contenteditable-like
   surface facts, UTF-16 selection offsets, text snapshots, active node id, and
   composition state for one active island without production DOM range support.
+- Active island commit bridge smoke converts accepted island capture facts into
+  `text-block.rich-inline.replace` requests and proves the existing sandbox
+  rich inline mutation bridge preserves packet refresh and exact stale signals.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -642,6 +645,9 @@ The package must remain runnable without any parent editor checkout.
   boundary before DOM binding, command execution, or package mutation
 - `docs/ACTIVE_TEXT_BLOCK_DOM_BINDING_SMOKE.md`: Phase 157 JSON-safe active
   text-block DOM binding smoke before commit bridge execution
+- `docs/ACTIVE_ISLAND_COMMIT_BRIDGE_SMOKE.md`: Phase 158 active island capture
+  to rich inline commit bridge smoke before field-chip and paste/delete
+  hardening
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -898,7 +904,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
-  production editing close beyond the Phase 157 DOM binding smoke
+  production editing close beyond the Phase 158 active island commit bridge
   boundary
 - concrete internal text/table placement execution behind pausable layout job
   records
