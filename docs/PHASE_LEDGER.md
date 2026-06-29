@@ -198,6 +198,7 @@ Parent goal:
 | 189 | Text engine runtime identity digest evidence population gate | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentityDigestEvidencePopulationGate.test.ts`; pointer guard tests |
 | 190 | Text engine WASM artifact digest pinning gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactDigestPinningGate.test.ts`; pointer guard tests |
 | 191 | Text engine WASM artifact build output gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactBuildOutputGate.test.ts`; pointer guard tests |
+| 192 | Text engine WASM build toolchain readiness gate | done | `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`; `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`; `packages/text-engine-rust-wasm/rust-shaper/src/lib.rs`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `packages/text-engine-rust-wasm/fixtures/wasm-build-toolchain-readiness.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmBuildToolchainReadinessGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -4939,6 +4940,50 @@ schema, add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 192 Text Engine WASM Build Toolchain Readiness
 Gate.
+
+## Phase 192 Text Engine WASM Build Toolchain Readiness Gate
+
+Phase 192 makes the package-local WASM build toolchain and crate target
+readiness explicit without producing a WASM artifact:
+
+- readiness summary:
+  `packages/text-engine-rust-wasm/fixtures/wasm-build-toolchain-readiness.v1.json`;
+- accepted future artifact path:
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- accepted path: `wasm-pack`;
+- direct Cargo plus `wasm-bindgen` remains a deferred alternate;
+- `cargo` is available;
+- `wasm-pack` is unavailable;
+- `wasm-bindgen` CLI is unavailable;
+- `wasm32-unknown-unknown` is not installed;
+- `rust-shaper` now has `src/lib.rs`;
+- `rust-shaper` now declares `[lib] name = "flowdoc_text_engine"` and
+  `crate-type = ["cdylib", "rlib"]`;
+- native `main.rs` smoke path remains intact;
+- package-local `wasm:build` script metadata records the accepted command;
+- root `npm.cmd run check` does not require `wasm-pack` or the WASM target;
+- `toolchainReady=false`;
+- `crateTargetShapeReady=true`;
+- `canProduceArtifactNow=false`;
+- `artifactProduced=false`;
+- `artifactPointer=null`;
+- `digestStatus="pending"`;
+- `sha256=null`;
+- raw native/WASM evidence remains outside root tests/docs;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement remain blocked.
+
+This phase intentionally does not execute rustybuzz/WASM/ICU4X in
+`@flowdoc/vnext-core`, put raw native/WASM evidence in root tests/docs, require
+`wasm-pack` or `wasm32-unknown-unknown` in root checks, produce an artifact,
+pin sha256, replace `measureVNextText(...)`, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+add backend routes, storage, auth/authz, implement contenteditable, change
+package/document schema, add collaboration/offline behavior, or copy legacy
+editor runtime.
+
+Next recommended phase: Phase 193 Text Engine WASM Toolchain Acquisition Gate.
 
 ## Phase 12 Extraction Record
 

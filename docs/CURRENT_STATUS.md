@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 191.
+Status: updated after Phase 192.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 191: Text Engine WASM Artifact Build Output Gate.
+Phase 192: Text Engine WASM Build Toolchain Readiness Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -34,18 +34,22 @@ accepted future output path, and keeps the digest pending. Phase 191 defines
 the package-local build command/output metadata, finds the artifact cannot be
 produced yet because `wasm-pack` and `wasm32-unknown-unknown` are unavailable
 and `rust-shaper` is still a binary native smoke crate, and keeps digest
-pinning blocked.
+pinning blocked. Phase 192 accepts the `wasm-pack` path over direct Cargo plus
+`wasm-bindgen`, adds a minimal package-local `cdylib`/`rlib` crate target and
+`wasm:build` script metadata, keeps the native smoke path intact, and keeps
+artifact production blocked because `wasm-pack` and `wasm32-unknown-unknown`
+are still unavailable.
 
 ## Current Next Phase
 
-Phase 192: Text Engine WASM Build Toolchain Readiness Gate.
+Phase 193: Text Engine WASM Toolchain Acquisition Gate.
 
 Goal:
 
-- make the package-local WASM build toolchain and crate target readiness
-  explicit before producing an artifact;
-- keep artifact production and sha256 pinning blocked unless the toolchain and
-  crate shape are ready;
+- decide how `wasm-pack` and `wasm32-unknown-unknown` become available for
+  package-local builds without making root checks depend on them;
+- keep artifact production and sha256 pinning blocked unless the toolchain is
+  actually available;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
 - keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
   accepted manifests blocked until their dedicated phases;
@@ -139,6 +143,15 @@ but marks it `blocked-not-runnable` because `wasm-pack` is unavailable,
 `wasm32-unknown-unknown` is not installed, and `rust-shaper` is not a
 WASM-ready library crate.
 
+Phase 192 adds
+`packages/text-engine-rust-wasm/fixtures/wasm-build-toolchain-readiness.v1.json`
+as package-local readiness metadata. It records `wasm-pack` as the accepted
+path, direct Cargo plus `wasm-bindgen` as a deferred alternate, `cargo`
+available, `wasm-pack` unavailable, `wasm-bindgen` CLI unavailable,
+`wasm32-unknown-unknown` absent, root checks not requiring WASM tooling, and
+`rust-shaper` minimally crate-target ready with `cdylib`/`rlib` plus
+`src/lib.rs`.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -150,11 +163,13 @@ WASM-ready library crate.
   gate.
 - Do not execute external text engines in core.
 - Do not put raw evidence in root tests/docs.
+- Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
 - Do not change package/document schema as part of status/documentation work.
 
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`

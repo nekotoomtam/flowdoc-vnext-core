@@ -1,0 +1,100 @@
+{
+  "readinessSummaryId": "text-engine-wasm-build-toolchain-readiness-v1",
+  "sourceBuildOutputSummaryId": "text-engine-wasm-artifact-build-output-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildDecision": {
+    "acceptedPath": "wasm-pack",
+    "decisionStatus": "accepted-blocked-by-toolchain",
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "command": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
+    "reason": "matches the Phase 190/191 accepted pkg output path and keeps wasm-bindgen package metadata owned by the external adapter lane",
+    "directCargoWasmBindgen": {
+      "status": "deferred-alternate",
+      "blocker": "wasm-bindgen-cli-not-available",
+      "reason": "direct cargo plus wasm-bindgen would require separate CLI/package metadata sequencing and does not replace the accepted pkg output path in this gate"
+    }
+  },
+  "toolchainChecks": {
+    "cargo": {
+      "available": true,
+      "observedCommand": "cargo"
+    },
+    "wasmPack": {
+      "available": false,
+      "observedCommand": "wasm-pack",
+      "blocker": "wasm-pack-not-available"
+    },
+    "wasmBindgenCli": {
+      "available": false,
+      "observedCommand": "wasm-bindgen",
+      "status": "alternate-path-unavailable"
+    },
+    "rustTargets": {
+      "installed": ["x86_64-pc-windows-msvc"],
+      "wasm32UnknownUnknownInstalled": false,
+      "blocker": "wasm32-unknown-unknown-target-not-installed"
+    },
+    "rootCheckRequiresWasmPack": false,
+    "rootCheckRequiresWasmTarget": false
+  },
+  "crateTargetReadiness": {
+    "cratePath": "packages/text-engine-rust-wasm/rust-shaper",
+    "hasCargoToml": true,
+    "hasMainRs": true,
+    "hasLibRs": true,
+    "nativeMainSmokePathIntact": true,
+    "libName": "flowdoc_text_engine",
+    "crateTypes": ["cdylib", "rlib"],
+    "minimalBoundaryExports": [
+      "FLOWDOC_TEXT_ENGINE_WASM_BOUNDARY_VERSION",
+      "flowdoc_text_engine_wasm_readiness_marker",
+      "flowdoc_text_engine_wasm_boundary_version_len"
+    ],
+    "rustybuzzExecutionInLib": false,
+    "wasmBindgenDependencyAdded": false,
+    "targetShapeStatus": "minimal-ready",
+    "remainingCrateBlockers": []
+  },
+  "packageScripts": {
+    "rustybuzzBuild": "cargo build --manifest-path rust-shaper/Cargo.toml",
+    "wasmBuild": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
+    "wasmBuildStatus": "package-local-metadata-only",
+    "rootCheckRequiresWasmBuild": false
+  },
+  "toolchainReady": false,
+  "crateTargetShapeReady": true,
+  "canProduceArtifactNow": false,
+  "artifactProduced": false,
+  "artifactPointer": null,
+  "digestStatus": "pending",
+  "sha256": null,
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "artifactBlockers": [
+    "wasm-pack-not-available",
+    "wasm32-unknown-unknown-target-not-installed",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "wasmArtifactPointer": null,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedPhase": "Phase 193: Text Engine WASM Toolchain Acquisition Gate"
+}

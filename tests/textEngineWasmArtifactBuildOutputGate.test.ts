@@ -146,7 +146,7 @@ describe("text engine WASM artifact build output gate", () => {
     ])
     expect(repoPathExists("packages/text-engine-rust-wasm/rust-shaper/Cargo.toml")).toBe(true)
     expect(repoPathExists("packages/text-engine-rust-wasm/rust-shaper/src/main.rs")).toBe(true)
-    expect(repoPathExists("packages/text-engine-rust-wasm/rust-shaper/src/lib.rs")).toBe(false)
+    expect(buildOutputSummary.environmentChecks.crateShape.hasLibRs).toBe(false)
   })
 
   it("keeps artifact production and digest pinning blocked until a real artifact exists", () => {
@@ -212,17 +212,20 @@ describe("text engine WASM artifact build output gate", () => {
     expect(serialized).not.toContain("JVBERi0")
   })
 
-  it("does not add a production WASM build script or execute external engines in core", () => {
+  it("does not make root checks require the package-local WASM build script or execute external engines in core", () => {
     const packageJson = readJson<PackageJson>("../packages/text-engine-rust-wasm/package.json")
+    const rootPackageJson = readJson<PackageJson>("../package.json")
     const coreIndex = readText("../src/index.ts")
     const coreMeasurement = readText("../src/pagination/textMeasurement.ts")
 
     expect(packageJson.scripts?.["rustybuzz:build"]).toBe(
       "cargo build --manifest-path rust-shaper/Cargo.toml",
     )
-    expect(Object.values(packageJson.scripts ?? {})).not.toContain(
+    expect(packageJson.scripts?.["wasm:build"]).toBe(
       buildOutputSummary.acceptedBuild.command,
     )
+    expect(Object.values(rootPackageJson.scripts ?? {}).join(" ")).not.toContain("wasm-pack")
+    expect(Object.values(rootPackageJson.scripts ?? {}).join(" ")).not.toContain("wasm32-unknown-unknown")
     expect(coreIndex).not.toContain("text-engine-rust-wasm")
     expect(coreIndex).not.toContain("wasm-artifact-build-output")
     expect(coreMeasurement).not.toContain("wasm-artifact-build-output")
@@ -252,17 +255,17 @@ describe("text engine WASM artifact build output gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Phase 191.")
-    expect(currentStatus).toContain("Phase 191: Text Engine WASM Artifact Build Output Gate.")
+    expect(currentStatus).toContain("Status: updated after Phase 192.")
     expect(currentStatus).toContain("Phase 192: Text Engine WASM Build Toolchain Readiness Gate.")
-    expect(nextPointer).toContain("Status: current after Phase 191.")
-    expect(nextPointer).toContain("Phase 192: Text Engine WASM Build Toolchain Readiness Gate.")
+    expect(currentStatus).toContain("Phase 193: Text Engine WASM Toolchain Acquisition Gate.")
+    expect(nextPointer).toContain("Status: current after Phase 192.")
+    expect(nextPointer).toContain("Phase 193: Text Engine WASM Toolchain Acquisition Gate.")
     expect(readme).toContain("Text engine WASM artifact build output gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md")
     expect(ledger).toContain("| 191 | Text engine WASM artifact build output gate | done |")
     expect(ledger).toContain("## Phase 191 Text Engine WASM Artifact Build Output Gate")
     expect(roadmap).toContain("## Phase 191: Text Engine WASM Artifact Build Output Gate")
-    expect(roadmap).toContain("Current next step after Phase 191:")
-    expect(roadmap).toContain("Historical Phase 190 Handoff")
+    expect(roadmap).toContain("Current next step after Phase 192:")
+    expect(roadmap).toContain("Historical Phase 191 Handoff")
   })
 })

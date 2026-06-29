@@ -4,5 +4,10 @@ version = "0.0.0"
 edition = "2021"
 publish = false
 
+[lib]
+name = "flowdoc_text_engine"
+crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
+
 [dependencies]
 rustybuzz = "=0.20.1"
