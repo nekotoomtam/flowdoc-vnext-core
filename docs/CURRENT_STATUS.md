@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 182.
+Status: updated after Phase 183.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,22 +8,23 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 182: V1 Hardening Backlog Triage Gate.
+Phase 183: Measurement Digest Parity Drift Hardening Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
-rollout / digest / parity / drift as the first production hardening lane. It
-does not claim production readiness.
+rollout / digest / parity / drift as the first production hardening lane.
+Phase 183 defines the digest, parity, drift, fixture-evidence, and replacement
+blocker policy for that lane. It does not claim production readiness.
 
 ## Current Next Phase
 
-Phase 183: Measurement Digest Parity Drift Hardening Gate.
+Phase 184: V1 Measurement Fixture Evidence Matrix Gate.
 
 Goal:
 
-- define the production measurement evidence gate;
-- decide what digest, native/WASM parity, drift, and fixture evidence must be
-  present before a later default-measurer replacement can be proposed;
+- select and map the required v1 measurement fixture/scenario matrix;
+- keep digest, parity, drift, and fixture evidence tied to stable
+  `measurementProfileId` and corpus ids;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -60,6 +61,11 @@ Ranked after Phase 182:
 7. Collaboration/offline semantics.
 8. Package/document schema changes, if any are required later.
 
+Phase 183 blocks measurement replacement until digest identity is pinned,
+native/WASM parity is matching, drift thresholds are accepted, required v1
+measurement fixture evidence is present, and a later binding phase explicitly
+accepts default-measurer replacement.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -69,14 +75,18 @@ Ranked after Phase 182:
 - Do not add PDF/DOCX production renderer work as incidental cleanup.
 - Do not replace the default measurer as part of the measurement hardening
   gate.
+- Do not execute external text engines in core.
 - Do not change package/document schema as part of status/documentation work.
 
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`
 - `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`
 - `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`
 - `docs/MEASUREMENT_ROLLOUT_GATE.md`
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
+- `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
 - `docs/PHASE_LEDGER.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`

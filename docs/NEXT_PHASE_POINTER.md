@@ -1,27 +1,28 @@
 # Next Phase Pointer
 
-Status: current after Phase 182.
+Status: current after Phase 183.
 
 ## Next Phase
 
-Phase 183: Measurement Digest Parity Drift Hardening Gate.
+Phase 184: V1 Measurement Fixture Evidence Matrix Gate.
 
 ## Why This Is Next
 
-Phase 182 ranks the production hardening backlog and selects measurement
-rollout / digest / parity / drift as the first lane. The next safe step is to
-define the production measurement evidence gate before replacing the default
-measurer or binding renderer-backed measurement as production truth.
+Phase 183 defines the production measurement evidence policy for digest
+identity, native/WASM parity, drift thresholds, required fixture categories,
+and blockers before replacing the default measurer. The next safe step is to
+select the concrete v1 fixture/scenario evidence matrix before running external
+engines or binding production measurement.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`
-- `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`
-- `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`
 - `docs/MEASUREMENT_ROLLOUT_GATE.md`
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
+- `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
 - `docs/PDF_RENDERER_DECISION_GATE.md`
-- `docs/GUARDED_INPUT_INTEGRATION_CLOSE_AUDIT.md`
 
 ## Hard Limits
 
@@ -31,15 +32,16 @@ measurer or binding renderer-backed measurement as production truth.
 - No production PDF/DOCX renderer.
 - No default measurement replacement.
 - No pagination mutation.
+- No external text-engine execution in core.
 - No package/document schema change.
 - No collaboration/offline behavior.
 - No legacy editor runtime copy.
 
 ## Expected Output
 
-- measurement digest/parity/drift hardening gate;
-- required production measurement evidence;
-- default-measurer replacement blockers;
+- v1 measurement fixture/scenario evidence matrix;
+- fixture coverage mapped to digest, parity, and drift policy;
+- explicit remaining blockers before any production measurement binding;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
 - updated current-status pointer.

@@ -5182,6 +5182,37 @@ Acceptance:
   replacement, pagination mutation, package/document schema change,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 183: Measurement Digest Parity Drift Hardening Gate
+
+Goal:
+
+- define the production measurement evidence policy selected by Phase 182
+  before any default-measurer replacement or production binding.
+
+Deliverables:
+
+- `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/measurementDigestParityDriftHardeningGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 182 current-pointer guard update.
+
+Acceptance:
+
+- digest identity and retention expectations are defined;
+- native/WASM parity acceptance criteria are defined;
+- drift status, threshold policy, and escalation rules are defined;
+- required v1 measurement fixture/scenario evidence categories are defined;
+- blocked, warning, and unknown policy is explicit;
+- blockers before replacing `measureVNextText(...)` are explicit;
+- next phase is Phase 184: V1 Measurement Fixture Evidence Matrix Gate;
+- no `measureVNextText(...)` default replacement, pagination mutation,
+  production renderer-backed measurement binding, external text-engine
+  execution in core, production PDF/DOCX renderer work, backend routes/storage/
+  auth, production contenteditable, package/document schema change,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5211,10 +5242,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 182:
+Current next step after Phase 183:
 
 ```text
-Phase 183: Measurement Digest Parity Drift Hardening Gate
+Phase 184: V1 Measurement Fixture Evidence Matrix Gate
 ```
 
 Reason:
@@ -5256,12 +5287,26 @@ Reason:
   current-state documentation so daily work has a compact source of truth;
 - Phase 182 now ranks production hardening blockers and chooses measurement
   rollout / digest / parity / drift as the first hardening lane;
-- the next safe lane is defining the digest, parity, drift, and fixture
-  evidence gate before any production measurement binding or default-measurer
+- Phase 183 now defines digest identity, native/WASM parity criteria, drift
+  policy, required v1 evidence categories, and blockers before replacing
+  `measureVNextText(...)`;
+- the next safe lane is selecting and mapping the concrete v1 measurement
+  fixture matrix before any production measurement binding or default-measurer
   replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 182 Handoff
+
+Current next step after Phase 182:
+
+```text
+Phase 183: Measurement Digest Parity Drift Hardening Gate
+```
+
+That was the Phase 182 handoff recommendation. Phase 183 is now complete, so
+it is no longer the current next step after Phase 183.
 
 ## Historical Phase 181 Handoff
 

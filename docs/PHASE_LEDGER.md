@@ -189,6 +189,7 @@ Parent goal:
 | 180 | Internal alpha vertical slice | done | `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/index.ts`; `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaVerticalSlice.test.ts`; `tests/measurementRolloutGate.test.ts` |
 | 181 | Internal alpha close audit and documentation consolidation gate | done | `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaCloseAuditConsolidation.test.ts`; `tests/internalAlphaVerticalSlice.test.ts` |
 | 182 | V1 hardening backlog triage gate | done | `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1HardeningBacklogTriageGate.test.ts`; `tests/internalAlphaCloseAuditConsolidation.test.ts` |
+| 183 | Measurement digest parity drift hardening gate | done | `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementDigestParityDriftHardeningGate.test.ts`; `tests/v1HardeningBacklogTriageGate.test.ts` |
 
 ## Current Rule
 
@@ -4680,6 +4681,25 @@ changes, collaboration/offline behavior, or legacy editor runtime copy.
 
 Next recommended phase: Phase 183 Measurement Digest Parity Drift Hardening
 Gate.
+
+## Phase 183 Measurement Digest Parity Drift Hardening Gate
+
+Phase 183 defines the production measurement evidence gate before any default
+measurement replacement or production binding:
+
+- digest identity and retention expectations;
+- native/WASM parity acceptance criteria;
+- drift threshold status, escalation, and blocked/warning/unknown policy;
+- required v1 measurement fixture/scenario evidence categories;
+- blockers before replacing `measureVNextText(...)`.
+
+This phase intentionally does not replace `measureVNextText(...)`, mutate
+pagination, bind production renderer-backed measurement, execute external text
+engines in core, add production PDF/DOCX renderer work, add backend routes,
+storage, auth/authz, implement contenteditable, change package/document schema,
+add collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 184 V1 Measurement Fixture Evidence Matrix Gate.
 
 ## Phase 12 Extraction Record
 
