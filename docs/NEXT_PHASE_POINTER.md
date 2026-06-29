@@ -1,49 +1,45 @@
 # Next Phase Pointer
 
-Status: current after Text Engine WASM Toolchain Version Compatibility Gate.
+Status: current after Text Engine WASM Toolchain Rust Upgrade Execution Gate.
 
 ## Next Phase
 
-Text Engine WASM Toolchain Rust Upgrade Execution Gate.
+Text Engine WASM Artifact Production Retry Gate.
 
 Phase 196: Artifact Digest Pinning Execution remains blocked.
 
 ## Why This Is Next
 
-The version compatibility gate compared five strategies after
-`cargo install wasm-pack --locked` selected `wasm-pack v0.15.0` and failed
-because `cargo-platform@0.3.3` requires `rustc 1.91`, while this environment
-reports `rustc 1.88.0`.
+The Rust upgrade execution gate completed the accepted immediate strategy from
+the version compatibility gate:
 
-Selected strategies:
+- `rustup update stable` succeeded;
+- `rustc --version` reports `rustc 1.96.0 (ac68faa20 2026-05-25)`;
+- `cargo --version` reports `cargo 1.96.0 (30a34c682 2026-05-25)`;
+- `wasm32-unknown-unknown` remains installed;
+- `cargo install wasm-pack --locked` was retried only after the Rust `1.91+`
+  requirement was satisfied;
+- `wasm-pack --version` reports `wasm-pack 0.15.0`;
+- package-local `wasm:readiness-smoke` now reports `toolchainReady=true` and
+  `canProduceArtifactNow=true`.
 
-- immediate: upgrade Rust toolchain to `1.91+`;
-- longer-term reproducible: pinned CI image or equivalent immutable runner.
-
-The `wasm32-unknown-unknown` target is already installed, but `wasm-pack` is
-still unavailable and package-local readiness still reports:
-
-```text
-toolchainReady=false
-```
-
-The next safe step is an execution gate for the accepted immediate strategy.
-That gate may upgrade or install Rust 1.91+ only with explicit approval for
-toolchain changes. It must then retry `cargo install wasm-pack --locked`,
-capture `wasm-pack --version`, and rerun `wasm:readiness-smoke`.
-
-Do not retry artifact production until package-local readiness reports:
-
-```text
-toolchainReady=true
-```
-
-Artifact Digest Pinning Execution must not proceed until the accepted artifact
-exists at:
+The accepted artifact still does not exist:
 
 ```text
 packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm
 ```
+
+The next safe step is a dedicated artifact production retry gate. That gate may
+run the package-local `wasm:build` command only because the package-local
+readiness smoke reports `toolchainReady=true`. The artifact must be produced
+only under:
+
+```text
+packages/text-engine-rust-wasm/pkg/
+```
+
+Artifact Digest Pinning Execution must not proceed until a real artifact exists
+at the accepted path.
 
 Native evidence, WASM evidence, native/WASM parity summaries,
 renderer-backed drift summaries, numeric thresholds, accepted manifests,
@@ -53,6 +49,8 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
@@ -65,8 +63,6 @@ blocked until later phases.
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`
 - `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`
 - `packages/text-engine-rust-wasm/package.json`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`
-- `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
 
@@ -79,8 +75,7 @@ blocked until later phases.
 - No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.
 - No fake WASM artifact.
 - No fake sha256.
-- No artifact production until `toolchainReady=true`.
-- No Artifact Digest Pinning Execution while the accepted artifact is absent.
+- No artifact digest pinning while the accepted artifact is absent.
 - No default measurement replacement.
 - No pagination mutation.
 - No renderer-backed measurement as production truth.
@@ -94,15 +89,16 @@ blocked until later phases.
 
 ## Expected Output
 
-- approved or explicitly blocked Rust 1.91+ upgrade execution;
-- exact `rustc` and `cargo` version capture after the upgrade attempt;
-- `cargo install wasm-pack --locked` retry only if `rustc` is `1.91+`;
-- `wasm-pack --version` capture if install succeeds;
-- `wasm:readiness-smoke` rerun after `wasm-pack` is available;
+- package-local artifact production retry decision;
+- if `toolchainReady=true`, run the package-local `wasm:build` command;
+- produce the artifact only under
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- if production fails, record the exact package-local blocker;
+- record artifact existence, file size, and retention pointer in a JSON-safe
+  package-local summary;
+- keep digest status `pending` unless a later explicit pinning phase computes
+  sha256 from a real artifact;
 - root checks remain independent from WASM tooling;
-- artifact production remains blocked until the toolchain is actually
-  available;
-- digest status remains `pending` unless a real artifact exists;
 - explicit blocker status for native evidence, WASM evidence, parity, drift,
   thresholds, accepted manifest, and default-measurer replacement;
 - explicit non-work;

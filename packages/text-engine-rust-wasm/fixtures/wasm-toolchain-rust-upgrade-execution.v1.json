@@ -1,0 +1,160 @@
+{
+  "rustUpgradeExecutionSummaryId": "text-engine-wasm-toolchain-rust-upgrade-execution-v1",
+  "sourceCompatibilitySummaryId": "text-engine-wasm-toolchain-version-compatibility-v1",
+  "sourceProvisioningExecutionSummaryId": "text-engine-wasm-toolchain-provisioning-execution-v1",
+  "sourceProvisioningBootstrapSummaryId": "text-engine-wasm-toolchain-provisioning-bootstrap-v1",
+  "sourceArtifactProductionSummaryId": "text-engine-wasm-artifact-production-v1",
+  "sourceDiagnosticSummaryId": "text-engine-wasm-toolchain-diagnostic-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildPath": "wasm-pack",
+  "sourceCompatibility": {
+    "acceptedImmediateStrategy": "upgrade-rust-toolchain-to-1.91-plus",
+    "minimumRustc": "1.91",
+    "acceptedLongTermStrategy": "pinned-ci-image",
+    "previousRustc": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+    "previousCargo": "cargo 1.88.0 (873a06493 2025-05-10)",
+    "previousWasmPackAvailable": false,
+    "previousWasm32UnknownUnknownInstalled": true,
+    "previousToolchainReady": false
+  },
+  "execution": {
+    "allowedInEnvironment": true,
+    "executionSkipped": false,
+    "approvalMode": "sandbox-escalated-command-approval",
+    "networkAccessObserved": true,
+    "systemToolchainWriteObserved": true,
+    "rawCommandOutputIncluded": false,
+    "jsonSafe": true,
+    "rawEvidenceIncluded": false
+  },
+  "rustUpgrade": {
+    "command": "rustup update stable",
+    "acceptedAlternativeCommand": "rustup toolchain install 1.91.0",
+    "attempted": true,
+    "exitCode": 0,
+    "status": "succeeded",
+    "minimumRustc": "1.91",
+    "capturedRustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+    "capturedCargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "rustcMeetsMinimum": true,
+    "rawOutputIncluded": false
+  },
+  "versionAfterUpgrade": {
+    "rustcCaptureCommand": "rustc --version",
+    "cargoCaptureCommand": "cargo --version",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+    "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "minimumRustc": "1.91",
+    "rustcMeetsMinimum": true,
+    "installedRustTargets": [
+      "wasm32-unknown-unknown",
+      "x86_64-pc-windows-msvc"
+    ],
+    "wasm32UnknownUnknownInstalled": true,
+    "versionCaptureRequiresRootCheck": false
+  },
+  "wasm32Target": {
+    "verificationCommand": "rustup target list --installed",
+    "target": "wasm32-unknown-unknown",
+    "installed": true,
+    "reinstalled": false,
+    "status": "installed-after-upgrade",
+    "rawOutputIncluded": false
+  },
+  "wasmPackRetry": {
+    "gatedByRustcMinimum": true,
+    "attemptedOnlyAfterRustcMeetsMinimum": true,
+    "command": "cargo install wasm-pack --locked",
+    "attempted": true,
+    "exitCode": 0,
+    "status": "installed",
+    "selectedVersion": "wasm-pack v0.15.0",
+    "capturedVersionCommand": "wasm-pack --version",
+    "capturedVersion": "wasm-pack 0.15.0",
+    "rawOutputIncluded": false
+  },
+  "postExecutionReadiness": {
+    "command": "npm run wasm:readiness-smoke",
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "lastObservedExitCode": 0,
+    "cargoAvailable": true,
+    "rustupAvailable": true,
+    "wasmPackAvailable": true,
+    "wasmPackVersion": "wasm-pack 0.15.0",
+    "wasmPackVersionPolicyStatus": "captured-ready-for-artifact-production-retry",
+    "wasmBindgenCliAvailable": false,
+    "installedRustTargets": [
+      "wasm32-unknown-unknown",
+      "x86_64-pc-windows-msvc"
+    ],
+    "wasm32UnknownUnknownInstalled": true,
+    "toolchainReady": true,
+    "canProduceArtifactNow": true,
+    "artifactProductionBlocked": false,
+    "blockedReasons": []
+  },
+  "rootCheck": {
+    "requiresWasmPack": false,
+    "requiresWasm32UnknownUnknown": false,
+    "requiresRustUpgradeExecution": false,
+    "requiresReadinessSmoke": false,
+    "requiresArtifact": false,
+    "requiresWasmBuild": false
+  },
+  "artifactPolicy": {
+    "artifactProductionBlocked": false,
+    "canRetryArtifactProduction": true,
+    "artifactProductionRetryPhaseRequired": true,
+    "artifactProduced": false,
+    "artifactExists": false,
+    "artifactPointer": null,
+    "retentionPointer": null,
+    "fileSizeBytes": null,
+    "artifactProductionStatus": "ready-for-artifact-production-retry-not-run-in-this-phase",
+    "fakeArtifactAllowed": false,
+    "producedThisPhase": false
+  },
+  "digestPolicy": {
+    "digestPinningBlocked": true,
+    "digestStatus": "pending",
+    "sha256": null,
+    "pinningStatus": "blocked-until-real-artifact-exists",
+    "fakeSha256Allowed": false
+  },
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "blockers": [
+    "artifact-production-retry-not-yet-run",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "versionCompatibilitySummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json",
+    "rustUpgradeExecutionSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json",
+    "postExecutionReadinessSource": "packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs",
+    "wasmArtifactPointer": null,
+    "artifactProduced": false,
+    "fileSizeBytes": null,
+    "toolchainReady": true,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedWork": "Text Engine WASM Artifact Production Retry Gate",
+  "artifactProductionRetryRule": "retry-in-next-phase-only-after-toolchainReady-true",
+  "phase196Rule": "blocked-until-real-artifact-exists"
+}

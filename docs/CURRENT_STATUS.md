@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Text Engine WASM Toolchain Version Compatibility Gate.
+Status: updated after Text Engine WASM Toolchain Rust Upgrade Execution Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,12 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Text Engine WASM Toolchain Version Compatibility Gate.
+Text Engine WASM Toolchain Rust Upgrade Execution Gate.
+
+Recent completed gate markers retained for pointer guards:
+
+- Text Engine WASM Toolchain Version Compatibility Gate.
+- Text Engine WASM Toolchain Rust Upgrade Execution Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -70,22 +75,30 @@ It selects Rust toolchain upgrade to `1.91+` as the immediate strategy, selects
 a pinned CI image as the longer-term reproducible strategy, keeps
 `wasm32-unknown-unknown` recorded as installed, and keeps artifact production
 blocked until `wasm-pack` is available and readiness reports
-`toolchainReady=true`.
+`toolchainReady=true`. The Text Engine WASM Toolchain Rust Upgrade Execution
+Gate then executes the immediate strategy: `rustup update stable` succeeds,
+the toolchain reports `rustc 1.96.0` and `cargo 1.96.0`,
+`wasm32-unknown-unknown` remains installed, `cargo install wasm-pack --locked`
+succeeds, `wasm-pack --version` reports `wasm-pack 0.15.0`, and
+package-local `wasm:readiness-smoke` reports `toolchainReady=true` plus
+`canProduceArtifactNow=true`. No artifact is produced in that phase, so digest
+pinning remains blocked until a real
+`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` exists.
 
 ## Current Next Phase
 
-Text Engine WASM Toolchain Rust Upgrade Execution Gate.
+Text Engine WASM Artifact Production Retry Gate.
 
 Goal:
 
-- execute or explicitly block the accepted Rust 1.91+ upgrade strategy;
-- if approved, run the selected Rust upgrade/install command and capture
-  `rustc --version` plus `cargo --version`;
-- retry `cargo install wasm-pack --locked` only after `rustc` is `1.91` or
-  newer;
-- capture `wasm-pack --version` if install succeeds;
-- rerun `wasm:readiness-smoke` after `wasm-pack` is available;
-- keep `wasm32-unknown-unknown` recorded as installed;
+- use the Rust upgrade execution summary as source of truth;
+- run package-local `wasm:build` only because the readiness smoke reports
+  `toolchainReady=true`;
+- produce the artifact only under
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- record artifact existence, file size, and retention pointer in JSON-safe
+  package-local summary metadata;
+- if artifact production fails, record the exact package-local blocker;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep Phase 196 Artifact Digest Pinning Execution blocked until the accepted
   artifact is actually produced under
@@ -261,6 +274,16 @@ tool cache, and preinstalled developer toolchain strategies. It accepts
 `wasm32UnknownUnknownInstalled=true`, keeps `wasmPackAvailable=false`, keeps
 `toolchainReady=false`, and blocks artifact production plus digest pinning.
 
+The Text Engine WASM Toolchain Rust Upgrade Execution Gate adds
+`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`.
+It executes `rustup update stable`, records `rustc 1.96.0` and
+`cargo 1.96.0`, verifies `wasm32-unknown-unknown` remains installed, retries
+`cargo install wasm-pack --locked` only after the Rust `1.91+` condition is
+met, records `wasm-pack 0.15.0`, and reruns package-local
+`wasm:readiness-smoke` with `toolchainReady=true` and
+`canProduceArtifactNow=true`. It does not produce the artifact or pin sha256;
+the next dedicated gate is artifact production retry.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -278,6 +301,7 @@ tool cache, and preinstalled developer toolchain strategies. It accepts
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`

@@ -205,6 +205,7 @@ Parent goal:
 | 195A | Text engine WASM toolchain provisioning bootstrap gate | done | `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`; `packages/text-engine-rust-wasm/scripts/plan-wasm-toolchain-bootstrap.mjs`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmToolchainProvisioningBootstrapGate.test.ts`; pointer guard tests |
 | 195B | Text engine WASM toolchain provisioning execution gate | done | `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmToolchainProvisioningExecutionGate.test.ts`; pointer guard tests |
 | 195C | Text engine WASM toolchain version compatibility gate | done | `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmToolchainVersionCompatibilityGate.test.ts`; pointer guard tests |
+| 195D | Text engine WASM toolchain Rust upgrade execution gate | done | `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmToolchainRustUpgradeExecutionGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5230,6 +5231,45 @@ editor runtime.
 
 Next recommended work: Text Engine WASM Toolchain Rust Upgrade Execution
 Gate. Artifact Digest Pinning Execution remains blocked.
+
+## Phase 195D Text Engine WASM Toolchain Rust Upgrade Execution Gate
+
+The Rust upgrade execution gate executes the accepted immediate strategy from
+Phase 195C and records the result as JSON-safe package-local metadata:
+
+- Rust upgrade execution summary:
+  `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`;
+- `rustup update stable` was attempted with explicit escalation for network
+  and user Rust toolchain writes;
+- the upgraded toolchain reports `rustc 1.96.0` and `cargo 1.96.0`;
+- `wasm32-unknown-unknown` remains installed;
+- `cargo install wasm-pack --locked` was retried only after `rustc` satisfied
+  the `1.91+` requirement;
+- `wasm-pack --version` reports `wasm-pack 0.15.0`;
+- post-execution `wasm:readiness-smoke` reports `wasmPackAvailable=true`,
+  `wasm32UnknownUnknownInstalled=true`, `toolchainReady=true`, and
+  `canProduceArtifactNow=true`;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target,
+  Rust upgrade execution, the readiness smoke, the WASM build, or an artifact;
+- artifact production was not run in this phase and must occur only in the
+  next dedicated retry gate;
+- digest pinning remains blocked until a real artifact exists;
+- raw native/WASM evidence remains outside root tests/docs;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement remain blocked.
+
+This phase intentionally does not require `wasm-pack` or
+`wasm32-unknown-unknown` in root checks, execute rustybuzz/WASM/ICU4X in
+`@flowdoc/vnext-core`, produce a fake WASM artifact, pin a fake sha256,
+produce an artifact, replace `measureVNextText(...)`, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+add backend routes, storage, auth/authz, implement contenteditable, change
+package/document schema, add collaboration/offline behavior, or copy legacy
+editor runtime.
+
+Next recommended work: Text Engine WASM Artifact Production Retry Gate.
+Artifact Digest Pinning Execution remains blocked.
 
 ## Phase 12 Extraction Record
 

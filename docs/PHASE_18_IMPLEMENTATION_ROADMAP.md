@@ -5843,6 +5843,47 @@ Acceptance:
   package/document schema change, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 195D: Text Engine WASM Toolchain Rust Upgrade Execution Gate
+
+Goal:
+
+- execute or explicitly block the accepted Rust 1.91+ upgrade strategy, then
+  retry `cargo install wasm-pack --locked` only if the captured `rustc` version
+  is 1.91 or newer.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmToolchainRustUpgradeExecutionGate.test.ts`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- executes `rustup update stable` as the accepted immediate strategy;
+- captures `rustc 1.96.0` and `cargo 1.96.0`;
+- verifies `rustc` satisfies the `1.91+` minimum before retrying
+  `wasm-pack`;
+- verifies `wasm32-unknown-unknown` remains installed;
+- retries `cargo install wasm-pack --locked` only after the Rust version check
+  passes;
+- captures `wasm-pack 0.15.0`;
+- reruns package-local `wasm:readiness-smoke` and records
+  `toolchainReady=true`;
+- keeps root `npm.cmd run check` independent from `wasm-pack`, the WASM target,
+  Rust upgrade execution, readiness smoke, WASM build, and artifacts;
+- does not run `wasm:build`, produce an artifact, compute sha256, or proceed to
+  digest pinning;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, fake WASM
+  artifact, fake sha256, `measureVNextText(...)` replacement, pagination
+  mutation, production renderer-backed measurement binding, production PDF/DOCX
+  renderer work, backend routes/storage/auth, production contenteditable,
+  package/document schema change, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5872,10 +5913,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 195C:
+Current next step after Phase 195D:
 
 ```text
-Text Engine WASM Toolchain Rust Upgrade Execution Gate
+Text Engine WASM Artifact Production Retry Gate
 ```
 
 Reason:
@@ -5975,12 +6016,27 @@ Reason:
   image, internal tool cache, and preinstalled developer toolchain strategies,
   selects Rust 1.91+ upgrade as the immediate strategy, selects pinned CI image
   as the longer-term reproducible strategy, and keeps root checks independent;
-- the current package-local digest remains pending, so the next safe lane is a
-  Rust upgrade execution gate before retrying `wasm-pack` installation or
-  artifact production, with Artifact Digest Pinning Execution still blocked;
+- Phase 195D now executes `rustup update stable`, captures `rustc 1.96.0` and
+  `cargo 1.96.0`, verifies `wasm32-unknown-unknown` remains installed,
+  installs `wasm-pack 0.15.0` after the Rust 1.91+ condition passes, and
+  records package-local `toolchainReady=true`;
+- the current package-local digest remains pending, so the next safe lane is
+  artifact production retry before any digest pinning, with Artifact Digest
+  Pinning Execution still blocked;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 195C Handoff
+
+Current next step after Phase 195C:
+
+```text
+Text Engine WASM Toolchain Rust Upgrade Execution Gate
+```
+
+That was the Phase 195C handoff recommendation. Phase 195D is now complete,
+so it is no longer the current next step after Phase 195D.
 
 ## Historical Phase 195B Handoff
 

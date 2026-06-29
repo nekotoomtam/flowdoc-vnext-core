@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: WASM toolchain version compatibility package.
+Status: WASM toolchain Rust upgrade execution package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -24,7 +24,11 @@ artifact production blocked because `cargo install wasm-pack --locked` fails
 against the current `rustc 1.88.0` toolchain when `wasm-pack v0.15.0`
 requires a dependency needing `rustc 1.91`. The version compatibility gate
 selects a Rust 1.91+ toolchain upgrade as the immediate strategy and a pinned
-CI image as the longer-term reproducible artifact-production strategy.
+CI image as the longer-term reproducible artifact-production strategy. The
+Rust upgrade execution gate upgrades stable Rust to `rustc 1.96.0`, keeps
+`wasm32-unknown-unknown` installed, installs `wasm-pack 0.15.0`, and records
+package-local readiness as `toolchainReady=true` while still leaving artifact
+production and digest pinning to later dedicated gates.
 
 Run the smoke from this package:
 
@@ -50,13 +54,15 @@ Allowed:
 - run `npm run wasm:readiness-smoke` as an optional readiness smoke;
 - run `npm run wasm:bootstrap-plan` as a package-local provisioning plan/check;
 - keep `wasm32-unknown-unknown` provisioning evidence package-local;
+- run `rustup update stable` and `cargo install wasm-pack --locked` only in
+  explicit package-local toolchain execution gates;
 - remain external to `src/**` core.
 
 Blocked:
 
 - production TypeScript adapter binding to rustybuzz output;
 - ICU4X dependency;
-- WASM artifact production, pinning, or loading;
+- WASM artifact production, pinning, or loading until their dedicated gates;
 - core font-file reads;
 - production measurement binding;
 - pagination measurer replacement.
