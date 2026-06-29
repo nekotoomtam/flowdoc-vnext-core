@@ -112,7 +112,7 @@ describe("text engine WASM artifact build output gate", () => {
       commandStatus: "blocked-not-runnable",
       outputPath: "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
     })
-    expect(repoPathExists(buildOutputSummary.acceptedArtifactPath)).toBe(false)
+    expect(buildOutputSummary.artifactProduced).toBe(false)
   })
 
   it("records the exact environment and crate-shape blockers before artifact output", () => {
@@ -255,17 +255,17 @@ describe("text engine WASM artifact build output gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Bindgen Export Dependency Gate.")
+    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Bindgen Export Dependency Gate.")
+    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(readme).toContain("Text engine WASM artifact build output gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md")
     expect(ledger).toContain("| 191 | Text engine WASM artifact build output gate | done |")
     expect(ledger).toContain("## Phase 191 Text Engine WASM Artifact Build Output Gate")
     expect(roadmap).toContain("## Phase 191: Text Engine WASM Artifact Build Output Gate")
-    expect(roadmap).toContain("Current next step after Phase 195F:")
+    expect(roadmap).toContain("Current next step after Phase 195G:")
     expect(roadmap).toContain("Historical Phase 195 Handoff")
   })
 })

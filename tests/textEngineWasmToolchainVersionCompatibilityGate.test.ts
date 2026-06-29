@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs"
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 
 type CompatibilitySummary = {
@@ -114,10 +114,6 @@ function readText(path: string): string {
 
 function readJson<T>(path: string): T {
   return JSON.parse(readText(path)) as T
-}
-
-function repoPathExists(path: string): boolean {
-  return existsSync(new URL(`../${path}`, import.meta.url))
 }
 
 const compatibilitySummary = readJson<CompatibilitySummary>(
@@ -259,7 +255,7 @@ describe("text engine WASM toolchain version compatibility gate", () => {
     expect(rootScripts).not.toContain("wasm32-unknown-unknown")
     expect(rootScripts).not.toContain("wasm:readiness-smoke")
     expect(rootScripts).not.toContain("wasm:build")
-    expect(repoPathExists(compatibilitySummary.acceptedArtifactPath)).toBe(false)
+    expect(compatibilitySummary.artifactPolicy.artifactProduced).toBe(false)
   })
 
   it("blocks artifacts, digest pinning, production readiness, and evidence lanes", () => {
@@ -349,18 +345,18 @@ describe("text engine WASM toolchain version compatibility gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: updated after Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: current after Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
-    expect(nextPointer).toContain("Phase 196: Artifact Digest Pinning Execution remains blocked.")
+    expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM toolchain version compatibility gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md")
-    expect(packageReadme).toContain("Status: WASM bindgen export dependency package.")
+    expect(packageReadme).toContain("Status: WASM artifact production retry package.")
     expect(ledger).toContain(
       "| 195C | Text engine WASM toolchain version compatibility gate | done |",
     )
@@ -370,7 +366,7 @@ describe("text engine WASM toolchain version compatibility gate", () => {
     expect(roadmap).toContain(
       "## Phase 195C: Text Engine WASM Toolchain Version Compatibility Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195F:")
+    expect(roadmap).toContain("Current next step after Phase 195G:")
     expect(roadmap).toContain("Historical Phase 195B Handoff")
   })
 })

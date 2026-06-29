@@ -1,5 +1,6 @@
 {
   "productionRetrySummaryId": "text-engine-wasm-artifact-production-retry-v1",
+  "sourceBindgenExportDependencySummaryId": "text-engine-wasm-bindgen-export-dependency-v1",
   "sourceRustUpgradeExecutionSummaryId": "text-engine-wasm-toolchain-rust-upgrade-execution-v1",
   "sourceCompatibilitySummaryId": "text-engine-wasm-toolchain-version-compatibility-v1",
   "sourceArtifactProductionSummaryId": "text-engine-wasm-artifact-production-v1",
@@ -29,36 +30,71 @@
     "command": "npm run wasm:build",
     "underlyingCommand": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
     "attempted": true,
-    "exitCode": 1,
-    "status": "failed-missing-wasm-bindgen-dependency",
+    "exitCode": 0,
+    "status": "succeeded",
     "compileStepReached": true,
-    "wasmPackPostCompileCheckFailed": true,
-    "failureSummary": "wasm-pack requires rust-shaper/Cargo.toml to include wasm-bindgen = \"0.2\" as a dependency before it can generate the package output.",
+    "wasmPackPostCompileCheckFailed": false,
+    "failureSummary": null,
     "rawOutputIncluded": false
   },
   "artifact": {
-    "artifactProduced": false,
-    "artifactExists": false,
-    "artifactPointer": null,
-    "retentionPointer": null,
-    "fileSizeBytes": null,
-    "rawArtifactIncluded": false,
+    "artifactProduced": true,
+    "artifactExists": true,
+    "artifactPointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "retentionPointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "fileSizeBytes": 13782,
+    "rawArtifactBytesIncludedInSummary": false,
     "producedOnlyUnderAcceptedPackageLocalPkgPath": true,
     "fakeArtifactAllowed": false,
-    "artifactProductionStatus": "blocked-not-produced"
+    "artifactProductionStatus": "produced-package-local"
   },
   "generatedPackageMetadataShape": {
-    "status": "not-generated",
+    "status": "generated",
     "outputDirectory": "packages/text-engine-rust-wasm/pkg",
     "acceptedWasmFile": "flowdoc_text_engine_bg.wasm",
-    "acceptedWasmExists": false,
-    "jsGlueExists": false,
-    "packageJsonExists": false,
-    "typescriptDeclarationExists": false,
-    "wasmBindgenDeclarationExists": false,
-    "observedPlaceholderFiles": [
-      ".gitignore"
-    ]
+    "acceptedWasmExists": true,
+    "jsGlueExists": true,
+    "packageJsonExists": true,
+    "typescriptDeclarationExists": true,
+    "wasmBindgenDeclarationExists": true,
+    "observedFiles": [
+      {
+        "name": ".gitignore",
+        "fileSizeBytes": 1
+      },
+      {
+        "name": "flowdoc_text_engine.d.ts",
+        "fileSizeBytes": 1529
+      },
+      {
+        "name": "flowdoc_text_engine.js",
+        "fileSizeBytes": 5258
+      },
+      {
+        "name": "flowdoc_text_engine_bg.wasm",
+        "fileSizeBytes": 13782
+      },
+      {
+        "name": "flowdoc_text_engine_bg.wasm.d.ts",
+        "fileSizeBytes": 404
+      },
+      {
+        "name": "package.json",
+        "fileSizeBytes": 314
+      }
+    ],
+    "generatedPackageJson": {
+      "name": "flowdoc-rustybuzz-smoke",
+      "type": "module",
+      "version": "0.0.0",
+      "main": "flowdoc_text_engine.js",
+      "types": "flowdoc_text_engine.d.ts",
+      "files": [
+        "flowdoc_text_engine_bg.wasm",
+        "flowdoc_text_engine.js",
+        "flowdoc_text_engine.d.ts"
+      ]
+    }
   },
   "rootCheck": {
     "requiresWasmPack": false,
@@ -69,11 +105,11 @@
     "requiresArtifactProductionRetry": false
   },
   "digestPolicy": {
-    "digestPinningBlocked": true,
+    "digestPinningBlocked": false,
     "digestStatus": "pending",
     "sha256": null,
     "sha256ComputedThisPhase": false,
-    "pinningStatus": "blocked-until-real-artifact-exists",
+    "pinningStatus": "ready-for-artifact-digest-pinning-execution",
     "fakeSha256Allowed": false
   },
   "rawEvidenceIncluded": false,
@@ -86,9 +122,18 @@
   "numericDriftThresholdStatus": "blocked",
   "acceptedManifestStatus": "blocked",
   "blockers": [
+    "sha256-not-computed",
+    "native-evidence-blocked",
+    "wasm-evidence-blocked",
+    "native-wasm-parity-not-run",
+    "renderer-backed-drift-unknown",
+    "numeric-drift-thresholds-blocked",
+    "accepted-manifest-blocked"
+  ],
+  "resolvedBlockers": [
     "wasm-bindgen-dependency-missing-from-rust-shaper-cargo-toml",
-    "accepted-artifact-path-not-produced",
-    "sha256-not-computed"
+    "artifact-production-retry-not-yet-run-after-bindgen",
+    "accepted-artifact-path-not-produced"
   ],
   "jsonSafeRootSummary": {
     "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
@@ -96,17 +141,17 @@
     "policyRevision": "v1-measurement-evidence-policy-v1",
     "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
     "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
-    "rustUpgradeExecutionSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json",
+    "bindgenExportDependencySummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json",
     "artifactProductionRetrySummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json",
-    "wasmArtifactPointer": null,
-    "artifactProduced": false,
-    "fileSizeBytes": null,
-    "generatedPackageMetadataShape": "not-generated",
+    "wasmArtifactPointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "artifactProduced": true,
+    "fileSizeBytes": 13782,
+    "generatedPackageMetadataShape": "generated",
     "digestStatus": "pending",
     "sha256": null,
     "rawEvidenceIncluded": false
   },
-  "nextRecommendedWork": "Text Engine WASM Bindgen Export Dependency Gate",
-  "artifactProductionRetryRule": "retry-after-package-local-wasm-bindgen-dependency-gate",
-  "phase196Rule": "blocked-until-real-artifact-exists"
+  "nextRecommendedWork": "Artifact Digest Pinning Execution",
+  "artifactProductionRetryRule": "completed-after-bindgen-export-dependency-gate",
+  "phase196Rule": "ready-after-real-artifact-exists"
 }

@@ -1,8 +1,9 @@
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readFileSync, statSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 
 type ArtifactProductionRetrySummary = {
   productionRetrySummaryId: string
+  sourceBindgenExportDependencySummaryId: string
   sourceRustUpgradeExecutionSummaryId: string
   sourceCompatibilitySummaryId: string
   sourceArtifactProductionSummaryId: string
@@ -10,6 +11,9 @@ type ArtifactProductionRetrySummary = {
   acceptedArtifactPath: string
   acceptedBuildPath: "wasm-pack"
   readinessBeforeBuild: {
+    command: string
+    workingDirectory: string
+    lastObservedExitCode: number
     wasmPackAvailable: boolean
     wasmPackVersion: string
     wasm32UnknownUnknownInstalled: boolean
@@ -27,24 +31,25 @@ type ArtifactProductionRetrySummary = {
     underlyingCommand: string
     attempted: boolean
     exitCode: number
-    status: "failed-missing-wasm-bindgen-dependency"
+    status: "succeeded"
     compileStepReached: boolean
     wasmPackPostCompileCheckFailed: boolean
-    failureSummary: string
+    failureSummary: string | null
     rawOutputIncluded: boolean
   }
   artifact: {
     artifactProduced: boolean
     artifactExists: boolean
-    artifactPointer: string | null
-    retentionPointer: string | null
-    fileSizeBytes: number | null
-    rawArtifactIncluded: boolean
+    artifactPointer: string
+    retentionPointer: string
+    fileSizeBytes: number
+    rawArtifactBytesIncludedInSummary: boolean
+    producedOnlyUnderAcceptedPackageLocalPkgPath: boolean
     fakeArtifactAllowed: boolean
     artifactProductionStatus: string
   }
   generatedPackageMetadataShape: {
-    status: "not-generated"
+    status: "generated"
     outputDirectory: string
     acceptedWasmFile: string
     acceptedWasmExists: boolean
@@ -52,7 +57,18 @@ type ArtifactProductionRetrySummary = {
     packageJsonExists: boolean
     typescriptDeclarationExists: boolean
     wasmBindgenDeclarationExists: boolean
-    observedPlaceholderFiles: string[]
+    observedFiles: Array<{
+      name: string
+      fileSizeBytes: number
+    }>
+    generatedPackageJson: {
+      name: string
+      type: "module"
+      version: string
+      main: string
+      types: string
+      files: string[]
+    }
   }
   rootCheck: {
     requiresWasmPack: boolean
@@ -79,12 +95,14 @@ type ArtifactProductionRetrySummary = {
   numericDriftThresholdStatus: "blocked"
   acceptedManifestStatus: "blocked"
   blockers: string[]
+  resolvedBlockers: string[]
   jsonSafeRootSummary: {
     artifactProductionRetrySummaryPointer: string
-    wasmArtifactPointer: string | null
+    bindgenExportDependencySummaryPointer: string
+    wasmArtifactPointer: string
     artifactProduced: boolean
-    fileSizeBytes: number | null
-    generatedPackageMetadataShape: "not-generated"
+    fileSizeBytes: number
+    generatedPackageMetadataShape: "generated"
     digestStatus: "pending"
     sha256: string | null
     rawEvidenceIncluded: boolean
@@ -110,6 +128,15 @@ type RustUpgradeExecutionSummary = {
   }
 }
 
+type BindgenExportDependencySummary = {
+  bindgenExportDependencySummaryId: string
+  acceptedArtifactPath: string
+  artifactPolicy: {
+    canRetryArtifactProduction: boolean
+  }
+  resolvedBlockers: string[]
+}
+
 type PackageJson = {
   scripts: Record<string, string>
 }
@@ -122,8 +149,12 @@ function readJson<T>(path: string): T {
   return JSON.parse(readText(path)) as T
 }
 
+function repoPath(path: string): URL {
+  return new URL(`../${path}`, import.meta.url)
+}
+
 function repoPathExists(path: string): boolean {
-  return existsSync(new URL(`../${path}`, import.meta.url))
+  return existsSync(repoPath(path))
 }
 
 const retrySummary = readJson<ArtifactProductionRetrySummary>(
@@ -134,10 +165,17 @@ const rustUpgradeSummary = readJson<RustUpgradeExecutionSummary>(
   "../packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json",
 )
 
+const bindgenSummary = readJson<BindgenExportDependencySummary>(
+  "../packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json",
+)
+
 describe("text engine WASM artifact production retry gate", () => {
-  it("links the retry attempt to the Rust upgrade execution source of truth", () => {
+  it("links the retry attempt to bindgen dependency and Rust readiness sources", () => {
     expect(retrySummary.productionRetrySummaryId).toBe(
       "text-engine-wasm-artifact-production-retry-v1",
+    )
+    expect(retrySummary.sourceBindgenExportDependencySummaryId).toBe(
+      bindgenSummary.bindgenExportDependencySummaryId,
     )
     expect(retrySummary.sourceRustUpgradeExecutionSummaryId).toBe(
       rustUpgradeSummary.rustUpgradeExecutionSummaryId,
@@ -152,7 +190,12 @@ describe("text engine WASM artifact production retry gate", () => {
       rustUpgradeSummary.sourceDiagnosticSummaryId,
     )
     expect(retrySummary.acceptedArtifactPath).toBe(rustUpgradeSummary.acceptedArtifactPath)
+    expect(retrySummary.acceptedArtifactPath).toBe(bindgenSummary.acceptedArtifactPath)
     expect(retrySummary.acceptedBuildPath).toBe(rustUpgradeSummary.acceptedBuildPath)
+    expect(bindgenSummary.artifactPolicy.canRetryArtifactProduction).toBe(true)
+    expect(bindgenSummary.resolvedBlockers).toContain(
+      "wasm-bindgen-dependency-missing-from-rust-shaper-cargo-toml",
+    )
   })
 
   it("confirms readiness before attempting wasm build", () => {
@@ -182,7 +225,7 @@ describe("text engine WASM artifact production retry gate", () => {
     })
   })
 
-  it("records the package-local build attempt and exact blocker", () => {
+  it("records the successful package-local build attempt", () => {
     expect(retrySummary.buildAttempt).toMatchObject({
       workingDirectory: "packages/text-engine-rust-wasm",
       packageScript: "wasm:build",
@@ -190,43 +233,64 @@ describe("text engine WASM artifact production retry gate", () => {
       underlyingCommand:
         "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
       attempted: true,
-      exitCode: 1,
-      status: "failed-missing-wasm-bindgen-dependency",
+      exitCode: 0,
+      status: "succeeded",
       compileStepReached: true,
-      wasmPackPostCompileCheckFailed: true,
+      wasmPackPostCompileCheckFailed: false,
+      failureSummary: null,
       rawOutputIncluded: false,
     })
-    expect(retrySummary.buildAttempt.failureSummary).toContain("wasm-bindgen")
-    expect(retrySummary.buildAttempt.failureSummary).toContain("Cargo.toml")
   })
 
-  it("does not produce the accepted artifact or generated package metadata", () => {
-    expect(repoPathExists(retrySummary.acceptedArtifactPath)).toBe(false)
+  it("records the accepted artifact and generated package metadata shape", () => {
+    const artifactStat = statSync(repoPath(retrySummary.acceptedArtifactPath))
+
+    expect(repoPathExists(retrySummary.acceptedArtifactPath)).toBe(true)
+    expect(artifactStat.size).toBe(retrySummary.artifact.fileSizeBytes)
     expect(retrySummary.artifact).toEqual({
-      artifactProduced: false,
-      artifactExists: false,
-      artifactPointer: null,
-      retentionPointer: null,
-      fileSizeBytes: null,
-      rawArtifactIncluded: false,
+      artifactProduced: true,
+      artifactExists: true,
+      artifactPointer: "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+      retentionPointer: "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+      fileSizeBytes: 13782,
+      rawArtifactBytesIncludedInSummary: false,
       producedOnlyUnderAcceptedPackageLocalPkgPath: true,
       fakeArtifactAllowed: false,
-      artifactProductionStatus: "blocked-not-produced",
+      artifactProductionStatus: "produced-package-local",
     })
-    expect(retrySummary.generatedPackageMetadataShape).toEqual({
-      status: "not-generated",
+    expect(retrySummary.generatedPackageMetadataShape).toMatchObject({
+      status: "generated",
       outputDirectory: "packages/text-engine-rust-wasm/pkg",
       acceptedWasmFile: "flowdoc_text_engine_bg.wasm",
-      acceptedWasmExists: false,
-      jsGlueExists: false,
-      packageJsonExists: false,
-      typescriptDeclarationExists: false,
-      wasmBindgenDeclarationExists: false,
-      observedPlaceholderFiles: [".gitignore"],
+      acceptedWasmExists: true,
+      jsGlueExists: true,
+      packageJsonExists: true,
+      typescriptDeclarationExists: true,
+      wasmBindgenDeclarationExists: true,
+    })
+    expect(retrySummary.generatedPackageMetadataShape.observedFiles).toEqual([
+      { name: ".gitignore", fileSizeBytes: 1 },
+      { name: "flowdoc_text_engine.d.ts", fileSizeBytes: 1529 },
+      { name: "flowdoc_text_engine.js", fileSizeBytes: 5258 },
+      { name: "flowdoc_text_engine_bg.wasm", fileSizeBytes: 13782 },
+      { name: "flowdoc_text_engine_bg.wasm.d.ts", fileSizeBytes: 404 },
+      { name: "package.json", fileSizeBytes: 314 },
+    ])
+    expect(retrySummary.generatedPackageMetadataShape.generatedPackageJson).toEqual({
+      name: "flowdoc-rustybuzz-smoke",
+      type: "module",
+      version: "0.0.0",
+      main: "flowdoc_text_engine.js",
+      types: "flowdoc_text_engine.d.ts",
+      files: [
+        "flowdoc_text_engine_bg.wasm",
+        "flowdoc_text_engine.js",
+        "flowdoc_text_engine.d.ts",
+      ],
     })
   })
 
-  it("keeps root checks independent and digest pinning blocked", () => {
+  it("keeps root checks independent and leaves digest pinning to the next phase", () => {
     const rootPackage = readJson<PackageJson>("../package.json")
     const rootScripts = Object.values(rootPackage.scripts).join(" ")
 
@@ -244,17 +308,26 @@ describe("text engine WASM artifact production retry gate", () => {
     expect(rootScripts).not.toContain("wasm:readiness-smoke")
     expect(rootScripts).not.toContain("wasm:build")
     expect(retrySummary.digestPolicy).toEqual({
-      digestPinningBlocked: true,
+      digestPinningBlocked: false,
       digestStatus: "pending",
       sha256: null,
       sha256ComputedThisPhase: false,
-      pinningStatus: "blocked-until-real-artifact-exists",
+      pinningStatus: "ready-for-artifact-digest-pinning-execution",
       fakeSha256Allowed: false,
     })
     expect(retrySummary.blockers).toEqual([
-      "wasm-bindgen-dependency-missing-from-rust-shaper-cargo-toml",
-      "accepted-artifact-path-not-produced",
       "sha256-not-computed",
+      "native-evidence-blocked",
+      "wasm-evidence-blocked",
+      "native-wasm-parity-not-run",
+      "renderer-backed-drift-unknown",
+      "numeric-drift-thresholds-blocked",
+      "accepted-manifest-blocked",
+    ])
+    expect(retrySummary.resolvedBlockers).toEqual([
+      "wasm-bindgen-dependency-missing-from-rust-shaper-cargo-toml",
+      "artifact-production-retry-not-yet-run-after-bindgen",
+      "accepted-artifact-path-not-produced",
     ])
   })
 
@@ -271,21 +344,22 @@ describe("text engine WASM artifact production retry gate", () => {
     expect(retrySummary.jsonSafeRootSummary).toMatchObject({
       artifactProductionRetrySummaryPointer:
         "packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json",
-      wasmArtifactPointer: null,
-      artifactProduced: false,
-      fileSizeBytes: null,
-      generatedPackageMetadataShape: "not-generated",
+      bindgenExportDependencySummaryPointer:
+        "packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json",
+      wasmArtifactPointer:
+        "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+      artifactProduced: true,
+      fileSizeBytes: 13782,
+      generatedPackageMetadataShape: "generated",
       digestStatus: "pending",
       sha256: null,
       rawEvidenceIncluded: false,
     })
-    expect(retrySummary.nextRecommendedWork).toBe(
-      "Text Engine WASM Bindgen Export Dependency Gate",
-    )
+    expect(retrySummary.nextRecommendedWork).toBe("Artifact Digest Pinning Execution")
     expect(retrySummary.artifactProductionRetryRule).toBe(
-      "retry-after-package-local-wasm-bindgen-dependency-gate",
+      "completed-after-bindgen-export-dependency-gate",
     )
-    expect(retrySummary.phase196Rule).toBe("blocked-until-real-artifact-exists")
+    expect(retrySummary.phase196Rule).toBe("ready-after-real-artifact-exists")
   })
 
   it("does not execute external engines in core or replace measurement", () => {
@@ -299,7 +373,7 @@ describe("text engine WASM artifact production retry gate", () => {
     expect(coreMeasurement).toContain("createApproximateVNextTextMeasurer")
   })
 
-  it("documents the retry gate and points next to the bindgen dependency gate", () => {
+  it("documents the retry gate and points next to artifact digest pinning", () => {
     const doc = readText("../docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md")
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
@@ -309,11 +383,12 @@ describe("text engine WASM artifact production retry gate", () => {
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
     expect(doc).toContain(
-      "Status: text engine WASM artifact production retry gate.",
+      "Status: text engine WASM artifact production retry gate after bindgen export",
     )
-    expect(doc).toContain("failed-missing-wasm-bindgen-dependency")
-    expect(doc).toContain("Text Engine WASM Bindgen Export Dependency Gate")
-    expect(doc).toContain("Artifact Digest Pinning Execution remains blocked")
+    expect(doc).toContain("buildAttempt.status=\"succeeded\"")
+    expect(doc).toContain("fileSizeBytes=13782")
+    expect(doc).toContain("Artifact Digest Pinning Execution")
+    expect(doc).toContain("No sha256 compute or pinning")
     expect(doc).toContain("## PASS")
     expect(doc).toContain("## FAIL-BLOCKER")
     expect(doc).toContain("## RISK")
@@ -325,28 +400,28 @@ describe("text engine WASM artifact production retry gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: updated after Text Engine WASM Artifact Production Retry Gate.",
     )
-    expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
-    expect(currentStatus).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
+    expect(currentStatus).toContain("Artifact Digest Pinning Execution.")
+    expect(currentStatus).toContain("fileSizeBytes=13782")
     expect(nextPointer).toContain(
-      "Status: current after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: current after Text Engine WASM Artifact Production Retry Gate.",
     )
-    expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
-    expect(nextPointer).toContain("Phase 196: Artifact Digest Pinning Execution remains blocked.")
+    expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
+    expect(nextPointer).toContain("sha256ComputedThisPhase=false")
     expect(readme).toContain("Text engine WASM artifact production retry gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md")
-    expect(packageReadme).toContain("Status: WASM bindgen export dependency package.")
+    expect(packageReadme).toContain("Status: WASM artifact production retry package.")
     expect(ledger).toContain(
-      "| 195E | Text engine WASM artifact production retry gate | done |",
+      "| 195G | Text engine WASM artifact production retry after bindgen gate | done |",
     )
     expect(ledger).toContain(
-      "## Phase 195E Text Engine WASM Artifact Production Retry Gate",
+      "## Phase 195G Text Engine WASM Artifact Production Retry After Bindgen Gate",
     )
     expect(roadmap).toContain(
-      "## Phase 195E: Text Engine WASM Artifact Production Retry Gate",
+      "## Phase 195G: Text Engine WASM Artifact Production Retry After Bindgen Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195F:")
-    expect(roadmap).toContain("Historical Phase 195D Handoff")
+    expect(roadmap).toContain("Current next step after Phase 195G:")
+    expect(roadmap).toContain("Historical Phase 195F Handoff")
   })
 })

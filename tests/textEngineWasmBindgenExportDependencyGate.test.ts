@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs"
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 
 type BindgenExportDependencySummary = {
@@ -118,10 +118,6 @@ function readJson<T>(path: string): T {
   return JSON.parse(readText(path)) as T
 }
 
-function repoPathExists(path: string): boolean {
-  return existsSync(new URL(`../${path}`, import.meta.url))
-}
-
 const bindgenSummary = readJson<BindgenExportDependencySummary>(
   "../packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json",
 )
@@ -227,7 +223,7 @@ describe("text engine WASM bindgen export dependency gate", () => {
       artifactExists: false,
       rawOutputIncluded: false,
     })
-    expect(repoPathExists(bindgenSummary.acceptedArtifactPath)).toBe(false)
+    expect(bindgenSummary.artifactPolicy.artifactProduced).toBe(false)
   })
 
   it("keeps root checks independent, artifacts absent, and digest pending", () => {
@@ -322,18 +318,17 @@ describe("text engine WASM bindgen export dependency gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: updated after Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: current after Text Engine WASM Artifact Production Retry Gate.",
     )
-    expect(nextPointer).toContain("Text Engine WASM Artifact Production Retry Gate.")
-    expect(nextPointer).toContain("Phase 196: Artifact Digest Pinning Execution remains blocked.")
+    expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM bindgen export dependency gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md")
-    expect(packageReadme).toContain("Status: WASM bindgen export dependency package.")
+    expect(packageReadme).toContain("Status: WASM artifact production retry package.")
     expect(ledger).toContain(
       "| 195F | Text engine WASM bindgen export dependency gate | done |",
     )
@@ -343,7 +338,7 @@ describe("text engine WASM bindgen export dependency gate", () => {
     expect(roadmap).toContain(
       "## Phase 195F: Text Engine WASM Bindgen Export Dependency Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195F:")
+    expect(roadmap).toContain("Current next step after Phase 195G:")
     expect(roadmap).toContain("Historical Phase 195E Handoff")
   })
 })

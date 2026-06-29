@@ -196,7 +196,7 @@ describe("text engine WASM toolchain optional readiness smoke", () => {
     expect(rootScripts).not.toContain("wasm-pack")
     expect(rootScripts).not.toContain("wasm32-unknown-unknown")
     expect(rootScripts).not.toContain("wasm:readiness-smoke")
-    expect(repoPathExists(smokeSummary.acceptedArtifactPath)).toBe(false)
+    expect(smokeSummary.artifactPolicy.artifactProduced).toBe(false)
   })
 
   it("blocks artifact production and digest pinning until a real artifact exists", () => {
@@ -286,10 +286,10 @@ describe("text engine WASM toolchain optional readiness smoke", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Bindgen Export Dependency Gate.")
+    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Bindgen Export Dependency Gate.")
+    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(readme).toContain("Text engine WASM toolchain optional readiness smoke")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md")
@@ -300,7 +300,7 @@ describe("text engine WASM toolchain optional readiness smoke", () => {
     expect(roadmap).toContain(
       "## Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke",
     )
-    expect(roadmap).toContain("Current next step after Phase 195F:")
+    expect(roadmap).toContain("Current next step after Phase 195G:")
     expect(roadmap).toContain("Historical Phase 195 Handoff")
   })
 })

@@ -668,13 +668,14 @@ The package must remain runnable without any parent editor checkout.
   `toolchainReady=true`, and keeps artifact production plus digest pinning for
   later dedicated gates.
 - Text engine WASM artifact production retry gate runs package-local
-  `wasm:build` after readiness reports `toolchainReady=true`, records the
-  exact `wasm-bindgen` dependency blocker, and keeps the accepted artifact plus
-  digest pinning blocked.
+  `wasm:build` after bindgen dependency/export readiness, produces
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`, records
+  generated JS/TypeScript/package metadata shape, and keeps digest pinning
+  pending until the dedicated sha256 phase.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
-  points back to artifact production retry.
+  unblocks artifact production retry.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -907,7 +908,7 @@ The package must remain runnable without any parent editor checkout.
   engine WASM toolchain Rust upgrade execution gate before artifact production
   retry work
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`: text engine WASM
-  artifact production retry gate before package-local `wasm-bindgen`
+  artifact production retry gate after package-local `wasm-bindgen`
   dependency/export work
 - `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`: text engine WASM
   bindgen export dependency gate before retrying artifact production
@@ -1166,11 +1167,10 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
-- concrete package-local WASM artifact output, pinned WASM artifact digest,
-  native/WASM evidence, parity
+- pinned WASM artifact digest, native/WASM evidence, parity
   summaries, renderer-backed drift summaries, numeric drift thresholds,
   accepted root summary manifest, or production measurement replacement beyond
-  the bindgen export dependency gate
+  the artifact production retry gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

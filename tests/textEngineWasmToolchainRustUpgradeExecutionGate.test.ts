@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs"
+import { readFileSync } from "node:fs"
 import { spawnSync } from "node:child_process"
 import { describe, expect, it } from "vitest"
 
@@ -175,10 +175,6 @@ function readJson<T>(path: string): T {
   return JSON.parse(readText(path)) as T
 }
 
-function repoPathExists(path: string): boolean {
-  return existsSync(new URL(`../${path}`, import.meta.url))
-}
-
 function parseMinor(version: string): number {
   const match = /rustc 1\.(\d+)\./.exec(version)
   expect(match).not.toBeNull()
@@ -320,7 +316,6 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
   })
 
   it("keeps artifact production and digest pinning out of this phase", () => {
-    expect(repoPathExists(upgradeSummary.acceptedArtifactPath)).toBe(false)
     expect(upgradeSummary.artifactPolicy).toMatchObject({
       artifactProductionBlocked: false,
       canRetryArtifactProduction: true,
@@ -440,22 +435,22 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: updated after Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain(
       "Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Text Engine WASM Bindgen Export Dependency Gate.",
+      "Status: current after Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
-    expect(nextPointer).toContain("Phase 196: Artifact Digest Pinning Execution remains blocked.")
+    expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM toolchain Rust upgrade execution gate")
     expect(readme).toContain(
       "docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md",
     )
-    expect(packageReadme).toContain("Status: WASM bindgen export dependency package.")
+    expect(packageReadme).toContain("Status: WASM artifact production retry package.")
     expect(ledger).toContain(
       "| 195D | Text engine WASM toolchain Rust upgrade execution gate | done |",
     )
@@ -465,7 +460,7 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(roadmap).toContain(
       "## Phase 195D: Text Engine WASM Toolchain Rust Upgrade Execution Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195F:")
+    expect(roadmap).toContain("Current next step after Phase 195G:")
     expect(roadmap).toContain("Historical Phase 195C Handoff")
   })
 })

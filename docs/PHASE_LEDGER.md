@@ -208,6 +208,7 @@ Parent goal:
 | 195D | Text engine WASM toolchain Rust upgrade execution gate | done | `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmToolchainRustUpgradeExecutionGate.test.ts`; pointer guard tests |
 | 195E | Text engine WASM artifact production retry gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactProductionRetryGate.test.ts`; pointer guard tests |
 | 195F | Text engine WASM bindgen export dependency gate | done | `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`; `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`; `packages/text-engine-rust-wasm/rust-shaper/Cargo.lock`; `packages/text-engine-rust-wasm/rust-shaper/src/lib.rs`; `packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmBindgenExportDependencyGate.test.ts`; pointer guard tests |
+| 195G | Text engine WASM artifact production retry after bindgen gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`; `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`; generated package metadata under `packages/text-engine-rust-wasm/pkg/`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactProductionRetryGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5358,6 +5359,51 @@ collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended work: Text Engine WASM Artifact Production Retry Gate.
 Artifact Digest Pinning Execution remains blocked.
+
+## Phase 195G Text Engine WASM Artifact Production Retry After Bindgen Gate
+
+The post-bindgen artifact production retry gate uses Phase 195F as source of
+truth and reruns the accepted package-local build:
+
+- artifact production retry summary:
+  `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`;
+- readiness before build reports `wasmPackAvailable=true`,
+  `wasmPackVersion="wasm-pack 0.15.0"`,
+  `wasm32UnknownUnknownInstalled=true`, `toolchainReady=true`, and
+  `canProduceArtifactNow=true`;
+- package-local `npm run wasm:build` was attempted after readiness passed;
+- underlying command:
+  `wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine`;
+- the build succeeded after the package-local `wasm-bindgen` dependency and
+  minimal export boundary were added;
+- accepted artifact path
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` now exists;
+- generated package metadata shape is `generated`;
+- generated files include `flowdoc_text_engine.js`,
+  `flowdoc_text_engine.d.ts`, `flowdoc_text_engine_bg.wasm.d.ts`, and
+  `package.json`;
+- `artifactProduced=true`,
+  `artifactPointer="packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm"`,
+  `fileSizeBytes=13782`, `digestStatus="pending"`, and `sha256=null`;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target,
+  readiness smoke, WASM build, artifact production retry, or artifacts;
+- sha256 was not computed or pinned in this phase;
+- raw native/WASM evidence remains outside root tests/docs;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement remain blocked.
+
+This phase intentionally does not require `wasm-pack` or
+`wasm32-unknown-unknown` in root checks, execute rustybuzz/WASM/ICU4X in
+`@flowdoc/vnext-core`, produce a fake WASM artifact, pin a fake sha256,
+compute sha256, replace `measureVNextText(...)`, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+add backend routes, storage, auth/authz, implement contenteditable, change
+package/document schema, add collaboration/offline behavior, or copy legacy
+editor runtime.
+
+Next recommended work: Artifact Digest Pinning Execution.
+Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record
 

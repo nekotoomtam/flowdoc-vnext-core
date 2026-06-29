@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Text Engine WASM Bindgen Export Dependency Gate.
+Status: updated after Text Engine WASM Artifact Production Retry Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,14 +8,14 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Text Engine WASM Bindgen Export Dependency Gate.
+Text Engine WASM Artifact Production Retry Gate.
 
 Recent completed gate markers retained for pointer guards:
 
 - Text Engine WASM Toolchain Version Compatibility Gate.
 - Text Engine WASM Toolchain Rust Upgrade Execution Gate.
-- Text Engine WASM Artifact Production Retry Gate.
 - Text Engine WASM Bindgen Export Dependency Gate.
+- Text Engine WASM Artifact Production Retry Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -97,24 +97,29 @@ under `rust-shaper`, resolves `wasm-bindgen 0.2.126` in `Cargo.lock`, exports
 only readiness marker and boundary-version functions through `#[wasm_bindgen]`,
 keeps the native `main.rs` rustybuzz smoke path intact, and verifies both
 WASM-target and native cargo checks. It does not retry artifact production, so
-the accepted artifact remains absent and digest pinning remains blocked.
+the accepted artifact remains absent at that point. The Text Engine WASM
+Artifact Production Retry Gate then uses the bindgen gate as source of truth,
+reruns package-local readiness with `toolchainReady=true`, runs `wasm:build`,
+and produces the accepted artifact at
+`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` with
+`fileSizeBytes=13782`. Generated JS/TypeScript/package metadata shape is
+recorded in the package-local summary, while `digestStatus="pending"` and
+`sha256=null` remain unchanged because sha256 pinning is not in this phase.
 
 ## Current Next Phase
 
-Text Engine WASM Artifact Production Retry Gate.
+Artifact Digest Pinning Execution.
 
 Goal:
 
-- use the bindgen export dependency summary as source of truth;
-- rerun package-local readiness and retry `wasm:build`;
-- produce the artifact only under
+- use the artifact production retry summary as source of truth;
+- confirm the accepted artifact exists at
   `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
-- record artifact existence, file size, generated package metadata shape, and
-  retention pointer in JSON-safe package-local summary metadata;
+- compute sha256 only in the dedicated digest pinning phase;
+- pin the digest only if the artifact path, lowercase 64-character hex sha256,
+  matrix id, corpus id, policy revision, measurement profile id, and output
+  shape context match policy;
 - keep root checks independent from `wasm-pack` and the WASM target;
-- keep Phase 196 Artifact Digest Pinning Execution blocked until the accepted
-  artifact is actually produced under
-  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
 - keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
   accepted manifests blocked until their dedicated phases;
@@ -300,11 +305,13 @@ The Text Engine WASM Artifact Production Retry Gate adds
 `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`.
 It confirms `wasmPackAvailable=true`, `wasmPackVersion="wasm-pack 0.15.0"`,
 `wasm32UnknownUnknownInstalled=true`, `toolchainReady=true`, and
-`canProduceArtifactNow=true`, then runs package-local `wasm:build`. The build
-fails with `failed-missing-wasm-bindgen-dependency` because
-`rust-shaper/Cargo.toml` lacks `wasm-bindgen = "0.2"`. The accepted artifact
-is still absent, generated package metadata is not generated, `fileSizeBytes`
-remains `null`, `digestStatus="pending"`, and `sha256=null`.
+`canProduceArtifactNow=true`, then runs package-local `wasm:build`. The first
+retry failed with `failed-missing-wasm-bindgen-dependency` because
+`rust-shaper/Cargo.toml` lacked `wasm-bindgen = "0.2"`. After the bindgen
+dependency/export gate, the retry now succeeds, the accepted artifact exists
+at `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`,
+`fileSizeBytes=13782`, generated package metadata is recorded as `generated`,
+`digestStatus="pending"`, and `sha256=null`.
 
 The Text Engine WASM Bindgen Export Dependency Gate adds
 `packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json`.
@@ -314,6 +321,17 @@ It adds `wasm-bindgen = "0.2"` to `rust-shaper/Cargo.toml`, records
 native `main.rs` rustybuzz smoke path intact, passes package-local native and
 WASM target cargo checks, does not retry `wasm:build`, and keeps
 `digestStatus="pending"` with `sha256=null`.
+
+The post-bindgen Text Engine WASM Artifact Production Retry Gate reruns
+package-local readiness, confirms `toolchainReady=true`, runs
+`npm.cmd --prefix packages/text-engine-rust-wasm run wasm:build`, and produces
+the accepted artifact plus generated JS/TypeScript/package metadata under
+`packages/text-engine-rust-wasm/pkg/`. The package-local retry summary records
+`artifactProduced=true`, `artifactPointer="packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm"`,
+`fileSizeBytes=13782`, `generatedPackageMetadataShape.status="generated"`,
+`digestStatus="pending"`, `sha256=null`, and
+`sha256ComputedThisPhase=false`. Artifact Digest Pinning Execution is now the
+next safe step; production measurement binding remains blocked.
 
 ## Current Hard Limits
 

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs"
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   createFlowDocTextEngineRuntimeIdentityDigestEvidenceBuilderPlan,
@@ -66,10 +66,6 @@ function readJson<T>(path: string): T {
   return JSON.parse(readText(path)) as T
 }
 
-function repoPathExists(path: string): boolean {
-  return existsSync(new URL(`../${path}`, import.meta.url))
-}
-
 function cloneRuntimeIdentity(): FlowDocTextEngineRuntimeIdentityManifest {
   return JSON.parse(JSON.stringify(runtimeIdentityManifest)) as FlowDocTextEngineRuntimeIdentityManifest
 }
@@ -131,7 +127,7 @@ describe("text engine runtime identity digest evidence population gate", () => {
     expect(runtimeIdentityManifest.parityComparison.status).toBe("not-run")
 
     for (const candidatePath of populationSummary.artifactDiscovery.candidatePathsChecked) {
-      expect(repoPathExists(candidatePath)).toBe(false)
+      expect(candidatePath.startsWith("packages/text-engine-rust-wasm/")).toBe(true)
     }
   })
 
@@ -261,10 +257,10 @@ describe("text engine runtime identity digest evidence population gate", () => {
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Bindgen Export Dependency Gate.")
+    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Bindgen Export Dependency Gate.")
+    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine runtime identity digest evidence population gate")
@@ -276,7 +272,7 @@ describe("text engine runtime identity digest evidence population gate", () => {
     expect(roadmap).toContain(
       "## Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195F:")
+    expect(roadmap).toContain("Current next step after Phase 195G:")
     expect(roadmap).toContain("Historical Phase 189 Handoff")
   })
 })

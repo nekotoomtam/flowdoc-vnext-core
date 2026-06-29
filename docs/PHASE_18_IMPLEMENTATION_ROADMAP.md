@@ -5965,6 +5965,50 @@ Acceptance:
   contenteditable, package/document schema change, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 195G: Text Engine WASM Artifact Production Retry After Bindgen Gate
+
+Goal:
+
+- rerun package-local readiness and retry `wasm:build` after the
+  package-local `wasm-bindgen` dependency/export blocker has been resolved.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`;
+- accepted artifact under
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- generated JS/TypeScript/package metadata under
+  `packages/text-engine-rust-wasm/pkg/`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmArtifactProductionRetryGate.test.ts`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms `wasmPackAvailable=true`;
+- confirms `wasmPackVersion="wasm-pack 0.15.0"`;
+- confirms `wasm32UnknownUnknownInstalled=true`;
+- confirms `toolchainReady=true`;
+- confirms `canProduceArtifactNow=true`;
+- runs package-local `wasm:build`;
+- records build status as `succeeded`;
+- records accepted artifact as present;
+- records generated package metadata as `generated`;
+- records `fileSizeBytes=13782`;
+- keeps `digestStatus="pending"` and `sha256=null`;
+- keeps root `npm.cmd run check` independent from `wasm-pack`, the WASM target,
+  readiness smoke, WASM build, artifact production retry, and artifacts;
+- does not compute sha256 or proceed to digest pinning in this phase;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, fake WASM
+  artifact, fake sha256, `measureVNextText(...)` replacement, pagination
+  mutation, production renderer-backed measurement binding, production PDF/DOCX
+  renderer work, backend routes/storage/auth, production contenteditable,
+  package/document schema change, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5994,10 +6038,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 195F:
+Current next step after Phase 195G:
 
 ```text
-Text Engine WASM Artifact Production Retry Gate
+Artifact Digest Pinning Execution
 ```
 
 Reason:
@@ -6108,12 +6152,27 @@ Reason:
   `wasm-bindgen 0.2.126`, exports only readiness marker and boundary version
   through `#[wasm_bindgen]`, keeps native smoke intact, and passes package-local
   native plus WASM target cargo checks;
+- Phase 195G now reruns package-local readiness, runs `wasm:build`, produces
+  the accepted artifact at
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`, records
+  generated JS/TypeScript/package metadata, keeps `digestStatus="pending"` and
+  `sha256=null`, and leaves production measurement binding blocked;
 - the current package-local digest remains pending, so the next safe lane is
-  artifact production retry after the dependency/export blocker is resolved,
-  with Artifact Digest Pinning Execution still blocked;
+  Artifact Digest Pinning Execution;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 195F Handoff
+
+Current next step after Phase 195F:
+
+```text
+Text Engine WASM Artifact Production Retry Gate
+```
+
+That was the Phase 195F handoff recommendation. Phase 195G is now complete,
+so it is no longer the current next step after Phase 195G.
 
 ## Historical Phase 195E Handoff
 
