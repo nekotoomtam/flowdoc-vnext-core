@@ -1,27 +1,33 @@
 # Next Phase Pointer
 
-Status: current after Phase 190.
+Status: current after Phase 191.
 
 ## Next Phase
 
-Phase 191: Text Engine WASM Artifact Build Output Gate.
+Phase 192: Text Engine WASM Build Toolchain Readiness Gate.
 
 ## Why This Is Next
 
-Phase 190 checks the Phase 189 package-local WASM artifact candidate paths and
-finds no artifact. It defines the accepted future retained artifact path as:
+Phase 191 defines the accepted package-local WASM build command and output
+path:
+
+```text
+cd packages/text-engine-rust-wasm
+wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine
+```
 
 ```text
 packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm
 ```
 
-The digest remains `pending` with `sha256=null` and no
-`wasmArtifactEvidence.pointer`.
+The command cannot run yet because `wasm-pack` is unavailable,
+`wasm32-unknown-unknown` is not installed, and `rust-shaper` is still a binary
+native smoke crate without a WASM-ready library/export boundary.
 
-The next safe step is to produce, locate, or explicitly retain that accepted
-package-local output path without executing text engines in
-`@flowdoc/vnext-core`. Root docs/tests should continue to receive only
-JSON-safe summaries and retention pointers.
+The next safe step is to make the package-local WASM toolchain and crate target
+readiness explicit without executing text engines in `@flowdoc/vnext-core`.
+Root docs/tests should continue to receive only JSON-safe summaries and
+retention pointers.
 
 Native evidence, WASM evidence, native/WASM parity summaries,
 renderer-backed drift summaries, numeric thresholds, accepted manifests,
@@ -31,14 +37,15 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`
-- `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`
-- `packages/text-engine-rust-wasm/src/runtimeIdentityDigestEvidenceBuilder.ts`
-- `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`
+- `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`
+- `packages/text-engine-rust-wasm/rust-shaper/src/main.rs`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
 
@@ -61,11 +68,13 @@ blocked until later phases.
 
 ## Expected Output
 
-- accepted package-local WASM artifact output path produced or explicitly
-  retained as absent;
-- JSON-safe package-local summary update;
-- sha256 pinned only if a real artifact exists and context matches;
-- digest status reported as `pinned`, `pending`, `missing`, or `stale`;
+- package-local WASM build toolchain/crate readiness decision;
+- explicit blocker status for `wasm-pack`, Rust target, crate target type, and
+  export boundary;
+- package-local summary update if safe;
+- artifact output remains absent unless the environment/crate is ready;
+- digest status remains `pending` unless a real artifact exists and sha256 is
+  explicitly in scope;
 - explicit blocker status for native evidence, WASM evidence, parity, drift,
   thresholds, accepted manifest, and default-measurer replacement;
 - explicit non-work;

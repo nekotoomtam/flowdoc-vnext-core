@@ -5477,6 +5477,48 @@ Acceptance:
   contenteditable, package/document schema change, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 191: Text Engine WASM Artifact Build Output Gate
+
+Goal:
+
+- define the package-local WASM build/output path and command, check whether
+  the accepted artifact path can be produced, and keep digest pinning pending
+  unless a real artifact exists.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmArtifactBuildOutputGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- accepted future output path remains
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- accepted future command is recorded as
+  `wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine`;
+- command status is `blocked-not-runnable`;
+- blocker status records missing `wasm-pack`, missing
+  `wasm32-unknown-unknown`, and binary-only native smoke crate shape;
+- no artifact is produced under `packages/text-engine-rust-wasm/pkg/`;
+- digest remains `pending` with `sha256=null`;
+- package-local build output summary fixture is JSON-safe;
+- root docs/tests consume summaries and retention pointers only;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted summary manifest, production
+  binding, and default-measurer replacement remain blocked;
+- next phase is Phase 192: Text Engine WASM Build Toolchain Readiness Gate;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, raw native/WASM
+  evidence in root tests/docs, `measureVNextText(...)` replacement,
+  pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, backend routes/storage/auth, production
+  contenteditable, package/document schema change, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5506,10 +5548,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 190:
+Current next step after Phase 191:
 
 ```text
-Phase 191: Text Engine WASM Artifact Build Output Gate
+Phase 192: Text Engine WASM Build Toolchain Readiness Gate
 ```
 
 Reason:
@@ -5572,14 +5614,29 @@ Reason:
 - Phase 190 now checks all recorded candidate paths, finds no package-local
   WASM artifact, defines `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`
   as the accepted future output path, and keeps digest pending;
+- Phase 191 now defines the accepted package-local build command/output path
+  but cannot produce the artifact because `wasm-pack` is unavailable,
+  `wasm32-unknown-unknown` is not installed, and `rust-shaper` is still a
+  binary native smoke crate without a WASM-ready export boundary;
 - the current package-local digest remains pending, so the next safe lane is
-  producing or explicitly retaining that package-local WASM artifact output
-  before sha256 pinning, native/WASM evidence, parity, drift, thresholds,
-  accepted root summaries, production measurement binding, or
-  default-measurer replacement;
+  making the package-local WASM toolchain and crate target readiness explicit
+  before artifact production, sha256 pinning, native/WASM evidence, parity,
+  drift, thresholds, accepted root summaries, production measurement binding,
+  or default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 190 Handoff
+
+Current next step after Phase 190:
+
+```text
+Phase 191: Text Engine WASM Artifact Build Output Gate
+```
+
+That was the Phase 190 handoff recommendation. Phase 191 is now complete, so
+it is no longer the current next step after Phase 191.
 
 ## Historical Phase 189 Handoff
 

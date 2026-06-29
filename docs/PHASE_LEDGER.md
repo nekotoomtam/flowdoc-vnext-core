@@ -197,6 +197,7 @@ Parent goal:
 | 188 | Text engine runtime identity digest evidence builder gate | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`; `packages/text-engine-rust-wasm/src/runtimeIdentityDigestEvidenceBuilder.ts`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`; `packages/text-engine-rust-wasm/src/index.ts`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentityDigestEvidenceBuilderGate.test.ts`; pointer guard tests |
 | 189 | Text engine runtime identity digest evidence population gate | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentityDigestEvidencePopulationGate.test.ts`; pointer guard tests |
 | 190 | Text engine WASM artifact digest pinning gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactDigestPinningGate.test.ts`; pointer guard tests |
+| 191 | Text engine WASM artifact build output gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactBuildOutputGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -4900,6 +4901,44 @@ storage, auth/authz, implement contenteditable, change package/document
 schema, add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 191 Text Engine WASM Artifact Build Output Gate.
+
+## Phase 191 Text Engine WASM Artifact Build Output Gate
+
+Phase 191 defines the package-local WASM build/output path and command for the
+accepted Phase 190 artifact path, then keeps artifact production blocked
+because the current repo/environment is not WASM-build ready:
+
+- build output summary:
+  `packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`;
+- accepted future artifact path:
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- accepted future command:
+  `wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine`;
+- command status: `blocked-not-runnable`;
+- `wasm-pack` is unavailable;
+- `wasm32-unknown-unknown` is not installed;
+- `rust-shaper` is still a binary native smoke crate without `lib.rs`,
+  `cdylib`, or WASM export boundary;
+- `canProduceArtifactNow=false`;
+- `artifactProduced=false`;
+- `artifactPointer=null`;
+- `digestStatus="pending"`;
+- `sha256=null`;
+- root summary handoff remains JSON-safe;
+- raw native/WASM evidence remains outside root tests/docs;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement remain blocked.
+
+This phase intentionally does not execute rustybuzz/WASM/ICU4X in
+`@flowdoc/vnext-core`, put raw native/WASM evidence in root tests/docs, replace
+`measureVNextText(...)`, mutate pagination, bind production renderer-backed
+measurement, add production PDF/DOCX renderer work, add backend routes,
+storage, auth/authz, implement contenteditable, change package/document
+schema, add collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 192 Text Engine WASM Build Toolchain Readiness
+Gate.
 
 ## Phase 12 Extraction Record
 

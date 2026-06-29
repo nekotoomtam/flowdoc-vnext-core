@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 190.
+Status: updated after Phase 191.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 190: Text Engine WASM Artifact Digest Pinning Gate.
+Phase 191: Text Engine WASM Artifact Build Output Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -30,18 +30,22 @@ retained-pending population summary with `digestStatus="pending"` and
 `sha256=null`. Phase 190 checks the recorded candidate artifact paths, finds no
 package-local WASM artifact, defines
 `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` as the
-accepted future output path, and keeps the digest pending.
+accepted future output path, and keeps the digest pending. Phase 191 defines
+the package-local build command/output metadata, finds the artifact cannot be
+produced yet because `wasm-pack` and `wasm32-unknown-unknown` are unavailable
+and `rust-shaper` is still a binary native smoke crate, and keeps digest
+pinning blocked.
 
 ## Current Next Phase
 
-Phase 191: Text Engine WASM Artifact Build Output Gate.
+Phase 192: Text Engine WASM Build Toolchain Readiness Gate.
 
 Goal:
 
-- produce or explicitly retain the accepted package-local WASM artifact output
-  path from Phase 190;
-- keep sha256 pinning blocked unless a real artifact exists and context still
-  matches;
+- make the package-local WASM build toolchain and crate target readiness
+  explicit before producing an artifact;
+- keep artifact production and sha256 pinning blocked unless the toolchain and
+  crate shape are ready;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
 - keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
   accepted manifests blocked until their dedicated phases;
@@ -127,6 +131,14 @@ paths are absent, the accepted future artifact output path is
 artifact pointer exists yet, `canPinDigestNow=false`, `digestStatus="pending"`,
 and `sha256=null`.
 
+Phase 191 adds
+`packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`
+as package-local build output metadata. It records the accepted future command
+`wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine`,
+but marks it `blocked-not-runnable` because `wasm-pack` is unavailable,
+`wasm32-unknown-unknown` is not installed, and `rust-shaper` is not a
+WASM-ready library crate.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -143,6 +155,7 @@ and `sha256=null`.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`

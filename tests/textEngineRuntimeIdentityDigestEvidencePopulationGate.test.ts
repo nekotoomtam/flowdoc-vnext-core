@@ -254,18 +254,18 @@ describe("text engine runtime identity digest evidence population gate", () => {
     expect(coreMeasurement).not.toContain("runtime-identity-digest-evidence-population")
   })
 
-  it("keeps Phase 189 evidence while current pointers advance to Phase 191", () => {
+  it("keeps Phase 189 evidence while current pointers advance to Phase 192", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 190.")
-    expect(currentStatus).toContain("Phase 190: Text Engine WASM Artifact Digest Pinning Gate.")
+    expect(currentStatus).toContain("Status: updated after Phase 191.")
     expect(currentStatus).toContain("Phase 191: Text Engine WASM Artifact Build Output Gate.")
-    expect(nextPointer).toContain("Status: current after Phase 190.")
-    expect(nextPointer).toContain("Phase 191: Text Engine WASM Artifact Build Output Gate.")
+    expect(currentStatus).toContain("Phase 192: Text Engine WASM Build Toolchain Readiness Gate.")
+    expect(nextPointer).toContain("Status: current after Phase 191.")
+    expect(nextPointer).toContain("Phase 192: Text Engine WASM Build Toolchain Readiness Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine runtime identity digest evidence population gate")
     expect(readme).toContain("docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md")
@@ -276,7 +276,7 @@ describe("text engine runtime identity digest evidence population gate", () => {
     expect(roadmap).toContain(
       "## Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 190:")
+    expect(roadmap).toContain("Current next step after Phase 191:")
     expect(roadmap).toContain("Historical Phase 189 Handoff")
   })
 })
