@@ -89,14 +89,14 @@ describe("v1 measurement fixture evidence matrix gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 194.")
-    expect(currentStatus).toContain("Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.")
+    expect(currentStatus).toContain("Status: updated after Phase 195.")
     expect(currentStatus).toContain("Phase 195: Text Engine WASM Artifact Production Gate.")
+    expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
     expect(currentStatus).toContain("`v1-measurement-evidence-corpus-v1`")
     expect(currentStatus).toContain("keeps raw evidence outside core")
 
-    expect(nextPointer).toContain("Status: current after Phase 194.")
-    expect(nextPointer).toContain("Phase 195: Text Engine WASM Artifact Production Gate.")
+    expect(nextPointer).toContain("Status: current after Phase 195.")
+    expect(nextPointer).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
     expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
   })

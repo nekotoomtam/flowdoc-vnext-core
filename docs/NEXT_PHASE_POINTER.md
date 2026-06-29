@@ -1,36 +1,37 @@
 # Next Phase Pointer
 
-Status: current after Phase 194.
+Status: current after Phase 195.
 
 ## Next Phase
 
-Phase 195: Text Engine WASM Artifact Production Gate.
+Text Engine WASM Toolchain Provisioning Bootstrap Gate.
+
+Phase 196: Artifact Digest Pinning Execution remains blocked.
 
 ## Why This Is Next
 
-Phase 194 runs the package-local WASM toolchain diagnostic through an optional
-readiness smoke without making root checks depend on it:
+Phase 195 checked the accepted package-local WASM artifact production path:
+
+```text
+packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm
+```
+
+It reran the package-local readiness smoke:
 
 ```text
 cd packages/text-engine-rust-wasm
 npm run wasm:readiness-smoke
 ```
 
-```text
-packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json
-```
-
-The smoke exits zero and records JSON-safe unavailable/blocked status:
+The smoke still exits zero but reports unavailable toolchain status:
 `wasmPackAvailable=false`, `wasm32UnknownUnknownInstalled=false`,
 `toolchainReady=false`, `canProduceArtifactNow=false`,
 `artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
 
-The next safe step is the WASM artifact production gate. If the toolchain is
-actually available, Phase 195 may produce the accepted artifact under
-`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`. If the
-toolchain is still unavailable, Phase 195 must record the blocker clearly or
-propose a dedicated provisioning/bootstrap phase. Do not continue to digest
-pinning while the artifact is absent.
+Because the accepted artifact is not produced, Phase 196 digest pinning must
+not proceed. The next safe step is a dedicated provisioning/bootstrap gate that
+decides or executes how `wasm-pack` and `wasm32-unknown-unknown` become
+available for package-local builds while root checks stay independent.
 
 Native evidence, WASM evidence, native/WASM parity summaries,
 renderer-backed drift summaries, numeric thresholds, accepted manifests,
@@ -40,6 +41,8 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`
@@ -49,11 +52,6 @@ blocked until later phases.
 - `packages/text-engine-rust-wasm/fixtures/wasm-build-toolchain-readiness.v1.json`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`
-- `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`
-- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`
-- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`
-- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`
-- `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`
 - `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`
 - `packages/text-engine-rust-wasm/rust-shaper/src/main.rs`
 - `packages/text-engine-rust-wasm/rust-shaper/src/lib.rs`
@@ -68,6 +66,9 @@ blocked until later phases.
 - No raw native/WASM evidence in root tests/docs.
 - No root check dependency on `wasm-pack`.
 - No root check dependency on `wasm32-unknown-unknown`.
+- No fake WASM artifact.
+- No fake sha256.
+- No Phase 196 digest pinning while the accepted artifact is absent.
 - No native/WASM parity evidence production in root core.
 - No renderer-backed measurement as production truth.
 - No production contenteditable implementation.
@@ -82,13 +83,13 @@ blocked until later phases.
 
 ## Expected Output
 
-- package-local WASM artifact production decision;
-- accepted artifact path remains
-  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
-- artifact output is produced only if the package-local toolchain is actually
+- package-local provisioning/bootstrap decision for `wasm-pack`;
+- package-local provisioning/bootstrap decision for
+  `wasm32-unknown-unknown`;
+- explicit version policy for installed `wasm-pack` if provisioning succeeds;
+- root checks remain independent from WASM tooling;
+- artifact production remains blocked until the toolchain is actually
   available;
-- if the toolchain is unavailable, explicit blocker status or a dedicated
-  provisioning/bootstrap recommendation;
 - digest status remains `pending` unless a real artifact exists;
 - explicit blocker status for native evidence, WASM evidence, parity, drift,
   thresholds, accepted manifest, and default-measurer replacement;

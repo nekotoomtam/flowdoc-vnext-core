@@ -5668,6 +5668,53 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 195: Text Engine WASM Artifact Production Gate
+
+Goal:
+
+- produce the package-local WASM artifact only if the Phase 194 readiness smoke
+  proves the toolchain is available.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmArtifactProductionGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- Phase 194 readiness is read before artifact production;
+- current `wasm:readiness-smoke` still exits zero with unavailable tooling;
+- `wasm:build` is not run because `wasm-pack` and
+  `wasm32-unknown-unknown` are unavailable;
+- no artifact is produced under `packages/text-engine-rust-wasm/pkg/`;
+- artifact existence, pointer, retention pointer, and file size are recorded
+  as JSON-safe absent values;
+- digest remains `pending` with `sha256=null`;
+- Phase 196 Artifact Digest Pinning Execution remains blocked until a real
+  artifact exists;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target, the
+  readiness smoke, the WASM build, or a WASM artifact;
+- package-local artifact production summary fixture is JSON-safe;
+- root docs/tests consume summaries and retention pointers only;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted summary manifest, production
+  binding, and default-measurer replacement remain blocked;
+- next recommended work is Text Engine WASM Toolchain Provisioning Bootstrap
+  Gate;
+- no `wasm-pack` or `wasm32-unknown-unknown` requirement in root checks,
+  rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, raw native/WASM
+  evidence in root tests/docs, fake WASM artifact, fake sha256,
+  `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5697,10 +5744,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 194:
+Current next step after Phase 195:
 
 ```text
-Phase 195: Text Engine WASM Artifact Production Gate
+Text Engine WASM Toolchain Provisioning Bootstrap Gate
 ```
 
 Reason:
@@ -5783,13 +5830,29 @@ Reason:
   `wasm32UnknownUnknownInstalled=false`, `toolchainReady=false`,
   `canProduceArtifactNow=false`, `artifactProduced=false`,
   `digestStatus="pending"`, and `sha256=null`;
-- the current package-local digest remains pending, so the next safe lane is
-  the artifact production gate. If the toolchain remains unavailable, Phase
-  195 must record the blocker or propose a dedicated provisioning/bootstrap
-  phase instead of producing a fake artifact or continuing to digest pinning;
+- Phase 195 now reruns the package-local readiness smoke, does not run
+  `wasm:build`, records `artifactProduced=false`, `artifactPointer=null`,
+  `fileSizeBytes=null`, `digestStatus="pending"`, and `sha256=null`, and
+  blocks Phase 196 Artifact Digest Pinning Execution until a real artifact
+  exists;
+- the current package-local digest remains pending, so the next safe lane is a
+  dedicated provisioning/bootstrap gate for `wasm-pack` and
+  `wasm32-unknown-unknown` instead of producing a fake artifact or continuing
+  to digest pinning;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 194 Handoff
+
+Current next step after Phase 194:
+
+```text
+Phase 195: Text Engine WASM Artifact Production Gate
+```
+
+That was the Phase 194 handoff recommendation. Phase 195 is now complete, so
+it is no longer the current next step after Phase 195.
 
 ## Historical Phase 193 Handoff
 

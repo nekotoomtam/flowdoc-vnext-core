@@ -1,0 +1,105 @@
+{
+  "productionSummaryId": "text-engine-wasm-artifact-production-v1",
+  "sourceReadinessSmokeSummaryId": "text-engine-wasm-toolchain-optional-readiness-smoke-v1",
+  "sourceDiagnosticSummaryId": "text-engine-wasm-toolchain-diagnostic-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildPath": "wasm-pack",
+  "acceptedBuild": {
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "packageScript": "wasm:build",
+    "command": "npm run wasm:build",
+    "underlyingCommand": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
+    "outputDirectory": "packages/text-engine-rust-wasm/pkg",
+    "outputArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "runStatus": "not-run-toolchain-unavailable",
+    "rootCheckRequiresBuild": false
+  },
+  "readinessSource": {
+    "smokeStatus": "completed-blocked",
+    "smokeExitPolicy": "always-zero",
+    "lastObservedSmokeExitCode": 0,
+    "availabilityStatus": "unavailable-blocked",
+    "cargoAvailable": true,
+    "rustupAvailable": true,
+    "wasmPackAvailable": false,
+    "wasmPackVersion": null,
+    "wasmPackVersionPolicyStatus": "pending-until-installed",
+    "wasmBindgenCliAvailable": false,
+    "installedRustTargets": ["x86_64-pc-windows-msvc"],
+    "wasm32UnknownUnknownInstalled": false,
+    "toolchainReady": false,
+    "canProduceArtifactNow": false,
+    "readinessSmokeBlockers": [
+      "wasm-pack-not-available",
+      "wasm-pack-version-unpinned",
+      "wasm32-unknown-unknown-target-not-installed",
+      "accepted-artifact-path-not-produced",
+      "sha256-not-computed"
+    ],
+    "currentDiagnosticBlockedReasons": [
+      "wasm-pack-not-available",
+      "wasm32-unknown-unknown-target-not-installed"
+    ]
+  },
+  "artifact": {
+    "artifactProduced": false,
+    "artifactExists": false,
+    "artifactPointer": null,
+    "retentionPointer": null,
+    "fileSizeBytes": null,
+    "rawArtifactIncluded": false,
+    "producedOnlyUnderAcceptedPackageLocalPkgPath": true,
+    "fakeArtifactAllowed": false,
+    "artifactProductionStatus": "blocked-not-produced"
+  },
+  "digest": {
+    "digestStatus": "pending",
+    "sha256": null,
+    "sha256Pinned": false,
+    "fakeSha256Allowed": false,
+    "pinningStatus": "blocked-until-real-artifact-exists",
+    "phase196ArtifactDigestPinningExecution": "blocked"
+  },
+  "rootCheck": {
+    "requiresWasmPack": false,
+    "requiresWasm32UnknownUnknown": false,
+    "requiresReadinessSmoke": false,
+    "requiresArtifact": false,
+    "requiresWasmBuild": false
+  },
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "blockers": [
+    "wasm-pack-not-available",
+    "wasm-pack-version-unpinned",
+    "wasm32-unknown-unknown-target-not-installed",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "readinessSmokeSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json",
+    "artifactProductionSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-artifact-production.v1.json",
+    "wasmArtifactPointer": null,
+    "artifactProduced": false,
+    "fileSizeBytes": null,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedWork": "Text Engine WASM Toolchain Provisioning Bootstrap Gate",
+  "phase196Rule": "blocked-until-real-artifact-exists"
+}

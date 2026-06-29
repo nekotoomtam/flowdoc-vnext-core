@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: Phase 194 WASM toolchain optional readiness smoke package.
+Status: Phase 195 WASM artifact production gate package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -14,7 +14,9 @@ script metadata, but keeps artifact production blocked until `wasm-pack` and
 toolchain diagnostic script that reports availability as JSON without making
 root checks depend on WASM tooling. Phase 194 adds an optional package-local
 readiness smoke wrapper that records unavailable toolchain status without
-requiring an artifact.
+requiring an artifact. Phase 195 checks artifact production, does not run
+`wasm:build` while the toolchain is unavailable, and keeps artifact output plus
+digest pinning blocked.
 
 Run the smoke from this package:
 
