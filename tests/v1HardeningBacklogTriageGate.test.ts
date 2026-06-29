@@ -57,16 +57,18 @@ describe("v1 hardening backlog triage gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 185.")
-    expect(currentStatus).toContain("Phase 185: Measurement Evidence Summary Manifest Gate.")
-    expect(currentStatus).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
+    expect(currentStatus).toContain("Status: updated after Phase 186.")
+    expect(currentStatus).toContain(
+      "Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.",
+    )
+    expect(currentStatus).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
     expect(currentStatus).toContain("1. Measurement rollout / digest / parity / drift.")
     expect(currentStatus).toContain("8. Package/document schema changes, if any are required later.")
     expect(currentStatus).toContain("Do not replace the default measurer")
 
-    expect(nextPointer).toContain("Status: current after Phase 185.")
-    expect(nextPointer).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
-    expect(nextPointer).toContain("JSON-safe stub summary manifest")
+    expect(nextPointer).toContain("Status: current after Phase 186.")
+    expect(nextPointer).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
+    expect(nextPointer).toContain("ranked missing evidence gaps")
     expect(nextPointer).toContain("No default measurement replacement.")
     expect(nextPointer).toContain("No pagination mutation.")
   })

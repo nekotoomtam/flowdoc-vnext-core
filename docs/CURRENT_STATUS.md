@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 185.
+Status: updated after Phase 186.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 185: Measurement Evidence Summary Manifest Gate.
+Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -17,17 +17,19 @@ Phase 183 defines the digest, parity, drift, fixture-evidence, and replacement
 blocker policy for that lane. Phase 184 selects the v1 measurement fixture
 matrix and required JSON-safe summary facts. Phase 185 defines the JSON-safe
 summary manifest shape for carrying those facts without raw evidence in root
-tests/docs. It does not claim production readiness.
+tests/docs. Phase 186 adds a JSON-safe stub summary manifest for that matrix,
+with release-gating rows still unknown/missing and no production readiness
+claim.
 
 ## Current Next Phase
 
-Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.
+Phase 187: Measurement Evidence Coverage Gap Triage Gate.
 
 Goal:
 
-- add a JSON-safe stub summary manifest for the Phase 184 matrix;
-- keep all release-gating rows unknown or missing until real evidence is
-  produced outside core;
+- rank missing evidence across the Phase 186 stub manifest;
+- identify owners, prerequisites, and blocker order before any real evidence
+  collection;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -75,6 +77,13 @@ Phase 184 maps the release-gating evidence matrix under
 Phase 185 defines `measurement-evidence-summary-manifest-v1` as a JSON-safe
 shape only. Raw native/WASM/renderer evidence remains outside root tests/docs.
 
+Phase 186 adds
+`fixtures/measurement-evidence-summary-manifest.stub.v1.json` as a JSON-safe
+stub only. It keeps `rawEvidenceIncluded=false`, all release-gating fixture
+statuses unknown, required fact coverage missing, digest identity pending,
+native/WASM parity not-run, renderer-backed drift unknown, and retention
+pointers null or external placeholders.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -91,6 +100,7 @@ shape only. Raw native/WASM/renderer evidence remains outside root tests/docs.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`

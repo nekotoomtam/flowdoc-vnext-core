@@ -79,15 +79,17 @@ describe("measurement evidence summary manifest gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 185.")
-    expect(currentStatus).toContain("Phase 185: Measurement Evidence Summary Manifest Gate.")
-    expect(currentStatus).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
+    expect(currentStatus).toContain("Status: updated after Phase 186.")
+    expect(currentStatus).toContain(
+      "Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.",
+    )
+    expect(currentStatus).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
     expect(currentStatus).toContain("measurement-evidence-summary-manifest-v1")
     expect(currentStatus).toContain("Raw native/WASM/renderer evidence remains outside root tests/docs.")
 
-    expect(nextPointer).toContain("Status: current after Phase 185.")
-    expect(nextPointer).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
-    expect(nextPointer).toContain("JSON-safe stub summary manifest")
+    expect(nextPointer).toContain("Status: current after Phase 186.")
+    expect(nextPointer).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
+    expect(nextPointer).toContain("ranked missing evidence gaps")
     expect(nextPointer).toContain("No raw evidence in root tests/docs.")
   })
 
@@ -101,7 +103,7 @@ describe("measurement evidence summary manifest gate", () => {
     expect(ledger).toContain("| 185 | Measurement evidence summary manifest gate | done |")
     expect(ledger).toContain("## Phase 185 Measurement Evidence Summary Manifest Gate")
     expect(roadmap).toContain("## Phase 185: Measurement Evidence Summary Manifest Gate")
-    expect(roadmap).toContain("Current next step after Phase 185:")
+    expect(roadmap).toContain("Historical Phase 185 Handoff")
     expect(roadmap).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate")
     expect(roadmap).toContain("Historical Phase 184 Handoff")
   })

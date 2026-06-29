@@ -5286,6 +5286,44 @@ Acceptance:
   package/document schema change, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate
+
+Goal:
+
+- add a JSON-safe stub summary manifest for the Phase 184 fixture matrix
+  without producing real evidence or claiming production readiness.
+
+Deliverables:
+
+- `fixtures/measurement-evidence-summary-manifest.stub.v1.json`;
+- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/measurementEvidenceSummaryManifestFixtureStubGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- all Phase 184 release-gating fixture rows are included;
+- useful exploratory rows are included separately;
+- `rawEvidenceIncluded=false`;
+- release-gating rows remain `unknown` or missing/blocked according to policy;
+- required fact coverage remains `missing`;
+- digest identity is pending or missing;
+- native/WASM parity is not-run or missing;
+- renderer-backed drift is unknown;
+- retention pointers are null or external placeholders with
+  `includedInRoot=false`;
+- tests assert the stub cannot be mistaken for accepted evidence;
+- next phase is Phase 187: Measurement Evidence Coverage Gap Triage Gate;
+- no `measureVNextText(...)` default replacement, pagination mutation,
+  production renderer-backed measurement binding, external text-engine
+  execution in core, raw evidence in root tests/docs, production PDF/DOCX
+  renderer work, backend routes/storage/auth, production contenteditable,
+  package/document schema change, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5315,10 +5353,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 185:
+Current next step after Phase 186:
 
 ```text
-Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate
+Phase 187: Measurement Evidence Coverage Gap Triage Gate
 ```
 
 Reason:
@@ -5367,12 +5405,26 @@ Reason:
   profile requirements, required summary facts, and missing-evidence states;
 - Phase 185 now defines the JSON-safe measurement evidence summary manifest
   shape for digest, parity, drift, status, retention, and replacement blockers;
-- the next safe lane is adding a JSON-safe stub summary manifest with unknown
-  statuses before filling evidence, executing external engines, production
-  measurement binding, or default-measurer replacement;
+- Phase 186 now adds a JSON-safe stub summary manifest with release-gating
+  rows unknown/missing, raw evidence excluded, and default-measurer replacement
+  blocked;
+- the next safe lane is ranking the missing evidence gaps, owners, and
+  prerequisites before filling evidence, executing external engines,
+  production measurement binding, or default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 185 Handoff
+
+Current next step after Phase 185:
+
+```text
+Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate
+```
+
+That was the Phase 185 handoff recommendation. Phase 186 is now complete, so
+it is no longer the current next step after Phase 186.
 
 ## Historical Phase 184 Handoff
 

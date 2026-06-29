@@ -192,6 +192,7 @@ Parent goal:
 | 183 | Measurement digest parity drift hardening gate | done | `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementDigestParityDriftHardeningGate.test.ts`; `tests/v1HardeningBacklogTriageGate.test.ts` |
 | 184 | V1 measurement fixture evidence matrix gate | done | `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts`; `tests/measurementDigestParityDriftHardeningGate.test.ts` |
 | 185 | Measurement evidence summary manifest gate | done | `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceSummaryManifestGate.test.ts`; `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts` |
+| 186 | Measurement evidence summary manifest fixture stub gate | done | `fixtures/measurement-evidence-summary-manifest.stub.v1.json`; `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceSummaryManifestFixtureStubGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -4747,6 +4748,35 @@ behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 186 Measurement Evidence Summary Manifest Fixture
 Stub Gate.
+
+## Phase 186 Measurement Evidence Summary Manifest Fixture Stub Gate
+
+Phase 186 adds a JSON-safe stub manifest for the Phase 184 matrix:
+
+- stub file:
+  `fixtures/measurement-evidence-summary-manifest.stub.v1.json`;
+- manifest id: `measurement-evidence-summary-manifest-stub-v1`;
+- all release-gating fixture rows from Phase 184 are represented;
+- useful exploratory rows are represented separately;
+- `rawEvidenceIncluded=false`;
+- release-gating fixture statuses remain `unknown`;
+- required fact coverage remains `missing`;
+- digest identity remains `pending`;
+- native/WASM parity remains `not-run`;
+- renderer-backed drift remains `unknown`;
+- retention pointers are `null` or external placeholders with
+  `includedInRoot=false`;
+- top-level replacement blockers remain.
+
+This phase intentionally does not replace `measureVNextText(...)`, mutate
+pagination, bind production renderer-backed measurement, execute external text
+engines in core, put raw evidence in root docs/tests, add production PDF/DOCX
+renderer work, add backend routes, storage, auth/authz, implement
+contenteditable, change package/document schema, add collaboration/offline
+behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 187 Measurement Evidence Coverage Gap Triage
+Gate.
 
 ## Phase 12 Extraction Record
 

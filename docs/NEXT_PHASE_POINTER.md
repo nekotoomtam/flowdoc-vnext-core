@@ -1,22 +1,29 @@
 # Next Phase Pointer
 
-Status: current after Phase 185.
+Status: current after Phase 186.
 
 ## Next Phase
 
-Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.
+Phase 187: Measurement Evidence Coverage Gap Triage Gate.
 
 ## Why This Is Next
 
-Phase 185 defines the JSON-safe measurement evidence summary manifest shape
-for matrix id, corpus id, fixture ids, fact coverage, digest, parity, drift,
-status, and raw-evidence retention pointers. The next safe step is to add a
-stub summary manifest with unknown/missing statuses before filling evidence,
-running external engines, or binding production measurement.
+Phase 186 adds the JSON-safe stub summary manifest for the Phase 184 matrix.
+The stub deliberately keeps all release-gating rows unknown or missing:
+required fact coverage is missing, digest identity is pending, native/WASM
+parity is not-run, renderer-backed drift is unknown, and raw evidence is not
+included.
+
+The next safe step is to triage the missing evidence, owners, prerequisite
+order, and release-blocking gaps before collecting real evidence, executing
+external text engines, binding production measurement, or replacing the
+default measurer.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `fixtures/measurement-evidence-summary-manifest.stub.v1.json`
+- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
@@ -43,9 +50,11 @@ running external engines, or binding production measurement.
 
 ## Expected Output
 
-- JSON-safe stub summary manifest for the Phase 184 matrix;
-- unknown/missing release-gating statuses until real evidence exists;
-- explicit remaining blockers before any production measurement binding;
+- ranked missing evidence gaps across the Phase 186 stub rows;
+- explicit release-gating versus exploratory gap handling;
+- owners/prerequisites for digest, native/WASM parity, renderer-backed drift,
+  retention pointers, and required fact coverage;
+- blocker order before any real evidence population or production binding;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
 - updated current-status pointer.

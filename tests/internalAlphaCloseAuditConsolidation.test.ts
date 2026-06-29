@@ -32,15 +32,17 @@ describe("internal alpha close audit and documentation consolidation gate", () =
     expect(audit).toContain("docs/CURRENT_STATUS.md")
     expect(audit).toContain("docs/NEXT_PHASE_POINTER.md")
     expect(audit).toContain("Phase-specific docs remain evidence records and are not deleted or moved.")
-    expect(currentStatus).toContain("Status: updated after Phase 185.")
+    expect(currentStatus).toContain("Status: updated after Phase 186.")
     expect(currentStatus).toContain("Use this file first when orienting current work.")
-    expect(currentStatus).toContain("Phase 185: Measurement Evidence Summary Manifest Gate.")
-    expect(currentStatus).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
+    expect(currentStatus).toContain(
+      "Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.",
+    )
+    expect(currentStatus).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
     expect(currentStatus).toContain("Proven Internal-Alpha Path")
     expect(currentStatus).toContain("Do not claim production readiness from internal-alpha evidence.")
-    expect(nextPointer).toContain("Status: current after Phase 185.")
-    expect(nextPointer).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
-    expect(nextPointer).toContain("JSON-safe stub summary manifest")
+    expect(nextPointer).toContain("Status: current after Phase 186.")
+    expect(nextPointer).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
+    expect(nextPointer).toContain("ranked missing evidence gaps")
   })
 
   it("recommends Phase 182 as a triage gate, not a production binding jump", () => {

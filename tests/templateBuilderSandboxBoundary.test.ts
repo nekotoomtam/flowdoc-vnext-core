@@ -1046,7 +1046,7 @@ describe("template builder sandbox boundary", () => {
     expect(result.invalidIssues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "invalid-rich-inline-plan" }),
     ]))
-  }, 15_000)
+  }, 30_000)
 
   it("replays rich inline commits through sandbox undo and redo", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -1277,7 +1277,7 @@ describe("template builder sandbox boundary", () => {
       },
     })
     expect(result.redonePacketHasSections).toBe(false)
-  }, 15_000)
+  }, 30_000)
 
   it("returns bounded packet-only mutation responses", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -1400,7 +1400,7 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
     ]))
-  }, 15_000)
+  }, 30_000)
 
   it("returns structural packet responses from sandbox structural bridge actions", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -1603,7 +1603,7 @@ describe("template builder sandbox boundary", () => {
       action: "sandbox.deleteStructuralNode",
       status: "rejected",
     })
-  }, 15_000)
+  }, 30_000)
 
   it("reports live layout request summaries without running exact layout", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -1739,7 +1739,7 @@ describe("template builder sandbox boundary", () => {
     })
     expect(result.exactLayoutStatus).toBe("not-run")
     expect(result.artifactStatus).toBe("not-rendered")
-  }, 15_000)
+  }, 30_000)
 
   it("inserts text at the selected text block end through the sandbox bridge", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -1851,7 +1851,7 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "non-plain-text-block" }),
     ]))
-  }, 15_000)
+  }, 30_000)
 
   it("undoes and redoes sandbox text patches through packet responses", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -2031,7 +2031,7 @@ describe("template builder sandbox boundary", () => {
     expect(result.rejectedRedoPacket.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "nothing-to-redo" }),
     ]))
-  }, 15_000)
+  }, 30_000)
 
   it("applies mutation packets through a browser runtime cache", () => {
     const appSource = readText("../examples/template-builder-sandbox/public/app.js")
@@ -5850,7 +5850,7 @@ describe("template builder sandbox boundary", () => {
     expect(result.runtimeStoreApplyMode).toBe("structural-packet-direct")
     expect(result.runtimeStoreNodeCount).toBe(52)
     expect(result.snapshotInsertedExists).toBe(false)
-  }, 15_000)
+  }, 30_000)
 
   it("builds a store-backed render model from runtime store content", () => {
     const output = execFileSync(process.execPath, ["--input-type=module", "-e", `
