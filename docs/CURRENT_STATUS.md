@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 192.
+Status: updated after Phase 193.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 192: Text Engine WASM Build Toolchain Readiness Gate.
+Phase 193: Text Engine WASM Toolchain Acquisition Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -38,16 +38,21 @@ pinning blocked. Phase 192 accepts the `wasm-pack` path over direct Cargo plus
 `wasm-bindgen`, adds a minimal package-local `cdylib`/`rlib` crate target and
 `wasm:build` script metadata, keeps the native smoke path intact, and keeps
 artifact production blocked because `wasm-pack` and `wasm32-unknown-unknown`
-are still unavailable.
+are still unavailable. Phase 193 defines the acquisition/provisioning path for
+`wasm-pack` and `wasm32-unknown-unknown`, adds a package-local
+`wasm:check-toolchain` diagnostic that reports JSON-safe availability and
+exits zero, keeps the `wasm-pack` version pending until installed, and keeps
+artifact production plus digest pinning blocked.
 
 ## Current Next Phase
 
-Phase 193: Text Engine WASM Toolchain Acquisition Gate.
+Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.
 
 Goal:
 
-- decide how `wasm-pack` and `wasm32-unknown-unknown` become available for
-  package-local builds without making root checks depend on them;
+- run the package-local toolchain diagnostic as an optional readiness smoke;
+- record JSON-safe availability summary without requiring an artifact if the
+  toolchain remains unavailable;
 - keep artifact production and sha256 pinning blocked unless the toolchain is
   actually available;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
@@ -152,6 +157,15 @@ available, `wasm-pack` unavailable, `wasm-bindgen` CLI unavailable,
 `rust-shaper` minimally crate-target ready with `cdylib`/`rlib` plus
 `src/lib.rs`.
 
+Phase 193 adds
+`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-acquisition.v1.json`
+and `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`. It
+records `wasm-pack` acquisition as developer/CI bootstrap outside root checks,
+`rustup target add wasm32-unknown-unknown` as the target provisioning path,
+`wasm-pack` version pinning as pending until installed, and keeps
+`canProduceArtifactNow=false`, `artifactPointer=null`, `digestStatus="pending"`,
+and `sha256=null`.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -169,6 +183,7 @@ available, `wasm-pack` unavailable, `wasm-bindgen` CLI unavailable,
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`

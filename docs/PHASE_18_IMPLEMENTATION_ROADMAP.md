@@ -5570,6 +5570,58 @@ Acceptance:
   contenteditable, package/document schema change, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 193: Text Engine WASM Toolchain Acquisition Gate
+
+Goal:
+
+- decide how `wasm-pack` and `wasm32-unknown-unknown` become available for
+  package-local builds without making root checks depend on them.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`;
+- `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`;
+- `packages/text-engine-rust-wasm/package.json`;
+- `packages/text-engine-rust-wasm/README.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-acquisition.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmToolchainAcquisitionGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- `wasm-pack` acquisition is accepted as developer/CI bootstrap outside root
+  checks;
+- `wasm-pack` provisioning command is documented as
+  `cargo install wasm-pack --locked`;
+- `wasm-pack` version policy remains pending until installed and must be
+  pinned before artifact production;
+- `wasm32-unknown-unknown` provisioning is documented as
+  `rustup target add wasm32-unknown-unknown`;
+- package-local `wasm:check-toolchain` diagnostic metadata is added;
+- diagnostic reports unavailable tooling as JSON-safe status and exits zero;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target, the
+  diagnostic, or a WASM artifact;
+- no artifact is produced under `packages/text-engine-rust-wasm/pkg/`;
+- digest remains `pending` with `sha256=null`;
+- package-local acquisition summary fixture is JSON-safe;
+- root docs/tests consume summaries and retention pointers only;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted summary manifest, production
+  binding, and default-measurer replacement remain blocked;
+- next phase is Phase 194: Text Engine WASM Toolchain Optional Readiness
+  Smoke;
+- no `wasm-pack` or `wasm32-unknown-unknown` requirement in root checks,
+  rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, raw native/WASM
+  evidence in root tests/docs, fake WASM artifact, fake sha256,
+  `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5599,10 +5651,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 192:
+Current next step after Phase 193:
 
 ```text
-Phase 193: Text Engine WASM Toolchain Acquisition Gate
+Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke
 ```
 
 Reason:
@@ -5675,14 +5727,30 @@ Reason:
   keeps root checks independent of WASM tooling, and leaves artifact
   production blocked because `wasm-pack` and `wasm32-unknown-unknown` remain
   unavailable;
+- Phase 193 now defines developer/CI bootstrap as the `wasm-pack` acquisition
+  path, `rustup target add wasm32-unknown-unknown` as the target provisioning
+  path, pending exact `wasm-pack` version policy, and package-local
+  `wasm:check-toolchain` diagnostic metadata that exits zero with JSON-safe
+  unavailable status;
 - the current package-local digest remains pending, so the next safe lane is
-  deciding package-local `wasm-pack` and `wasm32-unknown-unknown`
-  acquisition/provisioning before artifact production, sha256 pinning,
-  native/WASM evidence, parity, drift, thresholds, accepted root summaries,
-  production measurement binding, or default-measurer replacement;
+  running an optional package-local readiness smoke before artifact
+  production, sha256 pinning, native/WASM evidence, parity, drift, thresholds,
+  accepted root summaries, production measurement binding, or
+  default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 192 Handoff
+
+Current next step after Phase 192:
+
+```text
+Phase 193: Text Engine WASM Toolchain Acquisition Gate
+```
+
+That was the Phase 192 handoff recommendation. Phase 193 is now complete, so
+it is no longer the current next step after Phase 193.
 
 ## Historical Phase 191 Handoff
 
@@ -5693,7 +5761,7 @@ Phase 192: Text Engine WASM Build Toolchain Readiness Gate
 ```
 
 That was the Phase 191 handoff recommendation. Phase 192 is now complete, so
-it is no longer the current next step after Phase 192.
+it is no longer the current next step after Phase 193.
 
 ## Historical Phase 190 Handoff
 

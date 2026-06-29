@@ -1,35 +1,34 @@
 # Next Phase Pointer
 
-Status: current after Phase 192.
+Status: current after Phase 193.
 
 ## Next Phase
 
-Phase 193: Text Engine WASM Toolchain Acquisition Gate.
+Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.
 
 ## Why This Is Next
 
-Phase 192 makes the package-local WASM crate target shape minimally ready and
-accepts the `wasm-pack` path for the Phase 190/191 output path:
+Phase 193 defines how the package-local WASM toolchain becomes available
+without making root checks depend on it:
 
 ```text
 cd packages/text-engine-rust-wasm
-wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine
+npm run wasm:check-toolchain
 ```
 
 ```text
-packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm
+packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs
 ```
 
-The command cannot run yet because `wasm-pack` is unavailable and
-`wasm32-unknown-unknown` is not installed. Phase 192 adds
-`rust-shaper/src/lib.rs`, `[lib] crate-type = ["cdylib", "rlib"]`, and
-package-local `wasm:build` script metadata, while keeping the native
-`main.rs` smoke path intact.
+The diagnostic reports `wasm-pack` and `wasm32-unknown-unknown` availability
+as JSON-safe status and exits zero. Phase 193 keeps `wasm-pack` acquisition as
+developer/CI bootstrap outside root checks, keeps exact `wasm-pack` version
+pinning pending until installed, and keeps `rustup target add
+wasm32-unknown-unknown` as the accepted target provisioning path.
 
-The next safe step is deciding how the package-local toolchain is acquired or
-provisioned without making root `npm.cmd run check` depend on `wasm-pack` or
-the WASM Rust target. Root docs/tests should continue to receive only
-JSON-safe summaries and retention pointers.
+The next safe step is an optional package-local readiness smoke that runs this
+diagnostic and records JSON-safe availability. If the toolchain is still
+unavailable, the smoke must report blockers without requiring an artifact.
 
 Native evidence, WASM evidence, native/WASM parity summaries,
 renderer-backed drift summaries, numeric thresholds, accepted manifests,
@@ -39,6 +38,9 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-acquisition.v1.json`
+- `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`
 - `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-build-toolchain-readiness.v1.json`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`
@@ -77,8 +79,8 @@ blocked until later phases.
 ## Expected Output
 
 - package-local WASM toolchain acquisition/provisioning decision;
-- explicit owner/policy for `wasm-pack` and `wasm32-unknown-unknown`
-  availability;
+- package-local optional diagnostic/readiness smoke summary;
+- explicit status for `wasm-pack` and `wasm32-unknown-unknown` availability;
 - package-local summary update if safe;
 - artifact output remains absent unless the environment is ready and artifact
   production is explicitly in scope;

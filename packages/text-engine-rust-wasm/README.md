@@ -10,7 +10,9 @@ while keeping production measurement binding blocked. Phase 115 maps every
 Phase 107 rustybuzz smoke case through that raw-evidence boundary. Phase 192
 adds a minimal WASM-ready crate target shape and package-local `wasm:build`
 script metadata, but keeps artifact production blocked until `wasm-pack` and
-`wasm32-unknown-unknown` are available.
+`wasm32-unknown-unknown` are available. Phase 193 adds a package-local
+toolchain diagnostic script that reports availability as JSON without making
+root checks depend on WASM tooling.
 
 Run the smoke from this package:
 
@@ -32,6 +34,7 @@ Allowed:
 - require raw rustybuzz fixture coverage for every Phase 107 smoke case;
 - expose a minimal `cdylib`/`rlib` readiness marker from `rust-shaper/src/lib.rs`;
 - keep the package-local `wasm:build` command out of root checks;
+- run `npm run wasm:check-toolchain` as an optional package-local diagnostic;
 - remain external to `src/**` core.
 
 Blocked:
