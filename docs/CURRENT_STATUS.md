@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Text Engine WASM Toolchain Provisioning Execution Gate.
+Status: updated after Text Engine WASM Toolchain Version Compatibility Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Text Engine WASM Toolchain Provisioning Execution Gate.
+Text Engine WASM Toolchain Version Compatibility Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -63,21 +63,29 @@ because dependency `cargo-platform@0.3.3` requires `rustc 1.91` and the
 current toolchain reports `rustc 1.88.0`. Post-execution
 `wasm:readiness-smoke` reports `wasm32UnknownUnknownInstalled=true`,
 `wasmPackAvailable=false`, and `toolchainReady=false`, so artifact production
-and digest pinning remain blocked.
+and digest pinning remain blocked. The Text Engine WASM Toolchain Version
+Compatibility Gate compares upgrade Rust, older pinned `wasm-pack`, pinned CI
+image, internal tool cache, and preinstalled developer toolchain strategies.
+It selects Rust toolchain upgrade to `1.91+` as the immediate strategy, selects
+a pinned CI image as the longer-term reproducible strategy, keeps
+`wasm32-unknown-unknown` recorded as installed, and keeps artifact production
+blocked until `wasm-pack` is available and readiness reports
+`toolchainReady=true`.
 
 ## Current Next Phase
 
-Text Engine WASM Toolchain Version Compatibility Gate.
+Text Engine WASM Toolchain Rust Upgrade Execution Gate.
 
 Goal:
 
-- choose whether the next `wasm-pack` provisioning retry uses a Rust upgrade,
-  an explicitly pinned compatible `wasm-pack` version, a pinned CI image, an
-  internal tool cache, or a preinstalled developer toolchain;
-- keep `wasm32-unknown-unknown` recorded as installed after the execution
-  gate;
-- rerun `wasm:readiness-smoke` only after the selected compatibility strategy
-  changes the package-local toolchain;
+- execute or explicitly block the accepted Rust 1.91+ upgrade strategy;
+- if approved, run the selected Rust upgrade/install command and capture
+  `rustc --version` plus `cargo --version`;
+- retry `cargo install wasm-pack --locked` only after `rustc` is `1.91` or
+  newer;
+- capture `wasm-pack --version` if install succeeds;
+- rerun `wasm:readiness-smoke` after `wasm-pack` is available;
+- keep `wasm32-unknown-unknown` recorded as installed;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep Phase 196 Artifact Digest Pinning Execution blocked until the accepted
   artifact is actually produced under
@@ -244,6 +252,15 @@ smoke records `wasm32UnknownUnknownInstalled=true`,
 `artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
 Artifact production must not be retried until `toolchainReady=true`.
 
+The Text Engine WASM Toolchain Version Compatibility Gate adds
+`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json`.
+It compares upgrade Rust, older pinned `wasm-pack`, pinned CI image, internal
+tool cache, and preinstalled developer toolchain strategies. It accepts
+`upgrade-rust-toolchain-to-1.91-plus` as the immediate strategy, accepts
+`pinned-ci-image` as the longer-term reproducible strategy, keeps
+`wasm32UnknownUnknownInstalled=true`, keeps `wasmPackAvailable=false`, keeps
+`toolchainReady=false`, and blocks artifact production plus digest pinning.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -261,6 +278,7 @@ Artifact production must not be retried until `toolchainReady=true`.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`

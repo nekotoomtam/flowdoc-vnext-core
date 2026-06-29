@@ -1,0 +1,201 @@
+{
+  "compatibilitySummaryId": "text-engine-wasm-toolchain-version-compatibility-v1",
+  "sourceProvisioningExecutionSummaryId": "text-engine-wasm-toolchain-provisioning-execution-v1",
+  "sourceProvisioningBootstrapSummaryId": "text-engine-wasm-toolchain-provisioning-bootstrap-v1",
+  "sourceArtifactProductionSummaryId": "text-engine-wasm-artifact-production-v1",
+  "sourceDiagnosticSummaryId": "text-engine-wasm-toolchain-diagnostic-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildPath": "wasm-pack",
+  "sourceFailure": {
+    "failedCommand": "cargo install wasm-pack --locked",
+    "downloadedCandidateVersion": "wasm-pack v0.15.0",
+    "failureCategory": "rustc-version-too-old",
+    "dependency": "cargo-platform@0.3.3",
+    "dependencyRequiresRustc": "1.91",
+    "currentRustc": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+    "currentCargo": "cargo 1.88.0 (873a06493 2025-05-10)",
+    "wasmPackAvailable": false,
+    "wasmPackVersion": null,
+    "wasm32UnknownUnknownInstalled": true,
+    "toolchainReady": false
+  },
+  "strategyComparison": [
+    {
+      "id": "upgrade-rust-toolchain-to-1.91-plus",
+      "rank": 1,
+      "status": "accepted-immediate",
+      "summary": "Upgrade the active developer/CI Rust toolchain to rustc 1.91+ before retrying cargo install wasm-pack --locked.",
+      "why": "This directly resolves the observed blocker from wasm-pack v0.15.0 dependency cargo-platform@0.3.3 requiring rustc 1.91.",
+      "tradeoffs": [
+        "changes user or CI Rust toolchain state",
+        "requires an execution gate before running rustup update or toolchain install",
+        "must recapture exact rustc and cargo versions before artifact production"
+      ],
+      "rootCheckDependency": false,
+      "artifactRetryAllowedBeforeReadiness": false
+    },
+    {
+      "id": "pinned-ci-image",
+      "rank": 2,
+      "status": "accepted-long-term-reproducible",
+      "summary": "Use a pinned CI image or equivalent immutable build environment with rustc, cargo, wasm-pack, and wasm32-unknown-unknown preprovisioned.",
+      "why": "This makes artifact production reproducible and avoids relying on mutable developer machines.",
+      "tradeoffs": [
+        "requires CI image ownership",
+        "requires image digest or locked toolchain metadata",
+        "cannot unblock the local artifact path until the image exists or a local equivalent is provided"
+      ],
+      "rootCheckDependency": false,
+      "artifactRetryAllowedBeforeReadiness": false
+    },
+    {
+      "id": "pin-older-compatible-wasm-pack",
+      "rank": 3,
+      "status": "deferred-risk",
+      "summary": "Pin an older wasm-pack version only if a later evidence gate proves compatibility with rustc 1.88.0 and the package output shape.",
+      "why": "No compatible older wasm-pack version is proven by the current execution evidence, and pinning older tooling may hide future metadata or wasm-bindgen differences.",
+      "tradeoffs": [
+        "may reduce compatibility with current wasm-bindgen output expectations",
+        "requires separate version discovery and smoke evidence",
+        "still needs exact version pinning before artifact production"
+      ],
+      "rootCheckDependency": false,
+      "artifactRetryAllowedBeforeReadiness": false
+    },
+    {
+      "id": "internal-tool-cache",
+      "rank": 4,
+      "status": "deferred-infra",
+      "summary": "Use an internal cache for rustc/cargo/wasm-pack binaries after the accepted versions are known.",
+      "why": "A cache can improve repeatability and speed, but it does not decide the compatible versions by itself.",
+      "tradeoffs": [
+        "requires cache ownership",
+        "requires binary provenance and digest policy",
+        "requires the same readiness smoke before artifact production"
+      ],
+      "rootCheckDependency": false,
+      "artifactRetryAllowedBeforeReadiness": false
+    },
+    {
+      "id": "preinstalled-developer-toolchain",
+      "rank": 5,
+      "status": "allowed-not-canonical",
+      "summary": "Allow a developer machine with preinstalled compatible tooling to run package-local readiness and artifact production only after the versions are captured.",
+      "why": "This is useful for local unblock attempts but is not reproducible enough to be the canonical artifact production path.",
+      "tradeoffs": [
+        "environment drift risk",
+        "manual setup risk",
+        "must not become a root check dependency"
+      ],
+      "rootCheckDependency": false,
+      "artifactRetryAllowedBeforeReadiness": false
+    }
+  ],
+  "acceptedImmediateStrategy": {
+    "id": "upgrade-rust-toolchain-to-1.91-plus",
+    "minimumRustc": "1.91",
+    "executionGateRequired": true,
+    "acceptedExecutionPath": "developer-or-ci-bootstrap",
+    "candidateCommands": [
+      "rustup update stable",
+      "rustup toolchain install 1.91.0"
+    ],
+    "postExecutionRequiredCommands": [
+      "rustc --version",
+      "cargo --version",
+      "cargo install wasm-pack --locked",
+      "wasm-pack --version",
+      "npm run wasm:readiness-smoke"
+    ],
+    "acceptanceCriteria": [
+      "rustc version is 1.91 or newer",
+      "cargo version is recorded",
+      "wasm-pack --version exits zero",
+      "wasm32-unknown-unknown remains installed",
+      "npm run wasm:readiness-smoke reports toolchainReady=true",
+      "root npm run check remains independent from WASM tooling"
+    ]
+  },
+  "acceptedLongTermStrategy": {
+    "id": "pinned-ci-image",
+    "canonicalArtifactProducer": "ci-pinned-image-after-toolchain-readiness",
+    "requiredPinnedFacts": [
+      "image digest or immutable runner id",
+      "rustc version",
+      "cargo version",
+      "wasm-pack version",
+      "wasm32-unknown-unknown target presence",
+      "package-local readiness smoke output",
+      "artifact output path"
+    ],
+    "rootCheckDependency": false
+  },
+  "currentReadiness": {
+    "wasmPackAvailable": false,
+    "wasmPackVersion": null,
+    "wasm32UnknownUnknownInstalled": true,
+    "toolchainReady": false,
+    "canRetryArtifactProduction": false,
+    "artifactProductionBlocked": true,
+    "digestPinningBlocked": true
+  },
+  "rootCheck": {
+    "requiresWasmPack": false,
+    "requiresWasm32UnknownUnknown": false,
+    "requiresCompatibilityStrategy": false,
+    "requiresReadinessSmoke": false,
+    "requiresArtifact": false,
+    "requiresWasmBuild": false
+  },
+  "artifactPolicy": {
+    "artifactProductionBlocked": true,
+    "canRetryArtifactProduction": false,
+    "artifactProduced": false,
+    "artifactPointer": null,
+    "artifactProductionStatus": "blocked-until-wasm-pack-available-and-readiness-true",
+    "fakeArtifactAllowed": false
+  },
+  "digestPolicy": {
+    "digestPinningBlocked": true,
+    "digestStatus": "pending",
+    "sha256": null,
+    "pinningStatus": "blocked-until-real-artifact-exists",
+    "fakeSha256Allowed": false
+  },
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "blockers": [
+    "rust-toolchain-upgrade-execution-not-run",
+    "wasm-pack-not-available",
+    "wasm-pack-version-unpinned",
+    "toolchainReady-false",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "provisioningExecutionSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json",
+    "versionCompatibilitySummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json",
+    "wasmArtifactPointer": null,
+    "artifactProduced": false,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedWork": "Text Engine WASM Toolchain Rust Upgrade Execution Gate",
+  "artifactProductionRetryRule": "retry-only-after-wasm-pack-available-and-toolchainReady-true",
+  "phase196Rule": "blocked-until-real-artifact-exists"
+}

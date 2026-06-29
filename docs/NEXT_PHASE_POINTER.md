@@ -1,44 +1,36 @@
 # Next Phase Pointer
 
-Status: current after Text Engine WASM Toolchain Provisioning Execution Gate.
+Status: current after Text Engine WASM Toolchain Version Compatibility Gate.
 
 ## Next Phase
 
-Text Engine WASM Toolchain Version Compatibility Gate.
+Text Engine WASM Toolchain Rust Upgrade Execution Gate.
 
 Phase 196: Artifact Digest Pinning Execution remains blocked.
 
 ## Why This Is Next
 
-The provisioning execution gate attempted the accepted package-local
-provisioning path:
+The version compatibility gate compared five strategies after
+`cargo install wasm-pack --locked` selected `wasm-pack v0.15.0` and failed
+because `cargo-platform@0.3.3` requires `rustc 1.91`, while this environment
+reports `rustc 1.88.0`.
+
+Selected strategies:
+
+- immediate: upgrade Rust toolchain to `1.91+`;
+- longer-term reproducible: pinned CI image or equivalent immutable runner.
+
+The `wasm32-unknown-unknown` target is already installed, but `wasm-pack` is
+still unavailable and package-local readiness still reports:
 
 ```text
-cargo install wasm-pack --locked
-rustup target add wasm32-unknown-unknown
+toolchainReady=false
 ```
 
-Execution results:
-
-- `rustup target add wasm32-unknown-unknown` succeeded;
-- `wasm32-unknown-unknown` is now installed;
-- `cargo install wasm-pack --locked` attempted to install
-  `wasm-pack v0.15.0`;
-- `wasm-pack` installation failed because dependency
-  `cargo-platform@0.3.3` requires `rustc 1.91`;
-- the current toolchain reports `rustc 1.88.0`;
-- post-execution `wasm:readiness-smoke` reports `toolchainReady=false`;
-- artifact production remains blocked;
-- digest pinning remains blocked.
-
-The next safe step is to choose the version/provisioning strategy before any
-artifact production retry:
-
-- upgrade Rust to a toolchain compatible with latest `wasm-pack`;
-- pin a compatible `wasm-pack` version explicitly;
-- use a pinned CI image;
-- use an internal tool cache;
-- use a preinstalled developer toolchain.
+The next safe step is an execution gate for the accepted immediate strategy.
+That gate may upgrade or install Rust 1.91+ only with explicit approval for
+toolchain changes. It must then retry `cargo install wasm-pack --locked`,
+capture `wasm-pack --version`, and rerun `wasm:readiness-smoke`.
 
 Do not retry artifact production until package-local readiness reports:
 
@@ -61,11 +53,12 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json`
-- `packages/text-engine-rust-wasm/scripts/plan-wasm-toolchain-bootstrap.mjs`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`
@@ -101,13 +94,11 @@ blocked until later phases.
 
 ## Expected Output
 
-- chosen strategy for `wasm-pack` compatibility:
-  Rust upgrade, pinned compatible `wasm-pack`, pinned CI image, internal cache,
-  or preinstalled toolchain;
-- explicit policy for whether local developer provisioning or CI is canonical;
-- version policy for `rustc`, `cargo`, `wasm-pack`, and
-  `wasm32-unknown-unknown`;
-- `wasm:readiness-smoke` remains the source for availability;
+- approved or explicitly blocked Rust 1.91+ upgrade execution;
+- exact `rustc` and `cargo` version capture after the upgrade attempt;
+- `cargo install wasm-pack --locked` retry only if `rustc` is `1.91+`;
+- `wasm-pack --version` capture if install succeeds;
+- `wasm:readiness-smoke` rerun after `wasm-pack` is available;
 - root checks remain independent from WASM tooling;
 - artifact production remains blocked until the toolchain is actually
   available;

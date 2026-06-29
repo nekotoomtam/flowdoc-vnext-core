@@ -5802,6 +5802,47 @@ Acceptance:
   package/document schema change, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 195C: Text Engine WASM Toolchain Version Compatibility Gate
+
+Goal:
+
+- choose the next accepted `wasm-pack` compatibility strategy after the
+  provisioning execution gate proves the current Rust toolchain is too old for
+  `wasm-pack v0.15.0`.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmToolchainVersionCompatibilityGate.test.ts`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- compares Rust `1.91+` upgrade, older compatible `wasm-pack` pinning,
+  pinned CI image, internal tool cache, and preinstalled developer toolchain;
+- selects Rust toolchain upgrade to `1.91+` as the immediate strategy;
+- selects pinned CI image or equivalent immutable runner as the longer-term
+  reproducible strategy;
+- keeps `wasm32-unknown-unknown` recorded as installed;
+- keeps `wasmPackAvailable=false`;
+- keeps `toolchainReady=false`;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target, the
+  compatibility strategy, the readiness smoke, the WASM build, or an artifact;
+- artifact production remains blocked until `wasm-pack` is available and
+  `toolchainReady=true`;
+- digest pinning remains blocked until a real artifact exists;
+- no `wasm-pack` or `wasm32-unknown-unknown` requirement in root checks,
+  rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, fake WASM artifact,
+  fake sha256, `measureVNextText(...)` replacement, pagination mutation,
+  production renderer-backed measurement binding, production PDF/DOCX renderer
+  work, backend routes/storage/auth, production contenteditable,
+  package/document schema change, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5831,10 +5872,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 195B:
+Current next step after Phase 195C:
 
 ```text
-Text Engine WASM Toolchain Version Compatibility Gate
+Text Engine WASM Toolchain Rust Upgrade Execution Gate
 ```
 
 Reason:
@@ -5930,12 +5971,27 @@ Reason:
   `wasm32-unknown-unknown`, records `wasm-pack` installation failure because
   `wasm-pack v0.15.0` requires a dependency needing `rustc 1.91` while this
   environment reports `rustc 1.88.0`, and keeps root checks independent;
+- Phase 195C now compares Rust upgrade, older pinned `wasm-pack`, pinned CI
+  image, internal tool cache, and preinstalled developer toolchain strategies,
+  selects Rust 1.91+ upgrade as the immediate strategy, selects pinned CI image
+  as the longer-term reproducible strategy, and keeps root checks independent;
 - the current package-local digest remains pending, so the next safe lane is a
-  version compatibility/provisioning strategy gate before retrying artifact
-  production, with Artifact Digest Pinning Execution still blocked;
+  Rust upgrade execution gate before retrying `wasm-pack` installation or
+  artifact production, with Artifact Digest Pinning Execution still blocked;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 195B Handoff
+
+Current next step after Phase 195B:
+
+```text
+Text Engine WASM Toolchain Version Compatibility Gate
+```
+
+That was the Phase 195B handoff recommendation. Phase 195C is now complete,
+so it is no longer the current next step after Phase 195C.
 
 ## Historical Phase 195A Handoff
 
