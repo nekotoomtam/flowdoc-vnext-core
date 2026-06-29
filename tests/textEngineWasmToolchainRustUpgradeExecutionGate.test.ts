@@ -440,14 +440,14 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Text Engine WASM Artifact Production Retry Gate.",
+      "Status: updated after Text Engine WASM Bindgen Export Dependency Gate.",
     )
     expect(currentStatus).toContain(
       "Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Text Engine WASM Artifact Production Retry Gate.",
+      "Status: current after Text Engine WASM Bindgen Export Dependency Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Phase 196: Artifact Digest Pinning Execution remains blocked.")
@@ -455,7 +455,7 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(readme).toContain(
       "docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md",
     )
-    expect(packageReadme).toContain("Status: WASM artifact production retry package.")
+    expect(packageReadme).toContain("Status: WASM bindgen export dependency package.")
     expect(ledger).toContain(
       "| 195D | Text engine WASM toolchain Rust upgrade execution gate | done |",
     )
@@ -465,7 +465,7 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(roadmap).toContain(
       "## Phase 195D: Text Engine WASM Toolchain Rust Upgrade Execution Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195E:")
+    expect(roadmap).toContain("Current next step after Phase 195F:")
     expect(roadmap).toContain("Historical Phase 195C Handoff")
   })
 })

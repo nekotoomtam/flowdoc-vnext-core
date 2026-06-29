@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: WASM artifact production retry package.
+Status: WASM bindgen export dependency package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -32,6 +32,10 @@ production and digest pinning to later dedicated gates. The artifact
 production retry gate then runs package-local `wasm:build`, records
 `failed-missing-wasm-bindgen-dependency`, keeps the accepted artifact absent,
 and points next to a package-local `wasm-bindgen` dependency/export boundary.
+The bindgen export dependency gate adds `wasm-bindgen = "0.2"` to
+`rust-shaper`, exposes only readiness marker and boundary version exports, and
+keeps native smoke plus root checks independent before the next artifact
+production retry.
 
 Run the smoke from this package:
 
@@ -61,6 +65,8 @@ Allowed:
   explicit package-local toolchain execution gates;
 - attempt `npm run wasm:build` only inside explicit package-local artifact
   production gates;
+- expose only minimal non-production `#[wasm_bindgen]` readiness/version
+  functions until a later evidence phase scopes real shaping;
 - remain external to `src/**` core.
 
 Blocked:

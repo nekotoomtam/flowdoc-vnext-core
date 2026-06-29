@@ -671,6 +671,10 @@ The package must remain runnable without any parent editor checkout.
   `wasm:build` after readiness reports `toolchainReady=true`, records the
   exact `wasm-bindgen` dependency blocker, and keeps the accepted artifact plus
   digest pinning blocked.
+- Text engine WASM bindgen export dependency gate adds package-local
+  `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
+  boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
+  points back to artifact production retry.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -679,8 +683,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after the artifact
-  production retry gate
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after the bindgen
+  export dependency gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -905,6 +909,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`: text engine WASM
   artifact production retry gate before package-local `wasm-bindgen`
   dependency/export work
+- `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`: text engine WASM
+  bindgen export dependency gate before retrying artifact production
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -1164,7 +1170,7 @@ The package must remain runnable without any parent editor checkout.
   native/WASM evidence, parity
   summaries, renderer-backed drift summaries, numeric drift thresholds,
   accepted root summary manifest, or production measurement replacement beyond
-  the artifact production retry gate
+  the bindgen export dependency gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

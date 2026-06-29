@@ -5924,6 +5924,47 @@ Acceptance:
   package/document schema change, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 195F: Text Engine WASM Bindgen Export Dependency Gate
+
+Goal:
+
+- resolve the package-local `wasm-bindgen` dependency/export blocker required
+  by `wasm-pack` without changing root checks or production measurement
+  binding.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json`;
+- `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`;
+- `packages/text-engine-rust-wasm/rust-shaper/Cargo.lock`;
+- `packages/text-engine-rust-wasm/rust-shaper/src/lib.rs`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmBindgenExportDependencyGate.test.ts`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- adds `wasm-bindgen = "0.2"` package-locally;
+- records resolved `wasm-bindgen 0.2.126` in Cargo.lock;
+- defines only minimal non-production `#[wasm_bindgen]` exports for readiness
+  marker and boundary version;
+- keeps rustybuzz shaping and ICU4X out of the WASM library boundary;
+- keeps native `main.rs` rustybuzz smoke path intact;
+- passes package-local WASM target and native cargo checks;
+- does not retry `wasm:build`;
+- keeps accepted artifact absent and digest pinning blocked;
+- keeps root `npm.cmd run check` independent from `wasm-bindgen`,
+  `wasm-pack`, the WASM target, readiness smoke, WASM build, and artifacts;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, fake WASM
+  artifact, fake sha256, sha256 compute, `measureVNextText(...)` replacement,
+  pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, backend routes/storage/auth, production
+  contenteditable, package/document schema change, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5953,10 +5994,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 195E:
+Current next step after Phase 195F:
 
 ```text
-Text Engine WASM Bindgen Export Dependency Gate
+Text Engine WASM Artifact Production Retry Gate
 ```
 
 Reason:
@@ -6063,13 +6104,27 @@ Reason:
 - Phase 195E now runs package-local `wasm:build` after readiness reports
   `toolchainReady=true`, records `failed-missing-wasm-bindgen-dependency`, and
   keeps the accepted artifact absent;
+- Phase 195F now adds package-local `wasm-bindgen = "0.2"`, resolves
+  `wasm-bindgen 0.2.126`, exports only readiness marker and boundary version
+  through `#[wasm_bindgen]`, keeps native smoke intact, and passes package-local
+  native plus WASM target cargo checks;
 - the current package-local digest remains pending, so the next safe lane is
-  a package-local `wasm-bindgen` dependency/export boundary before retrying
-  artifact production again, with Artifact Digest Pinning Execution still
-  blocked;
+  artifact production retry after the dependency/export blocker is resolved,
+  with Artifact Digest Pinning Execution still blocked;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 195E Handoff
+
+Current next step after Phase 195E:
+
+```text
+Text Engine WASM Bindgen Export Dependency Gate
+```
+
+That was the Phase 195E handoff recommendation. Phase 195F is now complete,
+so it is no longer the current next step after Phase 195F.
 
 ## Historical Phase 195D Handoff
 

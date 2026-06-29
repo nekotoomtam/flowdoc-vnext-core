@@ -1,0 +1,123 @@
+{
+  "bindgenExportDependencySummaryId": "text-engine-wasm-bindgen-export-dependency-v1",
+  "sourceArtifactProductionRetrySummaryId": "text-engine-wasm-artifact-production-retry-v1",
+  "sourceRustUpgradeExecutionSummaryId": "text-engine-wasm-toolchain-rust-upgrade-execution-v1",
+  "sourceDiagnosticSummaryId": "text-engine-wasm-toolchain-diagnostic-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildPath": "wasm-pack",
+  "dependencyDecision": {
+    "dependencyName": "wasm-bindgen",
+    "requestedVersion": "0.2",
+    "resolvedVersion": "0.2.126",
+    "manifestPath": "packages/text-engine-rust-wasm/rust-shaper/Cargo.toml",
+    "lockfilePath": "packages/text-engine-rust-wasm/rust-shaper/Cargo.lock",
+    "status": "added-package-local",
+    "rootCheckDependency": false,
+    "productionBinding": false
+  },
+  "exportBoundary": {
+    "sourcePath": "packages/text-engine-rust-wasm/rust-shaper/src/lib.rs",
+    "status": "minimal-non-production",
+    "exports": [
+      {
+        "name": "flowdoc_text_engine_wasm_readiness_marker",
+        "kind": "wasm-bindgen-function",
+        "returns": "u32",
+        "purpose": "readiness marker only",
+        "executesRustybuzz": false,
+        "executesIcu4x": false
+      },
+      {
+        "name": "flowdoc_text_engine_wasm_boundary_version",
+        "kind": "wasm-bindgen-function",
+        "returns": "String",
+        "purpose": "boundary version only",
+        "executesRustybuzz": false,
+        "executesIcu4x": false
+      }
+    ],
+    "boundaryVersion": "flowdoc-text-engine-wasm-boundary-v1",
+    "noShapingExecution": true,
+    "noProductionMeasurementBinding": true
+  },
+  "nativeSmokePath": {
+    "sourcePath": "packages/text-engine-rust-wasm/rust-shaper/src/main.rs",
+    "status": "intact",
+    "stillOwnsRustybuzzSmokeExecution": true,
+    "wasmLibDoesNotCallNativeMain": true
+  },
+  "verification": {
+    "wasmTargetCheckCommand": "cargo check --manifest-path packages/text-engine-rust-wasm/rust-shaper/Cargo.toml --target wasm32-unknown-unknown",
+    "wasmTargetCheckExitCode": 0,
+    "nativeCheckCommand": "cargo check --manifest-path packages/text-engine-rust-wasm/rust-shaper/Cargo.toml",
+    "nativeCheckExitCode": 0,
+    "wasmBuildRetriedThisPhase": false,
+    "artifactExists": false,
+    "rawOutputIncluded": false
+  },
+  "rootCheck": {
+    "requiresWasmBindgen": false,
+    "requiresWasmPack": false,
+    "requiresWasm32UnknownUnknown": false,
+    "requiresReadinessSmoke": false,
+    "requiresWasmBuild": false,
+    "requiresArtifact": false,
+    "requiresBindgenExportDependencyGate": false
+  },
+  "artifactPolicy": {
+    "artifactProductionBlocked": false,
+    "canRetryArtifactProduction": true,
+    "retryPhaseRequired": true,
+    "artifactProduced": false,
+    "artifactExists": false,
+    "artifactPointer": null,
+    "fileSizeBytes": null,
+    "fakeArtifactAllowed": false,
+    "producedThisPhase": false
+  },
+  "digestPolicy": {
+    "digestPinningBlocked": true,
+    "digestStatus": "pending",
+    "sha256": null,
+    "sha256ComputedThisPhase": false,
+    "pinningStatus": "blocked-until-real-artifact-exists",
+    "fakeSha256Allowed": false
+  },
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "blockers": [
+    "artifact-production-retry-not-yet-run-after-bindgen",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "resolvedBlockers": [
+    "wasm-bindgen-dependency-missing-from-rust-shaper-cargo-toml"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "artifactProductionRetrySummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json",
+    "bindgenExportDependencySummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json",
+    "wasmArtifactPointer": null,
+    "artifactProduced": false,
+    "fileSizeBytes": null,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedWork": "Text Engine WASM Artifact Production Retry Gate",
+  "artifactProductionRetryRule": "retry-after-bindgen-export-dependency-gate",
+  "phase196Rule": "blocked-until-real-artifact-exists"
+}

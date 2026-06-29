@@ -244,10 +244,10 @@ describe("text engine runtime identity digest evidence builder gate", () => {
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
+    expect(currentStatus).toContain("Status: updated after Text Engine WASM Bindgen Export Dependency Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
+    expect(nextPointer).toContain("Status: current after Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine runtime identity digest evidence builder gate")
@@ -259,7 +259,7 @@ describe("text engine runtime identity digest evidence builder gate", () => {
     expect(roadmap).toContain(
       "## Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195E:")
+    expect(roadmap).toContain("Current next step after Phase 195F:")
     expect(roadmap).toContain("Historical Phase 189 Handoff")
   })
 })

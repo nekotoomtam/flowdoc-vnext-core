@@ -11,3 +11,4 @@ path = "src/lib.rs"
 
 [dependencies]
 rustybuzz = "=0.20.1"
+wasm-bindgen = "0.2"
