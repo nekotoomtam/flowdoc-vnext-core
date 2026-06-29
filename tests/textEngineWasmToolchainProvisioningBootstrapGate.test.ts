@@ -403,18 +403,18 @@ describe("text engine WASM toolchain provisioning bootstrap gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Artifact Digest Pinning Execution.",
+      "Status: updated after Native Evidence Summary Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Artifact Digest Pinning Execution.",
+      "Status: current after Native Evidence Summary Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM toolchain provisioning bootstrap gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md")
-    expect(packageReadme).toContain("Status: WASM artifact digest pinned package.")
+    expect(packageReadme).toContain("Status: native evidence summary metadata package.")
     expect(ledger).toContain(
       "| 195A | Text engine WASM toolchain provisioning bootstrap gate | done |",
     )

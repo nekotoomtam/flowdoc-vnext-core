@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: WASM artifact digest pinned package.
+Status: native evidence summary metadata package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -42,7 +42,11 @@ production measurement binding out of scope. Artifact Digest Pinning Execution
 then computes and pins the real package-local artifact sha256
 `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44` while
 keeping native evidence, WASM evidence, parity, drift, accepted manifests, and
-production measurement binding blocked.
+production measurement binding blocked. Native Evidence Summary Gate then adds
+`fixtures/native-evidence-summary.v1.json` with JSON-safe metadata for the
+Thai line-break core and canonical Latin paragraph subset, while keeping raw
+native output outside root docs/tests and leaving WASM evidence plus parity
+for later gates.
 
 Run the smoke from this package:
 
@@ -78,6 +82,8 @@ Allowed:
   package-local output for digest-pinned evidence;
 - retain the pinned sha256 digest for `pkg/flowdoc_text_engine_bg.wasm` as
   package-local runtime identity evidence;
+- retain JSON-safe native evidence summary metadata for the first Thai and
+  Latin subset without putting raw native output in root docs/tests;
 - remain external to `src/**` core.
 
 Blocked:
@@ -85,8 +91,9 @@ Blocked:
 - production TypeScript adapter binding to rustybuzz output;
 - ICU4X dependency;
 - WASM artifact loading until its dedicated gate;
-- native/WASM evidence, parity, drift, accepted manifests, and production
-  measurement binding until their dedicated gates;
+- raw native evidence in root docs/tests;
+- WASM evidence, parity, drift, accepted manifests, and production measurement
+  binding until their dedicated gates;
 - core font-file reads;
 - production measurement binding;
 - pagination measurer replacement.

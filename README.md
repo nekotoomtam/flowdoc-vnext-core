@@ -678,6 +678,11 @@ The package must remain runnable without any parent editor checkout.
   matrix, corpus, policy, profile, output shape, and path validation while
   keeping native/WASM evidence, parity, drift, accepted manifests, and
   production measurement replacement blocked.
+- Native evidence summary gate adds package-local JSON-safe metadata for the
+  Thai line-break core and canonical Latin paragraph subset, attaches it to
+  the pinned digest context, and keeps raw native evidence outside root
+  docs/tests while blocking WASM evidence, parity, drift, thresholds, accepted
+  manifests, and production measurement replacement.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -918,6 +923,8 @@ The package must remain runnable without any parent editor checkout.
   dependency/export work
 - `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`: Artifact Digest Pinning
   Execution record for the real package-local WASM artifact sha256
+- `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`: native evidence summary metadata
+  gate for the first Thai line-break and Latin paragraph subset
 - `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`: text engine WASM
   bindgen export dependency gate before retrying artifact production
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
@@ -1175,10 +1182,10 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
-- native/WASM evidence, parity summaries, renderer-backed drift summaries,
-  numeric drift thresholds, accepted root summary manifest, WASM artifact
-  loading, or production measurement replacement beyond the artifact digest
-  pinning execution gate
+- raw native evidence values in root docs/tests, WASM evidence, parity
+  summaries, renderer-backed drift summaries, numeric drift thresholds,
+  accepted root summary manifest, WASM artifact loading, or production
+  measurement replacement beyond the native evidence summary gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

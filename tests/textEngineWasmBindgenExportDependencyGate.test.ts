@@ -318,17 +318,17 @@ describe("text engine WASM bindgen export dependency gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Artifact Digest Pinning Execution.",
+      "Status: updated after Native Evidence Summary Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Artifact Digest Pinning Execution.",
+      "Status: current after Native Evidence Summary Gate.",
     )
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM bindgen export dependency gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md")
-    expect(packageReadme).toContain("Status: WASM artifact digest pinned package.")
+    expect(packageReadme).toContain("Status: native evidence summary metadata package.")
     expect(ledger).toContain(
       "| 195F | Text engine WASM bindgen export dependency gate | done |",
     )

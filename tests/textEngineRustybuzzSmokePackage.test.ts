@@ -100,7 +100,7 @@ describe("vNext text engine rustybuzz smoke package boundary", () => {
     expect(boundaryDoc).toContain("rustybuzz-native-smoke.sarabun.v1.json")
     expect(boundaryDoc).toContain("does not currently expose")
     expect(boundaryDoc).toContain("wasm-pack")
-    expect(packageReadme).toContain("Status: WASM artifact digest pinned package.")
+    expect(packageReadme).toContain("Status: native evidence summary metadata package.")
     expect(packageReadme).toContain("Phase 113 added a package-local Rust smoke")
     expect(readme).toContain("Text engine rustybuzz smoke package boundary")
     expect(readme).toContain("docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_PACKAGE_BOUNDARY.md")

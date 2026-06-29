@@ -6051,6 +6051,47 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 197: Native Evidence Summary Gate
+
+Goal:
+
+- produce the smallest JSON-safe native evidence summary metadata subset first,
+  starting with Thai line-break core coverage and canonical Latin paragraph
+  coverage.
+
+Deliverables:
+
+- `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`;
+- `tests/nativeEvidenceSummaryGate.test.ts`;
+- `packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms digest identity is pinned against
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- records sha256 as
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- carries matrix id `v1-measurement-fixture-evidence-matrix-v1`;
+- carries corpus id `v1-measurement-evidence-corpus-v1`;
+- carries policy revision `v1-measurement-evidence-policy-v1`;
+- carries output shape `glyph-line-box-v1`;
+- records `v1-measure-thai-line-break-core` and
+  `v1-measure-latin-product-paragraphs` as the minimal native summary subset;
+- keeps raw native evidence outside root docs/tests;
+- keeps root checks independent from `wasm-pack` and the WASM target;
+- keeps WASM evidence, native/WASM parity, renderer-backed drift, numeric
+  thresholds, accepted manifest, production binding, and default-measurer
+  replacement blocked;
+- no `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6080,10 +6121,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 196:
+Current next step after Phase 197:
 
 ```text
-Native Evidence Summary Gate
+WASM Evidence Summary Gate
 ```
 
 Reason:
@@ -6204,11 +6245,26 @@ Reason:
   corpus id, policy revision, measurement profile id, and output shape, then
   pins the package-local digest as
   `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
-- the current package-local digest is pinned, so the next safe lane is the
-  smallest JSON-safe Native Evidence Summary Gate;
+- Phase 197 now adds package-local JSON-safe native evidence summary metadata
+  for `v1-measure-thai-line-break-core` and
+  `v1-measure-latin-product-paragraphs`, attaches it to the pinned digest
+  context, and keeps raw native output outside root docs/tests;
+- the current native summary metadata exists and matches the pinned digest
+  context, so the next safe lane is WASM Evidence Summary Gate;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 196 Handoff
+
+Current next step after Phase 196:
+
+```text
+Native Evidence Summary Gate
+```
+
+That was the Phase 196 handoff recommendation. Phase 197 is now complete,
+so it is no longer the current next step after Phase 197.
 
 ## Historical Phase 195G Handoff
 

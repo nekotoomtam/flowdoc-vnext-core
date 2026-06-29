@@ -1,69 +1,66 @@
 # Next Phase Pointer
 
-Status: current after Artifact Digest Pinning Execution.
+Status: current after Native Evidence Summary Gate.
 
 ## Next Phase
 
-Native Evidence Summary Gate.
+WASM Evidence Summary Gate.
 
 ## Why This Is Next
 
-Artifact Digest Pinning Execution used the post-bindgen artifact production
-retry as source of truth and confirmed the accepted package-local artifact:
+Native Evidence Summary Gate used Artifact Digest Pinning Execution as source
+of truth and added the smallest package-local native summary metadata subset.
 
-Earlier source gate retained for traceability: Text Engine WASM Bindgen Export Dependency Gate.
+Previous source gate retained for traceability: Artifact Digest Pinning Execution.
 
-```text
-packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm
-```
-
-The execution phase computed and pinned the real artifact sha256:
+The summary fixture is:
 
 ```text
-4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44
+packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json
 ```
 
-Previous source summary retained `sha256ComputedThisPhase=false`; sha256
-pinning happened only in Artifact Digest Pinning Execution.
+The summary is attached to the pinned digest context:
 
-The pin was accepted only because all required context matched:
+- artifact path:
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- sha256:
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- matrix id: `v1-measurement-fixture-evidence-matrix-v1`;
+- corpus id: `v1-measurement-evidence-corpus-v1`;
+- policy revision: `v1-measurement-evidence-policy-v1`;
+- output shape: `glyph-line-box-v1`;
+- raw native evidence remains outside root docs/tests.
 
-- artifact path is package-local under `packages/text-engine-rust-wasm/`;
-- matrix id is `v1-measurement-fixture-evidence-matrix-v1`;
-- corpus id is `v1-measurement-evidence-corpus-v1`;
-- policy revision is `v1-measurement-evidence-policy-v1`;
-- measurement profile id matches the runtime identity manifest;
-- output shape is `glyph-line-box-v1`;
-- raw evidence remains outside root tests/docs.
+The covered subset is:
 
-Digest identity is now pinned, but no native evidence, WASM evidence,
-native/WASM parity, renderer-backed drift, numeric thresholds, accepted
-summary manifest, production binding, or default-measurer replacement is
-ready.
+- `v1-measure-thai-line-break-core`;
+- `v1-measure-latin-product-paragraphs`.
+
+The next safe step is a WASM evidence summary for the same subset and the same
+pinned digest context. Native/WASM parity, renderer-backed drift, numeric
+thresholds, accepted manifests, production binding, and default-measurer
+replacement remain blocked until later phases.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`
 - `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`
-- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`
-- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`
+- `packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`
-- `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`
-- `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`
-- `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
+- `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 
-## Native Evidence Summary Gate Scope
+## WASM Evidence Summary Gate Scope
 
-- Produce the smallest JSON-safe native evidence summary subset first.
-- Start with Thai line-break core coverage and canonical Latin paragraph
-  coverage.
-- Preserve the pinned digest context in summary metadata.
-- Keep raw native evidence outside root tests/docs.
+- Produce a JSON-safe WASM evidence summary for the same minimal subset.
+- Use the same matrix id, corpus id, policy revision, measurement profile id,
+  output shape, and pinned artifact digest context.
+- Keep raw WASM evidence outside root docs/tests.
 - Keep root summaries bounded to JSON-safe facts and retention pointers.
-- Keep WASM evidence, parity comparison, renderer-backed drift, numeric
+- Keep native/WASM parity comparison, renderer-backed drift, numeric
   thresholds, accepted manifest, production binding, and default-measurer
   replacement blocked.
 
@@ -74,8 +71,8 @@ ready.
 - No root check dependency on artifact production.
 - No raw evidence in root tests/docs.
 - No raw native/WASM evidence in root tests/docs.
+- No raw native evidence in root docs/tests.
 - No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.
-- No fake native evidence.
 - No fake WASM evidence.
 - No fake parity.
 - No default measurement replacement.
@@ -91,10 +88,17 @@ ready.
 
 ## Expected Output
 
-- JSON-safe native evidence summary for the smallest accepted subset;
-- retention pointers for raw native evidence outside root tests/docs;
-- explicit blocked status for WASM evidence, parity, drift, thresholds,
-  accepted manifest, production binding, and default-measurer replacement;
+- JSON-safe WASM evidence summary for the same smallest accepted subset;
+- retention pointers for raw WASM evidence outside root tests/docs;
+- explicit blocked status for parity, drift, thresholds, accepted manifest,
+  production binding, and default-measurer replacement;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
 - updated current-status pointer.
+
+## Traceability Anchors
+
+- Text Engine WASM Bindgen Export Dependency Gate.
+- Artifact Digest Pinning Execution.
+- Historical production retry summary retained `sha256ComputedThisPhase=false`;
+  digest pinning happened only after the accepted artifact existed.
