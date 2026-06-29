@@ -5052,6 +5052,42 @@ Acceptance:
   readiness claim, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 179: Measurement Rollout Gate
+
+Goal:
+
+- decide whether renderer-backed measurement evidence can support the selected
+  internal-alpha vertical slice under profile, drift, digest, and parity gates.
+
+Decision:
+
+- allow guarded internal-alpha measurement evidence for the selected slice;
+- do not replace `measureVNextText(...)` defaults;
+- do not claim production renderer-backed measurement readiness;
+- keep digest/parity gaps visible as risk or unknown rather than pass.
+
+Deliverables:
+
+- `docs/MEASUREMENT_ROLLOUT_GATE.md`;
+- `tests/measurementRolloutGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 178 roadmap guard update.
+
+Acceptance:
+
+- Phase 135 renderer-backed provider bridge evidence is referenced;
+- Phase 148 RC measurement gate evidence is referenced;
+- Phase 175/177 internal-alpha usage is referenced;
+- Phase 178 renderer decision is referenced so measurement does not inherit PDF
+  production claims;
+- internal-alpha rollout policy is explicit;
+- production rollout blockers for digest, native/WASM parity, drift thresholds,
+  and default-measurer replacement are explicit;
+- no pagination mutation, default measurement replacement, production binding,
+  external engine execution in core, backend/storage/PDF/DOCX/worker/auth,
+  package/document schema change, production input readiness claim,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5081,10 +5117,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 178:
+Current next step after Phase 179:
 
 ```text
-Phase 179: Measurement Rollout Gate
+Phase 180: Internal Alpha Vertical Slice
 ```
 
 Reason:
@@ -5117,12 +5153,25 @@ Reason:
   PDF spike bytes, byte storage, and manifest/job status updates;
 - Phase 178 now keeps the dependency-free PDF spike as internal-alpha evidence
   only and defers production renderer package selection;
-- the next safe lane is deciding whether renderer-backed measurement evidence
-  can support the selected internal-alpha slice under profile/drift/digest
-  gates;
+- Phase 179 now allows renderer-backed measurement only as guarded
+  internal-alpha evidence under profile, drift, digest, and parity gates;
+- the next safe lane is running one bounded internal-alpha vertical slice from
+  open document through edit, save, reload, PDF spike generation, artifact
+  storage, retrieval, and status report;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 178 Handoff
+
+Current next step after Phase 178:
+
+```text
+Phase 179: Measurement Rollout Gate
+```
+
+That was the Phase 178 handoff recommendation. Phase 179 is now complete, so
+it is no longer the current next step after Phase 179.
 
 ## Historical Phase 177 Handoff
 

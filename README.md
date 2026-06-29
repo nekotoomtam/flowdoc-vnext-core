@@ -587,6 +587,9 @@ The package must remain runnable without any parent editor checkout.
 - PDF renderer decision gate keeps the dependency-free minimal PDF spike as
   internal-alpha evidence only and defers production renderer package selection
   until after measurement rollout evidence.
+- Measurement rollout gate accepts renderer-backed measurement only as guarded
+  internal-alpha evidence for the selected slice and keeps default measurer
+  replacement blocked.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -763,6 +766,8 @@ The package must remain runnable without any parent editor checkout.
   slice before the PDF renderer decision gate
 - `docs/PDF_RENDERER_DECISION_GATE.md`: Phase 178 PDF renderer decision gate
   before measurement rollout
+- `docs/MEASUREMENT_ROLLOUT_GATE.md`: Phase 179 measurement rollout gate before
+  the internal alpha vertical slice
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

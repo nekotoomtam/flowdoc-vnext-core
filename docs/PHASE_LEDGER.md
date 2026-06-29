@@ -185,6 +185,7 @@ Parent goal:
 | 176 | Backend route contract to storage binding | done | `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `docs/BACKEND_ROUTE_STORAGE_BINDING_BOUNDARY.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/backendRouteStorageBinding.test.ts`; `tests/storageBackedRcRoundtripSmoke.test.ts` |
 | 177 | Artifact job execution slice | done | `packages/internal-alpha-runner/src/artifactJobExecution.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `docs/ARTIFACT_JOB_EXECUTION_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJobExecutionSlice.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tsconfig.json`; `vitest.config.ts` |
 | 178 | PDF renderer decision gate | done | `docs/PDF_RENDERER_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererDecisionGate.test.ts`; `tests/artifactJobExecutionSlice.test.ts` |
+| 179 | Measurement rollout gate | done | `docs/MEASUREMENT_ROLLOUT_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementRolloutGate.test.ts`; `tests/pdfRendererDecisionGate.test.ts` |
 
 ## Current Rule
 
@@ -4590,6 +4591,29 @@ Phase 178 decides the PDF renderer direction after artifact job execution:
   runtime copy out of scope.
 
 Next recommended phase: Phase 179 Measurement Rollout Gate.
+
+## Phase 179 Measurement Rollout Gate
+
+Phase 179 decides the measurement rollout path after PDF renderer selection is
+deferred:
+
+- allow guarded internal-alpha measurement evidence for the selected vertical
+  slice only;
+- keep `measureVNextText(...)` default replacement blocked;
+- preserve Phase 148 profile, line-box, drift, digest, and native/WASM parity
+  gate signals;
+- allow Phase 180 to proceed with accepted or warning measurement evidence when
+  risks remain visible;
+- keep production measurement rollout blocked until digest is present,
+  native/WASM parity is matched, drift thresholds are accepted, and a later
+  binding phase explicitly replaces the default measurer.
+
+This phase intentionally does not mutate pagination, execute the external text
+engine in core, bind production renderer-backed measurement, change schemas,
+add backend/storage/PDF/DOCX/worker/auth/collaboration/offline behavior, claim
+production input readiness, or copy legacy editor runtime.
+
+Next recommended phase: Phase 180 Internal Alpha Vertical Slice.
 
 ## Phase 12 Extraction Record
 
