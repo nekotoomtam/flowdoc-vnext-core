@@ -1,0 +1,108 @@
+{
+  "populationSummaryId": "text-engine-runtime-identity-digest-evidence-population-v1",
+  "sourceBuilderId": "text-engine-runtime-identity-digest-evidence-builder-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+  "corpusId": "v1-measurement-evidence-corpus-v1",
+  "policyRevision": "v1-measurement-evidence-policy-v1",
+  "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+  "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+  "wasmArtifactPointer": null,
+  "artifactDiscovery": {
+    "artifactKind": "wasm",
+    "candidatePathsChecked": [
+      "packages/text-engine-rust-wasm/dist/flowdoc_text_engine_bg.wasm",
+      "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+      "packages/text-engine-rust-wasm/target/wasm32-unknown-unknown/release/flowdoc_text_engine.wasm"
+    ],
+    "artifactFound": false,
+    "sha256": null
+  },
+  "decision": "retained-pending",
+  "canPinDigestNow": false,
+  "digestStatus": "pending",
+  "sha256": null,
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "reasons": [
+    "no-package-local-wasm-artifact-present",
+    "runtime-identity-manifest-wasm-digest-pending",
+    "runtime-identity-manifest-sha256-null",
+    "native-wasm-parity-not-run",
+    "phase-189-does-not-execute-wasm-build-or-text-engine"
+  ],
+  "pinningRequirements": [
+    "package-local-wasm-artifact-retention-pointer",
+    "lowercase-sha256-digest",
+    "matching-measurement-profile-id",
+    "matching-output-shape-version",
+    "matching-matrix-corpus-policy-context",
+    "raw-evidence-remains-outside-root-tests-docs"
+  ],
+  "rootSummary": {
+    "summaryId": "text-engine-runtime-identity-digest-root-summary-v1",
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityPolicyRevision": "text-engine-runtime-identity-policy-v1",
+    "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+    "outputShapeVersion": "glyph-line-box-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "adapterPackageName": "@flowdoc/text-engine-rust-wasm",
+    "digestStatus": "pending",
+    "rawEvidenceIncluded": false,
+    "evidenceOwner": "@flowdoc/text-engine-rust-wasm",
+    "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+    "runtime": {
+      "rustybuzzRevision": "0.20.1",
+      "icu4xRevision": "icu4x-planned",
+      "icu4xDataRevision": "icu4x-data-planned"
+    },
+    "wasmArtifact": {
+      "digestStatus": "pending",
+      "sha256": null
+    },
+    "fontAssetHashes": [
+      {
+        "fontId": "sarabun-regular",
+        "sha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d"
+      },
+      {
+        "fontId": "sarabun-bold",
+        "sha256": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+      },
+      {
+        "fontId": "noto-sans-thai-regular",
+        "sha256": "9acb585d8662ca4ed1b1cf5889dfa1393f8555103b3986e1ea1e3af4faef70bd"
+      }
+    ],
+    "retention": {
+      "rawRuntimeIdentityEvidence": {
+        "owner": "@flowdoc/text-engine-rust-wasm",
+        "pointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+        "includedInRoot": false
+      },
+      "wasmArtifactEvidence": {
+        "owner": "@flowdoc/text-engine-rust-wasm",
+        "pointer": null,
+        "includedInRoot": false
+      }
+    },
+    "blockedUntilLater": {
+      "nativeEvidence": true,
+      "wasmEvidence": true,
+      "paritySummaries": true,
+      "rendererBackedDriftSummaries": true,
+      "numericDriftThresholds": true,
+      "acceptedSummaryManifest": true
+    }
+  }
+}

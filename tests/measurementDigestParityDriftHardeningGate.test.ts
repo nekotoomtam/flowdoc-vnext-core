@@ -75,21 +75,17 @@ describe("measurement digest parity drift hardening gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 188.")
-    expect(currentStatus).toContain(
-      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
-    )
+    expect(currentStatus).toContain("Status: updated after Phase 189.")
     expect(currentStatus).toContain(
       "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
     )
+    expect(currentStatus).toContain("Phase 190: Text Engine WASM Artifact Digest Pinning Gate.")
     expect(currentStatus).toContain("digest identity is pinned")
     expect(currentStatus).toContain("native/WASM parity is matching")
     expect(currentStatus).toContain("Do not execute external text engines in core.")
 
-    expect(nextPointer).toContain("Status: current after Phase 188.")
-    expect(nextPointer).toContain(
-      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
-    )
+    expect(nextPointer).toContain("Status: current after Phase 189.")
+    expect(nextPointer).toContain("Phase 190: Text Engine WASM Artifact Digest Pinning Gate.")
     expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
   })

@@ -195,6 +195,7 @@ Parent goal:
 | 186 | Measurement evidence summary manifest fixture stub gate | done | `fixtures/measurement-evidence-summary-manifest.stub.v1.json`; `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceSummaryManifestFixtureStubGate.test.ts`; pointer guard tests |
 | 187 | Measurement evidence coverage gap triage gate | done | `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`; `fixtures/measurement-evidence-summary-manifest.stub.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceCoverageGapTriageGate.test.ts`; pointer guard tests |
 | 188 | Text engine runtime identity digest evidence builder gate | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`; `packages/text-engine-rust-wasm/src/runtimeIdentityDigestEvidenceBuilder.ts`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`; `packages/text-engine-rust-wasm/src/index.ts`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentityDigestEvidenceBuilderGate.test.ts`; pointer guard tests |
+| 189 | Text engine runtime identity digest evidence population gate | done | `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineRuntimeIdentityDigestEvidencePopulationGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -4838,6 +4839,35 @@ schema, add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 189 Text Engine Runtime Identity Digest Evidence
 Population Gate.
+
+## Phase 189 Text Engine Runtime Identity Digest Evidence Population Gate
+
+Phase 189 evaluates the Phase 188 digest evidence builder path and explicitly
+retains the current digest as pending:
+
+- population summary:
+  `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`;
+- decision: `retained-pending`;
+- `canPinDigestNow=false`;
+- no package-local WASM artifact is present;
+- runtime identity manifest still records `digestStatus="pending"` and
+  `sha256=null`;
+- root summary handoff remains JSON-safe;
+- raw native/WASM evidence remains outside root tests/docs;
+- production readiness and default-measurer replacement remain false;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, and accepted manifest remain blocked.
+
+This phase intentionally does not execute rustybuzz/WASM/ICU4X in
+`@flowdoc/vnext-core`, build or load WASM in root core, put raw native/WASM
+evidence in root tests/docs, replace `measureVNextText(...)`, mutate
+pagination, bind production renderer-backed measurement, add production
+PDF/DOCX renderer work, add backend routes, storage, auth/authz, implement
+contenteditable, change package/document schema, add collaboration/offline
+behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 190 Text Engine WASM Artifact Digest Pinning
+Gate.
 
 ## Phase 12 Extraction Record
 

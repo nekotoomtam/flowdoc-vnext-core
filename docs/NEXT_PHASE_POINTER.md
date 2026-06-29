@@ -1,22 +1,23 @@
 # Next Phase Pointer
 
-Status: current after Phase 188.
+Status: current after Phase 189.
 
 ## Next Phase
 
-Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.
+Phase 190: Text Engine WASM Artifact Digest Pinning Gate.
 
 ## Why This Is Next
 
-Phase 188 defines the first package-local digest/runtime identity evidence
-builder path in `@flowdoc/text-engine-rust-wasm`. The builder can create a
-JSON-safe root summary handoff, but the source runtime identity manifest still
-has `wasmArtifact.digestStatus="pending"` and `sha256=null`.
+Phase 189 evaluates the Phase 188 digest evidence builder path and explicitly
+retains `digestStatus="pending"`. The package-local population summary records
+`canPinDigestNow=false`, `sha256=null`, and no package-local WASM artifact
+retention pointer.
 
-The next safe step is to populate or explicitly retain package-local runtime
-identity / WASM artifact digest evidence, then report the result as
-`pinned`, `pending`, `missing`, or `stale`. Root docs/tests should continue to
-receive only JSON-safe summaries and retention pointers.
+The next safe step is to create, locate, or explicitly select the
+package-local WASM artifact path and pin its sha256 only if the artifact exists
+and the runtime identity context still matches the Phase 188 builder inputs.
+Root docs/tests should continue to receive only JSON-safe summaries and
+retention pointers.
 
 Native evidence, WASM evidence, native/WASM parity summaries,
 renderer-backed drift summaries, numeric thresholds, accepted manifests,
@@ -26,25 +27,22 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`
 - `packages/text-engine-rust-wasm/src/runtimeIdentityDigestEvidenceBuilder.ts`
 - `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`
 - `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
-- `fixtures/measurement-evidence-summary-manifest.stub.v1.json`
-- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`
-- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`
-- `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
-- `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
 
 ## Hard Limits
 
 - No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.
 - No raw evidence in root tests/docs.
 - No raw native/WASM evidence in root tests/docs.
-- No real native/WASM parity evidence in root core.
+- No native/WASM parity evidence production in root core.
 - No renderer-backed measurement as production truth.
 - No production contenteditable implementation.
 - No backend route/server/auth/authz implementation.
@@ -58,11 +56,10 @@ blocked until later phases.
 
 ## Expected Output
 
-- package-local digest evidence population or explicit retained-pending result
-  under `packages/text-engine-rust-wasm`;
-- JSON-safe root summary handoff using the Phase 188 builder shape;
+- package-local WASM artifact digest pinning decision;
+- retained artifact pointer and sha256 only if a real artifact exists;
+- JSON-safe root summary handoff using the Phase 188/189 shape;
 - digest status reported as `pinned`, `pending`, `missing`, or `stale`;
-- retention pointers for runtime identity and WASM artifact evidence;
 - explicit blocker status for native evidence, WASM evidence, parity, drift,
   thresholds, accepted manifest, and default-measurer replacement;
 - explicit non-work;

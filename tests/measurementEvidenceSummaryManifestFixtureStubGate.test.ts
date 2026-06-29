@@ -234,17 +234,13 @@ describe("measurement evidence summary manifest fixture stub gate", () => {
     )
     expect(doc).toContain("fixtures/measurement-evidence-summary-manifest.stub.v1.json")
     expect(doc).toContain("Cannot Be Mistaken For Accepted Evidence")
-    expect(currentStatus).toContain("Status: updated after Phase 188.")
-    expect(currentStatus).toContain(
-      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
-    )
+    expect(currentStatus).toContain("Status: updated after Phase 189.")
     expect(currentStatus).toContain(
       "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
     )
-    expect(nextPointer).toContain("Status: current after Phase 188.")
-    expect(nextPointer).toContain(
-      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
-    )
+    expect(currentStatus).toContain("Phase 190: Text Engine WASM Artifact Digest Pinning Gate.")
+    expect(nextPointer).toContain("Status: current after Phase 189.")
+    expect(nextPointer).toContain("Phase 190: Text Engine WASM Artifact Digest Pinning Gate.")
     expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
     expect(readme).toContain("Measurement evidence summary manifest fixture stub gate")
     expect(readme).toContain(

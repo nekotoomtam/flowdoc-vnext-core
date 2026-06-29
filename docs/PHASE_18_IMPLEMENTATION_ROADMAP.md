@@ -5404,6 +5404,42 @@ Acceptance:
   contenteditable, package/document schema change, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate
+
+Goal:
+
+- decide whether the package-local WASM artifact digest can be pinned now, or
+  explicitly retain pending status without claiming production readiness.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineRuntimeIdentityDigestEvidencePopulationGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- current digest pinning eligibility is decided;
+- digest remains explicitly retained as `pending` because no package-local
+  WASM artifact is present;
+- package-local population summary fixture is JSON-safe;
+- root docs/tests consume summaries and retention pointers only;
+- pending digest cannot be mistaken for production readiness;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted summary manifest, and
+  default-measurer replacement remain blocked;
+- next phase is Phase 190: Text Engine WASM Artifact Digest Pinning Gate;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, raw native/WASM
+  evidence in root tests/docs, `measureVNextText(...)` replacement,
+  pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, backend routes/storage/auth, production
+  contenteditable, package/document schema change, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5433,10 +5469,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 188:
+Current next step after Phase 189:
 
 ```text
-Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate
+Phase 190: Text Engine WASM Artifact Digest Pinning Gate
 ```
 
 Reason:
@@ -5493,13 +5529,27 @@ Reason:
 - Phase 188 now defines the package-local digest/runtime identity evidence
   builder, JSON-safe root handoff shape, pinned/pending/missing/stale digest
   policy, and raw-evidence retention pointer rules;
+- Phase 189 now decides digest cannot be pinned because no package-local WASM
+  artifact is present, then records a JSON-safe retained-pending population
+  summary;
 - the current package-local digest remains pending, so the next safe lane is
-  digest evidence population or explicit retained-pending handling before
-  native/WASM evidence, parity, drift, thresholds, accepted root summaries,
-  production measurement binding, or default-measurer replacement;
+  package-local WASM artifact digest pinning before native/WASM evidence,
+  parity, drift, thresholds, accepted root summaries, production measurement
+  binding, or default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 188 Handoff
+
+Current next step after Phase 188:
+
+```text
+Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate
+```
+
+That was the Phase 188 handoff recommendation. Phase 189 is now complete, so
+it is no longer the current next step after Phase 189.
 
 ## Historical Phase 187 Handoff
 

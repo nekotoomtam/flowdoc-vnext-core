@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 188.
+Status: updated after Phase 189.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.
+Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -24,16 +24,21 @@ selects digest/runtime identity as the first prerequisite. Phase 188 defines a
 package-local runtime identity digest evidence builder in
 `@flowdoc/text-engine-rust-wasm`, plus a JSON-safe root summary handoff shape,
 while keeping the current digest pending and downstream evidence lanes
-blocked.
+blocked. Phase 189 decides the digest cannot be pinned yet because no
+package-local WASM artifact is present, then adds a package-local
+retained-pending population summary with `digestStatus="pending"` and
+`sha256=null`.
 
 ## Current Next Phase
 
-Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.
+Phase 190: Text Engine WASM Artifact Digest Pinning Gate.
 
 Goal:
 
-- populate or explicitly retain the package-local runtime identity / WASM
-  artifact digest evidence path defined by Phase 188;
+- create, locate, or explicitly select the package-local WASM artifact path
+  needed before digest pinning;
+- pin sha256 only if the artifact exists and the Phase 188/189 context still
+  matches;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
 - keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
   accepted manifests blocked until their dedicated phases;
@@ -104,6 +109,13 @@ evidence, native/WASM parity summaries, renderer-backed drift summaries,
 numeric thresholds, accepted manifests, and default-measurer replacement
 remain blocked.
 
+Phase 189 adds
+`packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`
+as a package-local retained-pending summary. It records that no package-local
+WASM artifact is present, `canPinDigestNow=false`, `digestStatus="pending"`,
+`sha256=null`, `rawEvidenceIncluded=false`, `productionReady=false`, and
+`defaultMeasurerReplacement=false`.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -120,6 +132,7 @@ remain blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`
