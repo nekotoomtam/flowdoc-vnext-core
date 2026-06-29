@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 184.
+Status: updated after Phase 185.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,26 +8,26 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 184: V1 Measurement Fixture Evidence Matrix Gate.
+Phase 185: Measurement Evidence Summary Manifest Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
 rollout / digest / parity / drift as the first production hardening lane.
 Phase 183 defines the digest, parity, drift, fixture-evidence, and replacement
 blocker policy for that lane. Phase 184 selects the v1 measurement fixture
-matrix and required JSON-safe summary facts. It does not claim production
-readiness.
+matrix and required JSON-safe summary facts. Phase 185 defines the JSON-safe
+summary manifest shape for carrying those facts without raw evidence in root
+tests/docs. It does not claim production readiness.
 
 ## Current Next Phase
 
-Phase 185: Measurement Evidence Summary Manifest Gate.
+Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.
 
 Goal:
 
-- define the JSON-safe summary manifest shape for the Phase 184 fixture
-  matrix;
-- carry digest, parity, drift, missing-evidence status, and retention pointers
-  without raw evidence in root tests/docs;
+- add a JSON-safe stub summary manifest for the Phase 184 matrix;
+- keep all release-gating rows unknown or missing until real evidence is
+  produced outside core;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -72,6 +72,9 @@ accepts default-measurer replacement.
 Phase 184 maps the release-gating evidence matrix under
 `v1-measurement-evidence-corpus-v1` and keeps raw evidence outside core.
 
+Phase 185 defines `measurement-evidence-summary-manifest-v1` as a JSON-safe
+shape only. Raw native/WASM/renderer evidence remains outside root tests/docs.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -82,11 +85,13 @@ Phase 184 maps the release-gating evidence matrix under
 - Do not replace the default measurer as part of the measurement hardening
   gate.
 - Do not execute external text engines in core.
+- Do not put raw evidence in root tests/docs.
 - Do not change package/document schema as part of status/documentation work.
 
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`

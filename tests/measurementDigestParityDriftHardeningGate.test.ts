@@ -75,16 +75,16 @@ describe("measurement digest parity drift hardening gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 184.")
-    expect(currentStatus).toContain("Phase 184: V1 Measurement Fixture Evidence Matrix Gate.")
+    expect(currentStatus).toContain("Status: updated after Phase 185.")
     expect(currentStatus).toContain("Phase 185: Measurement Evidence Summary Manifest Gate.")
+    expect(currentStatus).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
     expect(currentStatus).toContain("digest identity is pinned")
     expect(currentStatus).toContain("native/WASM parity is matching")
     expect(currentStatus).toContain("Do not execute external text engines in core.")
 
-    expect(nextPointer).toContain("Status: current after Phase 184.")
-    expect(nextPointer).toContain("Phase 185: Measurement Evidence Summary Manifest Gate.")
-    expect(nextPointer).toContain("JSON-safe measurement evidence summary manifest shape")
+    expect(nextPointer).toContain("Status: current after Phase 185.")
+    expect(nextPointer).toContain("Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.")
+    expect(nextPointer).toContain("JSON-safe stub summary manifest")
     expect(nextPointer).toContain("No external text-engine execution in core.")
   })
 

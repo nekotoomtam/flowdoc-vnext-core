@@ -191,6 +191,7 @@ Parent goal:
 | 182 | V1 hardening backlog triage gate | done | `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1HardeningBacklogTriageGate.test.ts`; `tests/internalAlphaCloseAuditConsolidation.test.ts` |
 | 183 | Measurement digest parity drift hardening gate | done | `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementDigestParityDriftHardeningGate.test.ts`; `tests/v1HardeningBacklogTriageGate.test.ts` |
 | 184 | V1 measurement fixture evidence matrix gate | done | `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts`; `tests/measurementDigestParityDriftHardeningGate.test.ts` |
+| 185 | Measurement evidence summary manifest gate | done | `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceSummaryManifestGate.test.ts`; `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts` |
 
 ## Current Rule
 
@@ -4721,6 +4722,31 @@ storage, auth/authz, implement contenteditable, change package/document schema,
 add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 185 Measurement Evidence Summary Manifest Gate.
+
+## Phase 185 Measurement Evidence Summary Manifest Gate
+
+Phase 185 defines the JSON-safe measurement evidence summary manifest shape:
+
+- manifest id, matrix id, corpus id, policy revision, measurement profile id,
+  fixture/scenario ids, and gate type;
+- required fact coverage;
+- digest identity summary;
+- native/WASM parity summary;
+- renderer-backed drift summary;
+- accepted, warning, blocked, and unknown status fields;
+- retention pointers for raw native, WASM, and renderer evidence;
+- raw evidence owner and root-summary owner;
+- blockers before default-measurer replacement.
+
+This phase intentionally does not replace `measureVNextText(...)`, mutate
+pagination, bind production renderer-backed measurement, execute external text
+engines in core, put raw evidence in root docs/tests, add production PDF/DOCX
+renderer work, add backend routes, storage, auth/authz, implement
+contenteditable, change package/document schema, add collaboration/offline
+behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 186 Measurement Evidence Summary Manifest Fixture
+Stub Gate.
 
 ## Phase 12 Extraction Record
 

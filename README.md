@@ -606,6 +606,9 @@ The package must remain runnable without any parent editor checkout.
 - V1 measurement fixture evidence matrix gate selects stable corpus and
   fixture ids, release-gating coverage, profile requirements, and required
   JSON-safe summary facts while keeping raw evidence outside core.
+- Measurement evidence summary manifest gate defines a JSON-safe manifest
+  shape for digest identity, parity, drift, status, and retention pointers
+  while keeping raw native/WASM/renderer evidence outside root tests/docs.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -614,7 +617,7 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 184
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 185
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -797,6 +800,8 @@ The package must remain runnable without any parent editor checkout.
   matrix work
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`: Phase 184 v1
   measurement fixture evidence matrix gate before summary manifest work
+- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`: Phase 185 measurement
+  evidence summary manifest gate before summary fixture stubs
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

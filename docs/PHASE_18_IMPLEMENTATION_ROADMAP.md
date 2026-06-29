@@ -5249,6 +5249,43 @@ Acceptance:
   auth, production contenteditable, package/document schema change,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 185: Measurement Evidence Summary Manifest Gate
+
+Goal:
+
+- define the JSON-safe summary manifest shape for the Phase 184 measurement
+  fixture matrix without filling raw evidence or binding production
+  measurement.
+
+Deliverables:
+
+- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/measurementEvidenceSummaryManifestGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 184 current-pointer guard update.
+
+Acceptance:
+
+- manifest id, matrix id, corpus id, policy revision, measurement profile id,
+  fixture/scenario ids, and gate type are included;
+- required fact coverage is represented;
+- digest identity, native/WASM parity, renderer-backed drift, and
+  missing-evidence status summaries are represented;
+- accepted, warning, blocked, and unknown status fields are defined;
+- retention pointers for raw native/WASM/renderer evidence are references and
+  keep raw evidence out of root tests/docs;
+- raw evidence owner, root-summary owner, and replacement blockers are explicit;
+- next phase is Phase 186: Measurement Evidence Summary Manifest Fixture Stub
+  Gate;
+- no `measureVNextText(...)` default replacement, pagination mutation,
+  production renderer-backed measurement binding, external text-engine
+  execution in core, raw evidence in root tests/docs, production PDF/DOCX
+  renderer work, backend routes/storage/auth, production contenteditable,
+  package/document schema change, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5278,10 +5315,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 184:
+Current next step after Phase 185:
 
 ```text
-Phase 185: Measurement Evidence Summary Manifest Gate
+Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate
 ```
 
 Reason:
@@ -5328,12 +5365,25 @@ Reason:
   `measureVNextText(...)`;
 - Phase 184 now selects stable corpus/fixture ids, release-gating coverage,
   profile requirements, required summary facts, and missing-evidence states;
-- the next safe lane is defining the JSON-safe measurement evidence summary
-  manifest before filling evidence, executing external engines, production
+- Phase 185 now defines the JSON-safe measurement evidence summary manifest
+  shape for digest, parity, drift, status, retention, and replacement blockers;
+- the next safe lane is adding a JSON-safe stub summary manifest with unknown
+  statuses before filling evidence, executing external engines, production
   measurement binding, or default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 184 Handoff
+
+Current next step after Phase 184:
+
+```text
+Phase 185: Measurement Evidence Summary Manifest Gate
+```
+
+That was the Phase 184 handoff recommendation. Phase 185 is now complete, so
+it is no longer the current next step after Phase 185.
 
 ## Historical Phase 183 Handoff
 
