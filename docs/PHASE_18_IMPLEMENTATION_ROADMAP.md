@@ -5440,6 +5440,43 @@ Acceptance:
   contenteditable, package/document schema change, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 190: Text Engine WASM Artifact Digest Pinning Gate
+
+Goal:
+
+- check the package-local WASM artifact candidate paths, define the accepted
+  package-local output path, and pin sha256 only if a real artifact exists.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmArtifactDigestPinningGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- Phase 189 candidate artifact paths are checked;
+- no package-local WASM artifact is present;
+- accepted future output path is defined as
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- digest remains `pending` with `sha256=null`;
+- package-local pinning summary fixture is JSON-safe;
+- root docs/tests consume summaries and retention pointers only;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted summary manifest, and
+  default-measurer replacement remain blocked;
+- next phase is Phase 191: Text Engine WASM Artifact Build Output Gate;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, raw native/WASM
+  evidence in root tests/docs, `measureVNextText(...)` replacement,
+  pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, backend routes/storage/auth, production
+  contenteditable, package/document schema change, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5469,10 +5506,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 189:
+Current next step after Phase 190:
 
 ```text
-Phase 190: Text Engine WASM Artifact Digest Pinning Gate
+Phase 191: Text Engine WASM Artifact Build Output Gate
 ```
 
 Reason:
@@ -5532,13 +5569,28 @@ Reason:
 - Phase 189 now decides digest cannot be pinned because no package-local WASM
   artifact is present, then records a JSON-safe retained-pending population
   summary;
+- Phase 190 now checks all recorded candidate paths, finds no package-local
+  WASM artifact, defines `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`
+  as the accepted future output path, and keeps digest pending;
 - the current package-local digest remains pending, so the next safe lane is
-  package-local WASM artifact digest pinning before native/WASM evidence,
-  parity, drift, thresholds, accepted root summaries, production measurement
-  binding, or default-measurer replacement;
+  producing or explicitly retaining that package-local WASM artifact output
+  before sha256 pinning, native/WASM evidence, parity, drift, thresholds,
+  accepted root summaries, production measurement binding, or
+  default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 189 Handoff
+
+Current next step after Phase 189:
+
+```text
+Phase 190: Text Engine WASM Artifact Digest Pinning Gate
+```
+
+That was the Phase 189 handoff recommendation. Phase 190 is now complete, so
+it is no longer the current next step after Phase 190.
 
 ## Historical Phase 188 Handoff
 

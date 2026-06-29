@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 189.
+Status: updated after Phase 190.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.
+Phase 190: Text Engine WASM Artifact Digest Pinning Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -27,17 +27,20 @@ while keeping the current digest pending and downstream evidence lanes
 blocked. Phase 189 decides the digest cannot be pinned yet because no
 package-local WASM artifact is present, then adds a package-local
 retained-pending population summary with `digestStatus="pending"` and
-`sha256=null`.
+`sha256=null`. Phase 190 checks the recorded candidate artifact paths, finds no
+package-local WASM artifact, defines
+`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` as the
+accepted future output path, and keeps the digest pending.
 
 ## Current Next Phase
 
-Phase 190: Text Engine WASM Artifact Digest Pinning Gate.
+Phase 191: Text Engine WASM Artifact Build Output Gate.
 
 Goal:
 
-- create, locate, or explicitly select the package-local WASM artifact path
-  needed before digest pinning;
-- pin sha256 only if the artifact exists and the Phase 188/189 context still
+- produce or explicitly retain the accepted package-local WASM artifact output
+  path from Phase 190;
+- keep sha256 pinning blocked unless a real artifact exists and context still
   matches;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
 - keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
@@ -116,6 +119,14 @@ WASM artifact is present, `canPinDigestNow=false`, `digestStatus="pending"`,
 `sha256=null`, `rawEvidenceIncluded=false`, `productionReady=false`, and
 `defaultMeasurerReplacement=false`.
 
+Phase 190 adds
+`packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`
+as a package-local pinning summary. It records that all Phase 189 candidate
+paths are absent, the accepted future artifact output path is
+`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`, no retained
+artifact pointer exists yet, `canPinDigestNow=false`, `digestStatus="pending"`,
+and `sha256=null`.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -132,6 +143,7 @@ WASM artifact is present, `canPinDigestNow=false`, `digestStatus="pending"`,
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
