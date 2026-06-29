@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: Phase 195 WASM artifact production gate package.
+Status: WASM toolchain provisioning bootstrap package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -16,7 +16,9 @@ root checks depend on WASM tooling. Phase 194 adds an optional package-local
 readiness smoke wrapper that records unavailable toolchain status without
 requiring an artifact. Phase 195 checks artifact production, does not run
 `wasm:build` while the toolchain is unavailable, and keeps artifact output plus
-digest pinning blocked.
+digest pinning blocked. The provisioning bootstrap gate adds
+`wasm:bootstrap-plan` as a package-local plan/check script and keeps actual
+toolchain provisioning out of root checks.
 
 Run the smoke from this package:
 
@@ -40,6 +42,7 @@ Allowed:
 - keep the package-local `wasm:build` command out of root checks;
 - run `npm run wasm:check-toolchain` as an optional package-local diagnostic;
 - run `npm run wasm:readiness-smoke` as an optional readiness smoke;
+- run `npm run wasm:bootstrap-plan` as a package-local provisioning plan/check;
 - remain external to `src/**` core.
 
 Blocked:

@@ -261,11 +261,11 @@ describe("text engine runtime identity digest evidence population gate", () => {
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 195.")
-    expect(currentStatus).toContain("Phase 195: Text Engine WASM Artifact Production Gate.")
+    expect(currentStatus).toContain("Status: updated after Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
-    expect(nextPointer).toContain("Status: current after Phase 195.")
-    expect(nextPointer).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
+    expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
+    expect(nextPointer).toContain("Status: current after Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
+    expect(nextPointer).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine runtime identity digest evidence population gate")
     expect(readme).toContain("docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md")
@@ -276,7 +276,7 @@ describe("text engine runtime identity digest evidence population gate", () => {
     expect(roadmap).toContain(
       "## Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195:")
+    expect(roadmap).toContain("Current next step after Phase 195A:")
     expect(roadmap).toContain("Historical Phase 189 Handoff")
   })
 })

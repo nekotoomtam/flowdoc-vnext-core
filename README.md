@@ -650,6 +650,10 @@ The package must remain runnable without any parent editor checkout.
   smoke, skips `wasm:build` because the toolchain is unavailable, records
   absent artifact facts as JSON-safe summary values, and keeps Phase 196
   digest pinning blocked until a real artifact exists.
+- Text engine WASM toolchain provisioning bootstrap gate selects developer/CI
+  bootstrap as the package-local strategy, adds `wasm:bootstrap-plan` as a
+  plan/check script, records rustc/cargo/wasm-pack/target version policy, and
+  keeps artifact production plus digest pinning blocked.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -658,7 +662,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 195
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after the toolchain
+  provisioning bootstrap gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -868,6 +873,9 @@ The package must remain runnable without any parent editor checkout.
   production work
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`: Phase 195 text engine
   WASM artifact production gate before toolchain provisioning/bootstrap work
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`: text
+  engine WASM toolchain provisioning bootstrap gate before provisioning
+  execution work
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -1127,7 +1135,7 @@ The package must remain runnable without any parent editor checkout.
   native/WASM evidence, parity
   summaries, renderer-backed drift summaries, numeric drift thresholds,
   accepted root summary manifest, or production measurement replacement beyond
-  the Phase 195 artifact production gate
+  the toolchain provisioning bootstrap gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

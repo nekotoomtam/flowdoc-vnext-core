@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 195.
+Status: updated after Text Engine WASM Toolchain Provisioning Bootstrap Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 195: Text Engine WASM Artifact Production Gate.
+Text Engine WASM Toolchain Provisioning Bootstrap Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -50,16 +50,28 @@ artifact production plus digest pinning blocked because `wasm-pack` and
 readiness smoke, confirms the toolchain is still unavailable, does not run
 `wasm:build`, records `artifactProduced=false`, `artifactPointer=null`,
 `fileSizeBytes=null`, `digestStatus="pending"`, and `sha256=null`, then keeps
-Phase 196 digest pinning blocked until a real artifact exists.
+Phase 196 digest pinning blocked until a real artifact exists. The Text Engine
+WASM Toolchain Provisioning Bootstrap Gate defines developer/CI bootstrap as
+the accepted provisioning strategy, adds a package-local `wasm:bootstrap-plan`
+plan/check script, captures `rustc` and `cargo` version policy, keeps
+`wasm-pack` pending until installed, keeps the `wasm32-unknown-unknown` target
+missing, and keeps artifact production plus digest pinning blocked.
 
 ## Current Next Phase
 
-Text Engine WASM Toolchain Provisioning Bootstrap Gate.
+Text Engine WASM Toolchain Provisioning Execution Gate.
 
 Goal:
 
-- decide or execute the package-local provisioning path for `wasm-pack`;
-- decide or execute `rustup target add wasm32-unknown-unknown`;
+- execute the accepted package-local provisioning path only with explicit
+  developer/CI approval for network/system toolchain changes;
+- install or provide `wasm-pack` through `cargo install wasm-pack --locked`, a
+  pinned CI image, an internal tool cache, or a preinstalled developer
+  toolchain;
+- install or provide `wasm32-unknown-unknown` through
+  `rustup target add wasm32-unknown-unknown`, a pinned CI image, or a
+  preinstalled developer toolchain;
+- rerun `wasm:readiness-smoke` after provisioning;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep Phase 196 Artifact Digest Pinning Execution blocked until the accepted
   artifact is actually produced under
@@ -199,6 +211,21 @@ and `defaultMeasurerReplacement=false`. It does not run `wasm:build` because
 `wasm-pack` and `wasm32-unknown-unknown` are still unavailable, and it blocks
 Phase 196 digest pinning until a real artifact exists.
 
+The Text Engine WASM Toolchain Provisioning Bootstrap Gate adds
+`packages/text-engine-rust-wasm/scripts/plan-wasm-toolchain-bootstrap.mjs`,
+package script `wasm:bootstrap-plan`, and
+`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json`.
+It records `bootstrap.mode="plan-and-check-only"`,
+`bootstrap.installExecuted=false`,
+`provisioningDecision.strategy="developer-or-ci-bootstrap"`,
+`acceptedProvisioning.wasmPack.command="cargo install wasm-pack --locked"`,
+`acceptedProvisioning.wasm32UnknownUnknown.command="rustup target add wasm32-unknown-unknown"`,
+`versionPolicy.rustc.currentVersion="rustc 1.88.0 (6b00bc388 2025-06-23)"`,
+`versionPolicy.cargo.currentVersion="cargo 1.88.0 (873a06493 2025-05-10)"`,
+`versionPolicy.wasmPack.status="pending-until-installed"`,
+`versionPolicy.rustTarget.status="missing"`, `toolchainReady=false`,
+`artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -216,6 +243,7 @@ Phase 196 digest pinning until a real artifact exists.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`

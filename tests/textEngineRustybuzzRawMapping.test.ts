@@ -242,7 +242,7 @@ describe("vNext text engine rustybuzz raw mapping boundary", () => {
     expect(boundaryDoc).toContain("UTF-8 byte clusters")
     expect(boundaryDoc).toContain("UTF-16 text ranges")
     expect(boundaryDoc).toContain("single-line smoke")
-    expect(packageReadme).toContain("Status: Phase 195 WASM artifact production gate package.")
+    expect(packageReadme).toContain("Status: WASM toolchain provisioning bootstrap package.")
     expect(packageReadme).toContain("Phase 114 adds")
     expect(readme).toContain("Text engine rustybuzz raw mapping boundary")
     expect(readme).toContain("docs/TEXT_ENGINE_RUSTYBUZZ_RAW_MAPPING_BOUNDARY.md")

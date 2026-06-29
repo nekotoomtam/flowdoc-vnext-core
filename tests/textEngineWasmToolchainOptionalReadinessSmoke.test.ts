@@ -286,13 +286,11 @@ describe("text engine WASM toolchain optional readiness smoke", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Phase 195.")
-    expect(currentStatus).toContain(
-      "Phase 195: Text Engine WASM Artifact Production Gate.",
-    )
+    expect(currentStatus).toContain("Status: updated after Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
-    expect(nextPointer).toContain("Status: current after Phase 195.")
-    expect(nextPointer).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
+    expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
+    expect(nextPointer).toContain("Status: current after Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
+    expect(nextPointer).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
     expect(readme).toContain("Text engine WASM toolchain optional readiness smoke")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md")
     expect(ledger).toContain("| 194 | Text engine WASM toolchain optional readiness smoke | done |")
@@ -302,7 +300,7 @@ describe("text engine WASM toolchain optional readiness smoke", () => {
     expect(roadmap).toContain(
       "## Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke",
     )
-    expect(roadmap).toContain("Current next step after Phase 195:")
-    expect(roadmap).toContain("Historical Phase 194 Handoff")
+    expect(roadmap).toContain("Current next step after Phase 195A:")
+    expect(roadmap).toContain("Historical Phase 195 Handoff")
   })
 })

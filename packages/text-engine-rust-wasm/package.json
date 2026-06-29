@@ -15,6 +15,7 @@
     "wasm:build": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
     "wasm:check-toolchain": "node scripts/check-wasm-toolchain.mjs",
     "wasm:readiness-smoke": "npm run wasm:check-toolchain",
+    "wasm:bootstrap-plan": "node scripts/plan-wasm-toolchain-bootstrap.mjs",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "npm run type-check"
   },

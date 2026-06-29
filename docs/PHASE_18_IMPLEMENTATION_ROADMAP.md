@@ -5715,6 +5715,52 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 195A: Text Engine WASM Toolchain Provisioning Bootstrap Gate
+
+Goal:
+
+- decide the package-local provisioning/bootstrap path for `wasm-pack` and
+  `wasm32-unknown-unknown` while keeping root checks independent.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`;
+- `packages/text-engine-rust-wasm/scripts/plan-wasm-toolchain-bootstrap.mjs`;
+- `packages/text-engine-rust-wasm/package.json`;
+- `packages/text-engine-rust-wasm/README.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmToolchainProvisioningBootstrapGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- accepted `wasm-pack` provisioning path is
+  `cargo install wasm-pack --locked`;
+- accepted `wasm32-unknown-unknown` provisioning path is
+  `rustup target add wasm32-unknown-unknown`;
+- developer/CI bootstrap is selected as the strategy;
+- cached binary, pinned CI image, and preinstalled developer toolchain are
+  allowed alternatives;
+- package-local `wasm:bootstrap-plan` script is added;
+- bootstrap script is plan/check only and does not install tooling;
+- `wasm-pack`, `rustc`, `cargo`, and Rust target version policies are
+  recorded;
+- `wasm:readiness-smoke` remains the source for availability;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target, the
+  bootstrap plan, the readiness smoke, the WASM build, or an artifact;
+- artifact production remains blocked until `toolchainReady=true`;
+- digest pinning remains blocked until a real artifact exists;
+- no `wasm-pack` or `wasm32-unknown-unknown` requirement in root checks,
+  rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, fake WASM artifact,
+  fake sha256, `measureVNextText(...)` replacement, pagination mutation,
+  production renderer-backed measurement binding, production PDF/DOCX renderer
+  work, backend routes/storage/auth, production contenteditable,
+  package/document schema change, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5744,10 +5790,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 195:
+Current next step after Phase 195A:
 
 ```text
-Text Engine WASM Toolchain Provisioning Bootstrap Gate
+Text Engine WASM Toolchain Provisioning Execution Gate
 ```
 
 Reason:
@@ -5835,13 +5881,28 @@ Reason:
   `fileSizeBytes=null`, `digestStatus="pending"`, and `sha256=null`, and
   blocks Phase 196 Artifact Digest Pinning Execution until a real artifact
   exists;
+- Phase 195A now selects developer/CI bootstrap as the provisioning strategy,
+  adds package-local `wasm:bootstrap-plan`, records `rustc` and `cargo`
+  version policy, keeps `wasm-pack` pending until installed, keeps
+  `wasm32-unknown-unknown` missing, and keeps root checks independent;
 - the current package-local digest remains pending, so the next safe lane is a
-  dedicated provisioning/bootstrap gate for `wasm-pack` and
-  `wasm32-unknown-unknown` instead of producing a fake artifact or continuing
-  to digest pinning;
+  dedicated provisioning execution gate for `wasm-pack` and
+  `wasm32-unknown-unknown`, with Artifact Digest Pinning Execution still
+  blocked;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 195 Handoff
+
+Current next step after Phase 195:
+
+```text
+Text Engine WASM Toolchain Provisioning Bootstrap Gate
+```
+
+That was the Phase 195 handoff recommendation. Phase 195A is now complete, so
+it is no longer the current next step after Phase 195A.
 
 ## Historical Phase 194 Handoff
 
