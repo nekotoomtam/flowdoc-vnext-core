@@ -1,19 +1,21 @@
 # Next Phase Pointer
 
-Status: current after Native/WASM Parity Summary Gate.
+Status: current after Renderer-backed Drift Summary Gate.
 
 ## Next Phase
 
-Renderer-backed Drift Summary Gate.
+Numeric Drift Threshold Decision.
 
 ## Why This Is Next
 
-Native/WASM Parity Summary Gate used WASM Evidence Summary Gate as source of
-truth and compared the native/WASM summary metadata for the same minimal
-fixture subset.
+Renderer-backed Drift Summary Gate used Native/WASM Parity Summary Gate as
+source of truth and added package-local JSON-safe renderer-backed drift summary
+metadata for the same minimal fixture subset.
 
 Previous source gates retained for traceability:
 
+- Renderer-backed Drift Summary Gate.
+- Native/WASM Parity Summary Gate.
 - WASM Evidence Summary Gate.
 - Native Evidence Summary Gate.
 - Artifact Digest Pinning Execution.
@@ -24,9 +26,10 @@ The summary fixtures are:
 packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json
 packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json
 packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json
+packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json
 ```
 
-The parity summary is attached to the pinned digest context:
+The drift summary is attached to the pinned digest context:
 
 - artifact path:
   `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
@@ -36,26 +39,31 @@ The parity summary is attached to the pinned digest context:
 - corpus id: `v1-measurement-evidence-corpus-v1`;
 - policy revision: `v1-measurement-evidence-policy-v1`;
 - output shape: `glyph-line-box-v1`;
+- native/WASM parity status: `matching-summary-metadata`;
+- renderer-backed drift status: `summary-metadata-present`;
 - raw native evidence remains outside root docs/tests;
-- raw WASM evidence remains outside root docs/tests.
+- raw WASM evidence remains outside root docs/tests;
+- raw renderer evidence remains outside root docs/tests.
 
 The covered subset is:
 
 - `v1-measure-thai-line-break-core`;
 - `v1-measure-latin-product-paragraphs`.
 
-The parity status is `matching-summary-metadata` for this subset. The next
-safe step is a renderer-backed drift summary for the same subset and the same
-pinned digest context. Numeric thresholds, accepted manifests, production
+The drift summary matches the parity/digest context and records unthresholded
+drift metadata for this subset. The next safe step is a numeric threshold
+decision for that same subset and context. Accepted manifests, production
 binding, and default-measurer replacement remain blocked until later phases.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`
 - `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`
 - `docs/WASM_EVIDENCE_SUMMARY_GATE.md`
 - `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`
 - `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`
+- `packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json`
@@ -66,21 +74,22 @@ binding, and default-measurer replacement remain blocked until later phases.
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
 
-## Renderer-Backed Drift Summary Gate Scope
+## Numeric Drift Threshold Decision Scope
 
-- Produce a JSON-safe renderer-backed drift summary for the same minimal
-  subset.
-- Require matching parity summary metadata before recording drift summary
-  metadata.
+- Decide JSON-safe numeric drift threshold policy for the same minimal subset.
+- Require matching renderer-backed drift summary metadata before accepting any
+  threshold policy.
 - Use the same matrix id, corpus id, policy revision, measurement profile id,
-  output shape, fixture ids, scenario ids, and pinned artifact digest context.
+  output shape, fixture ids, scenario ids, parity status, and pinned artifact
+  digest context.
 - Keep raw native/WASM/renderer evidence outside root docs/tests.
 - Keep root summaries bounded to JSON-safe facts and retention pointers.
-- Block drift summary on stale digest, profile mismatch, subset mismatch,
-  fixture mismatch, scenario mismatch, parity mismatch, or missing summary
-  metadata.
-- Keep numeric thresholds, accepted manifest, production binding, and
-  default-measurer replacement blocked.
+- Block threshold acceptance on stale digest, profile mismatch, subset
+  mismatch, fixture mismatch, scenario mismatch, parity mismatch, missing drift
+  metadata, raw renderer evidence in root docs/tests, or incompatible policy
+  revision.
+- Keep accepted manifest, production binding, and default-measurer replacement
+  blocked.
 
 ## Hard Limits
 
@@ -97,7 +106,6 @@ binding, and default-measurer replacement remain blocked until later phases.
 - No fake WASM evidence.
 - No fake parity.
 - No fake renderer drift.
-- No numeric threshold acceptance.
 - No accepted summary manifest.
 - No default measurement replacement.
 - No pagination mutation.
@@ -112,10 +120,10 @@ binding, and default-measurer replacement remain blocked until later phases.
 
 ## Expected Output
 
-- JSON-safe renderer-backed drift summary for the same smallest accepted
+- JSON-safe numeric drift threshold decision for the same smallest accepted
   subset;
-- explicit blocked status for numeric thresholds, accepted manifest,
-  production binding, and default-measurer replacement;
+- explicit blocked status for accepted manifest, production binding, and
+  default-measurer replacement;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
 - updated current-status pointer.
@@ -127,5 +135,6 @@ binding, and default-measurer replacement remain blocked until later phases.
 - Native Evidence Summary Gate.
 - WASM Evidence Summary Gate.
 - Native/WASM Parity Summary Gate.
+- Renderer-backed Drift Summary Gate.
 - Historical production retry summary retained `sha256ComputedThisPhase=false`;
   digest pinning happened only after the accepted artifact existed.

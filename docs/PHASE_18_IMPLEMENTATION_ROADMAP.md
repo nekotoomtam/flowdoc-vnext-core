@@ -6176,6 +6176,47 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 200: Renderer-backed Drift Summary Gate
+
+Goal:
+
+- produce a JSON-safe renderer-backed drift summary for the same Thai
+  line-break core and canonical Latin paragraph subset.
+
+Deliverables:
+
+- `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`;
+- `tests/rendererBackedDriftSummaryGate.test.ts`;
+- `packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Native/WASM parity summary exists;
+- confirms parity status is `matching-summary-metadata`;
+- records sha256 as
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- requires matching matrix id `v1-measurement-fixture-evidence-matrix-v1`;
+- requires matching corpus id `v1-measurement-evidence-corpus-v1`;
+- requires matching policy revision `v1-measurement-evidence-policy-v1`;
+- requires matching output shape `glyph-line-box-v1`;
+- requires matching measurement profile id, fixture ids, and scenario ids;
+- records renderer-backed drift status as `summary-metadata-present`;
+- records drift metadata coverage as unthresholded width, height, and
+  line-count drift metadata;
+- keeps raw native/WASM/renderer evidence outside root docs/tests;
+- keeps root checks independent from `wasm-pack` and the WASM target;
+- keeps numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement blocked;
+- no `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6205,10 +6246,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 199:
+Current next step after Phase 200:
 
 ```text
-Renderer-backed Drift Summary Gate
+Numeric Drift Threshold Decision
 ```
 
 Reason:
@@ -6339,12 +6380,25 @@ Reason:
 - Phase 199 now compares the native and WASM summary metadata for the same
   fixture subset, records matching digest/profile/fixture/scenario/fact
   coverage metadata, and keeps raw native/WASM output outside root docs/tests;
-- the current parity summary metadata is matching for the same subset and
-  pinned digest context, so the next safe lane is Renderer-backed Drift
-  Summary Gate;
+- Phase 200 now adds renderer-backed drift summary metadata for the same
+  fixture subset and pinned digest context, while keeping raw renderer output
+  outside root docs/tests;
+- the current drift summary metadata matches the parity and digest context, so
+  the next safe lane is Numeric Drift Threshold Decision;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 199 Handoff
+
+Current next step after Phase 199:
+
+```text
+Renderer-backed Drift Summary Gate
+```
+
+That was the Phase 199 handoff recommendation. Phase 200 is now complete,
+so it is no longer the current next step after Phase 200.
 
 ## Historical Phase 198 Handoff
 
