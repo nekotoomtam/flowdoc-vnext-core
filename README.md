@@ -596,6 +596,10 @@ The package must remain runnable without any parent editor checkout.
 - Internal alpha close audit and documentation consolidation gate closes the
   Phase 172-180 evidence lane and adds compact current-state pointers for daily
   work without deleting the historical audit trail.
+- V1 hardening backlog triage gate ranks the remaining production blockers,
+  selects measurement rollout / digest / parity / drift as the first
+  production hardening lane, and keeps internal-alpha evidence separate from
+  production readiness.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -604,7 +608,7 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 181
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 182
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -780,6 +784,8 @@ The package must remain runnable without any parent editor checkout.
   slice before close audit and documentation consolidation
 - `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`: Phase 181
   close audit and documentation consolidation gate before v1 hardening triage
+- `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`: Phase 182 v1 hardening backlog
+  triage gate before measurement digest/parity/drift hardening
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

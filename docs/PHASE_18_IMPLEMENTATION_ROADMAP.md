@@ -5151,6 +5151,37 @@ Acceptance:
   measurement replacement, package/document schema change, collaboration/
   offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 182: V1 Hardening Backlog Triage Gate
+
+Goal:
+
+- rank the remaining production blockers and choose the first production
+  hardening lane without starting production implementation.
+
+Deliverables:
+
+- `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/v1HardeningBacklogTriageGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 181 current-pointer guard update.
+
+Acceptance:
+
+- candidate lanes are ranked: input/contenteditable, backend routes/auth,
+  storage durability, PDF fidelity, measurement digest/parity/drift, DOCX,
+  collaboration/offline, and schema changes if needed;
+- the first production hardening lane is selected as measurement rollout /
+  digest / parity / drift;
+- every deferred lane has an explicit dependency reason;
+- internal-alpha evidence remains separate from production readiness;
+- next phase is Phase 183: Measurement Digest Parity Drift Hardening Gate;
+- no production contenteditable, backend route/server/auth/authz, production
+  storage readiness, production PDF/DOCX renderer, default measurement
+  replacement, pagination mutation, package/document schema change,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5180,10 +5211,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 181:
+Current next step after Phase 182:
 
 ```text
-Phase 182: V1 Hardening Backlog Triage Gate
+Phase 183: Measurement Digest Parity Drift Hardening Gate
 ```
 
 Reason:
@@ -5223,11 +5254,25 @@ Reason:
   retrieval, and status report;
 - Phase 181 now closes the internal-alpha evidence pass and consolidates
   current-state documentation so daily work has a compact source of truth;
-- the next safe lane is ranking production hardening blockers and choosing the
-  first production hardening lane;
+- Phase 182 now ranks production hardening blockers and chooses measurement
+  rollout / digest / parity / drift as the first hardening lane;
+- the next safe lane is defining the digest, parity, drift, and fixture
+  evidence gate before any production measurement binding or default-measurer
+  replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 181 Handoff
+
+Current next step after Phase 181:
+
+```text
+Phase 182: V1 Hardening Backlog Triage Gate
+```
+
+That was the Phase 181 handoff recommendation. Phase 182 is now complete, so
+it is no longer the current next step after Phase 182.
 
 ## Historical Phase 180 Handoff
 

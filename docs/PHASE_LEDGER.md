@@ -188,6 +188,7 @@ Parent goal:
 | 179 | Measurement rollout gate | done | `docs/MEASUREMENT_ROLLOUT_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementRolloutGate.test.ts`; `tests/pdfRendererDecisionGate.test.ts` |
 | 180 | Internal alpha vertical slice | done | `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/index.ts`; `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaVerticalSlice.test.ts`; `tests/measurementRolloutGate.test.ts` |
 | 181 | Internal alpha close audit and documentation consolidation gate | done | `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaCloseAuditConsolidation.test.ts`; `tests/internalAlphaVerticalSlice.test.ts` |
+| 182 | V1 hardening backlog triage gate | done | `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1HardeningBacklogTriageGate.test.ts`; `tests/internalAlphaCloseAuditConsolidation.test.ts` |
 
 ## Current Rule
 
@@ -4658,6 +4659,27 @@ default measurement replacement, package/document schema changes,
 collaboration/offline behavior, or legacy editor runtime copy.
 
 Next recommended phase: Phase 182 V1 Hardening Backlog Triage Gate.
+
+## Phase 182 V1 Hardening Backlog Triage Gate
+
+Phase 182 ranks the production hardening backlog and chooses the first
+production hardening lane:
+
+- selected lane: measurement rollout / digest / parity / drift;
+- first deferred lanes: production storage durability/transactions, backend
+  routes plus auth/authz, PDF renderer fidelity, and production input binding;
+- later deferred lanes: DOCX renderer, collaboration/offline, and package/
+  document schema changes if evidence later requires them;
+- internal-alpha evidence remains bounded evidence and is not production
+  readiness.
+
+This phase intentionally does not implement production contenteditable,
+backend routes, auth/authz, production storage, production PDF/DOCX rendering,
+default measurement replacement, pagination mutation, package/document schema
+changes, collaboration/offline behavior, or legacy editor runtime copy.
+
+Next recommended phase: Phase 183 Measurement Digest Parity Drift Hardening
+Gate.
 
 ## Phase 12 Extraction Record
 
