@@ -1,0 +1,143 @@
+{
+  "wasmEvidenceSummaryId": "text-engine-wasm-evidence-summary-v1",
+  "sourceNativeEvidenceSummaryId": "text-engine-native-evidence-summary-v1",
+  "sourcePinningSummaryId": "text-engine-wasm-artifact-digest-pinning-v1",
+  "sourceRuntimeIdentityManifestId": "text-engine-runtime-identity-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+  "corpusId": "v1-measurement-evidence-corpus-v1",
+  "policyRevision": "v1-measurement-evidence-policy-v1",
+  "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+  "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+  "outputShapeVersion": "glyph-line-box-v1",
+  "digestIdentity": {
+    "status": "pinned",
+    "artifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44",
+    "runtimeIdentityContextMatches": true
+  },
+  "summaryMode": "json-safe-wasm-evidence-metadata-only",
+  "sourceSubsetId": "native-evidence-summary-minimal-v1",
+  "subsetId": "wasm-evidence-summary-minimal-v1",
+  "subsetStatus": "summary-metadata-present",
+  "rawEvidenceIncluded": false,
+  "rawWasmEvidenceIncluded": false,
+  "rawWasmOutputIncluded": false,
+  "nativeEvidenceStatus": "summary-metadata-present",
+  "wasmEvidenceStatus": "summary-metadata-present",
+  "wasmEvidenceSummaryExists": true,
+  "wasmEvidenceExecutionMode": "metadata-only-no-wasm-execution",
+  "wasmEngineExecutionInCore": false,
+  "wasmArtifactLoadedByRoot": false,
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "fixtures": [
+    {
+      "fixtureId": "v1-measure-thai-line-break-core",
+      "scenarioIds": ["thai-greeting-no-space", "thai-combining-marks"],
+      "gateType": "release-gating",
+      "subsetPriority": 1,
+      "coverageCategory": "thai-line-break-core",
+      "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "sourceCorpusPointers": [
+        "fixtures/thai-measurement-corpus.v1.json",
+        "fixtures/thai-line-break-evidence.v1.json"
+      ],
+      "nativeSubsetMatches": true,
+      "nativeSummaryFixtureStatus": "summary-metadata-present",
+      "requiredWasmFacts": ["glyph-facts", "cluster-map", "text-range", "line-boxes", "total-size", "line-count"],
+      "wasmSummaryCoverage": {
+        "glyph-facts": "metadata-present",
+        "cluster-map": "metadata-present",
+        "text-range": "metadata-present",
+        "line-boxes": "metadata-present",
+        "total-size": "metadata-present",
+        "line-count": "metadata-present"
+      },
+      "nonWasmCoverage": {
+        "drift-summary": "blocked",
+        "parity-summary": "not-run"
+      },
+      "status": "summary-metadata-present",
+      "accepted": false,
+      "rawFactValuesIncluded": false,
+      "rawWasmEvidencePointer": "external-wasm-evidence://text-engine-rust-wasm/v1-measure-thai-line-break-core",
+      "rawWasmEvidenceIncludedInRoot": false
+    },
+    {
+      "fixtureId": "v1-measure-latin-product-paragraphs",
+      "scenarioIds": ["product-report-vnext", "product-report-vnext-minimal"],
+      "gateType": "release-gating",
+      "subsetPriority": 2,
+      "coverageCategory": "canonical-latin-product-paragraph",
+      "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "sourceCorpusPointers": [
+        "fixtures/product-report-vnext.flowdoc.json",
+        "fixtures/product-report-vnext-minimal.flowdoc.json"
+      ],
+      "nativeSubsetMatches": true,
+      "nativeSummaryFixtureStatus": "summary-metadata-present",
+      "requiredWasmFacts": ["glyph-facts", "cluster-map", "text-range", "line-boxes", "total-size", "line-count"],
+      "wasmSummaryCoverage": {
+        "glyph-facts": "metadata-present",
+        "cluster-map": "metadata-present",
+        "text-range": "metadata-present",
+        "line-boxes": "metadata-present",
+        "total-size": "metadata-present",
+        "line-count": "metadata-present"
+      },
+      "nonWasmCoverage": {
+        "drift-summary": "blocked",
+        "parity-summary": "not-run"
+      },
+      "status": "summary-metadata-present",
+      "accepted": false,
+      "rawFactValuesIncluded": false,
+      "rawWasmEvidencePointer": "external-wasm-evidence://text-engine-rust-wasm/v1-measure-latin-product-paragraphs",
+      "rawWasmEvidenceIncludedInRoot": false
+    }
+  ],
+  "retention": {
+    "sourceNativeSummary": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json",
+      "includedInRoot": false
+    },
+    "rawWasmEvidence": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointerKind": "external-placeholder",
+      "pointers": [
+        "external-wasm-evidence://text-engine-rust-wasm/v1-measure-thai-line-break-core",
+        "external-wasm-evidence://text-engine-rust-wasm/v1-measure-latin-product-paragraphs"
+      ],
+      "includedInRoot": false
+    },
+    "rendererEvidence": {
+      "owner": "external-renderer-provider",
+      "pointer": null,
+      "includedInRoot": false
+    }
+  },
+  "blockedUntilLater": {
+    "paritySummaries": true,
+    "rendererBackedDriftSummaries": true,
+    "numericDriftThresholds": true,
+    "acceptedSummaryManifest": true,
+    "productionBinding": true,
+    "defaultMeasurerReplacement": true
+  },
+  "replacementBlockers": [
+    "native-wasm-parity-not-run",
+    "renderer-backed-drift-unknown",
+    "numeric-drift-thresholds-blocked",
+    "accepted-manifest-blocked",
+    "later-binding-phase-not-run"
+  ],
+  "nextRecommendedWork": "Native/WASM Parity Summary Gate",
+  "phaseRule": "proceed-to-native-wasm-parity-only-if-wasm-summary-context-and-subset-match-native"
+}

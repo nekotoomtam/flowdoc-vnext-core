@@ -345,18 +345,18 @@ describe("text engine WASM toolchain version compatibility gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Native Evidence Summary Gate.",
+      "Status: updated after WASM Evidence Summary Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Native Evidence Summary Gate.",
+      "Status: current after WASM Evidence Summary Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM toolchain version compatibility gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md")
-    expect(packageReadme).toContain("Status: native evidence summary metadata package.")
+    expect(packageReadme).toContain("Status: WASM evidence summary metadata package.")
     expect(ledger).toContain(
       "| 195C | Text engine WASM toolchain version compatibility gate | done |",
     )

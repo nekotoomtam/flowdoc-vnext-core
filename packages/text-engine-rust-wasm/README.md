@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: native evidence summary metadata package.
+Status: WASM evidence summary metadata package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -47,6 +47,11 @@ production measurement binding blocked. Native Evidence Summary Gate then adds
 Thai line-break core and canonical Latin paragraph subset, while keeping raw
 native output outside root docs/tests and leaving WASM evidence plus parity
 for later gates.
+WASM Evidence Summary Gate then adds `fixtures/wasm-evidence-summary.v1.json`
+with JSON-safe metadata for the same Thai line-break core and canonical Latin
+paragraph subset, while keeping raw WASM output outside root docs/tests and
+leaving native/WASM parity, drift, accepted manifests, and production
+measurement binding for later gates.
 
 Run the smoke from this package:
 
@@ -84,6 +89,8 @@ Allowed:
   package-local runtime identity evidence;
 - retain JSON-safe native evidence summary metadata for the first Thai and
   Latin subset without putting raw native output in root docs/tests;
+- retain JSON-safe WASM evidence summary metadata for the same first Thai and
+  Latin subset without putting raw WASM output in root docs/tests;
 - remain external to `src/**` core.
 
 Blocked:
@@ -92,7 +99,8 @@ Blocked:
 - ICU4X dependency;
 - WASM artifact loading until its dedicated gate;
 - raw native evidence in root docs/tests;
-- WASM evidence, parity, drift, accepted manifests, and production measurement
+- raw WASM evidence in root docs/tests;
+- native/WASM parity, drift, accepted manifests, and production measurement
   binding until their dedicated gates;
 - core font-file reads;
 - production measurement binding;

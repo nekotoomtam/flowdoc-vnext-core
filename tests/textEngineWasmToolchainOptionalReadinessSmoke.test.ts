@@ -286,10 +286,10 @@ describe("text engine WASM toolchain optional readiness smoke", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Native Evidence Summary Gate.")
+    expect(currentStatus).toContain("Status: updated after WASM Evidence Summary Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Native Evidence Summary Gate.")
+    expect(nextPointer).toContain("Status: current after WASM Evidence Summary Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(readme).toContain("Text engine WASM toolchain optional readiness smoke")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md")

@@ -211,6 +211,7 @@ Parent goal:
 | 195G | Text engine WASM artifact production retry after bindgen gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`; `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`; generated package metadata under `packages/text-engine-rust-wasm/pkg/`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactProductionRetryGate.test.ts`; pointer guard tests |
 | 196 | Artifact digest pinning execution | done | `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`; `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactDigestPinningExecution.test.ts`; pointer guard tests |
 | 197 | Native evidence summary gate | done | `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/nativeEvidenceSummaryGate.test.ts`; pointer guard tests |
+| 198 | WASM evidence summary gate | done | `docs/WASM_EVIDENCE_SUMMARY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/wasmEvidenceSummaryGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5475,6 +5476,41 @@ routes/storage/auth/authz, implement contenteditable, change package/document
 schema, add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended work: WASM Evidence Summary Gate.
+Production measurement replacement remains blocked.
+
+## Phase 198 WASM Evidence Summary Gate
+
+WASM Evidence Summary Gate uses Native Evidence Summary Gate as source of
+truth and adds the matching package-local, JSON-safe WASM evidence summary
+metadata subset:
+
+- summary fixture:
+  `packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json`;
+- source native summary:
+  `packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json`;
+- artifact path:
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- sha256:
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- covered release-gating rows:
+  `v1-measure-thai-line-break-core` and
+  `v1-measure-latin-product-paragraphs`;
+- summary mode is `json-safe-wasm-evidence-metadata-only`;
+- raw WASM evidence is excluded from root docs/tests and represented only by
+  package-local/external retention pointers;
+- native/WASM parity summaries, renderer-backed drift summaries, numeric
+  thresholds, accepted manifest, production binding, and default-measurer
+  replacement remain blocked.
+
+This phase intentionally does not put raw WASM evidence in root docs/tests,
+claim native/WASM parity, claim renderer-backed drift, accept numeric
+thresholds, claim accepted summary manifest, replace `measureVNextText(...)`,
+mutate pagination, bind production renderer-backed measurement, add production
+PDF/DOCX renderer work, add backend routes/storage/auth/authz, implement
+contenteditable, change package/document schema, add collaboration/offline
+behavior, or copy legacy editor runtime.
+
+Next recommended work: Native/WASM Parity Summary Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

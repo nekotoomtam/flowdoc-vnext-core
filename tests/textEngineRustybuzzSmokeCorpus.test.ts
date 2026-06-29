@@ -240,7 +240,7 @@ describe("vNext text engine rustybuzz smoke corpus boundary", () => {
     expect(boundaryDoc).toContain("Phase 107 rustybuzz smoke case")
     expect(boundaryDoc).toContain("WASM parity")
     expect(boundaryDoc).toContain("ICU4X line break")
-    expect(packageReadme).toContain("Status: native evidence summary metadata package.")
+    expect(packageReadme).toContain("Status: WASM evidence summary metadata package.")
     expect(readme).toContain("Text engine rustybuzz smoke corpus boundary")
     expect(readme).toContain("docs/TEXT_ENGINE_RUSTYBUZZ_SMOKE_CORPUS_BOUNDARY.md")
     expect(ledger).toContain("| 115 | Text engine rustybuzz smoke corpus boundary | done |")

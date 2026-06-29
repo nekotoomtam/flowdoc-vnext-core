@@ -6092,6 +6092,49 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 198: WASM Evidence Summary Gate
+
+Goal:
+
+- produce JSON-safe WASM evidence summary metadata for the same smallest
+  native subset:
+  `v1-measure-thai-line-break-core` and
+  `v1-measure-latin-product-paragraphs`.
+
+Deliverables:
+
+- `docs/WASM_EVIDENCE_SUMMARY_GATE.md`;
+- `tests/wasmEvidenceSummaryGate.test.ts`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms native evidence summary exists and matches the pinned digest
+  context;
+- records sha256 as
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- carries matrix id `v1-measurement-fixture-evidence-matrix-v1`;
+- carries corpus id `v1-measurement-evidence-corpus-v1`;
+- carries policy revision `v1-measurement-evidence-policy-v1`;
+- carries output shape `glyph-line-box-v1`;
+- records `v1-measure-thai-line-break-core` and
+  `v1-measure-latin-product-paragraphs` as the minimal WASM summary subset;
+- requires the WASM subset and scenario ids to match the native summary;
+- keeps raw WASM evidence outside root docs/tests;
+- keeps root checks independent from `wasm-pack` and the WASM target;
+- keeps native/WASM parity, renderer-backed drift, numeric thresholds,
+  accepted manifest, production binding, and default-measurer replacement
+  blocked;
+- no `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6121,10 +6164,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 197:
+Current next step after Phase 198:
 
 ```text
-WASM Evidence Summary Gate
+Native/WASM Parity Summary Gate
 ```
 
 Reason:
@@ -6249,11 +6292,26 @@ Reason:
   for `v1-measure-thai-line-break-core` and
   `v1-measure-latin-product-paragraphs`, attaches it to the pinned digest
   context, and keeps raw native output outside root docs/tests;
-- the current native summary metadata exists and matches the pinned digest
-  context, so the next safe lane is WASM Evidence Summary Gate;
+- Phase 198 now adds matching package-local JSON-safe WASM evidence summary
+  metadata for the same fixture subset and pinned digest context, while keeping
+  raw WASM output outside root docs/tests;
+- the current native and WASM summary metadata exists for the same subset and
+  pinned digest context, so the next safe lane is Native/WASM Parity Summary
+  Gate;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 197 Handoff
+
+Current next step after Phase 197:
+
+```text
+WASM Evidence Summary Gate
+```
+
+That was the Phase 197 handoff recommendation. Phase 198 is now complete,
+so it is no longer the current next step after Phase 198.
 
 ## Historical Phase 196 Handoff
 
