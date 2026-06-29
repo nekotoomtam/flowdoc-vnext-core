@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 186.
+Status: updated after Phase 187.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.
+Phase 187: Measurement Evidence Coverage Gap Triage Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -19,17 +19,18 @@ matrix and required JSON-safe summary facts. Phase 185 defines the JSON-safe
 summary manifest shape for carrying those facts without raw evidence in root
 tests/docs. Phase 186 adds a JSON-safe stub summary manifest for that matrix,
 with release-gating rows still unknown/missing and no production readiness
-claim.
+claim. Phase 187 ranks those missing evidence gaps, groups them by owner, and
+selects digest/runtime identity as the first prerequisite.
 
 ## Current Next Phase
 
-Phase 187: Measurement Evidence Coverage Gap Triage Gate.
+Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.
 
 Goal:
 
-- rank missing evidence across the Phase 186 stub manifest;
-- identify owners, prerequisites, and blocker order before any real evidence
-  collection;
+- build or define the first external/package-local digest/runtime identity
+  evidence path;
+- keep root docs/tests limited to JSON-safe summaries and retention pointers;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -84,6 +85,11 @@ statuses unknown, required fact coverage missing, digest identity pending,
 native/WASM parity not-run, renderer-backed drift unknown, and retention
 pointers null or external placeholders.
 
+Phase 187 ranks the coverage gaps from that stub. The first blocker is
+digest/runtime identity, followed by native evidence, WASM evidence, parity
+summaries, renderer-backed drift summaries, numeric drift thresholds, and an
+accepted summary manifest. Default-measurer replacement remains blocked.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -100,6 +106,7 @@ pointers null or external placeholders.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`

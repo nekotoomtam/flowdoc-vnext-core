@@ -193,6 +193,7 @@ Parent goal:
 | 184 | V1 measurement fixture evidence matrix gate | done | `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts`; `tests/measurementDigestParityDriftHardeningGate.test.ts` |
 | 185 | Measurement evidence summary manifest gate | done | `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceSummaryManifestGate.test.ts`; `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts` |
 | 186 | Measurement evidence summary manifest fixture stub gate | done | `fixtures/measurement-evidence-summary-manifest.stub.v1.json`; `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceSummaryManifestFixtureStubGate.test.ts`; pointer guard tests |
+| 187 | Measurement evidence coverage gap triage gate | done | `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`; `fixtures/measurement-evidence-summary-manifest.stub.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementEvidenceCoverageGapTriageGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -4777,6 +4778,36 @@ behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 187 Measurement Evidence Coverage Gap Triage
 Gate.
+
+## Phase 187 Measurement Evidence Coverage Gap Triage Gate
+
+Phase 187 ranks the missing evidence exposed by the Phase 186 stub manifest:
+
+- source stub:
+  `fixtures/measurement-evidence-summary-manifest.stub.v1.json`;
+- all 12 release-gating rows remain unknown/missing;
+- top-ranked gap is digest/runtime identity, including pending WASM digest;
+- next gaps are fixture/corpus descriptors, native evidence, WASM evidence,
+  parity summaries, renderer-backed drift summaries, numeric drift thresholds,
+  and accepted root summary manifest;
+- owners are grouped across text-engine package, renderer-backed provider,
+  fixture/corpus owner, root JSON-safe summary owner, and future PDF/DOCX
+  renderer owner;
+- first rows to fill start with `v1-measure-digest-parity-summary`,
+  `v1-measure-thai-line-break-core`, and
+  `v1-measure-styled-inline-font-map`;
+- recommended next phase is Phase 188 Text Engine Runtime Identity Digest
+  Evidence Builder Gate.
+
+This phase intentionally does not produce real native/WASM evidence, execute
+rustybuzz/WASM/ICU4X in core, run renderer-backed measurement as production
+truth, replace `measureVNextText(...)`, mutate pagination, put raw evidence in
+root docs/tests, add production PDF/DOCX renderer work, add backend routes,
+storage, auth/authz, implement contenteditable, change package/document schema,
+add collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 188 Text Engine Runtime Identity Digest Evidence
+Builder Gate.
 
 ## Phase 12 Extraction Record
 

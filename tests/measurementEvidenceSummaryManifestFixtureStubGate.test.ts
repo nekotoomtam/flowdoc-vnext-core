@@ -234,14 +234,18 @@ describe("measurement evidence summary manifest fixture stub gate", () => {
     )
     expect(doc).toContain("fixtures/measurement-evidence-summary-manifest.stub.v1.json")
     expect(doc).toContain("Cannot Be Mistaken For Accepted Evidence")
-    expect(currentStatus).toContain("Status: updated after Phase 186.")
+    expect(currentStatus).toContain("Status: updated after Phase 187.")
     expect(currentStatus).toContain(
-      "Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate.",
+      "Phase 187: Measurement Evidence Coverage Gap Triage Gate.",
     )
-    expect(currentStatus).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
-    expect(nextPointer).toContain("Status: current after Phase 186.")
-    expect(nextPointer).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
-    expect(nextPointer).toContain("ranked missing evidence gaps")
+    expect(currentStatus).toContain(
+      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
+    )
+    expect(nextPointer).toContain("Status: current after Phase 187.")
+    expect(nextPointer).toContain(
+      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
+    )
+    expect(nextPointer).toContain("No real native/WASM evidence in root core.")
     expect(readme).toContain("Measurement evidence summary manifest fixture stub gate")
     expect(readme).toContain(
       "docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md",
@@ -255,7 +259,7 @@ describe("measurement evidence summary manifest fixture stub gate", () => {
     expect(roadmap).toContain(
       "## Phase 186: Measurement Evidence Summary Manifest Fixture Stub Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 186:")
+    expect(roadmap).toContain("Historical Phase 186 Handoff")
     expect(roadmap).toContain("Historical Phase 185 Handoff")
   })
 

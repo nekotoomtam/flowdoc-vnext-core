@@ -613,6 +613,9 @@ The package must remain runnable without any parent editor checkout.
   `fixtures/measurement-evidence-summary-manifest.stub.v1.json` with all
   release-gating fixture rows still unknown/missing, raw evidence excluded, and
   production measurement replacement blocked.
+- Measurement evidence coverage gap triage gate ranks the Phase 186 stub gaps
+  by owner and prerequisite order, selects digest/runtime identity as the first
+  blocker, and keeps default-measurer replacement blocked.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -621,7 +624,7 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 186
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 187
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -808,6 +811,8 @@ The package must remain runnable without any parent editor checkout.
   evidence summary manifest gate before summary fixture stubs
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`: Phase 186
   JSON-safe summary manifest fixture stub gate before evidence gap triage
+- `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`: Phase 187
+  measurement evidence coverage gap triage before digest evidence builder work
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

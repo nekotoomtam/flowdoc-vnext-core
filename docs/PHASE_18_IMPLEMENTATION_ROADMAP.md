@@ -5324,6 +5324,43 @@ Acceptance:
   package/document schema change, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 187: Measurement Evidence Coverage Gap Triage Gate
+
+Goal:
+
+- rank the Phase 186 stub manifest gaps, group them by owner, order
+  prerequisites, choose first rows to fill, and recommend the next
+  evidence-builder phase without producing real evidence.
+
+Deliverables:
+
+- `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/measurementEvidenceCoverageGapTriageGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- missing evidence is ranked across all release-gating rows;
+- gaps are grouped by text-engine package, renderer-backed provider,
+  fixture/corpus owner, root JSON-safe summary owner, and future PDF/DOCX
+  renderer owner;
+- prerequisite order is digest/runtime identity, native evidence, WASM
+  evidence, parity summaries, renderer-backed drift summaries, numeric drift
+  thresholds, and accepted summary manifest;
+- first fixture rows to fill are selected;
+- next phase is Phase 188: Text Engine Runtime Identity Digest Evidence
+  Builder Gate;
+- default-measurer replacement remains blocked;
+- no real native/WASM evidence, rustybuzz/WASM/ICU4X execution in core,
+  production renderer-backed measurement truth, `measureVNextText(...)`
+  replacement, pagination mutation, raw evidence in root tests/docs,
+  production PDF/DOCX renderer work, backend routes/storage/auth, production
+  contenteditable, package/document schema change, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5353,10 +5390,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 186:
+Current next step after Phase 187:
 
 ```text
-Phase 187: Measurement Evidence Coverage Gap Triage Gate
+Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate
 ```
 
 Reason:
@@ -5408,12 +5445,25 @@ Reason:
 - Phase 186 now adds a JSON-safe stub summary manifest with release-gating
   rows unknown/missing, raw evidence excluded, and default-measurer replacement
   blocked;
-- the next safe lane is ranking the missing evidence gaps, owners, and
-  prerequisites before filling evidence, executing external engines,
-  production measurement binding, or default-measurer replacement;
+- Phase 187 now ranks the missing evidence gaps, owners, and prerequisites and
+  selects digest/runtime identity as the first blocker;
+- the next safe lane is a text-engine-owned digest/runtime identity evidence
+  builder before native/WASM evidence, parity, drift, thresholds, accepted root
+  summaries, production measurement binding, or default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 186 Handoff
+
+Current next step after Phase 186:
+
+```text
+Phase 187: Measurement Evidence Coverage Gap Triage Gate
+```
+
+That was the Phase 186 handoff recommendation. Phase 187 is now complete, so
+it is no longer the current next step after Phase 187.
 
 ## Historical Phase 185 Handoff
 
