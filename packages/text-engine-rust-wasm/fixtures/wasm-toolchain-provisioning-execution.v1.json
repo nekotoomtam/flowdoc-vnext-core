@@ -1,0 +1,174 @@
+{
+  "executionSummaryId": "text-engine-wasm-toolchain-provisioning-execution-v1",
+  "sourceProvisioningBootstrapSummaryId": "text-engine-wasm-toolchain-provisioning-bootstrap-v1",
+  "sourceArtifactProductionSummaryId": "text-engine-wasm-artifact-production-v1",
+  "sourceReadinessSmokeSummaryId": "text-engine-wasm-toolchain-optional-readiness-smoke-v1",
+  "sourceDiagnosticSummaryId": "text-engine-wasm-toolchain-diagnostic-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildPath": "wasm-pack",
+  "execution": {
+    "allowedInEnvironment": true,
+    "executionSkipped": false,
+    "approvalMode": "sandbox-escalated-command-approval",
+    "networkAccessObserved": true,
+    "systemToolchainWriteObserved": true,
+    "rawCommandOutputIncluded": false,
+    "jsonSafe": true,
+    "rawEvidenceIncluded": false
+  },
+  "preExecutionReadiness": {
+    "command": "npm run wasm:readiness-smoke",
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "lastObservedExitCode": 0,
+    "wasmPackAvailable": false,
+    "wasmPackVersion": null,
+    "wasm32UnknownUnknownInstalled": false,
+    "toolchainReady": false,
+    "blockedReasons": [
+      "wasm-pack-not-available",
+      "wasm32-unknown-unknown-target-not-installed"
+    ]
+  },
+  "wasmPackProvisioning": {
+    "path": "cargo-install-locked",
+    "command": "cargo install wasm-pack --locked",
+    "attempted": true,
+    "exitCode": 1,
+    "status": "failed-rustc-version-incompatible",
+    "downloadedCandidateVersion": "wasm-pack v0.15.0",
+    "installed": false,
+    "capturedVersion": null,
+    "failureCategory": "rustc-version-too-old",
+    "failureSummary": "wasm-pack v0.15.0 dependency cargo-platform@0.3.3 requires rustc 1.91 while the current toolchain reports rustc 1.88.0.",
+    "rawOutputIncluded": false,
+    "acceptedAlternativesStillOpen": [
+      "upgrade-rust-toolchain",
+      "pinned-compatible-wasm-pack-version",
+      "pinned-ci-image",
+      "internal-tool-cache",
+      "preinstalled-developer-toolchain"
+    ]
+  },
+  "wasm32TargetProvisioning": {
+    "path": "rustup-target-add",
+    "command": "rustup target add wasm32-unknown-unknown",
+    "attempted": true,
+    "exitCode": 0,
+    "status": "installed",
+    "target": "wasm32-unknown-unknown",
+    "installed": true,
+    "rawOutputIncluded": false
+  },
+  "postExecutionReadiness": {
+    "command": "npm run wasm:readiness-smoke",
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "lastObservedExitCode": 0,
+    "cargoAvailable": true,
+    "rustupAvailable": true,
+    "wasmPackAvailable": false,
+    "wasmPackVersion": null,
+    "wasmPackVersionPolicyStatus": "blocked-until-rustc-compatible-or-accepted-alternative",
+    "wasmBindgenCliAvailable": false,
+    "installedRustTargets": [
+      "wasm32-unknown-unknown",
+      "x86_64-pc-windows-msvc"
+    ],
+    "wasm32UnknownUnknownInstalled": true,
+    "toolchainReady": false,
+    "canProduceArtifactNow": false,
+    "blockedReasons": [
+      "wasm-pack-not-available"
+    ]
+  },
+  "versionPolicy": {
+    "wasmPack": {
+      "captureCommand": "wasm-pack --version",
+      "currentVersion": null,
+      "status": "blocked-until-rustc-compatible-or-accepted-alternative",
+      "pinExactVersionBeforeArtifactProduction": true
+    },
+    "rustc": {
+      "captureCommand": "rustc --version",
+      "currentVersion": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+      "minimumObservedRequiredByLatestWasmPackDependency": "rustc 1.91",
+      "status": "too-old-for-wasm-pack-0.15.0",
+      "recordBeforeArtifactProduction": true
+    },
+    "cargo": {
+      "captureCommand": "cargo --version",
+      "currentVersion": "cargo 1.88.0 (873a06493 2025-05-10)",
+      "status": "observed",
+      "recordBeforeArtifactProduction": true
+    },
+    "rustTarget": {
+      "captureCommand": "rustup target list --installed",
+      "target": "wasm32-unknown-unknown",
+      "installedTargets": [
+        "wasm32-unknown-unknown",
+        "x86_64-pc-windows-msvc"
+      ],
+      "status": "installed",
+      "requiredBeforeArtifactProduction": true
+    }
+  },
+  "rootCheck": {
+    "requiresWasmPack": false,
+    "requiresWasm32UnknownUnknown": false,
+    "requiresProvisioningExecution": false,
+    "requiresReadinessSmoke": false,
+    "requiresArtifact": false,
+    "requiresWasmBuild": false
+  },
+  "artifactPolicy": {
+    "artifactProductionBlocked": true,
+    "canRetryArtifactProduction": false,
+    "artifactProduced": false,
+    "artifactPointer": null,
+    "artifactProductionStatus": "blocked-until-wasm-pack-available",
+    "fakeArtifactAllowed": false
+  },
+  "digestPolicy": {
+    "digestPinningBlocked": true,
+    "digestStatus": "pending",
+    "sha256": null,
+    "pinningStatus": "blocked-until-real-artifact-exists",
+    "fakeSha256Allowed": false
+  },
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "blockers": [
+    "wasm-pack-install-failed-rustc-version-incompatible",
+    "rustc-1.88.0-below-wasm-pack-0.15.0-dependency-requirement-1.91",
+    "wasm-pack-not-available",
+    "wasm-pack-version-unpinned",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "provisioningBootstrapSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json",
+    "provisioningExecutionSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json",
+    "postExecutionReadinessSource": "packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs",
+    "wasmArtifactPointer": null,
+    "artifactProduced": false,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedWork": "Text Engine WASM Toolchain Version Compatibility Gate",
+  "artifactProductionRetryRule": "retry-only-after-toolchainReady-true",
+  "phase196Rule": "blocked-until-real-artifact-exists"
+}

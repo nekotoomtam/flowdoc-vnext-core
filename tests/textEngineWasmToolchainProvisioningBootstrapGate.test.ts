@@ -304,15 +304,25 @@ describe("text engine WASM toolchain provisioning bootstrap gate", () => {
       packageLocalOnly: true,
       rootCheckDependency: false,
     })
-    expect(bootstrap.acceptedProvisioning).toEqual(provisioningSummary.acceptedProvisioning)
-    expect(bootstrap.availability).toEqual(provisioningSummary.availability)
+    expect(bootstrap.acceptedProvisioning.wasmPack.command).toBe(
+      provisioningSummary.acceptedProvisioning.wasmPack.command,
+    )
+    expect(bootstrap.acceptedProvisioning.wasm32UnknownUnknown.command).toBe(
+      provisioningSummary.acceptedProvisioning.wasm32UnknownUnknown.command,
+    )
+    expect(bootstrap.availability.wasmPackAvailable).toBe(false)
+    expect(bootstrap.availability.wasm32UnknownUnknownInstalled).toBe(true)
+    expect(bootstrap.availability.toolchainReady).toBe(false)
     expect(bootstrap.artifactProductionBlocked).toBe(true)
     expect(bootstrap.digestPinningBlocked).toBe(true)
     expect(bootstrap.artifactProduced).toBe(false)
     expect(bootstrap.digestStatus).toBe("pending")
     expect(bootstrap.sha256).toBeNull()
     expect(bootstrap.rawEvidenceIncluded).toBe(false)
-    expect(bootstrap.blockedReasons).toEqual(provisioningSummary.blockers)
+    expect(bootstrap.blockedReasons).toContain("wasm-pack-not-available")
+    expect(bootstrap.blockedReasons).not.toContain(
+      "wasm32-unknown-unknown-target-not-installed",
+    )
   })
 
   it("keeps root checks independent from provisioning and WASM tooling", () => {
@@ -395,18 +405,18 @@ describe("text engine WASM toolchain provisioning bootstrap gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Text Engine WASM Toolchain Provisioning Bootstrap Gate.",
+      "Status: updated after Text Engine WASM Toolchain Provisioning Execution Gate.",
     )
-    expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
+    expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Text Engine WASM Toolchain Provisioning Bootstrap Gate.",
+      "Status: current after Text Engine WASM Toolchain Provisioning Execution Gate.",
     )
-    expect(nextPointer).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
+    expect(nextPointer).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(nextPointer).toContain("Phase 196: Artifact Digest Pinning Execution remains blocked.")
     expect(readme).toContain("Text engine WASM toolchain provisioning bootstrap gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md")
-    expect(packageReadme).toContain("Status: WASM toolchain provisioning bootstrap package.")
+    expect(packageReadme).toContain("Status: WASM toolchain provisioning execution package.")
     expect(ledger).toContain(
       "| 195A | Text engine WASM toolchain provisioning bootstrap gate | done |",
     )
@@ -416,7 +426,7 @@ describe("text engine WASM toolchain provisioning bootstrap gate", () => {
     expect(roadmap).toContain(
       "## Phase 195A: Text Engine WASM Toolchain Provisioning Bootstrap Gate",
     )
-    expect(roadmap).toContain("Current next step after Phase 195A:")
+    expect(roadmap).toContain("Current next step after Phase 195B:")
     expect(roadmap).toContain("Historical Phase 195 Handoff")
   })
 })

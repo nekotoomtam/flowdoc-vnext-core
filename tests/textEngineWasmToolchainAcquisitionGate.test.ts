@@ -227,10 +227,10 @@ describe("text engine WASM toolchain acquisition gate", () => {
     expect(diagnostic.artifactProduced).toBe(false)
     expect(diagnostic.digestStatus).toBe("pending")
     expect(diagnostic.sha256).toBeNull()
-    expect(diagnostic.blockedReasons).toEqual([
-      "wasm-pack-not-available",
-      "wasm32-unknown-unknown-target-not-installed",
-    ])
+    expect(diagnostic.wasmPackAvailable).toBe(false)
+    expect(diagnostic.wasm32UnknownUnknownInstalled).toBe(true)
+    expect(diagnostic.toolchainReady).toBe(false)
+    expect(diagnostic.blockedReasons).toEqual(["wasm-pack-not-available"])
   })
 
   it("keeps root checks independent from wasm-pack, target provisioning, diagnostics, and artifacts", () => {
@@ -322,17 +322,17 @@ describe("text engine WASM toolchain acquisition gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
-    expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
+    expect(currentStatus).toContain("Status: updated after Text Engine WASM Toolchain Provisioning Execution Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Toolchain Provisioning Bootstrap Gate.")
-    expect(nextPointer).toContain("Text Engine WASM Toolchain Provisioning Execution Gate.")
+    expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
+    expect(nextPointer).toContain("Status: current after Text Engine WASM Toolchain Provisioning Execution Gate.")
+    expect(nextPointer).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(readme).toContain("Text engine WASM toolchain acquisition gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md")
     expect(ledger).toContain("| 193 | Text engine WASM toolchain acquisition gate | done |")
     expect(ledger).toContain("## Phase 193 Text Engine WASM Toolchain Acquisition Gate")
     expect(roadmap).toContain("## Phase 193: Text Engine WASM Toolchain Acquisition Gate")
-    expect(roadmap).toContain("Current next step after Phase 195A:")
+    expect(roadmap).toContain("Current next step after Phase 195B:")
     expect(roadmap).toContain("Historical Phase 195 Handoff")
   })
 })

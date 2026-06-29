@@ -5761,6 +5761,47 @@ Acceptance:
   package/document schema change, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 195B: Text Engine WASM Toolchain Provisioning Execution Gate
+
+Goal:
+
+- execute or explicitly gate the package-local provisioning path for
+  `wasm-pack` and `wasm32-unknown-unknown` while keeping root checks
+  independent.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmToolchainProvisioningExecutionGate.test.ts`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- provisioning execution permission is checked through sandbox escalation;
+- `cargo install wasm-pack --locked` is attempted;
+- `cargo install wasm-pack --locked` fails because `wasm-pack v0.15.0`
+  depends on `cargo-platform@0.3.3`, which requires `rustc 1.91`, while this
+  environment reports `rustc 1.88.0`;
+- `rustup target add wasm32-unknown-unknown` is attempted and succeeds;
+- post-execution `wasm:readiness-smoke` reports
+  `wasm32UnknownUnknownInstalled=true`, `wasmPackAvailable=false`, and
+  `toolchainReady=false`;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target,
+  provisioning execution, the readiness smoke, the WASM build, or an artifact;
+- artifact production remains blocked until `toolchainReady=true`;
+- digest pinning remains blocked until a real artifact exists;
+- no `wasm-pack` or `wasm32-unknown-unknown` requirement in root checks,
+  rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, fake WASM artifact,
+  fake sha256, `measureVNextText(...)` replacement, pagination mutation,
+  production renderer-backed measurement binding, production PDF/DOCX renderer
+  work, backend routes/storage/auth, production contenteditable,
+  package/document schema change, collaboration/offline behavior, or legacy
+  editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5790,10 +5831,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 195A:
+Current next step after Phase 195B:
 
 ```text
-Text Engine WASM Toolchain Provisioning Execution Gate
+Text Engine WASM Toolchain Version Compatibility Gate
 ```
 
 Reason:
@@ -5885,13 +5926,27 @@ Reason:
   adds package-local `wasm:bootstrap-plan`, records `rustc` and `cargo`
   version policy, keeps `wasm-pack` pending until installed, keeps
   `wasm32-unknown-unknown` missing, and keeps root checks independent;
+- Phase 195B now attempts provisioning execution, installs
+  `wasm32-unknown-unknown`, records `wasm-pack` installation failure because
+  `wasm-pack v0.15.0` requires a dependency needing `rustc 1.91` while this
+  environment reports `rustc 1.88.0`, and keeps root checks independent;
 - the current package-local digest remains pending, so the next safe lane is a
-  dedicated provisioning execution gate for `wasm-pack` and
-  `wasm32-unknown-unknown`, with Artifact Digest Pinning Execution still
-  blocked;
+  version compatibility/provisioning strategy gate before retrying artifact
+  production, with Artifact Digest Pinning Execution still blocked;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 195A Handoff
+
+Current next step after Phase 195A:
+
+```text
+Text Engine WASM Toolchain Provisioning Execution Gate
+```
+
+That was the Phase 195A handoff recommendation. Phase 195B is now complete,
+so it is no longer the current next step after Phase 195B.
 
 ## Historical Phase 195 Handoff
 

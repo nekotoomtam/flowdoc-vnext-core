@@ -1,39 +1,50 @@
 # Next Phase Pointer
 
-Status: current after Text Engine WASM Toolchain Provisioning Bootstrap Gate.
+Status: current after Text Engine WASM Toolchain Provisioning Execution Gate.
 
 ## Next Phase
 
-Text Engine WASM Toolchain Provisioning Execution Gate.
+Text Engine WASM Toolchain Version Compatibility Gate.
 
 Phase 196: Artifact Digest Pinning Execution remains blocked.
 
 ## Why This Is Next
 
-The provisioning bootstrap gate defines the package-local strategy without
-installing tooling:
+The provisioning execution gate attempted the accepted package-local
+provisioning path:
 
 ```text
-cd packages/text-engine-rust-wasm
-npm run wasm:bootstrap-plan
+cargo install wasm-pack --locked
+rustup target add wasm32-unknown-unknown
 ```
 
-The plan/check script records:
+Execution results:
 
-- `provisioningDecision.strategy="developer-or-ci-bootstrap"`;
-- `acceptedProvisioning.wasmPack.command="cargo install wasm-pack --locked"`;
-- `acceptedProvisioning.wasm32UnknownUnknown.command="rustup target add wasm32-unknown-unknown"`;
-- `versionPolicy.rustc.status="observed"`;
-- `versionPolicy.cargo.status="observed"`;
-- `versionPolicy.wasmPack.status="pending-until-installed"`;
-- `versionPolicy.rustTarget.status="missing"`;
-- `artifactProductionBlocked=true`;
-- `digestPinningBlocked=true`.
+- `rustup target add wasm32-unknown-unknown` succeeded;
+- `wasm32-unknown-unknown` is now installed;
+- `cargo install wasm-pack --locked` attempted to install
+  `wasm-pack v0.15.0`;
+- `wasm-pack` installation failed because dependency
+  `cargo-platform@0.3.3` requires `rustc 1.91`;
+- the current toolchain reports `rustc 1.88.0`;
+- post-execution `wasm:readiness-smoke` reports `toolchainReady=false`;
+- artifact production remains blocked;
+- digest pinning remains blocked.
 
-The next safe step is an execution gate that may run provisioning only with
-explicit developer/CI approval for network and system toolchain changes. After
-provisioning, `wasm:readiness-smoke` must report `toolchainReady=true` before
-artifact production can be retried.
+The next safe step is to choose the version/provisioning strategy before any
+artifact production retry:
+
+- upgrade Rust to a toolchain compatible with latest `wasm-pack`;
+- pin a compatible `wasm-pack` version explicitly;
+- use a pinned CI image;
+- use an internal tool cache;
+- use a preinstalled developer toolchain.
+
+Do not retry artifact production until package-local readiness reports:
+
+```text
+toolchainReady=true
+```
 
 Artifact Digest Pinning Execution must not proceed until the accepted artifact
 exists at:
@@ -50,6 +61,8 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json`
 - `packages/text-engine-rust-wasm/scripts/plan-wasm-toolchain-bootstrap.mjs`
@@ -88,12 +101,13 @@ blocked until later phases.
 
 ## Expected Output
 
-- approved or explicitly blocked provisioning execution for `wasm-pack`;
-- approved or explicitly blocked provisioning execution for
+- chosen strategy for `wasm-pack` compatibility:
+  Rust upgrade, pinned compatible `wasm-pack`, pinned CI image, internal cache,
+  or preinstalled toolchain;
+- explicit policy for whether local developer provisioning or CI is canonical;
+- version policy for `rustc`, `cargo`, `wasm-pack`, and
   `wasm32-unknown-unknown`;
-- exact installed `wasm-pack`, `rustc`, and `cargo` version capture if
-  provisioning succeeds;
-- `wasm:readiness-smoke` rerun after provisioning;
+- `wasm:readiness-smoke` remains the source for availability;
 - root checks remain independent from WASM tooling;
 - artifact production remains blocked until the toolchain is actually
   available;

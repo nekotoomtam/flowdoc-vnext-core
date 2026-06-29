@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Text Engine WASM Toolchain Provisioning Bootstrap Gate.
+Status: updated after Text Engine WASM Toolchain Provisioning Execution Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Text Engine WASM Toolchain Provisioning Bootstrap Gate.
+Text Engine WASM Toolchain Provisioning Execution Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -55,23 +55,29 @@ WASM Toolchain Provisioning Bootstrap Gate defines developer/CI bootstrap as
 the accepted provisioning strategy, adds a package-local `wasm:bootstrap-plan`
 plan/check script, captures `rustc` and `cargo` version policy, keeps
 `wasm-pack` pending until installed, keeps the `wasm32-unknown-unknown` target
-missing, and keeps artifact production plus digest pinning blocked.
+missing, and keeps artifact production plus digest pinning blocked. The Text
+Engine WASM Toolchain Provisioning Execution Gate then attempts the accepted
+provisioning path: `rustup target add wasm32-unknown-unknown` succeeds, but
+`cargo install wasm-pack --locked` fails while installing `wasm-pack v0.15.0`
+because dependency `cargo-platform@0.3.3` requires `rustc 1.91` and the
+current toolchain reports `rustc 1.88.0`. Post-execution
+`wasm:readiness-smoke` reports `wasm32UnknownUnknownInstalled=true`,
+`wasmPackAvailable=false`, and `toolchainReady=false`, so artifact production
+and digest pinning remain blocked.
 
 ## Current Next Phase
 
-Text Engine WASM Toolchain Provisioning Execution Gate.
+Text Engine WASM Toolchain Version Compatibility Gate.
 
 Goal:
 
-- execute the accepted package-local provisioning path only with explicit
-  developer/CI approval for network/system toolchain changes;
-- install or provide `wasm-pack` through `cargo install wasm-pack --locked`, a
-  pinned CI image, an internal tool cache, or a preinstalled developer
-  toolchain;
-- install or provide `wasm32-unknown-unknown` through
-  `rustup target add wasm32-unknown-unknown`, a pinned CI image, or a
-  preinstalled developer toolchain;
-- rerun `wasm:readiness-smoke` after provisioning;
+- choose whether the next `wasm-pack` provisioning retry uses a Rust upgrade,
+  an explicitly pinned compatible `wasm-pack` version, a pinned CI image, an
+  internal tool cache, or a preinstalled developer toolchain;
+- keep `wasm32-unknown-unknown` recorded as installed after the execution
+  gate;
+- rerun `wasm:readiness-smoke` only after the selected compatibility strategy
+  changes the package-local toolchain;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep Phase 196 Artifact Digest Pinning Execution blocked until the accepted
   artifact is actually produced under
@@ -226,6 +232,18 @@ It records `bootstrap.mode="plan-and-check-only"`,
 `versionPolicy.rustTarget.status="missing"`, `toolchainReady=false`,
 `artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
 
+The Text Engine WASM Toolchain Provisioning Execution Gate adds
+`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json`.
+It records that provisioning execution was allowed and attempted. The
+`wasm32-unknown-unknown` target was installed successfully, while
+`cargo install wasm-pack --locked` failed after selecting
+`wasm-pack v0.15.0` because `cargo-platform@0.3.3` requires `rustc 1.91`
+and the current toolchain is `rustc 1.88.0`. The post-execution readiness
+smoke records `wasm32UnknownUnknownInstalled=true`,
+`wasmPackAvailable=false`, `toolchainReady=false`,
+`artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
+Artifact production must not be retried until `toolchainReady=true`.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -243,6 +261,7 @@ It records `bootstrap.mode="plan-and-check-only"`,
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`

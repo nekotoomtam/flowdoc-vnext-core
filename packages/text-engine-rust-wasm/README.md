@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: WASM toolchain provisioning bootstrap package.
+Status: WASM toolchain provisioning execution package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -18,7 +18,11 @@ requiring an artifact. Phase 195 checks artifact production, does not run
 `wasm:build` while the toolchain is unavailable, and keeps artifact output plus
 digest pinning blocked. The provisioning bootstrap gate adds
 `wasm:bootstrap-plan` as a package-local plan/check script and keeps actual
-toolchain provisioning out of root checks.
+toolchain provisioning out of root checks. The provisioning execution gate
+then installs the `wasm32-unknown-unknown` Rust target successfully, but keeps
+artifact production blocked because `cargo install wasm-pack --locked` fails
+against the current `rustc 1.88.0` toolchain when `wasm-pack v0.15.0`
+requires a dependency needing `rustc 1.91`.
 
 Run the smoke from this package:
 
@@ -43,6 +47,7 @@ Allowed:
 - run `npm run wasm:check-toolchain` as an optional package-local diagnostic;
 - run `npm run wasm:readiness-smoke` as an optional readiness smoke;
 - run `npm run wasm:bootstrap-plan` as a package-local provisioning plan/check;
+- keep `wasm32-unknown-unknown` provisioning evidence package-local;
 - remain external to `src/**` core.
 
 Blocked:
