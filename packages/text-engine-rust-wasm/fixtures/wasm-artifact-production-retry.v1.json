@@ -1,0 +1,112 @@
+{
+  "productionRetrySummaryId": "text-engine-wasm-artifact-production-retry-v1",
+  "sourceRustUpgradeExecutionSummaryId": "text-engine-wasm-toolchain-rust-upgrade-execution-v1",
+  "sourceCompatibilitySummaryId": "text-engine-wasm-toolchain-version-compatibility-v1",
+  "sourceArtifactProductionSummaryId": "text-engine-wasm-artifact-production-v1",
+  "sourceDiagnosticSummaryId": "text-engine-wasm-toolchain-diagnostic-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildPath": "wasm-pack",
+  "readinessBeforeBuild": {
+    "command": "npm run wasm:readiness-smoke",
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "lastObservedExitCode": 0,
+    "wasmPackAvailable": true,
+    "wasmPackVersion": "wasm-pack 0.15.0",
+    "wasm32UnknownUnknownInstalled": true,
+    "toolchainReady": true,
+    "canProduceArtifactNow": true,
+    "artifactProduced": false,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false,
+    "blockedReasons": []
+  },
+  "buildAttempt": {
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "packageScript": "wasm:build",
+    "command": "npm run wasm:build",
+    "underlyingCommand": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
+    "attempted": true,
+    "exitCode": 1,
+    "status": "failed-missing-wasm-bindgen-dependency",
+    "compileStepReached": true,
+    "wasmPackPostCompileCheckFailed": true,
+    "failureSummary": "wasm-pack requires rust-shaper/Cargo.toml to include wasm-bindgen = \"0.2\" as a dependency before it can generate the package output.",
+    "rawOutputIncluded": false
+  },
+  "artifact": {
+    "artifactProduced": false,
+    "artifactExists": false,
+    "artifactPointer": null,
+    "retentionPointer": null,
+    "fileSizeBytes": null,
+    "rawArtifactIncluded": false,
+    "producedOnlyUnderAcceptedPackageLocalPkgPath": true,
+    "fakeArtifactAllowed": false,
+    "artifactProductionStatus": "blocked-not-produced"
+  },
+  "generatedPackageMetadataShape": {
+    "status": "not-generated",
+    "outputDirectory": "packages/text-engine-rust-wasm/pkg",
+    "acceptedWasmFile": "flowdoc_text_engine_bg.wasm",
+    "acceptedWasmExists": false,
+    "jsGlueExists": false,
+    "packageJsonExists": false,
+    "typescriptDeclarationExists": false,
+    "wasmBindgenDeclarationExists": false,
+    "observedPlaceholderFiles": [
+      ".gitignore"
+    ]
+  },
+  "rootCheck": {
+    "requiresWasmPack": false,
+    "requiresWasm32UnknownUnknown": false,
+    "requiresReadinessSmoke": false,
+    "requiresWasmBuild": false,
+    "requiresArtifact": false,
+    "requiresArtifactProductionRetry": false
+  },
+  "digestPolicy": {
+    "digestPinningBlocked": true,
+    "digestStatus": "pending",
+    "sha256": null,
+    "sha256ComputedThisPhase": false,
+    "pinningStatus": "blocked-until-real-artifact-exists",
+    "fakeSha256Allowed": false
+  },
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "blockers": [
+    "wasm-bindgen-dependency-missing-from-rust-shaper-cargo-toml",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "rustUpgradeExecutionSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json",
+    "artifactProductionRetrySummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json",
+    "wasmArtifactPointer": null,
+    "artifactProduced": false,
+    "fileSizeBytes": null,
+    "generatedPackageMetadataShape": "not-generated",
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedWork": "Text Engine WASM Bindgen Export Dependency Gate",
+  "artifactProductionRetryRule": "retry-after-package-local-wasm-bindgen-dependency-gate",
+  "phase196Rule": "blocked-until-real-artifact-exists"
+}

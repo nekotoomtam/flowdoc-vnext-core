@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Text Engine WASM Toolchain Rust Upgrade Execution Gate.
+Status: updated after Text Engine WASM Artifact Production Retry Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,12 +8,13 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Text Engine WASM Toolchain Rust Upgrade Execution Gate.
+Text Engine WASM Artifact Production Retry Gate.
 
 Recent completed gate markers retained for pointer guards:
 
 - Text Engine WASM Toolchain Version Compatibility Gate.
 - Text Engine WASM Toolchain Rust Upgrade Execution Gate.
+- Text Engine WASM Artifact Production Retry Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -83,22 +84,27 @@ succeeds, `wasm-pack --version` reports `wasm-pack 0.15.0`, and
 package-local `wasm:readiness-smoke` reports `toolchainReady=true` plus
 `canProduceArtifactNow=true`. No artifact is produced in that phase, so digest
 pinning remains blocked until a real
-`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` exists.
+`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` exists. The
+Text Engine WASM Artifact Production Retry Gate then confirms readiness still
+reports `toolchainReady=true`, runs package-local `wasm:build`, and records
+the exact blocker: `wasm-pack` fails after compile because
+`rust-shaper/Cargo.toml` does not include `wasm-bindgen = "0.2"`. The accepted
+artifact is still absent, generated package metadata is not produced, and
+Artifact Digest Pinning Execution remains blocked.
 
 ## Current Next Phase
 
-Text Engine WASM Artifact Production Retry Gate.
+Text Engine WASM Bindgen Export Dependency Gate.
 
 Goal:
 
-- use the Rust upgrade execution summary as source of truth;
-- run package-local `wasm:build` only because the readiness smoke reports
-  `toolchainReady=true`;
-- produce the artifact only under
-  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
-- record artifact existence, file size, and retention pointer in JSON-safe
-  package-local summary metadata;
-- if artifact production fails, record the exact package-local blocker;
+- use the artifact production retry summary as source of truth;
+- decide the package-local `wasm-bindgen` dependency and export boundary needed
+  by `wasm-pack`;
+- keep the dependency/export work package-local under
+  `packages/text-engine-rust-wasm`;
+- do not retry artifact production until that dependency/export blocker is
+  resolved in a dedicated phase;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep Phase 196 Artifact Digest Pinning Execution blocked until the accepted
   artifact is actually produced under
@@ -284,6 +290,16 @@ met, records `wasm-pack 0.15.0`, and reruns package-local
 `canProduceArtifactNow=true`. It does not produce the artifact or pin sha256;
 the next dedicated gate is artifact production retry.
 
+The Text Engine WASM Artifact Production Retry Gate adds
+`packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`.
+It confirms `wasmPackAvailable=true`, `wasmPackVersion="wasm-pack 0.15.0"`,
+`wasm32UnknownUnknownInstalled=true`, `toolchainReady=true`, and
+`canProduceArtifactNow=true`, then runs package-local `wasm:build`. The build
+fails with `failed-missing-wasm-bindgen-dependency` because
+`rust-shaper/Cargo.toml` lacks `wasm-bindgen = "0.2"`. The accepted artifact
+is still absent, generated package metadata is not generated, `fileSizeBytes`
+remains `null`, `digestStatus="pending"`, and `sha256=null`.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -301,6 +317,7 @@ the next dedicated gate is artifact production retry.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`

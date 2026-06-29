@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: WASM toolchain Rust upgrade execution package.
+Status: WASM artifact production retry package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -28,7 +28,10 @@ CI image as the longer-term reproducible artifact-production strategy. The
 Rust upgrade execution gate upgrades stable Rust to `rustc 1.96.0`, keeps
 `wasm32-unknown-unknown` installed, installs `wasm-pack 0.15.0`, and records
 package-local readiness as `toolchainReady=true` while still leaving artifact
-production and digest pinning to later dedicated gates.
+production and digest pinning to later dedicated gates. The artifact
+production retry gate then runs package-local `wasm:build`, records
+`failed-missing-wasm-bindgen-dependency`, keeps the accepted artifact absent,
+and points next to a package-local `wasm-bindgen` dependency/export boundary.
 
 Run the smoke from this package:
 
@@ -56,6 +59,8 @@ Allowed:
 - keep `wasm32-unknown-unknown` provisioning evidence package-local;
 - run `rustup update stable` and `cargo install wasm-pack --locked` only in
   explicit package-local toolchain execution gates;
+- attempt `npm run wasm:build` only inside explicit package-local artifact
+  production gates;
 - remain external to `src/**` core.
 
 Blocked:

@@ -1,27 +1,35 @@
 # Next Phase Pointer
 
-Status: current after Text Engine WASM Toolchain Rust Upgrade Execution Gate.
+Status: current after Text Engine WASM Artifact Production Retry Gate.
 
 ## Next Phase
 
-Text Engine WASM Artifact Production Retry Gate.
+Text Engine WASM Bindgen Export Dependency Gate.
 
 Phase 196: Artifact Digest Pinning Execution remains blocked.
 
 ## Why This Is Next
 
-The Rust upgrade execution gate completed the accepted immediate strategy from
-the version compatibility gate:
+The artifact production retry gate confirmed package-local readiness:
 
-- `rustup update stable` succeeded;
-- `rustc --version` reports `rustc 1.96.0 (ac68faa20 2026-05-25)`;
-- `cargo --version` reports `cargo 1.96.0 (30a34c682 2026-05-25)`;
-- `wasm32-unknown-unknown` remains installed;
-- `cargo install wasm-pack --locked` was retried only after the Rust `1.91+`
-  requirement was satisfied;
-- `wasm-pack --version` reports `wasm-pack 0.15.0`;
-- package-local `wasm:readiness-smoke` now reports `toolchainReady=true` and
-  `canProduceArtifactNow=true`.
+- `wasmPackAvailable=true`;
+- `wasmPackVersion="wasm-pack 0.15.0"`;
+- `wasm32UnknownUnknownInstalled=true`;
+- `toolchainReady=true`;
+- `canProduceArtifactNow=true`.
+
+It then ran the accepted package-local `wasm:build` command:
+
+```text
+wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine
+```
+
+The build failed after the crate compiled for the WASM target because
+`wasm-pack` requires `rust-shaper/Cargo.toml` to include:
+
+```text
+wasm-bindgen = "0.2"
+```
 
 The accepted artifact still does not exist:
 
@@ -29,17 +37,13 @@ The accepted artifact still does not exist:
 packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm
 ```
 
-The next safe step is a dedicated artifact production retry gate. That gate may
-run the package-local `wasm:build` command only because the package-local
-readiness smoke reports `toolchainReady=true`. The artifact must be produced
-only under:
+No generated JS glue, package metadata, TypeScript declarations, or accepted
+WASM artifact were produced. Digest pinning must not proceed while the
+artifact is absent.
 
-```text
-packages/text-engine-rust-wasm/pkg/
-```
-
-Artifact Digest Pinning Execution must not proceed until a real artifact exists
-at the accepted path.
+The next safe step is a dedicated package-local dependency/export gate that
+decides the `wasm-bindgen` dependency and exported WASM boundary needed by
+`wasm-pack`, without changing root checks or production measurement binding.
 
 Native evidence, WASM evidence, native/WASM parity summaries,
 renderer-backed drift summaries, numeric thresholds, accepted manifests,
@@ -49,20 +53,18 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`
+- `packages/text-engine-rust-wasm/package.json`
+- `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`
+- `packages/text-engine-rust-wasm/rust-shaper/src/lib.rs`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
-- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`
-- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production.v1.json`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`
-- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`
 - `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`
-- `packages/text-engine-rust-wasm/package.json`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
 
@@ -75,7 +77,7 @@ blocked until later phases.
 - No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.
 - No fake WASM artifact.
 - No fake sha256.
-- No artifact digest pinning while the accepted artifact is absent.
+- No sha256 compute or pinning while the accepted artifact is absent.
 - No default measurement replacement.
 - No pagination mutation.
 - No renderer-backed measurement as production truth.
@@ -89,16 +91,16 @@ blocked until later phases.
 
 ## Expected Output
 
-- package-local artifact production retry decision;
-- if `toolchainReady=true`, run the package-local `wasm:build` command;
-- produce the artifact only under
-  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
-- if production fails, record the exact package-local blocker;
-- record artifact existence, file size, and retention pointer in a JSON-safe
-  package-local summary;
-- keep digest status `pending` unless a later explicit pinning phase computes
-  sha256 from a real artifact;
-- root checks remain independent from WASM tooling;
+- package-local `wasm-bindgen` dependency/export boundary decision;
+- no root check dependency on `wasm-bindgen`, `wasm-pack`, the WASM target, the
+  readiness smoke, the WASM build, or an artifact;
+- explicit decision whether the package-local crate can add
+  `wasm-bindgen = "0.2"`;
+- explicit exported boundary shape needed for `wasm-pack` package generation;
+- artifact production remains blocked until that dependency/export blocker is
+  resolved;
+- digest status remains `pending` unless a later explicit pinning phase
+  computes sha256 from a real artifact;
 - explicit blocker status for native evidence, WASM evidence, parity, drift,
   thresholds, accepted manifest, and default-measurer replacement;
 - explicit non-work;

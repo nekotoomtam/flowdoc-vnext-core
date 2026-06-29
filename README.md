@@ -667,6 +667,10 @@ The package must remain runnable without any parent editor checkout.
   installs `wasm-pack 0.15.0` after the Rust 1.91+ condition passes, records
   `toolchainReady=true`, and keeps artifact production plus digest pinning for
   later dedicated gates.
+- Text engine WASM artifact production retry gate runs package-local
+  `wasm:build` after readiness reports `toolchainReady=true`, records the
+  exact `wasm-bindgen` dependency blocker, and keeps the accepted artifact plus
+  digest pinning blocked.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -675,8 +679,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after the toolchain
-  Rust upgrade execution gate
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after the artifact
+  production retry gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -898,6 +902,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`: text
   engine WASM toolchain Rust upgrade execution gate before artifact production
   retry work
+- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`: text engine WASM
+  artifact production retry gate before package-local `wasm-bindgen`
+  dependency/export work
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -1157,7 +1164,7 @@ The package must remain runnable without any parent editor checkout.
   native/WASM evidence, parity
   summaries, renderer-backed drift summaries, numeric drift thresholds,
   accepted root summary manifest, or production measurement replacement beyond
-  the toolchain Rust upgrade execution gate
+  the artifact production retry gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan
