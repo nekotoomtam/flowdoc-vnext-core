@@ -187,6 +187,7 @@ Parent goal:
 | 178 | PDF renderer decision gate | done | `docs/PDF_RENDERER_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererDecisionGate.test.ts`; `tests/artifactJobExecutionSlice.test.ts` |
 | 179 | Measurement rollout gate | done | `docs/MEASUREMENT_ROLLOUT_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementRolloutGate.test.ts`; `tests/pdfRendererDecisionGate.test.ts` |
 | 180 | Internal alpha vertical slice | done | `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/index.ts`; `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaVerticalSlice.test.ts`; `tests/measurementRolloutGate.test.ts` |
+| 181 | Internal alpha close audit and documentation consolidation gate | done | `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaCloseAuditConsolidation.test.ts`; `tests/internalAlphaVerticalSlice.test.ts` |
 
 ## Current Rule
 
@@ -4636,6 +4637,27 @@ collaboration/offline behavior, or legacy editor runtime copy.
 
 Next recommended phase: Phase 181 Internal Alpha Close Audit And Documentation
 Consolidation Gate.
+
+## Phase 181 Internal Alpha Close Audit And Documentation Consolidation Gate
+
+Phase 181 closes the internal-alpha evidence lane and adds compact current-state
+docs:
+
+- close audit: `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`;
+- current status: `docs/CURRENT_STATUS.md`;
+- next phase pointer: `docs/NEXT_PHASE_POINTER.md`;
+- audited evidence covers Phases 172-180;
+- proven internal-alpha path remains bounded evidence, not production
+  readiness;
+- production blockers remain explicit across input, backend/storage,
+  measurement, PDF/DOCX, collaboration/offline, and schema work.
+
+This phase intentionally does not implement production contenteditable,
+backend routes, auth/authz, production storage, production PDF/DOCX rendering,
+default measurement replacement, package/document schema changes,
+collaboration/offline behavior, or legacy editor runtime copy.
+
+Next recommended phase: Phase 182 V1 Hardening Backlog Triage Gate.
 
 ## Phase 12 Extraction Record
 

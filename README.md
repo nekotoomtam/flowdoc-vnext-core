@@ -593,6 +593,9 @@ The package must remain runnable without any parent editor checkout.
 - Internal alpha vertical slice runs one bounded path from opening the fixture
   through active text-block edit, save/reload, PDF spike generation, artifact
   storage/retrieval, and status report while keeping production claims blocked.
+- Internal alpha close audit and documentation consolidation gate closes the
+  Phase 172-180 evidence lane and adds compact current-state pointers for daily
+  work without deleting the historical audit trail.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -601,6 +604,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 181
+- `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -773,6 +778,8 @@ The package must remain runnable without any parent editor checkout.
   the internal alpha vertical slice
 - `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`: Phase 180 internal alpha vertical
   slice before close audit and documentation consolidation
+- `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`: Phase 181
+  close audit and documentation consolidation gate before v1 hardening triage
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

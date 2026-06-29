@@ -5122,6 +5122,35 @@ Acceptance:
   measurement replacement, package/document schema change, collaboration/
   offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 181: Internal Alpha Close Audit And Documentation Consolidation Gate
+
+Goal:
+
+- close the internal-alpha evidence lane from Phases 172-180 and consolidate
+  current-state documentation into compact entry points.
+
+Deliverables:
+
+- `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`;
+- `docs/CURRENT_STATUS.md`;
+- `docs/NEXT_PHASE_POINTER.md`;
+- `tests/internalAlphaCloseAuditConsolidation.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 180 roadmap guard update.
+
+Acceptance:
+
+- Phases 172-180 evidence is audited;
+- proven internal-alpha path is explicit;
+- production blockers remain visible;
+- compact current-state docs are added without deleting or moving historical
+  phase evidence;
+- next phase is Phase 182: V1 Hardening Backlog Triage Gate;
+- no production contenteditable, full-document contenteditable, backend route,
+  auth/authz, production storage, production PDF/DOCX renderer, default
+  measurement replacement, package/document schema change, collaboration/
+  offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5151,10 +5180,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 180:
+Current next step after Phase 181:
 
 ```text
-Phase 181: Internal Alpha Close Audit And Documentation Consolidation Gate
+Phase 182: V1 Hardening Backlog Triage Gate
 ```
 
 Reason:
@@ -5192,12 +5221,24 @@ Reason:
 - Phase 180 now runs one bounded internal-alpha vertical slice from open
   document through edit, save, reload, PDF spike generation, artifact storage,
   retrieval, and status report;
-- the next safe lane is closing the internal-alpha evidence pass and
-  consolidating current-state documentation so daily work has a compact source
-  of truth;
+- Phase 181 now closes the internal-alpha evidence pass and consolidates
+  current-state documentation so daily work has a compact source of truth;
+- the next safe lane is ranking production hardening blockers and choosing the
+  first production hardening lane;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 180 Handoff
+
+Current next step after Phase 180:
+
+```text
+Phase 181: Internal Alpha Close Audit And Documentation Consolidation Gate
+```
+
+That was the Phase 180 handoff recommendation. Phase 181 is now complete, so
+it is no longer the current next step after Phase 181.
 
 ## Historical Phase 179 Handoff
 

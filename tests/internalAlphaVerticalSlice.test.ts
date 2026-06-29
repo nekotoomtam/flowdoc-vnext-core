@@ -204,7 +204,7 @@ describe("internal alpha vertical slice", () => {
     ])
   })
 
-  it("documents Phase 180 and advances the current roadmap to Phase 181", () => {
+  it("documents Phase 180 and preserves the historical Phase 181 handoff", () => {
     const source = readText("../packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts")
     const doc = readText("../docs/INTERNAL_ALPHA_VERTICAL_SLICE.md")
     const phase179Test = readText("./measurementRolloutGate.test.ts")
@@ -235,8 +235,10 @@ describe("internal alpha vertical slice", () => {
     expect(readme).toContain("docs/INTERNAL_ALPHA_VERTICAL_SLICE.md")
     expect(ledger).toContain("| 180 | Internal alpha vertical slice | done |")
     expect(roadmap).toContain("## Phase 180: Internal Alpha Vertical Slice")
+    expect(roadmap).toContain("## Historical Phase 180 Handoff")
     expect(roadmap).toContain("Current next step after Phase 180:")
     expect(roadmap).toContain("Phase 181: Internal Alpha Close Audit And Documentation Consolidation Gate")
+    expect(roadmap).toContain("Phase 181 is now complete")
     expect(phase179Test).toContain("historical Phase 179 handoff")
   })
 })
