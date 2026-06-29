@@ -190,6 +190,7 @@ Parent goal:
 | 181 | Internal alpha close audit and documentation consolidation gate | done | `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaCloseAuditConsolidation.test.ts`; `tests/internalAlphaVerticalSlice.test.ts` |
 | 182 | V1 hardening backlog triage gate | done | `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1HardeningBacklogTriageGate.test.ts`; `tests/internalAlphaCloseAuditConsolidation.test.ts` |
 | 183 | Measurement digest parity drift hardening gate | done | `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementDigestParityDriftHardeningGate.test.ts`; `tests/v1HardeningBacklogTriageGate.test.ts` |
+| 184 | V1 measurement fixture evidence matrix gate | done | `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts`; `tests/measurementDigestParityDriftHardeningGate.test.ts` |
 
 ## Current Rule
 
@@ -4700,6 +4701,26 @@ storage, auth/authz, implement contenteditable, change package/document schema,
 add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 184 V1 Measurement Fixture Evidence Matrix Gate.
+
+## Phase 184 V1 Measurement Fixture Evidence Matrix Gate
+
+Phase 184 selects the v1 measurement fixture evidence matrix:
+
+- matrix id: `v1-measurement-fixture-evidence-matrix-v1`;
+- corpus id: `v1-measurement-evidence-corpus-v1`;
+- release-gating and exploratory fixture ids;
+- profile requirements for the baseline alias and production identity profile;
+- required JSON-safe summary facts for glyph, cluster, text range, line boxes,
+  total size, line count, drift, and parity evidence;
+- missing-evidence states for accepted, warning, blocked, and unknown.
+
+This phase intentionally does not replace `measureVNextText(...)`, mutate
+pagination, bind production renderer-backed measurement, execute external text
+engines in core, add production PDF/DOCX renderer work, add backend routes,
+storage, auth/authz, implement contenteditable, change package/document schema,
+add collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 185 Measurement Evidence Summary Manifest Gate.
 
 ## Phase 12 Extraction Record
 

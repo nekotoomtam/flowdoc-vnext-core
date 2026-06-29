@@ -603,6 +603,9 @@ The package must remain runnable without any parent editor checkout.
 - Measurement digest parity drift hardening gate defines digest identity,
   native/WASM parity, drift status, v1 fixture evidence, and default-measurer
   replacement blockers without binding production measurement.
+- V1 measurement fixture evidence matrix gate selects stable corpus and
+  fixture ids, release-gating coverage, profile requirements, and required
+  JSON-safe summary facts while keeping raw evidence outside core.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -611,7 +614,7 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 183
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 184
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -792,6 +795,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`: Phase 183
   measurement digest/parity/drift hardening gate before v1 fixture evidence
   matrix work
+- `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`: Phase 184 v1
+  measurement fixture evidence matrix gate before summary manifest work
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness

@@ -5213,6 +5213,42 @@ Acceptance:
   auth, production contenteditable, package/document schema change,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 184: V1 Measurement Fixture Evidence Matrix Gate
+
+Goal:
+
+- select and map the v1 measurement fixture/scenario matrix required by Phase
+  183 without filling raw evidence or binding production measurement.
+
+Deliverables:
+
+- `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/v1MeasurementFixtureEvidenceMatrixGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 183 current-pointer guard update.
+
+Acceptance:
+
+- stable matrix, corpus, policy, and fixture ids are selected;
+- required v1 fixture categories are mapped to release-gating or exploratory
+  coverage;
+- each release-gating fixture is mapped to measurement profile requirements;
+- required facts are defined for glyph facts, cluster map, text range, line
+  boxes, total width/height, line count, drift summary, and native/WASM parity
+  summary;
+- missing-evidence status is defined for accepted, warning, blocked, and
+  unknown;
+- raw evidence remains outside core and root tests/docs consume only JSON-safe
+  summaries;
+- next phase is Phase 185: Measurement Evidence Summary Manifest Gate;
+- no `measureVNextText(...)` default replacement, pagination mutation,
+  production renderer-backed measurement binding, external text-engine
+  execution in core, production PDF/DOCX renderer work, backend routes/storage/
+  auth, production contenteditable, package/document schema change,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5242,10 +5278,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 183:
+Current next step after Phase 184:
 
 ```text
-Phase 184: V1 Measurement Fixture Evidence Matrix Gate
+Phase 185: Measurement Evidence Summary Manifest Gate
 ```
 
 Reason:
@@ -5290,12 +5326,25 @@ Reason:
 - Phase 183 now defines digest identity, native/WASM parity criteria, drift
   policy, required v1 evidence categories, and blockers before replacing
   `measureVNextText(...)`;
-- the next safe lane is selecting and mapping the concrete v1 measurement
-  fixture matrix before any production measurement binding or default-measurer
-  replacement;
+- Phase 184 now selects stable corpus/fixture ids, release-gating coverage,
+  profile requirements, required summary facts, and missing-evidence states;
+- the next safe lane is defining the JSON-safe measurement evidence summary
+  manifest before filling evidence, executing external engines, production
+  measurement binding, or default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 183 Handoff
+
+Current next step after Phase 183:
+
+```text
+Phase 184: V1 Measurement Fixture Evidence Matrix Gate
+```
+
+That was the Phase 183 handoff recommendation. Phase 184 is now complete, so
+it is no longer the current next step after Phase 184.
 
 ## Historical Phase 182 Handoff
 

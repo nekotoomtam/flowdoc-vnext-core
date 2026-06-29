@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 183.
+Status: updated after Phase 184.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,23 +8,26 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 183: Measurement Digest Parity Drift Hardening Gate.
+Phase 184: V1 Measurement Fixture Evidence Matrix Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
 rollout / digest / parity / drift as the first production hardening lane.
 Phase 183 defines the digest, parity, drift, fixture-evidence, and replacement
-blocker policy for that lane. It does not claim production readiness.
+blocker policy for that lane. Phase 184 selects the v1 measurement fixture
+matrix and required JSON-safe summary facts. It does not claim production
+readiness.
 
 ## Current Next Phase
 
-Phase 184: V1 Measurement Fixture Evidence Matrix Gate.
+Phase 185: Measurement Evidence Summary Manifest Gate.
 
 Goal:
 
-- select and map the required v1 measurement fixture/scenario matrix;
-- keep digest, parity, drift, and fixture evidence tied to stable
-  `measurementProfileId` and corpus ids;
+- define the JSON-safe summary manifest shape for the Phase 184 fixture
+  matrix;
+- carry digest, parity, drift, missing-evidence status, and retention pointers
+  without raw evidence in root tests/docs;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -66,6 +69,9 @@ native/WASM parity is matching, drift thresholds are accepted, required v1
 measurement fixture evidence is present, and a later binding phase explicitly
 accepts default-measurer replacement.
 
+Phase 184 maps the release-gating evidence matrix under
+`v1-measurement-evidence-corpus-v1` and keeps raw evidence outside core.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -81,6 +87,7 @@ accepts default-measurer replacement.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
 - `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`
 - `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`
@@ -88,5 +95,6 @@ accepts default-measurer replacement.
 - `docs/MEASUREMENT_ROLLOUT_GATE.md`
 - `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
 - `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
+- `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`
 - `docs/PHASE_LEDGER.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
