@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 193.
+Status: updated after Phase 194.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 193: Text Engine WASM Toolchain Acquisition Gate.
+Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -42,19 +42,25 @@ are still unavailable. Phase 193 defines the acquisition/provisioning path for
 `wasm-pack` and `wasm32-unknown-unknown`, adds a package-local
 `wasm:check-toolchain` diagnostic that reports JSON-safe availability and
 exits zero, keeps the `wasm-pack` version pending until installed, and keeps
-artifact production plus digest pinning blocked.
+artifact production plus digest pinning blocked. Phase 194 adds the optional
+package-local `wasm:readiness-smoke` wrapper, runs it successfully with exit
+code `0`, records JSON-safe unavailable/blocked toolchain status, and keeps
+artifact production plus digest pinning blocked because `wasm-pack` and
+`wasm32-unknown-unknown` are still unavailable.
 
 ## Current Next Phase
 
-Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.
+Phase 195: Text Engine WASM Artifact Production Gate.
 
 Goal:
 
-- run the package-local toolchain diagnostic as an optional readiness smoke;
-- record JSON-safe availability summary without requiring an artifact if the
-  toolchain remains unavailable;
-- keep artifact production and sha256 pinning blocked unless the toolchain is
-  actually available;
+- check the accepted package-local artifact build path from Phase 194;
+- produce the accepted artifact under
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` only if
+  the package-local toolchain is actually available;
+- if the toolchain is still unavailable, record the blocker clearly or propose
+  a dedicated provisioning/bootstrap phase;
+- do not continue to digest pinning unless a real artifact exists;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
 - keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
   accepted manifests blocked until their dedicated phases;
@@ -166,6 +172,18 @@ records `wasm-pack` acquisition as developer/CI bootstrap outside root checks,
 `canProduceArtifactNow=false`, `artifactPointer=null`, `digestStatus="pending"`,
 and `sha256=null`.
 
+Phase 194 adds
+`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`
+and package script `wasm:readiness-smoke`. It records that the smoke ran and
+exited zero, `smoke.status="completed-blocked"`,
+`availability.availabilityStatus="unavailable-blocked"`,
+`wasmPackAvailable=false`, `wasm32UnknownUnknownInstalled=false`,
+`toolchainReady=false`, `canProduceArtifactNow=false`,
+`artifactProduced=false`, `artifactPointer=null`, `digestStatus="pending"`,
+and `sha256=null`. Phase 195 may build only if the package-local toolchain is
+actually available; otherwise it must record the blocker or propose a
+dedicated provisioning/bootstrap phase.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -183,6 +201,7 @@ and `sha256=null`.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`
 - `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`

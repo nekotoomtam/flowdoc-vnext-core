@@ -641,6 +641,11 @@ The package must remain runnable without any parent editor checkout.
   for `wasm-pack`, `rustup target add wasm32-unknown-unknown` for target
   provisioning, adds package-local `wasm:check-toolchain`, and keeps artifact
   production plus digest pinning blocked while root checks stay independent.
+- Text engine WASM toolchain optional readiness smoke wraps the package-local
+  diagnostic with `wasm:readiness-smoke`, records JSON-safe
+  unavailable/blocked toolchain status, and keeps artifact production plus
+  digest pinning blocked because `wasm-pack` and `wasm32-unknown-unknown` are
+  still unavailable.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -649,7 +654,7 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 193
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 194
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -854,6 +859,9 @@ The package must remain runnable without any parent editor checkout.
   engine WASM build toolchain readiness gate before toolchain acquisition work
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`: Phase 193 text
   engine WASM toolchain acquisition gate before optional readiness smoke work
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`: Phase 194
+  text engine WASM toolchain optional readiness smoke before artifact
+  production work
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -1113,7 +1121,7 @@ The package must remain runnable without any parent editor checkout.
   native/WASM evidence, parity
   summaries, renderer-backed drift summaries, numeric drift thresholds,
   accepted root summary manifest, or production measurement replacement beyond
-  the Phase 193 toolchain acquisition gate
+  the Phase 194 optional readiness smoke gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

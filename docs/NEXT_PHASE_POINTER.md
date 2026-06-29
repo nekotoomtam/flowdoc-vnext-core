@@ -1,34 +1,36 @@
 # Next Phase Pointer
 
-Status: current after Phase 193.
+Status: current after Phase 194.
 
 ## Next Phase
 
-Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.
+Phase 195: Text Engine WASM Artifact Production Gate.
 
 ## Why This Is Next
 
-Phase 193 defines how the package-local WASM toolchain becomes available
-without making root checks depend on it:
+Phase 194 runs the package-local WASM toolchain diagnostic through an optional
+readiness smoke without making root checks depend on it:
 
 ```text
 cd packages/text-engine-rust-wasm
-npm run wasm:check-toolchain
+npm run wasm:readiness-smoke
 ```
 
 ```text
-packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs
+packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json
 ```
 
-The diagnostic reports `wasm-pack` and `wasm32-unknown-unknown` availability
-as JSON-safe status and exits zero. Phase 193 keeps `wasm-pack` acquisition as
-developer/CI bootstrap outside root checks, keeps exact `wasm-pack` version
-pinning pending until installed, and keeps `rustup target add
-wasm32-unknown-unknown` as the accepted target provisioning path.
+The smoke exits zero and records JSON-safe unavailable/blocked status:
+`wasmPackAvailable=false`, `wasm32UnknownUnknownInstalled=false`,
+`toolchainReady=false`, `canProduceArtifactNow=false`,
+`artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
 
-The next safe step is an optional package-local readiness smoke that runs this
-diagnostic and records JSON-safe availability. If the toolchain is still
-unavailable, the smoke must report blockers without requiring an artifact.
+The next safe step is the WASM artifact production gate. If the toolchain is
+actually available, Phase 195 may produce the accepted artifact under
+`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`. If the
+toolchain is still unavailable, Phase 195 must record the blocker clearly or
+propose a dedicated provisioning/bootstrap phase. Do not continue to digest
+pinning while the artifact is absent.
 
 Native evidence, WASM evidence, native/WASM parity summaries,
 renderer-backed drift summaries, numeric thresholds, accepted manifests,
@@ -38,6 +40,8 @@ blocked until later phases.
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`
 - `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`
 - `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-acquisition.v1.json`
 - `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`
@@ -78,14 +82,14 @@ blocked until later phases.
 
 ## Expected Output
 
-- package-local WASM toolchain acquisition/provisioning decision;
-- package-local optional diagnostic/readiness smoke summary;
-- explicit status for `wasm-pack` and `wasm32-unknown-unknown` availability;
-- package-local summary update if safe;
-- artifact output remains absent unless the environment is ready and artifact
-  production is explicitly in scope;
-- digest status remains `pending` unless a real artifact exists and sha256 is
-  explicitly in scope;
+- package-local WASM artifact production decision;
+- accepted artifact path remains
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- artifact output is produced only if the package-local toolchain is actually
+  available;
+- if the toolchain is unavailable, explicit blocker status or a dedicated
+  provisioning/bootstrap recommendation;
+- digest status remains `pending` unless a real artifact exists;
 - explicit blocker status for native evidence, WASM evidence, parity, drift,
   thresholds, accepted manifest, and default-measurer replacement;
 - explicit non-work;

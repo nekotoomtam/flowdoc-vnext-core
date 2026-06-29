@@ -5622,6 +5622,52 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke
+
+Goal:
+
+- run the package-local toolchain diagnostic as an optional readiness smoke and
+  record JSON-safe availability without requiring root checks to depend on
+  WASM tooling.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`;
+- `packages/text-engine-rust-wasm/package.json`;
+- `packages/text-engine-rust-wasm/README.md`;
+- `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineWasmToolchainOptionalReadinessSmoke.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- package-local `wasm:readiness-smoke` wraps `wasm:check-toolchain`;
+- the smoke runs and exits zero;
+- JSON-safe availability summary is recorded;
+- missing `wasm-pack` and missing `wasm32-unknown-unknown` are unavailable
+  blockers, not root check failures;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target, the
+  readiness smoke, or a WASM artifact;
+- no artifact is produced under `packages/text-engine-rust-wasm/pkg/`;
+- digest remains `pending` with `sha256=null`;
+- package-local optional readiness smoke summary fixture is JSON-safe;
+- root docs/tests consume summaries and retention pointers only;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted summary manifest, production
+  binding, and default-measurer replacement remain blocked;
+- next phase is Phase 195: Text Engine WASM Artifact Production Gate;
+- no `wasm-pack` or `wasm32-unknown-unknown` requirement in root checks,
+  rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, raw native/WASM
+  evidence in root tests/docs, fake WASM artifact, fake sha256,
+  `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5651,10 +5697,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 193:
+Current next step after Phase 194:
 
 ```text
-Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke
+Phase 195: Text Engine WASM Artifact Production Gate
 ```
 
 Reason:
@@ -5732,14 +5778,29 @@ Reason:
   path, pending exact `wasm-pack` version policy, and package-local
   `wasm:check-toolchain` diagnostic metadata that exits zero with JSON-safe
   unavailable status;
+- Phase 194 now runs the optional package-local readiness smoke, records exit
+  code `0`, keeps `wasmPackAvailable=false`,
+  `wasm32UnknownUnknownInstalled=false`, `toolchainReady=false`,
+  `canProduceArtifactNow=false`, `artifactProduced=false`,
+  `digestStatus="pending"`, and `sha256=null`;
 - the current package-local digest remains pending, so the next safe lane is
-  running an optional package-local readiness smoke before artifact
-  production, sha256 pinning, native/WASM evidence, parity, drift, thresholds,
-  accepted root summaries, production measurement binding, or
-  default-measurer replacement;
+  the artifact production gate. If the toolchain remains unavailable, Phase
+  195 must record the blocker or propose a dedicated provisioning/bootstrap
+  phase instead of producing a fake artifact or continuing to digest pinning;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 193 Handoff
+
+Current next step after Phase 193:
+
+```text
+Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke
+```
+
+That was the Phase 193 handoff recommendation. Phase 194 is now complete, so
+it is no longer the current next step after Phase 194.
 
 ## Historical Phase 192 Handoff
 

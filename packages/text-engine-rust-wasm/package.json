@@ -14,6 +14,7 @@
     "rustybuzz:build": "cargo build --manifest-path rust-shaper/Cargo.toml",
     "wasm:build": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
     "wasm:check-toolchain": "node scripts/check-wasm-toolchain.mjs",
+    "wasm:readiness-smoke": "npm run wasm:check-toolchain",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "npm run type-check"
   },

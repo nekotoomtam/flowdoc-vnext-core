@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: Phase 192 WASM build toolchain readiness package.
+Status: Phase 194 WASM toolchain optional readiness smoke package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -12,7 +12,9 @@ adds a minimal WASM-ready crate target shape and package-local `wasm:build`
 script metadata, but keeps artifact production blocked until `wasm-pack` and
 `wasm32-unknown-unknown` are available. Phase 193 adds a package-local
 toolchain diagnostic script that reports availability as JSON without making
-root checks depend on WASM tooling.
+root checks depend on WASM tooling. Phase 194 adds an optional package-local
+readiness smoke wrapper that records unavailable toolchain status without
+requiring an artifact.
 
 Run the smoke from this package:
 
@@ -35,6 +37,7 @@ Allowed:
 - expose a minimal `cdylib`/`rlib` readiness marker from `rust-shaper/src/lib.rs`;
 - keep the package-local `wasm:build` command out of root checks;
 - run `npm run wasm:check-toolchain` as an optional package-local diagnostic;
+- run `npm run wasm:readiness-smoke` as an optional readiness smoke;
 - remain external to `src/**` core.
 
 Blocked:

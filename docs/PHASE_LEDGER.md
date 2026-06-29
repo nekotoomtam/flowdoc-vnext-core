@@ -200,6 +200,7 @@ Parent goal:
 | 191 | Text engine WASM artifact build output gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactBuildOutputGate.test.ts`; pointer guard tests |
 | 192 | Text engine WASM build toolchain readiness gate | done | `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`; `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`; `packages/text-engine-rust-wasm/rust-shaper/src/lib.rs`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `packages/text-engine-rust-wasm/fixtures/wasm-build-toolchain-readiness.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmBuildToolchainReadinessGate.test.ts`; pointer guard tests |
 | 193 | Text engine WASM toolchain acquisition gate | done | `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`; `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-acquisition.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmToolchainAcquisitionGate.test.ts`; pointer guard tests |
+| 194 | Text engine WASM toolchain optional readiness smoke | done | `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`; `packages/text-engine-rust-wasm/package.json`; `packages/text-engine-rust-wasm/README.md`; `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmToolchainOptionalReadinessSmoke.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5027,6 +5028,43 @@ schema, add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended phase: Phase 194 Text Engine WASM Toolchain Optional
 Readiness Smoke.
+
+## Phase 194 Text Engine WASM Toolchain Optional Readiness Smoke
+
+Phase 194 runs the package-local toolchain diagnostic through an optional
+readiness smoke without making root checks depend on it:
+
+- readiness smoke summary:
+  `packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`;
+- package script: `wasm:readiness-smoke`;
+- wrapper command: `npm run wasm:check-toolchain`;
+- smoke exit policy: `always-zero`;
+- observed smoke exit code: `0`;
+- `wasm-pack` is unavailable;
+- `wasm32-unknown-unknown` is not installed;
+- `toolchainReady=false`;
+- `canProduceArtifactNow=false`;
+- `artifactProduced=false`;
+- `artifactPointer=null`;
+- `digestStatus="pending"`;
+- `sha256=null`;
+- root `npm.cmd run check` does not require `wasm-pack`, the WASM target, the
+  readiness smoke, or an artifact;
+- raw native/WASM evidence remains outside root tests/docs;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement remain blocked.
+
+This phase intentionally does not require `wasm-pack` or
+`wasm32-unknown-unknown` in root checks, execute rustybuzz/WASM/ICU4X in
+`@flowdoc/vnext-core`, put raw native/WASM evidence in root tests/docs,
+produce a fake WASM artifact, pin a fake sha256, produce an artifact, replace
+`measureVNextText(...)`, mutate pagination, bind production renderer-backed
+measurement, add production PDF/DOCX renderer work, add backend routes,
+storage, auth/authz, implement contenteditable, change package/document
+schema, add collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended phase: Phase 195 Text Engine WASM Artifact Production Gate.
 
 ## Phase 12 Extraction Record
 

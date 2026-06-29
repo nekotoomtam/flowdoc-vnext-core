@@ -1,0 +1,85 @@
+{
+  "smokeSummaryId": "text-engine-wasm-toolchain-optional-readiness-smoke-v1",
+  "sourceAcquisitionSummaryId": "text-engine-wasm-toolchain-acquisition-v1",
+  "sourceDiagnosticSummaryId": "text-engine-wasm-toolchain-diagnostic-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+  "acceptedBuildPath": "wasm-pack",
+  "smoke": {
+    "packageScript": "wasm:readiness-smoke",
+    "command": "npm run wasm:readiness-smoke",
+    "workingDirectory": "packages/text-engine-rust-wasm",
+    "wrapsPackageScript": "wasm:check-toolchain",
+    "diagnosticScriptPath": "packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs",
+    "exitPolicy": "always-zero",
+    "lastObservedExitCode": 0,
+    "status": "completed-blocked",
+    "jsonSafe": true,
+    "rawEvidenceIncluded": false,
+    "rootCheckRequiresSmoke": false
+  },
+  "availability": {
+    "cargoAvailable": true,
+    "rustupAvailable": true,
+    "wasmPackAvailable": false,
+    "wasmPackVersion": null,
+    "wasmPackVersionPolicyStatus": "pending-until-installed",
+    "wasmBindgenCliAvailable": false,
+    "installedRustTargets": ["x86_64-pc-windows-msvc"],
+    "wasm32UnknownUnknownInstalled": false,
+    "toolchainReady": false,
+    "availabilityStatus": "unavailable-blocked"
+  },
+  "rootCheck": {
+    "requiresWasmPack": false,
+    "requiresWasm32UnknownUnknown": false,
+    "requiresReadinessSmoke": false,
+    "requiresArtifact": false
+  },
+  "artifactPolicy": {
+    "canProduceArtifactNow": false,
+    "artifactProduced": false,
+    "artifactPointer": null,
+    "artifactProductionStatus": "blocked-until-toolchain-available",
+    "fakeArtifactAllowed": false,
+    "phase195PolicyIfUnavailable": "record-blocker-or-propose-dedicated-provisioning-bootstrap"
+  },
+  "digestPolicy": {
+    "digestStatus": "pending",
+    "sha256": null,
+    "pinningStatus": "blocked-until-real-artifact-exists",
+    "fakeSha256Allowed": false,
+    "doNotProceedToDigestPinning": true
+  },
+  "rawEvidenceIncluded": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "nativeEvidenceStatus": "blocked",
+  "wasmEvidenceStatus": "blocked",
+  "nativeWasmParityStatus": "not-run",
+  "rendererBackedDriftStatus": "unknown",
+  "numericDriftThresholdStatus": "blocked",
+  "acceptedManifestStatus": "blocked",
+  "blockers": [
+    "wasm-pack-not-available",
+    "wasm-pack-version-unpinned",
+    "wasm32-unknown-unknown-target-not-installed",
+    "accepted-artifact-path-not-produced",
+    "sha256-not-computed"
+  ],
+  "jsonSafeRootSummary": {
+    "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+    "corpusId": "v1-measurement-evidence-corpus-v1",
+    "policyRevision": "v1-measurement-evidence-policy-v1",
+    "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+    "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+    "wasmToolchainDiagnosticPointer": "packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs",
+    "readinessSmokeSummaryPointer": "packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json",
+    "wasmArtifactPointer": null,
+    "digestStatus": "pending",
+    "sha256": null,
+    "rawEvidenceIncluded": false
+  },
+  "nextRecommendedPhase": "Phase 195: Text Engine WASM Artifact Production Gate"
+}

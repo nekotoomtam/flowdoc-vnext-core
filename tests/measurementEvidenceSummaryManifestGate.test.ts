@@ -79,14 +79,14 @@ describe("measurement evidence summary manifest gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 193.")
-    expect(currentStatus).toContain("Phase 193: Text Engine WASM Toolchain Acquisition Gate.")
+    expect(currentStatus).toContain("Status: updated after Phase 194.")
     expect(currentStatus).toContain("Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.")
+    expect(currentStatus).toContain("Phase 195: Text Engine WASM Artifact Production Gate.")
     expect(currentStatus).toContain("measurement-evidence-summary-manifest-v1")
     expect(currentStatus).toContain("Raw native/WASM/renderer evidence remains outside root tests/docs.")
 
-    expect(nextPointer).toContain("Status: current after Phase 193.")
-    expect(nextPointer).toContain("Phase 194: Text Engine WASM Toolchain Optional Readiness Smoke.")
+    expect(nextPointer).toContain("Status: current after Phase 194.")
+    expect(nextPointer).toContain("Phase 195: Text Engine WASM Artifact Production Gate.")
     expect(nextPointer).toContain("No raw evidence in root tests/docs.")
     expect(nextPointer).toContain("No raw evidence in root tests/docs.")
   })
