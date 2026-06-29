@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after WASM Evidence Summary Gate.
+Status: updated after Native/WASM Parity Summary Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-WASM Evidence Summary Gate.
+Native/WASM Parity Summary Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -19,6 +19,7 @@ Recent completed gate markers retained for pointer guards:
 - Artifact Digest Pinning Execution.
 - Native Evidence Summary Gate.
 - WASM Evidence Summary Gate.
+- Native/WASM Parity Summary Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -129,25 +130,31 @@ paragraph subset. It uses the same pinned digest context, keeps raw WASM output
 outside root docs/tests, and keeps native/WASM parity, renderer-backed drift,
 numeric thresholds, accepted manifests, production binding, and
 default-measurer replacement blocked.
+Native/WASM Parity Summary Gate then compares the native and WASM summary
+metadata for that same subset. It records matching digest context, matrix id,
+corpus id, policy revision, measurement profile id, output shape, fixture ids,
+scenario ids, and required fact coverage, while keeping raw native/WASM output
+outside root docs/tests. Renderer-backed drift, numeric thresholds, accepted
+manifests, production binding, and default-measurer replacement remain
+blocked.
 
 ## Current Next Phase
 
-Native/WASM Parity Summary Gate.
+Renderer-backed Drift Summary Gate.
 
 Goal:
 
-- use WASM Evidence Summary Gate as source of truth;
-- compare the native and WASM evidence summary metadata for the same Thai
+- use Native/WASM Parity Summary Gate as source of truth;
+- produce a JSON-safe renderer-backed drift summary for the same Thai
   line-break core and canonical Latin paragraph subset;
-- require matching pinned digest context, matrix id, corpus id, policy
-  revision, measurement profile id, output shape, fixture ids, and scenario
-  ids;
+- require the matching native/WASM parity summary, pinned digest context,
+  matrix id, corpus id, policy revision, measurement profile id, output shape,
+  fixture ids, and scenario ids;
 - keep raw native/WASM evidence outside root tests/docs;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
-- keep renderer-backed drift, numeric thresholds, accepted manifests,
-  production binding, and default-measurer replacement blocked until dedicated
-  phases;
+- keep numeric thresholds, accepted manifests, production binding, and
+  default-measurer replacement blocked until dedicated phases;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -375,6 +382,7 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`
 - `docs/WASM_EVIDENCE_SUMMARY_GATE.md`
 - `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`
 - `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`

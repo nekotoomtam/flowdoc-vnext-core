@@ -295,7 +295,7 @@ describe("vNext text engine adapter package scaffold", () => {
     expect(boundaryDoc).toContain("Status: Phase 112 package scaffold.")
     expect(boundaryDoc).toContain("packages/text-engine-rust-wasm")
     expect(boundaryDoc).toContain("mock evidence")
-    expect(packageReadme).toContain("Status: WASM evidence summary metadata package.")
+    expect(packageReadme).toContain("Status: Native/WASM parity summary metadata package.")
     expect(packageReadme).toContain("TypeScript mapper")
     expect(packageReadme).toContain("production measurement binding blocked")
     expect(readme).toContain("Text engine adapter package scaffold")

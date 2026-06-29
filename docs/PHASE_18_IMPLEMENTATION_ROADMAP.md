@@ -6135,6 +6135,47 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 199: Native/WASM Parity Summary Gate
+
+Goal:
+
+- compare the native and WASM evidence summary metadata for the same Thai
+  line-break core and canonical Latin paragraph subset.
+
+Deliverables:
+
+- `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`;
+- `tests/nativeWasmParitySummaryGate.test.ts`;
+- `packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms native evidence summary exists;
+- confirms WASM evidence summary exists;
+- records sha256 as
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- requires matching matrix id `v1-measurement-fixture-evidence-matrix-v1`;
+- requires matching corpus id `v1-measurement-evidence-corpus-v1`;
+- requires matching policy revision `v1-measurement-evidence-policy-v1`;
+- requires matching output shape `glyph-line-box-v1`;
+- requires matching measurement profile id, fixture ids, and scenario ids;
+- compares metadata coverage for glyph facts, cluster map, text range, line
+  boxes, total size, and line count;
+- records parity status as `matching-summary-metadata`;
+- keeps raw native/WASM evidence outside root docs/tests;
+- keeps root checks independent from `wasm-pack` and the WASM target;
+- keeps renderer-backed drift, numeric thresholds, accepted manifest,
+  production binding, and default-measurer replacement blocked;
+- no `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6164,10 +6205,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 198:
+Current next step after Phase 199:
 
 ```text
-Native/WASM Parity Summary Gate
+Renderer-backed Drift Summary Gate
 ```
 
 Reason:
@@ -6295,12 +6336,26 @@ Reason:
 - Phase 198 now adds matching package-local JSON-safe WASM evidence summary
   metadata for the same fixture subset and pinned digest context, while keeping
   raw WASM output outside root docs/tests;
-- the current native and WASM summary metadata exists for the same subset and
-  pinned digest context, so the next safe lane is Native/WASM Parity Summary
-  Gate;
+- Phase 199 now compares the native and WASM summary metadata for the same
+  fixture subset, records matching digest/profile/fixture/scenario/fact
+  coverage metadata, and keeps raw native/WASM output outside root docs/tests;
+- the current parity summary metadata is matching for the same subset and
+  pinned digest context, so the next safe lane is Renderer-backed Drift
+  Summary Gate;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 198 Handoff
+
+Current next step after Phase 198:
+
+```text
+Native/WASM Parity Summary Gate
+```
+
+That was the Phase 198 handoff recommendation. Phase 199 is now complete,
+so it is no longer the current next step after Phase 199.
 
 ## Historical Phase 197 Handoff
 

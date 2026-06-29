@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: WASM evidence summary metadata package.
+Status: Native/WASM parity summary metadata package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -52,6 +52,11 @@ with JSON-safe metadata for the same Thai line-break core and canonical Latin
 paragraph subset, while keeping raw WASM output outside root docs/tests and
 leaving native/WASM parity, drift, accepted manifests, and production
 measurement binding for later gates.
+Native/WASM Parity Summary Gate then adds
+`fixtures/native-wasm-parity-summary.v1.json` with JSON-safe metadata comparing
+native and WASM summary coverage for that same subset, while keeping raw
+native/WASM output outside root docs/tests and leaving renderer drift,
+accepted manifests, and production measurement binding for later gates.
 
 Run the smoke from this package:
 
@@ -91,6 +96,8 @@ Allowed:
   Latin subset without putting raw native output in root docs/tests;
 - retain JSON-safe WASM evidence summary metadata for the same first Thai and
   Latin subset without putting raw WASM output in root docs/tests;
+- retain JSON-safe native/WASM parity summary metadata for the same first Thai
+  and Latin subset without putting raw native/WASM output in root docs/tests;
 - remain external to `src/**` core.
 
 Blocked:
@@ -100,8 +107,8 @@ Blocked:
 - WASM artifact loading until its dedicated gate;
 - raw native evidence in root docs/tests;
 - raw WASM evidence in root docs/tests;
-- native/WASM parity, drift, accepted manifests, and production measurement
-  binding until their dedicated gates;
+- renderer drift, accepted manifests, and production measurement binding until
+  their dedicated gates;
 - core font-file reads;
 - production measurement binding;
 - pagination measurer replacement.

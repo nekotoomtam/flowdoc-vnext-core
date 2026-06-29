@@ -435,14 +435,14 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after WASM Evidence Summary Gate.",
+      "Status: updated after Native/WASM Parity Summary Gate.",
     )
     expect(currentStatus).toContain(
       "Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after WASM Evidence Summary Gate.",
+      "Status: current after Native/WASM Parity Summary Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
@@ -450,7 +450,7 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(readme).toContain(
       "docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md",
     )
-    expect(packageReadme).toContain("Status: WASM evidence summary metadata package.")
+    expect(packageReadme).toContain("Status: Native/WASM parity summary metadata package.")
     expect(ledger).toContain(
       "| 195D | Text engine WASM toolchain Rust upgrade execution gate | done |",
     )

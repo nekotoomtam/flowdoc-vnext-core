@@ -688,6 +688,11 @@ The package must remain runnable without any parent editor checkout.
   to the same pinned digest context, and keeps raw WASM evidence outside root
   docs/tests while blocking native/WASM parity, drift, thresholds, accepted
   manifests, and production measurement replacement.
+- Native/WASM parity summary gate compares the native and WASM summary
+  metadata for that same subset, records matching digest context, fixture ids,
+  scenario ids, and required fact coverage, and keeps raw native/WASM evidence
+  outside root docs/tests while blocking renderer drift, thresholds, accepted
+  manifests, and production measurement replacement.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -700,8 +705,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after WASM evidence
-  summary
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after native/WASM
+  parity summary
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -932,6 +937,8 @@ The package must remain runnable without any parent editor checkout.
   gate for the first Thai line-break and Latin paragraph subset
 - `docs/WASM_EVIDENCE_SUMMARY_GATE.md`: WASM evidence summary metadata gate
   for the same first Thai line-break and Latin paragraph subset
+- `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`: native/WASM parity summary
+  metadata gate for the same first Thai line-break and Latin paragraph subset
 - `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`: text engine WASM
   bindgen export dependency gate before retrying artifact production
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
@@ -1189,10 +1196,10 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
-- raw native/WASM evidence values in root docs/tests, parity summaries,
-  renderer-backed drift summaries, numeric drift thresholds, accepted root
-  summary manifest, WASM artifact loading, or production measurement
-  replacement beyond the WASM evidence summary gate
+- raw native/WASM evidence values in root docs/tests, renderer-backed drift
+  summaries, numeric drift thresholds, accepted root summary manifest, WASM
+  artifact loading, or production measurement replacement beyond the
+  native/WASM parity summary gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

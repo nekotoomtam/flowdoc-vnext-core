@@ -1,19 +1,20 @@
 # Next Phase Pointer
 
-Status: current after WASM Evidence Summary Gate.
+Status: current after Native/WASM Parity Summary Gate.
 
 ## Next Phase
 
-Native/WASM Parity Summary Gate.
+Renderer-backed Drift Summary Gate.
 
 ## Why This Is Next
 
-WASM Evidence Summary Gate used Native Evidence Summary Gate as source of
-truth and added package-local WASM summary metadata for the same minimal
+Native/WASM Parity Summary Gate used WASM Evidence Summary Gate as source of
+truth and compared the native/WASM summary metadata for the same minimal
 fixture subset.
 
 Previous source gates retained for traceability:
 
+- WASM Evidence Summary Gate.
 - Native Evidence Summary Gate.
 - Artifact Digest Pinning Execution.
 
@@ -22,9 +23,10 @@ The summary fixtures are:
 ```text
 packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json
 packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json
+packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json
 ```
 
-Both summaries are attached to the pinned digest context:
+The parity summary is attached to the pinned digest context:
 
 - artifact path:
   `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
@@ -42,17 +44,19 @@ The covered subset is:
 - `v1-measure-thai-line-break-core`;
 - `v1-measure-latin-product-paragraphs`.
 
-The next safe step is a native/WASM parity summary for the same subset and the
-same pinned digest context. Renderer-backed drift, numeric thresholds,
-accepted manifests, production binding, and default-measurer replacement remain
-blocked until later phases.
+The parity status is `matching-summary-metadata` for this subset. The next
+safe step is a renderer-backed drift summary for the same subset and the same
+pinned digest context. Numeric thresholds, accepted manifests, production
+binding, and default-measurer replacement remain blocked until later phases.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`
 - `docs/WASM_EVIDENCE_SUMMARY_GATE.md`
 - `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`
 - `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`
+- `packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`
@@ -60,20 +64,23 @@ blocked until later phases.
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
+- `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
 
-## Native/WASM Parity Summary Gate Scope
+## Renderer-Backed Drift Summary Gate Scope
 
-- Compare JSON-safe native and WASM evidence summaries for the same minimal
+- Produce a JSON-safe renderer-backed drift summary for the same minimal
   subset.
-- Require matching matrix id, corpus id, policy revision, measurement profile
-  id, output shape, fixture ids, scenario ids, and pinned artifact digest
-  context.
-- Keep raw native/WASM evidence outside root docs/tests.
+- Require matching parity summary metadata before recording drift summary
+  metadata.
+- Use the same matrix id, corpus id, policy revision, measurement profile id,
+  output shape, fixture ids, scenario ids, and pinned artifact digest context.
+- Keep raw native/WASM/renderer evidence outside root docs/tests.
 - Keep root summaries bounded to JSON-safe facts and retention pointers.
-- Block parity acceptance on stale digest, profile mismatch, subset mismatch,
-  fixture mismatch, scenario mismatch, or missing summary metadata.
-- Keep renderer-backed drift, numeric thresholds, accepted manifest,
-  production binding, and default-measurer replacement blocked.
+- Block drift summary on stale digest, profile mismatch, subset mismatch,
+  fixture mismatch, scenario mismatch, parity mismatch, or missing summary
+  metadata.
+- Keep numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement blocked.
 
 ## Hard Limits
 
@@ -82,11 +89,16 @@ blocked until later phases.
 - No root check dependency on artifact production.
 - No raw evidence in root tests/docs.
 - No raw native/WASM evidence in root tests/docs.
+- No raw native/WASM evidence in root docs/tests.
 - No raw native evidence in root docs/tests.
 - No raw WASM evidence in root docs/tests.
+- No raw renderer evidence in root docs/tests.
 - No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.
 - No fake WASM evidence.
 - No fake parity.
+- No fake renderer drift.
+- No numeric threshold acceptance.
+- No accepted summary manifest.
 - No default measurement replacement.
 - No pagination mutation.
 - No renderer-backed measurement as production truth.
@@ -100,11 +112,10 @@ blocked until later phases.
 
 ## Expected Output
 
-- JSON-safe native/WASM parity summary for the same smallest accepted subset;
-- explicit match/mismatch status for digest, profile, fixture ids, scenario
-  ids, and summary fact coverage;
-- explicit blocked status for drift, thresholds, accepted manifest, production
-  binding, and default-measurer replacement;
+- JSON-safe renderer-backed drift summary for the same smallest accepted
+  subset;
+- explicit blocked status for numeric thresholds, accepted manifest,
+  production binding, and default-measurer replacement;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
 - updated current-status pointer.
@@ -115,5 +126,6 @@ blocked until later phases.
 - Artifact Digest Pinning Execution.
 - Native Evidence Summary Gate.
 - WASM Evidence Summary Gate.
+- Native/WASM Parity Summary Gate.
 - Historical production retry summary retained `sha256ComputedThisPhase=false`;
   digest pinning happened only after the accepted artifact existed.

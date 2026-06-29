@@ -164,10 +164,10 @@ describe("measurement evidence coverage gap triage gate", () => {
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after WASM Evidence Summary Gate.")
+    expect(currentStatus).toContain("Status: updated after Native/WASM Parity Summary Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after WASM Evidence Summary Gate.")
+    expect(nextPointer).toContain("Status: current after Native/WASM Parity Summary Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
     expect(readme).toContain("Measurement evidence coverage gap triage gate")

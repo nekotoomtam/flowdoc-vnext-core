@@ -400,18 +400,18 @@ describe("text engine WASM artifact production retry gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after WASM Evidence Summary Gate.",
+      "Status: updated after Native/WASM Parity Summary Gate.",
     )
     expect(currentStatus).toContain("Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain("fileSizeBytes=13782")
     expect(nextPointer).toContain(
-      "Status: current after WASM Evidence Summary Gate.",
+      "Status: current after Native/WASM Parity Summary Gate.",
     )
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(nextPointer).toContain("sha256ComputedThisPhase=false")
     expect(readme).toContain("Text engine WASM artifact production retry gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md")
-    expect(packageReadme).toContain("Status: WASM evidence summary metadata package.")
+    expect(packageReadme).toContain("Status: Native/WASM parity summary metadata package.")
     expect(ledger).toContain(
       "| 195G | Text engine WASM artifact production retry after bindgen gate | done |",
     )
