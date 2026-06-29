@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Text Engine WASM Artifact Production Retry Gate.
+Status: updated after Artifact Digest Pinning Execution.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Text Engine WASM Artifact Production Retry Gate.
+Artifact Digest Pinning Execution.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -16,6 +16,7 @@ Recent completed gate markers retained for pointer guards:
 - Text Engine WASM Toolchain Rust Upgrade Execution Gate.
 - Text Engine WASM Bindgen Export Dependency Gate.
 - Text Engine WASM Artifact Production Retry Gate.
+- Artifact Digest Pinning Execution.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -105,24 +106,32 @@ and produces the accepted artifact at
 `fileSizeBytes=13782`. Generated JS/TypeScript/package metadata shape is
 recorded in the package-local summary, while `digestStatus="pending"` and
 `sha256=null` remain unchanged because sha256 pinning is not in this phase.
+Artifact Digest Pinning Execution then confirms the accepted package-local
+artifact exists, computes the real artifact sha256 as
+`4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`, validates
+the matrix id, corpus id, policy revision, measurement profile id, output
+shape, and package-local artifact path, and pins the package-local runtime
+identity digest summary. Native evidence, WASM evidence, native/WASM parity,
+renderer-backed drift, numeric thresholds, accepted manifests, production
+binding, and default-measurer replacement remain blocked.
 
 ## Current Next Phase
 
-Artifact Digest Pinning Execution.
+Native Evidence Summary Gate.
 
 Goal:
 
-- use the artifact production retry summary as source of truth;
-- confirm the accepted artifact exists at
-  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
-- compute sha256 only in the dedicated digest pinning phase;
-- pin the digest only if the artifact path, lowercase 64-character hex sha256,
-  matrix id, corpus id, policy revision, measurement profile id, and output
-  shape context match policy;
+- use Artifact Digest Pinning Execution as source of truth;
+- produce the smallest JSON-safe native evidence summary subset first,
+  starting with Thai line-break core and canonical Latin paragraph coverage;
+- keep raw native evidence outside root tests/docs;
+- keep the pinned digest context attached to matrix id, corpus id, policy
+  revision, measurement profile id, and output shape;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
-- keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
-  accepted manifests blocked until their dedicated phases;
+- keep WASM evidence, parity, drift, numeric thresholds, accepted manifests,
+  production binding, and default-measurer replacement blocked until their
+  dedicated phases;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path

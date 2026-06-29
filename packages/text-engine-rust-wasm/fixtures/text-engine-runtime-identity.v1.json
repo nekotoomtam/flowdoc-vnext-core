@@ -11,8 +11,8 @@
     "icu4xRevision": "icu4x-planned",
     "icu4xDataRevision": "icu4x-data-planned",
     "wasmArtifact": {
-      "digestStatus": "pending",
-      "sha256": null
+      "digestStatus": "pinned",
+      "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44"
     }
   },
   "fontAssets": [
@@ -35,5 +35,5 @@
     "wasmTargets": ["browser-wasm", "worker-wasm"],
     "comparedFacts": ["glyph-id", "glyph-advance", "cluster-map", "line-box"]
   },
-  "warnings": ["wasm-digest-pending", "native-wasm-comparison-not-run"]
+  "warnings": ["native-wasm-comparison-not-run"]
 }

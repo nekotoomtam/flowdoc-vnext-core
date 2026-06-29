@@ -38,9 +38,11 @@ type PopulationSummary = {
     artifactKind: "wasm"
     candidatePathsChecked: string[]
     artifactFound: boolean
-    sha256: string | null
+    artifactPointer: string
+    fileSizeBytes: number
+    sha256: string
   }
-  decision: "retained-pending"
+  decision: "pinned-after-artifact-digest-pinning-execution"
   canPinDigestNow: boolean
   digestStatus: "pending" | "pinned" | "missing" | "stale"
   sha256: string | null
@@ -101,27 +103,31 @@ const populationSummary = readJson<PopulationSummary>(
 )
 
 describe("text engine runtime identity digest evidence population gate", () => {
-  it("retains the package-local digest as pending because no WASM artifact is present", () => {
+  it("records the package-local digest as pinned after the artifact exists", () => {
     expect(populationSummary.populationSummaryId).toBe(
       "text-engine-runtime-identity-digest-evidence-population-v1",
     )
-    expect(populationSummary.decision).toBe("retained-pending")
-    expect(populationSummary.canPinDigestNow).toBe(false)
-    expect(populationSummary.digestStatus).toBe("pending")
-    expect(populationSummary.sha256).toBeNull()
+    expect(populationSummary.decision).toBe("pinned-after-artifact-digest-pinning-execution")
+    expect(populationSummary.canPinDigestNow).toBe(true)
+    expect(populationSummary.digestStatus).toBe("pinned")
+    expect(populationSummary.sha256).toMatch(/^[a-f0-9]{64}$/u)
     expect(populationSummary.artifactDiscovery.artifactKind).toBe("wasm")
-    expect(populationSummary.artifactDiscovery.artifactFound).toBe(false)
-    expect(populationSummary.artifactDiscovery.sha256).toBeNull()
+    expect(populationSummary.artifactDiscovery.artifactFound).toBe(true)
+    expect(populationSummary.artifactDiscovery.artifactPointer).toBe(
+      "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    )
+    expect(populationSummary.artifactDiscovery.fileSizeBytes).toBe(13782)
+    expect(populationSummary.artifactDiscovery.sha256).toBe(populationSummary.sha256)
     expect(populationSummary.reasons).toEqual([
-      "no-package-local-wasm-artifact-present",
-      "runtime-identity-manifest-wasm-digest-pending",
-      "runtime-identity-manifest-sha256-null",
+      "accepted-package-local-wasm-artifact-present",
+      "runtime-identity-manifest-wasm-digest-pinned",
+      "runtime-identity-manifest-sha256-lowercase-64-hex",
       "native-wasm-parity-not-run",
-      "phase-189-does-not-execute-wasm-build-or-text-engine",
+      "phase-196-does-not-execute-wasm-or-text-engine",
     ])
     expect(runtimeIdentityManifest.runtime.wasmArtifact).toEqual({
-      digestStatus: "pending",
-      sha256: null,
+      digestStatus: "pinned",
+      sha256: populationSummary.sha256,
     })
     expect(runtimeIdentityManifest.parityStatus).toBe("identity-only")
     expect(runtimeIdentityManifest.parityComparison.status).toBe("not-run")
@@ -135,8 +141,8 @@ describe("text engine runtime identity digest evidence population gate", () => {
     const plan = createPlan()
 
     expect(plan.status).toBe("ready")
-    expect(plan.digestStatus).toBe("pending")
-    expect(plan.warningIssues.map((issue) => issue.code)).toContain("digest-pending")
+    expect(plan.digestStatus).toBe("pinned")
+    expect(plan.warningIssues).toEqual([])
     expect(plan.rootSummary).toEqual(populationSummary.rootSummary)
     expect(populationSummary.rootSummary.rawEvidenceIncluded).toBe(false)
     expect(populationSummary.rootSummary.retention.rawRuntimeIdentityEvidence).toEqual({
@@ -146,7 +152,7 @@ describe("text engine runtime identity digest evidence population gate", () => {
     } satisfies RetentionPointer)
     expect(populationSummary.rootSummary.retention.wasmArtifactEvidence).toEqual({
       owner: "@flowdoc/text-engine-rust-wasm",
-      pointer: null,
+      pointer: "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
       includedInRoot: false,
     } satisfies RetentionPointer)
   })
@@ -250,17 +256,17 @@ describe("text engine runtime identity digest evidence population gate", () => {
     expect(coreMeasurement).not.toContain("runtime-identity-digest-evidence-population")
   })
 
-  it("keeps Phase 189 evidence while current pointers advance to Phase 192", () => {
+  it("keeps Phase 189 evidence while current pointers advance to Phase 196", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
+    expect(currentStatus).toContain("Status: updated after Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
+    expect(nextPointer).toContain("Status: current after Artifact Digest Pinning Execution.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine runtime identity digest evidence population gate")

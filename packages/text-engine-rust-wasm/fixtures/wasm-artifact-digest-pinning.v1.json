@@ -1,6 +1,7 @@
 {
   "pinningSummaryId": "text-engine-wasm-artifact-digest-pinning-v1",
   "sourcePopulationSummaryId": "text-engine-runtime-identity-digest-evidence-population-v1",
+  "sourceProductionRetrySummaryId": "text-engine-wasm-artifact-production-retry-v1",
   "builderOwner": "@flowdoc/text-engine-rust-wasm",
   "rootSummaryOwner": "@flowdoc/vnext-core-docs",
   "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
@@ -11,34 +12,39 @@
   "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
   "outputShapeVersion": "glyph-line-box-v1",
   "acceptedArtifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
-  "acceptedArtifactPathStatus": "defined-not-present",
-  "acceptedArtifactPathReason": "package-local wasm-pack style output path; retained artifact pointer must stay null until a real artifact exists",
+  "acceptedArtifactPathStatus": "present-package-local",
+  "acceptedArtifactPathReason": "package-local wasm-pack output path exists and is retained as the digest-pinning artifact pointer",
   "candidatePathsChecked": [
     {
       "path": "packages/text-engine-rust-wasm/dist/flowdoc_text_engine_bg.wasm",
       "packageLocal": true,
       "exists": false,
-      "selectedForFutureBuild": false
+      "selectedForFutureBuild": false,
+      "selectedForPinning": false
     },
     {
       "path": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
       "packageLocal": true,
-      "exists": false,
-      "selectedForFutureBuild": true
+      "exists": true,
+      "selectedForFutureBuild": true,
+      "selectedForPinning": true
     },
     {
       "path": "packages/text-engine-rust-wasm/target/wasm32-unknown-unknown/release/flowdoc_text_engine.wasm",
       "packageLocal": true,
       "exists": false,
-      "selectedForFutureBuild": false
+      "selectedForFutureBuild": false,
+      "selectedForPinning": false
     }
   ],
-  "artifactFound": false,
-  "canPinDigestNow": false,
-  "pinningDecision": "pending-no-artifact",
-  "digestStatus": "pending",
-  "sha256": null,
-  "wasmArtifactPointer": null,
+  "artifactFound": true,
+  "artifactFileSizeBytes": 13782,
+  "canPinDigestNow": true,
+  "pinningDecision": "pinned-real-artifact-context-matched",
+  "digestStatus": "pinned",
+  "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44",
+  "sha256ComputedFromRealArtifact": true,
+  "wasmArtifactPointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
   "runtimeIdentityContextMatches": true,
   "rawEvidenceIncluded": false,
   "productionReady": false,
@@ -49,7 +55,7 @@
   "rendererBackedDriftStatus": "unknown",
   "numericDriftThresholdStatus": "blocked",
   "acceptedManifestStatus": "blocked",
-  "pinningRequirementsBeforePinned": [
+  "pinningRequirementsSatisfied": [
     "accepted-artifact-path-exists",
     "artifact-path-package-local",
     "lowercase-64-character-sha256",
@@ -66,7 +72,7 @@
     "outputShapeVersion": "glyph-line-box-v1",
     "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
     "adapterPackageName": "@flowdoc/text-engine-rust-wasm",
-    "digestStatus": "pending",
+    "digestStatus": "pinned",
     "rawEvidenceIncluded": false,
     "evidenceOwner": "@flowdoc/text-engine-rust-wasm",
     "rootSummaryOwner": "@flowdoc/vnext-core-docs",
@@ -76,8 +82,8 @@
       "icu4xDataRevision": "icu4x-data-planned"
     },
     "wasmArtifact": {
-      "digestStatus": "pending",
-      "sha256": null
+      "digestStatus": "pinned",
+      "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44"
     },
     "fontAssetHashes": [
       {
@@ -101,7 +107,7 @@
       },
       "wasmArtifactEvidence": {
         "owner": "@flowdoc/text-engine-rust-wasm",
-        "pointer": null,
+        "pointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
         "includedInRoot": false
       }
     },

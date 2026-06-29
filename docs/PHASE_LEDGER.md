@@ -209,6 +209,7 @@ Parent goal:
 | 195E | Text engine WASM artifact production retry gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactProductionRetryGate.test.ts`; pointer guard tests |
 | 195F | Text engine WASM bindgen export dependency gate | done | `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`; `packages/text-engine-rust-wasm/rust-shaper/Cargo.toml`; `packages/text-engine-rust-wasm/rust-shaper/Cargo.lock`; `packages/text-engine-rust-wasm/rust-shaper/src/lib.rs`; `packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmBindgenExportDependencyGate.test.ts`; pointer guard tests |
 | 195G | Text engine WASM artifact production retry after bindgen gate | done | `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`; `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`; generated package metadata under `packages/text-engine-rust-wasm/pkg/`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/textEngineWasmArtifactProductionRetryGate.test.ts`; pointer guard tests |
+| 196 | Artifact digest pinning execution | done | `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`; `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`; `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`; `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactDigestPinningExecution.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5403,6 +5404,41 @@ package/document schema, add collaboration/offline behavior, or copy legacy
 editor runtime.
 
 Next recommended work: Artifact Digest Pinning Execution.
+Production measurement replacement remains blocked.
+
+## Phase 196 Artifact Digest Pinning Execution
+
+Artifact Digest Pinning Execution uses the post-bindgen artifact production
+retry gate as source of truth and pins only the accepted package-local WASM
+artifact:
+
+- artifact path:
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- artifact exists and remains package-local;
+- file size is `13782` bytes;
+- sha256 is
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- the sha256 is lowercase 64-character hex;
+- matrix id, corpus id, policy revision, measurement profile id, output shape,
+  and runtime identity context match the digest pinning policy;
+- package-local digest/runtime identity summaries now report
+  `digestStatus="pinned"`;
+- root docs/tests remain limited to JSON-safe summaries and retention
+  pointers;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted manifest, production binding, and
+  default-measurer replacement remain blocked.
+
+This phase intentionally does not require `wasm-pack` or
+`wasm32-unknown-unknown` in root checks, execute rustybuzz/WASM/ICU4X in
+`@flowdoc/vnext-core`, put raw native/WASM evidence in root tests/docs, fake
+sha256, replace `measureVNextText(...)`, mutate pagination, bind production
+renderer-backed measurement, add production PDF/DOCX renderer work, add
+backend routes/storage/auth/authz, implement contenteditable, change
+package/document schema, add collaboration/offline behavior, or copy legacy
+editor runtime.
+
+Next recommended work: Native Evidence Summary Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

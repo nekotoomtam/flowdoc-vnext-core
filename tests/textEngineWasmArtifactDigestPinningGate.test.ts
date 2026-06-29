@@ -7,6 +7,7 @@ type CandidatePathCheck = {
   packageLocal: boolean
   exists: boolean
   selectedForFutureBuild: boolean
+  selectedForPinning: boolean
 }
 
 type PinningSummary = {
@@ -22,11 +23,11 @@ type PinningSummary = {
   measurementProfileId: string
   outputShapeVersion: "glyph-line-box-v1"
   acceptedArtifactPath: string
-  acceptedArtifactPathStatus: "defined-not-present"
+  acceptedArtifactPathStatus: "present-package-local"
   candidatePathsChecked: CandidatePathCheck[]
   artifactFound: boolean
   canPinDigestNow: boolean
-  pinningDecision: "pending-no-artifact"
+  pinningDecision: "pinned-real-artifact-context-matched"
   digestStatus: "pending" | "pinned" | "missing" | "stale"
   sha256: string | null
   wasmArtifactPointer: string | null
@@ -40,7 +41,7 @@ type PinningSummary = {
   rendererBackedDriftStatus: "unknown"
   numericDriftThresholdStatus: "blocked"
   acceptedManifestStatus: "blocked"
-  pinningRequirementsBeforePinned: string[]
+  pinningRequirementsSatisfied: string[]
   rootSummary: FlowDocTextEngineRuntimeIdentityDigestRootSummary
 }
 
@@ -78,7 +79,7 @@ const populationSummary = readJson<PopulationSummary>(
 )
 
 describe("text engine WASM artifact digest pinning gate", () => {
-  it("checks every Phase 189 candidate path and keeps digest pending when no artifact exists", () => {
+  it("checks every candidate path and pins only the accepted package-local artifact", () => {
     expect(pinningSummary.pinningSummaryId).toBe("text-engine-wasm-artifact-digest-pinning-v1")
     expect(pinningSummary.sourcePopulationSummaryId).toBe(
       "text-engine-runtime-identity-digest-evidence-population-v1",
@@ -90,41 +91,41 @@ describe("text engine WASM artifact digest pinning gate", () => {
     for (const candidate of pinningSummary.candidatePathsChecked) {
       expect(candidate.packageLocal).toBe(true)
       expect(isPackageLocal(candidate.path)).toBe(true)
-      expect(candidate.exists).toBe(false)
     }
 
-    expect(pinningSummary.artifactFound).toBe(false)
-    expect(pinningSummary.canPinDigestNow).toBe(false)
-    expect(pinningSummary.pinningDecision).toBe("pending-no-artifact")
-    expect(pinningSummary.digestStatus).toBe("pending")
-    expect(pinningSummary.sha256).toBeNull()
-    expect(pinningSummary.wasmArtifactPointer).toBeNull()
-    expect(populationSummary.digestStatus).toBe("pending")
-    expect(populationSummary.sha256).toBeNull()
-    expect(populationSummary.wasmArtifactPointer).toBeNull()
+    expect(pinningSummary.artifactFound).toBe(true)
+    expect(pinningSummary.canPinDigestNow).toBe(true)
+    expect(pinningSummary.pinningDecision).toBe("pinned-real-artifact-context-matched")
+    expect(pinningSummary.digestStatus).toBe("pinned")
+    expect(pinningSummary.sha256).toMatch(/^[a-f0-9]{64}$/u)
+    expect(pinningSummary.wasmArtifactPointer).toBe(pinningSummary.acceptedArtifactPath)
+    expect(populationSummary.digestStatus).toBe("pinned")
+    expect(populationSummary.sha256).toBe(pinningSummary.sha256)
+    expect(populationSummary.wasmArtifactPointer).toBe(pinningSummary.acceptedArtifactPath)
   })
 
-  it("defines the accepted package-local future output path without retaining a fake artifact pointer", () => {
+  it("defines the accepted package-local output path and retains only that artifact pointer", () => {
     expect(pinningSummary.acceptedArtifactPath).toBe(
       "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
     )
-    expect(pinningSummary.acceptedArtifactPathStatus).toBe("defined-not-present")
+    expect(pinningSummary.acceptedArtifactPathStatus).toBe("present-package-local")
     expect(isPackageLocal(pinningSummary.acceptedArtifactPath)).toBe(true)
     expect(
       pinningSummary.candidatePathsChecked.find((candidate) => candidate.path === pinningSummary.acceptedArtifactPath),
     ).toMatchObject({
       packageLocal: true,
-      exists: false,
+      exists: true,
       selectedForFutureBuild: true,
+      selectedForPinning: true,
     })
     expect(pinningSummary.rootSummary.retention.wasmArtifactEvidence).toEqual({
       owner: "@flowdoc/text-engine-rust-wasm",
-      pointer: null,
+      pointer: "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
       includedInRoot: false,
     })
   })
 
-  it("keeps context aligned while preventing pinned status without a valid sha256", () => {
+  it("keeps context aligned and requires a valid sha256", () => {
     expect(pinningSummary.runtimeIdentityContextMatches).toBe(true)
     expect(pinningSummary.matrixId).toBe("v1-measurement-fixture-evidence-matrix-v1")
     expect(pinningSummary.corpusId).toBe("v1-measurement-evidence-corpus-v1")
@@ -135,10 +136,10 @@ describe("text engine WASM artifact digest pinning gate", () => {
     expect(pinningSummary.rootSummary.policyRevision).toBe(pinningSummary.policyRevision)
     expect(pinningSummary.rootSummary.measurementProfileId).toBe(pinningSummary.measurementProfileId)
     expect(pinningSummary.rootSummary.outputShapeVersion).toBe(pinningSummary.outputShapeVersion)
-    expect(pinningSummary.rootSummary.digestStatus).toBe("pending")
-    expect(pinningSummary.rootSummary.wasmArtifact.sha256).toBeNull()
-    expect(isLowercaseSha256(pinningSummary.sha256 ?? "")).toBe(false)
-    expect(pinningSummary.pinningRequirementsBeforePinned).toEqual([
+    expect(pinningSummary.rootSummary.digestStatus).toBe("pinned")
+    expect(pinningSummary.rootSummary.wasmArtifact.sha256).toBe(pinningSummary.sha256)
+    expect(isLowercaseSha256(pinningSummary.sha256 ?? "")).toBe(true)
+    expect(pinningSummary.pinningRequirementsSatisfied).toEqual([
       "accepted-artifact-path-exists",
       "artifact-path-package-local",
       "lowercase-64-character-sha256",
@@ -210,17 +211,17 @@ describe("text engine WASM artifact digest pinning gate", () => {
     expect(coreMeasurement).not.toContain("wasm-artifact-digest-pinning")
   })
 
-  it("advances current pointers, README, roadmap, and ledger to Phase 192", () => {
+  it("keeps Phase 190 evidence while current pointers advance to Phase 196", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
+    expect(currentStatus).toContain("Status: updated after Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
+    expect(nextPointer).toContain("Status: current after Artifact Digest Pinning Execution.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine WASM artifact digest pinning gate")

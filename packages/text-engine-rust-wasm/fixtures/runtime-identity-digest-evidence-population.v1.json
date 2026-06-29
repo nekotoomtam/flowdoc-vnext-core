@@ -8,7 +8,7 @@
   "policyRevision": "v1-measurement-evidence-policy-v1",
   "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
   "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
-  "wasmArtifactPointer": null,
+  "wasmArtifactPointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
   "artifactDiscovery": {
     "artifactKind": "wasm",
     "candidatePathsChecked": [
@@ -16,13 +16,15 @@
       "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
       "packages/text-engine-rust-wasm/target/wasm32-unknown-unknown/release/flowdoc_text_engine.wasm"
     ],
-    "artifactFound": false,
-    "sha256": null
+    "artifactFound": true,
+    "artifactPointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "fileSizeBytes": 13782,
+    "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44"
   },
-  "decision": "retained-pending",
-  "canPinDigestNow": false,
-  "digestStatus": "pending",
-  "sha256": null,
+  "decision": "pinned-after-artifact-digest-pinning-execution",
+  "canPinDigestNow": true,
+  "digestStatus": "pinned",
+  "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44",
   "rawEvidenceIncluded": false,
   "productionReady": false,
   "defaultMeasurerReplacement": false,
@@ -33,11 +35,11 @@
   "numericDriftThresholdStatus": "blocked",
   "acceptedManifestStatus": "blocked",
   "reasons": [
-    "no-package-local-wasm-artifact-present",
-    "runtime-identity-manifest-wasm-digest-pending",
-    "runtime-identity-manifest-sha256-null",
+    "accepted-package-local-wasm-artifact-present",
+    "runtime-identity-manifest-wasm-digest-pinned",
+    "runtime-identity-manifest-sha256-lowercase-64-hex",
     "native-wasm-parity-not-run",
-    "phase-189-does-not-execute-wasm-build-or-text-engine"
+    "phase-196-does-not-execute-wasm-or-text-engine"
   ],
   "pinningRequirements": [
     "package-local-wasm-artifact-retention-pointer",
@@ -57,7 +59,7 @@
     "outputShapeVersion": "glyph-line-box-v1",
     "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
     "adapterPackageName": "@flowdoc/text-engine-rust-wasm",
-    "digestStatus": "pending",
+    "digestStatus": "pinned",
     "rawEvidenceIncluded": false,
     "evidenceOwner": "@flowdoc/text-engine-rust-wasm",
     "rootSummaryOwner": "@flowdoc/vnext-core-docs",
@@ -67,8 +69,8 @@
       "icu4xDataRevision": "icu4x-data-planned"
     },
     "wasmArtifact": {
-      "digestStatus": "pending",
-      "sha256": null
+      "digestStatus": "pinned",
+      "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44"
     },
     "fontAssetHashes": [
       {
@@ -92,7 +94,7 @@
       },
       "wasmArtifactEvidence": {
         "owner": "@flowdoc/text-engine-rust-wasm",
-        "pointer": null,
+        "pointer": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
         "includedInRoot": false
       }
     },

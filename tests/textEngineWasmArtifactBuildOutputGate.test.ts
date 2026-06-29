@@ -63,7 +63,7 @@ type PinningSummary = {
   acceptedArtifactPath: string
   artifactFound: boolean
   canPinDigestNow: boolean
-  digestStatus: "pending"
+  digestStatus: "pending" | "pinned"
   sha256: string | null
   wasmArtifactPointer: string | null
   rawEvidenceIncluded: boolean
@@ -166,17 +166,27 @@ describe("text engine WASM artifact build output gate", () => {
       "sha256-not-computed",
     ])
 
-    expect(pinningSummary.artifactFound).toBe(false)
-    expect(pinningSummary.canPinDigestNow).toBe(false)
-    expect(pinningSummary.digestStatus).toBe("pending")
-    expect(pinningSummary.sha256).toBeNull()
-    expect(pinningSummary.wasmArtifactPointer).toBeNull()
+    expect(pinningSummary.artifactFound).toBe(true)
+    expect(pinningSummary.canPinDigestNow).toBe(true)
+    expect(pinningSummary.digestStatus).toBe("pinned")
+    expect(pinningSummary.sha256).toMatch(/^[a-f0-9]{64}$/u)
+    expect(pinningSummary.wasmArtifactPointer).toBe(
+      "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    )
   })
 
-  it("links the Phase 191 summary back to Phase 190 without changing root-summary context", () => {
+  it("links the Phase 191 historical summary back to the pinning policy context", () => {
     expect(buildOutputSummary.sourcePinningSummaryId).toBe(pinningSummary.pinningSummaryId)
     expect(buildOutputSummary.acceptedArtifactPath).toBe(pinningSummary.acceptedArtifactPath)
-    expect(buildOutputSummary.rootSummary).toEqual(pinningSummary.rootSummary)
+    expect(buildOutputSummary.rootSummary.matrixId).toBe(pinningSummary.rootSummary.matrixId)
+    expect(buildOutputSummary.rootSummary.corpusId).toBe(pinningSummary.rootSummary.corpusId)
+    expect(buildOutputSummary.rootSummary.policyRevision).toBe(pinningSummary.rootSummary.policyRevision)
+    expect(buildOutputSummary.rootSummary.measurementProfileId).toBe(
+      pinningSummary.rootSummary.measurementProfileId,
+    )
+    expect(buildOutputSummary.rootSummary.outputShapeVersion).toBe(
+      pinningSummary.rootSummary.outputShapeVersion,
+    )
     expect(buildOutputSummary.rootSummary.digestStatus).toBe("pending")
     expect(buildOutputSummary.rootSummary.wasmArtifact.sha256).toBeNull()
     expect(buildOutputSummary.rootSummary.retention.wasmArtifactEvidence).toEqual({
@@ -255,10 +265,10 @@ describe("text engine WASM artifact build output gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
+    expect(currentStatus).toContain("Status: updated after Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
+    expect(nextPointer).toContain("Status: current after Artifact Digest Pinning Execution.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(readme).toContain("Text engine WASM artifact build output gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md")

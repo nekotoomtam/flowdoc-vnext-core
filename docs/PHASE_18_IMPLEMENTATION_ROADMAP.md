@@ -6009,6 +6009,48 @@ Acceptance:
   package/document schema change, collaboration/offline behavior, or legacy
   editor runtime copy is introduced.
 
+## Phase 196: Artifact Digest Pinning Execution
+
+Goal:
+
+- compute and pin sha256 for the accepted package-local WASM artifact only
+  when the artifact path and runtime identity context match policy.
+
+Deliverables:
+
+- `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`;
+- `tests/artifactDigestPinningExecution.test.ts`;
+- updated `packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`;
+- updated `packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json`;
+- updated `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`;
+- updated `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`
+  exists;
+- computes sha256 from the real artifact file;
+- requires lowercase 64-character hex sha256;
+- records sha256 as
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- validates package-local artifact path, matrix id, corpus id, policy
+  revision, measurement profile id, and output shape;
+- updates package-local digest/runtime identity summaries to
+  `digestStatus="pinned"`;
+- keeps root docs/tests limited to JSON-safe summaries and retention pointers;
+- keeps native evidence, WASM evidence, parity, drift, thresholds, accepted
+  manifest, production binding, and default-measurer replacement blocked;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, fake sha256,
+  `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6038,10 +6080,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 195G:
+Current next step after Phase 196:
 
 ```text
-Artifact Digest Pinning Execution
+Native Evidence Summary Gate
 ```
 
 Reason:
@@ -6157,11 +6199,27 @@ Reason:
   `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`, records
   generated JS/TypeScript/package metadata, keeps `digestStatus="pending"` and
   `sha256=null`, and leaves production measurement binding blocked;
-- the current package-local digest remains pending, so the next safe lane is
-  Artifact Digest Pinning Execution;
+- Phase 196 now confirms the accepted package-local artifact exists, computes
+  sha256 from the real artifact file, validates artifact path, matrix id,
+  corpus id, policy revision, measurement profile id, and output shape, then
+  pins the package-local digest as
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- the current package-local digest is pinned, so the next safe lane is the
+  smallest JSON-safe Native Evidence Summary Gate;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 195G Handoff
+
+Current next step after Phase 195G:
+
+```text
+Artifact Digest Pinning Execution
+```
+
+That was the Phase 195G handoff recommendation. Phase 196 is now complete,
+so it is no longer the current next step after Phase 196.
 
 ## Historical Phase 195F Handoff
 

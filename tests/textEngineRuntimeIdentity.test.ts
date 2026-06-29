@@ -106,8 +106,8 @@ describe("vNext text engine runtime identity boundary", () => {
         icu4xRevision: "icu4x-planned",
         icu4xDataRevision: "icu4x-data-planned",
         wasmArtifact: {
-          digestStatus: "pending",
-          sha256: null,
+          digestStatus: "pinned",
+          sha256: "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44",
         },
       },
       identityContract: {
@@ -130,10 +130,7 @@ describe("vNext text engine runtime identity boundary", () => {
       },
       blockingIssues: [],
     })
-    expect(plan.warningIssues).toEqual([expect.objectContaining({
-      code: "missing-wasm-digest",
-      severity: "warning",
-    })])
+    expect(plan.warningIssues).toEqual([])
     expect(JSON.parse(JSON.stringify(plan))).toEqual(plan)
   })
 
@@ -156,6 +153,13 @@ describe("vNext text engine runtime identity boundary", () => {
       manifest: {
         ...manifest,
         parityStatus: "parity-ready",
+        runtime: {
+          ...manifest.runtime,
+          wasmArtifact: {
+            digestStatus: "pending",
+            sha256: null,
+          },
+        },
         parityComparison: {
           ...manifest.parityComparison,
           status: "not-run",

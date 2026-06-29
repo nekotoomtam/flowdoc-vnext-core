@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: WASM artifact production retry package.
+Status: WASM artifact digest pinned package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -38,7 +38,11 @@ keeps native smoke plus root checks independent before the next artifact
 production retry. The post-bindgen artifact production retry runs
 package-local `wasm:build`, produces `pkg/flowdoc_text_engine_bg.wasm` plus
 generated JS/TypeScript/package metadata, and keeps sha256 pinning plus
-production measurement binding out of scope.
+production measurement binding out of scope. Artifact Digest Pinning Execution
+then computes and pins the real package-local artifact sha256
+`4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44` while
+keeping native evidence, WASM evidence, parity, drift, accepted manifests, and
+production measurement binding blocked.
 
 Run the smoke from this package:
 
@@ -71,14 +75,18 @@ Allowed:
 - expose only minimal non-production `#[wasm_bindgen]` readiness/version
   functions until a later evidence phase scopes real shaping;
 - retain the generated `pkg/flowdoc_text_engine_bg.wasm` artifact as
-  package-local output for the next digest pinning phase;
+  package-local output for digest-pinned evidence;
+- retain the pinned sha256 digest for `pkg/flowdoc_text_engine_bg.wasm` as
+  package-local runtime identity evidence;
 - remain external to `src/**` core.
 
 Blocked:
 
 - production TypeScript adapter binding to rustybuzz output;
 - ICU4X dependency;
-- WASM artifact digest pinning or loading until their dedicated gates;
+- WASM artifact loading until its dedicated gate;
+- native/WASM evidence, parity, drift, accepted manifests, and production
+  measurement binding until their dedicated gates;
 - core font-file reads;
 - production measurement binding;
 - pagination measurer replacement.

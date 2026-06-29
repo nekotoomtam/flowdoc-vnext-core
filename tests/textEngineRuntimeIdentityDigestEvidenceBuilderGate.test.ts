@@ -65,15 +65,15 @@ const builderFixture = readJson<BuilderFixture>(
 )
 
 describe("text engine runtime identity digest evidence builder gate", () => {
-  it("creates a JSON-safe pending root summary from the package-local runtime identity manifest", () => {
+  it("creates a JSON-safe pinned root summary from the package-local runtime identity manifest", () => {
     const plan = createPlan()
 
     expect(plan.source).toBe(FLOWDOC_TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_SOURCE)
     expect(plan.mode).toBe(FLOWDOC_TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_MODE)
     expect(plan.status).toBe("ready")
-    expect(plan.digestStatus).toBe("pending")
+    expect(plan.digestStatus).toBe("pinned")
     expect(plan.blockingIssues).toEqual([])
-    expect(plan.warningIssues.map((issue) => issue.code)).toContain("digest-pending")
+    expect(plan.warningIssues).toEqual([])
     expect(plan.rootSummary).toMatchObject({
       summaryId: "text-engine-runtime-identity-digest-root-summary-v1",
       matrixId: builderFixture.matrixId,
@@ -84,7 +84,7 @@ describe("text engine runtime identity digest evidence builder gate", () => {
       outputShapeVersion: "glyph-line-box-v1",
       runtimeIdentityManifestId: builderFixture.runtimeIdentityManifestId,
       adapterPackageName: "@flowdoc/text-engine-rust-wasm",
-      digestStatus: "pending",
+      digestStatus: "pinned",
       rawEvidenceIncluded: false,
       evidenceOwner: "@flowdoc/text-engine-rust-wasm",
       rootSummaryOwner: "@flowdoc/vnext-core-docs",
@@ -94,10 +94,7 @@ describe("text engine runtime identity digest evidence builder gate", () => {
       icu4xRevision: runtimeIdentityManifest.runtime.icu4xRevision,
       icu4xDataRevision: runtimeIdentityManifest.runtime.icu4xDataRevision,
     })
-    expect(plan.rootSummary.wasmArtifact).toEqual({
-      digestStatus: "pending",
-      sha256: null,
-    })
+    expect(plan.rootSummary.wasmArtifact).toEqual(runtimeIdentityManifest.runtime.wasmArtifact)
     expect(plan.rootSummary.fontAssetHashes).toEqual(runtimeIdentityManifest.fontAssets)
     expect(plan.rootSummary.fontAssetHashes).not.toBe(runtimeIdentityManifest.fontAssets)
     expect(plan.rootSummary.retention).toEqual({
@@ -108,7 +105,7 @@ describe("text engine runtime identity digest evidence builder gate", () => {
       },
       wasmArtifactEvidence: {
         owner: "@flowdoc/text-engine-rust-wasm",
-        pointer: null,
+        pointer: "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
         includedInRoot: false,
       },
     })
@@ -184,7 +181,9 @@ describe("text engine runtime identity digest evidence builder gate", () => {
     expect(builderFixture.runtimeIdentityPointer).toBe(
       "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
     )
-    expect(builderFixture.wasmArtifactPointer).toBeNull()
+    expect(builderFixture.wasmArtifactPointer).toBe(
+      "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    )
     expect(builderFixture.blockedUntilLater).toEqual([
       "native-evidence",
       "wasm-evidence",
@@ -237,17 +236,17 @@ describe("text engine runtime identity digest evidence builder gate", () => {
     expect(coreMeasurement).not.toContain("runtimeIdentityDigestEvidenceBuilder")
   })
 
-  it("keeps Phase 188 evidence while current pointers advance to Phase 192", () => {
+  it("keeps Phase 188 evidence while current pointers advance to Phase 196", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Text Engine WASM Artifact Production Retry Gate.")
+    expect(currentStatus).toContain("Status: updated after Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Text Engine WASM Artifact Production Retry Gate.")
+    expect(nextPointer).toContain("Status: current after Artifact Digest Pinning Execution.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine runtime identity digest evidence builder gate")

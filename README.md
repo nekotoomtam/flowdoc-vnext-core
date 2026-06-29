@@ -672,6 +672,12 @@ The package must remain runnable without any parent editor checkout.
   `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`, records
   generated JS/TypeScript/package metadata shape, and keeps digest pinning
   pending until the dedicated sha256 phase.
+- Artifact digest pinning execution computes and pins the real package-local
+  WASM artifact sha256
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44` after
+  matrix, corpus, policy, profile, output shape, and path validation while
+  keeping native/WASM evidence, parity, drift, accepted manifests, and
+  production measurement replacement blocked.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -684,8 +690,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after the bindgen
-  export dependency gate
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after artifact digest
+  pinning execution
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -910,6 +916,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`: text engine WASM
   artifact production retry gate after package-local `wasm-bindgen`
   dependency/export work
+- `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`: Artifact Digest Pinning
+  Execution record for the real package-local WASM artifact sha256
 - `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`: text engine WASM
   bindgen export dependency gate before retrying artifact production
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
@@ -1167,10 +1175,10 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
-- pinned WASM artifact digest, native/WASM evidence, parity
-  summaries, renderer-backed drift summaries, numeric drift thresholds,
-  accepted root summary manifest, or production measurement replacement beyond
-  the artifact production retry gate
+- native/WASM evidence, parity summaries, renderer-backed drift summaries,
+  numeric drift thresholds, accepted root summary manifest, WASM artifact
+  loading, or production measurement replacement beyond the artifact digest
+  pinning execution gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan
