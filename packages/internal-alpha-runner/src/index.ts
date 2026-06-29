@@ -1,3 +1,4 @@
 export * from "./storageBackedRcRoundtrip.js"
 export * from "./storageRouteBinding.js"
 export * from "./artifactJobExecution.js"
+export * from "./internalAlphaVerticalSlice.js"

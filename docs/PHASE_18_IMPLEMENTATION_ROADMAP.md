@@ -5088,6 +5088,40 @@ Acceptance:
   package/document schema change, production input readiness claim,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 180: Internal Alpha Vertical Slice
+
+Goal:
+
+- run one bounded internal-alpha path from document open through edit, save,
+  reload, PDF spike generation, artifact storage/retrieval, and status report.
+
+Deliverables:
+
+- `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`;
+- `packages/internal-alpha-runner/src/index.ts`;
+- `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`;
+- `tests/internalAlphaVerticalSlice.test.ts`;
+- README, phase ledger, and roadmap updates;
+- Phase 179 roadmap guard update.
+
+Acceptance:
+
+- fixture package opens as canonical package v2/document v3;
+- the selected active text block is edited with
+  `text-block.rich-inline.replace`;
+- package/session, durable-history, and rich-inline-session records are saved
+  and reloaded through file-backed storage;
+- PDF generation consumes the reloaded package snapshot;
+- artifact job execution produces minimal PDF spike bytes;
+- artifact bytes are stored, retrieved, and checked against the rendered
+  manifest;
+- final status report is JSON-safe, has no fail blockers, and remains
+  productionReady false;
+- no production contenteditable, full-document contenteditable, backend route,
+  auth/authz, production storage, production PDF/DOCX renderer, default
+  measurement replacement, package/document schema change, collaboration/
+  offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5117,10 +5151,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 179:
+Current next step after Phase 180:
 
 ```text
-Phase 180: Internal Alpha Vertical Slice
+Phase 181: Internal Alpha Close Audit And Documentation Consolidation Gate
 ```
 
 Reason:
@@ -5155,12 +5189,26 @@ Reason:
   only and defers production renderer package selection;
 - Phase 179 now allows renderer-backed measurement only as guarded
   internal-alpha evidence under profile, drift, digest, and parity gates;
-- the next safe lane is running one bounded internal-alpha vertical slice from
-  open document through edit, save, reload, PDF spike generation, artifact
-  storage, retrieval, and status report;
+- Phase 180 now runs one bounded internal-alpha vertical slice from open
+  document through edit, save, reload, PDF spike generation, artifact storage,
+  retrieval, and status report;
+- the next safe lane is closing the internal-alpha evidence pass and
+  consolidating current-state documentation so daily work has a compact source
+  of truth;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 179 Handoff
+
+Current next step after Phase 179:
+
+```text
+Phase 180: Internal Alpha Vertical Slice
+```
+
+That was the Phase 179 handoff recommendation. Phase 180 is now complete, so
+it is no longer the current next step after Phase 180.
 
 ## Historical Phase 178 Handoff
 

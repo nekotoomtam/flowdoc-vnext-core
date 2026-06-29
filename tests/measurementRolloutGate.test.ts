@@ -6,7 +6,7 @@ function readText(path: string): string {
 }
 
 describe("measurement rollout gate", () => {
-  it("allows measurement evidence only for the guarded internal-alpha slice", () => {
+  it("allows measurement evidence only for the guarded internal-alpha slice and keeps the historical Phase 179 handoff", () => {
     const doc = readText("../docs/MEASUREMENT_ROLLOUT_GATE.md")
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
@@ -29,8 +29,10 @@ describe("measurement rollout gate", () => {
     expect(readme).toContain("docs/MEASUREMENT_ROLLOUT_GATE.md")
     expect(ledger).toContain("| 179 | Measurement rollout gate | done |")
     expect(roadmap).toContain("## Phase 179: Measurement Rollout Gate")
+    expect(roadmap).toContain("## Historical Phase 179 Handoff")
     expect(roadmap).toContain("Current next step after Phase 179:")
     expect(roadmap).toContain("Phase 180: Internal Alpha Vertical Slice")
+    expect(roadmap).toContain("Phase 180 is now complete")
     expect(pdfDecisionTest).toContain("historical Phase 178 handoff")
   })
 

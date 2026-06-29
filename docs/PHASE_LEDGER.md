@@ -186,6 +186,7 @@ Parent goal:
 | 177 | Artifact job execution slice | done | `packages/internal-alpha-runner/src/artifactJobExecution.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/internal-alpha-runner/package.json`; `packages/internal-alpha-runner/tsconfig.json`; `docs/ARTIFACT_JOB_EXECUTION_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactJobExecutionSlice.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tsconfig.json`; `vitest.config.ts` |
 | 178 | PDF renderer decision gate | done | `docs/PDF_RENDERER_DECISION_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/pdfRendererDecisionGate.test.ts`; `tests/artifactJobExecutionSlice.test.ts` |
 | 179 | Measurement rollout gate | done | `docs/MEASUREMENT_ROLLOUT_GATE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementRolloutGate.test.ts`; `tests/pdfRendererDecisionGate.test.ts` |
+| 180 | Internal alpha vertical slice | done | `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/index.ts`; `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/internalAlphaVerticalSlice.test.ts`; `tests/measurementRolloutGate.test.ts` |
 
 ## Current Rule
 
@@ -4614,6 +4615,27 @@ add backend/storage/PDF/DOCX/worker/auth/collaboration/offline behavior, claim
 production input readiness, or copy legacy editor runtime.
 
 Next recommended phase: Phase 180 Internal Alpha Vertical Slice.
+
+## Phase 180 Internal Alpha Vertical Slice
+
+Phase 180 runs one bounded internal-alpha path:
+
+- open the Phase 147 fixture package as a vNext editable session;
+- edit the active text block with `text-block.rich-inline.replace`;
+- save package/session, durable-history, and rich-inline-session records;
+- reload the saved package/session record;
+- generate the PDF adapter plan from the reloaded package snapshot;
+- execute the minimal PDF spike through the Phase 177 artifact job path;
+- store and retrieve artifact bytes;
+- return a bounded JSON-safe status report.
+
+This phase intentionally does not implement production contenteditable,
+full-document contenteditable, backend routes, auth/authz, production storage,
+production PDF/DOCX rendering, default measurement replacement, schema changes,
+collaboration/offline behavior, or legacy editor runtime copy.
+
+Next recommended phase: Phase 181 Internal Alpha Close Audit And Documentation
+Consolidation Gate.
 
 ## Phase 12 Extraction Record
 

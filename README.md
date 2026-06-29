@@ -590,6 +590,9 @@ The package must remain runnable without any parent editor checkout.
 - Measurement rollout gate accepts renderer-backed measurement only as guarded
   internal-alpha evidence for the selected slice and keeps default measurer
   replacement blocked.
+- Internal alpha vertical slice runs one bounded path from opening the fixture
+  through active text-block edit, save/reload, PDF spike generation, artifact
+  storage/retrieval, and status report while keeping production claims blocked.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -768,6 +771,8 @@ The package must remain runnable without any parent editor checkout.
   before measurement rollout
 - `docs/MEASUREMENT_ROLLOUT_GATE.md`: Phase 179 measurement rollout gate before
   the internal alpha vertical slice
+- `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`: Phase 180 internal alpha vertical
+  slice before close audit and documentation consolidation
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
