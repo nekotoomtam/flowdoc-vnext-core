@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Phase 187.
+Status: updated after Phase 188.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Phase 187: Measurement Evidence Coverage Gap Triage Gate.
+Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -20,17 +20,23 @@ summary manifest shape for carrying those facts without raw evidence in root
 tests/docs. Phase 186 adds a JSON-safe stub summary manifest for that matrix,
 with release-gating rows still unknown/missing and no production readiness
 claim. Phase 187 ranks those missing evidence gaps, groups them by owner, and
-selects digest/runtime identity as the first prerequisite.
+selects digest/runtime identity as the first prerequisite. Phase 188 defines a
+package-local runtime identity digest evidence builder in
+`@flowdoc/text-engine-rust-wasm`, plus a JSON-safe root summary handoff shape,
+while keeping the current digest pending and downstream evidence lanes
+blocked.
 
 ## Current Next Phase
 
-Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.
+Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.
 
 Goal:
 
-- build or define the first external/package-local digest/runtime identity
-  evidence path;
+- populate or explicitly retain the package-local runtime identity / WASM
+  artifact digest evidence path defined by Phase 188;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
+- keep native evidence, WASM evidence, parity, drift, numeric thresholds, and
+  accepted manifests blocked until their dedicated phases;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -90,6 +96,14 @@ digest/runtime identity, followed by native evidence, WASM evidence, parity
 summaries, renderer-backed drift summaries, numeric drift thresholds, and an
 accepted summary manifest. Default-measurer replacement remains blocked.
 
+Phase 188 adds the first package-local digest/runtime identity evidence builder
+path under `packages/text-engine-rust-wasm`. The builder returns JSON-safe
+root summaries only, keeps raw runtime/WASM evidence outside root docs/tests,
+and leaves the current WASM artifact digest `pending`. Native evidence, WASM
+evidence, native/WASM parity summaries, renderer-backed drift summaries,
+numeric thresholds, accepted manifests, and default-measurer replacement
+remain blocked.
+
 ## Current Hard Limits
 
 - Do not claim production readiness from internal-alpha evidence.
@@ -106,6 +120,7 @@ accepted summary manifest. Default-measurer replacement remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`

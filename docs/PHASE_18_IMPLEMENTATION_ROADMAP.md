@@ -5361,6 +5361,49 @@ Acceptance:
   contenteditable, package/document schema change, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate
+
+Goal:
+
+- define the first package-local runtime identity digest evidence builder path
+  without executing text engines in core or producing production measurement
+  evidence.
+
+Deliverables:
+
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`;
+- `packages/text-engine-rust-wasm/src/runtimeIdentityDigestEvidenceBuilder.ts`;
+- `packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-builder.v1.json`;
+- updated `packages/text-engine-rust-wasm/src/index.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- `tests/textEngineRuntimeIdentityDigestEvidenceBuilderGate.test.ts`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- package-local digest/runtime identity evidence builder path is defined;
+- evidence owner stays in the external text-engine package/lane;
+- JSON-safe root summary handoff shape is defined;
+- pinned, pending, missing, and stale digest status policy is defined;
+- retention pointer policy keeps raw runtime/WASM evidence outside root
+  tests/docs;
+- builder relationship to measurement profile id, corpus id, policy revision,
+  output shape, rustybuzz revision, ICU4X revision, ICU4X data revision, font
+  hashes, and WASM artifact digest is explicit;
+- native evidence, WASM evidence, parity summaries, renderer-backed drift
+  summaries, numeric thresholds, accepted summary manifest, and
+  default-measurer replacement remain blocked;
+- next phase is Phase 189: Text Engine Runtime Identity Digest Evidence
+  Population Gate;
+- no rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`, raw native/WASM
+  evidence in root tests/docs, `measureVNextText(...)` replacement,
+  pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, backend routes/storage/auth, production
+  contenteditable, package/document schema change, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -5390,10 +5433,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 187:
+Current next step after Phase 188:
 
 ```text
-Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate
+Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate
 ```
 
 Reason:
@@ -5447,12 +5490,27 @@ Reason:
   blocked;
 - Phase 187 now ranks the missing evidence gaps, owners, and prerequisites and
   selects digest/runtime identity as the first blocker;
-- the next safe lane is a text-engine-owned digest/runtime identity evidence
-  builder before native/WASM evidence, parity, drift, thresholds, accepted root
-  summaries, production measurement binding, or default-measurer replacement;
+- Phase 188 now defines the package-local digest/runtime identity evidence
+  builder, JSON-safe root handoff shape, pinned/pending/missing/stale digest
+  policy, and raw-evidence retention pointer rules;
+- the current package-local digest remains pending, so the next safe lane is
+  digest evidence population or explicit retained-pending handling before
+  native/WASM evidence, parity, drift, thresholds, accepted root summaries,
+  production measurement binding, or default-measurer replacement;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 187 Handoff
+
+Current next step after Phase 187:
+
+```text
+Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate
+```
+
+That was the Phase 187 handoff recommendation. Phase 188 is now complete, so
+it is no longer the current next step after Phase 188.
 
 ## Historical Phase 186 Handoff
 

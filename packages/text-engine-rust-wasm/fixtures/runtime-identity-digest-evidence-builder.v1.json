@@ -1,0 +1,28 @@
+{
+  "builderId": "text-engine-runtime-identity-digest-evidence-builder-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+  "corpusId": "v1-measurement-evidence-corpus-v1",
+  "policyRevision": "v1-measurement-evidence-policy-v1",
+  "runtimeIdentityManifestId": "text-engine-runtime-identity-v1",
+  "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+  "wasmArtifactPointer": null,
+  "expectedMeasurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+  "expectedOutputShapeVersion": "glyph-line-box-v1",
+  "rawEvidenceIncluded": false,
+  "digestStatusPolicy": {
+    "pinned": "WASM artifact digest is a lowercase sha256 and runtime identity matches the requested matrix/profile/output shape.",
+    "pending": "Runtime identity is present but the WASM artifact digest is not pinned yet.",
+    "missing": "A pinned digest claim is missing a valid sha256 artifact digest.",
+    "stale": "Runtime identity, measurement profile, output shape, or digest declaration no longer matches the requested evidence context."
+  },
+  "blockedUntilLater": [
+    "native-evidence",
+    "wasm-evidence",
+    "native-wasm-parity-summary",
+    "renderer-backed-drift-summary",
+    "numeric-drift-thresholds",
+    "accepted-summary-manifest"
+  ]
+}

@@ -616,6 +616,10 @@ The package must remain runnable without any parent editor checkout.
 - Measurement evidence coverage gap triage gate ranks the Phase 186 stub gaps
   by owner and prerequisite order, selects digest/runtime identity as the first
   blocker, and keeps default-measurer replacement blocked.
+- Text engine runtime identity digest evidence builder gate adds a
+  package-local builder under `@flowdoc/text-engine-rust-wasm` for JSON-safe
+  digest/root-summary handoff, keeps the current WASM digest pending, and
+  blocks native/WASM/parity/drift/threshold/accepted-manifest lanes.
 - Read-only editor bridge runtime composes package parsing, graph, measured
   pagination, renderer-consumption audit, export readiness, and supported
   operation kinds through the core runtime session without accepting current
@@ -624,7 +628,7 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 187
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Phase 188
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -813,6 +817,9 @@ The package must remain runnable without any parent editor checkout.
   JSON-safe summary manifest fixture stub gate before evidence gap triage
 - `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`: Phase 187
   measurement evidence coverage gap triage before digest evidence builder work
+- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`: Phase
+  188 text engine runtime identity digest evidence builder gate before digest
+  evidence population
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
   engine boundary before concrete layout execution or cursor persistence
 - `docs/DEEP_TABLE_SPLIT_BOUNDARY.md`: Phase 97 deep table split readiness
@@ -1068,6 +1075,10 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
+- concrete runtime identity digest population, native/WASM evidence, parity
+  summaries, renderer-backed drift summaries, numeric drift thresholds,
+  accepted root summary manifest, or production measurement replacement beyond
+  the Phase 188 digest evidence builder gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

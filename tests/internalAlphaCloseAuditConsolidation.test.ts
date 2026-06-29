@@ -32,21 +32,21 @@ describe("internal alpha close audit and documentation consolidation gate", () =
     expect(audit).toContain("docs/CURRENT_STATUS.md")
     expect(audit).toContain("docs/NEXT_PHASE_POINTER.md")
     expect(audit).toContain("Phase-specific docs remain evidence records and are not deleted or moved.")
-    expect(currentStatus).toContain("Status: updated after Phase 187.")
+    expect(currentStatus).toContain("Status: updated after Phase 188.")
     expect(currentStatus).toContain("Use this file first when orienting current work.")
     expect(currentStatus).toContain(
-      "Phase 187: Measurement Evidence Coverage Gap Triage Gate.",
+      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
     )
     expect(currentStatus).toContain(
-      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
+      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
     )
     expect(currentStatus).toContain("Proven Internal-Alpha Path")
     expect(currentStatus).toContain("Do not claim production readiness from internal-alpha evidence.")
-    expect(nextPointer).toContain("Status: current after Phase 187.")
+    expect(nextPointer).toContain("Status: current after Phase 188.")
     expect(nextPointer).toContain(
-      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
+      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
     )
-    expect(nextPointer).toContain("No real native/WASM evidence in root core.")
+    expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
   })
 
   it("recommends Phase 182 as a triage gate, not a production binding jump", () => {

@@ -89,22 +89,22 @@ describe("v1 measurement fixture evidence matrix gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 187.")
-    expect(currentStatus).toContain(
-      "Phase 187: Measurement Evidence Coverage Gap Triage Gate.",
-    )
+    expect(currentStatus).toContain("Status: updated after Phase 188.")
     expect(currentStatus).toContain(
       "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
+    )
+    expect(currentStatus).toContain(
+      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
     )
     expect(currentStatus).toContain("`v1-measurement-evidence-corpus-v1`")
     expect(currentStatus).toContain("keeps raw evidence outside core")
 
-    expect(nextPointer).toContain("Status: current after Phase 187.")
+    expect(nextPointer).toContain("Status: current after Phase 188.")
     expect(nextPointer).toContain(
-      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
+      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
     )
-    expect(nextPointer).toContain("No real native/WASM evidence in root core.")
-    expect(nextPointer).toContain("No external text-engine execution in core.")
+    expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
+    expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
   })
 
   it("documents Phase 184 in the README, roadmap, and ledger", () => {

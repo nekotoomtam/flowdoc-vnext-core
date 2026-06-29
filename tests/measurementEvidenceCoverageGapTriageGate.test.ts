@@ -164,23 +164,25 @@ describe("measurement evidence coverage gap triage gate", () => {
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Phase 187.")
-    expect(currentStatus).toContain("Phase 187: Measurement Evidence Coverage Gap Triage Gate.")
+    expect(currentStatus).toContain("Status: updated after Phase 188.")
     expect(currentStatus).toContain(
       "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
     )
-    expect(nextPointer).toContain("Status: current after Phase 187.")
-    expect(nextPointer).toContain(
-      "Phase 188: Text Engine Runtime Identity Digest Evidence Builder Gate.",
+    expect(currentStatus).toContain(
+      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
     )
-    expect(nextPointer).toContain("No real native/WASM evidence in root core.")
+    expect(nextPointer).toContain("Status: current after Phase 188.")
+    expect(nextPointer).toContain(
+      "Phase 189: Text Engine Runtime Identity Digest Evidence Population Gate.",
+    )
+    expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
     expect(readme).toContain("Measurement evidence coverage gap triage gate")
     expect(readme).toContain("docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md")
     expect(ledger).toContain("| 187 | Measurement evidence coverage gap triage gate | done |")
     expect(ledger).toContain("## Phase 187 Measurement Evidence Coverage Gap Triage Gate")
     expect(roadmap).toContain("## Phase 187: Measurement Evidence Coverage Gap Triage Gate")
-    expect(roadmap).toContain("Current next step after Phase 187:")
-    expect(roadmap).toContain("Historical Phase 186 Handoff")
+    expect(roadmap).toContain("Current next step after Phase 188:")
+    expect(roadmap).toContain("Historical Phase 187 Handoff")
   })
 
   it("keeps required audit report sections visible", () => {
