@@ -235,10 +235,10 @@ describe("template publish close audit", () => {
     expect(closeAuditDoc).toContain("## RISK")
     expect(closeAuditDoc).toContain("## UNKNOWN")
 
-    expect(currentStatus).toContain("Status: updated after Required / Missing / Default Value Policy Gate.")
+    expect(currentStatus).toContain("Status: updated after Compatibility Policy With Published Template Versions Gate.")
     expect(currentStatus).toContain("Template Publish Close Audit.")
     expect(currentStatus).toContain("Variable Schema / Data Contract Planning Gate.")
-    expect(nextPointer).toContain("Status: current after Required / Missing / Default Value Policy Gate.")
+    expect(nextPointer).toContain("Status: current after Compatibility Policy With Published Template Versions Gate.")
     expect(nextPointer).toContain("Variable Schema / Data Contract Planning Gate.")
     expect(nextPointer).toContain("No package/document schema mutation.")
     expect(nextPointer).toContain("No Render API Contract implementation.")

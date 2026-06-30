@@ -403,12 +403,12 @@ describe("text engine WASM toolchain provisioning bootstrap gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Required / Missing / Default Value Policy Gate.",
+      "Status: updated after Compatibility Policy With Published Template Versions Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Required / Missing / Default Value Policy Gate.",
+      "Status: current after Compatibility Policy With Published Template Versions Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")

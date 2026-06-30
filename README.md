@@ -769,6 +769,13 @@ The package must remain runnable without any parent editor checkout.
   Compatibility Policy With Published Template Versions Gate next without
   runtime validation, schema, Render API, backend, storage, or renderer
   behavior. See `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`.
+- Compatibility Policy With Published Template Versions Gate defines
+  JSON-safe compatibility policy metadata for variable/data contract evidence
+  against published template versions, blocks incompatible id/type/required
+  no-default/table-cell/template-version changes, keeps warning-only changes
+  explicit, and selects Variable Schema / Data Contract Close Audit next
+  without runtime validation, schema, Render API, backend, storage, or renderer
+  behavior. See `docs/VARIABLE_COMPATIBILITY_POLICY_GATE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -1303,8 +1310,9 @@ The package must remain runnable without any parent editor checkout.
   replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
   contract implementation, runtime data validation, runtime default
-  application, compatibility policy, or render API contract implementation
-  beyond the Required / Missing / Default Value Policy Gate
+  application, runtime compatibility enforcement, or render API contract
+  implementation beyond the Compatibility Policy With Published Template
+  Versions Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Required / Missing / Default Value Policy Gate.
+Status: updated after Compatibility Policy With Published Template Versions Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Required / Missing / Default Value Policy Gate.
+Compatibility Policy With Published Template Versions Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -34,6 +34,7 @@ Recent completed gate markers retained for pointer guards:
 - Variable Schema Metadata Shape Gate.
 - Data Contract Validation Policy Gate.
 - Required / Missing / Default Value Policy Gate.
+- Compatibility Policy With Published Template Versions Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -288,27 +289,41 @@ conflict with known variable ids, keeps table-cell context mismatch blocked,
 keeps Compatibility Policy With Published Template Versions deferred, keeps
 Render API Contract deferred, implements no runtime data validation or runtime
 default application, and makes no package/document schema mutation.
+Compatibility Policy With Published Template Versions Gate then defines
+JSON-safe compatibility policy metadata at
+`fixtures/variable-compatibility-policy.v1.json`. It confirms Required /
+Missing / Default Value Policy Gate status `accepted-policy-metadata-only`,
+confirms all six candidate variables and per-variable required/missing/default
+policy, defines compatibility statuses `compatible`,
+`compatible-with-warnings`, `incompatible-blocked`, and `unknown`, defines
+compatibility dimensions for variable id stability, value type stability,
+required/default changes, table-cell context, added/removed/renamed variables,
+and published template version identity, and records blocker/warning
+vocabulary for incompatible and warning-only version changes. It keeps Render
+API Contract deferred, implements no runtime data validation, runtime default
+application, or runtime compatibility enforcement, and makes no
+package/document schema mutation.
 
 ## Current Next Phase
 
-Compatibility Policy With Published Template Versions Gate.
+Variable Schema / Data Contract Close Audit.
 
 Goal:
 
-- use Required / Missing / Default Value Policy Gate as source of truth;
-- define JSON-safe Compatibility Policy With Published Template Versions for
-  the accepted template version target and variable/data policy evidence;
-- keep compatibility policy as JSON-safe metadata unless a later phase
-  explicitly scopes runtime enforcement;
+- use Compatibility Policy With Published Template Versions Gate as source of
+  truth;
+- audit whether the Variable Schema / Data Contract mini lane can close for a
+  mini infrastructure checkpoint;
+- confirm variable reference discovery, metadata shape, data contract
+  validation policy, required/missing/default policy, and compatibility policy
+  evidence are all accepted as JSON-safe metadata;
 - preserve accepted published template version identity and immutable
   retention pointers;
-- keep full Variable Schema / Data Contract implementation deferred until
-  compatibility policy evidence is accepted;
-- keep Render API Contract deferred until variable/data contract evidence is
-  clear;
-- route to Template Version Schema Decision Gate only if compatibility policy
-  cannot be represented without package/document schema
-  changes;
+- confirm full Variable Schema / Data Contract runtime implementation remains
+  deferred unless a later implementation phase explicitly scopes it;
+- decide whether Render API Contract planning can proceed next;
+- route to Template Version Schema Decision Gate only if close-audit evidence
+  cannot be represented without package/document schema changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -317,6 +332,8 @@ Goal:
 - keep raw native/WASM/renderer evidence outside root tests/docs;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep production binding and default-measurer replacement blocked;
+- keep runtime data validation, runtime default application, runtime
+  compatibility enforcement, and Render API implementation deferred;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path

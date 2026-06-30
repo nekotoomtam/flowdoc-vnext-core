@@ -6783,6 +6783,57 @@ Acceptance:
   production contenteditable, collaboration/offline behavior, or legacy editor
   runtime copy is introduced.
 
+## Phase 214: Variable Compatibility Policy Gate
+
+Goal:
+
+- define JSON-safe Compatibility Policy With Published Template Versions for
+  the accepted variable/data contract metadata without implementing runtime
+  validation, runtime default application, runtime compatibility enforcement,
+  or Render API.
+
+Deliverables:
+
+- `docs/VARIABLE_COMPATIBILITY_POLICY_GATE.md`;
+- `fixtures/variable-compatibility-policy.v1.json`;
+- `tests/variableCompatibilityPolicyGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Required / Missing / Default Value Policy Gate is complete;
+- confirms `fixtures/required-missing-default-value-policy.v1.json` exists;
+- confirms candidate variables;
+- confirms per-variable required/missing/default policy;
+- confirms extra variables are warnings unless they conflict with known
+  variable ids;
+- confirms runtime default application is not implemented;
+- defines JSON-safe compatibility statuses: `compatible`,
+  `compatible-with-warnings`, `incompatible-blocked`, and `unknown`;
+- defines compatibility dimensions for variable id stability, value type
+  candidate stability, required/optional policy changes, default metadata
+  changes, table-cell context changes, removed variables, added variables,
+  renamed/aliased variables, and published template version identity match;
+- defines incompatible blocker vocabulary;
+- defines compatible-with-warnings vocabulary;
+- keeps table-cell context changes blocked for table-bound variables;
+- keeps Render API Contract deferred;
+- keeps runtime validation, runtime default application, and runtime
+  compatibility enforcement deferred;
+- confirms package/document schema is not mutated;
+- no package/document schema mutation, runtime data validation, runtime
+  default application, runtime compatibility enforcement, full Variable Schema
+  / Data Contract implementation, Render API Contract implementation, backend
+  production route, production storage durability claim, renderer artifact
+  bytes, auth/authz behavior, `measureVNextText(...)` replacement, full
+  measurement production readiness claim, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  production contenteditable, collaboration/offline behavior, or legacy editor
+  runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6812,10 +6863,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 213:
+Current next step after Phase 214:
 
 ```text
-Compatibility Policy With Published Template Versions Gate
+Variable Schema / Data Contract Close Audit
 ```
 
 Reason:
@@ -7004,9 +7055,26 @@ Reason:
   application, preserves table-cell context, keeps runtime validation
   unimplemented, and selects Compatibility Policy With Published Template
   Versions Gate next;
+- Phase 214 now defines JSON-safe compatibility policy metadata between the
+  accepted variable/data contract evidence and published template versions,
+  defines compatible/warning/blocked/unknown statuses, blocks variable id/type,
+  required-no-default, table-cell context, and template version mismatches
+  unless explicit compatibility records exist, keeps runtime enforcement
+  unimplemented, and selects Variable Schema / Data Contract Close Audit next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 213 Handoff
+
+Current next step after Phase 213:
+
+```text
+Compatibility Policy With Published Template Versions Gate
+```
+
+That was the Phase 213 handoff recommendation. Phase 214 is now complete,
+so it is no longer the current next step after Phase 214.
 
 ## Historical Phase 212 Handoff
 

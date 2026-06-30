@@ -227,6 +227,7 @@ Parent goal:
 | 211 | Variable schema metadata shape gate | done | `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/variable-reference-discovery.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaMetadataShapeGate.test.ts`; pointer guard tests |
 | 212 | Data contract validation policy gate | done | `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/dataContractValidationPolicyGate.test.ts`; pointer guard tests |
 | 213 | Required missing default value policy gate | done | `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/requiredMissingDefaultValuePolicyGate.test.ts`; pointer guard tests |
+| 214 | Variable compatibility policy gate | done | `docs/VARIABLE_COMPATIBILITY_POLICY_GATE.md`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableCompatibilityPolicyGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6124,6 +6125,58 @@ copy legacy editor runtime.
 
 Next recommended work: Compatibility Policy With Published Template Versions
 Gate.
+Production measurement replacement remains blocked.
+
+## Phase 214 Variable Compatibility Policy Gate
+
+Compatibility Policy With Published Template Versions Gate uses Required /
+Missing / Default Value Policy Gate as source of truth and defines JSON-safe
+compatibility policy metadata between variable/data contract evidence and the
+accepted published template version target.
+
+The policy evidence records:
+
+- policy fixture:
+  `fixtures/variable-compatibility-policy.v1.json`;
+- source required/missing/default policy fixture:
+  `repo://fixtures/required-missing-default-value-policy.v1.json`;
+- source policy status: `accepted-policy-metadata-only`;
+- compatibility policy status: `accepted-policy-metadata-only`;
+- attachment target: `template-product-report-vnext@v1`;
+- accepted validation evidence pointer:
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- source snapshot retention pointer:
+  `repo://fixtures/product-report-vnext.flowdoc.json`;
+- candidate variable ids: `customer.name`, `customer.segment`,
+  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
+- compatibility statuses: `compatible`, `compatible-with-warnings`,
+  `incompatible-blocked`, and `unknown`;
+- compatibility dimensions for published template version identity, variable
+  id stability, value type candidate stability, required/optional policy
+  changes, default metadata changes, table-cell context changes, removed
+  variables, added variables, and renamed/aliased variables;
+- incompatible blocker vocabulary for known variable id changes, removed
+  required variables, required variables added without default metadata, value
+  type candidate changes, table-cell context changes, missing alias records,
+  published template version mismatch, and schema mutation requirements;
+- warning vocabulary for display-label-only changes, added optional
+  variables, optional removals, default metadata changes, accepted alias
+  records, accepted superseding-version records, and extra variables;
+- preserved table-cell context blocker policy for `metric-value-total-field`
+  and `metric-value-risk-field`;
+- blockers before Variable Schema / Data Contract Close Audit: none.
+
+This phase intentionally does not mutate package/document schema, implement
+runtime data validation, apply defaults at runtime, implement runtime
+compatibility enforcement, implement the full Variable Schema / Data Contract,
+implement Render API Contract, implement backend production routes, claim
+production storage durability, produce renderer artifact bytes, add auth/authz
+behavior, replace `measureVNextText(...)`, claim full measurement production
+readiness, mutate pagination, bind production renderer-backed measurement,
+add production PDF/DOCX renderer work, implement production contenteditable,
+add collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended work: Variable Schema / Data Contract Close Audit.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

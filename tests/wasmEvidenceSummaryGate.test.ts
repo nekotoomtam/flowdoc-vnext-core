@@ -341,10 +341,10 @@ describe("WASM evidence summary gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Required / Missing / Default Value Policy Gate.")
+    expect(currentStatus).toContain("Status: updated after Compatibility Policy With Published Template Versions Gate.")
     expect(currentStatus).toContain("WASM Evidence Summary Gate.")
     expect(currentStatus).toContain("Native/WASM Parity Summary Gate.")
-    expect(nextPointer).toContain("Status: current after Required / Missing / Default Value Policy Gate.")
+    expect(nextPointer).toContain("Status: current after Compatibility Policy With Published Template Versions Gate.")
     expect(nextPointer).toContain("Native/WASM Parity Summary Gate.")
     expect(nextPointer).toContain("No raw WASM evidence in root docs/tests.")
     expect(readme).toContain("WASM evidence summary gate")

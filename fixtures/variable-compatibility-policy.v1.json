@@ -1,0 +1,316 @@
+{
+  "manifestVersion": 1,
+  "policyId": "variable-compatibility-policy-v1",
+  "sourceRequiredMissingDefaultValuePolicyGate": "Required / Missing / Default Value Policy Gate",
+  "sourceRequiredMissingDefaultValuePolicyGateStatus": "complete",
+  "sourceRequiredMissingDefaultValuePolicyPointer": "repo://fixtures/required-missing-default-value-policy.v1.json",
+  "sourcePolicyStatus": "accepted-policy-metadata-only",
+  "compatibilityPolicyStatus": "accepted-policy-metadata-only",
+  "nextRecommendedWork": "Variable Schema / Data Contract Close Audit",
+  "attachmentTarget": {
+    "publishedTemplateVersionIdentity": {
+      "templateId": "template-product-report-vnext",
+      "templateVersionId": "template-product-report-vnext@v1",
+      "versionOrdinal": 1
+    },
+    "acceptedValidationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+    "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json"
+  },
+  "candidateVariableIds": [
+    "customer.name",
+    "customer.segment",
+    "prepared.by",
+    "report.period",
+    "report.riskLevel",
+    "report.total"
+  ],
+  "sourcePolicyConfirmation": {
+    "requiredMissingDefaultPolicyStatus": "accepted-policy-metadata-only",
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "extraVariablePolicy": {
+      "unknownExtraVariableResultStatus": "valid-with-warnings",
+      "unknownExtraVariableWarning": "extra-variable-present",
+      "conflictingKnownVariableResultStatus": "blocked",
+      "conflictingKnownVariableBlockers": ["invalid-variable-id", "type-mismatch"]
+    },
+    "tableCellContextMismatchPolicy": {
+      "resultStatus": "blocked",
+      "blocker": "table-cell-context-mismatch"
+    }
+  },
+  "compatibilityDefinition": {
+    "policyVersion": 1,
+    "policyMode": "json-safe-policy-metadata-only",
+    "runtimeCompatibilityEnforcementImplemented": false,
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "renderApiContractImplemented": false,
+    "compatibilityStatuses": [
+      "compatible",
+      "compatible-with-warnings",
+      "incompatible-blocked",
+      "unknown"
+    ],
+    "blockerVocabulary": [
+      "missing-published-template-version-identity",
+      "published-template-version-mismatch",
+      "missing-superseding-version-record",
+      "known-variable-id-changed",
+      "removed-required-variable",
+      "required-variable-added-without-default-metadata",
+      "required-policy-tightened-without-compatibility-record",
+      "value-type-candidate-changed",
+      "table-cell-context-changed",
+      "renamed-variable-without-alias-record",
+      "invalid-alias-target",
+      "metadata-shape-context-mismatch",
+      "schema-mutation-required",
+      "unknown-compatibility-dimension"
+    ],
+    "warningVocabulary": [
+      "display-label-changed",
+      "optional-variable-added",
+      "optional-variable-removed",
+      "default-metadata-changed",
+      "default-metadata-added",
+      "default-metadata-removed-for-optional-variable",
+      "required-variable-added-with-default-metadata",
+      "required-policy-loosened",
+      "alias-compatibility-record-present",
+      "superseding-version-record-present",
+      "extra-variable-present"
+    ]
+  },
+  "compatibilityDimensions": [
+    {
+      "dimensionId": "published-template-version-identity-match",
+      "sameVersionStatus": "compatible",
+      "mismatchStatus": "incompatible-blocked",
+      "mismatchBlocker": "published-template-version-mismatch",
+      "supersededStatus": "compatible-with-warnings",
+      "supersededWarning": "superseding-version-record-present",
+      "unknownStatus": "unknown"
+    },
+    {
+      "dimensionId": "variable-id-stability",
+      "unchangedStatus": "compatible",
+      "knownIdChangedStatus": "incompatible-blocked",
+      "knownIdChangedBlocker": "known-variable-id-changed",
+      "aliasRecordStatus": "compatible-with-warnings",
+      "aliasRecordWarning": "alias-compatibility-record-present"
+    },
+    {
+      "dimensionId": "value-type-candidate-stability",
+      "unchangedStatus": "compatible",
+      "changedStatus": "incompatible-blocked",
+      "changedBlocker": "value-type-candidate-changed",
+      "laterAcceptedMetadataStatus": "unknown"
+    },
+    {
+      "dimensionId": "required-optional-policy-changes",
+      "unchangedStatus": "compatible",
+      "requiredToOptionalStatus": "compatible-with-warnings",
+      "requiredToOptionalWarning": "required-policy-loosened",
+      "optionalToRequiredWithDefaultMetadataStatus": "compatible-with-warnings",
+      "optionalToRequiredWithDefaultMetadataWarning": "required-variable-added-with-default-metadata",
+      "optionalToRequiredWithoutDefaultMetadataStatus": "incompatible-blocked",
+      "optionalToRequiredWithoutDefaultMetadataBlocker": "required-variable-added-without-default-metadata"
+    },
+    {
+      "dimensionId": "default-metadata-changes",
+      "unchangedStatus": "compatible",
+      "changedStatus": "compatible-with-warnings",
+      "changedWarning": "default-metadata-changed",
+      "addedStatus": "compatible-with-warnings",
+      "addedWarning": "default-metadata-added",
+      "removedFromOptionalStatus": "compatible-with-warnings",
+      "removedFromOptionalWarning": "default-metadata-removed-for-optional-variable",
+      "removedFromRequiredNoFallbackStatus": "incompatible-blocked",
+      "removedFromRequiredNoFallbackBlocker": "required-policy-tightened-without-compatibility-record"
+    },
+    {
+      "dimensionId": "table-cell-context-changes",
+      "unchangedStatus": "compatible",
+      "changedTableBoundVariableStatus": "incompatible-blocked",
+      "changedTableBoundVariableBlocker": "table-cell-context-changed",
+      "notTableBoundStatus": "compatible"
+    },
+    {
+      "dimensionId": "removed-variable-behavior",
+      "removedRequiredStatus": "incompatible-blocked",
+      "removedRequiredBlocker": "removed-required-variable",
+      "removedOptionalStatus": "compatible-with-warnings",
+      "removedOptionalWarning": "optional-variable-removed"
+    },
+    {
+      "dimensionId": "added-variable-behavior",
+      "addedOptionalStatus": "compatible-with-warnings",
+      "addedOptionalWarning": "optional-variable-added",
+      "addedRequiredWithDefaultMetadataStatus": "compatible-with-warnings",
+      "addedRequiredWithDefaultMetadataWarning": "required-variable-added-with-default-metadata",
+      "addedRequiredWithoutDefaultMetadataStatus": "incompatible-blocked",
+      "addedRequiredWithoutDefaultMetadataBlocker": "required-variable-added-without-default-metadata"
+    },
+    {
+      "dimensionId": "renamed-aliased-variable-behavior",
+      "renamedWithoutAliasStatus": "incompatible-blocked",
+      "renamedWithoutAliasBlocker": "renamed-variable-without-alias-record",
+      "renamedWithAliasStatus": "compatible-with-warnings",
+      "renamedWithAliasWarning": "alias-compatibility-record-present",
+      "invalidAliasTargetStatus": "incompatible-blocked",
+      "invalidAliasTargetBlocker": "invalid-alias-target"
+    }
+  ],
+  "variableCompatibilityBaselineRows": [
+    {
+      "variableId": "customer.name",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Customer Name",
+      "requiredStatus": "required",
+      "defaultValueCandidate": "Customer",
+      "missingValueCompatibilityStatus": "compatible-with-warnings",
+      "tableCellContextCompatibilityStatus": "compatible",
+      "removedVariableCompatibilityStatus": "incompatible-blocked"
+    },
+    {
+      "variableId": "customer.segment",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Customer Segment",
+      "requiredStatus": "optional",
+      "defaultValueCandidate": "Segment",
+      "missingValueCompatibilityStatus": "compatible-with-warnings",
+      "tableCellContextCompatibilityStatus": "compatible",
+      "removedVariableCompatibilityStatus": "compatible-with-warnings"
+    },
+    {
+      "variableId": "prepared.by",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Prepared By",
+      "requiredStatus": "optional",
+      "defaultValueCandidate": "Team",
+      "missingValueCompatibilityStatus": "compatible-with-warnings",
+      "tableCellContextCompatibilityStatus": "compatible",
+      "removedVariableCompatibilityStatus": "compatible-with-warnings"
+    },
+    {
+      "variableId": "report.period",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Report Period",
+      "requiredStatus": "required",
+      "defaultValueCandidate": "Current Period",
+      "missingValueCompatibilityStatus": "compatible-with-warnings",
+      "tableCellContextCompatibilityStatus": "compatible",
+      "removedVariableCompatibilityStatus": "incompatible-blocked"
+    },
+    {
+      "variableId": "report.riskLevel",
+      "valueTypeCandidate": "enum",
+      "displayLabelCandidate": "Risk Level",
+      "requiredStatus": "required",
+      "defaultValueCandidate": "Normal",
+      "missingValueCompatibilityStatus": "compatible-with-warnings",
+      "tableCellContextCompatibilityStatus": "incompatible-blocked",
+      "removedVariableCompatibilityStatus": "incompatible-blocked"
+    },
+    {
+      "variableId": "report.total",
+      "valueTypeCandidate": "number",
+      "displayLabelCandidate": "Report Total",
+      "requiredStatus": "required",
+      "defaultValueCandidate": null,
+      "missingValueCompatibilityStatus": "incompatible-blocked",
+      "tableCellContextCompatibilityStatus": "incompatible-blocked",
+      "removedVariableCompatibilityStatus": "incompatible-blocked"
+    }
+  ],
+  "tableCellContextCompatibilityRows": [
+    {
+      "fieldRefId": "metric-value-total-field",
+      "variableId": "report.total",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-total",
+      "unchangedContextStatus": "compatible",
+      "changedContextStatus": "incompatible-blocked",
+      "changedContextBlocker": "table-cell-context-changed"
+    },
+    {
+      "fieldRefId": "metric-value-risk-field",
+      "variableId": "report.riskLevel",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-risk",
+      "unchangedContextStatus": "compatible",
+      "changedContextStatus": "incompatible-blocked",
+      "changedContextBlocker": "table-cell-context-changed"
+    }
+  ],
+  "compatibilityScenarioPolicies": {
+    "displayLabelOnlyChange": {
+      "status": "compatible-with-warnings",
+      "warning": "display-label-changed"
+    },
+    "addedOptionalVariable": {
+      "status": "compatible-with-warnings",
+      "warning": "optional-variable-added"
+    },
+    "addedRequiredVariableWithoutDefaultMetadata": {
+      "status": "incompatible-blocked",
+      "blocker": "required-variable-added-without-default-metadata"
+    },
+    "changedValueTypeCandidate": {
+      "status": "incompatible-blocked",
+      "blocker": "value-type-candidate-changed"
+    },
+    "renamedVariableWithoutAliasRecord": {
+      "status": "incompatible-blocked",
+      "blocker": "renamed-variable-without-alias-record"
+    },
+    "renamedVariableWithAliasRecord": {
+      "status": "compatible-with-warnings",
+      "warning": "alias-compatibility-record-present"
+    },
+    "publishedTemplateVersionMismatch": {
+      "status": "incompatible-blocked",
+      "blocker": "published-template-version-mismatch"
+    },
+    "publishedTemplateVersionSuperseded": {
+      "status": "compatible-with-warnings",
+      "warning": "superseding-version-record-present"
+    }
+  },
+  "blockersBeforeVariableSchemaDataContractCloseAudit": [],
+  "routeDecisions": {
+    "ifCompatibilityPolicyAccepted": "Variable Schema / Data Contract Close Audit",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate",
+    "ifAliasesOrCompatibilityLabelsRequired": "Variable Metadata Resolution Decision Gate"
+  },
+  "deferredPolicyDecisions": {
+    "renderApiContract": "deferred",
+    "runtimeDataValidation": "not-implemented",
+    "runtimeDefaultApplication": "not-implemented",
+    "runtimeCompatibilityEnforcement": "not-implemented",
+    "fullVariableSchemaDataContract": "deferred-until-close-audit"
+  },
+  "nonWork": {
+    "packageDocumentSchemaMutated": false,
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "runtimeCompatibilityEnforcementImplemented": false,
+    "fullVariableSchemaDataContractImplemented": false,
+    "renderApiContractImplemented": false,
+    "backendProductionRoutesImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "rendererArtifactBytesProduced": false,
+    "authAuthzBehaviorAdded": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}
