@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Template Publish / Version Boundary Gate.
+Status: updated after Template Publish Validation Evidence Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Template Publish / Version Boundary Gate.
+Template Publish Validation Evidence Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -26,6 +26,7 @@ Recent completed gate markers retained for pointer guards:
 - Measurement Hardening Close Audit.
 - Template Publish / Variable Schema / Render API Planning Gate.
 - Template Publish / Version Boundary Gate.
+- Template Publish Validation Evidence Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -191,20 +192,31 @@ pointer evidence, and rollback/deprecation/superseding policy names. It keeps
 Variable Schema / Data Contract and Render API Contract deferred, makes no
 package/document schema change, and selects Template Publish Validation
 Evidence Gate as the next step.
+Template Publish Validation Evidence Gate then adds JSON-safe validation
+evidence at `fixtures/template-publish-validation-evidence.v1.json` for the
+canonical `fixtures/product-report-vnext.flowdoc.json` package v2/document v3
+candidate. It records package parse, graph diagnostics, key/data diagnostics,
+export-readiness, measurement, rejected blocker vocabulary, and retention
+pointer summaries without mutating package/document schema, producing renderer
+bytes, claiming storage durability, implementing backend routes/auth/authz, or
+attaching Variable Schema / Render API contracts. It selects Template Publish
+Accepted Version Metadata Gate as the next step.
 
 ## Current Next Phase
 
-Template Publish Validation Evidence Gate.
+Template Publish Accepted Version Metadata Gate.
 
 Goal:
 
-- use Template Publish / Version Boundary Gate as source of truth;
-- produce JSON-safe publish validation evidence for a canonical package
-  v2/document v3 template candidate;
-- report package parse status, graph diagnostics, key/data diagnostics,
-  export-readiness status, measurement status, and rejected publish blockers;
-- attach validation evidence to the accepted draft/published version identity
-  boundary and retention pointer shape;
+- use Template Publish Validation Evidence Gate as source of truth;
+- populate JSON-safe accepted version metadata for the validated canonical
+  package v2/document v3 template candidate;
+- carry validation evidence status, source snapshot retention pointer, and
+  validation evidence pointer into accepted version metadata;
+- keep draft template identity separate from published template version
+  identity;
+- preserve explicit blockers if accepted metadata cannot be represented
+  without schema changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -440,6 +452,8 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`
+- `fixtures/template-publish-validation-evidence.v1.json`
 - `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
 - `fixtures/template-publish-version-boundary.v1.json`
 - `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`

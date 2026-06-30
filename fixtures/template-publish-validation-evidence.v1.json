@@ -1,0 +1,141 @@
+{
+  "manifestVersion": 1,
+  "evidenceId": "template-publish-validation-evidence-v1",
+  "sourceBoundaryId": "template-publish-version-boundary-v1",
+  "sourceBoundaryStatus": "accepted",
+  "sourceBoundaryPointer": "fixtures/template-publish-version-boundary.v1.json",
+  "evidenceStatus": "accepted",
+  "nextRecommendedWork": "Template Publish Accepted Version Metadata Gate",
+  "schemaDecisionRequired": false,
+  "candidate": {
+    "sourcePointer": "fixtures/product-report-vnext.flowdoc.json",
+    "packageId": "product-report-vnext",
+    "documentId": "product-report-vnext",
+    "packageKind": "document",
+    "packageVersion": 2,
+    "documentVersion": 3,
+    "rawPackageIncludedInThisFixture": false
+  },
+  "identityBoundary": {
+    "draftTemplate": {
+      "identityKind": "draft-template",
+      "draftTemplateId": "draft-template-product-report-vnext",
+      "workingRevisionId": "working-revision-product-report-vnext-001",
+      "mutable": true
+    },
+    "publishedTemplateVersionCandidate": {
+      "identityKind": "published-template-version",
+      "templateId": "template-product-report-vnext",
+      "templateVersionId": "template-product-report-vnext@v1",
+      "versionOrdinal": 1,
+      "mutable": false,
+      "status": "validation-evidence-ready-not-published"
+    },
+    "draftAndPublishedIdentitiesSeparate": true,
+    "variableSchemaDataContractDeferred": true,
+    "renderApiContractDeferred": true
+  },
+  "validationEvidence": {
+    "packageParse": {
+      "status": "ready",
+      "issueCount": 0
+    },
+    "graphDiagnostics": {
+      "status": "ready",
+      "issueCount": 0
+    },
+    "keyDataDiagnostics": {
+      "status": "ready",
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    "exportReadiness": {
+      "status": "ready-with-warnings",
+      "blockingIssueCount": 0,
+      "warningIssueCount": 1,
+      "rendererArtifactBytesProduced": false
+    },
+    "measurement": {
+      "status": "mini-checkpoint-only",
+      "fullV1ProductionReadiness": false,
+      "defaultMeasurerReplacementBlocked": true,
+      "measureVNextTextUnchanged": true
+    },
+    "rejectedPublishBlockers": []
+  },
+  "rejectedPublishAttemptPolicy": {
+    "explicitBlockersRequired": true,
+    "mutatesCanonicalPackageSchema": false,
+    "blockerVocabulary": [
+      "invalid-package",
+      "unsupported-package-version",
+      "unsupported-document-version",
+      "graph-diagnostics-blocked",
+      "key-data-diagnostics-blocked",
+      "export-readiness-blocked",
+      "measurement-status-blocked",
+      "missing-source-snapshot-retention-pointer"
+    ],
+    "exampleRejectedAttempts": [
+      {
+        "attemptId": "rejected-invalid-package",
+        "status": "rejected",
+        "blockers": [
+          "invalid-package"
+        ],
+        "packageSchemaMutated": false
+      },
+      {
+        "attemptId": "rejected-export-readiness-blocked",
+        "status": "rejected",
+        "blockers": [
+          "export-readiness-blocked"
+        ],
+        "packageSchemaMutated": false
+      },
+      {
+        "attemptId": "rejected-missing-source-retention-pointer",
+        "status": "rejected",
+        "blockers": [
+          "missing-source-snapshot-retention-pointer"
+        ],
+        "packageSchemaMutated": false
+      }
+    ]
+  },
+  "retentionPointers": {
+    "sourcePackageTemplateSnapshotPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+    "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+    "rawSnapshotIncludedInRootFixture": false,
+    "rawRendererArtifactIncluded": false,
+    "storageDurabilityClaimed": false
+  },
+  "blockedUntilLater": {
+    "backendProductionRoutes": true,
+    "productionStorageDurability": true,
+    "authAuthz": true,
+    "rendererArtifactBytes": true,
+    "variableSchemaDataContract": true,
+    "renderApiContract": true,
+    "packageDocumentSchemaChange": true,
+    "fullMeasurementProductionReadiness": true,
+    "defaultMeasurerReplacement": true
+  },
+  "nonWork": {
+    "packageDocumentSchemaMutated": false,
+    "backendProductionRoutesImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "rendererArtifactBytesProduced": false,
+    "authAuthzBehaviorAdded": false,
+    "variableSchemaDataContractImplemented": false,
+    "renderApiContractImplemented": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

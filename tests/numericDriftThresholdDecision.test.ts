@@ -444,10 +444,10 @@ describe("numeric drift threshold decision", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Template Publish / Version Boundary Gate.")
+    expect(currentStatus).toContain("Status: updated after Template Publish Validation Evidence Gate.")
     expect(currentStatus).toContain("Numeric Drift Threshold Decision.")
     expect(currentStatus).toContain("Accepted Summary Manifest Population.")
-    expect(nextPointer).toContain("Status: current after Template Publish / Version Boundary Gate.")
+    expect(nextPointer).toContain("Status: current after Template Publish Validation Evidence Gate.")
     expect(nextPointer).toContain("Accepted Summary Manifest Population.")
     expect(nextPointer).toContain("No raw renderer evidence in root docs/tests.")
     expect(readme).toContain("Numeric drift threshold decision")

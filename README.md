@@ -723,6 +723,12 @@ The package must remain runnable without any parent editor checkout.
   source, publish validation evidence shape, retention pointer evidence, and
   rollback/deprecation/superseding policy names without schema, backend,
   renderer, or production measurement changes.
+- Template Publish Validation Evidence Gate adds JSON-safe publish validation
+  evidence for `fixtures/product-report-vnext.flowdoc.json`, recording package
+  parse, graph diagnostics, key/data diagnostics, export-readiness,
+  measurement, rejected blocker vocabulary, and retention pointer summaries
+  while keeping schema, backend, storage, renderer, Variable Schema, and Render
+  API behavior out of scope.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -736,7 +742,7 @@ The package must remain runnable without any parent editor checkout.
 
 - `AGENTS.md`: working agreement for agents in this repo
 - `docs/CURRENT_STATUS.md`: compact current-state pointer after Template
-  Publish / Version Boundary Gate
+  Publish Validation Evidence Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -744,6 +750,8 @@ The package must remain runnable without any parent editor checkout.
   ranks Template Publish, Variable Schema, and Render API lanes
 - `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`: accepted publish/version
   identity boundary before validation evidence, Variable Schema, or Render API
+- `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`: JSON-safe publish
+  validation evidence before accepted version metadata
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1241,9 +1249,9 @@ The package must remain runnable without any parent editor checkout.
 - raw native/WASM/renderer evidence values in root docs/tests, full-matrix
   accepted summary manifest, WASM artifact loading, or production measurement
   replacement beyond the template/variable/render planning gate
-- concrete template publish validation evidence, production publish route or
-  storage behavior, variable schema/data contract, or render API contract
-  implementation beyond the Template Publish / Version Boundary Gate
+- concrete accepted version metadata, production publish route or storage
+  behavior, variable schema/data contract, or render API contract
+  implementation beyond the Template Publish Validation Evidence Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

@@ -219,6 +219,7 @@ Parent goal:
 | 203 | Measurement hardening close audit | done | `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementHardeningCloseAudit.test.ts`; pointer guard tests |
 | 204 | Template variable render API planning gate | done | `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateVariableRenderApiPlanningGate.test.ts`; pointer guard tests |
 | 205 | Template publish version boundary gate | done | `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`; `fixtures/template-publish-version-boundary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishVersionBoundaryGate.test.ts`; pointer guard tests |
+| 206 | Template publish validation evidence gate | done | `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`; `fixtures/template-publish-validation-evidence.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishValidationEvidenceGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5769,6 +5770,41 @@ implement production contenteditable, add collaboration/offline behavior, or
 copy legacy editor runtime.
 
 Next recommended work: Template Publish Validation Evidence Gate.
+Production measurement replacement remains blocked.
+
+## Phase 206 Template Publish Validation Evidence Gate
+
+Template Publish Validation Evidence Gate uses Template Publish / Version
+Boundary Gate as source of truth and accepts JSON-safe publish validation
+evidence for a canonical FlowDoc package v2/document v3 candidate.
+
+The accepted evidence records:
+
+- source boundary id `template-publish-version-boundary-v1` remains accepted;
+- draft template identity remains separate from published template version
+  identity;
+- Variable Schema / Data Contract and Render API Contract remain deferred;
+- candidate source is `fixtures/product-report-vnext.flowdoc.json`;
+- package parse status is `ready` with zero issues;
+- graph diagnostics status is `ready` with zero issues;
+- key/data diagnostics status is `ready` with zero errors and zero warnings;
+- export-readiness status is `ready-with-warnings` with zero blocking issues;
+- measurement status remains `mini-checkpoint-only`;
+- rejected publish blockers use the accepted blocker vocabulary and do not
+  mutate canonical package schema;
+- source snapshot and validation evidence retention pointers are present
+  without claiming production storage durability.
+
+This phase intentionally does not mutate package/document schema, implement
+backend production routes, claim production storage durability, produce
+renderer artifact bytes, add auth/authz behavior, implement Variable Schema /
+Data Contract, implement Render API Contract, replace `measureVNextText(...)`,
+claim full measurement production readiness, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+implement production contenteditable, add collaboration/offline behavior, or
+copy legacy editor runtime.
+
+Next recommended work: Template Publish Accepted Version Metadata Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

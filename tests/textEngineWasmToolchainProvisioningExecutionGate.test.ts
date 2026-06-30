@@ -416,12 +416,12 @@ describe("text engine WASM toolchain provisioning execution gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Template Publish / Version Boundary Gate.",
+      "Status: updated after Template Publish Validation Evidence Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Template Publish / Version Boundary Gate.",
+      "Status: current after Template Publish Validation Evidence Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")

@@ -6430,6 +6430,46 @@ Acceptance:
   contenteditable, collaboration/offline behavior, or legacy editor runtime
   copy is introduced.
 
+## Phase 206: Template Publish Validation Evidence Gate
+
+Goal:
+
+- produce JSON-safe publish validation evidence for a canonical FlowDoc package
+  v2 / document v3 template candidate.
+
+Deliverables:
+
+- `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`;
+- `fixtures/template-publish-validation-evidence.v1.json`;
+- `tests/templatePublishValidationEvidenceGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms the publish/version boundary is accepted;
+- keeps draft template identity separate from published template version
+  identity;
+- keeps Variable Schema / Data Contract and Render API Contract deferred;
+- uses canonical package v2/document v3 candidate
+  `fixtures/product-report-vnext.flowdoc.json`;
+- records JSON-safe package parse, graph diagnostics, key/data diagnostics,
+  export-readiness, measurement, and rejected blocker summaries;
+- attaches evidence to source snapshot and validation evidence retention
+  pointers without claiming production storage durability;
+- requires rejected publish attempts to carry explicit blockers and not mutate
+  canonical package schema;
+- no package/document schema mutation, backend production route, production
+  storage durability claim, renderer artifact bytes, auth/authz behavior,
+  Variable Schema / Data Contract implementation, Render API Contract
+  implementation, `measureVNextText(...)` replacement, full measurement
+  production readiness claim, pagination mutation, production renderer-backed
+  measurement binding, production PDF/DOCX renderer work, production
+  contenteditable, collaboration/offline behavior, or legacy editor runtime
+  copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6459,10 +6499,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 205:
+Current next step after Phase 206:
 
 ```text
-Template Publish Validation Evidence Gate
+Template Publish Accepted Version Metadata Gate
 ```
 
 Reason:
@@ -6614,9 +6654,25 @@ Reason:
   identity, defines JSON-safe version metadata, validation evidence shape,
   retention pointer evidence, and lifecycle policy names, and selects Template
   Publish Validation Evidence Gate next;
+- Phase 206 now accepts JSON-safe publish validation evidence for
+  `fixtures/product-report-vnext.flowdoc.json`, records package parse, graph,
+  key/data, export-readiness, measurement, rejected blocker, and retention
+  pointer summaries, and selects Template Publish Accepted Version Metadata
+  Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 205 Handoff
+
+Current next step after Phase 205:
+
+```text
+Template Publish Validation Evidence Gate
+```
+
+That was the Phase 205 handoff recommendation. Phase 206 is now complete,
+so it is no longer the current next step after Phase 206.
 
 ## Historical Phase 204 Handoff
 
