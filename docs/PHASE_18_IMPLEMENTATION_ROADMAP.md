@@ -6930,6 +6930,55 @@ Acceptance:
   production PDF/DOCX renderer work, production contenteditable,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 217: Render API Request Envelope Contract Gate
+
+Goal:
+
+- define the JSON-safe Render API request envelope contract for the accepted
+  published template version and accepted variable/data contract evidence,
+  without implementing backend routes or render execution.
+
+Deliverables:
+
+- `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`;
+- `fixtures/render-api-request-envelope-contract.v1.json`;
+- `tests/renderApiRequestEnvelopeContractGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Render API Contract Planning Gate is complete;
+- confirms selected first sub-lane is Render API request envelope contract;
+- confirms accepted published template version target
+  `template-product-report-vnext@v1`;
+- confirms source snapshot and accepted validation evidence pointers;
+- confirms variable/data contract evidence pointers;
+- confirms candidate variables;
+- defines JSON-safe request envelope metadata:
+  `requestEnvelopeId`, `requestEnvelopeVersion`,
+  `templateVersionIdentity`, retention/evidence pointers, variable payload
+  container, policy references, compatibility policy reference, render intent,
+  client request/correlation metadata, idempotency policy name, duplicate
+  request policy name, and malformed envelope blockers;
+- defines variable payload container shape against candidate variable ids;
+- defines request envelope validation statuses:
+  `envelope-valid`, `envelope-valid-with-warnings`, and
+  `envelope-blocked`;
+- defines malformed envelope blocker vocabulary;
+- keeps response/status contract, render-readiness validation, and artifact
+  pointer / job status placeholder policy deferred;
+- no backend production route, Render API runtime, production storage
+  durability claim, auth/authz behavior, renderer artifact bytes, actual render
+  execution, runtime data validation, runtime default application, runtime
+  compatibility enforcement, package/document schema mutation,
+  `measureVNextText(...)` replacement, full measurement production readiness
+  claim, pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, production contenteditable,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6959,10 +7008,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 216:
+Current next step after Phase 217:
 
 ```text
-Render API Request Envelope Contract Gate
+Render API Response / Status Contract Gate
 ```
 
 Reason:
@@ -7167,9 +7216,27 @@ Reason:
   and keeps backend routes, Render API runtime, artifact bytes, storage,
   auth/authz, runtime validation, runtime defaults, runtime compatibility
   enforcement, and schema mutation deferred;
+- Phase 217 now defines the JSON-safe Render API request envelope contract,
+  accepts `render-api-request-envelope-contract-v1` with envelope version `1`,
+  anchors it to `template-product-report-vnext@v1`, defines the `variables`
+  payload container, envelope status vocabulary, malformed-envelope blockers,
+  client request/correlation metadata, idempotency and duplicate request policy
+  names, keeps response/status plus readiness/artifact/job lanes deferred, and
+  selects Render API Response / Status Contract Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 216 Handoff
+
+Current next step after Phase 216:
+
+```text
+Render API Request Envelope Contract Gate
+```
+
+That was the Phase 216 handoff recommendation. Phase 217 is now complete,
+so it is no longer the current next step after Phase 217.
 
 ## Historical Phase 215 Handoff
 

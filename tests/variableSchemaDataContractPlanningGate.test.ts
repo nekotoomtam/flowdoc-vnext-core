@@ -177,10 +177,10 @@ describe("variable schema data contract planning gate", () => {
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
     const readme = readText("../README.md")
 
-    expect(currentStatus).toContain("Status: updated after Render API Contract Planning Gate.")
+    expect(currentStatus).toContain("Status: updated after Render API Request Envelope Contract Gate.")
     expect(currentStatus).toContain("Variable Schema / Data Contract Planning Gate.")
     expect(currentStatus).toContain("Variable Reference Discovery Gate.")
-    expect(nextPointer).toContain("Status: current after Render API Contract Planning Gate.")
+    expect(nextPointer).toContain("Status: current after Render API Request Envelope Contract Gate.")
     expect(nextPointer).toContain("Variable Reference Discovery Gate.")
     expect(nextPointer).toContain("No package/document schema mutation.")
     expect(nextPointer).toContain("No Variable Schema / Data Contract implementation.")

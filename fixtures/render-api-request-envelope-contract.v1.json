@@ -1,0 +1,243 @@
+{
+  "manifestVersion": 1,
+  "requestEnvelopeId": "render-api-request-envelope-contract-v1",
+  "sourceRenderApiContractPlanningGate": "Render API Contract Planning Gate",
+  "sourceRenderApiContractPlanningGateStatus": "complete",
+  "sourceRenderApiContractPlanningGatePointer": "repo://docs/RENDER_API_CONTRACT_PLANNING_GATE.md",
+  "selectedSubLane": "Render API request envelope contract",
+  "requestEnvelopeStatus": "accepted-contract-metadata-only",
+  "nextRecommendedWork": "Render API Response / Status Contract Gate",
+  "templateVersionIdentity": {
+    "templateId": "template-product-report-vnext",
+    "templateVersionId": "template-product-report-vnext@v1",
+    "versionOrdinal": 1
+  },
+  "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+  "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+  "variableDataContractEvidencePointers": {
+    "variableReferenceDiscovery": "repo://fixtures/variable-reference-discovery.v1.json",
+    "variableSchemaMetadataShape": "repo://fixtures/variable-schema-metadata-shape.v1.json",
+    "dataContractValidationPolicy": "repo://fixtures/data-contract-validation-policy.v1.json",
+    "requiredMissingDefaultValuePolicy": "repo://fixtures/required-missing-default-value-policy.v1.json",
+    "variableCompatibilityPolicy": "repo://fixtures/variable-compatibility-policy.v1.json"
+  },
+  "candidateVariableIds": [
+    "customer.name",
+    "customer.segment",
+    "prepared.by",
+    "report.period",
+    "report.riskLevel",
+    "report.total"
+  ],
+  "requestEnvelopeContract": {
+    "requestEnvelopeVersion": 1,
+    "requestEnvelopeVersionLabel": "render-api-request-envelope-v1",
+    "requestEnvelopeMode": "json-safe-contract-metadata-only",
+    "requestEnvelopeFields": [
+      "requestEnvelopeId",
+      "requestEnvelopeVersion",
+      "templateVersionIdentity",
+      "sourceSnapshotRetentionPointer",
+      "validationEvidencePointer",
+      "variableDataContractEvidencePointers",
+      "variablePayloadContainer",
+      "variablePayloadPolicyReference",
+      "compatibilityPolicyReference",
+      "renderIntent",
+      "clientRequestId",
+      "correlationId",
+      "idempotencyPolicyName",
+      "duplicateRequestPolicyName"
+    ],
+    "requestEnvelopeValidationStatusVocabulary": [
+      "envelope-valid",
+      "envelope-valid-with-warnings",
+      "envelope-blocked"
+    ],
+    "malformedEnvelopeBlockerVocabulary": [
+      "missing-template-version-identity",
+      "unknown-template-version-identity",
+      "missing-variable-payload",
+      "invalid-variable-payload-shape",
+      "missing-variable-data-contract-evidence",
+      "variable-data-contract-context-mismatch",
+      "compatibility-policy-context-mismatch",
+      "invalid-client-request-id",
+      "duplicate-request-policy-missing",
+      "schema-mutation-required"
+    ]
+  },
+  "variablePayloadContainer": {
+    "containerField": "variables",
+    "containerShape": "json-object-keyed-by-variable-id",
+    "allowedVariableIds": [
+      "customer.name",
+      "customer.segment",
+      "prepared.by",
+      "report.period",
+      "report.riskLevel",
+      "report.total"
+    ],
+    "requiredVariableIds": [
+      "customer.name",
+      "report.period",
+      "report.riskLevel",
+      "report.total"
+    ],
+    "optionalVariableIds": [
+      "customer.segment",
+      "prepared.by"
+    ],
+    "requiredWithoutDefaultVariableIds": [
+      "report.total"
+    ],
+    "requiredWithDefaultMetadataVariableIds": [
+      "customer.name",
+      "report.period",
+      "report.riskLevel"
+    ],
+    "tableCellBoundVariableIds": [
+      "report.riskLevel",
+      "report.total"
+    ],
+    "unknownVariablePolicy": "valid-with-warnings-extra-variable-present",
+    "conflictingKnownVariablePolicy": "envelope-blocked",
+    "missingRequiredWithoutDefaultPolicy": "envelope-blocked",
+    "missingRequiredWithDefaultMetadataPolicy": "envelope-valid-with-warnings",
+    "optionalMissingPolicy": "envelope-valid-with-warnings",
+    "runtimeDefaultApplicationImplemented": false,
+    "runtimeDataValidationImplemented": false,
+    "variableRows": [
+      {
+        "variableId": "customer.name",
+        "valueTypeCandidate": "text",
+        "requiredStatus": "required",
+        "defaultValueCandidate": "Customer",
+        "payloadPresencePolicy": "present-or-warning-default-metadata",
+        "tableCellBound": false
+      },
+      {
+        "variableId": "customer.segment",
+        "valueTypeCandidate": "text",
+        "requiredStatus": "optional",
+        "defaultValueCandidate": "Segment",
+        "payloadPresencePolicy": "optional-warning-default-metadata",
+        "tableCellBound": false
+      },
+      {
+        "variableId": "prepared.by",
+        "valueTypeCandidate": "text",
+        "requiredStatus": "optional",
+        "defaultValueCandidate": "Team",
+        "payloadPresencePolicy": "optional-warning-default-metadata",
+        "tableCellBound": false
+      },
+      {
+        "variableId": "report.period",
+        "valueTypeCandidate": "text",
+        "requiredStatus": "required",
+        "defaultValueCandidate": "Current Period",
+        "payloadPresencePolicy": "present-or-warning-default-metadata",
+        "tableCellBound": false
+      },
+      {
+        "variableId": "report.riskLevel",
+        "valueTypeCandidate": "enum",
+        "requiredStatus": "required",
+        "defaultValueCandidate": "Normal",
+        "payloadPresencePolicy": "present-or-warning-default-metadata",
+        "tableCellBound": true,
+        "tableCellContextMismatchPolicy": "envelope-blocked"
+      },
+      {
+        "variableId": "report.total",
+        "valueTypeCandidate": "number",
+        "requiredStatus": "required",
+        "defaultValueCandidate": null,
+        "payloadPresencePolicy": "missing-required-without-default-blocked",
+        "tableCellBound": true,
+        "tableCellContextMismatchPolicy": "envelope-blocked"
+      }
+    ]
+  },
+  "variablePayloadPolicyReference": {
+    "dataContractValidationPolicyPointer": "repo://fixtures/data-contract-validation-policy.v1.json",
+    "requiredMissingDefaultValuePolicyPointer": "repo://fixtures/required-missing-default-value-policy.v1.json",
+    "acceptedEnvelopeStatusMapping": {
+      "valid": "envelope-valid",
+      "valid-with-warnings": "envelope-valid-with-warnings",
+      "blocked": "envelope-blocked"
+    },
+    "runtimeValidationImplemented": false,
+    "runtimeDefaultsApplied": false
+  },
+  "compatibilityPolicyReference": {
+    "variableCompatibilityPolicyPointer": "repo://fixtures/variable-compatibility-policy.v1.json",
+    "requiredTemplateVersionId": "template-product-report-vnext@v1",
+    "publishedTemplateVersionMismatchStatus": "envelope-blocked",
+    "compatibilityPolicyContextMismatchBlocker": "compatibility-policy-context-mismatch",
+    "runtimeCompatibilityEnforcementImplemented": false
+  },
+  "renderIntent": {
+    "intentField": "renderIntent",
+    "allowedIntentIds": [
+      "preview",
+      "final"
+    ],
+    "defaultIntentId": "preview",
+    "intentMode": "metadata-only",
+    "renderExecutionImplemented": false
+  },
+  "correlationPolicy": {
+    "clientRequestIdField": "clientRequestId",
+    "correlationIdField": "correlationId",
+    "clientRequestIdRequired": true,
+    "correlationIdRequired": false,
+    "clientRequestIdFormatPolicy": "non-empty-json-string",
+    "invalidClientRequestIdBlocker": "invalid-client-request-id",
+    "runtimeCorrelationImplemented": false
+  },
+  "idempotencyPolicy": {
+    "idempotencyPolicyName": "render-api-request-envelope-idempotency-v1",
+    "policyMode": "metadata-only",
+    "idempotencyKeySource": "clientRequestId-plus-templateVersionId",
+    "runtimeIdempotencyEnforcementImplemented": false
+  },
+  "duplicateRequestPolicy": {
+    "duplicateRequestPolicyName": "render-api-duplicate-request-policy-v1",
+    "policyMode": "metadata-only",
+    "duplicateRequestPolicyMissingBlocker": "duplicate-request-policy-missing",
+    "runtimeDuplicateRequestHandlingImplemented": false
+  },
+  "deferredContractLanes": {
+    "renderApiResponseStatusContract": "deferred-to-render-api-response-status-contract-gate",
+    "renderReadinessValidationPolicy": "deferred",
+    "artifactPointerJobStatusPlaceholderPolicy": "deferred",
+    "errorBlockerVocabulary": "covered-for-malformed-envelope-only"
+  },
+  "routeDecisions": {
+    "ifRequestEnvelopeContractAccepted": "Render API Response / Status Contract Gate",
+    "ifBackendRoutesStorageAuthOrRenderExecutionNeeded": "Dedicated Production Gate",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate"
+  },
+  "blockersBeforeRenderApiResponseStatusContract": [],
+  "nonWork": {
+    "backendProductionRoutesImplemented": false,
+    "renderApiRuntimeImplemented": false,
+    "rendererArtifactBytesProduced": false,
+    "productionStorageDurabilityClaimed": false,
+    "authAuthzBehaviorAdded": false,
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "runtimeCompatibilityEnforcementImplemented": false,
+    "packageDocumentSchemaMutated": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

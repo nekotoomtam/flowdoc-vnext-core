@@ -373,10 +373,10 @@ describe("renderer-backed drift summary gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Render API Contract Planning Gate.")
+    expect(currentStatus).toContain("Status: updated after Render API Request Envelope Contract Gate.")
     expect(currentStatus).toContain("Renderer-backed Drift Summary Gate.")
     expect(currentStatus).toContain("Numeric Drift Threshold Decision.")
-    expect(nextPointer).toContain("Status: current after Render API Contract Planning Gate.")
+    expect(nextPointer).toContain("Status: current after Render API Request Envelope Contract Gate.")
     expect(nextPointer).toContain("Numeric Drift Threshold Decision.")
     expect(nextPointer).toContain("No raw renderer evidence in root docs/tests.")
     expect(readme).toContain("Renderer-backed drift summary gate")

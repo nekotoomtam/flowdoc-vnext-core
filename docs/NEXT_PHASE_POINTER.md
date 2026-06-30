@@ -1,58 +1,71 @@
 # Next Phase Pointer
 
-Status: current after Render API Contract Planning Gate.
+Status: current after Render API Request Envelope Contract Gate.
 
 ## Next Phase
 
-Render API Request Envelope Contract Gate.
+Render API Response / Status Contract Gate.
 
 ## Why This Is Next
 
-Render API Contract Planning Gate confirmed that the Variable Schema / Data
-Contract mini lane is closed for a mini infrastructure checkpoint only and
-that Render API work can now be planned against a stable accepted template
-version target plus accepted variable/data evidence.
+Render API Request Envelope Contract Gate accepted JSON-safe request envelope
+contract metadata for the accepted published template version and accepted
+variable/data evidence. Response/status contract is next because every render
+response needs to reference a stable request envelope before readiness,
+artifact pointer, or job status policies can attach safely.
 
-The planning gate is:
+The request envelope gate is:
 
 ```text
-docs/RENDER_API_CONTRACT_PLANNING_GATE.md
+docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md
 ```
 
-The planning gate confirms:
+The request envelope fixture is:
 
-- Variable Schema / Data Contract Close Audit is complete;
-- the Variable Schema / Data Contract mini lane is closed for a mini
-  infrastructure checkpoint only;
+```text
+fixtures/render-api-request-envelope-contract.v1.json
+```
+
+The request envelope gate confirms:
+
+- Render API Contract Planning Gate is complete;
+- selected first sub-lane is Render API request envelope contract;
+- request envelope id is `render-api-request-envelope-contract-v1`;
+- request envelope version is `1`;
+- request envelope status is `accepted-contract-metadata-only`;
 - accepted template version target is
   `template-product-report-vnext@v1`;
-- accepted validation evidence pointer is
-  `repo://fixtures/template-publish-validation-evidence.v1.json`;
 - source snapshot retention pointer is
   `repo://fixtures/product-report-vnext.flowdoc.json`;
-- the accepted variable/data contract evidence chain exists:
-  - `fixtures/variable-reference-discovery.v1.json`;
-  - `fixtures/variable-schema-metadata-shape.v1.json`;
-  - `fixtures/data-contract-validation-policy.v1.json`;
-  - `fixtures/required-missing-default-value-policy.v1.json`;
-  - `fixtures/variable-compatibility-policy.v1.json`;
+- accepted validation evidence pointer is
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- the accepted variable/data contract evidence chain exists;
 - candidate variables are `customer.name`, `customer.segment`,
   `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
-- runtime data validation remains unimplemented;
-- runtime default application remains unimplemented;
-- runtime compatibility enforcement remains unimplemented;
+- variable payload container is `variables`;
+- variable payload container shape is `json-object-keyed-by-variable-id`;
+- request envelope status vocabulary is `envelope-valid`,
+  `envelope-valid-with-warnings`, and `envelope-blocked`;
+- malformed envelope blocker vocabulary is defined;
+- client request/correlation metadata, idempotency policy name, and duplicate
+  request policy name are defined as metadata only;
+- response/status contract remains deferred until this request envelope is
+  accepted;
+- render-readiness validation policy remains deferred;
+- artifact pointer / job status placeholder policy remains deferred;
 - backend production routes, storage durability, auth/authz, renderer artifact
-  bytes, and actual render execution remain out of scope;
-- Render API request envelope contract is selected as the first Render API
-  Contract sub-lane.
+  bytes, actual render execution, runtime validation, runtime defaults, and
+  runtime compatibility enforcement remain out of scope;
+- package/document schema remains unchanged.
 
-Render API Request Envelope Contract Gate is next because response/status,
-render-readiness validation, artifact pointer / job status placeholders, and
-error/blocker vocabulary need a stable request shape that references the
-published template version identity and variable/data payload contract.
+Render API Response / Status Contract Gate is next because the accepted
+request envelope now gives response/status work a stable envelope id, envelope
+version, template version identity, policy references, and malformed-envelope
+blocker vocabulary.
 
 Previous source gates retained for traceability:
 
+- Render API Request Envelope Contract Gate.
 - Render API Contract Planning Gate.
 - Variable Schema / Data Contract Close Audit.
 - Compatibility Policy With Published Template Versions Gate.
@@ -90,14 +103,16 @@ Historical guard markers retained for pointer tests:
 - Compatibility Policy With Published Template Versions Gate.
 - Variable Schema / Data Contract Close Audit.
 - Render API Contract Planning Gate.
+- Render API Request Envelope Contract Gate.
 - Decision: sufficient for mini infrastructure checkpoint.
 - Historical production retry summary retained `sha256ComputedThisPhase=false`.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`
+- `fixtures/render-api-request-envelope-contract.v1.json`
 - `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`
-- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`
 - `fixtures/template-publish-accepted-version-metadata.v1.json`
 - `fixtures/variable-reference-discovery.v1.json`
 - `fixtures/variable-schema-metadata-shape.v1.json`
@@ -111,27 +126,24 @@ Historical guard markers retained for pointer tests:
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Render API Request Envelope Scope
+## Render API Response / Status Scope
 
-- Confirm Render API Contract Planning Gate is complete.
-- Use `docs/RENDER_API_CONTRACT_PLANNING_GATE.md` as source of truth.
-- Define a JSON-safe request envelope contract before implementation.
-- Attach the envelope to published template version identity
+- Confirm Render API Request Envelope Contract Gate is complete.
+- Use `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md` as source of truth.
+- Define JSON-safe response/status contract metadata before implementation.
+- Anchor response/status to request envelope id
+  `render-api-request-envelope-contract-v1`.
+- Anchor response/status to request envelope version `1`.
+- Carry published template version identity
   `template-product-report-vnext@v1`.
 - Carry source snapshot and validation evidence retention pointers.
 - Carry variable/data contract evidence pointers.
-- Define the variable payload container shape.
-- Define policy references for required, missing, default, extra,
-  unsupported, and table-cell-context behavior.
-- Define compatibility policy references for published template version
-  matching.
-- Define request correlation, idempotency, and malformed-envelope blocker
-  metadata if needed.
-- Keep response/status contract deferred until the envelope is accepted.
-- Keep render-readiness validation policy deferred until the envelope is
-  accepted.
-- Keep artifact pointer / job status placeholder policy deferred until the
-  envelope is accepted.
+- Define accepted response/status vocabulary.
+- Define how envelope-valid, envelope-valid-with-warnings, and
+  envelope-blocked map into response/status metadata.
+- Keep artifact pointer / job status placeholder fields deferred or
+  placeholder-only.
+- Keep render-readiness validation policy deferred until a later gate.
 - Keep backend production routes, storage durability, auth/authz, renderer
   artifact bytes, and actual render execution out of scope.
 - Keep runtime data validation, runtime default application, and runtime
@@ -178,14 +190,14 @@ Historical guard markers retained for pointer tests:
 
 ## Expected Output
 
-- Render API Request Envelope Contract Gate;
-- JSON-safe request envelope metadata shape;
-- published template version identity reference;
+- Render API Response / Status Contract Gate;
+- JSON-safe response/status metadata shape;
+- request envelope id and version reference;
+- template version identity reference;
 - variable/data contract evidence references;
-- request payload container policy;
-- request correlation/idempotency policy if needed;
-- malformed-envelope blocker vocabulary;
-- response/status deferral;
+- envelope status to response/status mapping;
+- warning/blocker response metadata policy;
+- artifact pointer/job status deferral or placeholder policy;
 - render-readiness validation deferral;
 - backend route/storage/auth deferral;
 - renderer artifact byte deferral;
@@ -196,17 +208,18 @@ Historical guard markers retained for pointer tests:
 
 ## Traceability Anchors
 
+- Render API Request Envelope Contract Gate.
 - Render API Contract Planning Gate.
-- Variable Schema / Data Contract Close Audit.
-- Template Publish Accepted Version Metadata Gate.
+- `render-api-request-envelope-contract-v1`.
+- `render-api-request-envelope-v1`.
 - `template-product-report-vnext@v1`.
 - `repo://fixtures/template-publish-validation-evidence.v1.json`.
 - `repo://fixtures/product-report-vnext.flowdoc.json`.
 - Candidate variables: `customer.name`, `customer.segment`, `prepared.by`,
   `report.period`, `report.riskLevel`, and `report.total`.
-- No package/document schema change in the request envelope gate.
-- No backend production routes in the request envelope gate.
-- No Render API runtime implementation in the request envelope gate.
+- No package/document schema change in the response/status gate.
+- No backend production routes in the response/status gate.
+- No Render API runtime implementation in the response/status gate.
 - The accepted measurement manifest is enough for a mini checkpoint only; the
   full v1 matrix remains partial and default-measurer replacement remains
   blocked.
