@@ -314,10 +314,10 @@ describe("native evidence summary gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Render API Request Envelope Contract Gate.")
+    expect(currentStatus).toContain("Status: updated after Render API Response / Status Contract Gate.")
     expect(currentStatus).toContain("Native Evidence Summary Gate.")
     expect(currentStatus).toContain("WASM Evidence Summary Gate.")
-    expect(nextPointer).toContain("Status: current after Render API Request Envelope Contract Gate.")
+    expect(nextPointer).toContain("Status: current after Render API Response / Status Contract Gate.")
     expect(nextPointer).toContain("WASM Evidence Summary Gate.")
     expect(nextPointer).toContain("No raw native evidence in root docs/tests.")
     expect(readme).toContain("Native evidence summary gate")

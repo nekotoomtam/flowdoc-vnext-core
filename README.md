@@ -801,6 +801,16 @@ The package must remain runnable without any parent editor checkout.
   renderer artifact bytes, runtime validation/defaults/compatibility
   enforcement, or schema mutation. See
   `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`.
+- Render API Response / Status Contract Gate defines JSON-safe response/status
+  metadata at `fixtures/render-api-response-status-contract.v1.json`, maps the
+  accepted request envelope statuses to `accepted`, `accepted-with-warnings`,
+  `blocked`, and `unknown` response statuses, keeps render job status and
+  artifact pointer as metadata-only placeholders, and selects
+  Render-Readiness Validation Policy Gate next without backend routes,
+  runtime Render API behavior, storage, auth/authz, renderer artifact bytes,
+  actual render execution, runtime validation/defaults/compatibility
+  enforcement, or schema mutation. See
+  `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -814,7 +824,7 @@ The package must remain runnable without any parent editor checkout.
 
 - `AGENTS.md`: working agreement for agents in this repo
 - `docs/CURRENT_STATUS.md`: compact current-state pointer after Render API
-  Request Envelope Contract Gate
+  Response / Status Contract Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -840,6 +850,8 @@ The package must remain runnable without any parent editor checkout.
   contract sub-lanes before the request envelope contract
 - `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`: JSON-safe Render API
   request envelope contract before response/status contract
+- `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`: JSON-safe Render API
+  response/status contract before render-readiness validation policy
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1339,8 +1351,8 @@ The package must remain runnable without any parent editor checkout.
   replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
   contract implementation, runtime data validation, runtime default
-  application, runtime compatibility enforcement, or render API contract
-  implementation beyond the Render API Request Envelope Contract Gate
+  application, runtime compatibility enforcement, or render API runtime
+  implementation beyond the Render API Response / Status Contract Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

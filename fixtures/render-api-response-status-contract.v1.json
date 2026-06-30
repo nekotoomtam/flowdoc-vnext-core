@@ -1,0 +1,212 @@
+{
+  "manifestVersion": 1,
+  "responseContractId": "render-api-response-status-contract-v1",
+  "sourceRenderApiRequestEnvelopeContractGate": "Render API Request Envelope Contract Gate",
+  "sourceRenderApiRequestEnvelopeContractGateStatus": "complete",
+  "sourceRenderApiRequestEnvelopeContractGatePointer": "repo://docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md",
+  "sourceRequestEnvelopePointer": "repo://fixtures/render-api-request-envelope-contract.v1.json",
+  "sourceRequestEnvelopeStatus": "accepted-contract-metadata-only",
+  "responseContractStatus": "accepted-contract-metadata-only",
+  "nextRecommendedWork": "Render-Readiness Validation Policy Gate",
+  "requestEnvelopeReference": {
+    "requestEnvelopeId": "render-api-request-envelope-contract-v1",
+    "requestEnvelopeVersion": 1,
+    "requestEnvelopeVersionLabel": "render-api-request-envelope-v1",
+    "requestEnvelopeStatus": "accepted-contract-metadata-only",
+    "templateVersionId": "template-product-report-vnext@v1"
+  },
+  "templateVersionIdentity": {
+    "templateId": "template-product-report-vnext",
+    "templateVersionId": "template-product-report-vnext@v1",
+    "versionOrdinal": 1
+  },
+  "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+  "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+  "variableDataContractEvidencePointers": {
+    "variableReferenceDiscovery": "repo://fixtures/variable-reference-discovery.v1.json",
+    "variableSchemaMetadataShape": "repo://fixtures/variable-schema-metadata-shape.v1.json",
+    "dataContractValidationPolicy": "repo://fixtures/data-contract-validation-policy.v1.json",
+    "requiredMissingDefaultValuePolicy": "repo://fixtures/required-missing-default-value-policy.v1.json",
+    "variableCompatibilityPolicy": "repo://fixtures/variable-compatibility-policy.v1.json"
+  },
+  "variablePayloadConfirmation": {
+    "variablePayloadContainerField": "variables",
+    "variablePayloadContainerShape": "json-object-keyed-by-variable-id",
+    "requiredVariableIds": [
+      "customer.name",
+      "report.period",
+      "report.riskLevel",
+      "report.total"
+    ],
+    "optionalVariableIds": [
+      "customer.segment",
+      "prepared.by"
+    ],
+    "tableCellBoundVariableIds": [
+      "report.riskLevel",
+      "report.total"
+    ]
+  },
+  "requestEnvelopeStatusVocabulary": [
+    "envelope-valid",
+    "envelope-valid-with-warnings",
+    "envelope-blocked"
+  ],
+  "responseStatusVocabulary": [
+    "accepted",
+    "accepted-with-warnings",
+    "blocked",
+    "deferred-job-placeholder",
+    "unknown"
+  ],
+  "requestStatusMapping": {
+    "envelope-valid": "accepted",
+    "envelope-valid-with-warnings": "accepted-with-warnings",
+    "envelope-blocked": "blocked",
+    "unknown": "unknown"
+  },
+  "responseShapes": {
+    "acceptedEnvelope": {
+      "responseStatus": "accepted",
+      "shapeMode": "metadata-only",
+      "includes": [
+        "responseContractId",
+        "responseContractVersion",
+        "requestEnvelopeReference",
+        "templateVersionIdentity",
+        "responseCorrelationFields",
+        "renderJobPlaceholder",
+        "artifactPointerPlaceholder",
+        "warningSummary",
+        "blockerSummary"
+      ],
+      "warningSummary": {
+        "status": "none",
+        "warningCodes": []
+      },
+      "blockerSummary": {
+        "status": "none",
+        "blockerCodes": []
+      },
+      "renderReadinessStatus": "deferred",
+      "rendererArtifactBytesProduced": false,
+      "actualRenderExecutionImplemented": false
+    },
+    "acceptedWithWarningsEnvelope": {
+      "responseStatus": "accepted-with-warnings",
+      "shapeMode": "metadata-only",
+      "warningSummary": {
+        "status": "present",
+        "warningCodesShape": "json-string-array",
+        "warningSource": [
+          "request-envelope",
+          "variable-data-contract",
+          "compatibility-policy"
+        ]
+      },
+      "blockerSummary": {
+        "status": "none",
+        "blockerCodes": []
+      },
+      "renderReadinessStatus": "deferred",
+      "rendererArtifactBytesProduced": false,
+      "actualRenderExecutionImplemented": false
+    },
+    "blockedEnvelope": {
+      "responseStatus": "blocked",
+      "shapeMode": "metadata-only",
+      "warningSummary": {
+        "status": "optional",
+        "warningCodesShape": "json-string-array"
+      },
+      "blockerSummary": {
+        "status": "present",
+        "blockerCodesShape": "json-string-array",
+        "allowedBlockerCodes": [
+          "missing-template-version-identity",
+          "unknown-template-version-identity",
+          "missing-variable-payload",
+          "invalid-variable-payload-shape",
+          "missing-variable-data-contract-evidence",
+          "variable-data-contract-context-mismatch",
+          "compatibility-policy-context-mismatch",
+          "invalid-client-request-id",
+          "duplicate-request-policy-missing",
+          "schema-mutation-required"
+        ]
+      },
+      "renderReadinessStatus": "blocked-before-readiness",
+      "rendererArtifactBytesProduced": false,
+      "actualRenderExecutionImplemented": false
+    }
+  },
+  "renderJobPlaceholder": {
+    "placeholderMode": "metadata-only",
+    "jobStatusPlaceholder": "deferred-job-placeholder",
+    "jobIdPlaceholder": null,
+    "jobStatusLifecycleImplemented": false,
+    "storageDurabilityClaimed": false,
+    "backendRouteImplemented": false
+  },
+  "artifactPointerPlaceholder": {
+    "placeholderMode": "metadata-only",
+    "artifactPointer": null,
+    "artifactBytesProduced": false,
+    "artifactLifecycleImplemented": false,
+    "rendererExecutionImplemented": false
+  },
+  "responseCorrelationFields": {
+    "clientRequestId": "echo-from-request-envelope",
+    "correlationId": "echo-if-present",
+    "responseId": "metadata-only-placeholder",
+    "runtimeCorrelationImplemented": false
+  },
+  "responseErrorBlockerSummaryShape": {
+    "summaryMode": "json-safe-metadata-only",
+    "warningCodes": "json-string-array",
+    "blockerCodes": "json-string-array",
+    "source": [
+      "request-envelope",
+      "variable-data-contract",
+      "compatibility-policy",
+      "render-readiness-placeholder"
+    ],
+    "humanReadableMessage": "optional-json-string",
+    "runtimeErrorHandlingImplemented": false
+  },
+  "deferredContractLanes": {
+    "renderReadinessValidationPolicy": "deferred-to-render-readiness-validation-policy-gate",
+    "artifactPointerJobStatusLifecycle": "deferred-beyond-metadata-placeholder",
+    "backendProductionRoutes": "deferred",
+    "productionStorageDurability": "deferred",
+    "authAuthz": "deferred",
+    "rendererArtifactBytes": "deferred",
+    "actualRenderExecution": "deferred"
+  },
+  "routeDecisions": {
+    "ifResponseStatusContractAccepted": "Render-Readiness Validation Policy Gate",
+    "ifBackendRoutesStorageAuthOrRenderExecutionNeeded": "Dedicated Production Gate",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate"
+  },
+  "blockersBeforeRenderReadinessValidationPolicy": [],
+  "nonWork": {
+    "backendProductionRoutesImplemented": false,
+    "renderApiRuntimeImplemented": false,
+    "rendererArtifactBytesProduced": false,
+    "actualRenderExecutionImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "authAuthzBehaviorAdded": false,
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "runtimeCompatibilityEnforcementImplemented": false,
+    "packageDocumentSchemaMutated": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

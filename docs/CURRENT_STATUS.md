@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Render API Request Envelope Contract Gate.
+Status: updated after Render API Response / Status Contract Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Render API Request Envelope Contract Gate.
+Render API Response / Status Contract Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -38,6 +38,7 @@ Recent completed gate markers retained for pointer guards:
 - Variable Schema / Data Contract Close Audit.
 - Render API Contract Planning Gate.
 - Render API Request Envelope Contract Gate.
+- Render API Response / Status Contract Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -349,30 +350,48 @@ durability, auth/authz, actual render execution, runtime data validation,
 runtime default application, runtime compatibility enforcement, package/schema
 mutation, production measurement binding, and default-measurer replacement
 deferred.
+Render API Response / Status Contract Gate then defines JSON-safe response
+and status contract metadata at
+`fixtures/render-api-response-status-contract.v1.json` for the accepted
+request envelope. It confirms request envelope id
+`render-api-request-envelope-contract-v1`, request envelope version `1`,
+accepted template target `template-product-report-vnext@v1`, the `variables`
+payload container, required/optional/table-cell-bound variable ids, and the
+request envelope status vocabulary. It maps `envelope-valid` to `accepted`,
+`envelope-valid-with-warnings` to `accepted-with-warnings`,
+`envelope-blocked` to `blocked`, and `unknown` to `unknown`, records accepted,
+warning, and blocked response shapes, and keeps render job status plus
+artifact pointer as metadata-only placeholders. It selects Render-Readiness
+Validation Policy Gate next. It does not implement backend routes, Render API
+runtime, storage durability, auth/authz, renderer artifact bytes, actual
+render execution, runtime data validation, runtime default application,
+runtime compatibility enforcement, package/document schema mutation,
+production measurement binding, or default-measurer replacement.
 
 ## Current Next Phase
 
-Render API Response / Status Contract Gate.
+Render-Readiness Validation Policy Gate.
 
 Goal:
 
-- use Render API Request Envelope Contract Gate as source of truth;
-- define JSON-safe response/status contract metadata for the accepted request
-  envelope before render-readiness, artifact pointer, or job status gates;
+- use Render API Response / Status Contract Gate as source of truth;
+- define JSON-safe render-readiness validation policy metadata for accepted,
+  accepted-with-warnings, blocked, deferred-job-placeholder, and unknown
+  response statuses;
+- carry response contract id `render-api-response-status-contract-v1`;
 - carry request envelope id `render-api-request-envelope-contract-v1` and
   version `1`;
-- keep response/status contract anchored to
-  `template-product-report-vnext@v1` and the accepted variable/data evidence
-  pointers;
-- define accepted, warning, blocked, and unknown response/status vocabulary
-  without implementing backend route handling;
-- keep artifact pointer and job status fields as placeholders only unless a
-  later gate explicitly accepts them;
+- keep render-readiness anchored to `template-product-report-vnext@v1`, the
+  accepted request envelope, and the accepted variable/data evidence pointers;
+- define readiness inputs and blockers without implementing backend route
+  handling or renderer execution;
+- keep artifact pointer and job status lifecycle fields as placeholders only
+  unless a later gate explicitly accepts them;
 - keep backend production routes, Render API runtime, storage durability,
   auth/authz, renderer artifact bytes, and actual render execution out of
   scope;
-- route to Template Version Schema Decision Gate only if the response/status
-  contract cannot be represented without package/document schema changes;
+- route to Template Version Schema Decision Gate only if the readiness policy
+  cannot be represented without package/document schema changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -612,9 +631,10 @@ next safe step; production measurement binding remains blocked.
   incidental variable/data contract work.
 - Do not apply variable default values at runtime in policy-metadata phases.
 - Do not implement runtime compatibility enforcement in policy-metadata phases.
-- Do not implement Render API runtime in planning or envelope-shape phases.
-- Do not produce renderer artifact bytes or execute rendering in planning or
-  envelope-shape phases.
+- Do not implement Render API runtime in planning, envelope-shape, or
+  response/status metadata phases.
+- Do not produce renderer artifact bytes or execute rendering in planning,
+  envelope-shape, or response/status metadata phases.
 - Do not execute external text engines in core.
 - Do not put raw evidence in root tests/docs.
 - Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
@@ -623,6 +643,9 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`
+- `fixtures/render-api-response-status-contract.v1.json`
+- `tests/renderApiResponseStatusContractGate.test.ts`
 - `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`
 - `fixtures/render-api-request-envelope-contract.v1.json`
 - `tests/renderApiRequestEnvelopeContractGate.test.ts`

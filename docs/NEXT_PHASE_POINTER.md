@@ -1,38 +1,42 @@
 # Next Phase Pointer
 
-Status: current after Render API Request Envelope Contract Gate.
+Status: current after Render API Response / Status Contract Gate.
 
 ## Next Phase
 
-Render API Response / Status Contract Gate.
+Render-Readiness Validation Policy Gate.
 
 ## Why This Is Next
 
-Render API Request Envelope Contract Gate accepted JSON-safe request envelope
-contract metadata for the accepted published template version and accepted
-variable/data evidence. Response/status contract is next because every render
-response needs to reference a stable request envelope before readiness,
-artifact pointer, or job status policies can attach safely.
+Render API Response / Status Contract Gate accepted JSON-safe response/status
+contract metadata for the accepted request envelope. Render-readiness
+validation policy is next because response statuses now have stable metadata
+shapes, warning/blocker summaries, and job/artifact placeholders that a
+readiness policy can evaluate before any backend route, renderer execution,
+storage durability, or auth/authz behavior is implemented.
 
-The request envelope gate is:
-
-```text
-docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md
-```
-
-The request envelope fixture is:
+The response/status gate is:
 
 ```text
-fixtures/render-api-request-envelope-contract.v1.json
+docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md
 ```
 
-The request envelope gate confirms:
+The response/status fixture is:
 
-- Render API Contract Planning Gate is complete;
-- selected first sub-lane is Render API request envelope contract;
+```text
+fixtures/render-api-response-status-contract.v1.json
+```
+
+The response/status gate confirms:
+
+- Render API Request Envelope Contract Gate is complete;
+- request envelope fixture exists at
+  `fixtures/render-api-request-envelope-contract.v1.json`;
 - request envelope id is `render-api-request-envelope-contract-v1`;
 - request envelope version is `1`;
 - request envelope status is `accepted-contract-metadata-only`;
+- response contract id is `render-api-response-status-contract-v1`;
+- response contract status is `accepted-contract-metadata-only`;
 - accepted template version target is
   `template-product-report-vnext@v1`;
 - source snapshot retention pointer is
@@ -40,31 +44,41 @@ The request envelope gate confirms:
 - accepted validation evidence pointer is
   `repo://fixtures/template-publish-validation-evidence.v1.json`;
 - the accepted variable/data contract evidence chain exists;
-- candidate variables are `customer.name`, `customer.segment`,
-  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
 - variable payload container is `variables`;
 - variable payload container shape is `json-object-keyed-by-variable-id`;
+- required variables are `customer.name`, `report.period`,
+  `report.riskLevel`, and `report.total`;
+- optional variables are `customer.segment` and `prepared.by`;
+- table-cell-bound variables are `report.riskLevel` and `report.total`;
 - request envelope status vocabulary is `envelope-valid`,
   `envelope-valid-with-warnings`, and `envelope-blocked`;
-- malformed envelope blocker vocabulary is defined;
-- client request/correlation metadata, idempotency policy name, and duplicate
-  request policy name are defined as metadata only;
-- response/status contract remains deferred until this request envelope is
-  accepted;
-- render-readiness validation policy remains deferred;
-- artifact pointer / job status placeholder policy remains deferred;
+- response status vocabulary is `accepted`, `accepted-with-warnings`,
+  `blocked`, `deferred-job-placeholder`, and `unknown`;
+- `envelope-valid` maps to `accepted`;
+- `envelope-valid-with-warnings` maps to `accepted-with-warnings`;
+- `envelope-blocked` maps to `blocked`;
+- `unknown` maps to `unknown`;
+- accepted, accepted-with-warnings, and blocked response shapes are
+  metadata-only;
+- render job status is a metadata-only placeholder;
+- artifact pointer is a metadata-only placeholder;
+- render-readiness validation policy remains deferred until this next gate;
+- artifact pointer / job status lifecycle remains deferred beyond placeholder
+  metadata;
 - backend production routes, storage durability, auth/authz, renderer artifact
   bytes, actual render execution, runtime validation, runtime defaults, and
   runtime compatibility enforcement remain out of scope;
 - package/document schema remains unchanged.
 
-Render API Response / Status Contract Gate is next because the accepted
-request envelope now gives response/status work a stable envelope id, envelope
-version, template version identity, policy references, and malformed-envelope
-blocker vocabulary.
+Render-Readiness Validation Policy Gate is next because the accepted
+response/status contract now gives readiness work a stable response contract
+id, request envelope reference, template version identity, response status
+vocabulary, warning/blocker summary shape, and placeholder job/artifact
+metadata.
 
 Previous source gates retained for traceability:
 
+- Render API Response / Status Contract Gate.
 - Render API Request Envelope Contract Gate.
 - Render API Contract Planning Gate.
 - Variable Schema / Data Contract Close Audit.
@@ -104,12 +118,15 @@ Historical guard markers retained for pointer tests:
 - Variable Schema / Data Contract Close Audit.
 - Render API Contract Planning Gate.
 - Render API Request Envelope Contract Gate.
+- Render API Response / Status Contract Gate.
 - Decision: sufficient for mini infrastructure checkpoint.
 - Historical production retry summary retained `sha256ComputedThisPhase=false`.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`
+- `fixtures/render-api-response-status-contract.v1.json`
 - `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`
 - `fixtures/render-api-request-envelope-contract.v1.json`
 - `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`
@@ -126,24 +143,26 @@ Historical guard markers retained for pointer tests:
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Render API Response / Status Scope
+## Render-Readiness Scope
 
-- Confirm Render API Request Envelope Contract Gate is complete.
-- Use `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md` as source of truth.
-- Define JSON-safe response/status contract metadata before implementation.
-- Anchor response/status to request envelope id
+- Confirm Render API Response / Status Contract Gate is complete.
+- Use `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md` as source of truth.
+- Define JSON-safe render-readiness validation policy metadata before
+  implementation.
+- Anchor readiness policy to response contract id
+  `render-api-response-status-contract-v1`.
+- Anchor readiness policy to request envelope id
   `render-api-request-envelope-contract-v1`.
-- Anchor response/status to request envelope version `1`.
+- Anchor readiness policy to request envelope version `1`.
 - Carry published template version identity
   `template-product-report-vnext@v1`.
 - Carry source snapshot and validation evidence retention pointers.
 - Carry variable/data contract evidence pointers.
-- Define accepted response/status vocabulary.
-- Define how envelope-valid, envelope-valid-with-warnings, and
-  envelope-blocked map into response/status metadata.
-- Keep artifact pointer / job status placeholder fields deferred or
-  placeholder-only.
-- Keep render-readiness validation policy deferred until a later gate.
+- Define readiness inputs for accepted, accepted-with-warnings, blocked,
+  deferred-job-placeholder, and unknown response statuses.
+- Define readiness blocker and warning vocabulary without implementing runtime
+  route handling.
+- Keep artifact pointer / job status lifecycle placeholder-only.
 - Keep backend production routes, storage durability, auth/authz, renderer
   artifact bytes, and actual render execution out of scope.
 - Keep runtime data validation, runtime default application, and runtime
@@ -190,15 +209,17 @@ Historical guard markers retained for pointer tests:
 
 ## Expected Output
 
-- Render API Response / Status Contract Gate;
-- JSON-safe response/status metadata shape;
+- Render-Readiness Validation Policy Gate;
+- JSON-safe readiness validation metadata shape;
+- response contract id reference;
 - request envelope id and version reference;
 - template version identity reference;
 - variable/data contract evidence references;
-- envelope status to response/status mapping;
-- warning/blocker response metadata policy;
-- artifact pointer/job status deferral or placeholder policy;
-- render-readiness validation deferral;
+- readiness status vocabulary;
+- readiness blocker and warning vocabulary;
+- accepted, accepted-with-warnings, blocked, deferred, and unknown readiness
+  decisions;
+- artifact pointer/job status placeholder preservation;
 - backend route/storage/auth deferral;
 - renderer artifact byte deferral;
 - explicit schema-decision fallback if needed;
@@ -208,8 +229,10 @@ Historical guard markers retained for pointer tests:
 
 ## Traceability Anchors
 
+- Render API Response / Status Contract Gate.
 - Render API Request Envelope Contract Gate.
 - Render API Contract Planning Gate.
+- `render-api-response-status-contract-v1`.
 - `render-api-request-envelope-contract-v1`.
 - `render-api-request-envelope-v1`.
 - `template-product-report-vnext@v1`.
@@ -217,9 +240,12 @@ Historical guard markers retained for pointer tests:
 - `repo://fixtures/product-report-vnext.flowdoc.json`.
 - Candidate variables: `customer.name`, `customer.segment`, `prepared.by`,
   `report.period`, `report.riskLevel`, and `report.total`.
-- No package/document schema change in the response/status gate.
-- No backend production routes in the response/status gate.
-- No Render API runtime implementation in the response/status gate.
+- Response statuses: `accepted`, `accepted-with-warnings`, `blocked`,
+  `deferred-job-placeholder`, and `unknown`.
+- No package/document schema change in the render-readiness gate.
+- No backend production routes in the render-readiness gate.
+- No Render API runtime implementation in the render-readiness gate.
+- No actual render execution in the render-readiness gate.
 - The accepted measurement manifest is enough for a mini checkpoint only; the
   full v1 matrix remains partial and default-measurer replacement remains
   blocked.

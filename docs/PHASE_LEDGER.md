@@ -231,6 +231,7 @@ Parent goal:
 | 215 | Variable schema data contract close audit | done | `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaDataContractCloseAudit.test.ts`; pointer guard tests |
 | 216 | Render API contract planning gate | done | `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiContractPlanningGate.test.ts`; pointer guard tests |
 | 217 | Render API request envelope contract gate | done | `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiRequestEnvelopeContractGate.test.ts`; pointer guard tests |
+| 218 | Render API response status contract gate | done | `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiResponseStatusContractGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6347,6 +6348,61 @@ production PDF/DOCX renderer work, production contenteditable,
 collaboration/offline behavior, or legacy editor runtime.
 
 Next recommended work: Render API Response / Status Contract Gate.
+Production measurement replacement remains blocked.
+
+## Phase 218 Render API Response Status Contract Gate
+
+Render API Response / Status Contract Gate uses Render API Request Envelope
+Contract Gate as source of truth and defines JSON-safe response/status
+contract metadata before render-readiness, artifact lifecycle, job lifecycle,
+backend route, storage, auth/authz, or renderer execution work.
+
+The gate confirms:
+
+- response/status doc:
+  `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`;
+- response/status fixture:
+  `fixtures/render-api-response-status-contract.v1.json`;
+- request envelope fixture:
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- request envelope id:
+  `render-api-request-envelope-contract-v1`;
+- request envelope version: `1`;
+- response contract id:
+  `render-api-response-status-contract-v1`;
+- accepted template version target:
+  `template-product-report-vnext@v1`;
+- variable payload container: `variables`;
+- variable payload container shape: `json-object-keyed-by-variable-id`;
+- required variable ids: `customer.name`, `report.period`,
+  `report.riskLevel`, and `report.total`;
+- optional variable ids: `customer.segment` and `prepared.by`;
+- table-cell-bound variable ids: `report.riskLevel` and `report.total`;
+- request envelope status vocabulary: `envelope-valid`,
+  `envelope-valid-with-warnings`, and `envelope-blocked`;
+- response status vocabulary: `accepted`, `accepted-with-warnings`,
+  `blocked`, `deferred-job-placeholder`, and `unknown`;
+- `envelope-valid` maps to `accepted`;
+- `envelope-valid-with-warnings` maps to `accepted-with-warnings`;
+- `envelope-blocked` maps to `blocked`;
+- accepted, warning, and blocked response shapes are metadata-only;
+- render job status is placeholder metadata only;
+- artifact pointer is placeholder metadata only;
+- render-readiness validation policy remains deferred until this response
+  contract is accepted;
+- artifact pointer / job status lifecycle remains deferred beyond placeholder
+  metadata.
+
+This phase intentionally does not implement backend production routes, Render
+API runtime, renderer artifact bytes, actual render execution, production
+storage durability, auth/authz behavior, runtime data validation, runtime
+default application, runtime compatibility enforcement, package/document
+schema mutation, `measureVNextText(...)` replacement, full measurement
+production readiness, pagination mutation, production renderer-backed
+measurement binding, production PDF/DOCX renderer work, production
+contenteditable, collaboration/offline behavior, or legacy editor runtime.
+
+Next recommended work: Render-Readiness Validation Policy Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

@@ -6979,6 +6979,60 @@ Acceptance:
   production PDF/DOCX renderer work, production contenteditable,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 218: Render API Response Status Contract Gate
+
+Goal:
+
+- define the JSON-safe Render API response/status contract for the accepted
+  request envelope, without implementing backend routes, Render API runtime,
+  renderer execution, storage, or auth/authz.
+
+Deliverables:
+
+- `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`;
+- `fixtures/render-api-response-status-contract.v1.json`;
+- `tests/renderApiResponseStatusContractGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Render API Request Envelope Contract Gate is complete;
+- confirms the request envelope fixture exists at
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- confirms request envelope id `render-api-request-envelope-contract-v1`;
+- confirms request envelope version `1`;
+- confirms accepted published template version target
+  `template-product-report-vnext@v1`;
+- confirms the `variables` payload container and
+  `json-object-keyed-by-variable-id` shape;
+- confirms required, optional, and table-cell-bound variable ids;
+- defines response contract id
+  `render-api-response-status-contract-v1`;
+- defines response statuses `accepted`, `accepted-with-warnings`, `blocked`,
+  `deferred-job-placeholder`, and `unknown`;
+- maps `envelope-valid` to `accepted`,
+  `envelope-valid-with-warnings` to `accepted-with-warnings`, and
+  `envelope-blocked` to `blocked`;
+- defines accepted, accepted-with-warnings, and blocked response shapes as
+  JSON-safe metadata only;
+- keeps render job status placeholder metadata-only;
+- keeps artifact pointer placeholder metadata-only;
+- keeps render-readiness validation policy deferred until this contract is
+  accepted;
+- keeps artifact pointer / job status lifecycle deferred beyond placeholder
+  metadata;
+- no backend production route, Render API runtime, production storage
+  durability claim, auth/authz behavior, renderer artifact bytes, actual render
+  execution, runtime data validation, runtime default application, runtime
+  compatibility enforcement, package/document schema mutation,
+  `measureVNextText(...)` replacement, full measurement production readiness
+  claim, pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, production contenteditable,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -7008,10 +7062,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 217:
+Current next step after Phase 218:
 
 ```text
-Render API Response / Status Contract Gate
+Render-Readiness Validation Policy Gate
 ```
 
 Reason:
@@ -7223,9 +7277,26 @@ Reason:
   client request/correlation metadata, idempotency and duplicate request policy
   names, keeps response/status plus readiness/artifact/job lanes deferred, and
   selects Render API Response / Status Contract Gate next;
+- Phase 218 now defines the JSON-safe Render API response/status contract,
+  accepts `render-api-response-status-contract-v1`, maps envelope statuses to
+  `accepted`, `accepted-with-warnings`, `blocked`, and `unknown` response
+  statuses, keeps job/artifact fields as metadata-only placeholders, keeps
+  render-readiness deferred, and selects Render-Readiness Validation Policy
+  Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 217 Handoff
+
+Current next step after Phase 217:
+
+```text
+Render API Response / Status Contract Gate
+```
+
+That was the Phase 217 handoff recommendation. Phase 218 is now complete,
+so it is no longer the current next step after Phase 218.
 
 ## Historical Phase 216 Handoff
 
