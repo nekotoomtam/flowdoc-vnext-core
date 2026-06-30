@@ -6888,6 +6888,48 @@ Acceptance:
   production contenteditable, collaboration/offline behavior, or legacy editor
   runtime copy is introduced.
 
+## Phase 216: Render API Contract Planning Gate
+
+Goal:
+
+- plan the Render API Contract lane against the accepted published template
+  version and accepted variable/data contract evidence before implementation.
+
+Deliverables:
+
+- `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`;
+- `tests/renderApiContractPlanningGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Variable Schema / Data Contract Close Audit is complete;
+- confirms the Variable Schema / Data Contract mini lane is closed for a mini
+  infrastructure checkpoint only;
+- confirms accepted template version target
+  `template-product-report-vnext@v1`;
+- confirms variable/data contract evidence chain exists;
+- confirms candidate variables;
+- confirms runtime validation, runtime default application, and runtime
+  compatibility enforcement remain deferred;
+- ranks first Render API Contract sub-lanes:
+  Render API request envelope contract, Render API response/status contract,
+  render-readiness validation policy, artifact pointer / job status
+  placeholder policy, and error/blocker vocabulary;
+- selects Render API request envelope contract first;
+- defines JSON-safe evidence required for the first sub-lane;
+- no backend production route, Render API runtime, production storage
+  durability claim, auth/authz behavior, renderer artifact bytes, actual render
+  execution, runtime data validation, runtime default application, runtime
+  compatibility enforcement, package/document schema mutation,
+  `measureVNextText(...)` replacement, full measurement production readiness
+  claim, pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, production contenteditable,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6917,10 +6959,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 215:
+Current next step after Phase 216:
 
 ```text
-Render API Contract Planning Gate
+Render API Request Envelope Contract Gate
 ```
 
 Reason:
@@ -7119,9 +7161,26 @@ Reason:
   close audit for a mini infrastructure checkpoint only, keeps runtime
   validation/default/compatibility enforcement and Render API implementation
   deferred, and selects Render API Contract Planning Gate next;
+- Phase 216 now confirms the Render API planning inputs, ranks request
+  envelope, response/status, readiness, artifact/job placeholder, and blocker
+  vocabulary sub-lanes, selects Render API request envelope contract first,
+  and keeps backend routes, Render API runtime, artifact bytes, storage,
+  auth/authz, runtime validation, runtime defaults, runtime compatibility
+  enforcement, and schema mutation deferred;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 215 Handoff
+
+Current next step after Phase 215:
+
+```text
+Render API Contract Planning Gate
+```
+
+That was the Phase 215 handoff recommendation. Phase 216 is now complete,
+so it is no longer the current next step after Phase 216.
 
 ## Historical Phase 214 Handoff
 

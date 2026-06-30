@@ -783,6 +783,14 @@ The package must remain runnable without any parent editor checkout.
   runtime compatibility enforcement, schema, backend, storage, renderer, or
   Render API implementation. See
   `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`.
+- Render API Contract Planning Gate confirms the accepted template version
+  target and variable/data evidence chain, ranks request envelope,
+  response/status, readiness, artifact/job placeholder, and blocker vocabulary
+  sub-lanes, selects Render API request envelope contract first, and keeps
+  backend routes, runtime Render API behavior, storage, auth/authz, renderer
+  artifact bytes, runtime validation/defaults/compatibility enforcement, and
+  schema mutation out of scope. See
+  `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -795,8 +803,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Data Contract
-  Validation Policy Gate
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Render API
+  Contract Planning Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -818,6 +826,8 @@ The package must remain runnable without any parent editor checkout.
   row shape for discovered candidate variables before data contract policy
 - `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`: JSON-safe validation policy
   vocabulary before required/missing/default behavior decisions
+- `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`: planning gate for Render API
+  contract sub-lanes before the request envelope contract
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1318,7 +1328,7 @@ The package must remain runnable without any parent editor checkout.
 - concrete production publish route or storage behavior, variable schema/data
   contract implementation, runtime data validation, runtime default
   application, runtime compatibility enforcement, or render API contract
-  implementation beyond the Variable Schema / Data Contract Close Audit
+  implementation beyond the Render API Contract Planning Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

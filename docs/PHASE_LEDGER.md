@@ -229,6 +229,7 @@ Parent goal:
 | 213 | Required missing default value policy gate | done | `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/requiredMissingDefaultValuePolicyGate.test.ts`; pointer guard tests |
 | 214 | Variable compatibility policy gate | done | `docs/VARIABLE_COMPATIBILITY_POLICY_GATE.md`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableCompatibilityPolicyGate.test.ts`; pointer guard tests |
 | 215 | Variable schema data contract close audit | done | `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaDataContractCloseAudit.test.ts`; pointer guard tests |
+| 216 | Render API contract planning gate | done | `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiContractPlanningGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6231,6 +6232,62 @@ add production PDF/DOCX renderer work, implement production contenteditable,
 add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended work: Render API Contract Planning Gate.
+Production measurement replacement remains blocked.
+
+## Phase 216 Render API Contract Planning Gate
+
+Render API Contract Planning Gate uses Variable Schema / Data Contract Close
+Audit as source of truth and plans the Render API Contract lane before
+implementation.
+
+The planning gate confirms:
+
+- planning doc: `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`;
+- Variable Schema / Data Contract Close Audit is complete;
+- the Variable Schema / Data Contract mini lane can close for a mini
+  infrastructure checkpoint only;
+- accepted template version target:
+  `template-product-report-vnext@v1`;
+- accepted validation evidence pointer:
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- source snapshot retention pointer:
+  `repo://fixtures/product-report-vnext.flowdoc.json`;
+- variable/data evidence chain:
+  `fixtures/variable-reference-discovery.v1.json`,
+  `fixtures/variable-schema-metadata-shape.v1.json`,
+  `fixtures/data-contract-validation-policy.v1.json`,
+  `fixtures/required-missing-default-value-policy.v1.json`, and
+  `fixtures/variable-compatibility-policy.v1.json`;
+- candidate variable ids: `customer.name`, `customer.segment`,
+  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
+- runtime data validation, runtime default application, and runtime
+  compatibility enforcement remain deferred.
+
+Render API Contract sub-lanes are ranked:
+
+1. Render API request envelope contract.
+2. Render API response/status contract.
+3. Render-readiness validation policy.
+4. Artifact pointer / job status placeholder policy.
+5. Error/blocker vocabulary.
+
+Selected first sub-lane: Render API request envelope contract.
+
+Reason: response/status, render-readiness validation, artifact pointer / job
+status placeholders, and blocker vocabulary need a stable request envelope
+that references published template version identity and variable/data payload
+contract evidence.
+
+This phase intentionally does not implement backend production routes, Render
+API runtime, renderer artifact bytes, production storage durability,
+auth/authz behavior, runtime data validation, runtime default application,
+runtime compatibility enforcement, package/document schema mutation,
+`measureVNextText(...)` replacement, full measurement production readiness,
+pagination mutation, production renderer-backed measurement binding,
+production PDF/DOCX renderer work, production contenteditable,
+collaboration/offline behavior, or legacy editor runtime.
+
+Next recommended work: Render API Request Envelope Contract Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

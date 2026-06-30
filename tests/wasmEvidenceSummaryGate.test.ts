@@ -341,10 +341,10 @@ describe("WASM evidence summary gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Close Audit.")
+    expect(currentStatus).toContain("Status: updated after Render API Contract Planning Gate.")
     expect(currentStatus).toContain("WASM Evidence Summary Gate.")
     expect(currentStatus).toContain("Native/WASM Parity Summary Gate.")
-    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Close Audit.")
+    expect(nextPointer).toContain("Status: current after Render API Contract Planning Gate.")
     expect(nextPointer).toContain("Native/WASM Parity Summary Gate.")
     expect(nextPointer).toContain("No raw WASM evidence in root docs/tests.")
     expect(readme).toContain("WASM evidence summary gate")

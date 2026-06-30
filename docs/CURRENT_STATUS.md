@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Variable Schema / Data Contract Close Audit.
+Status: updated after Render API Contract Planning Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Variable Schema / Data Contract Close Audit.
+Render API Contract Planning Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -36,6 +36,7 @@ Recent completed gate markers retained for pointer guards:
 - Required / Missing / Default Value Policy Gate.
 - Compatibility Policy With Published Template Versions Gate.
 - Variable Schema / Data Contract Close Audit.
+- Render API Contract Planning Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -318,23 +319,41 @@ default application, runtime compatibility enforcement, full Variable Schema /
 Data Contract runtime implementation, and Render API Contract implementation
 deferred, makes no package/document schema mutation, and selects Render API
 Contract Planning Gate as the next lane.
+Render API Contract Planning Gate then confirms the Variable Schema / Data
+Contract Close Audit is complete and scoped to a mini infrastructure
+checkpoint only, confirms the accepted published template version target
+`template-product-report-vnext@v1`, confirms the variable/data contract
+evidence chain, ranks Render API request envelope, response/status,
+render-readiness validation, artifact pointer / job status placeholder, and
+error/blocker vocabulary sub-lanes, and selects Render API request envelope
+contract first. It keeps the phase planning-only, implements no backend route,
+Render API runtime, renderer artifact bytes, storage durability, auth/authz,
+runtime data validation, runtime default application, runtime compatibility
+enforcement, package/document schema mutation, production measurement binding,
+or default-measurer replacement.
 
 ## Current Next Phase
 
-Render API Contract Planning Gate.
+Render API Request Envelope Contract Gate.
 
 Goal:
 
-- use Variable Schema / Data Contract Close Audit as source of truth;
-- plan the Render API Contract lane against the accepted published template
-  version target and accepted variable/data contract mini-lane evidence;
-- preserve accepted published template version identity and immutable
-  retention pointers;
-- define Render API Contract planning evidence before implementation;
-- keep Render API planning separate from producing renderer artifact bytes or
-  backend production routes;
-- route to Template Version Schema Decision Gate only if Render API planning
-  cannot be represented without package/document schema changes;
+- use Render API Contract Planning Gate as source of truth;
+- define the JSON-safe Render API request envelope contract before response,
+  readiness, artifact pointer, job status, or blocker-vocabulary gates;
+- attach the request envelope to accepted published template version identity
+  `template-product-report-vnext@v1`;
+- carry the accepted validation evidence pointer, source snapshot retention
+  pointer, and variable/data contract evidence pointers;
+- define the variable payload container shape and policy references without
+  implementing runtime validation;
+- define request correlation, idempotency, and malformed-envelope blocker
+  policy as metadata only if needed;
+- keep backend production routes, Render API runtime, storage durability,
+  auth/authz, renderer artifact bytes, and actual render execution out of
+  scope;
+- route to Template Version Schema Decision Gate only if the envelope cannot
+  be represented without package/document schema changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -345,7 +364,7 @@ Goal:
 - keep production binding and default-measurer replacement blocked;
 - keep runtime data validation, runtime default application, runtime
   compatibility enforcement, full Variable Schema / Data Contract runtime
-  implementation, and Render API implementation deferred;
+  implementation, and Render API runtime implementation deferred;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -574,6 +593,9 @@ next safe step; production measurement binding remains blocked.
   incidental variable/data contract work.
 - Do not apply variable default values at runtime in policy-metadata phases.
 - Do not implement runtime compatibility enforcement in policy-metadata phases.
+- Do not implement Render API runtime in planning or envelope-shape phases.
+- Do not produce renderer artifact bytes or execute rendering in planning or
+  envelope-shape phases.
 - Do not execute external text engines in core.
 - Do not put raw evidence in root tests/docs.
 - Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
@@ -582,6 +604,9 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`
+- `tests/renderApiContractPlanningGate.test.ts`
+- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`
 - `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`
 - `fixtures/required-missing-default-value-policy.v1.json`
 - `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`
