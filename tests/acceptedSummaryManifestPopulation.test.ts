@@ -418,10 +418,10 @@ describe("accepted summary manifest population", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Compatibility Policy With Published Template Versions Gate.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Close Audit.")
     expect(currentStatus).toContain("Accepted Summary Manifest Population.")
     expect(currentStatus).toContain("Measurement Hardening Close Audit.")
-    expect(nextPointer).toContain("Status: current after Compatibility Policy With Published Template Versions Gate.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Close Audit.")
     expect(nextPointer).toContain("Measurement Hardening Close Audit.")
     expect(nextPointer).toContain("No raw renderer evidence in root docs/tests.")
     expect(readme).toContain("Accepted summary manifest population")

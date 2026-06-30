@@ -228,6 +228,7 @@ Parent goal:
 | 212 | Data contract validation policy gate | done | `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/dataContractValidationPolicyGate.test.ts`; pointer guard tests |
 | 213 | Required missing default value policy gate | done | `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/requiredMissingDefaultValuePolicyGate.test.ts`; pointer guard tests |
 | 214 | Variable compatibility policy gate | done | `docs/VARIABLE_COMPATIBILITY_POLICY_GATE.md`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableCompatibilityPolicyGate.test.ts`; pointer guard tests |
+| 215 | Variable schema data contract close audit | done | `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaDataContractCloseAudit.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6177,6 +6178,59 @@ add production PDF/DOCX renderer work, implement production contenteditable,
 add collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended work: Variable Schema / Data Contract Close Audit.
+Production measurement replacement remains blocked.
+
+## Phase 215 Variable Schema Data Contract Close Audit
+
+Variable Schema / Data Contract Close Audit uses Compatibility Policy With
+Published Template Versions Gate as source of truth and audits whether the
+Variable Schema / Data Contract mini lane can close.
+
+The audit confirms:
+
+- close audit doc:
+  `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`;
+- compatibility policy fixture:
+  `fixtures/variable-compatibility-policy.v1.json`;
+- prior variable/data contract evidence chain:
+  `fixtures/variable-reference-discovery.v1.json`,
+  `fixtures/variable-schema-metadata-shape.v1.json`,
+  `fixtures/data-contract-validation-policy.v1.json`,
+  `fixtures/required-missing-default-value-policy.v1.json`, and
+  `fixtures/variable-compatibility-policy.v1.json`;
+- candidate variable ids: `customer.name`, `customer.segment`,
+  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
+- compatibility statuses: `compatible`, `compatible-with-warnings`,
+  `incompatible-blocked`, and `unknown`;
+- same published template version identity is compatible;
+- published template version mismatch, known variable id change, value type
+  candidate change, added required variable without default metadata, removed
+  required variable, and table-cell context change are blocked unless accepted
+  compatibility metadata says otherwise;
+- display-label-only changes, added optional variables, added required
+  variables with default metadata, and removed optional variables are warning
+  compatible;
+- Render API Contract remains deferred until this close audit accepts the
+  variable/data contract mini lane;
+- runtime data validation, runtime default application, and runtime
+  compatibility enforcement remain deferred.
+
+Decision: the Variable Schema / Data Contract mini lane can close for a mini
+infrastructure checkpoint only. It does not claim runtime validation,
+runtime default application, runtime compatibility enforcement, Render API
+implementation, or production readiness.
+
+This phase intentionally does not mutate package/document schema, implement
+runtime data validation, apply defaults at runtime, implement runtime
+compatibility enforcement, implement the full Variable Schema / Data Contract,
+implement Render API Contract, implement backend production routes, claim
+production storage durability, produce renderer artifact bytes, add auth/authz
+behavior, replace `measureVNextText(...)`, claim full measurement production
+readiness, mutate pagination, bind production renderer-backed measurement,
+add production PDF/DOCX renderer work, implement production contenteditable,
+add collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended work: Render API Contract Planning Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

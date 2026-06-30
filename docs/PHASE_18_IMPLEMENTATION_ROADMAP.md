@@ -6834,6 +6834,60 @@ Acceptance:
   production contenteditable, collaboration/offline behavior, or legacy editor
   runtime copy is introduced.
 
+## Phase 215: Variable Schema Data Contract Close Audit
+
+Goal:
+
+- audit whether the Variable Schema / Data Contract mini lane can close after
+  compatibility policy metadata is accepted.
+
+Deliverables:
+
+- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`;
+- `tests/variableSchemaDataContractCloseAudit.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Compatibility Policy With Published Template Versions Gate is
+  complete;
+- confirms `fixtures/variable-compatibility-policy.v1.json` exists;
+- confirms the prior evidence chain exists:
+  `fixtures/variable-reference-discovery.v1.json`,
+  `fixtures/variable-schema-metadata-shape.v1.json`,
+  `fixtures/data-contract-validation-policy.v1.json`,
+  `fixtures/required-missing-default-value-policy.v1.json`, and
+  `fixtures/variable-compatibility-policy.v1.json`;
+- confirms candidate variables;
+- confirms compatibility statuses;
+- confirms same published template version identity is compatible;
+- confirms published template version mismatch, known variable id change,
+  value type candidate change, added required variable without default
+  metadata, removed required variable, and table-cell context change are
+  blocked unless accepted metadata says otherwise;
+- confirms display-label-only changes, added optional variables, added
+  required variables with default metadata, and removed optional variables are
+  warning compatible;
+- confirms Render API Contract remains deferred until this close audit accepts
+  the variable/data contract mini lane;
+- confirms runtime validation, runtime default application, and runtime
+  compatibility enforcement remain deferred;
+- decides the Variable Schema / Data Contract mini lane can close for a mini
+  infrastructure checkpoint only;
+- selects Render API Contract Planning Gate next;
+- no package/document schema mutation, runtime data validation, runtime
+  default application, runtime compatibility enforcement, full Variable Schema
+  / Data Contract implementation, Render API Contract implementation, backend
+  production route, production storage durability claim, renderer artifact
+  bytes, auth/authz behavior, `measureVNextText(...)` replacement, full
+  measurement production readiness claim, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  production contenteditable, collaboration/offline behavior, or legacy editor
+  runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6863,10 +6917,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 214:
+Current next step after Phase 215:
 
 ```text
-Variable Schema / Data Contract Close Audit
+Render API Contract Planning Gate
 ```
 
 Reason:
@@ -7061,9 +7115,24 @@ Reason:
   required-no-default, table-cell context, and template version mismatches
   unless explicit compatibility records exist, keeps runtime enforcement
   unimplemented, and selects Variable Schema / Data Contract Close Audit next;
+- Phase 215 now confirms the full variable/data evidence chain, accepts the
+  close audit for a mini infrastructure checkpoint only, keeps runtime
+  validation/default/compatibility enforcement and Render API implementation
+  deferred, and selects Render API Contract Planning Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 214 Handoff
+
+Current next step after Phase 214:
+
+```text
+Variable Schema / Data Contract Close Audit
+```
+
+That was the Phase 214 handoff recommendation. Phase 215 is now complete,
+so it is no longer the current next step after Phase 215.
 
 ## Historical Phase 213 Handoff
 

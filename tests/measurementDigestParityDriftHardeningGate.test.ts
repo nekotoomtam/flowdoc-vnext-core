@@ -75,14 +75,14 @@ describe("measurement digest parity drift hardening gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Compatibility Policy With Published Template Versions Gate.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Close Audit.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("digest identity is pinned")
     expect(currentStatus).toContain("native/WASM parity is matching")
     expect(currentStatus).toContain("Do not execute external text engines in core.")
 
-    expect(nextPointer).toContain("Status: current after Compatibility Policy With Published Template Versions Gate.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Close Audit.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")

@@ -202,13 +202,13 @@ describe("measurement hardening close audit", () => {
     expect(auditDoc).toContain(
       "Recommended next lane: Template Publish / Variable Schema / Render API",
     )
-    expect(nextPointer).toContain("Status: current after Compatibility Policy With Published Template Versions Gate.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Close Audit.")
     expect(nextPointer).toContain("Template Publish / Variable Schema / Render API Planning Gate.")
     expect(nextPointer).toContain("Measurement Hardening Close Audit.")
     expect(nextPointer).toContain("Decision: sufficient for mini infrastructure checkpoint.")
     expect(nextPointer).toContain("No production binding.")
     expect(nextPointer).toContain("No default measurement replacement.")
-    expect(currentStatus).toContain("Status: updated after Compatibility Policy With Published Template Versions Gate.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Close Audit.")
     expect(currentStatus).toContain("Measurement Hardening Close Audit.")
     expect(currentStatus).toContain("Template Publish / Variable Schema / Render API Planning Gate.")
   })

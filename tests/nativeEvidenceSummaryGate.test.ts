@@ -314,10 +314,10 @@ describe("native evidence summary gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Compatibility Policy With Published Template Versions Gate.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Close Audit.")
     expect(currentStatus).toContain("Native Evidence Summary Gate.")
     expect(currentStatus).toContain("WASM Evidence Summary Gate.")
-    expect(nextPointer).toContain("Status: current after Compatibility Policy With Published Template Versions Gate.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Close Audit.")
     expect(nextPointer).toContain("WASM Evidence Summary Gate.")
     expect(nextPointer).toContain("No raw native evidence in root docs/tests.")
     expect(readme).toContain("Native evidence summary gate")

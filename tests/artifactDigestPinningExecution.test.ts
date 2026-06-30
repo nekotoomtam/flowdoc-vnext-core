@@ -381,11 +381,11 @@ describe("artifact digest pinning execution", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Compatibility Policy With Published Template Versions Gate.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Close Audit.")
     expect(currentStatus).toContain("Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain(PINNED_SHA256)
     expect(currentStatus).toContain("Native Evidence Summary Gate.")
-    expect(nextPointer).toContain("Status: current after Compatibility Policy With Published Template Versions Gate.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Close Audit.")
     expect(nextPointer).toContain("Native Evidence Summary Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Artifact digest pinning execution")

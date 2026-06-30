@@ -776,6 +776,13 @@ The package must remain runnable without any parent editor checkout.
   explicit, and selects Variable Schema / Data Contract Close Audit next
   without runtime validation, schema, Render API, backend, storage, or renderer
   behavior. See `docs/VARIABLE_COMPATIBILITY_POLICY_GATE.md`.
+- Variable Schema / Data Contract Close Audit confirms the accepted
+  variable/data evidence chain from reference discovery through compatibility
+  policy, closes that mini lane for a mini infrastructure checkpoint only, and
+  selects Render API Contract Planning Gate next without runtime validation,
+  runtime compatibility enforcement, schema, backend, storage, renderer, or
+  Render API implementation. See
+  `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -1311,8 +1318,7 @@ The package must remain runnable without any parent editor checkout.
 - concrete production publish route or storage behavior, variable schema/data
   contract implementation, runtime data validation, runtime default
   application, runtime compatibility enforcement, or render API contract
-  implementation beyond the Compatibility Policy With Published Template
-  Versions Gate
+  implementation beyond the Variable Schema / Data Contract Close Audit
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

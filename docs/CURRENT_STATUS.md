@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Compatibility Policy With Published Template Versions Gate.
+Status: updated after Variable Schema / Data Contract Close Audit.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Compatibility Policy With Published Template Versions Gate.
+Variable Schema / Data Contract Close Audit.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -35,6 +35,7 @@ Recent completed gate markers retained for pointer guards:
 - Data Contract Validation Policy Gate.
 - Required / Missing / Default Value Policy Gate.
 - Compatibility Policy With Published Template Versions Gate.
+- Variable Schema / Data Contract Close Audit.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -303,26 +304,36 @@ vocabulary for incompatible and warning-only version changes. It keeps Render
 API Contract deferred, implements no runtime data validation, runtime default
 application, or runtime compatibility enforcement, and makes no
 package/document schema mutation.
+Variable Schema / Data Contract Close Audit then confirms the evidence chain
+from variable reference discovery through compatibility policy. It verifies
+`fixtures/variable-reference-discovery.v1.json`,
+`fixtures/variable-schema-metadata-shape.v1.json`,
+`fixtures/data-contract-validation-policy.v1.json`,
+`fixtures/required-missing-default-value-policy.v1.json`, and
+`fixtures/variable-compatibility-policy.v1.json`, confirms the six candidate
+variables, confirms compatibility statuses and policy decisions, and decides
+the Variable Schema / Data Contract mini lane can close for a mini
+infrastructure checkpoint only. It keeps runtime data validation, runtime
+default application, runtime compatibility enforcement, full Variable Schema /
+Data Contract runtime implementation, and Render API Contract implementation
+deferred, makes no package/document schema mutation, and selects Render API
+Contract Planning Gate as the next lane.
 
 ## Current Next Phase
 
-Variable Schema / Data Contract Close Audit.
+Render API Contract Planning Gate.
 
 Goal:
 
-- use Compatibility Policy With Published Template Versions Gate as source of
-  truth;
-- audit whether the Variable Schema / Data Contract mini lane can close for a
-  mini infrastructure checkpoint;
-- confirm variable reference discovery, metadata shape, data contract
-  validation policy, required/missing/default policy, and compatibility policy
-  evidence are all accepted as JSON-safe metadata;
+- use Variable Schema / Data Contract Close Audit as source of truth;
+- plan the Render API Contract lane against the accepted published template
+  version target and accepted variable/data contract mini-lane evidence;
 - preserve accepted published template version identity and immutable
   retention pointers;
-- confirm full Variable Schema / Data Contract runtime implementation remains
-  deferred unless a later implementation phase explicitly scopes it;
-- decide whether Render API Contract planning can proceed next;
-- route to Template Version Schema Decision Gate only if close-audit evidence
+- define Render API Contract planning evidence before implementation;
+- keep Render API planning separate from producing renderer artifact bytes or
+  backend production routes;
+- route to Template Version Schema Decision Gate only if Render API planning
   cannot be represented without package/document schema changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
@@ -333,7 +344,8 @@ Goal:
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep production binding and default-measurer replacement blocked;
 - keep runtime data validation, runtime default application, runtime
-  compatibility enforcement, and Render API implementation deferred;
+  compatibility enforcement, full Variable Schema / Data Contract runtime
+  implementation, and Render API implementation deferred;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
