@@ -739,6 +739,11 @@ The package must remain runnable without any parent editor checkout.
   warning visibility is preserved, and selects Variable Schema / Data Contract
   Planning Gate next without schema, backend, storage, renderer, Variable
   Schema, or Render API implementation.
+- Variable Schema / Data Contract Planning Gate attaches the variable/data
+  lane to the accepted published template version metadata, ranks reference
+  discovery before schema/policy work, and selects Variable Reference Discovery
+  Gate next without implementing Variable Schema, Render API, backend,
+  storage, renderer, or schema behavior.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -751,8 +756,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Template
-  Publish Close Audit
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Variable
+  Schema / Data Contract Planning Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -766,6 +771,8 @@ The package must remain runnable without any parent editor checkout.
   accepted version metadata before Template Publish close audit
 - `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`: close audit for the Template Publish
   mini lane and next Variable Schema / Data Contract planning recommendation
+- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`: planning gate for
+  variable/data contract attachment target and first discovery sub-lane
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1264,8 +1271,9 @@ The package must remain runnable without any parent editor checkout.
   accepted summary manifest, WASM artifact loading, or production measurement
   replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
-  contract implementation, or render API contract implementation beyond the
-  Template Publish Close Audit
+  contract implementation, variable reference discovery execution, or render
+  API contract implementation beyond the Variable Schema / Data Contract
+  Planning Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

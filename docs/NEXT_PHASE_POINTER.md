@@ -1,46 +1,45 @@
 # Next Phase Pointer
 
-Status: current after Template Publish Close Audit.
+Status: current after Variable Schema / Data Contract Planning Gate.
 
 ## Next Phase
 
-Variable Schema / Data Contract Planning Gate.
+Variable Reference Discovery Gate.
 
 ## Why This Is Next
 
-Template Publish Close Audit used Template Publish Accepted Version Metadata
-Gate as source of truth and decided the Template Publish mini lane can close
-for a mini infrastructure checkpoint only.
+Variable Schema / Data Contract Planning Gate used Template Publish Close Audit
+as source of truth and selected variable reference discovery / candidate
+variable list as the first Variable Schema / Data Contract sub-lane.
 
-The accepted metadata fixture remains:
+The accepted published template version metadata remains:
 
 ```text
 fixtures/template-publish-accepted-version-metadata.v1.json
 ```
 
-The close audit confirms:
+The planning gate confirms:
 
+- Template Publish mini lane is closed for a mini infrastructure checkpoint
+  only;
 - accepted metadata exists and has `metadataStatus="accepted"`;
-- source validation evidence is accepted;
+- stable accepted target fields are present;
 - draft template identity remains separate from published template version
   identity;
 - accepted `templateVersionId` is immutable;
 - source snapshot and validation evidence pointers are immutable;
-- accepted metadata is represented without package/document schema changes;
-- export-readiness warning visibility is preserved as
-  `exportReadinessStatus="ready-with-warnings"` and
-  `exportReadinessWarningCount=1`;
-- measurement remains `mini-checkpoint-only`;
-- ready-with-warnings is acceptable for closing the Template Publish mini lane
-  because warning visibility is preserved and no renderer artifact or
-  production renderer readiness is claimed.
+- variable/data contract planning can attach to accepted version metadata
+  without package/document schema mutation;
+- Render API Contract remains deferred until variable/data contract evidence is
+  clear.
 
-Variable Schema / Data Contract Planning Gate is next because Template Publish
-now provides a stable accepted template/version target for variable and data
-contracts to attach to.
+Variable Reference Discovery Gate is next because variable schema metadata,
+data contract validation, missing-value/default/required policy, and
+compatibility policy need a stable authored reference inventory first.
 
 Previous source gates retained for traceability:
 
+- Variable Schema / Data Contract Planning Gate.
 - Template Publish Close Audit.
 - Template Publish Accepted Version Metadata Gate.
 - Template Publish Validation Evidence Gate.
@@ -60,47 +59,46 @@ Previous source gates retained for traceability:
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`
 - `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`
-- `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
 - `fixtures/template-publish-accepted-version-metadata.v1.json`
+- `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
 - `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`
 - `fixtures/template-publish-validation-evidence.v1.json`
 - `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
-- `fixtures/template-publish-version-boundary.v1.json`
 - `fixtures/product-report-vnext.flowdoc.json`
-- `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
 - `docs/WORKSPACE_BOUNDARY.md`
 - `docs/LEGACY_MIGRATION_GATE.md`
 - `docs/PHASE_LEDGER.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Variable Schema / Data Contract Planning Scope
+## Variable Reference Discovery Scope
 
-- Confirm Template Publish mini lane is closed for a mini infrastructure
-  checkpoint only.
-- Confirm full measurement production readiness remains blocked.
-- Confirm production binding and default-measurer replacement remain blocked.
-- Confirm the accepted template version metadata is the attachment target for
-  variable/data contract planning.
-- Rank variable schema/data contract responsibilities before implementation.
-- Define JSON-safe evidence required for the first variable schema/data
-  contract gate.
-- Decide whether any variable/data facts require a later Template Version
-  Schema Decision Gate.
-- Keep Render API Contract implementation deferred until variable/data contract
-  evidence is clear.
+- Confirm the accepted published template version target exists.
+- Attach discovery to published template version identity.
+- Attach discovery to accepted validation evidence pointer.
+- Attach discovery to source snapshot retention pointer.
+- Parse the canonical source package for discovery input.
+- Produce JSON-safe authored `field-ref` occurrence inventory.
+- Produce JSON-safe candidate variable id list.
+- Cross-reference candidate variables with the package field registry.
+- Record unresolved, unsupported, duplicate, warning, blocked, and unknown
+  statuses.
+- Define blockers before variable schema metadata shape.
+- Keep Variable Schema / Data Contract implementation deferred.
+- Keep Render API Contract implementation deferred.
 
 ## Carry-Forward Hard Limits
 
 - No package/document schema mutation.
 - No package/document schema change.
+- No Variable Schema / Data Contract implementation.
+- No Render API Contract implementation.
 - No backend production routes.
 - No production storage durability claim.
 - No renderer artifact bytes.
 - No auth/authz behavior.
-- No Variable Schema / Data Contract implementation.
-- No Render API Contract implementation.
 - No `measureVNextText(...)` replacement.
 - No full measurement production readiness claim.
 - No production binding.
@@ -121,9 +119,12 @@ Previous source gates retained for traceability:
 
 ## Expected Output
 
-- Variable Schema / Data Contract planning gate;
-- selected first variable/data contract sub-lane;
-- evidence required before implementation;
+- Variable Reference Discovery Gate;
+- JSON-safe authored reference inventory;
+- JSON-safe candidate variable list;
+- registry cross-reference status;
+- unresolved/unsupported/duplicate status;
+- blockers before variable schema metadata shape;
 - explicit Render API deferral;
 - explicit schema-decision fallback if needed;
 - explicit non-work;
@@ -132,9 +133,9 @@ Previous source gates retained for traceability:
 
 ## Traceability Anchors
 
+- Variable Schema / Data Contract Planning Gate.
 - Template Publish Close Audit.
 - Template Publish Accepted Version Metadata Gate.
-- Template Publish Validation Evidence Gate.
 - No package/document schema change in the planning gate.
 - Decision: sufficient for mini infrastructure checkpoint.
 - The accepted measurement manifest is enough for a mini checkpoint only; the

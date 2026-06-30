@@ -425,10 +425,10 @@ describe("native/WASM parity summary gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Template Publish Close Audit.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Planning Gate.")
     expect(currentStatus).toContain("Native/WASM Parity Summary Gate.")
     expect(currentStatus).toContain("Renderer-backed Drift Summary Gate.")
-    expect(nextPointer).toContain("Status: current after Template Publish Close Audit.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Planning Gate.")
     expect(nextPointer).toContain("Renderer-backed Drift Summary Gate.")
     expect(nextPointer).toContain("No raw native/WASM evidence in root docs/tests.")
     expect(readme).toContain("Native/WASM parity summary gate")

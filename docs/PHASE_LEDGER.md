@@ -222,6 +222,7 @@ Parent goal:
 | 206 | Template publish validation evidence gate | done | `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`; `fixtures/template-publish-validation-evidence.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishValidationEvidenceGate.test.ts`; pointer guard tests |
 | 207 | Template publish accepted version metadata gate | done | `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishAcceptedVersionMetadataGate.test.ts`; pointer guard tests |
 | 208 | Template publish close audit | done | `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishCloseAudit.test.ts`; pointer guard tests |
+| 209 | Variable schema data contract planning gate | done | `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaDataContractPlanningGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5882,6 +5883,48 @@ implement production contenteditable, add collaboration/offline behavior, or
 copy legacy editor runtime.
 
 Next recommended work: Variable Schema / Data Contract Planning Gate.
+Production measurement replacement remains blocked.
+
+## Phase 209 Variable Schema Data Contract Planning Gate
+
+Variable Schema / Data Contract Planning Gate uses Template Publish Close
+Audit as source of truth and plans the Variable Schema / Data Contract lane
+against accepted published template version metadata before implementation.
+
+The planning gate confirms:
+
+- Template Publish mini lane is closed for a mini infrastructure checkpoint
+  only;
+- accepted metadata fixture
+  `fixtures/template-publish-accepted-version-metadata.v1.json` exists;
+- stable target fields include `templateId`, `templateVersionId`,
+  `versionOrdinal`, source package id, package/document versions, validation
+  evidence status, export-readiness status/warning count, and measurement
+  status;
+- draft template identity remains separate from published template version
+  identity;
+- accepted `templateVersionId` and retention pointers are immutable;
+- Variable Schema / Data Contract evidence can attach to published template
+  version identity, accepted validation evidence pointer, and source snapshot
+  retention pointer without package/document schema mutation.
+
+It ranks the first sub-lanes as variable reference discovery / candidate
+variable list, variable schema metadata shape, data contract validation policy,
+missing-value/default/required policy, and compatibility policy with published
+template versions. It selects variable reference discovery / candidate
+variable list first because later metadata and policy gates need the actual
+authored variable-reference surface before they can safely define contracts.
+
+This phase intentionally does not mutate package/document schema, implement
+Variable Schema / Data Contract, implement Render API Contract, implement
+backend production routes, claim production storage durability, produce
+renderer artifact bytes, add auth/authz behavior, replace
+`measureVNextText(...)`, claim full measurement production readiness, mutate
+pagination, bind production renderer-backed measurement, add production
+PDF/DOCX renderer work, implement production contenteditable, add
+collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended work: Variable Reference Discovery Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

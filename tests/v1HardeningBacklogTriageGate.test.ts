@@ -57,14 +57,14 @@ describe("v1 hardening backlog triage gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Template Publish Close Audit.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Planning Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("1. Measurement rollout / digest / parity / drift.")
     expect(currentStatus).toContain("8. Package/document schema changes, if any are required later.")
     expect(currentStatus).toContain("Do not replace the default measurer")
 
-    expect(nextPointer).toContain("Status: current after Template Publish Close Audit.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Planning Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No raw native/WASM evidence in root tests/docs.")
     expect(nextPointer).toContain("No default measurement replacement.")

@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Template Publish Close Audit.
+Status: updated after Variable Schema / Data Contract Planning Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Template Publish Close Audit.
+Variable Schema / Data Contract Planning Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -29,6 +29,7 @@ Recent completed gate markers retained for pointer guards:
 - Template Publish Validation Evidence Gate.
 - Template Publish Accepted Version Metadata Gate.
 - Template Publish Close Audit.
+- Variable Schema / Data Contract Planning Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -225,22 +226,36 @@ because warning visibility is preserved and no renderer artifact or production
 renderer readiness is claimed. The Template Publish mini lane can close for a
 mini infrastructure checkpoint only, and the next lane is Variable Schema /
 Data Contract Planning Gate.
+Variable Schema / Data Contract Planning Gate then confirms the Template
+Publish mini lane is closed for a mini infrastructure checkpoint only,
+confirms the accepted published template version metadata target exists,
+preserves draft/published identity separation and immutable accepted pointers,
+ranks the first Variable Schema / Data Contract sub-lanes, and selects
+variable reference discovery / candidate variable list first. It defines
+JSON-safe gate evidence for a later Variable Reference Discovery Gate while
+keeping this phase planning-only, making no package/document schema change,
+leaving Render API Contract deferred, and keeping production binding plus
+default-measurer replacement blocked.
 
 ## Current Next Phase
 
-Variable Schema / Data Contract Planning Gate.
+Variable Reference Discovery Gate.
 
 Goal:
 
-- use Template Publish Close Audit as source of truth;
-- plan the Variable Schema / Data Contract lane against the accepted published
-  template version metadata;
-- define JSON-safe variable schema/data contract evidence before
-  implementation;
-- keep Render API Contract planning deferred until the variable/data contract
-  target is clear;
-- route to Template Version Schema Decision Gate only if variable/data contract
-  evidence cannot be represented without package/document schema changes;
+- use Variable Schema / Data Contract Planning Gate as source of truth;
+- discover authored variable references and produce a JSON-safe candidate
+  variable list for the accepted published template version target;
+- attach discovery evidence to the accepted published template version
+  identity, accepted validation evidence pointer, and source snapshot retention
+  pointer;
+- keep Variable Schema / Data Contract implementation deferred until discovery
+  evidence is accepted;
+- keep Render API Contract deferred until variable/data contract evidence is
+  clear;
+- route to Template Version Schema Decision Gate only if discovered
+  variable/data facts cannot be represented without package/document schema
+  changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -476,6 +491,7 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`
 - `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`
 - `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
 - `fixtures/template-publish-accepted-version-metadata.v1.json`

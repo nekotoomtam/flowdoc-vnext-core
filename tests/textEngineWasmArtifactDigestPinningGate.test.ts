@@ -218,10 +218,10 @@ describe("text engine WASM artifact digest pinning gate", () => {
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
 
-    expect(currentStatus).toContain("Status: updated after Template Publish Close Audit.")
+    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Planning Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Template Publish Close Audit.")
+    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Planning Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Text engine WASM artifact digest pinning gate")

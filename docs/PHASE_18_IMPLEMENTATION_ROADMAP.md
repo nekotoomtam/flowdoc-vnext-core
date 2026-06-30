@@ -6552,6 +6552,48 @@ Acceptance:
   contenteditable, collaboration/offline behavior, or legacy editor runtime
   copy is introduced.
 
+## Phase 209: Variable Schema / Data Contract Planning Gate
+
+Goal:
+
+- plan the Variable Schema / Data Contract lane against accepted published
+  template version metadata before implementation.
+
+Deliverables:
+
+- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`;
+- `tests/variableSchemaDataContractPlanningGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Template Publish mini lane is closed for a mini infrastructure
+  checkpoint only;
+- confirms accepted published template version metadata exists;
+- confirms the stable accepted template/version target fields are present;
+- confirms draft template identity remains separate from published template
+  version identity;
+- confirms accepted `templateVersionId` and retention pointers are immutable;
+- defines the Variable Schema / Data Contract attachment target as published
+  template version identity, accepted validation evidence pointer, and source
+  snapshot retention pointer;
+- ranks the first Variable Schema / Data Contract sub-lanes;
+- selects variable reference discovery / candidate variable list first;
+- defines JSON-safe evidence for Variable Reference Discovery Gate;
+- keeps Render API Contract deferred until variable/data contract evidence is
+  clear;
+- no package/document schema mutation, Variable Schema / Data Contract
+  implementation, Render API Contract implementation, backend production
+  route, production storage durability claim, renderer artifact bytes,
+  auth/authz behavior, `measureVNextText(...)` replacement, full measurement
+  production readiness claim, pagination mutation, production renderer-backed
+  measurement binding, production PDF/DOCX renderer work, production
+  contenteditable, collaboration/offline behavior, or legacy editor runtime
+  copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6581,10 +6623,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 208:
+Current next step after Phase 209:
 
 ```text
-Variable Schema / Data Contract Planning Gate
+Variable Reference Discovery Gate
 ```
 
 Reason:
@@ -6749,9 +6791,24 @@ Reason:
   and mini-checkpoint measurement scope, closes the Template Publish mini lane
   for a mini infrastructure checkpoint only, and selects Variable Schema /
   Data Contract Planning Gate next;
+- Phase 209 now plans the Variable Schema / Data Contract lane against the
+  accepted published template version target, ranks the first sub-lanes,
+  selects variable reference discovery / candidate variable list first, and
+  keeps Render API Contract deferred;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 208 Handoff
+
+Current next step after Phase 208:
+
+```text
+Variable Schema / Data Contract Planning Gate
+```
+
+That was the Phase 208 handoff recommendation. Phase 209 is now complete,
+so it is no longer the current next step after Phase 209.
 
 ## Historical Phase 207 Handoff
 
