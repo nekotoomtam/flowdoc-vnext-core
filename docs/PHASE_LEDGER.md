@@ -221,6 +221,7 @@ Parent goal:
 | 205 | Template publish version boundary gate | done | `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`; `fixtures/template-publish-version-boundary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishVersionBoundaryGate.test.ts`; pointer guard tests |
 | 206 | Template publish validation evidence gate | done | `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`; `fixtures/template-publish-validation-evidence.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishValidationEvidenceGate.test.ts`; pointer guard tests |
 | 207 | Template publish accepted version metadata gate | done | `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishAcceptedVersionMetadataGate.test.ts`; pointer guard tests |
+| 208 | Template publish close audit | done | `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishCloseAudit.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5843,6 +5844,44 @@ implement production contenteditable, add collaboration/offline behavior, or
 copy legacy editor runtime.
 
 Next recommended work: Template Publish Close Audit.
+Production measurement replacement remains blocked.
+
+## Phase 208 Template Publish Close Audit
+
+Template Publish Close Audit uses Template Publish Accepted Version Metadata
+Gate as source of truth and decides whether the Template Publish mini lane can
+close after accepted version metadata is populated.
+
+The close audit confirms:
+
+- accepted metadata fixture
+  `fixtures/template-publish-accepted-version-metadata.v1.json` exists;
+- required accepted version metadata fields are present;
+- draft template identity remains separate from published template version
+  identity;
+- accepted `templateVersionId`, source snapshot pointer, and validation
+  evidence pointer are immutable;
+- export-readiness warning visibility is preserved as
+  `ready-with-warnings` with warning count `1`;
+- measurement remains `mini-checkpoint-only`;
+- accepted metadata is represented without package/document schema changes;
+- ready-with-warnings is acceptable for this mini lane close because the
+  warning remains visible and no renderer artifact or production renderer
+  readiness is claimed.
+
+The audit closes the Template Publish mini lane for a mini infrastructure
+checkpoint only. It does not claim production template publishing readiness.
+
+This phase intentionally does not mutate package/document schema, implement
+backend production routes, claim production storage durability, produce
+renderer artifact bytes, add auth/authz behavior, implement Variable Schema /
+Data Contract, implement Render API Contract, replace `measureVNextText(...)`,
+claim full measurement production readiness, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+implement production contenteditable, add collaboration/offline behavior, or
+copy legacy editor runtime.
+
+Next recommended work: Variable Schema / Data Contract Planning Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

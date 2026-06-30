@@ -119,11 +119,11 @@ describe("template variable render API planning gate", () => {
     expect(planningGate).toContain("## RISK")
     expect(planningGate).toContain("## UNKNOWN")
     expect(currentStatus).toContain(
-      "Status: updated after Template Publish Accepted Version Metadata Gate.",
+      "Status: updated after Template Publish Close Audit.",
     )
     expect(currentStatus).toContain("Template Publish / Version Boundary Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Template Publish Accepted Version Metadata Gate.",
+      "Status: current after Template Publish Close Audit.",
     )
     expect(nextPointer).toContain("Template Publish / Version Boundary Gate.")
     expect(nextPointer).toContain("No package/document schema change in the planning gate.")

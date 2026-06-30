@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Template Publish Accepted Version Metadata Gate.
+Status: updated after Template Publish Close Audit.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Template Publish Accepted Version Metadata Gate.
+Template Publish Close Audit.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -28,6 +28,7 @@ Recent completed gate markers retained for pointer guards:
 - Template Publish / Version Boundary Gate.
 - Template Publish Validation Evidence Gate.
 - Template Publish Accepted Version Metadata Gate.
+- Template Publish Close Audit.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -213,21 +214,33 @@ pointer, validation evidence pointer/status, export-readiness
 published version identity, marks the accepted template version id and source
 snapshot pointer immutable, makes no package/document schema change, and
 selects Template Publish Close Audit as the next step.
+Template Publish Close Audit then confirms the accepted metadata exists,
+preserves the required accepted version fields, keeps draft template identity
+separate from published template version identity, confirms accepted
+`templateVersionId`, source snapshot pointer, and validation evidence pointer
+immutability, preserves export-readiness `ready-with-warnings` plus warning
+count `1`, and keeps measurement scoped to `mini-checkpoint-only`. It decides
+ready-with-warnings is acceptable for closing the Template Publish mini lane
+because warning visibility is preserved and no renderer artifact or production
+renderer readiness is claimed. The Template Publish mini lane can close for a
+mini infrastructure checkpoint only, and the next lane is Variable Schema /
+Data Contract Planning Gate.
 
 ## Current Next Phase
 
-Template Publish Close Audit.
+Variable Schema / Data Contract Planning Gate.
 
 Goal:
 
-- use Template Publish Accepted Version Metadata Gate as source of truth;
-- audit whether the Template Publish mini lane can close after accepted
-  version metadata is populated;
-- confirm accepted metadata preserves validation evidence status,
-  export-readiness warning visibility, measurement mini-checkpoint scope, and
-  immutable published version identity;
-- decide whether to proceed to Variable Schema / Data Contract, Render API
-  Contract planning, or Template Version Schema Decision Gate;
+- use Template Publish Close Audit as source of truth;
+- plan the Variable Schema / Data Contract lane against the accepted published
+  template version metadata;
+- define JSON-safe variable schema/data contract evidence before
+  implementation;
+- keep Render API Contract planning deferred until the variable/data contract
+  target is clear;
+- route to Template Version Schema Decision Gate only if variable/data contract
+  evidence cannot be represented without package/document schema changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -463,6 +476,7 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`
 - `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
 - `fixtures/template-publish-accepted-version-metadata.v1.json`
 - `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`

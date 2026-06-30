@@ -403,12 +403,12 @@ describe("text engine WASM toolchain provisioning bootstrap gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Template Publish Accepted Version Metadata Gate.",
+      "Status: updated after Template Publish Close Audit.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Template Publish Accepted Version Metadata Gate.",
+      "Status: current after Template Publish Close Audit.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")

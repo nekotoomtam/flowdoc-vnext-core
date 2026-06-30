@@ -6509,6 +6509,49 @@ Acceptance:
   contenteditable, collaboration/offline behavior, or legacy editor runtime
   copy is introduced.
 
+## Phase 208: Template Publish Close Audit
+
+Goal:
+
+- audit whether the Template Publish mini lane can close after accepted
+  version metadata is populated.
+
+Deliverables:
+
+- `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`;
+- `tests/templatePublishCloseAudit.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Template Publish Accepted Version Metadata Gate is complete;
+- confirms accepted version metadata fixture exists and is accepted;
+- confirms all required accepted version metadata fields are present;
+- confirms draft template identity remains separate from published template
+  version identity;
+- confirms accepted `templateVersionId`, source snapshot pointer, and
+  validation evidence pointer are immutable;
+- confirms export-readiness warning visibility is preserved as
+  `ready-with-warnings` with warning count `1`;
+- confirms measurement remains `mini-checkpoint-only`;
+- decides ready-with-warnings is acceptable for closing this mini lane because
+  warning visibility is preserved and no renderer artifact or production
+  renderer readiness is claimed;
+- closes the Template Publish mini lane for a mini infrastructure checkpoint
+  only;
+- selects Variable Schema / Data Contract Planning Gate as the next lane;
+- no package/document schema mutation, backend production route, production
+  storage durability claim, renderer artifact bytes, auth/authz behavior,
+  Variable Schema / Data Contract implementation, Render API Contract
+  implementation, `measureVNextText(...)` replacement, full measurement
+  production readiness claim, pagination mutation, production renderer-backed
+  measurement binding, production PDF/DOCX renderer work, production
+  contenteditable, collaboration/offline behavior, or legacy editor runtime
+  copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6538,10 +6581,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 207:
+Current next step after Phase 208:
 
 ```text
-Template Publish Close Audit
+Variable Schema / Data Contract Planning Gate
 ```
 
 Reason:
@@ -6702,9 +6745,24 @@ Reason:
   preserves validation evidence and export-readiness warning visibility, marks
   accepted version and source pointer facts immutable, and selects Template
   Publish Close Audit next;
+- Phase 208 now confirms accepted metadata, immutability, warning visibility,
+  and mini-checkpoint measurement scope, closes the Template Publish mini lane
+  for a mini infrastructure checkpoint only, and selects Variable Schema /
+  Data Contract Planning Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 207 Handoff
+
+Current next step after Phase 207:
+
+```text
+Template Publish Close Audit
+```
+
+That was the Phase 207 handoff recommendation. Phase 208 is now complete,
+so it is no longer the current next step after Phase 208.
 
 ## Historical Phase 206 Handoff
 
