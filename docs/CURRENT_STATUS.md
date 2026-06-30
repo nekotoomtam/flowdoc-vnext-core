@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Accepted Summary Manifest Population.
+Status: updated after Measurement Hardening Close Audit.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Accepted Summary Manifest Population.
+Measurement Hardening Close Audit.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -23,6 +23,7 @@ Recent completed gate markers retained for pointer guards:
 - Renderer-backed Drift Summary Gate.
 - Numeric Drift Threshold Decision.
 - Accepted Summary Manifest Population.
+- Measurement Hardening Close Audit.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -160,26 +161,35 @@ evidence, native/WASM parity, renderer-backed drift, numeric threshold policy,
 and retention pointer statuses only. Raw native/WASM/renderer evidence remains
 outside root docs/tests. The full v1 matrix remains partial, and production
 binding plus default-measurer replacement remain blocked.
+Measurement Hardening Close Audit then confirms those accepted manifest
+entries, verifies each row carries pinned digest, native evidence, WASM
+evidence, native/WASM parity, renderer-backed drift, numeric threshold policy,
+and retention pointer statuses, and decides the minimal subset is sufficient
+for a mini infrastructure checkpoint only. The audit recommends pivoting next
+to a Template Publish / Variable Schema / Render API planning gate. It keeps
+the full v1 matrix `partial-not-accepted`, leaves the remaining release-gating
+measurement rows for later production-readiness work, and keeps production
+binding plus default-measurer replacement blocked.
 
 ## Current Next Phase
 
-Measurement Hardening Close Audit.
+Template Publish / Variable Schema / Render API Planning Gate.
 
 Goal:
 
-- use Accepted Summary Manifest Population as source of truth;
-- audit whether the accepted minimal measurement subset is enough for a mini
-  infrastructure checkpoint or whether more release-gating matrix rows must be
-  populated first;
-- require the matching accepted summary manifest, numeric threshold decision,
-  renderer-backed drift summary, native/WASM parity summary, pinned digest
-  context, matrix id, corpus id, policy revision, measurement profile id,
-  output shape, fixture ids, and scenario ids;
+- use Measurement Hardening Close Audit as source of truth;
+- plan and rank the next infrastructure lane across Template Publish,
+  Variable Schema, and Render API work;
+- choose the first non-measurement infrastructure lane and define its gate
+  evidence before implementation;
+- keep the measurement close-audit decision scoped to mini infrastructure
+  checkpoint readiness only;
+- keep full measurement production readiness blocked until the remaining v1
+  release-gating matrix rows are accepted and a later binding phase explicitly
+  accepts default-measurer replacement;
 - keep raw native/WASM/renderer evidence outside root tests/docs;
 - keep root checks independent from `wasm-pack` and the WASM target;
-- keep root docs/tests limited to JSON-safe summaries and retention pointers;
-- keep production binding and default-measurer replacement blocked until
-  dedicated phases;
+- keep production binding and default-measurer replacement blocked;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -407,6 +417,7 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
 - `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`
 - `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`
 - `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`

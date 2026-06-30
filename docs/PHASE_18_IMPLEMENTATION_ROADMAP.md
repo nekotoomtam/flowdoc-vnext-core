@@ -6301,6 +6301,50 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 203: Measurement Hardening Close Audit
+
+Goal:
+
+- audit whether the accepted minimal measurement subset is enough for a mini
+  infrastructure checkpoint, or whether more release-gating matrix rows must
+  be populated before pivoting.
+
+Deliverables:
+
+- `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`;
+- `tests/measurementHardeningCloseAudit.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms accepted manifest exists at
+  `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`;
+- confirms accepted entries exist for `v1-measure-thai-line-break-core` and
+  `v1-measure-latin-product-paragraphs`;
+- confirms each accepted entry carries digest identity status `pinned`, native
+  evidence status `summary-metadata-present`, WASM evidence status
+  `summary-metadata-present`, native/WASM parity status
+  `matching-summary-metadata`, renderer-backed drift summary status
+  `summary-metadata-present`, numeric threshold policy status
+  `accepted-policy`, and retention pointer status `present`;
+- confirms the full v1 matrix remains `partial-not-accepted`;
+- decides the minimal accepted subset is sufficient for a mini infrastructure
+  checkpoint only;
+- recommends pivoting next to Template Publish / Variable Schema / Render API
+  planning;
+- lists remaining release-gating rows required before full measurement
+  production readiness or default-measurer replacement;
+- keeps raw native/WASM/renderer evidence outside root docs/tests;
+- keeps production binding and default-measurer replacement blocked;
+- no full v1 measurement production readiness, `measureVNextText(...)`
+  replacement, pagination mutation, production renderer-backed measurement
+  binding, production PDF/DOCX renderer work, backend routes/storage/auth,
+  production contenteditable, package/document schema change,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6330,10 +6374,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 202:
+Current next step after Phase 203:
 
 ```text
-Measurement Hardening Close Audit
+Template Publish / Variable Schema / Render API Planning Gate
 ```
 
 Reason:
@@ -6472,11 +6516,24 @@ Reason:
 - Phase 202 now populates accepted manifest entries for the same minimal
   fixture subset while keeping the full v1 matrix partial and production
   binding blocked;
-- the current accepted manifest entries match the threshold and digest context,
-  so the next safe lane is Measurement Hardening Close Audit;
+- Phase 203 now confirms those accepted manifest entries, keeps the full v1
+  matrix `partial-not-accepted`, decides the minimal subset is sufficient for a
+  mini infrastructure checkpoint only, and recommends a Template Publish /
+  Variable Schema / Render API planning gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 202 Handoff
+
+Current next step after Phase 202:
+
+```text
+Measurement Hardening Close Audit
+```
+
+That was the Phase 202 handoff recommendation. Phase 203 is now complete,
+so it is no longer the current next step after Phase 203.
 
 ## Historical Phase 201 Handoff
 

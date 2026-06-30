@@ -708,6 +708,11 @@ The package must remain runnable without any parent editor checkout.
   accepted entries for the same Thai line-break core and canonical Latin
   paragraph subset while keeping the full v1 matrix partial and keeping
   production binding plus default-measurer replacement blocked.
+- Measurement hardening close audit confirms those accepted minimal-subset
+  entries, decides they are sufficient for a mini infrastructure checkpoint
+  only, recommends Template Publish / Variable Schema / Render API planning
+  next, and keeps full v1 measurement production readiness plus
+  default-measurer replacement blocked.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -720,9 +725,11 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after numeric drift
-  threshold decision
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after measurement
+  hardening close audit
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
+- `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
+  measurement subset and mini infrastructure checkpoint decision
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1219,7 +1226,7 @@ The package must remain runnable without any parent editor checkout.
   beyond the Phase 135 renderer-backed provider bridge boundary
 - raw native/WASM/renderer evidence values in root docs/tests, full-matrix
   accepted summary manifest, WASM artifact loading, or production measurement
-  replacement beyond the accepted summary manifest population
+  replacement beyond the measurement hardening close audit
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

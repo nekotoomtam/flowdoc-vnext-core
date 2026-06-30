@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: Accepted summary manifest source package.
+Status: Measurement hardening close audit source package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -76,6 +76,10 @@ summaries from the root
 accepts only the Thai line-break core and canonical Latin paragraph subset,
 keeps raw native/WASM/renderer output outside root docs/tests, and leaves
 production binding plus default-measurer replacement for later gates.
+Measurement Hardening Close Audit then uses that accepted root manifest and
+these package-local summaries as source evidence, decides the minimal subset is
+enough for a mini infrastructure checkpoint only, and keeps full measurement
+production readiness plus default-measurer replacement blocked.
 
 Run the smoke from this package:
 
@@ -124,6 +128,8 @@ Allowed:
   root docs/tests;
 - support the root accepted summary manifest for the same first Thai and Latin
   subset through package-local JSON-safe source summaries;
+- support the measurement hardening close audit as package-local source
+  evidence without adding raw native/WASM/renderer output to root docs/tests;
 - remain external to `src/**` core.
 
 Blocked:

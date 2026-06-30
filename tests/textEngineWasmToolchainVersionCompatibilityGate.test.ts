@@ -345,18 +345,18 @@ describe("text engine WASM toolchain version compatibility gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Accepted Summary Manifest Population.",
+      "Status: updated after Measurement Hardening Close Audit.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Accepted Summary Manifest Population.",
+      "Status: current after Measurement Hardening Close Audit.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM toolchain version compatibility gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md")
-    expect(packageReadme).toContain("Status: Accepted summary manifest source package.")
+    expect(packageReadme).toContain("Status: Measurement hardening close audit source package.")
     expect(ledger).toContain(
       "| 195C | Text engine WASM toolchain version compatibility gate | done |",
     )

@@ -357,10 +357,10 @@ describe("text engine WASM artifact production gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Accepted Summary Manifest Population.")
+    expect(currentStatus).toContain("Status: updated after Measurement Hardening Close Audit.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Accepted Summary Manifest Population.")
+    expect(nextPointer).toContain("Status: current after Measurement Hardening Close Audit.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM artifact production gate")

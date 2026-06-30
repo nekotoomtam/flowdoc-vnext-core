@@ -216,6 +216,7 @@ Parent goal:
 | 200 | Renderer-backed drift summary gate | done | `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`; `packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/rendererBackedDriftSummaryGate.test.ts`; pointer guard tests |
 | 201 | Numeric drift threshold decision | done | `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`; `packages/text-engine-rust-wasm/fixtures/numeric-drift-threshold-decision.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/numericDriftThresholdDecision.test.ts`; pointer guard tests |
 | 202 | Accepted summary manifest population | done | `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/acceptedSummaryManifestPopulation.test.ts`; pointer guard tests |
+| 203 | Measurement hardening close audit | done | `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementHardeningCloseAudit.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5661,6 +5662,45 @@ contenteditable, change package/document schema, add collaboration/offline
 behavior, or copy legacy editor runtime.
 
 Next recommended work: Measurement Hardening Close Audit.
+Production measurement replacement remains blocked.
+
+## Phase 203 Measurement Hardening Close Audit
+
+Measurement Hardening Close Audit uses Accepted Summary Manifest Population as
+source of truth and closes the first measurement hardening infrastructure loop
+for the minimal accepted subset:
+
+- accepted manifest fixture:
+  `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`;
+- accepted manifest rows:
+  `v1-measure-thai-line-break-core` and
+  `v1-measure-latin-product-paragraphs`;
+- each accepted row carries digest identity status `pinned`, native evidence
+  status `summary-metadata-present`, WASM evidence status
+  `summary-metadata-present`, native/WASM parity status
+  `matching-summary-metadata`, renderer-backed drift summary status
+  `summary-metadata-present`, numeric threshold policy status
+  `accepted-policy`, and retention pointer status `present`;
+- the pinned artifact path remains
+  `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
+- the pinned sha256 remains
+  `4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`;
+- the full v1 matrix remains `partial-not-accepted`;
+- the close audit decision is sufficient for a mini infrastructure checkpoint
+  only;
+- the recommended next lane is Template Publish / Variable Schema / Render API
+  planning.
+
+This phase intentionally does not claim full v1 measurement production
+readiness, replace `measureVNextText(...)`, mutate pagination, bind production
+renderer-backed measurement, add production PDF/DOCX renderer work, add
+backend routes/storage/auth/authz, implement contenteditable, change
+package/document schema, add collaboration/offline behavior, put raw
+native/WASM/renderer evidence in root docs/tests, or copy legacy editor
+runtime.
+
+Next recommended work: Template Publish / Variable Schema / Render API
+Planning Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record
