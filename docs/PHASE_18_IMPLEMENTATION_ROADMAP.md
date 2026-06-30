@@ -6345,6 +6345,45 @@ Acceptance:
   production contenteditable, package/document schema change,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 204: Template Publish / Variable Schema / Render API Planning Gate
+
+Goal:
+
+- plan and rank the next non-measurement mini infrastructure lane across
+  Template Publish / Version Boundary, Variable Schema / Data Contract, and
+  Render API Contract.
+
+Deliverables:
+
+- `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`;
+- `tests/templateVariableRenderApiPlanningGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Measurement Hardening Close Audit decided the minimal accepted
+  measurement subset is sufficient for mini infrastructure checkpoint only;
+- confirms full v1 measurement matrix remains `partial-not-accepted`;
+- keeps production binding and default-measurer replacement blocked;
+- compares Template Publish / Version Boundary, Variable Schema / Data
+  Contract, and Render API Contract;
+- ranks Template Publish / Version Boundary first;
+- defers Variable Schema / Data Contract until template version identity
+  exists;
+- defers Render API Contract until template version identity and variable data
+  contract direction exist;
+- defines required evidence for the dedicated Template Publish / Version
+  Boundary Gate;
+- keeps the phase planning-only;
+- no `measureVNextText(...)` replacement, full measurement production
+  readiness claim, pagination mutation, production renderer-backed measurement
+  binding, production PDF/DOCX renderer work, backend routes/storage/auth,
+  production contenteditable, package/document schema change,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6374,10 +6413,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 203:
+Current next step after Phase 204:
 
 ```text
-Template Publish / Variable Schema / Render API Planning Gate
+Template Publish / Version Boundary Gate
 ```
 
 Reason:
@@ -6520,9 +6559,24 @@ Reason:
   matrix `partial-not-accepted`, decides the minimal subset is sufficient for a
   mini infrastructure checkpoint only, and recommends a Template Publish /
   Variable Schema / Render API planning gate next;
+- Phase 204 now ranks the next non-measurement mini infrastructure lanes,
+  selects Template Publish / Version Boundary first, defers Variable Schema
+  and Render API until a stable published template/version target exists, and
+  defines evidence required for the dedicated publish/version gate;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 203 Handoff
+
+Current next step after Phase 203:
+
+```text
+Template Publish / Variable Schema / Render API Planning Gate
+```
+
+That was the Phase 203 handoff recommendation. Phase 204 is now complete,
+so it is no longer the current next step after Phase 204.
 
 ## Historical Phase 202 Handoff
 

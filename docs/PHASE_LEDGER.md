@@ -217,6 +217,7 @@ Parent goal:
 | 201 | Numeric drift threshold decision | done | `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`; `packages/text-engine-rust-wasm/fixtures/numeric-drift-threshold-decision.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/numericDriftThresholdDecision.test.ts`; pointer guard tests |
 | 202 | Accepted summary manifest population | done | `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/acceptedSummaryManifestPopulation.test.ts`; pointer guard tests |
 | 203 | Measurement hardening close audit | done | `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementHardeningCloseAudit.test.ts`; pointer guard tests |
+| 204 | Template variable render API planning gate | done | `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateVariableRenderApiPlanningGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5701,6 +5702,35 @@ runtime.
 
 Next recommended work: Template Publish / Variable Schema / Render API
 Planning Gate.
+Production measurement replacement remains blocked.
+
+## Phase 204 Template Variable Render API Planning Gate
+
+Template Publish / Variable Schema / Render API Planning Gate uses
+Measurement Hardening Close Audit as source of truth and ranks the next
+non-measurement mini infrastructure lanes:
+
+- rank 1: Template Publish / Version Boundary, selected first;
+- rank 2: Variable Schema / Data Contract, deferred;
+- rank 3: Render API Contract, deferred.
+
+Template Publish / Version Boundary is selected first because Variable Schema
+and Render API contracts need a stable published template/version target before
+they can safely attach to template state. The selected first lane must define
+or prove publishable canonical package v2/document v3 source, draft identity
+separation from published version identity, stable immutable version ids,
+JSON-safe version metadata, publish validation evidence, rejected publish
+blockers, retention pointer policy, and rollback/deprecation/superseding
+version policy.
+
+This phase intentionally does not replace `measureVNextText(...)`, claim full
+measurement production readiness, mutate pagination, bind production
+renderer-backed measurement, add production PDF/DOCX renderer work, add
+backend routes/storage/auth/authz, implement contenteditable, change
+package/document schema, add collaboration/offline behavior, or copy legacy
+editor runtime.
+
+Next recommended work: Template Publish / Version Boundary Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

@@ -435,14 +435,14 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Measurement Hardening Close Audit.",
+      "Status: updated after Template Publish / Variable Schema / Render API Planning Gate.",
     )
     expect(currentStatus).toContain(
       "Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Measurement Hardening Close Audit.",
+      "Status: current after Template Publish / Variable Schema / Render API Planning Gate.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")

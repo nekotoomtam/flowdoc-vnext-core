@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Measurement Hardening Close Audit.
+Status: updated after Template Publish / Variable Schema / Render API Planning Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Measurement Hardening Close Audit.
+Template Publish / Variable Schema / Render API Planning Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -24,6 +24,7 @@ Recent completed gate markers retained for pointer guards:
 - Numeric Drift Threshold Decision.
 - Accepted Summary Manifest Population.
 - Measurement Hardening Close Audit.
+- Template Publish / Variable Schema / Render API Planning Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -170,18 +171,30 @@ to a Template Publish / Variable Schema / Render API planning gate. It keeps
 the full v1 matrix `partial-not-accepted`, leaves the remaining release-gating
 measurement rows for later production-readiness work, and keeps production
 binding plus default-measurer replacement blocked.
+Template Publish / Variable Schema / Render API Planning Gate then ranks the
+next non-measurement mini infrastructure lanes. It selects Template Publish /
+Version Boundary first because Variable Schema / Data Contract and Render API
+Contract need a stable published template/version target before their
+contracts can safely attach. It defines the first-lane evidence requirements
+for a later dedicated Template Publish / Version Boundary Gate while keeping
+this phase planning-only, making no package/document schema changes, and
+leaving measurement production readiness plus default-measurer replacement
+blocked.
 
 ## Current Next Phase
 
-Template Publish / Variable Schema / Render API Planning Gate.
+Template Publish / Version Boundary Gate.
 
 Goal:
 
-- use Measurement Hardening Close Audit as source of truth;
-- plan and rank the next infrastructure lane across Template Publish,
-  Variable Schema, and Render API work;
-- choose the first non-measurement infrastructure lane and define its gate
-  evidence before implementation;
+- use Template Publish / Variable Schema / Render API Planning Gate as source
+  of truth;
+- define the publish/version boundary for canonical FlowDoc template
+  candidates before Variable Schema or Render API contracts attach to them;
+- separate draft template identity from published template version identity;
+- define JSON-safe version metadata and retention pointer evidence without
+  claiming production storage readiness;
+- define publish validation evidence before implementation;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -417,6 +430,7 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
 - `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`
 - `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`
