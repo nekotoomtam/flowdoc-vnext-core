@@ -1,0 +1,230 @@
+{
+  "manifestVersion": 1,
+  "metadataShapeId": "variable-schema-metadata-shape-v1",
+  "sourceDiscoveryGate": "Variable Reference Discovery Gate",
+  "sourceDiscoveryGateStatus": "complete",
+  "sourceDiscoveryEvidencePointer": "repo://fixtures/variable-reference-discovery.v1.json",
+  "metadataShapeStatus": "accepted",
+  "nextRecommendedWork": "Data Contract Validation Policy Gate",
+  "attachmentTarget": {
+    "publishedTemplateVersionIdentity": {
+      "templateId": "template-product-report-vnext",
+      "templateVersionId": "template-product-report-vnext@v1",
+      "versionOrdinal": 1
+    },
+    "acceptedValidationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+    "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json"
+  },
+  "discoverySummaryConfirmation": {
+    "fieldRefOccurrenceCount": 11,
+    "candidateVariableCount": 6,
+    "registryFieldCount": 6,
+    "unresolvedReferenceCount": 0,
+    "unsupportedReferenceCount": 0,
+    "duplicateCandidateIdCount": 0,
+    "packageDocumentSchemaMutated": false,
+    "renderApiContractDeferred": true
+  },
+  "candidateVariableIds": [
+    "customer.name",
+    "customer.segment",
+    "prepared.by",
+    "report.period",
+    "report.riskLevel",
+    "report.total"
+  ],
+  "metadataShapeDefinition": {
+    "shapeVersion": 1,
+    "rowShapeFields": [
+      "variableId",
+      "sourceFieldKey",
+      "valueTypeCandidate",
+      "displayLabelCandidate",
+      "occurrenceCount",
+      "occurrenceContextSummary",
+      "registryStatus",
+      "requiredPolicyStatus",
+      "defaultPolicyStatus",
+      "validationPolicyStatus",
+      "compatibilityStatus"
+    ],
+    "variableIdPolicy": "use-source-field-key-until-alias-policy-exists",
+    "valueTypeCandidateSource": "package-field-registry-type",
+    "displayLabelCandidateSource": "package-field-registry-label",
+    "occurrenceContextSource": "variable-reference-discovery-occurrence-inventory",
+    "policyStatusVocabulary": {
+      "requiredPolicyStatus": ["deferred-policy"],
+      "defaultPolicyStatus": ["deferred-policy"],
+      "validationPolicyStatus": ["deferred-until-data-contract-validation-policy-gate"],
+      "compatibilityStatus": ["pending-published-template-version-policy"]
+    }
+  },
+  "variableMetadata": [
+    {
+      "variableId": "customer.name",
+      "sourceFieldKey": "customer.name",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Customer Name",
+      "occurrenceCount": 3,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-title-customer", "body-header-title-prefix", "body-summary-customer"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-title",
+          "section-body/body-header/body-header-title",
+          "section-body/body-main/body-summary"
+        ],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "registryStatus": "resolved",
+      "requiredPolicyStatus": "deferred-policy",
+      "defaultPolicyStatus": "deferred-policy",
+      "validationPolicyStatus": "deferred-until-data-contract-validation-policy-gate",
+      "compatibilityStatus": "pending-published-template-version-policy"
+    },
+    {
+      "variableId": "customer.segment",
+      "sourceFieldKey": "customer.segment",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Customer Segment",
+      "occurrenceCount": 1,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-segment-field"],
+        "locationSummaries": ["section-cover/cover-body/cover-segment-value"],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "registryStatus": "resolved",
+      "requiredPolicyStatus": "deferred-policy",
+      "defaultPolicyStatus": "deferred-policy",
+      "validationPolicyStatus": "deferred-until-data-contract-validation-policy-gate",
+      "compatibilityStatus": "pending-published-template-version-policy"
+    },
+    {
+      "variableId": "prepared.by",
+      "sourceFieldKey": "prepared.by",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Prepared By",
+      "occurrenceCount": 2,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-note-author", "body-followup-owner"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-note",
+          "section-body/body-main/body-followup-text"
+        ],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "registryStatus": "resolved",
+      "requiredPolicyStatus": "deferred-policy",
+      "defaultPolicyStatus": "deferred-policy",
+      "validationPolicyStatus": "deferred-until-data-contract-validation-policy-gate",
+      "compatibilityStatus": "pending-published-template-version-policy"
+    },
+    {
+      "variableId": "report.period",
+      "sourceFieldKey": "report.period",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Report Period",
+      "occurrenceCount": 2,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-subtitle-period", "body-header-title-period"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-subtitle",
+          "section-body/body-header/body-header-title"
+        ],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "registryStatus": "resolved",
+      "requiredPolicyStatus": "deferred-policy",
+      "defaultPolicyStatus": "deferred-policy",
+      "validationPolicyStatus": "deferred-until-data-contract-validation-policy-gate",
+      "compatibilityStatus": "pending-published-template-version-policy"
+    },
+    {
+      "variableId": "report.riskLevel",
+      "sourceFieldKey": "report.riskLevel",
+      "valueTypeCandidate": "enum",
+      "displayLabelCandidate": "Risk Level",
+      "occurrenceCount": 2,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-risk-field", "metric-value-risk-field"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-risk-value",
+          "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-risk/metric-value-risk-text"
+        ],
+        "hasTableCellOccurrence": true,
+        "tableCellOccurrenceIds": ["metric-value-risk-field"]
+      },
+      "registryStatus": "resolved",
+      "requiredPolicyStatus": "deferred-policy",
+      "defaultPolicyStatus": "deferred-policy",
+      "validationPolicyStatus": "deferred-until-data-contract-validation-policy-gate",
+      "compatibilityStatus": "pending-published-template-version-policy"
+    },
+    {
+      "variableId": "report.total",
+      "sourceFieldKey": "report.total",
+      "valueTypeCandidate": "number",
+      "displayLabelCandidate": "Report Total",
+      "occurrenceCount": 1,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["metric-value-total-field"],
+        "locationSummaries": [
+          "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-total/metric-value-total-text"
+        ],
+        "hasTableCellOccurrence": true,
+        "tableCellOccurrenceIds": ["metric-value-total-field"]
+      },
+      "registryStatus": "resolved",
+      "requiredPolicyStatus": "deferred-policy",
+      "defaultPolicyStatus": "deferred-policy",
+      "validationPolicyStatus": "deferred-until-data-contract-validation-policy-gate",
+      "compatibilityStatus": "pending-published-template-version-policy"
+    }
+  ],
+  "tableCellOccurrencePreservation": [
+    {
+      "fieldRefId": "metric-value-total-field",
+      "variableId": "report.total",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-total",
+      "locationSummary": "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-total/metric-value-total-text"
+    },
+    {
+      "fieldRefId": "metric-value-risk-field",
+      "variableId": "report.riskLevel",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-risk",
+      "locationSummary": "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-risk/metric-value-risk-text"
+    }
+  ],
+  "blockersBeforeDataContractValidationPolicy": [],
+  "routeDecisions": {
+    "ifMetadataShapeAccepted": "Data Contract Validation Policy Gate",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate",
+    "ifAliasOrDisplayMetadataUnresolved": "Variable Metadata Resolution Decision Gate"
+  },
+  "nonWork": {
+    "packageDocumentSchemaMutated": false,
+    "fullVariableSchemaDataContractImplemented": false,
+    "dataContractValidationPolicyImplemented": false,
+    "requiredMissingDefaultValuePolicyImplemented": false,
+    "renderApiContractImplemented": false,
+    "backendProductionRoutesImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "rendererArtifactBytesProduced": false,
+    "authAuthzBehaviorAdded": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

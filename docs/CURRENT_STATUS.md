@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Variable Reference Discovery Gate.
+Status: updated after Variable Schema Metadata Shape Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Variable Reference Discovery Gate.
+Variable Schema Metadata Shape Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -31,6 +31,7 @@ Recent completed gate markers retained for pointer guards:
 - Template Publish Close Audit.
 - Variable Schema / Data Contract Planning Gate.
 - Variable Reference Discovery Gate.
+- Variable Schema Metadata Shape Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -247,25 +248,38 @@ field-ref against the package field registry, records no unresolved references,
 no unsupported references, no duplicate candidate ids, and no blockers before
 Variable Schema Metadata Shape Gate. It keeps package/document schema
 unchanged and keeps Render API Contract deferred.
+Variable Schema Metadata Shape Gate then defines JSON-safe metadata shape
+evidence at `fixtures/variable-schema-metadata-shape.v1.json` for the six
+discovered candidate variables. It confirms the discovery fixture, attachment
+target, candidate ids, and summary counts, maps each candidate to
+`variableId`, `sourceFieldKey`, `valueTypeCandidate`,
+`displayLabelCandidate`, `occurrenceCount`, `occurrenceContextSummary`,
+`registryStatus`, and deferred policy status fields, preserves table-cell
+context for `metric-value-total-field` and `metric-value-risk-field`, keeps
+required/default/missing-value behavior deferred as metadata statuses, leaves
+Data Contract Validation Policy and Render API Contract deferred, and makes no
+package/document schema mutation.
 
 ## Current Next Phase
 
-Variable Schema Metadata Shape Gate.
+Data Contract Validation Policy Gate.
 
 Goal:
 
-- use Variable Reference Discovery Gate as source of truth;
-- define the JSON-safe variable schema metadata shape for discovered candidate
-  variables;
-- attach metadata shape to the accepted published template version identity,
-  accepted validation evidence pointer, source snapshot retention pointer, and
-  variable reference discovery evidence;
+- use Variable Schema Metadata Shape Gate as source of truth;
+- define the JSON-safe Data Contract Validation Policy for the accepted
+  metadata shape;
+- attach validation policy to the published template version identity,
+  accepted validation evidence pointer, source snapshot retention pointer,
+  variable reference discovery evidence, and variable schema metadata shape;
+- keep Required / Missing / Default Value Policy deferred unless the policy
+  explicitly scopes metadata-only status;
 - keep full Variable Schema / Data Contract implementation deferred until
-  metadata shape evidence is accepted;
+  validation policy evidence is accepted;
 - keep Render API Contract deferred until variable/data contract evidence is
   clear;
-- route to Template Version Schema Decision Gate only if variable metadata
-  shape cannot be represented without package/document schema
+- route to Template Version Schema Decision Gate only if data contract
+  validation policy cannot be represented without package/document schema
   changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
@@ -494,6 +508,10 @@ next safe step; production measurement binding remains blocked.
 - Do not add PDF/DOCX production renderer work as incidental cleanup.
 - Do not replace the default measurer as part of the measurement hardening
   gate.
+- Do not implement Data Contract Validation Policy as runtime behavior in
+  metadata-shape phases.
+- Do not implement Required / Missing / Default Value Policy as runtime
+  behavior in metadata-shape phases.
 - Do not execute external text engines in core.
 - Do not put raw evidence in root tests/docs.
 - Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
@@ -502,6 +520,8 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`
+- `fixtures/variable-schema-metadata-shape.v1.json`
 - `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`
 - `fixtures/variable-reference-discovery.v1.json`
 - `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`

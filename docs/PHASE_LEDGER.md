@@ -224,6 +224,7 @@ Parent goal:
 | 208 | Template publish close audit | done | `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishCloseAudit.test.ts`; pointer guard tests |
 | 209 | Variable schema data contract planning gate | done | `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaDataContractPlanningGate.test.ts`; pointer guard tests |
 | 210 | Variable reference discovery gate | done | `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/product-report-vnext.flowdoc.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableReferenceDiscoveryGate.test.ts`; pointer guard tests |
+| 211 | Variable schema metadata shape gate | done | `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/variable-reference-discovery.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaMetadataShapeGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5969,6 +5970,55 @@ PDF/DOCX renderer work, implement production contenteditable, add
 collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended work: Variable Schema Metadata Shape Gate.
+Production measurement replacement remains blocked.
+
+## Phase 211 Variable Schema Metadata Shape Gate
+
+Variable Schema Metadata Shape Gate uses Variable Reference Discovery Gate as
+source of truth and defines JSON-safe metadata shape evidence for all
+discovered candidate variables.
+
+The metadata shape evidence records:
+
+- metadata shape fixture:
+  `fixtures/variable-schema-metadata-shape.v1.json`;
+- source discovery evidence:
+  `repo://fixtures/variable-reference-discovery.v1.json`;
+- attachment target: `template-product-report-vnext@v1`;
+- accepted validation evidence pointer:
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- source snapshot retention pointer:
+  `repo://fixtures/product-report-vnext.flowdoc.json`;
+- discovery field-ref occurrence count: `11`;
+- candidate variable count: `6`;
+- registry field count: `6`;
+- candidate variable ids: `customer.name`, `customer.segment`,
+  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
+- variable metadata row fields: `variableId`, `sourceFieldKey`,
+  `valueTypeCandidate`, `displayLabelCandidate`, `occurrenceCount`,
+  `occurrenceContextSummary`, `registryStatus`, `requiredPolicyStatus`,
+  `defaultPolicyStatus`, `validationPolicyStatus`, and
+  `compatibilityStatus`;
+- required policy status: `deferred-policy`;
+- default policy status: `deferred-policy`;
+- validation policy status:
+  `deferred-until-data-contract-validation-policy-gate`;
+- compatibility status: `pending-published-template-version-policy`;
+- preserved table-cell occurrence context for `metric-value-total-field` and
+  `metric-value-risk-field`;
+- blockers before Data Contract Validation Policy Gate: none.
+
+This phase intentionally does not mutate package/document schema, implement
+the full Variable Schema / Data Contract, implement Data Contract Validation
+Policy, implement Required / Missing / Default Value Policy, implement Render
+API Contract, implement backend production routes, claim production storage
+durability, produce renderer artifact bytes, add auth/authz behavior, replace
+`measureVNextText(...)`, claim full measurement production readiness, mutate
+pagination, bind production renderer-backed measurement, add production
+PDF/DOCX renderer work, implement production contenteditable, add
+collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended work: Data Contract Validation Policy Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

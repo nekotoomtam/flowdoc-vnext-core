@@ -6638,6 +6638,53 @@ Acceptance:
   contenteditable, collaboration/offline behavior, or legacy editor runtime
   copy is introduced.
 
+## Phase 211: Variable Schema Metadata Shape Gate
+
+Goal:
+
+- define JSON-safe variable schema metadata shape from the discovered
+  candidate variables without implementing the full Variable Schema / Data
+  Contract yet.
+
+Deliverables:
+
+- `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`;
+- `fixtures/variable-schema-metadata-shape.v1.json`;
+- `tests/variableSchemaMetadataShapeGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Variable Reference Discovery Gate is complete;
+- confirms `fixtures/variable-reference-discovery.v1.json` exists;
+- confirms attachment target, accepted validation evidence pointer, and source
+  snapshot retention pointer;
+- confirms discovery summary counts and candidate variable ids;
+- defines JSON-safe variable schema metadata rows for each candidate variable;
+- includes `variableId`, `sourceFieldKey`, `valueTypeCandidate`,
+  `displayLabelCandidate`, `occurrenceCount`, `occurrenceContextSummary`,
+  `registryStatus`, `requiredPolicyStatus`, `defaultPolicyStatus`,
+  `validationPolicyStatus`, and `compatibilityStatus`;
+- preserves table-cell occurrence context for `metric-value-total-field` and
+  `metric-value-risk-field`;
+- keeps required/default/missing-value behavior as deferred policy status;
+- keeps Data Contract Validation Policy deferred until metadata shape is
+  accepted;
+- keeps Render API Contract deferred;
+- confirms package/document schema is not mutated;
+- no package/document schema mutation, full Variable Schema / Data Contract
+  implementation, Data Contract Validation Policy implementation, Required /
+  Missing / Default Value Policy implementation, Render API Contract
+  implementation, backend production route, production storage durability
+  claim, renderer artifact bytes, auth/authz behavior, `measureVNextText(...)`
+  replacement, full measurement production readiness claim, pagination
+  mutation, production renderer-backed measurement binding, production
+  PDF/DOCX renderer work, production contenteditable, collaboration/offline
+  behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6667,10 +6714,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 210:
+Current next step after Phase 211:
 
 ```text
-Variable Schema Metadata Shape Gate
+Data Contract Validation Policy Gate
 ```
 
 Reason:
@@ -6843,9 +6890,25 @@ Reason:
   variable ids, cross-references every discovered reference against the package
   field registry, records no unresolved/unsupported/duplicate blockers, and
   selects Variable Schema Metadata Shape Gate next;
+- Phase 211 now defines JSON-safe metadata shape rows for all 6 discovered
+  candidate variables, preserves table-cell occurrence context, keeps
+  required/default/validation/compatibility policies deferred as status fields,
+  records no blockers before Data Contract Validation Policy Gate, and selects
+  Data Contract Validation Policy Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 210 Handoff
+
+Current next step after Phase 210:
+
+```text
+Variable Schema Metadata Shape Gate
+```
+
+That was the Phase 210 handoff recommendation. Phase 211 is now complete,
+so it is no longer the current next step after Phase 211.
 
 ## Historical Phase 209 Handoff
 

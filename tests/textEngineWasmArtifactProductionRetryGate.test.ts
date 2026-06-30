@@ -400,12 +400,12 @@ describe("text engine WASM artifact production retry gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Variable Reference Discovery Gate.",
+      "Status: updated after Variable Schema Metadata Shape Gate.",
     )
     expect(currentStatus).toContain("Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain("fileSizeBytes=13782")
     expect(nextPointer).toContain(
-      "Status: current after Variable Reference Discovery Gate.",
+      "Status: current after Variable Schema Metadata Shape Gate.",
     )
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(nextPointer).toContain("sha256ComputedThisPhase=false")

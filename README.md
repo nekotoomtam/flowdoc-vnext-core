@@ -750,6 +750,12 @@ The package must remain runnable without any parent editor checkout.
   against the package field registry, and selects Variable Schema Metadata
   Shape Gate next without schema, Render API, backend, storage, or renderer
   behavior.
+- Variable Schema Metadata Shape Gate defines JSON-safe metadata rows for all
+  6 discovered candidate variables, preserves table-cell occurrence context
+  for `metric-value-total-field` and `metric-value-risk-field`, keeps
+  required/default/validation/compatibility behavior deferred as metadata
+  statuses, and selects Data Contract Validation Policy Gate next without
+  schema, Render API, backend, storage, or renderer behavior.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -763,7 +769,7 @@ The package must remain runnable without any parent editor checkout.
 
 - `AGENTS.md`: working agreement for agents in this repo
 - `docs/CURRENT_STATUS.md`: compact current-state pointer after Variable
-  Reference Discovery Gate
+  Schema Metadata Shape Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -781,6 +787,8 @@ The package must remain runnable without any parent editor checkout.
   variable/data contract attachment target and first discovery sub-lane
 - `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`: JSON-safe field-ref occurrence
   inventory and candidate variable list for the accepted template version
+- `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`: JSON-safe variable metadata
+  row shape for discovered candidate variables before data contract policy
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1279,8 +1287,9 @@ The package must remain runnable without any parent editor checkout.
   accepted summary manifest, WASM artifact loading, or production measurement
   replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
-  contract implementation, variable schema metadata shape, or render API
-  contract implementation beyond the Variable Reference Discovery Gate
+  contract implementation, data contract validation policy, required/missing/
+  default policy, or render API contract implementation beyond the Variable
+  Schema Metadata Shape Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

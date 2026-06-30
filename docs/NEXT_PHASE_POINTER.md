@@ -1,47 +1,55 @@
 # Next Phase Pointer
 
-Status: current after Variable Reference Discovery Gate.
+Status: current after Variable Schema Metadata Shape Gate.
 
 ## Next Phase
 
-Variable Schema Metadata Shape Gate.
+Data Contract Validation Policy Gate.
 
 ## Why This Is Next
 
-Variable Reference Discovery Gate used Variable Schema / Data Contract Planning
-Gate as source of truth and produced JSON-safe discovery evidence for the
-accepted published template version target.
+Variable Schema Metadata Shape Gate used Variable Reference Discovery Gate as
+source of truth and produced JSON-safe metadata shape evidence for all
+discovered candidate variables.
 
-The discovery fixture is:
+The metadata shape fixture is:
 
 ```text
-fixtures/variable-reference-discovery.v1.json
+fixtures/variable-schema-metadata-shape.v1.json
 ```
 
-The discovery gate confirms:
+The metadata shape gate confirms:
 
+- source discovery evidence fixture is
+  `repo://fixtures/variable-reference-discovery.v1.json`;
 - attachment target is `template-product-report-vnext@v1`;
 - accepted validation evidence pointer is
   `repo://fixtures/template-publish-validation-evidence.v1.json`;
 - source snapshot retention pointer is
   `repo://fixtures/product-report-vnext.flowdoc.json`;
-- source package parse status is `ready`;
-- authored field-ref occurrence count is `11`;
-- candidate variable count is `6`;
+- discovery field-ref occurrence count is `11`;
+- discovery candidate variable count is `6`;
 - registry field count is `6`;
 - unresolved reference count is `0`;
 - unsupported reference count is `0`;
 - duplicate candidate id count is `0`;
-- blockers before Variable Schema Metadata Shape Gate are empty;
+- metadata rows exist for all six candidate variable ids;
+- each row carries variable id, source field key, value type candidate,
+  display label candidate, occurrence count, occurrence context summary,
+  registry status, and deferred policy status fields;
+- table-cell occurrence context remains preserved for
+  `metric-value-total-field` and `metric-value-risk-field`;
+- blockers before Data Contract Validation Policy Gate are empty;
 - package/document schema remains unchanged;
 - Render API Contract remains deferred.
 
-Variable Schema Metadata Shape Gate is next because discovered variable
-references now provide the candidate variable surface that schema metadata can
-shape without inventing variables ahead of the template.
+Data Contract Validation Policy Gate is next because variable metadata shape
+is now accepted, but validation behavior, required/missing/default behavior,
+and compatibility policy remain deferred.
 
 Previous source gates retained for traceability:
 
+- Variable Schema Metadata Shape Gate.
 - Variable Reference Discovery Gate.
 - Variable Schema / Data Contract Planning Gate.
 - Template Publish Close Audit.
@@ -63,6 +71,8 @@ Previous source gates retained for traceability:
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`
+- `fixtures/variable-schema-metadata-shape.v1.json`
 - `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`
 - `fixtures/variable-reference-discovery.v1.json`
 - `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`
@@ -75,19 +85,22 @@ Previous source gates retained for traceability:
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Variable Schema Metadata Shape Scope
+## Data Contract Validation Policy Scope
 
-- Confirm Variable Reference Discovery Gate is accepted.
-- Use `fixtures/variable-reference-discovery.v1.json` as source of truth.
-- Define JSON-safe metadata fields for each candidate variable.
-- Attach metadata shape to published template version identity.
-- Attach metadata shape to accepted validation evidence pointer.
-- Attach metadata shape to source snapshot retention pointer.
-- Attach metadata shape to variable reference discovery evidence.
-- Preserve occurrence counts and registry cross-reference status.
-- Define metadata status names for accepted, warning, blocked, and unknown.
-- Define blockers before Data Contract Validation Policy.
+- Confirm Variable Schema Metadata Shape Gate is accepted.
+- Use `fixtures/variable-schema-metadata-shape.v1.json` as source of truth.
+- Define JSON-safe data contract validation policy status fields.
+- Attach validation policy to published template version identity.
+- Attach validation policy to accepted validation evidence pointer.
+- Attach validation policy to source snapshot retention pointer.
+- Attach validation policy to variable reference discovery evidence.
+- Attach validation policy to variable schema metadata shape evidence.
+- Preserve candidate variable ids, value type candidates, display label
+  candidates, occurrence counts, and occurrence context summaries.
+- Define validation statuses for accepted, warning, blocked, and unknown.
+- Define blockers before Required / Missing / Default Value Policy.
 - Keep full Variable Schema / Data Contract implementation deferred.
+- Keep Required / Missing / Default Value Policy implementation deferred.
 - Keep Render API Contract implementation deferred.
 
 ## Carry-Forward Hard Limits
@@ -96,6 +109,8 @@ Previous source gates retained for traceability:
 - No package/document schema change.
 - No Variable Schema / Data Contract implementation.
 - No full Variable Schema / Data Contract implementation.
+- No Data Contract Validation Policy implementation.
+- No Required / Missing / Default Value Policy implementation.
 - No Render API Contract implementation.
 - No backend production routes.
 - No production storage durability claim.
@@ -121,10 +136,10 @@ Previous source gates retained for traceability:
 
 ## Expected Output
 
-- Variable Schema Metadata Shape Gate;
-- JSON-safe variable metadata shape;
-- candidate-variable metadata status policy;
-- blockers before Data Contract Validation Policy;
+- Data Contract Validation Policy Gate;
+- JSON-safe data contract validation policy shape;
+- validation status vocabulary;
+- blockers before Required / Missing / Default Value Policy;
 - explicit Render API deferral;
 - explicit schema-decision fallback if needed;
 - explicit non-work;
@@ -133,6 +148,7 @@ Previous source gates retained for traceability:
 
 ## Traceability Anchors
 
+- Variable Schema Metadata Shape Gate.
 - Variable Reference Discovery Gate.
 - Variable Schema / Data Contract Planning Gate.
 - Template Publish Close Audit.
