@@ -345,18 +345,18 @@ describe("text engine WASM toolchain version compatibility gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Numeric Drift Threshold Decision.",
+      "Status: updated after Accepted Summary Manifest Population.",
     )
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Numeric Drift Threshold Decision.",
+      "Status: current after Accepted Summary Manifest Population.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM toolchain version compatibility gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md")
-    expect(packageReadme).toContain("Status: Numeric drift threshold policy package.")
+    expect(packageReadme).toContain("Status: Accepted summary manifest source package.")
     expect(ledger).toContain(
       "| 195C | Text engine WASM toolchain version compatibility gate | done |",
     )

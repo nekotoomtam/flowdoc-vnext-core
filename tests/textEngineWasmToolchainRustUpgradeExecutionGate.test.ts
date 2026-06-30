@@ -435,14 +435,14 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Numeric Drift Threshold Decision.",
+      "Status: updated after Accepted Summary Manifest Population.",
     )
     expect(currentStatus).toContain(
       "Text Engine WASM Artifact Production Retry Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Numeric Drift Threshold Decision.",
+      "Status: current after Accepted Summary Manifest Population.",
     )
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
@@ -450,7 +450,7 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(readme).toContain(
       "docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md",
     )
-    expect(packageReadme).toContain("Status: Numeric drift threshold policy package.")
+    expect(packageReadme).toContain("Status: Accepted summary manifest source package.")
     expect(ledger).toContain(
       "| 195D | Text engine WASM toolchain Rust upgrade execution gate | done |",
     )

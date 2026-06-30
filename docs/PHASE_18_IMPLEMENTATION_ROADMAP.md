@@ -6258,6 +6258,49 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 202: Accepted Summary Manifest Population
+
+Goal:
+
+- populate accepted summary manifest entries for the same Thai line-break core
+  and canonical Latin paragraph subset.
+
+Deliverables:
+
+- `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`;
+- `tests/acceptedSummaryManifestPopulation.test.ts`;
+- `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms numeric drift threshold decision exists;
+- confirms numeric threshold policy status is `accepted-policy`;
+- requires matching renderer-backed drift summary, native/WASM parity summary,
+  and pinned digest context;
+- requires matching matrix id `v1-measurement-fixture-evidence-matrix-v1`;
+- requires matching corpus id `v1-measurement-evidence-corpus-v1`;
+- requires matching policy revision `v1-measurement-evidence-policy-v1`;
+- requires matching threshold policy revision
+  `numeric-drift-threshold-policy-v1`;
+- requires matching output shape `glyph-line-box-v1`;
+- requires matching measurement profile id, fixture ids, and scenario ids;
+- populates accepted manifest entries for `v1-measure-thai-line-break-core`
+  and `v1-measure-latin-product-paragraphs`;
+- carries only JSON-safe digest, native evidence, WASM evidence,
+  native/WASM parity, renderer-backed drift, numeric threshold policy, and
+  retention pointer statuses;
+- keeps raw native/WASM/renderer evidence outside root docs/tests;
+- keeps production binding and default-measurer replacement blocked;
+- no `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6287,10 +6330,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 201:
+Current next step after Phase 202:
 
 ```text
-Accepted Summary Manifest Population
+Measurement Hardening Close Audit
 ```
 
 Reason:
@@ -6426,11 +6469,25 @@ Reason:
   outside root docs/tests;
 - Phase 201 now accepts numeric width, height, and zero-line-count drift
   threshold policy for the same fixture subset and matching drift context;
-- the current threshold decision is accepted as policy, so the next safe lane
-  is Accepted Summary Manifest Population;
+- Phase 202 now populates accepted manifest entries for the same minimal
+  fixture subset while keeping the full v1 matrix partial and production
+  binding blocked;
+- the current accepted manifest entries match the threshold and digest context,
+  so the next safe lane is Measurement Hardening Close Audit;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 201 Handoff
+
+Current next step after Phase 201:
+
+```text
+Accepted Summary Manifest Population
+```
+
+That was the Phase 201 handoff recommendation. Phase 202 is now complete,
+so it is no longer the current next step after Phase 202.
 
 ## Historical Phase 200 Handoff
 

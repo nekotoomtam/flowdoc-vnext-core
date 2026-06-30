@@ -1,0 +1,196 @@
+{
+  "manifestVersion": 1,
+  "manifestId": "measurement-evidence-summary-manifest-accepted-minimal-v1",
+  "sourceStubManifestId": "measurement-evidence-summary-manifest-stub-v1",
+  "sourceNumericDriftThresholdDecisionId": "text-engine-numeric-drift-threshold-decision-v1",
+  "sourceRendererBackedDriftSummaryId": "text-engine-renderer-backed-drift-summary-v1",
+  "sourceNativeWasmParitySummaryId": "text-engine-native-wasm-parity-summary-v1",
+  "sourceNativeEvidenceSummaryId": "text-engine-native-evidence-summary-v1",
+  "sourceWasmEvidenceSummaryId": "text-engine-wasm-evidence-summary-v1",
+  "sourcePinningSummaryId": "text-engine-wasm-artifact-digest-pinning-v1",
+  "sourceRuntimeIdentityManifestId": "text-engine-runtime-identity-v1",
+  "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+  "corpusId": "v1-measurement-evidence-corpus-v1",
+  "policyRevision": "v1-measurement-evidence-policy-v1",
+  "thresholdPolicyRevision": "numeric-drift-threshold-policy-v1",
+  "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+  "outputShapeVersion": "glyph-line-box-v1",
+  "summaryOwner": "@flowdoc/vnext-core-docs",
+  "rawEvidenceOwner": "@flowdoc/text-engine-rust-wasm",
+  "manifestScope": "minimal-accepted-subset-only",
+  "manifestStatus": "accepted",
+  "fullV1MatrixStatus": "partial-not-accepted",
+  "acceptedManifestEntriesPopulated": true,
+  "rawEvidenceIncluded": false,
+  "rawNativeEvidenceIncluded": false,
+  "rawWasmEvidenceIncluded": false,
+  "rawRendererEvidenceIncluded": false,
+  "productionBinding": false,
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "digestIdentity": {
+    "status": "pinned",
+    "artifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44",
+    "runtimeIdentityContextMatches": true
+  },
+  "contextComparison": {
+    "numericDriftThresholdDecision": "matched",
+    "rendererBackedDriftSummary": "matched",
+    "nativeWasmParitySummary": "matched",
+    "artifactDigestContext": "matched",
+    "matrixId": "matched",
+    "corpusId": "matched",
+    "policyRevision": "matched",
+    "thresholdPolicyRevision": "matched",
+    "measurementProfileId": "matched",
+    "outputShapeVersion": "matched",
+    "fixtureIds": "matched",
+    "scenarioIds": "matched"
+  },
+  "statusSummary": {
+    "digestIdentity": "pinned",
+    "nativeEvidence": "summary-metadata-present",
+    "wasmEvidence": "summary-metadata-present",
+    "nativeWasmParity": "matching-summary-metadata",
+    "rendererBackedDrift": "summary-metadata-present",
+    "numericThresholdPolicy": "accepted-policy",
+    "retentionPointers": "present"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "v1-measure-thai-line-break-core",
+      "scenarioIds": ["thai-greeting-no-space", "thai-combining-marks"],
+      "gateType": "release-gating",
+      "acceptanceScope": "minimal-accepted-subset-only",
+      "subsetPriority": 1,
+      "coverageCategory": "thai-line-break-core",
+      "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "requiredFacts": ["glyph-facts", "cluster-map", "text-range", "line-boxes", "total-size", "line-count", "drift-summary", "parity-summary", "threshold-policy"],
+      "factCoverage": {
+        "glyph-facts": "present",
+        "cluster-map": "present",
+        "text-range": "present",
+        "line-boxes": "present",
+        "total-size": "present",
+        "line-count": "present",
+        "drift-summary": "present",
+        "parity-summary": "present",
+        "threshold-policy": "present"
+      },
+      "digestIdentityStatus": "pinned",
+      "nativeEvidenceStatus": "summary-metadata-present",
+      "wasmEvidenceStatus": "summary-metadata-present",
+      "nativeWasmParityStatus": "matching-summary-metadata",
+      "rendererBackedDriftStatus": "summary-metadata-present",
+      "numericThresholdPolicyStatus": "accepted-policy",
+      "retentionPointerStatus": "present",
+      "status": "accepted",
+      "productionReady": false,
+      "defaultMeasurerReplacement": false,
+      "rawNativeEvidenceIncludedInRoot": false,
+      "rawWasmEvidenceIncludedInRoot": false,
+      "rawRendererEvidenceIncludedInRoot": false,
+      "retention": {
+        "rawNativeEvidence": { "owner": "@flowdoc/text-engine-rust-wasm", "pointerKind": "external-placeholder", "includedInRoot": false },
+        "rawWasmEvidence": { "owner": "@flowdoc/text-engine-rust-wasm", "pointerKind": "external-placeholder", "includedInRoot": false },
+        "rawRendererEvidence": { "owner": "external-renderer-provider", "pointerKind": "external-placeholder", "includedInRoot": false }
+      },
+      "replacementBlockers": ["production-binding-not-run", "default-measurer-replacement-not-run"]
+    },
+    {
+      "fixtureId": "v1-measure-latin-product-paragraphs",
+      "scenarioIds": ["product-report-vnext", "product-report-vnext-minimal"],
+      "gateType": "release-gating",
+      "acceptanceScope": "minimal-accepted-subset-only",
+      "subsetPriority": 2,
+      "coverageCategory": "canonical-latin-product-paragraph",
+      "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "requiredFacts": ["glyph-facts", "cluster-map", "text-range", "line-boxes", "total-size", "line-count", "drift-summary", "parity-summary", "threshold-policy"],
+      "factCoverage": {
+        "glyph-facts": "present",
+        "cluster-map": "present",
+        "text-range": "present",
+        "line-boxes": "present",
+        "total-size": "present",
+        "line-count": "present",
+        "drift-summary": "present",
+        "parity-summary": "present",
+        "threshold-policy": "present"
+      },
+      "digestIdentityStatus": "pinned",
+      "nativeEvidenceStatus": "summary-metadata-present",
+      "wasmEvidenceStatus": "summary-metadata-present",
+      "nativeWasmParityStatus": "matching-summary-metadata",
+      "rendererBackedDriftStatus": "summary-metadata-present",
+      "numericThresholdPolicyStatus": "accepted-policy",
+      "retentionPointerStatus": "present",
+      "status": "accepted",
+      "productionReady": false,
+      "defaultMeasurerReplacement": false,
+      "rawNativeEvidenceIncludedInRoot": false,
+      "rawWasmEvidenceIncludedInRoot": false,
+      "rawRendererEvidenceIncludedInRoot": false,
+      "retention": {
+        "rawNativeEvidence": { "owner": "@flowdoc/text-engine-rust-wasm", "pointerKind": "external-placeholder", "includedInRoot": false },
+        "rawWasmEvidence": { "owner": "@flowdoc/text-engine-rust-wasm", "pointerKind": "external-placeholder", "includedInRoot": false },
+        "rawRendererEvidence": { "owner": "external-renderer-provider", "pointerKind": "external-placeholder", "includedInRoot": false }
+      },
+      "replacementBlockers": ["production-binding-not-run", "default-measurer-replacement-not-run"]
+    }
+  ],
+  "retention": {
+    "sourceNativeSummary": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/native-evidence-summary.v1.json",
+      "includedInRoot": false
+    },
+    "sourceWasmSummary": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json",
+      "includedInRoot": false
+    },
+    "sourceParitySummary": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json",
+      "includedInRoot": false
+    },
+    "sourceRendererBackedDriftSummary": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json",
+      "includedInRoot": false
+    },
+    "sourceNumericThresholdDecision": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/numeric-drift-threshold-decision.v1.json",
+      "includedInRoot": false
+    },
+    "rawNativeEvidence": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointerKind": "external-placeholder",
+      "includedInRoot": false
+    },
+    "rawWasmEvidence": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointerKind": "external-placeholder",
+      "includedInRoot": false
+    },
+    "rawRendererEvidence": {
+      "owner": "external-renderer-provider",
+      "pointerKind": "external-placeholder",
+      "includedInRoot": false
+    }
+  },
+  "blockedUntilLater": {
+    "fullV1MatrixAcceptance": true,
+    "productionBinding": true,
+    "defaultMeasurerReplacement": true
+  },
+  "replacementBlockers": [
+    "full-v1-matrix-not-populated",
+    "production-binding-not-run",
+    "default-measurer-replacement-not-run"
+  ],
+  "nextRecommendedWork": "Measurement Hardening Close Audit",
+  "phaseRule": "proceed-to-measurement-hardening-close-audit-only-if-accepted-manifest-entries-match-threshold-context"
+}

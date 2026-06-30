@@ -704,6 +704,10 @@ The package must remain runnable without any parent editor checkout.
   context while keeping raw native/WASM/renderer evidence outside root
   docs/tests and blocking accepted manifest population, production binding,
   and default-measurer replacement.
+- Accepted summary manifest population adds a root JSON-safe manifest with
+  accepted entries for the same Thai line-break core and canonical Latin
+  paragraph subset while keeping the full v1 matrix partial and keeping
+  production binding plus default-measurer replacement blocked.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -954,6 +958,8 @@ The package must remain runnable without any parent editor checkout.
   metadata gate for the same first Thai line-break and Latin paragraph subset
 - `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`: numeric drift threshold policy
   decision for the same first Thai line-break and Latin paragraph subset
+- `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`: accepted summary manifest
+  population for the same first Thai line-break and Latin paragraph subset
 - `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`: text engine WASM
   bindgen export dependency gate before retrying artifact production
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
@@ -1211,9 +1217,9 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
-- raw native/WASM/renderer evidence values in root docs/tests, accepted root
-  summary manifest, WASM artifact loading, or production measurement
-  replacement beyond the numeric drift threshold decision
+- raw native/WASM/renderer evidence values in root docs/tests, full-matrix
+  accepted summary manifest, WASM artifact loading, or production measurement
+  replacement beyond the accepted summary manifest population
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

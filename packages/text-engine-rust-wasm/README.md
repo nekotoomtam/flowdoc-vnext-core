@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: Numeric drift threshold policy package.
+Status: Accepted summary manifest source package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -70,6 +70,12 @@ width, height, and line-count drift threshold policy while keeping raw
 native/WASM/renderer output outside root docs/tests and leaving accepted
 manifest population, production binding, and default-measurer replacement for
 later gates.
+Accepted Summary Manifest Population then consumes these package-local
+summaries from the root
+`fixtures/measurement-evidence-summary-manifest.accepted.v1.json` manifest. It
+accepts only the Thai line-break core and canonical Latin paragraph subset,
+keeps raw native/WASM/renderer output outside root docs/tests, and leaves
+production binding plus default-measurer replacement for later gates.
 
 Run the smoke from this package:
 
@@ -116,6 +122,8 @@ Allowed:
 - retain JSON-safe numeric drift threshold policy metadata for the same first
   Thai and Latin subset without putting raw native/WASM/renderer output in
   root docs/tests;
+- support the root accepted summary manifest for the same first Thai and Latin
+  subset through package-local JSON-safe source summaries;
 - remain external to `src/**` core.
 
 Blocked:
@@ -126,8 +134,7 @@ Blocked:
 - raw native evidence in root docs/tests;
 - raw WASM evidence in root docs/tests;
 - raw renderer evidence in root docs/tests;
-- accepted manifests and production measurement binding until their dedicated
-  gates;
+- production measurement binding until its dedicated gate;
 - core font-file reads;
 - production measurement binding;
 - pagination measurer replacement.

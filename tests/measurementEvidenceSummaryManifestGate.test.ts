@@ -79,13 +79,13 @@ describe("measurement evidence summary manifest gate", () => {
     const currentStatus = readText("../docs/CURRENT_STATUS.md")
     const nextPointer = readText("../docs/NEXT_PHASE_POINTER.md")
 
-    expect(currentStatus).toContain("Status: updated after Numeric Drift Threshold Decision.")
+    expect(currentStatus).toContain("Status: updated after Accepted Summary Manifest Population.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("measurement-evidence-summary-manifest-v1")
     expect(currentStatus).toContain("Raw native/WASM/renderer evidence remains outside root tests/docs.")
 
-    expect(nextPointer).toContain("Status: current after Numeric Drift Threshold Decision.")
+    expect(nextPointer).toContain("Status: current after Accepted Summary Manifest Population.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(nextPointer).toContain("No raw evidence in root tests/docs.")
     expect(nextPointer).toContain("No raw evidence in root tests/docs.")

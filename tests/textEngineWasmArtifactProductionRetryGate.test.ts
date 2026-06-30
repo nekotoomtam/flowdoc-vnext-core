@@ -400,18 +400,18 @@ describe("text engine WASM artifact production retry gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Numeric Drift Threshold Decision.",
+      "Status: updated after Accepted Summary Manifest Population.",
     )
     expect(currentStatus).toContain("Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain("fileSizeBytes=13782")
     expect(nextPointer).toContain(
-      "Status: current after Numeric Drift Threshold Decision.",
+      "Status: current after Accepted Summary Manifest Population.",
     )
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(nextPointer).toContain("sha256ComputedThisPhase=false")
     expect(readme).toContain("Text engine WASM artifact production retry gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md")
-    expect(packageReadme).toContain("Status: Numeric drift threshold policy package.")
+    expect(packageReadme).toContain("Status: Accepted summary manifest source package.")
     expect(ledger).toContain(
       "| 195G | Text engine WASM artifact production retry after bindgen gate | done |",
     )

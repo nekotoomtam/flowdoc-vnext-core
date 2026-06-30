@@ -1,19 +1,20 @@
 # Next Phase Pointer
 
-Status: current after Numeric Drift Threshold Decision.
+Status: current after Accepted Summary Manifest Population.
 
 ## Next Phase
 
-Accepted Summary Manifest Population.
+Measurement Hardening Close Audit.
 
 ## Why This Is Next
 
-Numeric Drift Threshold Decision used Renderer-backed Drift Summary Gate as
-source of truth and accepted a JSON-safe numeric drift threshold policy for
-the same minimal fixture subset.
+Accepted Summary Manifest Population used Numeric Drift Threshold Decision as
+source of truth and populated JSON-safe accepted manifest entries for the same
+minimal fixture subset.
 
 Previous source gates retained for traceability:
 
+- Accepted Summary Manifest Population.
 - Numeric Drift Threshold Decision.
 - Renderer-backed Drift Summary Gate.
 - Native/WASM Parity Summary Gate.
@@ -29,9 +30,10 @@ packages/text-engine-rust-wasm/fixtures/wasm-evidence-summary.v1.json
 packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json
 packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json
 packages/text-engine-rust-wasm/fixtures/numeric-drift-threshold-decision.v1.json
+fixtures/measurement-evidence-summary-manifest.accepted.v1.json
 ```
 
-The threshold decision is attached to the pinned digest context:
+The accepted manifest is attached to the pinned digest context:
 
 - artifact path:
   `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`;
@@ -45,6 +47,8 @@ The threshold decision is attached to the pinned digest context:
 - native/WASM parity status: `matching-summary-metadata`;
 - renderer-backed drift status: `summary-metadata-present`;
 - numeric threshold decision status: `accepted-policy`;
+- accepted manifest status: `accepted` for the minimal subset;
+- full v1 matrix status: `partial-not-accepted`;
 - raw native evidence remains outside root docs/tests;
 - raw WASM evidence remains outside root docs/tests;
 - raw renderer evidence remains outside root docs/tests.
@@ -54,21 +58,22 @@ The covered subset is:
 - `v1-measure-thai-line-break-core`;
 - `v1-measure-latin-product-paragraphs`.
 
-The threshold policy is accepted for this subset and context. The next safe
-step is to populate an accepted summary manifest that composes digest, native,
-WASM, parity, renderer-backed drift, threshold, status, and retention summary
-facts without raw evidence in root docs/tests. Production binding and
+The next safe step is a close audit that decides whether this minimal accepted
+subset is enough for a mini infrastructure checkpoint or whether more
+release-gating matrix rows must be populated first. Production binding and
 default-measurer replacement remain blocked until later phases.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`
 - `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`
 - `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`
 - `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`
 - `docs/WASM_EVIDENCE_SUMMARY_GATE.md`
 - `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`
 - `docs/ARTIFACT_DIGEST_PINNING_EXECUTION.md`
+- `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/numeric-drift-threshold-decision.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json`
 - `packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json`
@@ -81,24 +86,22 @@ default-measurer replacement remain blocked until later phases.
 - `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
 - `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
 - `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
+- `docs/MEASUREMENT_ROLLOUT_GATE.md`
 - `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
 
-## Accepted Summary Manifest Population Scope
+## Measurement Hardening Close Audit Scope
 
-- Populate a JSON-safe accepted summary manifest for the same minimal subset.
-- Require the numeric threshold decision to be `accepted-policy` for the
-  matching drift context.
-- Use the same matrix id, corpus id, policy revision, threshold policy
-  revision, measurement profile id, output shape, fixture ids, scenario ids,
-  parity status, renderer-backed drift status, and pinned artifact digest
-  context.
+- Audit the measurement hardening lane after digest, native evidence, WASM
+  evidence, parity, renderer-backed drift, numeric threshold policy, and
+  accepted manifest population for the minimal subset.
+- Decide whether the minimal accepted subset is enough for a mini
+  infrastructure checkpoint.
+- Decide whether to pivot next to Template Publish / Variable Schema / Render
+  API, or whether more measurement evidence rows are required first.
 - Keep raw native/WASM/renderer evidence outside root docs/tests.
 - Keep root summaries bounded to JSON-safe facts and retention pointers.
-- Block manifest acceptance on stale digest, profile mismatch, subset
-  mismatch, fixture mismatch, scenario mismatch, parity mismatch, drift
-  mismatch, threshold-policy mismatch, missing retention pointers, or raw
-  evidence in root docs/tests.
-- Keep production binding and default-measurer replacement blocked.
+- Keep production binding and default-measurer replacement blocked unless a
+  later dedicated binding phase explicitly accepts them.
 
 ## Hard Limits
 
@@ -116,6 +119,7 @@ default-measurer replacement remain blocked until later phases.
 - No fake parity.
 - No fake renderer drift.
 - No fake threshold acceptance.
+- No production binding.
 - No default measurement replacement.
 - No pagination mutation.
 - No renderer-backed measurement as production truth.
@@ -129,7 +133,9 @@ default-measurer replacement remain blocked until later phases.
 
 ## Expected Output
 
-- JSON-safe accepted summary manifest for the same smallest accepted subset;
+- measurement hardening close audit;
+- explicit decision on mini infrastructure checkpoint readiness;
+- explicit next lane recommendation;
 - explicit blocked status for production binding and default-measurer
   replacement;
 - explicit non-work;
@@ -145,5 +151,6 @@ default-measurer replacement remain blocked until later phases.
 - Native/WASM Parity Summary Gate.
 - Renderer-backed Drift Summary Gate.
 - Numeric Drift Threshold Decision.
+- Accepted Summary Manifest Population.
 - Historical production retry summary retained `sha256ComputedThisPhase=false`;
   digest pinning happened only after the accepted artifact existed.

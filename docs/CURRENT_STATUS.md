@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Numeric Drift Threshold Decision.
+Status: updated after Accepted Summary Manifest Population.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Numeric Drift Threshold Decision.
+Accepted Summary Manifest Population.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -22,6 +22,7 @@ Recent completed gate markers retained for pointer guards:
 - Native/WASM Parity Summary Gate.
 - Renderer-backed Drift Summary Gate.
 - Numeric Drift Threshold Decision.
+- Accepted Summary Manifest Population.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -151,20 +152,29 @@ PASS at `<=0.5pt`, warning at `>0.5pt` and `<=1.0pt`, blocked above `1.0pt`,
 and release-gating line-count drift as zero-only. Raw native/WASM/renderer
 evidence remains outside root docs/tests, and accepted manifests, production
 binding, and default-measurer replacement remain blocked.
+Accepted Summary Manifest Population then adds a JSON-safe accepted manifest
+for that same minimal subset. It populates accepted entries for
+`v1-measure-thai-line-break-core` and
+`v1-measure-latin-product-paragraphs`, carrying digest, native evidence, WASM
+evidence, native/WASM parity, renderer-backed drift, numeric threshold policy,
+and retention pointer statuses only. Raw native/WASM/renderer evidence remains
+outside root docs/tests. The full v1 matrix remains partial, and production
+binding plus default-measurer replacement remain blocked.
 
 ## Current Next Phase
 
-Accepted Summary Manifest Population.
+Measurement Hardening Close Audit.
 
 Goal:
 
-- use Numeric Drift Threshold Decision as source of truth;
-- populate the accepted summary manifest for the same Thai line-break core and
-  canonical Latin paragraph subset;
-- require the matching numeric threshold decision, renderer-backed drift
-  summary, native/WASM parity summary, pinned digest context, matrix id,
-  corpus id, policy revision, measurement profile id, output shape, fixture
-  ids, and scenario ids;
+- use Accepted Summary Manifest Population as source of truth;
+- audit whether the accepted minimal measurement subset is enough for a mini
+  infrastructure checkpoint or whether more release-gating matrix rows must be
+  populated first;
+- require the matching accepted summary manifest, numeric threshold decision,
+  renderer-backed drift summary, native/WASM parity summary, pinned digest
+  context, matrix id, corpus id, policy revision, measurement profile id,
+  output shape, fixture ids, and scenario ids;
 - keep raw native/WASM/renderer evidence outside root tests/docs;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
@@ -397,6 +407,7 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`
 - `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`
 - `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`
 - `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`
