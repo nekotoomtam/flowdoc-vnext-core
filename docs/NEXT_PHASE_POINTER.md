@@ -1,42 +1,51 @@
 # Next Phase Pointer
 
-Status: current after Template Publish Validation Evidence Gate.
+Status: current after Template Publish Accepted Version Metadata Gate.
 
 ## Next Phase
 
-Template Publish Accepted Version Metadata Gate.
+Template Publish Close Audit.
 
 ## Why This Is Next
 
-Template Publish Validation Evidence Gate used Template Publish / Version
-Boundary Gate as source of truth and accepted JSON-safe validation evidence for
-a canonical FlowDoc package v2/document v3 template candidate.
+Template Publish Accepted Version Metadata Gate used Template Publish
+Validation Evidence Gate as source of truth and populated JSON-safe accepted
+published version metadata for the validated canonical package v2/document v3
+template candidate.
 
-The accepted validation evidence fixture is:
+The accepted metadata fixture is:
 
 ```text
-fixtures/template-publish-validation-evidence.v1.json
+fixtures/template-publish-accepted-version-metadata.v1.json
 ```
 
-The evidence confirms:
+The metadata confirms:
 
-- source boundary id `template-publish-version-boundary-v1` is accepted;
-- draft template identity remains separate from published template version
-  identity;
-- Variable Schema / Data Contract remains deferred;
-- Render API Contract remains deferred;
-- candidate source is canonical package v2/document v3;
-- package parse, graph diagnostics, key/data diagnostics, export-readiness,
-  measurement, rejected blocker, and retention pointer summaries are JSON-safe;
-- rejected publish attempts require explicit blockers and do not mutate
-  canonical package schema.
+- source validation evidence id `template-publish-validation-evidence-v1` is
+  accepted;
+- candidate source is `fixtures/product-report-vnext.flowdoc.json`;
+- `FlowDocPackage.packageVersion = 2`;
+- `package.kind = document`;
+- `document.version = 3`;
+- package id and document id are `product-report-vnext`;
+- accepted metadata is represented without package/document schema mutation;
+- `templateVersionId` and source snapshot pointer are immutable;
+- export-readiness warning visibility is preserved;
+- measurement status remains `mini-checkpoint-only`.
 
-The evidence concludes accepted version metadata can proceed without a
-package/document schema mutation. If the metadata gate finds otherwise, it must
-stop and route to Template Version Schema Decision Gate.
+Template Publish Close Audit is next because the lane now has:
+
+- a publish/version boundary;
+- validation evidence;
+- accepted version metadata.
+
+The close audit should decide whether this mini infrastructure lane can close,
+or whether missing schema semantics require Template Version Schema Decision
+Gate.
 
 Previous source gates retained for traceability:
 
+- Template Publish Accepted Version Metadata Gate.
 - Template Publish Validation Evidence Gate.
 - Template Publish / Version Boundary Gate.
 - Template Publish / Variable Schema / Render API Planning Gate.
@@ -49,12 +58,13 @@ Previous source gates retained for traceability:
 - Native Evidence Summary Gate.
 - Artifact Digest Pinning Execution.
 - Text Engine WASM Bindgen Export Dependency Gate.
-- Historical production retry summary retained `sha256ComputedThisPhase=false`;
-  digest pinning happened only after the accepted artifact existed.
+- Historical production retry summary retained `sha256ComputedThisPhase=false`.
 
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
+- `fixtures/template-publish-accepted-version-metadata.v1.json`
 - `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`
 - `fixtures/template-publish-validation-evidence.v1.json`
 - `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
@@ -66,20 +76,21 @@ Previous source gates retained for traceability:
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Template Publish Accepted Version Metadata Gate Scope
+## Template Publish Close Audit Scope
 
-- Populate JSON-safe accepted version metadata for the validated canonical
-  package v2/document v3 template candidate.
-- Carry `templateId`, `templateVersionId`, `versionOrdinal`, source package id,
-  package/document versions, lifecycle policy, source snapshot pointer, and
-  validation evidence pointer.
-- Require accepted metadata to reference the accepted validation evidence.
-- Preserve draft template identity as separate from accepted published version
-  identity.
-- Preserve rejected blockers if metadata cannot be represented without schema
-  changes.
-- Keep Variable Schema / Data Contract deferred.
-- Keep Render API Contract deferred.
+- Confirm accepted version metadata exists and is accepted.
+- Confirm validation evidence remains accepted.
+- Confirm accepted metadata references the validation evidence pointer and
+  source snapshot pointer.
+- Confirm draft identity remains separate from published version identity.
+- Confirm accepted `templateVersionId` and source snapshot pointer are
+  immutable.
+- Confirm export-readiness warning visibility is preserved.
+- Confirm measurement remains mini-checkpoint-only.
+- Decide whether the Template Publish lane is sufficient to close as a mini
+  infrastructure checkpoint.
+- Decide the next lane: Variable Schema / Data Contract, Render API Contract
+  planning, or Template Version Schema Decision Gate.
 
 ## Carry-Forward Hard Limits
 
@@ -111,20 +122,20 @@ Previous source gates retained for traceability:
 
 ## Expected Output
 
-- Template Publish Accepted Version Metadata Gate;
-- JSON-safe accepted version metadata fixture;
-- validation evidence pointer;
-- source snapshot retention pointer;
-- explicit deferred Variable Schema / Data Contract lane;
-- explicit deferred Render API Contract lane;
+- Template Publish Close Audit;
+- accepted/blocked decision for the Template Publish mini lane;
+- explicit next lane recommendation;
+- explicit deferred Variable Schema / Data Contract and Render API Contract
+  status;
+- explicit schema-decision fallback if needed;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
 - updated current-status pointer.
 
 ## Traceability Anchors
 
+- Template Publish Accepted Version Metadata Gate.
 - Template Publish Validation Evidence Gate.
-- Template Publish / Version Boundary Gate.
 - No package/document schema change in the planning gate.
 - Decision: sufficient for mini infrastructure checkpoint.
 - The accepted measurement manifest is enough for a mini checkpoint only; the

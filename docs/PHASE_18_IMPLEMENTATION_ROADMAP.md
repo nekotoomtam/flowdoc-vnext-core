@@ -6470,6 +6470,45 @@ Acceptance:
   contenteditable, collaboration/offline behavior, or legacy editor runtime
   copy is introduced.
 
+## Phase 207: Template Publish Accepted Version Metadata Gate
+
+Goal:
+
+- populate JSON-safe accepted version metadata for the validated canonical
+  FlowDoc package v2 / document v3 template candidate.
+
+Deliverables:
+
+- `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`;
+- `fixtures/template-publish-accepted-version-metadata.v1.json`;
+- `tests/templatePublishAcceptedVersionMetadataGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Template Publish Validation Evidence Gate is accepted;
+- confirms the validation candidate is canonical package v2/document v3;
+- confirms package parse, graph diagnostics, key/data diagnostics,
+  export-readiness, measurement, and rejected blocker statuses from validation
+  evidence;
+- populates required JSON-safe accepted metadata fields;
+- keeps draft template identity separate from published template version
+  identity;
+- enforces immutable accepted `templateVersionId` and source snapshot pointer;
+- preserves export-readiness warning visibility in accepted metadata;
+- represents metadata without package/document schema changes;
+- no package/document schema mutation, backend production route, production
+  storage durability claim, renderer artifact bytes, auth/authz behavior,
+  Variable Schema / Data Contract implementation, Render API Contract
+  implementation, `measureVNextText(...)` replacement, full measurement
+  production readiness claim, pagination mutation, production renderer-backed
+  measurement binding, production PDF/DOCX renderer work, production
+  contenteditable, collaboration/offline behavior, or legacy editor runtime
+  copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6499,10 +6538,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 206:
+Current next step after Phase 207:
 
 ```text
-Template Publish Accepted Version Metadata Gate
+Template Publish Close Audit
 ```
 
 Reason:
@@ -6659,9 +6698,24 @@ Reason:
   key/data, export-readiness, measurement, rejected blocker, and retention
   pointer summaries, and selects Template Publish Accepted Version Metadata
   Gate next;
+- Phase 207 now populates JSON-safe accepted published version metadata,
+  preserves validation evidence and export-readiness warning visibility, marks
+  accepted version and source pointer facts immutable, and selects Template
+  Publish Close Audit next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 206 Handoff
+
+Current next step after Phase 206:
+
+```text
+Template Publish Accepted Version Metadata Gate
+```
+
+That was the Phase 206 handoff recommendation. Phase 207 is now complete,
+so it is no longer the current next step after Phase 207.
 
 ## Historical Phase 205 Handoff
 

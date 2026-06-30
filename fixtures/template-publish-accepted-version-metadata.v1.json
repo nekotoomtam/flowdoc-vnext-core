@@ -1,0 +1,111 @@
+{
+  "manifestVersion": 1,
+  "metadataId": "template-publish-accepted-version-metadata-v1",
+  "sourceValidationEvidenceId": "template-publish-validation-evidence-v1",
+  "sourceValidationEvidenceStatus": "accepted",
+  "sourceValidationEvidencePointer": "fixtures/template-publish-validation-evidence.v1.json",
+  "metadataStatus": "accepted",
+  "nextRecommendedWork": "Template Publish Close Audit",
+  "schemaDecisionRequired": false,
+  "candidate": {
+    "sourcePointer": "fixtures/product-report-vnext.flowdoc.json",
+    "packageId": "product-report-vnext",
+    "documentId": "product-report-vnext",
+    "packageKind": "document",
+    "packageVersion": 2,
+    "documentVersion": 3,
+    "rawPackageIncludedInThisFixture": false
+  },
+  "acceptedVersionMetadata": {
+    "templateId": "template-product-report-vnext",
+    "templateVersionId": "template-product-report-vnext@v1",
+    "versionOrdinal": 1,
+    "sourcePackageId": "product-report-vnext",
+    "packageVersion": 2,
+    "documentVersion": 3,
+    "title": "Product Report vNext",
+    "status": "accepted",
+    "lifecyclePolicyName": "template-version-lifecycle-v1",
+    "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+    "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+    "validationEvidenceStatus": "accepted",
+    "exportReadinessStatus": "ready-with-warnings",
+    "exportReadinessWarningCount": 1,
+    "measurementStatus": "mini-checkpoint-only"
+  },
+  "identityBoundary": {
+    "draftTemplate": {
+      "identityKind": "draft-template",
+      "draftTemplateId": "draft-template-product-report-vnext",
+      "workingRevisionId": "working-revision-product-report-vnext-001",
+      "mutable": true
+    },
+    "publishedTemplateVersion": {
+      "identityKind": "published-template-version",
+      "templateId": "template-product-report-vnext",
+      "templateVersionId": "template-product-report-vnext@v1",
+      "versionOrdinal": 1,
+      "mutable": false,
+      "status": "accepted"
+    },
+    "draftAndPublishedIdentitiesSeparate": true
+  },
+  "validationEvidenceCarryForward": {
+    "packageParseStatus": "ready",
+    "graphDiagnosticsStatus": "ready",
+    "keyDataDiagnosticsStatus": "ready",
+    "exportReadinessStatus": "ready-with-warnings",
+    "exportReadinessBlockingIssueCount": 0,
+    "exportReadinessWarningIssueCount": 1,
+    "measurementStatus": "mini-checkpoint-only",
+    "rejectedPublishBlockers": []
+  },
+  "immutabilityRules": {
+    "acceptedTemplateVersionIdImmutable": true,
+    "acceptedSourceSnapshotRetentionPointerImmutable": true,
+    "acceptedValidationEvidencePointerImmutable": true,
+    "acceptedMetadataCorrectionsRequireLifecycleRecord": true,
+    "packageDocumentSchemaMutated": false
+  },
+  "metadataRepresentation": {
+    "representedWithoutSchemaChanges": true,
+    "blockers": [],
+    "schemaDecisionFallback": "Template Version Schema Decision Gate"
+  },
+  "retentionPointers": {
+    "sourcePackageTemplateSnapshotPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+    "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+    "acceptedVersionMetadataPointer": "repo://fixtures/template-publish-accepted-version-metadata.v1.json",
+    "rawSnapshotIncludedInRootFixture": false,
+    "rawRendererArtifactIncluded": false,
+    "storageDurabilityClaimed": false
+  },
+  "blockedUntilLater": {
+    "backendProductionRoutes": true,
+    "productionStorageDurability": true,
+    "authAuthz": true,
+    "rendererArtifactBytes": true,
+    "variableSchemaDataContract": true,
+    "renderApiContract": true,
+    "packageDocumentSchemaChange": true,
+    "fullMeasurementProductionReadiness": true,
+    "defaultMeasurerReplacement": true
+  },
+  "nonWork": {
+    "packageDocumentSchemaMutated": false,
+    "backendProductionRoutesImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "rendererArtifactBytesProduced": false,
+    "authAuthzBehaviorAdded": false,
+    "variableSchemaDataContractImplemented": false,
+    "renderApiContractImplemented": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

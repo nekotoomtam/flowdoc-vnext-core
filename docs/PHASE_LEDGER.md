@@ -220,6 +220,7 @@ Parent goal:
 | 204 | Template variable render API planning gate | done | `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateVariableRenderApiPlanningGate.test.ts`; pointer guard tests |
 | 205 | Template publish version boundary gate | done | `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`; `fixtures/template-publish-version-boundary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishVersionBoundaryGate.test.ts`; pointer guard tests |
 | 206 | Template publish validation evidence gate | done | `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`; `fixtures/template-publish-validation-evidence.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishValidationEvidenceGate.test.ts`; pointer guard tests |
+| 207 | Template publish accepted version metadata gate | done | `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishAcceptedVersionMetadataGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5805,6 +5806,43 @@ implement production contenteditable, add collaboration/offline behavior, or
 copy legacy editor runtime.
 
 Next recommended work: Template Publish Accepted Version Metadata Gate.
+Production measurement replacement remains blocked.
+
+## Phase 207 Template Publish Accepted Version Metadata Gate
+
+Template Publish Accepted Version Metadata Gate uses Template Publish
+Validation Evidence Gate as source of truth and populates JSON-safe accepted
+published version metadata for the validated canonical package v2/document v3
+template candidate.
+
+The accepted metadata records:
+
+- source validation evidence id `template-publish-validation-evidence-v1`
+  remains accepted;
+- candidate source is `fixtures/product-report-vnext.flowdoc.json`;
+- candidate package id and document id are `product-report-vnext`;
+- `templateId`, `templateVersionId`, `versionOrdinal`, source package id,
+  package/document versions, title, status, lifecycle policy, source snapshot
+  pointer, validation evidence pointer/status, export-readiness status/warning
+  count, and measurement status;
+- draft template identity remains separate from accepted published version
+  identity;
+- accepted `templateVersionId`, source snapshot pointer, and validation
+  evidence pointer are immutable;
+- export-readiness warning visibility is preserved;
+- measurement remains `mini-checkpoint-only`;
+- accepted metadata is represented without package/document schema changes.
+
+This phase intentionally does not mutate package/document schema, implement
+backend production routes, claim production storage durability, produce
+renderer artifact bytes, add auth/authz behavior, implement Variable Schema /
+Data Contract, implement Render API Contract, replace `measureVNextText(...)`,
+claim full measurement production readiness, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+implement production contenteditable, add collaboration/offline behavior, or
+copy legacy editor runtime.
+
+Next recommended work: Template Publish Close Audit.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

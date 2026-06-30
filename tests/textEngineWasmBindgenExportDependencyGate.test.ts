@@ -318,12 +318,12 @@ describe("text engine WASM bindgen export dependency gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Template Publish Validation Evidence Gate.",
+      "Status: updated after Template Publish Accepted Version Metadata Gate.",
     )
     expect(currentStatus).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Template Publish Validation Evidence Gate.",
+      "Status: current after Template Publish Accepted Version Metadata Gate.",
     )
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM bindgen export dependency gate")

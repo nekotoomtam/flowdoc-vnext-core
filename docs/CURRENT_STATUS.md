@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Template Publish Validation Evidence Gate.
+Status: updated after Template Publish Accepted Version Metadata Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Template Publish Validation Evidence Gate.
+Template Publish Accepted Version Metadata Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -27,6 +27,7 @@ Recent completed gate markers retained for pointer guards:
 - Template Publish / Variable Schema / Render API Planning Gate.
 - Template Publish / Version Boundary Gate.
 - Template Publish Validation Evidence Gate.
+- Template Publish Accepted Version Metadata Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -201,22 +202,32 @@ pointer summaries without mutating package/document schema, producing renderer
 bytes, claiming storage durability, implementing backend routes/auth/authz, or
 attaching Variable Schema / Render API contracts. It selects Template Publish
 Accepted Version Metadata Gate as the next step.
+Template Publish Accepted Version Metadata Gate then populates JSON-safe
+accepted version metadata at
+`fixtures/template-publish-accepted-version-metadata.v1.json`. It carries
+`templateId`, `templateVersionId`, `versionOrdinal`, source package id,
+package/document versions, title, status, lifecycle policy, source snapshot
+pointer, validation evidence pointer/status, export-readiness
+`ready-with-warnings` plus warning count `1`, and measurement status
+`mini-checkpoint-only`. It keeps draft template identity separate from
+published version identity, marks the accepted template version id and source
+snapshot pointer immutable, makes no package/document schema change, and
+selects Template Publish Close Audit as the next step.
 
 ## Current Next Phase
 
-Template Publish Accepted Version Metadata Gate.
+Template Publish Close Audit.
 
 Goal:
 
-- use Template Publish Validation Evidence Gate as source of truth;
-- populate JSON-safe accepted version metadata for the validated canonical
-  package v2/document v3 template candidate;
-- carry validation evidence status, source snapshot retention pointer, and
-  validation evidence pointer into accepted version metadata;
-- keep draft template identity separate from published template version
-  identity;
-- preserve explicit blockers if accepted metadata cannot be represented
-  without schema changes;
+- use Template Publish Accepted Version Metadata Gate as source of truth;
+- audit whether the Template Publish mini lane can close after accepted
+  version metadata is populated;
+- confirm accepted metadata preserves validation evidence status,
+  export-readiness warning visibility, measurement mini-checkpoint scope, and
+  immutable published version identity;
+- decide whether to proceed to Variable Schema / Data Contract, Render API
+  Contract planning, or Template Version Schema Decision Gate;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -452,6 +463,8 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
+- `fixtures/template-publish-accepted-version-metadata.v1.json`
 - `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`
 - `fixtures/template-publish-validation-evidence.v1.json`
 - `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
