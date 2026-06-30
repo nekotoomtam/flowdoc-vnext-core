@@ -444,10 +444,10 @@ describe("numeric drift threshold decision", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Render API Response / Status Contract Gate.")
+    expect(currentStatus).toContain("Status: updated after Render-Readiness Validation Policy Gate.")
     expect(currentStatus).toContain("Numeric Drift Threshold Decision.")
     expect(currentStatus).toContain("Accepted Summary Manifest Population.")
-    expect(nextPointer).toContain("Status: current after Render API Response / Status Contract Gate.")
+    expect(nextPointer).toContain("Status: current after Render-Readiness Validation Policy Gate.")
     expect(nextPointer).toContain("Accepted Summary Manifest Population.")
     expect(nextPointer).toContain("No raw renderer evidence in root docs/tests.")
     expect(readme).toContain("Numeric drift threshold decision")

@@ -1,0 +1,246 @@
+{
+  "manifestVersion": 1,
+  "readinessPolicyId": "render-readiness-validation-policy-v1",
+  "sourceRenderApiResponseStatusContractGate": "Render API Response / Status Contract Gate",
+  "sourceRenderApiResponseStatusContractGateStatus": "complete",
+  "sourceRenderApiResponseStatusContractGatePointer": "repo://docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md",
+  "sourceResponseStatusContractPointer": "repo://fixtures/render-api-response-status-contract.v1.json",
+  "sourceRequestEnvelopePointer": "repo://fixtures/render-api-request-envelope-contract.v1.json",
+  "readinessPolicyStatus": "accepted-policy-metadata-only",
+  "nextRecommendedWork": "Artifact Pointer / Job Status Placeholder Policy Gate",
+  "readinessPolicyVersion": 1,
+  "requestEnvelopeReference": {
+    "requestEnvelopeId": "render-api-request-envelope-contract-v1",
+    "requestEnvelopeVersion": 1,
+    "requestEnvelopeStatus": "accepted-contract-metadata-only",
+    "templateVersionId": "template-product-report-vnext@v1"
+  },
+  "responseContractReference": {
+    "responseContractId": "render-api-response-status-contract-v1",
+    "responseContractStatus": "accepted-contract-metadata-only",
+    "responseContractPointer": "repo://fixtures/render-api-response-status-contract.v1.json"
+  },
+  "templateVersionIdentity": {
+    "templateId": "template-product-report-vnext",
+    "templateVersionId": "template-product-report-vnext@v1",
+    "versionOrdinal": 1
+  },
+  "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+  "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+  "variableDataContractEvidencePointers": {
+    "variableReferenceDiscovery": "repo://fixtures/variable-reference-discovery.v1.json",
+    "variableSchemaMetadataShape": "repo://fixtures/variable-schema-metadata-shape.v1.json",
+    "dataContractValidationPolicy": "repo://fixtures/data-contract-validation-policy.v1.json",
+    "requiredMissingDefaultValuePolicy": "repo://fixtures/required-missing-default-value-policy.v1.json",
+    "variableCompatibilityPolicy": "repo://fixtures/variable-compatibility-policy.v1.json"
+  },
+  "responseStatusVocabulary": [
+    "accepted",
+    "accepted-with-warnings",
+    "blocked",
+    "deferred-job-placeholder",
+    "unknown"
+  ],
+  "envelopeToResponseMapping": {
+    "envelope-valid": "accepted",
+    "envelope-valid-with-warnings": "accepted-with-warnings",
+    "envelope-blocked": "blocked",
+    "unknown": "unknown"
+  },
+  "placeholderConfirmation": {
+    "jobStatusPlaceholder": "deferred-job-placeholder",
+    "jobIdPlaceholder": null,
+    "artifactPointer": null,
+    "artifactBytesProduced": false,
+    "placeholderMode": "metadata-only"
+  },
+  "readinessStatusVocabulary": [
+    "render-ready",
+    "render-ready-with-warnings",
+    "render-blocked",
+    "readiness-deferred",
+    "unknown"
+  ],
+  "responseReadinessMapping": {
+    "accepted": "render-ready",
+    "accepted-with-warnings": "render-ready-with-warnings",
+    "blocked": "render-blocked",
+    "deferred-job-placeholder": "readiness-deferred",
+    "unknown": "unknown"
+  },
+  "requiredEvidenceCheckStatus": "defined-metadata-only",
+  "requiredEvidenceChecks": [
+    {
+      "checkId": "published-template-version-identity-present",
+      "source": "templateVersionIdentity",
+      "readyWhen": "templateVersionId is present and matches template-product-report-vnext@v1",
+      "failureBlocker": "missing-published-template-version-identity"
+    },
+    {
+      "checkId": "source-snapshot-retention-pointer-present",
+      "source": "sourceSnapshotRetentionPointer",
+      "readyWhen": "repo retention pointer is present",
+      "failureBlocker": "missing-source-snapshot-retention-pointer"
+    },
+    {
+      "checkId": "validation-evidence-pointer-accepted",
+      "source": "validationEvidencePointer",
+      "readyWhen": "validation evidence pointer is present and accepted by prior gate",
+      "failureBlocker": "validation-evidence-not-accepted"
+    },
+    {
+      "checkId": "variable-data-contract-evidence-pointers-present",
+      "source": "variableDataContractEvidencePointers",
+      "readyWhen": "all required variable/data evidence pointers are present",
+      "failureBlocker": "missing-variable-data-contract-evidence"
+    },
+    {
+      "checkId": "request-envelope-contract-accepted",
+      "source": "requestEnvelopeReference.requestEnvelopeStatus",
+      "readyWhen": "request envelope status is accepted-contract-metadata-only",
+      "failureBlocker": "request-envelope-contract-not-accepted"
+    },
+    {
+      "checkId": "response-status-contract-accepted",
+      "source": "responseContractReference.responseContractStatus",
+      "readyWhen": "response contract status is accepted-contract-metadata-only",
+      "failureBlocker": "response-status-contract-not-accepted"
+    },
+    {
+      "checkId": "variable-payload-container-present",
+      "source": "variablePayloadContainer",
+      "readyWhen": "variables container is present in the request envelope contract",
+      "failureBlocker": "missing-variable-payload-container"
+    },
+    {
+      "checkId": "required-variable-policy-reference-present",
+      "source": "requiredMissingDefaultValuePolicy",
+      "readyWhen": "required/missing/default policy pointer is present",
+      "failureBlocker": "missing-required-variable-policy-reference"
+    },
+    {
+      "checkId": "compatibility-policy-reference-present",
+      "source": "compatibilityPolicyReference",
+      "readyWhen": "compatibility policy pointer is present",
+      "failureBlocker": "missing-compatibility-policy-reference"
+    },
+    {
+      "checkId": "malformed-envelope-blockers-absent-for-readiness",
+      "source": "responseShapes.blockedEnvelope.blockerSummary",
+      "readyWhen": "readiness candidate response is not envelope-blocked",
+      "failureBlocker": "malformed-envelope-blocker-present"
+    }
+  ],
+  "deferredRuntimeCheckStatus": "deferred-beyond-readiness-policy",
+  "deferredRuntimeChecks": [
+    {
+      "checkId": "runtime-data-validation",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    },
+    {
+      "checkId": "runtime-default-application",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    },
+    {
+      "checkId": "runtime-compatibility-enforcement",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    },
+    {
+      "checkId": "backend-route-availability",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    },
+    {
+      "checkId": "storage-durability",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    },
+    {
+      "checkId": "auth-authz",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    },
+    {
+      "checkId": "renderer-execution",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    },
+    {
+      "checkId": "artifact-byte-production",
+      "status": "deferred",
+      "blocksProductionReadiness": true
+    }
+  ],
+  "blockerVocabulary": [
+    "missing-published-template-version-identity",
+    "missing-source-snapshot-retention-pointer",
+    "validation-evidence-not-accepted",
+    "missing-variable-data-contract-evidence",
+    "request-envelope-contract-not-accepted",
+    "response-status-contract-not-accepted",
+    "missing-variable-payload-container",
+    "missing-required-variable-policy-reference",
+    "missing-compatibility-policy-reference",
+    "malformed-envelope-blocker-present",
+    "schema-mutation-required"
+  ],
+  "warningVocabulary": [
+    "accepted-with-warnings-response",
+    "metadata-only-readiness",
+    "placeholder-job-status",
+    "placeholder-artifact-pointer",
+    "deferred-runtime-data-validation",
+    "deferred-runtime-default-application",
+    "deferred-runtime-compatibility-enforcement",
+    "deferred-backend-route",
+    "deferred-storage-durability",
+    "deferred-auth-authz",
+    "deferred-renderer-execution",
+    "deferred-artifact-byte-production",
+    "measurement-mini-checkpoint-only"
+  ],
+  "artifactPointerJobStatusLifecycle": {
+    "status": "deferred-beyond-metadata-placeholders",
+    "jobStatusLifecycleImplemented": false,
+    "artifactPointerLifecycleImplemented": false,
+    "nextGate": "Artifact Pointer / Job Status Placeholder Policy Gate"
+  },
+  "deferredContractLanes": {
+    "artifactPointerJobStatusPlaceholderPolicy": "deferred-to-artifact-pointer-job-status-placeholder-policy-gate",
+    "backendProductionRoutes": "deferred",
+    "productionStorageDurability": "deferred",
+    "authAuthz": "deferred",
+    "rendererArtifactBytes": "deferred",
+    "actualRenderExecution": "deferred",
+    "broaderErrorBlockerVocabulary": "deferred-if-outside-readiness-policy"
+  },
+  "routeDecisions": {
+    "ifReadinessPolicyAccepted": "Artifact Pointer / Job Status Placeholder Policy Gate",
+    "ifBackendRoutesStorageAuthOrRenderExecutionNeeded": "Dedicated Production Gate",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate"
+  },
+  "blockersBeforeArtifactPointerJobStatusPlaceholderPolicy": [],
+  "nonWork": {
+    "backendProductionRoutesImplemented": false,
+    "renderApiRuntimeImplemented": false,
+    "rendererArtifactBytesProduced": false,
+    "actualRenderExecutionImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "authAuthzBehaviorAdded": false,
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "runtimeCompatibilityEnforcementImplemented": false,
+    "packageDocumentSchemaMutated": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

@@ -226,10 +226,10 @@ describe("render API contract planning gate", () => {
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
     const readme = readText("../README.md")
 
-    expect(currentStatus).toContain("Status: updated after Render API Response / Status Contract Gate.")
+    expect(currentStatus).toContain("Status: updated after Render-Readiness Validation Policy Gate.")
     expect(currentStatus).toContain("Render API Contract Planning Gate.")
     expect(currentStatus).toContain("Render API Request Envelope Contract Gate.")
-    expect(nextPointer).toContain("Status: current after Render API Response / Status Contract Gate.")
+    expect(nextPointer).toContain("Status: current after Render-Readiness Validation Policy Gate.")
     expect(nextPointer).toContain("Render API Request Envelope Contract Gate.")
     expect(nextPointer).toContain("No backend production routes.")
     expect(nextPointer).toContain("No Render API runtime implementation.")

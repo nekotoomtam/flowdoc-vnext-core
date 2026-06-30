@@ -7033,6 +7033,59 @@ Acceptance:
   production PDF/DOCX renderer work, production contenteditable,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 219: Render-Readiness Validation Policy Gate
+
+Goal:
+
+- define JSON-safe render-readiness validation policy for accepted Render API
+  request/response contract metadata, without implementing backend routes,
+  Render API runtime, renderer execution, storage, auth/authz, or runtime
+  validation.
+
+Deliverables:
+
+- `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`;
+- `fixtures/render-readiness-validation-policy.v1.json`;
+- `tests/renderReadinessValidationPolicyGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Render API Response / Status Contract Gate is complete;
+- confirms response/status fixture exists at
+  `fixtures/render-api-response-status-contract.v1.json`;
+- confirms request envelope fixture exists at
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- confirms request envelope id `render-api-request-envelope-contract-v1`;
+- confirms request envelope version `1`;
+- confirms response contract id `render-api-response-status-contract-v1`;
+- confirms response status vocabulary `accepted`, `accepted-with-warnings`,
+  `blocked`, `deferred-job-placeholder`, and `unknown`;
+- confirms envelope-to-response mapping;
+- confirms job/artifact placeholders are metadata-only, with job status
+  placeholder `deferred-job-placeholder`, job id placeholder `null`, artifact
+  pointer `null`, and artifact bytes not produced;
+- defines readiness policy id `render-readiness-validation-policy-v1`;
+- defines readiness statuses `render-ready`, `render-ready-with-warnings`,
+  `render-blocked`, `readiness-deferred`, and `unknown`;
+- maps accepted response statuses to readiness statuses;
+- defines required evidence checks;
+- defines deferred runtime checks;
+- defines blocker and warning vocabulary;
+- keeps artifact pointer / job status lifecycle deferred beyond metadata
+  placeholders;
+- no backend production route, Render API runtime, production storage
+  durability claim, auth/authz behavior, renderer artifact bytes, actual render
+  execution, runtime data validation, runtime default application, runtime
+  compatibility enforcement, package/document schema mutation,
+  `measureVNextText(...)` replacement, full measurement production readiness
+  claim, pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, production contenteditable,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -7062,10 +7115,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 218:
+Current next step after Phase 219:
 
 ```text
-Render-Readiness Validation Policy Gate
+Artifact Pointer / Job Status Placeholder Policy Gate
 ```
 
 Reason:
@@ -7283,9 +7336,27 @@ Reason:
   statuses, keeps job/artifact fields as metadata-only placeholders, keeps
   render-readiness deferred, and selects Render-Readiness Validation Policy
   Gate next;
+- Phase 219 now defines JSON-safe render-readiness validation policy metadata,
+  accepts `render-readiness-validation-policy-v1`, maps response statuses to
+  `render-ready`, `render-ready-with-warnings`, `render-blocked`,
+  `readiness-deferred`, and `unknown`, defines required evidence checks,
+  records deferred runtime checks, keeps job/artifact lifecycle placeholder
+  metadata deferred, and selects Artifact Pointer / Job Status Placeholder
+  Policy Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 218 Handoff
+
+Current next step after Phase 218:
+
+```text
+Render-Readiness Validation Policy Gate
+```
+
+That was the Phase 218 handoff recommendation. Phase 219 is now complete,
+so it is no longer the current next step after Phase 219.
 
 ## Historical Phase 217 Handoff
 

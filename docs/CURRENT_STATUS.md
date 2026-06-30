@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Render API Response / Status Contract Gate.
+Status: updated after Render-Readiness Validation Policy Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Render API Response / Status Contract Gate.
+Render-Readiness Validation Policy Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -39,6 +39,7 @@ Recent completed gate markers retained for pointer guards:
 - Render API Contract Planning Gate.
 - Render API Request Envelope Contract Gate.
 - Render API Response / Status Contract Gate.
+- Render-Readiness Validation Policy Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -367,31 +368,49 @@ runtime, storage durability, auth/authz, renderer artifact bytes, actual
 render execution, runtime data validation, runtime default application,
 runtime compatibility enforcement, package/document schema mutation,
 production measurement binding, or default-measurer replacement.
+Render-Readiness Validation Policy Gate then defines JSON-safe readiness
+policy metadata at `fixtures/render-readiness-validation-policy.v1.json` for
+the accepted request envelope and response/status contract. It confirms
+request envelope id `render-api-request-envelope-contract-v1`, request
+envelope version `1`, response contract id
+`render-api-response-status-contract-v1`, response status vocabulary,
+envelope-to-response mapping, and metadata-only job/artifact placeholders. It
+maps `accepted` to `render-ready`, `accepted-with-warnings` to
+`render-ready-with-warnings`, `blocked` to `render-blocked`,
+`deferred-job-placeholder` to `readiness-deferred`, and `unknown` to
+`unknown`. It defines required evidence checks, deferred runtime checks,
+readiness blocker/warning vocabulary, and selects Artifact Pointer / Job
+Status Placeholder Policy Gate next. It does not implement backend routes,
+Render API runtime, storage durability, auth/authz, renderer artifact bytes,
+actual render execution, runtime data validation, runtime default
+application, runtime compatibility enforcement, package/document schema
+mutation, production measurement binding, or default-measurer replacement.
 
 ## Current Next Phase
 
-Render-Readiness Validation Policy Gate.
+Artifact Pointer / Job Status Placeholder Policy Gate.
 
 Goal:
 
-- use Render API Response / Status Contract Gate as source of truth;
-- define JSON-safe render-readiness validation policy metadata for accepted,
-  accepted-with-warnings, blocked, deferred-job-placeholder, and unknown
-  response statuses;
+- use Render-Readiness Validation Policy Gate as source of truth;
+- define JSON-safe artifact pointer and job status placeholder policy metadata
+  before backend routes, storage, auth/authz, renderer execution, or artifact
+  lifecycle implementation;
+- carry readiness policy id `render-readiness-validation-policy-v1`;
 - carry response contract id `render-api-response-status-contract-v1`;
 - carry request envelope id `render-api-request-envelope-contract-v1` and
   version `1`;
-- keep render-readiness anchored to `template-product-report-vnext@v1`, the
-  accepted request envelope, and the accepted variable/data evidence pointers;
-- define readiness inputs and blockers without implementing backend route
-  handling or renderer execution;
-- keep artifact pointer and job status lifecycle fields as placeholders only
-  unless a later gate explicitly accepts them;
+- keep artifact/job placeholder policy anchored to
+  `template-product-report-vnext@v1`, the accepted request envelope, the
+  accepted response/status contract, and the accepted readiness policy;
+- define placeholder job status and artifact pointer metadata without
+  implementing job lifecycle, artifact lifecycle, backend route handling,
+  storage, auth/authz, or renderer execution;
 - keep backend production routes, Render API runtime, storage durability,
   auth/authz, renderer artifact bytes, and actual render execution out of
   scope;
-- route to Template Version Schema Decision Gate only if the readiness policy
-  cannot be represented without package/document schema changes;
+- route to Template Version Schema Decision Gate only if the placeholder
+  policy cannot be represented without package/document schema changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -631,10 +650,10 @@ next safe step; production measurement binding remains blocked.
   incidental variable/data contract work.
 - Do not apply variable default values at runtime in policy-metadata phases.
 - Do not implement runtime compatibility enforcement in policy-metadata phases.
-- Do not implement Render API runtime in planning, envelope-shape, or
-  response/status metadata phases.
+- Do not implement Render API runtime in planning, envelope-shape,
+  response/status, or readiness metadata phases.
 - Do not produce renderer artifact bytes or execute rendering in planning,
-  envelope-shape, or response/status metadata phases.
+  envelope-shape, response/status, or readiness metadata phases.
 - Do not execute external text engines in core.
 - Do not put raw evidence in root tests/docs.
 - Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
@@ -643,6 +662,9 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`
+- `fixtures/render-readiness-validation-policy.v1.json`
+- `tests/renderReadinessValidationPolicyGate.test.ts`
 - `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`
 - `fixtures/render-api-response-status-contract.v1.json`
 - `tests/renderApiResponseStatusContractGate.test.ts`

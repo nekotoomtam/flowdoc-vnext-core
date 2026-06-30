@@ -381,11 +381,11 @@ describe("artifact digest pinning execution", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Render API Response / Status Contract Gate.")
+    expect(currentStatus).toContain("Status: updated after Render-Readiness Validation Policy Gate.")
     expect(currentStatus).toContain("Artifact Digest Pinning Execution.")
     expect(currentStatus).toContain(PINNED_SHA256)
     expect(currentStatus).toContain("Native Evidence Summary Gate.")
-    expect(nextPointer).toContain("Status: current after Render API Response / Status Contract Gate.")
+    expect(nextPointer).toContain("Status: current after Render-Readiness Validation Policy Gate.")
     expect(nextPointer).toContain("Native Evidence Summary Gate.")
     expect(nextPointer).toContain("No rustybuzz/WASM/ICU4X execution in `@flowdoc/vnext-core`.")
     expect(readme).toContain("Artifact digest pinning execution")
