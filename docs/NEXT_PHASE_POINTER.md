@@ -1,29 +1,34 @@
 # Next Phase Pointer
 
-Status: current after Render API Error / Blocker Vocabulary Gate.
+Status: current after Render API Contract Close Audit.
 
 ## Next Phase
 
-Render API Contract Close Audit.
+Mini Infrastructure Close Audit.
 
 ## Why This Is Next
 
-Render API Error / Blocker Vocabulary Gate accepted JSON-safe vocabulary
-metadata across request envelope, response/status, render-readiness,
-artifact/job placeholder, deferred production, and schema boundaries without
-implementing runtime error handling or production behavior. Render API
-Contract Close Audit is next because the Render API mini lane now has its
-planning, request envelope, response/status, readiness, artifact/job
-placeholder, and vocabulary evidence in place, so the lane can be audited for
-mini infrastructure checkpoint closure.
+Render API Contract Close Audit accepted the Render API Contract mini lane for
+a mini infrastructure checkpoint only. Mini Infrastructure Close Audit is next
+because Measurement Hardening, Template Publish, Variable Schema / Data
+Contract, and Render API Contract now each have close-audit decisions scoped
+to a mini checkpoint, while production routes, storage, auth/authz, durable
+jobs, renderer execution, runtime validation/defaults/compatibility/error
+handling, schema changes, and full measurement readiness remain blocked.
 
-The error/blocker vocabulary gate is:
+The Render API Contract close audit is:
+
+```text
+docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md
+```
+
+The error/blocker vocabulary source gate is:
 
 ```text
 docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md
 ```
 
-The error/blocker vocabulary fixture is:
+The error/blocker vocabulary source fixture is:
 
 ```text
 fixtures/render-api-error-blocker-vocabulary.v1.json
@@ -53,9 +58,9 @@ The readiness source fixture is:
 fixtures/render-readiness-validation-policy.v1.json
 ```
 
-The error/blocker vocabulary gate confirms:
+The Render API Contract close audit confirms:
 
-- Artifact Pointer / Job Status Placeholder Policy Gate is complete;
+- Render API Error / Blocker Vocabulary Gate is complete;
 - error/blocker vocabulary id is
   `render-api-error-blocker-vocabulary-v1`;
 - error/blocker vocabulary version is `1`;
@@ -117,17 +122,33 @@ The error/blocker vocabulary gate confirms:
 - runtime error handling is not implemented;
 - every boundary group keeps `runtimeImplemented=false` and
   `productionReadinessClaimed=false`;
+- Render API Contract Planning Gate evidence exists;
+- Render API Request Envelope Contract Gate evidence exists;
+- Render API Response / Status Contract Gate evidence exists;
+- Render-Readiness Validation Policy Gate evidence exists;
+- Artifact Pointer / Job Status Placeholder Policy Gate evidence exists;
+- Render API Error / Blocker Vocabulary Gate evidence exists;
+- Template Publish mini lane is closed for a mini infrastructure checkpoint
+  only;
+- Variable Schema / Data Contract mini lane is closed for a mini
+  infrastructure checkpoint only;
+- Measurement remains mini-checkpoint-only and full v1 measurement production
+  readiness remains blocked;
+- Render API Contract mini lane can close for a mini infrastructure checkpoint
+  only;
+- production Render API readiness is not claimed;
 - package/document schema remains unchanged.
 
-Render API Contract Close Audit is next because the accepted Render API
-contract evidence now includes stable request, response, readiness,
-placeholder, and vocabulary metadata without opening production runtime scope.
+Mini Infrastructure Close Audit is next because the accepted mini-lane close
+audits now need one combined checkpoint decision before runtime binding or
+production implementation planning.
 
 Previous source gates retained for traceability:
 
 - Render-Readiness Validation Policy Gate.
 - Artifact Pointer / Job Status Placeholder Policy Gate.
 - Render API Error / Blocker Vocabulary Gate.
+- Render API Contract Close Audit.
 - Render API Response / Status Contract Gate.
 - Render API Request Envelope Contract Gate.
 - Render API Contract Planning Gate.
@@ -172,6 +193,8 @@ Historical guard markers retained for pointer tests:
 - Render-Readiness Validation Policy Gate.
 - Artifact Pointer / Job Status Placeholder Policy Gate.
 - Render API Error / Blocker Vocabulary Gate.
+- Render API Contract Close Audit.
+- Historical next-pointer marker retained for pointer guards: Status: current after Render API Error / Blocker Vocabulary Gate.
 - Historical next-pointer marker retained for pointer guards: Status: current after Artifact Pointer / Job Status Placeholder Policy Gate.
 - Historical next-pointer marker retained for pointer guards: Status: current after Render-Readiness Validation Policy Gate.
 - Decision: sufficient for mini infrastructure checkpoint.
@@ -186,6 +209,7 @@ Historical guard markers retained for pointer tests:
 - `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`
 - `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`
 - `fixtures/render-api-error-blocker-vocabulary.v1.json`
+- `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`
 - `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`
 - `fixtures/render-api-response-status-contract.v1.json`
 - `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`
@@ -204,36 +228,28 @@ Historical guard markers retained for pointer tests:
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Render API Contract Close Audit Scope
+## Mini Infrastructure Close Audit Scope
 
-- Confirm Render API Error / Blocker Vocabulary Gate is complete.
-- Use `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md` and
-  `fixtures/render-api-error-blocker-vocabulary.v1.json` as source of truth.
-- Confirm all Render API Contract evidence exists:
-  `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`,
-  `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`,
-  `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`,
-  `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`,
-  `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`, and
-  `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`.
-- Confirm all Render API fixtures exist:
-  `fixtures/render-api-request-envelope-contract.v1.json`,
-  `fixtures/render-api-response-status-contract.v1.json`,
-  `fixtures/render-readiness-validation-policy.v1.json`,
-  `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`, and
-  `fixtures/render-api-error-blocker-vocabulary.v1.json`.
-- Confirm accepted published template version target
-  `template-product-report-vnext@v1`.
-- Confirm Variable Schema / Data Contract mini lane is closed.
-- Confirm Template Publish mini lane is closed.
-- Confirm Measurement remains mini-checkpoint-only.
-- Decide whether the Render API Contract mini lane can close for a mini
+- Confirm Render API Contract Close Audit is complete.
+- Use `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md` as source of truth.
+- Confirm Measurement Hardening Close Audit is complete and scoped to mini
   infrastructure checkpoint only.
-- Explicitly state no production readiness claims for backend routes, Render
-  API runtime, renderer execution, artifact bytes, durable jobs, storage,
-  auth/authz, runtime validation, runtime defaults, runtime compatibility
-  enforcement, or full measurement.
-- Select Mini Infrastructure Close Audit next if the lane closes.
+- Confirm Template Publish Close Audit is complete and scoped to mini
+  infrastructure checkpoint only.
+- Confirm Variable Schema / Data Contract Close Audit is complete and scoped
+  to mini infrastructure checkpoint only.
+- Confirm Render API Contract Close Audit is complete and scoped to mini
+  infrastructure checkpoint only.
+- Confirm the accepted template target remains
+  `template-product-report-vnext@v1`.
+- Confirm all production blockers remain explicit: backend routes, storage,
+  auth/authz, durable job lifecycle, renderer execution, artifact bytes,
+  runtime validation/defaults/compatibility/error handling, package/document
+  schema changes, production contenteditable, and full measurement production
+  readiness.
+- Decide whether the mini infrastructure checkpoint can close.
+- Select Runtime Binding / Implementation Planning Gate only if the mini
+  checkpoint closes without weakening production blockers.
 - Keep backend production routes, storage durability, auth/authz, renderer
   artifact bytes, and actual render execution out of scope.
 - Keep runtime data validation, runtime default application, and runtime
@@ -283,15 +299,14 @@ Historical guard markers retained for pointer tests:
 
 ## Expected Output
 
-- Render API Contract Close Audit;
-- confirmation of all Render API Contract docs and fixtures;
-- accepted published template version target confirmation;
-- Template Publish mini lane closed confirmation;
-- Variable Schema / Data Contract mini lane closed confirmation;
-- Measurement mini-checkpoint-only confirmation;
-- decision whether Render API Contract mini lane can close for mini
-  infrastructure checkpoint only;
-- explicit non-claims for all production runtime/storage/auth/render behavior;
+- Mini Infrastructure Close Audit;
+- confirmation of Measurement Hardening Close Audit;
+- confirmation of Template Publish Close Audit;
+- confirmation of Variable Schema / Data Contract Close Audit;
+- confirmation of Render API Contract Close Audit;
+- combined mini-checkpoint decision;
+- explicit remaining production blockers;
+- next lane recommendation after the mini checkpoint;
 - readiness policy id reference;
 - response contract id reference;
 - request envelope id and version reference;
@@ -308,6 +323,7 @@ Historical guard markers retained for pointer tests:
 - Render-Readiness Validation Policy Gate.
 - Artifact Pointer / Job Status Placeholder Policy Gate.
 - Render API Error / Blocker Vocabulary Gate.
+- Render API Contract Close Audit.
 - Render API Response / Status Contract Gate.
 - Render API Request Envelope Contract Gate.
 - Render API Contract Planning Gate.

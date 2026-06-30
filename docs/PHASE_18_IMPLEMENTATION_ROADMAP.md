@@ -7207,6 +7207,55 @@ Acceptance:
   production PDF/DOCX renderer work, production contenteditable,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 222: Render API Contract Close Audit
+
+Goal:
+
+- audit whether the Render API Contract mini lane can close for a mini
+  infrastructure checkpoint only after request envelope, response/status,
+  readiness, artifact/job placeholder, and error/blocker vocabulary evidence
+  is accepted.
+
+Deliverables:
+
+- `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`;
+- `tests/renderApiContractCloseAudit.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Render API Error / Blocker Vocabulary Gate is complete;
+- confirms all Render API Contract docs exist:
+  `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`,
+  `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`,
+  `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`,
+  `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`,
+  `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`, and
+  `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`;
+- confirms all Render API fixtures exist:
+  `fixtures/render-api-request-envelope-contract.v1.json`,
+  `fixtures/render-api-response-status-contract.v1.json`,
+  `fixtures/render-readiness-validation-policy.v1.json`,
+  `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`, and
+  `fixtures/render-api-error-blocker-vocabulary.v1.json`;
+- confirms accepted published template version target
+  `template-product-report-vnext@v1`;
+- confirms Template Publish mini lane is closed;
+- confirms Variable Schema / Data Contract mini lane is closed;
+- confirms Measurement remains mini-checkpoint-only;
+- decides the Render API Contract mini lane can close for a mini
+  infrastructure checkpoint only;
+- explicitly does not claim backend route readiness, Render API runtime
+  readiness, renderer execution readiness, artifact byte production, durable
+  job lifecycle, production storage durability, auth/authz readiness, runtime
+  data validation, runtime default application, runtime compatibility
+  enforcement, runtime error handling, full measurement production readiness,
+  or package/document schema readiness;
+- selects Mini Infrastructure Close Audit next.
+
 ## Later Phases
 
 Goal:
@@ -7236,10 +7285,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 221:
+Current next step after Phase 222:
 
 ```text
-Render API Contract Close Audit
+Mini Infrastructure Close Audit
 ```
 
 Reason:
@@ -7478,9 +7527,25 @@ Reason:
   blockers/warnings, and artifact/job placeholder blockers/warnings, groups
   vocabulary by boundary, keeps runtime and production readiness flags false,
   and selects Render API Contract Close Audit next;
+- Phase 222 now closes the Render API Contract mini lane for a mini
+  infrastructure checkpoint only, confirms the planning/request/response/
+  readiness/artifact-job/error-vocabulary evidence chain, keeps production
+  runtime/storage/auth/render/schema/measurement claims blocked, and selects
+  Mini Infrastructure Close Audit next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 221 Handoff
+
+Current next step after Phase 221:
+
+```text
+Render API Contract Close Audit
+```
+
+That was the Phase 221 handoff recommendation. Phase 222 is now complete,
+so it is no longer the current next step after Phase 221.
 
 ## Historical Phase 220 Handoff
 

@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Render API Error / Blocker Vocabulary Gate.
+Status: updated after Render API Contract Close Audit.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Render API Error / Blocker Vocabulary Gate.
+Render API Contract Close Audit.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -42,6 +42,8 @@ Recent completed gate markers retained for pointer guards:
 - Render-Readiness Validation Policy Gate.
 - Artifact Pointer / Job Status Placeholder Policy Gate.
 - Render API Error / Blocker Vocabulary Gate.
+- Render API Contract Close Audit.
+- Historical current-status marker retained for pointer guards: Status: updated after Render API Error / Blocker Vocabulary Gate.
 - Historical current-status marker retained for pointer guards: Status: updated after Artifact Pointer / Job Status Placeholder Policy Gate.
 - Historical current-status marker retained for pointer guards: Status: updated after Render-Readiness Validation Policy Gate.
 
@@ -435,34 +437,41 @@ auth/authz, renderer artifact bytes, actual render execution, runtime data
 validation, runtime default application, runtime compatibility enforcement,
 package/document schema mutation, production measurement binding, or
 default-measurer replacement.
+Render API Contract Close Audit then confirms the full Render API Contract
+evidence chain: planning, request envelope, response/status, render-readiness,
+artifact/job placeholder, and error/blocker vocabulary. It verifies the
+accepted template target `template-product-report-vnext@v1`, confirms
+Template Publish and Variable Schema / Data Contract mini lanes are closed for
+mini infrastructure checkpoint scope only, confirms Measurement remains
+mini-checkpoint-only with full v1 production readiness blocked, and decides
+the Render API Contract mini lane can close for a mini infrastructure
+checkpoint only. It explicitly does not claim backend route readiness, Render
+API runtime readiness, renderer execution readiness, artifact byte production,
+durable job lifecycle, production storage durability, auth/authz readiness,
+runtime data validation, runtime default application, runtime compatibility
+enforcement, or full measurement production readiness. It selects Mini
+Infrastructure Close Audit next.
 
 ## Current Next Phase
 
-Render API Contract Close Audit.
+Mini Infrastructure Close Audit.
 
 Goal:
 
-- use Render API Error / Blocker Vocabulary Gate as source of truth;
-- confirm the full Render API Contract evidence chain exists:
-  planning, request envelope, response/status, render-readiness,
-  artifact/job placeholder, and error/blocker vocabulary;
-- confirm the accepted published template version target
-  `template-product-report-vnext@v1`;
-- confirm Template Publish mini lane is closed for a mini infrastructure
-  checkpoint only;
-- confirm Variable Schema / Data Contract mini lane is closed for a mini
-  infrastructure checkpoint only;
-- confirm Measurement remains mini-checkpoint-only and full v1 measurement
-  production readiness remains blocked;
-- decide whether the Render API Contract mini lane can close for a mini
-  infrastructure checkpoint only;
-- explicitly state that close does not claim backend route readiness, Render
-  API runtime readiness, renderer execution readiness, artifact byte
-  production, durable job lifecycle, production storage durability, auth/authz
-  readiness, runtime data validation, runtime default application, runtime
-  compatibility enforcement, or full measurement production readiness;
-- select Mini Infrastructure Close Audit next if all contract evidence is
-  accepted;
+- use Render API Contract Close Audit as source of truth;
+- confirm the four mini infrastructure lanes have close-audit decisions:
+  Measurement Hardening, Template Publish, Variable Schema / Data Contract,
+  and Render API Contract;
+- confirm each close is scoped to a mini infrastructure checkpoint only;
+- confirm full measurement production readiness remains blocked;
+- confirm backend routes, production storage durability, auth/authz, durable
+  job lifecycle, renderer execution, artifact bytes, runtime validation,
+  runtime defaults, runtime compatibility enforcement, runtime error handling,
+  package/document schema changes, and production contenteditable remain
+  blocked or deferred;
+- decide whether the mini infrastructure checkpoint can close and whether the
+  next lane should be Runtime Binding / Implementation Planning Gate or more
+  evidence/documentation work;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
