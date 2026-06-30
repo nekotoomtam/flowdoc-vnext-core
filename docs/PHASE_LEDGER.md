@@ -234,6 +234,7 @@ Parent goal:
 | 218 | Render API response status contract gate | done | `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiResponseStatusContractGate.test.ts`; pointer guard tests |
 | 219 | Render-readiness validation policy gate | done | `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderReadinessValidationPolicyGate.test.ts`; pointer guard tests |
 | 220 | Artifact pointer job status placeholder policy gate | done | `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactPointerJobStatusPlaceholderPolicyGate.test.ts`; pointer guard tests |
+| 221 | Render API error blocker vocabulary gate | done | `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiErrorBlockerVocabularyGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6521,6 +6522,65 @@ production PDF/DOCX renderer work, production contenteditable,
 collaboration/offline behavior, or legacy editor runtime.
 
 Next recommended work: Render API Error / Blocker Vocabulary Gate.
+Production measurement replacement remains blocked.
+
+## Phase 221 Render API Error Blocker Vocabulary Gate
+
+Render API Error / Blocker Vocabulary Gate uses Artifact Pointer / Job Status
+Placeholder Policy Gate as source of truth and defines JSON-safe Render API
+error/blocker vocabulary metadata before Render API Contract Close Audit.
+
+The gate confirms:
+
+- error/blocker vocabulary doc:
+  `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`;
+- error/blocker vocabulary fixture:
+  `fixtures/render-api-error-blocker-vocabulary.v1.json`;
+- artifact/job placeholder policy fixture:
+  `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`;
+- readiness policy fixture:
+  `fixtures/render-readiness-validation-policy.v1.json`;
+- response/status fixture:
+  `fixtures/render-api-response-status-contract.v1.json`;
+- request envelope fixture:
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- request envelope id:
+  `render-api-request-envelope-contract-v1`;
+- request envelope version: `1`;
+- response contract id:
+  `render-api-response-status-contract-v1`;
+- readiness policy id:
+  `render-readiness-validation-policy-v1`;
+- artifact/job placeholder policy id:
+  `artifact-pointer-job-status-placeholder-policy-v1`;
+- error/blocker vocabulary id:
+  `render-api-error-blocker-vocabulary-v1`;
+- accepted template version target:
+  `template-product-report-vnext@v1`;
+- severity vocabulary: `warning`, `blocked`, `deferred`, and `unknown`;
+- malformed request envelope blockers are preserved;
+- response/status blocked summary shape is preserved;
+- readiness blockers and warnings are preserved;
+- artifact/job placeholder blockers and warnings are preserved;
+- vocabulary is grouped by request-envelope, response-status,
+  render-readiness, artifact-job-placeholder, deferred-backend-route,
+  deferred-storage, deferred-auth-authz, deferred-renderer-execution,
+  deferred-runtime-validation, and schema-mutation boundaries;
+- every boundary group records `runtimeImplemented=false` and
+  `productionReadinessClaimed=false`;
+- the JSON-safe error summary shape is metadata-only.
+
+This phase intentionally does not implement runtime error handling, backend
+production routes, Render API runtime, renderer artifact bytes, actual render
+execution, durable job ids, durable job lifecycle, production storage
+durability, auth/authz behavior, runtime data validation, runtime default
+application, runtime compatibility enforcement, package/document schema
+mutation, `measureVNextText(...)` replacement, full measurement production
+readiness, pagination mutation, production renderer-backed measurement
+binding, production PDF/DOCX renderer work, production contenteditable,
+collaboration/offline behavior, or legacy editor runtime.
+
+Next recommended work: Render API Contract Close Audit.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

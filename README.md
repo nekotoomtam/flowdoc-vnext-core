@@ -833,6 +833,16 @@ The package must remain runnable without any parent editor checkout.
   execution, runtime validation/defaults/compatibility enforcement, or schema
   mutation. See
   `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`.
+- Render API Error / Blocker Vocabulary Gate defines JSON-safe vocabulary
+  metadata at `fixtures/render-api-error-blocker-vocabulary.v1.json`,
+  preserves request envelope blockers, response/status blocked summary shape,
+  readiness blockers/warnings, and artifact/job placeholder blockers/warnings,
+  groups vocabulary by boundary, keeps runtime and production readiness flags
+  false, and selects Render API Contract Close Audit next without runtime
+  error handling, backend routes, runtime Render API behavior, durable job
+  lifecycle, storage, auth/authz, renderer artifact bytes, actual render
+  execution, runtime validation/defaults/compatibility enforcement, or schema
+  mutation. See `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -845,8 +855,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Artifact
-  Pointer / Job Status Placeholder Policy Gate
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Render API
+  Error / Blocker Vocabulary Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -880,6 +890,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`: JSON-safe
   artifact pointer / job status placeholder policy before Render API
   error/blocker vocabulary
+- `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`: JSON-safe Render API
+  error/blocker vocabulary before Render API Contract close audit
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1380,8 +1392,8 @@ The package must remain runnable without any parent editor checkout.
 - concrete production publish route or storage behavior, variable schema/data
   contract implementation, runtime data validation, runtime default
   application, runtime compatibility enforcement, durable job lifecycle,
-  artifact byte production, or render API runtime implementation beyond the
-  Artifact Pointer / Job Status Placeholder Policy Gate
+  artifact byte production, runtime error handling, or render API runtime
+  implementation beyond the Render API Error / Blocker Vocabulary Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

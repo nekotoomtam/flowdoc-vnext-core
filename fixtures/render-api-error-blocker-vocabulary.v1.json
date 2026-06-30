@@ -1,0 +1,386 @@
+{
+  "manifestVersion": 1,
+  "errorBlockerVocabularyId": "render-api-error-blocker-vocabulary-v1",
+  "sourceArtifactPointerJobStatusPlaceholderPolicyGate": "Artifact Pointer / Job Status Placeholder Policy Gate",
+  "sourceArtifactPointerJobStatusPlaceholderPolicyGateStatus": "complete",
+  "sourceArtifactPointerJobStatusPlaceholderPolicyGatePointer": "repo://docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md",
+  "sourceArtifactJobPlaceholderPolicyPointer": "repo://fixtures/artifact-pointer-job-status-placeholder-policy.v1.json",
+  "sourceReadinessPolicyPointer": "repo://fixtures/render-readiness-validation-policy.v1.json",
+  "sourceResponseStatusContractPointer": "repo://fixtures/render-api-response-status-contract.v1.json",
+  "sourceRequestEnvelopePointer": "repo://fixtures/render-api-request-envelope-contract.v1.json",
+  "errorBlockerVocabularyStatus": "accepted-vocabulary-metadata-only",
+  "nextRecommendedWork": "Render API Contract Close Audit",
+  "errorBlockerVocabularyVersion": 1,
+  "templateVersionIdentity": {
+    "templateId": "template-product-report-vnext",
+    "templateVersionId": "template-product-report-vnext@v1",
+    "versionOrdinal": 1
+  },
+  "requestEnvelopeReference": {
+    "requestEnvelopeId": "render-api-request-envelope-contract-v1",
+    "requestEnvelopeVersion": 1,
+    "requestEnvelopeStatus": "accepted-contract-metadata-only",
+    "templateVersionId": "template-product-report-vnext@v1"
+  },
+  "responseContractReference": {
+    "responseContractId": "render-api-response-status-contract-v1",
+    "responseContractStatus": "accepted-contract-metadata-only",
+    "responseContractPointer": "repo://fixtures/render-api-response-status-contract.v1.json"
+  },
+  "readinessPolicyReference": {
+    "readinessPolicyId": "render-readiness-validation-policy-v1",
+    "readinessPolicyVersion": 1,
+    "readinessPolicyStatus": "accepted-policy-metadata-only",
+    "readinessPolicyPointer": "repo://fixtures/render-readiness-validation-policy.v1.json"
+  },
+  "artifactJobPlaceholderPolicyReference": {
+    "artifactJobPlaceholderPolicyId": "artifact-pointer-job-status-placeholder-policy-v1",
+    "artifactJobPlaceholderPolicyVersion": 1,
+    "artifactJobPlaceholderPolicyStatus": "accepted-policy-metadata-only",
+    "artifactJobPlaceholderPolicyPointer": "repo://fixtures/artifact-pointer-job-status-placeholder-policy.v1.json"
+  },
+  "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+  "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+  "variableDataContractEvidencePointers": {
+    "variableReferenceDiscovery": "repo://fixtures/variable-reference-discovery.v1.json",
+    "variableSchemaMetadataShape": "repo://fixtures/variable-schema-metadata-shape.v1.json",
+    "dataContractValidationPolicy": "repo://fixtures/data-contract-validation-policy.v1.json",
+    "requiredMissingDefaultValuePolicy": "repo://fixtures/required-missing-default-value-policy.v1.json",
+    "variableCompatibilityPolicy": "repo://fixtures/variable-compatibility-policy.v1.json"
+  },
+  "severityVocabulary": [
+    "warning",
+    "blocked",
+    "deferred",
+    "unknown"
+  ],
+  "preservedRequestEnvelopeBlockers": [
+    "missing-template-version-identity",
+    "unknown-template-version-identity",
+    "missing-variable-payload",
+    "invalid-variable-payload-shape",
+    "missing-variable-data-contract-evidence",
+    "variable-data-contract-context-mismatch",
+    "compatibility-policy-context-mismatch",
+    "invalid-client-request-id",
+    "duplicate-request-policy-missing",
+    "schema-mutation-required"
+  ],
+  "preservedResponseStatusBlockedSummaryShape": {
+    "summaryMode": "json-safe-metadata-only",
+    "warningCodes": "json-string-array",
+    "blockerCodes": "json-string-array",
+    "blockedEnvelopeStatus": "blocked",
+    "allowedBlockerCodes": [
+      "missing-template-version-identity",
+      "unknown-template-version-identity",
+      "missing-variable-payload",
+      "invalid-variable-payload-shape",
+      "missing-variable-data-contract-evidence",
+      "variable-data-contract-context-mismatch",
+      "compatibility-policy-context-mismatch",
+      "invalid-client-request-id",
+      "duplicate-request-policy-missing",
+      "schema-mutation-required"
+    ],
+    "runtimeErrorHandlingImplemented": false
+  },
+  "preservedReadinessBlockers": [
+    "missing-published-template-version-identity",
+    "missing-source-snapshot-retention-pointer",
+    "validation-evidence-not-accepted",
+    "missing-variable-data-contract-evidence",
+    "request-envelope-contract-not-accepted",
+    "response-status-contract-not-accepted",
+    "missing-variable-payload-container",
+    "missing-required-variable-policy-reference",
+    "missing-compatibility-policy-reference",
+    "malformed-envelope-blocker-present",
+    "schema-mutation-required"
+  ],
+  "preservedReadinessWarnings": [
+    "accepted-with-warnings-response",
+    "metadata-only-readiness",
+    "placeholder-job-status",
+    "placeholder-artifact-pointer",
+    "deferred-runtime-data-validation",
+    "deferred-runtime-default-application",
+    "deferred-runtime-compatibility-enforcement",
+    "deferred-backend-route",
+    "deferred-storage-durability",
+    "deferred-auth-authz",
+    "deferred-renderer-execution",
+    "deferred-artifact-byte-production",
+    "measurement-mini-checkpoint-only"
+  ],
+  "preservedArtifactJobPlaceholderBlockers": [
+    "real-storage-required",
+    "durable-job-lifecycle-required",
+    "durable-job-id-required",
+    "renderer-execution-required",
+    "artifact-bytes-required",
+    "backend-route-required",
+    "auth-authz-required",
+    "runtime-validation-required",
+    "schema-mutation-required"
+  ],
+  "preservedArtifactJobPlaceholderWarnings": [
+    "metadata-only-placeholder-policy",
+    "job-placeholder-deferred",
+    "artifact-pointer-null",
+    "storage-durability-deferred",
+    "renderer-execution-deferred",
+    "artifact-byte-production-deferred",
+    "render-api-runtime-deferred"
+  ],
+  "boundaryGroups": [
+    {
+      "boundary": "request-envelope",
+      "sourceGate": "Render API Request Envelope Contract Gate",
+      "evidencePointer": "repo://fixtures/render-api-request-envelope-contract.v1.json",
+      "severity": "blocked",
+      "blockerCodes": [
+        "missing-template-version-identity",
+        "unknown-template-version-identity",
+        "missing-variable-payload",
+        "invalid-variable-payload-shape",
+        "missing-variable-data-contract-evidence",
+        "variable-data-contract-context-mismatch",
+        "compatibility-policy-context-mismatch",
+        "invalid-client-request-id",
+        "duplicate-request-policy-missing",
+        "schema-mutation-required"
+      ],
+      "warningCodes": [],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "response-status",
+      "sourceGate": "Render API Response / Status Contract Gate",
+      "evidencePointer": "repo://fixtures/render-api-response-status-contract.v1.json",
+      "severity": "blocked",
+      "blockerCodes": [
+        "missing-template-version-identity",
+        "unknown-template-version-identity",
+        "missing-variable-payload",
+        "invalid-variable-payload-shape",
+        "missing-variable-data-contract-evidence",
+        "variable-data-contract-context-mismatch",
+        "compatibility-policy-context-mismatch",
+        "invalid-client-request-id",
+        "duplicate-request-policy-missing",
+        "schema-mutation-required"
+      ],
+      "warningCodes": [
+        "accepted-with-warnings-response"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "render-readiness",
+      "sourceGate": "Render-Readiness Validation Policy Gate",
+      "evidencePointer": "repo://fixtures/render-readiness-validation-policy.v1.json",
+      "severity": "blocked",
+      "blockerCodes": [
+        "missing-published-template-version-identity",
+        "missing-source-snapshot-retention-pointer",
+        "validation-evidence-not-accepted",
+        "missing-variable-data-contract-evidence",
+        "request-envelope-contract-not-accepted",
+        "response-status-contract-not-accepted",
+        "missing-variable-payload-container",
+        "missing-required-variable-policy-reference",
+        "missing-compatibility-policy-reference",
+        "malformed-envelope-blocker-present",
+        "schema-mutation-required"
+      ],
+      "warningCodes": [
+        "accepted-with-warnings-response",
+        "metadata-only-readiness",
+        "placeholder-job-status",
+        "placeholder-artifact-pointer",
+        "deferred-runtime-data-validation",
+        "deferred-runtime-default-application",
+        "deferred-runtime-compatibility-enforcement",
+        "deferred-backend-route",
+        "deferred-storage-durability",
+        "deferred-auth-authz",
+        "deferred-renderer-execution",
+        "deferred-artifact-byte-production",
+        "measurement-mini-checkpoint-only"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "artifact-job-placeholder",
+      "sourceGate": "Artifact Pointer / Job Status Placeholder Policy Gate",
+      "evidencePointer": "repo://fixtures/artifact-pointer-job-status-placeholder-policy.v1.json",
+      "severity": "deferred",
+      "blockerCodes": [
+        "real-storage-required",
+        "durable-job-lifecycle-required",
+        "durable-job-id-required",
+        "renderer-execution-required",
+        "artifact-bytes-required",
+        "backend-route-required",
+        "auth-authz-required",
+        "runtime-validation-required",
+        "schema-mutation-required"
+      ],
+      "warningCodes": [
+        "metadata-only-placeholder-policy",
+        "job-placeholder-deferred",
+        "artifact-pointer-null",
+        "storage-durability-deferred",
+        "renderer-execution-deferred",
+        "artifact-byte-production-deferred",
+        "render-api-runtime-deferred"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "deferred-backend-route",
+      "sourceGate": "Artifact Pointer / Job Status Placeholder Policy Gate",
+      "evidencePointer": "repo://fixtures/artifact-pointer-job-status-placeholder-policy.v1.json",
+      "severity": "deferred",
+      "blockerCodes": [
+        "backend-route-required"
+      ],
+      "warningCodes": [
+        "deferred-backend-route",
+        "render-api-runtime-deferred"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "deferred-storage",
+      "sourceGate": "Artifact Pointer / Job Status Placeholder Policy Gate",
+      "evidencePointer": "repo://fixtures/artifact-pointer-job-status-placeholder-policy.v1.json",
+      "severity": "deferred",
+      "blockerCodes": [
+        "real-storage-required"
+      ],
+      "warningCodes": [
+        "deferred-storage-durability",
+        "storage-durability-deferred"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "deferred-auth-authz",
+      "sourceGate": "Artifact Pointer / Job Status Placeholder Policy Gate",
+      "evidencePointer": "repo://fixtures/artifact-pointer-job-status-placeholder-policy.v1.json",
+      "severity": "deferred",
+      "blockerCodes": [
+        "auth-authz-required"
+      ],
+      "warningCodes": [
+        "deferred-auth-authz"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "deferred-renderer-execution",
+      "sourceGate": "Artifact Pointer / Job Status Placeholder Policy Gate",
+      "evidencePointer": "repo://fixtures/artifact-pointer-job-status-placeholder-policy.v1.json",
+      "severity": "deferred",
+      "blockerCodes": [
+        "renderer-execution-required",
+        "artifact-bytes-required"
+      ],
+      "warningCodes": [
+        "deferred-renderer-execution",
+        "renderer-execution-deferred",
+        "deferred-artifact-byte-production",
+        "artifact-byte-production-deferred"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "deferred-runtime-validation",
+      "sourceGate": "Render-Readiness Validation Policy Gate",
+      "evidencePointer": "repo://fixtures/render-readiness-validation-policy.v1.json",
+      "severity": "deferred",
+      "blockerCodes": [
+        "runtime-validation-required"
+      ],
+      "warningCodes": [
+        "deferred-runtime-data-validation",
+        "deferred-runtime-default-application",
+        "deferred-runtime-compatibility-enforcement"
+      ],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    },
+    {
+      "boundary": "schema-mutation",
+      "sourceGate": "Render API Error / Blocker Vocabulary Gate",
+      "evidencePointer": "repo://fixtures/render-api-error-blocker-vocabulary.v1.json",
+      "severity": "blocked",
+      "blockerCodes": [
+        "schema-mutation-required"
+      ],
+      "warningCodes": [],
+      "runtimeImplemented": false,
+      "productionReadinessClaimed": false
+    }
+  ],
+  "errorSummaryShape": {
+    "summaryMode": "json-safe-metadata-only",
+    "fields": [
+      "boundary",
+      "blockerCode",
+      "severity",
+      "sourceGate",
+      "evidencePointer",
+      "runtimeImplemented",
+      "productionReadinessClaimed"
+    ],
+    "boundary": "boundary vocabulary id",
+    "blockerCode": "json-string-code-from-boundary-group",
+    "severity": "warning | blocked | deferred | unknown",
+    "sourceGate": "human-readable source gate name",
+    "evidencePointer": "repo:// pointer to JSON-safe evidence",
+    "runtimeImplemented": false,
+    "productionReadinessClaimed": false,
+    "runtimeErrorHandlingImplemented": false
+  },
+  "routeDecisions": {
+    "ifErrorBlockerVocabularyAccepted": "Render API Contract Close Audit",
+    "ifRuntimeErrorHandlingNeeded": "Dedicated Runtime Error Handling Gate",
+    "ifBackendRoutesStorageAuthOrRenderExecutionNeeded": "Dedicated Production Gate",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate"
+  },
+  "blockersBeforeRenderApiContractCloseAudit": [],
+  "nonWork": {
+    "backendProductionRoutesImplemented": false,
+    "renderApiRuntimeImplemented": false,
+    "rendererArtifactBytesProduced": false,
+    "actualRenderExecutionImplemented": false,
+    "durableJobIdsCreated": false,
+    "durableJobLifecycleImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "authAuthzBehaviorAdded": false,
+    "runtimeErrorHandlingImplemented": false,
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "runtimeCompatibilityEnforcementImplemented": false,
+    "packageDocumentSchemaMutated": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

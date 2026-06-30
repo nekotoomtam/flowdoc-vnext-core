@@ -7147,6 +7147,66 @@ Acceptance:
   production contenteditable, collaboration/offline behavior, or legacy editor
   runtime copy is introduced.
 
+## Phase 221: Render API Error / Blocker Vocabulary Gate
+
+Goal:
+
+- define JSON-safe Render API error/blocker vocabulary across request
+  envelope, response/status, readiness, job/artifact placeholder, and deferred
+  production boundaries without implementing runtime error handling.
+
+Deliverables:
+
+- `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`;
+- `fixtures/render-api-error-blocker-vocabulary.v1.json`;
+- `tests/renderApiErrorBlockerVocabularyGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Artifact Pointer / Job Status Placeholder Policy Gate is complete;
+- confirms artifact/job placeholder policy fixture exists at
+  `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`;
+- confirms readiness policy fixture exists at
+  `fixtures/render-readiness-validation-policy.v1.json`;
+- confirms response/status fixture exists at
+  `fixtures/render-api-response-status-contract.v1.json`;
+- confirms request envelope fixture exists at
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- confirms request envelope id `render-api-request-envelope-contract-v1`;
+- confirms request envelope version `1`;
+- confirms response contract id `render-api-response-status-contract-v1`;
+- confirms readiness policy id `render-readiness-validation-policy-v1`;
+- confirms artifact/job placeholder policy id
+  `artifact-pointer-job-status-placeholder-policy-v1`;
+- defines error/blocker vocabulary id
+  `render-api-error-blocker-vocabulary-v1`;
+- preserves malformed request envelope blockers;
+- preserves response/status blocked summary shape;
+- preserves readiness blockers and warnings;
+- preserves artifact/job placeholder blockers and warnings;
+- defines severity vocabulary `warning`, `blocked`, `deferred`, and
+  `unknown`;
+- groups blocker vocabulary by request-envelope, response-status,
+  render-readiness, artifact-job-placeholder, deferred-backend-route,
+  deferred-storage, deferred-auth-authz, deferred-renderer-execution,
+  deferred-runtime-validation, and schema-mutation boundaries;
+- defines JSON-safe error summary shape;
+- keeps `runtimeImplemented=false` and `productionReadinessClaimed=false` for
+  every boundary group;
+- no runtime error handling, backend production route, Render API runtime,
+  production storage durability claim, auth/authz behavior, renderer artifact
+  bytes, actual render execution, durable job id creation, durable job
+  lifecycle, runtime data validation, runtime default application, runtime
+  compatibility enforcement, package/document schema mutation,
+  `measureVNextText(...)` replacement, full measurement production readiness
+  claim, pagination mutation, production renderer-backed measurement binding,
+  production PDF/DOCX renderer work, production contenteditable,
+  collaboration/offline behavior, or legacy editor runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -7176,10 +7236,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 220:
+Current next step after Phase 221:
 
 ```text
-Render API Error / Blocker Vocabulary Gate
+Render API Contract Close Audit
 ```
 
 Reason:
@@ -7412,9 +7472,26 @@ Reason:
   retention pointer, and artifact bytes null/unproduced, records lifecycle and
   runtime deferrals, and selects Render API Error / Blocker Vocabulary Gate
   next;
+- Phase 221 now defines JSON-safe Render API error/blocker vocabulary metadata,
+  accepts `render-api-error-blocker-vocabulary-v1`, preserves request
+  envelope blockers, response/status blocked summary shape, readiness
+  blockers/warnings, and artifact/job placeholder blockers/warnings, groups
+  vocabulary by boundary, keeps runtime and production readiness flags false,
+  and selects Render API Contract Close Audit next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 220 Handoff
+
+Current next step after Phase 220:
+
+```text
+Render API Error / Blocker Vocabulary Gate
+```
+
+That was the Phase 220 handoff recommendation. Phase 221 is now complete,
+so it is no longer the current next step after Phase 220.
 
 ## Historical Phase 219 Handoff
 
