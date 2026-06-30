@@ -699,6 +699,11 @@ The package must remain runnable without any parent editor checkout.
   keeps raw native/WASM/renderer evidence outside root docs/tests while
   blocking numeric thresholds, accepted manifests, and production measurement
   replacement.
+- Numeric drift threshold decision accepts the package-local JSON-safe width,
+  height, and line-count drift threshold policy for that same subset and
+  context while keeping raw native/WASM/renderer evidence outside root
+  docs/tests and blocking accepted manifest population, production binding,
+  and default-measurer replacement.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -711,8 +716,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after renderer-backed
-  drift summary
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after numeric drift
+  threshold decision
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
@@ -947,6 +952,8 @@ The package must remain runnable without any parent editor checkout.
   metadata gate for the same first Thai line-break and Latin paragraph subset
 - `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`: renderer-backed drift summary
   metadata gate for the same first Thai line-break and Latin paragraph subset
+- `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`: numeric drift threshold policy
+  decision for the same first Thai line-break and Latin paragraph subset
 - `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`: text engine WASM
   bindgen export dependency gate before retrying artifact production
 - `docs/PAUSABLE_LAYOUT_JOB_ENGINE_BOUNDARY.md`: Phase 96 pausable layout job
@@ -1204,10 +1211,9 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
-- raw native/WASM/renderer evidence values in root docs/tests, numeric drift
-  thresholds, accepted root summary manifest, WASM artifact loading, or
-  production measurement replacement beyond the renderer-backed drift summary
-  gate
+- raw native/WASM/renderer evidence values in root docs/tests, accepted root
+  summary manifest, WASM artifact loading, or production measurement
+  replacement beyond the numeric drift threshold decision
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

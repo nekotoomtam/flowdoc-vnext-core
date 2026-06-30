@@ -318,17 +318,17 @@ describe("text engine WASM bindgen export dependency gate", () => {
     expect(doc).toContain("## Intentionally Not Changed")
 
     expect(currentStatus).toContain(
-      "Status: updated after Renderer-backed Drift Summary Gate.",
+      "Status: updated after Numeric Drift Threshold Decision.",
     )
     expect(currentStatus).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(currentStatus).toContain("Text Engine WASM Artifact Production Retry Gate.")
     expect(nextPointer).toContain(
-      "Status: current after Renderer-backed Drift Summary Gate.",
+      "Status: current after Numeric Drift Threshold Decision.",
     )
     expect(nextPointer).toContain("Artifact Digest Pinning Execution.")
     expect(readme).toContain("Text engine WASM bindgen export dependency gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md")
-    expect(packageReadme).toContain("Status: Renderer-backed drift summary metadata package.")
+    expect(packageReadme).toContain("Status: Numeric drift threshold policy package.")
     expect(ledger).toContain(
       "| 195F | Text engine WASM bindgen export dependency gate | done |",
     )

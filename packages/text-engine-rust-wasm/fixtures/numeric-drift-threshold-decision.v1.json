@@ -1,0 +1,175 @@
+{
+  "numericDriftThresholdDecisionId": "text-engine-numeric-drift-threshold-decision-v1",
+  "sourceRendererBackedDriftSummaryId": "text-engine-renderer-backed-drift-summary-v1",
+  "sourceNativeWasmParitySummaryId": "text-engine-native-wasm-parity-summary-v1",
+  "sourcePinningSummaryId": "text-engine-wasm-artifact-digest-pinning-v1",
+  "sourceRuntimeIdentityManifestId": "text-engine-runtime-identity-v1",
+  "builderOwner": "@flowdoc/text-engine-rust-wasm",
+  "rootSummaryOwner": "@flowdoc/vnext-core-docs",
+  "matrixId": "v1-measurement-fixture-evidence-matrix-v1",
+  "corpusId": "v1-measurement-evidence-corpus-v1",
+  "policyRevision": "v1-measurement-evidence-policy-v1",
+  "thresholdPolicyRevision": "numeric-drift-threshold-policy-v1",
+  "runtimeIdentityPointer": "packages/text-engine-rust-wasm/fixtures/text-engine-runtime-identity.v1.json",
+  "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+  "outputShapeVersion": "glyph-line-box-v1",
+  "digestIdentity": {
+    "status": "pinned",
+    "artifactPath": "packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm",
+    "sha256": "4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44",
+    "runtimeIdentityContextMatches": true
+  },
+  "summaryMode": "json-safe-numeric-drift-threshold-policy-only",
+  "sourceDriftSubsetId": "renderer-backed-drift-summary-minimal-v1",
+  "subsetId": "numeric-drift-threshold-decision-minimal-v1",
+  "subsetStatus": "threshold-policy-accepted",
+  "rawEvidenceIncluded": false,
+  "rawNativeEvidenceIncluded": false,
+  "rawWasmEvidenceIncluded": false,
+  "rawRendererEvidenceIncluded": false,
+  "rendererBackedDriftSummaryExists": true,
+  "rendererBackedDriftStatus": "summary-metadata-present",
+  "nativeWasmParityStatus": "matching-summary-metadata",
+  "thresholdPolicyDecisionStatus": "accepted-policy",
+  "thresholdEvaluationStatus": "not-evaluated-no-raw-values-in-root",
+  "thresholdsAcceptedForSubsetContext": true,
+  "driftValuesAcceptedForProduction": false,
+  "acceptedManifestStatus": "blocked",
+  "productionReady": false,
+  "defaultMeasurerReplacement": false,
+  "contextComparison": {
+    "rendererBackedDriftSummary": "matched",
+    "nativeWasmParitySummary": "matched",
+    "artifactDigestContext": "matched",
+    "matrixId": "matched",
+    "corpusId": "matched",
+    "policyRevision": "matched",
+    "measurementProfileId": "matched",
+    "outputShapeVersion": "matched",
+    "fixtureIds": "matched",
+    "scenarioIds": "matched"
+  },
+  "thresholdPolicy": {
+    "widthDrift": {
+      "unit": "pt",
+      "basis": "absolute-renderer-backed-minus-approximate",
+      "acceptedPassMaxAbsPt": 0.5,
+      "warningMaxAbsPt": 1,
+      "blockedFailAboveAbsPt": 1,
+      "statusRules": {
+        "accepted-pass": "abs(width-drift-pt) <= 0.5",
+        "warning": "0.5 < abs(width-drift-pt) <= 1.0",
+        "blocked-fail": "abs(width-drift-pt) > 1.0 or missing width drift summary"
+      }
+    },
+    "heightDrift": {
+      "unit": "pt",
+      "basis": "absolute-renderer-backed-minus-approximate",
+      "acceptedPassMaxAbsPt": 0.5,
+      "warningMaxAbsPt": 1,
+      "blockedFailAboveAbsPt": 1,
+      "statusRules": {
+        "accepted-pass": "abs(height-drift-pt) <= 0.5",
+        "warning": "0.5 < abs(height-drift-pt) <= 1.0",
+        "blocked-fail": "abs(height-drift-pt) > 1.0 or missing height drift summary"
+      }
+    },
+    "lineCountDrift": {
+      "unit": "line",
+      "basis": "renderer-backed-line-count-minus-approximate-line-count",
+      "acceptedPassMaxAbsLines": 0,
+      "warningAllowedForReleaseGating": false,
+      "blockedFailNonZero": true,
+      "statusRules": {
+        "accepted-pass": "abs(line-count-drift) = 0",
+        "warning": "not allowed for release-gating fixtures",
+        "blocked-fail": "abs(line-count-drift) > 0 or missing line-count drift summary"
+      }
+    }
+  },
+  "statusVocabulary": {
+    "accepted-pass": "drift summary exists, context matches, and the measured drift value is within the accepted threshold",
+    "warning": "width or height drift exceeds pass tolerance but stays within the warning band; release-gating rows cannot use warning as production-ready evidence",
+    "blocked-fail": "drift summary is missing/stale/mismatched, width or height exceeds the warning band, or required release-gating line-count drift is non-zero"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "v1-measure-thai-line-break-core",
+      "scenarioIds": ["thai-greeting-no-space", "thai-combining-marks"],
+      "gateType": "release-gating",
+      "subsetPriority": 1,
+      "coverageCategory": "thai-line-break-core",
+      "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "rendererBackedDriftStatus": "summary-metadata-present",
+      "contextStatus": "matched",
+      "thresholdPolicyStatus": "accepted-policy",
+      "thresholdEvaluationStatus": "not-evaluated-no-raw-values-in-root",
+      "requiredThresholds": ["width-drift", "height-drift", "line-count-drift"],
+      "lineCountDriftRequirement": "zero-required",
+      "warningAllowedForLineCount": false,
+      "acceptedForManifestPrerequisite": true,
+      "acceptedForProduction": false,
+      "rawNativeEvidenceIncludedInRoot": false,
+      "rawWasmEvidenceIncludedInRoot": false,
+      "rawRendererEvidenceIncludedInRoot": false
+    },
+    {
+      "fixtureId": "v1-measure-latin-product-paragraphs",
+      "scenarioIds": ["product-report-vnext", "product-report-vnext-minimal"],
+      "gateType": "release-gating",
+      "subsetPriority": 2,
+      "coverageCategory": "canonical-latin-product-paragraph",
+      "measurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "rendererBackedDriftStatus": "summary-metadata-present",
+      "contextStatus": "matched",
+      "thresholdPolicyStatus": "accepted-policy",
+      "thresholdEvaluationStatus": "not-evaluated-no-raw-values-in-root",
+      "requiredThresholds": ["width-drift", "height-drift", "line-count-drift"],
+      "lineCountDriftRequirement": "zero-required",
+      "warningAllowedForLineCount": false,
+      "acceptedForManifestPrerequisite": true,
+      "acceptedForProduction": false,
+      "rawNativeEvidenceIncludedInRoot": false,
+      "rawWasmEvidenceIncludedInRoot": false,
+      "rawRendererEvidenceIncludedInRoot": false
+    }
+  ],
+  "retention": {
+    "sourceRendererBackedDriftSummary": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/renderer-backed-drift-summary.v1.json",
+      "includedInRoot": false
+    },
+    "sourceParitySummary": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointer": "packages/text-engine-rust-wasm/fixtures/native-wasm-parity-summary.v1.json",
+      "includedInRoot": false
+    },
+    "rawNativeEvidence": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointerKind": "external-placeholder",
+      "includedInRoot": false
+    },
+    "rawWasmEvidence": {
+      "owner": "@flowdoc/text-engine-rust-wasm",
+      "pointerKind": "external-placeholder",
+      "includedInRoot": false
+    },
+    "rawRendererEvidence": {
+      "owner": "external-renderer-provider",
+      "pointerKind": "external-placeholder",
+      "includedInRoot": false
+    }
+  },
+  "blockedUntilLater": {
+    "acceptedSummaryManifest": true,
+    "productionBinding": true,
+    "defaultMeasurerReplacement": true
+  },
+  "replacementBlockers": [
+    "accepted-manifest-blocked",
+    "later-binding-phase-not-run"
+  ],
+  "nextRecommendedWork": "Accepted Summary Manifest Population",
+  "phaseRule": "proceed-to-accepted-summary-manifest-population-only-if-threshold-policy-is-accepted-for-matching-drift-context"
+}

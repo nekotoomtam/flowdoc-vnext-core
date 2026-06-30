@@ -6217,6 +6217,47 @@ Acceptance:
   schema change, collaboration/offline behavior, or legacy editor runtime copy
   is introduced.
 
+## Phase 201: Numeric Drift Threshold Decision
+
+Goal:
+
+- decide numeric drift threshold policy for the same Thai line-break core and
+  canonical Latin paragraph subset.
+
+Deliverables:
+
+- `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`;
+- `tests/numericDriftThresholdDecision.test.ts`;
+- `packages/text-engine-rust-wasm/fixtures/numeric-drift-threshold-decision.v1.json`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, package README, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms renderer-backed drift summary exists;
+- confirms renderer-backed drift status is `summary-metadata-present`;
+- requires matching native/WASM parity summary and pinned digest context;
+- requires matching matrix id `v1-measurement-fixture-evidence-matrix-v1`;
+- requires matching corpus id `v1-measurement-evidence-corpus-v1`;
+- requires matching policy revision `v1-measurement-evidence-policy-v1`;
+- requires matching output shape `glyph-line-box-v1`;
+- requires matching measurement profile id, fixture ids, and scenario ids;
+- accepts width drift pass at `<=0.5pt`, warning through `<=1.0pt`, and
+  blocked above `1.0pt`;
+- accepts height drift pass at `<=0.5pt`, warning through `<=1.0pt`, and
+  blocked above `1.0pt`;
+- accepts release-gating line-count drift as zero-only;
+- keeps raw native/WASM/renderer evidence outside root docs/tests;
+- keeps accepted manifest, production binding, and default-measurer
+  replacement blocked;
+- no `measureVNextText(...)` replacement, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  backend routes/storage/auth, production contenteditable, package/document
+  schema change, collaboration/offline behavior, or legacy editor runtime copy
+  is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6246,10 +6287,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 200:
+Current next step after Phase 201:
 
 ```text
-Numeric Drift Threshold Decision
+Accepted Summary Manifest Population
 ```
 
 Reason:
@@ -6383,11 +6424,24 @@ Reason:
 - Phase 200 now adds renderer-backed drift summary metadata for the same
   fixture subset and pinned digest context, while keeping raw renderer output
   outside root docs/tests;
-- the current drift summary metadata matches the parity and digest context, so
-  the next safe lane is Numeric Drift Threshold Decision;
+- Phase 201 now accepts numeric width, height, and zero-line-count drift
+  threshold policy for the same fixture subset and matching drift context;
+- the current threshold decision is accepted as policy, so the next safe lane
+  is Accepted Summary Manifest Population;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 200 Handoff
+
+Current next step after Phase 200:
+
+```text
+Numeric Drift Threshold Decision
+```
+
+That was the Phase 200 handoff recommendation. Phase 201 is now complete,
+so it is no longer the current next step after Phase 201.
 
 ## Historical Phase 199 Handoff
 

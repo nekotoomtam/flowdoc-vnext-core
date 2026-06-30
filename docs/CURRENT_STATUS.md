@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Renderer-backed Drift Summary Gate.
+Status: updated after Numeric Drift Threshold Decision.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Renderer-backed Drift Summary Gate.
+Numeric Drift Threshold Decision.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -21,6 +21,7 @@ Recent completed gate markers retained for pointer guards:
 - WASM Evidence Summary Gate.
 - Native/WASM Parity Summary Gate.
 - Renderer-backed Drift Summary Gate.
+- Numeric Drift Threshold Decision.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -144,24 +145,31 @@ matching parity/digest context and unthresholded drift metadata coverage while
 keeping raw native/WASM/renderer output outside root docs/tests. Numeric drift
 thresholds, accepted manifests, production binding, and default-measurer
 replacement remain blocked.
+Numeric Drift Threshold Decision then accepts a JSON-safe threshold policy for
+that same subset and matching drift context. It defines width and height drift
+PASS at `<=0.5pt`, warning at `>0.5pt` and `<=1.0pt`, blocked above `1.0pt`,
+and release-gating line-count drift as zero-only. Raw native/WASM/renderer
+evidence remains outside root docs/tests, and accepted manifests, production
+binding, and default-measurer replacement remain blocked.
 
 ## Current Next Phase
 
-Numeric Drift Threshold Decision.
+Accepted Summary Manifest Population.
 
 Goal:
 
-- use Renderer-backed Drift Summary Gate as source of truth;
-- decide numeric drift threshold policy for the same Thai line-break core and
+- use Numeric Drift Threshold Decision as source of truth;
+- populate the accepted summary manifest for the same Thai line-break core and
   canonical Latin paragraph subset;
-- require the matching renderer-backed drift summary, native/WASM parity
-  summary, pinned digest context, matrix id, corpus id, policy revision,
-  measurement profile id, output shape, fixture ids, and scenario ids;
+- require the matching numeric threshold decision, renderer-backed drift
+  summary, native/WASM parity summary, pinned digest context, matrix id,
+  corpus id, policy revision, measurement profile id, output shape, fixture
+  ids, and scenario ids;
 - keep raw native/WASM/renderer evidence outside root tests/docs;
 - keep root checks independent from `wasm-pack` and the WASM target;
 - keep root docs/tests limited to JSON-safe summaries and retention pointers;
-- keep accepted manifests, production binding, and default-measurer
-  replacement blocked until dedicated phases;
+- keep production binding and default-measurer replacement blocked until
+  dedicated phases;
 - keep `measureVNextText(...)` unchanged.
 
 ## Proven Internal-Alpha Path
@@ -389,6 +397,7 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`
 - `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`
 - `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`
 - `docs/WASM_EVIDENCE_SUMMARY_GATE.md`

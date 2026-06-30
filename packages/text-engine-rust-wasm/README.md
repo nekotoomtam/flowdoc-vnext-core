@@ -1,6 +1,6 @@
 # FlowDoc Text Engine Rust/WASM Adapter
 
-Status: Renderer-backed drift summary metadata package.
+Status: Numeric drift threshold policy package.
 
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
@@ -63,6 +63,13 @@ the same Thai line-break core and canonical Latin paragraph subset. It keeps
 raw renderer output outside root docs/tests, records drift as unthresholded
 metadata only, and leaves numeric thresholds, accepted manifests, production
 binding, and default-measurer replacement for later gates.
+Numeric Drift Threshold Decision then adds
+`fixtures/numeric-drift-threshold-decision.v1.json` with JSON-safe threshold
+policy metadata for the same subset and matching drift context. It accepts the
+width, height, and line-count drift threshold policy while keeping raw
+native/WASM/renderer output outside root docs/tests and leaving accepted
+manifest population, production binding, and default-measurer replacement for
+later gates.
 
 Run the smoke from this package:
 
@@ -106,6 +113,9 @@ Allowed:
   and Latin subset without putting raw native/WASM output in root docs/tests;
 - retain JSON-safe renderer-backed drift summary metadata for the same first
   Thai and Latin subset without putting raw renderer output in root docs/tests;
+- retain JSON-safe numeric drift threshold policy metadata for the same first
+  Thai and Latin subset without putting raw native/WASM/renderer output in
+  root docs/tests;
 - remain external to `src/**` core.
 
 Blocked:
@@ -116,8 +126,8 @@ Blocked:
 - raw native evidence in root docs/tests;
 - raw WASM evidence in root docs/tests;
 - raw renderer evidence in root docs/tests;
-- numeric drift thresholds, accepted manifests, and production measurement
-  binding until their dedicated gates;
+- accepted manifests and production measurement binding until their dedicated
+  gates;
 - core font-file reads;
 - production measurement binding;
 - pagination measurer replacement.
