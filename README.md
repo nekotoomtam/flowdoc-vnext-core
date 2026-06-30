@@ -762,6 +762,13 @@ The package must remain runnable without any parent editor checkout.
   then selects Required / Missing / Default Value Policy Gate next without
   runtime validation, schema, Render API, backend, storage, or renderer
   behavior.
+- Required / Missing / Default Value Policy Gate defines JSON-safe required,
+  missing, and default-value policy metadata for all 6 candidate variables,
+  blocks missing required `report.total`, records defaults as metadata-only
+  without runtime application, preserves table-cell context, and selects
+  Compatibility Policy With Published Template Versions Gate next without
+  runtime validation, schema, Render API, backend, storage, or renderer
+  behavior. See `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -1295,9 +1302,9 @@ The package must remain runnable without any parent editor checkout.
   accepted summary manifest, WASM artifact loading, or production measurement
   replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
-  contract implementation, runtime data validation, required/missing/default
-  policy behavior, compatibility policy, or render API contract implementation
-  beyond the Data Contract Validation Policy Gate
+  contract implementation, runtime data validation, runtime default
+  application, compatibility policy, or render API contract implementation
+  beyond the Required / Missing / Default Value Policy Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

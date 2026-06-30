@@ -6731,6 +6731,58 @@ Acceptance:
   production contenteditable, collaboration/offline behavior, or legacy editor
   runtime copy is introduced.
 
+## Phase 213: Required Missing Default Value Policy Gate
+
+Goal:
+
+- define concrete JSON-safe Required / Missing / Default Value policy for the
+  accepted candidate variables without implementing runtime validation,
+  runtime default application, or Render API.
+
+Deliverables:
+
+- `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`;
+- `fixtures/required-missing-default-value-policy.v1.json`;
+- `tests/requiredMissingDefaultValuePolicyGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Data Contract Validation Policy Gate is complete;
+- confirms `fixtures/data-contract-validation-policy.v1.json` exists;
+- confirms source policy status `accepted-vocabulary-only`;
+- confirms candidate variables;
+- confirms validation result statuses `valid`, `valid-with-warnings`, and
+  `blocked`;
+- confirms blocker vocabulary for invalid payloads;
+- defines JSON-safe required, missing-value, default-value, blocking/warning,
+  allowed result, and blocker/warning mappings for all six candidate
+  variables;
+- blocks missing required `report.total` because it has no default metadata;
+- treats required variables with default metadata and optional variables as
+  `valid-with-warnings` when missing;
+- records defaults as metadata only and does not apply defaults at runtime;
+- defines extra variables as `valid-with-warnings` unless they conflict with
+  known variable ids;
+- preserves table-cell occurrence context for `metric-value-total-field` and
+  `metric-value-risk-field`;
+- keeps table-cell context mismatch blocked;
+- keeps Compatibility Policy With Published Template Versions deferred;
+- keeps Render API Contract deferred;
+- confirms package/document schema is not mutated;
+- no package/document schema mutation, runtime data validation, runtime
+  default application, full Variable Schema / Data Contract implementation,
+  Compatibility Policy implementation, Render API Contract implementation,
+  backend production route, production storage durability claim, renderer
+  artifact bytes, auth/authz behavior, `measureVNextText(...)` replacement,
+  full measurement production readiness claim, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  production contenteditable, collaboration/offline behavior, or legacy editor
+  runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6760,10 +6812,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 212:
+Current next step after Phase 213:
 
 ```text
-Required / Missing / Default Value Policy Gate
+Compatibility Policy With Published Template Versions Gate
 ```
 
 Reason:
@@ -6946,9 +6998,26 @@ Reason:
   policy status preservation, keeps runtime data validation unimplemented,
   keeps required/missing/default behavior deferred, and selects Required /
   Missing / Default Value Policy Gate next;
+- Phase 213 now defines concrete JSON-safe required/missing/default value
+  policy metadata for all 6 candidate variables, blocks missing required
+  `report.total`, records defaults as metadata-only without runtime
+  application, preserves table-cell context, keeps runtime validation
+  unimplemented, and selects Compatibility Policy With Published Template
+  Versions Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 212 Handoff
+
+Current next step after Phase 212:
+
+```text
+Required / Missing / Default Value Policy Gate
+```
+
+That was the Phase 212 handoff recommendation. Phase 213 is now complete,
+so it is no longer the current next step after Phase 213.
 
 ## Historical Phase 211 Handoff
 

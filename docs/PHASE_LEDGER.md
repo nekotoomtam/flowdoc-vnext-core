@@ -226,6 +226,7 @@ Parent goal:
 | 210 | Variable reference discovery gate | done | `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/product-report-vnext.flowdoc.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableReferenceDiscoveryGate.test.ts`; pointer guard tests |
 | 211 | Variable schema metadata shape gate | done | `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/variable-reference-discovery.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaMetadataShapeGate.test.ts`; pointer guard tests |
 | 212 | Data contract validation policy gate | done | `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/dataContractValidationPolicyGate.test.ts`; pointer guard tests |
+| 213 | Required missing default value policy gate | done | `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/requiredMissingDefaultValuePolicyGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6068,6 +6069,61 @@ implement production contenteditable, add collaboration/offline behavior, or
 copy legacy editor runtime.
 
 Next recommended work: Required / Missing / Default Value Policy Gate.
+Production measurement replacement remains blocked.
+
+## Phase 213 Required Missing Default Value Policy Gate
+
+Required / Missing / Default Value Policy Gate uses Data Contract Validation
+Policy Gate as source of truth and defines concrete JSON-safe policy metadata
+for required, missing, and default-value behavior without implementing runtime
+data validation.
+
+The policy evidence records:
+
+- policy fixture:
+  `fixtures/required-missing-default-value-policy.v1.json`;
+- source policy fixture:
+  `repo://fixtures/data-contract-validation-policy.v1.json`;
+- source policy status: `accepted-vocabulary-only`;
+- required/missing/default policy status: `accepted-policy-metadata-only`;
+- attachment target: `template-product-report-vnext@v1`;
+- accepted validation evidence pointer:
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- source snapshot retention pointer:
+  `repo://fixtures/product-report-vnext.flowdoc.json`;
+- candidate variable ids: `customer.name`, `customer.segment`,
+  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
+- accepted validation result statuses: `valid`, `valid-with-warnings`, and
+  `blocked`;
+- required variables with no default metadata block if missing;
+- required variables with default metadata and optional variables are
+  `valid-with-warnings` if missing because defaults are metadata-only and are
+  not applied at runtime;
+- `report.total` blocks on `missing-required-value` because it is required and
+  has no default metadata;
+- extra variables are `valid-with-warnings` unless they conflict with known
+  variable ids;
+- preserved table-cell occurrence context for `metric-value-total-field` and
+  `metric-value-risk-field`;
+- table-cell context mismatch remains blocked;
+- Compatibility Policy With Published Template Versions: deferred;
+- Render API Contract: deferred;
+- blockers before Compatibility Policy With Published Template Versions Gate:
+  none.
+
+This phase intentionally does not mutate package/document schema, implement
+runtime data validation, apply defaults at runtime, implement the full
+Variable Schema / Data Contract, implement Compatibility Policy With
+Published Template Versions, implement Render API Contract, implement backend
+production routes, claim production storage durability, produce renderer
+artifact bytes, add auth/authz behavior, replace `measureVNextText(...)`,
+claim full measurement production readiness, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+implement production contenteditable, add collaboration/offline behavior, or
+copy legacy editor runtime.
+
+Next recommended work: Compatibility Policy With Published Template Versions
+Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

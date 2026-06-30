@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Data Contract Validation Policy Gate.
+Status: updated after Required / Missing / Default Value Policy Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Data Contract Validation Policy Gate.
+Required / Missing / Default Value Policy Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -33,6 +33,7 @@ Recent completed gate markers retained for pointer guards:
 - Variable Reference Discovery Gate.
 - Variable Schema Metadata Shape Gate.
 - Data Contract Validation Policy Gate.
+- Required / Missing / Default Value Policy Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -272,25 +273,41 @@ Required / Missing / Default Value detailed behavior deferred to a later gate,
 keeps Compatibility Policy With Published Template Versions deferred, keeps
 Render API Contract deferred, implements no runtime data validation, and makes
 no package/document schema mutation.
+Required / Missing / Default Value Policy Gate then defines concrete
+JSON-safe policy metadata at
+`fixtures/required-missing-default-value-policy.v1.json`. It confirms Data
+Contract Validation Policy Gate status `accepted-vocabulary-only`, confirms
+candidate variables and validation result statuses, maps required/missing/
+default policy rows for all six variables, blocks missing required
+`report.total` because it has no default metadata, treats required variables
+with default metadata and optional variables as `valid-with-warnings` when
+missing, records defaults as metadata only without runtime application,
+preserves table-cell context for `metric-value-total-field` and
+`metric-value-risk-field`, defines extra variables as warnings unless they
+conflict with known variable ids, keeps table-cell context mismatch blocked,
+keeps Compatibility Policy With Published Template Versions deferred, keeps
+Render API Contract deferred, implements no runtime data validation or runtime
+default application, and makes no package/document schema mutation.
 
 ## Current Next Phase
 
-Required / Missing / Default Value Policy Gate.
+Compatibility Policy With Published Template Versions Gate.
 
 Goal:
 
-- use Data Contract Validation Policy Gate as source of truth;
-- define JSON-safe Required / Missing / Default Value Policy vocabulary for
-  the accepted validation policy rows;
-- keep this as policy evidence unless a later phase explicitly scopes runtime
-  validation;
+- use Required / Missing / Default Value Policy Gate as source of truth;
+- define JSON-safe Compatibility Policy With Published Template Versions for
+  the accepted template version target and variable/data policy evidence;
+- keep compatibility policy as JSON-safe metadata unless a later phase
+  explicitly scopes runtime enforcement;
+- preserve accepted published template version identity and immutable
+  retention pointers;
 - keep full Variable Schema / Data Contract implementation deferred until
-- required/missing/default policy evidence is accepted;
-- keep Compatibility Policy With Published Template Versions deferred;
+  compatibility policy evidence is accepted;
 - keep Render API Contract deferred until variable/data contract evidence is
   clear;
-- route to Template Version Schema Decision Gate only if required/missing/
-  default policy cannot be represented without package/document schema
+- route to Template Version Schema Decision Gate only if compatibility policy
+  cannot be represented without package/document schema
   changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
@@ -526,6 +543,8 @@ next safe step; production measurement binding remains blocked.
 - Do not implement runtime data validation in policy-vocabulary phases.
 - Do not implement Compatibility Policy With Published Template Versions as
   incidental variable/data contract work.
+- Do not apply variable default values at runtime in policy-metadata phases.
+- Do not implement runtime compatibility enforcement in policy-metadata phases.
 - Do not execute external text engines in core.
 - Do not put raw evidence in root tests/docs.
 - Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
@@ -534,6 +553,8 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`
+- `fixtures/required-missing-default-value-policy.v1.json`
 - `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`
 - `fixtures/data-contract-validation-policy.v1.json`
 - `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`
