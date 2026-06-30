@@ -1,0 +1,139 @@
+{
+  "manifestVersion": 1,
+  "boundaryId": "template-publish-version-boundary-v1",
+  "sourcePlanningGate": "Template Publish / Variable Schema / Render API Planning Gate",
+  "selectedLane": "Template Publish / Version Boundary",
+  "deferredLanes": [
+    "Variable Schema / Data Contract",
+    "Render API Contract"
+  ],
+  "boundaryStatus": "accepted",
+  "nextRecommendedWork": "Template Publish Validation Evidence Gate",
+  "schemaDecisionRequiredBeforeValidationEvidence": false,
+  "candidateSource": {
+    "kind": "canonical-flowdoc-package",
+    "packageVersion": 2,
+    "documentVersion": 3,
+    "acceptedPackageKind": "document",
+    "rawPackageIncludedInThisFixture": false,
+    "exampleSourcePointer": "fixtures/product-report-vnext.flowdoc.json"
+  },
+  "draftTemplateIdentity": {
+    "identityKind": "draft-template",
+    "mutable": true,
+    "identifierFields": [
+      "draftTemplateId",
+      "workingRevisionId"
+    ],
+    "allowedPurpose": "authoring-and-review-before-publish",
+    "mustNotBeReferencedBy": [
+      "Variable Schema / Data Contract",
+      "Render API Contract"
+    ]
+  },
+  "publishedTemplateVersionIdentity": {
+    "identityKind": "published-template-version",
+    "mutable": false,
+    "identifierFields": [
+      "templateId",
+      "templateVersionId",
+      "versionOrdinal"
+    ],
+    "stableReferenceTargetFor": [
+      "Variable Schema / Data Contract",
+      "Render API Contract"
+    ],
+    "acceptedVersionIdRule": "immutable-after-accepted"
+  },
+  "publishedVersionMetadataShape": {
+    "templateId": "string",
+    "templateVersionId": "string",
+    "versionOrdinal": "number",
+    "sourcePackageId": "string",
+    "packageVersion": 2,
+    "documentVersion": 3,
+    "title": "string",
+    "createdAt": "iso-8601-string",
+    "publishedAt": "iso-8601-string",
+    "status": "accepted|deprecated|superseded",
+    "lifecyclePolicyName": "template-version-lifecycle-v1",
+    "sourceSnapshotRetentionPointer": "string-or-null",
+    "validationEvidencePointer": "string-or-null"
+  },
+  "immutabilityRules": {
+    "acceptedTemplateVersionIdImmutable": true,
+    "acceptedSourceSnapshotPointerImmutable": true,
+    "acceptedSourcePackageContentImmutable": true,
+    "metadataCorrectionsRequireNewLifecycleRecord": true,
+    "schemaChangesAllowedInThisGate": false
+  },
+  "publishValidationEvidenceShape": {
+    "packageParseStatus": "ready|blocked",
+    "graphDiagnostics": {
+      "status": "ready|ready-with-warnings|blocked",
+      "issueCount": "number"
+    },
+    "keyDataDiagnostics": {
+      "status": "ready|ready-with-warnings|blocked|not-run",
+      "errorCount": "number",
+      "warningCount": "number"
+    },
+    "exportReadinessStatus": "ready|ready-with-warnings|blocked|not-run",
+    "measurementStatus": "mini-checkpoint-only|ready|ready-with-warnings|blocked|not-run",
+    "rejectedPublishBlockers": [
+      "invalid-package",
+      "unsupported-package-version",
+      "unsupported-document-version",
+      "graph-diagnostics-blocked",
+      "key-data-diagnostics-blocked",
+      "export-readiness-blocked",
+      "measurement-status-blocked",
+      "missing-source-snapshot-retention-pointer"
+    ]
+  },
+  "retentionPointerEvidence": {
+    "sourcePackageSnapshot": {
+      "pointerKind": "external-or-package-record-placeholder",
+      "required": true,
+      "rawSnapshotIncludedInRootFixture": false
+    },
+    "validationEvidence": {
+      "pointerKind": "json-safe-summary",
+      "required": true,
+      "rawRendererArtifactIncluded": false
+    },
+    "storageDurabilityClaimed": false
+  },
+  "lifecyclePolicyNames": {
+    "rollback": "supersede-with-new-template-version",
+    "deprecation": "mark-version-deprecated-without-mutating-source-package",
+    "superseding": "new-version-references-prior-version"
+  },
+  "blockedUntilLater": {
+    "variableSchemaDataContract": true,
+    "renderApiContract": true,
+    "backendProductionRoutes": true,
+    "productionStorageDurability": true,
+    "authAuthz": true,
+    "rendererArtifactBytes": true,
+    "packageDocumentSchemaChange": true,
+    "fullMeasurementProductionReadiness": true,
+    "defaultMeasurerReplacement": true
+  },
+  "nonWork": {
+    "backendProductionRoutesImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "rendererArtifactBytesProduced": false,
+    "authAuthzBehaviorAdded": false,
+    "packageDocumentSchemaChanged": false,
+    "variableSchemaDataContractImplemented": false,
+    "renderApiContractImplemented": false,
+    "measureVNextTextReplaced": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

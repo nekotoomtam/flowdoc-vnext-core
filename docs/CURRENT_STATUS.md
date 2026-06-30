@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Template Publish / Variable Schema / Render API Planning Gate.
+Status: updated after Template Publish / Version Boundary Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Template Publish / Variable Schema / Render API Planning Gate.
+Template Publish / Version Boundary Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -25,6 +25,7 @@ Recent completed gate markers retained for pointer guards:
 - Accepted Summary Manifest Population.
 - Measurement Hardening Close Audit.
 - Template Publish / Variable Schema / Render API Planning Gate.
+- Template Publish / Version Boundary Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -180,21 +181,30 @@ for a later dedicated Template Publish / Version Boundary Gate while keeping
 this phase planning-only, making no package/document schema changes, and
 leaving measurement production readiness plus default-measurer replacement
 blocked.
+Template Publish / Version Boundary Gate then accepts a JSON-safe
+publish/version boundary fixture at
+`fixtures/template-publish-version-boundary.v1.json`. It separates mutable
+draft template identity from immutable published template version identity,
+defines published version metadata, immutability rules, canonical package
+v2/document v3 candidate requirements, validation evidence shape, retention
+pointer evidence, and rollback/deprecation/superseding policy names. It keeps
+Variable Schema / Data Contract and Render API Contract deferred, makes no
+package/document schema change, and selects Template Publish Validation
+Evidence Gate as the next step.
 
 ## Current Next Phase
 
-Template Publish / Version Boundary Gate.
+Template Publish Validation Evidence Gate.
 
 Goal:
 
-- use Template Publish / Variable Schema / Render API Planning Gate as source
-  of truth;
-- define the publish/version boundary for canonical FlowDoc template
-  candidates before Variable Schema or Render API contracts attach to them;
-- separate draft template identity from published template version identity;
-- define JSON-safe version metadata and retention pointer evidence without
-  claiming production storage readiness;
-- define publish validation evidence before implementation;
+- use Template Publish / Version Boundary Gate as source of truth;
+- produce JSON-safe publish validation evidence for a canonical package
+  v2/document v3 template candidate;
+- report package parse status, graph diagnostics, key/data diagnostics,
+  export-readiness status, measurement status, and rejected publish blockers;
+- attach validation evidence to the accepted draft/published version identity
+  boundary and retention pointer shape;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1
@@ -430,6 +440,8 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
+- `fixtures/template-publish-version-boundary.v1.json`
 - `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
 - `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`

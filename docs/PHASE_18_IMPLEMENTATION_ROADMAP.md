@@ -6384,6 +6384,52 @@ Acceptance:
   production contenteditable, package/document schema change,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 205: Template Publish / Version Boundary Gate
+
+Goal:
+
+- define the publish/version boundary for canonical FlowDoc template candidates
+  before Variable Schema or Render API contracts attach to them.
+
+Deliverables:
+
+- `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`;
+- `fixtures/template-publish-version-boundary.v1.json`;
+- `tests/templatePublishVersionBoundaryGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Template Publish / Version Boundary was selected as the first
+  implementation lane;
+- keeps Variable Schema / Data Contract and Render API Contract deferred;
+- separates mutable draft template identity from immutable published template
+  version identity;
+- defines JSON-safe published version metadata;
+- defines immutability rules for accepted published version ids, source
+  snapshot pointers, and accepted source package content;
+- restricts publishable candidates to canonical package v2/document v3;
+- defines publish validation evidence shape for package parse, graph
+  diagnostics, key/data diagnostics, export-readiness, measurement status, and
+  rejected publish blockers;
+- defines source package/template snapshot retention pointer evidence without
+  claiming production storage durability;
+- defines rollback, deprecation, and superseding-version policy names;
+- concludes a schema decision is not required before validation evidence
+  because the boundary semantics can be represented as external JSON-safe
+  metadata;
+- no backend production route, production storage durability claim, renderer
+  artifact bytes, auth/authz behavior, package/document schema change,
+  Variable Schema / Data Contract implementation, Render API Contract
+  implementation, `measureVNextText(...)` replacement, full measurement
+  production readiness claim, pagination mutation, production renderer-backed
+  measurement binding, production PDF/DOCX renderer work, production
+  contenteditable, collaboration/offline behavior, or legacy editor runtime
+  copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6413,10 +6459,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 204:
+Current next step after Phase 205:
 
 ```text
-Template Publish / Version Boundary Gate
+Template Publish Validation Evidence Gate
 ```
 
 Reason:
@@ -6563,9 +6609,25 @@ Reason:
   selects Template Publish / Version Boundary first, defers Variable Schema
   and Render API until a stable published template/version target exists, and
   defines evidence required for the dedicated publish/version gate;
+- Phase 205 now accepts the Template Publish / Version Boundary fixture,
+  separates mutable draft identity from immutable published template version
+  identity, defines JSON-safe version metadata, validation evidence shape,
+  retention pointer evidence, and lifecycle policy names, and selects Template
+  Publish Validation Evidence Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 204 Handoff
+
+Current next step after Phase 204:
+
+```text
+Template Publish / Version Boundary Gate
+```
+
+That was the Phase 204 handoff recommendation. Phase 205 is now complete,
+so it is no longer the current next step after Phase 205.
 
 ## Historical Phase 203 Handoff
 

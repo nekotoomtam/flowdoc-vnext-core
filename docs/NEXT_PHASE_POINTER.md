@@ -1,43 +1,41 @@
 # Next Phase Pointer
 
-Status: current after Template Publish / Variable Schema / Render API Planning Gate.
+Status: current after Template Publish / Version Boundary Gate.
 
 ## Next Phase
 
-Template Publish / Version Boundary Gate.
+Template Publish Validation Evidence Gate.
 
 ## Why This Is Next
 
-Template Publish / Variable Schema / Render API Planning Gate used Measurement
-Hardening Close Audit as source of truth and ranked the next non-measurement
-mini infrastructure lanes.
+Template Publish / Version Boundary Gate used Template Publish / Variable
+Schema / Render API Planning Gate as source of truth and accepted a
+publish/version boundary for canonical FlowDoc template candidates.
 
-Selected first lane: Template Publish / Version Boundary.
+The accepted boundary fixture is:
 
-Lane ranking:
+```text
+fixtures/template-publish-version-boundary.v1.json
+```
 
-1. Template Publish / Version Boundary.
-2. Variable Schema / Data Contract.
-3. Render API Contract.
+The boundary defines:
 
-Template Publish / Version Boundary comes first because Variable Schema and
-Render API work need a stable published template/version target before they
-can safely attach their contracts. Starting with Variable Schema or Render API
-would risk binding data and API semantics to mutable draft template state.
+- draft template identity as mutable authoring/review identity;
+- published template version identity as immutable accepted-version identity;
+- JSON-safe published version metadata;
+- canonical package v2/document v3 as the publishable candidate source;
+- validation evidence shape for package parse, graph diagnostics, key/data
+  diagnostics, export-readiness, measurement status, and blockers;
+- retention pointer evidence without claiming production storage durability;
+- rollback, deprecation, and superseding policy names.
 
-The measurement close-audit carry-forward remains:
-
-Decision: sufficient for mini infrastructure checkpoint.
-
-- minimal accepted measurement subset is sufficient for mini infrastructure
-  checkpoint only;
-- full v1 measurement matrix remains `partial-not-accepted`;
-- production binding remains blocked;
-- default-measurer replacement remains blocked;
-- `measureVNextText(...)` remains unchanged.
+The boundary concludes a schema decision is not required before validation
+evidence because the required identity/version semantics can be represented as
+external JSON-safe metadata without mutating package v2/document v3.
 
 Previous source gates retained for traceability:
 
+- Template Publish / Version Boundary Gate.
 - Template Publish / Variable Schema / Render API Planning Gate.
 - Measurement Hardening Close Audit.
 - Accepted Summary Manifest Population.
@@ -54,35 +52,42 @@ Previous source gates retained for traceability:
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
+- `fixtures/template-publish-version-boundary.v1.json`
 - `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`
-- `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
-- `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`
+- `fixtures/product-report-vnext.flowdoc.json`
 - `docs/WORKSPACE_BOUNDARY.md`
 - `docs/LEGACY_MIGRATION_GATE.md`
 - `docs/PHASE_LEDGER.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Template Publish / Version Boundary Gate Scope
+## Template Publish Validation Evidence Gate Scope
 
-- Define the boundary between draft template identity and published template
-  version identity.
-- Define stable published version id and immutable version metadata policy.
-- Require publishable template candidates to be canonical package v2/document
-  v3.
-- Define JSON-safe publish validation evidence:
-  package parse, graph diagnostics, key/data diagnostics, export-readiness
-  status, and measurement status.
-- Define rejected publish attempt blockers.
-- Define retention pointer evidence for source package/template snapshot
-  without claiming production storage readiness.
-- Name rollback, deprecation, or superseding-version policy.
-- Keep Variable Schema / Data Contract deferred until version identity exists.
-- Keep Render API Contract deferred until version identity and variable data
-  contract direction exist.
+- Produce JSON-safe validation evidence for a canonical package v2/document v3
+  template candidate.
+- Confirm package parse status.
+- Report graph diagnostics status and issue count.
+- Report key/data diagnostics status, error count, and warning count.
+- Report export-readiness status without producing renderer artifact bytes.
+- Report measurement status while preserving the mini-checkpoint-only
+  measurement carry-forward.
+- Report blockers for rejected publish attempts.
+- Attach validation evidence to the draft/published version identity boundary.
+- Attach source snapshot and validation evidence retention pointers without
+  claiming production storage durability.
+- Keep Variable Schema / Data Contract deferred.
+- Keep Render API Contract deferred.
 
-## Hard Limits
+## Carry-Forward Hard Limits
 
+- No backend production routes.
+- No production storage durability claim.
+- No renderer artifact bytes.
+- No auth/authz behavior.
+- No package/document schema change.
+- No Variable Schema / Data Contract implementation.
+- No Render API Contract implementation.
 - No `measureVNextText(...)` replacement.
 - No full measurement production readiness claim.
 - No production binding.
@@ -97,29 +102,30 @@ Previous source gates retained for traceability:
 - No pagination mutation.
 - No production renderer-backed measurement binding.
 - No production PDF/DOCX renderer work.
-- No backend routes/auth/storage production behavior.
 - No production contenteditable implementation.
-- No package/document schema change in the planning gate.
-- No package/document schema change unless the dedicated publish/version gate
-  explicitly decides a later schema gate is required.
 - No collaboration/offline behavior.
 - No legacy editor runtime copy.
 
 ## Expected Output
 
-- dedicated Template Publish / Version Boundary Gate;
-- selected publish/version evidence boundary;
+- Template Publish Validation Evidence Gate;
+- JSON-safe validation evidence for a canonical template candidate;
+- package parse, graph, key/data, export-readiness, measurement, and blocker
+  status summaries;
+- retention pointer evidence;
 - explicit deferred Variable Schema / Data Contract lane;
 - explicit deferred Render API Contract lane;
-- explicit measurement close-audit carry-forward blockers;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
 - updated current-status pointer.
 
 ## Traceability Anchors
 
+- Template Publish / Version Boundary Gate.
 - Template Publish / Variable Schema / Render API Planning Gate.
+- No package/document schema change in the planning gate.
 - Measurement Hardening Close Audit.
+- Decision: sufficient for mini infrastructure checkpoint.
 - The accepted measurement manifest is enough for a mini checkpoint only; the
   full v1 matrix remains partial and default-measurer replacement remains
   blocked.

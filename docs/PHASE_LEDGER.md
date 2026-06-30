@@ -218,6 +218,7 @@ Parent goal:
 | 202 | Accepted summary manifest population | done | `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `packages/text-engine-rust-wasm/README.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/acceptedSummaryManifestPopulation.test.ts`; pointer guard tests |
 | 203 | Measurement hardening close audit | done | `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/measurementHardeningCloseAudit.test.ts`; pointer guard tests |
 | 204 | Template variable render API planning gate | done | `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templateVariableRenderApiPlanningGate.test.ts`; pointer guard tests |
+| 205 | Template publish version boundary gate | done | `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`; `fixtures/template-publish-version-boundary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishVersionBoundaryGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5731,6 +5732,43 @@ package/document schema, add collaboration/offline behavior, or copy legacy
 editor runtime.
 
 Next recommended work: Template Publish / Version Boundary Gate.
+Production measurement replacement remains blocked.
+
+## Phase 205 Template Publish Version Boundary Gate
+
+Template Publish / Version Boundary Gate uses Template Publish / Variable
+Schema / Render API Planning Gate as source of truth and accepts a JSON-safe
+publish/version boundary for canonical FlowDoc template candidates before
+Variable Schema or Render API contracts attach.
+
+The accepted boundary records:
+
+- mutable draft template identity for authoring/review work;
+- immutable published template version identity for accepted version
+  references;
+- JSON-safe published version metadata;
+- canonical package v2/document v3 as the publishable candidate source;
+- publish validation evidence shape for package parse, graph diagnostics,
+  key/data diagnostics, export-readiness, measurement status, and rejected
+  publish blockers;
+- source package/template snapshot retention pointer evidence without claiming
+  production storage durability;
+- rollback, deprecation, and superseding-version policy names.
+
+The gate concludes a schema decision is not required before validation evidence
+because the identity/version semantics can be expressed as external JSON-safe
+metadata without mutating package v2/document v3.
+
+This phase intentionally does not implement backend production routes, claim
+production storage durability, produce renderer artifact bytes, add auth/authz
+behavior, change package/document schema, implement Variable Schema / Data
+Contract, implement Render API Contract, replace `measureVNextText(...)`,
+claim full measurement production readiness, mutate pagination, bind
+production renderer-backed measurement, add production PDF/DOCX renderer work,
+implement production contenteditable, add collaboration/offline behavior, or
+copy legacy editor runtime.
+
+Next recommended work: Template Publish Validation Evidence Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record
