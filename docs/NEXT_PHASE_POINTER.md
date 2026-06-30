@@ -1,20 +1,39 @@
 # Next Phase Pointer
 
-Status: current after Render API Contract Close Audit.
+Status: current after Mini Infrastructure Close Audit.
 
 ## Next Phase
 
-Mini Infrastructure Close Audit.
+Runtime Binding / Implementation Planning Gate.
 
 ## Why This Is Next
 
-Render API Contract Close Audit accepted the Render API Contract mini lane for
-a mini infrastructure checkpoint only. Mini Infrastructure Close Audit is next
-because Measurement Hardening, Template Publish, Variable Schema / Data
-Contract, and Render API Contract now each have close-audit decisions scoped
-to a mini checkpoint, while production routes, storage, auth/authz, durable
-jobs, renderer execution, runtime validation/defaults/compatibility/error
-handling, schema changes, and full measurement readiness remain blocked.
+Mini Infrastructure Close Audit accepted the combined mini infrastructure
+checkpoint after confirming Measurement Hardening, Template Publish, Variable
+Schema / Data Contract, and Render API Contract each have close-audit
+decisions scoped to a mini checkpoint only. Runtime Binding / Implementation
+Planning Gate is next because the project now has stable metadata targets for
+planning runtime binding without implementing runtime behavior yet.
+
+The Mini Infrastructure Close Audit is:
+
+```text
+docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md
+```
+
+Runtime Binding / Implementation Planning Gate must remain planning-only. It
+should rank runtime binding lanes and select the first implementation lane
+without implementing backend routes, Render API runtime, storage durability,
+auth/authz, durable jobs, renderer execution, artifact bytes, runtime data
+validation/defaults/compatibility/error handling, schema changes, or full
+measurement readiness.
+
+Historical Phase 222 handoff retained for pointer guards:
+
+```text
+Status: current after Render API Contract Close Audit.
+Next Phase: Mini Infrastructure Close Audit.
+```
 
 The Render API Contract close audit is:
 
@@ -139,9 +158,11 @@ The Render API Contract close audit confirms:
 - production Render API readiness is not claimed;
 - package/document schema remains unchanged.
 
-Mini Infrastructure Close Audit is next because the accepted mini-lane close
-audits now need one combined checkpoint decision before runtime binding or
-production implementation planning.
+Mini Infrastructure Close Audit was the Phase 222 next step because the
+accepted mini-lane close audits needed one combined checkpoint decision before
+runtime binding or production implementation planning. That combined
+checkpoint is now closed; Runtime Binding / Implementation Planning Gate is
+the current next step.
 
 Previous source gates retained for traceability:
 
@@ -194,6 +215,8 @@ Historical guard markers retained for pointer tests:
 - Artifact Pointer / Job Status Placeholder Policy Gate.
 - Render API Error / Blocker Vocabulary Gate.
 - Render API Contract Close Audit.
+- Mini Infrastructure Close Audit.
+- Historical next-pointer marker retained for pointer guards: Status: current after Render API Contract Close Audit.
 - Historical next-pointer marker retained for pointer guards: Status: current after Render API Error / Blocker Vocabulary Gate.
 - Historical next-pointer marker retained for pointer guards: Status: current after Artifact Pointer / Job Status Placeholder Policy Gate.
 - Historical next-pointer marker retained for pointer guards: Status: current after Render-Readiness Validation Policy Gate.
@@ -203,6 +226,7 @@ Historical guard markers retained for pointer tests:
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`
 - `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`
 - `fixtures/render-readiness-validation-policy.v1.json`
 - `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`
@@ -227,6 +251,44 @@ Historical guard markers retained for pointer tests:
 - `docs/PHASE_LEDGER.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
+
+## Runtime Binding / Implementation Planning Gate Scope
+
+- Confirm Mini Infrastructure Close Audit is complete.
+- Use `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md` as source of truth.
+- Confirm the mini infrastructure checkpoint is closed for checkpoint scope
+  only.
+- Confirm Measurement Hardening remains a mini-checkpoint-only acceptance
+  with full v1 measurement production readiness blocked.
+- Confirm Template Publish, Variable Schema / Data Contract, and Render API
+  Contract remain metadata/policy contract closes only.
+- Confirm accepted template target remains
+  `template-product-report-vnext@v1`.
+- Rank first runtime binding planning lanes:
+  request-envelope binding, runtime data validation binding, runtime default
+  application binding, runtime compatibility enforcement binding, runtime
+  error handling, job lifecycle binding, backend route/storage/auth
+  boundaries, and renderer execution boundaries.
+- Select the first runtime binding implementation lane only if it can preserve
+  all production blockers.
+- Keep this phase planning-only.
+- No runtime binding implementation.
+- No runtime data validation implementation.
+- No runtime default application.
+- No runtime compatibility enforcement.
+- No runtime error handling implementation.
+- No backend production routes.
+- No Render API runtime implementation.
+- No production storage durability claim.
+- No auth/authz behavior.
+- No durable job ids.
+- No durable job lifecycle.
+- No renderer artifact bytes.
+- No actual render execution.
+- No package/document schema mutation.
+- No `measureVNextText(...)` replacement.
+- No full measurement production readiness claim.
+- No production contenteditable implementation.
 
 ## Mini Infrastructure Close Audit Scope
 
@@ -299,20 +361,20 @@ Historical guard markers retained for pointer tests:
 
 ## Expected Output
 
-- Mini Infrastructure Close Audit;
-- confirmation of Measurement Hardening Close Audit;
-- confirmation of Template Publish Close Audit;
-- confirmation of Variable Schema / Data Contract Close Audit;
-- confirmation of Render API Contract Close Audit;
-- combined mini-checkpoint decision;
+- Runtime Binding / Implementation Planning Gate;
+- confirmation of Mini Infrastructure Close Audit;
+- confirmation that the mini infrastructure checkpoint is closed for checkpoint
+  scope only;
+- ranked runtime binding planning lanes;
+- selected first runtime binding implementation lane, if safe;
+- explicit runtime binding non-work;
 - explicit remaining production blockers;
-- next lane recommendation after the mini checkpoint;
 - readiness policy id reference;
 - response contract id reference;
 - request envelope id and version reference;
 - template version identity reference;
 - variable/data contract evidence references;
-- Mini Infrastructure Close Audit recommendation if accepted;
+- Mini Infrastructure Close Audit decision reference;
 - explicit schema-decision fallback if needed;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;

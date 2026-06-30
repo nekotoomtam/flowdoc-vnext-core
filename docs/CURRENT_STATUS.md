@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Render API Contract Close Audit.
+Status: updated after Mini Infrastructure Close Audit.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Render API Contract Close Audit.
+Mini Infrastructure Close Audit.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -43,6 +43,8 @@ Recent completed gate markers retained for pointer guards:
 - Artifact Pointer / Job Status Placeholder Policy Gate.
 - Render API Error / Blocker Vocabulary Gate.
 - Render API Contract Close Audit.
+- Mini Infrastructure Close Audit.
+- Historical current-status marker retained for pointer guards: Status: updated after Render API Contract Close Audit.
 - Historical current-status marker retained for pointer guards: Status: updated after Render API Error / Blocker Vocabulary Gate.
 - Historical current-status marker retained for pointer guards: Status: updated after Artifact Pointer / Job Status Placeholder Policy Gate.
 - Historical current-status marker retained for pointer guards: Status: updated after Render-Readiness Validation Policy Gate.
@@ -451,27 +453,42 @@ durable job lifecycle, production storage durability, auth/authz readiness,
 runtime data validation, runtime default application, runtime compatibility
 enforcement, or full measurement production readiness. It selects Mini
 Infrastructure Close Audit next.
+Mini Infrastructure Close Audit then confirms Measurement Hardening, Template
+Publish, Variable Schema / Data Contract, and Render API Contract each have
+close-audit decisions scoped to a mini infrastructure checkpoint only. It
+decides the mini infrastructure checkpoint can close, selects Runtime Binding
+/ Implementation Planning Gate next, and keeps production readiness blocked:
+no backend routes, no Render API runtime, no durable job lifecycle, no
+production storage durability, no auth/authz, no renderer execution or
+artifact bytes, no runtime data validation/default application/compatibility
+enforcement/error handling, no package/document schema mutation, no
+`measureVNextText(...)` replacement, and no full measurement production
+readiness claim.
 
 ## Current Next Phase
 
-Mini Infrastructure Close Audit.
+Runtime Binding / Implementation Planning Gate.
 
 Goal:
 
-- use Render API Contract Close Audit as source of truth;
-- confirm the four mini infrastructure lanes have close-audit decisions:
-  Measurement Hardening, Template Publish, Variable Schema / Data Contract,
-  and Render API Contract;
-- confirm each close is scoped to a mini infrastructure checkpoint only;
-- confirm full measurement production readiness remains blocked;
-- confirm backend routes, production storage durability, auth/authz, durable
-  job lifecycle, renderer execution, artifact bytes, runtime validation,
-  runtime defaults, runtime compatibility enforcement, runtime error handling,
-  package/document schema changes, and production contenteditable remain
-  blocked or deferred;
-- decide whether the mini infrastructure checkpoint can close and whether the
-  next lane should be Runtime Binding / Implementation Planning Gate or more
-  evidence/documentation work;
+- use Mini Infrastructure Close Audit as source of truth;
+- confirm the mini infrastructure checkpoint is closed for checkpoint scope
+  only;
+- confirm Measurement Hardening, Template Publish, Variable Schema / Data
+  Contract, and Render API Contract remain mini-lane closes only;
+- plan runtime binding before implementation;
+- rank first runtime binding sub-lanes: request-envelope binding, runtime data
+  validation binding, runtime default/compatibility binding, job lifecycle
+  binding, backend route/storage/auth boundaries, renderer execution
+  boundaries, and runtime error handling;
+- select the first runtime binding implementation lane only if it can preserve
+  all production blockers;
+- keep this next phase planning-only;
+- keep backend routes, production storage durability, auth/authz, durable job
+  lifecycle, renderer execution, artifact bytes, runtime validation, runtime
+  defaults, runtime compatibility enforcement, runtime error handling,
+  package/document schema changes, and production contenteditable blocked or
+  deferred;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
 - keep full measurement production readiness blocked until the remaining v1

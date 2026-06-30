@@ -852,6 +852,15 @@ The package must remain runnable without any parent editor checkout.
   render execution, runtime validation/defaults/compatibility/error handling,
   schema mutation, or full measurement production readiness. See
   `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`.
+- Mini Infrastructure Close Audit closes the combined mini infrastructure
+  checkpoint after confirming Measurement Hardening, Template Publish,
+  Variable Schema / Data Contract, and Render API Contract close-audit
+  evidence. It selects Runtime Binding / Implementation Planning Gate next
+  without implementing runtime binding, backend routes, Render API runtime,
+  durable jobs, storage durability, auth/authz, renderer execution, artifact
+  bytes, runtime validation/defaults/compatibility/error handling, schema
+  mutation, or full measurement production readiness. See
+  `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -864,8 +873,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Render API
-  Contract Close Audit
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Mini
+  Infrastructure Close Audit
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -903,6 +912,9 @@ The package must remain runnable without any parent editor checkout.
   error/blocker vocabulary before Render API Contract close audit
 - `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`: close audit for the Render API
   Contract mini lane before Mini Infrastructure Close Audit
+- `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`: close audit for the combined
+  mini infrastructure checkpoint before Runtime Binding / Implementation
+  Planning Gate
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1404,7 +1416,7 @@ The package must remain runnable without any parent editor checkout.
   contract implementation, runtime data validation, runtime default
   application, runtime compatibility enforcement, durable job lifecycle,
   artifact byte production, runtime error handling, or render API runtime
-  implementation beyond the Render API Contract Close Audit
+  implementation beyond the Mini Infrastructure Close Audit
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

@@ -7256,6 +7256,45 @@ Acceptance:
   or package/document schema readiness;
 - selects Mini Infrastructure Close Audit next.
 
+## Phase 223: Mini Infrastructure Close Audit
+
+Goal:
+
+- audit whether Measurement Hardening, Template Publish, Variable Schema /
+  Data Contract, and Render API Contract together are enough to close the
+  mini infrastructure checkpoint.
+
+Deliverables:
+
+- `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`;
+- `tests/miniInfrastructureCloseAudit.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Measurement Hardening Close Audit is complete for mini checkpoint
+  scope only;
+- confirms Template Publish Close Audit is complete for mini checkpoint scope
+  only;
+- confirms Variable Schema / Data Contract Close Audit is complete for mini
+  checkpoint scope only;
+- confirms Render API Contract Close Audit is complete for mini checkpoint
+  scope only;
+- confirms accepted template target `template-product-report-vnext@v1`;
+- confirms accepted measurement manifest remains minimal-subset-only and the
+  full v1 matrix remains partial;
+- confirms runtime and production readiness flags remain blocked;
+- decides the mini infrastructure checkpoint can close;
+- selects Runtime Binding / Implementation Planning Gate next;
+- explicitly does not implement runtime binding, backend routes, Render API
+  runtime, durable jobs, storage durability, auth/authz, renderer execution,
+  artifact bytes, runtime data validation/defaults/compatibility/error
+  handling, package/document schema mutation, full measurement production
+  readiness, or default-measurer replacement.
+
 ## Later Phases
 
 Goal:
@@ -7285,14 +7324,19 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 222:
+Current next step after Phase 223:
 
 ```text
-Mini Infrastructure Close Audit
+Runtime Binding / Implementation Planning Gate
 ```
 
 Reason:
 
+- Phase 223 closes the combined mini infrastructure checkpoint after
+  Measurement Hardening, Template Publish, Variable Schema / Data Contract,
+  and Render API Contract each have mini-checkpoint-only close audits, and it
+  selects Runtime Binding / Implementation Planning Gate next without
+  implementing runtime binding or claiming production readiness;
 - Phase 166 now defines the PASS/WARNING/BLOCKED/UNKNOWN threshold policy for
   hybrid input hardening;
 - Phase 167 applies those thresholds to a narrow Windows Chromium/Edge plus
@@ -7532,9 +7576,25 @@ Reason:
   readiness/artifact-job/error-vocabulary evidence chain, keeps production
   runtime/storage/auth/render/schema/measurement claims blocked, and selects
   Mini Infrastructure Close Audit next;
+- Phase 223 now closes the combined mini infrastructure checkpoint, confirms
+  Measurement Hardening, Template Publish, Variable Schema / Data Contract,
+  and Render API Contract close-audit evidence, keeps production
+  runtime/storage/auth/render/schema/measurement claims blocked, and selects
+  Runtime Binding / Implementation Planning Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 222 Handoff
+
+Current next step after Phase 222:
+
+```text
+Mini Infrastructure Close Audit
+```
+
+That was the Phase 222 handoff recommendation. Phase 223 is now complete,
+so it is no longer the current next step after Phase 222.
 
 ## Historical Phase 221 Handoff
 

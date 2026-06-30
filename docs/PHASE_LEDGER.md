@@ -236,6 +236,7 @@ Parent goal:
 | 220 | Artifact pointer job status placeholder policy gate | done | `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactPointerJobStatusPlaceholderPolicyGate.test.ts`; pointer guard tests |
 | 221 | Render API error blocker vocabulary gate | done | `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiErrorBlockerVocabularyGate.test.ts`; pointer guard tests |
 | 222 | Render API contract close audit | done | `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiContractCloseAudit.test.ts`; pointer guard tests |
+| 223 | Mini infrastructure close audit | done | `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`; `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/miniInfrastructureCloseAudit.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6629,6 +6630,53 @@ runtime error handling, package/document schema mutation, or full measurement
 production readiness.
 
 Next recommended work: Mini Infrastructure Close Audit.
+Production measurement replacement remains blocked.
+
+## Phase 223 Mini Infrastructure Close Audit
+
+Mini Infrastructure Close Audit uses Render API Contract Close Audit as source
+of truth and audits whether the combined mini infrastructure checkpoint can
+close after four mini lanes have close-audit decisions.
+
+The audit confirms:
+
+- close audit doc:
+  `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`;
+- Measurement Hardening Close Audit is complete for mini checkpoint scope;
+- Template Publish Close Audit is complete for mini checkpoint scope;
+- Variable Schema / Data Contract Close Audit is complete for mini checkpoint
+  scope;
+- Render API Contract Close Audit is complete for mini checkpoint scope;
+- accepted template version target:
+  `template-product-report-vnext@v1`;
+- accepted measurement manifest status is `accepted`;
+- accepted measurement manifest scope is `minimal-accepted-subset-only`;
+- full v1 measurement matrix remains `partial-not-accepted`;
+- production binding and default-measurer replacement remain blocked;
+- accepted template version metadata status is `accepted`;
+- variable compatibility policy status is
+  `accepted-policy-metadata-only`;
+- Render API error/blocker vocabulary status is
+  `accepted-vocabulary-metadata-only`;
+- every Render API boundary group records `runtimeImplemented=false` and
+  `productionReadinessClaimed=false`.
+
+Decision: close the mini infrastructure checkpoint. This close is strong
+enough to plan runtime binding from stable metadata, but it does not claim
+production readiness.
+
+This phase intentionally does not implement runtime binding, backend
+production routes, Render API runtime, renderer artifact bytes, actual render
+execution, durable job ids, durable job lifecycle, production storage
+durability, auth/authz behavior, runtime error handling, runtime data
+validation, runtime default application, runtime compatibility enforcement,
+package/document schema mutation, `measureVNextText(...)` replacement, full
+measurement production readiness, pagination mutation, production
+renderer-backed measurement binding, production PDF/DOCX renderer work,
+production contenteditable, collaboration/offline behavior, or legacy editor
+runtime.
+
+Next recommended work: Runtime Binding / Implementation Planning Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record
