@@ -1,50 +1,54 @@
 # Next Phase Pointer
 
-Status: current after Variable Schema / Data Contract Planning Gate.
+Status: current after Variable Reference Discovery Gate.
 
 ## Next Phase
 
-Variable Reference Discovery Gate.
+Variable Schema Metadata Shape Gate.
 
 ## Why This Is Next
 
-Variable Schema / Data Contract Planning Gate used Template Publish Close Audit
-as source of truth and selected variable reference discovery / candidate
-variable list as the first Variable Schema / Data Contract sub-lane.
+Variable Reference Discovery Gate used Variable Schema / Data Contract Planning
+Gate as source of truth and produced JSON-safe discovery evidence for the
+accepted published template version target.
 
-The accepted published template version metadata remains:
+The discovery fixture is:
 
 ```text
-fixtures/template-publish-accepted-version-metadata.v1.json
+fixtures/variable-reference-discovery.v1.json
 ```
 
-The planning gate confirms:
+The discovery gate confirms:
 
-- Template Publish mini lane is closed for a mini infrastructure checkpoint
-  only;
-- accepted metadata exists and has `metadataStatus="accepted"`;
-- stable accepted target fields are present;
-- draft template identity remains separate from published template version
-  identity;
-- accepted `templateVersionId` is immutable;
-- source snapshot and validation evidence pointers are immutable;
-- variable/data contract planning can attach to accepted version metadata
-  without package/document schema mutation;
-- Render API Contract remains deferred until variable/data contract evidence is
-  clear.
+- attachment target is `template-product-report-vnext@v1`;
+- accepted validation evidence pointer is
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- source snapshot retention pointer is
+  `repo://fixtures/product-report-vnext.flowdoc.json`;
+- source package parse status is `ready`;
+- authored field-ref occurrence count is `11`;
+- candidate variable count is `6`;
+- registry field count is `6`;
+- unresolved reference count is `0`;
+- unsupported reference count is `0`;
+- duplicate candidate id count is `0`;
+- blockers before Variable Schema Metadata Shape Gate are empty;
+- package/document schema remains unchanged;
+- Render API Contract remains deferred.
 
-Variable Reference Discovery Gate is next because variable schema metadata,
-data contract validation, missing-value/default/required policy, and
-compatibility policy need a stable authored reference inventory first.
+Variable Schema Metadata Shape Gate is next because discovered variable
+references now provide the candidate variable surface that schema metadata can
+shape without inventing variables ahead of the template.
 
 Previous source gates retained for traceability:
 
+- Variable Reference Discovery Gate.
 - Variable Schema / Data Contract Planning Gate.
 - Template Publish Close Audit.
+- Template Publish / Variable Schema / Render API Planning Gate.
 - Template Publish Accepted Version Metadata Gate.
 - Template Publish Validation Evidence Gate.
 - Template Publish / Version Boundary Gate.
-- Template Publish / Variable Schema / Render API Planning Gate.
 - Measurement Hardening Close Audit.
 - Accepted Summary Manifest Population.
 - Numeric Drift Threshold Decision.
@@ -59,34 +63,31 @@ Previous source gates retained for traceability:
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`
+- `fixtures/variable-reference-discovery.v1.json`
 - `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`
-- `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`
 - `fixtures/template-publish-accepted-version-metadata.v1.json`
-- `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
-- `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`
-- `fixtures/template-publish-validation-evidence.v1.json`
-- `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
 - `fixtures/product-report-vnext.flowdoc.json`
+- `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`
 - `docs/WORKSPACE_BOUNDARY.md`
 - `docs/LEGACY_MIGRATION_GATE.md`
 - `docs/PHASE_LEDGER.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Variable Reference Discovery Scope
+## Variable Schema Metadata Shape Scope
 
-- Confirm the accepted published template version target exists.
-- Attach discovery to published template version identity.
-- Attach discovery to accepted validation evidence pointer.
-- Attach discovery to source snapshot retention pointer.
-- Parse the canonical source package for discovery input.
-- Produce JSON-safe authored `field-ref` occurrence inventory.
-- Produce JSON-safe candidate variable id list.
-- Cross-reference candidate variables with the package field registry.
-- Record unresolved, unsupported, duplicate, warning, blocked, and unknown
-  statuses.
-- Define blockers before variable schema metadata shape.
-- Keep Variable Schema / Data Contract implementation deferred.
+- Confirm Variable Reference Discovery Gate is accepted.
+- Use `fixtures/variable-reference-discovery.v1.json` as source of truth.
+- Define JSON-safe metadata fields for each candidate variable.
+- Attach metadata shape to published template version identity.
+- Attach metadata shape to accepted validation evidence pointer.
+- Attach metadata shape to source snapshot retention pointer.
+- Attach metadata shape to variable reference discovery evidence.
+- Preserve occurrence counts and registry cross-reference status.
+- Define metadata status names for accepted, warning, blocked, and unknown.
+- Define blockers before Data Contract Validation Policy.
+- Keep full Variable Schema / Data Contract implementation deferred.
 - Keep Render API Contract implementation deferred.
 
 ## Carry-Forward Hard Limits
@@ -94,6 +95,7 @@ Previous source gates retained for traceability:
 - No package/document schema mutation.
 - No package/document schema change.
 - No Variable Schema / Data Contract implementation.
+- No full Variable Schema / Data Contract implementation.
 - No Render API Contract implementation.
 - No backend production routes.
 - No production storage durability claim.
@@ -119,12 +121,10 @@ Previous source gates retained for traceability:
 
 ## Expected Output
 
-- Variable Reference Discovery Gate;
-- JSON-safe authored reference inventory;
-- JSON-safe candidate variable list;
-- registry cross-reference status;
-- unresolved/unsupported/duplicate status;
-- blockers before variable schema metadata shape;
+- Variable Schema Metadata Shape Gate;
+- JSON-safe variable metadata shape;
+- candidate-variable metadata status policy;
+- blockers before Data Contract Validation Policy;
 - explicit Render API deferral;
 - explicit schema-decision fallback if needed;
 - explicit non-work;
@@ -133,6 +133,7 @@ Previous source gates retained for traceability:
 
 ## Traceability Anchors
 
+- Variable Reference Discovery Gate.
 - Variable Schema / Data Contract Planning Gate.
 - Template Publish Close Audit.
 - Template Publish Accepted Version Metadata Gate.

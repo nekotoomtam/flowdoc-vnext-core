@@ -265,10 +265,10 @@ describe("text engine WASM artifact build output gate", () => {
     expect(doc).toContain("## Risks Left")
     expect(doc).toContain("## Intentionally Not Changed")
 
-    expect(currentStatus).toContain("Status: updated after Variable Schema / Data Contract Planning Gate.")
+    expect(currentStatus).toContain("Status: updated after Variable Reference Discovery Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
     expect(currentStatus).toContain("Text Engine WASM Toolchain Version Compatibility Gate.")
-    expect(nextPointer).toContain("Status: current after Variable Schema / Data Contract Planning Gate.")
+    expect(nextPointer).toContain("Status: current after Variable Reference Discovery Gate.")
     expect(nextPointer).toContain("Text Engine WASM Bindgen Export Dependency Gate.")
     expect(readme).toContain("Text engine WASM artifact build output gate")
     expect(readme).toContain("docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md")

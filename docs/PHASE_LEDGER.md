@@ -223,6 +223,7 @@ Parent goal:
 | 207 | Template publish accepted version metadata gate | done | `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishAcceptedVersionMetadataGate.test.ts`; pointer guard tests |
 | 208 | Template publish close audit | done | `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/templatePublishCloseAudit.test.ts`; pointer guard tests |
 | 209 | Variable schema data contract planning gate | done | `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableSchemaDataContractPlanningGate.test.ts`; pointer guard tests |
+| 210 | Variable reference discovery gate | done | `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/product-report-vnext.flowdoc.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/variableReferenceDiscoveryGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -5925,6 +5926,49 @@ PDF/DOCX renderer work, implement production contenteditable, add
 collaboration/offline behavior, or copy legacy editor runtime.
 
 Next recommended work: Variable Reference Discovery Gate.
+Production measurement replacement remains blocked.
+
+## Phase 210 Variable Reference Discovery Gate
+
+Variable Reference Discovery Gate uses Variable Schema / Data Contract
+Planning Gate as source of truth and produces JSON-safe discovery evidence for
+the accepted published template version target.
+
+The discovery evidence records:
+
+- discovery fixture:
+  `fixtures/variable-reference-discovery.v1.json`;
+- source snapshot:
+  `fixtures/product-report-vnext.flowdoc.json`;
+- attachment target: `template-product-report-vnext@v1`;
+- accepted validation evidence pointer:
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- source snapshot retention pointer:
+  `repo://fixtures/product-report-vnext.flowdoc.json`;
+- package parse status: `ready`;
+- discovery source scope: authored inline `field-ref` nodes in text-block
+  children, with section/zone/table context;
+- field-ref occurrence count: `11`;
+- candidate variable count: `6`;
+- candidate variable ids: `customer.name`, `customer.segment`,
+  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
+- registry cross-reference status:
+  `all-discovered-refs-resolved`;
+- unresolved references: none;
+- unsupported references: none;
+- duplicate candidate ids: none;
+- blockers before Variable Schema Metadata Shape Gate: none.
+
+This phase intentionally does not mutate package/document schema, implement
+the full Variable Schema / Data Contract, implement Render API Contract,
+implement backend production routes, claim production storage durability,
+produce renderer artifact bytes, add auth/authz behavior, replace
+`measureVNextText(...)`, claim full measurement production readiness, mutate
+pagination, bind production renderer-backed measurement, add production
+PDF/DOCX renderer work, implement production contenteditable, add
+collaboration/offline behavior, or copy legacy editor runtime.
+
+Next recommended work: Variable Schema Metadata Shape Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

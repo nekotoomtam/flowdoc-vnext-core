@@ -1,0 +1,293 @@
+{
+  "manifestVersion": 1,
+  "discoveryId": "variable-reference-discovery-v1",
+  "sourcePlanningGate": "Variable Schema / Data Contract Planning Gate",
+  "sourcePlanningGateStatus": "complete",
+  "selectedSubLane": "Variable Reference Discovery / candidate variable list",
+  "discoveryStatus": "accepted",
+  "nextRecommendedWork": "Variable Schema Metadata Shape Gate",
+  "attachmentTarget": {
+    "publishedTemplateVersionIdentity": {
+      "templateId": "template-product-report-vnext",
+      "templateVersionId": "template-product-report-vnext@v1",
+      "versionOrdinal": 1
+    },
+    "acceptedValidationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+    "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json"
+  },
+  "sourceSnapshot": {
+    "pointer": "fixtures/product-report-vnext.flowdoc.json",
+    "packageParseStatus": "ready",
+    "packageId": "product-report-vnext",
+    "documentId": "product-report-vnext",
+    "packageVersion": 2,
+    "documentVersion": 3
+  },
+  "discoverySourceScope": {
+    "scopeId": "authored-inline-field-ref-v1",
+    "included": [
+      "authored inline nodes with type=field-ref",
+      "field-ref nodes inside text-block children",
+      "section/zone/table occurrence context",
+      "package field registry cross-reference"
+    ],
+    "excluded": [
+      "page-number inline nodes",
+      "line-break inline nodes",
+      "toc generated output",
+      "renderer output",
+      "data value materialization"
+    ]
+  },
+  "summary": {
+    "fieldRefOccurrenceCount": 11,
+    "candidateVariableCount": 6,
+    "registryFieldCount": 6,
+    "unresolvedReferenceCount": 0,
+    "unsupportedReferenceCount": 0,
+    "duplicateCandidateIdCount": 0,
+    "packageDocumentSchemaMutated": false,
+    "renderApiContractDeferred": true
+  },
+  "occurrenceInventory": [
+    {
+      "fieldRefId": "cover-title-customer",
+      "key": "customer.name",
+      "textBlockId": "cover-title",
+      "sectionId": "section-cover",
+      "zoneId": "cover-body",
+      "inlineIndex": 1,
+      "path": "document.sections[0].nodes.cover-title.children[1]",
+      "fallback": "Customer",
+      "registryStatus": "resolved",
+      "locationSummary": "section-cover/cover-body/cover-title"
+    },
+    {
+      "fieldRefId": "cover-subtitle-period",
+      "key": "report.period",
+      "textBlockId": "cover-subtitle",
+      "sectionId": "section-cover",
+      "zoneId": "cover-body",
+      "inlineIndex": 1,
+      "path": "document.sections[0].nodes.cover-subtitle.children[1]",
+      "fallback": "Current Period",
+      "registryStatus": "resolved",
+      "locationSummary": "section-cover/cover-body/cover-subtitle"
+    },
+    {
+      "fieldRefId": "cover-segment-field",
+      "key": "customer.segment",
+      "textBlockId": "cover-segment-value",
+      "sectionId": "section-cover",
+      "zoneId": "cover-body",
+      "inlineIndex": 0,
+      "path": "document.sections[0].nodes.cover-segment-value.children[0]",
+      "fallback": "Segment",
+      "registryStatus": "resolved",
+      "locationSummary": "section-cover/cover-body/cover-segment-value"
+    },
+    {
+      "fieldRefId": "cover-risk-field",
+      "key": "report.riskLevel",
+      "textBlockId": "cover-risk-value",
+      "sectionId": "section-cover",
+      "zoneId": "cover-body",
+      "inlineIndex": 0,
+      "path": "document.sections[0].nodes.cover-risk-value.children[0]",
+      "fallback": "Normal",
+      "registryStatus": "resolved",
+      "locationSummary": "section-cover/cover-body/cover-risk-value"
+    },
+    {
+      "fieldRefId": "cover-note-author",
+      "key": "prepared.by",
+      "textBlockId": "cover-note",
+      "sectionId": "section-cover",
+      "zoneId": "cover-body",
+      "inlineIndex": 1,
+      "path": "document.sections[0].nodes.cover-note.children[1]",
+      "fallback": "Team",
+      "registryStatus": "resolved",
+      "locationSummary": "section-cover/cover-body/cover-note"
+    },
+    {
+      "fieldRefId": "body-header-title-prefix",
+      "key": "customer.name",
+      "textBlockId": "body-header-title",
+      "sectionId": "section-body",
+      "zoneId": "body-header",
+      "inlineIndex": 0,
+      "path": "document.sections[2].nodes.body-header-title.children[0]",
+      "fallback": "Customer",
+      "registryStatus": "resolved",
+      "locationSummary": "section-body/body-header/body-header-title"
+    },
+    {
+      "fieldRefId": "body-header-title-period",
+      "key": "report.period",
+      "textBlockId": "body-header-title",
+      "sectionId": "section-body",
+      "zoneId": "body-header",
+      "inlineIndex": 2,
+      "path": "document.sections[2].nodes.body-header-title.children[2]",
+      "fallback": "Current Period",
+      "registryStatus": "resolved",
+      "locationSummary": "section-body/body-header/body-header-title"
+    },
+    {
+      "fieldRefId": "body-summary-customer",
+      "key": "customer.name",
+      "textBlockId": "body-summary",
+      "sectionId": "section-body",
+      "zoneId": "body-main",
+      "inlineIndex": 1,
+      "path": "document.sections[2].nodes.body-summary.children[1]",
+      "fallback": "Customer",
+      "registryStatus": "resolved",
+      "locationSummary": "section-body/body-main/body-summary"
+    },
+    {
+      "fieldRefId": "metric-value-total-field",
+      "key": "report.total",
+      "textBlockId": "metric-value-total-text",
+      "sectionId": "section-body",
+      "zoneId": "body-main",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-total",
+      "inlineIndex": 0,
+      "path": "document.sections[2].nodes.metric-value-total-text.children[0]",
+      "fallback": "0",
+      "registryStatus": "resolved",
+      "locationSummary": "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-total/metric-value-total-text"
+    },
+    {
+      "fieldRefId": "metric-value-risk-field",
+      "key": "report.riskLevel",
+      "textBlockId": "metric-value-risk-text",
+      "sectionId": "section-body",
+      "zoneId": "body-main",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-risk",
+      "inlineIndex": 0,
+      "path": "document.sections[2].nodes.metric-value-risk-text.children[0]",
+      "fallback": "Normal",
+      "registryStatus": "resolved",
+      "locationSummary": "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-risk/metric-value-risk-text"
+    },
+    {
+      "fieldRefId": "body-followup-owner",
+      "key": "prepared.by",
+      "textBlockId": "body-followup-text",
+      "sectionId": "section-body",
+      "zoneId": "body-main",
+      "inlineIndex": 1,
+      "path": "document.sections[2].nodes.body-followup-text.children[1]",
+      "fallback": "Team",
+      "registryStatus": "resolved",
+      "locationSummary": "section-body/body-main/body-followup-text"
+    }
+  ],
+  "candidateVariableIds": [
+    "customer.name",
+    "customer.segment",
+    "prepared.by",
+    "report.period",
+    "report.riskLevel",
+    "report.total"
+  ],
+  "candidateVariables": [
+    {
+      "key": "customer.name",
+      "label": "Customer Name",
+      "fieldType": "text",
+      "registryFallback": "Customer",
+      "dataValuePresent": true,
+      "registryStatus": "resolved",
+      "occurrenceCount": 3,
+      "occurrenceIds": ["cover-title-customer", "body-header-title-prefix", "body-summary-customer"],
+      "duplicateOccurrenceStatus": "multiple-authored-occurrences-accepted"
+    },
+    {
+      "key": "customer.segment",
+      "label": "Customer Segment",
+      "fieldType": "text",
+      "registryFallback": "Segment",
+      "dataValuePresent": true,
+      "registryStatus": "resolved",
+      "occurrenceCount": 1,
+      "occurrenceIds": ["cover-segment-field"],
+      "duplicateOccurrenceStatus": "single-occurrence"
+    },
+    {
+      "key": "prepared.by",
+      "label": "Prepared By",
+      "fieldType": "text",
+      "registryFallback": "Team",
+      "dataValuePresent": true,
+      "registryStatus": "resolved",
+      "occurrenceCount": 2,
+      "occurrenceIds": ["cover-note-author", "body-followup-owner"],
+      "duplicateOccurrenceStatus": "multiple-authored-occurrences-accepted"
+    },
+    {
+      "key": "report.period",
+      "label": "Report Period",
+      "fieldType": "text",
+      "registryFallback": "Current Period",
+      "dataValuePresent": true,
+      "registryStatus": "resolved",
+      "occurrenceCount": 2,
+      "occurrenceIds": ["cover-subtitle-period", "body-header-title-period"],
+      "duplicateOccurrenceStatus": "multiple-authored-occurrences-accepted"
+    },
+    {
+      "key": "report.riskLevel",
+      "label": "Risk Level",
+      "fieldType": "enum",
+      "registryFallback": "Normal",
+      "dataValuePresent": true,
+      "registryStatus": "resolved",
+      "occurrenceCount": 2,
+      "occurrenceIds": ["cover-risk-field", "metric-value-risk-field"],
+      "duplicateOccurrenceStatus": "multiple-authored-occurrences-accepted"
+    },
+    {
+      "key": "report.total",
+      "label": "Report Total",
+      "fieldType": "number",
+      "registryFallback": null,
+      "dataValuePresent": true,
+      "registryStatus": "resolved",
+      "occurrenceCount": 1,
+      "occurrenceIds": ["metric-value-total-field"],
+      "duplicateOccurrenceStatus": "single-occurrence"
+    }
+  ],
+  "crossReference": {
+    "fieldRegistryStatus": "all-discovered-refs-resolved",
+    "unresolvedReferences": [],
+    "unsupportedReferences": [],
+    "duplicateCandidateStatus": "no-duplicate-candidate-ids",
+    "duplicateCandidateIds": []
+  },
+  "blockersBeforeVariableSchemaMetadataShape": [],
+  "nonWork": {
+    "packageDocumentSchemaMutated": false,
+    "fullVariableSchemaDataContractImplemented": false,
+    "renderApiContractImplemented": false,
+    "backendProductionRoutesImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "rendererArtifactBytesProduced": false,
+    "authAuthzBehaviorAdded": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

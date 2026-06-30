@@ -6594,6 +6594,50 @@ Acceptance:
   contenteditable, collaboration/offline behavior, or legacy editor runtime
   copy is introduced.
 
+## Phase 210: Variable Reference Discovery Gate
+
+Goal:
+
+- produce JSON-safe variable reference discovery evidence and candidate
+  variable list for the accepted published template version target.
+
+Deliverables:
+
+- `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`;
+- `fixtures/variable-reference-discovery.v1.json`;
+- `tests/variableReferenceDiscoveryGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Variable Schema / Data Contract Planning Gate is complete;
+- confirms Variable Reference Discovery / candidate variable list is the
+  selected first sub-lane;
+- confirms attachment target, accepted validation evidence pointer, and source
+  snapshot retention pointer;
+- uses `fixtures/product-report-vnext.flowdoc.json` as source snapshot;
+- confirms package parse status is `ready`;
+- defines discovery source scope;
+- discovers authored field-ref occurrences from the accepted template source;
+- produces JSON-safe occurrence inventory and candidate variable ids;
+- cross-references discovered field refs against the package field registry;
+- records unresolved references, unsupported references, duplicate candidate
+  status, occurrence location summaries, and blockers before Variable Schema
+  Metadata Shape Gate;
+- confirms package/document schema is not mutated;
+- keeps Render API Contract deferred;
+- no package/document schema mutation, full Variable Schema / Data Contract
+  implementation, Render API Contract implementation, backend production
+  route, production storage durability claim, renderer artifact bytes,
+  auth/authz behavior, `measureVNextText(...)` replacement, full measurement
+  production readiness claim, pagination mutation, production renderer-backed
+  measurement binding, production PDF/DOCX renderer work, production
+  contenteditable, collaboration/offline behavior, or legacy editor runtime
+  copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6623,10 +6667,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 209:
+Current next step after Phase 210:
 
 ```text
-Variable Reference Discovery Gate
+Variable Schema Metadata Shape Gate
 ```
 
 Reason:
@@ -6795,9 +6839,24 @@ Reason:
   accepted published template version target, ranks the first sub-lanes,
   selects variable reference discovery / candidate variable list first, and
   keeps Render API Contract deferred;
+- Phase 210 now discovers 11 authored field-ref occurrences and 6 candidate
+  variable ids, cross-references every discovered reference against the package
+  field registry, records no unresolved/unsupported/duplicate blockers, and
+  selects Variable Schema Metadata Shape Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 209 Handoff
+
+Current next step after Phase 209:
+
+```text
+Variable Reference Discovery Gate
+```
+
+That was the Phase 209 handoff recommendation. Phase 210 is now complete,
+so it is no longer the current next step after Phase 210.
 
 ## Historical Phase 208 Handoff
 

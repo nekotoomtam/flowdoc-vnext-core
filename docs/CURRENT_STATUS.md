@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Variable Schema / Data Contract Planning Gate.
+Status: updated after Variable Reference Discovery Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Variable Schema / Data Contract Planning Gate.
+Variable Reference Discovery Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -30,6 +30,7 @@ Recent completed gate markers retained for pointer guards:
 - Template Publish Accepted Version Metadata Gate.
 - Template Publish Close Audit.
 - Variable Schema / Data Contract Planning Gate.
+- Variable Reference Discovery Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -236,25 +237,35 @@ JSON-safe gate evidence for a later Variable Reference Discovery Gate while
 keeping this phase planning-only, making no package/document schema change,
 leaving Render API Contract deferred, and keeping production binding plus
 default-measurer replacement blocked.
+Variable Reference Discovery Gate then produces JSON-safe discovery evidence
+at `fixtures/variable-reference-discovery.v1.json` for the accepted published
+template version target. It uses `fixtures/product-report-vnext.flowdoc.json`
+as the source snapshot, confirms package parse status `ready`, discovers 11
+authored `field-ref` occurrences, produces 6 candidate variable ids, preserves
+section/zone/table occurrence summaries, cross-references every discovered
+field-ref against the package field registry, records no unresolved references,
+no unsupported references, no duplicate candidate ids, and no blockers before
+Variable Schema Metadata Shape Gate. It keeps package/document schema
+unchanged and keeps Render API Contract deferred.
 
 ## Current Next Phase
 
-Variable Reference Discovery Gate.
+Variable Schema Metadata Shape Gate.
 
 Goal:
 
-- use Variable Schema / Data Contract Planning Gate as source of truth;
-- discover authored variable references and produce a JSON-safe candidate
-  variable list for the accepted published template version target;
-- attach discovery evidence to the accepted published template version
-  identity, accepted validation evidence pointer, and source snapshot retention
-  pointer;
-- keep Variable Schema / Data Contract implementation deferred until discovery
-  evidence is accepted;
+- use Variable Reference Discovery Gate as source of truth;
+- define the JSON-safe variable schema metadata shape for discovered candidate
+  variables;
+- attach metadata shape to the accepted published template version identity,
+  accepted validation evidence pointer, source snapshot retention pointer, and
+  variable reference discovery evidence;
+- keep full Variable Schema / Data Contract implementation deferred until
+  metadata shape evidence is accepted;
 - keep Render API Contract deferred until variable/data contract evidence is
   clear;
-- route to Template Version Schema Decision Gate only if discovered
-  variable/data facts cannot be represented without package/document schema
+- route to Template Version Schema Decision Gate only if variable metadata
+  shape cannot be represented without package/document schema
   changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
@@ -491,6 +502,8 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`
+- `fixtures/variable-reference-discovery.v1.json`
 - `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`
 - `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`
 - `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
