@@ -7086,6 +7086,67 @@ Acceptance:
   production PDF/DOCX renderer work, production contenteditable,
   collaboration/offline behavior, or legacy editor runtime copy is introduced.
 
+## Phase 220: Artifact Pointer / Job Status Placeholder Policy Gate
+
+Goal:
+
+- define JSON-safe artifact pointer and job status placeholder policy metadata
+  without producing artifact bytes, creating durable jobs, implementing
+  storage, or implementing renderer execution.
+
+Deliverables:
+
+- `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`;
+- `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`;
+- `tests/artifactPointerJobStatusPlaceholderPolicyGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Render-Readiness Validation Policy Gate is complete;
+- confirms readiness policy fixture exists at
+  `fixtures/render-readiness-validation-policy.v1.json`;
+- confirms request envelope fixture exists at
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- confirms response/status fixture exists at
+  `fixtures/render-api-response-status-contract.v1.json`;
+- confirms request envelope id `render-api-request-envelope-contract-v1`;
+- confirms request envelope version `1`;
+- confirms response contract id `render-api-response-status-contract-v1`;
+- confirms readiness policy id `render-readiness-validation-policy-v1`;
+- confirms accepted template version target
+  `template-product-report-vnext@v1`;
+- defines artifact/job placeholder policy id
+  `artifact-pointer-job-status-placeholder-policy-v1`;
+- defines job status placeholder vocabulary `job-placeholder-deferred`,
+  `job-not-created`, `job-blocked-before-creation`, and `job-unknown`;
+- defines artifact pointer placeholder vocabulary `artifact-pointer-null`,
+  `artifact-not-produced`, `artifact-blocked-before-production`, and
+  `artifact-unknown`;
+- defines placeholder fields for job status, job id, artifact pointer,
+  artifact bytes, artifact lifecycle status, storage durability status, and
+  renderer execution status;
+- confirms job id remains `null`;
+- confirms artifact pointer remains `null`;
+- confirms artifact retention pointer remains `null`;
+- confirms artifact bytes are not produced;
+- confirms production storage durability is not claimed;
+- confirms backend route is not implemented;
+- confirms renderer execution is not implemented;
+- confirms this gate is metadata-only;
+- no backend production route, Render API runtime, production storage
+  durability claim, auth/authz behavior, renderer artifact bytes, actual render
+  execution, durable job id creation, durable job lifecycle, runtime data
+  validation, runtime default application, runtime compatibility enforcement,
+  package/document schema mutation, `measureVNextText(...)` replacement, full
+  measurement production readiness claim, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  production contenteditable, collaboration/offline behavior, or legacy editor
+  runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -7115,10 +7176,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 219:
+Current next step after Phase 220:
 
 ```text
-Artifact Pointer / Job Status Placeholder Policy Gate
+Render API Error / Blocker Vocabulary Gate
 ```
 
 Reason:
@@ -7343,9 +7404,28 @@ Reason:
   records deferred runtime checks, keeps job/artifact lifecycle placeholder
   metadata deferred, and selects Artifact Pointer / Job Status Placeholder
   Policy Gate next;
+- Phase 220 now defines JSON-safe artifact pointer and job status placeholder
+  policy metadata, accepts
+  `artifact-pointer-job-status-placeholder-policy-v1`, maps the prior
+  `deferred-job-placeholder` response placeholder into
+  `job-placeholder-deferred`, keeps job id, artifact pointer, artifact
+  retention pointer, and artifact bytes null/unproduced, records lifecycle and
+  runtime deferrals, and selects Render API Error / Blocker Vocabulary Gate
+  next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 219 Handoff
+
+Current next step after Phase 219:
+
+```text
+Artifact Pointer / Job Status Placeholder Policy Gate
+```
+
+That was the Phase 219 handoff recommendation. Phase 220 is now complete,
+so it is no longer the current next step after Phase 219.
 
 ## Historical Phase 218 Handoff
 

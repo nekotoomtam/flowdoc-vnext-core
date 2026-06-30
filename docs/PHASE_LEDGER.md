@@ -233,6 +233,7 @@ Parent goal:
 | 217 | Render API request envelope contract gate | done | `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-reference-discovery.v1.json`; `fixtures/variable-schema-metadata-shape.v1.json`; `fixtures/data-contract-validation-policy.v1.json`; `fixtures/required-missing-default-value-policy.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiRequestEnvelopeContractGate.test.ts`; pointer guard tests |
 | 218 | Render API response status contract gate | done | `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiResponseStatusContractGate.test.ts`; pointer guard tests |
 | 219 | Render-readiness validation policy gate | done | `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderReadinessValidationPolicyGate.test.ts`; pointer guard tests |
+| 220 | Artifact pointer job status placeholder policy gate | done | `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/artifactPointerJobStatusPlaceholderPolicyGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6460,6 +6461,66 @@ measurement binding, production PDF/DOCX renderer work, production
 contenteditable, collaboration/offline behavior, or legacy editor runtime.
 
 Next recommended work: Artifact Pointer / Job Status Placeholder Policy Gate.
+Production measurement replacement remains blocked.
+
+## Phase 220 Artifact Pointer Job Status Placeholder Policy Gate
+
+Artifact Pointer / Job Status Placeholder Policy Gate uses Render-Readiness
+Validation Policy Gate as source of truth and defines JSON-safe artifact
+pointer / job status placeholder policy metadata before backend route,
+storage, auth/authz, renderer execution, artifact lifecycle, durable job
+lifecycle, or Render API runtime work.
+
+The gate confirms:
+
+- artifact/job placeholder policy doc:
+  `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`;
+- artifact/job placeholder policy fixture:
+  `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`;
+- readiness policy fixture:
+  `fixtures/render-readiness-validation-policy.v1.json`;
+- response/status fixture:
+  `fixtures/render-api-response-status-contract.v1.json`;
+- request envelope fixture:
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- request envelope id:
+  `render-api-request-envelope-contract-v1`;
+- request envelope version: `1`;
+- response contract id:
+  `render-api-response-status-contract-v1`;
+- readiness policy id:
+  `render-readiness-validation-policy-v1`;
+- artifact/job placeholder policy id:
+  `artifact-pointer-job-status-placeholder-policy-v1`;
+- accepted template version target:
+  `template-product-report-vnext@v1`;
+- job status placeholder vocabulary: `job-placeholder-deferred`,
+  `job-not-created`, `job-blocked-before-creation`, and `job-unknown`;
+- artifact pointer placeholder vocabulary: `artifact-pointer-null`,
+  `artifact-not-produced`, `artifact-blocked-before-production`, and
+  `artifact-unknown`;
+- job id placeholder remains `null`;
+- artifact pointer remains `null`;
+- artifact retention pointer remains `null`;
+- artifact bytes are not produced;
+- storage durability remains not claimed;
+- renderer execution remains not implemented;
+- backend routes, Render API runtime, durable job lifecycle, storage,
+  auth/authz, renderer execution, artifact byte production, runtime data
+  validation, runtime default application, and runtime compatibility
+  enforcement remain deferred.
+
+This phase intentionally does not implement backend production routes, Render
+API runtime, renderer artifact bytes, actual render execution, durable job
+ids, durable job lifecycle, production storage durability, auth/authz
+behavior, runtime data validation, runtime default application, runtime
+compatibility enforcement, package/document schema mutation,
+`measureVNextText(...)` replacement, full measurement production readiness,
+pagination mutation, production renderer-backed measurement binding,
+production PDF/DOCX renderer work, production contenteditable,
+collaboration/offline behavior, or legacy editor runtime.
+
+Next recommended work: Render API Error / Blocker Vocabulary Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record

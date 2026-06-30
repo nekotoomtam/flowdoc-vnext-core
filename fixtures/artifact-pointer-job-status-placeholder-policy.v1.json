@@ -1,0 +1,199 @@
+{
+  "manifestVersion": 1,
+  "artifactJobPlaceholderPolicyId": "artifact-pointer-job-status-placeholder-policy-v1",
+  "sourceRenderReadinessValidationPolicyGate": "Render-Readiness Validation Policy Gate",
+  "sourceRenderReadinessValidationPolicyGateStatus": "complete",
+  "sourceRenderReadinessValidationPolicyGatePointer": "repo://docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md",
+  "sourceReadinessPolicyPointer": "repo://fixtures/render-readiness-validation-policy.v1.json",
+  "sourceResponseStatusContractPointer": "repo://fixtures/render-api-response-status-contract.v1.json",
+  "sourceRequestEnvelopePointer": "repo://fixtures/render-api-request-envelope-contract.v1.json",
+  "artifactJobPlaceholderPolicyStatus": "accepted-policy-metadata-only",
+  "nextRecommendedWork": "Render API Error / Blocker Vocabulary Gate",
+  "artifactJobPlaceholderPolicyVersion": 1,
+  "requestEnvelopeReference": {
+    "requestEnvelopeId": "render-api-request-envelope-contract-v1",
+    "requestEnvelopeVersion": 1,
+    "requestEnvelopeStatus": "accepted-contract-metadata-only",
+    "templateVersionId": "template-product-report-vnext@v1"
+  },
+  "responseContractReference": {
+    "responseContractId": "render-api-response-status-contract-v1",
+    "responseContractStatus": "accepted-contract-metadata-only",
+    "responseContractPointer": "repo://fixtures/render-api-response-status-contract.v1.json"
+  },
+  "readinessPolicyReference": {
+    "readinessPolicyId": "render-readiness-validation-policy-v1",
+    "readinessPolicyVersion": 1,
+    "readinessPolicyStatus": "accepted-policy-metadata-only",
+    "readinessPolicyPointer": "repo://fixtures/render-readiness-validation-policy.v1.json"
+  },
+  "templateVersionIdentity": {
+    "templateId": "template-product-report-vnext",
+    "templateVersionId": "template-product-report-vnext@v1",
+    "versionOrdinal": 1
+  },
+  "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json",
+  "validationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+  "variableDataContractEvidencePointers": {
+    "variableReferenceDiscovery": "repo://fixtures/variable-reference-discovery.v1.json",
+    "variableSchemaMetadataShape": "repo://fixtures/variable-schema-metadata-shape.v1.json",
+    "dataContractValidationPolicy": "repo://fixtures/data-contract-validation-policy.v1.json",
+    "requiredMissingDefaultValuePolicy": "repo://fixtures/required-missing-default-value-policy.v1.json",
+    "variableCompatibilityPolicy": "repo://fixtures/variable-compatibility-policy.v1.json"
+  },
+  "responseStatusVocabulary": [
+    "accepted",
+    "accepted-with-warnings",
+    "blocked",
+    "deferred-job-placeholder",
+    "unknown"
+  ],
+  "readinessStatusVocabulary": [
+    "render-ready",
+    "render-ready-with-warnings",
+    "render-blocked",
+    "readiness-deferred",
+    "unknown"
+  ],
+  "jobStatusPlaceholderVocabulary": [
+    "job-placeholder-deferred",
+    "job-not-created",
+    "job-blocked-before-creation",
+    "job-unknown"
+  ],
+  "artifactPointerPlaceholderVocabulary": [
+    "artifact-pointer-null",
+    "artifact-not-produced",
+    "artifact-blocked-before-production",
+    "artifact-unknown"
+  ],
+  "placeholderFields": [
+    "jobStatusPlaceholder",
+    "jobIdPlaceholder",
+    "artifactPointerPlaceholder",
+    "artifactBytesProduced",
+    "artifactLifecycleStatus",
+    "storageDurabilityStatus",
+    "rendererExecutionStatus"
+  ],
+  "jobPlaceholderPolicy": {
+    "placeholderMode": "metadata-only",
+    "jobStatusPlaceholder": "job-placeholder-deferred",
+    "sourceResponseJobStatusPlaceholder": "deferred-job-placeholder",
+    "jobIdPlaceholder": null,
+    "jobCreated": false,
+    "durableJobLifecycleImplemented": false,
+    "durableJobIdCreated": false,
+    "backendRouteImplemented": false,
+    "storageDurabilityClaimed": false,
+    "allowedTransitionsMetadataOnly": [
+      {
+        "from": "job-placeholder-deferred",
+        "to": "job-not-created",
+        "meaning": "contract remains metadata-only before backend route/job lifecycle work"
+      },
+      {
+        "from": "job-placeholder-deferred",
+        "to": "job-blocked-before-creation",
+        "meaning": "request/readiness evidence blocks before a durable job can exist"
+      },
+      {
+        "from": "job-placeholder-deferred",
+        "to": "job-unknown",
+        "meaning": "source evidence is missing or stale"
+      }
+    ]
+  },
+  "artifactPointerPolicy": {
+    "placeholderMode": "metadata-only",
+    "artifactPointerPlaceholder": "artifact-pointer-null",
+    "artifactPointer": null,
+    "artifactRetentionPointer": null,
+    "artifactBytesProduced": false,
+    "artifactProduced": false,
+    "artifactLifecycleStatus": "artifact-not-produced",
+    "storageDurabilityStatus": "not-claimed",
+    "rendererExecutionStatus": "not-implemented",
+    "rendererExecutionImplemented": false,
+    "artifactLifecycleImplemented": false
+  },
+  "placeholderConfirmation": {
+    "jobStatusPlaceholder": "job-placeholder-deferred",
+    "jobIdPlaceholder": null,
+    "artifactPointerPlaceholder": "artifact-pointer-null",
+    "artifactPointer": null,
+    "artifactBytesProduced": false,
+    "metadataOnly": true
+  },
+  "lifecycleDeferralPolicy": {
+    "jobStatusLifecycle": "deferred",
+    "artifactPointerLifecycle": "deferred",
+    "backendProductionRoutes": "deferred",
+    "renderApiRuntime": "deferred",
+    "productionStorageDurability": "deferred",
+    "authAuthz": "deferred",
+    "rendererArtifactBytes": "deferred",
+    "actualRenderExecution": "deferred",
+    "runtimeDataValidation": "deferred",
+    "runtimeDefaultApplication": "deferred",
+    "runtimeCompatibilityEnforcement": "deferred"
+  },
+  "blockerVocabulary": [
+    "real-storage-required",
+    "durable-job-lifecycle-required",
+    "durable-job-id-required",
+    "renderer-execution-required",
+    "artifact-bytes-required",
+    "backend-route-required",
+    "auth-authz-required",
+    "runtime-validation-required",
+    "schema-mutation-required"
+  ],
+  "warningVocabulary": [
+    "metadata-only-placeholder-policy",
+    "job-placeholder-deferred",
+    "artifact-pointer-null",
+    "storage-durability-deferred",
+    "renderer-execution-deferred",
+    "artifact-byte-production-deferred",
+    "render-api-runtime-deferred"
+  ],
+  "deferredContractLanes": {
+    "renderApiErrorBlockerVocabulary": "deferred-to-render-api-error-blocker-vocabulary-gate",
+    "renderApiContractCloseAudit": "deferred-until-error-blocker-vocabulary-is-accepted",
+    "backendProductionRoutes": "deferred",
+    "productionStorageDurability": "deferred",
+    "authAuthz": "deferred",
+    "rendererArtifactBytes": "deferred",
+    "actualRenderExecution": "deferred"
+  },
+  "routeDecisions": {
+    "ifArtifactJobPlaceholderPolicyAccepted": "Render API Error / Blocker Vocabulary Gate",
+    "ifRealStorageJobLifecycleRendererExecutionOrArtifactBytesNeeded": "Dedicated Production Gate",
+    "ifRuntimeErrorHandlingNeeded": "Render API Error / Blocker Vocabulary Gate remains metadata-only and runtime handling stays deferred",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate"
+  },
+  "blockersBeforeRenderApiErrorBlockerVocabularyGate": [],
+  "nonWork": {
+    "backendProductionRoutesImplemented": false,
+    "renderApiRuntimeImplemented": false,
+    "rendererArtifactBytesProduced": false,
+    "actualRenderExecutionImplemented": false,
+    "durableJobIdsCreated": false,
+    "durableJobLifecycleImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "authAuthzBehaviorAdded": false,
+    "runtimeDataValidationImplemented": false,
+    "runtimeDefaultApplicationImplemented": false,
+    "runtimeCompatibilityEnforcementImplemented": false,
+    "packageDocumentSchemaMutated": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

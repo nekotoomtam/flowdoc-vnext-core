@@ -821,6 +821,18 @@ The package must remain runnable without any parent editor checkout.
   behavior, storage, auth/authz, renderer artifact bytes, actual render
   execution, runtime validation/defaults/compatibility enforcement, or schema
   mutation. See `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`.
+- Artifact Pointer / Job Status Placeholder Policy Gate defines JSON-safe
+  placeholder policy metadata at
+  `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`, maps the
+  prior `deferred-job-placeholder` response placeholder into
+  `job-placeholder-deferred`, keeps job id, artifact pointer, artifact
+  retention pointer, and artifact bytes null/unproduced, records lifecycle and
+  runtime deferrals, and selects Render API Error / Blocker Vocabulary Gate
+  next without backend routes, runtime Render API behavior, durable job
+  lifecycle, storage, auth/authz, renderer artifact bytes, actual render
+  execution, runtime validation/defaults/compatibility enforcement, or schema
+  mutation. See
+  `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -833,8 +845,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Render API
-  Render-Readiness Validation Policy Gate
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Artifact
+  Pointer / Job Status Placeholder Policy Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -865,6 +877,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`: JSON-safe
   render-readiness validation policy before artifact pointer / job status
   placeholder policy
+- `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`: JSON-safe
+  artifact pointer / job status placeholder policy before Render API
+  error/blocker vocabulary
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1364,8 +1379,9 @@ The package must remain runnable without any parent editor checkout.
   replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
   contract implementation, runtime data validation, runtime default
-  application, runtime compatibility enforcement, or render API runtime
-  implementation beyond the Render-Readiness Validation Policy Gate
+  application, runtime compatibility enforcement, durable job lifecycle,
+  artifact byte production, or render API runtime implementation beyond the
+  Artifact Pointer / Job Status Placeholder Policy Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan
