@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Variable Schema Metadata Shape Gate.
+Status: updated after Data Contract Validation Policy Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Variable Schema Metadata Shape Gate.
+Data Contract Validation Policy Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -32,6 +32,7 @@ Recent completed gate markers retained for pointer guards:
 - Variable Schema / Data Contract Planning Gate.
 - Variable Reference Discovery Gate.
 - Variable Schema Metadata Shape Gate.
+- Data Contract Validation Policy Gate.
 
 The internal-alpha evidence lane across Phases 172-180 remains bounded
 evidence. Phase 182 ranks the production blockers and selects measurement
@@ -259,27 +260,37 @@ context for `metric-value-total-field` and `metric-value-risk-field`, keeps
 required/default/missing-value behavior deferred as metadata statuses, leaves
 Data Contract Validation Policy and Render API Contract deferred, and makes no
 package/document schema mutation.
+Data Contract Validation Policy Gate then defines JSON-safe validation policy
+vocabulary at `fixtures/data-contract-validation-policy.v1.json` from the
+accepted metadata shape. It confirms all six candidate variables, accepts
+result statuses `valid`, `valid-with-warnings`, and `blocked`, defines type,
+required-field, missing-value, default-value, unsupported-value,
+unknown-variable, extra-variable, and table-cell policy status vocabulary,
+names invalid-payload blocker vocabulary, preserves table-cell occurrence
+context for `metric-value-total-field` and `metric-value-risk-field`, keeps
+Required / Missing / Default Value detailed behavior deferred to a later gate,
+keeps Compatibility Policy With Published Template Versions deferred, keeps
+Render API Contract deferred, implements no runtime data validation, and makes
+no package/document schema mutation.
 
 ## Current Next Phase
 
-Data Contract Validation Policy Gate.
+Required / Missing / Default Value Policy Gate.
 
 Goal:
 
-- use Variable Schema Metadata Shape Gate as source of truth;
-- define the JSON-safe Data Contract Validation Policy for the accepted
-  metadata shape;
-- attach validation policy to the published template version identity,
-  accepted validation evidence pointer, source snapshot retention pointer,
-  variable reference discovery evidence, and variable schema metadata shape;
-- keep Required / Missing / Default Value Policy deferred unless the policy
-  explicitly scopes metadata-only status;
+- use Data Contract Validation Policy Gate as source of truth;
+- define JSON-safe Required / Missing / Default Value Policy vocabulary for
+  the accepted validation policy rows;
+- keep this as policy evidence unless a later phase explicitly scopes runtime
+  validation;
 - keep full Variable Schema / Data Contract implementation deferred until
-  validation policy evidence is accepted;
+- required/missing/default policy evidence is accepted;
+- keep Compatibility Policy With Published Template Versions deferred;
 - keep Render API Contract deferred until variable/data contract evidence is
   clear;
-- route to Template Version Schema Decision Gate only if data contract
-  validation policy cannot be represented without package/document schema
+- route to Template Version Schema Decision Gate only if required/missing/
+  default policy cannot be represented without package/document schema
   changes;
 - keep the measurement close-audit decision scoped to mini infrastructure
   checkpoint readiness only;
@@ -512,6 +523,9 @@ next safe step; production measurement binding remains blocked.
   metadata-shape phases.
 - Do not implement Required / Missing / Default Value Policy as runtime
   behavior in metadata-shape phases.
+- Do not implement runtime data validation in policy-vocabulary phases.
+- Do not implement Compatibility Policy With Published Template Versions as
+  incidental variable/data contract work.
 - Do not execute external text engines in core.
 - Do not put raw evidence in root tests/docs.
 - Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
@@ -520,6 +534,8 @@ next safe step; production measurement binding remains blocked.
 ## Read First
 
 - `docs/NEXT_PHASE_POINTER.md`
+- `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`
+- `fixtures/data-contract-validation-policy.v1.json`
 - `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`
 - `fixtures/variable-schema-metadata-shape.v1.json`
 - `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`

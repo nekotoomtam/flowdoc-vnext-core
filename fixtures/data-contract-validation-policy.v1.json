@@ -1,0 +1,284 @@
+{
+  "manifestVersion": 1,
+  "policyId": "data-contract-validation-policy-v1",
+  "sourceMetadataShapeGate": "Variable Schema Metadata Shape Gate",
+  "sourceMetadataShapeGateStatus": "complete",
+  "sourceMetadataShapePointer": "repo://fixtures/variable-schema-metadata-shape.v1.json",
+  "policyStatus": "accepted-vocabulary-only",
+  "nextRecommendedWork": "Required / Missing / Default Value Policy Gate",
+  "attachmentTarget": {
+    "publishedTemplateVersionIdentity": {
+      "templateId": "template-product-report-vnext",
+      "templateVersionId": "template-product-report-vnext@v1",
+      "versionOrdinal": 1
+    },
+    "acceptedValidationEvidencePointer": "repo://fixtures/template-publish-validation-evidence.v1.json",
+    "sourceSnapshotRetentionPointer": "repo://fixtures/product-report-vnext.flowdoc.json"
+  },
+  "metadataShapeConfirmation": {
+    "metadataShapeStatus": "accepted",
+    "candidateVariableCount": 6,
+    "tableCellOccurrenceContextPreserved": true,
+    "blockersBeforeDataContractValidationPolicy": []
+  },
+  "candidateVariableIds": [
+    "customer.name",
+    "customer.segment",
+    "prepared.by",
+    "report.period",
+    "report.riskLevel",
+    "report.total"
+  ],
+  "policyDefinition": {
+    "policyVersion": 1,
+    "policyMode": "json-safe-vocabulary-only",
+    "acceptedValidationResultStatuses": ["valid", "valid-with-warnings", "blocked"],
+    "validationStatusVocabulary": {
+      "typeValidationStatus": [
+        "type-candidate-accepted",
+        "type-mismatch-blocked",
+        "type-unknown-blocked"
+      ],
+      "requiredFieldValidationStatus": [
+        "deferred-required-policy",
+        "required-present",
+        "required-missing-blocked"
+      ],
+      "missingValueValidationStatus": [
+        "deferred-missing-value-policy",
+        "missing-value-warning",
+        "missing-value-blocked"
+      ],
+      "defaultValueHandlingStatus": [
+        "deferred-default-policy",
+        "default-available-warning",
+        "default-not-applied"
+      ],
+      "unsupportedValueStatus": [
+        "unsupported-value-blocked"
+      ],
+      "unknownVariableStatus": [
+        "unknown-variable-blocked"
+      ],
+      "extraVariablePolicy": [
+        "extra-variable-warning"
+      ],
+      "tableCellValuePolicyStatus": [
+        "table-cell-context-preserved-validation-deferred",
+        "not-table-cell-variable"
+      ]
+    },
+    "blockerVocabulary": [
+      "invalid-payload-shape",
+      "missing-published-template-version-identity",
+      "metadata-shape-context-mismatch",
+      "unknown-variable",
+      "type-mismatch",
+      "unsupported-value",
+      "missing-required-value",
+      "invalid-variable-id",
+      "table-cell-context-mismatch",
+      "schema-mutation-required"
+    ],
+    "warningVocabulary": [
+      "extra-variable-present",
+      "default-value-available-but-not-applied",
+      "missing-value-policy-deferred"
+    ]
+  },
+  "variableValidationPolicyRows": [
+    {
+      "variableId": "customer.name",
+      "sourceFieldKey": "customer.name",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Customer Name",
+      "occurrenceCount": 3,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-title-customer", "body-header-title-prefix", "body-summary-customer"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-title",
+          "section-body/body-header/body-header-title",
+          "section-body/body-main/body-summary"
+        ],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "typeValidationStatus": "type-candidate-accepted",
+      "requiredFieldValidationStatus": "deferred-required-policy",
+      "missingValueValidationStatus": "deferred-missing-value-policy",
+      "defaultValueHandlingStatus": "deferred-default-policy",
+      "unsupportedValueStatus": "unsupported-value-blocked",
+      "unknownVariableStatus": "unknown-variable-blocked",
+      "extraVariablePolicy": "extra-variable-warning",
+      "tableCellValuePolicyStatus": "not-table-cell-variable"
+    },
+    {
+      "variableId": "customer.segment",
+      "sourceFieldKey": "customer.segment",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Customer Segment",
+      "occurrenceCount": 1,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-segment-field"],
+        "locationSummaries": ["section-cover/cover-body/cover-segment-value"],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "typeValidationStatus": "type-candidate-accepted",
+      "requiredFieldValidationStatus": "deferred-required-policy",
+      "missingValueValidationStatus": "deferred-missing-value-policy",
+      "defaultValueHandlingStatus": "deferred-default-policy",
+      "unsupportedValueStatus": "unsupported-value-blocked",
+      "unknownVariableStatus": "unknown-variable-blocked",
+      "extraVariablePolicy": "extra-variable-warning",
+      "tableCellValuePolicyStatus": "not-table-cell-variable"
+    },
+    {
+      "variableId": "prepared.by",
+      "sourceFieldKey": "prepared.by",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Prepared By",
+      "occurrenceCount": 2,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-note-author", "body-followup-owner"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-note",
+          "section-body/body-main/body-followup-text"
+        ],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "typeValidationStatus": "type-candidate-accepted",
+      "requiredFieldValidationStatus": "deferred-required-policy",
+      "missingValueValidationStatus": "deferred-missing-value-policy",
+      "defaultValueHandlingStatus": "deferred-default-policy",
+      "unsupportedValueStatus": "unsupported-value-blocked",
+      "unknownVariableStatus": "unknown-variable-blocked",
+      "extraVariablePolicy": "extra-variable-warning",
+      "tableCellValuePolicyStatus": "not-table-cell-variable"
+    },
+    {
+      "variableId": "report.period",
+      "sourceFieldKey": "report.period",
+      "valueTypeCandidate": "text",
+      "displayLabelCandidate": "Report Period",
+      "occurrenceCount": 2,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-subtitle-period", "body-header-title-period"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-subtitle",
+          "section-body/body-header/body-header-title"
+        ],
+        "hasTableCellOccurrence": false,
+        "tableCellOccurrenceIds": []
+      },
+      "typeValidationStatus": "type-candidate-accepted",
+      "requiredFieldValidationStatus": "deferred-required-policy",
+      "missingValueValidationStatus": "deferred-missing-value-policy",
+      "defaultValueHandlingStatus": "deferred-default-policy",
+      "unsupportedValueStatus": "unsupported-value-blocked",
+      "unknownVariableStatus": "unknown-variable-blocked",
+      "extraVariablePolicy": "extra-variable-warning",
+      "tableCellValuePolicyStatus": "not-table-cell-variable"
+    },
+    {
+      "variableId": "report.riskLevel",
+      "sourceFieldKey": "report.riskLevel",
+      "valueTypeCandidate": "enum",
+      "displayLabelCandidate": "Risk Level",
+      "occurrenceCount": 2,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["cover-risk-field", "metric-value-risk-field"],
+        "locationSummaries": [
+          "section-cover/cover-body/cover-risk-value",
+          "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-risk/metric-value-risk-text"
+        ],
+        "hasTableCellOccurrence": true,
+        "tableCellOccurrenceIds": ["metric-value-risk-field"]
+      },
+      "typeValidationStatus": "type-candidate-accepted",
+      "requiredFieldValidationStatus": "deferred-required-policy",
+      "missingValueValidationStatus": "deferred-missing-value-policy",
+      "defaultValueHandlingStatus": "deferred-default-policy",
+      "unsupportedValueStatus": "unsupported-value-blocked",
+      "unknownVariableStatus": "unknown-variable-blocked",
+      "extraVariablePolicy": "extra-variable-warning",
+      "tableCellValuePolicyStatus": "table-cell-context-preserved-validation-deferred"
+    },
+    {
+      "variableId": "report.total",
+      "sourceFieldKey": "report.total",
+      "valueTypeCandidate": "number",
+      "displayLabelCandidate": "Report Total",
+      "occurrenceCount": 1,
+      "occurrenceContextSummary": {
+        "occurrenceIds": ["metric-value-total-field"],
+        "locationSummaries": [
+          "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-total/metric-value-total-text"
+        ],
+        "hasTableCellOccurrence": true,
+        "tableCellOccurrenceIds": ["metric-value-total-field"]
+      },
+      "typeValidationStatus": "type-candidate-accepted",
+      "requiredFieldValidationStatus": "deferred-required-policy",
+      "missingValueValidationStatus": "deferred-missing-value-policy",
+      "defaultValueHandlingStatus": "deferred-default-policy",
+      "unsupportedValueStatus": "unsupported-value-blocked",
+      "unknownVariableStatus": "unknown-variable-blocked",
+      "extraVariablePolicy": "extra-variable-warning",
+      "tableCellValuePolicyStatus": "table-cell-context-preserved-validation-deferred"
+    }
+  ],
+  "tableCellOccurrencePreservation": [
+    {
+      "fieldRefId": "metric-value-total-field",
+      "variableId": "report.total",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-total",
+      "tableCellValuePolicyStatus": "table-cell-context-preserved-validation-deferred",
+      "locationSummary": "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-total/metric-value-total-text"
+    },
+    {
+      "fieldRefId": "metric-value-risk-field",
+      "variableId": "report.riskLevel",
+      "tableId": "body-metrics-table",
+      "tableRowId": "metrics-data-row",
+      "tableCellId": "metric-value-risk",
+      "tableCellValuePolicyStatus": "table-cell-context-preserved-validation-deferred",
+      "locationSummary": "section-body/body-main/body-metrics-table/metrics-data-row/metric-value-risk/metric-value-risk-text"
+    }
+  ],
+  "deferredPolicyDecisions": {
+    "requiredMissingDefaultValueDetailedBehavior": "deferred-to-required-missing-default-value-policy-gate",
+    "compatibilityPolicyWithPublishedTemplateVersions": "deferred-to-compatibility-policy-gate",
+    "renderApiContract": "deferred",
+    "runtimeDataValidation": "not-implemented"
+  },
+  "blockersBeforeRequiredMissingDefaultValuePolicy": [],
+  "routeDecisions": {
+    "ifPolicyVocabularyAccepted": "Required / Missing / Default Value Policy Gate",
+    "ifSchemaMutationNeeded": "Template Version Schema Decision Gate",
+    "ifVariableMetadataInsufficient": "Variable Metadata Resolution Decision Gate"
+  },
+  "nonWork": {
+    "packageDocumentSchemaMutated": false,
+    "runtimeDataValidationImplemented": false,
+    "fullVariableSchemaDataContractImplemented": false,
+    "requiredMissingDefaultValueBehaviorImplemented": false,
+    "compatibilityPolicyImplemented": false,
+    "renderApiContractImplemented": false,
+    "backendProductionRoutesImplemented": false,
+    "productionStorageDurabilityClaimed": false,
+    "rendererArtifactBytesProduced": false,
+    "authAuthzBehaviorAdded": false,
+    "measureVNextTextReplaced": false,
+    "fullMeasurementProductionReadinessClaimed": false,
+    "paginationMutated": false,
+    "productionRendererBackedMeasurementBound": false,
+    "productionPdfDocxRendererAdded": false,
+    "productionContenteditableImplemented": false,
+    "collaborationOfflineAdded": false,
+    "legacyEditorRuntimeCopied": false
+  }
+}

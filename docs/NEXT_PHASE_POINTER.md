@@ -1,54 +1,55 @@
 # Next Phase Pointer
 
-Status: current after Variable Schema Metadata Shape Gate.
+Status: current after Data Contract Validation Policy Gate.
 
 ## Next Phase
 
-Data Contract Validation Policy Gate.
+Required / Missing / Default Value Policy Gate.
 
 ## Why This Is Next
 
-Variable Schema Metadata Shape Gate used Variable Reference Discovery Gate as
-source of truth and produced JSON-safe metadata shape evidence for all
-discovered candidate variables.
+Data Contract Validation Policy Gate used Variable Schema Metadata Shape Gate
+as source of truth and accepted a JSON-safe validation policy vocabulary only.
+It did not implement runtime data validation.
 
-The metadata shape fixture is:
+The data contract validation policy fixture is:
 
 ```text
-fixtures/variable-schema-metadata-shape.v1.json
+fixtures/data-contract-validation-policy.v1.json
 ```
 
-The metadata shape gate confirms:
+The policy gate confirms:
 
-- source discovery evidence fixture is
-  `repo://fixtures/variable-reference-discovery.v1.json`;
+- source metadata shape fixture is
+  `repo://fixtures/variable-schema-metadata-shape.v1.json`;
 - attachment target is `template-product-report-vnext@v1`;
 - accepted validation evidence pointer is
   `repo://fixtures/template-publish-validation-evidence.v1.json`;
 - source snapshot retention pointer is
   `repo://fixtures/product-report-vnext.flowdoc.json`;
-- discovery field-ref occurrence count is `11`;
-- discovery candidate variable count is `6`;
-- registry field count is `6`;
-- unresolved reference count is `0`;
-- unsupported reference count is `0`;
-- duplicate candidate id count is `0`;
-- metadata rows exist for all six candidate variable ids;
-- each row carries variable id, source field key, value type candidate,
-  display label candidate, occurrence count, occurrence context summary,
-  registry status, and deferred policy status fields;
+- candidate variables are `customer.name`, `customer.segment`,
+  `prepared.by`, `report.period`, `report.riskLevel`, and `report.total`;
+- accepted validation result statuses are `valid`, `valid-with-warnings`, and
+  `blocked`;
+- type, required-field, missing-value, default-value, unsupported-value,
+  unknown-variable, extra-variable, and table-cell policy status vocabulary is
+  defined;
+- invalid-payload blocker vocabulary is defined;
 - table-cell occurrence context remains preserved for
   `metric-value-total-field` and `metric-value-risk-field`;
-- blockers before Data Contract Validation Policy Gate are empty;
+- blockers before Required / Missing / Default Value Policy Gate are empty;
+- runtime data validation remains unimplemented;
 - package/document schema remains unchanged;
+- Compatibility Policy With Published Template Versions remains deferred;
 - Render API Contract remains deferred.
 
-Data Contract Validation Policy Gate is next because variable metadata shape
-is now accepted, but validation behavior, required/missing/default behavior,
-and compatibility policy remain deferred.
+Required / Missing / Default Value Policy Gate is next because validation
+policy vocabulary is now accepted, but concrete required-field,
+missing-value, and default-value behavior remains deferred.
 
 Previous source gates retained for traceability:
 
+- Data Contract Validation Policy Gate.
 - Variable Schema Metadata Shape Gate.
 - Variable Reference Discovery Gate.
 - Variable Schema / Data Contract Planning Gate.
@@ -71,6 +72,8 @@ Previous source gates retained for traceability:
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`
+- `fixtures/data-contract-validation-policy.v1.json`
 - `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`
 - `fixtures/variable-schema-metadata-shape.v1.json`
 - `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`
@@ -85,32 +88,37 @@ Previous source gates retained for traceability:
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
 
-## Data Contract Validation Policy Scope
+## Required Missing Default Policy Scope
 
-- Confirm Variable Schema Metadata Shape Gate is accepted.
-- Use `fixtures/variable-schema-metadata-shape.v1.json` as source of truth.
-- Define JSON-safe data contract validation policy status fields.
-- Attach validation policy to published template version identity.
-- Attach validation policy to accepted validation evidence pointer.
-- Attach validation policy to source snapshot retention pointer.
-- Attach validation policy to variable reference discovery evidence.
-- Attach validation policy to variable schema metadata shape evidence.
-- Preserve candidate variable ids, value type candidates, display label
-  candidates, occurrence counts, and occurrence context summaries.
-- Define validation statuses for accepted, warning, blocked, and unknown.
-- Define blockers before Required / Missing / Default Value Policy.
+- Confirm Data Contract Validation Policy Gate is accepted.
+- Use `fixtures/data-contract-validation-policy.v1.json` as source of truth.
+- Define JSON-safe Required / Missing / Default Value Policy vocabulary.
+- Attach policy vocabulary to published template version identity.
+- Attach policy vocabulary to accepted validation evidence pointer.
+- Attach policy vocabulary to source snapshot retention pointer.
+- Attach policy vocabulary to variable reference discovery evidence.
+- Attach policy vocabulary to variable schema metadata shape evidence.
+- Attach policy vocabulary to data contract validation policy evidence.
+- Preserve candidate variable ids, value type candidates, occurrence counts,
+  occurrence contexts, and table-cell value policy statuses.
+- Define policy statuses for accepted, warning, blocked, and unknown.
+- Define blockers before Compatibility Policy With Published Template
+  Versions.
+- Keep runtime data validation deferred.
 - Keep full Variable Schema / Data Contract implementation deferred.
-- Keep Required / Missing / Default Value Policy implementation deferred.
+- Keep Compatibility Policy With Published Template Versions deferred.
 - Keep Render API Contract implementation deferred.
 
 ## Carry-Forward Hard Limits
 
 - No package/document schema mutation.
 - No package/document schema change.
+- No Data Contract Validation Policy implementation.
+- No runtime data validation implementation.
 - No Variable Schema / Data Contract implementation.
 - No full Variable Schema / Data Contract implementation.
-- No Data Contract Validation Policy implementation.
-- No Required / Missing / Default Value Policy implementation.
+- No Required / Missing / Default Value behavior implementation.
+- No Compatibility Policy With Published Template Versions implementation.
 - No Render API Contract implementation.
 - No backend production routes.
 - No production storage durability claim.
@@ -136,10 +144,10 @@ Previous source gates retained for traceability:
 
 ## Expected Output
 
-- Data Contract Validation Policy Gate;
-- JSON-safe data contract validation policy shape;
-- validation status vocabulary;
-- blockers before Required / Missing / Default Value Policy;
+- Required / Missing / Default Value Policy Gate;
+- JSON-safe required/missing/default policy vocabulary;
+- policy status vocabulary;
+- blockers before Compatibility Policy With Published Template Versions;
 - explicit Render API deferral;
 - explicit schema-decision fallback if needed;
 - explicit non-work;
@@ -148,6 +156,7 @@ Previous source gates retained for traceability:
 
 ## Traceability Anchors
 
+- Data Contract Validation Policy Gate.
 - Variable Schema Metadata Shape Gate.
 - Variable Reference Discovery Gate.
 - Variable Schema / Data Contract Planning Gate.

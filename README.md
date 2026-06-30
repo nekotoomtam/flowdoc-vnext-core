@@ -756,6 +756,12 @@ The package must remain runnable without any parent editor checkout.
   required/default/validation/compatibility behavior deferred as metadata
   statuses, and selects Data Contract Validation Policy Gate next without
   schema, Render API, backend, storage, or renderer behavior.
+- Data Contract Validation Policy Gate defines JSON-safe validation policy
+  vocabulary, accepted result statuses, blocker/warning vocabulary, and
+  table-cell value policy status preservation for the accepted metadata shape,
+  then selects Required / Missing / Default Value Policy Gate next without
+  runtime validation, schema, Render API, backend, storage, or renderer
+  behavior.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -768,8 +774,8 @@ The package must remain runnable without any parent editor checkout.
 ## Important Docs
 
 - `AGENTS.md`: working agreement for agents in this repo
-- `docs/CURRENT_STATUS.md`: compact current-state pointer after Variable
-  Schema Metadata Shape Gate
+- `docs/CURRENT_STATUS.md`: compact current-state pointer after Data Contract
+  Validation Policy Gate
 - `docs/NEXT_PHASE_POINTER.md`: immediate next-phase pointer and hard limits
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`: close audit for the minimal
   measurement subset and mini infrastructure checkpoint decision
@@ -789,6 +795,8 @@ The package must remain runnable without any parent editor checkout.
   inventory and candidate variable list for the accepted template version
 - `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`: JSON-safe variable metadata
   row shape for discovered candidate variables before data contract policy
+- `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`: JSON-safe validation policy
+  vocabulary before required/missing/default behavior decisions
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
@@ -1287,9 +1295,9 @@ The package must remain runnable without any parent editor checkout.
   accepted summary manifest, WASM artifact loading, or production measurement
   replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
-  contract implementation, data contract validation policy, required/missing/
-  default policy, or render API contract implementation beyond the Variable
-  Schema Metadata Shape Gate
+  contract implementation, runtime data validation, required/missing/default
+  policy behavior, compatibility policy, or render API contract implementation
+  beyond the Data Contract Validation Policy Gate
 - concrete primary contenteditable editing input, rich inline storage adapter
   writes/routes, collaboration, renderer artifact output, or final WYSIWYG
   production editing close beyond the Phase 166 hardening threshold plan

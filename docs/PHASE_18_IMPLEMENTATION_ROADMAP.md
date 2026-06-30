@@ -6685,6 +6685,52 @@ Acceptance:
   PDF/DOCX renderer work, production contenteditable, collaboration/offline
   behavior, or legacy editor runtime copy is introduced.
 
+## Phase 212: Data Contract Validation Policy Gate
+
+Goal:
+
+- define JSON-safe data contract validation policy vocabulary from the
+  accepted variable schema metadata shape without implementing runtime
+  validation or Render API.
+
+Deliverables:
+
+- `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`;
+- `fixtures/data-contract-validation-policy.v1.json`;
+- `tests/dataContractValidationPolicyGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Variable Schema Metadata Shape Gate is complete;
+- confirms `fixtures/variable-schema-metadata-shape.v1.json` exists;
+- confirms candidate variables;
+- defines JSON-safe data contract validation policy vocabulary for type,
+  required-field, missing-value, default-value, unsupported-value,
+  unknown-variable, extra-variable, and table-cell value policy statuses;
+- defines accepted validation result statuses: `valid`,
+  `valid-with-warnings`, and `blocked`;
+- defines blocker vocabulary for invalid data contract payloads;
+- preserves table-cell occurrence context for `metric-value-total-field` and
+  `metric-value-risk-field`;
+- keeps Required / Missing / Default Value detailed behavior deferred to a
+  dedicated policy gate;
+- keeps Compatibility Policy With Published Template Versions deferred;
+- keeps Render API Contract deferred;
+- confirms package/document schema is not mutated;
+- no package/document schema mutation, runtime data validation, full Variable
+  Schema / Data Contract implementation, Required / Missing / Default Value
+  behavior, Compatibility Policy, Render API Contract implementation, backend
+  production route, production storage durability claim, renderer artifact
+  bytes, auth/authz behavior, `measureVNextText(...)` replacement, full
+  measurement production readiness claim, pagination mutation, production
+  renderer-backed measurement binding, production PDF/DOCX renderer work,
+  production contenteditable, collaboration/offline behavior, or legacy editor
+  runtime copy is introduced.
+
 ## Later Phases
 
 Goal:
@@ -6714,10 +6760,10 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 211:
+Current next step after Phase 212:
 
 ```text
-Data Contract Validation Policy Gate
+Required / Missing / Default Value Policy Gate
 ```
 
 Reason:
@@ -6895,9 +6941,25 @@ Reason:
   required/default/validation/compatibility policies deferred as status fields,
   records no blockers before Data Contract Validation Policy Gate, and selects
   Data Contract Validation Policy Gate next;
+- Phase 212 now defines JSON-safe data contract validation policy vocabulary,
+  accepted result statuses, blocker and warning vocabulary, table-cell value
+  policy status preservation, keeps runtime data validation unimplemented,
+  keeps required/missing/default behavior deferred, and selects Required /
+  Missing / Default Value Policy Gate next;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 211 Handoff
+
+Current next step after Phase 211:
+
+```text
+Data Contract Validation Policy Gate
+```
+
+That was the Phase 211 handoff recommendation. Phase 212 is now complete,
+so it is no longer the current next step after Phase 212.
 
 ## Historical Phase 210 Handoff
 
