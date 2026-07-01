@@ -7295,6 +7295,42 @@ Acceptance:
   handling, package/document schema mutation, full measurement production
   readiness, or default-measurer replacement.
 
+## Phase 224: Runtime Binding / Implementation Planning Gate
+
+Goal:
+
+- rank runtime binding implementation lanes after the mini infrastructure
+  checkpoint closes and prepare a next-thread handoff before implementation.
+
+Deliverables:
+
+- `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`;
+- `tests/runtimeBindingImplementationPlanningGate.test.ts`;
+- updated `docs/CURRENT_STATUS.md`;
+- updated `docs/NEXT_PHASE_POINTER.md`;
+- README, phase ledger, and roadmap updates;
+- pointer guard test updates.
+
+Acceptance:
+
+- confirms Mini Infrastructure Close Audit is complete;
+- confirms accepted request envelope id
+  `render-api-request-envelope-contract-v1`;
+- confirms accepted request envelope version `1`;
+- confirms accepted template target `template-product-report-vnext@v1`;
+- ranks runtime binding lanes;
+- selects Render API Request Envelope Runtime Binding Gate as the first
+  implementation lane;
+- defines first implementation evidence for a package-local/core request
+  envelope metadata validator;
+- provides a next-thread handoff plan;
+- explicitly does not implement runtime binding, backend routes, Render API
+  runtime, response/status runtime mapping, render-readiness runtime
+  evaluation, durable jobs, storage durability, auth/authz, renderer
+  execution, artifact bytes, runtime data validation/defaults/compatibility/
+  error handling, package/document schema mutation, full measurement
+  production readiness, or default-measurer replacement.
+
 ## Later Phases
 
 Goal:
@@ -7324,14 +7360,18 @@ Possible later work:
 
 ## Current Next Recommended Phase
 
-Current next step after Phase 223:
+Current next step after Phase 224:
 
 ```text
-Runtime Binding / Implementation Planning Gate
+Render API Request Envelope Runtime Binding Gate
 ```
 
 Reason:
 
+- Phase 224 ranks runtime binding lanes, selects Render API Request Envelope
+  Runtime Binding Gate as the first implementation slice, and gives the next
+  thread a handoff plan that starts from
+  `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`;
 - Phase 223 closes the combined mini infrastructure checkpoint after
   Measurement Hardening, Template Publish, Variable Schema / Data Contract,
   and Render API Contract each have mini-checkpoint-only close audits, and it
@@ -7581,9 +7621,24 @@ Reason:
   and Render API Contract close-audit evidence, keeps production
   runtime/storage/auth/render/schema/measurement claims blocked, and selects
   Runtime Binding / Implementation Planning Gate next;
+- Phase 224 now ranks runtime binding implementation lanes, selects Render API
+  Request Envelope Runtime Binding Gate as the first implementation slice,
+  defines next-thread handoff evidence, and keeps backend/storage/auth/render/
+  schema/measurement production claims blocked;
 - it keeps production contenteditable, full-document contenteditable,
   collaboration/offline, backend route, production PDF/DOCX renderer,
   package/document schema, and legacy editor runtime work out of scope.
+
+## Historical Phase 223 Handoff
+
+Current next step after Phase 223:
+
+```text
+Runtime Binding / Implementation Planning Gate
+```
+
+That was the Phase 223 handoff recommendation. Phase 224 is now complete,
+so it is no longer the current next step after Phase 223.
 
 ## Historical Phase 222 Handoff
 

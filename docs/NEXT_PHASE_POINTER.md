@@ -1,19 +1,37 @@
 # Next Phase Pointer
 
-Status: current after Mini Infrastructure Close Audit.
+Status: current after Runtime Binding / Implementation Planning Gate.
 
 ## Next Phase
 
-Runtime Binding / Implementation Planning Gate.
+Render API Request Envelope Runtime Binding Gate.
 
 ## Why This Is Next
 
-Mini Infrastructure Close Audit accepted the combined mini infrastructure
-checkpoint after confirming Measurement Hardening, Template Publish, Variable
-Schema / Data Contract, and Render API Contract each have close-audit
-decisions scoped to a mini checkpoint only. Runtime Binding / Implementation
-Planning Gate is next because the project now has stable metadata targets for
-planning runtime binding without implementing runtime behavior yet.
+Runtime Binding / Implementation Planning Gate accepted the implementation
+handoff after ranking runtime binding lanes. Render API Request Envelope
+Runtime Binding Gate is next because it is the smallest package-local/core
+runtime slice: it can validate request envelope identity, evidence pointers,
+the `variables` container shape, and malformed-envelope blockers without
+backend routes, storage, auth/authz, durable jobs, renderer execution,
+artifact bytes, runtime variable validation, schema mutation, or production
+measurement binding.
+
+The Runtime Binding / Implementation Planning Gate is:
+
+```text
+docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md
+```
+
+The next thread should start from that planning gate and implement only the
+request envelope runtime binding slice.
+
+Historical Phase 223 handoff retained for pointer guards:
+
+```text
+Status: current after Mini Infrastructure Close Audit.
+Next Phase: Runtime Binding / Implementation Planning Gate.
+```
 
 The Mini Infrastructure Close Audit is:
 
@@ -216,6 +234,8 @@ Historical guard markers retained for pointer tests:
 - Render API Error / Blocker Vocabulary Gate.
 - Render API Contract Close Audit.
 - Mini Infrastructure Close Audit.
+- Runtime Binding / Implementation Planning Gate.
+- Historical next-pointer marker retained for pointer guards: Status: current after Mini Infrastructure Close Audit.
 - Historical next-pointer marker retained for pointer guards: Status: current after Render API Contract Close Audit.
 - Historical next-pointer marker retained for pointer guards: Status: current after Render API Error / Blocker Vocabulary Gate.
 - Historical next-pointer marker retained for pointer guards: Status: current after Artifact Pointer / Job Status Placeholder Policy Gate.
@@ -226,6 +246,7 @@ Historical guard markers retained for pointer tests:
 ## Inputs
 
 - `docs/CURRENT_STATUS.md`
+- `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`
 - `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`
 - `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`
 - `fixtures/render-readiness-validation-policy.v1.json`
@@ -251,6 +272,40 @@ Historical guard markers retained for pointer tests:
 - `docs/PHASE_LEDGER.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `README.md`
+
+## Render API Request Envelope Runtime Binding Gate Scope
+
+- Confirm Runtime Binding / Implementation Planning Gate is complete.
+- Use `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md` as source of
+  truth.
+- Confirm the selected first implementation lane is Render API Request
+  Envelope Runtime Binding Gate.
+- Read `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`.
+- Read `fixtures/render-api-request-envelope-contract.v1.json`.
+- Confirm request envelope id is `render-api-request-envelope-contract-v1`.
+- Confirm request envelope version is `1`.
+- Confirm accepted template version target remains
+  `template-product-report-vnext@v1`.
+- Implement a package-local/core request envelope metadata validator only.
+- Validate template version identity presence and match.
+- Validate source snapshot retention pointer presence.
+- Validate validation evidence pointer presence.
+- Validate variable/data contract evidence pointer presence.
+- Validate `variables` container presence and JSON object shape.
+- Validate client request id shape enough to return accepted blocker metadata.
+- Return JSON-safe statuses only:
+  `envelope-valid`, `envelope-valid-with-warnings`, and `envelope-blocked`.
+- Map malformed envelope blockers to the accepted blocker vocabulary.
+- Keep backend routes, storage durability, auth/authz, durable jobs, renderer
+  execution, artifact bytes, response/status runtime mapping, readiness
+  runtime evaluation, runtime variable data validation, runtime default
+  application, runtime compatibility enforcement, runtime error handling,
+  package/document schema changes, and production measurement binding out of
+  scope.
+- If request envelope binding requires schema mutation, backend
+  route/storage/auth behavior, renderer execution, artifact bytes, or
+  mismatched accepted metadata, stop and route to the appropriate decision
+  gate.
 
 ## Runtime Binding / Implementation Planning Gate Scope
 
@@ -361,20 +416,23 @@ Historical guard markers retained for pointer tests:
 
 ## Expected Output
 
-- Runtime Binding / Implementation Planning Gate;
-- confirmation of Mini Infrastructure Close Audit;
-- confirmation that the mini infrastructure checkpoint is closed for checkpoint
-  scope only;
-- ranked runtime binding planning lanes;
-- selected first runtime binding implementation lane, if safe;
-- explicit runtime binding non-work;
+- Render API Request Envelope Runtime Binding Gate;
+- confirmation of Runtime Binding / Implementation Planning Gate;
+- package-local/core request envelope metadata validator;
+- focused tests for accepted, warning, and blocked envelope outcomes;
+- validation of request envelope id and version;
+- validation of template version identity match;
+- validation of source snapshot, validation evidence, and variable/data
+  contract evidence pointers;
+- validation of `variables` container JSON object shape;
+- JSON-safe status result for `envelope-valid`,
+  `envelope-valid-with-warnings`, and `envelope-blocked`;
+- malformed-envelope blocker mapping to accepted vocabulary;
 - explicit remaining production blockers;
-- readiness policy id reference;
-- response contract id reference;
 - request envelope id and version reference;
 - template version identity reference;
 - variable/data contract evidence references;
-- Mini Infrastructure Close Audit decision reference;
+- Runtime Binding / Implementation Planning Gate handoff reference;
 - explicit schema-decision fallback if needed;
 - explicit non-work;
 - PASS / FAIL-BLOCKER / RISK / UNKNOWN;
@@ -382,6 +440,8 @@ Historical guard markers retained for pointer tests:
 
 ## Traceability Anchors
 
+- Runtime Binding / Implementation Planning Gate.
+- `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`.
 - Render-Readiness Validation Policy Gate.
 - Artifact Pointer / Job Status Placeholder Policy Gate.
 - Render API Error / Blocker Vocabulary Gate.

@@ -1,6 +1,6 @@
 # Current Status
 
-Status: updated after Mini Infrastructure Close Audit.
+Status: updated after Runtime Binding / Implementation Planning Gate.
 
 Use this file first when orienting current work. Use
 `docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
@@ -8,7 +8,7 @@ full historical audit trail.
 
 ## Latest Completed Phase
 
-Mini Infrastructure Close Audit.
+Runtime Binding / Implementation Planning Gate.
 
 Recent completed gate markers retained for pointer guards:
 
@@ -44,6 +44,8 @@ Recent completed gate markers retained for pointer guards:
 - Render API Error / Blocker Vocabulary Gate.
 - Render API Contract Close Audit.
 - Mini Infrastructure Close Audit.
+- Runtime Binding / Implementation Planning Gate.
+- Historical current-status marker retained for pointer guards: Status: updated after Mini Infrastructure Close Audit.
 - Historical current-status marker retained for pointer guards: Status: updated after Render API Contract Close Audit.
 - Historical current-status marker retained for pointer guards: Status: updated after Render API Error / Blocker Vocabulary Gate.
 - Historical current-status marker retained for pointer guards: Status: updated after Artifact Pointer / Job Status Placeholder Policy Gate.
@@ -464,26 +466,39 @@ artifact bytes, no runtime data validation/default application/compatibility
 enforcement/error handling, no package/document schema mutation, no
 `measureVNextText(...)` replacement, and no full measurement production
 readiness claim.
+Runtime Binding / Implementation Planning Gate then ranks the first runtime
+binding implementation lanes and selects Render API Request Envelope Runtime
+Binding Gate as the first implementation slice for the next thread. It keeps
+the phase planning-only and defines a handoff plan that starts from
+`docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`, reads the accepted
+request envelope, template publish, variable compatibility, and blocker
+vocabulary fixtures, and implements only a package-local/core request
+envelope metadata validator next. It does not implement runtime binding,
+backend routes, Render API runtime, storage durability, auth/authz, durable
+jobs, renderer execution, artifact bytes, runtime data validation/default
+application/compatibility enforcement/error handling, package/document schema
+mutation, `measureVNextText(...)` replacement, or full measurement production
+readiness.
 
 ## Current Next Phase
 
-Runtime Binding / Implementation Planning Gate.
+Render API Request Envelope Runtime Binding Gate.
 
 Goal:
 
-- use Mini Infrastructure Close Audit as source of truth;
-- confirm the mini infrastructure checkpoint is closed for checkpoint scope
-  only;
-- confirm Measurement Hardening, Template Publish, Variable Schema / Data
-  Contract, and Render API Contract remain mini-lane closes only;
-- plan runtime binding before implementation;
-- rank first runtime binding sub-lanes: request-envelope binding, runtime data
-  validation binding, runtime default/compatibility binding, job lifecycle
-  binding, backend route/storage/auth boundaries, renderer execution
-  boundaries, and runtime error handling;
-- select the first runtime binding implementation lane only if it can preserve
-  all production blockers;
-- keep this next phase planning-only;
+- use Runtime Binding / Implementation Planning Gate as source of truth;
+- start from `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`;
+- read `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md` and
+  `fixtures/render-api-request-envelope-contract.v1.json`;
+- implement a package-local/core request envelope metadata validator only;
+- validate accepted template version identity
+  `template-product-report-vnext@v1`;
+- validate source snapshot, validation evidence, and variable/data contract
+  pointers are present;
+- validate `variables` is a JSON object keyed by variable id;
+- return JSON-safe request envelope statuses:
+  `envelope-valid`, `envelope-valid-with-warnings`, and `envelope-blocked`;
+- map malformed envelope blockers to the accepted request envelope vocabulary;
 - keep backend routes, production storage durability, auth/authz, durable job
   lifecycle, renderer execution, artifact bytes, runtime validation, runtime
   defaults, runtime compatibility enforcement, runtime error handling,

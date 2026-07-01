@@ -237,6 +237,7 @@ Parent goal:
 | 221 | Render API error blocker vocabulary gate | done | `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiErrorBlockerVocabularyGate.test.ts`; pointer guard tests |
 | 222 | Render API contract close audit | done | `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiContractCloseAudit.test.ts`; pointer guard tests |
 | 223 | Mini infrastructure close audit | done | `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`; `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/miniInfrastructureCloseAudit.test.ts`; pointer guard tests |
+| 224 | Runtime binding implementation planning gate | done | `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`; `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `fixtures/render-api-request-envelope-contract.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/runtimeBindingImplementationPlanningGate.test.ts`; pointer guard tests |
 
 ## Current Rule
 
@@ -6677,6 +6678,53 @@ production contenteditable, collaboration/offline behavior, or legacy editor
 runtime.
 
 Next recommended work: Runtime Binding / Implementation Planning Gate.
+Production measurement replacement remains blocked.
+
+## Phase 224 Runtime Binding Implementation Planning Gate
+
+Runtime Binding / Implementation Planning Gate uses Mini Infrastructure Close
+Audit as source of truth and converts the closed mini infrastructure
+checkpoint into a next-thread implementation handoff.
+
+The gate confirms:
+
+- planning gate doc:
+  `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`;
+- Mini Infrastructure Close Audit is complete;
+- accepted template version target:
+  `template-product-report-vnext@v1`;
+- request envelope id:
+  `render-api-request-envelope-contract-v1`;
+- request envelope version: `1`;
+- source snapshot retention pointer:
+  `repo://fixtures/product-report-vnext.flowdoc.json`;
+- validation evidence pointer:
+  `repo://fixtures/template-publish-validation-evidence.v1.json`;
+- variable/data contract evidence pointers are present;
+- request envelope validation status vocabulary is `envelope-valid`,
+  `envelope-valid-with-warnings`, and `envelope-blocked`;
+- malformed-envelope blocker vocabulary is accepted.
+
+The gate ranks runtime binding lanes and selects Render API Request Envelope
+Runtime Binding Gate as the first implementation lane. The handoff plan tells
+the next thread to start from
+`docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`, read the accepted
+request envelope contract and fixtures, and implement only a package-local/core
+request envelope metadata validator.
+
+This phase intentionally does not implement runtime binding, backend
+production routes, Render API runtime, response/status runtime mapping,
+render-readiness runtime evaluation, renderer artifact bytes, actual render
+execution, durable job ids, durable job lifecycle, production storage
+durability, auth/authz behavior, runtime error handling, runtime data
+validation, runtime default application, runtime compatibility enforcement,
+package/document schema mutation, `measureVNextText(...)` replacement, full
+measurement production readiness, pagination mutation, production
+renderer-backed measurement binding, production PDF/DOCX renderer work,
+production contenteditable, collaboration/offline behavior, or legacy editor
+runtime.
+
+Next recommended work: Render API Request Envelope Runtime Binding Gate.
 Production measurement replacement remains blocked.
 
 ## Phase 12 Extraction Record
