@@ -5,7 +5,21 @@ import {
   type VNextArtifactManifestStatus,
 } from "./artifactManifest.js"
 
+// Route de-export Window B: this module is kept as a public compatibility
+// export for one window. Backend route ownership now lives in
+// flowdoc-vnext-backend/src/routes/artifactRoute.ts.
+
+/**
+ * @deprecated Window B compatibility export. Backend owns artifact route
+ * transport/status/header/permission envelopes. Core retains
+ * `src/generation/artifactManifest.ts` and `src/generation/artifactJob.ts`.
+ */
 export const VNEXT_ARTIFACT_API_ROUTE_SOURCE = "vnext-artifact-api-route"
+/**
+ * @deprecated Window B compatibility export. Use backend route parity for
+ * route envelopes and retained core artifact manifest/job contracts for
+ * durable artifact truth.
+ */
 export const VNEXT_ARTIFACT_API_ROUTE_MODE = "artifact-route-contract"
 
 export type VNextArtifactApiRouteAction =
@@ -323,6 +337,12 @@ function retryAfterForStatus(status: VNextArtifactManifestStatus): number | null
   return status === "planned" || status === "rendering" ? 1000 : null
 }
 
+/**
+ * @deprecated Window B compatibility export. Use
+ * `flowdoc-vnext-backend/src/routes/artifactRoute.ts` for route responses and
+ * `createVNextArtifactManifestPlan(...)` for retained core manifest behavior.
+ * This helper remains only until the route de-export removal patch.
+ */
 export function createVNextArtifactGenerationApiRouteResponse(
   request: VNextArtifactApiRouteRequest,
 ): VNextArtifactApiRouteResponse {
@@ -381,6 +401,11 @@ export function createVNextArtifactGenerationApiRouteResponse(
   })
 }
 
+/**
+ * @deprecated Window B compatibility export. Use backend artifact route parity
+ * for route status responses and retained core manifest/job contracts for
+ * artifact state truth.
+ */
 export function createVNextArtifactStatusApiRouteResponse(
   request: VNextArtifactApiRouteRequest,
 ): VNextArtifactApiRouteResponse {
@@ -431,6 +456,11 @@ export function createVNextArtifactStatusApiRouteResponse(
   })
 }
 
+/**
+ * @deprecated Window B compatibility export. Use backend artifact route parity
+ * for session artifact listing and retained core manifest contracts for
+ * artifact records.
+ */
 export function createVNextSessionArtifactListApiRouteResponse(
   request: VNextArtifactApiRouteRequest,
 ): VNextArtifactApiRouteResponse {
@@ -487,6 +517,11 @@ export function createVNextSessionArtifactListApiRouteResponse(
   })
 }
 
+/**
+ * @deprecated Window B compatibility export. Use backend artifact route parity
+ * for download metadata envelopes and retained core manifest contracts for
+ * rendered artifact validation.
+ */
 export function createVNextArtifactDownloadMetadataApiRouteResponse(
   request: VNextArtifactApiRouteRequest,
 ): VNextArtifactApiRouteResponse {

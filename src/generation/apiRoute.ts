@@ -4,8 +4,26 @@ import {
   type VNextGenerationRuntimeIssue,
 } from "./runtime.js"
 
+// Route de-export Window B: this module is kept as a public compatibility
+// export for one window. Backend route ownership now lives in
+// flowdoc-vnext-backend/src/routes/generationRoute.ts.
+
+/**
+ * @deprecated Window B compatibility export. Backend owns generation route
+ * transport/status/header behavior. Core retains
+ * `src/generation/runtime.ts` and `assessVNextGenerationReadiness(...)`.
+ */
 export const VNEXT_GENERATION_API_ROUTE_SOURCE = "vnext-generation-api-route"
+/**
+ * @deprecated Window B compatibility export. Use backend route parity for
+ * route envelopes and retained core generation runtime contracts for
+ * readiness truth.
+ */
 export const VNEXT_GENERATION_API_ROUTE_MODE = "readiness-route"
+/**
+ * @deprecated Window B compatibility export. Backend route parity now owns the
+ * route action envelope.
+ */
 export const VNEXT_GENERATION_API_ROUTE_ACTION = "generation.assess"
 
 export type VNextGenerationApiRouteMethod = "POST"
@@ -82,6 +100,12 @@ function response(
   }
 }
 
+/**
+ * @deprecated Window B compatibility export. Use
+ * `flowdoc-vnext-backend/src/routes/generationRoute.ts` for route responses
+ * and `assessVNextGenerationReadiness(...)` for retained core readiness
+ * behavior. This helper remains only until the route de-export removal patch.
+ */
 export function createVNextGenerationApiRouteResponse(
   request: VNextGenerationApiRouteRequest,
 ): VNextGenerationApiRouteResponse {

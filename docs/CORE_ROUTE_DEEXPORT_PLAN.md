@@ -2,8 +2,9 @@
 
 Date: 2026-07-03
 
-Status: planning gate after backend route parity evidence and before changing
-`src/index.ts` public exports.
+Status: planning gate after backend route parity evidence. Window B
+deprecation markers are now applied; `src/index.ts` public route exports remain
+unchanged until Window C.
 
 ## Purpose
 
@@ -47,10 +48,10 @@ The plan does not remove exports in this patch.
 
 Use one compatibility window:
 
-- **Window A / current patch**: publish this plan and keep current exports.
-- **Window B / next patch**: add explicit deprecation markers to the route
+- **Window A / complete**: publish this plan and keep current exports.
+- **Window B / complete**: add explicit deprecation markers to the route
   modules and tests while keeping exports in `src/index.ts`.
-- **Window C / removal patch**: remove route-shaped exports from `src/index.ts`
+- **Window C / next removal patch**: remove route-shaped exports from `src/index.ts`
   after retained-contract tests replace route-helper assertions.
 
 Do not skip Window B unless a consumer scan proves there are no package users
@@ -140,7 +141,7 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 
 - Documentation and guard tests only.
 - No public export removed.
-- No route helper deprecated in source yet.
+- Route helpers are marked deprecated in source for Window B.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -149,8 +150,7 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 
 ## Risks Left
 
-- Window B deprecation marker patch remains.
-- Window C export removal remains.
+- Window C retained-contract rewrite and export removal remain.
 - Session/rich-inline/workflow split-before-move remains separate.
 
 ## Intentionally Not Changed
@@ -158,6 +158,6 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 - `src/index.ts` still exports the route-shaped modules.
 - `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts` still
   exist.
-- Core route-helper tests still exist until the next patch rewrites or marks
-  them deprecated.
+- Core route-helper tests still exist and are marked as Window B compatibility
+  coverage until the removal patch rewrites or removes them.
 - Backend HTTP server wiring is not changed.

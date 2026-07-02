@@ -188,7 +188,8 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## Risks Left
 
-- Core route de-export/deprecation planning remains the next required lane.
+- Window B deprecation markers now exist, so the next route lane is retained
+  contract rewrite plus Window C removal planning.
 - Session/rich-inline/workflow split-before-move remains open.
 - Old concrete package lanes remain in core until historical-test replacement
   and consumer rewiring are proven.
@@ -197,6 +198,6 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 - No source module moved.
 - No public export removed.
-- No core de-export or deprecation marker added.
+- Core route deprecation markers are added, but no public export is removed.
 - No editor consumer changed.
 - No gateway layer introduced.

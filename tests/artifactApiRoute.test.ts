@@ -11,6 +11,7 @@ import {
   type VNextArtifactManifestRecord,
 } from "../src/index.js"
 
+const ROUTE_HELPER_COMPATIBILITY_WINDOW = "Window B route-helper compatibility test"
 const SHA256 = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
 
 function permission(scope: string) {
@@ -51,6 +52,10 @@ function manifest(overrides: Record<string, unknown> = {}): VNextArtifactManifes
 }
 
 describe("vNext artifact API route contract boundary", () => {
+  it("marks this route-helper suite as compatibility-window coverage", () => {
+    expect(ROUTE_HELPER_COMPATIBILITY_WINDOW).toContain("Window B")
+  })
+
   it("accepts artifact generation requests as route-safe planned manifests", () => {
     const response = createVNextArtifactGenerationApiRouteResponse({
       method: "POST",

@@ -7,12 +7,18 @@ import {
   VNEXT_GENERATION_API_ROUTE_SOURCE,
 } from "../src/index.js"
 
+const ROUTE_HELPER_COMPATIBILITY_WINDOW = "Window B route-helper compatibility test"
+
 function fixtureValue(name: string): unknown {
   const fixtureUrl = new URL(`../fixtures/${name}`, import.meta.url)
   return JSON.parse(readFileSync(fixtureUrl, "utf8")) as unknown
 }
 
 describe("vNext generation API route boundary", () => {
+  it("marks this route-helper suite as compatibility-window coverage", () => {
+    expect(ROUTE_HELPER_COMPATIBILITY_WINDOW).toContain("Window B")
+  })
+
   it("wraps generation readiness as a route-safe POST response", () => {
     const pack = fixtureValue("product-report-vnext-minimal.flowdoc.json")
     const response = createVNextGenerationApiRouteResponse({

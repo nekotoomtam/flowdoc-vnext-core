@@ -32,9 +32,9 @@ describe("core route de-export plan", () => {
     }
 
     expect(doc).toContain("deprecate route-shaped exports for one compatibility window")
-    expect(doc).toContain("Window A / current patch")
-    expect(doc).toContain("Window B / next patch")
-    expect(doc).toContain("Window C / removal patch")
+    expect(doc).toContain("Window A / complete")
+    expect(doc).toContain("Window B / complete")
+    expect(doc).toContain("Window C / next removal patch")
     expect(doc).toContain("Do not skip Window B")
   })
 
@@ -83,8 +83,8 @@ describe("core route de-export plan", () => {
     expect(coreConsumerMap).toContain("flowdoc-vnext-backend/src/routes/artifactRoute.ts")
     expect(doc).toContain("Do not import `flowdoc-vnext-backend` from core tests or source.")
     expect(doc).toContain("Do not move backend route status/header/permission behavior into retained")
-    expect(generationRoute).not.toContain("flowdoc-vnext-backend")
-    expect(artifactRoute).not.toContain("flowdoc-vnext-backend")
+    expect(generationRoute).not.toMatch(/from\s+["'][^"']*flowdoc-vnext-backend/)
+    expect(artifactRoute).not.toMatch(/from\s+["'][^"']*flowdoc-vnext-backend/)
   })
 
   it("publishes the route de-export plan in repo navigation", () => {

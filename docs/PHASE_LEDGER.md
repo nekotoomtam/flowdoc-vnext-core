@@ -242,6 +242,7 @@ Parent goal:
 | 226 | Core service consumer map | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts` |
 | 227 | Backend route parity evidence | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts`; `flowdoc-vnext-backend@2ae6570` |
 | 228 | Core route de-export plan | done | `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeexportPlan.test.ts` |
+| 229 | Core route deprecation window | done | `src/generation/apiRoute.ts`; `src/generation/artifactApiRoute.ts`; `tests/generationApiRoute.test.ts`; `tests/artifactApiRoute.test.ts`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeprecationWindow.test.ts` |
 
 ## Current Rule
 
@@ -6858,6 +6859,37 @@ artifact rendering, or claim production route readiness.
 
 Next recommended work: add explicit deprecation markers to core route-shaped
 helpers and route-helper tests for one compatibility window.
+
+## Phase 229 Core Route Deprecation Window
+
+Core Route Deprecation Window executes Window B from the Core Route De-export
+Plan by applying explicit Window B compatibility marker text to route-shaped
+core helpers while keeping public exports stable.
+
+The marker phase confirms:
+
+- `src/generation/apiRoute.ts` marks generation route constants and
+  `createVNextGenerationApiRouteResponse(...)` as deprecated Window B
+  compatibility exports;
+- `src/generation/artifactApiRoute.ts` marks artifact route constants and
+  artifact request/status/list/download-metadata helpers as deprecated Window B
+  compatibility exports;
+- `tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts`
+  identify their route-helper assertions as Window B compatibility coverage;
+- `src/index.ts` still exports `./generation/apiRoute.js` and
+  `./generation/artifactApiRoute.js`;
+- retained core owners remain `src/generation/runtime.ts`,
+  `src/generation/artifactManifest.ts`, `src/generation/artifactJob.ts`, and
+  `src/persistence/storageAdapter.ts`.
+
+This phase intentionally does not remove public exports, change route helper
+runtime behavior, change backend/editor consumers, wire backend routes into the
+concrete HTTP server, introduce a gateway, add production storage, run artifact
+rendering, or claim production route readiness.
+
+Next recommended work: rewrite generation/artifact route-helper tests into
+retained-contract tests, then remove route-shaped exports from public core in
+Window C.
 
 ## Phase 12 Extraction Record
 
