@@ -870,6 +870,13 @@ The package must remain runnable without any parent editor checkout.
   validation/defaults/compatibility/error handling, schema mutation, or full
   measurement production readiness is implemented. See
   `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`.
+- Core Service Concern Audit and Core Retention Map classify service-shaped
+  modules before de-export work, then lock a move-and-retain rule: backend owns
+  transport, persistence, route, job, and workflow execution while core retains
+  pure package/schema, graph, operations, readiness, storage-envelope,
+  manifest/job, authoring, renderer-consumption, and history-ready contracts.
+  See `docs/CORE_SERVICE_CONCERN_AUDIT.md` and
+  `docs/CORE_RETENTION_MAP.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -926,6 +933,10 @@ The package must remain runnable without any parent editor checkout.
   Planning Gate
 - `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`: final planning and
   handoff gate before Render API Request Envelope Runtime Binding Gate
+- `docs/CORE_SERVICE_CONCERN_AUDIT.md`: classification audit for core-owned,
+  backend-owned, split-contract, and deferred service concern areas
+- `docs/CORE_RETENTION_MAP.md`: move-and-retain map before service-shaped
+  exports are de-exported from core
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

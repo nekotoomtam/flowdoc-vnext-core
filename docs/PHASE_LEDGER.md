@@ -238,6 +238,7 @@ Parent goal:
 | 222 | Render API contract close audit | done | `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `fixtures/artifact-pointer-job-status-placeholder-policy.v1.json`; `fixtures/render-readiness-validation-policy.v1.json`; `fixtures/render-api-response-status-contract.v1.json`; `fixtures/render-api-request-envelope-contract.v1.json`; `docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/renderApiContractCloseAudit.test.ts`; pointer guard tests |
 | 223 | Mini infrastructure close audit | done | `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`; `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/miniInfrastructureCloseAudit.test.ts`; pointer guard tests |
 | 224 | Runtime binding implementation planning gate | done | `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`; `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `fixtures/render-api-request-envelope-contract.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/runtimeBindingImplementationPlanningGate.test.ts`; pointer guard tests |
+| 225 | Core retention map | done | `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRetentionMap.test.ts` |
 
 ## Current Rule
 
@@ -6726,6 +6727,36 @@ runtime.
 
 Next recommended work: Render API Request Envelope Runtime Binding Gate.
 Production measurement replacement remains blocked.
+
+## Phase 225 Core Retention Map
+
+Core Retention Map uses the Core Service Concern Audit and the backend P1
+service split as evidence, then locks a move-and-retain rule before any
+service-shaped export is removed from `@flowdoc/vnext-core`.
+
+The map confirms:
+
+- backend owns transport, durable persistence, concrete storage, route
+  execution, artifact byte lifecycle, worker/queue execution, auth/authz,
+  workflow runtime, and product/service policy;
+- core retains package/schema semantics, graph facts, operation rules,
+  readiness calculations, storage envelope evaluation, artifact manifest/job
+  validation, authoring semantics, renderer-consumption contracts, and
+  history-ready records;
+- route-shaped modules and session/rich-inline/workflow persistence builders
+  are temporary split-before-move areas, not immediate deletion targets;
+- concrete storage and internal-alpha runner behavior has backend migration
+  evidence but remains duplicated in core only until consumer rewiring and
+  de-export preconditions are proven;
+- guard tests scan exported `src/**` for concrete backend package imports and
+  server IO so core does not grow service execution again.
+
+This phase intentionally does not move source modules, remove public exports,
+change backend/editor consumers, implement a gateway, add production storage,
+run artifact rendering, or claim route parity.
+
+Next recommended work: backend route parity for `src/generation/apiRoute.ts`
+and `src/generation/artifactApiRoute.ts`, then a controlled de-export plan.
 
 ## Phase 12 Extraction Record
 
