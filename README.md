@@ -913,6 +913,10 @@ The package must remain runnable without any parent editor checkout.
   records as retained replay validation contracts while keeping rich-inline
   persistence records as compatibility surface. See
   `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`.
+- Core Submission Identity Status Split adds
+  `createVNextSubmissionIdentityStatus(...)` as the retained external
+  workflow identity/status contract while keeping submission state records as
+  compatibility surface. See `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -991,6 +995,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`: Phase 234 retained
   rich-inline replay validation helper split from compatibility persistence
   records
+- `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`: Phase 235 retained
+  submission identity/status helper split from compatibility workflow records
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

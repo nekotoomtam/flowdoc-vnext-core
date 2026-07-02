@@ -248,6 +248,7 @@ Parent goal:
 | 232 | Core session rich workflow split map | done | `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 | 233 | Core session package snapshot split | done | `src/authoring/sessionStorage.ts`; `tests/sessionPackageSnapshot.test.ts`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SESSION_STORAGE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionPackageSnapshotSplit.test.ts` |
 | 234 | Core rich inline replay validation split | done | `src/authoring/richInlineSessionPersistence.ts`; `tests/richInlineReplayValidation.test.ts`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
+| 235 | Core submission identity/status split | done | `src/workflow/submissionState.ts`; `tests/submissionIdentityStatus.test.ts`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SUBMISSION_STATE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 
 ## Current Rule
 
@@ -7058,8 +7059,45 @@ change backend or editor consumers, introduce a gateway, run replay execution,
 resolve conflicts, restore selection, or claim production persistence
 readiness.
 
-Next recommended work: split submission identity/status facts from workflow
-runtime wording.
+Next recommended work: submission identity/status split is completed in Phase
+235; continue with backend consumer rewiring and non-route service-shaped
+de-export windows.
+
+## Phase 235 Core Submission Identity Status Split
+
+Core Submission Identity Status Split implements the third split from
+`docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` by adding a retained submission
+identity/status helper while preserving the existing workflow-shaped
+compatibility record.
+
+The split confirms:
+
+- `src/workflow/submissionState.ts` now exports
+  `createVNextSubmissionIdentityStatus(...)`, identity/status source/mode
+  constants, and retained fact types;
+- retained identity/status facts carry template id, submission id, document
+  revision, data revision, actor id, reviewer id, reason, workflow status, and
+  validation issues;
+- retained contracts explicitly keep package mutation, document mutation, data
+  mutation, editor-session state, workflow engine execution, permissions,
+  approval gates, storage writes, route dispatch, and notification/audit
+  execution out of core;
+- `createVNextSubmissionStateRecord(...)` remains public and composes retained
+  identity/status facts before adding Phase 91 scope/application compatibility
+  fields;
+- `tests/submissionIdentityStatus.test.ts` proves retained facts, invalid
+  review-state blockers, compatibility composition, and source independence.
+
+This phase intentionally does not remove public exports, rename
+`src/workflow/submissionState.ts`, add backend workflow routes, change backend
+or editor consumers, introduce a gateway, execute permissions, apply approval
+gates, write workflow storage, dispatch routes, or claim production workflow
+readiness.
+
+Next recommended work: rewire backend consumers to backend-owned
+storage/workflow routes that consume retained core facts, then plan
+deprecation/de-export windows for the remaining non-route service-shaped public
+exports.
 
 ## Phase 12 Extraction Record
 

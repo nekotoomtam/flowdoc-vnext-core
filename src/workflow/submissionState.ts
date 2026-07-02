@@ -1,5 +1,7 @@
 export const VNEXT_SUBMISSION_STATE_SOURCE = "vnext-submission-state"
 export const VNEXT_SUBMISSION_STATE_MODE = "external-workflow-boundary"
+export const VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE = "vnext-submission-identity-status"
+export const VNEXT_SUBMISSION_IDENTITY_STATUS_MODE = "submission-identity-status-facts"
 
 export type VNextSubmissionWorkflowStatus =
   | "not-started"
@@ -33,6 +35,41 @@ export interface VNextSubmissionStateInput {
   actorId?: string
   reviewerId?: string
   reason?: string
+}
+
+export interface VNextSubmissionIdentityStatusFacts {
+  status: VNextSubmissionStateStatus
+  workflowStatus: VNextSubmissionWorkflowStatus
+  templateId: string | null
+  submissionId: string | null
+  documentRevision: number | null
+  dataRevision: number | null
+  actorId: string | null
+  reviewerId: string | null
+  reason: string | null
+  contracts: {
+    submissionIdentityFacts: true
+    externalWorkflowStatusFacts: true
+    validationFacts: true
+    externalSubmissionState: true
+    packageMutation: false
+    documentMutation: false
+    dataMutation: false
+    editorSession: false
+    workflowEngine: false
+    permissions: false
+    approvalGates: false
+    storageWrite: false
+    routeDispatch: false
+    notificationAudit: false
+  }
+}
+
+export interface VNextSubmissionIdentityStatusRecord {
+  source: typeof VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE
+  mode: typeof VNEXT_SUBMISSION_IDENTITY_STATUS_MODE
+  facts: VNextSubmissionIdentityStatusFacts
+  issues: VNextSubmissionStateIssue[]
 }
 
 export interface VNextSubmissionStateScope {
@@ -142,24 +179,63 @@ function validationIssues(input: VNextSubmissionStateInput): VNextSubmissionStat
   return issues
 }
 
+export function createVNextSubmissionIdentityStatus(
+  input: VNextSubmissionStateInput,
+): VNextSubmissionIdentityStatusRecord {
+  const issues = validationIssues(input)
+
+  return {
+    source: VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE,
+    mode: VNEXT_SUBMISSION_IDENTITY_STATUS_MODE,
+    facts: {
+      status: issues.length === 0 ? "ready" : "blocked",
+      workflowStatus: input.workflowStatus ?? "not-started",
+      templateId: nonEmptyString(input.templateId),
+      submissionId: nonEmptyString(input.submissionId),
+      documentRevision: revisionValue(input.documentRevision),
+      dataRevision: revisionValue(input.dataRevision),
+      actorId: nonEmptyString(input.actorId),
+      reviewerId: nonEmptyString(input.reviewerId),
+      reason: nonEmptyString(input.reason),
+      contracts: {
+        submissionIdentityFacts: true,
+        externalWorkflowStatusFacts: true,
+        validationFacts: true,
+        externalSubmissionState: true,
+        packageMutation: false,
+        documentMutation: false,
+        dataMutation: false,
+        editorSession: false,
+        workflowEngine: false,
+        permissions: false,
+        approvalGates: false,
+        storageWrite: false,
+        routeDispatch: false,
+        notificationAudit: false,
+      },
+    },
+    issues,
+  }
+}
+
 export function createVNextSubmissionStateRecord(
   input: VNextSubmissionStateInput,
 ): VNextSubmissionStateRecord {
-  const issues = validationIssues(input)
+  const identityStatus = createVNextSubmissionIdentityStatus(input)
 
   return {
     source: VNEXT_SUBMISSION_STATE_SOURCE,
     mode: VNEXT_SUBMISSION_STATE_MODE,
-    status: issues.length === 0 ? "ready" : "blocked",
-    workflowStatus: input.workflowStatus ?? "not-started",
-    templateId: nonEmptyString(input.templateId),
-    submissionId: nonEmptyString(input.submissionId),
-    documentRevision: revisionValue(input.documentRevision),
-    dataRevision: revisionValue(input.dataRevision),
-    actorId: nonEmptyString(input.actorId),
-    reviewerId: nonEmptyString(input.reviewerId),
-    reason: nonEmptyString(input.reason),
-    issues,
+    status: identityStatus.facts.status,
+    workflowStatus: identityStatus.facts.workflowStatus,
+    templateId: identityStatus.facts.templateId,
+    submissionId: identityStatus.facts.submissionId,
+    documentRevision: identityStatus.facts.documentRevision,
+    dataRevision: identityStatus.facts.dataRevision,
+    actorId: identityStatus.facts.actorId,
+    reviewerId: identityStatus.facts.reviewerId,
+    reason: identityStatus.facts.reason,
+    issues: identityStatus.issues,
     scope: {
       package: false,
       documentNode: false,

@@ -7,6 +7,10 @@ template/reviewer workflows describe submission status and revisions without
 writing workflow state into package v2/document v3, data snapshots, editor
 sessions, routes, or storage.
 
+Phase 235 splits retained submission identity/status facts into
+`createVNextSubmissionIdentityStatus(...)` while keeping this submission state
+record as compatibility surface.
+
 This is a submission state boundary. It is not a workflow engine.
 
 ## Purpose
@@ -28,8 +32,11 @@ or editor session state.
 
 `src/workflow/submissionState.ts` owns:
 
+- `VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE`;
+- `VNEXT_SUBMISSION_IDENTITY_STATUS_MODE`;
 - `VNEXT_SUBMISSION_STATE_SOURCE`;
 - `VNEXT_SUBMISSION_STATE_MODE`;
+- `createVNextSubmissionIdentityStatus(...)`;
 - `createVNextSubmissionStateRecord(...)`;
 - workflow status values for `not-started`, `draft`, `submitted`, `approved`,
   and `rejected`;
@@ -41,6 +48,8 @@ or editor session state.
 - application status that keeps package mutation, document mutation, data
   mutation, history writes, storage writes, and route dispatch out of this
   phase.
+- Phase 235 retained identity/status facts that do not carry workflow
+  application fields.
 
 The module is pure TypeScript and Node-testable. It does not parse packages,
 serialize packages, mutate documents, mutate data snapshots, mutate editor
@@ -56,6 +65,9 @@ The record can carry only external workflow metadata:
 - `dataSnapshot` scope is `false`;
 - `editorSession` scope is `false`;
 - externalSubmissionState = `true`;
+- retained identity/status facts keep workflow engine, permissions, approval
+  gates, storage writes, route dispatch, and notification/audit execution out
+  of core;
 - package, document, and data mutation remain `not-run`;
 - history and storage writes remain `not-written`;
 - route dispatch remains `not-run`;
@@ -72,6 +84,17 @@ Phase 91 is covered by `tests/submissionState.test.ts`:
   app routes, package parse/serialize, transactions, operations, layout, and
   pagination;
 - README, roadmap, and ledger entries keep the phase trail visible.
+
+Phase 235 is covered by `tests/submissionIdentityStatus.test.ts`:
+
+- retained identity/status facts are JSON-serializable and do not mutate
+  canonical packages;
+- incomplete review states are blocked without workflow execution;
+- compatibility submission state records compose retained identity/status
+  facts;
+- source guards block workflow execution, storage adapters, parent runtime
+  imports, DOM access, app routes, package parse/serialize, transactions,
+  operations, layout, and pagination from the retained helper.
 
 ## Non-Goals
 

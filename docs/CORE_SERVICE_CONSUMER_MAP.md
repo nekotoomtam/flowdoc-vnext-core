@@ -68,6 +68,9 @@ Current findings:
   `createVNextRichInlineReplayPatchValidation(...)` and
   `createVNextRichInlineReplayValidation(...)` helpers while keeping the
   compatibility rich-inline session persistence record public.
+- `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md` now implements retained
+  `createVNextSubmissionIdentityStatus(...)` while keeping the compatibility
+  submission state record public.
 - Editor depends on `@flowdoc/vnext-core`, but its boundary test keeps package
   imports behind `src/core/coreAdapter.ts`.
 - Editor currently imports only `safeCreateVNextRuntimeSession` and the
@@ -81,7 +84,7 @@ Current findings:
 | Route-shaped artifact API | `src/generation/artifactApiRoute.ts`; `tests/artifactRetainedContract.test.ts`; no `src/index.ts` export | `flowdoc-vnext-backend/src/routes/artifactRoute.ts` implements backend-owned parity through artifact request/status/list/download metadata response helpers without importing core artifact route response helpers | no direct consumer | route parity, retained-contract rewrite, and Window C de-export are complete while manifest/job/readiness contracts remain retained truth |
 | Session storage record | `src/authoring/sessionStorage.ts`; `tests/sessionStorage.test.ts`; `tests/sessionPackageSnapshot.test.ts`; storage and vertical-slice tests | `src/tests/storageRouteBinding.test.ts` uses `createVNextSessionStorageRecord(...)` as fixture setup | no direct consumer | `createVNextSessionPackageSnapshot(...)` split exists; storage-shaped record remains compatibility surface before move |
 | Rich inline session persistence | `src/authoring/richInlineSessionPersistence.ts`; `tests/richInlineReplayValidation.test.ts`; rich-inline, storage, and vertical-slice tests | no runtime consumer found | no direct consumer | `createVNextRichInlineReplayValidation(...)` split exists; persistence-shaped record remains compatibility surface before move |
-| Submission state | `src/workflow/submissionState.ts`; `tests/submissionState.test.ts` | no runtime consumer found | no direct consumer | split map exists; move workflow runtime to backend and retain identity/status facts only if needed |
+| Submission state | `src/workflow/submissionState.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/submissionState.test.ts` | no runtime consumer found | no direct consumer | `createVNextSubmissionIdentityStatus(...)` split exists; workflow-shaped record remains compatibility surface before move |
 | Concrete file JSON storage | `packages/storage-file-json`; storage/byte-store tests | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` is the backend-owned replacement | no direct consumer | retire core package lane after historical tests are rewired or replaced |
 | Internal alpha runner | `packages/internal-alpha-runner`; route/job/vertical-slice tests | `flowdoc-vnext-backend/src/storage/storageRouteBinding.ts` and `flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts` are backend-owned replacements | no direct consumer | retire core package lane after backend parity and core historical-test cleanup |
 | Retained storage/job/manifest contracts | `src/persistence/storageAdapter.ts`; `src/generation/artifactManifest.ts`; `src/generation/artifactJob.ts` | backend imports evaluator/read-result, artifact manifest, and artifact job transition helpers | no direct consumer | keep exported from core as split-contract truth |
@@ -103,8 +106,7 @@ Reasons:
 - backend tests still use the session storage record shape;
 - core tests still prove service-shaped boundary behavior;
 - retained core contract names for package snapshot, replay patch validation,
-  and workflow identity facts are mapped; package snapshot and replay
-  validation are implemented, workflow identity is not implemented yet;
+  and workflow identity facts are mapped and implemented;
 - editor/backend consumer rewiring has not been proven.
 
 ### Ready To Keep
@@ -133,14 +135,11 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## Next Implementation Order
 
-1. Use `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` to implement submission
-   identity split now that session package snapshot and rich-inline replay
-   validation splits are complete.
+1. Rewire backend/editor consumers to backend-owned route and persistence
+   behavior while consuming retained core facts.
 2. Update historical route docs so Phase 86/138 route helper evidence is read
    as history, not current core ownership.
-3. Rewire backend/editor consumers to backend-owned route and persistence
-   behavior.
-4. Retire `packages/storage-file-json` and `packages/internal-alpha-runner`
+3. Retire `packages/storage-file-json` and `packages/internal-alpha-runner`
    from core after backend parity and historical-test replacement are proven.
 
 ## PASS
@@ -172,11 +171,10 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## UNKNOWN
 
-- Final names for retained workflow identity helpers are not locked.
+- Final backend-owned workflow storage/review route names are not locked.
 - Compatibility-window length for non-route public de-export is not decided.
-- Final workflow helper names from
-  `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` are mapped as concepts but not
-  exported yet.
+- Final backend-owned replacements for remaining service-shaped exports are not
+  implemented yet.
 
 ## Files Changed
 
@@ -200,8 +198,7 @@ A service-shaped export can be deprecated or removed only when all are true:
 - Window B deprecation markers, retained-contract rewrite, and Window C public
   export removal now exist; deprecated route source cleanup remains optional.
 - Session/rich-inline/workflow split-before-move now has a Phase 232 map;
-  session and rich-inline implementation splits are complete, while workflow
-  remains open.
+  session, rich-inline, and workflow implementation splits are complete.
 - Old concrete package lanes remain in core until historical-test replacement
   and consumer rewiring are proven.
 

@@ -4,7 +4,8 @@ Date: 2026-07-03
 
 Status: planning guard for session, rich-inline, and workflow service-shaped
 exports. The session package snapshot split is complete in Phase 233, and the
-rich-inline replay validation split is complete in Phase 234.
+rich-inline replay validation split is complete in Phase 234. The submission
+identity/status split is complete in Phase 235.
 
 ## Purpose
 
@@ -65,11 +66,17 @@ Rich-inline session persistence:
 Submission state:
 
 - `src/workflow/submissionState.ts` exports
+  `createVNextSubmissionIdentityStatus(...)` and
   `createVNextSubmissionStateRecord(...)`.
+- The compatibility state record composes retained submission identity/status
+  facts before adding workflow-shaped scope/application fields.
+- `tests/submissionIdentityStatus.test.ts` proves retained identity/status
+  facts, validation blockers, compatibility record composition, and no
+  workflow execution, storage, DOM, routes, layout, package parse/serialize, or
+  package mutation.
 - `tests/submissionState.test.ts` proves external workflow metadata,
-  validation blockers, `externalSubmissionState: true`,
-  `storageWrite: "not-written"`, `routeDispatch: "not-run"`, and no package
-  mutation.
+  `externalSubmissionState: true`, `storageWrite: "not-written"`,
+  `routeDispatch: "not-run"`, and compatibility output stability.
 - `docs/SUBMISSION_STATE_BOUNDARY.md` records that this is not a workflow
   engine.
 
@@ -90,7 +97,7 @@ Consumer evidence:
 |---|---|---|---|
 | Session package snapshot | canonical package v2/document v3 snapshot intent, package id/version facts, document revision metadata, persisted-state exclusions | durable session store, storage key lifecycle, idempotency, expected revision gates, read/write routes | split complete; `createVNextSessionPackageSnapshot(...)` is the retained helper before storage-record de-export |
 | Rich-inline replay validation | rich-inline commit history facts, before/after inline children validation, field-key usage facts, JSON-safe replay patch validation records, history-ready metadata | durable rich-inline session storage, replay execution, conflict resolution, selection restoration, backend API calls | split complete; `createVNextRichInlineReplayValidation(...)` is the retained helper before persistence-record de-export |
-| Submission workflow identity | template id, submission id, document/data revisions, actor/reviewer identity facts, validation issues, package/data/document non-mutation flags | workflow engine, permissions, approval gates, notification/audit writes, workflow storage, routes | split third; retain identity/status facts only if backend needs core validation vocabulary |
+| Submission workflow identity | template id, submission id, document/data revisions, actor/reviewer identity facts, validation issues, package/data/document non-mutation flags | workflow engine, permissions, approval gates, notification/audit writes, workflow storage, routes | split complete; `createVNextSubmissionIdentityStatus(...)` is the retained helper before workflow-record de-export |
 
 ## Retained Core Contract Names
 
@@ -102,6 +109,7 @@ Use these names as the target concepts before public de-export:
   implemented by `createVNextRichInlineReplayPatchValidation(...)` and
   `createVNextRichInlineReplayValidation(...)`;
 - workflow: `submissionIdentityFacts` and `externalWorkflowStatusFacts`.
+  implemented by `createVNextSubmissionIdentityStatus(...)`.
 
 The exact exported helper names are not locked in this patch.
 
@@ -130,10 +138,9 @@ contracts are not split yet. They should not be treated as final core ownership.
 
 ## Next Implementation Order
 
-1. Split submission identity/status facts from workflow runtime wording.
-2. Update backend tests/consumers to use backend-owned storage/workflow routes
+1. Update backend tests/consumers to use backend-owned storage/workflow routes
    plus retained core facts.
-3. Deprecate and de-export the old service-shaped public exports in small,
+2. Deprecate and de-export the old service-shaped public exports in small,
    reversible windows.
 
 ## PASS
@@ -145,7 +152,9 @@ contracts are not split yet. They should not be treated as final core ownership.
 
 ## FAIL / BLOCKER
 
-- Submission implementation split has not happened yet.
+- No implementation split remains open in this session/rich-inline/workflow
+  map.
+- Backend consumer rewiring has not happened yet.
 
 ## RISK
 
@@ -153,11 +162,13 @@ contracts are not split yet. They should not be treated as final core ownership.
   look like final core ownership.
 - Rich-inline compatibility replay patch records may need granular operation
   vocabulary later.
-- Submission workflow facts may become product-specific if retained too widely.
+- Submission workflow facts may become product-specific if future workflow
+  policy is retained too widely.
 
 ## UNKNOWN
 
-- Final exported names for submission identity facts.
+- Final backend-owned route/storage names for session, rich-inline, and
+  submission replacements.
 - Whether backend wants one replacement route/contract per area or a combined
   storage/workflow orchestration layer.
 - Whether deprecated route source cleanup should happen before these splits.
@@ -168,8 +179,10 @@ contracts are not split yet. They should not be treated as final core ownership.
 - `docs/CORE_RETENTION_MAP.md`
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`
 - `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`
+- `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`
 - `tests/coreSessionRichWorkflowSplitMap.test.ts`
 - `tests/richInlineReplayValidation.test.ts`
+- `tests/submissionIdentityStatus.test.ts`
 - README and phase ledger pointers
 
 ## Behavior Changed
@@ -178,6 +191,7 @@ contracts are not split yet. They should not be treated as final core ownership.
   implementation.
 - `src/authoring/richInlineSessionPersistence.ts` now has retained replay
   validation helpers.
+- `src/workflow/submissionState.ts` now has retained identity/status helpers.
 - No public export removed.
 - No backend or editor code changed.
 
@@ -189,7 +203,7 @@ contracts are not split yet. They should not be treated as final core ownership.
 
 - Storage-shaped session record deprecation/de-export remains.
 - Rich-inline persistence-shaped record deprecation/de-export remains.
-- Submission identity/status split remains.
+- Submission workflow-shaped record deprecation/de-export remains.
 - Backend consumer rewiring remains.
 
 ## Intentionally Not Changed

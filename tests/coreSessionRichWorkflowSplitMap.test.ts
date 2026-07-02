@@ -42,8 +42,10 @@ describe("core session rich workflow split map", () => {
       "createVNextRichInlineSessionPersistenceRecord",
       "createVNextRichInlineReplayPatchRecord",
       "src/workflow/submissionState.ts",
+      "tests/submissionIdentityStatus.test.ts",
       "tests/submissionState.test.ts",
       "docs/SUBMISSION_STATE_BOUNDARY.md",
+      "createVNextSubmissionIdentityStatus",
       "createVNextSubmissionStateRecord",
     ]
 
@@ -59,8 +61,8 @@ describe("core session rich workflow split map", () => {
     expect(doc).toContain("Submission workflow identity")
     expect(doc).toContain("session package snapshot split is complete")
     expect(doc).toContain("rich-inline replay validation split is complete")
+    expect(doc).toContain("identity/status split is complete")
     expect(doc).toContain("split complete")
-    expect(doc).toContain("split third")
   })
 
   it("keeps current exports stable while marking them as non-final ownership", () => {
@@ -97,6 +99,9 @@ describe("core session rich workflow split map", () => {
     expect(richInline).toContain("createVNextRichInlineReplayPatchRecord")
     expect(richInline).toContain('executionStatus: "not-run"')
     expect(richInline).toContain('backendApi: "not-called"')
+    expect(submissionState).toContain("createVNextSubmissionIdentityStatus")
+    expect(submissionState).toContain("submissionIdentityFacts: true")
+    expect(submissionState).toContain("externalWorkflowStatusFacts: true")
     expect(submissionState).toContain("externalSubmissionState: true")
     expect(submissionState).toContain('packageMutation: "not-run"')
     expect(submissionState).toContain('storageWrite: "not-written"')
@@ -116,12 +121,13 @@ describe("core session rich workflow split map", () => {
     const retention = readText("docs/CORE_RETENTION_MAP.md")
     const consumerMap = readText("docs/CORE_SERVICE_CONSUMER_MAP.md")
 
-    expect(retention).toContain("docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md")
+    expect(retention).toContain("docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md")
     expect(retention).toContain("createVNextSessionPackageSnapshot")
     expect(retention).toContain("rich-inline replay-patch validation")
-    expect(retention).toContain("identity/status facts")
+    expect(retention).toContain("createVNextSubmissionIdentityStatus")
     expect(consumerMap).toContain("docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md")
     expect(consumerMap).toContain("createVNextRichInlineReplayValidation")
+    expect(consumerMap).toContain("createVNextSubmissionIdentityStatus")
     expect(splitMap).toContain("packageSnapshot")
     expect(splitMap).toContain("richInlineReplayPatchValidation")
     expect(splitMap).toContain("submissionIdentityFacts")
