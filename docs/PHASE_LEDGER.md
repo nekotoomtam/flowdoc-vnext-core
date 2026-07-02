@@ -244,6 +244,7 @@ Parent goal:
 | 228 | Core route de-export plan | done | `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeexportPlan.test.ts` |
 | 229 | Core route deprecation window | done | `src/generation/apiRoute.ts`; `src/generation/artifactApiRoute.ts`; `tests/generationApiRoute.test.ts`; `tests/artifactApiRoute.test.ts`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeprecationWindow.test.ts` |
 | 230 | Core route retained-contract test rewrite | done | `tests/generationRuntimeRetainedContract.test.ts`; `tests/artifactRetainedContract.test.ts`; `tests/coreRouteRetainedContractRewrite.test.ts`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 231 | Core route Window C public export removal | done | `src/index.ts`; `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteWindowCPublicExportRemoval.test.ts`; route guard tests |
 
 ## Current Rule
 
@@ -6908,8 +6909,9 @@ The rewrite confirms:
   `createVNextArtifactManifestPlan(...)`, `createVNextArtifactJobPlan(...)`,
   and `advanceVNextArtifactJob(...)` directly;
 - `tests/coreRouteRetainedContractRewrite.test.ts` guards that the old
-  route-helper tests are gone while `src/index.ts` still exports
-  `./generation/apiRoute.js` and `./generation/artifactApiRoute.js`;
+  route-helper tests are gone before Window C removes
+  `./generation/apiRoute.js` and `./generation/artifactApiRoute.js` from
+  `src/index.ts`;
 - backend-owned HTTP status/header/method/permission/download behavior remains
   out of retained core tests.
 
@@ -6920,6 +6922,36 @@ rendering, or claim production route readiness.
 
 Next recommended work: execute Window C by removing route-shaped public exports
 from `src/index.ts` and updating route/history docs in the same patch.
+
+## Phase 231 Core Route Window C Public Export Removal
+
+Core Route Window C Public Export Removal completes the controlled route
+de-export lane by removing route-shaped generation and artifact modules from
+the public core entrypoint.
+
+The removal confirms:
+
+- `src/index.ts` no longer exports `./generation/apiRoute.js` or
+  `./generation/artifactApiRoute.js`;
+- retained core exports remain available for `./generation/runtime.js`,
+  `./generation/artifactManifest.js`, and `./generation/artifactJob.js`;
+- route helper source files still exist with deprecation markers as
+  historical/internal code only;
+- backend route parity remains the owner of HTTP status/header/method,
+  permission, retry, and download metadata behavior;
+- `tests/coreRouteWindowCPublicExportRemoval.test.ts` guards Window C status
+  across source, docs, README, and the phase ledger.
+
+This phase intentionally does not delete `src/generation/apiRoute.ts` or
+`src/generation/artifactApiRoute.ts`, change backend/editor consumers, wire
+backend routes into the concrete HTTP server, introduce a gateway, add
+production storage, run artifact rendering, or claim production route
+readiness.
+
+Next recommended work: continue the service split with session package
+snapshot, rich-inline replay validation, and submission identity facts, or
+clean up deprecated route source files if historical evidence is no longer
+needed.
 
 ## Phase 12 Extraction Record
 

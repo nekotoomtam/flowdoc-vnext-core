@@ -2,8 +2,8 @@
 
 Date: 2026-07-02
 
-Status: retention guard after Core Service Concern Audit and before removing
-service-shaped exports from `@flowdoc/vnext-core`.
+Status: retention guard after Core Service Concern Audit and after Window C
+public route export removal.
 
 ## Purpose
 
@@ -50,8 +50,8 @@ Every service concern move must answer both sides before code is removed:
 | Live layout boundary | live service transport, browser scheduling, exact layout execution | `src/authoring/liveLayoutBoundary.ts` dirty-scope to layout-request facts | keep-core |
 | Durable history snapshot | durable history store, undo service, replay execution | `src/authoring/durableHistory.ts` history-ready JSON snapshot and undo/redo metadata | split-contract |
 | Generation readiness runtime | route dispatch, request id lifecycle, output orchestration, durable artifact request | `src/generation/runtime.ts` request parse and readiness-only calculation | split-contract |
-| Generation API route | HTTP status, headers, server route, auth, service retry/idempotency policy currently represented by `src/generation/apiRoute.ts` | readiness result contracts and error vocabulary backed by `src/generation/runtime.ts` | temporary duplicate until backend route parity |
-| Artifact API route | HTTP method/status, permission checks, artifact request/status/list/download routes currently represented by `src/generation/artifactApiRoute.ts` | manifest/job/readiness contracts in `artifactManifest.ts`, `artifactJob.ts`, and render API contract fixtures | temporary duplicate until backend route parity |
+| Generation API route | HTTP status, headers, server route, auth, service retry/idempotency policy now owned by backend route parity | readiness result contracts and error vocabulary backed by `src/generation/runtime.ts` | public core export removed; source file `src/generation/apiRoute.ts` remains deprecated/internal until source cleanup |
+| Artifact API route | HTTP method/status, permission checks, artifact request/status/list/download routes now owned by backend route parity | manifest/job/readiness contracts in `artifactManifest.ts`, `artifactJob.ts`, and render API contract fixtures | public core export removed; source file `src/generation/artifactApiRoute.ts` remains deprecated/internal until source cleanup |
 | Artifact manifest | artifact lifecycle persistence, byte-store pointer mutation, cleanup policy | `src/generation/artifactManifest.ts` JSON-safe manifest validation and status vocabulary | split-contract |
 | Artifact job record/state | queue, worker execution, storage writes, retry scheduling, renderer orchestration | `src/generation/artifactJob.ts` durable job record shape and pure transition rules | split-contract |
 | Storage adapter contract | file/database/object-store adapters, concrete persistence lifecycle, transaction policy | `src/persistence/storageAdapter.ts` envelope shape, read/write evaluator, idempotency and expected-revision rules | split-contract |
@@ -93,18 +93,17 @@ Core guard tests should keep these facts true:
   execution false.
 - `src/generation/artifactManifest.ts` keeps `storageStatus: "not-written"` and
   does not write artifact bytes.
-- route-shaped modules remain temporary duplicates until backend route parity,
-  not long-lived canonical route owners.
+- route-shaped public exports are removed after backend route parity and
+  retained-contract rewrite; remaining source files are not long-lived
+  canonical route owners.
 
 ## Next Implementation Order
 
-1. Move backend route parity next for `src/generation/apiRoute.ts` and
-   `src/generation/artifactApiRoute.ts`.
-2. Extract or rename retained core helpers where session/rich-inline/workflow
+1. Extract or rename retained core helpers where session/rich-inline/workflow
    builders still mix pure facts with storage-shaped wording.
-3. De-export route-shaped modules only after backend/editor consumers are
-   rewired.
-4. Remove old concrete package lanes from core after backend parity and consumer
+2. Remove deprecated route source files only after historical docs and source
+   evidence no longer need them.
+3. Remove old concrete package lanes from core after backend parity and consumer
    rewiring are both proven.
 
 ## PASS
@@ -121,7 +120,9 @@ Core guard tests should keep these facts true:
 
 ## RISK
 
-- Core currently still exports temporary service-shaped modules.
+- Core currently still exports non-route temporary service-shaped modules.
+- Route-shaped public exports are removed, but deprecated route source files
+  remain until source cleanup.
 - Backend and core can drift if duplicated route/storage behavior remains active
   for too long.
 - Session/rich-inline/workflow builders need careful splitting before their
@@ -142,9 +143,9 @@ Core guard tests should keep these facts true:
 
 ## Behavior Changed
 
-- Documentation and boundary tests only.
+- Documentation, boundary tests, and route public export removal.
 - No runtime source modules moved.
-- No public exports removed.
+- Route-shaped public exports removed; non-route public exports unchanged.
 
 ## Tests Run
 
@@ -152,13 +153,13 @@ Core guard tests should keep these facts true:
 
 ## Risks Left
 
-- P2 backend route parity still needs implementation.
+- Deprecated route source cleanup remains optional.
 - P3 session/rich-inline/workflow split still needs implementation.
 - Core package cleanup still waits for consumer rewiring evidence.
 
 ## Intentionally Not Changed
 
 - No source module moved.
-- No public export removed.
+- No remaining public export removed.
 - No backend or editor code changed in this core patch.
 - No gateway layer introduced.

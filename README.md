@@ -894,8 +894,12 @@ The package must remain runnable without any parent editor checkout.
   exports stable. See `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`.
 - Core Route Retained-Contract Test Rewrite replaces generation/artifact
   route-helper test ownership with direct readiness, manifest, and artifact job
-  contract tests while leaving public route exports in place for Window C. See
+  contract tests before Window C public export removal. See
   `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`.
+- Core Route Window C Public Export Removal removes route-shaped
+  generation/artifact modules from `src/index.ts` while keeping retained
+  readiness, artifact manifest, and artifact job contracts public. See
+  `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -964,6 +968,8 @@ The package must remain runnable without any parent editor checkout.
   for route-shaped generation/artifact API helpers
 - `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`: Phase 230 rewrite that
   removes route-helper test ownership before Window C export removal
+- `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`: Phase 231 removal of
+  route-shaped generation/artifact modules from the public core entrypoint
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

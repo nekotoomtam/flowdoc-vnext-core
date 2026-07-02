@@ -32,13 +32,13 @@ describe("core route retained-contract test rewrite", () => {
     expectNoNamedImport(artifactRetainedTest, "createVNextArtifactDownloadMetadataApiRouteResponse")
   })
 
-  it("keeps deprecated public route exports in place until the Window C removal patch", () => {
+  it("keeps deprecated route modules internal after the Window C public export removal", () => {
     const index = readText("src/index.ts")
     const generationRoute = readText("src/generation/apiRoute.ts")
     const artifactRoute = readText("src/generation/artifactApiRoute.ts")
 
-    expect(index).toContain("./generation/apiRoute.js")
-    expect(index).toContain("./generation/artifactApiRoute.js")
+    expect(index).not.toContain("./generation/apiRoute.js")
+    expect(index).not.toContain("./generation/artifactApiRoute.js")
     expect(generationRoute).toContain("@deprecated Window B compatibility export")
     expect(artifactRoute).toContain("@deprecated Window B compatibility export")
   })
@@ -53,10 +53,10 @@ describe("core route retained-contract test rewrite", () => {
 
     expect(doc).toContain("tests/generationRuntimeRetainedContract.test.ts")
     expect(doc).toContain("tests/artifactRetainedContract.test.ts")
-    expect(doc).toContain("No public export removed")
+    expect(doc).toContain("Window C export removal is now complete")
     expect(deexportPlan).toContain("retained-contract test rewrite is complete")
     expect(deprecationWindow).toContain("retained-contract tests have replaced")
-    expect(consumerMap).toContain("route tests now become pure retained-contract tests")
+    expect(consumerMap).toContain("route-shaped public exports have been removed")
     expect(readme).toContain("Core Route Retained-Contract Test Rewrite")
     expect(readme).toContain("docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md")
     expect(ledger).toContain("| 230 | Core route retained-contract test rewrite | done |")

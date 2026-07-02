@@ -38,19 +38,19 @@ describe("core route de-export plan", () => {
     expect(doc).toContain("deprecate route-shaped exports for one compatibility window")
     expect(doc).toContain("Window A / complete")
     expect(doc).toContain("Window B / complete")
-    expect(doc).toContain("Window C / next export removal patch")
+    expect(doc).toContain("Window C / complete")
     expect(doc).toContain("Do not skip Window B")
   })
 
-  it("keeps current route exports in place while planning de-export", () => {
+  it("removes current route exports from the public entrypoint in Window C", () => {
     const doc = readText("docs/CORE_ROUTE_DEEXPORT_PLAN.md")
     const index = readText("src/index.ts")
 
-    expect(index).toContain("./generation/apiRoute.js")
-    expect(index).toContain("./generation/artifactApiRoute.js")
-    expect(doc).toContain("The plan does not remove exports in this patch.")
-    expect(doc).toContain("`src/index.ts` still exports the route-shaped modules.")
-    expect(doc).toContain("No public export removed.")
+    expect(index).not.toContain("./generation/apiRoute.js")
+    expect(index).not.toContain("./generation/artifactApiRoute.js")
+    expect(doc).toContain("Window C export removal is complete.")
+    expect(doc).toContain("`src/index.ts` no longer exports the route-shaped modules.")
+    expect(doc).toContain("Public route exports removed.")
   })
 
   it("uses retained-contract tests before removing route helpers", () => {
@@ -105,8 +105,10 @@ describe("core route de-export plan", () => {
     expect(readme).toContain("docs/CORE_ROUTE_DEEXPORT_PLAN.md")
     expect(ledger).toContain("| 228 | Core route de-export plan | done |")
     expect(ledger).toContain("| 230 | Core route retained-contract test rewrite | done |")
+    expect(ledger).toContain("| 231 | Core route Window C public export removal | done |")
     expect(ledger).toContain("## Phase 228 Core Route De-export Plan")
     expect(ledger).toContain("## Phase 230 Core Route Retained-Contract Test Rewrite")
+    expect(ledger).toContain("## Phase 231 Core Route Window C Public Export Removal")
     expect(ledger).toContain("controlled de-export/deprecation window")
   })
 })

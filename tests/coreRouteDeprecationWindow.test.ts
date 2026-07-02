@@ -31,14 +31,14 @@ describe("core route deprecation window", () => {
     expect(artifactRoute).toContain("createVNextArtifactDownloadMetadataApiRouteResponse")
   })
 
-  it("keeps public route exports stable during the compatibility window", () => {
+  it("records that Window C removed public route exports after the compatibility window", () => {
     const index = readText("src/index.ts")
     const doc = readText("docs/CORE_ROUTE_DEPRECATION_WINDOW.md")
 
-    expect(index).toContain("./generation/apiRoute.js")
-    expect(index).toContain("./generation/artifactApiRoute.js")
-    expect(doc).toContain("Public route exports remain available.")
-    expect(doc).toContain("No public export removed.")
+    expect(index).not.toContain("./generation/apiRoute.js")
+    expect(index).not.toContain("./generation/artifactApiRoute.js")
+    expect(doc).toContain("Window C removed public route exports.")
+    expect(doc).toContain("Public route exports are no longer available from `src/index.ts`.")
   })
 
   it("records the retained-contract test rewrite that follows the compatibility markers", () => {
@@ -89,5 +89,6 @@ describe("core route deprecation window", () => {
     expect(ledger).toContain("## Phase 229 Core Route Deprecation Window")
     expect(ledger).toContain("Window B compatibility marker")
     expect(ledger).toContain("| 230 | Core route retained-contract test rewrite | done |")
+    expect(ledger).toContain("| 231 | Core route Window C public export removal | done |")
   })
 })

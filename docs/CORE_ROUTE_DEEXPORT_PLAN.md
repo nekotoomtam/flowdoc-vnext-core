@@ -2,9 +2,9 @@
 
 Date: 2026-07-03
 
-Status: planning gate after backend route parity evidence. Window B
-deprecation markers are applied and the retained-contract test rewrite is
-complete; `src/index.ts` public route exports remain unchanged until Window C.
+Status: Window C public route export removal complete after backend route
+parity evidence, Window B deprecation markers, and retained-contract test
+rewrite.
 
 ## Purpose
 
@@ -19,11 +19,12 @@ This plan chooses a conservative path:
 2. rewrite core route tests into retained-contract tests;
 3. remove route-shaped exports only after the compatibility window is closed.
 
-The plan does not remove exports in this patch.
+Window C export removal is complete.
+`src/index.ts` no longer exports the route-shaped modules.
 
 ## Source Evidence
 
-- Core still exports `./generation/apiRoute.js` and
+- Core no longer exports `./generation/apiRoute.js` or
   `./generation/artifactApiRoute.js` from `src/index.ts`.
 - Core historical route-helper tests have been removed/replaced by
   retained-contract tests:
@@ -53,8 +54,9 @@ Use one compatibility window:
 - **Window A / complete**: publish this plan and keep current exports.
 - **Window B / complete**: add explicit deprecation markers to the route
   modules and tests while keeping exports in `src/index.ts`.
-- **Window C / next export removal patch**: remove route-shaped exports from
-  `src/index.ts` after retained-contract tests replace route-helper assertions.
+- **Window C / complete**: route-shaped exports were removed from
+  `src/index.ts` after retained-contract tests replaced route-helper
+  assertions.
 
 Do not skip Window B unless a consumer scan proves there are no package users
 outside this workspace and the maintainer accepts a direct breaking cleanup.
@@ -97,9 +99,10 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
    removed, renamed, or rewritten so they no longer assert HTTP-shaped route
    ownership in core. Done in Phase 230.
 5. `src/index.ts` no longer exports `./generation/apiRoute.js` or
-   `./generation/artifactApiRoute.js`.
+   `./generation/artifactApiRoute.js`. Done in Phase 231.
 6. `docs/CORE_SERVICE_CONSUMER_MAP.md`, README, and
-   `docs/PHASE_LEDGER.md` are updated in the same removal patch.
+   `docs/PHASE_LEDGER.md` are updated in the same removal patch. Done in
+   Phase 231.
 
 ## Guardrails
 
@@ -123,15 +126,14 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 
 ## FAIL / BLOCKER
 
-- Public route export removal has not run yet; Window C must remove exports and
-  update route docs in one patch.
+- None for public route de-export.
 
 ## RISK
 
-- Keeping route helpers for one more window leaves duplicated route vocabulary
-  in core and backend.
-- Removing route helpers without a deprecation window could break unknown
-  package consumers.
+- Deprecated route helper source files still exist and duplicate backend route
+  vocabulary internally until source cleanup.
+- External consumers that still imported route helpers from the public
+  entrypoint must move to backend route parity or retained contracts.
 
 ## UNKNOWN
 
@@ -147,9 +149,9 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 
 ## Behavior Changed
 
-- Documentation and guard tests only.
-- No public export removed.
+- Public route exports removed.
 - Route helpers are marked deprecated in source for Window B.
+- Runtime source behavior is unchanged.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -158,14 +160,12 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 
 ## Risks Left
 
-- Window C public route export removal remains.
+- Deprecated route source cleanup remains.
 - Session/rich-inline/workflow split-before-move remains separate.
 
 ## Intentionally Not Changed
 
-- `src/index.ts` still exports the route-shaped modules.
 - `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts` still
-  exist.
+  exist as deprecated historical/internal code.
 - Core route-helper tests have been replaced by retained-contract tests.
-- Window C export removal is intentionally left for the next patch.
 - Backend HTTP server wiring is not changed.

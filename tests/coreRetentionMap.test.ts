@@ -75,12 +75,10 @@ describe("core retention map", () => {
     expect(audit).toContain("Start with P1, not P2.")
   })
 
-  it("keeps currently exported service-shaped modules marked as temporary retention work", () => {
+  it("keeps remaining exported service-shaped modules marked as temporary retention work", () => {
     const doc = readText("docs/CORE_RETENTION_MAP.md")
     const index = readText("src/index.ts")
     const temporaryExports = [
-      "./generation/apiRoute.js",
-      "./generation/artifactApiRoute.js",
       "./authoring/sessionStorage.js",
       "./authoring/richInlineSessionPersistence.js",
       "./workflow/submissionState.js",
@@ -90,7 +88,9 @@ describe("core retention map", () => {
       expect(index).toContain(exportedPath)
     }
 
-    expect(doc).toContain("temporary duplicate until backend route parity")
+    expect(index).not.toContain("./generation/apiRoute.js")
+    expect(index).not.toContain("./generation/artifactApiRoute.js")
+    expect(doc).toContain("route-shaped public exports are removed")
     expect(doc).toContain("split-before-move")
     expect(doc).toContain("Do not remove public exports only because backend P1 exists.")
     expect(doc).toContain("Editor/backend consumers no longer import the service-shaped core export.")

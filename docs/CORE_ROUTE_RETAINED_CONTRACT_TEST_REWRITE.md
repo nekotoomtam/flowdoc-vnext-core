@@ -2,18 +2,20 @@
 
 Date: 2026-07-03
 
-Status: Window C preparation complete for core route-helper tests.
+Status: retained-contract test rewrite complete. Phase 231 has now removed
+public route exports from `src/index.ts`.
 
 ## Purpose
 
-This phase closes the test-rewrite blocker from
+This phase closed the test-rewrite blocker from
 `docs/CORE_ROUTE_DEEXPORT_PLAN.md`. Core route-shaped helpers remain deprecated
-compatibility exports, but the required core tests no longer assert
-HTTP-shaped route ownership. Backend route parity remains the owner of route
-status, headers, method handling, permission envelopes, retry metadata, and
-download metadata.
+in their source files, but the required core tests no longer assert HTTP-shaped
+route ownership. Backend route parity remains the owner of route status,
+headers, method handling, permission envelopes, retry metadata, and download
+metadata.
 
-No public export removed in this patch.
+No public export was removed in the Phase 230 test-rewrite patch. Window C
+export removal is now complete in Phase 231.
 
 ## Rewritten Test Ownership
 
@@ -58,14 +60,13 @@ The deprecated route-shaped modules still exist:
 - `src/generation/apiRoute.ts`;
 - `src/generation/artifactApiRoute.ts`.
 
-`src/index.ts` still exports:
+`src/index.ts` no longer exports:
 
 - `./generation/apiRoute.js`;
 - `./generation/artifactApiRoute.js`.
 
-That is intentional. This phase prepares Window C by removing route-helper test
-ownership first. The next removal patch can remove public route exports and
-update route docs without also rewriting behavior tests.
+That is intentional after Window C. Phase 230 prepared the removal by moving
+test ownership to retained contracts; Phase 231 removed the public exports.
 
 ## PASS
 
@@ -73,16 +74,16 @@ update route docs without also rewriting behavior tests.
   manifest/job behavior directly.
 - Core route-helper test files no longer exist.
 - Retained-contract tests do not import route helpers from `src/index.ts`.
-- Public route exports remain stable for the compatibility window.
+- Window C export removal is now complete.
 
 ## FAIL / BLOCKER
 
-- Public route de-export is still not executed in this patch.
+- None for the retained-contract test rewrite.
 
 ## RISK
 
-- Deprecated route helpers still duplicate backend route vocabulary until the
-  Window C export removal patch lands.
+- Deprecated route helper source files still duplicate backend route vocabulary
+  until source cleanup.
 - Historical docs for Phase 86 and Phase 138 still describe the original route
   boundary implementation and should be read as history.
 
@@ -110,7 +111,8 @@ update route docs without also rewriting behavior tests.
 - Test ownership changed from route-helper assertions to retained core
   contract assertions.
 - Runtime source behavior is unchanged.
-- No public export removed.
+- No public export was removed in the Phase 230 test-rewrite patch; Phase 231
+  later removed route-shaped public exports.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -119,13 +121,12 @@ update route docs without also rewriting behavior tests.
 
 ## Risks Left
 
-- Window C public route export removal remains.
+- Deprecated route source cleanup remains.
 - Backend HTTP server wiring remains separate.
 - Session/rich-inline/workflow split-before-move remains open.
 
 ## Intentionally Not Changed
 
-- `src/index.ts` still exports the route-shaped modules.
 - `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts` still
   exist with Window B deprecation markers.
 - No route helper runtime behavior changed.

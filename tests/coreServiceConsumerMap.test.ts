@@ -63,8 +63,6 @@ describe("core service consumer map", () => {
     const doc = readText("docs/CORE_SERVICE_CONSUMER_MAP.md")
     const index = readText("src/index.ts")
     const blockedExports = [
-      "./generation/apiRoute.js",
-      "./generation/artifactApiRoute.js",
       "./authoring/sessionStorage.js",
       "./authoring/richInlineSessionPersistence.js",
       "./workflow/submissionState.js",
@@ -75,9 +73,11 @@ describe("core service consumer map", () => {
       expect(doc).toContain(exportedPath)
     }
 
-    expect(doc).toContain("Do not remove these exports yet")
+    expect(index).not.toContain("./generation/apiRoute.js")
+    expect(index).not.toContain("./generation/artifactApiRoute.js")
+    expect(doc).toContain("Do not remove these remaining exports yet")
     expect(doc).toContain("route-shaped backend parity exists")
-    expect(doc).toContain("Window C route export removal has not run yet")
+    expect(doc).toContain("route-shaped public exports have been removed")
     expect(doc).toContain("retained core contract names")
   })
 
@@ -88,7 +88,7 @@ describe("core service consumer map", () => {
 
     expect(retention).toContain("## Move + Retain Rule")
     expect(retention).toContain("## De-export Preconditions")
-    expect(retention).toContain("temporary duplicate until backend route parity")
+    expect(retention).toContain("route-shaped public exports are removed")
     expect(audit).toContain("## Priority Migration Plan")
     expect(audit).toContain("### P2: Move Route-Shaped Core Modules")
     expect(doc).toContain("Backend P1 migration is treated as evidence for execution ownership")
