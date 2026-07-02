@@ -880,7 +880,9 @@ The package must remain runnable without any parent editor checkout.
 - Core Service Consumer Map separates the current cross-repo consumers for
   route-shaped API helpers, persistence/workflow builders, old concrete package
   lanes, retained core contracts, and the editor adapter before any public
-  service-shaped export is deprecated or removed. See
+  service-shaped export is deprecated or removed. It now records backend route
+  parity evidence for generation and artifact route contracts while keeping
+  core de-export work gated by a compatibility window. See
   `docs/CORE_SERVICE_CONSUMER_MAP.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
@@ -942,8 +944,8 @@ The package must remain runnable without any parent editor checkout.
   backend-owned, split-contract, and deferred service concern areas
 - `docs/CORE_RETENTION_MAP.md`: move-and-retain map before service-shaped
   exports are de-exported from core
-- `docs/CORE_SERVICE_CONSUMER_MAP.md`: cross-repo consumer map before backend
-  route parity and controlled service-shaped export cleanup
+- `docs/CORE_SERVICE_CONSUMER_MAP.md`: cross-repo consumer map with backend
+  route parity evidence before controlled service-shaped export cleanup
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

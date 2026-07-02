@@ -240,6 +240,7 @@ Parent goal:
 | 224 | Runtime binding implementation planning gate | done | `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`; `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `fixtures/render-api-request-envelope-contract.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/runtimeBindingImplementationPlanningGate.test.ts`; pointer guard tests |
 | 225 | Core retention map | done | `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRetentionMap.test.ts` |
 | 226 | Core service consumer map | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts` |
+| 227 | Backend route parity evidence | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts`; `flowdoc-vnext-backend@2ae6570` |
 
 ## Current Rule
 
@@ -6790,6 +6791,39 @@ gateway, add production storage, run artifact rendering, or claim route parity.
 
 Next recommended work: implement backend route parity for
 `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts`.
+
+## Phase 227 Backend Route Parity Evidence
+
+Backend Route Parity Evidence updates the Core Service Consumer Map after
+`flowdoc-vnext-backend` branch `codex/backend-route-parity` commit `2ae6570`
+added backend-owned generation and artifact route parity contracts.
+
+The evidence confirms:
+
+- backend now has `flowdoc-vnext-backend/src/routes/generationRoute.ts` with
+  `createFlowDocBackendGenerationRouteResponse(...)`;
+- backend now has `flowdoc-vnext-backend/src/routes/artifactRoute.ts` with
+  artifact request, status, session-list, and download-metadata route response
+  helpers;
+- backend route parity calls retained core contracts through package-level
+  `@flowdoc/vnext-core` imports, including
+  `assessVNextGenerationReadiness(...)` and
+  `createVNextArtifactManifestPlan(...)`;
+- backend route parity does not import the old core route helpers
+  `createVNextGenerationApiRouteResponse(...)` or
+  `createVNextArtifactGenerationApiRouteResponse(...)`;
+- core still exports `src/generation/apiRoute.ts` and
+  `src/generation/artifactApiRoute.ts`, so immediate removal remains blocked
+  until the public compatibility/deprecation window and historical test rewrite
+  are planned.
+
+This phase intentionally does not move source modules, remove public exports,
+add deprecation markers, change backend/editor consumers, wire the backend
+routes into the concrete HTTP server, introduce a gateway, add production
+storage, run artifact rendering, or claim production route readiness.
+
+Next recommended work: draft the controlled de-export/deprecation window for
+core generation and artifact route-shaped exports.
 
 ## Phase 12 Extraction Record
 

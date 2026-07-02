@@ -31,6 +31,8 @@ describe("core service consumer map", () => {
       "src/workflow/submissionState.ts",
       "packages/storage-file-json",
       "packages/internal-alpha-runner",
+      "flowdoc-vnext-backend/src/routes/generationRoute.ts",
+      "flowdoc-vnext-backend/src/routes/artifactRoute.ts",
       "flowdoc-vnext-backend/src/storage/fileJsonStorage.ts",
       "flowdoc-vnext-backend/src/storage/storageRouteBinding.ts",
       "flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts",
@@ -46,12 +48,16 @@ describe("core service consumer map", () => {
     }
 
     expect(doc).toContain("editor -> backend -> core")
-    expect(doc).toContain("Backend route parity")
+    expect(doc).toContain("Backend route parity now exists")
+    expect(doc).toContain("codex/backend-route-parity")
+    expect(doc).toContain("2ae6570")
+    expect(doc).toContain("createFlowDocBackendGenerationRouteResponse")
+    expect(doc).toContain("createFlowDocBackendArtifactGenerationRouteResponse")
     expect(doc).toContain("backend tests still use the session storage record shape")
     expect(doc).toContain("no direct service-shaped export consumer was found")
   })
 
-  it("keeps current service-shaped exports marked as blocked from removal", () => {
+  it("keeps current service-shaped exports marked as blocked from immediate removal", () => {
     const doc = readText("docs/CORE_SERVICE_CONSUMER_MAP.md")
     const index = readText("src/index.ts")
     const blockedExports = [
@@ -68,7 +74,8 @@ describe("core service consumer map", () => {
     }
 
     expect(doc).toContain("Do not remove these exports yet")
-    expect(doc).toContain("route-shaped backend parity is not implemented yet")
+    expect(doc).toContain("route-shaped backend parity exists")
+    expect(doc).toContain("public compatibility/deprecation window is not locked")
     expect(doc).toContain("retained core contract names")
   })
 
@@ -83,7 +90,9 @@ describe("core service consumer map", () => {
     expect(audit).toContain("## Priority Migration Plan")
     expect(audit).toContain("### P2: Move Route-Shaped Core Modules")
     expect(doc).toContain("Backend P1 migration is treated as evidence for execution ownership")
+    expect(doc).toContain("Backend route parity now exists for the generation and artifact API route")
     expect(doc).toContain("The retained core contract has a named owner and direct core tests.")
+    expect(doc).toContain("This is now true for generation")
     expect(doc).toContain("Core historical tests either move to backend")
   })
 
@@ -113,7 +122,9 @@ describe("core service consumer map", () => {
     expect(readme).toContain("Core Service Consumer Map")
     expect(readme).toContain("docs/CORE_SERVICE_CONSUMER_MAP.md")
     expect(ledger).toContain("| 226 | Core service consumer map | done |")
+    expect(ledger).toContain("| 227 | Backend route parity evidence | done |")
     expect(ledger).toContain("## Phase 226 Core Service Consumer Map")
+    expect(ledger).toContain("## Phase 227 Backend Route Parity Evidence")
     expect(ledger).toContain("consumer groups")
   })
 })

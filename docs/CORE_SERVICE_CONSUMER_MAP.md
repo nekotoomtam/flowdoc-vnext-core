@@ -1,9 +1,10 @@
 # Core Service Consumer Map
 
-Date: 2026-07-02
+Date: 2026-07-03
 
-Status: consumer evidence map after `docs/CORE_RETENTION_MAP.md` and before
-backend route parity or public de-export work.
+Status: consumer evidence map after `docs/CORE_RETENTION_MAP.md` and after the
+first backend route parity implementation in `flowdoc-vnext-backend`. Public
+de-export work has not started.
 
 ## Purpose
 
@@ -37,8 +38,22 @@ Current findings:
   concrete-storage, and internal-alpha runner behavior.
 - Backend P1 now owns concrete file JSON storage, storage route binding, and
   artifact job storage execution under `flowdoc-vnext-backend/src`.
+- Backend route parity now exists on `flowdoc-vnext-backend` branch
+  `codex/backend-route-parity` at commit `2ae6570`, with backend-owned
+  contract modules:
+  `flowdoc-vnext-backend/src/routes/generationRoute.ts` and
+  `flowdoc-vnext-backend/src/routes/artifactRoute.ts`.
+- The generation route parity entrypoint is
+  `createFlowDocBackendGenerationRouteResponse(...)`; artifact route parity
+  entrypoints include
+  `createFlowDocBackendArtifactGenerationRouteResponse(...)`,
+  `createFlowDocBackendArtifactStatusRouteResponse(...)`,
+  `createFlowDocBackendSessionArtifactListRouteResponse(...)`, and
+  `createFlowDocBackendArtifactDownloadMetadataRouteResponse(...)`.
 - Backend runtime imports retained core contracts from `@flowdoc/vnext-core`;
-  it does not import the core generation route response helpers.
+  the route parity modules call `assessVNextGenerationReadiness(...)` and
+  `createVNextArtifactManifestPlan(...)` rather than importing the old core
+  route response helpers.
 - Backend test setup still imports `createVNextSessionStorageRecord(...)` to
   seed storage route binding records.
 - Editor depends on `@flowdoc/vnext-core`, but its boundary test keeps package
@@ -50,8 +65,8 @@ Current findings:
 
 | Group | Core Evidence | Backend Evidence | Editor Evidence | Current Decision |
 |---|---|---|---|---|
-| Route-shaped generation API | `src/generation/apiRoute.ts`; `tests/generationApiRoute.test.ts`; `src/index.ts` export | no backend import of `createVNextGenerationApiRouteResponse(...)` yet | no direct consumer | move to backend after route parity; retain `src/generation/runtime.ts` readiness truth |
-| Route-shaped artifact API | `src/generation/artifactApiRoute.ts`; `tests/artifactApiRoute.test.ts`; `src/index.ts` export | backend has storage/job execution pieces, but no import of artifact route response helpers yet | no direct consumer | move to backend after route parity; retain manifest/job/readiness contracts |
+| Route-shaped generation API | `src/generation/apiRoute.ts`; `tests/generationApiRoute.test.ts`; `src/index.ts` export | `flowdoc-vnext-backend/src/routes/generationRoute.ts` implements backend-owned parity through `createFlowDocBackendGenerationRouteResponse(...)` without importing `createVNextGenerationApiRouteResponse(...)` | no direct consumer | route parity exists; plan controlled de-export while retaining `src/generation/runtime.ts` readiness truth |
+| Route-shaped artifact API | `src/generation/artifactApiRoute.ts`; `tests/artifactApiRoute.test.ts`; `src/index.ts` export | `flowdoc-vnext-backend/src/routes/artifactRoute.ts` implements backend-owned parity through artifact request/status/list/download metadata response helpers without importing core artifact route response helpers | no direct consumer | route parity exists; plan controlled de-export while retaining manifest/job/readiness contracts |
 | Session storage record | `src/authoring/sessionStorage.ts`; `tests/sessionStorage.test.ts`; storage and vertical-slice tests | `src/tests/storageRouteBinding.test.ts` uses `createVNextSessionStorageRecord(...)` as fixture setup | no direct consumer | split package snapshot helper from storage-shaped record before move |
 | Rich inline session persistence | `src/authoring/richInlineSessionPersistence.ts`; rich-inline, storage, and vertical-slice tests | no runtime consumer found | no direct consumer | split replay-patch validation and history-ready facts before move |
 | Submission state | `src/workflow/submissionState.ts`; `tests/submissionState.test.ts` | no runtime consumer found | no direct consumer | move workflow runtime to backend; retain only package/document/data identity facts if needed |
@@ -62,7 +77,7 @@ Current findings:
 
 ## De-export Readiness
 
-### Blocked Now
+### Blocked From Immediate Removal
 
 Do not remove these exports yet:
 
@@ -74,7 +89,9 @@ Do not remove these exports yet:
 
 Reasons:
 
-- route-shaped backend parity is not implemented yet;
+- route-shaped backend parity exists, but core historical tests still assert
+  the old route helper behavior;
+- the public compatibility/deprecation window is not locked;
 - backend tests still use the session storage record shape;
 - core tests still prove service-shaped boundary behavior;
 - retained core contract names for package snapshot, replay patch validation,
@@ -97,7 +114,8 @@ Keep these as core-owned or split-contract exports:
 A service-shaped export can be deprecated or removed only when all are true:
 
 1. Backend has a package-level `@flowdoc/vnext-core` consumer with matching
-   tests for the replacement backend behavior.
+   tests for the replacement backend behavior. This is now true for generation
+   and artifact route parity only.
 2. The retained core contract has a named owner and direct core tests.
 3. Backend and editor no longer import the service-shaped core export.
 4. Core historical tests either move to backend or become pure retained-contract
@@ -106,14 +124,17 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## Next Implementation Order
 
-1. Implement backend route parity for `src/generation/apiRoute.ts` and
-   `src/generation/artifactApiRoute.ts`.
-2. Split retained core helpers for session package snapshots, rich inline
+1. Draft the controlled de-export/deprecation window for
+   `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts`.
+2. Convert core route tests into retained-contract tests or mark the public
+   route helpers deprecated for one compatibility window.
+3. Split retained core helpers for session package snapshots, rich inline
    replay-patch validation, and submission identity facts.
-3. Rewire backend/editor consumers to backend-owned route and persistence
+4. Rewire backend/editor consumers to backend-owned route and persistence
    behavior.
-4. De-export route-shaped core modules in a controlled compatibility window.
-5. Retire `packages/storage-file-json` and `packages/internal-alpha-runner`
+5. De-export route-shaped core modules after the compatibility window and test
+   rewrite are complete.
+6. Retire `packages/storage-file-json` and `packages/internal-alpha-runner`
    from core after backend parity and historical-test replacement are proven.
 
 ## PASS
@@ -121,6 +142,8 @@ A service-shaped export can be deprecated or removed only when all are true:
 - The current consumer groups are separated into route-shaped API, persistence
   builders, workflow state, concrete backend package lanes, retained contracts,
   and editor adapter usage.
+- Backend route parity now exists for the generation and artifact API route
+  contracts without importing the old core route helpers.
 - Backend P1 migration is treated as evidence for execution ownership, not as
   permission to delete retained core contracts.
 - Editor is currently clean: core package imports are behind its adapter facade,
@@ -128,13 +151,14 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## FAIL / BLOCKER
 
-- Backend route parity for generation and artifact API helpers is not present
-  yet, so route-shaped core exports are not ready for de-export.
+- None for route parity evidence capture.
 
 ## RISK
 
 - Core still exports route-shaped and storage-shaped helpers, so duplicated
-  truth can linger if the backend parity lane is delayed.
+  truth can linger if the de-export window is delayed.
+- Backend route parity is contract-only and is not wired into the concrete HTTP
+  server yet.
 - Backend tests still depend on a core session storage record fixture shape.
 - Old core package lanes still contain concrete filesystem behavior for
   historical evidence.
@@ -164,7 +188,7 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## Risks Left
 
-- Backend route parity remains the next required implementation lane.
+- Core route de-export/deprecation planning remains the next required lane.
 - Session/rich-inline/workflow split-before-move remains open.
 - Old concrete package lanes remain in core until historical-test replacement
   and consumer rewiring are proven.
@@ -173,6 +197,6 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 - No source module moved.
 - No public export removed.
-- No backend route implemented.
+- No core de-export or deprecation marker added.
 - No editor consumer changed.
 - No gateway layer introduced.
