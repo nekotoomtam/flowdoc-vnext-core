@@ -245,6 +245,7 @@ Parent goal:
 | 229 | Core route deprecation window | done | `src/generation/apiRoute.ts`; `src/generation/artifactApiRoute.ts`; `tests/generationApiRoute.test.ts`; `tests/artifactApiRoute.test.ts`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeprecationWindow.test.ts` |
 | 230 | Core route retained-contract test rewrite | done | `tests/generationRuntimeRetainedContract.test.ts`; `tests/artifactRetainedContract.test.ts`; `tests/coreRouteRetainedContractRewrite.test.ts`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 231 | Core route Window C public export removal | done | `src/index.ts`; `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteWindowCPublicExportRemoval.test.ts`; route guard tests |
+| 232 | Core session rich workflow split map | done | `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 
 ## Current Rule
 
@@ -6952,6 +6953,41 @@ Next recommended work: continue the service split with session package
 snapshot, rich-inline replay validation, and submission identity facts, or
 clean up deprecated route source files if historical evidence is no longer
 needed.
+
+## Phase 232 Core Session Rich Workflow Split Map
+
+Core Session Rich Workflow Split Map separates the next three service-shaped
+core areas before implementation or public de-export.
+
+The map confirms:
+
+- session storage currently exports `createVNextSessionStorageRecord(...)`,
+  keeps canonical package snapshot and persisted-state exclusion facts in core,
+  and leaves durable storage, storage keys, idempotency, and routes to backend;
+- rich-inline session persistence currently exports
+  `createVNextRichInlineSessionPersistenceRecord(...)` and
+  `createVNextRichInlineReplayPatchRecord(...)`, retains replay-patch
+  validation and history-ready facts in core, and leaves storage writes,
+  backend APIs, replay execution, conflict resolution, and selection
+  restoration to backend/product runtime;
+- submission state currently exports `createVNextSubmissionStateRecord(...)`,
+  retains template/submission/revision/actor/reviewer identity and validation
+  facts in core only if needed, and leaves workflow engine, permissions,
+  approval gates, route dispatch, and storage writes to backend;
+- `src/index.ts` still exports `./authoring/sessionStorage.js`,
+  `./authoring/richInlineSessionPersistence.js`, and
+  `./workflow/submissionState.js` until retained names and backend replacement
+  contracts are implemented;
+- `tests/coreSessionRichWorkflowSplitMap.test.ts` guards the map, current
+  public exports, source markers, and repo navigation.
+
+This phase intentionally does not rename or move source modules, remove public
+exports, change backend/editor consumers, add storage/workflow routes, execute
+rich-inline replay, introduce a gateway, or claim production persistence
+readiness.
+
+Next recommended work: implement the first split by extracting/renaming
+session package snapshot facts away from storage-shaped session record wording.
 
 ## Phase 12 Extraction Record
 

@@ -900,6 +900,10 @@ The package must remain runnable without any parent editor checkout.
   generation/artifact modules from `src/index.ts` while keeping retained
   readiness, artifact manifest, and artifact job contracts public. See
   `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`.
+- Core Session Rich Workflow Split Map separates the next three
+  split-before-move areas into session package snapshot facts, rich-inline
+  replay validation facts, and submission workflow identity/status facts before
+  any public de-export. See `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -970,6 +974,9 @@ The package must remain runnable without any parent editor checkout.
   removes route-helper test ownership before Window C export removal
 - `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`: Phase 231 removal of
   route-shaped generation/artifact modules from the public core entrypoint
+- `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`: Phase 232 split map for
+  session package snapshots, rich-inline replay validation, and submission
+  workflow identity/status facts
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

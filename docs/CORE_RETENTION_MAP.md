@@ -55,9 +55,9 @@ Every service concern move must answer both sides before code is removed:
 | Artifact manifest | artifact lifecycle persistence, byte-store pointer mutation, cleanup policy | `src/generation/artifactManifest.ts` JSON-safe manifest validation and status vocabulary | split-contract |
 | Artifact job record/state | queue, worker execution, storage writes, retry scheduling, renderer orchestration | `src/generation/artifactJob.ts` durable job record shape and pure transition rules | split-contract |
 | Storage adapter contract | file/database/object-store adapters, concrete persistence lifecycle, transaction policy | `src/persistence/storageAdapter.ts` envelope shape, read/write evaluator, idempotency and expected-revision rules | split-contract |
-| Session storage record | durable session store, storage key lifecycle, backend read/write routes currently represented by `src/authoring/sessionStorage.ts` | package snapshot serialization intent and persisted-state exclusions until a pure package-snapshot helper replaces the storage-shaped record | split-before-move |
-| Rich inline session persistence | storage adapter writes, backend API calls, replay service, conflict resolution execution currently represented by `src/authoring/richInlineSessionPersistence.ts` | rich inline commit semantics, history records, replay patch validation facts, and before/after child snapshots | split-before-move |
-| Submission state | reviewer workflow service, actor/reviewer permissions, route/storage execution currently represented by `src/workflow/submissionState.ts` | package/document/data identity facts only; no workflow engine or package mutation | split-before-move |
+| Session storage record | durable session store, storage key lifecycle, backend read/write routes currently represented by `src/authoring/sessionStorage.ts` | package snapshot serialization intent and persisted-state exclusions until a pure package-snapshot helper replaces the storage-shaped record | split-before-move; see `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` |
+| Rich inline session persistence | storage adapter writes, backend API calls, replay service, conflict resolution execution currently represented by `src/authoring/richInlineSessionPersistence.ts` | rich inline commit semantics, history records, replay patch validation facts, and before/after child snapshots | split-before-move; see `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` |
+| Submission state | reviewer workflow service, actor/reviewer permissions, route/storage execution currently represented by `src/workflow/submissionState.ts` | package/document/data identity facts only; no workflow engine or package mutation | split-before-move; see `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` |
 | Editor bridge runtime | backend/editor transport wrappers and product read endpoints currently represented by `src/editorBridge/runtime.ts` consumers | read-only package/graph/pagination/export readiness projection, eventually renamed toward a generic read model | split-contract |
 | Concrete file JSON storage | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` and future production adapters | no concrete file/db/object-store storage in exported `src/**`; old `packages/storage-file-json` lane remains migration evidence until removal | move-backend |
 | Internal alpha runner | `flowdoc-vnext-backend/src/storage/storageRouteBinding.ts` and `src/artifacts/artifactJobExecution.ts` | no runner execution in exported `src/**`; old `packages/internal-alpha-runner` lane remains migration evidence until removal | move-backend |
@@ -99,8 +99,9 @@ Core guard tests should keep these facts true:
 
 ## Next Implementation Order
 
-1. Extract or rename retained core helpers where session/rich-inline/workflow
-   builders still mix pure facts with storage-shaped wording.
+1. Use `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` to split session
+   package snapshot facts, rich-inline replay-patch validation, and submission
+   identity/status facts from service-shaped wording.
 2. Remove deprecated route source files only after historical docs and source
    evidence no longer need them.
 3. Remove old concrete package lanes from core after backend parity and consumer
@@ -127,6 +128,9 @@ Core guard tests should keep these facts true:
   for too long.
 - Session/rich-inline/workflow builders need careful splitting before their
   service-shaped names can leave core.
+- The Phase 232 split map now defines the session package snapshot,
+  rich-inline replay-patch validation, and submission identity/status lanes,
+  but implementation splits remain.
 
 ## UNKNOWN
 
