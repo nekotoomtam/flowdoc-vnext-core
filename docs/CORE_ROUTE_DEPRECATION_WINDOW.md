@@ -2,14 +2,16 @@
 
 Date: 2026-07-03
 
-Status: Window B compatibility marker for route-shaped core exports.
+Status: Window B compatibility marker for route-shaped core exports. Phase 230
+has now replaced route-helper tests with retained-contract tests.
 
 ## Purpose
 
 This phase executes Window B from `docs/CORE_ROUTE_DEEXPORT_PLAN.md`. Core route
-helpers remain exported for one compatibility window, but their source and
-route-helper tests are now explicitly marked as deprecated compatibility
-coverage. Backend route parity is the owner of HTTP-shaped route envelopes.
+helpers remain exported for one compatibility window, and their source remains
+explicitly marked as deprecated compatibility coverage. Backend route parity is
+the owner of HTTP-shaped route envelopes. The follow-up retained-contract test
+rewrite has replaced the old route-helper ownership assertions.
 
 ## Deprecated Compatibility Exports
 
@@ -49,20 +51,26 @@ Retained-contract tests should target:
 - `createVNextArtifactJobPlan(...)`;
 - `advanceVNextArtifactJob(...)`.
 
-## Test Marker
+## Superseded Test Ownership
 
-`tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts` now
-carry a Window B compatibility marker. Their remaining route-helper assertions
-are accepted only for the compatibility window. They should be rewritten or
-removed before `src/index.ts` stops exporting the route-shaped modules.
+The Window B route-helper tests have been replaced by retained-contract tests:
+
+- `tests/generationRuntimeRetainedContract.test.ts`;
+- `tests/artifactRetainedContract.test.ts`;
+- `tests/coreRouteRetainedContractRewrite.test.ts`.
+
+Those retained-contract tests have replaced route-helper ownership assertions
+while keeping public route exports available until Window C.
 
 ## Removal Preconditions
 
 Before Window C removal:
 
 1. backend route parity remains green;
-2. retained-contract tests replace route-helper ownership assertions;
+2. retained-contract tests replace route-helper ownership assertions; done in
+   Phase 230;
 3. route-helper test files no longer import route helpers from `src/index.ts`;
+   done in Phase 230;
 4. `src/index.ts` removes `./generation/apiRoute.js` and
    `./generation/artifactApiRoute.js`;
 5. `docs/CORE_SERVICE_CONSUMER_MAP.md`,
@@ -72,13 +80,12 @@ Before Window C removal:
 ## PASS
 
 - Route-shaped helpers now have explicit source-level `@deprecated` markers.
-- Route-helper tests now identify themselves as compatibility-window coverage.
+- Retained-contract tests have replaced route-helper ownership assertions.
 - Public exports remain stable for one window.
 
 ## FAIL / BLOCKER
 
-- Window C removal is blocked until retained-contract tests replace the
-  route-helper assertions.
+- Window C removal has not run yet.
 
 ## RISK
 
@@ -94,8 +101,9 @@ Before Window C removal:
 
 - `src/generation/apiRoute.ts`
 - `src/generation/artifactApiRoute.ts`
-- `tests/generationApiRoute.test.ts`
-- `tests/artifactApiRoute.test.ts`
+- `tests/generationRuntimeRetainedContract.test.ts`
+- `tests/artifactRetainedContract.test.ts`
+- `tests/coreRouteRetainedContractRewrite.test.ts`
 - `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`
 - `tests/coreRouteDeprecationWindow.test.ts`
 - README and phase ledger pointers
@@ -112,7 +120,7 @@ Before Window C removal:
 
 ## Risks Left
 
-- Window C retained-contract rewrite and export removal remain.
+- Window C export removal remains.
 - Backend HTTP server wiring remains separate.
 
 ## Intentionally Not Changed

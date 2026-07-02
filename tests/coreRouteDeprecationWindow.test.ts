@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
@@ -7,6 +7,10 @@ const repoRoot = fileURLToPath(new URL("../", import.meta.url))
 
 function readText(path: string): string {
   return readFileSync(join(repoRoot, path), "utf8")
+}
+
+function expectNoNamedImport(source: string, symbol: string): void {
+  expect(source).not.toMatch(new RegExp(`import\\s*\\{[^}]*${symbol}`))
 }
 
 describe("core route deprecation window", () => {
@@ -37,19 +41,24 @@ describe("core route deprecation window", () => {
     expect(doc).toContain("No public export removed.")
   })
 
-  it("marks legacy route-helper tests as compatibility-window coverage", () => {
-    const generationRouteTest = readText("tests/generationApiRoute.test.ts")
-    const artifactRouteTest = readText("tests/artifactApiRoute.test.ts")
+  it("records the retained-contract test rewrite that follows the compatibility markers", () => {
+    const generationRuntimeTest = readText("tests/generationRuntimeRetainedContract.test.ts")
+    const artifactRetainedTest = readText("tests/artifactRetainedContract.test.ts")
     const doc = readText("docs/CORE_ROUTE_DEPRECATION_WINDOW.md")
 
-    expect(generationRouteTest).toContain("ROUTE_HELPER_COMPATIBILITY_WINDOW")
-    expect(generationRouteTest).toContain("Window B route-helper compatibility test")
-    expect(artifactRouteTest).toContain("ROUTE_HELPER_COMPATIBILITY_WINDOW")
-    expect(artifactRouteTest).toContain("Window B route-helper compatibility test")
-    expect(doc).toContain("tests/generationApiRoute.test.ts")
-    expect(doc).toContain("tests/artifactApiRoute.test.ts")
-    expect(doc).toContain("They should be rewritten or")
-    expect(doc).toContain("removed before `src/index.ts` stops exporting")
+    expect(existsSync(join(repoRoot, "tests/generationApiRoute.test.ts"))).toBe(false)
+    expect(existsSync(join(repoRoot, "tests/artifactApiRoute.test.ts"))).toBe(false)
+    expect(generationRuntimeTest).toContain("assessVNextGenerationReadiness")
+    expect(generationRuntimeTest).toContain("safeParseVNextGenerationRequest")
+    expectNoNamedImport(generationRuntimeTest, "createVNextGenerationApiRouteResponse")
+    expect(artifactRetainedTest).toContain("createVNextArtifactManifestPlan")
+    expect(artifactRetainedTest).toContain("createVNextArtifactJobPlan")
+    expect(artifactRetainedTest).toContain("advanceVNextArtifactJob")
+    expectNoNamedImport(artifactRetainedTest, "createVNextArtifactGenerationApiRouteResponse")
+    expect(doc).toContain("tests/generationRuntimeRetainedContract.test.ts")
+    expect(doc).toContain("tests/artifactRetainedContract.test.ts")
+    expect(doc).toContain("retained-contract tests have replaced")
+    expect(doc).toContain("route-helper ownership assertions")
   })
 
   it("keeps backend ownership and retained core owners explicit", () => {
@@ -79,5 +88,6 @@ describe("core route deprecation window", () => {
     expect(ledger).toContain("| 229 | Core route deprecation window | done |")
     expect(ledger).toContain("## Phase 229 Core Route Deprecation Window")
     expect(ledger).toContain("Window B compatibility marker")
+    expect(ledger).toContain("| 230 | Core route retained-contract test rewrite | done |")
   })
 })

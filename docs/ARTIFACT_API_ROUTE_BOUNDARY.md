@@ -18,10 +18,12 @@ server route.
 - The route helpers reuse the Phase 137 artifact manifest validator and never
   perform storage lookups, writes, renderer execution, auth checks, or byte
   streaming.
-- `tests/artifactApiRoute.test.ts` proves valid/invalid request mapping,
-  idempotency key representation, permission placeholders, retry-safe status
-  responses, metadata-only download responses, dependency cleanliness, and the
-  phase trail.
+- `tests/artifactApiRoute.test.ts` originally proved valid/invalid request
+  mapping, idempotency key representation, permission placeholders, retry-safe
+  status responses, metadata-only download responses, dependency cleanliness,
+  and the phase trail. That route-helper ownership test was superseded in
+  Phase 230 by `tests/artifactRetainedContract.test.ts`; backend route parity
+  now owns HTTP-shaped envelope behavior.
 
 ## Boundary
 
@@ -78,7 +80,8 @@ Blocked:
 - `README.md`
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
 - `docs/PHASE_LEDGER.md`
-- `tests/artifactApiRoute.test.ts`
+- `tests/artifactApiRoute.test.ts` (historical; superseded by
+  `tests/artifactRetainedContract.test.ts` in Phase 230)
 
 ## Behavior Changed
 
@@ -88,7 +91,8 @@ Blocked:
 
 ## Tests Run
 
-- `npm.cmd test -- tests/artifactApiRoute.test.ts`
+- `npm.cmd test -- tests/artifactApiRoute.test.ts` (historical)
+- Current retained-contract coverage: `npm.cmd test -- tests/artifactRetainedContract.test.ts`
 - `npm.cmd run check`
 
 ## Risks Left

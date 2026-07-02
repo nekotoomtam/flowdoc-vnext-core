@@ -243,6 +243,7 @@ Parent goal:
 | 227 | Backend route parity evidence | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts`; `flowdoc-vnext-backend@2ae6570` |
 | 228 | Core route de-export plan | done | `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeexportPlan.test.ts` |
 | 229 | Core route deprecation window | done | `src/generation/apiRoute.ts`; `src/generation/artifactApiRoute.ts`; `tests/generationApiRoute.test.ts`; `tests/artifactApiRoute.test.ts`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeprecationWindow.test.ts` |
+| 230 | Core route retained-contract test rewrite | done | `tests/generationRuntimeRetainedContract.test.ts`; `tests/artifactRetainedContract.test.ts`; `tests/coreRouteRetainedContractRewrite.test.ts`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 
 ## Current Rule
 
@@ -6839,7 +6840,7 @@ The plan confirms:
 - backend route parity exists at `flowdoc-vnext-backend@2ae6570`;
 - core still exports `./generation/apiRoute.js` and
   `./generation/artifactApiRoute.js` from `src/index.ts`;
-- core route-helper tests still assert HTTP-shaped route behavior in
+- at Phase 228 time, core route-helper tests still asserted HTTP-shaped route behavior in
   `tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts`;
 - the selected path is one compatibility window: publish plan, add deprecation
   markers in the next patch, then remove exports after retained-contract tests
@@ -6875,7 +6876,8 @@ The marker phase confirms:
   artifact request/status/list/download-metadata helpers as deprecated Window B
   compatibility exports;
 - `tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts`
-  identify their route-helper assertions as Window B compatibility coverage;
+  identified their route-helper assertions as Window B compatibility coverage
+  before Phase 230 replaced them with retained-contract tests;
 - `src/index.ts` still exports `./generation/apiRoute.js` and
   `./generation/artifactApiRoute.js`;
 - retained core owners remain `src/generation/runtime.ts`,
@@ -6887,9 +6889,37 @@ runtime behavior, change backend/editor consumers, wire backend routes into the
 concrete HTTP server, introduce a gateway, add production storage, run artifact
 rendering, or claim production route readiness.
 
-Next recommended work: rewrite generation/artifact route-helper tests into
-retained-contract tests, then remove route-shaped exports from public core in
-Window C.
+Next recommended work: remove route-shaped exports from public core in Window
+C now that retained-contract tests replace route-helper ownership assertions.
+
+## Phase 230 Core Route Retained-Contract Test Rewrite
+
+Core Route Retained-Contract Test Rewrite completes the test-rewrite blocker
+from the Core Route De-export Plan without removing public route exports.
+
+The rewrite confirms:
+
+- `tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts` are
+  replaced by retained-contract tests;
+- `tests/generationRuntimeRetainedContract.test.ts` covers
+  `safeParseVNextGenerationRequest(...)` and
+  `assessVNextGenerationReadiness(...)` directly;
+- `tests/artifactRetainedContract.test.ts` covers
+  `createVNextArtifactManifestPlan(...)`, `createVNextArtifactJobPlan(...)`,
+  and `advanceVNextArtifactJob(...)` directly;
+- `tests/coreRouteRetainedContractRewrite.test.ts` guards that the old
+  route-helper tests are gone while `src/index.ts` still exports
+  `./generation/apiRoute.js` and `./generation/artifactApiRoute.js`;
+- backend-owned HTTP status/header/method/permission/download behavior remains
+  out of retained core tests.
+
+This phase intentionally does not remove public exports, change route helper
+runtime behavior, change backend/editor consumers, wire backend routes into the
+concrete HTTP server, introduce a gateway, add production storage, run artifact
+rendering, or claim production route readiness.
+
+Next recommended work: execute Window C by removing route-shaped public exports
+from `src/index.ts` and updating route/history docs in the same patch.
 
 ## Phase 12 Extraction Record
 

@@ -68,7 +68,10 @@ The route boundary does not change generation truth:
 
 ## Acceptance Evidence
 
-Phase 86 is covered by `tests/generationApiRoute.test.ts`:
+Phase 86 was originally covered by `tests/generationApiRoute.test.ts`. That
+route-helper ownership test was superseded in Phase 230 by
+`tests/generationRuntimeRetainedContract.test.ts`; backend route parity now owns
+HTTP-shaped envelope behavior.
 
 - valid `POST` requests produce route-safe readiness responses;
 - invalid request shapes produce bounded 400 responses;

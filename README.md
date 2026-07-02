@@ -891,8 +891,11 @@ The package must remain runnable without any parent editor checkout.
   `docs/CORE_ROUTE_DEEXPORT_PLAN.md`.
 - Core Route Deprecation Window applies Window B source-level `@deprecated`
   markers to the route-shaped generation/artifact helpers while keeping public
-  exports stable until retained-contract tests replace the route-helper
-  assertions. See `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`.
+  exports stable. See `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`.
+- Core Route Retained-Contract Test Rewrite replaces generation/artifact
+  route-helper test ownership with direct readiness, manifest, and artifact job
+  contract tests while leaving public route exports in place for Window C. See
+  `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -959,6 +962,8 @@ The package must remain runnable without any parent editor checkout.
   before route-shaped generation/artifact API exports leave public core
 - `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`: Window B deprecation marker record
   for route-shaped generation/artifact API helpers
+- `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`: Phase 230 rewrite that
+  removes route-helper test ownership before Window C export removal
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

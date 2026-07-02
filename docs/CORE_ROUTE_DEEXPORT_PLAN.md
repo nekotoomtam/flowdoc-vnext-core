@@ -3,8 +3,8 @@
 Date: 2026-07-03
 
 Status: planning gate after backend route parity evidence. Window B
-deprecation markers are now applied; `src/index.ts` public route exports remain
-unchanged until Window C.
+deprecation markers are applied and the retained-contract test rewrite is
+complete; `src/index.ts` public route exports remain unchanged until Window C.
 
 ## Purpose
 
@@ -25,8 +25,10 @@ The plan does not remove exports in this patch.
 
 - Core still exports `./generation/apiRoute.js` and
   `./generation/artifactApiRoute.js` from `src/index.ts`.
-- Core historical tests still import route helpers through the public entrypoint:
-  `tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts`.
+- Core historical route-helper tests have been removed/replaced by
+  retained-contract tests:
+  `tests/generationRuntimeRetainedContract.test.ts` and
+  `tests/artifactRetainedContract.test.ts`.
 - Backend route parity exists in `flowdoc-vnext-backend` commit `2ae6570`:
   `src/routes/generationRoute.ts` and `src/routes/artifactRoute.ts`.
 - Backend route parity calls retained core contracts:
@@ -51,16 +53,16 @@ Use one compatibility window:
 - **Window A / complete**: publish this plan and keep current exports.
 - **Window B / complete**: add explicit deprecation markers to the route
   modules and tests while keeping exports in `src/index.ts`.
-- **Window C / next removal patch**: remove route-shaped exports from `src/index.ts`
-  after retained-contract tests replace route-helper assertions.
+- **Window C / next export removal patch**: remove route-shaped exports from
+  `src/index.ts` after retained-contract tests replace route-helper assertions.
 
 Do not skip Window B unless a consumer scan proves there are no package users
 outside this workspace and the maintainer accepts a direct breaking cleanup.
 
 ## Retained Contract Test Rewrite
 
-Before removal, replace route-helper coverage with tests against retained core
-contracts:
+The retained-contract test rewrite is complete. Route-helper coverage has been
+replaced with tests against retained core contracts:
 
 - generation readiness:
   `assessVNextGenerationReadiness(...)`;
@@ -76,6 +78,12 @@ contracts:
 
 Keep exact HTTP status/header behavior in backend tests only.
 
+Current retained-contract test files:
+
+- `tests/generationRuntimeRetainedContract.test.ts`;
+- `tests/artifactRetainedContract.test.ts`;
+- `tests/coreRouteRetainedContractRewrite.test.ts`.
+
 ## De-export Preconditions
 
 All must be true before `src/index.ts` stops exporting route-shaped modules:
@@ -84,10 +92,10 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 2. Core route helpers have been marked deprecated for one compatibility window,
    or direct removal has been explicitly approved.
 3. Core retained-contract tests cover generation readiness and artifact
-   manifest/job behavior without importing route helpers.
+   manifest/job behavior without importing route helpers. Done in Phase 230.
 4. `tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts` are
    removed, renamed, or rewritten so they no longer assert HTTP-shaped route
-   ownership in core.
+   ownership in core. Done in Phase 230.
 5. `src/index.ts` no longer exports `./generation/apiRoute.js` or
    `./generation/artifactApiRoute.js`.
 6. `docs/CORE_SERVICE_CONSUMER_MAP.md`, README, and
@@ -115,8 +123,8 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 
 ## FAIL / BLOCKER
 
-- Immediate removal is still blocked until route-helper tests are rewritten and
-  the deprecation/removal patch is selected.
+- Public route export removal has not run yet; Window C must remove exports and
+  update route docs in one patch.
 
 ## RISK
 
@@ -150,7 +158,7 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 
 ## Risks Left
 
-- Window C retained-contract rewrite and export removal remain.
+- Window C public route export removal remains.
 - Session/rich-inline/workflow split-before-move remains separate.
 
 ## Intentionally Not Changed
@@ -158,6 +166,6 @@ All must be true before `src/index.ts` stops exporting route-shaped modules:
 - `src/index.ts` still exports the route-shaped modules.
 - `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts` still
   exist.
-- Core route-helper tests still exist and are marked as Window B compatibility
-  coverage until the removal patch rewrites or removes them.
+- Core route-helper tests have been replaced by retained-contract tests.
+- Window C export removal is intentionally left for the next patch.
 - Backend HTTP server wiring is not changed.

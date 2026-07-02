@@ -26,6 +26,8 @@ describe("core service consumer map", () => {
     const requiredEvidence = [
       "src/generation/apiRoute.ts",
       "src/generation/artifactApiRoute.ts",
+      "tests/generationRuntimeRetainedContract.test.ts",
+      "tests/artifactRetainedContract.test.ts",
       "src/authoring/sessionStorage.ts",
       "src/authoring/richInlineSessionPersistence.ts",
       "src/workflow/submissionState.ts",
@@ -75,7 +77,7 @@ describe("core service consumer map", () => {
 
     expect(doc).toContain("Do not remove these exports yet")
     expect(doc).toContain("route-shaped backend parity exists")
-    expect(doc).toContain("public compatibility/deprecation window is not locked")
+    expect(doc).toContain("Window C route export removal has not run yet")
     expect(doc).toContain("retained core contract names")
   })
 
@@ -93,7 +95,7 @@ describe("core service consumer map", () => {
     expect(doc).toContain("Backend route parity now exists for the generation and artifact API route")
     expect(doc).toContain("The retained core contract has a named owner and direct core tests.")
     expect(doc).toContain("This is now true for generation")
-    expect(doc).toContain("Core historical tests either move to backend")
+    expect(doc).toContain("route tests now become pure retained-contract tests")
   })
 
   it("guards retained split-contract owners from accidental service classification", () => {

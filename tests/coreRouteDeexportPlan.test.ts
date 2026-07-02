@@ -9,6 +9,10 @@ function readText(path: string): string {
   return readFileSync(join(repoRoot, path), "utf8")
 }
 
+function expectNoNamedImport(source: string, symbol: string): void {
+  expect(source).not.toMatch(new RegExp(`import\\s*\\{[^}]*${symbol}`))
+}
+
 describe("core route de-export plan", () => {
   it("selects a controlled compatibility window before route export removal", () => {
     const doc = readText("docs/CORE_ROUTE_DEEXPORT_PLAN.md")
@@ -34,7 +38,7 @@ describe("core route de-export plan", () => {
     expect(doc).toContain("deprecate route-shaped exports for one compatibility window")
     expect(doc).toContain("Window A / complete")
     expect(doc).toContain("Window B / complete")
-    expect(doc).toContain("Window C / next removal patch")
+    expect(doc).toContain("Window C / next export removal patch")
     expect(doc).toContain("Do not skip Window B")
   })
 
@@ -49,18 +53,24 @@ describe("core route de-export plan", () => {
     expect(doc).toContain("No public export removed.")
   })
 
-  it("requires retained-contract tests before removing route helpers", () => {
+  it("uses retained-contract tests before removing route helpers", () => {
     const doc = readText("docs/CORE_ROUTE_DEEXPORT_PLAN.md")
-    const generationRouteTest = readText("tests/generationApiRoute.test.ts")
-    const artifactRouteTest = readText("tests/artifactApiRoute.test.ts")
+    const generationRuntimeTest = readText("tests/generationRuntimeRetainedContract.test.ts")
+    const artifactRetainedTest = readText("tests/artifactRetainedContract.test.ts")
     const runtime = readText("src/generation/runtime.ts")
     const artifactManifest = readText("src/generation/artifactManifest.ts")
     const artifactJob = readText("src/generation/artifactJob.ts")
 
-    expect(generationRouteTest).toContain("createVNextGenerationApiRouteResponse")
-    expect(artifactRouteTest).toContain("createVNextArtifactGenerationApiRouteResponse")
-    expect(doc).toContain("tests/generationApiRoute.test.ts")
-    expect(doc).toContain("tests/artifactApiRoute.test.ts")
+    expect(generationRuntimeTest).toContain("assessVNextGenerationReadiness")
+    expect(generationRuntimeTest).toContain("safeParseVNextGenerationRequest")
+    expectNoNamedImport(generationRuntimeTest, "createVNextGenerationApiRouteResponse")
+    expect(artifactRetainedTest).toContain("createVNextArtifactManifestPlan")
+    expect(artifactRetainedTest).toContain("createVNextArtifactJobPlan")
+    expect(artifactRetainedTest).toContain("advanceVNextArtifactJob")
+    expectNoNamedImport(artifactRetainedTest, "createVNextArtifactGenerationApiRouteResponse")
+    expect(doc).toContain("tests/generationRuntimeRetainedContract.test.ts")
+    expect(doc).toContain("tests/artifactRetainedContract.test.ts")
+    expect(doc).toContain("retained-contract test rewrite is complete")
     expect(doc).toContain("assessVNextGenerationReadiness")
     expect(doc).toContain("safeParseVNextGenerationRequest")
     expect(doc).toContain("createVNextArtifactManifestPlan")
@@ -94,7 +104,9 @@ describe("core route de-export plan", () => {
     expect(readme).toContain("Core Route De-export Plan")
     expect(readme).toContain("docs/CORE_ROUTE_DEEXPORT_PLAN.md")
     expect(ledger).toContain("| 228 | Core route de-export plan | done |")
+    expect(ledger).toContain("| 230 | Core route retained-contract test rewrite | done |")
     expect(ledger).toContain("## Phase 228 Core Route De-export Plan")
+    expect(ledger).toContain("## Phase 230 Core Route Retained-Contract Test Rewrite")
     expect(ledger).toContain("controlled de-export/deprecation window")
   })
 })
