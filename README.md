@@ -884,6 +884,11 @@ The package must remain runnable without any parent editor checkout.
   parity evidence for generation and artifact route contracts while keeping
   core de-export work gated by a compatibility window. See
   `docs/CORE_SERVICE_CONSUMER_MAP.md`.
+- Core Route De-export Plan selects one compatibility window for
+  `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts` before
+  removing route-shaped public exports, and requires retained-contract tests to
+  replace HTTP-shaped route helper assertions. See
+  `docs/CORE_ROUTE_DEEXPORT_PLAN.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -946,6 +951,8 @@ The package must remain runnable without any parent editor checkout.
   exports are de-exported from core
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`: cross-repo consumer map with backend
   route parity evidence before controlled service-shaped export cleanup
+- `docs/CORE_ROUTE_DEEXPORT_PLAN.md`: controlled compatibility-window plan
+  before route-shaped generation/artifact API exports leave public core
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

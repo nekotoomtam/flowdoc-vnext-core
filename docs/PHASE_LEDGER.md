@@ -241,6 +241,7 @@ Parent goal:
 | 225 | Core retention map | done | `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRetentionMap.test.ts` |
 | 226 | Core service consumer map | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts` |
 | 227 | Backend route parity evidence | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts`; `flowdoc-vnext-backend@2ae6570` |
+| 228 | Core route de-export plan | done | `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteDeexportPlan.test.ts` |
 
 ## Current Rule
 
@@ -6824,6 +6825,39 @@ storage, run artifact rendering, or claim production route readiness.
 
 Next recommended work: draft the controlled de-export/deprecation window for
 core generation and artifact route-shaped exports.
+
+## Phase 228 Core Route De-export Plan
+
+Core Route De-export Plan uses Backend Route Parity Evidence as source of truth
+and selects a controlled de-export/deprecation window for the route-shaped core
+exports in `src/generation/apiRoute.ts` and
+`src/generation/artifactApiRoute.ts`.
+
+The plan confirms:
+
+- backend route parity exists at `flowdoc-vnext-backend@2ae6570`;
+- core still exports `./generation/apiRoute.js` and
+  `./generation/artifactApiRoute.js` from `src/index.ts`;
+- core route-helper tests still assert HTTP-shaped route behavior in
+  `tests/generationApiRoute.test.ts` and `tests/artifactApiRoute.test.ts`;
+- the selected path is one compatibility window: publish plan, add deprecation
+  markers in the next patch, then remove exports after retained-contract tests
+  replace route-helper assertions;
+- retained core coverage must move to `assessVNextGenerationReadiness(...)`,
+  `safeParseVNextGenerationRequest(...)`,
+  `createVNextArtifactManifestPlan(...)`,
+  `createVNextArtifactJobPlan(...)`, and
+  `advanceVNextArtifactJob(...)`;
+- backend route status/header/permission behavior must not move back into
+  retained core contracts.
+
+This phase intentionally does not move source modules, remove public exports,
+add deprecation markers, change backend/editor consumers, wire backend routes
+into the concrete HTTP server, introduce a gateway, add production storage, run
+artifact rendering, or claim production route readiness.
+
+Next recommended work: add explicit deprecation markers to core route-shaped
+helpers and route-helper tests for one compatibility window.
 
 ## Phase 12 Extraction Record
 
