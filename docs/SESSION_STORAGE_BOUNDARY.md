@@ -3,7 +3,10 @@
 Status: Phase 87 implementation boundary.
 
 Phase 87 adds a pure session-to-storage-record boundary for canonical vNext
-packages. It gives app persistence code a stable record shape to consume while
+packages. Phase 233 adds a retained
+`createVNextSessionPackageSnapshot(...)` helper underneath it so canonical
+package snapshot facts are no longer owned only by the storage-shaped record.
+The boundary gives app persistence code a stable record shape to consume while
 keeping storage writes, adapters, editor selection, runtime diagnostics, layout
 artifacts, and durable history outside the package snapshot.
 
@@ -27,6 +30,9 @@ truth without guessing which authoring-session fields are durable.
 
 `src/authoring/sessionStorage.ts` owns:
 
+- `VNEXT_SESSION_PACKAGE_SNAPSHOT_SOURCE`;
+- `VNEXT_SESSION_PACKAGE_SNAPSHOT_MODE`;
+- `createVNextSessionPackageSnapshot(...)`;
 - `VNEXT_SESSION_STORAGE_SOURCE`;
 - `VNEXT_SESSION_STORAGE_MODE`;
 - `createVNextSessionStorageRecord(...)`;
@@ -47,6 +53,8 @@ schema.
 
 The record can carry only canonical package truth as the persisted payload:
 
+- `createVNextSessionPackageSnapshot(...)` owns canonical package snapshot
+  facts without storage key, reason, or storage status fields;
 - `package` is persisted as a serialized package v2/document v3 snapshot;
 - `selection` remains session-only;
 - `dirtyScopes` remain invalidation metadata, not persisted package data;

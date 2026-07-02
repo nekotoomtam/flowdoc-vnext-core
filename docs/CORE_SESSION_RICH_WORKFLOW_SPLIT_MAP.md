@@ -2,8 +2,8 @@
 
 Date: 2026-07-03
 
-Status: planning guard before splitting session, rich-inline, and workflow
-service-shaped exports.
+Status: planning guard for session, rich-inline, and workflow service-shaped
+exports. The session package snapshot split is complete in Phase 233.
 
 ## Purpose
 
@@ -28,10 +28,14 @@ exports.
 Session storage:
 
 - `src/authoring/sessionStorage.ts` exports
+  `createVNextSessionPackageSnapshot(...)` and
   `createVNextSessionStorageRecord(...)`.
 - `tests/sessionStorage.test.ts` proves canonical package snapshots,
   session-only exclusions, `storageStatus: "not-written"`, and no storage,
   DOM, route, or layout execution.
+- `tests/sessionPackageSnapshot.test.ts` proves the retained package snapshot
+  helper has no storage key/status and the compatibility storage record
+  composes retained snapshot facts.
 - `docs/SESSION_STORAGE_BOUNDARY.md` records that this is not a storage
   adapter.
 
@@ -74,7 +78,7 @@ Consumer evidence:
 
 | Area | Core Retains | Backend Owns | Current Decision |
 |---|---|---|---|
-| Session package snapshot | canonical package v2/document v3 snapshot intent, package id/version facts, document revision metadata, persisted-state exclusions | durable session store, storage key lifecycle, idempotency, expected revision gates, read/write routes | split first; introduce/rename a pure package snapshot contract before de-export |
+| Session package snapshot | canonical package v2/document v3 snapshot intent, package id/version facts, document revision metadata, persisted-state exclusions | durable session store, storage key lifecycle, idempotency, expected revision gates, read/write routes | split complete; `createVNextSessionPackageSnapshot(...)` is the retained helper before storage-record de-export |
 | Rich-inline replay validation | rich-inline commit history facts, before/after inline children validation, field-key usage facts, JSON-safe replay patch records, history-ready metadata | durable rich-inline session storage, replay execution, conflict resolution, selection restoration, backend API calls | split second; keep replay-patch validation in core and move persistence orchestration wording out |
 | Submission workflow identity | template id, submission id, document/data revisions, actor/reviewer identity facts, validation issues, package/data/document non-mutation flags | workflow engine, permissions, approval gates, notification/audit writes, workflow storage, routes | split third; retain identity/status facts only if backend needs core validation vocabulary |
 
@@ -82,7 +86,8 @@ Consumer evidence:
 
 Use these names as the target concepts before public de-export:
 
-- session: `packageSnapshot` and `persistedStateExclusions`;
+- session: `packageSnapshot` and `persistedStateExclusions`; implemented by
+  `createVNextSessionPackageSnapshot(...)`;
 - rich-inline: `richInlineReplayPatchValidation` and `historyReadyFacts`;
 - workflow: `submissionIdentityFacts` and `externalWorkflowStatusFacts`.
 
@@ -113,13 +118,11 @@ contracts are not split yet. They should not be treated as final core ownership.
 
 ## Next Implementation Order
 
-1. Split session package snapshot facts from storage-shaped session record
-   wording.
-2. Split rich-inline replay-patch validation from persistence orchestration.
-3. Split submission identity/status facts from workflow runtime wording.
-4. Update backend tests/consumers to use backend-owned storage/workflow routes
+1. Split rich-inline replay-patch validation from persistence orchestration.
+2. Split submission identity/status facts from workflow runtime wording.
+3. Update backend tests/consumers to use backend-owned storage/workflow routes
    plus retained core facts.
-5. Deprecate and de-export the old service-shaped public exports in small,
+4. Deprecate and de-export the old service-shaped public exports in small,
    reversible windows.
 
 ## PASS
@@ -131,7 +134,7 @@ contracts are not split yet. They should not be treated as final core ownership.
 
 ## FAIL / BLOCKER
 
-- No implementation split or de-export has happened yet.
+- Rich-inline and submission implementation splits have not happened yet.
 
 ## RISK
 
@@ -169,7 +172,7 @@ contracts are not split yet. They should not be treated as final core ownership.
 
 ## Risks Left
 
-- Session package snapshot split remains.
+- Storage-shaped session record deprecation/de-export remains.
 - Rich-inline replay validation split remains.
 - Submission identity/status split remains.
 - Backend consumer rewiring remains.

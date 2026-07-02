@@ -246,6 +246,7 @@ Parent goal:
 | 230 | Core route retained-contract test rewrite | done | `tests/generationRuntimeRetainedContract.test.ts`; `tests/artifactRetainedContract.test.ts`; `tests/coreRouteRetainedContractRewrite.test.ts`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 231 | Core route Window C public export removal | done | `src/index.ts`; `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteWindowCPublicExportRemoval.test.ts`; route guard tests |
 | 232 | Core session rich workflow split map | done | `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
+| 233 | Core session package snapshot split | done | `src/authoring/sessionStorage.ts`; `tests/sessionPackageSnapshot.test.ts`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SESSION_STORAGE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionPackageSnapshotSplit.test.ts` |
 
 ## Current Rule
 
@@ -6988,6 +6989,39 @@ readiness.
 
 Next recommended work: implement the first split by extracting/renaming
 session package snapshot facts away from storage-shaped session record wording.
+
+## Phase 233 Core Session Package Snapshot Split
+
+Core Session Package Snapshot Split implements the first split from
+`docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` by adding a retained package
+snapshot helper while preserving the existing storage-shaped compatibility
+record.
+
+The split confirms:
+
+- `src/authoring/sessionStorage.ts` now exports
+  `createVNextSessionPackageSnapshot(...)` plus package snapshot source/mode
+  constants and retained fact types;
+- the retained helper serializes the canonical package v2/document v3 snapshot
+  and keeps package id/version, document version, document revision,
+  dirty-scope count, and persisted-state exclusion facts;
+- `createVNextSessionStorageRecord(...)` remains public and composes the
+  retained helper before adding `storageKey`, `reason`, and
+  `storageStatus: "not-written"` compatibility manifest fields;
+- `tests/sessionPackageSnapshot.test.ts` proves the retained helper is
+  independent from storage writes, routes, DOM, and layout while the storage
+  record output remains compatible;
+- `tests/coreSessionPackageSnapshotSplit.test.ts` guards README, ledger,
+  split-map, storage-boundary, retention-map, and consumer-map navigation.
+
+This phase intentionally does not remove public exports, rename
+`src/authoring/sessionStorage.ts`, add backend storage routes, change backend
+or editor consumers, introduce a gateway, run rich-inline replay, or claim
+production persistence readiness.
+
+Next recommended work: split rich-inline replay-patch validation from
+persistence orchestration wording, then split submission identity/status facts
+from workflow runtime wording.
 
 ## Phase 12 Extraction Record
 

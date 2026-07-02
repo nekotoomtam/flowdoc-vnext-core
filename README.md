@@ -904,6 +904,10 @@ The package must remain runnable without any parent editor checkout.
   split-before-move areas into session package snapshot facts, rich-inline
   replay validation facts, and submission workflow identity/status facts before
   any public de-export. See `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`.
+- Core Session Package Snapshot Split adds
+  `createVNextSessionPackageSnapshot(...)` as the retained package snapshot
+  contract while keeping `createVNextSessionStorageRecord(...)` as a
+  compatibility record. See `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -977,6 +981,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`: Phase 232 split map for
   session package snapshots, rich-inline replay validation, and submission
   workflow identity/status facts
+- `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`: Phase 233 retained session
+  package snapshot helper split from the compatibility storage record
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

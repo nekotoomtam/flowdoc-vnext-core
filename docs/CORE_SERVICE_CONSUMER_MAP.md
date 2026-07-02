@@ -61,6 +61,9 @@ Current findings:
 - Route-shaped public exports have been removed from `src/index.ts`.
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` now defines the retained
   session/rich-inline/workflow facts before those public exports move.
+- `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md` now implements the retained
+  `createVNextSessionPackageSnapshot(...)` helper while keeping the
+  compatibility storage record public.
 - Editor depends on `@flowdoc/vnext-core`, but its boundary test keeps package
   imports behind `src/core/coreAdapter.ts`.
 - Editor currently imports only `safeCreateVNextRuntimeSession` and the
@@ -72,7 +75,7 @@ Current findings:
 |---|---|---|---|---|
 | Route-shaped generation API | `src/generation/apiRoute.ts`; `tests/generationRuntimeRetainedContract.test.ts`; no `src/index.ts` export | `flowdoc-vnext-backend/src/routes/generationRoute.ts` implements backend-owned parity through `createFlowDocBackendGenerationRouteResponse(...)` without importing `createVNextGenerationApiRouteResponse(...)` | no direct consumer | route parity, retained-contract rewrite, and Window C de-export are complete while `src/generation/runtime.ts` remains retained truth |
 | Route-shaped artifact API | `src/generation/artifactApiRoute.ts`; `tests/artifactRetainedContract.test.ts`; no `src/index.ts` export | `flowdoc-vnext-backend/src/routes/artifactRoute.ts` implements backend-owned parity through artifact request/status/list/download metadata response helpers without importing core artifact route response helpers | no direct consumer | route parity, retained-contract rewrite, and Window C de-export are complete while manifest/job/readiness contracts remain retained truth |
-| Session storage record | `src/authoring/sessionStorage.ts`; `tests/sessionStorage.test.ts`; storage and vertical-slice tests | `src/tests/storageRouteBinding.test.ts` uses `createVNextSessionStorageRecord(...)` as fixture setup | no direct consumer | split map exists; split package snapshot helper from storage-shaped record before move |
+| Session storage record | `src/authoring/sessionStorage.ts`; `tests/sessionStorage.test.ts`; `tests/sessionPackageSnapshot.test.ts`; storage and vertical-slice tests | `src/tests/storageRouteBinding.test.ts` uses `createVNextSessionStorageRecord(...)` as fixture setup | no direct consumer | `createVNextSessionPackageSnapshot(...)` split exists; storage-shaped record remains compatibility surface before move |
 | Rich inline session persistence | `src/authoring/richInlineSessionPersistence.ts`; rich-inline, storage, and vertical-slice tests | no runtime consumer found | no direct consumer | split map exists; split replay-patch validation and history-ready facts before move |
 | Submission state | `src/workflow/submissionState.ts`; `tests/submissionState.test.ts` | no runtime consumer found | no direct consumer | split map exists; move workflow runtime to backend and retain identity/status facts only if needed |
 | Concrete file JSON storage | `packages/storage-file-json`; storage/byte-store tests | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` is the backend-owned replacement | no direct consumer | retire core package lane after historical tests are rewired or replaced |
@@ -96,7 +99,8 @@ Reasons:
 - backend tests still use the session storage record shape;
 - core tests still prove service-shaped boundary behavior;
 - retained core contract names for package snapshot, replay patch validation,
-  and workflow identity facts are mapped but not implemented yet;
+  and workflow identity facts are mapped; package snapshot is implemented,
+  replay/workflow are not implemented yet;
 - editor/backend consumer rewiring has not been proven.
 
 ### Ready To Keep

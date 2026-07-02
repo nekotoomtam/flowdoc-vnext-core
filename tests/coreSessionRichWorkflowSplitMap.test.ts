@@ -10,7 +10,7 @@ function readText(path: string): string {
 }
 
 describe("core session rich workflow split map", () => {
-  it("documents the three remaining split-before-move areas with source evidence", () => {
+  it("documents the split-before-move areas with source evidence", () => {
     const doc = readText("docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md")
     const requiredSections = [
       "## Purpose",
@@ -30,7 +30,9 @@ describe("core session rich workflow split map", () => {
       "src/authoring/sessionStorage.ts",
       "tests/sessionStorage.test.ts",
       "docs/SESSION_STORAGE_BOUNDARY.md",
+      "createVNextSessionPackageSnapshot",
       "createVNextSessionStorageRecord",
+      "tests/sessionPackageSnapshot.test.ts",
       "src/authoring/richInlineSessionPersistence.ts",
       "tests/richInlineSessionPersistence.test.ts",
       "docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md",
@@ -52,7 +54,8 @@ describe("core session rich workflow split map", () => {
     expect(doc).toContain("Session package snapshot")
     expect(doc).toContain("Rich-inline replay validation")
     expect(doc).toContain("Submission workflow identity")
-    expect(doc).toContain("split first")
+    expect(doc).toContain("session package snapshot split is complete")
+    expect(doc).toContain("split complete")
     expect(doc).toContain("split second")
     expect(doc).toContain("split third")
   })

@@ -4,10 +4,49 @@ import type { VNextEditableSession } from "./editableSession.js"
 
 export const VNEXT_SESSION_STORAGE_SOURCE = "vnext-session-storage"
 export const VNEXT_SESSION_STORAGE_MODE = "canonical-package-snapshot"
+export const VNEXT_SESSION_PACKAGE_SNAPSHOT_SOURCE = "vnext-session-package-snapshot"
+export const VNEXT_SESSION_PACKAGE_SNAPSHOT_MODE = "canonical-package-snapshot-facts"
 
 export interface VNextSessionStorageOptions {
   storageKey?: string
   reason?: string
+}
+
+export interface VNextSessionPackageSnapshotPersistedState {
+  package: true
+  selection: false
+  dirtyScopes: false
+  revisions: false
+  diagnostics: false
+  graph: false
+  viewport: false
+  liveLayout: false
+  exactLayout: false
+  authoringHistory: false
+}
+
+export interface VNextSessionPackageSnapshotFacts {
+  packageId: string
+  packageVersion: 2
+  documentVersion: 3
+  documentRevision: number
+  dirtyScopeCount: number
+  persistedState: VNextSessionPackageSnapshotPersistedState
+  contracts: {
+    canonicalPackage: true
+    storageRecord: false
+    storageWrites: false
+    storageKey: false
+    routeDispatch: false
+    backendApi: false
+  }
+}
+
+export interface VNextSessionPackageSnapshotRecord {
+  source: typeof VNEXT_SESSION_PACKAGE_SNAPSHOT_SOURCE
+  mode: typeof VNEXT_SESSION_PACKAGE_SNAPSHOT_MODE
+  package: FlowDocPackageV2DocumentVNext
+  facts: VNextSessionPackageSnapshotFacts
 }
 
 export interface VNextSessionStorageManifest {
@@ -19,18 +58,7 @@ export interface VNextSessionStorageManifest {
   storageKey: string | null
   reason: string
   storageStatus: "not-written"
-  persistedState: {
-    package: true
-    selection: false
-    dirtyScopes: false
-    revisions: false
-    diagnostics: false
-    graph: false
-    viewport: false
-    liveLayout: false
-    exactLayout: false
-    authoringHistory: false
-  }
+  persistedState: VNextSessionPackageSnapshotPersistedState
 }
 
 export interface VNextSessionStorageRecord {
@@ -44,37 +72,69 @@ function nonEmptyString(value: string | undefined): string | null {
   return typeof value === "string" && value.length > 0 ? value : null
 }
 
-export function createVNextSessionStorageRecord(
+function persistedStateExclusions(): VNextSessionPackageSnapshotPersistedState {
+  return {
+    package: true,
+    selection: false,
+    dirtyScopes: false,
+    revisions: false,
+    diagnostics: false,
+    graph: false,
+    viewport: false,
+    liveLayout: false,
+    exactLayout: false,
+    authoringHistory: false,
+  }
+}
+
+export function createVNextSessionPackageSnapshot(
   session: VNextEditableSession,
-  options: VNextSessionStorageOptions = {},
-): VNextSessionStorageRecord {
+): VNextSessionPackageSnapshotRecord {
   const pack = serializeFlowDocPackageV2DocumentVNext(session.package)
 
   return {
-    source: VNEXT_SESSION_STORAGE_SOURCE,
-    mode: VNEXT_SESSION_STORAGE_MODE,
+    source: VNEXT_SESSION_PACKAGE_SNAPSHOT_SOURCE,
+    mode: VNEXT_SESSION_PACKAGE_SNAPSHOT_MODE,
     package: pack,
-    manifest: {
+    facts: {
       packageId: pack.id,
       packageVersion: pack.packageVersion,
       documentVersion: pack.document.version,
       documentRevision: session.revisions.document,
       dirtyScopeCount: session.dirtyScopes.size,
+      persistedState: persistedStateExclusions(),
+      contracts: {
+        canonicalPackage: true,
+        storageRecord: false,
+        storageWrites: false,
+        storageKey: false,
+        routeDispatch: false,
+        backendApi: false,
+      },
+    },
+  }
+}
+
+export function createVNextSessionStorageRecord(
+  session: VNextEditableSession,
+  options: VNextSessionStorageOptions = {},
+): VNextSessionStorageRecord {
+  const snapshot = createVNextSessionPackageSnapshot(session)
+
+  return {
+    source: VNEXT_SESSION_STORAGE_SOURCE,
+    mode: VNEXT_SESSION_STORAGE_MODE,
+    package: snapshot.package,
+    manifest: {
+      packageId: snapshot.facts.packageId,
+      packageVersion: snapshot.facts.packageVersion,
+      documentVersion: snapshot.facts.documentVersion,
+      documentRevision: snapshot.facts.documentRevision,
+      dirtyScopeCount: snapshot.facts.dirtyScopeCount,
       storageKey: nonEmptyString(options.storageKey),
       reason: nonEmptyString(options.reason) ?? "session-save-boundary",
       storageStatus: "not-written",
-      persistedState: {
-        package: true,
-        selection: false,
-        dirtyScopes: false,
-        revisions: false,
-        diagnostics: false,
-        graph: false,
-        viewport: false,
-        liveLayout: false,
-        exactLayout: false,
-        authoringHistory: false,
-      },
+      persistedState: snapshot.facts.persistedState,
     },
   }
 }
