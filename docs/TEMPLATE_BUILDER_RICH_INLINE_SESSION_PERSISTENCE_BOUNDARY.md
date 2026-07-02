@@ -7,6 +7,11 @@ persistence. It combines the existing canonical package session storage record,
 durable authoring history snapshot, and rich inline before/after replay patch
 payloads into one JSON-safe record shape for future app-owned storage.
 
+Phase 234 splits retained replay validation facts into
+`createVNextRichInlineReplayPatchValidation(...)` and
+`createVNextRichInlineReplayValidation(...)` while keeping this persistence
+record as compatibility surface.
+
 This is a rich inline session persistence boundary.
 
 It is not a storage adapter.
@@ -14,7 +19,9 @@ It is not a storage adapter.
 ## PASS
 
 - `src/authoring/richInlineSessionPersistence.ts` owns
-  `createVNextRichInlineSessionPersistenceRecord(...)` and
+  `createVNextRichInlineReplayPatchValidation(...)`,
+  `createVNextRichInlineReplayValidation(...)`,
+  `createVNextRichInlineSessionPersistenceRecord(...)`, and
   `createVNextRichInlineReplayPatchRecord(...)`.
 - The record embeds a Phase 87 `createVNextSessionStorageRecord(...)` package
   snapshot and a Phase 88 `createVNextDurableHistorySnapshot(...)` history
@@ -24,6 +31,9 @@ It is not a storage adapter.
   status, and replay/storage statuses.
 - Replay patch validation blocks invalid inline nodes, unsupported child kinds,
   and duplicate inline ids while leaving replay execution `not-run`.
+- Phase 234 retained replay validation records carry validation/history facts
+  without storage status or replay status fields; compatibility records add
+  those fields back for Phase 129 shape stability.
 - `src/index.ts` exports the rich inline session persistence boundary.
 - `examples/template-builder-sandbox/src/coreBoundary.ts` exposes
   `sandbox.planRichInlineSessionPersistence` as a wired commit lane.
@@ -85,6 +95,8 @@ It is not a storage adapter.
 ## Risks Left
 
 - Add concrete storage adapters/routes for rich inline session records.
+- Deprecate or de-export persistence-shaped rich inline records after backend
+  replacement contracts exist.
 - Decide full children replay payloads versus granular rich inline operations.
 - Add selection restoration and cross-session replay execution.
 - Add collaboration merge/conflict behavior.

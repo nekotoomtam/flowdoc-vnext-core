@@ -247,6 +247,7 @@ Parent goal:
 | 231 | Core route Window C public export removal | done | `src/index.ts`; `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`; `docs/CORE_ROUTE_DEEXPORT_PLAN.md`; `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRouteWindowCPublicExportRemoval.test.ts`; route guard tests |
 | 232 | Core session rich workflow split map | done | `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 | 233 | Core session package snapshot split | done | `src/authoring/sessionStorage.ts`; `tests/sessionPackageSnapshot.test.ts`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SESSION_STORAGE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionPackageSnapshotSplit.test.ts` |
+| 234 | Core rich inline replay validation split | done | `src/authoring/richInlineSessionPersistence.ts`; `tests/richInlineReplayValidation.test.ts`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 
 ## Current Rule
 
@@ -7019,9 +7020,46 @@ This phase intentionally does not remove public exports, rename
 or editor consumers, introduce a gateway, run rich-inline replay, or claim
 production persistence readiness.
 
-Next recommended work: split rich-inline replay-patch validation from
-persistence orchestration wording, then split submission identity/status facts
-from workflow runtime wording.
+Next recommended work: rich-inline replay-patch validation split is completed
+in Phase 234; continue with submission identity/status facts.
+
+## Phase 234 Core Rich Inline Replay Validation Split
+
+Core Rich Inline Replay Validation Split implements the second split from
+`docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` by adding retained rich-inline
+replay validation helpers while preserving the existing persistence-shaped
+compatibility records.
+
+The split confirms:
+
+- `src/authoring/richInlineSessionPersistence.ts` now exports
+  `createVNextRichInlineReplayPatchValidation(...)`,
+  `createVNextRichInlineReplayValidation(...)`, replay validation source/mode
+  constants, and retained validation fact types;
+- retained patch validation clones before/after inline children, validates
+  inline schema, reports duplicate ids and unsupported child kinds, records
+  field-ref usage, and carries history sequence/group/summary facts when
+  supplied;
+- retained batch validation reports history-ready record count, rich history
+  record count, replay patch count, invalid replay patch count, field keys,
+  and explicit no-storage/no-route/no-backend/no-replay-execution contracts;
+- `createVNextRichInlineReplayPatchRecord(...)` remains public and composes the
+  retained patch validation before adding `replayStatus: "not-run"` and
+  `storageStatus: "not-written"` compatibility fields;
+- `createVNextRichInlineSessionPersistenceRecord(...)` remains public and
+  composes retained replay validation facts before adding compatibility
+  package/history/session persistence fields;
+- `tests/richInlineReplayValidation.test.ts` proves retained validation,
+  invalid patch reporting, compatibility composition, and source independence.
+
+This phase intentionally does not remove public exports, rename
+`src/authoring/richInlineSessionPersistence.ts`, add backend storage routes,
+change backend or editor consumers, introduce a gateway, run replay execution,
+resolve conflicts, restore selection, or claim production persistence
+readiness.
+
+Next recommended work: split submission identity/status facts from workflow
+runtime wording.
 
 ## Phase 12 Extraction Record
 

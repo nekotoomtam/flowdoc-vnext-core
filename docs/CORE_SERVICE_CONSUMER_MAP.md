@@ -64,6 +64,10 @@ Current findings:
 - `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md` now implements the retained
   `createVNextSessionPackageSnapshot(...)` helper while keeping the
   compatibility storage record public.
+- `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md` now implements retained
+  `createVNextRichInlineReplayPatchValidation(...)` and
+  `createVNextRichInlineReplayValidation(...)` helpers while keeping the
+  compatibility rich-inline session persistence record public.
 - Editor depends on `@flowdoc/vnext-core`, but its boundary test keeps package
   imports behind `src/core/coreAdapter.ts`.
 - Editor currently imports only `safeCreateVNextRuntimeSession` and the
@@ -76,7 +80,7 @@ Current findings:
 | Route-shaped generation API | `src/generation/apiRoute.ts`; `tests/generationRuntimeRetainedContract.test.ts`; no `src/index.ts` export | `flowdoc-vnext-backend/src/routes/generationRoute.ts` implements backend-owned parity through `createFlowDocBackendGenerationRouteResponse(...)` without importing `createVNextGenerationApiRouteResponse(...)` | no direct consumer | route parity, retained-contract rewrite, and Window C de-export are complete while `src/generation/runtime.ts` remains retained truth |
 | Route-shaped artifact API | `src/generation/artifactApiRoute.ts`; `tests/artifactRetainedContract.test.ts`; no `src/index.ts` export | `flowdoc-vnext-backend/src/routes/artifactRoute.ts` implements backend-owned parity through artifact request/status/list/download metadata response helpers without importing core artifact route response helpers | no direct consumer | route parity, retained-contract rewrite, and Window C de-export are complete while manifest/job/readiness contracts remain retained truth |
 | Session storage record | `src/authoring/sessionStorage.ts`; `tests/sessionStorage.test.ts`; `tests/sessionPackageSnapshot.test.ts`; storage and vertical-slice tests | `src/tests/storageRouteBinding.test.ts` uses `createVNextSessionStorageRecord(...)` as fixture setup | no direct consumer | `createVNextSessionPackageSnapshot(...)` split exists; storage-shaped record remains compatibility surface before move |
-| Rich inline session persistence | `src/authoring/richInlineSessionPersistence.ts`; rich-inline, storage, and vertical-slice tests | no runtime consumer found | no direct consumer | split map exists; split replay-patch validation and history-ready facts before move |
+| Rich inline session persistence | `src/authoring/richInlineSessionPersistence.ts`; `tests/richInlineReplayValidation.test.ts`; rich-inline, storage, and vertical-slice tests | no runtime consumer found | no direct consumer | `createVNextRichInlineReplayValidation(...)` split exists; persistence-shaped record remains compatibility surface before move |
 | Submission state | `src/workflow/submissionState.ts`; `tests/submissionState.test.ts` | no runtime consumer found | no direct consumer | split map exists; move workflow runtime to backend and retain identity/status facts only if needed |
 | Concrete file JSON storage | `packages/storage-file-json`; storage/byte-store tests | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` is the backend-owned replacement | no direct consumer | retire core package lane after historical tests are rewired or replaced |
 | Internal alpha runner | `packages/internal-alpha-runner`; route/job/vertical-slice tests | `flowdoc-vnext-backend/src/storage/storageRouteBinding.ts` and `flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts` are backend-owned replacements | no direct consumer | retire core package lane after backend parity and core historical-test cleanup |
@@ -99,8 +103,8 @@ Reasons:
 - backend tests still use the session storage record shape;
 - core tests still prove service-shaped boundary behavior;
 - retained core contract names for package snapshot, replay patch validation,
-  and workflow identity facts are mapped; package snapshot is implemented,
-  replay/workflow are not implemented yet;
+  and workflow identity facts are mapped; package snapshot and replay
+  validation are implemented, workflow identity is not implemented yet;
 - editor/backend consumer rewiring has not been proven.
 
 ### Ready To Keep
@@ -129,9 +133,9 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## Next Implementation Order
 
-1. Use `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` to implement session
-   package snapshot, rich-inline replay validation, and submission identity
-   splits.
+1. Use `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` to implement submission
+   identity split now that session package snapshot and rich-inline replay
+   validation splits are complete.
 2. Update historical route docs so Phase 86/138 route helper evidence is read
    as history, not current core ownership.
 3. Rewire backend/editor consumers to backend-owned route and persistence
@@ -168,11 +172,11 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## UNKNOWN
 
-- Final names for retained package snapshot, rich inline replay validation, and
-  workflow identity helpers are not locked.
+- Final names for retained workflow identity helpers are not locked.
 - Compatibility-window length for non-route public de-export is not decided.
-- Final helper names from `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` are
-  mapped as concepts but not exported yet.
+- Final workflow helper names from
+  `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` are mapped as concepts but not
+  exported yet.
 
 ## Files Changed
 
@@ -196,7 +200,8 @@ A service-shaped export can be deprecated or removed only when all are true:
 - Window B deprecation markers, retained-contract rewrite, and Window C public
   export removal now exist; deprecated route source cleanup remains optional.
 - Session/rich-inline/workflow split-before-move now has a Phase 232 map;
-  implementation remains open.
+  session and rich-inline implementation splits are complete, while workflow
+  remains open.
 - Old concrete package lanes remain in core until historical-test replacement
   and consumer rewiring are proven.
 

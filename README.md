@@ -908,6 +908,11 @@ The package must remain runnable without any parent editor checkout.
   `createVNextSessionPackageSnapshot(...)` as the retained package snapshot
   contract while keeping `createVNextSessionStorageRecord(...)` as a
   compatibility record. See `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`.
+- Core Rich Inline Replay Validation Split adds
+  `createVNextRichInlineReplayValidation(...)` and patch-level validation
+  records as retained replay validation contracts while keeping rich-inline
+  persistence records as compatibility surface. See
+  `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -983,6 +988,9 @@ The package must remain runnable without any parent editor checkout.
   workflow identity/status facts
 - `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`: Phase 233 retained session
   package snapshot helper split from the compatibility storage record
+- `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`: Phase 234 retained
+  rich-inline replay validation helper split from compatibility persistence
+  records
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

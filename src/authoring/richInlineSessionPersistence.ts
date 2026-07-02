@@ -13,6 +13,8 @@ import {
 
 export const VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE = "vnext-rich-inline-session-persistence"
 export const VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE = "rich-inline-session-record-boundary"
+export const VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE = "vnext-rich-inline-replay-validation"
+export const VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE = "rich-inline-replay-validation-facts"
 
 export interface VNextRichInlineReplayPatchIssue {
   code: string
@@ -29,7 +31,7 @@ export interface VNextRichInlineReplayPatchInput {
   afterChildren: readonly InlineNode[]
 }
 
-export interface VNextRichInlineReplayPatchRecord {
+export interface VNextRichInlineReplayPatchValidationRecord {
   schemaVersion: 1
   commandKind: "text-block.rich-inline.replace"
   groupId: string | null
@@ -45,10 +47,47 @@ export interface VNextRichInlineReplayPatchRecord {
     fieldKeys: string[]
     status: "field-ref-usage-recorded" | "not-required"
   }
-  replayStatus: "not-run"
-  storageStatus: "not-written"
   validationStatus: "valid" | "invalid"
   issues: VNextRichInlineReplayPatchIssue[]
+}
+
+export interface VNextRichInlineReplayPatchRecord extends VNextRichInlineReplayPatchValidationRecord {
+  replayStatus: "not-run"
+  storageStatus: "not-written"
+}
+
+export interface VNextRichInlineReplayValidationOptions {
+  historyRecords?: readonly VNextAuthoringIntentHistoryRecord[]
+  replayPatches?: readonly VNextRichInlineReplayPatchInput[]
+}
+
+export interface VNextRichInlineReplayValidationFacts {
+  schemaVersion: 1
+  commandKind: "text-block.rich-inline.replace"
+  historyReadyRecordCount: number
+  richHistoryRecordCount: number
+  replayPatchCount: number
+  invalidReplayPatchCount: number
+  fieldKeys: string[]
+  contracts: {
+    replayPatchValidation: true
+    historyReadyFacts: true
+    beforeAfterChildrenSnapshots: true
+    storageRecord: false
+    storageWrites: false
+    routeDispatch: false
+    backendApi: false
+    replayExecution: false
+    conflictResolution: false
+    selectionRestore: false
+  }
+}
+
+export interface VNextRichInlineReplayValidationRecord {
+  source: typeof VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE
+  mode: typeof VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE
+  replayPatchValidations: VNextRichInlineReplayPatchValidationRecord[]
+  facts: VNextRichInlineReplayValidationFacts
 }
 
 export interface VNextRichInlineSessionPersistenceOptions {
@@ -121,8 +160,12 @@ function issue(code: string, message: string, path: string): VNextRichInlineRepl
   return { code, message, path }
 }
 
+function uniqueSorted(values: readonly string[]): string[] {
+  return [...new Set(values)].sort()
+}
+
 function fieldKeysFor(children: readonly InlineNode[]): string[] {
-  return [...new Set(children.flatMap((child) => child.type === "field-ref" ? [child.key] : []))].sort()
+  return uniqueSorted(children.flatMap((child) => child.type === "field-ref" ? [child.key] : []))
 }
 
 function validateChildren(side: "beforeChildren" | "afterChildren", children: readonly InlineNode[]): VNextRichInlineReplayPatchIssue[] {
@@ -154,9 +197,9 @@ function richHistoryRecordCount(records: readonly VNextAuthoringIntentHistoryRec
   return records.filter((record) => record.commandKind === "text-block.rich-inline.replace").length
 }
 
-export function createVNextRichInlineReplayPatchRecord(
+export function createVNextRichInlineReplayPatchValidation(
   input: VNextRichInlineReplayPatchInput,
-): VNextRichInlineReplayPatchRecord {
+): VNextRichInlineReplayPatchValidationRecord {
   const beforeChildren = input.beforeChildren.map((child) => cloneJson(child))
   const afterChildren = input.afterChildren.map((child) => cloneJson(child))
   const issues = [
@@ -181,10 +224,60 @@ export function createVNextRichInlineReplayPatchRecord(
       fieldKeys,
       status: fieldKeys.length > 0 ? "field-ref-usage-recorded" : "not-required",
     },
-    replayStatus: "not-run",
-    storageStatus: "not-written",
     validationStatus: issues.length > 0 ? "invalid" : "valid",
     issues,
+  }
+}
+
+function replayPatchRecordFromValidation(
+  validation: VNextRichInlineReplayPatchValidationRecord,
+): VNextRichInlineReplayPatchRecord {
+  return {
+    ...cloneJson(validation),
+    replayStatus: "not-run",
+    storageStatus: "not-written",
+  }
+}
+
+export function createVNextRichInlineReplayPatchRecord(
+  input: VNextRichInlineReplayPatchInput,
+): VNextRichInlineReplayPatchRecord {
+  return replayPatchRecordFromValidation(createVNextRichInlineReplayPatchValidation(input))
+}
+
+export function createVNextRichInlineReplayValidation(
+  options: VNextRichInlineReplayValidationOptions = {},
+): VNextRichInlineReplayValidationRecord {
+  const replayPatchValidations = (options.replayPatches ?? []).map((patch) => createVNextRichInlineReplayPatchValidation(patch))
+  const invalidReplayPatchCount = replayPatchValidations.filter((patch) => patch.validationStatus === "invalid").length
+  const fieldKeys = uniqueSorted(replayPatchValidations.flatMap((patch) => patch.keyHistory.fieldKeys))
+  const historyRecords = options.historyRecords ?? []
+
+  return {
+    source: VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE,
+    mode: VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE,
+    replayPatchValidations,
+    facts: {
+      schemaVersion: 1,
+      commandKind: "text-block.rich-inline.replace",
+      historyReadyRecordCount: historyRecords.length,
+      richHistoryRecordCount: richHistoryRecordCount(historyRecords),
+      replayPatchCount: replayPatchValidations.length,
+      invalidReplayPatchCount,
+      fieldKeys,
+      contracts: {
+        replayPatchValidation: true,
+        historyReadyFacts: true,
+        beforeAfterChildrenSnapshots: true,
+        storageRecord: false,
+        storageWrites: false,
+        routeDispatch: false,
+        backendApi: false,
+        replayExecution: false,
+        conflictResolution: false,
+        selectionRestore: false,
+      },
+    },
   }
 }
 
@@ -203,8 +296,11 @@ export function createVNextRichInlineSessionPersistenceRecord(
     reason,
     redoRecords: options.redoRecords,
   })
-  const replayPatches = (options.replayPatches ?? []).map((patch) => createVNextRichInlineReplayPatchRecord(patch))
-  const invalidReplayPatchCount = replayPatches.filter((patch) => patch.validationStatus === "invalid").length
+  const replayValidation = createVNextRichInlineReplayValidation({
+    historyRecords: durableHistory.records,
+    replayPatches: options.replayPatches,
+  })
+  const replayPatches = replayValidation.replayPatchValidations.map((patch) => replayPatchRecordFromValidation(patch))
 
   return {
     source: VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE,
@@ -222,9 +318,9 @@ export function createVNextRichInlineSessionPersistenceRecord(
       storageStatus: "not-written",
       packageStorageStatus: sessionStorage.manifest.storageStatus,
       historyStorageStatus: durableHistory.manifest.storageStatus,
-      richHistoryRecordCount: richHistoryRecordCount(durableHistory.records),
-      replayPatchCount: replayPatches.length,
-      invalidReplayPatchCount,
+      richHistoryRecordCount: replayValidation.facts.richHistoryRecordCount,
+      replayPatchCount: replayValidation.facts.replayPatchCount,
+      invalidReplayPatchCount: replayValidation.facts.invalidReplayPatchCount,
       persistedState: {
         package: true,
         authoringHistory: true,
