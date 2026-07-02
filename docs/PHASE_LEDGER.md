@@ -239,6 +239,7 @@ Parent goal:
 | 223 | Mini infrastructure close audit | done | `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`; `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`; `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`; `docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md`; `fixtures/measurement-evidence-summary-manifest.accepted.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/miniInfrastructureCloseAudit.test.ts`; pointer guard tests |
 | 224 | Runtime binding implementation planning gate | done | `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`; `docs/MINI_INFRASTRUCTURE_CLOSE_AUDIT.md`; `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`; `fixtures/render-api-request-envelope-contract.v1.json`; `fixtures/template-publish-accepted-version-metadata.v1.json`; `fixtures/variable-compatibility-policy.v1.json`; `fixtures/render-api-error-blocker-vocabulary.v1.json`; `docs/CURRENT_STATUS.md`; `docs/NEXT_PHASE_POINTER.md`; `README.md`; `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`; `docs/PHASE_LEDGER.md`; `tests/runtimeBindingImplementationPlanningGate.test.ts`; pointer guard tests |
 | 225 | Core retention map | done | `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `docs/CORE_RETENTION_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRetentionMap.test.ts` |
+| 226 | Core service consumer map | done | `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreServiceConsumerMap.test.ts` |
 
 ## Current Rule
 
@@ -6757,6 +6758,38 @@ run artifact rendering, or claim route parity.
 
 Next recommended work: backend route parity for `src/generation/apiRoute.ts`
 and `src/generation/artifactApiRoute.ts`, then a controlled de-export plan.
+
+## Phase 226 Core Service Consumer Map
+
+Core Service Consumer Map uses the Core Retention Map and narrow cross-repo
+consumer searches as evidence, then separates each service-shaped area into
+current consumer groups before route parity or de-export work starts.
+
+The map confirms:
+
+- route-shaped generation and artifact API helpers are still core-exported and
+  core-tested, while backend has no import of those response helpers yet;
+- backend P1 now owns concrete file JSON storage, storage route binding, and
+  artifact job storage execution, but this is migration evidence rather than a
+  reason to delete retained core contracts;
+- backend runtime consumes retained core storage/job/manifest contracts through
+  package-level `@flowdoc/vnext-core` imports;
+- backend tests still use `createVNextSessionStorageRecord(...)` as storage
+  route binding fixture setup, so session record cleanup needs split-before-move
+  work first;
+- editor currently keeps `@flowdoc/vnext-core` behind `src/core/coreAdapter.ts`
+  and has no direct service-shaped export consumer;
+- retained contracts in `src/generation/runtime.ts`,
+  `src/generation/artifactManifest.ts`, `src/generation/artifactJob.ts`, and
+  `src/persistence/storageAdapter.ts` remain core-owned or split-contract
+  truth, not backend service execution.
+
+This phase intentionally does not move source modules, remove public exports,
+change backend/editor consumers, implement backend route parity, introduce a
+gateway, add production storage, run artifact rendering, or claim route parity.
+
+Next recommended work: implement backend route parity for
+`src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts`.
 
 ## Phase 12 Extraction Record
 
