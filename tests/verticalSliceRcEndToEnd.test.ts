@@ -1,7 +1,5 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
-import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
-import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   advanceVNextArtifactJob,
   assessVNextKeyDataDiagnostics,
@@ -10,6 +8,8 @@ import {
   createVNextDurableHistorySnapshot,
   createVNextEditableSession,
   createVNextRichInlineCommitHistoryRecord,
+  createVNextRichInlineReplayValidation,
+  createVNextSessionPackageSnapshot,
   createVNextStorageReadResult,
   createVNextVerticalSliceArtifactBridgeSummary,
   createVNextVerticalSliceRcReport,
@@ -130,23 +130,18 @@ function storageWrites(pack: FlowDocPackageV2DocumentVNext, job: VNextArtifactJo
   result: VNextStorageWriteResult<unknown>
 }[] {
   const session = createVNextEditableSession(pack)
-  const sessionRecord = createVNextSessionStorageRecord(session, {
-    reason: "vertical-slice-rc-e2e-smoke",
-    storageKey: "session:vertical-slice-report-v1",
-  })
+  const sessionPackage = createVNextSessionPackageSnapshot(session)
   const history = createVNextDurableHistorySnapshot([], {
     documentRevision: session.revisions.document,
     historyKey: "history:vertical-slice-report-v1",
     reason: "vertical-slice-rc-e2e-smoke",
   })
-  const richInline = createVNextRichInlineSessionPersistenceRecord(session, {
-    historyKey: "history:vertical-slice-report-v1",
-    reason: "vertical-slice-rc-e2e-smoke",
-    storageKey: "rich-inline:vertical-slice-report-v1",
+  const richInline = createVNextRichInlineReplayValidation({
+    historyRecords: history.records,
   })
-  const packageSessions = new MockCollection<typeof sessionRecord>("package-session")
+  const packageSessions = new MockCollection<unknown>("package-session")
   const histories = new MockCollection<typeof history>("durable-history")
-  const richInlineSessions = new MockCollection<typeof richInline>("rich-inline-session")
+  const richInlineSessions = new MockCollection<unknown>("rich-inline-session")
   const manifests = new MockCollection<typeof manifest>("artifact-manifest")
   const jobs = new MockCollection<typeof job>("artifact-job")
 
@@ -154,7 +149,7 @@ function storageWrites(pack: FlowDocPackageV2DocumentVNext, job: VNextArtifactJo
     {
       kind: "package-session",
       key: "session:vertical-slice-report-v1",
-      result: packageSessions.write({ kind: "package-session", key: "session:vertical-slice-report-v1", value: sessionRecord, expectedRevision: null, idempotencyKey: "idem-session", now: "2026-06-24T03:05:00.000Z" }) as VNextStorageWriteResult<unknown>,
+      result: packageSessions.write({ kind: "package-session", key: "session:vertical-slice-report-v1", value: sessionPackage, expectedRevision: null, idempotencyKey: "idem-session", now: "2026-06-24T03:05:00.000Z" }) as VNextStorageWriteResult<unknown>,
     },
     {
       kind: "durable-history",

@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
-import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
-import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   createVNextArtifactJobPlan,
   createVNextArtifactManifestPlan,
   createVNextDurableHistorySnapshot,
   createVNextEditableSession,
+  createVNextRichInlineReplayValidation,
+  createVNextSessionPackageSnapshot,
   createVNextStorageReadResult,
   evaluateVNextStorageWriteRequest,
   summarizeVNextVerticalSliceStorageSimulation,
@@ -44,19 +44,14 @@ class MockCollection<TRecord> implements VNextStorageCollection<TRecord> {
 
 function rcRecords() {
   const session = createVNextEditableSession(fixture("vertical-slice-rc-report.v1.flowdoc.json"))
-  const sessionRecord = createVNextSessionStorageRecord(session, {
-    reason: "vertical-slice-rc-storage-simulation",
-    storageKey: "session:vertical-slice-report-v1",
-  })
+  const sessionPackage = createVNextSessionPackageSnapshot(session)
   const history = createVNextDurableHistorySnapshot([], {
     documentRevision: session.revisions.document,
     historyKey: "history:vertical-slice-report-v1",
     reason: "vertical-slice-rc-storage-simulation",
   })
-  const richInline = createVNextRichInlineSessionPersistenceRecord(session, {
-    historyKey: "history:vertical-slice-report-v1",
-    reason: "vertical-slice-rc-storage-simulation",
-    storageKey: "rich-inline:vertical-slice-report-v1",
+  const richInline = createVNextRichInlineReplayValidation({
+    historyRecords: history.records,
   })
   const artifactManifestPlan = createVNextArtifactManifestPlan({
     artifactId: "artifact:vertical-slice-report-v1:pdf",
@@ -89,7 +84,7 @@ function rcRecords() {
   if (artifactManifestPlan.record == null || artifactJobPlan.job == null) throw new Error("artifact records did not validate")
 
   return {
-    sessionRecord,
+    sessionPackage,
     history,
     richInline,
     artifactManifest: artifactManifestPlan.record,
@@ -100,9 +95,9 @@ function rcRecords() {
 describe("vertical slice storage simulation", () => {
   it("summarizes package/session, history, rich inline, artifact manifest, and artifact job storage results", () => {
     const records = rcRecords()
-    const packageSessions = new MockCollection<typeof records.sessionRecord>("package-session")
+    const packageSessions = new MockCollection<unknown>("package-session")
     const histories = new MockCollection<typeof records.history>("durable-history")
-    const richInline = new MockCollection<typeof records.richInline>("rich-inline-session")
+    const richInline = new MockCollection<unknown>("rich-inline-session")
     const manifests = new MockCollection<typeof records.artifactManifest>("artifact-manifest")
     const jobs = new MockCollection<typeof records.artifactJob>("artifact-job")
 
@@ -113,7 +108,7 @@ describe("vertical slice storage simulation", () => {
         result: packageSessions.write({
           kind: "package-session",
           key: "session:vertical-slice-report-v1",
-          value: records.sessionRecord,
+          value: records.sessionPackage,
           expectedRevision: null,
           idempotencyKey: "idem-session",
           now: "2026-06-24T02:01:00.000Z",
@@ -205,11 +200,11 @@ describe("vertical slice storage simulation", () => {
 
   it("represents idempotent replay and expected revision conflict", () => {
     const records = rcRecords()
-    const packageSessions = new MockCollection<typeof records.sessionRecord>("package-session")
+    const packageSessions = new MockCollection<unknown>("package-session")
     const first = packageSessions.write({
       kind: "package-session",
       key: "session:vertical-slice-report-v1",
-      value: records.sessionRecord,
+      value: records.sessionPackage,
       expectedRevision: null,
       idempotencyKey: "idem-session",
       now: "2026-06-24T02:01:00.000Z",
@@ -217,7 +212,7 @@ describe("vertical slice storage simulation", () => {
     const replay = packageSessions.write({
       kind: "package-session",
       key: "session:vertical-slice-report-v1",
-      value: records.sessionRecord,
+      value: records.sessionPackage,
       expectedRevision: null,
       idempotencyKey: "idem-session",
       now: "2026-06-24T02:02:00.000Z",
@@ -225,7 +220,7 @@ describe("vertical slice storage simulation", () => {
     const conflict = packageSessions.write({
       kind: "package-session",
       key: "session:vertical-slice-report-v1",
-      value: records.sessionRecord,
+      value: records.sessionPackage,
       expectedRevision: null,
       idempotencyKey: "idem-session-conflict",
       now: "2026-06-24T02:03:00.000Z",

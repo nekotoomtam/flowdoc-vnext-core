@@ -43,8 +43,6 @@ describe("core compatibility source cleanup audit", () => {
       "src/authoring/richInlineSessionPersistence.ts",
       "tests/sessionPackageSnapshot.test.ts",
       "tests/storageAdapter.test.ts",
-      "tests/verticalSliceStorageSimulation.test.ts",
-      "tests/verticalSliceRcEndToEnd.test.ts",
     ],
     VNextSessionStorageRecord: [
       "src/authoring/richInlineSessionPersistence.ts",
@@ -55,8 +53,6 @@ describe("core compatibility source cleanup audit", () => {
       "tests/richInlineLiveExactParityAudit.test.ts",
       "tests/richInlineReplayValidation.test.ts",
       "tests/storageAdapter.test.ts",
-      "tests/verticalSliceRcEndToEnd.test.ts",
-      "tests/verticalSliceStorageSimulation.test.ts",
     ],
     VNextRichInlineSessionPersistenceRecord: [],
     VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE: [],
@@ -165,7 +161,9 @@ describe("core compatibility source cleanup audit", () => {
     expect(readme).toContain("Core Compatibility Source Cleanup Audit")
     expect(readme).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
     expect(ledger).toContain("| 242 | Core compatibility source cleanup audit | done |")
+    expect(ledger).toContain("| 243 | Core vertical-slice retained storage payload rewrite | done |")
     expect(ledger).toContain("## Phase 242 Core Compatibility Source Cleanup Audit")
+    expect(ledger).toContain("## Phase 243 Core Vertical-Slice Retained Storage Payload Rewrite")
     expect(nonRoute).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
     expect(retention).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
     expect(consumer).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")

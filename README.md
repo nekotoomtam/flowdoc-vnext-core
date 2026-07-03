@@ -946,6 +946,10 @@ The package must remain runnable without any parent editor checkout.
   compatibility helper allowlist after NR-C and prevents new untracked usages
   while the remaining tests are rewritten toward deletion. See
   `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+- Core Vertical-Slice Retained Storage Payload Rewrite removes vertical-slice
+  storage simulation and RC smoke imports of owner-module compatibility helpers
+  by using retained package snapshot and rich-inline replay validation facts.
+  See `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -1034,9 +1038,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`: Phase 238-241 Window NR-B/NR-C
   retained-test rewrite, public-entrypoint test cleanup, package-lane cleanup,
   and public export narrowing for non-route service-shaped helpers
-- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`: Phase 242 allowlist and
-  exit criteria for removing owner-module compatibility helper source after
-  NR-C
+- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`: Phase 242-243 allowlist,
+  vertical-slice rewrite progress, and exit criteria for removing owner-module
+  compatibility helper source after NR-C
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

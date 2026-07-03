@@ -2,7 +2,8 @@
 
 Date: 2026-07-03
 
-Status: Phase 242 cleanup gate after Window NR-C public export narrowing.
+Status: Phase 243 vertical-slice storage payload rewrite after Window NR-C
+public export narrowing.
 
 ## Purpose
 
@@ -27,8 +28,8 @@ composition tests still need them. They are removal candidates, not retained cor
 
 | Helper | Source Owner | Remaining Use | Replacement Target |
 |---|---|---|---|
-| `createVNextSessionStorageRecord(...)` | `src/authoring/sessionStorage.ts` | historical session package/storage composition and test-local storage mocks | retained `createVNextSessionPackageSnapshot(...)`; backend `flowdoc-vnext-backend/src/storage/sessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaSessionStorageRecord(...)` |
-| `createVNextRichInlineSessionPersistenceRecord(...)` | `src/authoring/richInlineSessionPersistence.ts` | historical rich-inline session persistence composition, parity, and test-local storage mocks | retained `createVNextRichInlineReplayValidation(...)`; backend `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaRichInlineSessionRecord(...)` |
+| `createVNextSessionStorageRecord(...)` | `src/authoring/sessionStorage.ts` | historical session package/storage composition and `tests/storageAdapter.test.ts` mocks | retained `createVNextSessionPackageSnapshot(...)`; backend `flowdoc-vnext-backend/src/storage/sessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaSessionStorageRecord(...)` |
+| `createVNextRichInlineSessionPersistenceRecord(...)` | `src/authoring/richInlineSessionPersistence.ts` | historical rich-inline session persistence composition, parity, and `tests/storageAdapter.test.ts` mocks | retained `createVNextRichInlineReplayValidation(...)`; backend `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaRichInlineSessionRecord(...)` |
 | `createVNextSubmissionStateRecord(...)` | `src/workflow/submissionState.ts` | historical submission workflow-shaped composition test | retained `createVNextSubmissionIdentityStatus(...)`; backend `flowdoc-vnext-backend/src/routes/submissionRoute.ts` |
 
 Compatibility record types and constants are removal candidates with the helper
@@ -53,10 +54,6 @@ rewritten or retired.
   beside retained package snapshot facts.
 - `tests/storageAdapter.test.ts`: uses test-local storage envelopes with the
   old session shape.
-- `tests/verticalSliceStorageSimulation.test.ts`: feeds old session records
-  into a historical storage simulation.
-- `tests/verticalSliceRcEndToEnd.test.ts`: feeds old session records into a
-  historical RC smoke.
 
 ### Rich Inline Session Compatibility
 
@@ -66,10 +63,6 @@ rewritten or retired.
   persistence evidence against live/exact invalidation facts.
 - `tests/storageAdapter.test.ts`: uses test-local storage envelopes with the
   old rich-inline session shape.
-- `tests/verticalSliceStorageSimulation.test.ts`: feeds old rich-inline
-  records into a historical storage simulation.
-- `tests/verticalSliceRcEndToEnd.test.ts`: feeds old rich-inline records into
-  a historical RC smoke.
 
 ### Submission State Compatibility
 
@@ -78,19 +71,24 @@ rewritten or retired.
 
 ## Recommended Removal Order
 
-1. Rewrite storage and vertical-slice tests so package-session and
-   rich-inline-session payloads use retained facts, backend-owned fixtures, or
-   package-local internal-alpha records instead of core compatibility helpers.
-2. Rewrite `tests/storageAdapter.test.ts` to use generic `unknown` payloads for
+1. Rewrite `tests/storageAdapter.test.ts` to use generic `unknown` payloads for
    package-session and rich-inline-session envelopes.
-3. Rewrite composition tests to assert retained facts and backend/package-owned
+2. Rewrite composition tests to assert retained facts and backend/package-owned
    replacements instead of old core record envelopes.
-4. Remove the owner-module compatibility helpers, record types, and source/mode
+3. Remove the owner-module compatibility helpers, record types, and source/mode
    constants from `src/authoring/sessionStorage.ts`,
    `src/authoring/richInlineSessionPersistence.ts`, and
    `src/workflow/submissionState.ts`.
-5. Update historical docs to describe the removed helpers as past compatibility
+4. Update historical docs to describe the removed helpers as past compatibility
    evidence rather than current source.
+
+## Cleanup Progress
+
+- Phase 243 rewrote `tests/verticalSliceStorageSimulation.test.ts` and
+  `tests/verticalSliceRcEndToEnd.test.ts` so package-session and
+  rich-inline-session payloads use retained facts through
+  `createVNextSessionPackageSnapshot(...)` and
+  `createVNextRichInlineReplayValidation(...)`.
 
 ## Exit Criteria
 
@@ -109,6 +107,8 @@ rewritten or retired.
   allowlisted.
 - Replacement targets are identified for each helper.
 - The guard test prevents new untracked compatibility imports.
+- Vertical-slice storage simulation and RC smoke tests no longer import the
+  compatibility helpers.
 
 ## FAIL / BLOCKER
 
@@ -116,19 +116,20 @@ rewritten or retired.
 
 ## RISK
 
-- Historical tests still exercise old record shapes until rewritten.
+- Some historical tests still exercise old record shapes until rewritten.
 - Leaving owner-module source in place can be misread as current core
   ownership if this audit is ignored.
 
 ## UNKNOWN
 
 - Exact deletion phase for each helper.
-- Whether every historical vertical-slice test should move to backend-owned
-  fixtures or package-local internal-alpha records.
+- Whether each remaining composition test should move to backend-owned
+  fixtures, package-local internal-alpha records, or retained facts only.
 
 ## Files Changed
 
 - `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`
+- vertical-slice storage simulation tests
 - source deprecation comments for the three compatibility helpers
 - guard tests for the cleanup allowlist
 - README and phase ledger pointers
@@ -136,7 +137,9 @@ rewritten or retired.
 ## Behavior Changed
 
 - Documentation and guard behavior only.
-- Runtime behavior is unchanged.
+- Vertical-slice storage payload fixtures now use retained core facts instead
+  of compatibility helper records.
+- Runtime storage adapter behavior is unchanged.
 - Public entrypoint behavior is unchanged from Window NR-C.
 
 ## Tests Run
@@ -145,7 +148,7 @@ rewritten or retired.
 
 ## Risks Left
 
-- Rewrite or retire each allowlisted usage.
+- Rewrite or retire each remaining allowlisted usage.
 - Remove compatibility source after the allowlist reaches zero.
 
 ## Intentionally Not Changed

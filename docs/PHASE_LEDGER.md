@@ -256,6 +256,7 @@ Parent goal:
 | 240 | Core non-route package-lane cleanup | done | `packages/internal-alpha-runner/src/internalAlphaRecords.ts`; `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/storage-file-json/src/index.ts`; `tests/backendRouteStorageBinding.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 | 241 | Core non-route public export narrowing | done | `src/index.ts`; `src/persistence/storageAdapter.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/storageAdapter.test.ts`; `tests/storageFileJsonAdapter.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 242 | Core compatibility source cleanup audit | done | `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` |
+| 243 | Core vertical-slice retained storage payload rewrite | done | `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 
 ## Current Rule
 
@@ -7343,8 +7344,39 @@ rewrite the allowlisted tests, touch backend/frontend repos, introduce a
 gateway, run rich-inline replay execution, or implement production submission
 workflow storage.
 
-Next recommended work: rewrite storage/vertical-slice tests first, then
-composition tests, until the compatibility import allowlist reaches zero.
+Next recommended work: Phase 243 vertical-slice retained storage payload
+rewrite is complete; rewrite `tests/storageAdapter.test.ts` in Phase 244.
+
+## Phase 243 Core Vertical-Slice Retained Storage Payload Rewrite
+
+Core Vertical-Slice Retained Storage Payload Rewrite removes the vertical-slice
+storage simulation and RC smoke tests from the owner-module compatibility
+helper allowlist after Window NR-C.
+
+The rewrite confirms:
+
+- `tests/verticalSliceStorageSimulation.test.ts` no longer imports
+  `createVNextSessionStorageRecord(...)` or
+  `createVNextRichInlineSessionPersistenceRecord(...)`;
+- `tests/verticalSliceRcEndToEnd.test.ts` no longer imports those
+  compatibility helpers;
+- both tests use retained facts from `createVNextSessionPackageSnapshot(...)`
+  and `createVNextRichInlineReplayValidation(...)` as generic storage payloads
+  for package-session and rich-inline-session writes;
+- `tests/coreCompatibilitySourceCleanupAudit.test.ts` removes those
+  vertical-slice files from the compatibility import allowlist;
+- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` records that the
+  vertical-slice storage rewrite is complete while storage-adapter and
+  composition-test cleanup remains.
+
+This phase intentionally does not remove compatibility helper implementations,
+rewrite `tests/storageAdapter.test.ts`, rewrite composition tests, touch
+backend/frontend repos, introduce a gateway, run rich-inline replay execution,
+or implement production submission workflow storage.
+
+Next recommended work: Phase 244 should rewrite `tests/storageAdapter.test.ts`
+so package-session and rich-inline-session payloads stay generic `unknown`
+values without compatibility helper records.
 
 ## Phase 12 Extraction Record
 
