@@ -48,6 +48,15 @@ in `docs/CROSS_REPO_OPERATING_MAP.md`: restate the outcome, split it into
 phases, execute phase by phase until complete or genuinely blocked, and give
 the full review output at handoff.
 
+## Completion Workflow
+
+When an implementation phase is complete, commit the coherent finished change
+set before handoff and include the next recommended direction. Commit only
+after the relevant checks pass and the staged scope contains no unrelated user
+changes. If tests fail, the work is partial, a blocker remains, or unrelated
+dirty files would be swept into the commit, stop and report the exact state
+instead of committing.
+
 ## Required Review Output
 
 When reviewing or handing off broad work, include:
