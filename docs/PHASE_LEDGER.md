@@ -257,6 +257,7 @@ Parent goal:
 | 241 | Core non-route public export narrowing | done | `src/index.ts`; `src/persistence/storageAdapter.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/storageAdapter.test.ts`; `tests/storageFileJsonAdapter.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 242 | Core compatibility source cleanup audit | done | `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` |
 | 243 | Core vertical-slice retained storage payload rewrite | done | `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 244 | Core storage adapter generic payload rewrite | done | `tests/storageAdapter.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 
 ## Current Rule
 
@@ -7374,9 +7375,40 @@ rewrite `tests/storageAdapter.test.ts`, rewrite composition tests, touch
 backend/frontend repos, introduce a gateway, run rich-inline replay execution,
 or implement production submission workflow storage.
 
-Next recommended work: Phase 244 should rewrite `tests/storageAdapter.test.ts`
-so package-session and rich-inline-session payloads stay generic `unknown`
-values without compatibility helper records.
+Next recommended work: Phase 244 storage adapter generic payload rewrite is
+complete; rewrite the remaining composition tests in Phase 245.
+
+## Phase 244 Core Storage Adapter Generic Payload Rewrite
+
+Core Storage Adapter Generic Payload Rewrite removes
+`tests/storageAdapter.test.ts` from the owner-module compatibility helper
+allowlist.
+
+The rewrite confirms:
+
+- `tests/storageAdapter.test.ts` no longer imports
+  `createVNextSessionStorageRecord(...)` or
+  `createVNextRichInlineSessionPersistenceRecord(...)`;
+- package-session writes use a test-local generic payload backed by
+  `createVNextSessionPackageSnapshot(...)`;
+- rich-inline-session writes use retained facts from
+  `createVNextRichInlineReplayValidation(...)`;
+- `src/persistence/storageAdapter.ts` continues to expose
+  `packageSessions: VNextStorageCollection<unknown>` and
+  `richInlineSessions: VNextStorageCollection<unknown>`;
+- `tests/coreCompatibilitySourceCleanupAudit.test.ts` removes
+  `tests/storageAdapter.test.ts` from the compatibility import allowlist.
+
+This phase intentionally does not remove compatibility helper implementations,
+rewrite composition tests, touch backend/frontend repos, introduce a gateway,
+run rich-inline replay execution, or implement production submission workflow
+storage.
+
+Next recommended work: Phase 245 should rewrite
+`tests/sessionPackageSnapshot.test.ts`, `tests/richInlineReplayValidation.test.ts`,
+`tests/richInlineLiveExactParityAudit.test.ts`, and
+`tests/submissionIdentityStatus.test.ts` to retained facts/backend-package
+replacement evidence.
 
 ## Phase 12 Extraction Record
 

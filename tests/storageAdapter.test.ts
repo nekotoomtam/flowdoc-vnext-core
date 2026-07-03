@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
-import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
-import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   createVNextArtifactJobPlan,
   createVNextArtifactManifestPlan,
   createVNextDurableHistorySnapshot,
   createVNextEditableSession,
+  createVNextRichInlineReplayValidation,
+  createVNextSessionPackageSnapshot,
   createVNextStorageAdapterContractPlan,
   createVNextStorageReadResult,
   evaluateVNextStorageWriteRequest,
@@ -52,12 +52,13 @@ class MockStorageAdapter implements VNextStorageAdapter {
   artifactJobs = new MockStorageCollection<NonNullable<ReturnType<typeof createVNextArtifactJobPlan>["job"]>>("artifact-job")
 }
 
-function sessionRecord() {
+function packageSessionPayload(reason = "phase-140-storage-adapter-test") {
   const session = createVNextEditableSession(fixtureValue("product-report-vnext-minimal.flowdoc.json"))
-  return createVNextSessionStorageRecord(session, {
-    reason: "phase-140-storage-adapter-test",
-    storageKey: "sessions/product-report",
-  })
+  return {
+    source: "test-local-package-session-payload",
+    reason,
+    packageSnapshot: createVNextSessionPackageSnapshot(session),
+  }
 }
 
 function session() {
@@ -138,7 +139,7 @@ describe("vNext storage adapter interface boundary", () => {
 
   it("lets a mock adapter prove expected revision and idempotency behavior", () => {
     const adapter = new MockStorageAdapter()
-    const firstValue = sessionRecord()
+    const firstValue = packageSessionPayload()
     const first = adapter.packageSessions.write({
       kind: "package-session",
       key: "session:product-report",
@@ -158,13 +159,7 @@ describe("vNext storage adapter interface boundary", () => {
     const second = adapter.packageSessions.write({
       kind: "package-session",
       key: "session:product-report",
-      value: {
-        ...firstValue,
-        manifest: {
-          ...firstValue.manifest,
-          reason: "phase-140-update",
-        },
-      },
+      value: packageSessionPayload("phase-140-update"),
       expectedRevision: 0,
       idempotencyKey: "idem-session-update",
       writeToken: "write-token-1",
@@ -236,9 +231,7 @@ describe("vNext storage adapter interface boundary", () => {
       record: {
         revision: 1,
         value: {
-          manifest: {
-            reason: "phase-140-update",
-          },
+          reason: "phase-140-update",
         },
       },
     })
@@ -253,10 +246,8 @@ describe("vNext storage adapter interface boundary", () => {
       historyKey: "history:phase-140",
       reason: "storage-adapter-test",
     })
-    const richInline = createVNextRichInlineSessionPersistenceRecord(editableSession, {
-      historyKey: "history:phase-140",
-      reason: "storage-adapter-test",
-      storageKey: "rich-inline:phase-140",
+    const richInline = createVNextRichInlineReplayValidation({
+      historyRecords: history.records,
     })
     const manifest = artifactManifest()
     const job = artifactJob()

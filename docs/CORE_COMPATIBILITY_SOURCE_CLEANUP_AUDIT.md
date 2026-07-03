@@ -2,7 +2,7 @@
 
 Date: 2026-07-03
 
-Status: Phase 243 vertical-slice storage payload rewrite after Window NR-C
+Status: Phase 244 storage adapter generic payload rewrite after Window NR-C
 public export narrowing.
 
 ## Purpose
@@ -28,8 +28,8 @@ composition tests still need them. They are removal candidates, not retained cor
 
 | Helper | Source Owner | Remaining Use | Replacement Target |
 |---|---|---|---|
-| `createVNextSessionStorageRecord(...)` | `src/authoring/sessionStorage.ts` | historical session package/storage composition and `tests/storageAdapter.test.ts` mocks | retained `createVNextSessionPackageSnapshot(...)`; backend `flowdoc-vnext-backend/src/storage/sessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaSessionStorageRecord(...)` |
-| `createVNextRichInlineSessionPersistenceRecord(...)` | `src/authoring/richInlineSessionPersistence.ts` | historical rich-inline session persistence composition, parity, and `tests/storageAdapter.test.ts` mocks | retained `createVNextRichInlineReplayValidation(...)`; backend `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaRichInlineSessionRecord(...)` |
+| `createVNextSessionStorageRecord(...)` | `src/authoring/sessionStorage.ts` | historical session package/storage composition test | retained `createVNextSessionPackageSnapshot(...)`; backend `flowdoc-vnext-backend/src/storage/sessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaSessionStorageRecord(...)` |
+| `createVNextRichInlineSessionPersistenceRecord(...)` | `src/authoring/richInlineSessionPersistence.ts` | historical rich-inline session persistence composition and parity tests | retained `createVNextRichInlineReplayValidation(...)`; backend `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaRichInlineSessionRecord(...)` |
 | `createVNextSubmissionStateRecord(...)` | `src/workflow/submissionState.ts` | historical submission workflow-shaped composition test | retained `createVNextSubmissionIdentityStatus(...)`; backend `flowdoc-vnext-backend/src/routes/submissionRoute.ts` |
 
 Compatibility record types and constants are removal candidates with the helper
@@ -52,8 +52,6 @@ rewritten or retired.
   compatibility record while that source still exists.
 - `tests/sessionPackageSnapshot.test.ts`: proves old storage record composition
   beside retained package snapshot facts.
-- `tests/storageAdapter.test.ts`: uses test-local storage envelopes with the
-  old session shape.
 
 ### Rich Inline Session Compatibility
 
@@ -61,8 +59,6 @@ rewritten or retired.
   composition beside retained replay validation facts.
 - `tests/richInlineLiveExactParityAudit.test.ts`: compares old session
   persistence evidence against live/exact invalidation facts.
-- `tests/storageAdapter.test.ts`: uses test-local storage envelopes with the
-  old rich-inline session shape.
 
 ### Submission State Compatibility
 
@@ -71,15 +67,13 @@ rewritten or retired.
 
 ## Recommended Removal Order
 
-1. Rewrite `tests/storageAdapter.test.ts` to use generic `unknown` payloads for
-   package-session and rich-inline-session envelopes.
-2. Rewrite composition tests to assert retained facts and backend/package-owned
+1. Rewrite composition tests to assert retained facts and backend/package-owned
    replacements instead of old core record envelopes.
-3. Remove the owner-module compatibility helpers, record types, and source/mode
+2. Remove the owner-module compatibility helpers, record types, and source/mode
    constants from `src/authoring/sessionStorage.ts`,
    `src/authoring/richInlineSessionPersistence.ts`, and
    `src/workflow/submissionState.ts`.
-4. Update historical docs to describe the removed helpers as past compatibility
+3. Update historical docs to describe the removed helpers as past compatibility
    evidence rather than current source.
 
 ## Cleanup Progress
@@ -89,6 +83,9 @@ rewritten or retired.
   rich-inline-session payloads use retained facts through
   `createVNextSessionPackageSnapshot(...)` and
   `createVNextRichInlineReplayValidation(...)`.
+- Phase 244 rewrote `tests/storageAdapter.test.ts` so package-session and
+  rich-inline-session storage collections stay generic `unknown` payload
+  contracts backed by retained package snapshot and rich-inline replay facts.
 
 ## Exit Criteria
 
@@ -109,6 +106,8 @@ rewritten or retired.
 - The guard test prevents new untracked compatibility imports.
 - Vertical-slice storage simulation and RC smoke tests no longer import the
   compatibility helpers.
+- The storage adapter test no longer imports compatibility helpers or depends
+  on old package-session/rich-inline-session record shapes.
 
 ## FAIL / BLOCKER
 
