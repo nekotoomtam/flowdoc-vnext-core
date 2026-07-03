@@ -79,15 +79,43 @@ describe("core non-route retained-test rewrite", () => {
     expect(doc).toContain("treated as proof that core owns")
   })
 
-  it("keeps public entrypoint compatibility until Window NR-C", () => {
+  it("narrows the public entrypoint to retained non-route facts in Window NR-C", () => {
     const index = readText("src/index.ts")
+    const storageAdapter = readText("src/persistence/storageAdapter.ts")
     const doc = readText("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
+    const retainedPublicNames = [
+      "createVNextSessionPackageSnapshot",
+      "createVNextRichInlineReplayValidation",
+      "createVNextSubmissionIdentityStatus",
+    ]
+    const deprecatedPublicNames = [
+      "createVNextSessionStorageRecord",
+      "createVNextRichInlineSessionPersistenceRecord",
+      "createVNextSubmissionStateRecord",
+      "VNextSessionStorageRecord",
+      "VNextRichInlineSessionPersistenceRecord",
+      "VNextSubmissionStateRecord",
+      "VNEXT_SESSION_STORAGE_SOURCE",
+      "VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE",
+      "VNEXT_SUBMISSION_STATE_SOURCE",
+    ]
 
-    expect(index).toContain("./authoring/sessionStorage.js")
-    expect(index).toContain("./authoring/richInlineSessionPersistence.js")
-    expect(index).toContain("./workflow/submissionState.js")
-    expect(doc).toContain("Window NR-B does not remove public exports.")
-    expect(doc).toContain("Window NR-C can now narrow the core test-facing public surface")
+    expect(index).not.toContain('export * from "./authoring/sessionStorage.js"')
+    expect(index).not.toContain('export * from "./authoring/richInlineSessionPersistence.js"')
+    expect(index).not.toContain('export * from "./workflow/submissionState.js"')
+    for (const retainedName of retainedPublicNames) {
+      expect(index).toContain(retainedName)
+    }
+    for (const deprecatedName of deprecatedPublicNames) {
+      expect(index).not.toMatch(new RegExp(`\\b${deprecatedName}\\b`))
+    }
+
+    expect(storageAdapter).toContain("packageSessions: VNextStorageCollection<unknown>")
+    expect(storageAdapter).toContain("richInlineSessions: VNextStorageCollection<unknown>")
+    expect(storageAdapter).not.toContain("VNextSessionStorageRecord")
+    expect(storageAdapter).not.toContain("VNextRichInlineSessionPersistenceRecord")
+    expect(doc).toContain("Window NR-C Public Export Narrowing")
+    expect(doc).toContain("Public entrypoint exports are now narrowed to retained facts")
   })
 
   it("rewires old concrete package lanes off public compatibility helpers", () => {
@@ -137,17 +165,20 @@ describe("core non-route retained-test rewrite", () => {
     expect(readme).toContain("Core Non-Route Retained-Test Rewrite")
     expect(readme).toContain("Core Non-Route Public-Entrypoint Test Cleanup")
     expect(readme).toContain("Core Non-Route Package-Lane Cleanup")
+    expect(readme).toContain("Core Non-Route Public Export Narrowing")
     expect(readme).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     expect(ledger).toContain("| 238 | Core non-route retained-test rewrite | done |")
     expect(ledger).toContain("| 239 | Core non-route public-entrypoint test cleanup | done |")
     expect(ledger).toContain("| 240 | Core non-route package-lane cleanup | done |")
+    expect(ledger).toContain("| 241 | Core non-route public export narrowing | done |")
     expect(ledger).toContain("## Phase 238 Core Non-Route Retained-Test Rewrite")
     expect(ledger).toContain("## Phase 239 Core Non-Route Public-Entrypoint Test Cleanup")
     expect(ledger).toContain("## Phase 240 Core Non-Route Package-Lane Cleanup")
+    expect(ledger).toContain("## Phase 241 Core Non-Route Public Export Narrowing")
     expect(deprecation).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     expect(closeout).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
-    expect(consumerMap).toContain("Window NR-B retained-test rewrite/public-entrypoint test")
-    expect(retention).toContain("retained-test rewrite and public-entrypoint test cleanup")
-    expect(splitMap).toContain("Window NR-B retained-test")
+    expect(consumerMap).toContain("Window NR-C public export narrowing")
+    expect(retention).toContain("Window NR-C public export narrowing complete")
+    expect(splitMap).toContain("Window NR-C public export narrowing")
   })
 })

@@ -13,8 +13,6 @@ import type {
   VNextArtifactJobRecord,
   VNextArtifactManifestRecord,
   VNextDurableHistorySnapshot,
-  VNextRichInlineSessionPersistenceRecord,
-  VNextSessionStorageRecord,
 } from "../src/index.js"
 
 function readText(path: string): string {
@@ -56,7 +54,7 @@ describe("external file-backed JSON storage adapter", () => {
     const created = await adapter.packageSessions.write({
       kind: "package-session",
       key: "session:alpha",
-      value: jsonRecord({ sessionId: "alpha", title: "first" }) as unknown as VNextSessionStorageRecord,
+      value: jsonRecord({ sessionId: "alpha", title: "first" }),
       expectedRevision: null,
       idempotencyKey: "idem-create",
       now,
@@ -77,7 +75,7 @@ describe("external file-backed JSON storage adapter", () => {
     const replay = await adapter.packageSessions.write({
       kind: "package-session",
       key: "session:alpha",
-      value: jsonRecord({ sessionId: "alpha", title: "ignored replay payload" }) as unknown as VNextSessionStorageRecord,
+      value: jsonRecord({ sessionId: "alpha", title: "ignored replay payload" }),
       expectedRevision: null,
       idempotencyKey: "idem-create",
       now: updatedNow,
@@ -93,7 +91,7 @@ describe("external file-backed JSON storage adapter", () => {
     const updated = await adapter.packageSessions.write({
       kind: "package-session",
       key: "session:alpha",
-      value: jsonRecord({ sessionId: "alpha", title: "second" }) as unknown as VNextSessionStorageRecord,
+      value: jsonRecord({ sessionId: "alpha", title: "second" }),
       expectedRevision: 0,
       idempotencyKey: "idem-update",
       now: updatedNow,
@@ -109,7 +107,7 @@ describe("external file-backed JSON storage adapter", () => {
     const conflict = await adapter.packageSessions.write({
       kind: "package-session",
       key: "session:alpha",
-      value: jsonRecord({ sessionId: "alpha", title: "stale" }) as unknown as VNextSessionStorageRecord,
+      value: jsonRecord({ sessionId: "alpha", title: "stale" }),
       expectedRevision: 0,
       idempotencyKey: "idem-stale",
       now: "2026-06-29T00:02:00.000Z",
@@ -147,7 +145,7 @@ describe("external file-backed JSON storage adapter", () => {
     const richInline = await adapter.richInlineSessions.write({
       kind: "rich-inline-session",
       key: "rich-inline:alpha",
-      value: jsonRecord({ activeTextBlockId: "block-1", draft: "hello" }) as unknown as VNextRichInlineSessionPersistenceRecord,
+      value: jsonRecord({ activeTextBlockId: "block-1", draft: "hello" }),
       expectedRevision: null,
       idempotencyKey: "idem-rich-inline",
       now,
@@ -217,7 +215,7 @@ describe("external file-backed JSON storage adapter", () => {
     const invalid = await adapter.packageSessions.write({
       kind: "package-session",
       key: "",
-      value: jsonRecord({ sessionId: "invalid" }) as unknown as VNextSessionStorageRecord,
+      value: jsonRecord({ sessionId: "invalid" }),
       expectedRevision: null,
       idempotencyKey: "",
       now: "not-a-date",

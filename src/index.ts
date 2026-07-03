@@ -13,11 +13,35 @@ export * from "./binding/repeatCollectionFormSlots.js"
 export * from "./authoring/editableSession.js"
 export * from "./authoring/textTransactions.js"
 export * from "./authoring/richInlineCommit.js"
-export * from "./authoring/richInlineSessionPersistence.js"
+export {
+  VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE,
+  VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE,
+  createVNextRichInlineReplayPatchRecord,
+  createVNextRichInlineReplayPatchValidation,
+  createVNextRichInlineReplayValidation,
+} from "./authoring/richInlineSessionPersistence.js"
+export type {
+  VNextRichInlineReplayPatchInput,
+  VNextRichInlineReplayPatchIssue,
+  VNextRichInlineReplayPatchRecord,
+  VNextRichInlineReplayPatchValidationRecord,
+  VNextRichInlineReplayValidationFacts,
+  VNextRichInlineReplayValidationOptions,
+  VNextRichInlineReplayValidationRecord,
+} from "./authoring/richInlineSessionPersistence.js"
 export * from "./authoring/fieldChipCommands.js"
 export * from "./authoring/intentHistory.js"
 export * from "./authoring/liveLayoutBoundary.js"
-export * from "./authoring/sessionStorage.js"
+export {
+  VNEXT_SESSION_PACKAGE_SNAPSHOT_MODE,
+  VNEXT_SESSION_PACKAGE_SNAPSHOT_SOURCE,
+  createVNextSessionPackageSnapshot,
+} from "./authoring/sessionStorage.js"
+export type {
+  VNextSessionPackageSnapshotFacts,
+  VNextSessionPackageSnapshotPersistedState,
+  VNextSessionPackageSnapshotRecord,
+} from "./authoring/sessionStorage.js"
 export * from "./authoring/durableHistory.js"
 export * from "./generation/runtime.js"
 export * from "./generation/artifactManifest.js"
@@ -27,7 +51,20 @@ export * from "./generation/verticalSliceScenario.js"
 export * from "./generation/verticalSliceMeasurementGate.js"
 export * from "./generation/verticalSliceArtifactBridge.js"
 export * from "./generation/verticalSliceStorageSimulation.js"
-export * from "./workflow/submissionState.js"
+export {
+  VNEXT_SUBMISSION_IDENTITY_STATUS_MODE,
+  VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE,
+  createVNextSubmissionIdentityStatus,
+} from "./workflow/submissionState.js"
+export type {
+  VNextSubmissionIdentityStatusFacts,
+  VNextSubmissionIdentityStatusRecord,
+  VNextSubmissionStateInput,
+  VNextSubmissionStateIssue,
+  VNextSubmissionStateIssueCode,
+  VNextSubmissionStateStatus,
+  VNextSubmissionWorkflowStatus,
+} from "./workflow/submissionState.js"
 export * from "./renderer/pdfAdapter.js"
 export * from "./renderer/docxAdapter.js"
 export * from "./renderer/textMeasurementAdapter.js"

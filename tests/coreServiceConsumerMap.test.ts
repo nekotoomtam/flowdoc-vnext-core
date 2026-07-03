@@ -62,27 +62,38 @@ describe("core service consumer map", () => {
     expect(doc).toContain("no direct service-shaped export consumer was found")
   })
 
-  it("keeps current service-shaped exports marked as blocked from immediate removal", () => {
+  it("keeps non-route public exports narrowed while source cleanup is deferred", () => {
     const doc = readText("docs/CORE_SERVICE_CONSUMER_MAP.md")
     const index = readText("src/index.ts")
-    const blockedExports = [
-      "./authoring/sessionStorage.js",
-      "./authoring/richInlineSessionPersistence.js",
-      "./workflow/submissionState.js",
+    const removedExports = [
+      'export * from "./authoring/sessionStorage.js"',
+      'export * from "./authoring/richInlineSessionPersistence.js"',
+      'export * from "./workflow/submissionState.js"',
+      "createVNextSessionStorageRecord",
+      "createVNextRichInlineSessionPersistenceRecord",
+      "createVNextSubmissionStateRecord",
+    ]
+    const retainedExports = [
+      "createVNextSessionPackageSnapshot",
+      "createVNextRichInlineReplayValidation",
+      "createVNextSubmissionIdentityStatus",
     ]
 
-    for (const exportedPath of blockedExports) {
-      expect(index).toContain(exportedPath)
-      expect(doc).toContain(exportedPath)
+    for (const removed of removedExports) {
+      expect(index).not.toContain(removed)
+    }
+    for (const retained of retainedExports) {
+      expect(index).toContain(retained)
+      expect(doc).toContain(retained)
     }
 
     expect(index).not.toContain("./generation/apiRoute.js")
     expect(index).not.toContain("./generation/artifactApiRoute.js")
-    expect(doc).toContain("Do not remove these remaining exports yet")
-    expect(doc).toContain("Ready For Deprecation, Blocked From Immediate Public Removal")
+    expect(doc).toContain("Public Removal Complete, Source Cleanup Deferred")
     expect(doc).toContain("route-shaped backend parity exists")
     expect(doc).toContain("route-shaped public exports have been removed")
     expect(doc).toContain("backend consumer rewiring is now proven")
+    expect(doc).toContain("Window NR-C public export narrowing")
     expect(doc).toContain("retained core contract names")
   })
 

@@ -2,9 +2,9 @@
 
 Date: 2026-07-03
 
-Status: Window NR-B retained-test rewrite, public-entrypoint test cleanup, and
-package-lane cleanup for the remaining non-route service-shaped helper
-exports. Public entrypoint compatibility remains.
+Status: Window NR-B retained-test rewrite, public-entrypoint test cleanup,
+package-lane cleanup, and Window NR-C public export narrowing for the
+remaining non-route service-shaped helper exports.
 
 ## Purpose
 
@@ -96,17 +96,47 @@ This cleanup preserves the historical record JSON shape for internal-alpha
 evidence while removing package consumers of the deprecated public helper/type
 names before Window NR-C.
 
-## Public Export Decision
+## Window NR-C Public Export Narrowing
 
-Window NR-B does not remove public exports. `src/index.ts` still exports:
+Public entrypoint exports are now narrowed to retained facts. `src/index.ts`
+no longer star-exports:
 
 - `./authoring/sessionStorage.js`;
 - `./authoring/richInlineSessionPersistence.js`;
 - `./workflow/submissionState.js`.
 
-Window NR-C can now narrow the core test-facing public surface, but it still
-needs to decide whether compatibility source implementations stay internal or
-are removed with replacement evidence.
+Instead, the public entrypoint exports the retained non-route facts:
+
+- `createVNextSessionPackageSnapshot(...)` and its package snapshot
+  constants/types;
+- `createVNextRichInlineReplayValidation(...)`,
+  `createVNextRichInlineReplayPatchValidation(...)`,
+  `createVNextRichInlineReplayPatchRecord(...)`, and their replay validation
+  constants/types;
+- `createVNextSubmissionIdentityStatus(...)` and its identity/status
+  constants/types.
+
+The public entrypoint no longer exports these service-shaped compatibility
+helpers/types/constants:
+
+- `createVNextSessionStorageRecord(...)`,
+  `VNextSessionStorageRecord`, `VNEXT_SESSION_STORAGE_SOURCE`, and
+  `VNEXT_SESSION_STORAGE_MODE`;
+- `createVNextRichInlineSessionPersistenceRecord(...)`,
+  `VNextRichInlineSessionPersistenceRecord`,
+  `VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE`, and
+  `VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE`;
+- `createVNextSubmissionStateRecord(...)`, `VNextSubmissionStateRecord`,
+  `VNEXT_SUBMISSION_STATE_SOURCE`, and `VNEXT_SUBMISSION_STATE_MODE`.
+
+`src/persistence/storageAdapter.ts` now treats package-session and
+rich-inline-session collection payloads as `unknown`, while keeping durable
+history, artifact manifest, and artifact job payloads typed. This keeps the
+storage envelope/evaluator contract public without making old session storage
+or rich-inline persistence record shapes public core API.
+
+Compatibility source implementations remain in owner modules for composition
+and historical tests. They are no longer public package entrypoint exports.
 
 ## PASS
 
@@ -117,8 +147,12 @@ are removed with replacement evidence.
   deprecated helper names from `../src/index.js`.
 - Old concrete package lanes no longer import deprecated helper/type names
   through `@flowdoc/vnext-core`.
+- Public entrypoint exports are narrowed to retained non-route facts.
+- The core storage adapter public interface no longer exposes package-session
+  or rich-inline-session compatibility record shapes.
 - Backend-owned replacements and retained core owners remain documented.
-- Public entrypoint compatibility remains stable during Window NR-B.
+- Owner-module compatibility source implementations remain stable for
+  historical composition evidence.
 
 ## FAIL / BLOCKER
 
@@ -127,20 +161,17 @@ are removed with replacement evidence.
 
 ## RISK
 
-- Compatibility helper names remain public until Window NR-C.
 - Some storage and vertical-slice historical tests still use compatibility
   record shapes through owner-module imports.
-- Source modules still contain compatibility helper implementations for public
-  compatibility and composition evidence.
+- Source modules still contain compatibility helper implementations for
+  owner-module composition evidence.
 - Internal-alpha package lanes preserve historical compatibility record JSON
   shape, but own it locally as evidence rather than core public API.
 
 ## UNKNOWN
 
-- Final timing for public de-export and optional deprecated route source
-  cleanup.
-- Whether compatibility source implementations stay internal or are removed
-  after Window NR-C replacement evidence is complete.
+- Whether compatibility source implementations stay internal or are removed in
+  a later source cleanup after replacement evidence remains complete.
 
 ## Files Changed
 
@@ -165,7 +196,11 @@ are removed with replacement evidence.
 - `packages/storage-file-json/src/index.ts`
 - `tests/backendRouteStorageBinding.test.ts`
 - `tests/internalAlphaVerticalSlice.test.ts`
+- `tests/storageAdapter.test.ts`
+- `tests/storageFileJsonAdapter.test.ts`
 - `tests/coreNonRouteRetainedTestRewrite.test.ts`
+- `src/index.ts`
+- `src/persistence/storageAdapter.ts`
 
 ## Behavior Changed
 
@@ -177,8 +212,12 @@ are removed with replacement evidence.
   package-local record factories backed by retained core facts.
 - Storage adapter typing changed: package-session and rich-inline-session
   file-backed collections are generic JSON envelope payloads.
+- Public entrypoint behavior changed: deprecated non-route service-shaped
+  compatibility helpers/types/constants are no longer exported from
+  `src/index.ts`.
+- Core storage adapter interface behavior changed: package-session and
+  rich-inline-session collection payloads are generic `unknown` values.
 - Runtime behavior is unchanged.
-- Public entrypoint exports are unchanged.
 
 ## Tests Run
 
@@ -188,13 +227,12 @@ are removed with replacement evidence.
 
 ## Risks Left
 
-- Window NR-C public export narrowing remains.
+- Compatibility source cleanup/removal remains a later decision.
 - Production rich-inline replay execution and submission workflow storage remain
   backend work outside this core patch.
 
 ## Intentionally Not Changed
 
-- No public export removed from `src/index.ts`.
 - No compatibility helper runtime behavior changed.
 - No backend or editor code changed.
 - No gateway layer introduced.

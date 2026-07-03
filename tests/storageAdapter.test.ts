@@ -45,9 +45,9 @@ class MockStorageCollection<TRecord> implements VNextStorageCollection<TRecord> 
 }
 
 class MockStorageAdapter implements VNextStorageAdapter {
-  packageSessions = new MockStorageCollection<ReturnType<typeof createVNextSessionStorageRecord>>("package-session")
+  packageSessions = new MockStorageCollection<unknown>("package-session")
   durableHistories = new MockStorageCollection<ReturnType<typeof createVNextDurableHistorySnapshot>>("durable-history")
-  richInlineSessions = new MockStorageCollection<ReturnType<typeof createVNextRichInlineSessionPersistenceRecord>>("rich-inline-session")
+  richInlineSessions = new MockStorageCollection<unknown>("rich-inline-session")
   artifactManifests = new MockStorageCollection<NonNullable<ReturnType<typeof createVNextArtifactManifestPlan>["record"]>>("artifact-manifest")
   artifactJobs = new MockStorageCollection<NonNullable<ReturnType<typeof createVNextArtifactJobPlan>["job"]>>("artifact-job")
 }
@@ -359,6 +359,10 @@ describe("vNext storage adapter interface boundary", () => {
   it("keeps storage adapter contracts independent from concrete storage, auth, routes, and backend clients", () => {
     const source = readFileSync(new URL("../src/persistence/storageAdapter.ts", import.meta.url), "utf8")
 
+    expect(source).toContain("packageSessions: VNextStorageCollection<unknown>")
+    expect(source).toContain("richInlineSessions: VNextStorageCollection<unknown>")
+    expect(source).not.toContain("VNextSessionStorageRecord")
+    expect(source).not.toContain("VNextRichInlineSessionPersistenceRecord")
     expect(source).toContain("interfaceOnly: true")
     expect(source).toContain("concreteBackend: null")
     expect(source).toContain("filesystemWrites: false")

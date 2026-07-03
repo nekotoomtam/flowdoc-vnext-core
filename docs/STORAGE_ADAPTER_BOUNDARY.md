@@ -2,8 +2,8 @@
 
 Status: Phase 140 storage adapter interface boundary.
 
-Phase 140 defines interface-only storage contracts for canonical package/session
-records, durable history, rich inline session persistence, artifact manifests,
+Phase 140 defines interface-only storage contracts for package-session
+payloads, durable history, rich inline session payloads, artifact manifests,
 and artifact jobs. It adds shared read/write result shapes and optimistic
 concurrency metadata without choosing or implementing a concrete backend.
 
@@ -11,9 +11,11 @@ This is an interface boundary, not a concrete storage adapter.
 
 ## Evidence
 
-- `src/persistence/storageAdapter.ts` defines typed storage collections for
-  package sessions, durable histories, rich inline sessions, artifact
-  manifests, and artifact jobs.
+- `src/persistence/storageAdapter.ts` defines storage collections for package
+  sessions, durable histories, rich inline sessions, artifact manifests, and
+  artifact jobs. After Window NR-C, package-session and rich-inline-session
+  payloads are generic `unknown` envelope values so the public storage adapter
+  contract does not export deprecated compatibility record shapes.
 - `createVNextStorageAdapterContractPlan()` exposes the collection map,
   idempotency key requirement, expected-revision rule, optional write token,
   and explicit no-backend/no-write contracts.
@@ -28,7 +30,7 @@ This is an interface boundary, not a concrete storage adapter.
 
 Allowed:
 
-- define storage interfaces and typed collection shapes;
+- define storage interfaces and collection shapes;
 - define JSON-safe read/write envelopes;
 - define expected revision, idempotency key, and optional write-token inputs;
 - provide pure read/write result evaluators;
@@ -46,8 +48,8 @@ Blocked:
 
 ## PASS
 
-- Package/session, durable history, rich inline session persistence, artifact
-  manifest, and artifact job collection contracts are explicit.
+- Package/session, durable history, rich inline session, artifact manifest, and
+  artifact job collection contracts are explicit.
 - Expected revision and idempotency behavior are proven through a test-local
   mock adapter.
 - Write-token metadata is represented without implementing locking.

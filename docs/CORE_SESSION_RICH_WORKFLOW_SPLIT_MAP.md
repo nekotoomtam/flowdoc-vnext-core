@@ -9,7 +9,8 @@ Phase 234, the submission identity/status split is complete in Phase 235, and
 backend consumer rewiring is recorded in
 `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`. Window NR-B retained-test
 rewrite and public-entrypoint test cleanup are recorded in
-`docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
+`docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; package-lane cleanup and
+Window NR-C public export narrowing are also complete there.
 
 ## Purpose
 
@@ -26,8 +27,9 @@ identity/status facts while backend owns durable stores, storage keys,
 idempotency, routes, replay execution, conflict resolution, permissions, and
 workflow runtime.
 
-This patch is planning and guard coverage only. It does not remove public
-exports.
+This map started as planning and guard coverage. Window NR-C now removes
+service-shaped public entrypoint exports while leaving owner-module
+compatibility source in place for historical evidence.
 
 ## Source Evidence
 
@@ -86,7 +88,8 @@ Submission state:
 
 Consumer evidence:
 
-- `src/index.ts` still exports `./authoring/sessionStorage.js`,
+- `src/index.ts` now exports retained non-route facts instead of star-exporting
+  `./authoring/sessionStorage.js`,
   `./authoring/richInlineSessionPersistence.js`, and
   `./workflow/submissionState.js`.
 - Backend `main@9d0a850` now uses backend-owned replacements:
@@ -140,15 +143,18 @@ Do not move these into retained core contracts:
 
 ## Current Public Export Decision
 
-Keep these public exports for now:
+Window NR-C public export narrowing is complete. `src/index.ts` now keeps
+retained non-route facts public:
 
-- `./authoring/sessionStorage.js`;
-- `./authoring/richInlineSessionPersistence.js`;
-- `./workflow/submissionState.js`.
+- `createVNextSessionPackageSnapshot(...)`;
+- `createVNextRichInlineReplayValidation(...)`;
+- `createVNextRichInlineReplayPatchValidation(...)`;
+- `createVNextRichInlineReplayPatchRecord(...)`;
+- `createVNextSubmissionIdentityStatus(...)`.
 
-They stay public only because retained contract names and backend replacement
-contracts still need a compatibility deprecation/de-export window. They should
-not be treated as final core ownership.
+The service-shaped compatibility helpers/types/constants are no longer public
+entrypoint exports. Their source implementations remain in owner modules for
+historical composition evidence only.
 
 ## Next Implementation Order
 
@@ -157,10 +163,10 @@ not be treated as final core ownership.
 2. Window NR-B retained-test rewrite and public-entrypoint test cleanup are
    complete in
    `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
-3. Decide whether old concrete package lanes are retired or rewired before
-   Window NR-C public export narrowing.
-4. Start Window NR-C: narrow `src/index.ts` to retained helper exports and
-   remove service-shaped compatibility helper names from public core.
+3. Package-lane cleanup is complete in
+   `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
+4. Window NR-C public export narrowing is complete in
+   `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 
 ## PASS
 
@@ -173,7 +179,9 @@ not be treated as final core ownership.
 - Window NR-B moves the primary historical tests to retained facts and moves
   known compatibility/storage/vertical-slice test imports off the public core
   entrypoint.
-- Public exports remain stable until the non-route compatibility windows run.
+- Package-lane cleanup removes old concrete package consumers of deprecated
+  helper/type names through `@flowdoc/vnext-core`.
+- Window NR-C narrows public exports to retained non-route facts.
 
 ## FAIL / BLOCKER
 
@@ -181,12 +189,10 @@ not be treated as final core ownership.
 
 ## RISK
 
-- Keeping storage/workflow-shaped helper names public can make backend concerns
-  look like final core ownership until Window NR-C.
+- Owner-module compatibility helpers can still make backend concerns look like
+  current core ownership if read without the public-entrypoint context.
 - Remaining storage and vertical-slice historical tests still use compatibility
   record shapes through owner-module imports.
-- Old concrete package lanes still import compatibility helpers through
-  `@flowdoc/vnext-core`.
 - Rich-inline compatibility replay patch records may need granular operation
   vocabulary later.
 - Submission workflow facts may become product-specific if future workflow
@@ -194,7 +200,7 @@ not be treated as final core ownership.
 
 ## UNKNOWN
 
-- Exact timing for package-lane cleanup and Window NR-C.
+- Exact timing for optional compatibility source cleanup.
 - Whether deprecated route source cleanup should happen before non-route
   public export removal.
 - Final production replay execution and workflow storage shapes.
@@ -220,10 +226,12 @@ not be treated as final core ownership.
   implementation and backend consumer rewiring.
 - Window NR-B retained-test rewrite and public-entrypoint test cleanup are
   recorded as complete.
+- Package-lane cleanup and Window NR-C public export narrowing are recorded as
+  complete.
 - `src/authoring/richInlineSessionPersistence.ts` now has retained replay
   validation helpers.
 - `src/workflow/submissionState.ts` now has retained identity/status helpers.
-- No public export removed.
+- Public non-route service-shaped exports are removed from `src/index.ts`.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -232,15 +240,14 @@ not be treated as final core ownership.
 
 ## Risks Left
 
-- Storage-shaped session record deprecation/de-export remains.
-- Rich-inline persistence-shaped record deprecation/de-export remains.
-- Submission workflow-shaped record deprecation/de-export remains.
-- Package-lane cleanup and Window NR-C remain.
+- Optional compatibility source cleanup remains.
+- Rich-inline replay execution and submission workflow storage remain backend
+  work.
 
 ## Intentionally Not Changed
 
-- `src/index.ts` still exports the three service-shaped modules.
 - `src/authoring/sessionStorage.ts` is not renamed or moved.
 - `src/authoring/richInlineSessionPersistence.ts` is not renamed or moved.
 - `src/workflow/submissionState.ts` is not renamed or moved.
+- Owner-module compatibility helper implementations are not removed.
 - No gateway layer introduced.

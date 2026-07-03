@@ -1,6 +1,4 @@
 import type { VNextDurableHistorySnapshot } from "../authoring/durableHistory.js"
-import type { VNextRichInlineSessionPersistenceRecord } from "../authoring/richInlineSessionPersistence.js"
-import type { VNextSessionStorageRecord } from "../authoring/sessionStorage.js"
 import type { VNextArtifactJobRecord } from "../generation/artifactJob.js"
 import type { VNextArtifactManifestRecord } from "../generation/artifactManifest.js"
 
@@ -124,9 +122,9 @@ export interface VNextStorageCollection<TRecord> {
 }
 
 export interface VNextStorageAdapter {
-  packageSessions: VNextStorageCollection<VNextSessionStorageRecord>
+  packageSessions: VNextStorageCollection<unknown>
   durableHistories: VNextStorageCollection<VNextDurableHistorySnapshot>
-  richInlineSessions: VNextStorageCollection<VNextRichInlineSessionPersistenceRecord>
+  richInlineSessions: VNextStorageCollection<unknown>
   artifactManifests: VNextStorageCollection<VNextArtifactManifestRecord>
   artifactJobs: VNextStorageCollection<VNextArtifactJobRecord>
 }

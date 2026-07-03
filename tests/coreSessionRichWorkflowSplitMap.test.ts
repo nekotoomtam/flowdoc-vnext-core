@@ -66,25 +66,37 @@ describe("core session rich workflow split map", () => {
     expect(doc).toContain("split complete")
   })
 
-  it("keeps current exports stable while marking them as non-final ownership", () => {
+  it("keeps public exports narrowed to retained facts while source evidence stays owner-local", () => {
     const doc = readText("docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md")
     const index = readText("src/index.ts")
-    const exportedPaths = [
-      "./authoring/sessionStorage.js",
-      "./authoring/richInlineSessionPersistence.js",
-      "./workflow/submissionState.js",
+    const removedExports = [
+      'export * from "./authoring/sessionStorage.js"',
+      'export * from "./authoring/richInlineSessionPersistence.js"',
+      'export * from "./workflow/submissionState.js"',
+      "createVNextSessionStorageRecord",
+      "createVNextRichInlineSessionPersistenceRecord",
+      "createVNextSubmissionStateRecord",
+    ]
+    const retainedExports = [
+      "createVNextSessionPackageSnapshot",
+      "createVNextRichInlineReplayValidation",
+      "createVNextSubmissionIdentityStatus",
     ]
 
-    for (const exportedPath of exportedPaths) {
-      expect(index).toContain(exportedPath)
-      expect(doc).toContain(exportedPath)
+    for (const removed of removedExports) {
+      expect(index).not.toContain(removed)
+    }
+    for (const retained of retainedExports) {
+      expect(index).toContain(retained)
+      expect(doc).toContain(retained)
     }
 
-    expect(doc).toContain("not be treated as final core ownership.")
+    expect(doc).toContain("Window NR-C public export narrowing is complete")
+    expect(doc).toContain("source implementations remain in owner modules")
     expect(doc).toContain("Window NR-A")
     expect(doc).toContain("Window NR-B")
     expect(doc).toContain("Window NR-C")
-    expect(doc).toContain("No public export removed.")
+    expect(doc).toContain("Public non-route service-shaped exports are removed from `src/index.ts`.")
   })
 
   it("guards retained facts and backend-owned execution boundaries in source", () => {

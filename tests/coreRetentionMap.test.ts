@@ -69,29 +69,40 @@ describe("core retention map", () => {
     expect(doc).toContain("backend owns")
     expect(doc).toContain("core retains")
     expect(doc).toContain("temporary duplicate")
-    expect(doc).toContain("backend consumer rewire complete")
+    expect(doc).toContain("Backend non-route consumer rewiring is now proven")
     expect(doc).toContain("Do not remove public exports only because backend P1 exists.")
     expect(audit).toContain("## Recommended Next Patch")
     expect(audit).toContain("Start with P1, not P2.")
   })
 
-  it("keeps remaining exported service-shaped modules marked as temporary retention work", () => {
+  it("keeps non-route public exports narrowed to retained facts", () => {
     const doc = readText("docs/CORE_RETENTION_MAP.md")
     const index = readText("src/index.ts")
-    const temporaryExports = [
-      "./authoring/sessionStorage.js",
-      "./authoring/richInlineSessionPersistence.js",
-      "./workflow/submissionState.js",
+    const removedExports = [
+      'export * from "./authoring/sessionStorage.js"',
+      'export * from "./authoring/richInlineSessionPersistence.js"',
+      'export * from "./workflow/submissionState.js"',
+      "createVNextSessionStorageRecord",
+      "createVNextRichInlineSessionPersistenceRecord",
+      "createVNextSubmissionStateRecord",
+    ]
+    const retainedExports = [
+      "createVNextSessionPackageSnapshot",
+      "createVNextRichInlineReplayValidation",
+      "createVNextSubmissionIdentityStatus",
     ]
 
-    for (const exportedPath of temporaryExports) {
-      expect(index).toContain(exportedPath)
+    for (const removed of removedExports) {
+      expect(index).not.toContain(removed)
+    }
+    for (const retained of retainedExports) {
+      expect(index).toContain(retained)
     }
 
     expect(index).not.toContain("./generation/apiRoute.js")
     expect(index).not.toContain("./generation/artifactApiRoute.js")
     expect(doc).toContain("route-shaped public exports are removed")
-    expect(doc).toContain("public de-export waits for Window NR-A/NR-B/NR-C")
+    expect(doc).toContain("Window NR-C public export narrowing complete")
     expect(doc).toContain("Do not remove public exports only because backend P1 exists.")
     expect(doc).toContain("Editor/backend consumers no longer import the service-shaped core export.")
   })

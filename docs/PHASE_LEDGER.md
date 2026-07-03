@@ -254,6 +254,7 @@ Parent goal:
 | 238 | Core non-route retained-test rewrite | done | `tests/sessionStorage.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/submissionState.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 | 239 | Core non-route public-entrypoint test cleanup | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/storageAdapter.test.ts`; `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 | 240 | Core non-route package-lane cleanup | done | `packages/internal-alpha-runner/src/internalAlphaRecords.ts`; `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/storage-file-json/src/index.ts`; `tests/backendRouteStorageBinding.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
+| 241 | Core non-route public export narrowing | done | `src/index.ts`; `src/persistence/storageAdapter.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/storageAdapter.test.ts`; `tests/storageFileJsonAdapter.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 
 ## Current Rule
 
@@ -7274,8 +7275,47 @@ helper runtime behavior, touch backend/frontend repos, introduce a gateway, run
 rich-inline replay execution, or implement production submission workflow
 storage.
 
-Next recommended work: Window NR-C can narrow `src/index.ts` away from
-deprecated non-route compatibility helper/type exports.
+Next recommended work: Phase 241 public export narrowing is complete; decide
+whether owner-module compatibility source implementations stay as historical
+evidence or move into a later source cleanup.
+
+## Phase 241 Core Non-Route Public Export Narrowing
+
+Core Non-Route Public Export Narrowing completes Window NR-C by narrowing the
+package public entrypoint away from the remaining non-route service-shaped
+compatibility helpers/types/constants.
+
+The narrowing confirms:
+
+- `src/index.ts` no longer star-exports `src/authoring/sessionStorage.ts`,
+  `src/authoring/richInlineSessionPersistence.ts`, or
+  `src/workflow/submissionState.ts`;
+- the public entrypoint still exports retained non-route facts:
+  `createVNextSessionPackageSnapshot(...)`,
+  `createVNextRichInlineReplayValidation(...)`,
+  `createVNextRichInlineReplayPatchValidation(...)`,
+  `createVNextRichInlineReplayPatchRecord(...)`, and
+  `createVNextSubmissionIdentityStatus(...)`;
+- the public entrypoint no longer exports
+  `createVNextSessionStorageRecord(...)`,
+  `createVNextRichInlineSessionPersistenceRecord(...)`,
+  `createVNextSubmissionStateRecord(...)`, or their service-shaped
+  compatibility record/source constants and types;
+- `src/persistence/storageAdapter.ts` keeps the storage envelope/evaluator
+  contract public while treating package-session and rich-inline-session
+  payloads as `unknown`;
+- `tests/coreNonRouteRetainedTestRewrite.test.ts` guards the retained public
+  names, removed service-shaped public names, and storage adapter generic
+  payload boundary.
+
+This phase intentionally does not remove owner-module compatibility source
+implementations, rename source modules, touch backend/frontend repos, introduce
+a gateway, run rich-inline replay execution, or implement production submission
+workflow storage.
+
+Next recommended work: optional compatibility source cleanup or old package
+lane retirement, after deciding which historical composition tests still need
+owner-module evidence.
 
 ## Phase 12 Extraction Record
 
