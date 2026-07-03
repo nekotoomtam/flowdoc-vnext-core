@@ -10,7 +10,7 @@ function readText(path: string): string {
 }
 
 describe("core submission identity/status split", () => {
-  it("documents the retained identity/status helper and compatibility record", () => {
+  it("documents the retained identity/status helper and historical compatibility record", () => {
     const doc = readText("docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md")
     const requiredSections = [
       "## Purpose",
@@ -30,7 +30,7 @@ describe("core submission identity/status split", () => {
     expect(doc).toContain("createVNextSubmissionIdentityStatus")
     expect(doc).toContain("createVNextSubmissionStateRecord")
     expect(doc).toContain('routeDispatch: "not-run"')
-    expect(doc).toContain("No public export removed")
+    expect(doc).toContain("removed from source in Phase 246")
   })
 
   it("keeps the retained helper public through the existing workflow module export", () => {
@@ -41,7 +41,7 @@ describe("core submission identity/status split", () => {
     expect(source).toContain("VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE")
     expect(source).toContain("VNEXT_SUBMISSION_IDENTITY_STATUS_MODE")
     expect(source).toContain("createVNextSubmissionIdentityStatus")
-    expect(source).toContain("createVNextSubmissionStateRecord")
+    expect(source).not.toContain("createVNextSubmissionStateRecord")
   })
 
   it("aligns split-map and navigation docs with the submission split", () => {

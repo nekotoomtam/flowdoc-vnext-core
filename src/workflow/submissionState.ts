@@ -1,5 +1,3 @@
-export const VNEXT_SUBMISSION_STATE_SOURCE = "vnext-submission-state"
-export const VNEXT_SUBMISSION_STATE_MODE = "external-workflow-boundary"
 export const VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE = "vnext-submission-identity-status"
 export const VNEXT_SUBMISSION_IDENTITY_STATUS_MODE = "submission-identity-status-facts"
 
@@ -70,42 +68,6 @@ export interface VNextSubmissionIdentityStatusRecord {
   mode: typeof VNEXT_SUBMISSION_IDENTITY_STATUS_MODE
   facts: VNextSubmissionIdentityStatusFacts
   issues: VNextSubmissionStateIssue[]
-}
-
-export interface VNextSubmissionStateScope {
-  package: false
-  documentNode: false
-  dataSnapshot: false
-  editorSession: false
-  externalSubmissionState: true
-}
-
-export interface VNextSubmissionStateApplication {
-  status: "not-applied"
-  packageMutation: "not-run"
-  documentMutation: "not-run"
-  dataMutation: "not-run"
-  historyWrite: "not-written"
-  storageWrite: "not-written"
-  routeDispatch: "not-run"
-  packageVersionChange: false
-}
-
-export interface VNextSubmissionStateRecord {
-  source: typeof VNEXT_SUBMISSION_STATE_SOURCE
-  mode: typeof VNEXT_SUBMISSION_STATE_MODE
-  status: VNextSubmissionStateStatus
-  workflowStatus: VNextSubmissionWorkflowStatus
-  templateId: string | null
-  submissionId: string | null
-  documentRevision: number | null
-  dataRevision: number | null
-  actorId: string | null
-  reviewerId: string | null
-  reason: string | null
-  issues: VNextSubmissionStateIssue[]
-  scope: VNextSubmissionStateScope
-  application: VNextSubmissionStateApplication
 }
 
 const REVIEW_STATUSES = new Set<VNextSubmissionWorkflowStatus>(["approved", "rejected"])
@@ -215,53 +177,5 @@ export function createVNextSubmissionIdentityStatus(
       },
     },
     issues,
-  }
-}
-
-/**
- * @deprecated Window NR-A compatibility export.
- * Window NR-C removed this helper from the public package entrypoint.
- * Keep owner-module usage allowlisted in
- * `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` until source cleanup.
- * Backend-owned submission route contracts now live in
- * `flowdoc-vnext-backend/src/routes/submissionRoute.ts`. Use
- * `createVNextSubmissionIdentityStatus(...)` for retained core identity/status
- * facts.
- */
-export function createVNextSubmissionStateRecord(
-  input: VNextSubmissionStateInput,
-): VNextSubmissionStateRecord {
-  const identityStatus = createVNextSubmissionIdentityStatus(input)
-
-  return {
-    source: VNEXT_SUBMISSION_STATE_SOURCE,
-    mode: VNEXT_SUBMISSION_STATE_MODE,
-    status: identityStatus.facts.status,
-    workflowStatus: identityStatus.facts.workflowStatus,
-    templateId: identityStatus.facts.templateId,
-    submissionId: identityStatus.facts.submissionId,
-    documentRevision: identityStatus.facts.documentRevision,
-    dataRevision: identityStatus.facts.dataRevision,
-    actorId: identityStatus.facts.actorId,
-    reviewerId: identityStatus.facts.reviewerId,
-    reason: identityStatus.facts.reason,
-    issues: identityStatus.issues,
-    scope: {
-      package: false,
-      documentNode: false,
-      dataSnapshot: false,
-      editorSession: false,
-      externalSubmissionState: true,
-    },
-    application: {
-      status: "not-applied",
-      packageMutation: "not-run",
-      documentMutation: "not-run",
-      dataMutation: "not-run",
-      historyWrite: "not-written",
-      storageWrite: "not-written",
-      routeDispatch: "not-run",
-      packageVersionChange: false,
-    },
   }
 }

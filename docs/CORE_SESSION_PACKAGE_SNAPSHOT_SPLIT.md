@@ -11,8 +11,9 @@ This phase implements the first split from
 session package snapshot helper that is separate from the storage-shaped
 session record helper.
 
-The compatibility storage record remains public for now, but it composes the
-new retained package snapshot facts instead of owning those facts directly.
+Historical compatibility storage record evidence is preserved below. The
+compatibility helper itself was removed from source in Phase 246 after the
+retained package snapshot contract and backend/package replacements were proven.
 
 ## Retained Core Contract
 
@@ -38,36 +39,36 @@ The retained snapshot contract owns:
 
 ## Compatibility Record
 
-`createVNextSessionStorageRecord(...)` remains exported and still returns the
-Phase 87 storage-shaped record shape. It now composes
+`createVNextSessionStorageRecord(...)` used to return the Phase 87
+storage-shaped record shape. Before deletion, it composed
 `createVNextSessionPackageSnapshot(...)` for package and manifest identity
-facts, then adds the compatibility storage manifest fields:
+facts, then added the compatibility storage manifest fields:
 
 - `storageKey`;
 - `reason`;
 - `storageStatus: "not-written"`.
 
-Those storage-shaped fields remain compatibility surface only. Backend-owned
+Those storage-shaped fields were compatibility surface only. Backend-owned
 storage, idempotency, expected revisions, and route dispatch are not moved into
 the retained core snapshot contract.
 
 ## PASS
 
 - Session package snapshot facts now have a retained core helper.
-- The storage-shaped record composes the retained snapshot helper.
+- The historical storage-shaped record composition is covered as past evidence.
 - Tests prove the retained snapshot has no storage key/status value, with
   `storageKey` present only as an explicit `false` contract flag.
-- The public storage record remains stable for current tests and consumers.
+- The retained package snapshot helper remains stable for current tests and
+  consumers.
 
 ## FAIL / BLOCKER
 
-- No public de-export has happened yet.
+- None for the retained package snapshot contract.
 
 ## RISK
 
-- `createVNextSessionStorageRecord(...)` remains public, so downstream code can
-  still read it as core-owned storage wording until deprecation/de-export.
-- Backend tests still use the compatibility storage record as fixture setup.
+- Historical docs still mention the deleted storage helper name as migration
+  evidence.
 
 ## UNKNOWN
 
@@ -89,8 +90,8 @@ the retained core snapshot contract.
 ## Behavior Changed
 
 - Added a retained session package snapshot contract.
-- Existing session storage record output remains compatible.
-- No public export removed.
+- Compatibility helper output was removed from source in Phase 246.
+- No retained public API was removed.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -99,14 +100,11 @@ the retained core snapshot contract.
 
 ## Risks Left
 
-- Deprecate/de-export storage-shaped session record after backend replacement
-  contracts exist.
-- Rich-inline replay validation split remains.
-- Submission identity/status split remains.
+- Keep backend-owned session storage records outside core.
 
 ## Intentionally Not Changed
 
-- `createVNextSessionStorageRecord(...)` is not removed.
-- `src/index.ts` still exports `./authoring/sessionStorage.js`.
+- `createVNextSessionStorageRecord(...)` is removed from source in Phase 246.
+- `src/index.ts` does not export `./authoring/sessionStorage.js`.
 - No concrete storage adapter or backend route added.
 - No gateway layer introduced.

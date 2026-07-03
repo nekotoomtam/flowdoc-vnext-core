@@ -162,7 +162,7 @@ describe("vNext rich inline session persistence historical boundary", () => {
     const source = readFileSync(sourceUrl, "utf8")
     const validationStart = source.indexOf("export function createVNextRichInlineReplayValidation")
     const persistenceStart = source.indexOf("export function createVNextRichInlineSessionPersistenceRecord")
-    const validationSource = source.slice(validationStart, persistenceStart)
+    const validationSource = source.slice(validationStart, persistenceStart === -1 ? source.length : persistenceStart)
 
     expect(validationSource).toContain("replayPatchValidation: true")
     expect(validationSource).toContain("historyReadyFacts: true")
@@ -188,6 +188,7 @@ describe("vNext rich inline session persistence historical boundary", () => {
     expect(validationSource).not.toContain("runVNextOperation")
     expect(validationSource).not.toContain("runVNextLayoutPipeline")
     expect(validationSource).not.toContain("paginateVNextDocument")
+    expect(source).not.toContain("createVNextRichInlineSessionPersistenceRecord")
   })
 
   it("documents the retained test rewrite beside the historical rich inline persistence boundary", () => {

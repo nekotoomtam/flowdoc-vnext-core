@@ -2,7 +2,7 @@
 
 Date: 2026-07-03
 
-Status: Phase 245 compatibility composition test rewrite after Window NR-C
+Status: Phase 246 compatibility source deletion complete after Window NR-C
 public export narrowing.
 
 ## Purpose
@@ -11,8 +11,9 @@ Window NR-C removed the remaining non-route service-shaped helpers from the
 public package entrypoint. This audit prevents the owner-module compatibility
 source from becoming forgotten debt.
 
-The compatibility helpers remain source-local only while historical
-composition tests still need them. They are removal candidates, not retained core API.
+The compatibility helpers were short-lived removal candidates, not retained
+core API. Phase 246 deletes their source implementations after the test
+allowlist reaches zero.
 
 ## Cleanup Rule
 
@@ -24,32 +25,28 @@ composition tests still need them. They are removal candidates, not retained cor
   package-local internal-alpha records before deleting source.
 - Treat this audit as short-lived cleanup debt; it should shrink, not grow.
 
-## Remaining Compatibility Helpers
+## Deleted Compatibility Helpers
 
 | Helper | Source Owner | Remaining Use | Replacement Target |
 |---|---|---|---|
-| `createVNextSessionStorageRecord(...)` | `src/authoring/sessionStorage.ts` | source-internal composition for remaining rich-inline compatibility helper source | retained `createVNextSessionPackageSnapshot(...)`; backend `flowdoc-vnext-backend/src/storage/sessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaSessionStorageRecord(...)` |
-| `createVNextRichInlineSessionPersistenceRecord(...)` | `src/authoring/richInlineSessionPersistence.ts` | no owner-module imports remain; implementation awaits Phase 246 deletion | retained `createVNextRichInlineReplayValidation(...)`; backend `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaRichInlineSessionRecord(...)` |
-| `createVNextSubmissionStateRecord(...)` | `src/workflow/submissionState.ts` | no owner-module imports remain; implementation awaits Phase 246 deletion | retained `createVNextSubmissionIdentityStatus(...)`; backend `flowdoc-vnext-backend/src/routes/submissionRoute.ts` |
+| `createVNextSessionStorageRecord(...)` | `src/authoring/sessionStorage.ts` | deleted in Phase 246 | retained `createVNextSessionPackageSnapshot(...)`; backend `flowdoc-vnext-backend/src/storage/sessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaSessionStorageRecord(...)` |
+| `createVNextRichInlineSessionPersistenceRecord(...)` | `src/authoring/richInlineSessionPersistence.ts` | deleted in Phase 246 | retained `createVNextRichInlineReplayValidation(...)`; backend `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`; internal-alpha `createFlowDocInternalAlphaRichInlineSessionRecord(...)` |
+| `createVNextSubmissionStateRecord(...)` | `src/workflow/submissionState.ts` | deleted in Phase 246 | retained `createVNextSubmissionIdentityStatus(...)`; backend `flowdoc-vnext-backend/src/routes/submissionRoute.ts` |
 
-Compatibility record types and constants are removal candidates with the helper
-source. Do not add imports of `VNextRichInlineSessionPersistenceRecord`,
+Compatibility record types and constants were removed with the helper source.
+Do not re-add imports of `VNextRichInlineSessionPersistenceRecord`,
 `VNextSubmissionStateRecord`, `VNEXT_SESSION_STORAGE_SOURCE`,
 `VNEXT_SESSION_STORAGE_MODE`, `VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE`,
 `VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE`, `VNEXT_SUBMISSION_STATE_SOURCE`,
-or `VNEXT_SUBMISSION_STATE_MODE`. The only remaining type import is
-`VNextSessionStorageRecord` inside
-`src/authoring/richInlineSessionPersistence.ts`.
+or `VNEXT_SUBMISSION_STATE_MODE`.
 
 ## Current Allowlist
 
-The following owner-module imports are allowed only until their tests are
-rewritten or retired.
+The allowlist above is empty.
 
 ### Session Storage Compatibility
 
-- `src/authoring/richInlineSessionPersistence.ts`: composes the rich-inline
-  compatibility record while that source still exists.
+- No owner-module imports remain.
 
 ### Rich Inline Session Compatibility
 
@@ -61,12 +58,8 @@ rewritten or retired.
 
 ## Recommended Removal Order
 
-1. Remove the owner-module compatibility helpers, record types, and source/mode
-   constants from `src/authoring/sessionStorage.ts`,
-   `src/authoring/richInlineSessionPersistence.ts`, and
-   `src/workflow/submissionState.ts`.
-2. Update historical docs to describe the removed helpers as past compatibility
-   evidence rather than current source.
+- Complete. Do not reintroduce compatibility helper source, types, constants,
+  public exports, or owner-module imports.
 
 ## Cleanup Progress
 
@@ -85,12 +78,18 @@ rewritten or retired.
   `tests/submissionIdentityStatus.test.ts` assert retained facts and
   backend/package-owned replacement evidence instead of importing compatibility
   helpers.
+- Phase 246 removed the compatibility helper implementations, record types,
+  and source/mode constants from `src/authoring/sessionStorage.ts`,
+  `src/authoring/richInlineSessionPersistence.ts`, and
+  `src/workflow/submissionState.ts`.
 
 ## Exit Criteria
 
 - The allowlist above is empty.
-- `rg "createVNext(SessionStorageRecord|RichInlineSessionPersistenceRecord|SubmissionStateRecord)" src tests packages`
-  returns no source/test usage.
+- `rg "createVNext(SessionStorageRecord|RichInlineSessionPersistenceRecord|SubmissionStateRecord)" src packages`
+  returns no source/package usage.
+- test references to those helper names are historical guard strings only, not
+  imports or source calls.
 - `src/index.ts` continues to export retained facts only.
 - `src/persistence/storageAdapter.ts` keeps package-session and
   rich-inline-session payloads as `unknown`.
@@ -99,8 +98,7 @@ rewritten or retired.
 ## PASS
 
 - The public entrypoint no longer exposes the compatibility helpers.
-- Remaining compatibility usage is owner-module only and explicitly
-  allowlisted.
+- No compatibility helper imports remain in `src`, `tests`, or `packages`.
 - Replacement targets are identified for each helper.
 - The guard test prevents new untracked compatibility imports.
 - Vertical-slice storage simulation and RC smoke tests no longer import the
@@ -108,6 +106,8 @@ rewritten or retired.
 - The storage adapter test no longer imports compatibility helpers or depends
   on old package-session/rich-inline-session record shapes.
 - Remaining composition tests no longer import compatibility helpers.
+- Compatibility helper source implementations, types, and constants are
+  removed.
 
 ## FAIL / BLOCKER
 
@@ -115,21 +115,19 @@ rewritten or retired.
 
 ## RISK
 
-- Compatibility source implementations still exist until Phase 246 deletion.
-- Leaving owner-module source in place can be misread as current core
-  ownership if this audit is ignored.
+- Historical docs still mention deleted helper names as past evidence.
 
 ## UNKNOWN
 
-- Whether historical docs that mention old helper behavior should be rewritten
-  as past evidence during Phase 246 or a follow-up doc cleanup.
+- Whether deeper historical docs should be further compressed after mainline
+  consumers settle on backend-owned record names.
 
 ## Files Changed
 
 - `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`
 - vertical-slice storage simulation tests
 - storage adapter and composition tests
-- source deprecation comments for the three compatibility helpers
+- source deletion for the three compatibility helpers
 - guard tests for the cleanup allowlist
 - README and phase ledger pointers
 
@@ -140,6 +138,7 @@ rewritten or retired.
   of compatibility helper records.
 - Runtime storage adapter behavior is unchanged.
 - Public entrypoint behavior is unchanged from Window NR-C.
+- Compatibility helper source behavior is removed.
 
 ## Tests Run
 
@@ -147,11 +146,9 @@ rewritten or retired.
 
 ## Risks Left
 
-- Rewrite or retire each remaining allowlisted usage.
-- Remove compatibility source after the allowlist reaches zero.
+- Do not reintroduce compatibility helpers.
 
 ## Intentionally Not Changed
 
-- No compatibility helper implementation removed in this audit patch.
 - No backend or editor code changed.
 - No gateway layer introduced.

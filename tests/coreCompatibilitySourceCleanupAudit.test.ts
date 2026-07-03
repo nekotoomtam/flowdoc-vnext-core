@@ -39,12 +39,8 @@ function hasNamedImport(source: string, importName: string): boolean {
 
 describe("core compatibility source cleanup audit", () => {
   const compatibilityImportAllowlist: Record<string, string[]> = {
-    createVNextSessionStorageRecord: [
-      "src/authoring/richInlineSessionPersistence.ts",
-    ],
-    VNextSessionStorageRecord: [
-      "src/authoring/richInlineSessionPersistence.ts",
-    ],
+    createVNextSessionStorageRecord: [],
+    VNextSessionStorageRecord: [],
     VNEXT_SESSION_STORAGE_SOURCE: [],
     VNEXT_SESSION_STORAGE_MODE: [],
     createVNextRichInlineSessionPersistenceRecord: [],
@@ -62,7 +58,7 @@ describe("core compatibility source cleanup audit", () => {
     const requiredSections = [
       "## Purpose",
       "## Cleanup Rule",
-      "## Remaining Compatibility Helpers",
+      "## Deleted Compatibility Helpers",
       "## Current Allowlist",
       "## Recommended Removal Order",
       "## Exit Criteria",
@@ -72,11 +68,13 @@ describe("core compatibility source cleanup audit", () => {
     ]
     const requiredPhrases = [
       "short-lived cleanup debt",
-      "removal candidates, not retained core API",
+      "removal candidates",
+      "not retained",
       "Do not add new public exports",
       "Do not add new owner-module imports",
       "The allowlist above is empty",
-      "Remove the owner-module compatibility helpers",
+      "Complete. Do not reintroduce compatibility helper source",
+      "Compatibility helper source implementations, types, and constants are",
     ]
 
     for (const section of requiredSections) {
@@ -95,19 +93,23 @@ describe("core compatibility source cleanup audit", () => {
     }
   })
 
-  it("keeps compatibility helper source comments pointed at the cleanup audit", () => {
-    const sourcePaths = [
-      "src/authoring/sessionStorage.ts",
-      "src/authoring/richInlineSessionPersistence.ts",
-      "src/workflow/submissionState.ts",
-    ]
+  it("removes compatibility helper source while keeping retained facts", () => {
+    const sessionStorage = readText("src/authoring/sessionStorage.ts")
+    const richInline = readText("src/authoring/richInlineSessionPersistence.ts")
+    const submission = readText("src/workflow/submissionState.ts")
 
-    for (const sourcePath of sourcePaths) {
-      const source = readText(sourcePath)
+    expect(sessionStorage).toContain("createVNextSessionPackageSnapshot")
+    expect(richInline).toContain("createVNextRichInlineReplayValidation")
+    expect(submission).toContain("createVNextSubmissionIdentityStatus")
 
-      expect(source).toContain("@deprecated Window NR-A compatibility export")
-      expect(source).toContain("Window NR-C removed this helper from the public package entrypoint")
-      expect(source).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
+    for (const [source, removedNames] of [
+      [sessionStorage, ["createVNextSessionStorageRecord", "VNextSessionStorageRecord", "VNEXT_SESSION_STORAGE_SOURCE", "VNEXT_SESSION_STORAGE_MODE"]],
+      [richInline, ["createVNextRichInlineSessionPersistenceRecord", "VNextRichInlineSessionPersistenceRecord", "VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE", "VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE"]],
+      [submission, ["createVNextSubmissionStateRecord", "VNextSubmissionStateRecord", "VNEXT_SUBMISSION_STATE_SOURCE", "VNEXT_SUBMISSION_STATE_MODE"]],
+    ] as const) {
+      for (const removedName of removedNames) {
+        expect(source).not.toContain(removedName)
+      }
     }
   })
 
@@ -128,7 +130,7 @@ describe("core compatibility source cleanup audit", () => {
     }
   })
 
-  it("keeps NR-C public narrowing intact while source cleanup is pending", () => {
+  it("keeps NR-C public narrowing intact after source cleanup", () => {
     const index = readText("src/index.ts")
     const storageAdapter = readText("src/persistence/storageAdapter.ts")
 
@@ -156,10 +158,12 @@ describe("core compatibility source cleanup audit", () => {
     expect(ledger).toContain("| 243 | Core vertical-slice retained storage payload rewrite | done |")
     expect(ledger).toContain("| 244 | Core storage adapter generic payload rewrite | done |")
     expect(ledger).toContain("| 245 | Core compatibility composition test rewrite | done |")
+    expect(ledger).toContain("| 246 | Core compatibility source deletion | done |")
     expect(ledger).toContain("## Phase 242 Core Compatibility Source Cleanup Audit")
     expect(ledger).toContain("## Phase 243 Core Vertical-Slice Retained Storage Payload Rewrite")
     expect(ledger).toContain("## Phase 244 Core Storage Adapter Generic Payload Rewrite")
     expect(ledger).toContain("## Phase 245 Core Compatibility Composition Test Rewrite")
+    expect(ledger).toContain("## Phase 246 Core Compatibility Source Deletion")
     expect(nonRoute).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
     expect(retention).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
     expect(consumer).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")

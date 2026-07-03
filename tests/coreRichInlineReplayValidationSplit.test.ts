@@ -10,7 +10,7 @@ function readText(path: string): string {
 }
 
 describe("core rich inline replay validation split", () => {
-  it("documents the retained validation helpers and compatibility records", () => {
+  it("documents the retained validation helpers and historical compatibility records", () => {
     const doc = readText("docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md")
     const requiredSections = [
       "## Purpose",
@@ -32,7 +32,7 @@ describe("core rich inline replay validation split", () => {
     expect(doc).toContain("createVNextRichInlineReplayPatchRecord")
     expect(doc).toContain("createVNextRichInlineSessionPersistenceRecord")
     expect(doc).toContain('storageStatus: "not-written"')
-    expect(doc).toContain("No public export removed")
+    expect(doc).toContain("removed from source in Phase 246")
   })
 
   it("keeps the retained helpers public through the existing authoring module export", () => {
@@ -45,7 +45,7 @@ describe("core rich inline replay validation split", () => {
     expect(source).toContain("createVNextRichInlineReplayPatchValidation")
     expect(source).toContain("createVNextRichInlineReplayValidation")
     expect(source).toContain("createVNextRichInlineReplayPatchRecord")
-    expect(source).toContain("createVNextRichInlineSessionPersistenceRecord")
+    expect(source).not.toContain("createVNextRichInlineSessionPersistenceRecord")
   })
 
   it("aligns split-map and navigation docs with the rich inline split", () => {

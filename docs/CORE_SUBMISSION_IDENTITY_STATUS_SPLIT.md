@@ -11,9 +11,9 @@ This phase implements the third split from
 submission identity/status helpers that are separate from the workflow-shaped
 submission state record helper.
 
-The compatibility submission state record remains public for now, but it
-composes the new retained identity/status facts instead of owning those facts
-directly.
+Historical compatibility submission state record evidence is preserved below.
+The compatibility helper itself was removed from source in Phase 246 after
+retained identity/status facts and backend route replacements were proven.
 
 ## Retained Core Contract
 
@@ -41,8 +41,8 @@ The retained identity/status contract owns:
 
 ## Compatibility Record
 
-`createVNextSubmissionStateRecord(...)` remains exported and still returns the
-Phase 91 workflow-shaped record shape. It now composes
+`createVNextSubmissionStateRecord(...)` used to return the Phase 91
+workflow-shaped record shape. Before deletion, it composed
 `createVNextSubmissionIdentityStatus(...)` for status, identity, revision,
 actor/reviewer, reason, and validation issue facts before adding compatibility
 scope/application fields:
@@ -54,7 +54,7 @@ scope/application fields:
 - `routeDispatch: "not-run"`;
 - `packageVersionChange: false`.
 
-Those workflow-shaped fields remain compatibility surface only. Backend
+Those workflow-shaped fields were compatibility surface only. Backend
 workflow storage, permissions, approval gates, notification/audit writes, and
 route dispatch are not moved into the retained core identity/status contract.
 
@@ -62,26 +62,24 @@ route dispatch are not moved into the retained core identity/status contract.
 
 - Submission identity/status facts now have a retained core helper.
 - The retained helper has no workflow application fields.
-- The compatibility submission state record composes retained identity/status
-  facts.
+- The historical submission state record composition is covered as past
+  evidence.
 - Tests prove the retained helper has no storage writes, routes, DOM work,
   layout work, package parse/serialize, package mutation, or workflow
   execution.
-- The public submission state export remains stable for current tests and
-  consumers.
+- Retained submission identity/status helpers remain stable for current tests
+  and consumers.
 
 ## FAIL / BLOCKER
 
-- No public de-export has happened yet.
 - Backend consumer rewiring is now complete in
   `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; public de-export remains a
   separate compatibility window.
 
 ## RISK
 
-- `createVNextSubmissionStateRecord(...)` remains public, so downstream code
-  can still read workflow-shaped wording as final core ownership until
-  deprecation/de-export.
+- Historical docs still mention the deleted submission state helper name as
+  migration evidence.
 - Submission identity/status facts may still become product-specific if future
   workflow policy is retained too widely.
 
@@ -108,8 +106,9 @@ route dispatch are not moved into the retained core identity/status contract.
 ## Behavior Changed
 
 - Added retained submission identity/status contracts.
-- Existing submission state record output remains compatible.
-- No public export removed.
+- Compatibility submission state helper output was removed from source in
+  Phase 246.
+- No retained public API was removed.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -118,15 +117,12 @@ route dispatch are not moved into the retained core identity/status contract.
 
 ## Risks Left
 
-- Deprecate/de-export workflow-shaped submission state record after backend
-  replacement contracts exist and Window NR-A/NR-B/NR-C run.
-- Backend consumer rewiring remains.
-- Non-route service-shaped public export deprecation windows remain.
+- Keep backend-owned workflow route records outside core.
 
 ## Intentionally Not Changed
 
-- `createVNextSubmissionStateRecord(...)` is not removed.
-- `src/index.ts` still exports `./workflow/submissionState.js`.
+- `createVNextSubmissionStateRecord(...)` is removed from source in Phase 246.
+- `src/index.ts` does not export `./workflow/submissionState.js`.
 - No concrete workflow storage adapter or backend route added.
 - No permission check, approval gate, notification/audit write, or workflow
   runtime added.

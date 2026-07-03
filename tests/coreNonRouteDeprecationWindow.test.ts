@@ -10,37 +10,36 @@ function readText(path: string): string {
 }
 
 describe("core non-route deprecation window", () => {
-  it("marks non-route service-shaped helper exports as deprecated compatibility helpers", () => {
+  it("keeps NR-A deprecation markers as historical evidence after source deletion", () => {
     const sessionStorage = readText("src/authoring/sessionStorage.ts")
     const richInlinePersistence = readText("src/authoring/richInlineSessionPersistence.ts")
     const submissionState = readText("src/workflow/submissionState.ts")
+    const audit = readText("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
 
-    expect(sessionStorage).toContain("@deprecated Window NR-A compatibility export")
-    expect(sessionStorage).toContain("flowdoc-vnext-backend/src/storage/sessionRecord.ts")
     expect(sessionStorage).toContain("createVNextSessionPackageSnapshot")
-    expect(sessionStorage).toContain("createVNextSessionStorageRecord")
+    expect(sessionStorage).not.toContain("@deprecated Window NR-A compatibility export")
+    expect(sessionStorage).not.toContain("createVNextSessionStorageRecord")
 
-    expect(richInlinePersistence).toContain("@deprecated Window NR-A compatibility export")
-    expect(richInlinePersistence).toContain("flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts")
     expect(richInlinePersistence).toContain("createVNextRichInlineReplayValidation")
-    expect(richInlinePersistence).toContain("createVNextRichInlineSessionPersistenceRecord")
+    expect(richInlinePersistence).not.toContain("@deprecated Window NR-A compatibility export")
+    expect(richInlinePersistence).not.toContain("createVNextRichInlineSessionPersistenceRecord")
 
-    expect(submissionState).toContain("@deprecated Window NR-A compatibility export")
-    expect(submissionState).toContain("flowdoc-vnext-backend/src/routes/submissionRoute.ts")
     expect(submissionState).toContain("createVNextSubmissionIdentityStatus")
-    expect(submissionState).toContain("createVNextSubmissionStateRecord")
+    expect(submissionState).not.toContain("@deprecated Window NR-A compatibility export")
+    expect(submissionState).not.toContain("createVNextSubmissionStateRecord")
+    expect(audit).toContain("Phase 246")
   })
 
-  it("keeps public entrypoint compatibility during Window NR-A", () => {
+  it("keeps public entrypoint removal after NR-C and source deletion", () => {
     const index = readText("src/index.ts")
     const doc = readText("docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md")
 
-    expect(index).toContain("./authoring/sessionStorage.js")
-    expect(index).toContain("./authoring/richInlineSessionPersistence.js")
-    expect(index).toContain("./workflow/submissionState.js")
+    expect(index).not.toContain('export * from "./authoring/sessionStorage.js"')
+    expect(index).not.toContain('export * from "./authoring/richInlineSessionPersistence.js"')
+    expect(index).not.toContain('export * from "./workflow/submissionState.js"')
     expect(doc).toContain("Public entrypoint compatibility remains.")
     expect(doc).toContain("They remain public from `src/index.ts` during Window NR-A.")
-    expect(doc).toContain("Window NR-C removal is still blocked")
+    expect(readText("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")).toContain("Status: Phase 246")
   })
 
   it("keeps retained core owners and backend replacements explicit", () => {

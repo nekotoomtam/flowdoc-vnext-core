@@ -11,8 +11,9 @@ This phase implements the second split from
 rich-inline replay validation helpers that are separate from the
 persistence-shaped rich-inline session record helper.
 
-The compatibility persistence record remains public for now, but it composes
-the new retained validation facts instead of owning those facts directly.
+Historical compatibility persistence record evidence is preserved below. The
+compatibility helper itself was removed from source in Phase 246 after retained
+replay validation facts and backend/package replacements were proven.
 
 ## Retained Core Contract
 
@@ -46,13 +47,13 @@ returns the Phase 129 patch record shape with:
 - `replayStatus: "not-run"`;
 - `storageStatus: "not-written"`.
 
-`createVNextRichInlineSessionPersistenceRecord(...)` remains exported and still
-returns the Phase 129 session persistence record shape. It now composes
+`createVNextRichInlineSessionPersistenceRecord(...)` used to return the Phase
+129 session persistence record shape. Before deletion, it composed
 `createVNextRichInlineReplayValidation(...)` for replay patch counts, invalid
 counts, and retained patch validation facts before adding compatibility
 persistence/session fields.
 
-Those persistence-shaped fields remain compatibility surface only. Backend
+Those persistence-shaped fields were compatibility surface only. Backend
 storage, replay execution, conflict resolution, selection restoration, and API
 dispatch are not moved into the retained core validation contract.
 
@@ -62,23 +63,21 @@ dispatch are not moved into the retained core validation contract.
 - Patch-level validation has no storage status or replay status fields.
 - The compatibility replay patch record composes the retained validation
   record.
-- The compatibility session persistence record composes the retained validation
-  facts.
+- The historical session persistence record composition is covered as past
+  evidence.
 - Tests prove the retained validation helper has no storage writes, routes,
   DOM work, layout work, backend API calls, or replay execution.
-- The public rich-inline session persistence export remains stable for current
-  tests and consumers.
+- Retained replay validation helpers remain stable for current tests and
+  consumers.
 
 ## FAIL / BLOCKER
 
-- No public de-export has happened yet.
 - Submission identity/status facts are not split yet.
 
 ## RISK
 
-- `createVNextRichInlineSessionPersistenceRecord(...)` remains public, so
-  downstream code can still read persistence wording as final core ownership
-  until deprecation/de-export.
+- Historical docs still mention the deleted rich-inline persistence helper name
+  as migration evidence.
 - Compatibility replay patch records still include storage/replay status fields
   for Phase 129 record stability.
 - Future granular rich-inline operations may want a smaller semantic replay
@@ -106,9 +105,9 @@ dispatch are not moved into the retained core validation contract.
 ## Behavior Changed
 
 - Added retained rich-inline replay validation contracts.
-- Existing replay patch and rich-inline session persistence record outputs
-  remain compatible.
-- No public export removed.
+- Compatibility session persistence helper output was removed from source in
+  Phase 246.
+- No retained public API was removed.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -117,16 +116,15 @@ dispatch are not moved into the retained core validation contract.
 
 ## Risks Left
 
-- Deprecate/de-export persistence-shaped rich-inline session record after
-  backend replacement contracts exist.
-- Submission identity/status split remains.
-- Backend consumer rewiring remains.
+- Keep backend-owned rich-inline session records outside core.
 
 ## Intentionally Not Changed
 
 - `createVNextRichInlineReplayPatchRecord(...)` is not removed.
-- `createVNextRichInlineSessionPersistenceRecord(...)` is not removed.
-- `src/index.ts` still exports `./authoring/richInlineSessionPersistence.js`.
+- `createVNextRichInlineSessionPersistenceRecord(...)` is removed from source
+  in Phase 246.
+- `src/index.ts` does not export
+  `./authoring/richInlineSessionPersistence.js`.
 - No concrete storage adapter or backend route added.
 - No replay execution, conflict resolution, or selection restoration added.
 - No gateway layer introduced.

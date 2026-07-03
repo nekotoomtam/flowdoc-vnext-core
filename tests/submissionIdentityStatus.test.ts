@@ -165,7 +165,7 @@ describe("vNext submission identity/status retained contract", () => {
     const source = readFileSync(new URL("../src/workflow/submissionState.ts", import.meta.url), "utf8")
     const helperStart = source.indexOf("export function createVNextSubmissionIdentityStatus")
     const stateStart = source.indexOf("export function createVNextSubmissionStateRecord")
-    const helperSource = source.slice(helperStart, stateStart)
+    const helperSource = source.slice(helperStart, stateStart === -1 ? source.length : stateStart)
 
     expect(helperSource).toContain("validationIssues(input)")
     expect(helperSource).toContain("submissionIdentityFacts: true")
@@ -192,5 +192,6 @@ describe("vNext submission identity/status retained contract", () => {
     expect(helperSource).not.toContain("runVNextOperation")
     expect(helperSource).not.toContain("runVNextLayoutPipeline")
     expect(helperSource).not.toContain("paginateVNextDocument")
+    expect(source).not.toContain("createVNextSubmissionStateRecord")
   })
 })

@@ -906,21 +906,24 @@ The package must remain runnable without any parent editor checkout.
   any public de-export. See `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`.
 - Core Session Package Snapshot Split adds
   `createVNextSessionPackageSnapshot(...)` as the retained package snapshot
-  contract while keeping `createVNextSessionStorageRecord(...)` as a
-  compatibility record. See `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`.
+  contract; the former compatibility storage record is historical evidence and
+  is removed from source in Phase 246. See
+  `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`.
 - Core Rich Inline Replay Validation Split adds
   `createVNextRichInlineReplayValidation(...)` and patch-level validation
-  records as retained replay validation contracts while keeping rich-inline
-  persistence records as compatibility surface. See
+  records as retained replay validation contracts; the former rich-inline
+  persistence helper is historical evidence and is removed from source in Phase
+  246. See
   `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`.
 - Core Submission Identity Status Split adds
   `createVNextSubmissionIdentityStatus(...)` as the retained external
-  workflow identity/status contract while keeping submission state records as
-  compatibility surface. See `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`.
+  workflow identity/status contract; the former submission state helper is
+  historical evidence and is removed from source in Phase 246. See
+  `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`.
 - Core Backend Consumer Rewire Closeout records that backend `main@9d0a850`
   now owns session, rich-inline, and submission replacement records/routes
-  over retained core facts, while core keeps compatibility exports until the
-  non-route deprecation/de-export windows run. See
+  over retained core facts before the non-route deprecation/de-export/source
+  cleanup windows run. See
   `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`.
 - Core Non-Route Deprecation Window starts Window NR-A by marking the remaining
   service-shaped helper names as deprecated compatibility exports while keeping
@@ -943,8 +946,8 @@ The package must remain runnable without any parent editor checkout.
   compatibility helper/type/constants from the package public entrypoint. See
   `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 - Core Compatibility Source Cleanup Audit records the short-lived owner-module
-  compatibility helper allowlist after NR-C and prevents new untracked usages
-  while the remaining tests are rewritten toward deletion. See
+  compatibility helper allowlist after NR-C, tracks the rewrite path, and now
+  records Phase 246 source deletion. See
   `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 - Core Vertical-Slice Retained Storage Payload Rewrite removes vertical-slice
   storage simulation and RC smoke imports of owner-module compatibility helpers
@@ -956,7 +959,12 @@ The package must remain runnable without any parent editor checkout.
   facts. See `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 - Core Compatibility Composition Test Rewrite removes the remaining composition
   test imports of owner-module compatibility helpers and leaves only
-  source-internal compatibility helper composition before deletion. See
+  source-internal compatibility helper composition immediately before deletion.
+  See
+  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+- Core Compatibility Source Deletion removes owner-module compatibility helper
+  implementations, types, and source/mode constants after the allowlist reaches
+  zero while keeping retained non-route facts public. See
   `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
@@ -1046,10 +1054,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`: Phase 238-241 Window NR-B/NR-C
   retained-test rewrite, public-entrypoint test cleanup, package-lane cleanup,
   and public export narrowing for non-route service-shaped helpers
-- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`: Phase 242-245 allowlist,
+- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`: Phase 242-246 allowlist,
   vertical-slice, storage-adapter, and composition-test rewrite progress, and
-  exit criteria for removing owner-module compatibility helper source after
-  NR-C
+  source deletion closeout for owner-module compatibility helpers after NR-C
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

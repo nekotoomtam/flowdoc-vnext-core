@@ -120,7 +120,7 @@ describe("vNext submission state historical boundary", () => {
     const source = readFileSync(sourceUrl, "utf8")
     const helperStart = source.indexOf("export function createVNextSubmissionIdentityStatus")
     const stateStart = source.indexOf("export function createVNextSubmissionStateRecord")
-    const helperSource = source.slice(helperStart, stateStart)
+    const helperSource = source.slice(helperStart, stateStart === -1 ? source.length : stateStart)
 
     expect(helperSource).toContain("submissionIdentityFacts: true")
     expect(helperSource).toContain("externalWorkflowStatusFacts: true")
@@ -147,6 +147,7 @@ describe("vNext submission state historical boundary", () => {
     expect(helperSource).not.toContain("runVNextOperation")
     expect(helperSource).not.toContain("runVNextLayoutPipeline")
     expect(helperSource).not.toContain("paginateVNextDocument")
+    expect(source).not.toContain("createVNextSubmissionStateRecord")
   })
 
   it("documents the retained test rewrite beside the historical submission state boundary", () => {

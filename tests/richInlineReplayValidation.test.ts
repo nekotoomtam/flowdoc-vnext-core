@@ -195,7 +195,7 @@ describe("vNext rich inline replay validation retained contract", () => {
     const validationStart = source.indexOf("export function createVNextRichInlineReplayValidation")
     const persistenceStart = source.indexOf("export function createVNextRichInlineSessionPersistenceRecord")
     const patchSource = source.slice(patchStart, patchEnd)
-    const validationSource = source.slice(validationStart, persistenceStart)
+    const validationSource = source.slice(validationStart, persistenceStart === -1 ? source.length : persistenceStart)
 
     expect(patchSource).toContain('validateChildren("beforeChildren"')
     expect(patchSource).not.toContain("storageStatus")
@@ -222,5 +222,6 @@ describe("vNext rich inline replay validation retained contract", () => {
     expect(validationSource).not.toContain("runVNextOperation")
     expect(validationSource).not.toContain("runVNextLayoutPipeline")
     expect(validationSource).not.toContain("paginateVNextDocument")
+    expect(source).not.toContain("createVNextRichInlineSessionPersistenceRecord")
   })
 })

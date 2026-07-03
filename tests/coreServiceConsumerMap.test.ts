@@ -62,7 +62,7 @@ describe("core service consumer map", () => {
     expect(doc).toContain("no direct service-shaped export consumer was found")
   })
 
-  it("keeps non-route public exports narrowed while source cleanup is deferred", () => {
+  it("keeps non-route public exports narrowed after source cleanup", () => {
     const doc = readText("docs/CORE_SERVICE_CONSUMER_MAP.md")
     const index = readText("src/index.ts")
     const removedExports = [
@@ -89,7 +89,8 @@ describe("core service consumer map", () => {
 
     expect(index).not.toContain("./generation/apiRoute.js")
     expect(index).not.toContain("./generation/artifactApiRoute.js")
-    expect(doc).toContain("Public Removal Complete, Source Cleanup Deferred")
+    expect(doc).toContain("Public Removal and Source Cleanup Complete")
+    expect(doc).toContain("Phase 246")
     expect(doc).toContain("route-shaped backend parity exists")
     expect(doc).toContain("route-shaped public exports have been removed")
     expect(doc).toContain("backend consumer rewiring is now proven")

@@ -10,7 +10,8 @@ backend consumer rewiring is recorded in
 `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`. Window NR-B retained-test
 rewrite and public-entrypoint test cleanup are recorded in
 `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; package-lane cleanup and
-Window NR-C public export narrowing are also complete there.
+Window NR-C public export narrowing are also complete there. Compatibility
+source deletion is complete in Phase 246.
 
 ## Purpose
 
@@ -27,23 +28,22 @@ identity/status facts while backend owns durable stores, storage keys,
 idempotency, routes, replay execution, conflict resolution, permissions, and
 workflow runtime.
 
-This map started as planning and guard coverage. Window NR-C now removes
-service-shaped public entrypoint exports while leaving owner-module
-compatibility source in place for historical evidence.
+This map started as planning and guard coverage. Window NR-C removed
+service-shaped public entrypoint exports, and Phase 246 removed the remaining
+owner-module compatibility source while keeping retained facts in place.
 
 ## Source Evidence
 
 Session storage:
 
 - `src/authoring/sessionStorage.ts` exports
-  `createVNextSessionPackageSnapshot(...)` and
-  `createVNextSessionStorageRecord(...)`.
+  `createVNextSessionPackageSnapshot(...)`.
 - `tests/sessionStorage.test.ts` now proves retained canonical package
   snapshot facts, session-only exclusions, and no storage, DOM, route, backend,
   or layout execution.
 - `tests/sessionPackageSnapshot.test.ts` proves the retained package snapshot
-  helper has no storage key/status and the compatibility storage record
-  composes retained snapshot facts.
+  helper has no storage key/status and backend-owned replacement evidence can
+  compose retained snapshot facts.
 - `docs/SESSION_STORAGE_BOUNDARY.md` records that this is not a storage
   adapter.
 
@@ -52,17 +52,13 @@ Rich-inline session persistence:
 - `src/authoring/richInlineSessionPersistence.ts` exports
   `createVNextRichInlineReplayPatchValidation(...)`,
   `createVNextRichInlineReplayValidation(...)`,
-  `createVNextRichInlineSessionPersistenceRecord(...)`, and
   `createVNextRichInlineReplayPatchRecord(...)`.
-- The module composes `createVNextSessionStorageRecord(...)` and
-  `createVNextDurableHistorySnapshot(...)` only in the compatibility
-  persistence record path.
-- The module composes retained replay validation facts into the compatibility
-  replay patch and rich-inline session persistence records.
+- The module keeps retained replay validation facts in core and leaves
+  rich-inline session persistence records to backend/package-owned evidence.
 - `tests/richInlineReplayValidation.test.ts` proves retained patch validation,
-  batch replay validation facts, invalid replay patch reporting, compatibility
-  record composition, and no storage, DOM, route, layout, backend API, or
-  replay execution.
+  batch replay validation facts, invalid replay patch reporting,
+  backend-owned replacement evidence, and no storage, DOM, route, layout,
+  backend API, or replay execution.
 - `tests/richInlineSessionPersistence.test.ts` now proves retained replay
   validation facts, invalid replay patch reporting, JSON safety, and no
   storage, route, backend API, or replay execution.
@@ -72,12 +68,9 @@ Rich-inline session persistence:
 Submission state:
 
 - `src/workflow/submissionState.ts` exports
-  `createVNextSubmissionIdentityStatus(...)` and
-  `createVNextSubmissionStateRecord(...)`.
-- The compatibility state record composes retained submission identity/status
-  facts before adding workflow-shaped scope/application fields.
+  `createVNextSubmissionIdentityStatus(...)`.
 - `tests/submissionIdentityStatus.test.ts` proves retained identity/status
-  facts, validation blockers, compatibility record composition, and no
+  facts, validation blockers, backend route replacement evidence, and no
   workflow execution, storage, DOM, routes, layout, package parse/serialize, or
   package mutation.
 - `tests/submissionState.test.ts` now proves retained submission
@@ -103,7 +96,7 @@ Consumer evidence:
 - `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` records Window NR-B retained
   test rewrite plus public-entrypoint cleanup for compatibility composition,
   storage, and vertical-slice tests.
-- Core storage/vertical-slice tests use session and rich-inline record shapes.
+- Core storage/vertical-slice tests now use retained facts and generic payloads.
 - No direct editor consumer of these service-shaped exports is recorded in
   `docs/CORE_SERVICE_CONSUMER_MAP.md`.
 
@@ -153,8 +146,8 @@ retained non-route facts public:
 - `createVNextSubmissionIdentityStatus(...)`.
 
 The service-shaped compatibility helpers/types/constants are no longer public
-entrypoint exports. Their source implementations remain in owner modules for
-historical composition evidence only.
+entrypoint exports, and their source implementations are removed. Compatibility
+source deletion is complete.
 
 ## Next Implementation Order
 
@@ -167,6 +160,8 @@ historical composition evidence only.
    `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 4. Window NR-C public export narrowing is complete in
    `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
+5. Compatibility source deletion is complete in
+   `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 
 ## PASS
 
@@ -174,14 +169,15 @@ historical composition evidence only.
   ownership.
 - Each ownership claim cites current source, test, or boundary docs.
 - Backend consumer rewiring is proven for session, rich-inline, and submission.
-- Window NR-A source-level deprecation markers are applied to the compatibility
-  helper functions.
+- Window NR-A source-level deprecation markers are preserved as historical
+  evidence and superseded by Phase 246 deletion.
 - Window NR-B moves the primary historical tests to retained facts and moves
   known compatibility/storage/vertical-slice test imports off the public core
   entrypoint.
 - Package-lane cleanup removes old concrete package consumers of deprecated
   helper/type names through `@flowdoc/vnext-core`.
 - Window NR-C narrows public exports to retained non-route facts.
+- Phase 246 removes owner-module compatibility helper implementations.
 
 ## FAIL / BLOCKER
 
@@ -189,10 +185,7 @@ historical composition evidence only.
 
 ## RISK
 
-- Owner-module compatibility helpers can still make backend concerns look like
-  current core ownership if read without the public-entrypoint context.
-- Remaining storage and vertical-slice historical tests still use compatibility
-  record shapes through owner-module imports.
+- Historical docs can still mention deleted helper names as migration evidence.
 - Rich-inline compatibility replay patch records may need granular operation
   vocabulary later.
 - Submission workflow facts may become product-specific if future workflow
@@ -200,7 +193,8 @@ historical composition evidence only.
 
 ## UNKNOWN
 
-- Exact timing for optional compatibility source cleanup.
+- Whether deeper historical docs should be further compressed after backend
+  replacement names settle.
 - Whether deprecated route source cleanup should happen before non-route
   public export removal.
 - Final production replay execution and workflow storage shapes.
@@ -228,10 +222,13 @@ historical composition evidence only.
   recorded as complete.
 - Package-lane cleanup and Window NR-C public export narrowing are recorded as
   complete.
-- `src/authoring/richInlineSessionPersistence.ts` now has retained replay
-  validation helpers.
-- `src/workflow/submissionState.ts` now has retained identity/status helpers.
+- `src/authoring/sessionStorage.ts` keeps retained package snapshot facts only.
+- `src/authoring/richInlineSessionPersistence.ts` keeps retained replay
+  validation helpers and patch records only.
+- `src/workflow/submissionState.ts` keeps retained identity/status helpers
+  only.
 - Public non-route service-shaped exports are removed from `src/index.ts`.
+- Compatibility source deletion is complete.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -240,8 +237,7 @@ historical composition evidence only.
 
 ## Risks Left
 
-- Compatibility source cleanup is tracked by
-  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+- Do not reintroduce compatibility helper source.
 - Rich-inline replay execution and submission workflow storage remain backend
   work.
 
@@ -250,5 +246,4 @@ historical composition evidence only.
 - `src/authoring/sessionStorage.ts` is not renamed or moved.
 - `src/authoring/richInlineSessionPersistence.ts` is not renamed or moved.
 - `src/workflow/submissionState.ts` is not renamed or moved.
-- Owner-module compatibility helper implementations are not removed.
 - No gateway layer introduced.

@@ -1,18 +1,7 @@
 import type { InlineNode } from "../schema/document.js"
 import { InlineNodeSchema } from "../schema/document.js"
-import type { VNextEditableSession } from "./editableSession.js"
 import type { VNextAuthoringIntentHistoryRecord } from "./intentHistory.js"
-import {
-  createVNextSessionStorageRecord,
-  type VNextSessionStorageRecord,
-} from "./sessionStorage.js"
-import {
-  createVNextDurableHistorySnapshot,
-  type VNextDurableHistorySnapshot,
-} from "./durableHistory.js"
 
-export const VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE = "vnext-rich-inline-session-persistence"
-export const VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE = "rich-inline-session-record-boundary"
 export const VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE = "vnext-rich-inline-replay-validation"
 export const VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE = "rich-inline-replay-validation-facts"
 
@@ -88,60 +77,6 @@ export interface VNextRichInlineReplayValidationRecord {
   mode: typeof VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE
   replayPatchValidations: VNextRichInlineReplayPatchValidationRecord[]
   facts: VNextRichInlineReplayValidationFacts
-}
-
-export interface VNextRichInlineSessionPersistenceOptions {
-  historyKey?: string
-  historyRecords?: readonly VNextAuthoringIntentHistoryRecord[]
-  reason?: string
-  redoRecords?: readonly VNextAuthoringIntentHistoryRecord[]
-  replayPatches?: readonly VNextRichInlineReplayPatchInput[]
-  storageKey?: string
-}
-
-export interface VNextRichInlineSessionPersistenceManifest {
-  schemaVersion: 1
-  packageId: string
-  documentRevision: number
-  storageKey: string | null
-  historyKey: string | null
-  reason: string
-  storageStatus: "not-written"
-  packageStorageStatus: "not-written"
-  historyStorageStatus: "not-written"
-  richHistoryRecordCount: number
-  replayPatchCount: number
-  invalidReplayPatchCount: number
-  persistedState: {
-    package: true
-    authoringHistory: true
-    richReplayPatches: true
-    selection: false
-    dirtyScopes: false
-    diagnostics: false
-    graph: false
-    viewport: false
-    liveLayout: false
-    exactLayout: false
-    artifacts: false
-  }
-  replay: {
-    executionStatus: "not-run"
-    replayMode: "rich-inline-before-after-children"
-    conflictResolution: "not-run"
-    selectionRestore: "not-persisted"
-    storageAdapter: "not-bound"
-    backendApi: "not-called"
-  }
-}
-
-export interface VNextRichInlineSessionPersistenceRecord {
-  source: typeof VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE
-  mode: typeof VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE
-  sessionStorage: VNextSessionStorageRecord
-  durableHistory: VNextDurableHistorySnapshot
-  replayPatches: VNextRichInlineReplayPatchRecord[]
-  manifest: VNextRichInlineSessionPersistenceManifest
 }
 
 function cloneJson<T>(value: T): T {
@@ -276,81 +211,6 @@ export function createVNextRichInlineReplayValidation(
         replayExecution: false,
         conflictResolution: false,
         selectionRestore: false,
-      },
-    },
-  }
-}
-
-/**
- * @deprecated Window NR-A compatibility export.
- * Window NR-C removed this helper from the public package entrypoint.
- * Keep owner-module usage allowlisted in
- * `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` until source cleanup.
- * Backend-owned rich-inline session records now live in
- * `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`. Use
- * `createVNextRichInlineReplayValidation(...)` for retained core replay
- * validation facts.
- */
-export function createVNextRichInlineSessionPersistenceRecord(
-  session: VNextEditableSession,
-  options: VNextRichInlineSessionPersistenceOptions = {},
-): VNextRichInlineSessionPersistenceRecord {
-  const reason = nonEmptyString(options.reason) ?? "rich-inline-session-persistence-boundary"
-  const sessionStorage = createVNextSessionStorageRecord(session, {
-    reason,
-    storageKey: options.storageKey,
-  })
-  const durableHistory = createVNextDurableHistorySnapshot(options.historyRecords ?? [], {
-    documentRevision: session.revisions.document,
-    historyKey: options.historyKey,
-    reason,
-    redoRecords: options.redoRecords,
-  })
-  const replayValidation = createVNextRichInlineReplayValidation({
-    historyRecords: durableHistory.records,
-    replayPatches: options.replayPatches,
-  })
-  const replayPatches = replayValidation.replayPatchValidations.map((patch) => replayPatchRecordFromValidation(patch))
-
-  return {
-    source: VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE,
-    mode: VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE,
-    sessionStorage,
-    durableHistory,
-    replayPatches,
-    manifest: {
-      schemaVersion: 1,
-      packageId: sessionStorage.manifest.packageId,
-      documentRevision: session.revisions.document,
-      storageKey: sessionStorage.manifest.storageKey,
-      historyKey: durableHistory.manifest.historyKey,
-      reason,
-      storageStatus: "not-written",
-      packageStorageStatus: sessionStorage.manifest.storageStatus,
-      historyStorageStatus: durableHistory.manifest.storageStatus,
-      richHistoryRecordCount: replayValidation.facts.richHistoryRecordCount,
-      replayPatchCount: replayValidation.facts.replayPatchCount,
-      invalidReplayPatchCount: replayValidation.facts.invalidReplayPatchCount,
-      persistedState: {
-        package: true,
-        authoringHistory: true,
-        richReplayPatches: true,
-        selection: false,
-        dirtyScopes: false,
-        diagnostics: false,
-        graph: false,
-        viewport: false,
-        liveLayout: false,
-        exactLayout: false,
-        artifacts: false,
-      },
-      replay: {
-        executionStatus: "not-run",
-        replayMode: "rich-inline-before-after-children",
-        conflictResolution: "not-run",
-        selectionRestore: "not-persisted",
-        storageAdapter: "not-bound",
-        backendApi: "not-called",
       },
     },
   }

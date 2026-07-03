@@ -10,7 +10,7 @@ function readText(path: string): string {
 }
 
 describe("core session package snapshot split", () => {
-  it("documents the retained snapshot helper and compatibility storage record", () => {
+  it("documents the retained snapshot helper and historical compatibility storage record", () => {
     const doc = readText("docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md")
     const requiredSections = [
       "## Purpose",
@@ -31,7 +31,7 @@ describe("core session package snapshot split", () => {
     expect(doc).toContain("createVNextSessionStorageRecord")
     expect(doc).toContain("storageKey")
     expect(doc).toContain('storageStatus: "not-written"')
-    expect(doc).toContain("No public export removed")
+    expect(doc).toContain("removed from source in Phase 246")
   })
 
   it("keeps the retained helper public through the existing authoring module export", () => {
@@ -42,7 +42,7 @@ describe("core session package snapshot split", () => {
     expect(source).toContain("VNEXT_SESSION_PACKAGE_SNAPSHOT_SOURCE")
     expect(source).toContain("VNEXT_SESSION_PACKAGE_SNAPSHOT_MODE")
     expect(source).toContain("createVNextSessionPackageSnapshot")
-    expect(source).toContain("createVNextSessionStorageRecord")
+    expect(source).not.toContain("createVNextSessionStorageRecord")
   })
 
   it("aligns split-map and navigation docs with the session split", () => {

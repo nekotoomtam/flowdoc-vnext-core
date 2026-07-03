@@ -128,7 +128,7 @@ describe("vNext session package snapshot retained contract", () => {
     const source = readFileSync(new URL("../src/authoring/sessionStorage.ts", import.meta.url), "utf8")
     const snapshotStart = source.indexOf("export function createVNextSessionPackageSnapshot")
     const storageStart = source.indexOf("export function createVNextSessionStorageRecord")
-    const snapshotSource = source.slice(snapshotStart, storageStart)
+    const snapshotSource = source.slice(snapshotStart, storageStart === -1 ? source.length : storageStart)
 
     expect(snapshotSource).toContain("serializeFlowDocPackageV2DocumentVNext")
     expect(snapshotSource).toContain("canonicalPackage: true")
@@ -146,5 +146,6 @@ describe("vNext session package snapshot retained contract", () => {
     expect(snapshotSource).not.toContain("indexedDB")
     expect(snapshotSource).not.toContain("runVNextLayoutPipeline")
     expect(snapshotSource).not.toContain("paginateVNextDocument")
+    expect(source).not.toContain("createVNextSessionStorageRecord")
   })
 })

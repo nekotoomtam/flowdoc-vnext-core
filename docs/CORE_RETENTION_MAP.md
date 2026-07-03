@@ -4,8 +4,9 @@ Date: 2026-07-03
 
 Status: retention guard after Core Service Concern Audit, Window C public route
 export removal, backend non-route consumer rewiring, Window NR-B
-retained-test rewrite/public-entrypoint test cleanup, package-lane cleanup, and
-Window NR-C public export narrowing.
+retained-test rewrite/public-entrypoint test cleanup, package-lane cleanup,
+Window NR-C public export narrowing, and Phase 246 non-route compatibility
+source deletion.
 
 ## Purpose
 
@@ -23,15 +24,15 @@ submission route contracts under `flowdoc-vnext-backend` `main@9d0a850`. Core
 must use that as migration evidence, not as a reason to delete contract truth
 prematurely.
 
-The remaining compatibility source modules are still
+The remaining non-route source modules are still
 `src/authoring/sessionStorage.ts`,
 `src/authoring/richInlineSessionPersistence.ts`, and
-`src/workflow/submissionState.ts`. They remain source evidence for retained
-helper composition and historical tests, not final service ownership.
-Window NR-B retained-test rewrite and public-entrypoint test cleanup are
-recorded in
-`docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; package-lane cleanup and
-Window NR-C public export narrowing are recorded there as well.
+`src/workflow/submissionState.ts`. They now retain only package snapshot,
+replay validation, and submission identity/status facts. Window NR-B
+retained-test rewrite, package-lane cleanup, and Window NR-C public export
+narrowing are recorded in `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`;
+Phase 246 compatibility helper source deletion is recorded in
+`docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 
 ## Move + Retain Rule
 
@@ -68,9 +69,9 @@ Every service concern move must answer both sides before code is removed:
 | Artifact manifest | artifact lifecycle persistence, byte-store pointer mutation, cleanup policy | `src/generation/artifactManifest.ts` JSON-safe manifest validation and status vocabulary | split-contract |
 | Artifact job record/state | queue, worker execution, storage writes, retry scheduling, renderer orchestration | `src/generation/artifactJob.ts` durable job record shape and pure transition rules | split-contract |
 | Storage adapter contract | file/database/object-store adapters, concrete persistence lifecycle, transaction policy | `src/persistence/storageAdapter.ts` envelope shape, read/write evaluator, idempotency and expected-revision rules | split-contract |
-| Session storage record | durable session store, storage key lifecycle, backend read/write routes now represented by `flowdoc-vnext-backend/src/storage/sessionRecord.ts` and `storageRouteBinding.ts` | package snapshot serialization intent and persisted-state exclusions now split into `createVNextSessionPackageSnapshot(...)`; compatibility storage record still exists for owner-module composition/storage/vertical-slice historical tests | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, and Window NR-C public export narrowing complete; see `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, and `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` |
-| Rich inline session persistence | storage adapter writes, backend API calls, replay service, conflict resolution execution now represented by `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts` | rich inline commit semantics, history records, replay patch validation facts, and before/after child snapshots now split into `createVNextRichInlineReplayValidation(...)`; compatibility persistence record still exists for owner-module composition/storage/vertical-slice historical tests | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, and Window NR-C public export narrowing complete; see `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, and `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` |
-| Submission state | reviewer workflow service, actor/reviewer permissions, route/storage execution now represented by `flowdoc-vnext-backend/src/routes/submissionRoute.ts` | package/document/data identity facts, external workflow status facts, validation facts, and no-mutation contracts now split into `createVNextSubmissionIdentityStatus(...)`; compatibility workflow state record still exists for owner-module composition historical tests | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, and Window NR-C public export narrowing complete; see `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, and `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` |
+| Session storage record | durable session store, storage key lifecycle, backend read/write routes now represented by `flowdoc-vnext-backend/src/storage/sessionRecord.ts` and `storageRouteBinding.ts` | package snapshot serialization intent and persisted-state exclusions now split into `createVNextSessionPackageSnapshot(...)`; compatibility storage record source is deleted in Phase 246 | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, Window NR-C public export narrowing, and Phase 246 source deletion complete; see `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`, and `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` |
+| Rich inline session persistence | storage adapter writes, backend API calls, replay service, conflict resolution execution now represented by `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts` | rich inline commit semantics, history records, replay patch validation facts, and before/after child snapshots now split into `createVNextRichInlineReplayValidation(...)`; compatibility persistence record source is deleted in Phase 246 | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, Window NR-C public export narrowing, and Phase 246 source deletion complete; see `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`, and `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` |
+| Submission state | reviewer workflow service, actor/reviewer permissions, route/storage execution now represented by `flowdoc-vnext-backend/src/routes/submissionRoute.ts` | package/document/data identity facts, external workflow status facts, validation facts, and no-mutation contracts now split into `createVNextSubmissionIdentityStatus(...)`; compatibility workflow state record source is deleted in Phase 246 | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, Window NR-C public export narrowing, and Phase 246 source deletion complete; see `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`, and `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` |
 | Editor bridge runtime | backend/editor transport wrappers and product read endpoints currently represented by `src/editorBridge/runtime.ts` consumers | read-only package/graph/pagination/export readiness projection, eventually renamed toward a generic read model | split-contract |
 | Concrete file JSON storage | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` and future production adapters | no concrete file/db/object-store storage in exported `src/**`; old `packages/storage-file-json` lane remains migration evidence until removal | move-backend |
 | Internal alpha runner | `flowdoc-vnext-backend/src/storage/storageRouteBinding.ts` and `src/artifacts/artifactJobExecution.ts` | no runner execution in exported `src/**`; old `packages/internal-alpha-runner` lane remains migration evidence until removal | move-backend |
@@ -124,9 +125,11 @@ Core guard tests should keep these facts true:
    `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 3. Window NR-C public export narrowing is complete in
    `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
-4. Remove deprecated route source files only after historical docs and source
+4. Phase 246 non-route compatibility source deletion is complete in
+   `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+5. Remove deprecated route source files only after historical docs and source
    evidence no longer need them.
-5. Remove old concrete package lanes from core after backend parity and consumer
+6. Remove old concrete package lanes from core after backend parity and consumer
    rewiring are both proven.
 
 ## PASS
@@ -144,6 +147,9 @@ Core guard tests should keep these facts true:
 - Window NR-C public export narrowing complete: retained non-route facts remain
   public while service-shaped compatibility helpers/types/constants are no
   longer exported from `src/index.ts`.
+- Phase 246 compatibility source deletion complete: owner-module
+  compatibility helpers/types/constants are removed while retained facts remain
+  public.
 - De-export work is gated by parity, consumer rewiring, retained contract
   coverage, and boundary guard tests.
 
@@ -157,17 +163,15 @@ Core guard tests should keep these facts true:
   remain until source cleanup.
 - Backend and core can drift if duplicated route/storage behavior remains active
   for too long.
-- Session, rich-inline, and submission retained helpers now exist and backend
-  consumer rewiring is proven; service-shaped compatibility records remain in
-  owner modules for historical tests but are no longer public entrypoint
-  exports.
+- Session, rich-inline, and submission retained helpers now exist, backend
+  consumer rewiring is proven, and service-shaped compatibility helper source
+  is deleted.
 - The Phase 232 split map now defines the session package snapshot,
   rich-inline replay-patch validation, and submission identity/status lanes;
   all three implementation splits are complete.
 
 ## UNKNOWN
 
-- Exact timing for optional compatibility source cleanup is not locked.
 - Final production backend workflow/replay execution shapes are still open.
 
 ## Files Changed
@@ -176,6 +180,7 @@ Core guard tests should keep these facts true:
 - `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`
 - `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`
 - `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`
+- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`
 - `tests/coreRetentionMap.test.ts`
 - README and phase ledger pointers
 
@@ -190,6 +195,7 @@ Core guard tests should keep these facts true:
 - Window NR-B retained-test rewrite and public-entrypoint test cleanup are
   recorded as complete.
 - Window NR-C public export narrowing is recorded as complete.
+- Phase 246 compatibility helper source deletion is recorded as complete.
 
 ## Tests Run
 
@@ -198,13 +204,11 @@ Core guard tests should keep these facts true:
 ## Risks Left
 
 - Deprecated route source cleanup remains optional.
-- Compatibility source cleanup/removal is now tracked by
-  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+- Do not reintroduce deleted non-route compatibility helper source.
 - Core package cleanup still waits for historical-test replacement.
 
 ## Intentionally Not Changed
 
 - No source module moved.
-- No owner-module compatibility source implementation removed.
 - No backend or editor code changed in this core patch.
 - No gateway layer introduced.

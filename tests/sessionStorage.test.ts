@@ -110,7 +110,7 @@ describe("vNext session storage historical boundary", () => {
     const source = readFileSync(sourceUrl, "utf8")
     const snapshotStart = source.indexOf("export function createVNextSessionPackageSnapshot")
     const storageStart = source.indexOf("export function createVNextSessionStorageRecord")
-    const snapshotSource = source.slice(snapshotStart, storageStart)
+    const snapshotSource = source.slice(snapshotStart, storageStart === -1 ? source.length : storageStart)
 
     expect(snapshotSource).toContain("serializeFlowDocPackageV2DocumentVNext")
     expect(snapshotSource).toContain("canonicalPackage: true")
@@ -131,6 +131,7 @@ describe("vNext session storage historical boundary", () => {
     expect(snapshotSource).not.toContain("/api/")
     expect(snapshotSource).not.toContain("runVNextLayoutPipeline")
     expect(snapshotSource).not.toContain("paginateVNextDocument")
+    expect(source).not.toContain("createVNextSessionStorageRecord")
   })
 
   it("documents the retained test rewrite beside the historical session storage boundary", () => {

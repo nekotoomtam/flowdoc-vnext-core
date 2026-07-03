@@ -4,7 +4,9 @@ Date: 2026-07-03
 
 Status: Window NR-B retained-test rewrite, public-entrypoint test cleanup,
 package-lane cleanup, and Window NR-C public export narrowing for the
-remaining non-route service-shaped helper exports.
+remaining non-route service-shaped helper exports. Phase 246 later completes
+owner-module compatibility source deletion in
+`docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 
 ## Purpose
 
@@ -42,8 +44,10 @@ The rewritten tests no longer import
 
 The following tests still contain compatibility composition, storage, or
 vertical-slice evidence, but they no longer import the deprecated helper names
-from `../src/index.js`. When they still need compatibility records, they import
-from the owner module directly:
+from `../src/index.js`. During Window NR-B, tests that still needed
+compatibility records imported from owner modules directly; Phase 243 through
+Phase 246 later moved those tests to retained facts, generic payloads, or
+backend/package-owned replacement evidence:
 
 - `tests/sessionPackageSnapshot.test.ts`;
 - `tests/richInlineReplayValidation.test.ts`;
@@ -60,17 +64,21 @@ treated as proof that core owns durable session storage, rich-inline
 persistence storage, or submission workflow routes, and they must not require
 the deprecated helper names from the public entrypoint before Window NR-C.
 
-## Still Compatibility Evidence
+## Historical Compatibility Evidence
 
-Compatibility record shapes still exist in source modules and selected tests
-for composition evidence:
+Compatibility record shapes were kept temporarily in source modules and
+selected tests for composition evidence:
 
-- `createVNextSessionStorageRecord(...)` remains in
+- `createVNextSessionStorageRecord(...)` was in
   `src/authoring/sessionStorage.ts`;
-- `createVNextRichInlineSessionPersistenceRecord(...)` remains in
+- `createVNextRichInlineSessionPersistenceRecord(...)` was in
   `src/authoring/richInlineSessionPersistence.ts`;
-- `createVNextSubmissionStateRecord(...)` remains in
+- `createVNextSubmissionStateRecord(...)` was in
   `src/workflow/submissionState.ts`.
+
+Phase 246 removes those helper implementations, types, and source/mode
+constants. Historical docs and guard tests may still mention the names as
+migration evidence, not as current API.
 
 ## Package-Lane Cleanup
 
@@ -135,8 +143,10 @@ history, artifact manifest, and artifact job payloads typed. This keeps the
 storage envelope/evaluator contract public without making old session storage
 or rich-inline persistence record shapes public core API.
 
-Compatibility source implementations remain in owner modules for composition
-and historical tests. They are no longer public package entrypoint exports.
+Phase 246 removes the owner-module compatibility source after the remaining
+tests move to retained facts, generic storage payloads, and backend/package
+replacement evidence. The helpers are no longer public package entrypoint
+exports and no longer exist as current source helpers.
 
 ## PASS
 
@@ -151,8 +161,8 @@ and historical tests. They are no longer public package entrypoint exports.
 - The core storage adapter public interface no longer exposes package-session
   or rich-inline-session compatibility record shapes.
 - Backend-owned replacements and retained core owners remain documented.
-- Owner-module compatibility source implementations remain stable for
-  historical composition evidence.
+- Owner-module compatibility source deletion is tracked and completed by
+  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 
 ## FAIL / BLOCKER
 
@@ -161,17 +171,17 @@ and historical tests. They are no longer public package entrypoint exports.
 
 ## RISK
 
-- Some storage and vertical-slice historical tests still use compatibility
-  record shapes through owner-module imports.
-- Source modules still contain compatibility helper implementations for
-  owner-module composition evidence.
+- Historical docs still mention the compatibility helper names as migration
+  evidence.
+- Source deletion means any future compatibility shape checks must live in
+  backend/package-owned evidence, not core helper reintroduction.
 - Internal-alpha package lanes preserve historical compatibility record JSON
   shape, but own it locally as evidence rather than core public API.
 
 ## UNKNOWN
 
-- Whether compatibility source implementations stay internal or are removed in
-  a later source cleanup after replacement evidence remains complete.
+- Whether older historical docs should be compressed after backend replacement
+  names settle.
 
 ## Files Changed
 
@@ -201,6 +211,7 @@ and historical tests. They are no longer public package entrypoint exports.
 - `tests/coreNonRouteRetainedTestRewrite.test.ts`
 - `src/index.ts`
 - `src/persistence/storageAdapter.ts`
+- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`
 
 ## Behavior Changed
 
@@ -217,6 +228,8 @@ and historical tests. They are no longer public package entrypoint exports.
   `src/index.ts`.
 - Core storage adapter interface behavior changed: package-session and
   rich-inline-session collection payloads are generic `unknown` values.
+- Phase 246 later removes the owner-module compatibility helper source while
+  leaving retained facts public.
 - Runtime behavior is unchanged.
 
 ## Tests Run
@@ -227,13 +240,11 @@ and historical tests. They are no longer public package entrypoint exports.
 
 ## Risks Left
 
-- Compatibility source cleanup/removal is now tracked by
-  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+- Do not reintroduce the deleted compatibility helper source.
 - Production rich-inline replay execution and submission workflow storage remain
   backend work outside this core patch.
 
 ## Intentionally Not Changed
 
-- No compatibility helper runtime behavior changed.
 - No backend or editor code changed.
 - No gateway layer introduced.

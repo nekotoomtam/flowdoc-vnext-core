@@ -259,6 +259,7 @@ Parent goal:
 | 243 | Core vertical-slice retained storage payload rewrite | done | `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 244 | Core storage adapter generic payload rewrite | done | `tests/storageAdapter.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 245 | Core compatibility composition test rewrite | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 246 | Core compatibility source deletion | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/sessionStorage.test.ts`; `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionState.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `tests/coreNonRouteDeprecationWindow.test.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreSessionPackageSnapshotSplit.test.ts`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 
 ## Current Rule
 
@@ -7437,11 +7438,45 @@ This phase intentionally does not remove compatibility helper implementations,
 touch backend/frontend repos, introduce a gateway, run rich-inline replay
 execution, or implement production submission workflow storage.
 
-Next recommended work: Phase 246 should delete
-`createVNextSessionStorageRecord(...)`,
-`createVNextRichInlineSessionPersistenceRecord(...)`,
-`createVNextSubmissionStateRecord(...)`, and their compatibility
-types/constants from source after confirming no tests import them.
+Next recommended work: Phase 246 compatibility source deletion is complete;
+merge the cleanup branch to main before starting the next backend/frontend
+integration lane.
+
+## Phase 246 Core Compatibility Source Deletion
+
+Core Compatibility Source Deletion removes the short-lived owner-module
+compatibility helpers after the allowlist reaches zero.
+
+The deletion confirms:
+
+- `src/authoring/sessionStorage.ts` removes
+  `createVNextSessionStorageRecord(...)`,
+  `VNextSessionStorageRecord`, `VNEXT_SESSION_STORAGE_SOURCE`, and
+  `VNEXT_SESSION_STORAGE_MODE` while keeping
+  `createVNextSessionPackageSnapshot(...)`;
+- `src/authoring/richInlineSessionPersistence.ts` removes
+  `createVNextRichInlineSessionPersistenceRecord(...)`,
+  `VNextRichInlineSessionPersistenceRecord`,
+  `VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE`, and
+  `VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE` while keeping replay
+  validation helpers and the retained replay patch record;
+- `src/workflow/submissionState.ts` removes
+  `createVNextSubmissionStateRecord(...)`,
+  `VNextSubmissionStateRecord`, `VNEXT_SUBMISSION_STATE_SOURCE`, and
+  `VNEXT_SUBMISSION_STATE_MODE` while keeping
+  `createVNextSubmissionIdentityStatus(...)`;
+- targeted source/package scans find no current source/package usage of the
+  deleted compatibility helper names;
+- guard docs now describe the helper names as historical migration evidence,
+  not current core API.
+
+This phase intentionally does not rename the retained source modules, remove
+route-shaped deprecated source files, touch backend/frontend repos, introduce a
+gateway, run rich-inline replay execution, or implement production submission
+workflow storage.
+
+Next recommended work: merge this branch to main, then choose the next
+backend/frontend integration lane from the retained facts now left in core.
 
 ## Phase 12 Extraction Record
 
