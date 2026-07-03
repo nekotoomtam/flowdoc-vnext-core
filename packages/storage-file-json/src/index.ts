@@ -10,8 +10,6 @@ import type {
   VNextArtifactJobRecord,
   VNextArtifactManifestRecord,
   VNextDurableHistorySnapshot,
-  VNextRichInlineSessionPersistenceRecord,
-  VNextSessionStorageRecord,
   VNextStorageOperationIssue,
   VNextStorageReadRequest,
   VNextStorageRecordEnvelope,
@@ -291,9 +289,9 @@ export interface FlowDocFileJsonStorageAdapter {
   mode: typeof FLOWDOC_FILE_JSON_STORAGE_MODE
   rootDirectory: string
   contracts: FlowDocFileJsonStorageAdapterContracts
-  packageSessions: FlowDocFileJsonStorageCollection<VNextSessionStorageRecord>
+  packageSessions: FlowDocFileJsonStorageCollection<unknown>
   durableHistories: FlowDocFileJsonStorageCollection<VNextDurableHistorySnapshot>
-  richInlineSessions: FlowDocFileJsonStorageCollection<VNextRichInlineSessionPersistenceRecord>
+  richInlineSessions: FlowDocFileJsonStorageCollection<unknown>
   artifactManifests: FlowDocFileJsonStorageCollection<VNextArtifactManifestRecord>
   artifactJobs: FlowDocFileJsonStorageCollection<VNextArtifactJobRecord>
   plan(): FlowDocFileJsonStorageAdapterPlan

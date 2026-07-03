@@ -7,6 +7,7 @@ import {
   FLOWDOC_INTERNAL_ALPHA_VERTICAL_SLICE_MODE,
   FLOWDOC_INTERNAL_ALPHA_VERTICAL_SLICE_SOURCE,
   runFlowDocInternalAlphaVerticalSlice,
+  type FlowDocInternalAlphaSessionStorageRecord,
 } from "@flowdoc/internal-alpha-runner"
 
 function fixture(name: string): unknown {
@@ -149,7 +150,8 @@ describe("internal alpha vertical slice", () => {
     })
     expect(sessionRead.ok).toBe(true)
     if (!sessionRead.ok || result.artifact?.storageKey == null) throw new Error("internal alpha session/artifact evidence missing")
-    const summary = sessionRead.record.value.package.document.document.sections[0].nodes["report-summary"]
+    const sessionRecord = sessionRead.record.value as FlowDocInternalAlphaSessionStorageRecord
+    const summary = sessionRecord.package.document.document.sections[0].nodes["report-summary"]
     expect(summary?.type).toBe("text-block")
     if (summary?.type !== "text-block") throw new Error("edited summary was not reloaded as a text block")
     expect(summary.children.map((child) => child.id)).toEqual([

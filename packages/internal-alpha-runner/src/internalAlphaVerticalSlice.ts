@@ -12,8 +12,6 @@ import {
   createVNextEditableSession,
   createVNextPdfRendererAdapterPlan,
   createVNextRichInlineCommitHistoryRecord,
-  createVNextRichInlineSessionPersistenceRecord,
-  createVNextSessionStorageRecord,
   createVNextVerticalSliceRcReport,
   createVNextVerticalSliceScenarioPlan,
   evaluateVNextVerticalSliceMeasurementGate,
@@ -25,8 +23,6 @@ import {
   type InlineNode,
   type TextBlockNode,
   type VNextDurableHistorySnapshot,
-  type VNextRichInlineSessionPersistenceRecord,
-  type VNextSessionStorageRecord,
   type VNextStorageRecordKind,
   type VNextVerticalSliceMeasurementDriftTolerance,
   type VNextVerticalSliceMeasurementRuntimeSummary,
@@ -39,6 +35,12 @@ import {
   runFlowDocArtifactJobExecutionSlice,
   type FlowDocArtifactJobExecutionResult,
 } from "./artifactJobExecution.js"
+import {
+  createFlowDocInternalAlphaRichInlineSessionRecord,
+  createFlowDocInternalAlphaSessionStorageRecord,
+  type FlowDocInternalAlphaRichInlineSessionRecord,
+  type FlowDocInternalAlphaSessionStorageRecord,
+} from "./internalAlphaRecords.js"
 
 export const FLOWDOC_INTERNAL_ALPHA_VERTICAL_SLICE_SOURCE = "flowdoc-internal-alpha-vertical-slice"
 export const FLOWDOC_INTERNAL_ALPHA_VERTICAL_SLICE_MODE = "internal-alpha-open-edit-save-reload-pdf-artifact-report"
@@ -133,8 +135,8 @@ export interface FlowDocInternalAlphaVerticalSliceResult {
 interface RecordWriteInput<TRecord> {
   kind: VNextStorageRecordKind
   key: string
-  write(): Promise<FlowDocFileJsonStorageWriteResult<TRecord>>
-  read(): Promise<FlowDocFileJsonStorageReadResult<TRecord>>
+  write(): Promise<FlowDocFileJsonStorageWriteResult<unknown>>
+  read(): Promise<FlowDocFileJsonStorageReadResult<unknown>>
 }
 
 interface RecordRoundtrip<TRecord> {
@@ -233,7 +235,7 @@ async function writeAndReadRecord<TRecord>(
 ): Promise<RecordRoundtrip<TRecord>> {
   const writeResult = await input.write()
   const readResult = await input.read()
-  const record = readResult.ok ? readResult.record.value : writeResult.ok ? writeResult.record.value : null
+  const record = (readResult.ok ? readResult.record.value : writeResult.ok ? writeResult.record.value : null) as TRecord | null
   const revision = readResult.ok ? readResult.record.revision : writeResult.ok ? writeResult.record.revision : null
   const issues: FlowDocInternalAlphaVerticalSliceIssue[] = []
 
@@ -405,7 +407,7 @@ export async function runFlowDocInternalAlphaVerticalSlice(
     manifest: seed.artifactId,
     job: `job:${seed.scenarioId}:internal-alpha-vertical-slice`,
   }
-  const sessionRecord = createVNextSessionStorageRecord(mutatedSession, {
+  const sessionRecord = createFlowDocInternalAlphaSessionStorageRecord(mutatedSession, {
     reason: "internal-alpha-vertical-slice",
     storageKey: keys.session,
   })
@@ -414,7 +416,7 @@ export async function runFlowDocInternalAlphaVerticalSlice(
     historyKey: keys.history,
     reason: "internal-alpha-vertical-slice",
   })
-  const richInline = createVNextRichInlineSessionPersistenceRecord(mutatedSession, {
+  const richInline = createFlowDocInternalAlphaRichInlineSessionRecord(mutatedSession, {
     historyKey: keys.history,
     historyRecords: [historyRecord],
     reason: "internal-alpha-vertical-slice",
@@ -430,7 +432,7 @@ export async function runFlowDocInternalAlphaVerticalSlice(
   const adapter = createFlowDocFileJsonStorageAdapter({ rootDirectory: input.rootDirectory })
   const writtenRecords: FlowDocInternalAlphaVerticalSliceRecordFact[] = []
 
-  const sessionRoundtrip = await writeAndReadRecord<VNextSessionStorageRecord>({
+  const sessionRoundtrip = await writeAndReadRecord<FlowDocInternalAlphaSessionStorageRecord>({
     kind: "package-session",
     key: keys.session,
     write: () => adapter.packageSessions.write({ kind: "package-session", key: keys.session, value: sessionRecord, expectedRevision: null, idempotencyKey: "internal-alpha-session", now: input.now }),
@@ -444,7 +446,7 @@ export async function runFlowDocInternalAlphaVerticalSlice(
     read: () => adapter.durableHistories.read({ kind: "durable-history", key: keys.history }),
   })
   writtenRecords.push(historyRoundtrip.fact)
-  const richInlineRoundtrip = await writeAndReadRecord<VNextRichInlineSessionPersistenceRecord>({
+  const richInlineRoundtrip = await writeAndReadRecord<FlowDocInternalAlphaRichInlineSessionRecord>({
     kind: "rich-inline-session",
     key: keys.richInline,
     write: () => adapter.richInlineSessions.write({ kind: "rich-inline-session", key: keys.richInline, value: richInline, expectedRevision: null, idempotencyKey: "internal-alpha-rich-inline", now: input.now }),

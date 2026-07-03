@@ -10,10 +10,10 @@ import type {
   VNextArtifactJobCreateInput,
   VNextArtifactJobRecord,
   VNextArtifactManifestRecord,
-  VNextSessionStorageRecord,
   VNextStorageOperationIssue,
   VNextStorageRecordKind,
 } from "@flowdoc/vnext-core"
+import type { FlowDocInternalAlphaSessionStorageRecord } from "./internalAlphaRecords.js"
 
 export const FLOWDOC_STORAGE_ROUTE_BINDING_SOURCE = "flowdoc-storage-route-binding"
 export const FLOWDOC_STORAGE_ROUTE_BINDING_MODE = "internal-alpha-route-contract-to-storage-binding"
@@ -65,7 +65,7 @@ export interface FlowDocStorageRouteBindingResponseBody {
   mode: typeof FLOWDOC_STORAGE_ROUTE_BINDING_MODE
   action: FlowDocStorageRouteBindingAction
   result: FlowDocStorageRouteBindingResult | null
-  session: VNextSessionStorageRecord | null
+  session: FlowDocInternalAlphaSessionStorageRecord | null
   artifact: VNextArtifactManifestRecord | null
   job: VNextArtifactJobRecord | null
   bytes: null
@@ -198,7 +198,7 @@ function response(input: {
   httpStatus: FlowDocStorageRouteBindingHttpStatus
   ok: boolean
   result: FlowDocStorageRouteBindingResult | null
-  session?: VNextSessionStorageRecord | null
+  session?: FlowDocInternalAlphaSessionStorageRecord | null
   artifact?: VNextArtifactManifestRecord | null
   job?: VNextArtifactJobRecord | null
   issues?: FlowDocStorageRouteBindingIssue[]
@@ -323,7 +323,7 @@ export function createFlowDocStorageRouteBinding(
         httpStatus: mapped.httpStatus,
         ok: read.ok,
         result: result({ action, status: mapped.status, requestId, reads: true, writes: false, recordKinds: ["package-session"] }),
-        session: read.ok ? read.record.value : null,
+        session: read.ok ? read.record.value as FlowDocInternalAlphaSessionStorageRecord : null,
         issues: read.ok ? [] : storageIssues(read.issues, "package-session.read"),
       })
     },
@@ -341,7 +341,7 @@ export function createFlowDocStorageRouteBinding(
       const idempotencyKey = nonEmptyString(body, "idempotencyKey", issues)
       const now = nonEmptyString(body, "now", issues)
       const expectedRevision = nullableRevision(body, "expectedRevision", issues)
-      const record = body.record as VNextSessionStorageRecord | undefined
+      const record = body.record as FlowDocInternalAlphaSessionStorageRecord | undefined
       const requestId = optionalString(body, "requestId")
       if (!isPlainObject(record)) issues.push(issue("request", "invalid-record", "record", "record must be a session storage record object"))
       if (key == null || idempotencyKey == null || now == null || record == null || issues.length > 0) {
@@ -365,7 +365,7 @@ export function createFlowDocStorageRouteBinding(
         httpStatus: mapped.httpStatus,
         ok: write.ok,
         result: result({ action, status: mapped.status, requestId, reads: false, writes: true, recordKinds: ["package-session"], idempotencyKey }),
-        session: write.ok ? write.record.value : null,
+        session: write.ok ? write.record.value as FlowDocInternalAlphaSessionStorageRecord : null,
         issues: write.ok ? [] : storageIssues(write.issues, "package-session.write"),
       })
     },

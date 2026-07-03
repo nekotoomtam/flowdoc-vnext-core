@@ -9,12 +9,20 @@ function readText(path: string): string {
   return readFileSync(join(repoRoot, path), "utf8")
 }
 
-function expectNoPublicEntrypointImport(source: string, helperName: string): void {
-  const publicImports = [...source.matchAll(/import\s*\{([^}]*)\}\s*from\s+"..\/src\/index\.js"/g)]
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function expectNoNamedImportFrom(source: string, moduleSpecifier: string, importName: string): void {
+  const publicImports = [...source.matchAll(new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s+"${escapeRegExp(moduleSpecifier)}"`, "g"))]
     .map((match) => match[1])
     .join("\n")
 
-  expect(publicImports).not.toMatch(new RegExp(`\\b${helperName}\\b`))
+  expect(publicImports).not.toMatch(new RegExp(`\\b${importName}\\b`))
+}
+
+function expectNoPublicEntrypointImport(source: string, helperName: string): void {
+  expectNoNamedImportFrom(source, "../src/index.js", helperName)
 }
 
 describe("core non-route retained-test rewrite", () => {
@@ -82,6 +90,41 @@ describe("core non-route retained-test rewrite", () => {
     expect(doc).toContain("Window NR-C can now narrow the core test-facing public surface")
   })
 
+  it("rewires old concrete package lanes off public compatibility helpers", () => {
+    const packageSources = [
+      "packages/internal-alpha-runner/src/internalAlphaRecords.ts",
+      "packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts",
+      "packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts",
+      "packages/internal-alpha-runner/src/storageRouteBinding.ts",
+      "packages/storage-file-json/src/index.ts",
+    ]
+    const deprecatedPublicNames = [
+      "createVNextSessionStorageRecord",
+      "createVNextRichInlineSessionPersistenceRecord",
+      "createVNextSubmissionStateRecord",
+      "VNextSessionStorageRecord",
+      "VNextRichInlineSessionPersistenceRecord",
+    ]
+
+    for (const sourcePath of packageSources) {
+      const source = readText(sourcePath)
+
+      for (const importName of deprecatedPublicNames) {
+        expectNoNamedImportFrom(source, "@flowdoc/vnext-core", importName)
+      }
+    }
+
+    const packageRecords = readText("packages/internal-alpha-runner/src/internalAlphaRecords.ts")
+    const fileJsonAdapter = readText("packages/storage-file-json/src/index.ts")
+    const doc = readText("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
+
+    expect(packageRecords).toContain("createVNextSessionPackageSnapshot")
+    expect(packageRecords).toContain("createVNextRichInlineReplayValidation")
+    expect(fileJsonAdapter).toContain("packageSessions: FlowDocFileJsonStorageCollection<unknown>")
+    expect(fileJsonAdapter).toContain("richInlineSessions: FlowDocFileJsonStorageCollection<unknown>")
+    expect(doc).toContain("Package-Lane Cleanup")
+  })
+
   it("publishes Window NR-B in repo navigation", () => {
     const readme = readText("README.md")
     const ledger = readText("docs/PHASE_LEDGER.md")
@@ -93,11 +136,14 @@ describe("core non-route retained-test rewrite", () => {
 
     expect(readme).toContain("Core Non-Route Retained-Test Rewrite")
     expect(readme).toContain("Core Non-Route Public-Entrypoint Test Cleanup")
+    expect(readme).toContain("Core Non-Route Package-Lane Cleanup")
     expect(readme).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     expect(ledger).toContain("| 238 | Core non-route retained-test rewrite | done |")
     expect(ledger).toContain("| 239 | Core non-route public-entrypoint test cleanup | done |")
+    expect(ledger).toContain("| 240 | Core non-route package-lane cleanup | done |")
     expect(ledger).toContain("## Phase 238 Core Non-Route Retained-Test Rewrite")
     expect(ledger).toContain("## Phase 239 Core Non-Route Public-Entrypoint Test Cleanup")
+    expect(ledger).toContain("## Phase 240 Core Non-Route Package-Lane Cleanup")
     expect(deprecation).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     expect(closeout).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     expect(consumerMap).toContain("Window NR-B retained-test rewrite/public-entrypoint test")

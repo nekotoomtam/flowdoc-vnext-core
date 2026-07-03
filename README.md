@@ -934,6 +934,10 @@ The package must remain runnable without any parent editor checkout.
   cleanup by moving remaining compatibility/storage/vertical-slice test imports
   of deprecated helper names off `../src/index.js` and onto owner modules. See
   `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
+- Core Non-Route Package-Lane Cleanup moves old internal-alpha concrete package
+  lanes off deprecated non-route compatibility helper/type imports from
+  `@flowdoc/vnext-core` while preserving their historical JSON evidence shape.
+  See `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -1019,9 +1023,9 @@ The package must remain runnable without any parent editor checkout.
   facts through backend-owned records/routes before core non-route de-export
 - `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`: Phase 237 Window NR-A
   deprecation markers for non-route service-shaped helper names
-- `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`: Phase 238-239 Window NR-B
-  retained-test rewrite and public-entrypoint test cleanup for non-route
-  service-shaped helpers
+- `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`: Phase 238-240 Window NR-B
+  retained-test rewrite, public-entrypoint test cleanup, and package-lane
+  cleanup for non-route service-shaped helpers
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

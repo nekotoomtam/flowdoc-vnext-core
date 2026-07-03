@@ -2,9 +2,9 @@
 
 Date: 2026-07-03
 
-Status: Window NR-B retained-test rewrite and public-entrypoint test cleanup
-for the remaining non-route service-shaped helper exports. Public entrypoint
-compatibility remains.
+Status: Window NR-B retained-test rewrite, public-entrypoint test cleanup, and
+package-lane cleanup for the remaining non-route service-shaped helper
+exports. Public entrypoint compatibility remains.
 
 ## Purpose
 
@@ -72,10 +72,29 @@ for composition evidence:
 - `createVNextSubmissionStateRecord(...)` remains in
   `src/workflow/submissionState.ts`.
 
-Old concrete package lanes under `packages/internal-alpha-runner` still consume
-compatibility records through `@flowdoc/vnext-core`. That package-lane cleanup
-is separate from this core test cleanup and should be settled before or during
-Window NR-C if those package lanes are not retired first.
+## Package-Lane Cleanup
+
+The old concrete package lanes now own their internal-alpha compatibility
+record evidence instead of importing the deprecated core helper/type names
+through `@flowdoc/vnext-core`:
+
+- `packages/internal-alpha-runner/src/internalAlphaRecords.ts` creates the
+  internal-alpha session and rich-inline record envelopes from retained
+  `createVNextSessionPackageSnapshot(...)`,
+  `createVNextDurableHistorySnapshot(...)`, and
+  `createVNextRichInlineReplayValidation(...)` facts;
+- `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts` and
+  `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts` use those
+  package-local factories for concrete smoke evidence;
+- `packages/internal-alpha-runner/src/storageRouteBinding.ts` uses the
+  package-local session record type for route-shaped session responses;
+- `packages/storage-file-json/src/index.ts` treats package-session and
+  rich-inline-session collections as `unknown` JSON envelope payloads instead
+  of importing compatibility record shapes from public core.
+
+This cleanup preserves the historical record JSON shape for internal-alpha
+evidence while removing package consumers of the deprecated public helper/type
+names before Window NR-C.
 
 ## Public Export Decision
 
@@ -86,8 +105,8 @@ Window NR-B does not remove public exports. `src/index.ts` still exports:
 - `./workflow/submissionState.js`.
 
 Window NR-C can now narrow the core test-facing public surface, but it still
-needs to decide whether compatibility source implementations stay internal,
-move to backend/package lanes, or are removed with replacement evidence.
+needs to decide whether compatibility source implementations stay internal or
+are removed with replacement evidence.
 
 ## PASS
 
@@ -96,13 +115,15 @@ move to backend/package lanes, or are removed with replacement evidence.
   service-shaped helper functions.
 - Remaining compatibility/storage/vertical-slice tests no longer import the
   deprecated helper names from `../src/index.js`.
+- Old concrete package lanes no longer import deprecated helper/type names
+  through `@flowdoc/vnext-core`.
 - Backend-owned replacements and retained core owners remain documented.
 - Public entrypoint compatibility remains stable during Window NR-B.
 
 ## FAIL / BLOCKER
 
-- None for Window NR-B retained-test rewrite and public-entrypoint test
-  cleanup.
+- None for Window NR-B retained-test rewrite, public-entrypoint test cleanup,
+  and package-lane cleanup.
 
 ## RISK
 
@@ -111,14 +132,15 @@ move to backend/package lanes, or are removed with replacement evidence.
   record shapes through owner-module imports.
 - Source modules still contain compatibility helper implementations for public
   compatibility and composition evidence.
-- Old concrete package lanes still import compatibility helper names through
-  `@flowdoc/vnext-core`.
+- Internal-alpha package lanes preserve historical compatibility record JSON
+  shape, but own it locally as evidence rather than core public API.
 
 ## UNKNOWN
 
 - Final timing for public de-export and optional deprecated route source
   cleanup.
-- Whether old concrete package lanes are retired or rewired before Window NR-C.
+- Whether compatibility source implementations stay internal or are removed
+  after Window NR-C replacement evidence is complete.
 
 ## Files Changed
 
@@ -135,6 +157,15 @@ move to backend/package lanes, or are removed with replacement evidence.
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`
 - README and phase ledger pointers
 - guard tests for Window NR-B
+- `packages/internal-alpha-runner/src/internalAlphaRecords.ts`
+- `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`
+- `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`
+- `packages/internal-alpha-runner/src/storageRouteBinding.ts`
+- `packages/internal-alpha-runner/src/index.ts`
+- `packages/storage-file-json/src/index.ts`
+- `tests/backendRouteStorageBinding.test.ts`
+- `tests/internalAlphaVerticalSlice.test.ts`
+- `tests/coreNonRouteRetainedTestRewrite.test.ts`
 
 ## Behavior Changed
 
@@ -142,18 +173,22 @@ move to backend/package lanes, or are removed with replacement evidence.
   facts instead of compatibility envelope ownership.
 - Test imports changed: compatibility record evidence now avoids deprecated
   helper names from the public core entrypoint.
+- Package-lane implementation changed: internal-alpha smoke evidence uses
+  package-local record factories backed by retained core facts.
+- Storage adapter typing changed: package-session and rich-inline-session
+  file-backed collections are generic JSON envelope payloads.
 - Runtime behavior is unchanged.
 - Public entrypoint exports are unchanged.
 
 ## Tests Run
 
 - `npm run check`
+- `npm test` in `packages/internal-alpha-runner`
+- `npm test` in `packages/storage-file-json`
 
 ## Risks Left
 
 - Window NR-C public export narrowing remains.
-- Old concrete package-lane imports remain for a later package cleanup or
-  retirement decision.
 - Production rich-inline replay execution and submission workflow storage remain
   backend work outside this core patch.
 

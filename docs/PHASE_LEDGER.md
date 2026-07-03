@@ -253,6 +253,7 @@ Parent goal:
 | 237 | Core non-route deprecation window | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteDeprecationWindow.test.ts` |
 | 238 | Core non-route retained-test rewrite | done | `tests/sessionStorage.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/submissionState.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 | 239 | Core non-route public-entrypoint test cleanup | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/storageAdapter.test.ts`; `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
+| 240 | Core non-route package-lane cleanup | done | `packages/internal-alpha-runner/src/internalAlphaRecords.ts`; `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/storage-file-json/src/index.ts`; `tests/backendRouteStorageBinding.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 
 ## Current Rule
 
@@ -7240,8 +7241,41 @@ helper runtime behavior, touch backend/frontend code, retire old concrete
 package lanes, add a gateway, run rich-inline replay execution, or implement
 production submission workflow storage.
 
-Next recommended work: plan Window NR-C public export narrowing and decide
-whether old concrete package lanes are retired or rewired before that removal.
+Next recommended work: Phase 240 package-lane cleanup is complete; continue to
+Window NR-C public export narrowing.
+
+## Phase 240 Core Non-Route Package-Lane Cleanup
+
+Core Non-Route Package-Lane Cleanup removes the old concrete package lanes as
+consumers of deprecated non-route compatibility helper/type names through
+`@flowdoc/vnext-core` before Window NR-C public export narrowing.
+
+The cleanup confirms:
+
+- `packages/internal-alpha-runner/src/internalAlphaRecords.ts` owns
+  internal-alpha session and rich-inline compatibility record envelopes while
+  composing retained core facts from `createVNextSessionPackageSnapshot(...)`,
+  `createVNextDurableHistorySnapshot(...)`, and
+  `createVNextRichInlineReplayValidation(...)`;
+- `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts` and
+  `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts` use those
+  package-local factories for smoke evidence;
+- `packages/internal-alpha-runner/src/storageRouteBinding.ts` uses the
+  package-local session record type for route-shaped session responses;
+- `packages/storage-file-json/src/index.ts` stores package-session and
+  rich-inline-session payloads as generic JSON envelope values instead of
+  importing compatibility record shapes from public core;
+- `tests/coreNonRouteRetainedTestRewrite.test.ts` guards the package lanes
+  against importing deprecated compatibility helper/type names from
+  `@flowdoc/vnext-core`.
+
+This phase intentionally does not remove public exports, change compatibility
+helper runtime behavior, touch backend/frontend repos, introduce a gateway, run
+rich-inline replay execution, or implement production submission workflow
+storage.
+
+Next recommended work: Window NR-C can narrow `src/index.ts` away from
+deprecated non-route compatibility helper/type exports.
 
 ## Phase 12 Extraction Record
 

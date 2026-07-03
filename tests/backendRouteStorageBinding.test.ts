@@ -6,9 +6,9 @@ import { createFlowDocFileJsonStorageAdapter } from "@flowdoc/storage-file-json"
 import {
   FLOWDOC_STORAGE_ROUTE_BINDING_MODE,
   FLOWDOC_STORAGE_ROUTE_BINDING_SOURCE,
+  createFlowDocInternalAlphaSessionStorageRecord,
   createFlowDocStorageRouteBinding,
 } from "@flowdoc/internal-alpha-runner"
-import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   createVNextEditableSession,
   parseFlowDocPackageV2DocumentVNext,
@@ -43,7 +43,7 @@ describe("backend route contract to storage binding", () => {
     const pack = parseFlowDocPackageV2DocumentVNext(fixture("vertical-slice-rc-report.v1.flowdoc.json"))
     const session = createVNextEditableSession(pack)
 
-    return createVNextSessionStorageRecord(session, {
+    return createFlowDocInternalAlphaSessionStorageRecord(session, {
       reason: "backend-route-storage-binding-test",
       storageKey: "session:route-binding",
     })

@@ -15,8 +15,6 @@ import {
   createVNextDurableHistorySnapshot,
   createVNextEditableSession,
   createVNextRichInlineCommitHistoryRecord,
-  createVNextRichInlineSessionPersistenceRecord,
-  createVNextSessionStorageRecord,
   createVNextVerticalSliceRcReport,
   createVNextVerticalSliceScenarioPlan,
   evaluateVNextVerticalSliceMeasurementGate,
@@ -37,6 +35,10 @@ import type {
   VNextVerticalSliceRcStorageSummary,
   VNextVerticalSliceScenarioSeed,
 } from "@flowdoc/vnext-core"
+import {
+  createFlowDocInternalAlphaRichInlineSessionRecord,
+  createFlowDocInternalAlphaSessionStorageRecord,
+} from "./internalAlphaRecords.js"
 
 export const FLOWDOC_STORAGE_BACKED_RC_ROUNDTRIP_SOURCE = "flowdoc-storage-backed-rc-roundtrip-smoke"
 export const FLOWDOC_STORAGE_BACKED_RC_ROUNDTRIP_MODE = "internal-alpha-storage-backed-rc-roundtrip"
@@ -438,7 +440,7 @@ export async function runFlowDocStorageBackedRcRoundtripSmoke(
     manifest: seed.artifactId,
     job: job.jobId,
   }
-  const sessionRecord = createVNextSessionStorageRecord(session, {
+  const sessionRecord = createFlowDocInternalAlphaSessionStorageRecord(session, {
     reason: "storage-backed-rc-roundtrip-smoke",
     storageKey: keys.session,
   })
@@ -447,7 +449,7 @@ export async function runFlowDocStorageBackedRcRoundtripSmoke(
     historyKey: keys.history,
     reason: "storage-backed-rc-roundtrip-smoke",
   })
-  const richInline = createVNextRichInlineSessionPersistenceRecord(session, {
+  const richInline = createFlowDocInternalAlphaRichInlineSessionRecord(session, {
     historyKey: keys.history,
     historyRecords: [historyRecord],
     reason: "storage-backed-rc-roundtrip-smoke",
