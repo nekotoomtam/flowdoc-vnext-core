@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
+import { createVNextSubmissionStateRecord } from "../src/workflow/submissionState.js"
 import {
   createVNextSubmissionIdentityStatus,
-  createVNextSubmissionStateRecord,
   parseFlowDocPackageV2DocumentVNext,
   VNEXT_SUBMISSION_IDENTITY_STATUS_MODE,
   VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE,

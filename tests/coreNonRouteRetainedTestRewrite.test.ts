@@ -10,7 +10,7 @@ function readText(path: string): string {
 }
 
 function expectNoPublicEntrypointImport(source: string, helperName: string): void {
-  const publicImports = [...source.matchAll(/import\s*\{([\s\S]*?)\}\s*from\s+"..\/src\/index\.js"/g)]
+  const publicImports = [...source.matchAll(/import\s*\{([^}]*)\}\s*from\s+"..\/src\/index\.js"/g)]
     .map((match) => match[1])
     .join("\n")
 
@@ -18,6 +18,17 @@ function expectNoPublicEntrypointImport(source: string, helperName: string): voi
 }
 
 describe("core non-route retained-test rewrite", () => {
+  const compatibilityTests = [
+    "tests/sessionPackageSnapshot.test.ts",
+    "tests/richInlineReplayValidation.test.ts",
+    "tests/submissionIdentityStatus.test.ts",
+    "tests/backendRouteStorageBinding.test.ts",
+    "tests/richInlineLiveExactParityAudit.test.ts",
+    "tests/storageAdapter.test.ts",
+    "tests/verticalSliceStorageSimulation.test.ts",
+    "tests/verticalSliceRcEndToEnd.test.ts",
+  ]
+
   it("rewrites historical boundary tests to retained helper facts", () => {
     const sessionStorageTest = readText("tests/sessionStorage.test.ts")
     const richInlinePersistenceTest = readText("tests/richInlineSessionPersistence.test.ts")
@@ -39,28 +50,25 @@ describe("core non-route retained-test rewrite", () => {
     expectNoPublicEntrypointImport(submissionStateTest, "createVNextSubmissionStateRecord")
   })
 
-  it("keeps remaining compatibility tests explicit before Window NR-C", () => {
+  it("keeps compatibility tests explicit but off the public deprecated helper imports", () => {
     const doc = readText("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
-    const remainingCompatibilityTests = [
-      "tests/sessionPackageSnapshot.test.ts",
-      "tests/richInlineReplayValidation.test.ts",
-      "tests/submissionIdentityStatus.test.ts",
-      "tests/backendRouteStorageBinding.test.ts",
-      "tests/richInlineLiveExactParityAudit.test.ts",
-      "tests/storageAdapter.test.ts",
-      "tests/verticalSliceStorageSimulation.test.ts",
-      "tests/verticalSliceRcEndToEnd.test.ts",
-    ]
+    for (const testPath of compatibilityTests) {
+      const source = readText(testPath)
 
-    for (const testPath of remainingCompatibilityTests) {
       expect(doc).toContain(testPath)
+      expectNoPublicEntrypointImport(source, "createVNextSessionStorageRecord")
+      expectNoPublicEntrypointImport(source, "createVNextRichInlineSessionPersistenceRecord")
+      expectNoPublicEntrypointImport(source, "createVNextSubmissionStateRecord")
     }
 
-    expect(doc).toContain("first NR-B slice")
+    expect(readText("tests/sessionPackageSnapshot.test.ts")).toContain("../src/authoring/sessionStorage.js")
+    expect(readText("tests/richInlineReplayValidation.test.ts")).toContain("../src/authoring/richInlineSessionPersistence.js")
+    expect(readText("tests/submissionIdentityStatus.test.ts")).toContain("../src/workflow/submissionState.js")
+    expect(doc).toContain("Public-Entrypoint Test Cleanup")
     expect(doc).toContain("createVNextSessionStorageRecord(...)")
     expect(doc).toContain("createVNextRichInlineSessionPersistenceRecord(...)")
     expect(doc).toContain("createVNextSubmissionStateRecord(...)")
-    expect(doc).toContain("must not be treated as proof that core owns")
+    expect(doc).toContain("treated as proof that core owns")
   })
 
   it("keeps public entrypoint compatibility until Window NR-C", () => {
@@ -71,7 +79,7 @@ describe("core non-route retained-test rewrite", () => {
     expect(index).toContain("./authoring/richInlineSessionPersistence.js")
     expect(index).toContain("./workflow/submissionState.js")
     expect(doc).toContain("Window NR-B does not remove public exports.")
-    expect(doc).toContain("Window NR-C should narrow the public surface")
+    expect(doc).toContain("Window NR-C can now narrow the core test-facing public surface")
   })
 
   it("publishes Window NR-B in repo navigation", () => {
@@ -84,13 +92,16 @@ describe("core non-route retained-test rewrite", () => {
     const splitMap = readText("docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md")
 
     expect(readme).toContain("Core Non-Route Retained-Test Rewrite")
+    expect(readme).toContain("Core Non-Route Public-Entrypoint Test Cleanup")
     expect(readme).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     expect(ledger).toContain("| 238 | Core non-route retained-test rewrite | done |")
+    expect(ledger).toContain("| 239 | Core non-route public-entrypoint test cleanup | done |")
     expect(ledger).toContain("## Phase 238 Core Non-Route Retained-Test Rewrite")
+    expect(ledger).toContain("## Phase 239 Core Non-Route Public-Entrypoint Test Cleanup")
     expect(deprecation).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     expect(closeout).toContain("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
-    expect(consumerMap).toContain("Window NR-B first retained-test rewrite slice")
-    expect(retention).toContain("Window NR-B first retained-test rewrite slice")
-    expect(splitMap).toContain("Window NR-B first retained-test rewrite slice")
+    expect(consumerMap).toContain("Window NR-B retained-test rewrite/public-entrypoint test")
+    expect(retention).toContain("retained-test rewrite and public-entrypoint test cleanup")
+    expect(splitMap).toContain("Window NR-B retained-test")
   })
 })

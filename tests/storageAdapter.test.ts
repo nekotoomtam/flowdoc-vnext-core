@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
+import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
+import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   createVNextArtifactJobPlan,
   createVNextArtifactManifestPlan,
   createVNextDurableHistorySnapshot,
   createVNextEditableSession,
-  createVNextRichInlineSessionPersistenceRecord,
-  createVNextSessionStorageRecord,
   createVNextStorageAdapterContractPlan,
   createVNextStorageReadResult,
   evaluateVNextStorageWriteRequest,

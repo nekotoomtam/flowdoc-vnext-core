@@ -3,8 +3,11 @@
 Date: 2026-07-03
 
 Status: Window NR-A compatibility marker for the remaining non-route
-service-shaped core helper exports, with Window NR-B first retained-test
-rewrite slice recorded in `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
+service-shaped core helper exports, with Window NR-B retained-test rewrite and
+public-entrypoint test cleanup recorded in
+`docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`. Public entrypoint
+compatibility remains.
+
 Public entrypoint compatibility remains.
 
 ## Purpose
@@ -52,18 +55,17 @@ Do not deprecate these retained core facts as part of NR-A:
 
 Retained-contract tests should target package snapshot facts, replay validation
 facts, and submission identity/status facts, while backend tests target
-backend-owned storage and route envelopes. The first Window NR-B rewrite slice
-does this for `tests/sessionStorage.test.ts`,
-`tests/richInlineSessionPersistence.test.ts`, and
-`tests/submissionState.test.ts`.
+backend-owned storage and route envelopes. Window NR-B now does this for the
+historical boundary tests and moves remaining compatibility/storage/
+vertical-slice test imports of deprecated helper names off `../src/index.js`.
 
 ## Removal Preconditions
 
 Window NR-C removal is still blocked until:
 
-1. The remaining Window NR-B compatibility composition, storage, and
-   vertical-slice historical tests no longer require public
-   service-shaped helper names from `src/index.ts`.
+1. Old concrete package lanes under `packages/internal-alpha-runner` are either
+   retired or rewired so they no longer require public service-shaped helper
+   names from `@flowdoc/vnext-core`.
 2. `src/index.ts` removes or narrows the service-shaped helper exports in the
    same patch that updates docs and guard tests.
 3. Boundary tests prove exported `src/**` did not gain backend runtime,
@@ -76,9 +78,10 @@ Window NR-C removal is still blocked until:
   source-level `@deprecated` markers.
 - Backend replacements and retained core owner helpers are named in the source
   comments and this doc.
-- Window NR-B has started in
-  `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` with the first three
-  historical boundary tests rewritten to retained facts.
+- Window NR-B is recorded in
+  `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`: historical boundary tests
+  prove retained facts, and known compatibility/storage/vertical-slice tests no
+  longer import deprecated helper names from `../src/index.js`.
 - Public entrypoint compatibility remains stable during Window NR-A.
 
 ## FAIL / BLOCKER
@@ -90,12 +93,14 @@ Window NR-C removal is still blocked until:
 - Deprecated helper names are still public and can still look like core-owned
   service behavior until Window NR-C.
 - Unknown external consumers may rely on the compatibility helper names.
-- Some core historical tests still exercise compatibility record shapes after
-  the first Window NR-B slice.
+- Some core historical tests still exercise compatibility record shapes through
+  owner-module imports.
+- Old concrete package lanes still import compatibility helper names through
+  `@flowdoc/vnext-core`.
 
 ## UNKNOWN
 
-- Exact timing for the remaining Window NR-B cleanup and Window NR-C.
+- Exact timing for package-lane cleanup and Window NR-C.
 - Whether deprecated route source cleanup happens before or after non-route
   public export removal.
 
@@ -122,8 +127,9 @@ Window NR-C removal is still blocked until:
 
 ## Risks Left
 
-- Remaining Window NR-B compatibility-test cleanup remains.
 - Window NR-C public export removal remains.
+- Old concrete package-lane imports remain for a later cleanup or retirement
+  decision.
 - Production rich-inline replay execution and submission workflow storage remain
   backend work outside this core patch.
 

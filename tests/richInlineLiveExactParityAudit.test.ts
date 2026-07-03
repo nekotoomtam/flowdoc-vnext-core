@@ -2,12 +2,12 @@ import { readFileSync } from "node:fs"
 import { execFileSync } from "node:child_process"
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
+import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
 import type { DocumentNode, TextBlockNode } from "../src/schema/document.js"
 import {
   appendVNextAuthoringIntentHistoryRecord,
   createVNextEditableSession,
   createVNextRichInlineCommitHistoryRecord,
-  createVNextRichInlineSessionPersistenceRecord,
   resolveVNextLiveLayoutBoundary,
   runVNextRichInlineCommit,
   serializeFlowDocPackageV2DocumentVNext,

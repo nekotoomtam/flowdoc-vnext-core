@@ -7,8 +7,8 @@ exports after backend consumer rewiring. The session package snapshot split is
 complete in Phase 233, the rich-inline replay validation split is complete in
 Phase 234, the submission identity/status split is complete in Phase 235, and
 backend consumer rewiring is recorded in
-`docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`. Window NR-B first
-retained-test rewrite slice is recorded in
+`docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`. Window NR-B retained-test
+rewrite and public-entrypoint test cleanup are recorded in
 `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 
 ## Purpose
@@ -97,8 +97,8 @@ Consumer evidence:
   `createVNextSessionStorageRecord(...)`,
   `createVNextRichInlineSessionPersistenceRecord(...)`, or
   `createVNextSubmissionStateRecord(...)`.
-- `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` records the first Window NR-B
-  retained-test rewrite slice and the remaining compatibility composition,
+- `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` records Window NR-B retained
+  test rewrite plus public-entrypoint cleanup for compatibility composition,
   storage, and vertical-slice tests.
 - Core storage/vertical-slice tests use session and rich-inline record shapes.
 - No direct editor consumer of these service-shaped exports is recorded in
@@ -154,11 +154,11 @@ not be treated as final core ownership.
 
 1. Window NR-A deprecation markers are complete in
    `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
-2. Window NR-B first retained-test rewrite slice is complete in
+2. Window NR-B retained-test rewrite and public-entrypoint test cleanup are
+   complete in
    `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
-3. Continue remaining Window NR-B compatibility-test cleanup so retained
-   contract tests prove core facts and backend tests prove backend-owned
-   records/routes.
+3. Decide whether old concrete package lanes are retired or rewired before
+   Window NR-C public export narrowing.
 4. Start Window NR-C: narrow `src/index.ts` to retained helper exports and
    remove service-shaped compatibility helper names from public core.
 
@@ -170,8 +170,9 @@ not be treated as final core ownership.
 - Backend consumer rewiring is proven for session, rich-inline, and submission.
 - Window NR-A source-level deprecation markers are applied to the compatibility
   helper functions.
-- Window NR-B first retained-test rewrite slice moves the primary historical
-  session/rich-inline/submission boundary tests to retained facts.
+- Window NR-B moves the primary historical tests to retained facts and moves
+  known compatibility/storage/vertical-slice test imports off the public core
+  entrypoint.
 - Public exports remain stable until the non-route compatibility windows run.
 
 ## FAIL / BLOCKER
@@ -183,7 +184,9 @@ not be treated as final core ownership.
 - Keeping storage/workflow-shaped helper names public can make backend concerns
   look like final core ownership until Window NR-C.
 - Remaining storage and vertical-slice historical tests still use compatibility
-  record shapes after the first NR-B slice.
+  record shapes through owner-module imports.
+- Old concrete package lanes still import compatibility helpers through
+  `@flowdoc/vnext-core`.
 - Rich-inline compatibility replay patch records may need granular operation
   vocabulary later.
 - Submission workflow facts may become product-specific if future workflow
@@ -191,7 +194,7 @@ not be treated as final core ownership.
 
 ## UNKNOWN
 
-- Exact timing for remaining Window NR-B cleanup and Window NR-C.
+- Exact timing for package-lane cleanup and Window NR-C.
 - Whether deprecated route source cleanup should happen before non-route
   public export removal.
 - Final production replay execution and workflow storage shapes.
@@ -215,7 +218,8 @@ not be treated as final core ownership.
 
 - Split-map documentation and guard tests updated after retained helper
   implementation and backend consumer rewiring.
-- Window NR-B first retained-test rewrite slice is recorded as complete.
+- Window NR-B retained-test rewrite and public-entrypoint test cleanup are
+  recorded as complete.
 - `src/authoring/richInlineSessionPersistence.ts` now has retained replay
   validation helpers.
 - `src/workflow/submissionState.ts` now has retained identity/status helpers.
@@ -231,7 +235,7 @@ not be treated as final core ownership.
 - Storage-shaped session record deprecation/de-export remains.
 - Rich-inline persistence-shaped record deprecation/de-export remains.
 - Submission workflow-shaped record deprecation/de-export remains.
-- Remaining Window NR-B cleanup and Window NR-C remain.
+- Package-lane cleanup and Window NR-C remain.
 
 ## Intentionally Not Changed
 

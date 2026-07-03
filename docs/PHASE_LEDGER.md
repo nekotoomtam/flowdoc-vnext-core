@@ -252,6 +252,7 @@ Parent goal:
 | 236 | Core backend consumer rewire closeout | done | `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreBackendConsumerRewireCloseout.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `flowdoc-vnext-backend@9d0a850` |
 | 237 | Core non-route deprecation window | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteDeprecationWindow.test.ts` |
 | 238 | Core non-route retained-test rewrite | done | `tests/sessionStorage.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/submissionState.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
+| 239 | Core non-route public-entrypoint test cleanup | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/storageAdapter.test.ts`; `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 
 ## Current Rule
 
@@ -7207,6 +7208,40 @@ production submission workflow storage.
 Next recommended work: finish the remaining NR-B compatibility-test cleanup or
 plan Window NR-C public export narrowing once the remaining composition tests
 have a retained/backend owner.
+
+## Phase 239 Core Non-Route Public-Entrypoint Test Cleanup
+
+Core Non-Route Public-Entrypoint Test Cleanup finishes the NR-B core-test
+cleanup by moving remaining compatibility/storage/vertical-slice test imports
+of the deprecated helper names off `../src/index.js` and onto owner modules.
+
+The cleanup confirms:
+
+- `tests/sessionPackageSnapshot.test.ts` and
+  `tests/backendRouteStorageBinding.test.ts` import
+  `createVNextSessionStorageRecord(...)` from
+  `src/authoring/sessionStorage.ts`;
+- `tests/richInlineReplayValidation.test.ts`,
+  `tests/richInlineLiveExactParityAudit.test.ts`,
+  `tests/storageAdapter.test.ts`,
+  `tests/verticalSliceStorageSimulation.test.ts`, and
+  `tests/verticalSliceRcEndToEnd.test.ts` import
+  `createVNextRichInlineSessionPersistenceRecord(...)` from
+  `src/authoring/richInlineSessionPersistence.ts`;
+- `tests/submissionIdentityStatus.test.ts` imports
+  `createVNextSubmissionStateRecord(...)` from
+  `src/workflow/submissionState.ts`;
+- `tests/coreNonRouteRetainedTestRewrite.test.ts` guards that the known NR-B
+  compatibility tests do not import those deprecated helper names from the
+  public core entrypoint.
+
+This phase intentionally does not remove public exports, change compatibility
+helper runtime behavior, touch backend/frontend code, retire old concrete
+package lanes, add a gateway, run rich-inline replay execution, or implement
+production submission workflow storage.
+
+Next recommended work: plan Window NR-C public export narrowing and decide
+whether old concrete package lanes are retired or rewired before that removal.
 
 ## Phase 12 Extraction Record
 

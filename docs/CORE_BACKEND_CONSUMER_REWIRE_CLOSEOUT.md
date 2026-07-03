@@ -73,18 +73,17 @@ non-route service-shaped helpers:
 4. No direct editor consumer of these service-shaped helpers is recorded in
    `docs/CORE_SERVICE_CONSUMER_MAP.md`.
 
-Immediate public removal is still intentionally blocked because some core
-historical tests still exercise compatibility record shapes. Window NR-B first
-slice in `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` has already rewritten
-the primary historical boundary tests:
+Immediate public removal is still intentionally blocked because old concrete
+package lanes still need a cleanup or retirement decision. Window NR-B in
+`docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` has already rewritten the
+primary historical boundary tests:
 
 - `tests/sessionStorage.test.ts`;
 - `tests/richInlineSessionPersistence.test.ts`;
 - `tests/submissionState.test.ts`.
 
-Remaining compatibility composition, storage, and vertical-slice evidence still
-needs later cleanup or explicit retained/backend ownership before public
-de-export.
+Remaining compatibility composition, storage, and vertical-slice tests now use
+owner-module imports rather than deprecated helper names from `../src/index.js`.
 
 ## Next Window
 
@@ -95,7 +94,7 @@ Use a small non-route compatibility sequence:
    `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 2. Window NR-B: rewrite core historical tests so retained-contract tests prove
    core-owned facts, while backend tests prove backend-owned records/routes.
-   The first retained-test rewrite slice is complete in
+   The retained-test rewrite and public-entrypoint test cleanup are complete in
    `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 3. Window NR-C: narrow `src/index.ts` public exports to retained helpers only
    and remove the service-shaped compatibility helper names from the public
@@ -117,14 +116,16 @@ Use a small non-route compatibility sequence:
 
 - Core still publicly exports compatibility helper names, so duplicated
   ownership wording can linger until the deprecation/de-export windows run.
-- Some core historical tests still exercise compatibility record shapes after
-  the first Window NR-B slice.
+- Some core historical tests still exercise compatibility record shapes through
+  owner-module imports.
+- Old concrete package lanes still import compatibility helper names through
+  `@flowdoc/vnext-core`.
 - Backend replacements are contract/storage-shell slices, not production
   workflow or replay execution.
 
 ## UNKNOWN
 
-- Exact timing for remaining Window NR-B cleanup and Window NR-C is not locked.
+- Exact timing for package-lane cleanup and Window NR-C is not locked.
 - Final production workflow storage and rich-inline replay execution shapes are
   not implemented.
 
@@ -150,7 +151,7 @@ Use a small non-route compatibility sequence:
 
 ## Risks Left
 
-- Remaining Window NR-B cleanup and Window NR-C still need implementation.
+- Old concrete package-lane cleanup and Window NR-C still need implementation.
 - Deprecated route source cleanup remains optional.
 - Old concrete package lanes remain in core until historical-test replacement
   and package-lane cleanup are scheduled.

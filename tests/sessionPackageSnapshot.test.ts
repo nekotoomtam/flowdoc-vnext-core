@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
+import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   createVNextEditableSession,
   createVNextSessionPackageSnapshot,
-  createVNextSessionStorageRecord,
   serializeFlowDocPackageV2DocumentVNext,
   VNEXT_SESSION_PACKAGE_SNAPSHOT_MODE,
   VNEXT_SESSION_PACKAGE_SNAPSHOT_SOURCE,

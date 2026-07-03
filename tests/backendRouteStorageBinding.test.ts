@@ -8,9 +8,9 @@ import {
   FLOWDOC_STORAGE_ROUTE_BINDING_SOURCE,
   createFlowDocStorageRouteBinding,
 } from "@flowdoc/internal-alpha-runner"
+import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   createVNextEditableSession,
-  createVNextSessionStorageRecord,
   parseFlowDocPackageV2DocumentVNext,
 } from "../src/index.js"
 

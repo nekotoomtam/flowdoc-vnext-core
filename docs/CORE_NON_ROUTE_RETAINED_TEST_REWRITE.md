@@ -2,9 +2,9 @@
 
 Date: 2026-07-03
 
-Status: Window NR-B first retained-test rewrite slice for the remaining
-non-route service-shaped helper exports. Public entrypoint compatibility
-remains.
+Status: Window NR-B retained-test rewrite and public-entrypoint test cleanup
+for the remaining non-route service-shaped helper exports. Public entrypoint
+compatibility remains.
 
 ## Purpose
 
@@ -38,11 +38,12 @@ The rewritten tests no longer import
 `createVNextRichInlineSessionPersistenceRecord(...)`, or
 `createVNextSubmissionStateRecord(...)` from the public core entrypoint.
 
-## Still Compatibility Evidence
+## Public-Entrypoint Test Cleanup
 
-This first NR-B slice intentionally does not rewrite every compatibility test.
 The following tests still contain compatibility composition, storage, or
-vertical-slice evidence and must be handled before or during Window NR-C:
+vertical-slice evidence, but they no longer import the deprecated helper names
+from `../src/index.js`. When they still need compatibility records, they import
+from the owner module directly:
 
 - `tests/sessionPackageSnapshot.test.ts`;
 - `tests/richInlineReplayValidation.test.ts`;
@@ -53,10 +54,28 @@ vertical-slice evidence and must be handled before or during Window NR-C:
 - `tests/verticalSliceStorageSimulation.test.ts`;
 - `tests/verticalSliceRcEndToEnd.test.ts`.
 
-Those remaining tests are allowed to mention compatibility helper names while
-they are still proving composition or historical integration behavior. They
-must not be treated as proof that core owns durable session storage,
-rich-inline persistence storage, or submission workflow routes.
+Those tests are allowed to mention compatibility helper names while they are
+still proving composition or historical integration behavior. They must not be
+treated as proof that core owns durable session storage, rich-inline
+persistence storage, or submission workflow routes, and they must not require
+the deprecated helper names from the public entrypoint before Window NR-C.
+
+## Still Compatibility Evidence
+
+Compatibility record shapes still exist in source modules and selected tests
+for composition evidence:
+
+- `createVNextSessionStorageRecord(...)` remains in
+  `src/authoring/sessionStorage.ts`;
+- `createVNextRichInlineSessionPersistenceRecord(...)` remains in
+  `src/authoring/richInlineSessionPersistence.ts`;
+- `createVNextSubmissionStateRecord(...)` remains in
+  `src/workflow/submissionState.ts`.
+
+Old concrete package lanes under `packages/internal-alpha-runner` still consume
+compatibility records through `@flowdoc/vnext-core`. That package-lane cleanup
+is separate from this core test cleanup and should be settled before or during
+Window NR-C if those package lanes are not retired first.
 
 ## Public Export Decision
 
@@ -66,42 +85,48 @@ Window NR-B does not remove public exports. `src/index.ts` still exports:
 - `./authoring/richInlineSessionPersistence.js`;
 - `./workflow/submissionState.js`.
 
-Window NR-C should narrow the public surface only after the remaining
-compatibility tests either move to retained facts or are replaced by backend
-tests.
+Window NR-C can now narrow the core test-facing public surface, but it still
+needs to decide whether compatibility source implementations stay internal,
+move to backend/package lanes, or are removed with replacement evidence.
 
 ## PASS
 
 - The three historical boundary tests now assert retained core helper facts.
 - The rewritten tests avoid named imports of the three deprecated
   service-shaped helper functions.
+- Remaining compatibility/storage/vertical-slice tests no longer import the
+  deprecated helper names from `../src/index.js`.
 - Backend-owned replacements and retained core owners remain documented.
-- Public entrypoint compatibility remains stable during this first NR-B slice.
+- Public entrypoint compatibility remains stable during Window NR-B.
 
 ## FAIL / BLOCKER
 
-- None for this first NR-B retained-test rewrite slice.
+- None for Window NR-B retained-test rewrite and public-entrypoint test
+  cleanup.
 
 ## RISK
 
 - Compatibility helper names remain public until Window NR-C.
 - Some storage and vertical-slice historical tests still use compatibility
-  record shapes.
+  record shapes through owner-module imports.
 - Source modules still contain compatibility helper implementations for public
   compatibility and composition evidence.
+- Old concrete package lanes still import compatibility helper names through
+  `@flowdoc/vnext-core`.
 
 ## UNKNOWN
 
-- Whether the remaining compatibility tests are all rewritten in a second NR-B
-  slice or together with Window NR-C.
 - Final timing for public de-export and optional deprecated route source
   cleanup.
+- Whether old concrete package lanes are retired or rewired before Window NR-C.
 
 ## Files Changed
 
 - `tests/sessionStorage.test.ts`
 - `tests/richInlineSessionPersistence.test.ts`
 - `tests/submissionState.test.ts`
+- compatibility/storage/vertical-slice tests that still need owner-module
+  compatibility record imports
 - `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`
 - `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`
 - `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`
@@ -115,6 +140,8 @@ tests.
 
 - Test behavior changed: the historical boundary tests now prove retained
   facts instead of compatibility envelope ownership.
+- Test imports changed: compatibility record evidence now avoids deprecated
+  helper names from the public core entrypoint.
 - Runtime behavior is unchanged.
 - Public entrypoint exports are unchanged.
 
@@ -124,8 +151,9 @@ tests.
 
 ## Risks Left
 
-- Window NR-B remaining compatibility-test cleanup remains.
 - Window NR-C public export narrowing remains.
+- Old concrete package-lane imports remain for a later package cleanup or
+  retirement decision.
 - Production rich-inline replay execution and submission workflow storage remain
   backend work outside this core patch.
 

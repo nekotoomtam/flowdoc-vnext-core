@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
+import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
 import type { DocumentNode, TextBlockNode } from "../src/schema/document.js"
 import {
   appendVNextAuthoringIntentHistoryRecord,
@@ -8,7 +9,6 @@ import {
   createVNextRichInlineReplayPatchRecord,
   createVNextRichInlineReplayPatchValidation,
   createVNextRichInlineReplayValidation,
-  createVNextRichInlineSessionPersistenceRecord,
   runVNextRichInlineCommit,
   serializeFlowDocPackageV2DocumentVNext,
   VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE,
