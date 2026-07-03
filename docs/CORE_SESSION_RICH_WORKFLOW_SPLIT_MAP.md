@@ -240,7 +240,8 @@ historical composition evidence only.
 
 ## Risks Left
 
-- Optional compatibility source cleanup remains.
+- Compatibility source cleanup is tracked by
+  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 - Rich-inline replay execution and submission workflow storage remain backend
   work.
 

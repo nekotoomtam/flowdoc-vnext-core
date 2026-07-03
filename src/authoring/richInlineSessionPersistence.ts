@@ -283,6 +283,9 @@ export function createVNextRichInlineReplayValidation(
 
 /**
  * @deprecated Window NR-A compatibility export.
+ * Window NR-C removed this helper from the public package entrypoint.
+ * Keep owner-module usage allowlisted in
+ * `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` until source cleanup.
  * Backend-owned rich-inline session records now live in
  * `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`. Use
  * `createVNextRichInlineReplayValidation(...)` for retained core replay

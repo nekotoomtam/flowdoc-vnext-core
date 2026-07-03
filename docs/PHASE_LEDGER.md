@@ -255,6 +255,7 @@ Parent goal:
 | 239 | Core non-route public-entrypoint test cleanup | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/backendRouteStorageBinding.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/storageAdapter.test.ts`; `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 | 240 | Core non-route package-lane cleanup | done | `packages/internal-alpha-runner/src/internalAlphaRecords.ts`; `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`; `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`; `packages/internal-alpha-runner/src/storageRouteBinding.ts`; `packages/internal-alpha-runner/src/index.ts`; `packages/storage-file-json/src/index.ts`; `tests/backendRouteStorageBinding.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 | 241 | Core non-route public export narrowing | done | `src/index.ts`; `src/persistence/storageAdapter.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/storageAdapter.test.ts`; `tests/storageFileJsonAdapter.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 242 | Core compatibility source cleanup audit | done | `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` |
 
 ## Current Rule
 
@@ -7313,9 +7314,37 @@ implementations, rename source modules, touch backend/frontend repos, introduce
 a gateway, run rich-inline replay execution, or implement production submission
 workflow storage.
 
-Next recommended work: optional compatibility source cleanup or old package
-lane retirement, after deciding which historical composition tests still need
-owner-module evidence.
+Next recommended work: Phase 242 compatibility source cleanup audit is
+complete; rewrite the allowlisted tests so the owner-module compatibility
+helpers can be deleted.
+
+## Phase 242 Core Compatibility Source Cleanup Audit
+
+Core Compatibility Source Cleanup Audit records the short-lived owner-module
+compatibility helper debt that remains after Window NR-C public export
+narrowing.
+
+The audit confirms:
+
+- `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` lists the remaining
+  compatibility helpers, their replacement targets, the current owner-module
+  import allowlist, and deletion exit criteria;
+- source deprecation comments in `src/authoring/sessionStorage.ts`,
+  `src/authoring/richInlineSessionPersistence.ts`, and
+  `src/workflow/submissionState.ts` now point at the cleanup audit and state
+  that Window NR-C removed the helpers from the public package entrypoint;
+- `tests/coreCompatibilitySourceCleanupAudit.test.ts` prevents new untracked
+  owner-module imports of the compatibility helpers;
+- `src/index.ts` remains narrowed to retained facts while source cleanup is
+  pending.
+
+This phase intentionally does not remove compatibility helper implementations,
+rewrite the allowlisted tests, touch backend/frontend repos, introduce a
+gateway, run rich-inline replay execution, or implement production submission
+workflow storage.
+
+Next recommended work: rewrite storage/vertical-slice tests first, then
+composition tests, until the compatibility import allowlist reaches zero.
 
 ## Phase 12 Extraction Record
 

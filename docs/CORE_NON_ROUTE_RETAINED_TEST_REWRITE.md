@@ -227,7 +227,8 @@ and historical tests. They are no longer public package entrypoint exports.
 
 ## Risks Left
 
-- Compatibility source cleanup/removal remains a later decision.
+- Compatibility source cleanup/removal is now tracked by
+  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 - Production rich-inline replay execution and submission workflow storage remain
   backend work outside this core patch.
 

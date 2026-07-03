@@ -198,7 +198,8 @@ Core guard tests should keep these facts true:
 ## Risks Left
 
 - Deprecated route source cleanup remains optional.
-- Compatibility source cleanup/removal remains optional after public de-export.
+- Compatibility source cleanup/removal is now tracked by
+  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 - Core package cleanup still waits for historical-test replacement.
 
 ## Intentionally Not Changed

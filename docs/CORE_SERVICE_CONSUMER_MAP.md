@@ -258,6 +258,8 @@ A service-shaped export can be deprecated or removed only when all are true:
   narrowing are complete.
 - Old concrete package lanes remain in core until historical-test replacement
   and consumer rewiring are proven.
+- Owner-module compatibility helper cleanup is tracked by
+  `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 
 ## Intentionally Not Changed
 

@@ -117,6 +117,9 @@ export function createVNextSessionPackageSnapshot(
 
 /**
  * @deprecated Window NR-A compatibility export.
+ * Window NR-C removed this helper from the public package entrypoint.
+ * Keep owner-module usage allowlisted in
+ * `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` until source cleanup.
  * Backend-owned session storage records now live in
  * `flowdoc-vnext-backend/src/storage/sessionRecord.ts`. Use
  * `createVNextSessionPackageSnapshot(...)` for retained core package snapshot

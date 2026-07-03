@@ -220,6 +220,9 @@ export function createVNextSubmissionIdentityStatus(
 
 /**
  * @deprecated Window NR-A compatibility export.
+ * Window NR-C removed this helper from the public package entrypoint.
+ * Keep owner-module usage allowlisted in
+ * `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` until source cleanup.
  * Backend-owned submission route contracts now live in
  * `flowdoc-vnext-backend/src/routes/submissionRoute.ts`. Use
  * `createVNextSubmissionIdentityStatus(...)` for retained core identity/status
