@@ -258,6 +258,7 @@ Parent goal:
 | 242 | Core compatibility source cleanup audit | done | `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` |
 | 243 | Core vertical-slice retained storage payload rewrite | done | `tests/verticalSliceStorageSimulation.test.ts`; `tests/verticalSliceRcEndToEnd.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 244 | Core storage adapter generic payload rewrite | done | `tests/storageAdapter.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 245 | Core compatibility composition test rewrite | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 
 ## Current Rule
 
@@ -7404,11 +7405,43 @@ rewrite composition tests, touch backend/frontend repos, introduce a gateway,
 run rich-inline replay execution, or implement production submission workflow
 storage.
 
-Next recommended work: Phase 245 should rewrite
-`tests/sessionPackageSnapshot.test.ts`, `tests/richInlineReplayValidation.test.ts`,
-`tests/richInlineLiveExactParityAudit.test.ts`, and
-`tests/submissionIdentityStatus.test.ts` to retained facts/backend-package
-replacement evidence.
+Next recommended work: Phase 245 composition test rewrite is complete; Phase
+246 should remove the owner-module compatibility helper source.
+
+## Phase 245 Core Compatibility Composition Test Rewrite
+
+Core Compatibility Composition Test Rewrite removes the remaining composition
+tests from the owner-module compatibility helper allowlist.
+
+The rewrite confirms:
+
+- `tests/sessionPackageSnapshot.test.ts` no longer imports
+  `createVNextSessionStorageRecord(...)` and asserts backend storage
+  replacement evidence from retained package snapshot facts;
+- `tests/richInlineReplayValidation.test.ts` no longer imports
+  `createVNextRichInlineSessionPersistenceRecord(...)` and asserts backend
+  rich-inline session replacement evidence from retained replay validation
+  facts;
+- `tests/richInlineLiveExactParityAudit.test.ts` no longer imports the
+  rich-inline compatibility helper and proves retained durable history plus
+  replay validation facts stay live/exact artifact-free;
+- `tests/submissionIdentityStatus.test.ts` no longer imports
+  `createVNextSubmissionStateRecord(...)` and asserts backend route replacement
+  evidence from retained submission identity/status facts;
+- `tests/coreCompatibilitySourceCleanupAudit.test.ts` now leaves only the
+  source-internal `createVNextSessionStorageRecord(...)` and
+  `VNextSessionStorageRecord` imports inside
+  `src/authoring/richInlineSessionPersistence.ts` allowlisted.
+
+This phase intentionally does not remove compatibility helper implementations,
+touch backend/frontend repos, introduce a gateway, run rich-inline replay
+execution, or implement production submission workflow storage.
+
+Next recommended work: Phase 246 should delete
+`createVNextSessionStorageRecord(...)`,
+`createVNextRichInlineSessionPersistenceRecord(...)`,
+`createVNextSubmissionStateRecord(...)`, and their compatibility
+types/constants from source after confirming no tests import them.
 
 ## Phase 12 Extraction Record
 

@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
-import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
 import type { DocumentNode, TextBlockNode } from "../src/schema/document.js"
 import {
   appendVNextAuthoringIntentHistoryRecord,
@@ -10,7 +9,6 @@ import {
   createVNextRichInlineReplayPatchValidation,
   createVNextRichInlineReplayValidation,
   runVNextRichInlineCommit,
-  serializeFlowDocPackageV2DocumentVNext,
   VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE,
   VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE,
 } from "../src/index.js"
@@ -46,19 +44,6 @@ function committedRichInlineFixture() {
 
   const historyRecord = createVNextRichInlineCommitHistoryRecord(result)
   const historyRecords = appendVNextAuthoringIntentHistoryRecord([], historyRecord)
-  const packageSnapshot = serializeFlowDocPackageV2DocumentVNext({
-    ...session.package,
-    document: result.document,
-  })
-  const mutatedSession = {
-    ...createVNextEditableSession(packageSnapshot),
-    revisions: {
-      document: 1,
-      dirtyScopes: 1,
-      selection: 0,
-    },
-    dirtyScopes: new Set(["text-block:summary-left-text"]),
-  }
   const replayPatch = {
     afterChildren: result.command.children,
     beforeChildren: beforeTextBlock.children,
@@ -70,7 +55,6 @@ function committedRichInlineFixture() {
   return {
     beforeTextBlock,
     historyRecords,
-    mutatedSession,
     replayPatch,
     result,
   }
@@ -169,33 +153,38 @@ describe("vNext rich inline replay validation retained contract", () => {
     expect(Object.prototype.hasOwnProperty.call(validation.replayPatchValidations[0], "replayStatus")).toBe(false)
   })
 
-  it("keeps compatibility replay records and persistence records composed from retained validation", () => {
-    const { historyRecords, mutatedSession, replayPatch } = committedRichInlineFixture()
+  it("keeps replay records and backend session replacement evidence composed from retained validation", () => {
+    const { historyRecords, replayPatch } = committedRichInlineFixture()
     const retainedPatch = createVNextRichInlineReplayPatchValidation(replayPatch)
-    const compatibilityPatch = createVNextRichInlineReplayPatchRecord(replayPatch)
+    const patchRecord = createVNextRichInlineReplayPatchRecord(replayPatch)
     const validation = createVNextRichInlineReplayValidation({
       historyRecords,
       replayPatches: [replayPatch],
     })
-    const persistence = createVNextRichInlineSessionPersistenceRecord(mutatedSession, {
-      historyRecords,
-      replayPatches: [replayPatch],
-    })
+    const backendReplacementEvidence = {
+      owner: "flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts",
+      richHistoryRecordCount: validation.facts.richHistoryRecordCount,
+      replayPatchCount: validation.facts.replayPatchCount,
+      invalidReplayPatchCount: validation.facts.invalidReplayPatchCount,
+      replayPatches: validation.replayPatchValidations,
+    }
 
-    expect(compatibilityPatch).toMatchObject({
+    expect(patchRecord).toMatchObject({
       ...retainedPatch,
       replayStatus: "not-run",
       storageStatus: "not-written",
     })
-    expect(persistence.replayPatches[0]).toMatchObject({
-      ...validation.replayPatchValidations[0],
-      replayStatus: "not-run",
-      storageStatus: "not-written",
-    })
-    expect(persistence.manifest).toMatchObject({
+    expect(backendReplacementEvidence).toMatchObject({
+      owner: "flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts",
       richHistoryRecordCount: validation.facts.richHistoryRecordCount,
       replayPatchCount: validation.facts.replayPatchCount,
       invalidReplayPatchCount: validation.facts.invalidReplayPatchCount,
+    })
+    expect(backendReplacementEvidence.replayPatches[0]).toEqual(validation.replayPatchValidations[0])
+    expect(validation.facts.contracts).toMatchObject({
+      storageRecord: false,
+      storageWrites: false,
+      backendApi: false,
     })
   })
 

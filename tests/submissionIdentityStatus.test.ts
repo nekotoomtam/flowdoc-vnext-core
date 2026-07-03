@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
-import { createVNextSubmissionStateRecord } from "../src/workflow/submissionState.js"
 import {
   createVNextSubmissionIdentityStatus,
   parseFlowDocPackageV2DocumentVNext,
@@ -115,7 +114,7 @@ describe("vNext submission identity/status retained contract", () => {
     ]))
   })
 
-  it("keeps the compatibility submission state record composed from retained facts", () => {
+  it("keeps backend submission route replacement evidence composed from retained facts", () => {
     const input = {
       templateId: "product-report-vnext-minimal",
       documentRevision: 5,
@@ -126,9 +125,8 @@ describe("vNext submission identity/status retained contract", () => {
       reason: "submit for review",
     }
     const identityStatus = createVNextSubmissionIdentityStatus(input)
-    const record = createVNextSubmissionStateRecord(input)
-
-    expect(record).toMatchObject({
+    const backendRouteEvidence = {
+      owner: "flowdoc-vnext-backend/src/routes/submissionRoute.ts",
       status: identityStatus.facts.status,
       workflowStatus: identityStatus.facts.workflowStatus,
       templateId: identityStatus.facts.templateId,
@@ -139,14 +137,27 @@ describe("vNext submission identity/status retained contract", () => {
       reviewerId: identityStatus.facts.reviewerId,
       reason: identityStatus.facts.reason,
       issues: identityStatus.issues,
-      scope: {
-        externalSubmissionState: true,
-      },
-      application: {
-        status: "not-applied",
-        storageWrite: "not-written",
-        routeDispatch: "not-run",
-      },
+      routeDispatch: "backend-owned-not-core",
+    }
+
+    expect(backendRouteEvidence).toMatchObject({
+      owner: "flowdoc-vnext-backend/src/routes/submissionRoute.ts",
+      status: identityStatus.facts.status,
+      workflowStatus: identityStatus.facts.workflowStatus,
+      templateId: identityStatus.facts.templateId,
+      submissionId: identityStatus.facts.submissionId,
+      documentRevision: identityStatus.facts.documentRevision,
+      dataRevision: identityStatus.facts.dataRevision,
+      actorId: identityStatus.facts.actorId,
+      reviewerId: identityStatus.facts.reviewerId,
+      reason: identityStatus.facts.reason,
+      issues: identityStatus.issues,
+      routeDispatch: "backend-owned-not-core",
+    })
+    expect(identityStatus.facts.contracts).toMatchObject({
+      storageWrite: false,
+      routeDispatch: false,
+      workflowEngine: false,
     })
   })
 

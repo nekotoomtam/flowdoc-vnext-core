@@ -2,15 +2,15 @@ import { readFileSync } from "node:fs"
 import { execFileSync } from "node:child_process"
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
-import { createVNextRichInlineSessionPersistenceRecord } from "../src/authoring/richInlineSessionPersistence.js"
 import type { DocumentNode, TextBlockNode } from "../src/schema/document.js"
 import {
   appendVNextAuthoringIntentHistoryRecord,
+  createVNextDurableHistorySnapshot,
   createVNextEditableSession,
   createVNextRichInlineCommitHistoryRecord,
+  createVNextRichInlineReplayValidation,
   resolveVNextLiveLayoutBoundary,
   runVNextRichInlineCommit,
-  serializeFlowDocPackageV2DocumentVNext,
 } from "../src/index.js"
 
 function readText(path: string): string {
@@ -160,24 +160,16 @@ describe("vNext rich inline live/exact parity audit", () => {
     })
   }, 30_000)
 
-  it("keeps rich inline session persistence from storing live/exact renderer artifacts", () => {
+  it("keeps retained rich inline history/replay facts from storing live/exact renderer artifacts", () => {
     const { beforeTextBlock, result, session } = commitRichInlineFixture()
     const historyRecord = createVNextRichInlineCommitHistoryRecord(result)
     const historyRecords = appendVNextAuthoringIntentHistoryRecord([], historyRecord)
-    const packageSnapshot = serializeFlowDocPackageV2DocumentVNext({
-      ...session.package,
-      document: result.document,
+    const durableHistory = createVNextDurableHistorySnapshot(historyRecords, {
+      documentRevision: session.revisions.document + 1,
+      historyKey: "history:rich-inline-live-exact",
+      reason: "rich-inline-live-exact-parity-audit",
     })
-    const mutatedSession = {
-      ...createVNextEditableSession(packageSnapshot),
-      revisions: {
-        document: 1,
-        dirtyScopes: 1,
-        selection: 0,
-      },
-      dirtyScopes: new Set(["text-block:summary-left-text"]),
-    }
-    const record = createVNextRichInlineSessionPersistenceRecord(mutatedSession, {
+    const replayValidation = createVNextRichInlineReplayValidation({
       historyRecords,
       replayPatches: [{
         afterChildren: result.command.children,
@@ -188,33 +180,23 @@ describe("vNext rich inline live/exact parity audit", () => {
       }],
     })
 
-    expect(record.manifest.persistedState).toMatchObject({
-      package: true,
-      authoringHistory: true,
-      richReplayPatches: true,
-      liveLayout: false,
-      exactLayout: false,
-      artifacts: false,
-    })
-    expect(record.sessionStorage.manifest.persistedState).toMatchObject({
-      package: true,
-      liveLayout: false,
-      exactLayout: false,
-      authoringHistory: false,
-    })
-    expect(record.durableHistory.manifest.persistedState).toMatchObject({
+    expect(durableHistory.manifest.persistedState).toMatchObject({
       authoringHistory: true,
       package: false,
       liveLayout: false,
       exactLayout: false,
       artifacts: false,
     })
-    expect(record.manifest.replay).toMatchObject({
-      executionStatus: "not-run",
-      replayMode: "rich-inline-before-after-children",
-      storageAdapter: "not-bound",
-      backendApi: "not-called",
+    expect(replayValidation.facts.contracts).toMatchObject({
+      replayPatchValidation: true,
+      historyReadyFacts: true,
+      storageRecord: false,
+      storageWrites: false,
+      backendApi: false,
+      replayExecution: false,
     })
+    expect(replayValidation.replayPatchValidations[0]).not.toHaveProperty("storageStatus")
+    expect(replayValidation.replayPatchValidations[0]).not.toHaveProperty("replayStatus")
   })
 
   it("records the Phase 130 audit trail without overstating runtime scope", () => {

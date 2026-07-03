@@ -41,23 +41,17 @@ describe("core compatibility source cleanup audit", () => {
   const compatibilityImportAllowlist: Record<string, string[]> = {
     createVNextSessionStorageRecord: [
       "src/authoring/richInlineSessionPersistence.ts",
-      "tests/sessionPackageSnapshot.test.ts",
     ],
     VNextSessionStorageRecord: [
       "src/authoring/richInlineSessionPersistence.ts",
     ],
     VNEXT_SESSION_STORAGE_SOURCE: [],
     VNEXT_SESSION_STORAGE_MODE: [],
-    createVNextRichInlineSessionPersistenceRecord: [
-      "tests/richInlineLiveExactParityAudit.test.ts",
-      "tests/richInlineReplayValidation.test.ts",
-    ],
+    createVNextRichInlineSessionPersistenceRecord: [],
     VNextRichInlineSessionPersistenceRecord: [],
     VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE: [],
     VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE: [],
-    createVNextSubmissionStateRecord: [
-      "tests/submissionIdentityStatus.test.ts",
-    ],
+    createVNextSubmissionStateRecord: [],
     VNextSubmissionStateRecord: [],
     VNEXT_SUBMISSION_STATE_SOURCE: [],
     VNEXT_SUBMISSION_STATE_MODE: [],
@@ -161,9 +155,11 @@ describe("core compatibility source cleanup audit", () => {
     expect(ledger).toContain("| 242 | Core compatibility source cleanup audit | done |")
     expect(ledger).toContain("| 243 | Core vertical-slice retained storage payload rewrite | done |")
     expect(ledger).toContain("| 244 | Core storage adapter generic payload rewrite | done |")
+    expect(ledger).toContain("| 245 | Core compatibility composition test rewrite | done |")
     expect(ledger).toContain("## Phase 242 Core Compatibility Source Cleanup Audit")
     expect(ledger).toContain("## Phase 243 Core Vertical-Slice Retained Storage Payload Rewrite")
     expect(ledger).toContain("## Phase 244 Core Storage Adapter Generic Payload Rewrite")
+    expect(ledger).toContain("## Phase 245 Core Compatibility Composition Test Rewrite")
     expect(nonRoute).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
     expect(retention).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")
     expect(consumer).toContain("docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md")

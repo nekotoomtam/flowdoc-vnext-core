@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
-import { createVNextSessionStorageRecord } from "../src/authoring/sessionStorage.js"
 import {
   createVNextEditableSession,
   createVNextSessionPackageSnapshot,
@@ -92,25 +91,36 @@ describe("vNext session package snapshot retained contract", () => {
     expect(packageJson).not.toContain('"nodeId"')
   })
 
-  it("keeps the compatibility storage record composed from retained snapshot facts", () => {
+  it("keeps backend storage replacement evidence composed from retained snapshot facts", () => {
     const session = createVNextEditableSession(fixtureValue("product-report-vnext-minimal.flowdoc.json"))
     const snapshot = createVNextSessionPackageSnapshot(session)
-    const record = createVNextSessionStorageRecord(session, {
-      storageKey: "template/product-report-vnext-minimal",
-      reason: "save-template",
-    })
+    const backendReplacementEvidence = {
+      owner: "flowdoc-vnext-backend/src/storage/sessionRecord.ts",
+      packageId: snapshot.facts.packageId,
+      packageVersion: snapshot.facts.packageVersion,
+      documentVersion: snapshot.facts.documentVersion,
+      documentRevision: snapshot.facts.documentRevision,
+      dirtyScopeCount: snapshot.facts.dirtyScopeCount,
+      package: snapshot.package,
+      persistedState: snapshot.facts.persistedState,
+      storageStatus: "backend-owned-not-core",
+    }
 
-    expect(record.package).toEqual(snapshot.package)
-    expect(record.manifest).toMatchObject({
+    expect(backendReplacementEvidence).toMatchObject({
+      owner: "flowdoc-vnext-backend/src/storage/sessionRecord.ts",
       packageId: snapshot.facts.packageId,
       packageVersion: snapshot.facts.packageVersion,
       documentVersion: snapshot.facts.documentVersion,
       documentRevision: snapshot.facts.documentRevision,
       dirtyScopeCount: snapshot.facts.dirtyScopeCount,
       persistedState: snapshot.facts.persistedState,
-      storageKey: "template/product-report-vnext-minimal",
-      reason: "save-template",
-      storageStatus: "not-written",
+      storageStatus: "backend-owned-not-core",
+    })
+    expect(backendReplacementEvidence.package).toEqual(snapshot.package)
+    expect(snapshot.facts.contracts).toMatchObject({
+      storageRecord: false,
+      storageWrites: false,
+      backendApi: false,
     })
   })
 

@@ -60,6 +60,16 @@ describe("core non-route retained-test rewrite", () => {
 
   it("keeps compatibility tests explicit but off the public deprecated helper imports", () => {
     const doc = readText("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
+    const ownerModuleCleanupTests = [
+      "tests/sessionPackageSnapshot.test.ts",
+      "tests/richInlineReplayValidation.test.ts",
+      "tests/richInlineLiveExactParityAudit.test.ts",
+      "tests/submissionIdentityStatus.test.ts",
+      "tests/storageAdapter.test.ts",
+      "tests/verticalSliceStorageSimulation.test.ts",
+      "tests/verticalSliceRcEndToEnd.test.ts",
+    ]
+
     for (const testPath of compatibilityTests) {
       const source = readText(testPath)
 
@@ -69,9 +79,13 @@ describe("core non-route retained-test rewrite", () => {
       expectNoPublicEntrypointImport(source, "createVNextSubmissionStateRecord")
     }
 
-    expect(readText("tests/sessionPackageSnapshot.test.ts")).toContain("../src/authoring/sessionStorage.js")
-    expect(readText("tests/richInlineReplayValidation.test.ts")).toContain("../src/authoring/richInlineSessionPersistence.js")
-    expect(readText("tests/submissionIdentityStatus.test.ts")).toContain("../src/workflow/submissionState.js")
+    for (const testPath of ownerModuleCleanupTests) {
+      const source = readText(testPath)
+
+      expectNoNamedImportFrom(source, "../src/authoring/sessionStorage.js", "createVNextSessionStorageRecord")
+      expectNoNamedImportFrom(source, "../src/authoring/richInlineSessionPersistence.js", "createVNextRichInlineSessionPersistenceRecord")
+      expectNoNamedImportFrom(source, "../src/workflow/submissionState.js", "createVNextSubmissionStateRecord")
+    }
     expect(doc).toContain("Public-Entrypoint Test Cleanup")
     expect(doc).toContain("createVNextSessionStorageRecord(...)")
     expect(doc).toContain("createVNextRichInlineSessionPersistenceRecord(...)")
