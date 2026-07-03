@@ -73,16 +73,18 @@ non-route service-shaped helpers:
 4. No direct editor consumer of these service-shaped helpers is recorded in
    `docs/CORE_SERVICE_CONSUMER_MAP.md`.
 
-Immediate public removal is still intentionally blocked because core
-historical tests still exercise compatibility record shapes:
+Immediate public removal is still intentionally blocked because some core
+historical tests still exercise compatibility record shapes. Window NR-B first
+slice in `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` has already rewritten
+the primary historical boundary tests:
 
 - `tests/sessionStorage.test.ts`;
-- `tests/sessionPackageSnapshot.test.ts`;
 - `tests/richInlineSessionPersistence.test.ts`;
-- `tests/richInlineReplayValidation.test.ts`;
-- `tests/submissionState.test.ts`;
-- `tests/submissionIdentityStatus.test.ts`;
-- storage and vertical-slice historical tests.
+- `tests/submissionState.test.ts`.
+
+Remaining compatibility composition, storage, and vertical-slice evidence still
+needs later cleanup or explicit retained/backend ownership before public
+de-export.
 
 ## Next Window
 
@@ -93,6 +95,8 @@ Use a small non-route compatibility sequence:
    `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 2. Window NR-B: rewrite core historical tests so retained-contract tests prove
    core-owned facts, while backend tests prove backend-owned records/routes.
+   The first retained-test rewrite slice is complete in
+   `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
 3. Window NR-C: narrow `src/index.ts` public exports to retained helpers only
    and remove the service-shaped compatibility helper names from the public
    entrypoint.
@@ -113,13 +117,14 @@ Use a small non-route compatibility sequence:
 
 - Core still publicly exports compatibility helper names, so duplicated
   ownership wording can linger until the deprecation/de-export windows run.
-- Core historical tests still exercise compatibility record shapes.
+- Some core historical tests still exercise compatibility record shapes after
+  the first Window NR-B slice.
 - Backend replacements are contract/storage-shell slices, not production
   workflow or replay execution.
 
 ## UNKNOWN
 
-- Exact timing for Window NR-A/NR-B/NR-C is not locked.
+- Exact timing for remaining Window NR-B cleanup and Window NR-C is not locked.
 - Final production workflow storage and rich-inline replay execution shapes are
   not implemented.
 
@@ -129,6 +134,7 @@ Use a small non-route compatibility sequence:
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`
 - `docs/CORE_RETENTION_MAP.md`
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`
+- `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`
 - README and phase ledger pointers
 - guard tests for the closeout and updated maps
 
@@ -144,7 +150,7 @@ Use a small non-route compatibility sequence:
 
 ## Risks Left
 
-- Window NR-B/NR-C still need implementation.
+- Remaining Window NR-B cleanup and Window NR-C still need implementation.
 - Deprecated route source cleanup remains optional.
 - Old concrete package lanes remain in core until historical-test replacement
   and package-lane cleanup are scheduled.

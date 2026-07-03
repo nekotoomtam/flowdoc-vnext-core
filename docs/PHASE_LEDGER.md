@@ -251,6 +251,7 @@ Parent goal:
 | 235 | Core submission identity/status split | done | `src/workflow/submissionState.ts`; `tests/submissionIdentityStatus.test.ts`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SUBMISSION_STATE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 | 236 | Core backend consumer rewire closeout | done | `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreBackendConsumerRewireCloseout.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `flowdoc-vnext-backend@9d0a850` |
 | 237 | Core non-route deprecation window | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteDeprecationWindow.test.ts` |
+| 238 | Core non-route retained-test rewrite | done | `tests/sessionStorage.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/submissionState.test.ts`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteRetainedTestRewrite.test.ts` |
 
 ## Current Rule
 
@@ -7170,6 +7171,42 @@ submission workflow storage.
 Next recommended work: Window NR-B should rewrite core historical tests so
 retained-contract tests prove core facts and backend tests prove backend-owned
 records/routes.
+
+## Phase 238 Core Non-Route Retained-Test Rewrite
+
+Core Non-Route Retained-Test Rewrite starts Window NR-B by moving the first
+historical session, rich-inline, and submission boundary tests away from
+service-shaped compatibility helper ownership and onto retained core facts.
+
+The window confirms:
+
+- `tests/sessionStorage.test.ts` now uses
+  `createVNextSessionPackageSnapshot(...)` to prove package snapshot facts,
+  persisted-state exclusions, and no storage/route/backend ownership;
+- `tests/richInlineSessionPersistence.test.ts` now uses
+  `createVNextRichInlineReplayValidation(...)` to prove rich-inline replay
+  validation facts, history-ready counts, invalid replay-patch reporting, and
+  no storage/replay/backend ownership;
+- `tests/submissionState.test.ts` now uses
+  `createVNextSubmissionIdentityStatus(...)` to prove submission
+  identity/status facts, validation blockers, and no workflow/route/storage
+  ownership;
+- those three historical tests no longer import
+  `createVNextSessionStorageRecord(...)`,
+  `createVNextRichInlineSessionPersistenceRecord(...)`, or
+  `createVNextSubmissionStateRecord(...)` from the public core entrypoint;
+- `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md` records the remaining
+  compatibility composition, storage, and vertical-slice tests that still need
+  later cleanup before or during Window NR-C.
+
+This phase intentionally does not remove public exports, rewrite every
+compatibility composition test, change helper runtime behavior, touch backend
+or frontend code, add a gateway, run rich-inline replay execution, or implement
+production submission workflow storage.
+
+Next recommended work: finish the remaining NR-B compatibility-test cleanup or
+plan Window NR-C public export narrowing once the remaining composition tests
+have a retained/backend owner.
 
 ## Phase 12 Extraction Record
 

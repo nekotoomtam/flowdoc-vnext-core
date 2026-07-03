@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
-  createVNextSubmissionStateRecord,
+  createVNextSubmissionIdentityStatus,
   parseFlowDocPackageV2DocumentVNext,
-  VNEXT_SUBMISSION_STATE_MODE,
-  VNEXT_SUBMISSION_STATE_SOURCE,
+  VNEXT_SUBMISSION_IDENTITY_STATUS_MODE,
+  VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE,
 } from "../src/index.js"
 
 function fixturePackage(name: string) {
@@ -12,12 +12,12 @@ function fixturePackage(name: string) {
   return parseFlowDocPackageV2DocumentVNext(JSON.parse(readFileSync(fixtureUrl, "utf8")) as unknown)
 }
 
-describe("vNext submission state boundary", () => {
-  it("creates an external submission state record without mutating package truth", () => {
+describe("vNext submission state historical boundary", () => {
+  it("now proves retained external submission identity/status facts without route ownership", () => {
     const pack = fixturePackage("product-report-vnext-minimal.flowdoc.json")
     const before = JSON.stringify(pack)
 
-    const record = createVNextSubmissionStateRecord({
+    const identityStatus = createVNextSubmissionIdentityStatus({
       templateId: pack.id,
       documentRevision: 5,
       dataRevision: 2,
@@ -27,69 +27,71 @@ describe("vNext submission state boundary", () => {
       reason: "submit for review",
     })
 
-    expect(record).toEqual({
-      source: VNEXT_SUBMISSION_STATE_SOURCE,
-      mode: VNEXT_SUBMISSION_STATE_MODE,
-      status: "ready",
-      workflowStatus: "submitted",
-      templateId: pack.id,
-      submissionId: "submission-001",
-      documentRevision: 5,
-      dataRevision: 2,
-      actorId: "author-001",
-      reviewerId: null,
-      reason: "submit for review",
+    expect(identityStatus).toEqual({
+      source: VNEXT_SUBMISSION_IDENTITY_STATUS_SOURCE,
+      mode: VNEXT_SUBMISSION_IDENTITY_STATUS_MODE,
+      facts: {
+        status: "ready",
+        workflowStatus: "submitted",
+        templateId: pack.id,
+        submissionId: "submission-001",
+        documentRevision: 5,
+        dataRevision: 2,
+        actorId: "author-001",
+        reviewerId: null,
+        reason: "submit for review",
+        contracts: {
+          submissionIdentityFacts: true,
+          externalWorkflowStatusFacts: true,
+          validationFacts: true,
+          externalSubmissionState: true,
+          packageMutation: false,
+          documentMutation: false,
+          dataMutation: false,
+          editorSession: false,
+          workflowEngine: false,
+          permissions: false,
+          approvalGates: false,
+          storageWrite: false,
+          routeDispatch: false,
+          notificationAudit: false,
+        },
+      },
       issues: [],
-      scope: {
-        package: false,
-        documentNode: false,
-        dataSnapshot: false,
-        editorSession: false,
-        externalSubmissionState: true,
-      },
-      application: {
-        status: "not-applied",
-        packageMutation: "not-run",
-        documentMutation: "not-run",
-        dataMutation: "not-run",
-        historyWrite: "not-written",
-        storageWrite: "not-written",
-        routeDispatch: "not-run",
-        packageVersionChange: false,
-      },
     })
     expect(JSON.stringify(pack)).toBe(before)
-    expect(JSON.parse(JSON.stringify(record))).toEqual(record)
+    expect(Object.prototype.hasOwnProperty.call(identityStatus, "scope")).toBe(false)
+    expect(Object.prototype.hasOwnProperty.call(identityStatus, "application")).toBe(false)
+    expect(JSON.stringify(identityStatus)).not.toContain('"not-written"')
+    expect(JSON.stringify(identityStatus)).not.toContain('"not-run"')
+    expect(JSON.parse(JSON.stringify(identityStatus))).toEqual(identityStatus)
   })
 
-  it("blocks incomplete review states before any workflow write", () => {
-    const record = createVNextSubmissionStateRecord({
+  it("blocks incomplete retained review facts before any workflow write", () => {
+    const identityStatus = createVNextSubmissionIdentityStatus({
       templateId: "",
       documentRevision: -1,
       dataRevision: 1.5,
       workflowStatus: "approved",
     })
 
-    expect(record.status).toBe("blocked")
-    expect(record).toMatchObject({
+    expect(identityStatus.facts).toMatchObject({
+      status: "blocked",
       workflowStatus: "approved",
       templateId: null,
       submissionId: null,
       documentRevision: null,
       dataRevision: null,
       reviewerId: null,
-      application: {
-        status: "not-applied",
-        packageMutation: "not-run",
-        documentMutation: "not-run",
-        dataMutation: "not-run",
-        historyWrite: "not-written",
-        storageWrite: "not-written",
-        routeDispatch: "not-run",
-        packageVersionChange: false,
+      contracts: {
+        workflowEngine: false,
+        permissions: false,
+        approvalGates: false,
+        storageWrite: false,
+        routeDispatch: false,
       },
     })
-    expect(record.issues).toEqual(expect.arrayContaining([
+    expect(identityStatus.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({
         code: "missing-template-id",
         path: "templateId",
@@ -113,35 +115,44 @@ describe("vNext submission state boundary", () => {
     ]))
   })
 
-  it("keeps the submission state boundary independent from storage, DOM, routes, and package schema changes", () => {
+  it("keeps the retained identity/status helper independent from storage, DOM, routes, and package schema changes", () => {
     const sourceUrl = new URL("../src/workflow/submissionState.ts", import.meta.url)
     const source = readFileSync(sourceUrl, "utf8")
+    const helperStart = source.indexOf("export function createVNextSubmissionIdentityStatus")
+    const stateStart = source.indexOf("export function createVNextSubmissionStateRecord")
+    const helperSource = source.slice(helperStart, stateStart)
 
-    expect(source).toContain('storageWrite: "not-written"')
-    expect(source).toContain('routeDispatch: "not-run"')
-    expect(source).toContain("externalSubmissionState: true")
-    expect(source).not.toMatch(/\.\.\/\.\.\/packages/)
-    expect(source).not.toMatch(/\.\.\/\.\.\/src\/app/)
-    expect(source).not.toMatch(/node:fs|node:http|node:https|express|fastify/)
-    expect(source).not.toContain("fetch(")
-    expect(source).not.toContain("localStorage")
-    expect(source).not.toContain("sessionStorage")
-    expect(source).not.toContain("indexedDB")
-    expect(source).not.toMatch(/\bdocument\.(querySelector|createElement|body|addEventListener)/)
-    expect(source).not.toContain("HTMLElement")
-    expect(source).not.toContain("window.")
-    expect(source).not.toContain("/api/")
-    expect(source).not.toContain("parseFlowDocPackage")
-    expect(source).not.toContain("serializeFlowDocPackage")
-    expect(source).not.toContain("runVNextTextTransaction")
-    expect(source).not.toContain("runVNextOperation")
-    expect(source).not.toContain("runVNextLayoutPipeline")
-    expect(source).not.toContain("paginateVNextDocument")
+    expect(helperSource).toContain("submissionIdentityFacts: true")
+    expect(helperSource).toContain("externalWorkflowStatusFacts: true")
+    expect(helperSource).toContain("externalSubmissionState: true")
+    expect(helperSource).toContain("workflowEngine: false")
+    expect(helperSource).toContain("storageWrite: false")
+    expect(helperSource).toContain("routeDispatch: false")
+    expect(helperSource).not.toContain('"not-written"')
+    expect(helperSource).not.toContain('"not-run"')
+    expect(helperSource).not.toMatch(/\.\.\/\.\.\/packages/)
+    expect(helperSource).not.toMatch(/\.\.\/\.\.\/src\/app/)
+    expect(helperSource).not.toMatch(/node:fs|node:http|node:https|express|fastify/)
+    expect(helperSource).not.toContain("fetch(")
+    expect(helperSource).not.toContain("localStorage")
+    expect(helperSource).not.toContain("sessionStorage")
+    expect(helperSource).not.toContain("indexedDB")
+    expect(helperSource).not.toMatch(/\bdocument\.(querySelector|createElement|body|addEventListener)/)
+    expect(helperSource).not.toContain("HTMLElement")
+    expect(helperSource).not.toContain("window.")
+    expect(helperSource).not.toContain("/api/")
+    expect(helperSource).not.toContain("parseFlowDocPackage")
+    expect(helperSource).not.toContain("serializeFlowDocPackage")
+    expect(helperSource).not.toContain("runVNextTextTransaction")
+    expect(helperSource).not.toContain("runVNextOperation")
+    expect(helperSource).not.toContain("runVNextLayoutPipeline")
+    expect(helperSource).not.toContain("paginateVNextDocument")
   })
 
-  it("documents the submission state boundary in the phase trail", () => {
+  it("documents the retained test rewrite beside the historical submission state boundary", () => {
     const readText = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")
     const boundaryDoc = readText("../docs/SUBMISSION_STATE_BOUNDARY.md")
+    const retainedRewrite = readText("../docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
@@ -151,9 +162,13 @@ describe("vNext submission state boundary", () => {
     expect(boundaryDoc).toContain("This is a submission state boundary.")
     expect(boundaryDoc).toContain("It is not a workflow engine.")
     expect(boundaryDoc).toContain("externalSubmissionState = `true`")
+    expect(retainedRewrite).toContain("tests/submissionState.test.ts")
+    expect(retainedRewrite).toContain("createVNextSubmissionIdentityStatus(...)")
     expect(readme).toContain("Submission state boundary")
+    expect(readme).toContain("Core Non-Route Retained-Test Rewrite")
     expect(readme).toContain("docs/SUBMISSION_STATE_BOUNDARY.md")
     expect(ledger).toContain("| 91 | Submission state boundary | done |")
+    expect(ledger).toContain("| 238 | Core non-route retained-test rewrite | done |")
     expect(roadmap).toContain("## Phase 91: Submission State Boundary")
   })
 })

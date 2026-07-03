@@ -5,11 +5,10 @@ import {
   appendVNextAuthoringIntentHistoryRecord,
   createVNextEditableSession,
   createVNextRichInlineCommitHistoryRecord,
-  createVNextRichInlineSessionPersistenceRecord,
+  createVNextRichInlineReplayValidation,
   runVNextRichInlineCommit,
-  serializeFlowDocPackageV2DocumentVNext,
-  VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE,
-  VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE,
+  VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE,
+  VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE,
 } from "../src/index.js"
 
 function fixtureValue(name: string): unknown {
@@ -43,105 +42,55 @@ function committedRichInlineFixture() {
 
   const historyRecord = createVNextRichInlineCommitHistoryRecord(result)
   const historyRecords = appendVNextAuthoringIntentHistoryRecord([], historyRecord)
-  const packageSnapshot = serializeFlowDocPackageV2DocumentVNext({
-    ...session.package,
-    document: result.document,
-  })
-  const mutatedSession = {
-    ...createVNextEditableSession(packageSnapshot),
-    revisions: {
-      document: 1,
-      dirtyScopes: 1,
-      selection: 0,
-    },
-    dirtyScopes: new Set(["text-block:summary-left-text"]),
+  const replayPatch = {
+    afterChildren: result.command.children,
+    beforeChildren: beforeTextBlock.children,
+    historyRecord: historyRecords[0],
+    sourceAction: "sandbox.commitRichInline",
+    targetTextBlockId: "summary-left-text",
   }
 
   return {
     beforeTextBlock,
     historyRecords,
-    mutatedSession,
+    replayPatch,
     result,
   }
 }
 
-describe("vNext rich inline session persistence boundary", () => {
-  it("creates a rich inline session persistence record without writing storage", () => {
-    const { beforeTextBlock, historyRecords, mutatedSession, result } = committedRichInlineFixture()
-    const record = createVNextRichInlineSessionPersistenceRecord(mutatedSession, {
-      historyKey: "history/product-report/rich-inline",
+describe("vNext rich inline session persistence historical boundary", () => {
+  it("now proves retained replay validation facts without persistence ownership", () => {
+    const { beforeTextBlock, historyRecords, replayPatch, result } = committedRichInlineFixture()
+    const validation = createVNextRichInlineReplayValidation({
       historyRecords,
-      reason: "save-rich-inline-session",
-      replayPatches: [{
-        afterChildren: result.command.children,
-        beforeChildren: beforeTextBlock.children,
-        historyRecord: historyRecords[0],
-        sourceAction: "sandbox.commitRichInline",
-        targetTextBlockId: "summary-left-text",
-      }],
-      storageKey: "template/product-report/rich-inline",
+      replayPatches: [replayPatch],
     })
 
-    expect(record).toMatchObject({
-      source: VNEXT_RICH_INLINE_SESSION_PERSISTENCE_SOURCE,
-      mode: VNEXT_RICH_INLINE_SESSION_PERSISTENCE_MODE,
-      manifest: {
+    expect(validation).toMatchObject({
+      source: VNEXT_RICH_INLINE_REPLAY_VALIDATION_SOURCE,
+      mode: VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE,
+      facts: {
         schemaVersion: 1,
-        documentRevision: 1,
-        storageKey: "template/product-report/rich-inline",
-        historyKey: "history/product-report/rich-inline",
-        reason: "save-rich-inline-session",
-        storageStatus: "not-written",
-        packageStorageStatus: "not-written",
-        historyStorageStatus: "not-written",
+        commandKind: "text-block.rich-inline.replace",
+        historyReadyRecordCount: 1,
         richHistoryRecordCount: 1,
         replayPatchCount: 1,
         invalidReplayPatchCount: 0,
-        persistedState: {
-          package: true,
-          authoringHistory: true,
-          richReplayPatches: true,
-          selection: false,
-          dirtyScopes: false,
-          diagnostics: false,
-          graph: false,
-          viewport: false,
-          liveLayout: false,
-          exactLayout: false,
-          artifacts: false,
-        },
-        replay: {
-          executionStatus: "not-run",
-          replayMode: "rich-inline-before-after-children",
-          conflictResolution: "not-run",
-          selectionRestore: "not-persisted",
-          storageAdapter: "not-bound",
-          backendApi: "not-called",
+        fieldKeys: ["customer.name"],
+        contracts: {
+          replayPatchValidation: true,
+          historyReadyFacts: true,
+          beforeAfterChildrenSnapshots: true,
+          storageRecord: false,
+          storageWrites: false,
+          routeDispatch: false,
+          backendApi: false,
+          replayExecution: false,
+          conflictResolution: false,
+          selectionRestore: false,
         },
       },
-      sessionStorage: {
-        manifest: {
-          persistedState: {
-            package: true,
-            authoringHistory: false,
-          },
-          storageStatus: "not-written",
-        },
-      },
-      durableHistory: {
-        manifest: {
-          persistedState: {
-            authoringHistory: true,
-            package: false,
-          },
-          storageStatus: "not-written",
-          undoRedo: {
-            executionStatus: "not-run",
-            replayMode: "metadata-only",
-          },
-        },
-      },
-      replayPatches: [{
+      replayPatchValidations: [{
         schemaVersion: 1,
         commandKind: "text-block.rich-inline.replace",
         groupId: "authoring-group-1",
@@ -155,21 +104,23 @@ describe("vNext rich inline session persistence boundary", () => {
           fieldKeys: ["customer.name"],
           status: "field-ref-usage-recorded",
         },
-        replayStatus: "not-run",
-        storageStatus: "not-written",
         validationStatus: "valid",
         issues: [],
       }],
     })
-    expect(record.replayPatches[0].beforeChildren).toEqual(beforeTextBlock.children)
-    expect(record.replayPatches[0].beforeChildren).not.toBe(beforeTextBlock.children)
-    expect(record.replayPatches[0].afterChildren).toEqual(result.command.children)
-    expect(JSON.parse(JSON.stringify(record))).toEqual(record)
+    expect(validation.replayPatchValidations[0].beforeChildren).toEqual(beforeTextBlock.children)
+    expect(validation.replayPatchValidations[0].beforeChildren).not.toBe(beforeTextBlock.children)
+    expect(validation.replayPatchValidations[0].afterChildren).toEqual(result.command.children)
+    expect(Object.prototype.hasOwnProperty.call(validation.replayPatchValidations[0], "storageStatus")).toBe(false)
+    expect(Object.prototype.hasOwnProperty.call(validation.replayPatchValidations[0], "replayStatus")).toBe(false)
+    expect(JSON.stringify(validation)).not.toContain("storageStatus")
+    expect(JSON.stringify(validation)).not.toContain("storageKey")
+    expect(JSON.parse(JSON.stringify(validation))).toEqual(validation)
   })
 
-  it("reports invalid replay patches without running replay", () => {
-    const { beforeTextBlock, historyRecords, mutatedSession } = committedRichInlineFixture()
-    const record = createVNextRichInlineSessionPersistenceRecord(mutatedSession, {
+  it("reports invalid retained replay validation without running replay or storage", () => {
+    const { beforeTextBlock, historyRecords } = committedRichInlineFixture()
+    const validation = createVNextRichInlineReplayValidation({
       historyRecords,
       replayPatches: [{
         afterChildren: [
@@ -182,17 +133,19 @@ describe("vNext rich inline session persistence boundary", () => {
       }],
     })
 
-    expect(record.manifest).toMatchObject({
+    expect(validation.facts).toMatchObject({
       replayPatchCount: 1,
       invalidReplayPatchCount: 1,
-      replay: {
-        executionStatus: "not-run",
-        replayMode: "rich-inline-before-after-children",
+      fieldKeys: ["customer.name"],
+      contracts: {
+        replayExecution: false,
+        storageWrites: false,
+        routeDispatch: false,
+        backendApi: false,
       },
     })
-    expect(record.replayPatches[0]).toMatchObject({
+    expect(validation.replayPatchValidations[0]).toMatchObject({
       validationStatus: "invalid",
-      replayStatus: "not-run",
       issues: [
         {
           code: "duplicate-inline-id",
@@ -200,38 +153,47 @@ describe("vNext rich inline session persistence boundary", () => {
         },
       ],
     })
+    expect(Object.prototype.hasOwnProperty.call(validation.replayPatchValidations[0], "storageStatus")).toBe(false)
+    expect(Object.prototype.hasOwnProperty.call(validation.replayPatchValidations[0], "replayStatus")).toBe(false)
   })
 
-  it("keeps the rich inline session persistence boundary independent from adapters, DOM, routes, and replay execution", () => {
+  it("keeps the retained replay validation helper independent from adapters, DOM, routes, and replay execution", () => {
     const sourceUrl = new URL("../src/authoring/richInlineSessionPersistence.ts", import.meta.url)
     const source = readFileSync(sourceUrl, "utf8")
+    const validationStart = source.indexOf("export function createVNextRichInlineReplayValidation")
+    const persistenceStart = source.indexOf("export function createVNextRichInlineSessionPersistenceRecord")
+    const validationSource = source.slice(validationStart, persistenceStart)
 
-    expect(source).toContain("createVNextSessionStorageRecord")
-    expect(source).toContain("createVNextDurableHistorySnapshot")
-    expect(source).toContain("rich-inline-before-after-children")
-    expect(source).toContain('storageStatus: "not-written"')
-    expect(source).toContain('executionStatus: "not-run"')
-    expect(source).not.toMatch(/\.\.\/\.\.\/packages/)
-    expect(source).not.toMatch(/\.\.\/\.\.\/src\/app/)
-    expect(source).not.toMatch(/node:fs|node:http|node:https|express|fastify/)
-    expect(source).not.toContain("fetch(")
-    expect(source).not.toContain("localStorage")
-    expect(source).not.toMatch(/\bwindow\.sessionStorage\b|\bsessionStorage\.(getItem|setItem|removeItem|clear)\b/)
-    expect(source).not.toContain("indexedDB")
-    expect(source).not.toMatch(/\bdocument\.(querySelector|createElement|body|addEventListener)/)
-    expect(source).not.toContain("HTMLElement")
-    expect(source).not.toContain("window.")
-    expect(source).not.toContain("/api/")
-    expect(source).not.toContain("runVNextRichInlineCommit")
-    expect(source).not.toContain("runVNextTextTransaction")
-    expect(source).not.toContain("runVNextOperation")
-    expect(source).not.toContain("runVNextLayoutPipeline")
-    expect(source).not.toContain("paginateVNextDocument")
+    expect(validationSource).toContain("replayPatchValidation: true")
+    expect(validationSource).toContain("historyReadyFacts: true")
+    expect(validationSource).toContain("storageRecord: false")
+    expect(validationSource).toContain("storageWrites: false")
+    expect(validationSource).not.toContain("createVNextSessionStorageRecord")
+    expect(validationSource).not.toContain("createVNextDurableHistorySnapshot")
+    expect(validationSource).not.toContain("storageStatus")
+    expect(validationSource).not.toContain("storageKey")
+    expect(validationSource).not.toMatch(/\.\.\/\.\.\/packages/)
+    expect(validationSource).not.toMatch(/\.\.\/\.\.\/src\/app/)
+    expect(validationSource).not.toMatch(/node:fs|node:http|node:https|express|fastify/)
+    expect(validationSource).not.toContain("fetch(")
+    expect(validationSource).not.toContain("localStorage")
+    expect(validationSource).not.toMatch(/\bwindow\.sessionStorage\b|\bsessionStorage\.(getItem|setItem|removeItem|clear)\b/)
+    expect(validationSource).not.toContain("indexedDB")
+    expect(validationSource).not.toMatch(/\bdocument\.(querySelector|createElement|body|addEventListener)/)
+    expect(validationSource).not.toContain("HTMLElement")
+    expect(validationSource).not.toContain("window.")
+    expect(validationSource).not.toContain("/api/")
+    expect(validationSource).not.toContain("runVNextRichInlineCommit")
+    expect(validationSource).not.toContain("runVNextTextTransaction")
+    expect(validationSource).not.toContain("runVNextOperation")
+    expect(validationSource).not.toContain("runVNextLayoutPipeline")
+    expect(validationSource).not.toContain("paginateVNextDocument")
   })
 
-  it("documents the rich inline session persistence boundary in the phase trail", () => {
+  it("documents the retained test rewrite beside the historical rich inline persistence boundary", () => {
     const readText = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")
     const boundaryDoc = readText("../docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md")
+    const retainedRewrite = readText("../docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
@@ -240,8 +202,12 @@ describe("vNext rich inline session persistence boundary", () => {
     expect(boundaryDoc).toContain("src/authoring/richInlineSessionPersistence.ts")
     expect(boundaryDoc).toContain("This is a rich inline session persistence boundary.")
     expect(boundaryDoc).toContain("It is not a storage adapter.")
+    expect(retainedRewrite).toContain("tests/richInlineSessionPersistence.test.ts")
+    expect(retainedRewrite).toContain("createVNextRichInlineReplayValidation(...)")
     expect(readme).toContain("TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md")
+    expect(readme).toContain("Core Non-Route Retained-Test Rewrite")
     expect(ledger).toContain("| 129 | Rich inline persistence/session boundary | done |")
+    expect(ledger).toContain("| 238 | Core non-route retained-test rewrite | done |")
     expect(roadmap).toContain("## Phase 129: Rich Inline Persistence / Session Boundary")
   })
 })
