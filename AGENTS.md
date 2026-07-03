@@ -34,6 +34,20 @@ truth. It is evidence only.
    monolithic files that own state shape, event binding, rendering, transport,
    mutation application, diagnostics, and command policy together.
 
+## Cross-Repo Coordination
+
+For work that touches or affects `flowdoc-vnext-editor` or
+`flowdoc-vnext-backend`, read `docs/CROSS_REPO_OPERATING_MAP.md` before making
+architecture or integration claims. The default product flow is editor intent
+through backend transport/revision gates into retained core contracts; do not
+move HTTP, React/runtime state, DOM state, or concrete storage execution into
+core.
+
+When the user delegates a broad topic, use the delegated major topic workflow
+in `docs/CROSS_REPO_OPERATING_MAP.md`: restate the outcome, split it into
+phases, execute phase by phase until complete or genuinely blocked, and give
+the full review output at handoff.
+
 ## Required Review Output
 
 When reviewing or handing off broad work, include:
