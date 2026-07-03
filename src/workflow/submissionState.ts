@@ -218,6 +218,13 @@ export function createVNextSubmissionIdentityStatus(
   }
 }
 
+/**
+ * @deprecated Window NR-A compatibility export.
+ * Backend-owned submission route contracts now live in
+ * `flowdoc-vnext-backend/src/routes/submissionRoute.ts`. Use
+ * `createVNextSubmissionIdentityStatus(...)` for retained core identity/status
+ * facts.
+ */
 export function createVNextSubmissionStateRecord(
   input: VNextSubmissionStateInput,
 ): VNextSubmissionStateRecord {

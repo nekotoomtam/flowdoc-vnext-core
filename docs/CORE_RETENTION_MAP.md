@@ -106,8 +106,8 @@ Core guard tests should keep these facts true:
 
 ## Next Implementation Order
 
-1. Start Window NR-A by marking service-shaped session/rich-inline/submission
-   helper names deprecated while keeping entrypoint compatibility.
+1. Window NR-A deprecation markers are complete in
+   `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 2. Rewrite core historical tests so retained-contract tests prove core facts
    and backend tests prove backend-owned records/routes.
 3. Remove deprecated route source files only after historical docs and source
@@ -122,6 +122,8 @@ Core guard tests should keep these facts true:
   delete core contract truth.
 - Backend non-route consumer rewiring is now proven on
   `flowdoc-vnext-backend` `main@9d0a850`.
+- Window NR-A deprecation markers are now applied to the remaining non-route
+  service-shaped helper functions.
 - De-export work is gated by parity, consumer rewiring, retained contract
   coverage, and boundary guard tests.
 
@@ -152,6 +154,7 @@ Core guard tests should keep these facts true:
 
 - `docs/CORE_RETENTION_MAP.md`
 - `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`
+- `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`
 - `tests/coreRetentionMap.test.ts`
 - README and phase ledger pointers
 
@@ -160,7 +163,8 @@ Core guard tests should keep these facts true:
 - Documentation, boundary tests, and route public export removal.
 - No runtime source modules moved.
 - Route-shaped public exports removed; non-route public exports unchanged.
-- Backend consumer rewiring evidence is recorded as complete.
+- Backend consumer rewiring evidence and NR-A deprecation markers are recorded
+  as complete.
 
 ## Tests Run
 
@@ -169,8 +173,8 @@ Core guard tests should keep these facts true:
 ## Risks Left
 
 - Deprecated route source cleanup remains optional.
-- Window NR-A/NR-B/NR-C service-shaped export deprecation/de-export still needs
-  implementation.
+- Window NR-B/NR-C service-shaped export test rewrite and public de-export
+  still need implementation.
 - Core package cleanup still waits for historical-test replacement.
 
 ## Intentionally Not Changed

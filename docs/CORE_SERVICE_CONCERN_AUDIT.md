@@ -188,7 +188,8 @@ before starting de-export work. The next core-owned step is a small
 compatibility sequence:
 
 1. Window NR-A: mark service-shaped helper names deprecated while keeping
-   public entrypoint compatibility.
+   public entrypoint compatibility. Complete in
+   `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 2. Window NR-B: rewrite core historical tests toward retained-contract
    assertions.
 3. Window NR-C: narrow public exports to retained helper names.

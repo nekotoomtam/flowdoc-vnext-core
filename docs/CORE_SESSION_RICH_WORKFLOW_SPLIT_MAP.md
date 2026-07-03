@@ -147,8 +147,8 @@ not be treated as final core ownership.
 
 ## Next Implementation Order
 
-1. Start Window NR-A: mark old service-shaped helper names deprecated while
-   preserving public entrypoint compatibility.
+1. Window NR-A deprecation markers are complete in
+   `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 2. Start Window NR-B: rewrite core historical tests so retained-contract tests
    prove core facts and backend tests prove backend-owned records/routes.
 3. Start Window NR-C: narrow `src/index.ts` to retained helper exports and
@@ -160,6 +160,8 @@ not be treated as final core ownership.
   ownership.
 - Each ownership claim cites current source, test, or boundary docs.
 - Backend consumer rewiring is proven for session, rich-inline, and submission.
+- Window NR-A source-level deprecation markers are applied to the compatibility
+  helper functions.
 - Public exports remain stable until the non-route compatibility windows run.
 
 ## FAIL / BLOCKER
@@ -188,6 +190,7 @@ not be treated as final core ownership.
 - `docs/CORE_RETENTION_MAP.md`
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`
 - `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`
+- `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`
 - `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`
 - `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`
 - `tests/coreSessionRichWorkflowSplitMap.test.ts`
@@ -214,7 +217,7 @@ not be treated as final core ownership.
 - Storage-shaped session record deprecation/de-export remains.
 - Rich-inline persistence-shaped record deprecation/de-export remains.
 - Submission workflow-shaped record deprecation/de-export remains.
-- Window NR-A/NR-B/NR-C remains.
+- Window NR-B/NR-C remains.
 
 ## Intentionally Not Changed
 

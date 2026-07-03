@@ -115,6 +115,13 @@ export function createVNextSessionPackageSnapshot(
   }
 }
 
+/**
+ * @deprecated Window NR-A compatibility export.
+ * Backend-owned session storage records now live in
+ * `flowdoc-vnext-backend/src/storage/sessionRecord.ts`. Use
+ * `createVNextSessionPackageSnapshot(...)` for retained core package snapshot
+ * facts.
+ */
 export function createVNextSessionStorageRecord(
   session: VNextEditableSession,
   options: VNextSessionStorageOptions = {},

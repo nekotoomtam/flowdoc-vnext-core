@@ -922,6 +922,10 @@ The package must remain runnable without any parent editor checkout.
   over retained core facts, while core keeps compatibility exports until the
   non-route deprecation/de-export windows run. See
   `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`.
+- Core Non-Route Deprecation Window starts Window NR-A by marking the remaining
+  service-shaped helper names as deprecated compatibility exports while keeping
+  public entrypoint compatibility stable. See
+  `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -1005,6 +1009,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`: Phase 236 evidence that
   backend `main@9d0a850` consumes retained session, rich-inline, and submission
   facts through backend-owned records/routes before core non-route de-export
+- `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`: Phase 237 Window NR-A
+  deprecation markers for non-route service-shaped helper names
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

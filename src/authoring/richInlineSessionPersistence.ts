@@ -281,6 +281,13 @@ export function createVNextRichInlineReplayValidation(
   }
 }
 
+/**
+ * @deprecated Window NR-A compatibility export.
+ * Backend-owned rich-inline session records now live in
+ * `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`. Use
+ * `createVNextRichInlineReplayValidation(...)` for retained core replay
+ * validation facts.
+ */
 export function createVNextRichInlineSessionPersistenceRecord(
   session: VNextEditableSession,
   options: VNextRichInlineSessionPersistenceOptions = {},

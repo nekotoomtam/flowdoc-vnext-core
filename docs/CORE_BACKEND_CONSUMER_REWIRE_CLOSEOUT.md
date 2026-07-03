@@ -89,7 +89,8 @@ historical tests still exercise compatibility record shapes:
 Use a small non-route compatibility sequence:
 
 1. Window NR-A: mark service-shaped helper exports as deprecated in source and
-   docs while keeping public entrypoint compatibility.
+   docs while keeping public entrypoint compatibility. Complete in
+   `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 2. Window NR-B: rewrite core historical tests so retained-contract tests prove
    core-owned facts, while backend tests prove backend-owned records/routes.
 3. Window NR-C: narrow `src/index.ts` public exports to retained helpers only
@@ -143,7 +144,7 @@ Use a small non-route compatibility sequence:
 
 ## Risks Left
 
-- Window NR-A/NR-B/NR-C still need implementation.
+- Window NR-B/NR-C still need implementation.
 - Deprecated route source cleanup remains optional.
 - Old concrete package lanes remain in core until historical-test replacement
   and package-lane cleanup are scheduled.

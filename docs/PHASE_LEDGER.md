@@ -250,6 +250,7 @@ Parent goal:
 | 234 | Core rich inline replay validation split | done | `src/authoring/richInlineSessionPersistence.ts`; `tests/richInlineReplayValidation.test.ts`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 | 235 | Core submission identity/status split | done | `src/workflow/submissionState.ts`; `tests/submissionIdentityStatus.test.ts`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SUBMISSION_STATE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 | 236 | Core backend consumer rewire closeout | done | `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreBackendConsumerRewireCloseout.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `flowdoc-vnext-backend@9d0a850` |
+| 237 | Core non-route deprecation window | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`; `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreNonRouteDeprecationWindow.test.ts` |
 
 ## Current Rule
 
@@ -7130,10 +7131,45 @@ rewrite all historical compatibility tests, touch backend/frontend code, add a
 gateway, run rich-inline replay execution, or implement production submission
 workflow storage.
 
-Next recommended work: Window NR-A should mark service-shaped helper names
-deprecated while preserving public entrypoint compatibility; Window NR-B should
+Next recommended work: Window NR-A is complete in Phase 237; Window NR-B should
 rewrite historical tests toward retained contracts; Window NR-C should narrow
 `src/index.ts` to retained helper exports.
+
+## Phase 237 Core Non-Route Deprecation Window
+
+Core Non-Route Deprecation Window starts Window NR-A from
+`docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md` by marking the remaining
+non-route service-shaped helper names as deprecated compatibility exports while
+keeping public entrypoint compatibility stable.
+
+The window confirms:
+
+- `createVNextSessionStorageRecord(...)` is source-marked with
+  `@deprecated Window NR-A compatibility export` and points to backend
+  `src/storage/sessionRecord.ts` plus retained
+  `createVNextSessionPackageSnapshot(...)` facts;
+- `createVNextRichInlineSessionPersistenceRecord(...)` is source-marked with
+  `@deprecated Window NR-A compatibility export` and points to backend
+  `src/storage/richInlineSessionRecord.ts` plus retained
+  `createVNextRichInlineReplayValidation(...)` facts;
+- `createVNextSubmissionStateRecord(...)` is source-marked with
+  `@deprecated Window NR-A compatibility export` and points to backend
+  `src/routes/submissionRoute.ts` plus retained
+  `createVNextSubmissionIdentityStatus(...)` facts;
+- `src/index.ts` still exports `./authoring/sessionStorage.js`,
+  `./authoring/richInlineSessionPersistence.js`, and
+  `./workflow/submissionState.js` for compatibility;
+- `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`, README, and map docs record
+  that Window NR-B/NR-C remain.
+
+This phase intentionally does not remove public exports, rewrite historical
+compatibility tests, change helper runtime behavior, touch backend/frontend
+code, add a gateway, run rich-inline replay execution, or implement production
+submission workflow storage.
+
+Next recommended work: Window NR-B should rewrite core historical tests so
+retained-contract tests prove core facts and backend tests prove backend-owned
+records/routes.
 
 ## Phase 12 Extraction Record
 

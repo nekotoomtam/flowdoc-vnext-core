@@ -150,8 +150,8 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 ## Next Implementation Order
 
-1. Start Window NR-A by marking the remaining service-shaped helper exports as
-   deprecated while keeping public entrypoint compatibility.
+1. Window NR-A deprecation markers are complete in
+   `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`.
 2. Rewrite core historical tests for session/rich-inline/submission so
    retained-contract tests prove core facts and backend tests prove backend
    records/routes.
@@ -169,6 +169,8 @@ A service-shaped export can be deprecated or removed only when all are true:
   contracts without importing the old core route helpers.
 - Backend consumer rewiring now exists for session, rich-inline, and
   submission contracts without importing the old service-shaped helpers.
+- Window NR-A deprecation markers now identify those old helper names as
+  compatibility exports.
 - Backend P1 migration is treated as evidence for execution ownership, not as
   permission to delete retained core contracts.
 - Editor is currently clean: core package imports are behind its adapter facade,
@@ -200,6 +202,7 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`
 - `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`
+- `docs/CORE_NON_ROUTE_DEPRECATION_WINDOW.md`
 - `tests/coreServiceConsumerMap.test.ts`
 - README and phase ledger pointers
 
@@ -208,7 +211,8 @@ A service-shaped export can be deprecated or removed only when all are true:
 - Documentation, guard tests, and route public export removal.
 - No runtime source modules moved.
 - Route-shaped public exports removed; remaining service-shaped exports stay.
-- Backend consumer rewiring evidence is recorded as complete.
+- Backend consumer rewiring evidence and Window NR-A deprecation markers are
+  recorded as complete.
 - No backend or editor code changed.
 
 ## Tests Run
@@ -219,8 +223,9 @@ A service-shaped export can be deprecated or removed only when all are true:
 
 - Window B deprecation markers, retained-contract rewrite, and Window C public
   export removal now exist; deprecated route source cleanup remains optional.
-- Session/rich-inline/workflow split-before-move now has retained helpers and
-  backend consumer rewiring evidence; deprecation/de-export windows remain.
+- Session/rich-inline/workflow split-before-move now has retained helpers,
+  backend consumer rewiring evidence, and NR-A deprecation markers; Window
+  NR-B/NR-C remain.
 - Old concrete package lanes remain in core until historical-test replacement
   and consumer rewiring are proven.
 
