@@ -3,9 +3,11 @@
 Date: 2026-07-03
 
 Status: planning guard for session, rich-inline, and workflow service-shaped
-exports. The session package snapshot split is complete in Phase 233, and the
-rich-inline replay validation split is complete in Phase 234. The submission
-identity/status split is complete in Phase 235.
+exports after backend consumer rewiring. The session package snapshot split is
+complete in Phase 233, the rich-inline replay validation split is complete in
+Phase 234, the submission identity/status split is complete in Phase 235, and
+backend consumer rewiring is recorded in
+`docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`.
 
 ## Purpose
 
@@ -85,8 +87,14 @@ Consumer evidence:
 - `src/index.ts` still exports `./authoring/sessionStorage.js`,
   `./authoring/richInlineSessionPersistence.js`, and
   `./workflow/submissionState.js`.
-- Backend tests still use `createVNextSessionStorageRecord(...)` as fixture
-  setup.
+- Backend `main@9d0a850` now uses backend-owned replacements:
+  `flowdoc-vnext-backend/src/storage/sessionRecord.ts`,
+  `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`, and
+  `flowdoc-vnext-backend/src/routes/submissionRoute.ts`.
+- Backend tests assert that those replacement paths do not import
+  `createVNextSessionStorageRecord(...)`,
+  `createVNextRichInlineSessionPersistenceRecord(...)`, or
+  `createVNextSubmissionStateRecord(...)`.
 - Core storage/vertical-slice tests use session and rich-inline record shapes.
 - No direct editor consumer of these service-shaped exports is recorded in
   `docs/CORE_SERVICE_CONSUMER_MAP.md`.
@@ -134,32 +142,34 @@ Keep these public exports for now:
 - `./workflow/submissionState.js`.
 
 They stay public only because retained contract names and backend replacement
-contracts are not split yet. They should not be treated as final core ownership.
+contracts still need a compatibility deprecation/de-export window. They should
+not be treated as final core ownership.
 
 ## Next Implementation Order
 
-1. Update backend tests/consumers to use backend-owned storage/workflow routes
-   plus retained core facts.
-2. Deprecate and de-export the old service-shaped public exports in small,
-   reversible windows.
+1. Start Window NR-A: mark old service-shaped helper names deprecated while
+   preserving public entrypoint compatibility.
+2. Start Window NR-B: rewrite core historical tests so retained-contract tests
+   prove core facts and backend tests prove backend-owned records/routes.
+3. Start Window NR-C: narrow `src/index.ts` to retained helper exports and
+   remove service-shaped compatibility helper names from public core.
 
 ## PASS
 
 - The three remaining service-shaped areas now have explicit retain/move
   ownership.
 - Each ownership claim cites current source, test, or boundary docs.
-- Public exports remain stable while the split target names are still open.
+- Backend consumer rewiring is proven for session, rich-inline, and submission.
+- Public exports remain stable until the non-route compatibility windows run.
 
 ## FAIL / BLOCKER
 
-- No implementation split remains open in this session/rich-inline/workflow
-  map.
-- Backend consumer rewiring has not happened yet.
+- None for split and backend consumer rewiring evidence.
 
 ## RISK
 
 - Keeping storage/workflow-shaped helper names public can make backend concerns
-  look like final core ownership.
+  look like final core ownership until Window NR-C.
 - Rich-inline compatibility replay patch records may need granular operation
   vocabulary later.
 - Submission workflow facts may become product-specific if future workflow
@@ -167,17 +177,17 @@ contracts are not split yet. They should not be treated as final core ownership.
 
 ## UNKNOWN
 
-- Final backend-owned route/storage names for session, rich-inline, and
-  submission replacements.
-- Whether backend wants one replacement route/contract per area or a combined
-  storage/workflow orchestration layer.
-- Whether deprecated route source cleanup should happen before these splits.
+- Exact timing for Window NR-A/NR-B/NR-C.
+- Whether deprecated route source cleanup should happen before non-route
+  public export removal.
+- Final production replay execution and workflow storage shapes.
 
 ## Files Changed
 
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`
 - `docs/CORE_RETENTION_MAP.md`
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`
+- `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`
 - `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`
 - `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`
 - `tests/coreSessionRichWorkflowSplitMap.test.ts`
@@ -188,7 +198,7 @@ contracts are not split yet. They should not be treated as final core ownership.
 ## Behavior Changed
 
 - Split-map documentation and guard tests updated after retained helper
-  implementation.
+  implementation and backend consumer rewiring.
 - `src/authoring/richInlineSessionPersistence.ts` now has retained replay
   validation helpers.
 - `src/workflow/submissionState.ts` now has retained identity/status helpers.
@@ -204,7 +214,7 @@ contracts are not split yet. They should not be treated as final core ownership.
 - Storage-shaped session record deprecation/de-export remains.
 - Rich-inline persistence-shaped record deprecation/de-export remains.
 - Submission workflow-shaped record deprecation/de-export remains.
-- Backend consumer rewiring remains.
+- Window NR-A/NR-B/NR-C remains.
 
 ## Intentionally Not Changed
 

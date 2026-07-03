@@ -1,9 +1,9 @@
 # Core Retention Map
 
-Date: 2026-07-02
+Date: 2026-07-03
 
-Status: retention guard after Core Service Concern Audit and after Window C
-public route export removal.
+Status: retention guard after Core Service Concern Audit, Window C public route
+export removal, and backend non-route consumer rewiring.
 
 ## Purpose
 
@@ -15,10 +15,17 @@ renderer-consumption contracts, and history-ready records while backend owns
 transport, durable persistence, queue/worker execution, storage implementations,
 authorization, and workflow runtime.
 
-The first backend P1 migration now has backend-owned file JSON storage, storage
-route binding, and artifact job storage execution under
-`flowdoc-vnext-backend`. Core must use that as migration evidence, not as a
-reason to delete contract truth prematurely.
+The backend migration now has backend-owned file JSON storage, storage route
+binding, artifact job storage execution, session/rich-inline records, and
+submission route contracts under `flowdoc-vnext-backend` `main@9d0a850`. Core
+must use that as migration evidence, not as a reason to delete contract truth
+prematurely.
+
+The remaining compatibility source modules are still
+`src/authoring/sessionStorage.ts`,
+`src/authoring/richInlineSessionPersistence.ts`, and
+`src/workflow/submissionState.ts`. They remain source evidence for retained
+helper composition and historical tests, not final service ownership.
 
 ## Move + Retain Rule
 
@@ -55,9 +62,9 @@ Every service concern move must answer both sides before code is removed:
 | Artifact manifest | artifact lifecycle persistence, byte-store pointer mutation, cleanup policy | `src/generation/artifactManifest.ts` JSON-safe manifest validation and status vocabulary | split-contract |
 | Artifact job record/state | queue, worker execution, storage writes, retry scheduling, renderer orchestration | `src/generation/artifactJob.ts` durable job record shape and pure transition rules | split-contract |
 | Storage adapter contract | file/database/object-store adapters, concrete persistence lifecycle, transaction policy | `src/persistence/storageAdapter.ts` envelope shape, read/write evaluator, idempotency and expected-revision rules | split-contract |
-| Session storage record | durable session store, storage key lifecycle, backend read/write routes currently represented by `src/authoring/sessionStorage.ts` | package snapshot serialization intent and persisted-state exclusions now split into `createVNextSessionPackageSnapshot(...)`; compatibility storage record still exists | split-before-move; session snapshot split complete; see `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md` |
-| Rich inline session persistence | storage adapter writes, backend API calls, replay service, conflict resolution execution currently represented by `src/authoring/richInlineSessionPersistence.ts` | rich inline commit semantics, history records, replay patch validation facts, and before/after child snapshots now split into `createVNextRichInlineReplayValidation(...)`; compatibility persistence record still exists | split-before-move; rich-inline replay validation split complete; see `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md` |
-| Submission state | reviewer workflow service, actor/reviewer permissions, route/storage execution currently represented by `src/workflow/submissionState.ts` | package/document/data identity facts, external workflow status facts, validation facts, and no-mutation contracts now split into `createVNextSubmissionIdentityStatus(...)`; compatibility workflow state record still exists | split-before-move; submission identity/status split complete; see `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md` |
+| Session storage record | durable session store, storage key lifecycle, backend read/write routes now represented by `flowdoc-vnext-backend/src/storage/sessionRecord.ts` and `storageRouteBinding.ts` | package snapshot serialization intent and persisted-state exclusions now split into `createVNextSessionPackageSnapshot(...)`; compatibility storage record still exists for core historical tests | backend consumer rewire complete; public de-export waits for Window NR-A/NR-B/NR-C; see `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md` and `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md` |
+| Rich inline session persistence | storage adapter writes, backend API calls, replay service, conflict resolution execution now represented by `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts` | rich inline commit semantics, history records, replay patch validation facts, and before/after child snapshots now split into `createVNextRichInlineReplayValidation(...)`; compatibility persistence record still exists for core historical tests | backend consumer rewire complete; public de-export waits for Window NR-A/NR-B/NR-C; see `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md` and `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md` |
+| Submission state | reviewer workflow service, actor/reviewer permissions, route/storage execution now represented by `flowdoc-vnext-backend/src/routes/submissionRoute.ts` | package/document/data identity facts, external workflow status facts, validation facts, and no-mutation contracts now split into `createVNextSubmissionIdentityStatus(...)`; compatibility workflow state record still exists for core historical tests | backend consumer rewire complete; public de-export waits for Window NR-A/NR-B/NR-C; see `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md` and `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md` |
 | Editor bridge runtime | backend/editor transport wrappers and product read endpoints currently represented by `src/editorBridge/runtime.ts` consumers | read-only package/graph/pagination/export readiness projection, eventually renamed toward a generic read model | split-contract |
 | Concrete file JSON storage | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` and future production adapters | no concrete file/db/object-store storage in exported `src/**`; old `packages/storage-file-json` lane remains migration evidence until removal | move-backend |
 | Internal alpha runner | `flowdoc-vnext-backend/src/storage/storageRouteBinding.ts` and `src/artifacts/artifactJobExecution.ts` | no runner execution in exported `src/**`; old `packages/internal-alpha-runner` lane remains migration evidence until removal | move-backend |
@@ -99,11 +106,13 @@ Core guard tests should keep these facts true:
 
 ## Next Implementation Order
 
-1. Use the Phase 233/234/235 retained helpers to rewire backend tests and
-   consumers away from service-shaped core records.
-2. Remove deprecated route source files only after historical docs and source
+1. Start Window NR-A by marking service-shaped session/rich-inline/submission
+   helper names deprecated while keeping entrypoint compatibility.
+2. Rewrite core historical tests so retained-contract tests prove core facts
+   and backend tests prove backend-owned records/routes.
+3. Remove deprecated route source files only after historical docs and source
    evidence no longer need them.
-3. Remove old concrete package lanes from core after backend parity and consumer
+4. Remove old concrete package lanes from core after backend parity and consumer
    rewiring are both proven.
 
 ## PASS
@@ -111,6 +120,8 @@ Core guard tests should keep these facts true:
 - Retention owners are explicit for every service-shaped area from the audit.
 - Backend P1 migration is treated as consumer evidence, not as permission to
   delete core contract truth.
+- Backend non-route consumer rewiring is now proven on
+  `flowdoc-vnext-backend` `main@9d0a850`.
 - De-export work is gated by parity, consumer rewiring, retained contract
   coverage, and boundary guard tests.
 
@@ -125,23 +136,22 @@ Core guard tests should keep these facts true:
   remain until source cleanup.
 - Backend and core can drift if duplicated route/storage behavior remains active
   for too long.
-- Session, rich-inline, and submission retained helpers now exist, but their
-  service-shaped compatibility records remain exported until backend/editor
-  consumer rewiring and de-export windows are complete.
+- Session, rich-inline, and submission retained helpers now exist and backend
+  consumer rewiring is proven, but service-shaped compatibility records remain
+  exported until Window NR-A/NR-B/NR-C.
 - The Phase 232 split map now defines the session package snapshot,
   rich-inline replay-patch validation, and submission identity/status lanes;
   all three implementation splits are complete.
 
 ## UNKNOWN
 
-- Exact editor/backend consumer count for each service-shaped export is not yet
-  proven in this core-only patch.
-- Final backend-owned replacement names and generic read model helper names are
-  still open.
+- Exact timing for Window NR-A/NR-B/NR-C is not locked.
+- Final production backend workflow/replay execution shapes are still open.
 
 ## Files Changed
 
 - `docs/CORE_RETENTION_MAP.md`
+- `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`
 - `tests/coreRetentionMap.test.ts`
 - README and phase ledger pointers
 
@@ -150,6 +160,7 @@ Core guard tests should keep these facts true:
 - Documentation, boundary tests, and route public export removal.
 - No runtime source modules moved.
 - Route-shaped public exports removed; non-route public exports unchanged.
+- Backend consumer rewiring evidence is recorded as complete.
 
 ## Tests Run
 
@@ -158,8 +169,9 @@ Core guard tests should keep these facts true:
 ## Risks Left
 
 - Deprecated route source cleanup remains optional.
-- P3 service-shaped export deprecation/de-export still needs implementation.
-- Core package cleanup still waits for consumer rewiring evidence.
+- Window NR-A/NR-B/NR-C service-shaped export deprecation/de-export still needs
+  implementation.
+- Core package cleanup still waits for historical-test replacement.
 
 ## Intentionally Not Changed
 

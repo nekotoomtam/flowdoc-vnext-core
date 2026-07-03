@@ -38,6 +38,9 @@ describe("core service consumer map", () => {
       "flowdoc-vnext-backend/src/storage/fileJsonStorage.ts",
       "flowdoc-vnext-backend/src/storage/storageRouteBinding.ts",
       "flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts",
+      "flowdoc-vnext-backend/src/storage/sessionRecord.ts",
+      "flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts",
+      "flowdoc-vnext-backend/src/routes/submissionRoute.ts",
       "flowdoc-vnext-editor",
       "src/core/coreAdapter.ts",
     ]
@@ -51,11 +54,11 @@ describe("core service consumer map", () => {
 
     expect(doc).toContain("editor -> backend -> core")
     expect(doc).toContain("Backend route parity now exists")
-    expect(doc).toContain("codex/backend-route-parity")
-    expect(doc).toContain("2ae6570")
+    expect(doc).toContain("9d0a850")
     expect(doc).toContain("createFlowDocBackendGenerationRouteResponse")
     expect(doc).toContain("createFlowDocBackendArtifactGenerationRouteResponse")
-    expect(doc).toContain("backend tests still use the session storage record shape")
+    expect(doc).toContain("Backend consumer rewiring is merged")
+    expect(doc).toContain("Backend tests assert")
     expect(doc).toContain("no direct service-shaped export consumer was found")
   })
 
@@ -76,8 +79,10 @@ describe("core service consumer map", () => {
     expect(index).not.toContain("./generation/apiRoute.js")
     expect(index).not.toContain("./generation/artifactApiRoute.js")
     expect(doc).toContain("Do not remove these remaining exports yet")
+    expect(doc).toContain("Ready For Deprecation, Blocked From Immediate Public Removal")
     expect(doc).toContain("route-shaped backend parity exists")
     expect(doc).toContain("route-shaped public exports have been removed")
+    expect(doc).toContain("backend consumer rewiring is now proven")
     expect(doc).toContain("retained core contract names")
   })
 
@@ -93,9 +98,10 @@ describe("core service consumer map", () => {
     expect(audit).toContain("### P2: Move Route-Shaped Core Modules")
     expect(doc).toContain("Backend P1 migration is treated as evidence for execution ownership")
     expect(doc).toContain("Backend route parity now exists for the generation and artifact API route")
+    expect(doc).toContain("Backend consumer rewiring now exists for session, rich-inline, and")
     expect(doc).toContain("The retained core contract has a named owner and direct core tests.")
-    expect(doc).toContain("This is now true for generation")
-    expect(doc).toContain("route tests now become pure retained-contract tests")
+    expect(doc).toContain("generation/artifact route parity")
+    expect(doc).toContain("route tests now become pure")
   })
 
   it("guards retained split-contract owners from accidental service classification", () => {
@@ -125,8 +131,10 @@ describe("core service consumer map", () => {
     expect(readme).toContain("docs/CORE_SERVICE_CONSUMER_MAP.md")
     expect(ledger).toContain("| 226 | Core service consumer map | done |")
     expect(ledger).toContain("| 227 | Backend route parity evidence | done |")
+    expect(ledger).toContain("| 236 | Core backend consumer rewire closeout | done |")
     expect(ledger).toContain("## Phase 226 Core Service Consumer Map")
     expect(ledger).toContain("## Phase 227 Backend Route Parity Evidence")
+    expect(ledger).toContain("## Phase 236 Core Backend Consumer Rewire Closeout")
     expect(ledger).toContain("consumer groups")
   })
 })

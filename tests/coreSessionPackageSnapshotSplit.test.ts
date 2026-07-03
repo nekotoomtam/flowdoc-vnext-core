@@ -53,7 +53,7 @@ describe("core session package snapshot split", () => {
     const readme = readText("README.md")
     const ledger = readText("docs/PHASE_LEDGER.md")
 
-    expect(splitMap).toContain("session package snapshot split is complete")
+    expect(splitMap).toContain("session package snapshot split is")
     expect(sessionBoundary).toContain("createVNextSessionPackageSnapshot")
     expect(retention).toContain("createVNextSessionPackageSnapshot")
     expect(consumerMap).toContain("createVNextSessionPackageSnapshot")

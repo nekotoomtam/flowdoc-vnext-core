@@ -917,6 +917,11 @@ The package must remain runnable without any parent editor checkout.
   `createVNextSubmissionIdentityStatus(...)` as the retained external
   workflow identity/status contract while keeping submission state records as
   compatibility surface. See `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`.
+- Core Backend Consumer Rewire Closeout records that backend `main@9d0a850`
+  now owns session, rich-inline, and submission replacement records/routes
+  over retained core facts, while core keeps compatibility exports until the
+  non-route deprecation/de-export windows run. See
+  `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`.
 - Text engine WASM bindgen export dependency gate adds package-local
   `wasm-bindgen = "0.2"`, switches the WASM library to minimal readiness and
   boundary-version `#[wasm_bindgen]` exports, keeps native smoke intact, and
@@ -997,6 +1002,9 @@ The package must remain runnable without any parent editor checkout.
   records
 - `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`: Phase 235 retained
   submission identity/status helper split from compatibility workflow records
+- `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`: Phase 236 evidence that
+  backend `main@9d0a850` consumes retained session, rich-inline, and submission
+  facts through backend-owned records/routes before core non-route de-export
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

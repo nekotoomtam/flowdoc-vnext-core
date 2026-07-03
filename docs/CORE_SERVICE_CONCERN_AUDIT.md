@@ -179,6 +179,20 @@ The safest next patch is:
 4. only then remove or de-export the duplicated backend implementation from
    core.
 
+## Post Backend Consumer Rewire Note
+
+Backend P1 and the first non-route consumer rewire are now complete on
+`flowdoc-vnext-backend` `main@9d0a850`. Core should no longer plan another
+backend move for session, rich-inline, or submission compatibility helpers
+before starting de-export work. The next core-owned step is a small
+compatibility sequence:
+
+1. Window NR-A: mark service-shaped helper names deprecated while keeping
+   public entrypoint compatibility.
+2. Window NR-B: rewrite core historical tests toward retained-contract
+   assertions.
+3. Window NR-C: narrow public exports to retained helper names.
+
 ## Intentionally Not Changed In This Audit
 
 - No source modules moved.

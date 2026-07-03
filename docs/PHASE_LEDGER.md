@@ -249,6 +249,7 @@ Parent goal:
 | 233 | Core session package snapshot split | done | `src/authoring/sessionStorage.ts`; `tests/sessionPackageSnapshot.test.ts`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SESSION_STORAGE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSessionPackageSnapshotSplit.test.ts` |
 | 234 | Core rich inline replay validation split | done | `src/authoring/richInlineSessionPersistence.ts`; `tests/richInlineReplayValidation.test.ts`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/TEMPLATE_BUILDER_RICH_INLINE_SESSION_PERSISTENCE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
 | 235 | Core submission identity/status split | done | `src/workflow/submissionState.ts`; `tests/submissionIdentityStatus.test.ts`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/SUBMISSION_STATE_BOUNDARY.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts` |
+| 236 | Core backend consumer rewire closeout | done | `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `docs/CORE_SERVICE_CONCERN_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `tests/coreBackendConsumerRewireCloseout.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `flowdoc-vnext-backend@9d0a850` |
 
 ## Current Rule
 
@@ -6783,9 +6784,9 @@ The map confirms:
   reason to delete retained core contracts;
 - backend runtime consumes retained core storage/job/manifest contracts through
   package-level `@flowdoc/vnext-core` imports;
-- backend tests still use `createVNextSessionStorageRecord(...)` as storage
-  route binding fixture setup, so session record cleanup needs split-before-move
-  work first;
+- backend tests still used `createVNextSessionStorageRecord(...)` as storage
+  route binding fixture setup in this historical phase; Phase 236 records the
+  later backend-owned session record replacement;
 - editor currently keeps `@flowdoc/vnext-core` behind `src/core/coreAdapter.ts`
   and has no direct service-shaped export consumer;
 - retained contracts in `src/generation/runtime.ts`,
@@ -7094,10 +7095,45 @@ or editor consumers, introduce a gateway, execute permissions, apply approval
 gates, write workflow storage, dispatch routes, or claim production workflow
 readiness.
 
-Next recommended work: rewire backend consumers to backend-owned
-storage/workflow routes that consume retained core facts, then plan
-deprecation/de-export windows for the remaining non-route service-shaped public
-exports.
+Next recommended work: backend consumer rewiring is recorded in Phase 236;
+start Window NR-A deprecation markers for the remaining non-route
+service-shaped public exports.
+
+## Phase 236 Core Backend Consumer Rewire Closeout
+
+Core Backend Consumer Rewire Closeout records the backend evidence after
+`flowdoc-vnext-backend` `main@9d0a850` stopped consuming the remaining
+non-route service-shaped core helpers as backend fixture/route contracts.
+
+The closeout confirms:
+
+- backend `src/storage/sessionRecord.ts` creates backend-owned session storage
+  records from retained `createVNextSessionPackageSnapshot(...)` facts;
+- backend `src/storage/richInlineSessionRecord.ts` creates backend-owned
+  rich-inline session records from retained
+  `createVNextRichInlineReplayValidation(...)` facts;
+- backend `src/routes/submissionRoute.ts` creates backend-owned submission
+  route responses from retained `createVNextSubmissionIdentityStatus(...)`
+  facts;
+- backend storage route binding accepts backend-owned session records rather
+  than core `VNextSessionStorageRecord` values;
+- backend tests assert the replacement paths do not import
+  `createVNextSessionStorageRecord(...)`,
+  `createVNextRichInlineSessionPersistenceRecord(...)`, or
+  `createVNextSubmissionStateRecord(...)`;
+- `docs/CORE_SERVICE_CONSUMER_MAP.md`, `docs/CORE_RETENTION_MAP.md`, and
+  `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md` now treat backend consumer
+  rewiring as proven evidence, not future work.
+
+This phase intentionally does not remove public exports, rename source modules,
+rewrite all historical compatibility tests, touch backend/frontend code, add a
+gateway, run rich-inline replay execution, or implement production submission
+workflow storage.
+
+Next recommended work: Window NR-A should mark service-shaped helper names
+deprecated while preserving public entrypoint compatibility; Window NR-B should
+rewrite historical tests toward retained contracts; Window NR-C should narrow
+`src/index.ts` to retained helper exports.
 
 ## Phase 12 Extraction Record
 

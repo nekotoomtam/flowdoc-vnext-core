@@ -73,7 +73,9 @@ route dispatch are not moved into the retained core identity/status contract.
 ## FAIL / BLOCKER
 
 - No public de-export has happened yet.
-- Backend consumer rewiring has not happened yet.
+- Backend consumer rewiring is now complete in
+  `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`; public de-export remains a
+  separate compatibility window.
 
 ## RISK
 
@@ -85,9 +87,9 @@ route dispatch are not moved into the retained core identity/status contract.
 
 ## UNKNOWN
 
-- Final name for the eventual backend-owned workflow storage/review route
-  replacement.
-- Whether backend wants one replacement workflow route/contract or a combined
+- Final production workflow storage/review route shape after the backend
+  contract shell.
+- Whether backend wants one production workflow route/contract or a combined
   persistence/workflow orchestration layer.
 - Whether approval gates should consume only retained identity/status facts or
   require product-specific policy facts outside core.
@@ -117,7 +119,7 @@ route dispatch are not moved into the retained core identity/status contract.
 ## Risks Left
 
 - Deprecate/de-export workflow-shaped submission state record after backend
-  replacement contracts exist.
+  replacement contracts exist and Window NR-A/NR-B/NR-C run.
 - Backend consumer rewiring remains.
 - Non-route service-shaped public export deprecation windows remain.
 

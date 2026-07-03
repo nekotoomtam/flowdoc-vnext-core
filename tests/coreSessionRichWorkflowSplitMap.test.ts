@@ -59,9 +59,10 @@ describe("core session rich workflow split map", () => {
     expect(doc).toContain("Session package snapshot")
     expect(doc).toContain("Rich-inline replay validation")
     expect(doc).toContain("Submission workflow identity")
-    expect(doc).toContain("session package snapshot split is complete")
-    expect(doc).toContain("rich-inline replay validation split is complete")
+    expect(doc).toContain("session package snapshot split is")
+    expect(doc).toContain("rich-inline replay validation split is")
     expect(doc).toContain("identity/status split is complete")
+    expect(doc).toContain("backend consumer rewiring is recorded")
     expect(doc).toContain("split complete")
   })
 
@@ -79,7 +80,10 @@ describe("core session rich workflow split map", () => {
       expect(doc).toContain(exportedPath)
     }
 
-    expect(doc).toContain("They should not be treated as final core ownership.")
+    expect(doc).toContain("not be treated as final core ownership.")
+    expect(doc).toContain("Window NR-A")
+    expect(doc).toContain("Window NR-B")
+    expect(doc).toContain("Window NR-C")
     expect(doc).toContain("No public export removed.")
   })
 
@@ -128,6 +132,7 @@ describe("core session rich workflow split map", () => {
     expect(consumerMap).toContain("docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md")
     expect(consumerMap).toContain("createVNextRichInlineReplayValidation")
     expect(consumerMap).toContain("createVNextSubmissionIdentityStatus")
+    expect(consumerMap).toContain("9d0a850")
     expect(splitMap).toContain("packageSnapshot")
     expect(splitMap).toContain("richInlineReplayPatchValidation")
     expect(splitMap).toContain("submissionIdentityFacts")
@@ -139,7 +144,10 @@ describe("core session rich workflow split map", () => {
 
     expect(readme).toContain("Core Session Rich Workflow Split Map")
     expect(readme).toContain("docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md")
+    expect(readme).toContain("Core Backend Consumer Rewire Closeout")
     expect(ledger).toContain("| 232 | Core session rich workflow split map | done |")
+    expect(ledger).toContain("| 236 | Core backend consumer rewire closeout | done |")
     expect(ledger).toContain("## Phase 232 Core Session Rich Workflow Split Map")
+    expect(ledger).toContain("## Phase 236 Core Backend Consumer Rewire Closeout")
   })
 })
