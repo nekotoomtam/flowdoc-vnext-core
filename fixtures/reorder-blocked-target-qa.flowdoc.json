@@ -1,0 +1,111 @@
+{
+  "packageVersion": 2,
+  "kind": "document",
+  "id": "reorder-blocked-target-qa",
+  "meta": {
+    "title": "Reorder Blocked Target QA",
+    "createdAt": "2026-07-04T00:00:00.000Z",
+    "updatedAt": "2026-07-04T00:00:00.000Z"
+  },
+  "fields": {
+    "version": 1,
+    "fields": {}
+  },
+  "data": {
+    "version": 1,
+    "values": {}
+  },
+  "document": {
+    "version": 3,
+    "document": {
+      "id": "reorder-blocked-target-qa",
+      "meta": {
+        "title": "Reorder Blocked Target QA"
+      },
+      "sections": [
+        {
+          "id": "section-alpha",
+          "type": "section",
+          "page": {
+            "size": "A4",
+            "orientation": "portrait",
+            "margin": {
+              "top": { "value": 72, "unit": "pt" },
+              "right": { "value": 72, "unit": "pt" },
+              "bottom": { "value": 72, "unit": "pt" },
+              "left": { "value": 72, "unit": "pt" }
+            }
+          },
+          "zoneIds": ["zone-alpha-body"],
+          "nodes": {
+            "zone-alpha-body": {
+              "id": "zone-alpha-body",
+              "type": "zone",
+              "role": "body",
+              "childIds": ["alpha-heading", "alpha-note"]
+            },
+            "alpha-heading": {
+              "id": "alpha-heading",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 1 },
+              "props": {},
+              "children": [
+                { "id": "alpha-heading-text", "type": "text", "text": "Alpha section" }
+              ]
+            },
+            "alpha-note": {
+              "id": "alpha-note",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [
+                { "id": "alpha-note-text", "type": "text", "text": "Drag this within Alpha to prove same-parent readiness." }
+              ]
+            }
+          }
+        },
+        {
+          "id": "section-beta",
+          "type": "section",
+          "page": {
+            "size": "A4",
+            "orientation": "portrait",
+            "margin": {
+              "top": { "value": 72, "unit": "pt" },
+              "right": { "value": 72, "unit": "pt" },
+              "bottom": { "value": 72, "unit": "pt" },
+              "left": { "value": 72, "unit": "pt" }
+            }
+          },
+          "zoneIds": ["zone-beta-body"],
+          "nodes": {
+            "zone-beta-body": {
+              "id": "zone-beta-body",
+              "type": "zone",
+              "role": "body",
+              "childIds": ["beta-heading", "beta-note"]
+            },
+            "beta-heading": {
+              "id": "beta-heading",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 1 },
+              "props": {},
+              "children": [
+                { "id": "beta-heading-text", "type": "text", "text": "Beta section" }
+              ]
+            },
+            "beta-note": {
+              "id": "beta-note",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [
+                { "id": "beta-note-text", "type": "text", "text": "Cross-section drop targets should stay blocked." }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

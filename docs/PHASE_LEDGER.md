@@ -7478,6 +7478,27 @@ workflow storage.
 Next recommended work: merge this branch to main, then choose the next
 backend/frontend integration lane from the retained facts now left in core.
 
+## Phase 247 Reorder Blocked-Target QA Fixture
+
+This phase adds canonical core evidence for browser-visible reorder failure
+paths without widening product document semantics.
+
+The fixture confirms:
+
+- `fixtures/reorder-blocked-target-qa.flowdoc.json` is a small vNext package
+  with two visible canvas text-block surfaces under different zone parents;
+- `tests/packageFixture.test.ts` parses the fixture, proves the cross-parent
+  surface relationship, and keeps the text-block reorder capability explicit;
+- `README.md` lists the fixture as product-shaped QA coverage rather than a
+  replacement for the default product report fixture.
+
+This phase intentionally does not add cross-parent move semantics, editor HTTP
+transport, DOM state, backend storage execution, browser automation evidence,
+or production product content changes to core.
+
+Next recommended work: use this fixture through backend seed data and editor
+configuration to capture blocked-target browser visual evidence.
+
 ## Phase 12 Extraction Record
 
 Phase 12 is complete for physical repository extraction. This repository has

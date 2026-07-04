@@ -263,6 +263,29 @@ describe("vNext package fixture", () => {
     })
   })
 
+  it("parses the reorder blocked-target QA fixture with cross-parent surfaces", () => {
+    const pack = parseFixture("reorder-blocked-target-qa.flowdoc.json")
+    const graph = buildRelationshipGraph(pack.document)
+
+    expect(pack.packageVersion).toBe(2)
+    expect(pack.document.version).toBe(3)
+    expect(pack.id).toBe("reorder-blocked-target-qa")
+    expect(pack.id).toBe(pack.document.document.id)
+    expect(pack.document.document.sections.map((section) => section.id)).toEqual([
+      "section-alpha",
+      "section-beta",
+    ])
+    expect(graph.parentByNodeId.get("alpha-heading")).toMatchObject({
+      kind: "zone",
+      zoneId: "zone-alpha-body",
+    })
+    expect(graph.parentByNodeId.get("beta-heading")).toMatchObject({
+      kind: "zone",
+      zoneId: "zone-beta-body",
+    })
+    expect(graph.capabilitiesByType["text-block"].canBeReordered).toBe(true)
+  })
+
   it("serializes canonical packages after validation and strips unknown keys", () => {
     const pack = {
       ...parseFixture("product-report-vnext-minimal.flowdoc.json"),
