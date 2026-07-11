@@ -198,5 +198,5 @@ No aggregate `ready` state may hide a blocked axis.
 
 ## Next Recommended Direction
 
-Close-audit v4 delete, duplicate, and reorder across the current node/parent
-matrix, then publish the evidence-backed node-family readiness matrix.
+Use the published readiness matrix to lock text-block grammar, inline identity,
+field placement, and canonical selection contracts before editor input.

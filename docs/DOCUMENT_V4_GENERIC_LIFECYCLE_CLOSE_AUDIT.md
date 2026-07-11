@@ -108,6 +108,5 @@ the same lifecycle capability and shared asset-reference policy.
 
 ## Next Recommended Direction
 
-Publish the evidence-backed node-family readiness matrix, then use its explicit
-text-block blockers to lock grammar, inline identity, field placement, and
-selection contracts.
+Use the published node-family readiness matrix to lock text-block grammar,
+inline identity, field placement, and canonical selection contracts.

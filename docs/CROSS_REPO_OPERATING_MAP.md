@@ -101,6 +101,9 @@ editor intent
   `flowdoc-vnext-backend@71a5fe4`.
 - Editor consumes the explicit media operation surface for v4 image placement:
   `flowdoc-vnext-editor@ce2d39a`.
+- Core Phase 267 publishes independent readiness axes for all authored v4 node
+  types and names text-block as the critical columns/table dependency:
+  `flowdoc-vnext-core@928ec51`.
 
 ## Default Change Routing
 
@@ -118,17 +121,15 @@ Use this table before starting broad work.
 
 ## Integration Lane Order
 
-The generic v4 node lifecycle transport and close audit are complete. The next
-lane is an evidence-backed node-family readiness matrix before node-specific
-editing.
+The generic v4 node lifecycle audit and node-family readiness matrix are
+complete. The next lane locks text-block grammar, identity, field placement,
+and canonical selection before editor input.
 
-1. Record each node family's read, generic lifecycle, edit, pagination, render,
-   and export readiness without inferring one capability from another.
-2. Record allowed-parent and zone-role policy plus scale/risk evidence for each
-   family.
-3. Use the matrix to choose the first node-specific editing slice, with
-   text-block grammar and transaction boundaries reviewed before editor input.
-4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
+1. Lock empty text-block representation and inline split/merge identity.
+2. Lock canonical selection anchors and atomic inline behavior.
+3. Lock field placement compatibility and external-catalog drift boundaries.
+4. Keep editor draft/IME implementation closed until those contracts pass.
+5. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
    backend, and stale-gated apply in the editor.
 
 This lane intentionally does not add WYSIWYG, real collaboration, production
@@ -233,9 +234,9 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Publish the evidence-backed v4 node-family readiness matrix.
-3. Enter node-specific semantics from that matrix, starting with the retained
-   text-block grammar and transaction boundary when its prerequisites pass.
+2. Lock text-block grammar, inline identity, field placement, and canonical
+   selection contracts.
+3. Implement text transactions only after those contracts pass.
 4. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
 5. Keep package v3/document v4 out of active editor/runtime activation until the

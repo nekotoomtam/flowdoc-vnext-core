@@ -134,5 +134,5 @@ inactive for runtime use.
 
 ## Next Recommended Direction
 
-Close-audit generic node lifecycle behavior and build a node-family readiness
-matrix before entering text-block editing semantics.
+Use the retained node-family readiness matrix to lock text-block grammar,
+identity, field placement, and canonical selection before editing semantics.
