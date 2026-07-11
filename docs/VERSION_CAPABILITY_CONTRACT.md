@@ -94,6 +94,11 @@ The blocker remains because the backend does not yet:
 - version-policy, migration, README, and ledger documentation/tests;
 - backend/editor capability files in their owning repositories.
 
+Consumer evidence:
+
+- `flowdoc-vnext-backend@a7ca3b7`;
+- `flowdoc-vnext-editor@a4c501e`.
+
 ## Behavior Changed
 
 Core consumers can inspect version markers and obtain precise semantic support

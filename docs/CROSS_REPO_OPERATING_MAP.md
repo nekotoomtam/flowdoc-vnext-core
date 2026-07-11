@@ -52,6 +52,14 @@ editor intent
 - Backend README still lists generation/artifact route wiring into the
   concrete HTTP server as not yet included:
   `flowdoc-vnext-backend/README.md`.
+- Core Phase 258 publishes active and migration-target version-pair facts
+  without activating v4 runtime behavior: `src/schema/versionCapability.ts`.
+- Backend reports concrete read/mutation support and unwired migration
+  persistence through `GET /capabilities/versions`:
+  `flowdoc-vnext-backend@a7ca3b7`.
+- Editor preflights that response, blocks unsupported package pairs before
+  runtime loading, and gates mutation until capability is compatible:
+  `flowdoc-vnext-editor@a4c501e`.
 
 ## Default Change Routing
 
@@ -187,10 +195,12 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Use the delegated major topic workflow for broad user-requested workstreams.
-3. Choose the first editor-to-backend mutation transport slice.
-4. Wire the concrete backend HTTP route surface only after the route contract is
-   already tested in backend-owned modules.
+2. Implement backend revision-gated package v2/document v3 to package
+   v3/document v4 migration persistence with source snapshot retention.
+3. Add editor migration intent/result handling only after the backend route
+   contract is tested and conflict-safe.
+4. Keep package v3/document v4 out of active editor/runtime mutation until the
+   remaining capability gates are explicitly closed.
 5. Retire old core package lanes such as `packages/storage-file-json` and
    `packages/internal-alpha-runner` only after historical-test replacement and
    backend parity are proven.
