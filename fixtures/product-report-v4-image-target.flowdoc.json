@@ -1,0 +1,146 @@
+{
+  "packageVersion": 3,
+  "kind": "document",
+  "id": "product-report-v4-image-target",
+  "meta": {
+    "title": "Product Report v4 Image Target"
+  },
+  "assets": {
+    "version": 1,
+    "images": {
+      "asset-logo": {
+        "id": "asset-logo",
+        "kind": "image",
+        "mediaType": "image/png",
+        "byteLength": 2048,
+        "digest": {
+          "algorithm": "sha256",
+          "value": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "intrinsic": {
+          "widthPx": 600,
+          "heightPx": 300
+        }
+      }
+    }
+  },
+  "fields": {
+    "version": 1,
+    "fields": {
+      "customer.name": {
+        "key": "customer.name",
+        "label": "Customer Name",
+        "type": "text"
+      },
+      "customer.logo": {
+        "key": "customer.logo",
+        "label": "Customer Logo",
+        "type": "image"
+      }
+    }
+  },
+  "data": {
+    "version": 2,
+    "values": {
+      "customer.name": "Example Customer",
+      "customer.logo": {
+        "kind": "image-asset-ref",
+        "assetId": "asset-logo"
+      }
+    }
+  },
+  "document": {
+    "version": 4,
+    "document": {
+      "id": "product-report-v4-image-target",
+      "meta": {
+        "title": "Product Report v4 Image Target"
+      },
+      "sections": [
+        {
+          "id": "section-main",
+          "type": "section",
+          "page": {
+            "size": "A4",
+            "orientation": "portrait",
+            "margin": {
+              "top": { "value": 20, "unit": "mm" },
+              "right": { "value": 20, "unit": "mm" },
+              "bottom": { "value": 20, "unit": "mm" },
+              "left": { "value": 20, "unit": "mm" }
+            }
+          },
+          "zoneIds": ["body-zone", "header-zone"],
+          "nodes": {
+            "body-zone": {
+              "id": "body-zone",
+              "type": "zone",
+              "role": "body",
+              "childIds": ["body-text", "body-image"]
+            },
+            "header-zone": {
+              "id": "header-zone",
+              "type": "zone",
+              "role": "header",
+              "childIds": ["header-text"]
+            },
+            "body-text": {
+              "id": "body-text",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [
+                { "id": "body-prefix", "type": "text", "text": "Customer " },
+                { "id": "body-name", "type": "field-ref", "key": "customer.name" },
+                { "id": "body-space", "type": "text", "text": " " },
+                {
+                  "id": "body-inline-logo",
+                  "type": "inline-image",
+                  "source": {
+                    "kind": "image-field-ref",
+                    "fieldKey": "customer.logo",
+                    "fallbackAssetId": "asset-logo"
+                  },
+                  "accessibility": {
+                    "kind": "described",
+                    "altText": "Customer logo"
+                  },
+                  "frame": {
+                    "width": { "value": 12, "unit": "mm" },
+                    "height": { "value": 6, "unit": "mm" },
+                    "fit": "contain"
+                  },
+                  "verticalAlign": "baseline"
+                }
+              ]
+            },
+            "body-image": {
+              "id": "body-image",
+              "type": "image",
+              "source": { "kind": "asset-ref", "assetId": "asset-logo" },
+              "accessibility": { "kind": "decorative" },
+              "props": {
+                "frame": {
+                  "width": { "value": 120, "unit": "mm" },
+                  "height": { "value": 60, "unit": "mm" },
+                  "fit": "contain"
+                },
+                "align": "center"
+              }
+            },
+            "header-text": {
+              "id": "header-text",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [
+                { "id": "header-label", "type": "text", "text": "Page " },
+                { "id": "header-page", "type": "page-number" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

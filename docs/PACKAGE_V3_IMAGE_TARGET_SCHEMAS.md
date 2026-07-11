@@ -93,16 +93,16 @@ serializers retain their current behavior and must not be used on package v3.
 
 ## RISK
 
-- Field Registry v1 lives in the active package module; later schema extraction
-  may be useful if target package composition grows.
+- Phase 256 adds a strict target FieldRegistry v1 schema during package
+  composition while leaving the active v3 registry unchanged.
 - DataSnapshot v2 structurally accepts scalar values without field-aware scalar
   type enforcement; retained diagnostics still own that wider policy.
 - Strict manifests require backend upload canonicalization before registration.
 
 ## UNKNOWN
 
-- Whether target package composition should extract shared field schemas into a
-  version-neutral module.
+- Whether active and target field schemas should share a version-neutral module
+  after migration behavior is proven.
 - Upload limits, color normalization, and portable bundle layout.
 - Collection value representation after the image slice.
 
@@ -139,5 +139,5 @@ backend, editor, layout, and rendering behavior is unchanged.
 
 ## Next Recommended Direction
 
-After Phase 255 composes the complete document v4 authored union and containment
-policy, combine it with this phase in a named package v3/document v4 parser.
+Phase 256 combines these asset/data targets with the complete document v4
+schema in a named parser. Next implement explicit v3-to-v4 migration planning.

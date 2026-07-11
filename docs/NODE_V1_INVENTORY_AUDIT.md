@@ -333,7 +333,6 @@ Node v1 cannot close until:
 
 ## Next Recommended Direction
 
-Compose the named package v3/document v4 parser from the completed target
-document, asset registry, data snapshot, and package-level image reference
-validators. Keep active runtime entrypoints unchanged until migration and
-downstream gates are ready.
+Phase 256 composes the named package v3/document v4 parser. Next implement the
+explicit source-immutable v3-to-v4 migration boundary while active runtime
+entrypoints remain unchanged.

@@ -2,11 +2,11 @@ import { z } from "zod"
 import type { FieldRegistry } from "../persistence/package.js"
 import type { ImageAssetRegistryV1 } from "./imageAssetRegistry.js"
 import {
-  TextBlockPropsSchema,
-  TextBlockRoleSchema,
-  TextRunStyleSchema,
-  UnitValueSchema,
-} from "./document.js"
+  PositiveUnitValueV4TargetSchema,
+  TextBlockPropsV4TargetSchema,
+  TextBlockRoleV4TargetSchema,
+  TextRunStyleV4TargetSchema,
+} from "./documentV4Foundation.js"
 
 export const VNEXT_DOCUMENT_V4_IMAGE_TARGET_SOURCE = "vnext-document-v4-image-target"
 export const VNEXT_DOCUMENT_V4_IMAGE_TARGET_VERSION = 1 as const
@@ -61,13 +61,9 @@ export const ImageCropV4TargetSchema = z.object({
   }
 })
 
-const PositiveImageUnitValueV4TargetSchema = UnitValueSchema.strict().refine((value) => value.value > 0, {
-  message: "image frame dimensions must be positive",
-})
-
 export const ImageFrameV4TargetSchema = z.object({
-  width: PositiveImageUnitValueV4TargetSchema,
-  height: PositiveImageUnitValueV4TargetSchema,
+  width: PositiveUnitValueV4TargetSchema,
+  height: PositiveUnitValueV4TargetSchema,
   fit: z.enum(["contain", "cover"]),
   crop: ImageCropV4TargetSchema.optional(),
 }).strict()
@@ -87,7 +83,7 @@ const TextInlineV4TargetSchema = z.object({
   text: z.string().min(1).refine((text) => !/[\r\n]/.test(text), {
     message: "document v4 text leaves must use line-break atomics instead of CR/LF",
   }),
-  style: TextRunStyleSchema.strict().optional(),
+  style: TextRunStyleV4TargetSchema.optional(),
 }).strict()
 
 const FieldRefInlineV4TargetSchema = z.object({
@@ -119,8 +115,8 @@ export const InlineNodeV4TargetSchema = z.discriminatedUnion("type", [
 export const TextBlockNodeV4TargetSchema = z.object({
   id: z.string().min(1),
   type: z.literal("text-block"),
-  role: TextBlockRoleSchema,
-  props: TextBlockPropsSchema.strict().default({}),
+  role: TextBlockRoleV4TargetSchema,
+  props: TextBlockPropsV4TargetSchema.default({}),
   children: z.array(InlineNodeV4TargetSchema),
 }).strict()
 
@@ -181,6 +177,10 @@ export interface VNextDocumentV4ImageTargetValidation {
   }
 }
 
+export interface VNextDocumentV4ImageTargetValidationOptions {
+  placementPaths?: readonly string[]
+}
+
 function issue(
   code: VNextDocumentV4ImageTargetIssueCode,
   path: string,
@@ -203,11 +203,12 @@ export function validateVNextDocumentV4ImageTarget(
   placements: readonly ImagePlacementV4Target[],
   assets: ImageAssetRegistryV1,
   fields: FieldRegistry,
+  options: VNextDocumentV4ImageTargetValidationOptions = {},
 ): VNextDocumentV4ImageTargetValidation {
   const issues: VNextDocumentV4ImageTargetIssue[] = []
 
   placements.forEach((placement, index) => {
-    const path = `placements[${index}].source`
+    const path = `${options.placementPaths?.[index] ?? `placements[${index}]`}.source`
     if (placement.source.kind === "asset-ref") {
       if (assets.images[placement.source.assetId] == null) {
         issues.push(issue(

@@ -144,8 +144,8 @@ validation through a separately named parser.
 
 ## RISK
 
-- Reused retained node schemas still carry some nested property permissiveness;
-  package parser composition should audit unknown-key handling.
+- Phase 256 replaces reused retained schemas with a strict v4-owned foundation
+  before package parser composition.
 - Nested columns are canonical but product creation UX remains deferred.
 - Strict rectangular tables may expose malformed v3 documents during migration.
 - Flat structural validation does not yet produce the full runtime graph maps.
@@ -193,7 +193,6 @@ behavior is unchanged.
 
 ## Next Recommended Direction
 
-Compose the named package v3/document v4 parser from this document target,
-Phase 253 assets/data, FieldRegistry v1, and package-level image source
-validation. Keep it isolated from active runtime/session entrypoints until the
-migration and downstream gates are ready.
+Phase 256 composes the named package v3/document v4 parser and package-level
+reference validation. Next implement pure v3-to-v4 migration planning and apply
+boundaries while keeping active runtime/session entrypoints unchanged.

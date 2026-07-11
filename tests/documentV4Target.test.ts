@@ -195,11 +195,12 @@ describe("Document v4 target schema and structure", () => {
     const table = document.document.sections[0].nodes.table
     if (table.type !== "table") throw new Error("fixture shape")
     table.columns.push({ width: mm(-10) })
+    expect(DocumentNodeV4TargetSchema.safeParse(document).success).toBe(false)
 
+    table.columns[1] = { width: mm(10) }
     const validation = validateVNextDocumentV4Structure(DocumentNodeV4TargetSchema.parse(document))
 
     expect(validation.issues).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: "invalid-table-column-width", nodeId: "table" }),
       expect.objectContaining({ code: "invalid-table-grid", nodeId: "row", parentId: "table" }),
     ]))
   })

@@ -121,8 +121,8 @@ forms. A full document v4 authored union will be a separate composition phase.
 
 ## RISK
 
-- Reusing current role/style/box schemas carries their present permissiveness
-  into this isolated target text-block until full v4 composition audits them.
+- Phase 256 replaces reused role/style/box schemas with a strict v4-owned
+  foundation before package parser composition.
 - Required frames need editor resize and crop UX before product activation.
 - Source validation over a flat placement list must later be integrated with
   document traversal and exact authored paths.

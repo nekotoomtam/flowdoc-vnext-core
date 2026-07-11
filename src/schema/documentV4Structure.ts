@@ -1,4 +1,4 @@
-import type { ZoneRole } from "./document.js"
+import type { ZoneRoleV4Target } from "./documentV4Foundation.js"
 import {
   VNEXT_DOCUMENT_V4_ALLOWED_CHILD_TYPES,
   VNEXT_DOCUMENT_V4_TARGET_SOURCE,
@@ -80,7 +80,7 @@ function issue(
 
 function validateTextBlock(
   node: Extract<AuthoredNodeV4Target, { type: "text-block" }>,
-  zoneRole: ZoneRole,
+  zoneRole: ZoneRoleV4Target,
   sectionId: string,
   path: string,
   issues: VNextDocumentV4StructureIssue[],
@@ -232,7 +232,7 @@ export function validateVNextDocumentV4Structure(
     const reachable = new Set<string>()
     const active = new Set<string>()
 
-    const visit = (nodeId: string, path: string, zoneRole: ZoneRole): void => {
+    const visit = (nodeId: string, path: string, zoneRole: ZoneRoleV4Target): void => {
       const node = section.nodes[nodeId]
       if (node == null) {
         issues.push(issue(

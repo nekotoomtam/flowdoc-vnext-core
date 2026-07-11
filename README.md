@@ -1094,6 +1094,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/DOCUMENT_V4_TARGET_SCHEMA.md`: Phase 255 complete isolated document v4
   authored union, image containment, page-break/page-number restrictions, and
   structural/table invariants
+- `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`: Phase 256 strict named target parser,
+  acceptance fixture, exact field/image/data references, and active-runtime
+  isolation
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

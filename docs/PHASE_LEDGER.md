@@ -269,6 +269,25 @@ Parent goal:
 | 253 | Package v3 image target schemas | done | `src/schema/imageAssetRegistry.ts`; `src/persistence/packageV3ImageTarget.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/packageV3ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 254 | Document v4 image target schemas | done | `src/schema/documentV4ImageTarget.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 255 | Document v4 target schema and containment | done | `src/schema/documentV4Target.ts`; `src/schema/documentV4Structure.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4Target.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 256 | Package v3/document v4 parser | done | `src/schema/documentV4Foundation.ts`; `src/schema/documentV4ImageTarget.ts`; `src/schema/documentV4Target.ts`; `src/schema/documentV4Structure.ts`; `src/persistence/packageV3.ts`; `src/persistence/packageV3References.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `fixtures/product-report-v4-image-target.flowdoc.json`; `tests/packageV3.test.ts`; `tests/documentV4Target.test.ts`; `tests/documentV4ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 256 Package V3 Document V4 Parser
+
+Phase 256 composes the strict named package v3/document v4 parser without
+activating runtime consumers.
+
+- V4-owned strict foundation schemas prevent nested unknown-key stripping.
+- Target FieldRegistry v1 enforces strict facts, key equality, and non-scalar
+  fallback ownership for image/collection fields.
+- Safe parse distinguishes unsupported version, invalid package, invalid
+  structure, and invalid references.
+- Exact paths cover scalar field refs, inline/block image sources, fallback
+  assets, DataSnapshot v2 values, and structural failures.
+- A target fixture proves package v3/document v4 parse/serialize round-trip.
+- Active package v2 parsing and runtime/editable/generation session entrypoints
+  remain isolated.
+- Version-policy activation blockers now move to migration and downstream
+  consumer support.
 
 ## Phase 255 Document V4 Target Schema And Containment
 

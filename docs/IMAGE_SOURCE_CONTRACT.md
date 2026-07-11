@@ -357,6 +357,6 @@ version policy now resolves to package v3/document v4.
 
 ## Next Recommended Direction
 
-After Phase 255 composes the full document v4 authored union and containment
-rules, create the isolated named package v3/document v4 parser and package-level
-source validation.
+Phase 256 creates the isolated named package v3/document v4 parser and exact
+package-level source validation. Next implement explicit source-immutable
+v3-to-v4 migration planning.
