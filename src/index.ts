@@ -34,6 +34,8 @@ export * from "./binding/repeatCollectionFormSlots.js"
 export * from "./authoring/editableSession.js"
 export * from "./authoring/textTransactions.js"
 export * from "./authoring/textBlockV1Grammar.js"
+export * from "./authoring/utf16Offsets.js"
+export * from "./authoring/textBlockV4Contract.js"
 export * from "./authoring/richInlineCommit.js"
 export {
   VNEXT_RICH_INLINE_REPLAY_VALIDATION_MODE,

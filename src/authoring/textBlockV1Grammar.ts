@@ -5,6 +5,7 @@ import {
   type TextBlockNode,
   type ZoneRole,
 } from "../schema/document.js"
+import { isVNextSafeUtf16TextOffset } from "./utf16Offsets.js"
 
 export const VNEXT_TEXT_BLOCK_V1_GRAMMAR_SOURCE = "vnext-text-block-v1-grammar"
 export const VNEXT_TEXT_BLOCK_V1_GRAMMAR_MODE = "target-grammar-validation-and-normalization"
@@ -147,12 +148,7 @@ function hasUnpairedSurrogate(text: string): boolean {
 }
 
 export function isVNextTextBlockV1SafeTextOffset(text: string, offset: number): boolean {
-  if (!Number.isInteger(offset) || offset < 0 || offset > text.length) return false
-  if (offset === 0 || offset === text.length) return true
-
-  const previous = text.charCodeAt(offset - 1)
-  const current = text.charCodeAt(offset)
-  return !(previous >= 0xD800 && previous <= 0xDBFF && current >= 0xDC00 && current <= 0xDFFF)
+  return isVNextSafeUtf16TextOffset(text, offset)
 }
 
 function grammarStatus(issues: readonly VNextTextBlockV1GrammarIssue[]): VNextTextBlockV1GrammarStatus {

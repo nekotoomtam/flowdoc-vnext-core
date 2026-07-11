@@ -8098,6 +8098,25 @@ The projection intentionally does not expand generated nodes, resolve
 collections/repeats, paginate, render, persist, fetch inputs, or activate the
 current package generation runtime.
 
+## Phase 275 Text-block V4 Authoring Contract
+
+Phase 275 closes the first text-block readiness unknowns on document v4:
+
+- canonical authored emptiness is `children: []` with no persisted caret
+  sentinel;
+- an empty caret uses `inlineId: null` and offset zero, while non-empty anchors
+  use stable text-block/inline identity, local UTF-16 offset, and affinity;
+- text, field-ref, line-break, page-number, and inline-image project to one
+  deterministic model stream with atomic non-text slots;
+- field placement compatibility and page-number zone policy are validated
+  against pinned authored facts; and
+- shared safe UTF-16 logic is extracted without coupling v4 to the document v3
+  grammar contract.
+
+This phase intentionally does not add v4 text mutation, editor DOM/IME state,
+backend persistence, measured lines, pagination, renderer, or cross-page edit
+acceptance.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

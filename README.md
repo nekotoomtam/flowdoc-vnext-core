@@ -85,6 +85,9 @@ The package must remain runnable without any parent editor checkout.
   binding tables beside a source-immutable instance graph. Invalid references
   block the whole projection; generated expansion, pagination, and rendering
   remain inactive.
+- Phase 275 adds the v4-native text-block grammar, five-inline projection, safe
+  UTF-16 offsets, canonical empty-block caret, and inline-local selection
+  anchors. V4 text mutation and editor input remain inactive.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

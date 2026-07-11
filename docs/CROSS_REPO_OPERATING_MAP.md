@@ -133,6 +133,10 @@ editor intent
   projection with scalar, image-owner, and text-style binding tables beside an
   immutable instance graph. Generated expansion, pagination, rendering, and
   product workflow remain inactive: `src/resolution/resolvedDocument.ts`.
+- Core Phase 275 publishes the v4-native text-block grammar, canonical empty
+  block/caret, five-inline offset projection, and inline-local UTF-16 selection
+  anchors without activating text mutation or editor input:
+  `src/authoring/textBlockV4Contract.ts`.
 
 ## Default Change Routing
 
@@ -154,8 +158,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Resume empty text-block, inline identity, selection, and field-placement
-   contracts on that lifecycle boundary.
+1. Add v4-native text/atomic mutation and field-placement contracts on the
+   Phase 275 grammar and selection boundary.
 2. Keep editor draft/IME and instance-composer implementation closed until
    their respective contracts pass.
 3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
@@ -263,13 +267,12 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Resume text-block grammar, inline identity, field placement, and canonical
-   selection contracts on that retained lifecycle boundary.
-3. Implement text transactions only after those contracts pass.
-4. Add measured v4 layout/render consumption without treating placeholder
+2. Add v4-native text/atomic transactions and field placement on the retained
+   lifecycle and selection boundary.
+3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
-5. Keep package v3/document v4 out of active editor/runtime activation until the
+4. Keep package v3/document v4 out of active editor/runtime activation until the
    remaining capability gates are explicitly closed.
-6. Retire old core package lanes such as `packages/storage-file-json` and
+5. Retire old core package lanes such as `packages/storage-file-json` and
    `packages/internal-alpha-runner` only after historical-test replacement and
    backend parity are proven.
