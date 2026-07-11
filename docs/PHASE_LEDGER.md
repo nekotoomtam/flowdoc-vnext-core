@@ -278,6 +278,19 @@ Parent goal:
 | 262 | Document v4 same-parent reorder vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@c77474a`; `flowdoc-vnext-editor@ed22cbc` |
 | 263 | Document v4 block-subtree delete vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@be2047a`; `flowdoc-vnext-editor@9bad0e9` |
 | 264 | Document v4 block-subtree duplicate vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@59a852c`; `flowdoc-vnext-backend@87f68db`; `flowdoc-vnext-editor@2b598d3` |
+| 265 | Document v4 node-readiness architecture lock | done | `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/NODE_FAMILY_CAPABILITY_MODEL.md`; `tests/documentV4NodeReadinessArchitectureLock.test.ts`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 265 Document V4 Node-Readiness Architecture Lock
+
+Phase 265 locks authored, field, editor, measured-layout, media, and published
+template truth boundaries before node-specific v4 authoring work. It makes
+text-block measurement/source mapping and cross-page acceptance prerequisites
+for columns/table split planners, aligns the node-family model with the current
+v4 schema, and defines evidence axes for the next readiness matrix.
+
+This phase intentionally changes no schema, parser, operation, editor, backend,
+layout, renderer, export, or publish behavior. Next: close-audit the generic v4
+node lifecycle across valid parent contexts.
 
 ## Phase 264 Document V4 Block-Subtree Duplicate Vertical Slice
 

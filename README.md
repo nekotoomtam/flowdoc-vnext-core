@@ -82,6 +82,8 @@ The package must remain runnable without any parent editor checkout.
   shared field/data/asset registries.
 - Phase 264 adds deterministic block-subtree v4 `node.duplicate`, rewrites
   authored node/inline identities, and preserves shared registry references.
+- Phase 265 locks v4 authored/layout/field/media/version truth boundaries and
+  makes text-block acceptance a prerequisite for columns/table semantics.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1129,6 +1131,8 @@ The package must remain runnable without any parent editor checkout.
   registry retention, and downstream mutation boundary
 - `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`: Phase 264 block-subtree duplicate,
   deterministic identity rewrite, and shared registry policy
+- `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`: Phase 265 truth-layer,
+  text-block dependency, field/media ownership, and readiness-axis lock
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

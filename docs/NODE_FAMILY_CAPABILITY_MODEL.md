@@ -1,6 +1,8 @@
 # Node Family Capability Model
 
-Status: draft architecture reset.
+Status: document v4 target baseline, aligned by Phase 265. Readiness truth and
+future activation gates are governed by
+`docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`.
 
 This contract prevents the prototype failure mode where visual variants,
 workflow states, and layout contexts became separate node types. vNext should
@@ -61,6 +63,7 @@ Inline children:
 - `field-ref`
 - `page-number`
 - `line-break`
+- `inline-image`
 
 Purpose:
 
@@ -133,6 +136,27 @@ Anti-pattern:
 - do not persist generated TOC entries as authored child nodes unless a future
   materialization operation is accepted.
 
+### Media
+
+Nodes:
+
+- `image`
+
+Inline:
+
+- `inline-image`
+
+Purpose:
+
+- authored block and inline image placements;
+- shared asset or image-field references;
+- placement-owned frame, crop, alignment, and accessibility facts.
+
+Anti-pattern:
+
+- do not store asset bytes or backend locators in authored placements;
+- do not clone shared assets when duplicating placements.
+
 ### Utility
 
 Nodes:
@@ -152,21 +176,22 @@ Purpose:
 | Parent | Child field | Allowed children |
 |---|---|---|
 | `section` | `zoneIds` | `zone` |
-| `zone` | `childIds` | `text-block`, `columns`, `table`, `toc`, `page-break`, `divider`, `spacer` |
+| `zone` | `childIds` | `text-block`, `columns`, `table`, `toc`, `page-break`, `divider`, `spacer`, `image` |
 | `columns` | `columnIds` | `column` |
-| `column` | `childIds` | `text-block`, `table`, `divider`, `spacer` |
+| `column` | `childIds` | `text-block`, `columns`, `table`, `toc`, `divider`, `spacer`, `image` |
 | `table` | `rowIds` | `table-row` |
 | `table-row` | `cellIds` | `table-cell` |
-| `table-cell` | `childIds` | `text-block`, `divider`, `spacer` |
+| `table-cell` | `childIds` | `text-block`, `toc`, `divider`, `spacer`, `image` |
 | `text-block` | `children` | inline nodes only |
 
 First-slice restrictions remain conservative:
 
-- no nested columns inside columns;
+- nested columns are allowed only through a column child list;
 - no columns inside table cells;
 - no tables inside table cells;
-- no page breaks inside columns or table cells until semantics are designed;
-- no generated content as authored children.
+- page breaks are valid only as direct children of body zones;
+- TOC nodes are authored generated-output placeholders, not materialized
+  generated entries.
 
 ## Capability Shape
 
@@ -174,7 +199,7 @@ Each node family should declare capabilities in one place:
 
 ```ts
 type NodeCapability = {
-  family: "zone" | "text" | "layout" | "table" | "generated" | "utility";
+  family: "zone" | "text" | "layout" | "table" | "generated" | "media" | "utility";
   canSelect: boolean;
   canEditText: boolean;
   canContainBlocks: boolean;
