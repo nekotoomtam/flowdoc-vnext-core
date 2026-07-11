@@ -94,6 +94,13 @@ editor intent
 - Backend persists revision-gated v4 duplicate: `flowdoc-vnext-backend@87f68db`.
 - Editor partial mode enables duplicate only when core and backend capability
   facts agree: `flowdoc-vnext-editor@2b598d3`.
+- Core Phase 266 proves all valid generic lifecycle parent/node combinations,
+  rejects same-index reorder, and reports image as media:
+  `flowdoc-vnext-core@19ae304`.
+- Backend proves rejected no-op reorder retains revision:
+  `flowdoc-vnext-backend@71a5fe4`.
+- Editor consumes the explicit media operation surface for v4 image placement:
+  `flowdoc-vnext-editor@ce2d39a`.
 
 ## Default Change Routing
 
@@ -111,13 +118,14 @@ Use this table before starting broad work.
 
 ## Integration Lane Order
 
-The generic v4 node lifecycle transport slice is complete. The next lane is a
-close audit and node-family readiness matrix before node-specific editing.
+The generic v4 node lifecycle transport and close audit are complete. The next
+lane is an evidence-backed node-family readiness matrix before node-specific
+editing.
 
-1. Audit delete/duplicate/reorder across each supported block parent and node
-   family, including stale/rejected/idempotent transport behavior.
-2. Record each node family's read, generic lifecycle, edit, pagination, render,
+1. Record each node family's read, generic lifecycle, edit, pagination, render,
    and export readiness without inferring one capability from another.
+2. Record allowed-parent and zone-role policy plus scale/risk evidence for each
+   family.
 3. Use the matrix to choose the first node-specific editing slice, with
    text-block grammar and transaction boundaries reviewed before editor input.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
@@ -225,8 +233,7 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Close-audit the generic v4 node lifecycle and publish a node-family
-   readiness matrix.
+2. Publish the evidence-backed v4 node-family readiness matrix.
 3. Enter node-specific semantics from that matrix, starting with the retained
    text-block grammar and transaction boundary when its prerequisites pass.
 4. Add measured v4 layout/render consumption without treating placeholder

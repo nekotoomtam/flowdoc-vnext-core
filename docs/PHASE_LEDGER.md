@@ -279,6 +279,19 @@ Parent goal:
 | 263 | Document v4 block-subtree delete vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@be2047a`; `flowdoc-vnext-editor@9bad0e9` |
 | 264 | Document v4 block-subtree duplicate vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@59a852c`; `flowdoc-vnext-backend@87f68db`; `flowdoc-vnext-editor@2b598d3` |
 | 265 | Document v4 node-readiness architecture lock | done | `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/NODE_FAMILY_CAPABILITY_MODEL.md`; `tests/documentV4NodeReadinessArchitectureLock.test.ts`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 266 | Document v4 generic lifecycle close audit | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `tests/documentV4GenericLifecycleAudit.test.ts`; `tests/readOnlySessionV4.test.ts`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@19ae304`; `flowdoc-vnext-backend@71a5fe4`; `flowdoc-vnext-editor@ce2d39a` |
+
+## Phase 266 Document V4 Generic Lifecycle Close Audit
+
+Phase 266 proves delete, duplicate, and reorder across all 20 valid v4
+block/parent combinations, protects zone/column/row/cell structural internals,
+and retains body-only page-break policy. It rejects same-index reorder before a
+history-ready commit or backend revision, and aligns image operation-surface
+reporting with the media family across core/editor.
+
+This phase intentionally does not activate node-specific editing, cross-parent
+move, measured layout, renderer, export, collaboration, or publish behavior.
+Next: publish the evidence-backed node-family readiness matrix.
 
 ## Phase 265 Document V4 Node-Readiness Architecture Lock
 
