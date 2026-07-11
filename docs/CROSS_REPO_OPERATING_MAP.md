@@ -113,6 +113,10 @@ editor intent
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:
   `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`.
+- Core Phase 270 publishes strict standalone identity contracts for Structure
+  Definition drafts, Published Structure Versions, and Materialized Document
+  Instances while leaving package kinds and workflows inactive:
+  `src/lifecycle/structureIdentity.ts`.
 
 ## Default Change Routing
 
@@ -134,9 +138,9 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Use the completed impact audit to lock canonical Structure Definition,
-   Published Structure Version, and Document Instance identity/version facts.
-2. Lock policy, materialization, and resolved projection contracts without
+1. Use the accepted lifecycle identities to lock Structure Policy attachment
+   and effective capability semantics.
+2. Lock materialization and resolved projection contracts without
    activating product workflow.
 3. Resume empty text-block, inline identity, selection, and field-placement
    contracts on that lifecycle boundary.
@@ -247,10 +251,9 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Lock canonical Structure Definition, Published Structure Version, and
-   Materialized Document Instance identity/version contracts from the completed
-   Phase 269 audit.
-3. Lock policy, materialization, and resolved-projection contracts before
+2. Lock Structure Policy attachment and effective capability semantics against
+   the accepted Phase 270 lifecycle identities.
+3. Lock materialization and resolved-projection contracts before
    widening product workflow claims.
 4. Resume text-block grammar, inline identity, field placement, and canonical
    selection contracts on that retained lifecycle boundary.

@@ -94,6 +94,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 269 audits v4 impact across core, backend, and editor, retaining the
   graph/revision/adapter foundations while identifying package, data,
   generation, policy, and product terminology changes required next.
+- Phase 270 adds strict JSON-safe lifecycle identity contracts for mutable
+  Structure Definition drafts, immutable Published Structure Versions, and
+  Materialized Document Instances without activating new package kinds.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1151,6 +1154,8 @@ The package must remain runnable without any parent editor checkout.
   lifecycle vocabulary, materialization direction, ownership, and non-goals
 - `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`: Phase 269 cross-repo reuse,
   change-required, deferred, rejected, acceptance, and contract-order matrix
+- `docs/STRUCTURE_LIFECYCLE_IDENTITY_CONTRACT.md`: Phase 270 structure lineage,
+  draft revision, published version, instance pin, and package-activation lock
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

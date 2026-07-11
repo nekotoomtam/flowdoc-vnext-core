@@ -283,6 +283,23 @@ Parent goal:
 | 267 | Document v4 node-family readiness matrix | done | `docs/DOCUMENT_V4_NODE_FAMILY_READINESS_MATRIX.md`; `tests/documentV4NodeFamilyReadinessMatrix.test.ts`; `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-core@928ec51` |
 | 268 | Structure Definition and Document Instance architecture lock | done | `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `tests/structureInstanceArchitectureLock.test.ts`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 269 | Structure Definition and Document Instance v4 impact audit | done | `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`; `tests/structureInstanceV4ImpactAudit.test.ts`; `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 270 | Structure lifecycle identity contracts | done | `src/lifecycle/structureIdentity.ts`; `src/index.ts`; `tests/structureIdentity.test.ts`; `docs/STRUCTURE_LIFECYCLE_IDENTITY_CONTRACT.md`; `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 270 Structure Lifecycle Identity Contracts
+
+Phase 270 implements strict JSON-safe retained identities for mutable Structure
+Definition drafts, immutable Published Structure Versions, and Materialized
+Document Instances. It separates stable structure lineage, mutable draft and
+instance revisions, immutable version id/ordinal, source draft provenance, and
+the exact published version pin governing each instance. Cross-lineage
+provenance, blank ids, invalid revisions/ordinals, and unknown fields are
+rejected.
+
+The contract is standalone metadata and does not enter package 2/document 3 or
+package 3/document 4 parsers. Backend allocation/persistence, publish,
+materialization, policy, migration, editor workflow, and instance APIs remain
+inactive. Next: define Structure Policy attachment and effective capability
+semantics against these accepted identity domains.
 
 ## Phase 269 Structure Definition And Document Instance V4 Impact Audit
 
