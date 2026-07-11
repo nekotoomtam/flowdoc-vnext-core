@@ -261,6 +261,27 @@ Parent goal:
 | 245 | Core compatibility composition test rewrite | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 246 | Core compatibility source deletion | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/sessionStorage.test.ts`; `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionState.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `tests/coreNonRouteDeprecationWindow.test.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreSessionPackageSnapshotSplit.test.ts`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 247 | Node v1 inventory audit | done | `docs/NODE_V1_INVENTORY_AUDIT.md`; `tests/nodeV1InventoryAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
+| 248 | Text-block v1 grammar lock | done | `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `tests/textBlockV1GrammarLock.test.ts`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
+
+## Phase 248 Text-block v1 Grammar Lock
+
+Phase 248 locks the target Text-block v1 grammar before schema/runtime work.
+
+- Text-block remains a flat ordered inline list with block-scoped UTF-16 model
+  offsets.
+- Text leaves target non-empty text without CR/LF; line breaks become explicit
+  inline atomics and canonical empty blocks use `children: []`.
+- Field-ref, page-number, and future inline-image are one-slot managed atomics.
+- Sparse style remains on text leaves while insertion marks, caret, selection,
+  and IME remain runtime facts.
+- Nested active text-block targeting is separated from columns/table group
+  structural selection.
+- Granular transactions remain primary; full rich replacement remains a
+  bounded single-user fallback and not collaboration protocol.
+- The phase reserves inline-image semantics but does not add its schema or
+  choose its source/document-version contract.
+- `tests/textBlockV1GrammarLock.test.ts` guards vocabulary, ownership, offset,
+  blockers, current source evidence, and repository navigation.
 
 ## Phase 247 Node v1 Inventory Audit
 

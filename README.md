@@ -57,6 +57,9 @@ The package must remain runnable without any parent editor checkout.
 - Node v1 inventory audit records the current canonical, graph, operation,
   pagination, backend-passage, and product-presentation coverage before
   text-block grammar and image contracts change the schema.
+- Text-block v1 grammar lock defines the target flat inline vocabulary,
+  UTF-16/atomic offset rules, style and empty-block normalization, nested text
+  target ownership, and the reserved inline-image insertion point.
 - Canonical package parser and serializer with safe parse variants
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
@@ -1066,6 +1069,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/NODE_V1_INVENTORY_AUDIT.md`: Phase 247 cross-repo inventory of
   canonical node, graph, operation, pagination, backend-passage, and product
   presentation readiness before text-block grammar and image work
+- `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`: Phase 248 target Text-block v1 grammar,
+  offset, atomic, style, field usage, inline-image, selection, and IME decision
+  boundary before schema/runtime implementation
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
