@@ -42,7 +42,7 @@ export interface VNextReadOnlyNodeCapabilitiesV4 {
   canContainText: false
   canSplitAcrossPages: false
   childrenField?: "cellIds" | "childIds" | "columnIds" | "rowIds"
-  operationSurface: "columns" | "generated" | "table" | "text-block" | "utility" | "zone"
+  operationSurface: "columns" | "generated" | "media" | "table" | "text-block" | "utility" | "zone"
 }
 
 export interface VNextReadOnlyGraphV4 {
@@ -115,6 +115,7 @@ function operationSurface(type: AuthoredNodeV4TargetType): VNextReadOnlyNodeCapa
   if (type === "columns" || type === "column") return "columns"
   if (type === "table" || type === "table-row" || type === "table-cell") return "table"
   if (type === "toc") return "generated"
+  if (type === "image") return "media"
   return "utility"
 }
 

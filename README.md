@@ -84,6 +84,8 @@ The package must remain runnable without any parent editor checkout.
   authored node/inline identities, and preserves shared registry references.
 - Phase 265 locks v4 authored/layout/field/media/version truth boundaries and
   makes text-block acceptance a prerequisite for columns/table semantics.
+- Phase 266 close-audits generic v4 lifecycle across all valid block/parent
+  combinations, aligns image with media, and rejects same-index reorder.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1133,6 +1135,8 @@ The package must remain runnable without any parent editor checkout.
   deterministic identity rewrite, and shared registry policy
 - `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`: Phase 265 truth-layer,
   text-block dependency, field/media ownership, and readiness-axis lock
+- `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`: Phase 266 node/parent,
+  zone-role, no-operation, media-surface, and cross-repo lifecycle evidence
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

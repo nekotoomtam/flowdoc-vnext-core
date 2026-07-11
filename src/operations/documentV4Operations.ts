@@ -254,6 +254,9 @@ export function runVNextDocumentV4Operation(
   if (!Number.isInteger(command.toIndex) || command.toIndex < 0 || command.toIndex >= siblings.length) {
     return { command, issues: [issue("invalid-index", `toIndex must be less than sibling count ${siblings?.length ?? 0}`, node.id)], ok: false, package: session.package, reason: "invalid-command" }
   }
+  if (command.toIndex === currentIndex) {
+    return { command, issues: [issue("no-op-index", "toIndex must change the sibling position", node.id)], ok: false, package: session.package, reason: "invalid-command" }
+  }
   siblings.splice(currentIndex, 1)
   siblings.splice(command.toIndex, 0, node.id)
   const validated = safeParseFlowDocPackageV3DocumentV4(mutated)

@@ -53,7 +53,7 @@ describe("document v4 read-only runtime session", () => {
     if (!result.ok) throw new Error("target fixture did not parse")
     expect(result.session.graph.nodesById.get("body-image")).toMatchObject({ type: "image" })
     expect(result.session.graph.capabilitiesByType.image).toMatchObject({
-      operationSurface: "utility",
+      operationSurface: "media",
       canBeDeleted: true,
       canBeDuplicated: true,
     })
