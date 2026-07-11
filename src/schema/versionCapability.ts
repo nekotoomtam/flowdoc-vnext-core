@@ -82,7 +82,7 @@ export const VNEXT_CORE_VERSION_CAPABILITY_CONTRACT = {
       canValidateMigrationTarget: true,
       disposition: "migration-target",
       pair: MIGRATION_TARGET_PAIR,
-      supportedOperationKinds: ["node.delete", "node.reorder"],
+      supportedOperationKinds: ["node.delete", "node.duplicate", "node.reorder"],
     },
   },
 } as const

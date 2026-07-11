@@ -80,6 +80,8 @@ The package must remain runnable without any parent editor checkout.
   `node.reorder`; all other v4 mutation and exact output remain closed.
 - Phase 263 adds block-subtree v4 `node.delete` without garbage-collecting
   shared field/data/asset registries.
+- Phase 264 adds deterministic block-subtree v4 `node.duplicate`, rewrites
+  authored node/inline identities, and preserves shared registry references.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1125,6 +1127,8 @@ The package must remain runnable without any parent editor checkout.
   capability and same-parent v4 reorder vertical slice
 - `docs/DOCUMENT_V4_DELETE_OPERATION.md`: Phase 263 block-subtree deletion,
   registry retention, and downstream mutation boundary
+- `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`: Phase 264 block-subtree duplicate,
+  deterministic identity rewrite, and shared registry policy
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

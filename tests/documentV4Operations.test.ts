@@ -10,6 +10,67 @@ function fixture(): unknown {
 }
 
 describe("document v4 operation kernel", () => {
+  it("duplicates a complete subtree with deterministic node and inline identities", () => {
+    const source = fixture()
+    const first = runVNextDocumentV4Operation(source, {
+      kind: "node.duplicate",
+      nodeId: "summary-columns",
+    })
+
+    expect(first.ok).toBe(true)
+    if (!first.ok) throw new Error("duplicate did not apply")
+    const nodes = first.package.document.document.sections[0].nodes
+    expect(nodes["zone-cover-body"]).toMatchObject({
+      childIds: ["title", "summary-columns", "summary-columns-copy", "detail-table"],
+    })
+    expect(nodes["summary-columns-copy"]).toMatchObject({
+      id: "summary-columns-copy",
+      columnIds: ["summary-left-copy", "summary-right-copy"],
+    })
+    expect(nodes["summary-left-copy"]).toMatchObject({ childIds: ["summary-left-text-copy"] })
+    expect(nodes["summary-left-text-copy"]).toMatchObject({
+      children: [expect.objectContaining({ id: "summary-left-run-copy" })],
+    })
+    expect(first.operation).toMatchObject({
+      kind: "node.duplicate",
+      targetNodeIds: ["summary-columns", "summary-columns-copy"],
+      historyPolicy: { durableIntent: "structure" },
+      renderInvalidation: { lane: "node-structure" },
+    })
+
+    const second = runVNextDocumentV4Operation(first.package, {
+      kind: "node.duplicate",
+      nodeId: "summary-columns",
+    })
+    expect(second.ok).toBe(true)
+    if (!second.ok) throw new Error("second duplicate did not apply")
+    expect(second.package.document.document.sections[0].nodes["zone-cover-body"]).toMatchObject({
+      childIds: ["title", "summary-columns", "summary-columns-copy-2", "summary-columns-copy", "detail-table"],
+    })
+  })
+
+  it("shares field and image registries when duplicating image placements", () => {
+    const source = JSON.parse(readFileSync(
+      new URL("../fixtures/product-report-v4-image-target.flowdoc.json", import.meta.url),
+      "utf8",
+    ))
+    const assetsBefore = JSON.stringify(source.assets)
+    const fieldsBefore = JSON.stringify(source.fields)
+    const result = runVNextDocumentV4Operation(source, {
+      kind: "node.duplicate",
+      nodeId: "body-image",
+    })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error("image duplicate did not apply")
+    expect(result.package.document.document.sections[0].nodes["body-image-copy"]).toMatchObject({
+      id: "body-image-copy",
+      source: { kind: "asset-ref", assetId: "asset-logo" },
+    })
+    expect(JSON.stringify(result.package.assets)).toBe(assetsBefore)
+    expect(JSON.stringify(result.package.fields)).toBe(fieldsBefore)
+  })
+
   it("deletes a complete block subtree without garbage-collecting registries", () => {
     const source = fixture() as any
     const fieldsBefore = JSON.stringify(source.fields)
@@ -91,6 +152,10 @@ describe("document v4 operation kernel", () => {
       nodeId: "detail-header-row",
     })).toMatchObject({ ok: false, reason: "unsupported-target" })
     expect(runVNextDocumentV4Operation(fixture(), {
+      kind: "node.duplicate",
+      nodeId: "detail-header-row",
+    })).toMatchObject({ ok: false, reason: "unsupported-target" })
+    expect(runVNextDocumentV4Operation(fixture(), {
       kind: "node.reorder",
       nodeId: "detail-header-row",
       toIndex: 0,
@@ -127,5 +192,23 @@ describe("document v4 operation kernel", () => {
       "## Next Recommended Direction",
     ]) expect(doc).toContain(section)
     expect(doc).toMatch(/does not\s+garbage-collect package fields, data values, image assets/)
+  })
+
+  it("publishes the duplicate identity and shared-reference boundary", () => {
+    const doc = readFileSync(new URL("../docs/DOCUMENT_V4_DUPLICATE_OPERATION.md", import.meta.url), "utf8")
+    for (const section of [
+      "## Identity Policy",
+      "## Shared References",
+      "## Placement",
+      "## Rejected Targets",
+      "## PASS",
+      "## FAIL / BLOCKER",
+      "## RISK",
+      "## UNKNOWN",
+      "## Intentionally Not Changed",
+      "## Next Recommended Direction",
+    ]) expect(doc).toContain(section)
+    expect(doc).toMatch(/Node and inline identities are\s+allocated from one package-wide used-id set/)
+    expect(doc).toMatch(/does not clone registry definitions or asset bytes/)
   })
 })

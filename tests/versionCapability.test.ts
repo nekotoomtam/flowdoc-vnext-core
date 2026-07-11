@@ -40,7 +40,7 @@ describe("Core package/document version capability", () => {
           canValidateMigrationTarget: true,
           disposition: "migration-target",
           pair: { packageVersion: 3, documentVersion: 4 },
-          supportedOperationKinds: ["node.delete", "node.reorder"],
+          supportedOperationKinds: ["node.delete", "node.duplicate", "node.reorder"],
         },
       },
     })
@@ -59,7 +59,7 @@ describe("Core package/document version capability", () => {
       canCreateRuntimeSession: false,
       canCreateReadOnlySession: true,
       canValidateMigrationTarget: true,
-      supportedOperationKinds: ["node.delete", "node.reorder"],
+      supportedOperationKinds: ["node.delete", "node.duplicate", "node.reorder"],
     })
     expect(getVNextCoreVersionSupport(2, 4)).toMatchObject({
       disposition: "unsupported",

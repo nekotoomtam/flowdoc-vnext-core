@@ -37,7 +37,7 @@ export interface VNextReadOnlyNearestContextV4 {
 export interface VNextReadOnlyNodeCapabilitiesV4 {
   allowedChildTypes: readonly AuthoredNodeV4TargetType[]
   canBeDeleted: boolean
-  canBeDuplicated: false
+  canBeDuplicated: boolean
   canBeReordered: boolean
   canContainText: false
   canSplitAcrossPages: false
@@ -69,7 +69,7 @@ export interface VNextReadOnlyRuntimeSessionV4 {
   package: FlowDocPackageV3DocumentV4
   packageVersion: 3
   readOnly: true
-  mutationOperationKinds: readonly ["node.delete", "node.reorder"]
+  mutationOperationKinds: readonly ["node.delete", "node.duplicate", "node.reorder"]
   source: "vnext-read-only-runtime-session-v4"
   sourceKind: VNextRuntimeSessionSource
 }
@@ -127,7 +127,7 @@ function capabilities(): Record<AuthoredNodeV4TargetType, VNextReadOnlyNodeCapab
     return [type, {
       allowedChildTypes: [...CHILD_TYPES[type]],
       canBeDeleted: reorderable.has(type),
-      canBeDuplicated: false,
+      canBeDuplicated: reorderable.has(type),
       canBeReordered: reorderable.has(type),
       canContainText: false,
       canSplitAcrossPages: false,
@@ -238,7 +238,7 @@ export function safeCreateVNextReadOnlyRuntimeSessionV4(
       package: parsed.package,
       packageVersion: 3,
       readOnly: true,
-      mutationOperationKinds: ["node.delete", "node.reorder"],
+      mutationOperationKinds: ["node.delete", "node.duplicate", "node.reorder"],
       source: "vnext-read-only-runtime-session-v4",
       sourceKind: options.source ?? "canonical-vnext-package",
     },

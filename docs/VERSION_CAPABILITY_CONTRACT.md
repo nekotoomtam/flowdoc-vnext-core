@@ -1,6 +1,6 @@
 # Version Capability Contract
 
-Status: Phase 262 partial v4 mutation contract complete. Full v4 activation
+Status: Phase 264 generic v4 node lifecycle contract complete. Full v4 activation
 remains blocked.
 
 ## Outcome
@@ -15,11 +15,11 @@ probing parsers or relying on parser error strings.
 | Pair | Disposition | Parse | Active session | Read-only session | Mutation | Migration source | Target validation |
 |---|---|---:|---:|---:|---:|---:|---:|
 | package 2 / document 3 | active | yes | yes | yes | yes | yes | no |
-| package 3 / document 4 | migration-target | yes | no | yes | delete + reorder | no | yes |
+| package 3 / document 4 | migration-target | yes | no | yes | delete + duplicate + reorder | no | yes |
 | every other pair | unsupported | no | no | no | no | no | no |
 
-Package 3/document 4 has a named read projection and an isolated same-parent
-`node.delete`/`node.reorder` kernel. It remains outside the active v3 operation runtime,
+Package 3/document 4 has a named read projection and an isolated generic block
+lifecycle kernel. It remains outside the active v3 operation runtime,
 pagination, exact renderer, and export runtime.
 
 ## Public APIs
@@ -61,16 +61,16 @@ The backend now:
 - persists validated v4 targets as a new revision;
 - returns stale, rejected, applied, and idempotent replay results.
 
-Activation remains blocked because v4 has only block-subtree delete and
-same-parent reorder; remaining operations, measured layout, exact rendering,
-and export are unavailable.
+Activation remains blocked because v4 has only generic block lifecycle
+operations; text/image editing, measured layout, exact rendering, and export
+are unavailable.
 
 ## PASS
 
 - Active and migration-target version pairs are explicit and JSON-safe.
 - Unsupported and malformed markers are distinguishable without parsing.
-- V4 mutation support is operation-granular and limited to `node.delete` and
-  `node.reorder`.
+- V4 mutation support is operation-granular and limited to `node.delete`,
+  `node.duplicate`, and `node.reorder`.
 - `canCreateReadOnlySession` distinguishes safe structural consumption from
   active runtime support.
 - Backend/editor can consume one retained core capability vocabulary.
@@ -79,8 +79,8 @@ and export are unavailable.
 
 ## FAIL / BLOCKER
 
-- Duplicate, text/image operations, measured pagination, exact
-  renderers, and export remain v3-only.
+- Text/image operations, measured pagination, exact renderers, and export
+  remain v3-only.
 
 ## RISK
 
@@ -132,5 +132,5 @@ inactive for runtime use.
 
 ## Next Recommended Direction
 
-Add remaining v4 operations and measured layout/render support before
-considering target activation.
+Close-audit generic node lifecycle behavior and build a node-family readiness
+matrix before entering text-block editing semantics.

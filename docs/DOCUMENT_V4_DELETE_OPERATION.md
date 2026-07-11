@@ -35,7 +35,8 @@ remaining content. Shared assets and field definitions may remain unused.
 
 ## FAIL / BLOCKER
 
-- `node.duplicate` and text/image editing remain unavailable.
+- Text/image editing, measured layout, exact rendering, and export remain
+  unavailable.
 - Asset garbage collection and cross-parent movement remain unavailable.
 
 ## RISK
@@ -46,7 +47,7 @@ remaining content. Shared assets and field definitions may remain unused.
 ## UNKNOWN
 
 - Retention and cleanup policy for unused assets and fields.
-- Duplicate ID allocation and shared asset semantics.
+- User-facing confirmation policy for large subtree deletion.
 
 ## Intentionally Not Changed
 
@@ -57,5 +58,5 @@ remaining content. Shared assets and field definitions may remain unused.
 
 ## Next Recommended Direction
 
-Lock duplicate ID allocation, inline identity, and shared registry reference
-rules before implementing v4 `node.duplicate`.
+Close-audit the generic v4 node lifecycle and build a node-family readiness
+matrix before entering text-block editing semantics.

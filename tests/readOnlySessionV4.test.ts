@@ -37,7 +37,7 @@ describe("document v4 read-only runtime session", () => {
     })
     expect(result.session.graph.capabilitiesByType["text-block"]).toMatchObject({
       canBeDeleted: true,
-      canBeDuplicated: false,
+      canBeDuplicated: true,
       canBeReordered: true,
       canContainText: false,
     })
@@ -55,6 +55,7 @@ describe("document v4 read-only runtime session", () => {
     expect(result.session.graph.capabilitiesByType.image).toMatchObject({
       operationSurface: "utility",
       canBeDeleted: true,
+      canBeDuplicated: true,
     })
   })
 
