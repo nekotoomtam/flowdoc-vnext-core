@@ -113,6 +113,8 @@ Consumer evidence:
 - explicit editor migration workflow: `flowdoc-vnext-editor@2c0c97d`.
 - v4 reorder backend support: `flowdoc-vnext-backend@c77474a`;
 - v4 partial editor support: `flowdoc-vnext-editor@ed22cbc`.
+- v4 delete backend support: `flowdoc-vnext-backend@be2047a`;
+- v4 delete editor support: `flowdoc-vnext-editor@9bad0e9`.
 
 ## Behavior Changed
 

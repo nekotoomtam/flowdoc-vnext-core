@@ -83,6 +83,11 @@ editor intent
   `flowdoc-vnext-backend@c77474a`.
 - Editor enters partial mode and enables reorder only when both core node facts
   and backend operation reporting agree: `flowdoc-vnext-editor@ed22cbc`.
+- Core Phase 263 adds block-subtree delete while retaining shared package
+  registries: `flowdoc-vnext-core@faf198f`.
+- Backend persists v4 delete and continues rejecting duplicate:
+  `flowdoc-vnext-backend@be2047a`.
+- Editor partial mode enables delete/reorder only: `flowdoc-vnext-editor@9bad0e9`.
 
 ## Default Change Routing
 
@@ -218,8 +223,8 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Define v4 delete/duplicate ownership, subtree, asset, and reference-impact
-   rules before adding either operation.
+2. Lock v4 duplicate ID allocation, inline identity, and shared registry
+   reference rules before adding `node.duplicate`.
 3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
 4. Keep package v3/document v4 out of active editor/runtime mutation until the

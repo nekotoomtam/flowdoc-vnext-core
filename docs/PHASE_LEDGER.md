@@ -276,6 +276,24 @@ Parent goal:
 | 260 | Document v4 read-only runtime consumer | done | `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@b299e94`; `flowdoc-vnext-editor@5c422de` |
 | 261 | Explicit editor document migration workflow | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@5ea90bc`; `flowdoc-vnext-editor@2c0c97d` |
 | 262 | Document v4 same-parent reorder vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@c77474a`; `flowdoc-vnext-editor@ed22cbc` |
+| 263 | Document v4 block-subtree delete vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@be2047a`; `flowdoc-vnext-editor@9bad0e9` |
+
+## Phase 263 Document V4 Block-Subtree Delete Vertical Slice
+
+Phase 263 opens v4 `node.delete` after locking ownership and reference impact.
+
+- Delete is limited to complete block subtrees under zone, column, or table
+  cell parent lists; structural internals remain unsupported.
+- Core removes containment nodes atomically and strictly validates the complete
+  target package before success.
+- Fields, data values, image assets, migration snapshots, and receipts are not
+  garbage-collected by node deletion.
+- Backend persists v4 delete through the existing revision gate and continues
+  to reject v4 duplicate.
+- Editor partial mode enables delete confirmation and reorder only when core
+  node facts and backend operation reporting agree.
+- Duplicate ID allocation and shared registry semantics remain the next
+  operation gate.
 
 ## Phase 262 Document V4 Same-Parent Reorder Vertical Slice
 
