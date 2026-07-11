@@ -109,6 +109,10 @@ editor intent
   lifecycle artifacts, and Resolved Document/Artifact as derived output. This
   decision does not activate publish, materialization, instance APIs, or policy
   execution: `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`.
+- Core Phase 269 classifies current core, backend, and editor contracts as
+  reusable, change-required, deferred, or rejected against that lifecycle. It
+  does not change schema, persistence, API, editor, policy, or runtime behavior:
+  `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`.
 
 ## Default Change Routing
 
@@ -130,10 +134,10 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Audit package 3/document 4 and downstream consumers against the locked
-   lifecycle vocabulary.
-2. Lock structure/instance identity, policy, materialization, and resolved
-   projection contracts without activating product workflow.
+1. Use the completed impact audit to lock canonical Structure Definition,
+   Published Structure Version, and Document Instance identity/version facts.
+2. Lock policy, materialization, and resolved projection contracts without
+   activating product workflow.
 3. Resume empty text-block, inline identity, selection, and field-placement
    contracts on that lifecycle boundary.
 4. Keep editor draft/IME and instance-composer implementation closed until
@@ -243,10 +247,11 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Audit package 3/document 4 and cross-repo consumers against the Structure
-   Definition / Materialized Document Instance lifecycle lock.
-3. Lock canonical structure/instance identity, policy, materialization, and
-   resolved-projection contracts before widening product workflow claims.
+2. Lock canonical Structure Definition, Published Structure Version, and
+   Materialized Document Instance identity/version contracts from the completed
+   Phase 269 audit.
+3. Lock policy, materialization, and resolved-projection contracts before
+   widening product workflow claims.
 4. Resume text-block grammar, inline identity, field placement, and canonical
    selection contracts on that retained lifecycle boundary.
 5. Implement text transactions only after those contracts pass.

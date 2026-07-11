@@ -282,6 +282,25 @@ Parent goal:
 | 266 | Document v4 generic lifecycle close audit | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `tests/documentV4GenericLifecycleAudit.test.ts`; `tests/readOnlySessionV4.test.ts`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@19ae304`; `flowdoc-vnext-backend@71a5fe4`; `flowdoc-vnext-editor@ce2d39a` |
 | 267 | Document v4 node-family readiness matrix | done | `docs/DOCUMENT_V4_NODE_FAMILY_READINESS_MATRIX.md`; `tests/documentV4NodeFamilyReadinessMatrix.test.ts`; `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-core@928ec51` |
 | 268 | Structure Definition and Document Instance architecture lock | done | `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `tests/structureInstanceArchitectureLock.test.ts`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 269 | Structure Definition and Document Instance v4 impact audit | done | `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`; `tests/structureInstanceV4ImpactAudit.test.ts`; `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 269 Structure Definition And Document Instance V4 Impact Audit
+
+Phase 269 classifies current core, backend, and editor contracts against the
+Phase 268 lifecycle. It retains v4 node/graph/reference semantics, deterministic
+generic operations, explicit migration/source retention, backend revision
+gates, editor adapter isolation, and stale apply. It marks the single
+`kind: "document"` envelope, package data fallback, artifact-agnostic storage,
+inline-template generation request, missing Structure Policy, and product
+terminology as change-required.
+
+Invoice, general report, and governed operation-guide cases all converge on one
+Resolved Document and measured artifact pipeline. Repeat/collection execution
+and compliance remain deferred; legacy generator shapes remain rejected as
+canonical input. This phase changes no schema, parser, operation, storage,
+route, editor, policy, materialization, resolution, or artifact runtime. Next:
+lock minimum Structure Definition, Published Structure Version, and
+Materialized Document Instance identity/version contracts.
 
 ## Phase 268 Structure Definition And Document Instance Architecture Lock
 

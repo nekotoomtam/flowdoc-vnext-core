@@ -91,6 +91,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 268 locks Structure Definition and Materialized Document Instance as
   separate lifecycle artifacts, with external data resolving through a derived
   document projection before pagination and artifacts.
+- Phase 269 audits v4 impact across core, backend, and editor, retaining the
+  graph/revision/adapter foundations while identifying package, data,
+  generation, policy, and product terminology changes required next.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1146,6 +1149,8 @@ The package must remain runnable without any parent editor checkout.
   readiness axes, retained evidence, dependency gates, and next blockers
 - `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`: Phase 268 product north star,
   lifecycle vocabulary, materialization direction, ownership, and non-goals
+- `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`: Phase 269 cross-repo reuse,
+  change-required, deferred, rejected, acceptance, and contract-order matrix
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
