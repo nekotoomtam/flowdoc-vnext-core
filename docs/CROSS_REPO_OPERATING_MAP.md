@@ -153,6 +153,10 @@ editor intent
   source-retaining fragments and proves a 6,000-line/250-page text-block case
   without mixed-document layout or rendering:
   `src/pagination/textBlockV4Pagination.ts`.
+- Core Phase 280 closes the text-block v4 core-contract slice and explicitly
+  separates columns/table and transport work now unblocked from editor input,
+  concrete measurement, mixed layout, generated content, and rendering that
+  remain closed: `docs/TEXT_BLOCK_V4_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
@@ -174,8 +178,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Close-audit text-block v4 readiness and separate what now unblocks
-   columns/table work from editor/backend/render work that remains closed.
+1. Integrate lifecycle-aware v4 rich replacement through backend revision and
+   idempotency gates, then editor adapter/intent/stale apply.
 2. Keep editor draft/IME and instance-composer implementation closed until
    their respective contracts pass.
 3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the

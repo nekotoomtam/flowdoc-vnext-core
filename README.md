@@ -100,6 +100,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 279 paginates accepted v4 text lines into source-retaining page
   fragments without relayout and proves a bounded 6,000-line/250-page
   text-block case. Mixed-document layout/render remains inactive.
+- Phase 280 close-audits text-block v4: retained core contracts now unblock
+  columns/table split planning and transport integration, while editor input,
+  backend execution, mixed layout, generated content, and rendering stay open.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

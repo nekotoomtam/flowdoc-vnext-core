@@ -8185,6 +8185,19 @@ This phase intentionally does not paginate mixed document nodes, add paragraph
 keep/widow/orphan policy, split columns/tables, render, integrate editor/backend,
 or claim complete 250-page artifact readiness.
 
+## Phase 280 Text-block V4 Readiness Close Audit
+
+Phase 280 records that v4 grammar/empty state/selection, lifecycle-aware rich
+replacement, managed field/atomic planning, resolved bindings, measured source
+ranges, isolated line pagination, and 6,000-line/250-page text scale have direct
+core evidence. These facts unblock columns/table split planning and
+backend/editor transport integration as separate next phases.
+
+The audit intentionally keeps concrete measurement-engine execution, mixed
+document pagination, generated page numbers, renderer/export, backend mutation
+persistence, editor DOM/IME/stale apply, cross-page UX, field drift,
+collaboration, and mixed-document scale open.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
