@@ -1,6 +1,6 @@
 # Cross-Repo Operating Map
 
-Date: 2026-07-11
+Date: 2026-07-12
 
 Status: active coordination map for `flowdoc-vnext-core`,
 `flowdoc-vnext-editor`, and `flowdoc-vnext-backend`.
@@ -104,6 +104,11 @@ editor intent
 - Core Phase 267 publishes independent readiness axes for all authored v4 node
   types and names text-block as the critical columns/table dependency:
   `flowdoc-vnext-core@928ec51`.
+- Core Phase 268 locks Structure Definition authoring as the product north star,
+  Published Structure Version and Materialized Document Instance as distinct
+  lifecycle artifacts, and Resolved Document/Artifact as derived output. This
+  decision does not activate publish, materialization, instance APIs, or policy
+  execution: `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
@@ -122,13 +127,17 @@ Use this table before starting broad work.
 ## Integration Lane Order
 
 The generic v4 node lifecycle audit and node-family readiness matrix are
-complete. The next lane locks text-block grammar, identity, field placement,
-and canonical selection before editor input.
+complete. Phase 268 inserts the Structure Definition / Materialized Document
+Instance lifecycle boundary before text-block execution continues.
 
-1. Lock empty text-block representation and inline split/merge identity.
-2. Lock canonical selection anchors and atomic inline behavior.
-3. Lock field placement compatibility and external-catalog drift boundaries.
-4. Keep editor draft/IME implementation closed until those contracts pass.
+1. Audit package 3/document 4 and downstream consumers against the locked
+   lifecycle vocabulary.
+2. Lock structure/instance identity, policy, materialization, and resolved
+   projection contracts without activating product workflow.
+3. Resume empty text-block, inline identity, selection, and field-placement
+   contracts on that lifecycle boundary.
+4. Keep editor draft/IME and instance-composer implementation closed until
+   their respective contracts pass.
 5. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
    backend, and stale-gated apply in the editor.
 
@@ -234,13 +243,17 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Lock text-block grammar, inline identity, field placement, and canonical
-   selection contracts.
-3. Implement text transactions only after those contracts pass.
-4. Add measured v4 layout/render consumption without treating placeholder
+2. Audit package 3/document 4 and cross-repo consumers against the Structure
+   Definition / Materialized Document Instance lifecycle lock.
+3. Lock canonical structure/instance identity, policy, materialization, and
+   resolved-projection contracts before widening product workflow claims.
+4. Resume text-block grammar, inline identity, field placement, and canonical
+   selection contracts on that retained lifecycle boundary.
+5. Implement text transactions only after those contracts pass.
+6. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
-5. Keep package v3/document v4 out of active editor/runtime activation until the
+7. Keep package v3/document v4 out of active editor/runtime activation until the
    remaining capability gates are explicitly closed.
-6. Retire old core package lanes such as `packages/storage-file-json` and
+8. Retire old core package lanes such as `packages/storage-file-json` and
    `packages/internal-alpha-runner` only after historical-test replacement and
    backend parity are proven.

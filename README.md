@@ -88,6 +88,9 @@ The package must remain runnable without any parent editor checkout.
   combinations, aligns image with media, and rejects same-index reorder.
 - Phase 267 publishes an evidence-backed v4 node-family readiness matrix and
   names text-block as the next critical dependency for columns/table.
+- Phase 268 locks Structure Definition and Materialized Document Instance as
+  separate lifecycle artifacts, with external data resolving through a derived
+  document projection before pagination and artifacts.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1141,6 +1144,8 @@ The package must remain runnable without any parent editor checkout.
   zone-role, no-operation, media-surface, and cross-repo lifecycle evidence
 - `docs/DOCUMENT_V4_NODE_FAMILY_READINESS_MATRIX.md`: Phase 267 independent
   readiness axes, retained evidence, dependency gates, and next blockers
+- `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`: Phase 268 product north star,
+  lifecycle vocabulary, materialization direction, ownership, and non-goals
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

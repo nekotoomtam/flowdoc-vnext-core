@@ -281,6 +281,25 @@ Parent goal:
 | 265 | Document v4 node-readiness architecture lock | done | `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/NODE_FAMILY_CAPABILITY_MODEL.md`; `tests/documentV4NodeReadinessArchitectureLock.test.ts`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 266 | Document v4 generic lifecycle close audit | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `tests/documentV4GenericLifecycleAudit.test.ts`; `tests/readOnlySessionV4.test.ts`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@19ae304`; `flowdoc-vnext-backend@71a5fe4`; `flowdoc-vnext-editor@ce2d39a` |
 | 267 | Document v4 node-family readiness matrix | done | `docs/DOCUMENT_V4_NODE_FAMILY_READINESS_MATRIX.md`; `tests/documentV4NodeFamilyReadinessMatrix.test.ts`; `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-core@928ec51` |
+| 268 | Structure Definition and Document Instance architecture lock | done | `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `tests/structureInstanceArchitectureLock.test.ts`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 268 Structure Definition And Document Instance Architecture Lock
+
+Phase 268 locks Structure Definition authoring as the product north star and
+separates mutable structure drafts, immutable Published Structure Versions,
+Materialized Document Instances, atomic Data Snapshots, derived Resolved
+Documents, and downstream Artifacts. Instance creation materializes the starter
+graph once while retaining governance from the pinned structure version;
+generated entries, repeat output, page facts, and measured fragments remain
+derived rather than authored instance truth.
+
+The lock keeps simple mapped forms and governed long-form composition on one
+document pipeline, classifies legacy SRS/operation-guide generators as
+requirement evidence only, and retains compliance/governance systems as future
+architecture pressure. It changes no schema, parser, operation, editor,
+backend, materialization, policy, resolution, pagination, or artifact runtime.
+Next: audit current package 3/document 4 and cross-repo consumers against the
+locked lifecycle before selecting canonical package identities.
 
 ## Phase 267 Document V4 Node-Family Readiness Matrix
 
