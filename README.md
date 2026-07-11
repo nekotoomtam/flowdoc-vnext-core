@@ -66,6 +66,9 @@ The package must remain runnable without any parent editor checkout.
 - Explicit package v2/document v3 to package v3/document v4 migration planning
   audits source graph/text/field/data facts, blocks semantic guesses, applies a
   deterministic source-immutable copy, and requires strict target acceptance.
+- Version capability contract distinguishes active package v2/document v3
+  runtime support from package v3/document v4 migration-target validation so
+  downstream consumers can reject unsupported pairs before parser execution.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1103,6 +1106,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/PACKAGE_V2_TO_V3_MIGRATION.md`: Phase 257 explicit copy-forward planner,
   deterministic apply boundary, blocked disposition matrix, paired fixtures,
   and source unknown-key loss guard
+- `docs/VERSION_CAPABILITY_CONTRACT.md`: Phase 258 core version-pair capability
+  facts and cross-repo reporting boundary
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

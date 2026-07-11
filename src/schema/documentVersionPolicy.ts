@@ -21,7 +21,7 @@ export const VNEXT_TEXT_BLOCK_V1_VERSION_POLICY = {
     backendOwnsRevisionedPersistence: true,
   },
   activationBlockers: [
-    "downstream-consumer-support",
+    "backend-revisioned-migration-persistence",
   ],
 } as const
 

@@ -109,7 +109,8 @@ the strict package v3/document v4 parser.
 ## FAIL / BLOCKER
 
 - Backend has no revision-gated migration persistence route.
-- Editor and backend do not yet advertise package/document version capability.
+- Phase 258 adds editor/backend version capability reporting; migration
+  persistence remains unavailable.
 - Active graph, operations, pagination, renderer, and export remain v3-only.
 
 ## RISK
@@ -144,8 +145,8 @@ the strict package v3/document v4 parser.
 
 Core now exposes an opt-in pure package v2/document v3 to package v3/document
 v4 migration plan/apply boundary. The version policy removes the completed
-`v3-to-v4-migration-plan` activation blocker and retains
-`downstream-consumer-support`.
+`v3-to-v4-migration-plan` activation blocker. Phase 258 replaces the completed
+downstream reporting blocker with `backend-revisioned-migration-persistence`.
 
 ## Intentionally Not Changed
 
@@ -159,6 +160,6 @@ v4 migration plan/apply boundary. The version policy removes the completed
 
 ## Next Recommended Direction
 
-Define cross-repo downstream version capability reporting first, then add a
-backend revision-gated migration route that retains the v3 source snapshot and
-persists the core-produced v4 package as a new revision.
+Phase 258 defines cross-repo downstream version capability reporting. Next add
+a backend revision-gated migration route that retains the v3 source snapshot
+and persists the core-produced v4 package as a new revision.

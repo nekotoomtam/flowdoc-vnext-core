@@ -1,5 +1,6 @@
 export * from "./schema/document.js"
 export * from "./schema/documentVersionPolicy.js"
+export * from "./schema/versionCapability.js"
 export * from "./schema/imageSourceContract.js"
 export * from "./schema/imageAssetRegistry.js"
 export * from "./schema/documentV4ImageTarget.js"

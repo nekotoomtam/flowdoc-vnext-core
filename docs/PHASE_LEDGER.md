@@ -271,6 +271,23 @@ Parent goal:
 | 255 | Document v4 target schema and containment | done | `src/schema/documentV4Target.ts`; `src/schema/documentV4Structure.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4Target.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 256 | Package v3/document v4 parser | done | `src/schema/documentV4Foundation.ts`; `src/schema/documentV4ImageTarget.ts`; `src/schema/documentV4Target.ts`; `src/schema/documentV4Structure.ts`; `src/persistence/packageV3.ts`; `src/persistence/packageV3References.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `fixtures/product-report-v4-image-target.flowdoc.json`; `tests/packageV3.test.ts`; `tests/documentV4Target.test.ts`; `tests/documentV4ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 257 | Package v2/document v3 to package v3/document v4 migration | done | `src/migration/packageV2ToV3Types.ts`; `src/migration/packageV2ToV3Audit.ts`; `src/migration/packageV2ToV3.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `fixtures/product-report-v4-migrated-minimal.flowdoc.json`; `tests/packageV2ToV3Migration.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `tests/imageSourceContract.test.ts`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/FIXTURE_ROLES.md`; `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 258 | Cross-repo version capability reporting | done | `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `README.md`; `docs/PHASE_LEDGER.md`; backend `src/contracts/versionCapability.ts`; backend `src/http/server.ts`; editor `src/core/coreAdapter.ts`; editor `src/editor/backend/backendVersionCapability.ts`; editor `src/editor/backend/backendTransport.ts` |
+
+## Phase 258 Cross-Repo Version Capability Reporting
+
+Phase 258 defines core semantic version-pair facts and downstream reporting
+without activating package v3/document v4 runtime consumption.
+
+- Package 2/document 3 is active for parse, runtime, mutation, and migration
+  source planning.
+- Package 3/document 4 is recognized only for parse and migration-target
+  validation.
+- Unsupported pairs and malformed markers are classified before parser use.
+- Backend exposes service-owned read/mutation/migration availability separately
+  from core semantic capability.
+- Editor consumes the backend response through its transport boundary and
+  blocks non-active package pairs before active runtime loading.
+- The remaining activation blocker is backend revisioned migration persistence.
 
 ## Phase 257 Package V2 Document V3 To Package V3 Document V4 Migration
 
