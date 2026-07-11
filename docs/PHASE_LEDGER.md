@@ -8065,6 +8065,21 @@ This phase intentionally does not persist, allocate ids, advance revisions,
 resolve data, expand generated nodes, migrate instances, paginate, or render.
 Backend materialization execution and resolved projection remain later phases.
 
+## Phase 273 Resolution Input Pins
+
+Phase 273 adds strict standalone inputs for deterministic resolution:
+
+- one Published Resolution Bundle pins the field contract, bounded text-style
+  catalog, and static media to an exact Published Structure Version;
+- Data Snapshot and instance media snapshots pin an exact Document Instance
+  id, revision, and structure version independently of field definitions;
+- the materialized document root must equal the instance id; and
+- published and instance asset ids may not collide while authored image sources
+  remain unnamespaced.
+
+This phase intentionally does not resolve scalar/image values, merge registries,
+fetch mutable state, change package parsing, persist, paginate, or render.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

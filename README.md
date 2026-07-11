@@ -77,6 +77,10 @@ The package must remain runnable without any parent editor checkout.
   Instance materialization plan with explicit provenance and registry
   ownership. Persistence, data resolution, and generated expansion remain
   inactive.
+- Phase 273 pins published field/style/static-media contracts and atomic
+  instance Data Snapshot/media inputs to one exact instance revision before
+  resolved projection. Cross-registry asset collisions block instead of
+  guessing ownership.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

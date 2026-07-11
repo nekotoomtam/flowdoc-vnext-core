@@ -125,6 +125,10 @@ editor intent
   identity provenance, and explicit registry ownership. Backend persistence,
   Data Snapshot resolution, generated expansion, and product workflow remain
   inactive: `src/lifecycle/documentInstanceMaterialization.ts`.
+- Core Phase 273 publishes strict resolution input pins for published
+  field/style/static-media contracts and atomic instance Data Snapshot/media
+  inputs. It does not resolve values, fetch registries, or activate package
+  fallback: `src/resolution/resolutionInputPins.ts`.
 
 ## Default Change Routing
 
@@ -146,8 +150,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Use the accepted identities, policy, and materialization contracts to lock
-   Data Snapshot/catalog/media pins and resolved projection semantics.
+1. Use the accepted identities, policy, materialization, and resolution-input
+   pins to lock resolved projection semantics.
 2. Lock resolved projection contracts without
    activating product workflow.
 3. Resume empty text-block, inline identity, selection, and field-placement
@@ -259,8 +263,7 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Use the Phase 272 materialization/provenance contract to lock Data Snapshot,
-   catalog, and media pins.
+2. Use the Phase 273 pinned inputs to lock deterministic resolved projection.
 3. Lock resolved-projection contracts before
    widening product workflow claims.
 4. Resume text-block grammar, inline identity, field placement, and canonical
