@@ -41,7 +41,6 @@ describe("Text-block v1 version and migration decision", () => {
         backendOwnsRevisionedPersistence: true,
       },
       activationBlockers: [
-        "editor-explicit-migration-intent",
         "v4-mutation-layout-render-support",
       ],
     })

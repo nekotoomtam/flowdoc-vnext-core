@@ -17,7 +17,7 @@ describe("Core package/document version capability", () => {
       migrationTarget: { packageVersion: 3, documentVersion: 4 },
       activation: {
         status: "blocked",
-        blockers: ["editor-explicit-migration-intent", "v4-mutation-layout-render-support"],
+        blockers: ["v4-mutation-layout-render-support"],
       },
       support: {
         active: {

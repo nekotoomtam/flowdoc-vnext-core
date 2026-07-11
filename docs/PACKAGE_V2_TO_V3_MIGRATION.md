@@ -161,6 +161,6 @@ downstream reporting blocker with `backend-revisioned-migration-persistence`.
 
 ## Next Recommended Direction
 
-Phase 259 adds the backend revision-gated migration route. Next add explicit
-editor migration intent/result handling without loading v4 into the current
-active runtime.
+Phase 259 adds backend revision-gated persistence and Phase 261 adds explicit
+editor intent/result handling with v4 read-only refresh. Next add v4 operation
+and measured layout/render support without widening capabilities implicitly.

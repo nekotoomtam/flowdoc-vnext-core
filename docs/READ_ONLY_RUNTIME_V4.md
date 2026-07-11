@@ -36,7 +36,7 @@ an exact image render claim.
 
 ## FAIL / BLOCKER
 
-- No v4 operation execution or editor migration intent exists.
+- No v4 operation execution exists.
 - No v4 measured pagination, exact renderer, or export path exists.
 
 ## RISK
@@ -59,5 +59,5 @@ an exact image render claim.
 
 ## Next Recommended Direction
 
-Add explicit editor migration intent/result handling while retaining read-only
-mode after an accepted migration.
+Add v4 operation and measured layout/render support while retaining read-only
+mode until each capability is explicitly activated.

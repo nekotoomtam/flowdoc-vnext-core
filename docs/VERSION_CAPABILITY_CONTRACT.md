@@ -50,7 +50,8 @@ or editor runtime support.
 ## Activation State
 
 Phase 260 completes the named read-only core session and editor/backend read
-consumer path. Remaining blockers are `editor-explicit-migration-intent` and
+consumer path. Phase 261 completes explicit editor migration intent, result
+handling, and accepted-target refresh. The remaining blocker is
 `v4-mutation-layout-render-support`.
 
 The backend now:
@@ -60,9 +61,8 @@ The backend now:
 - persists validated v4 targets as a new revision;
 - returns stale, rejected, applied, and idempotent replay results.
 
-Activation remains blocked because the editor has no explicit migration intent
-workflow and v4 does not yet have mutation, measured layout, exact rendering,
-or export support.
+Activation remains blocked because v4 does not yet have mutation, measured
+layout, exact rendering, or export support.
 
 ## PASS
 
@@ -77,7 +77,6 @@ or export support.
 
 ## FAIL / BLOCKER
 
-- Editor migration intent/result handling is not implemented.
 - Active operations, measured pagination, exact renderers, and export remain
   v3-only.
 
@@ -126,5 +125,5 @@ inactive for runtime use.
 
 ## Next Recommended Direction
 
-Implement editor migration intent/result handling, then add v4 mutation and
-measured layout/render support before considering target activation.
+Add v4 mutation and measured layout/render support before considering target
+activation.
