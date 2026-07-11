@@ -1085,6 +1085,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/IMAGE_SOURCE_CONTRACT.md`: Phase 252 package v3/document v4 image asset
   manifest, static/field source union, inline/block placement, and lifecycle
   ownership decision
+- `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`: Phase 253 isolated ImageAssetRegistry
+  v1, DataSnapshot v2, and image field-to-asset validation without active parser
+  changes
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

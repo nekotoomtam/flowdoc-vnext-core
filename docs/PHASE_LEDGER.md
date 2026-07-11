@@ -266,6 +266,23 @@ Parent goal:
 | 250 | Text-block v1 producer alignment | done | `src/operations/documentOperations.ts`; `tests/operations.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 251 | Text-block v1 version and migration decision | done | `src/schema/documentVersionPolicy.ts`; `src/schema/document.ts`; `src/persistence/package.ts`; `src/index.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/WORKSPACE_BOUNDARY.md`; `docs/LEGACY_MIGRATION_GATE.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 252 | Image source contract | done | `src/schema/imageSourceContract.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 253 | Package v3 image target schemas | done | `src/schema/imageAssetRegistry.ts`; `src/persistence/packageV3ImageTarget.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/packageV3ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 253 Package V3 Image Target Schemas
+
+Phase 253 implements target package-level image schemas without activating a
+package v3/document v4 parser.
+
+- Strict ImageAssetRegistry v1 validates immutable identity, canonical raster
+  media, byte length, SHA-256 digest, intrinsic pixels, and key/id equality.
+- Strict DataSnapshot v2 retains scalar values and adds `image-asset-ref`.
+- Pure cross-reference validation blocks missing image fields, field-type
+  mismatches, scalar image values, and missing manifest assets.
+- Storage locators, URLs, bytes, upload state, alt text, and crop are rejected
+  from manifest entries.
+- Active package v2/document v3 parsing and fixtures remain unchanged.
+- Version-policy activation now waits for a full package v3 parser rather than
+  the completed image registry schema.
 
 ## Phase 252 Image Source Contract
 

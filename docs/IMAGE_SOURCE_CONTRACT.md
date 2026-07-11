@@ -281,7 +281,8 @@ strict and unchanged. No union parser or automatic upgrade is introduced here.
 
 Image schema implementation must not activate until:
 
-1. package v3 schemas cover asset registry v1 and optional data snapshot v2;
+1. Phase 253 target schemas cover asset registry v1 and optional data snapshot
+   v2;
 2. document v4 schemas cover the complete source, accessibility, frame,
    inline-image, and block image payloads;
 3. graph containment and capability policy include block image;
@@ -356,7 +357,6 @@ version policy now resolves to package v3/document v4.
 
 ## Next Recommended Direction
 
-Implement the package v3 asset-registry and data-snapshot v2 schemas as an
-isolated target-version module without changing the active v2/v3 parser. Then
-implement document v4 image source and placement schemas against that package
-boundary.
+After Phase 253 implements isolated package asset/data target schemas, implement
+document v4 image source and placement schemas against that boundary. Compose a
+full package v3 parser only after the document v4 authored union is complete.
