@@ -517,6 +517,7 @@ describe("vNext operations", () => {
     expect(row.cellIds).toEqual(["row-2-cell-1"])
     expect(section.nodes["row-2-cell-1"]?.type).toBe("table-cell")
     expect(section.nodes["row-2-cell-1-text"]?.type).toBe("text-block")
+    expect(section.nodes["row-2-cell-1-text"]).toMatchObject({ children: [] })
     expect(result.operation).toMatchObject({
       kind: "table.row.insert",
       targetNodeIds: ["table", "row-2"],
@@ -623,7 +624,9 @@ describe("vNext operations", () => {
     expect(row2.cellIds).toEqual(["cell-2", "row-2-cell-2"])
     expect(section.nodes["row-cell-2"]?.type).toBe("table-cell")
     expect(section.nodes["row-cell-2-text"]?.type).toBe("text-block")
+    expect(section.nodes["row-cell-2-text"]).toMatchObject({ children: [] })
     expect(section.nodes["row-2-cell-2"]?.type).toBe("table-cell")
+    expect(section.nodes["row-2-cell-2-text"]).toMatchObject({ children: [] })
     expect(result.operation).toMatchObject({
       kind: "table.column.insert",
       targetNodeIds: ["table"],

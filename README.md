@@ -1077,6 +1077,8 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`: Phase 249 pure validator,
   deterministic normalization planner/apply boundary, and product fixture
   acceptance evidence
+- `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`: Phase 250 table row/column
+  producer alignment with canonical empty `children: []` text-blocks
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

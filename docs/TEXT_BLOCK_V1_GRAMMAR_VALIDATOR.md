@@ -71,10 +71,9 @@ selection remains input-adapter policy as locked in Phase 248.
 | `product-report-vnext.flowdoc.json` | 28 | 28 | 0 | 0 |
 | `reorder-blocked-target-qa.flowdoc.json` | 4 | 4 | 0 | 0 |
 
-All 72 current fixture text-blocks pass without implicit normalization. This
-does not prove that every runtime-created block passes; current table insert
-operations still create empty text leaves and remain a known implementation
-follow-up.
+All 72 current fixture text-blocks pass without implicit normalization. At the
+end of Phase 249, table insert operations still created empty text leaves;
+Phase 250 aligned those accepted-write producers with canonical empty blocks.
 
 ## PASS
 
@@ -101,7 +100,8 @@ follow-up.
 
 - The target grammar is stricter than current document v3 for empty text and
   raw newlines.
-- Existing runtime operations can still create target-grammar warnings.
+- Producers outside the audited core table operations can still create
+  target-grammar warnings if they bypass this boundary.
 - Field compatibility currently uses registry field type; richer field
   presentation capabilities may require an explicit registry extension.
 - Offset safety prevents surrogate splits but does not perform grapheme
@@ -136,7 +136,8 @@ follow-up.
 - package v2/document v3 parser and serializer;
 - canonical `InlineNodeSchema`;
 - existing text/rich-inline operations;
-- table-cell placeholder creation;
+- table-cell placeholder creation, which was subsequently aligned in Phase
+  250;
 - fixtures;
 - editor state, DOM, WYSIWYG, and field palette;
 - backend routes, package records, and storage writes;
@@ -145,7 +146,7 @@ follow-up.
 
 ## Next Recommended Direction
 
-Audit runtime-created empty text leaves, beginning with table row/column insert,
-then decide the explicit document-version/migration boundary before wiring
-normalization into any accepted write path. The image source contract should
-follow that decision and extend this grammar with inline-image payload facts.
+After Phase 250 aligns table row/column insertion, decide the explicit
+document-version/migration boundary before wiring normalization into any
+accepted write path. The image source contract should follow that decision and
+extend this grammar with inline-image payload facts.

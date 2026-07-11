@@ -263,6 +263,22 @@ Parent goal:
 | 247 | Node v1 inventory audit | done | `docs/NODE_V1_INVENTORY_AUDIT.md`; `tests/nodeV1InventoryAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
 | 248 | Text-block v1 grammar lock | done | `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `tests/textBlockV1GrammarLock.test.ts`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
 | 249 | Text-block v1 grammar validator and normalizer | done | `src/authoring/textBlockV1Grammar.ts`; `src/index.ts`; `tests/textBlockV1Grammar.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 250 | Text-block v1 producer alignment | done | `src/operations/documentOperations.ts`; `tests/operations.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 250 Text-block v1 Producer Alignment
+
+Phase 250 removes the accepted-write debt identified by the target grammar
+validator without changing document versions or package-read behavior.
+
+- Table row and column insert now create paragraph text-blocks with canonical
+  empty `children: []`.
+- One operation-local factory keeps both table producers on the same authored
+  shape.
+- Generated cells still own concrete text-block nodes and preserve existing
+  operation scope, invalidation, and history contracts.
+- Functional tests prove both generated shape and target-grammar acceptance.
+- Editor caret placeholders remain runtime-only and are not authored inline
+  children.
 
 ## Phase 249 Text-block v1 Grammar Validator And Normalizer
 

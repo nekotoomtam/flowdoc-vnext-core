@@ -502,8 +502,8 @@ Implementation must not begin production WYSIWYG until:
 
 ## RISK
 
-- Tightening text leaves can reject current table-cell placeholders and
-  fixtures if migration is skipped.
+- At lock time, tightening text leaves could reject table-cell placeholders;
+  Phase 250 subsequently aligned the core table insertion producers.
 - UTF-16 offsets are DOM-compatible but input adapters can still submit unsafe
   grapheme ranges.
 - Existing style inheritance heuristic is ambiguous at mixed-style boundaries.

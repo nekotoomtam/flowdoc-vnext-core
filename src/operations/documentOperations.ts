@@ -56,6 +56,16 @@ function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
+function createEmptyParagraphTextBlock(id: NodeId): TextBlockNode {
+  return {
+    id,
+    type: "text-block",
+    role: { role: "paragraph" },
+    props: {},
+    children: [],
+  }
+}
+
 export function replayVNextOperationHistory(
   initialDocument: DocumentNode,
   records: readonly VNextOperationHistoryRecord[],
@@ -1001,13 +1011,7 @@ function tableRowInsert(document: DocumentNode, command: Extract<VNextOperationC
       childIds: [uniqueNodeId(`${cellId}-text`, usedIds)],
     }
   })
-  const textBlocks: TextBlockNode[] = cellNodes.map((cell) => ({
-    id: cell.childIds[0],
-    type: "text-block",
-    role: { role: "paragraph" },
-    props: {},
-    children: [{ id: `${cell.childIds[0]}-inline-1`, type: "text", text: "" }],
-  }))
+  const textBlocks = cellNodes.map((cell) => createEmptyParagraphTextBlock(cell.childIds[0]))
   const row: TableRowNode = {
     id: rowId,
     type: "table-row",
@@ -1210,13 +1214,7 @@ function tableColumnInsert(
       props: {},
       childIds: [textBlockId],
     }
-    const textBlock: TextBlockNode = {
-      id: textBlockId,
-      type: "text-block",
-      role: { role: "paragraph" },
-      props: {},
-      children: [{ id: `${textBlockId}-inline-1`, type: "text", text: "" }],
-    }
+    const textBlock = createEmptyParagraphTextBlock(textBlockId)
     row.cellIds.splice(command.index, 0, cell.id)
     section.nodes[cell.id] = cell
     section.nodes[textBlock.id] = textBlock

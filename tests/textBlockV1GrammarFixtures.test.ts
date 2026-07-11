@@ -69,7 +69,7 @@ describe("Text-block v1 grammar fixture acceptance", () => {
     })
   })
 
-  it("reports current table insert placeholders as explicit normalization debt", () => {
+  it("keeps table insert producers aligned with canonical empty text-block grammar", () => {
     const raw = readFileSync(new URL("../fixtures/product-report-vnext-minimal.flowdoc.json", import.meta.url), "utf8")
     const pack = parseFlowDocPackageV2DocumentVNext(JSON.parse(raw))
     const rowInsert = runVNextOperation(pack.document, {
@@ -103,9 +103,10 @@ describe("Text-block v1 grammar fixture acceptance", () => {
         fieldRegistry: pack.fields,
         zoneRole: "body",
       })).toMatchObject({
-        status: "normalization-required",
-        issues: [{ code: "empty-text", inlineId: `${textBlockId}-inline-1` }],
+        status: "valid",
+        issues: [],
       })
+      expect(textBlock.children).toEqual([])
     }
   })
 })
