@@ -54,6 +54,9 @@ The package must remain runnable without any parent editor checkout.
   - `fixtures/product-report-vnext-minimal.flowdoc.json`
   - `fixtures/reorder-blocked-target-qa.flowdoc.json`
   - role definitions: `docs/FIXTURE_ROLES.md`
+- Node v1 inventory audit records the current canonical, graph, operation,
+  pagination, backend-passage, and product-presentation coverage before
+  text-block grammar and image contracts change the schema.
 - Canonical package parser and serializer with safe parse variants
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
@@ -1060,6 +1063,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`: Phase 242-246 allowlist,
   vertical-slice, storage-adapter, and composition-test rewrite progress, and
   source deletion closeout for owner-module compatibility helpers after NR-C
+- `docs/NODE_V1_INVENTORY_AUDIT.md`: Phase 247 cross-repo inventory of
+  canonical node, graph, operation, pagination, backend-passage, and product
+  presentation readiness before text-block grammar and image work
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

@@ -260,6 +260,27 @@ Parent goal:
 | 244 | Core storage adapter generic payload rewrite | done | `tests/storageAdapter.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 245 | Core compatibility composition test rewrite | done | `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/richInlineLiveExactParityAudit.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 246 | Core compatibility source deletion | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/sessionStorage.test.ts`; `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionState.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `tests/coreNonRouteDeprecationWindow.test.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreSessionPackageSnapshotSplit.test.ts`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 247 | Node v1 inventory audit | done | `docs/NODE_V1_INVENTORY_AUDIT.md`; `tests/nodeV1InventoryAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
+
+## Phase 247 Node v1 Inventory Audit
+
+Phase 247 records the current Node v1 truth across canonical schema,
+relationship graph, operations, pagination, backend package passage, and the
+product editor presentation boundary.
+
+- The audit inventories eleven authored node types and four inline node types.
+- It distinguishes canonical capability from product-visible surface and
+  transport reachability.
+- It records divider/spacer presentation, internal structural capabilities,
+  page-break-in-columns behavior, and missing insertion ownership as blockers
+  rather than silently changing runtime behavior.
+- It accepts text-block grammar as the next detailed phase and requires both
+  inline and block image forms before Node v1 closes.
+- It keeps fragmentation, field placement, virtualization, upload/crop, and
+  exact editor/export parity deferred.
+- `tests/nodeV1InventoryAudit.test.ts` guards inventory completeness, required
+  review sections, cross-repo evidence pointers, and the no-runtime-change
+  boundary.
 
 ## Current Rule
 
