@@ -280,6 +280,20 @@ Parent goal:
 | 264 | Document v4 block-subtree duplicate vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@59a852c`; `flowdoc-vnext-backend@87f68db`; `flowdoc-vnext-editor@2b598d3` |
 | 265 | Document v4 node-readiness architecture lock | done | `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/NODE_FAMILY_CAPABILITY_MODEL.md`; `tests/documentV4NodeReadinessArchitectureLock.test.ts`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 266 | Document v4 generic lifecycle close audit | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `tests/documentV4GenericLifecycleAudit.test.ts`; `tests/readOnlySessionV4.test.ts`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@19ae304`; `flowdoc-vnext-backend@71a5fe4`; `flowdoc-vnext-editor@ce2d39a` |
+| 267 | Document v4 node-family readiness matrix | done | `docs/DOCUMENT_V4_NODE_FAMILY_READINESS_MATRIX.md`; `tests/documentV4NodeFamilyReadinessMatrix.test.ts`; `docs/DOCUMENT_V4_NODE_READINESS_ARCHITECTURE_LOCK.md`; `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 267 Document V4 Node-Family Readiness Matrix
+
+Phase 267 publishes independent schema/reference, parent/role, read, lifecycle,
+edit/history, layout/pagination, render/export, editor/backend, and scale status
+for every authored v4 node type. Evidence distinguishes protected structural
+internals from enabled block lifecycle and identifies text-block grammar,
+identity, field placement, selection, transactions, measured lines, and
+cross-page acceptance as the next critical path.
+
+This phase changes no runtime behavior. Columns/table node-specific work remains
+blocked on text-block acceptance. Next: lock the text-block contracts before
+editor draft or measured-line implementation.
 
 ## Phase 266 Document V4 Generic Lifecycle Close Audit
 

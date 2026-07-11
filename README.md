@@ -86,6 +86,8 @@ The package must remain runnable without any parent editor checkout.
   makes text-block acceptance a prerequisite for columns/table semantics.
 - Phase 266 close-audits generic v4 lifecycle across all valid block/parent
   combinations, aligns image with media, and rejects same-index reorder.
+- Phase 267 publishes an evidence-backed v4 node-family readiness matrix and
+  names text-block as the next critical dependency for columns/table.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1137,6 +1139,8 @@ The package must remain runnable without any parent editor checkout.
   text-block dependency, field/media ownership, and readiness-axis lock
 - `docs/DOCUMENT_V4_GENERIC_LIFECYCLE_CLOSE_AUDIT.md`: Phase 266 node/parent,
   zone-role, no-operation, media-surface, and cross-repo lifecycle evidence
+- `docs/DOCUMENT_V4_NODE_FAMILY_READINESS_MATRIX.md`: Phase 267 independent
+  readiness axes, retained evidence, dependency gates, and next blockers
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
