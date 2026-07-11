@@ -262,6 +262,26 @@ Parent goal:
 | 246 | Core compatibility source deletion | done | `src/authoring/sessionStorage.ts`; `src/authoring/richInlineSessionPersistence.ts`; `src/workflow/submissionState.ts`; `tests/sessionStorage.test.ts`; `tests/sessionPackageSnapshot.test.ts`; `tests/richInlineSessionPersistence.test.ts`; `tests/richInlineReplayValidation.test.ts`; `tests/submissionState.test.ts`; `tests/submissionIdentityStatus.test.ts`; `tests/coreCompatibilitySourceCleanupAudit.test.ts`; `tests/coreNonRouteDeprecationWindow.test.ts`; `tests/coreNonRouteRetainedTestRewrite.test.ts`; `tests/coreRetentionMap.test.ts`; `tests/coreServiceConsumerMap.test.ts`; `tests/coreSessionPackageSnapshotSplit.test.ts`; `tests/coreRichInlineReplayValidationSplit.test.ts`; `tests/coreSubmissionIdentityStatusSplit.test.ts`; `tests/coreSessionRichWorkflowSplitMap.test.ts`; `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`; `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`; `docs/CORE_RETENTION_MAP.md`; `docs/CORE_SERVICE_CONSUMER_MAP.md`; `docs/CORE_SESSION_PACKAGE_SNAPSHOT_SPLIT.md`; `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`; `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`; `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 247 | Node v1 inventory audit | done | `docs/NODE_V1_INVENTORY_AUDIT.md`; `tests/nodeV1InventoryAudit.test.ts`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
 | 248 | Text-block v1 grammar lock | done | `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `tests/textBlockV1GrammarLock.test.ts`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
+| 249 | Text-block v1 grammar validator and normalizer | done | `src/authoring/textBlockV1Grammar.ts`; `src/index.ts`; `tests/textBlockV1Grammar.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 249 Text-block v1 Grammar Validator And Normalizer
+
+Phase 249 implements an opt-in pure target-grammar boundary without changing
+package v2/document v3 parsing or accepted write paths.
+
+- Validation returns valid, normalization-required, or blocked with JSON-safe
+  issues and counts.
+- Deterministic normalization removes empty text and converts raw CR/LF to
+  explicit line-break atomics while preserving text styles and stable ids.
+- Duplicate ids, malformed inline shapes, unsafe Unicode, missing/incompatible
+  fields, and invalid page-number zones block without guessed repairs.
+- Image and collection fields cannot pass as scalar text field-ref usages.
+- UTF-16 offset safety rejects positions inside surrogate pairs while leaving
+  grapheme policy to the input adapter.
+- All 72 text-blocks across the four current product fixtures pass without
+  normalization or blockers.
+- Existing parser, operations, backend, editor, layout, and renderer behavior
+  remain unchanged.
 
 ## Phase 248 Text-block v1 Grammar Lock
 

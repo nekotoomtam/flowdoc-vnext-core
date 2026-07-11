@@ -60,6 +60,8 @@ The package must remain runnable without any parent editor checkout.
 - Text-block v1 grammar lock defines the target flat inline vocabulary,
   UTF-16/atomic offset rules, style and empty-block normalization, nested text
   target ownership, and the reserved inline-image insertion point.
+- Text-block v1 grammar validator and normalizer adds an opt-in pure audit and
+  deterministic normalization plan without changing package reads or writes.
 - Canonical package parser and serializer with safe parse variants
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
@@ -1072,6 +1074,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`: Phase 248 target Text-block v1 grammar,
   offset, atomic, style, field usage, inline-image, selection, and IME decision
   boundary before schema/runtime implementation
+- `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`: Phase 249 pure validator,
+  deterministic normalization planner/apply boundary, and product fixture
+  acceptance evidence
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
