@@ -273,6 +273,25 @@ Parent goal:
 | 257 | Package v2/document v3 to package v3/document v4 migration | done | `src/migration/packageV2ToV3Types.ts`; `src/migration/packageV2ToV3Audit.ts`; `src/migration/packageV2ToV3.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `fixtures/product-report-v4-migrated-minimal.flowdoc.json`; `tests/packageV2ToV3Migration.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `tests/imageSourceContract.test.ts`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/FIXTURE_ROLES.md`; `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 258 | Cross-repo version capability reporting | done | `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-backend@a7ca3b7`; `flowdoc-vnext-editor@a4c501e` |
 | 259 | Backend revision-gated migration persistence | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-backend@f80cd27`; `flowdoc-vnext-editor@ccb63fa` |
+| 260 | Document v4 read-only runtime consumer | done | `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@b299e94`; `flowdoc-vnext-editor@5c422de` |
+
+## Phase 260 Document V4 Read-Only Runtime Consumer
+
+Phase 260 makes persisted package 3/document 4 records safely consumable
+without activating v4 mutation or output pipelines.
+
+- Core strictly parses v4 into a separate named read-only session with
+  normalized node, relationship, section, zone, and nearest-context indexes.
+- Read-only capabilities are false and supported operation kinds are empty.
+- Backend advertises active and target document reads separately from its
+  active-only mutation pair.
+- Editor routes v4 through the core adapter, shows structural text/columns/
+  table/image surfaces, and locks text drafts, field chips, structural mutation,
+  live layout, and exact layout.
+- Image output is a structural placeholder; asset bytes and exact rendering are
+  intentionally not claimed.
+- Remaining activation gates are explicit editor migration intent and v4
+  mutation/measured-layout/render/export support.
 
 ## Phase 259 Backend Revision-Gated Migration Persistence
 

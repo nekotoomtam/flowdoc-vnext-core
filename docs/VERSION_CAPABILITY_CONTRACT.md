@@ -106,7 +106,9 @@ or export support.
 Consumer evidence:
 
 - `flowdoc-vnext-backend@a7ca3b7`;
-- `flowdoc-vnext-editor@a4c501e`.
+- `flowdoc-vnext-editor@a4c501e`;
+- read-only target reporting: `flowdoc-vnext-backend@b299e94`;
+- read-only editor consumption: `flowdoc-vnext-editor@5c422de`.
 
 ## Behavior Changed
 

@@ -65,6 +65,13 @@ editor intent
   mutations after migration: `flowdoc-vnext-backend@f80cd27`.
 - Editor capability evidence now recognizes persistence/retention availability
   while migration intent remains deferred: `flowdoc-vnext-editor@ccb63fa`.
+- Core Phase 260 provides an isolated v4 read-only session without widening the
+  active v3 graph or operation runtime: `flowdoc-vnext-core@db91014`.
+- Backend advertises package 3/document 4 reads while keeping mutation on the
+  active pair: `flowdoc-vnext-backend@b299e94`.
+- Editor consumes v4 through `coreAdapter.ts`, projects structural image
+  placeholders, and closes mutation/live/exact layout capabilities:
+  `flowdoc-vnext-editor@5c422de`.
 
 ## Default Change Routing
 
@@ -202,8 +209,7 @@ For broad work or cross-repo handoff, include:
 1. Keep this map and each repo's `AGENTS.md` aligned.
 2. Add editor migration intent/result handling over the tested backend route,
    including blocked, stale, applied, and replayed outcomes.
-3. Add v4 runtime consumer support before refreshing the editor into a migrated
-   package.
+3. Refresh accepted migrations into the completed v4 read-only consumer.
 4. Keep package v3/document v4 out of active editor/runtime mutation until the
    remaining capability gates are explicitly closed.
 5. Retire old core package lanes such as `packages/storage-file-json` and
