@@ -1,8 +1,8 @@
 # Package v3 Document v4 Parser
 
-Status: Phase 256 complete isolated target parser. Active runtime/session,
-backend, editor, migration, layout, and rendering remain on package v2/document
-v3.
+Status: Phase 256 complete isolated target parser. Phase 257 now supplies the
+pure migration boundary; active runtime/session, backend, editor, layout, and
+rendering remain on package v2/document v3.
 
 ## Outcome
 
@@ -164,7 +164,6 @@ Phase 256 closes two package-boundary gaps found during composition:
 
 ## FAIL / BLOCKER
 
-- V3-to-v4 migration planning/application is not implemented.
 - Active runtime, backend persistence, and editor version handling do not yet
   consume package v3/document v4.
 - Graph maps, operations, pagination, and renderers remain v3-only.
@@ -218,6 +217,6 @@ through named target APIs. No active consumer behavior changes.
 
 ## Next Recommended Direction
 
-Implement a pure v3-to-v4 migration planner and apply boundary. It must audit
-grammar normalization, ignored page-breaks, table-grid/width issues, package
-asset defaults, and target parser acceptance without mutating its v3 source.
+Phase 257 implements the pure v3-to-v4 migration planner and apply boundary.
+Next coordinate downstream capability reporting and backend revisioned
+persistence without activating v4 in the existing runtime implicitly.

@@ -139,5 +139,6 @@ backend, editor, layout, and rendering behavior is unchanged.
 
 ## Next Recommended Direction
 
-Phase 256 combines these asset/data targets with the complete document v4
-schema in a named parser. Next implement explicit v3-to-v4 migration planning.
+Phases 256-257 combine these asset/data targets with the complete document v4
+schema in a named parser and explicit migration boundary. Next implement
+downstream version capability reporting and revisioned persistence.

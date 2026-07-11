@@ -72,6 +72,7 @@ describe("Image source contract", () => {
     expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).not.toContain("document-v4-full-schema")
     expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).not.toContain("document-v4-schema")
     expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).not.toContain("image-source-contract")
+    expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).not.toContain("v3-to-v4-migration-plan")
   })
 
   it("keeps image forms absent from the active package v2/document v3 schemas", () => {

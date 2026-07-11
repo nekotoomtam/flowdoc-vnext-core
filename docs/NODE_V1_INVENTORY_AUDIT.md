@@ -287,7 +287,7 @@ Node v1 cannot close until:
 - Nested text-block editing needs a separate active descendant target from the
   group surface selection target.
 - Target package v3/document v4 remains isolated from active consumers until
-  migration and downstream version support exist.
+  downstream version support exists; Phase 257 closes the core migration gate.
 - Core measured pagination is more advanced than the product preview; mixing
   those readiness claims would hide real integration work.
 
@@ -333,6 +333,6 @@ Node v1 cannot close until:
 
 ## Next Recommended Direction
 
-Phase 256 composes the named package v3/document v4 parser. Next implement the
-explicit source-immutable v3-to-v4 migration boundary while active runtime
-entrypoints remain unchanged.
+Phase 257 completes the explicit source-immutable v3-to-v4 migration boundary.
+Next coordinate backend revisioned persistence and editor/backend capability
+reporting while active runtime entrypoints remain unchanged.

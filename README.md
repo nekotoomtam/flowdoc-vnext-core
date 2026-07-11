@@ -63,6 +63,9 @@ The package must remain runnable without any parent editor checkout.
 - Text-block v1 grammar validator and normalizer adds an opt-in pure audit and
   deterministic normalization plan without changing package reads or writes.
 - Canonical package parser and serializer with safe parse variants
+- Explicit package v2/document v3 to package v3/document v4 migration planning
+  audits source graph/text/field/data facts, blocks semantic guesses, applies a
+  deterministic source-immutable copy, and requires strict target acceptance.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1097,6 +1100,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`: Phase 256 strict named target parser,
   acceptance fixture, exact field/image/data references, and active-runtime
   isolation
+- `docs/PACKAGE_V2_TO_V3_MIGRATION.md`: Phase 257 explicit copy-forward planner,
+  deterministic apply boundary, blocked disposition matrix, paired fixtures,
+  and source unknown-key loss guard
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

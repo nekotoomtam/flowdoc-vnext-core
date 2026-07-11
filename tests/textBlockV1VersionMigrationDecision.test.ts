@@ -41,7 +41,6 @@ describe("Text-block v1 version and migration decision", () => {
         backendOwnsRevisionedPersistence: true,
       },
       activationBlockers: [
-        "v3-to-v4-migration-plan",
         "downstream-consumer-support",
       ],
     })

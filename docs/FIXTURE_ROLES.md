@@ -10,6 +10,7 @@ interchangeable product truth.
 | Smoke | `product-report-vnext-minimal.flowdoc.json` | Basic package loading and narrow mutation checks | Product-realistic layout or pagination |
 | Baseline | `product-report-vnext-baseline.flowdoc.json` | Synthetic but product-realistic editor UX and PDF-like preview validation over approximately two pages | Exact export pagination or customer data |
 | Stress | `product-report-vnext.flowdoc.json` | Multi-section, multi-page, graph, pagination, and layout pressure | Typical document length or final product content |
+| Migration target | `product-report-v4-migrated-minimal.flowdoc.json` | Exact expected package v3/document v4 copy-forward result for the minimal v3 source | Active runtime, layout, renderer, backend persistence, or editor support |
 
 The baseline fixture is the default evidence document for connecting real
 canonical nodes to the product preview. Its values are intentionally synthetic,

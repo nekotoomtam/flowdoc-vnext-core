@@ -290,7 +290,8 @@ Image schema implementation must not activate until:
 5. text transactions and rich-inline replacement handle inline-image atomics;
 6. pagination and renderer consumption accept measured image facts without
    fetching arbitrary URLs;
-7. v3-to-v4 migration and downstream version reporting are implemented.
+7. downstream version reporting is implemented; Phase 257 completes the pure
+   v3-to-v4 migration prerequisite.
 
 ## PASS
 

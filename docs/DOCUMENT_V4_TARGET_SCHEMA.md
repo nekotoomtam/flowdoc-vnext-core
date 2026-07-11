@@ -1,7 +1,8 @@
 # Document v4 Target Schema And Containment
 
-Status: Phase 255 complete isolated document target. Package v3 parsing,
-migration, active graph support, and product runtime remain inactive.
+Status: Phase 255 complete isolated document target. Phases 256-257 add target
+parsing and pure migration; active graph support and product runtime remain
+inactive.
 
 ## Outcome
 
@@ -139,8 +140,8 @@ validation through a separately named parser.
   uncomposed.
 - Active relationship graph, operations, pagination, and renderer do not yet
   consume document v4.
-- V3-to-v4 migration must define handling for newly invalid page-break and table
-  shapes.
+- Phase 257 migration blocks newly invalid page-break and table shapes without
+  deleting, moving, or repairing them implicitly.
 
 ## RISK
 
@@ -193,6 +194,6 @@ behavior is unchanged.
 
 ## Next Recommended Direction
 
-Phase 256 composes the named package v3/document v4 parser and package-level
-reference validation. Next implement pure v3-to-v4 migration planning and apply
-boundaries while keeping active runtime/session entrypoints unchanged.
+Phase 257 composes pure v3-to-v4 migration planning and apply boundaries. Next
+add downstream capability reporting and revisioned persistence while keeping
+active runtime/session entrypoints unchanged.
