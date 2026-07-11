@@ -117,6 +117,9 @@ editor intent
   Definition drafts, Published Structure Versions, and Materialized Document
   Instances while leaving package kinds and workflows inactive:
   `src/lifecycle/structureIdentity.ts`.
+- Core Phase 271 publishes standalone Structure Policy, deterministic binding,
+  and core/structure/session effective-capability contracts without activating
+  instance operations: `src/lifecycle/structurePolicy.ts`.
 
 ## Default Change Routing
 
@@ -138,9 +141,9 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Use the accepted lifecycle identities to lock Structure Policy attachment
-   and effective capability semantics.
-2. Lock materialization and resolved projection contracts without
+1. Use the accepted identities and policy contracts to lock pure
+   materialization/provenance semantics.
+2. Lock resolved projection contracts without
    activating product workflow.
 3. Resume empty text-block, inline identity, selection, and field-placement
    contracts on that lifecycle boundary.
@@ -251,9 +254,9 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Lock Structure Policy attachment and effective capability semantics against
-   the accepted Phase 270 lifecycle identities.
-3. Lock materialization and resolved-projection contracts before
+2. Lock materialization/provenance semantics against the accepted Phase 270
+   identities and Phase 271 policy contracts.
+3. Lock resolved-projection contracts before
    widening product workflow claims.
 4. Resume text-block grammar, inline identity, field placement, and canonical
    selection contracts on that retained lifecycle boundary.

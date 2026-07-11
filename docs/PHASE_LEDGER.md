@@ -284,6 +284,20 @@ Parent goal:
 | 268 | Structure Definition and Document Instance architecture lock | done | `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `tests/structureInstanceArchitectureLock.test.ts`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 269 | Structure Definition and Document Instance v4 impact audit | done | `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`; `tests/structureInstanceV4ImpactAudit.test.ts`; `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 270 | Structure lifecycle identity contracts | done | `src/lifecycle/structureIdentity.ts`; `src/index.ts`; `tests/structureIdentity.test.ts`; `docs/STRUCTURE_LIFECYCLE_IDENTITY_CONTRACT.md`; `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`; `docs/STRUCTURE_INSTANCE_V4_IMPACT_AUDIT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 271 | Structure Policy and effective capability contracts | done | `src/lifecycle/structurePolicy.ts`; `src/schema/documentV4Target.ts`; `src/index.ts`; `tests/structurePolicy.test.ts`; `docs/STRUCTURE_POLICY_EFFECTIVE_CAPABILITY_CONTRACT.md`; `docs/STRUCTURE_LIFECYCLE_IDENTITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 271 Structure Policy And Effective Capability Contracts
+
+Phase 271 implements strict standalone Structure Policy metadata, deterministic
+explicit-node/parent-child/default binding precedence, node and child action
+vocabularies, Style Key allowlists, child type/cardinality constraints, and
+structured effective-capability denials across core, structure, and session
+layers. Policy v1 has no inheritance graph and cannot widen core containment.
+
+The policy contract remains outside canonical package parsers and is not wired
+into current v4 operations, backend mutation, editor command policy, or product
+authorization. Next: define pure materialization and provenance semantics using
+accepted lifecycle identities and policy bindings.
 
 ## Phase 270 Structure Lifecycle Identity Contracts
 

@@ -97,6 +97,8 @@ The package must remain runnable without any parent editor checkout.
 - Phase 270 adds strict JSON-safe lifecycle identity contracts for mutable
   Structure Definition drafts, immutable Published Structure Versions, and
   Materialized Document Instances without activating new package kinds.
+- Phase 271 adds strict Structure Policy and effective capability contracts,
+  separating core capability, authored governance, and session permission.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1156,6 +1158,8 @@ The package must remain runnable without any parent editor checkout.
   change-required, deferred, rejected, acceptance, and contract-order matrix
 - `docs/STRUCTURE_LIFECYCLE_IDENTITY_CONTRACT.md`: Phase 270 structure lineage,
   draft revision, published version, instance pin, and package-activation lock
+- `docs/STRUCTURE_POLICY_EFFECTIVE_CAPABILITY_CONTRACT.md`: Phase 271 policy
+  ownership, binding precedence, effective denials, containment, and cardinality
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

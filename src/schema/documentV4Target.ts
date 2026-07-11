@@ -14,6 +14,20 @@ import {
 
 export const VNEXT_DOCUMENT_V4_TARGET_SOURCE = "vnext-document-v4-target"
 export const VNEXT_DOCUMENT_V4_TARGET_VERSION = 4 as const
+export const VNEXT_DOCUMENT_V4_AUTHORED_NODE_TYPES = [
+  "zone",
+  "text-block",
+  "columns",
+  "column",
+  "table",
+  "table-row",
+  "table-cell",
+  "toc",
+  "page-break",
+  "divider",
+  "spacer",
+  "image",
+] as const
 
 const ZoneNodeV4TargetSchema = z.object({
   id: z.string().min(1),
