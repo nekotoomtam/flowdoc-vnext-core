@@ -74,6 +74,8 @@ The package must remain runnable without any parent editor checkout.
   consumers remain intentionally inactive.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
+- Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
+  result handling, and verified refresh into the v4 read-only projection.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code

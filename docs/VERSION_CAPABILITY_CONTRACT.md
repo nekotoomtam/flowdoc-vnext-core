@@ -107,7 +107,8 @@ Consumer evidence:
 - `flowdoc-vnext-backend@a7ca3b7`;
 - `flowdoc-vnext-editor@a4c501e`;
 - read-only target reporting: `flowdoc-vnext-backend@b299e94`;
-- read-only editor consumption: `flowdoc-vnext-editor@5c422de`.
+- read-only editor consumption: `flowdoc-vnext-editor@5c422de`;
+- explicit editor migration workflow: `flowdoc-vnext-editor@2c0c97d`.
 
 ## Behavior Changed
 

@@ -274,6 +274,25 @@ Parent goal:
 | 258 | Cross-repo version capability reporting | done | `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-backend@a7ca3b7`; `flowdoc-vnext-editor@a4c501e` |
 | 259 | Backend revision-gated migration persistence | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-backend@f80cd27`; `flowdoc-vnext-editor@ccb63fa` |
 | 260 | Document v4 read-only runtime consumer | done | `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@b299e94`; `flowdoc-vnext-editor@5c422de` |
+| 261 | Explicit editor document migration workflow | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@5ea90bc`; `flowdoc-vnext-editor@2c0c97d` |
+
+## Phase 261 Explicit Editor Document Migration Workflow
+
+Phase 261 closes the explicit editor migration-intent blocker without widening
+package 3/document 4 mutation or output capabilities.
+
+- Editor exposes an explicit capability-gated Upgrade command for fresh
+  backend package 2/document 3 state only.
+- Migration requests capture document id, base revision, request id, source,
+  and bounded reason before calling the existing backend route.
+- Applied and idempotently replayed results require a matching target document
+  read and strict v4 read-only core acceptance before runtime replacement.
+- Stale, rejected, mismatched, and unavailable results retain current editor
+  state and expose an operation status.
+- Indeterminate transport/read failures reuse the original request id so the
+  backend receipt can recover through replay.
+- The remaining activation blocker is v4 mutation, measured layout, exact
+  rendering, and export support.
 
 ## Phase 260 Document V4 Read-Only Runtime Consumer
 
