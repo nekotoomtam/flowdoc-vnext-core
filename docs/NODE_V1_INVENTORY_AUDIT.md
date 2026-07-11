@@ -131,8 +131,12 @@ Consequences:
   measured pagination warns that a page break in columns is ignored;
 - table rows and cells are structural children, not body-flow surfaces.
 
-The page-break mismatch is a v1 policy risk: canonical allowance and measured
-behavior should not disagree silently.
+The active v3 page-break mismatch remains compatibility evidence. Phase 255
+resolves the target v4 policy by allowing page-break only as a direct body-zone
+child.
+
+Target document v4 additionally allows block `image` under zone, column, and
+table-cell flow while keeping image childless and separate from text-block.
 
 ## Inline Node Inventory
 
@@ -268,14 +272,10 @@ The following directions are accepted for the Node v1 workstream:
 
 Node v1 cannot close until:
 
-- text-block inline grammar and atomic-offset behavior are locked;
-- inline image and block image canonical contracts are decided;
-- the document-version policy for adding image shapes is decided;
 - divider and spacer receive an explicit product surface or intentional
   non-visual policy;
 - direct capability semantics for internal column/row/cell nodes are aligned
   with product selection and operation targeting;
-- schema-valid page breaks inside columns receive an accepted behavior;
 - TOC/page-break/divider/spacer insertion ownership is decided.
 
 ## RISK
@@ -286,23 +286,17 @@ Node v1 cannot close until:
 - Current field-chip capability naming reflects a superseded node-selected UX.
 - Nested text-block editing needs a separate active descendant target from the
   group surface selection target.
-- Adding image to document v3 without a version policy could make old strict
-  parsers reject new packages without an explicit migration signal.
+- Target package v3/document v4 remains isolated from active consumers until
+  migration and downstream version support exist.
 - Core measured pagination is more advanced than the product preview; mixing
   those readiness claims would hide real integration work.
 
 ## UNKNOWN
 
-- Phase 251 resolves image additions and tightened Text-block grammar to target
-  document v4; Phase 252 resolves the asset manifest envelope to package v3.
 - Whether divider and spacer should be independently selectable surfaces or
   utility affordances owned by adjacent flow slots.
 - Whether column-level direct selection is required in v1 or only through a
   columns inspector mode.
-- Whether page-number usage should be restricted to header/footer zones.
-- Whether nested columns remain an accepted v1 product behavior.
-- Which asset metadata belongs in canonical package truth versus an external
-  asset registry retained by backend storage.
 
 ## PASS
 
@@ -318,6 +312,13 @@ Node v1 cannot close until:
   from node semantics.
 - Editor presentation explicitly distinguishes context, internal, surface,
   and unsupported roles.
+- Phases 248-250 lock and align Text-block v1 grammar and empty producers.
+- Phases 251-253 decide package v3/document v4, image asset ownership, and
+  target asset/data schemas.
+- Phases 254-255 implement inline/block image schemas, full document v4
+  containment, page restrictions, and structural/table invariants.
+- Nested columns remain canonical v4 structure while product insertion stays
+  deferred.
 
 ## Intentionally Not Changed
 
@@ -332,8 +333,7 @@ Node v1 cannot close until:
 
 ## Next Recommended Direction
 
-Start Text-block v1 Grammar Lock. The phase should define the complete v1
-inline union, UTF-16 offset and atomic deletion rules, style ownership,
-line-break/page-number restrictions, nested text editing target behavior, and
-the insertion point for future `inline-image` before any schema change is
-implemented.
+Compose the named package v3/document v4 parser from the completed target
+document, asset registry, data snapshot, and package-level image reference
+validators. Keep active runtime entrypoints unchanged until migration and
+downstream gates are ready.

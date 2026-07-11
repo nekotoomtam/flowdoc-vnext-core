@@ -139,6 +139,5 @@ backend, editor, layout, and rendering behavior is unchanged.
 
 ## Next Recommended Direction
 
-After Phase 254 implements shared document v4 image placement schemas, compose
-the complete document v4 authored union and containment policy. Then combine it
-with this phase in a named package v3/document v4 parser.
+After Phase 255 composes the complete document v4 authored union and containment
+policy, combine it with this phase in a named package v3/document v4 parser.

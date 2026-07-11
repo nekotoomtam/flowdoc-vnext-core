@@ -166,7 +166,6 @@ document parsing behavior is unchanged.
 
 ## Next Recommended Direction
 
-Compose a complete isolated document v4 schema from retained structural node
-families, target Text-block v4, and block image. Audit containment restrictions
-while composing it, then use that schema with Phase 253 assets/data to create a
-named package v3/document v4 parser.
+Phase 255 composes the complete isolated document v4 schema and containment
+rules. Next combine that target with Phase 253 assets/data in a named package
+v3/document v4 parser.

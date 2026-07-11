@@ -357,6 +357,6 @@ version policy now resolves to package v3/document v4.
 
 ## Next Recommended Direction
 
-After Phase 254 implements isolated image placement schemas, compose the full
-document v4 authored union and containment rules. Create a full package v3
-parser only after that document target is complete.
+After Phase 255 composes the full document v4 authored union and containment
+rules, create the isolated named package v3/document v4 parser and package-level
+source validation.

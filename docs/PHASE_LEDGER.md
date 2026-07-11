@@ -268,6 +268,25 @@ Parent goal:
 | 252 | Image source contract | done | `src/schema/imageSourceContract.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 253 | Package v3 image target schemas | done | `src/schema/imageAssetRegistry.ts`; `src/persistence/packageV3ImageTarget.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/packageV3ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 254 | Document v4 image target schemas | done | `src/schema/documentV4ImageTarget.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 255 | Document v4 target schema and containment | done | `src/schema/documentV4Target.ts`; `src/schema/documentV4Structure.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4Target.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 255 Document V4 Target Schema And Containment
+
+Phase 255 composes the complete isolated document v4 authored union and pure
+structural validation without activating package or runtime consumers.
+
+- Block image is accepted under zone, column, and table cell while remaining a
+  childless structural node separate from text-block.
+- Nested columns remain canonical; tables/columns remain disallowed in cells.
+- Page-break is restricted to direct body-zone flow, closing ignored columns,
+  table-cell, and static-zone behavior in the target version.
+- Page-number is restricted out of body zones and inline ids are unique within
+  each text-block.
+- Validation adds duplicate section/node, key/id, reachability, parent, cycle,
+  columns-width, positive table-width, rectangular table-grid, and header-count
+  invariants.
+- Active document v3 schema, graph, operations, pagination, and renderer remain
+  unchanged.
 
 ## Phase 254 Document V4 Image Target Schemas
 

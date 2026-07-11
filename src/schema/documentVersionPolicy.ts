@@ -22,7 +22,6 @@ export const VNEXT_TEXT_BLOCK_V1_VERSION_POLICY = {
   },
   activationBlockers: [
     "package-v3-parser",
-    "document-v4-full-schema",
     "v3-to-v4-migration-plan",
     "downstream-consumer-support",
   ],
