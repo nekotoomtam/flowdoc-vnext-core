@@ -36,7 +36,7 @@ describe("document v4 read-only runtime session", () => {
       zoneId: "zone-cover-body",
     })
     expect(result.session.graph.capabilitiesByType["text-block"]).toMatchObject({
-      canBeDeleted: false,
+      canBeDeleted: true,
       canBeDuplicated: false,
       canBeReordered: true,
       canContainText: false,
@@ -54,7 +54,7 @@ describe("document v4 read-only runtime session", () => {
     expect(result.session.graph.nodesById.get("body-image")).toMatchObject({ type: "image" })
     expect(result.session.graph.capabilitiesByType.image).toMatchObject({
       operationSurface: "utility",
-      canBeDeleted: false,
+      canBeDeleted: true,
     })
   })
 

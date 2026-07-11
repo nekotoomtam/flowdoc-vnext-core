@@ -21,15 +21,16 @@ and other internal structural nodes are rejected.
 ## Capability
 
 Version capability contract v3 publishes `supportedOperationKinds` per pair.
-Package 3/document 4 reports only `node.reorder`; this must not be interpreted
-as permission for delete, duplicate, text, image, layout, or export behavior.
+Package 3/document 4 now reports `node.delete` and `node.reorder`; this must not
+be interpreted as permission for duplicate, text, image, layout, or export
+behavior.
 
 ## PASS
 
 - Source package remains immutable.
 - Full target validation runs before success.
 - Backend base-revision write and editor stale-apply gates remain active.
-- Editor enters `partial` mode and exposes only reorder controls.
+- Editor enters `partial` mode and exposes only delete/reorder controls.
 
 ## FAIL / BLOCKER
 
@@ -44,7 +45,7 @@ as permission for delete, duplicate, text, image, layout, or export behavior.
 
 ## UNKNOWN
 
-- Which operation follows reorder: delete/duplicate or text transactions.
+- Duplicate ID allocation and shared registry reference policy.
 - Final v4 active-session boundary after partial operations mature.
 
 ## Intentionally Not Changed
@@ -56,5 +57,5 @@ as permission for delete, duplicate, text, image, layout, or export behavior.
 
 ## Next Recommended Direction
 
-Add v4 delete/duplicate planning only after ownership and asset/reference impact
-rules are explicit.
+Lock duplicate ID allocation and shared registry reference rules before adding
+v4 `node.duplicate`.

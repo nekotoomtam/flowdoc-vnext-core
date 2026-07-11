@@ -3,12 +3,9 @@ import { safeCreateVNextReadOnlyRuntimeSessionV4, type VNextReadOnlyParentRefV4 
 import type { VNextOperationCommitMetadata, VNextOperationFailureReason, VNextOperationIssue } from "./results.js"
 import type { VNextOperationSource } from "./commands.js"
 
-export type VNextDocumentV4OperationCommand = {
-  kind: "node.reorder"
-  nodeId: string
-  source?: VNextOperationSource
-  toIndex: number
-}
+export type VNextDocumentV4OperationCommand =
+  | { kind: "node.delete"; nodeId: string; source?: VNextOperationSource }
+  | { kind: "node.reorder"; nodeId: string; source?: VNextOperationSource; toIndex: number }
 
 export type VNextDocumentV4OperationResult =
   | {
@@ -86,25 +83,70 @@ export function runVNextDocumentV4Operation(
   if (!node) {
     return { command, issues: [issue("target-not-found", `node "${command.nodeId}" was not found`, command.nodeId)], ok: false, package: session.package, reason: "target-not-found" }
   }
-  if (!Number.isInteger(command.toIndex) || command.toIndex < 0) {
-    return { command, issues: [issue("invalid-index", "toIndex must be a non-negative integer", node.id)], ok: false, package: session.package, reason: "invalid-command" }
-  }
   if (!REORDERABLE_TYPES.has(node.type)) {
-    return { command, issues: [issue("cannot-reorder", `${node.type} cannot be reordered`, node.id)], ok: false, package: session.package, reason: "unsupported-target" }
+    return { command, issues: [issue(`cannot-${command.kind === "node.delete" ? "delete" : "reorder"}`, `${node.type} cannot be mutated`, node.id)], ok: false, package: session.package, reason: "unsupported-target" }
   }
   const parent = session.graph.parentByNodeId.get(node.id)
   const sectionId = session.graph.sectionByNodeId.get(node.id)
   if (!parent || !sectionId || parentId(parent) == null) {
-    return { command, issues: [issue("cannot-reorder", "node must be a block child of zone, column, or table-cell", node.id)], ok: false, package: session.package, reason: "unsupported-target" }
+    return { command, issues: [issue("unsupported-parent", "node must be a block child of zone, column, or table-cell", node.id)], ok: false, package: session.package, reason: "unsupported-target" }
   }
   const mutated = cloneJson(session.package)
   const siblings = childList(mutated, sectionId, parent)
-  if (!siblings || command.toIndex >= siblings.length) {
-    return { command, issues: [issue("invalid-index", `toIndex must be less than sibling count ${siblings?.length ?? 0}`, node.id)], ok: false, package: session.package, reason: "invalid-command" }
+  if (!siblings) {
+    return { command, issues: [issue("invalid-parent", "parent list could not be resolved", node.id)], ok: false, package: session.package, reason: "invalid-document" }
   }
   const currentIndex = siblings.indexOf(node.id)
   if (currentIndex < 0) {
     return { command, issues: [issue("invalid-parent", "parent does not contain target node", node.id)], ok: false, package: session.package, reason: "invalid-document" }
+  }
+
+  if (command.kind === "node.delete") {
+    const deleteIds: string[] = []
+    const collect = (nodeId: string): void => {
+      deleteIds.push(nodeId)
+      for (const childId of session.graph.childrenByNodeId.get(nodeId) ?? []) collect(childId)
+    }
+    collect(node.id)
+    siblings.splice(currentIndex, 1)
+    const section = mutated.document.document.sections.find((item) => item.id === sectionId)
+    if (!section) {
+      return { command, issues: [issue("missing-section", "target section could not be resolved", node.id)], ok: false, package: session.package, reason: "invalid-document" }
+    }
+    deleteIds.forEach((deleteId) => { delete section.nodes[deleteId] })
+    const validated = safeParseFlowDocPackageV3DocumentV4(mutated)
+    if (!validated.ok) {
+      return { command, issues: validated.issues.map((item) => issue(item.code, item.message, node.id)), ok: false, package: session.package, reason: "validation-failed" }
+    }
+    const context = session.graph.nearestByNodeId.get(node.id)
+    const ownerId = parentId(parent) as string
+    const scope = {
+      sectionIds: [sectionId],
+      zoneIds: context ? [context.zoneId] : [],
+      nodeIds: deleteIds,
+      parentNodeIds: [ownerId],
+      tableIds: context?.tableId ? [context.tableId] : [],
+      textBlockIds: deleteIds.filter((id) => session.graph.nodesById.get(id)?.type === "text-block"),
+    }
+    return {
+      command,
+      issues: [],
+      ok: true,
+      operation: {
+        historyPolicy: { durableIntent: "structure", kind: "single-entry", summary: `delete ${node.type} ${node.id}` },
+        kind: "node.delete",
+        renderInvalidation: { affectedNodeIds: [...deleteIds, ownerId], affectedSectionIds: [sectionId], lane: "node-structure", pageScope: { kind: "unknown", reason: "pagination-not-integrated" } },
+        scope,
+        source: command.source ?? "user",
+        targetNodeIds: [node.id],
+        validationPolicy: "full",
+      },
+      package: validated.package,
+    }
+  }
+
+  if (!Number.isInteger(command.toIndex) || command.toIndex < 0 || command.toIndex >= siblings.length) {
+    return { command, issues: [issue("invalid-index", `toIndex must be less than sibling count ${siblings?.length ?? 0}`, node.id)], ok: false, package: session.package, reason: "invalid-command" }
   }
   siblings.splice(currentIndex, 1)
   siblings.splice(command.toIndex, 0, node.id)

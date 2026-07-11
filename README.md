@@ -78,6 +78,8 @@ The package must remain runnable without any parent editor checkout.
   result handling, and verified refresh into the v4 read-only projection.
 - Phase 262 adds operation-granular capability and isolated same-parent v4
   `node.reorder`; all other v4 mutation and exact output remain closed.
+- Phase 263 adds block-subtree v4 `node.delete` without garbage-collecting
+  shared field/data/asset registries.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1121,6 +1123,8 @@ The package must remain runnable without any parent editor checkout.
   capability lock, and downstream consumer boundary
 - `docs/DOCUMENT_V4_REORDER_OPERATION.md`: Phase 262 operation-granular
   capability and same-parent v4 reorder vertical slice
+- `docs/DOCUMENT_V4_DELETE_OPERATION.md`: Phase 263 block-subtree deletion,
+  registry retention, and downstream mutation boundary
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

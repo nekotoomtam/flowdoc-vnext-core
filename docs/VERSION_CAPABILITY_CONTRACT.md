@@ -15,11 +15,11 @@ probing parsers or relying on parser error strings.
 | Pair | Disposition | Parse | Active session | Read-only session | Mutation | Migration source | Target validation |
 |---|---|---:|---:|---:|---:|---:|---:|
 | package 2 / document 3 | active | yes | yes | yes | yes | yes | no |
-| package 3 / document 4 | migration-target | yes | no | yes | `node.reorder` only | no | yes |
+| package 3 / document 4 | migration-target | yes | no | yes | delete + reorder | no | yes |
 | every other pair | unsupported | no | no | no | no | no | no |
 
 Package 3/document 4 has a named read projection and an isolated same-parent
-`node.reorder` kernel. It remains outside the active v3 operation runtime,
+`node.delete`/`node.reorder` kernel. It remains outside the active v3 operation runtime,
 pagination, exact renderer, and export runtime.
 
 ## Public APIs
@@ -61,14 +61,16 @@ The backend now:
 - persists validated v4 targets as a new revision;
 - returns stale, rejected, applied, and idempotent replay results.
 
-Activation remains blocked because v4 has only same-parent reorder and does not
-yet have remaining operations, measured layout, exact rendering, or export.
+Activation remains blocked because v4 has only block-subtree delete and
+same-parent reorder; remaining operations, measured layout, exact rendering,
+and export are unavailable.
 
 ## PASS
 
 - Active and migration-target version pairs are explicit and JSON-safe.
 - Unsupported and malformed markers are distinguishable without parsing.
-- V4 mutation support is operation-granular and limited to `node.reorder`.
+- V4 mutation support is operation-granular and limited to `node.delete` and
+  `node.reorder`.
 - `canCreateReadOnlySession` distinguishes safe structural consumption from
   active runtime support.
 - Backend/editor can consume one retained core capability vocabulary.
@@ -77,7 +79,7 @@ yet have remaining operations, measured layout, exact rendering, or export.
 
 ## FAIL / BLOCKER
 
-- Delete, duplicate, text/image operations, measured pagination, exact
+- Duplicate, text/image operations, measured pagination, exact
   renderers, and export remain v3-only.
 
 ## RISK
