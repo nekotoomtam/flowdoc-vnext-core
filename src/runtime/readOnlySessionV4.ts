@@ -38,7 +38,7 @@ export interface VNextReadOnlyNodeCapabilitiesV4 {
   allowedChildTypes: readonly AuthoredNodeV4TargetType[]
   canBeDeleted: false
   canBeDuplicated: false
-  canBeReordered: false
+  canBeReordered: boolean
   canContainText: false
   canSplitAcrossPages: false
   childrenField?: "cellIds" | "childIds" | "columnIds" | "rowIds"
@@ -69,6 +69,7 @@ export interface VNextReadOnlyRuntimeSessionV4 {
   package: FlowDocPackageV3DocumentV4
   packageVersion: 3
   readOnly: true
+  mutationOperationKinds: readonly ["node.reorder"]
   source: "vnext-read-only-runtime-session-v4"
   sourceKind: VNextRuntimeSessionSource
 }
@@ -118,13 +119,16 @@ function operationSurface(type: AuthoredNodeV4TargetType): VNextReadOnlyNodeCapa
 }
 
 function capabilities(): Record<AuthoredNodeV4TargetType, VNextReadOnlyNodeCapabilitiesV4> {
+  const reorderable = new Set<AuthoredNodeV4TargetType>([
+    "text-block", "columns", "table", "toc", "page-break", "divider", "spacer", "image",
+  ])
   return Object.fromEntries(Object.keys(CHILD_TYPES).map((typeValue) => {
     const type = typeValue as AuthoredNodeV4TargetType
     return [type, {
       allowedChildTypes: [...CHILD_TYPES[type]],
       canBeDeleted: false,
       canBeDuplicated: false,
-      canBeReordered: false,
+      canBeReordered: reorderable.has(type),
       canContainText: false,
       canSplitAcrossPages: false,
       ...(childrenField(type) == null
@@ -234,6 +238,7 @@ export function safeCreateVNextReadOnlyRuntimeSessionV4(
       package: parsed.package,
       packageVersion: 3,
       readOnly: true,
+      mutationOperationKinds: ["node.reorder"],
       source: "vnext-read-only-runtime-session-v4",
       sourceKind: options.source ?? "canonical-vnext-package",
     },

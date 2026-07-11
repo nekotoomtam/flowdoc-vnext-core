@@ -9,15 +9,15 @@ import {
 
 describe("Core package/document version capability", () => {
   it("publishes active and migration-target support without claiming v4 runtime activation", () => {
-    expect(VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION).toBe(2)
+    expect(VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION).toBe(3)
     expect(VNEXT_CORE_VERSION_CAPABILITY_CONTRACT).toEqual({
-      contractVersion: 2,
-      status: "v4-read-only-ready",
+      contractVersion: 3,
+      status: "v4-partial-mutation-ready",
       active: { packageVersion: 2, documentVersion: 3 },
       migrationTarget: { packageVersion: 3, documentVersion: 4 },
       activation: {
         status: "blocked",
-        blockers: ["v4-mutation-layout-render-support"],
+        blockers: ["v4-remaining-operation-layout-render-support"],
       },
       support: {
         active: {
@@ -29,16 +29,18 @@ describe("Core package/document version capability", () => {
           canValidateMigrationTarget: false,
           disposition: "active",
           pair: { packageVersion: 2, documentVersion: 3 },
+          supportedOperationKinds: ["node.delete", "node.duplicate", "node.reorder", "columns.insert", "columns.layout.patch", "text-block.insert", "text-block.text.replace", "table.row.insert", "table.row.delete", "table.column.insert", "table.column.delete"],
         },
         migrationTarget: {
           canCreateRuntimeSession: false,
           canCreateReadOnlySession: true,
-          canMutate: false,
+          canMutate: true,
           canParse: true,
           canPlanMigrationFrom: false,
           canValidateMigrationTarget: true,
           disposition: "migration-target",
           pair: { packageVersion: 3, documentVersion: 4 },
+          supportedOperationKinds: ["node.reorder"],
         },
       },
     })
@@ -57,6 +59,7 @@ describe("Core package/document version capability", () => {
       canCreateRuntimeSession: false,
       canCreateReadOnlySession: true,
       canValidateMigrationTarget: true,
+      supportedOperationKinds: ["node.reorder"],
     })
     expect(getVNextCoreVersionSupport(2, 4)).toMatchObject({
       disposition: "unsupported",
@@ -101,7 +104,7 @@ describe("Core package/document version capability", () => {
 
     expect(doc).toContain("## Version Matrix")
     expect(doc).toContain("## Cross-Repo Reporting")
-    expect(doc).toContain("v4-mutation-layout-render-support")
+    expect(doc).toContain("v4-remaining-operation-layout-render-support")
     expect(doc).toContain("canCreateReadOnlySession")
     expect(readme).toContain("docs/VERSION_CAPABILITY_CONTRACT.md")
     expect(ledger).toContain("| 258 | Cross-repo version capability reporting | done |")

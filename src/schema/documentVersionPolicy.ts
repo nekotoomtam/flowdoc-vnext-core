@@ -21,7 +21,7 @@ export const VNEXT_TEXT_BLOCK_V1_VERSION_POLICY = {
     backendOwnsRevisionedPersistence: true,
   },
   activationBlockers: [
-    "v4-mutation-layout-render-support",
+    "v4-remaining-operation-layout-render-support",
   ],
 } as const
 

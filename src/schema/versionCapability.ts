@@ -4,8 +4,9 @@ import {
   VNEXT_TEXT_BLOCK_V1_TARGET_DOCUMENT_VERSION,
   VNEXT_TEXT_BLOCK_V1_VERSION_POLICY,
 } from "./documentVersionPolicy.js"
+import type { VNextOperationKind } from "../operations/commands.js"
 
-export const VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION = 2 as const
+export const VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION = 3 as const
 export const VNEXT_TARGET_PACKAGE_VERSION = 3 as const
 
 export interface VNextPackageDocumentVersionPair {
@@ -24,6 +25,7 @@ export interface VNextCoreVersionSupport {
   canValidateMigrationTarget: boolean
   disposition: VNextCoreVersionDisposition
   pair: VNextPackageDocumentVersionPair
+  supportedOperationKinds: readonly VNextOperationKind[]
 }
 
 export type VNextPackageVersionInspection =
@@ -52,7 +54,7 @@ const MIGRATION_TARGET_PAIR = {
 
 export const VNEXT_CORE_VERSION_CAPABILITY_CONTRACT = {
   contractVersion: VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION,
-  status: "v4-read-only-ready",
+  status: "v4-partial-mutation-ready",
   active: ACTIVE_PAIR,
   migrationTarget: MIGRATION_TARGET_PAIR,
   activation: {
@@ -69,16 +71,18 @@ export const VNEXT_CORE_VERSION_CAPABILITY_CONTRACT = {
       canValidateMigrationTarget: false,
       disposition: "active",
       pair: ACTIVE_PAIR,
+      supportedOperationKinds: ["node.delete", "node.duplicate", "node.reorder", "columns.insert", "columns.layout.patch", "text-block.insert", "text-block.text.replace", "table.row.insert", "table.row.delete", "table.column.insert", "table.column.delete"],
     },
     migrationTarget: {
       canCreateRuntimeSession: false,
       canCreateReadOnlySession: true,
-      canMutate: false,
+      canMutate: true,
       canParse: true,
       canPlanMigrationFrom: false,
       canValidateMigrationTarget: true,
       disposition: "migration-target",
       pair: MIGRATION_TARGET_PAIR,
+      supportedOperationKinds: ["node.reorder"],
     },
   },
 } as const
@@ -117,6 +121,7 @@ export function getVNextCoreVersionSupport(
     canValidateMigrationTarget: false,
     disposition: "unsupported",
     pair: { packageVersion, documentVersion },
+    supportedOperationKinds: [],
   }
 }
 

@@ -41,7 +41,7 @@ describe("Text-block v1 version and migration decision", () => {
         backendOwnsRevisionedPersistence: true,
       },
       activationBlockers: [
-        "v4-mutation-layout-render-support",
+        "v4-remaining-operation-layout-render-support",
       ],
     })
     expect(JSON.parse(JSON.stringify(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY))).toEqual(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY)

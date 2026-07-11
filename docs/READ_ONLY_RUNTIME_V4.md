@@ -12,7 +12,9 @@ is a separate named session and does not widen the active v3 runtime.
 
 The session exposes document, fields, data, node/parent/child/context indexes,
 and read-only node capabilities. It accepts block images and inline images.
-Every editing capability is false and `supportedOperationKinds` is empty.
+Direct session operation execution remains empty. Reorderable block capability
+facts feed the separate backend-owned `node.reorder` path; the read session does
+not mutate its package.
 
 The session does not run operations, measured pagination, live layout, exact
 rendering, export readiness, artifact generation, or asset byte resolution.
@@ -32,11 +34,11 @@ an exact image render claim.
 - Strict package v3/document v4 validation precedes projection.
 - Parent, child, section, zone, and nearest-context indexes are available.
 - Block and inline image forms survive read projection.
-- Mutation and editing capabilities are closed by construction.
+- Text, delete, duplicate, and direct session mutation remain closed.
 
 ## FAIL / BLOCKER
 
-- No v4 operation execution exists.
+- Only the separate same-parent `node.reorder` kernel exists.
 - No v4 measured pagination, exact renderer, or export path exists.
 
 ## RISK

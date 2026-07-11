@@ -1,6 +1,6 @@
 # Version Capability Contract
 
-Status: Phase 260 read-only v4 consumer contract complete. Full v4 activation
+Status: Phase 262 partial v4 mutation contract complete. Full v4 activation
 remains blocked.
 
 ## Outcome
@@ -15,12 +15,12 @@ probing parsers or relying on parser error strings.
 | Pair | Disposition | Parse | Active session | Read-only session | Mutation | Migration source | Target validation |
 |---|---|---:|---:|---:|---:|---:|---:|
 | package 2 / document 3 | active | yes | yes | yes | yes | yes | no |
-| package 3 / document 4 | migration-target | yes | no | yes | no | no | yes |
+| package 3 / document 4 | migration-target | yes | no | yes | `node.reorder` only | no | yes |
 | every other pair | unsupported | no | no | no | no | no | no |
 
-Package 3/document 4 has a named read-only structural session. It remains
-outside the active graph, operations, pagination, exact renderer, and export
-runtime.
+Package 3/document 4 has a named read projection and an isolated same-parent
+`node.reorder` kernel. It remains outside the active v3 operation runtime,
+pagination, exact renderer, and export runtime.
 
 ## Public APIs
 
@@ -52,7 +52,7 @@ or editor runtime support.
 Phase 260 completes the named read-only core session and editor/backend read
 consumer path. Phase 261 completes explicit editor migration intent, result
 handling, and accepted-target refresh. The remaining blocker is
-`v4-mutation-layout-render-support`.
+`v4-remaining-operation-layout-render-support`.
 
 The backend now:
 
@@ -61,14 +61,14 @@ The backend now:
 - persists validated v4 targets as a new revision;
 - returns stale, rejected, applied, and idempotent replay results.
 
-Activation remains blocked because v4 does not yet have mutation, measured
-layout, exact rendering, or export support.
+Activation remains blocked because v4 has only same-parent reorder and does not
+yet have remaining operations, measured layout, exact rendering, or export.
 
 ## PASS
 
 - Active and migration-target version pairs are explicit and JSON-safe.
 - Unsupported and malformed markers are distinguishable without parsing.
-- V4 active runtime and mutation support remain false.
+- V4 mutation support is operation-granular and limited to `node.reorder`.
 - `canCreateReadOnlySession` distinguishes safe structural consumption from
   active runtime support.
 - Backend/editor can consume one retained core capability vocabulary.
@@ -77,8 +77,8 @@ layout, exact rendering, or export support.
 
 ## FAIL / BLOCKER
 
-- Active operations, measured pagination, exact renderers, and export remain
-  v3-only.
+- Delete, duplicate, text/image operations, measured pagination, exact
+  renderers, and export remain v3-only.
 
 ## RISK
 
@@ -126,5 +126,5 @@ inactive for runtime use.
 
 ## Next Recommended Direction
 
-Add v4 mutation and measured layout/render support before considering target
-activation.
+Add remaining v4 operations and measured layout/render support before
+considering target activation.

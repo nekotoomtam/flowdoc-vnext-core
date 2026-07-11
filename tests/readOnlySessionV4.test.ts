@@ -38,7 +38,7 @@ describe("document v4 read-only runtime session", () => {
     expect(result.session.graph.capabilitiesByType["text-block"]).toMatchObject({
       canBeDeleted: false,
       canBeDuplicated: false,
-      canBeReordered: false,
+      canBeReordered: true,
       canContainText: false,
     })
     expect(JSON.stringify(source)).toBe(sourceBefore)
