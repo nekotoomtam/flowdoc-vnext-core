@@ -23,7 +23,7 @@ axis and retained evidence.
 | Node | Family | Schema / references | Allowed parent / role | Core read | Generic lifecycle | Node edit / history | Layout / pagination | Render / export | Editor / backend | Scale |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `zone` | zone | PASS | PASS: section-owned role | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
-| `text-block` | text | PASS: v4 grammar/inline/field/image refs | PASS: zone/column/cell | PASS | PASS: block root | PARTIAL: policy-aware rich replace/history | PARTIAL: measured source/lines; no pages | BLOCKED | PARTIAL: core contracts; no editor/backend | UNKNOWN |
+| `text-block` | text | PASS: v4 grammar/inline/field/image refs | PASS: zone/column/cell | PASS | PASS: block root | PARTIAL: policy-aware rich replace/history | PARTIAL: measured line pages; no mixed flow | BLOCKED | PARTIAL: core contracts; no editor/backend | PARTIAL: 6k lines/250 pages |
 | `columns` | layout | PASS | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
 | `column` | layout | PASS | PASS: columns-owned | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
 | `table` | table | PASS: rectangular grid | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
@@ -99,6 +99,9 @@ independent authored block lifecycle targets.
 - `src/pagination/textBlockV4Measurement.ts` and
   `tests/textBlockV4Measurement.test.ts` prove resolved measurement packets,
   complete lines, and authored/resolved source mapping without pagination.
+- `src/pagination/textBlockV4Pagination.ts` and
+  `tests/textBlockV4Pagination.test.ts` prove source-retaining line fragments
+  and bounded 6,000-line/250-page text-block scale without renderer relayout.
 
 ### E7 Closed Axes
 
@@ -123,10 +126,12 @@ as their only authored text surface. The following remain blocked or partial:
    remain partial: core placement planning/compatibility/preflight are PASS,
    UX and drift reporting remain blocked;
 3. browser draft to core transaction/IME/history integration remains blocked;
-4. measured line packets with canonical/resolved source ranges are PASS, while
-   pagination fragment consumption remains blocked;
-5. cross-page edit, reflow, caret, and selection acceptance remains blocked;
-6. representative large-text scale evidence remains UNKNOWN.
+4. measured line packets and isolated page fragments with canonical/resolved
+   source ranges are PASS; mixed document flow remains blocked;
+5. cross-page edit/reflow source facts are PASS, while caret hit testing and
+   selection painting remain blocked;
+6. representative text-block scale is PARTIAL at 6,000 lines/250 pages; mixed
+   document/backend/renderer scale remains UNKNOWN.
 
 ### Columns Gate
 
@@ -187,12 +192,12 @@ behavior in this matrix.
   in the same completed phase.
 - Type-level capability can overclaim future insert/move permission without
   parent and zone-role context.
-- Scale remains UNKNOWN for all v4 node families.
+- Scale remains UNKNOWN outside the isolated text-block evidence.
 
 ## UNKNOWN
 
 - Granular merge and typing-coalescing decisions beyond bounded full replace.
-- Representative v4 large-document acceptance thresholds.
+- Representative mixed-document/backend/renderer scale thresholds.
 - Collaboration-safe authored identity allocation.
 
 ## Intentionally Not Changed
@@ -204,5 +209,5 @@ behavior in this matrix.
 
 ## Next Recommended Direction
 
-Add text-line pagination fragments and representative large-text/cross-page
-acceptance before implementing editor draft behavior.
+Close-audit text-block readiness and use its accepted line/source contracts to
+start columns/table split planning without claiming editor/render readiness.

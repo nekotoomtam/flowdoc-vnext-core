@@ -8169,6 +8169,22 @@ This phase intentionally does not choose/execute a line breaker, expand page
 numbers, paginate, render, load fonts/media bytes, integrate editor DOM, or run
 backend measurement jobs.
 
+## Phase 279 Text-block V4 Line Pagination
+
+Phase 279 consumes accepted measured lines without relayout:
+
+- one canonical text-block becomes deterministic per-page fragments retaining
+  the same node id, line ranges, and canonical/resolved source points;
+- whole lines pack by measured height and over-height lines block;
+- page-local y offsets and used/remaining body height are explicit;
+- authored graph and identities remain immutable; and
+- a 6,000-line, 250-page bounded text-block case supplies representative scale
+  evidence under the local regression threshold.
+
+This phase intentionally does not paginate mixed document nodes, add paragraph
+keep/widow/orphan policy, split columns/tables, render, integrate editor/backend,
+or claim complete 250-page artifact readiness.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

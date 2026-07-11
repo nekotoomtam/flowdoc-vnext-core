@@ -149,6 +149,10 @@ editor intent
   measured line acceptance with authored/resolved source points. Line-breaker,
   pagination, renderer, and backend job execution remain inactive:
   `src/pagination/textBlockV4Measurement.ts`.
+- Core Phase 279 paginates accepted v4 text lines into deterministic
+  source-retaining fragments and proves a 6,000-line/250-page text-block case
+  without mixed-document layout or rendering:
+  `src/pagination/textBlockV4Pagination.ts`.
 
 ## Default Change Routing
 
@@ -170,8 +174,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Add v4 text-line pagination fragment consumption and representative
-   large-text/cross-page acceptance on Phase 278 source ranges.
+1. Close-audit text-block v4 readiness and separate what now unblocks
+   columns/table work from editor/backend/render work that remains closed.
 2. Keep editor draft/IME and instance-composer implementation closed until
    their respective contracts pass.
 3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
