@@ -141,6 +141,10 @@ editor intent
   replacement transaction with field/media/style capability preflight and
   identity/history facts. Backend persistence and editor input remain inactive:
   `src/authoring/textBlockV4RichInlineReplace.ts`.
+- Core Phase 277 publishes explicit field-ref/line-break/page-number/
+  inline-image insertion and atomic removal planning that feeds Phase 276
+  without bypassing policy or allocating implicit ids:
+  `src/authoring/textBlockV4InlineCommands.ts`.
 
 ## Default Change Routing
 
@@ -162,8 +166,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Add explicit field placement and atomic insert/remove planning on the Phase
-   275 grammar and Phase 276 bounded replacement transaction.
+1. Add v4 measured text-line/source-range facts on the accepted authoring and
+   resolved-binding boundaries.
 2. Keep editor draft/IME and instance-composer implementation closed until
    their respective contracts pass.
 3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
@@ -271,12 +275,10 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Add explicit field placement and atomic insert/remove planning on the
-   retained lifecycle and selection boundary.
-3. Add measured v4 layout/render consumption without treating placeholder
+2. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
-4. Keep package v3/document v4 out of active editor/runtime activation until the
+3. Keep package v3/document v4 out of active editor/runtime activation until the
    remaining capability gates are explicitly closed.
-5. Retire old core package lanes such as `packages/storage-file-json` and
+4. Retire old core package lanes such as `packages/storage-file-json` and
    `packages/internal-alpha-runner` only after historical-test replacement and
    backend parity are proven.

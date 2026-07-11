@@ -91,6 +91,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 276 adds policy-aware v4 rich-inline replacement for exact Structure
   draft or Document Instance revisions, with field/media/style capability
   preflight and identity/history facts. Backend execution remains inactive.
+- Phase 277 plans explicit v4 field and atomic inline commands from canonical
+  selection anchors, including deterministic text splitting, while retaining
+  Phase 276 as the only policy-aware commit boundary.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

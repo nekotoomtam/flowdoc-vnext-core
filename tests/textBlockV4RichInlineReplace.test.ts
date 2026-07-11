@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   parseFlowDocPackageV3DocumentV4,
+  planVNextTextBlockV4InlineCommand,
   runVNextTextBlockV4RichInlineReplace,
   type VNextStructurePolicyNodeAction,
   type VNextTextBlockV4RichInlineReplaceRequestV1,
@@ -280,5 +281,27 @@ describe("text-block v4 rich inline replace", () => {
     expect(doc).toContain("explicitly not collaboration-safe")
     expect(readme).toContain("Phase 276 adds policy-aware v4 rich-inline replacement")
     expect(ledger).toContain("## Phase 276 Text-block V4 Rich-inline Replace")
+  })
+
+  it("accepts explicit field-placement planner output through the same policy-aware commit", () => {
+    const request = requestFixture()
+    const body = request.document.document.sections[0].nodes["body-text"]
+    if (body.type !== "text-block") throw new Error("fixture body text missing")
+    const last = body.children[body.children.length - 1]
+    const plan = planVNextTextBlockV4InlineCommand(body, {
+      kind: "field-ref.insert",
+      anchor: { textBlockId: body.id, inlineId: last.id, offset: 1, affinity: "forward" },
+      inline: { id: "customer-name-second", type: "field-ref", key: "customer.name" },
+    }, { fieldContract: request.fieldContract.registry, zoneRole: "body" })
+    if (plan.status !== "planned") throw new Error(plan.issues.map((item) => item.message).join("\n"))
+    request.command.children = plan.children
+
+    const result = runVNextTextBlockV4RichInlineReplace(request)
+
+    expect(result.status).toBe("committed")
+    if (result.status === "committed") {
+      expect(result.operation.requiredActions).toEqual(["content.edit", "field.place"])
+      expect(result.operation.identity.addedInlineIds).toContain("customer-name-second")
+    }
   })
 })

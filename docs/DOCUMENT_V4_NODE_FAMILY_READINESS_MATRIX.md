@@ -114,9 +114,11 @@ Text-block remains the critical path because columns and table cells consume it
 as their only authored text surface. The following remain blocked or partial:
 
 1. explicit granular text/atomic commands and collaboration-safe identity
-   allocation remain blocked; canonical empty block/selection is now PASS;
+   allocation remain partial: managed atomic planning is PASS, granular text
+   and collaboration allocation remain blocked;
 2. explicit field placement UX/command and external-catalog drift reporting
-   remain partial; compatibility and replacement preflight are PASS;
+   remain partial: core placement planning/compatibility/preflight are PASS,
+   UX and drift reporting remain blocked;
 3. browser draft to core transaction/IME/history integration remains blocked;
 4. measured line packets with canonical source ranges remain blocked;
 5. cross-page edit, reflow, caret, and selection acceptance remains blocked;
@@ -198,5 +200,5 @@ behavior in this matrix.
 
 ## Next Recommended Direction
 
-Add explicit field/atomic command planning, then measured line/source-range
-facts before implementing editor draft or cross-page behavior.
+Add measured line/source-range facts before implementing editor draft or
+cross-page behavior.

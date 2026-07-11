@@ -8134,6 +8134,24 @@ This phase intentionally does not claim collaboration/offline merge safety,
 add granular text/atomic commands, execute backend persistence, integrate editor
 DOM/IME input, paginate, render, or accept cross-page editing.
 
+## Phase 277 Text-block V4 Inline Commands
+
+Phase 277 adds explicit field and managed-atomic command planning:
+
+- field-ref, line-break, page-number, and inline-image insertion starts from a
+  canonical v4 caret and produces a complete replacement child list;
+- insertion inside text retains the left identity and requires a caller-supplied
+  unique right identity while preserving sparse run style;
+- atomic removal targets identity and returns a deterministic neighboring or
+  canonical empty-block caret;
+- current and planned blocks pass v4 grammar and field/zone checks; and
+- planner output remains source-immutable and must pass the Phase 276
+  artifact/policy/session/history commit boundary.
+
+This phase intentionally does not mutate documents, create history, allocate
+implicit ids, add granular text/style commands, integrate DOM/IME/backend,
+paginate, or render.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
