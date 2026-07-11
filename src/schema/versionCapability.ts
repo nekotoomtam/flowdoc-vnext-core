@@ -5,7 +5,7 @@ import {
   VNEXT_TEXT_BLOCK_V1_VERSION_POLICY,
 } from "./documentVersionPolicy.js"
 
-export const VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION = 1 as const
+export const VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION = 2 as const
 export const VNEXT_TARGET_PACKAGE_VERSION = 3 as const
 
 export interface VNextPackageDocumentVersionPair {
@@ -17,6 +17,7 @@ export type VNextCoreVersionDisposition = "active" | "migration-target" | "unsup
 
 export interface VNextCoreVersionSupport {
   canCreateRuntimeSession: boolean
+  canCreateReadOnlySession: boolean
   canMutate: boolean
   canParse: boolean
   canPlanMigrationFrom: boolean
@@ -51,7 +52,7 @@ const MIGRATION_TARGET_PAIR = {
 
 export const VNEXT_CORE_VERSION_CAPABILITY_CONTRACT = {
   contractVersion: VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION,
-  status: "migration-core-ready",
+  status: "v4-read-only-ready",
   active: ACTIVE_PAIR,
   migrationTarget: MIGRATION_TARGET_PAIR,
   activation: {
@@ -61,6 +62,7 @@ export const VNEXT_CORE_VERSION_CAPABILITY_CONTRACT = {
   support: {
     active: {
       canCreateRuntimeSession: true,
+      canCreateReadOnlySession: true,
       canMutate: true,
       canParse: true,
       canPlanMigrationFrom: true,
@@ -70,6 +72,7 @@ export const VNEXT_CORE_VERSION_CAPABILITY_CONTRACT = {
     },
     migrationTarget: {
       canCreateRuntimeSession: false,
+      canCreateReadOnlySession: true,
       canMutate: false,
       canParse: true,
       canPlanMigrationFrom: false,
@@ -107,6 +110,7 @@ export function getVNextCoreVersionSupport(
   }
   return {
     canCreateRuntimeSession: false,
+    canCreateReadOnlySession: false,
     canMutate: false,
     canParse: false,
     canPlanMigrationFrom: false,

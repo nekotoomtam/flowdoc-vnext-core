@@ -72,6 +72,8 @@ The package must remain runnable without any parent editor checkout.
 - Backend Phase 259 persists explicit migrations behind base-revision and
   idempotency gates while retaining the source v3 snapshot; v4 runtime
   consumers remain intentionally inactive.
+- Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
+  active mutation, measured layout, exact rendering, and export remain closed.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code
@@ -1111,6 +1113,8 @@ The package must remain runnable without any parent editor checkout.
   and source unknown-key loss guard
 - `docs/VERSION_CAPABILITY_CONTRACT.md`: Phase 258 core version-pair capability
   facts and cross-repo reporting boundary
+- `docs/READ_ONLY_RUNTIME_V4.md`: Phase 260 isolated v4 structural read session,
+  capability lock, and downstream consumer boundary
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

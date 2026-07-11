@@ -22,7 +22,7 @@ export const VNEXT_TEXT_BLOCK_V1_VERSION_POLICY = {
   },
   activationBlockers: [
     "editor-explicit-migration-intent",
-    "v4-runtime-consumer-support",
+    "v4-mutation-layout-render-support",
   ],
 } as const
 

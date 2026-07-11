@@ -1,7 +1,7 @@
 # Version Capability Contract
 
-Status: Phase 258 complete core contract with backend/editor reporting lanes.
-Target runtime activation and migration persistence remain blocked.
+Status: Phase 260 read-only v4 consumer contract complete. Full v4 activation
+remains blocked.
 
 ## Outcome
 
@@ -12,14 +12,15 @@ probing parsers or relying on parser error strings.
 
 ## Version Matrix
 
-| Pair | Disposition | Parse | Runtime session | Mutation | Migration source | Migration target validation |
-|---|---|---:|---:|---:|---:|---:|
-| package 2 / document 3 | active | yes | yes | yes | yes | no |
-| package 3 / document 4 | migration-target | yes | no | no | no | yes |
-| every other pair | unsupported | no | no | no | no | no |
+| Pair | Disposition | Parse | Active session | Read-only session | Mutation | Migration source | Target validation |
+|---|---|---:|---:|---:|---:|---:|---:|
+| package 2 / document 3 | active | yes | yes | yes | yes | yes | no |
+| package 3 / document 4 | migration-target | yes | no | yes | no | no | yes |
+| every other pair | unsupported | no | no | no | no | no | no |
 
-Recognizing package 3/document 4 does not activate it in the current runtime,
-graph, operations, pagination, renderer, editor, or backend repository.
+Package 3/document 4 has a named read-only structural session. It remains
+outside the active graph, operations, pagination, exact renderer, and export
+runtime.
 
 ## Public APIs
 
@@ -48,9 +49,9 @@ or editor runtime support.
 
 ## Activation State
 
-Phase 259 completes `backend-revisioned-migration-persistence`. Remaining
-blockers are `editor-explicit-migration-intent` and
-`v4-runtime-consumer-support`.
+Phase 260 completes the named read-only core session and editor/backend read
+consumer path. Remaining blockers are `editor-explicit-migration-intent` and
+`v4-mutation-layout-render-support`.
 
 The backend now:
 
@@ -60,13 +61,16 @@ The backend now:
 - returns stale, rejected, applied, and idempotent replay results.
 
 Activation remains blocked because the editor has no explicit migration intent
-workflow and active runtime consumers still reject document v4.
+workflow and v4 does not yet have mutation, measured layout, exact rendering,
+or export support.
 
 ## PASS
 
 - Active and migration-target version pairs are explicit and JSON-safe.
 - Unsupported and malformed markers are distinguishable without parsing.
-- V4 runtime and mutation support remain false.
+- V4 active runtime and mutation support remain false.
+- `canCreateReadOnlySession` distinguishes safe structural consumption from
+  active runtime support.
 - Backend/editor can consume one retained core capability vocabulary.
 - Remaining activation work is named instead of hidden behind a generic
   downstream blocker.
@@ -74,7 +78,8 @@ workflow and active runtime consumers still reject document v4.
 ## FAIL / BLOCKER
 
 - Editor migration intent/result handling is not implemented.
-- Active runtime, graph, operations, pagination, and renderers remain v3-only.
+- Active operations, measured pagination, exact renderers, and export remain
+  v3-only.
 
 ## RISK
 
@@ -119,5 +124,5 @@ inactive for runtime use.
 
 ## Next Recommended Direction
 
-Implement editor migration intent/result handling, then add v4 runtime consumer
-support before allowing the editor to refresh into the accepted target package.
+Implement editor migration intent/result handling, then add v4 mutation and
+measured layout/render support before considering target activation.

@@ -9,19 +9,20 @@ import {
 
 describe("Core package/document version capability", () => {
   it("publishes active and migration-target support without claiming v4 runtime activation", () => {
-    expect(VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION).toBe(1)
+    expect(VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION).toBe(2)
     expect(VNEXT_CORE_VERSION_CAPABILITY_CONTRACT).toEqual({
-      contractVersion: 1,
-      status: "migration-core-ready",
+      contractVersion: 2,
+      status: "v4-read-only-ready",
       active: { packageVersion: 2, documentVersion: 3 },
       migrationTarget: { packageVersion: 3, documentVersion: 4 },
       activation: {
         status: "blocked",
-        blockers: ["editor-explicit-migration-intent", "v4-runtime-consumer-support"],
+        blockers: ["editor-explicit-migration-intent", "v4-mutation-layout-render-support"],
       },
       support: {
         active: {
           canCreateRuntimeSession: true,
+          canCreateReadOnlySession: true,
           canMutate: true,
           canParse: true,
           canPlanMigrationFrom: true,
@@ -31,6 +32,7 @@ describe("Core package/document version capability", () => {
         },
         migrationTarget: {
           canCreateRuntimeSession: false,
+          canCreateReadOnlySession: true,
           canMutate: false,
           canParse: true,
           canPlanMigrationFrom: false,
@@ -53,6 +55,7 @@ describe("Core package/document version capability", () => {
     expect(getVNextCoreVersionSupport(3, 4)).toMatchObject({
       disposition: "migration-target",
       canCreateRuntimeSession: false,
+      canCreateReadOnlySession: true,
       canValidateMigrationTarget: true,
     })
     expect(getVNextCoreVersionSupport(2, 4)).toMatchObject({
@@ -98,7 +101,8 @@ describe("Core package/document version capability", () => {
 
     expect(doc).toContain("## Version Matrix")
     expect(doc).toContain("## Cross-Repo Reporting")
-    expect(doc).toContain("v4-runtime-consumer-support")
+    expect(doc).toContain("v4-mutation-layout-render-support")
+    expect(doc).toContain("canCreateReadOnlySession")
     expect(readme).toContain("docs/VERSION_CAPABILITY_CONTRACT.md")
     expect(ledger).toContain("| 258 | Cross-repo version capability reporting | done |")
     expect(ledger).toContain("## Phase 258 Cross-Repo Version Capability Reporting")
