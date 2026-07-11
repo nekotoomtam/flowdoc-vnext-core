@@ -8117,6 +8117,23 @@ This phase intentionally does not add v4 text mutation, editor DOM/IME state,
 backend persistence, measured lines, pagination, renderer, or cross-page edit
 acceptance.
 
+## Phase 276 Text-block V4 Rich-inline Replace
+
+Phase 276 adds the first v4-native content transaction:
+
+- complete inline replacement remains the bounded single-user v1 commit policy;
+- Structure drafts and Document Instances require exact artifact, policy, and
+  field-contract ownership pins;
+- effective core/structure/session capability checks require content edit plus
+  field, media, or style permission only when those placements change;
+- v4 grammar and full resulting-document validation run before commit; and
+- output includes inline identity diff, field keys, scope, durable history, and
+  text-content invalidation facts without mutating source input.
+
+This phase intentionally does not claim collaboration/offline merge safety,
+add granular text/atomic commands, execute backend persistence, integrate editor
+DOM/IME input, paginate, render, or accept cross-page editing.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

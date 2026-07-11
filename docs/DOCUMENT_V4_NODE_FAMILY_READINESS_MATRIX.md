@@ -23,7 +23,7 @@ axis and retained evidence.
 | Node | Family | Schema / references | Allowed parent / role | Core read | Generic lifecycle | Node edit / history | Layout / pagination | Render / export | Editor / backend | Scale |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `zone` | zone | PASS | PASS: section-owned role | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
-| `text-block` | text | PASS: inline/field/image refs | PASS: zone/column/cell | PASS | PASS: block root | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
+| `text-block` | text | PASS: v4 grammar/inline/field/image refs | PASS: zone/column/cell | PASS | PASS: block root | PARTIAL: policy-aware rich replace/history | BLOCKED | BLOCKED | PARTIAL: core transaction; no editor/backend | UNKNOWN |
 | `columns` | layout | PASS | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
 | `column` | layout | PASS | PASS: columns-owned | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
 | `table` | table | PASS: rectangular grid | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
@@ -87,7 +87,17 @@ independent authored block lifecycle targets.
 - `flowdoc-vnext-editor/src/tests/backendIntegration.test.ts` proves stale
   rejection, copied-root selection, and previous-sibling delete recovery.
 
-### E6 Closed Axes
+### E6 Text-block Authoring
+
+- `src/authoring/textBlockV4Contract.ts` owns canonical empty-block, five-inline
+  projection, UTF-16 selection anchor, field compatibility, and page-number
+  zone facts.
+- `src/authoring/textBlockV4RichInlineReplace.ts` owns artifact-pinned,
+  policy-aware complete inline replacement with identity/history facts.
+- `tests/textBlockV4Contract.test.ts` and
+  `tests/textBlockV4RichInlineReplace.test.ts` prove the retained boundaries.
+
+### E7 Closed Axes
 
 - `src/runtime/readOnlySessionV4.ts` reports `canContainText: false` and
   `canSplitAcrossPages: false` for the current target read session.
@@ -100,16 +110,17 @@ independent authored block lifecycle targets.
 
 ### Text-Block Critical Path
 
-Text-block is the next critical path because columns and table cells consume it
-as their only authored text surface. The following remain blocked:
+Text-block remains the critical path because columns and table cells consume it
+as their only authored text surface. The following remain blocked or partial:
 
-1. empty text-block canonical representation;
-2. inline split/merge identity and canonical selection anchor;
-3. field placement compatibility and external-catalog drift reporting;
-4. browser draft to core transaction/IME/history boundaries;
-5. measured line packets with canonical source ranges;
-6. cross-page edit, reflow, caret, and selection acceptance;
-7. representative large-text scale evidence.
+1. explicit granular text/atomic commands and collaboration-safe identity
+   allocation remain blocked; canonical empty block/selection is now PASS;
+2. explicit field placement UX/command and external-catalog drift reporting
+   remain partial; compatibility and replacement preflight are PASS;
+3. browser draft to core transaction/IME/history integration remains blocked;
+4. measured line packets with canonical source ranges remain blocked;
+5. cross-page edit, reflow, caret, and selection acceptance remains blocked;
+6. representative large-text scale evidence remains UNKNOWN.
 
 ### Columns Gate
 
@@ -174,7 +185,7 @@ behavior in this matrix.
 
 ## UNKNOWN
 
-- Text empty-state, selection affinity, merge, and typing-coalescing decisions.
+- Granular merge and typing-coalescing decisions beyond bounded full replace.
 - Representative v4 large-document acceptance thresholds.
 - Collaboration-safe authored identity allocation.
 
@@ -187,5 +198,5 @@ behavior in this matrix.
 
 ## Next Recommended Direction
 
-Lock the text-block grammar, inline identity, field placement, and canonical
-selection contracts before implementing editor draft or measured line behavior.
+Add explicit field/atomic command planning, then measured line/source-range
+facts before implementing editor draft or cross-page behavior.

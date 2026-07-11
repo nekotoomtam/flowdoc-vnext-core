@@ -137,6 +137,10 @@ editor intent
   block/caret, five-inline offset projection, and inline-local UTF-16 selection
   anchors without activating text mutation or editor input:
   `src/authoring/textBlockV4Contract.ts`.
+- Core Phase 276 publishes an artifact-pinned, policy-aware v4 rich-inline
+  replacement transaction with field/media/style capability preflight and
+  identity/history facts. Backend persistence and editor input remain inactive:
+  `src/authoring/textBlockV4RichInlineReplace.ts`.
 
 ## Default Change Routing
 
@@ -158,8 +162,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Add v4-native text/atomic mutation and field-placement contracts on the
-   Phase 275 grammar and selection boundary.
+1. Add explicit field placement and atomic insert/remove planning on the Phase
+   275 grammar and Phase 276 bounded replacement transaction.
 2. Keep editor draft/IME and instance-composer implementation closed until
    their respective contracts pass.
 3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
@@ -267,8 +271,8 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Add v4-native text/atomic transactions and field placement on the retained
-   lifecycle and selection boundary.
+2. Add explicit field placement and atomic insert/remove planning on the
+   retained lifecycle and selection boundary.
 3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
 4. Keep package v3/document v4 out of active editor/runtime activation until the

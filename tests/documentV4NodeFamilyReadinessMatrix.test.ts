@@ -40,7 +40,8 @@ describe("document v4 node-family readiness matrix", () => {
       "### E3 Generic Lifecycle",
       "### E4 Backend Revision Boundary",
       "### E5 Editor Consumer Boundary",
-      "### E6 Closed Axes",
+      "### E6 Text-block Authoring",
+      "### E7 Closed Axes",
       "## Dependency Gates",
       "## Field And Published-Version Constraint",
       "## PASS",
@@ -61,7 +62,7 @@ describe("document v4 node-family readiness matrix", () => {
   it("blocks container semantics on retained text-block acceptance", () => {
     const doc = readText("../docs/DOCUMENT_V4_NODE_FAMILY_READINESS_MATRIX.md")
 
-    expect(doc).toMatch(/Text-block is the next critical path because columns and table cells consume it/)
+    expect(doc).toMatch(/Text-block remains the critical path because columns and table cells consume it/)
     expect(doc).toContain("### Columns Gate")
     expect(doc).toContain("### Table Gate")
     expect(doc).toMatch(/measured line packets with canonical source ranges/)

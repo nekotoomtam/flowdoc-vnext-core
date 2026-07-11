@@ -170,7 +170,7 @@ function nextContext(
   }
 }
 
-function buildReadOnlyGraph(document: DocumentNodeV4Target): VNextReadOnlyGraphV4 {
+export function buildVNextReadOnlyGraphV4(document: DocumentNodeV4Target): VNextReadOnlyGraphV4 {
   const graph: VNextReadOnlyGraphV4 = {
     capabilitiesByType: capabilities(),
     childrenByNodeId: new Map(),
@@ -235,7 +235,7 @@ export function safeCreateVNextReadOnlyRuntimeSessionV4(
       document: parsed.package.document,
       documentVersion: 4,
       fields: parsed.package.fields,
-      graph: buildReadOnlyGraph(parsed.package.document),
+      graph: buildVNextReadOnlyGraphV4(parsed.package.document),
       package: parsed.package,
       packageVersion: 3,
       readOnly: true,

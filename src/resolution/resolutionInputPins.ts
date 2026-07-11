@@ -8,6 +8,7 @@ import {
   VNextDocumentInstanceIdentityV1Schema,
   VNextPublishedStructureVersionIdentityV1Schema,
   VNextPublishedStructureVersionRefV1Schema,
+  VNextStructureDefinitionDraftRefV1Schema,
   sameVNextPublishedStructureVersionRefV1,
 } from "../lifecycle/structureIdentity.js"
 
@@ -43,6 +44,14 @@ export const VNextPublishedFieldContractV1Schema = z.object({
   kind: z.literal("published-field-contract"),
   fieldContractId: NonBlankIdSchema,
   owner: VNextPublishedStructureVersionRefV1Schema,
+  registry: FieldRegistryV1V3Schema,
+}).strict()
+
+export const VNextDraftFieldContractV1Schema = z.object({
+  contractVersion: z.literal(VNEXT_RESOLUTION_INPUT_PINS_CONTRACT_VERSION),
+  kind: z.literal("draft-field-contract"),
+  fieldContractId: NonBlankIdSchema,
+  owner: VNextStructureDefinitionDraftRefV1Schema,
   registry: FieldRegistryV1V3Schema,
 }).strict()
 
@@ -151,6 +160,7 @@ export const VNextResolvedProjectionInputV1Schema = z.object({
 export type VNextTextStyleDefinitionV1 = z.infer<typeof VNextTextStyleDefinitionV1Schema>
 export type VNextPublishedStyleCatalogV1 = z.infer<typeof VNextPublishedStyleCatalogV1Schema>
 export type VNextPublishedFieldContractV1 = z.infer<typeof VNextPublishedFieldContractV1Schema>
+export type VNextDraftFieldContractV1 = z.infer<typeof VNextDraftFieldContractV1Schema>
 export type VNextPublishedStaticMediaV1 = z.infer<typeof VNextPublishedStaticMediaV1Schema>
 export type VNextPublishedResolutionBundleV1 = z.infer<typeof VNextPublishedResolutionBundleV1Schema>
 export type VNextInstanceDataSnapshotV1 = z.infer<typeof VNextInstanceDataSnapshotV1Schema>

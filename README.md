@@ -88,6 +88,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 275 adds the v4-native text-block grammar, five-inline projection, safe
   UTF-16 offsets, canonical empty-block caret, and inline-local selection
   anchors. V4 text mutation and editor input remain inactive.
+- Phase 276 adds policy-aware v4 rich-inline replacement for exact Structure
+  draft or Document Instance revisions, with field/media/style capability
+  preflight and identity/history facts. Backend execution remains inactive.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
