@@ -81,6 +81,10 @@ The package must remain runnable without any parent editor checkout.
   instance Data Snapshot/media inputs to one exact instance revision before
   resolved projection. Cross-registry asset collisions block instead of
   guessing ownership.
+- Phase 274 resolves pinned scalar, image, and text-style inputs into explicit
+  binding tables beside a source-immutable instance graph. Invalid references
+  block the whole projection; generated expansion, pagination, and rendering
+  remain inactive.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

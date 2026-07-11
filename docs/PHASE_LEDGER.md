@@ -8080,6 +8080,24 @@ Phase 273 adds strict standalone inputs for deterministic resolution:
 This phase intentionally does not resolve scalar/image values, merge registries,
 fetch mutable state, change package parsing, persist, paginate, or render.
 
+## Phase 274 Resolved Document Projection
+
+Phase 274 adds a deterministic, all-or-blocked projection over Phase 273 pins:
+
+- scalar field refs resolve from atomic data, authored fallback, or explicit
+  empty text without changing field definitions;
+- authored static images and instance data images resolve through separate
+  owner-aware binding records;
+- text style ids resolve to published preset facts while local inline style
+  remains the override layer;
+- the materialized graph and source input remain immutable; and
+- invalid structure, data type, field, style, or media references block the
+  entire projection.
+
+The projection intentionally does not expand generated nodes, resolve
+collections/repeats, paginate, render, persist, fetch inputs, or activate the
+current package generation runtime.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

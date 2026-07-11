@@ -129,6 +129,10 @@ editor intent
   field/style/static-media contracts and atomic instance Data Snapshot/media
   inputs. It does not resolve values, fetch registries, or activate package
   fallback: `src/resolution/resolutionInputPins.ts`.
+- Core Phase 274 publishes a deterministic all-or-blocked Resolved Document
+  projection with scalar, image-owner, and text-style binding tables beside an
+  immutable instance graph. Generated expansion, pagination, rendering, and
+  product workflow remain inactive: `src/resolution/resolvedDocument.ts`.
 
 ## Default Change Routing
 
@@ -150,15 +154,11 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Use the accepted identities, policy, materialization, and resolution-input
-   pins to lock resolved projection semantics.
-2. Lock resolved projection contracts without
-   activating product workflow.
-3. Resume empty text-block, inline identity, selection, and field-placement
+1. Resume empty text-block, inline identity, selection, and field-placement
    contracts on that lifecycle boundary.
-4. Keep editor draft/IME and instance-composer implementation closed until
+2. Keep editor draft/IME and instance-composer implementation closed until
    their respective contracts pass.
-5. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
+3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
    backend, and stale-gated apply in the editor.
 
 This lane intentionally does not add WYSIWYG, real collaboration, production
@@ -263,16 +263,13 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Use the Phase 273 pinned inputs to lock deterministic resolved projection.
-3. Lock resolved-projection contracts before
-   widening product workflow claims.
-4. Resume text-block grammar, inline identity, field placement, and canonical
+2. Resume text-block grammar, inline identity, field placement, and canonical
    selection contracts on that retained lifecycle boundary.
-5. Implement text transactions only after those contracts pass.
-6. Add measured v4 layout/render consumption without treating placeholder
+3. Implement text transactions only after those contracts pass.
+4. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
-7. Keep package v3/document v4 out of active editor/runtime activation until the
+5. Keep package v3/document v4 out of active editor/runtime activation until the
    remaining capability gates are explicitly closed.
-8. Retire old core package lanes such as `packages/storage-file-json` and
+6. Retire old core package lanes such as `packages/storage-file-json` and
    `packages/internal-alpha-runner` only after historical-test replacement and
    backend parity are proven.
