@@ -1,0 +1,414 @@
+{
+  "packageVersion": 2,
+  "kind": "document",
+  "id": "product-report-vnext-baseline",
+  "meta": {
+    "title": "Product Health Report - June 2026",
+    "createdAt": "2026-06-30T00:00:00.000Z",
+    "updatedAt": "2026-06-30T00:00:00.000Z"
+  },
+  "fields": {
+    "version": 1,
+    "fields": {
+      "customer.name": {
+        "key": "customer.name",
+        "label": "Customer Name",
+        "type": "text",
+        "fallback": "Northstar Retail"
+      },
+      "report.period": {
+        "key": "report.period",
+        "label": "Reporting Period",
+        "type": "text",
+        "fallback": "June 2026"
+      },
+      "report.owner": {
+        "key": "report.owner",
+        "label": "Report Owner",
+        "type": "text",
+        "fallback": "Product Operations"
+      },
+      "report.health": {
+        "key": "report.health",
+        "label": "Overall Health",
+        "type": "text",
+        "fallback": "On track"
+      },
+      "report.activeUsers": {
+        "key": "report.activeUsers",
+        "label": "Monthly Active Users",
+        "type": "number"
+      },
+      "report.activationRate": {
+        "key": "report.activationRate",
+        "label": "Activation Rate",
+        "type": "text",
+        "fallback": "68%"
+      }
+    }
+  },
+  "data": {
+    "version": 1,
+    "values": {
+      "customer.name": "Northstar Retail",
+      "report.period": "June 2026",
+      "report.owner": "Product Operations",
+      "report.health": "On track",
+      "report.activeUsers": 18420,
+      "report.activationRate": "68%"
+    }
+  },
+  "document": {
+    "version": 3,
+    "document": {
+      "id": "product-report-vnext-baseline",
+      "meta": {
+        "title": "Product Health Report - June 2026"
+      },
+      "sections": [
+        {
+          "id": "section-overview",
+          "type": "section",
+          "page": {
+            "size": "A4",
+            "orientation": "portrait",
+            "margin": {
+              "top": { "value": 54, "unit": "pt" },
+              "right": { "value": 54, "unit": "pt" },
+              "bottom": { "value": 54, "unit": "pt" },
+              "left": { "value": 54, "unit": "pt" }
+            }
+          },
+          "zoneIds": ["overview-body"],
+          "nodes": {
+            "overview-body": {
+              "id": "overview-body",
+              "type": "zone",
+              "role": "body",
+              "childIds": [
+                "report-title",
+                "report-period",
+                "executive-summary",
+                "kpi-columns",
+                "performance-heading",
+                "performance-table",
+                "insight-heading",
+                "insight-body"
+              ]
+            },
+            "report-title": {
+              "id": "report-title",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 1 },
+              "props": {},
+              "children": [
+                { "id": "report-title-prefix", "type": "text", "text": "Product Health Report for " },
+                { "id": "report-title-customer", "type": "field-ref", "key": "customer.name", "fallback": "Customer" }
+              ]
+            },
+            "report-period": {
+              "id": "report-period",
+              "type": "text-block",
+              "role": { "role": "note" },
+              "props": {},
+              "children": [
+                { "id": "report-period-label", "type": "text", "text": "Reporting period: " },
+                { "id": "report-period-value", "type": "field-ref", "key": "report.period", "fallback": "Period" },
+                { "id": "report-owner-label", "type": "text", "text": " | Owner: " },
+                { "id": "report-owner-value", "type": "field-ref", "key": "report.owner", "fallback": "Product team" }
+              ]
+            },
+            "executive-summary": {
+              "id": "executive-summary",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [
+                { "id": "executive-summary-run", "type": "text", "text": "Adoption and activation improved after the guided setup release. Reliability remains within target, while mobile completion and enterprise onboarding need focused follow-up." }
+              ]
+            },
+            "kpi-columns": {
+              "id": "kpi-columns",
+              "type": "columns",
+              "props": { "gap": 12 },
+              "columnIds": ["kpi-health", "kpi-users", "kpi-activation"]
+            },
+            "kpi-health": {
+              "id": "kpi-health",
+              "type": "column",
+              "props": { "widthShare": 34 },
+              "childIds": ["kpi-health-label", "kpi-health-value"]
+            },
+            "kpi-users": {
+              "id": "kpi-users",
+              "type": "column",
+              "props": { "widthShare": 33 },
+              "childIds": ["kpi-users-label", "kpi-users-value"]
+            },
+            "kpi-activation": {
+              "id": "kpi-activation",
+              "type": "column",
+              "props": { "widthShare": 33 },
+              "childIds": ["kpi-activation-label", "kpi-activation-value"]
+            },
+            "kpi-health-label": {
+              "id": "kpi-health-label",
+              "type": "text-block",
+              "role": { "role": "label" },
+              "props": {},
+              "children": [{ "id": "kpi-health-label-run", "type": "text", "text": "Overall health" }]
+            },
+            "kpi-health-value": {
+              "id": "kpi-health-value",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [{ "id": "kpi-health-value-ref", "type": "field-ref", "key": "report.health", "fallback": "Unknown" }]
+            },
+            "kpi-users-label": {
+              "id": "kpi-users-label",
+              "type": "text-block",
+              "role": { "role": "label" },
+              "props": {},
+              "children": [{ "id": "kpi-users-label-run", "type": "text", "text": "Monthly active users" }]
+            },
+            "kpi-users-value": {
+              "id": "kpi-users-value",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [{ "id": "kpi-users-value-ref", "type": "field-ref", "key": "report.activeUsers", "fallback": "0" }]
+            },
+            "kpi-activation-label": {
+              "id": "kpi-activation-label",
+              "type": "text-block",
+              "role": { "role": "label" },
+              "props": {},
+              "children": [{ "id": "kpi-activation-label-run", "type": "text", "text": "Activation rate" }]
+            },
+            "kpi-activation-value": {
+              "id": "kpi-activation-value",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [{ "id": "kpi-activation-value-ref", "type": "field-ref", "key": "report.activationRate", "fallback": "0%" }]
+            },
+            "performance-heading": {
+              "id": "performance-heading",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 2 },
+              "props": {},
+              "children": [{ "id": "performance-heading-run", "type": "text", "text": "Performance against target" }]
+            },
+            "performance-table": {
+              "id": "performance-table",
+              "type": "table",
+              "props": { "headerRowCount": 1, "repeatHeaderRows": true },
+              "columns": [
+                { "width": { "value": 180, "unit": "pt" } },
+                { "width": { "value": 90, "unit": "pt" } },
+                { "width": { "value": 90, "unit": "pt" } }
+              ],
+              "rowIds": ["performance-header", "performance-adoption", "performance-reliability", "performance-satisfaction"]
+            },
+            "performance-header": {
+              "id": "performance-header",
+              "type": "table-row",
+              "props": {},
+              "cellIds": ["header-metric", "header-current", "header-target"]
+            },
+            "performance-adoption": {
+              "id": "performance-adoption",
+              "type": "table-row",
+              "props": {},
+              "cellIds": ["adoption-metric", "adoption-current", "adoption-target"]
+            },
+            "performance-reliability": {
+              "id": "performance-reliability",
+              "type": "table-row",
+              "props": {},
+              "cellIds": ["reliability-metric", "reliability-current", "reliability-target"]
+            },
+            "performance-satisfaction": {
+              "id": "performance-satisfaction",
+              "type": "table-row",
+              "props": {},
+              "cellIds": ["satisfaction-metric", "satisfaction-current", "satisfaction-target"]
+            },
+            "header-metric": { "id": "header-metric", "type": "table-cell", "props": {}, "childIds": ["header-metric-text"] },
+            "header-current": { "id": "header-current", "type": "table-cell", "props": {}, "childIds": ["header-current-text"] },
+            "header-target": { "id": "header-target", "type": "table-cell", "props": {}, "childIds": ["header-target-text"] },
+            "adoption-metric": { "id": "adoption-metric", "type": "table-cell", "props": {}, "childIds": ["adoption-metric-text"] },
+            "adoption-current": { "id": "adoption-current", "type": "table-cell", "props": {}, "childIds": ["adoption-current-text"] },
+            "adoption-target": { "id": "adoption-target", "type": "table-cell", "props": {}, "childIds": ["adoption-target-text"] },
+            "reliability-metric": { "id": "reliability-metric", "type": "table-cell", "props": {}, "childIds": ["reliability-metric-text"] },
+            "reliability-current": { "id": "reliability-current", "type": "table-cell", "props": {}, "childIds": ["reliability-current-text"] },
+            "reliability-target": { "id": "reliability-target", "type": "table-cell", "props": {}, "childIds": ["reliability-target-text"] },
+            "satisfaction-metric": { "id": "satisfaction-metric", "type": "table-cell", "props": {}, "childIds": ["satisfaction-metric-text"] },
+            "satisfaction-current": { "id": "satisfaction-current", "type": "table-cell", "props": {}, "childIds": ["satisfaction-current-text"] },
+            "satisfaction-target": { "id": "satisfaction-target", "type": "table-cell", "props": {}, "childIds": ["satisfaction-target-text"] },
+            "header-metric-text": { "id": "header-metric-text", "type": "text-block", "role": { "role": "label" }, "props": {}, "children": [{ "id": "header-metric-run", "type": "text", "text": "Metric" }] },
+            "header-current-text": { "id": "header-current-text", "type": "text-block", "role": { "role": "label" }, "props": {}, "children": [{ "id": "header-current-run", "type": "text", "text": "Current" }] },
+            "header-target-text": { "id": "header-target-text", "type": "text-block", "role": { "role": "label" }, "props": {}, "children": [{ "id": "header-target-run", "type": "text", "text": "Target" }] },
+            "adoption-metric-text": { "id": "adoption-metric-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "adoption-metric-run", "type": "text", "text": "Weekly adoption" }] },
+            "adoption-current-text": { "id": "adoption-current-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "adoption-current-run", "type": "text", "text": "74%" }] },
+            "adoption-target-text": { "id": "adoption-target-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "adoption-target-run", "type": "text", "text": "70%" }] },
+            "reliability-metric-text": { "id": "reliability-metric-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "reliability-metric-run", "type": "text", "text": "Successful sessions" }] },
+            "reliability-current-text": { "id": "reliability-current-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "reliability-current-run", "type": "text", "text": "99.4%" }] },
+            "reliability-target-text": { "id": "reliability-target-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "reliability-target-run", "type": "text", "text": "99.0%" }] },
+            "satisfaction-metric-text": { "id": "satisfaction-metric-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "satisfaction-metric-run", "type": "text", "text": "Customer satisfaction" }] },
+            "satisfaction-current-text": { "id": "satisfaction-current-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "satisfaction-current-run", "type": "text", "text": "4.3 / 5" }] },
+            "satisfaction-target-text": { "id": "satisfaction-target-text", "type": "text-block", "role": { "role": "paragraph" }, "props": {}, "children": [{ "id": "satisfaction-target-run", "type": "text", "text": "4.2 / 5" }] },
+            "insight-heading": {
+              "id": "insight-heading",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 2 },
+              "props": {},
+              "children": [{ "id": "insight-heading-run", "type": "text", "text": "What changed this month" }]
+            },
+            "insight-body": {
+              "id": "insight-body",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [{ "id": "insight-body-run", "type": "text", "text": "Guided setup increased activation by six points. The largest remaining drop occurs when users switch from desktop setup to mobile approval." }]
+            }
+          }
+        },
+        {
+          "id": "section-actions",
+          "type": "section",
+          "page": {
+            "size": "A4",
+            "orientation": "portrait",
+            "margin": {
+              "top": { "value": 54, "unit": "pt" },
+              "right": { "value": 54, "unit": "pt" },
+              "bottom": { "value": 54, "unit": "pt" },
+              "left": { "value": 54, "unit": "pt" }
+            }
+          },
+          "zoneIds": ["actions-body"],
+          "nodes": {
+            "actions-body": {
+              "id": "actions-body",
+              "type": "zone",
+              "role": "body",
+              "childIds": [
+                "actions-heading",
+                "priority-columns",
+                "risk-heading",
+                "risk-body",
+                "next-steps-heading",
+                "next-step-one",
+                "next-step-two",
+                "report-note"
+              ]
+            },
+            "actions-heading": {
+              "id": "actions-heading",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 1 },
+              "props": {},
+              "children": [{ "id": "actions-heading-run", "type": "text", "text": "Priorities and actions" }]
+            },
+            "priority-columns": {
+              "id": "priority-columns",
+              "type": "columns",
+              "props": { "gap": 12 },
+              "columnIds": ["priority-product", "priority-platform"]
+            },
+            "priority-product": {
+              "id": "priority-product",
+              "type": "column",
+              "props": { "widthShare": 50 },
+              "childIds": ["priority-product-heading", "priority-product-body"]
+            },
+            "priority-platform": {
+              "id": "priority-platform",
+              "type": "column",
+              "props": { "widthShare": 50 },
+              "childIds": ["priority-platform-heading", "priority-platform-body"]
+            },
+            "priority-product-heading": {
+              "id": "priority-product-heading",
+              "type": "text-block",
+              "role": { "role": "label" },
+              "props": {},
+              "children": [{ "id": "priority-product-heading-run", "type": "text", "text": "Product experience" }]
+            },
+            "priority-product-body": {
+              "id": "priority-product-body",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [{ "id": "priority-product-body-run", "type": "text", "text": "Reduce the mobile approval drop-off and simplify enterprise role setup." }]
+            },
+            "priority-platform-heading": {
+              "id": "priority-platform-heading",
+              "type": "text-block",
+              "role": { "role": "label" },
+              "props": {},
+              "children": [{ "id": "priority-platform-heading-run", "type": "text", "text": "Platform health" }]
+            },
+            "priority-platform-body": {
+              "id": "priority-platform-body",
+              "type": "text-block",
+              "role": { "role": "paragraph" },
+              "props": {},
+              "children": [{ "id": "priority-platform-body-run", "type": "text", "text": "Maintain successful sessions above 99% while migrating the reporting queue." }]
+            },
+            "risk-heading": {
+              "id": "risk-heading",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 2 },
+              "props": {},
+              "children": [{ "id": "risk-heading-run", "type": "text", "text": "Primary risk" }]
+            },
+            "risk-body": {
+              "id": "risk-body",
+              "type": "text-block",
+              "role": { "role": "note" },
+              "props": {},
+              "children": [{ "id": "risk-body-run", "type": "text", "text": "Enterprise onboarding volume is growing faster than the current support playbook. Mitigation is to ship guided role setup before the next account cohort begins." }]
+            },
+            "next-steps-heading": {
+              "id": "next-steps-heading",
+              "type": "text-block",
+              "role": { "role": "heading", "level": 2 },
+              "props": {},
+              "children": [{ "id": "next-steps-heading-run", "type": "text", "text": "Next steps" }]
+            },
+            "next-step-one": {
+              "id": "next-step-one",
+              "type": "text-block",
+              "role": {
+                "role": "list-item",
+                "list": { "instanceId": "next-steps", "level": 0, "itemId": "next-step-one" }
+              },
+              "props": {},
+              "children": [{ "id": "next-step-one-run", "type": "text", "text": "Validate the mobile approval redesign with five customer teams." }]
+            },
+            "next-step-two": {
+              "id": "next-step-two",
+              "type": "text-block",
+              "role": {
+                "role": "list-item",
+                "list": { "instanceId": "next-steps", "level": 0, "itemId": "next-step-two" }
+              },
+              "props": {},
+              "children": [{ "id": "next-step-two-run", "type": "text", "text": "Publish the enterprise role setup pilot and review activation weekly." }]
+            },
+            "report-note": {
+              "id": "report-note",
+              "type": "text-block",
+              "role": { "role": "caption" },
+              "props": {},
+              "children": [{ "id": "report-note-run", "type": "text", "text": "Synthetic baseline data for FlowDoc product UX and PDF-like preview validation." }]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

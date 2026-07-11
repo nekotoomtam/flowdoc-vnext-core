@@ -210,6 +210,36 @@ describe("vNext package fixture", () => {
     })
   })
 
+  it("parses the product-realistic baseline fixture", () => {
+    const pack = parseFixture("product-report-vnext-baseline.flowdoc.json")
+    const graph = buildRelationshipGraph(pack.document)
+
+    expect(pack.packageVersion).toBe(2)
+    expect(pack.document.version).toBe(3)
+    expect(pack.id).toBe("product-report-vnext-baseline")
+    expect(pack.id).toBe(pack.document.document.id)
+    expect(pack.document.document.sections.map((section) => section.id)).toEqual([
+      "section-overview",
+      "section-actions",
+    ])
+    expect(graph.nodesById.get("kpi-columns")?.type).toBe("columns")
+    expect(graph.nodesById.get("performance-table")?.type).toBe("table")
+    expect(graph.nearestByNodeId.get("reliability-current-text")).toMatchObject({
+      sectionId: "section-overview",
+      zoneId: "overview-body",
+      tableId: "performance-table",
+      tableRowId: "performance-reliability",
+      tableCellId: "reliability-current",
+      textBlockId: "reliability-current-text",
+    })
+    expect(graph.parentByNodeId.get("priority-product")).toEqual({
+      kind: "columns",
+      columnsId: "priority-columns",
+      childField: "columnIds",
+      index: 0,
+    })
+  })
+
   it("parses the product-shaped vNext anchor fixture", () => {
     const pack = parseFixture("product-report-vnext.flowdoc.json")
     const graph = buildRelationshipGraph(pack.document)

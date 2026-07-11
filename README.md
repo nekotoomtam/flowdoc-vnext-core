@@ -50,8 +50,10 @@ The package must remain runnable without any parent editor checkout.
   `spacer`
 - Product-shaped fixtures:
   - `fixtures/product-report-vnext.flowdoc.json`
+  - `fixtures/product-report-vnext-baseline.flowdoc.json`
   - `fixtures/product-report-vnext-minimal.flowdoc.json`
   - `fixtures/reorder-blocked-target-qa.flowdoc.json`
+  - role definitions: `docs/FIXTURE_ROLES.md`
 - Canonical package parser and serializer with safe parse variants
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
