@@ -72,6 +72,11 @@ The package must remain runnable without any parent editor checkout.
 - Backend Phase 259 persists explicit migrations behind base-revision and
   idempotency gates while retaining the source v3 snapshot; v4 runtime
   consumers remain intentionally inactive.
+- Structure lifecycle contracts now include strict draft/published/instance
+  identities, published Structure Policy, and a pure source-immutable Document
+  Instance materialization plan with explicit provenance and registry
+  ownership. Persistence, data resolution, and generated expansion remain
+  inactive.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

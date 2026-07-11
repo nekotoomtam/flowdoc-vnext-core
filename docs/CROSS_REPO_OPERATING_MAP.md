@@ -120,6 +120,11 @@ editor intent
 - Core Phase 271 publishes standalone Structure Policy, deterministic binding,
   and core/structure/session effective-capability contracts without activating
   instance operations: `src/lifecycle/structurePolicy.ts`.
+- Core Phase 272 publishes a pure revision-zero Document Instance
+  materialization plan with exact published-version/policy pins, retained graph
+  identity provenance, and explicit registry ownership. Backend persistence,
+  Data Snapshot resolution, generated expansion, and product workflow remain
+  inactive: `src/lifecycle/documentInstanceMaterialization.ts`.
 
 ## Default Change Routing
 
@@ -141,8 +146,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Use the accepted identities and policy contracts to lock pure
-   materialization/provenance semantics.
+1. Use the accepted identities, policy, and materialization contracts to lock
+   Data Snapshot/catalog/media pins and resolved projection semantics.
 2. Lock resolved projection contracts without
    activating product workflow.
 3. Resume empty text-block, inline identity, selection, and field-placement
@@ -254,8 +259,8 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Lock materialization/provenance semantics against the accepted Phase 270
-   identities and Phase 271 policy contracts.
+2. Use the Phase 272 materialization/provenance contract to lock Data Snapshot,
+   catalog, and media pins.
 3. Lock resolved-projection contracts before
    widening product workflow claims.
 4. Resume text-block grammar, inline identity, field placement, and canonical

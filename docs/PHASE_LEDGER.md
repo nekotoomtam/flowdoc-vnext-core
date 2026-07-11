@@ -8044,6 +8044,27 @@ This phase intentionally does not change wrap quality, line breaking, table
 splitting, or measurement profile behavior. The next layout-internal target is
 text-block line-slice planning, then wrap quality improvements.
 
+## Phase 272 Document Instance Materialization Contract
+
+Phase 272 adds the first pure Structure-to-Instance transition without
+activating persistence or product workflow:
+
+- `planVNextDocumentInstanceMaterializationV1(...)` strictly accepts one exact
+  Published Structure Version, a revision-zero backend-allocated instance,
+  its valid starter graph, published Structure Policy, and instance title;
+- exact instance and policy version pins, starter structure, and policy node
+  bindings are validated before a plan can be produced;
+- the source graph remains immutable while the instance root id changes and
+  section, node, and inline ids retain scoped identity;
+- explicit provenance maps every retained graph identity back to its published
+  starter; and
+- field/style/static-media, instance-media, and Data Snapshot ownership is
+  recorded without copying or resolving those registries.
+
+This phase intentionally does not persist, allocate ids, advance revisions,
+resolve data, expand generated nodes, migrate instances, paginate, or render.
+Backend materialization execution and resolved projection remain later phases.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
