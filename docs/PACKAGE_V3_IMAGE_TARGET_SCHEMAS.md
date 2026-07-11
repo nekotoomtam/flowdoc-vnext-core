@@ -139,6 +139,6 @@ backend, editor, layout, and rendering behavior is unchanged.
 
 ## Next Recommended Direction
 
-Implement document v4 shared image source/accessibility/frame schemas plus
-inline-image and block image authored schemas in an isolated target module.
-Then compose those with this phase into a named package v3/document v4 parser.
+After Phase 254 implements shared document v4 image placement schemas, compose
+the complete document v4 authored union and containment policy. Then combine it
+with this phase in a named package v3/document v4 parser.

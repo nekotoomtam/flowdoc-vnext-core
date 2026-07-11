@@ -42,7 +42,7 @@ describe("Text-block v1 version and migration decision", () => {
       },
       activationBlockers: [
         "package-v3-parser",
-        "document-v4-schema",
+        "document-v4-full-schema",
         "v3-to-v4-migration-plan",
         "downstream-consumer-support",
       ],

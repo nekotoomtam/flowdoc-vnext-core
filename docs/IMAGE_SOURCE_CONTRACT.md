@@ -283,7 +283,7 @@ Image schema implementation must not activate until:
 
 1. Phase 253 target schemas cover asset registry v1 and optional data snapshot
    v2;
-2. document v4 schemas cover the complete source, accessibility, frame,
+2. Phase 254 target schemas cover the complete source, accessibility, frame,
    inline-image, and block image payloads;
 3. graph containment and capability policy include block image;
 4. key/data diagnostics resolve image fields and manifest references;
@@ -357,6 +357,6 @@ version policy now resolves to package v3/document v4.
 
 ## Next Recommended Direction
 
-After Phase 253 implements isolated package asset/data target schemas, implement
-document v4 image source and placement schemas against that boundary. Compose a
-full package v3 parser only after the document v4 authored union is complete.
+After Phase 254 implements isolated image placement schemas, compose the full
+document v4 authored union and containment rules. Create a full package v3
+parser only after that document target is complete.

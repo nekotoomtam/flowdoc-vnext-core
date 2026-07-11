@@ -69,6 +69,8 @@ describe("Image source contract", () => {
     })
     expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).toContain("package-v3-parser")
     expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).not.toContain("package-v3-image-registry-schema")
+    expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).toContain("document-v4-full-schema")
+    expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).not.toContain("document-v4-schema")
     expect(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY.activationBlockers).not.toContain("image-source-contract")
   })
 

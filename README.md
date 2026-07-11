@@ -1088,6 +1088,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`: Phase 253 isolated ImageAssetRegistry
   v1, DataSnapshot v2, and image field-to-asset validation without active parser
   changes
+- `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`: Phase 254 isolated shared image
+  source/frame/accessibility, target text-block inline-image, block image, and
+  source-reference validation schemas
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

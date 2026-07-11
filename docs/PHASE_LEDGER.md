@@ -267,6 +267,24 @@ Parent goal:
 | 251 | Text-block v1 version and migration decision | done | `src/schema/documentVersionPolicy.ts`; `src/schema/document.ts`; `src/persistence/package.ts`; `src/index.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/WORKSPACE_BOUNDARY.md`; `docs/LEGACY_MIGRATION_GATE.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 252 | Image source contract | done | `src/schema/imageSourceContract.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 253 | Package v3 image target schemas | done | `src/schema/imageAssetRegistry.ts`; `src/persistence/packageV3ImageTarget.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/packageV3ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 254 | Document v4 image target schemas | done | `src/schema/documentV4ImageTarget.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 254 Document V4 Image Target Schemas
+
+Phase 254 implements isolated authored image target schemas without activating
+document v4 or package v3 parsing.
+
+- Shared strict source, accessibility, positive frame, fit, and normalized crop
+  schemas reject URLs, bytes, free positioning, and ambiguous alt semantics.
+- Target Text-block v4 adds atomic inline-image alongside tightened text,
+  field-ref, page-number, and line-break forms.
+- Block image remains a separate structural payload without children, caption,
+  floating, wrapping, overlap, or absolute coordinates.
+- Pure validation checks static assets, image fields, field compatibility, and
+  fallback assets against Phase 253 registries.
+- Active document v3 remains isolated and rejects both target image forms.
+- Version-policy activation now waits for full document v4 composition rather
+  than the completed image target schemas.
 
 ## Phase 253 Package V3 Image Target Schemas
 
