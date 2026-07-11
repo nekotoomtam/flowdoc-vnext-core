@@ -294,7 +294,7 @@ Node v1 cannot close until:
 ## UNKNOWN
 
 - Phase 251 resolves image additions and tightened Text-block grammar to target
-  document v4; package v2 remains provisional until asset ownership is known.
+  document v4; Phase 252 resolves the asset manifest envelope to package v3.
 - Whether divider and spacer should be independently selectable surfaces or
   utility affordances owned by adjacent flow slots.
 - Whether column-level direct selection is required in v1 or only through a

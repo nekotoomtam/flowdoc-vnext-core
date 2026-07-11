@@ -29,9 +29,9 @@ describe("Text-block v1 version and migration decision", () => {
       status: "decision-only",
       active: { packageVersion: 2, documentVersion: 3 },
       target: {
-        packageVersion: 2,
+        packageVersion: 3,
         documentVersion: 4,
-        packageVersionCondition: "retain-unless-package-envelope-changes",
+        packageVersionCondition: "image-registry-requires-package-envelope-change",
       },
       migration: {
         mode: "explicit-copy-forward",
@@ -41,7 +41,7 @@ describe("Text-block v1 version and migration decision", () => {
         backendOwnsRevisionedPersistence: true,
       },
       activationBlockers: [
-        "image-source-contract",
+        "package-v3-image-registry-schema",
         "document-v4-schema",
         "v3-to-v4-migration-plan",
         "downstream-consumer-support",

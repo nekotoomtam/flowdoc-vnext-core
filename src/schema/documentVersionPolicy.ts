@@ -9,9 +9,9 @@ export const VNEXT_TEXT_BLOCK_V1_VERSION_POLICY = {
     documentVersion: VNEXT_ACTIVE_DOCUMENT_VERSION,
   },
   target: {
-    packageVersion: VNEXT_ACTIVE_PACKAGE_VERSION,
+    packageVersion: 3,
     documentVersion: VNEXT_TEXT_BLOCK_V1_TARGET_DOCUMENT_VERSION,
-    packageVersionCondition: "retain-unless-package-envelope-changes",
+    packageVersionCondition: "image-registry-requires-package-envelope-change",
   },
   migration: {
     mode: "explicit-copy-forward",
@@ -21,7 +21,7 @@ export const VNEXT_TEXT_BLOCK_V1_VERSION_POLICY = {
     backendOwnsRevisionedPersistence: true,
   },
   activationBlockers: [
-    "image-source-contract",
+    "package-v3-image-registry-schema",
     "document-v4-schema",
     "v3-to-v4-migration-plan",
     "downstream-consumer-support",

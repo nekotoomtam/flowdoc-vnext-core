@@ -92,7 +92,8 @@ Phase 250 aligned those accepted-write producers with canonical empty blocks.
   preflight.
 - Automatic package-read normalization remains blocked by version/migration
   policy.
-- Inline-image remains blocked until its source contract and schema exist.
+- Inline-image source facts are decided by Phase 252; runtime remains blocked
+  until target package/document schemas exist.
 - Production text editing remains blocked on editor active-target/range/IME
   state and revision-safe backend text mutation transport.
 
@@ -111,7 +112,7 @@ Phase 250 aligned those accepted-write producers with canonical empty blocks.
 
 - Phase 251 resolves enforcement to target document v4 through explicit
   copy-forward migration, with no package-read normalization.
-- Inline-image source payload and image-field placement contract.
+- Upload limits, color normalization, and portable image bundle policy.
 - When and where normalization becomes an accepted write operation.
 - Whether future field metadata needs a capability beyond current field type.
 
@@ -147,6 +148,6 @@ Phase 250 aligned those accepted-write producers with canonical empty blocks.
 
 ## Next Recommended Direction
 
-After Phase 251 selects target document v4 and explicit copy-forward migration,
-define the image source contract and extend this grammar with inline-image
-payload facts before activating a v4 parser or migration executor.
+After Phase 252 decides package v3/document v4 image source facts, implement
+the target package asset/data schemas before activating document v4 image forms
+or a migration executor.

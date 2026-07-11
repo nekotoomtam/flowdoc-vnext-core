@@ -1082,6 +1082,9 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`: Phase 251 active
   package v2/document v3 compatibility, target document v4, explicit
   copy-forward migration, and activation gate decision
+- `docs/IMAGE_SOURCE_CONTRACT.md`: Phase 252 package v3/document v4 image asset
+  manifest, static/field source union, inline/block placement, and lifecycle
+  ownership decision
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the

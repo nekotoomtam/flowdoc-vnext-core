@@ -265,6 +265,25 @@ Parent goal:
 | 249 | Text-block v1 grammar validator and normalizer | done | `src/authoring/textBlockV1Grammar.ts`; `src/index.ts`; `tests/textBlockV1Grammar.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 250 | Text-block v1 producer alignment | done | `src/operations/documentOperations.ts`; `tests/operations.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 251 | Text-block v1 version and migration decision | done | `src/schema/documentVersionPolicy.ts`; `src/schema/document.ts`; `src/persistence/package.ts`; `src/index.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/WORKSPACE_BOUNDARY.md`; `docs/LEGACY_MIGRATION_GATE.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 252 | Image source contract | done | `src/schema/imageSourceContract.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 252 Image Source Contract
+
+Phase 252 separates canonical image identity, backend bytes, field values, and
+authored placements before target schema implementation.
+
+- Package truth owns an immutable image asset manifest while backend owns bytes,
+  locators, upload state, retention, and garbage collection.
+- Static `asset-ref` and dynamic `image-field-ref` form one shared source union
+  for inline and block image placements.
+- Data snapshot v2 represents image field values as manifest-backed asset refs;
+  field registry v1 already carries the image field type.
+- Required authored frames, placement-owned accessibility/crop, bounded fit and
+  alignment, and no floating/wrap semantics stabilize v1 layout behavior.
+- The package asset manifest changes the envelope, resolving the target to
+  package v3/document v4 while leaving active v2/v3 parsing unchanged.
+- Public decision facts and source guards do not activate image schemas,
+  uploads, migration, diagnostics, layout, or rendering.
 
 ## Phase 251 Text-block v1 Version And Migration Decision
 

@@ -133,11 +133,11 @@ Text-block v1 targets five inline forms:
 | `line-break` | id only | one newline slot | no; explicit remove required | inherits surrounding presentation | current |
 | `field-ref` | key plus optional label/fallback | one U+FFFC atomic slot | no; explicit usage command required | inherits surrounding presentation | current |
 | `page-number` | id only | one U+FFFC atomic slot | no; explicit usage command required | inherits surrounding presentation | current, restrict placement |
-| `inline-image` | source and intrinsic presentation facts to be decided | one U+FFFC atomic slot | no; explicit image command required | image-specific presentation | required before Node v1 close |
+| `inline-image` | Phase 252 shared source, accessibility, and frame facts | one U+FFFC atomic slot | no; explicit image command required | image-specific presentation | required before Node v1 close |
 
 `inline-image` is a reserved target grammar form, not an implemented schema in
-this phase. The image source contract will decide whether its source is an
-asset id, compatible image field usage, or a discriminated source union.
+this phase. Phase 252 subsequently selects a discriminated `asset-ref` or
+`image-field-ref` source union.
 
 The inline grammar does not use arbitrary nested spans, HTML nodes, DOM
 elements, or recursive inline containers. Text styling remains on text leaves;
@@ -304,10 +304,10 @@ It establishes only these semantics:
 - may not split across lines or pages independently from its containing line;
 - references shared image source facts rather than embedding asset bytes.
 
-Asset source shape, alt-text ownership, dimensions, baseline alignment,
-fallback rendering, field compatibility, and document version belong to the
-next image source contract. Floating wrap and L-shaped text flow remain outside
-v1.
+Phase 252 resolves asset source shape, placement-owned accessibility, required
+frames, baseline alignment, fallback resolution, field compatibility, and the
+package v3/document v4 target. Floating wrap and L-shaped text flow remain
+outside v1.
 
 ## Style Grammar
 
@@ -517,9 +517,9 @@ Implementation must not begin production WYSIWYG until:
 ## UNKNOWN
 
 - Phase 251 resolves grammar tightening and image additions to target document
-  v4 with explicit copy-forward migration; package v2 remains provisional.
-- Final inline-image source payload, alt text, dimensions, and baseline
-  alignment.
+  v4 with explicit copy-forward migration; Phase 252 resolves package v3 and
+  the image payload contract.
+- Upload limits, color normalization, and portable image bundle policy.
 - Exact toolbar active-mark behavior at a boundary between unlike text styles.
 - Role-specific block split/merge behavior.
 - Production clipboard format for managed atomics.
@@ -554,8 +554,6 @@ Implementation must not begin production WYSIWYG until:
 
 ## Next Recommended Direction
 
-Implement a pure Text-block v1 grammar validator and normalizer behind an
-explicit target-version boundary. Start with text, line-break, field-ref, and
-page-number consistency plus empty-block/newline/surrogate checks. Do not add
-inline-image until the following image source contract decides its payload and
-document-version policy.
+Phase 249 implements the pure grammar validator and Phase 252 decides the image
+source payload. The next schema slice should add target package v3 asset/data
+contracts before document v4 inline-image and block image schemas.

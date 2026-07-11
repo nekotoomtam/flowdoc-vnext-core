@@ -14,15 +14,14 @@ shapes that document v3 previously accepted, and Node v1 must add both
 `inline-image` and a block image node. Reusing version 3 would let the same
 version number describe incompatible accepted shapes.
 
-The target remains package v2/document v4 unless the image source contract
-requires a new top-level package envelope field. If that contract changes the
-package envelope, it must explicitly decide package v3 before schema work.
+Phase 252 resolves the target to package v3/document v4 because the image
+source contract requires a package-level asset manifest and data snapshot v2.
 
 ## Active And Target Matrix
 
 | Concern | Active | Target | Rule |
 |---|---|---|---|
-| Package envelope | v2 | v2 provisional | Retain v2 unless image assets change the envelope |
+| Package envelope | v2 | v3 | Phase 252 adds a required image asset manifest |
 | Authored document | v3 | v4 | Version changes for tightened grammar and image shapes |
 | v3 parser | strict v3 | retained | Never reinterpret v3 input as v4 |
 | v4 parser | absent | required | Add only after the v4 schema is complete |
@@ -44,13 +43,9 @@ presenting it as a malformed document v3.
 ## Package Version Rule
 
 Text-block grammar and authored node unions belong to `document.version`; they
-do not by themselves change package metadata, field registry, or data snapshot
-envelopes. Package version therefore remains 2 provisionally.
-
-The Image Source Contract must reopen this decision if canonical asset truth
-requires a new package-level registry or required envelope field. External or
-existing-envelope references may retain package v2; a changed required package
-shape requires package v3.
+do not by themselves change the package envelope. Phase 252 subsequently
+chooses a required package-level image asset manifest and data snapshot v2, so
+the target package version is 3.
 
 ## V3 Compatibility Policy
 
@@ -93,7 +88,8 @@ the refreshed revision.
 Document v4 must not become an accepted canonical write until all of these are
 complete:
 
-1. Image Source Contract decides inline-image, block image, and asset ownership.
+1. Phase 252 completes the Image Source Contract for inline-image, block image,
+   and asset ownership.
 2. Document v4 schema contains the complete Node v1 authored and inline unions.
 3. Strict v4 package validation covers Text-block v1 grammar and image facts.
 4. Pure v3-to-v4 migration planning and application are deterministic and
@@ -107,29 +103,28 @@ complete:
 
 - Active package v2/document v3 compatibility is preserved.
 - Target document v4 has an explicit reason and activation boundary.
-- Package v2 retention is conditional on the upcoming image envelope decision.
+- Phase 252 resolves the target envelope to package v3.
 - Silent read normalization and in-place migration are rejected.
 - Core, backend, and editor migration ownership remain separated.
 
 ## FAIL / BLOCKER
 
 - Document v4 activation is blocked by the listed activation gates.
-- Package version cannot be finalized beyond its provisional v2 target until
-  the image source contract decides asset ownership.
+- Package v3/document v4 activation remains blocked until target schemas and
+  migration/downstream gates exist.
 
 ## RISK
 
 - Supporting v3 and v4 concurrently will require named parsers and explicit
   consumer capability checks rather than one ambiguous parser.
-- A package-level asset registry would require package v3 and broaden the
-  backend migration surface.
+- The package-level asset registry requires package v3 and broadens the backend
+  migration surface.
 - Rich-inline write paths can still create v3-valid shapes that require later
   v4 normalization until strict v4 preflight exists.
 
 ## UNKNOWN
 
-- Final package version after the image source contract.
-- Final inline-image and block image payloads.
+- Upload limits, color normalization, and portable image bundle policy.
 - Product policy for when users are offered or required to migrate stored v3
   documents.
 
@@ -166,6 +161,6 @@ Existing parser and serializer acceptance behavior is unchanged.
 
 ## Next Recommended Direction
 
-Define the Image Source Contract. It must decide canonical asset identity and
-ownership before package version, document v4 image payloads, upload lifecycle,
-or rendering behavior can be finalized.
+After Phase 252 resolves package v3/document v4 and image ownership, implement
+the target package asset-registry and data-snapshot schemas without changing
+the active package v2/document v3 parser.

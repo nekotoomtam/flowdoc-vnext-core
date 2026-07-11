@@ -1,5 +1,6 @@
 export * from "./schema/document.js"
 export * from "./schema/documentVersionPolicy.js"
+export * from "./schema/imageSourceContract.js"
 export * from "./graph/relationshipGraph.js"
 export * from "./persistence/package.js"
 export * from "./persistence/storageAdapter.js"
