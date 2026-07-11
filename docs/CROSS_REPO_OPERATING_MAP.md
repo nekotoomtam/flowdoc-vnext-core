@@ -77,6 +77,12 @@ editor intent
   entering v4 read-only mode: `flowdoc-vnext-editor@2c0c97d`.
 - Backend migration persistence remains unchanged; its documentation records
   the completed consumer recovery path: `flowdoc-vnext-backend@5ea90bc`.
+- Core Phase 262 adds operation-granular capability and isolated v4 same-parent
+  reorder semantics: `flowdoc-vnext-core@68192fb`.
+- Backend persists only v4 `node.reorder` and reports operation kinds per pair:
+  `flowdoc-vnext-backend@c77474a`.
+- Editor enters partial mode and enables reorder only when both core node facts
+  and backend operation reporting agree: `flowdoc-vnext-editor@ed22cbc`.
 
 ## Default Change Routing
 
@@ -212,8 +218,8 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Define the first v4 operation slice with graph, history, and layout
-   invalidation contracts before enabling editor mutation.
+2. Define v4 delete/duplicate ownership, subtree, asset, and reference-impact
+   rules before adding either operation.
 3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
 4. Keep package v3/document v4 out of active editor/runtime mutation until the

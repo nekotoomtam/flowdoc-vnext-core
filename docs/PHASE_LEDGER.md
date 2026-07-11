@@ -275,6 +275,24 @@ Parent goal:
 | 259 | Backend revision-gated migration persistence | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-backend@f80cd27`; `flowdoc-vnext-editor@ccb63fa` |
 | 260 | Document v4 read-only runtime consumer | done | `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@b299e94`; `flowdoc-vnext-editor@5c422de` |
 | 261 | Explicit editor document migration workflow | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@5ea90bc`; `flowdoc-vnext-editor@2c0c97d` |
+| 262 | Document v4 same-parent reorder vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@c77474a`; `flowdoc-vnext-editor@ed22cbc` |
+
+## Phase 262 Document V4 Same-Parent Reorder Vertical Slice
+
+Phase 262 opens the first package 3/document 4 mutation without implying full
+v4 activation.
+
+- Capability contract v3 reports supported operation kinds per version pair.
+- Core owns a separate strict v4 package operation kernel for same-parent
+  `node.reorder` under zone, column, and table-cell block lists.
+- The kernel preserves source immutability, validates the complete target, and
+  returns history, scope, and node-structure invalidation facts.
+- Backend persists v4 reorder through the existing base-revision write gate and
+  rejects every other v4 mutation kind.
+- Editor requires both core node capability and backend pair/operation support,
+  enters `partial` mode, and keeps text/delete/duplicate/live/exact layout off.
+- Remaining activation work is named by
+  `v4-remaining-operation-layout-render-support`.
 
 ## Phase 261 Explicit Editor Document Migration Workflow
 
