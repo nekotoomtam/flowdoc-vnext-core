@@ -293,8 +293,8 @@ Node v1 cannot close until:
 
 ## UNKNOWN
 
-- Whether image additions remain document v3 or require a new canonical
-  document version.
+- Phase 251 resolves image additions and tightened Text-block grammar to target
+  document v4; package v2 remains provisional until asset ownership is known.
 - Whether divider and spacer should be independently selectable surfaces or
   utility affordances owned by adjacent flow slots.
 - Whether column-level direct selection is required in v1 or only through a

@@ -516,8 +516,8 @@ Implementation must not begin production WYSIWYG until:
 
 ## UNKNOWN
 
-- Whether grammar tightening and image additions require document v4 or a
-  different explicit migration/version policy.
+- Phase 251 resolves grammar tightening and image additions to target document
+  v4 with explicit copy-forward migration; package v2 remains provisional.
 - Final inline-image source payload, alt text, dimensions, and baseline
   alignment.
 - Exact toolbar active-mark behavior at a boundary between unlike text styles.

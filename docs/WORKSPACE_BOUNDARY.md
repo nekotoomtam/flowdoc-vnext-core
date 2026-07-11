@@ -33,9 +33,15 @@ FlowDocPackage.packageVersion = 2
   -> document.version = 3
 ```
 
-Old document versions and prototype node names should be rejected by canonical
-vNext parsers. If the project ever needs a one-off converter, keep it outside
-exported core and outside required vNext checks.
+Unsupported document versions and prototype node names are rejected by each
+named canonical parser. One-off converters for prototype or never-canonical
+shapes stay outside exported core and required vNext checks.
+
+A migration between two accepted canonical versions is a separate case. It may
+expose a pure core semantic plan only after a dedicated version decision is
+accepted. It must use named source and target parsers, remain explicit and
+source-immutable, and never become a silent package-read compatibility adapter.
+Backend owns revisioned persistence execution for that plan.
 
 ## Rebuild-First Rule
 
@@ -59,5 +65,7 @@ This repo must remain runnable without the parent app:
 - package-local tests;
 - vNext product fixtures;
 - package v2/document v3 parser and serializer tests;
-- no exported migration or compatibility adapter for old document shapes;
+- no exported prototype migration or silent package-read compatibility adapter;
+- accepted canonical-version migration, when present, is explicit,
+  source-immutable, and separated from backend persistence execution;
 - no imports from the parent app runtime.

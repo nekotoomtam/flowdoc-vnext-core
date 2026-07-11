@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { VNEXT_ACTIVE_DOCUMENT_VERSION } from "./documentVersionPolicy.js"
 
 const HexColorSchema = z.string().regex(/^[0-9A-Fa-f]{6}$/)
 
@@ -15,7 +16,7 @@ const NonNegativeUnitValueSchema = UnitValueSchema.refine((value) => value.value
   message: "Unit value must be non-negative",
 })
 
-export const DocumentVNextVersionSchema = z.literal(3)
+export const DocumentVNextVersionSchema = z.literal(VNEXT_ACTIVE_DOCUMENT_VERSION)
 
 export const TextRunStyleSchema = z.object({
   fontSize: PositiveUnitValueSchema.optional(),

@@ -24,6 +24,23 @@ implementation instead.
 | Testability | vNext tests can prove the behavior without parent app fixtures. | Tests require parent app runtime, browser editor state, or legacy adapters. |
 | Ownership | The behavior belongs in core: schema, graph, operations, pagination, renderer consumption, export readiness, or history-ready records. | The behavior belongs to editor UI, transport, browser rendering, or product workflow. |
 
+## Canonical Version Migration Exception
+
+This legacy gate does not prohibit a migration between two formats that were
+both accepted canonical FlowDoc versions. Such a migration requires its own
+version decision and must satisfy all of these rules:
+
+- named source and target parsers remain strict;
+- migration is explicit and never runs during ordinary package read;
+- core owns only pure semantic planning, deterministic transformation, and
+  target validation;
+- input remains immutable and blocked issues are not guessed away;
+- backend owns base-revision checks, source retention, and persistence;
+- editor owns user intent and migration/conflict presentation.
+
+Prototype, legacy-editor, and never-canonical shapes do not qualify for this
+exception.
+
 ## Allowed Uses Of Legacy Code
 
 - Reference evidence for what failed or worked.
@@ -52,4 +69,3 @@ UNKNOWN:
 Required tests:
 Intentionally not moved:
 ```
-

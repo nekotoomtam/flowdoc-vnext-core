@@ -109,7 +109,8 @@ Phase 250 aligned those accepted-write producers with canonical empty blocks.
 
 ## UNKNOWN
 
-- Document version and migration policy for enforcing target grammar.
+- Phase 251 resolves enforcement to target document v4 through explicit
+  copy-forward migration, with no package-read normalization.
 - Inline-image source payload and image-field placement contract.
 - When and where normalization becomes an accepted write operation.
 - Whether future field metadata needs a capability beyond current field type.
@@ -146,7 +147,6 @@ Phase 250 aligned those accepted-write producers with canonical empty blocks.
 
 ## Next Recommended Direction
 
-After Phase 250 aligns table row/column insertion, decide the explicit
-document-version/migration boundary before wiring normalization into any
-accepted write path. The image source contract should follow that decision and
-extend this grammar with inline-image payload facts.
+After Phase 251 selects target document v4 and explicit copy-forward migration,
+define the image source contract and extend this grammar with inline-image
+payload facts before activating a v4 parser or migration executor.

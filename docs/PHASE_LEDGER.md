@@ -264,6 +264,26 @@ Parent goal:
 | 248 | Text-block v1 grammar lock | done | `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `tests/textBlockV1GrammarLock.test.ts`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-editor@e50e28c`; `flowdoc-vnext-backend@9d4b202` |
 | 249 | Text-block v1 grammar validator and normalizer | done | `src/authoring/textBlockV1Grammar.ts`; `src/index.ts`; `tests/textBlockV1Grammar.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 250 | Text-block v1 producer alignment | done | `src/operations/documentOperations.ts`; `tests/operations.test.ts`; `tests/textBlockV1GrammarFixtures.test.ts`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+| 251 | Text-block v1 version and migration decision | done | `src/schema/documentVersionPolicy.ts`; `src/schema/document.ts`; `src/persistence/package.ts`; `src/index.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_LOCK.md`; `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`; `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`; `docs/WORKSPACE_BOUNDARY.md`; `docs/LEGACY_MIGRATION_GATE.md`; `README.md`; `docs/PHASE_LEDGER.md` |
+
+## Phase 251 Text-block v1 Version And Migration Decision
+
+Phase 251 preserves package v2/document v3 as the active canonical format and
+selects document v4 as the target for tightened Text-block v1 grammar plus
+inline and block image shapes.
+
+- Package v2 remains the provisional target because text grammar and authored
+  nodes do not change the package envelope.
+- The Image Source Contract must reopen package version if canonical asset
+  truth adds a required package-level registry or envelope field.
+- V3 reads remain strict and unchanged; package reads never normalize or
+  silently upgrade.
+- Migration is explicit copy-forward: core owns pure semantic planning and
+  target validation, backend owns revisioned persistence and source retention,
+  and editor owns user intent and refreshed-revision application.
+- A public JSON-safe policy record exposes active and target versions,
+  migration mode, and activation blockers without adding a v4 parser or
+  migration executor.
 
 ## Phase 250 Text-block v1 Producer Alignment
 

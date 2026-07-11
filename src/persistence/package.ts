@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { DocumentNodeSchema } from "../schema/document.js"
+import { VNEXT_ACTIVE_PACKAGE_VERSION } from "../schema/documentVersionPolicy.js"
 
 export type FlowDocPackageParseReason = "unsupported-version" | "invalid-package"
 
@@ -44,7 +45,7 @@ export const DataSnapshotSchema = z.object({
 })
 
 export const FlowDocPackageV2DocumentVNextSchema = z.object({
-  packageVersion: z.literal(2),
+  packageVersion: z.literal(VNEXT_ACTIVE_PACKAGE_VERSION),
   kind: z.literal("document"),
   id: z.string().min(1),
   meta: z.object({

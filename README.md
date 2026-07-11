@@ -1079,6 +1079,9 @@ The package must remain runnable without any parent editor checkout.
   acceptance evidence
 - `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`: Phase 250 table row/column
   producer alignment with canonical empty `children: []` text-blocks
+- `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`: Phase 251 active
+  package v2/document v3 compatibility, target document v4, explicit
+  copy-forward migration, and activation gate decision
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
 - `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
