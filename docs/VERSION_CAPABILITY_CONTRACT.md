@@ -115,6 +115,8 @@ Consumer evidence:
 - v4 partial editor support: `flowdoc-vnext-editor@ed22cbc`.
 - v4 delete backend support: `flowdoc-vnext-backend@be2047a`;
 - v4 delete editor support: `flowdoc-vnext-editor@9bad0e9`.
+- v4 duplicate backend support: `flowdoc-vnext-backend@87f68db`;
+- v4 duplicate editor support: `flowdoc-vnext-editor@2b598d3`.
 
 ## Behavior Changed
 

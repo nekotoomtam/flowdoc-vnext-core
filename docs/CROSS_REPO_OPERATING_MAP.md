@@ -1,6 +1,6 @@
 # Cross-Repo Operating Map
 
-Date: 2026-07-03
+Date: 2026-07-11
 
 Status: active coordination map for `flowdoc-vnext-core`,
 `flowdoc-vnext-editor`, and `flowdoc-vnext-backend`.
@@ -88,6 +88,12 @@ editor intent
 - Backend persists v4 delete and continues rejecting duplicate:
   `flowdoc-vnext-backend@be2047a`.
 - Editor partial mode enables delete/reorder only: `flowdoc-vnext-editor@9bad0e9`.
+- Core Phase 264 adds deterministic block-subtree duplicate, rewrites authored
+  node/inline identities, and retains shared registries:
+  `flowdoc-vnext-core@59a852c`.
+- Backend persists revision-gated v4 duplicate: `flowdoc-vnext-backend@87f68db`.
+- Editor partial mode enables duplicate only when core and backend capability
+  facts agree: `flowdoc-vnext-editor@2b598d3`.
 
 ## Default Change Routing
 
@@ -105,21 +111,17 @@ Use this table before starting broad work.
 
 ## Integration Lane Order
 
-The next recommended cross-repo lane is a small mutation transport slice, not a
-large editor feature.
+The generic v4 node lifecycle transport slice is complete. The next lane is a
+close audit and node-family readiness matrix before node-specific editing.
 
-1. Pick one already-supported backend/core operation such as `node.delete`,
-   `node.duplicate`, or `node.reorder`.
-2. In editor, add or adjust command policy/runtime code so UI intent creates a
-   backend-shaped mutation request. Keep core imports behind
-   `src/core/coreAdapter.ts`.
-3. In backend, parse the mutation envelope, verify `baseRevision`, map to the
-   core command, call core, persist only on accepted results, and return
-   `applied`, `rejected`, or `stale`.
-4. In editor, apply the response only through the existing revision/stale gate;
-   old responses must not overwrite newer runtime state.
-5. Add focused tests in the touched repo first, then run each repo's normal
-   check script before handoff.
+1. Audit delete/duplicate/reorder across each supported block parent and node
+   family, including stale/rejected/idempotent transport behavior.
+2. Record each node family's read, generic lifecycle, edit, pagination, render,
+   and export readiness without inferring one capability from another.
+3. Use the matrix to choose the first node-specific editing slice, with
+   text-block grammar and transaction boundaries reviewed before editor input.
+4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
+   backend, and stale-gated apply in the editor.
 
 This lane intentionally does not add WYSIWYG, real collaboration, production
 storage, artifact rendering, auth, or a new state-management framework.
@@ -223,12 +225,14 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Lock v4 duplicate ID allocation, inline identity, and shared registry
-   reference rules before adding `node.duplicate`.
-3. Add measured v4 layout/render consumption without treating placeholder
+2. Close-audit the generic v4 node lifecycle and publish a node-family
+   readiness matrix.
+3. Enter node-specific semantics from that matrix, starting with the retained
+   text-block grammar and transaction boundary when its prerequisites pass.
+4. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
-4. Keep package v3/document v4 out of active editor/runtime mutation until the
+5. Keep package v3/document v4 out of active editor/runtime activation until the
    remaining capability gates are explicitly closed.
-5. Retire old core package lanes such as `packages/storage-file-json` and
+6. Retire old core package lanes such as `packages/storage-file-json` and
    `packages/internal-alpha-runner` only after historical-test replacement and
    backend parity are proven.

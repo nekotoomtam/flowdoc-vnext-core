@@ -277,6 +277,26 @@ Parent goal:
 | 261 | Explicit editor document migration workflow | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/READ_ONLY_RUNTIME_V4.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@5ea90bc`; `flowdoc-vnext-editor@2c0c97d` |
 | 262 | Document v4 same-parent reorder vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@c77474a`; `flowdoc-vnext-editor@ed22cbc` |
 | 263 | Document v4 block-subtree delete vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-backend@be2047a`; `flowdoc-vnext-editor@9bad0e9` |
+| 264 | Document v4 block-subtree duplicate vertical slice | done | `src/operations/documentV4Operations.ts`; `src/runtime/readOnlySessionV4.ts`; `src/schema/versionCapability.ts`; `tests/documentV4Operations.test.ts`; `tests/readOnlySessionV4.test.ts`; `tests/versionCapability.test.ts`; `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`; `docs/DOCUMENT_V4_DELETE_OPERATION.md`; `docs/DOCUMENT_V4_REORDER_OPERATION.md`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `flowdoc-vnext-core@59a852c`; `flowdoc-vnext-backend@87f68db`; `flowdoc-vnext-editor@2b598d3` |
+
+## Phase 264 Document V4 Block-Subtree Duplicate Vertical Slice
+
+Phase 264 completes the generic v4 node lifecycle with deterministic
+block-subtree duplicate semantics.
+
+- core rewrites every authored node and rich-inline id in the copied subtree;
+- containment links point at copied identities while field/data/asset registry
+  references remain shared;
+- the copied root is inserted immediately after its source in the same parent;
+- backend persists accepted copies behind the existing base-revision gate;
+- editor partial mode enables duplicate only when core node capability and
+  backend operation reporting agree;
+- strict full target validation remains required before success.
+
+This phase intentionally does not add text/image editing, cross-parent moves,
+registry cloning, measured pagination, exact rendering, or export. Next:
+close-audit generic lifecycle behavior and build a node-family readiness matrix
+before entering text-block editing semantics.
 
 ## Phase 263 Document V4 Block-Subtree Delete Vertical Slice
 
