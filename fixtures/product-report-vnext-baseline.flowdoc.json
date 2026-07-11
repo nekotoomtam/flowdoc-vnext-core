@@ -103,7 +103,7 @@
               "props": {},
               "children": [
                 { "id": "report-title-prefix", "type": "text", "text": "Product Health Report for " },
-                { "id": "report-title-customer", "type": "field-ref", "key": "customer.name", "fallback": "Customer" }
+                { "id": "report-title-customer", "type": "field-ref", "key": "customer.name", "fallback": "Northstar Retail" }
               ]
             },
             "report-period": {
@@ -113,9 +113,9 @@
               "props": {},
               "children": [
                 { "id": "report-period-label", "type": "text", "text": "Reporting period: " },
-                { "id": "report-period-value", "type": "field-ref", "key": "report.period", "fallback": "Period" },
+                { "id": "report-period-value", "type": "field-ref", "key": "report.period", "fallback": "June 2026" },
                 { "id": "report-owner-label", "type": "text", "text": " | Owner: " },
-                { "id": "report-owner-value", "type": "field-ref", "key": "report.owner", "fallback": "Product team" }
+                { "id": "report-owner-value", "type": "field-ref", "key": "report.owner", "fallback": "Product Operations" }
               ]
             },
             "executive-summary": {
@@ -163,7 +163,7 @@
               "type": "text-block",
               "role": { "role": "paragraph" },
               "props": {},
-              "children": [{ "id": "kpi-health-value-ref", "type": "field-ref", "key": "report.health", "fallback": "Unknown" }]
+              "children": [{ "id": "kpi-health-value-ref", "type": "field-ref", "key": "report.health", "fallback": "On track" }]
             },
             "kpi-users-label": {
               "id": "kpi-users-label",
@@ -177,7 +177,7 @@
               "type": "text-block",
               "role": { "role": "paragraph" },
               "props": {},
-              "children": [{ "id": "kpi-users-value-ref", "type": "field-ref", "key": "report.activeUsers", "fallback": "0" }]
+              "children": [{ "id": "kpi-users-value-ref", "type": "field-ref", "key": "report.activeUsers", "fallback": "18,420" }]
             },
             "kpi-activation-label": {
               "id": "kpi-activation-label",
@@ -191,7 +191,7 @@
               "type": "text-block",
               "role": { "role": "paragraph" },
               "props": {},
-              "children": [{ "id": "kpi-activation-value-ref", "type": "field-ref", "key": "report.activationRate", "fallback": "0%" }]
+              "children": [{ "id": "kpi-activation-value-ref", "type": "field-ref", "key": "report.activationRate", "fallback": "68%" }]
             },
             "performance-heading": {
               "id": "performance-heading",

@@ -13,5 +13,7 @@ interchangeable product truth.
 
 The baseline fixture is the default evidence document for connecting real
 canonical nodes to the product preview. Its values are intentionally synthetic,
-its node ids are stable for browser QA, and its page count is only a preview
-estimate until exact measured pagination and a concrete renderer agree.
+its field-ref fallbacks mirror its data snapshot so the current non-materialized
+editor read model remains product-shaped, its node ids are stable for browser
+QA, and its page count is only a preview estimate until exact measured
+pagination and a concrete renderer agree.
