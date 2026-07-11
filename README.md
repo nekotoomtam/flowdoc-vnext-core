@@ -103,6 +103,10 @@ The package must remain runnable without any parent editor checkout.
 - Phase 280 close-audits text-block v4: retained core contracts now unblock
   columns/table split planning and transport integration, while editor input,
   backend execution, mixed layout, generated content, and rendering stay open.
+- Phase 281 closes the cross-repo Structure Authoring v4 transport slice
+  through backend revision/idempotency and editor stale-apply gates. It keeps
+  WYSIWYG input, production storage, columns/table split, mixed layout,
+  renderer, and export closed.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

@@ -8198,6 +8198,19 @@ document pagination, generated page numbers, renderer/export, backend mutation
 persistence, editor DOM/IME/stale apply, cross-page UX, field drift,
 collaboration, and mixed-document scale open.
 
+## Phase 281 Structure Authoring V4 Transport Close Audit
+
+Phase 281 records that lifecycle-aware rich replacement now crosses editor
+intent, backend capability/revision/idempotency gates, core policy semantics,
+backend mutation receipt persistence, and editor stale-gated apply. Backend
+owns draft identity, field contract, Structure Policy, and session actions;
+the editor submits only target identity and core-validated inline children.
+
+The audit intentionally keeps editor draft/DOM/IME input, production auth and
+storage, collaboration, concrete measurement, columns/table split semantics,
+mixed pagination, renderer, and export closed. The next semantic dependency is
+columns parallel child flow followed by table cell/row split policy.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

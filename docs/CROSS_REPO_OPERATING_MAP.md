@@ -157,6 +157,17 @@ editor intent
   separates columns/table and transport work now unblocked from editor input,
   concrete measurement, mixed layout, generated content, and rendering that
   remain closed: `docs/TEXT_BLOCK_V4_READINESS_CLOSE_AUDIT.md`.
+- Backend Phase 281 integration supplies backend-owned draft identity, field
+  contract, Structure Policy, revision-atomic mutation receipts, and v4
+  rich-inline execution: `flowdoc-vnext-backend@0f17be1`.
+- Editor Phase 281 integration validates inline children through the core
+  adapter, separates backend/core capability versions, builds rich-inline
+  intent, and stale-applies results without enabling WYSIWYG:
+  `flowdoc-vnext-editor@24cf0d5`.
+- Phase 281 closes the cross-repo v4 rich-inline transport slice while keeping
+  DOM/IME input, production storage/auth, columns/table split semantics, mixed
+  pagination, renderer, and export closed:
+  `docs/STRUCTURE_AUTHORING_V4_TRANSPORT_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
@@ -174,15 +185,15 @@ Use this table before starting broad work.
 
 ## Integration Lane Order
 
-The generic v4 node lifecycle audit and node-family readiness matrix are
-complete. Phase 268 inserts the Structure Definition / Materialized Document
-Instance lifecycle boundary before text-block execution continues.
+The generic v4 node lifecycle, text-block core contract, and cross-repo rich
+replacement transport are complete as bounded slices.
 
-1. Integrate lifecycle-aware v4 rich replacement through backend revision and
-   idempotency gates, then editor adapter/intent/stale apply.
-2. Keep editor draft/IME and instance-composer implementation closed until
-   their respective contracts pass.
-3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
+1. Define columns parallel child cursors and height reconciliation over
+   retained text fragments.
+2. Define table cell/row split policy after columns semantics are accepted.
+3. Keep editor draft/IME, concrete measurement, mixed layout, renderer/export,
+   and instance-composer implementation closed until their own gates pass.
+4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
    backend, and stale-gated apply in the editor.
 
 This lane intentionally does not add WYSIWYG, real collaboration, production
