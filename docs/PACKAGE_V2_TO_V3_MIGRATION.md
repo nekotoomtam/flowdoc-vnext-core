@@ -108,7 +108,8 @@ the strict package v3/document v4 parser.
 
 ## FAIL / BLOCKER
 
-- Backend has no revision-gated migration persistence route.
+- Phase 259 adds backend revision-gated migration persistence with source
+  snapshot retention and idempotent receipts.
 - Phase 258 adds editor/backend version capability reporting; migration
   persistence remains unavailable.
 - Active graph, operations, pagination, renderer, and export remain v3-only.
@@ -160,6 +161,6 @@ downstream reporting blocker with `backend-revisioned-migration-persistence`.
 
 ## Next Recommended Direction
 
-Phase 258 defines cross-repo downstream version capability reporting. Next add
-a backend revision-gated migration route that retains the v3 source snapshot
-and persists the core-produced v4 package as a new revision.
+Phase 259 adds the backend revision-gated migration route. Next add explicit
+editor migration intent/result handling without loading v4 into the current
+active runtime.

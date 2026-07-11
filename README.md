@@ -69,6 +69,9 @@ The package must remain runnable without any parent editor checkout.
 - Version capability contract distinguishes active package v2/document v3
   runtime support from package v3/document v4 migration-target validation so
   downstream consumers can reject unsupported pairs before parser execution.
+- Backend Phase 259 persists explicit migrations behind base-revision and
+  idempotency gates while retaining the source v3 snapshot; v4 runtime
+  consumers remain intentionally inactive.
 - Core runtime session entrypoint that parses canonical packages, builds graph
   indexes, exposes fields/data, and lists supported operation kinds without
   invoking layout or parent editor code

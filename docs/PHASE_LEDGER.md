@@ -272,6 +272,24 @@ Parent goal:
 | 256 | Package v3/document v4 parser | done | `src/schema/documentV4Foundation.ts`; `src/schema/documentV4ImageTarget.ts`; `src/schema/documentV4Target.ts`; `src/schema/documentV4Structure.ts`; `src/persistence/packageV3.ts`; `src/persistence/packageV3References.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `fixtures/product-report-v4-image-target.flowdoc.json`; `tests/packageV3.test.ts`; `tests/documentV4Target.test.ts`; `tests/documentV4ImageTarget.test.ts`; `tests/imageSourceContract.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 257 | Package v2/document v3 to package v3/document v4 migration | done | `src/migration/packageV2ToV3Types.ts`; `src/migration/packageV2ToV3Audit.ts`; `src/migration/packageV2ToV3.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `fixtures/product-report-v4-migrated-minimal.flowdoc.json`; `tests/packageV2ToV3Migration.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `tests/imageSourceContract.test.ts`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/FIXTURE_ROLES.md`; `docs/PACKAGE_V3_DOCUMENT_V4_PARSER.md`; `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`; `docs/DOCUMENT_V4_TARGET_SCHEMA.md`; `docs/IMAGE_SOURCE_CONTRACT.md`; `docs/NODE_V1_INVENTORY_AUDIT.md`; `README.md`; `docs/PHASE_LEDGER.md` |
 | 258 | Cross-repo version capability reporting | done | `src/schema/versionCapability.ts`; `src/schema/documentVersionPolicy.ts`; `src/index.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-backend@a7ca3b7`; `flowdoc-vnext-editor@a4c501e` |
+| 259 | Backend revision-gated migration persistence | done | `src/schema/documentVersionPolicy.ts`; `tests/versionCapability.test.ts`; `tests/textBlockV1VersionMigrationDecision.test.ts`; `docs/VERSION_CAPABILITY_CONTRACT.md`; `docs/PACKAGE_V2_TO_V3_MIGRATION.md`; `docs/CROSS_REPO_OPERATING_MAP.md`; `README.md`; `docs/PHASE_LEDGER.md`; `flowdoc-vnext-backend@f80cd27`; `flowdoc-vnext-editor@ccb63fa` |
+
+## Phase 259 Backend Revision-Gated Migration Persistence
+
+Phase 259 persists explicit package v2/document v3 migrations as package
+v3/document v4 without activating v4 runtime consumers.
+
+- Backend request parsing owns route/path identity and bounded intent fields.
+- Base revision is checked before core planning and again at repository write.
+- Core planner/apply remains the semantic source of truth.
+- The in-memory repository atomically records target revision, retained source
+  snapshot, and idempotency receipt.
+- Identical request replay returns the accepted revision; payload drift under a
+  reused request id is rejected.
+- Active mutation is rejected after a record becomes package 3/document 4.
+- Backend capability reports migration persistence and source retention as
+  available; editor evidence consumes that fact without adding migration UI.
+- Remaining gates are explicit editor intent and v4 runtime consumer support.
 
 ## Phase 258 Cross-Repo Version Capability Reporting
 

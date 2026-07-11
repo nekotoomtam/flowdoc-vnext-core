@@ -48,15 +48,19 @@ or editor runtime support.
 
 ## Activation State
 
-Phase 258 replaces the completed `downstream-consumer-support` blocker with
-`backend-revisioned-migration-persistence`.
+Phase 259 completes `backend-revisioned-migration-persistence`. Remaining
+blockers are `editor-explicit-migration-intent` and
+`v4-runtime-consumer-support`.
 
-The blocker remains because the backend does not yet:
+The backend now:
 
-- accept a migration request with a base revision;
-- retain the source v3 snapshot;
-- persist the validated v4 target as a new revision;
-- return revision-conflict/idempotency results.
+- accepts migration requests with a base revision;
+- retains the source v3 snapshot;
+- persists validated v4 targets as a new revision;
+- returns stale, rejected, applied, and idempotent replay results.
+
+Activation remains blocked because the editor has no explicit migration intent
+workflow and active runtime consumers still reject document v4.
 
 ## PASS
 
@@ -69,7 +73,7 @@ The blocker remains because the backend does not yet:
 
 ## FAIL / BLOCKER
 
-- Backend revisioned migration persistence is not implemented.
+- Editor migration intent/result handling is not implemented.
 - Active runtime, graph, operations, pagination, and renderers remain v3-only.
 
 ## RISK
@@ -115,6 +119,5 @@ inactive for runtime use.
 
 ## Next Recommended Direction
 
-Implement backend revision-gated migration persistence with source snapshot
-retention, then let editor request migration explicitly and refresh only from
-the accepted new revision.
+Implement editor migration intent/result handling, then add v4 runtime consumer
+support before allowing the editor to refresh into the accepted target package.

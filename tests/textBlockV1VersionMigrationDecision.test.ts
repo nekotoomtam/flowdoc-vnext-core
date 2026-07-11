@@ -41,7 +41,8 @@ describe("Text-block v1 version and migration decision", () => {
         backendOwnsRevisionedPersistence: true,
       },
       activationBlockers: [
-        "backend-revisioned-migration-persistence",
+        "editor-explicit-migration-intent",
+        "v4-runtime-consumer-support",
       ],
     })
     expect(JSON.parse(JSON.stringify(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY))).toEqual(VNEXT_TEXT_BLOCK_V1_VERSION_POLICY)

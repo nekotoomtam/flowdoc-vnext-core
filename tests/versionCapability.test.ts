@@ -17,7 +17,7 @@ describe("Core package/document version capability", () => {
       migrationTarget: { packageVersion: 3, documentVersion: 4 },
       activation: {
         status: "blocked",
-        blockers: ["backend-revisioned-migration-persistence"],
+        blockers: ["editor-explicit-migration-intent", "v4-runtime-consumer-support"],
       },
       support: {
         active: {
@@ -98,7 +98,7 @@ describe("Core package/document version capability", () => {
 
     expect(doc).toContain("## Version Matrix")
     expect(doc).toContain("## Cross-Repo Reporting")
-    expect(doc).toContain("backend-revisioned-migration-persistence")
+    expect(doc).toContain("v4-runtime-consumer-support")
     expect(readme).toContain("docs/VERSION_CAPABILITY_CONTRACT.md")
     expect(ledger).toContain("| 258 | Cross-repo version capability reporting | done |")
     expect(ledger).toContain("## Phase 258 Cross-Repo Version Capability Reporting")

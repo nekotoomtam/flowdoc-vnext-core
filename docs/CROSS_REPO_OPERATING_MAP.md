@@ -60,6 +60,11 @@ editor intent
 - Editor preflights that response, blocks unsupported package pairs before
   runtime loading, and gates mutation until capability is compatible:
   `flowdoc-vnext-editor@a4c501e`.
+- Backend Phase 259 persists core-produced migrations behind base-revision and
+  idempotency gates, retains the v3 source snapshot, and rejects active
+  mutations after migration: `flowdoc-vnext-backend@f80cd27`.
+- Editor capability evidence now recognizes persistence/retention availability
+  while migration intent remains deferred: `flowdoc-vnext-editor@ccb63fa`.
 
 ## Default Change Routing
 
@@ -195,10 +200,10 @@ For broad work or cross-repo handoff, include:
 ## Near-Term Work Queue
 
 1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Implement backend revision-gated package v2/document v3 to package
-   v3/document v4 migration persistence with source snapshot retention.
-3. Add editor migration intent/result handling only after the backend route
-   contract is tested and conflict-safe.
+2. Add editor migration intent/result handling over the tested backend route,
+   including blocked, stale, applied, and replayed outcomes.
+3. Add v4 runtime consumer support before refreshing the editor into a migrated
+   package.
 4. Keep package v3/document v4 out of active editor/runtime mutation until the
    remaining capability gates are explicitly closed.
 5. Retire old core package lanes such as `packages/storage-file-json` and
