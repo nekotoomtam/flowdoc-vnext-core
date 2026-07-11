@@ -94,6 +94,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 277 plans explicit v4 field and atomic inline commands from canonical
   selection anchors, including deterministic text splitting, while retaining
   Phase 276 as the only policy-aware commit boundary.
+- Phase 278 creates v4 resolved measurement packets and accepts complete line
+  ranges mapped back to authored inline and resolved-field offsets. It does not
+  choose a line breaker or paginate.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

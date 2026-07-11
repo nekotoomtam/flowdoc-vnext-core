@@ -8152,6 +8152,23 @@ This phase intentionally does not mutate documents, create history, allocate
 implicit ids, add granular text/style commands, integrate DOM/IME/backend,
 paginate, or render.
 
+## Phase 278 Text-block V4 Measurement Source Ranges
+
+Phase 278 adds the first v4 resolved measurement boundary:
+
+- Resolved Document text, field values, hard breaks, inline images, styles,
+  width, profile, and instance revision become one source-immutable packet;
+- measured lines must cover the entire rendered stream with valid geometry and
+  safe UTF-16 boundaries;
+- accepted line endpoints map back to authored inline identity and local offset;
+- wrapped field values additionally retain resolved offsets while the authored
+  field placement remains atomic; and
+- empty text-blocks accept one zero-range measured line.
+
+This phase intentionally does not choose/execute a line breaker, expand page
+numbers, paginate, render, load fonts/media bytes, integrate editor DOM, or run
+backend measurement jobs.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

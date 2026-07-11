@@ -145,6 +145,10 @@ editor intent
   inline-image insertion and atomic removal planning that feeds Phase 276
   without bypassing policy or allocating implicit ids:
   `src/authoring/textBlockV4InlineCommands.ts`.
+- Core Phase 278 publishes resolved v4 text measurement packets and complete
+  measured line acceptance with authored/resolved source points. Line-breaker,
+  pagination, renderer, and backend job execution remain inactive:
+  `src/pagination/textBlockV4Measurement.ts`.
 
 ## Default Change Routing
 
@@ -166,8 +170,8 @@ The generic v4 node lifecycle audit and node-family readiness matrix are
 complete. Phase 268 inserts the Structure Definition / Materialized Document
 Instance lifecycle boundary before text-block execution continues.
 
-1. Add v4 measured text-line/source-range facts on the accepted authoring and
-   resolved-binding boundaries.
+1. Add v4 text-line pagination fragment consumption and representative
+   large-text/cross-page acceptance on Phase 278 source ranges.
 2. Keep editor draft/IME and instance-composer implementation closed until
    their respective contracts pass.
 3. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the

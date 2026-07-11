@@ -65,7 +65,7 @@ describe("document v4 node-family readiness matrix", () => {
     expect(doc).toMatch(/Text-block remains the critical path because columns and table cells consume it/)
     expect(doc).toContain("### Columns Gate")
     expect(doc).toContain("### Table Gate")
-    expect(doc).toMatch(/measured line packets with canonical source ranges/)
+    expect(doc).toMatch(new RegExp("measured line packets with canonical/resolved source ranges are PASS"))
     expect(doc).toMatch(/External field changes must\s+produce explicit placement-level drift diagnostics/)
     expect(doc).toMatch(/Scale remains UNKNOWN for all v4 node families/)
   })

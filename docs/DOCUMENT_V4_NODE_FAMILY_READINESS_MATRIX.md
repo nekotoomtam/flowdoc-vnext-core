@@ -23,7 +23,7 @@ axis and retained evidence.
 | Node | Family | Schema / references | Allowed parent / role | Core read | Generic lifecycle | Node edit / history | Layout / pagination | Render / export | Editor / backend | Scale |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `zone` | zone | PASS | PASS: section-owned role | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
-| `text-block` | text | PASS: v4 grammar/inline/field/image refs | PASS: zone/column/cell | PASS | PASS: block root | PARTIAL: policy-aware rich replace/history | BLOCKED | BLOCKED | PARTIAL: core transaction; no editor/backend | UNKNOWN |
+| `text-block` | text | PASS: v4 grammar/inline/field/image refs | PASS: zone/column/cell | PASS | PASS: block root | PARTIAL: policy-aware rich replace/history | PARTIAL: measured source/lines; no pages | BLOCKED | PARTIAL: core contracts; no editor/backend | UNKNOWN |
 | `columns` | layout | PASS | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
 | `column` | layout | PASS | PASS: columns-owned | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
 | `table` | table | PASS: rectangular grid | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
@@ -96,6 +96,9 @@ independent authored block lifecycle targets.
   policy-aware complete inline replacement with identity/history facts.
 - `tests/textBlockV4Contract.test.ts` and
   `tests/textBlockV4RichInlineReplace.test.ts` prove the retained boundaries.
+- `src/pagination/textBlockV4Measurement.ts` and
+  `tests/textBlockV4Measurement.test.ts` prove resolved measurement packets,
+  complete lines, and authored/resolved source mapping without pagination.
 
 ### E7 Closed Axes
 
@@ -120,7 +123,8 @@ as their only authored text surface. The following remain blocked or partial:
    remain partial: core placement planning/compatibility/preflight are PASS,
    UX and drift reporting remain blocked;
 3. browser draft to core transaction/IME/history integration remains blocked;
-4. measured line packets with canonical source ranges remain blocked;
+4. measured line packets with canonical/resolved source ranges are PASS, while
+   pagination fragment consumption remains blocked;
 5. cross-page edit, reflow, caret, and selection acceptance remains blocked;
 6. representative large-text scale evidence remains UNKNOWN.
 
@@ -200,5 +204,5 @@ behavior in this matrix.
 
 ## Next Recommended Direction
 
-Add measured line/source-range facts before implementing editor draft or
-cross-page behavior.
+Add text-line pagination fragments and representative large-text/cross-page
+acceptance before implementing editor draft behavior.
