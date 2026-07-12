@@ -258,6 +258,10 @@ editor intent
   canonical graph, span-one definition mapping, header sync, and policy/session
   capabilities are audited. Editor consumers may use capability facts but must
   not bypass blocked collection, merge/split, rowSpan, or cross-owner actions.
+- Phase 330 commits static authored row insert/delete and row-source reorder as
+  one core document/definition transaction. Editor supplies durable identities
+  and consumes selection/history/invalidation facts; backend still owns
+  revision checks and persistence.
 
 ## Default Change Routing
 

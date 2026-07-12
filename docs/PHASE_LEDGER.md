@@ -8785,6 +8785,20 @@ policy actions, session permission facts, and deterministic capability output.
 Collection source lifecycle, merge/split, rowSpan, and cross-owner moves are
 reported as explicit unsupported capabilities rather than raw node mutations.
 
+## Phase 330 Table V4 Static Row Authoring Commands
+
+Status: implemented.
+
+Phase 330 adds source-immutable static row insert/delete and row-source reorder
+over the accepted document/Table-Definition bundle. Callers provide durable
+row, source, template, and cell identities; core synchronizes authored rows,
+semantic templates/sources, and header props atomically.
+
+Commits return identity diff, exact scope, single-entry history, factual
+invalidation, fingerprints, work counts, and a selection recommendation. Row
+deletion prefers the preceding surviving row. Collection source deletion and
+invalid header moves remain blocked.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

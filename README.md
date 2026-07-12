@@ -260,6 +260,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 329 adds the strict authoring-ready bundle audit, exact draft owner and
   graph/definition/header checks, dedicated Table policy actions, and explicit
   supported/blocked capability facts.
+- Phase 330 adds atomic static-row insert/delete and row-source reorder across
+  authored document plus Table Definition, including deterministic identities,
+  preceding-row delete selection, history, scope, and invalidation facts.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

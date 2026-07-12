@@ -162,3 +162,102 @@ export type VNextTableAuthoringBundleAssessmentV1 =
       bundle: null
       issues: VNextTableAuthoringIssueV1[]
     }
+
+export interface VNextTableAuthoringIdentityDiffV1 {
+  addedNodeIds: string[]
+  removedNodeIds: string[]
+  retainedNodeIds: string[]
+  addedColumnIds: string[]
+  removedColumnIds: string[]
+  reorderedIds: string[]
+}
+
+export type VNextTableAuthoringSelectionRecommendationV1 =
+  | { kind: "table-row"; tableId: string; rowSourceId: string; rowId: string }
+  | { kind: "table-column"; tableId: string; columnId: string }
+  | { kind: "table-cell"; tableId: string; rowId: string; cellId: string }
+  | { kind: "table"; tableId: string }
+
+export interface VNextTableAuthoringCommitV1 {
+  kind: VNextTableAuthoringCommandV1["kind"]
+  action: VNextStructurePolicyNodeAction
+  source: "user" | "automation" | "system"
+  tableId: string
+  targetIds: string[]
+  policyKey: string
+  identity: VNextTableAuthoringIdentityDiffV1
+  scope: {
+    sectionIds: string[]
+    tableIds: string[]
+    rowSourceIds: string[]
+    rowTemplateIds: string[]
+    rowIds: string[]
+    columnIds: string[]
+    cellIds: string[]
+    textBlockIds: string[]
+  }
+  historyPolicy: {
+    kind: "single-entry"
+    durableIntent: "structure" | "layout"
+    summary: string
+    collaborationSafe: false
+  }
+  selectionAfter: VNextTableAuthoringSelectionRecommendationV1
+  invalidation: {
+    lane: "table-row-order" | "table-grid" | "table-width" | "table-cell-layout"
+    definition: boolean
+    measurement: boolean
+    pagination: boolean
+    renderer: boolean
+    reasons: string[]
+  }
+  fingerprints: {
+    documentBefore: string
+    documentAfter: string
+    definitionBefore: string
+    definitionAfter: string
+    bundleBefore: string
+    bundleAfter: string
+  }
+  work: {
+    rowTemplateVisitCount: number
+    cellVisitCount: number
+    subtreeNodeVisitCount: number
+  }
+  contracts: {
+    persistence: "not-run"
+    editorSelectionMutation: false
+    measurement: "not-run"
+    pagination: "not-run"
+    rendering: "not-run"
+  }
+}
+
+export type VNextTableAuthoringResultV1 =
+  | {
+      source: typeof VNEXT_TABLE_AUTHORING_SOURCE
+      contractVersion: typeof VNEXT_TABLE_AUTHORING_VERSION
+      status: "committed"
+      document: DocumentNodeV4Target
+      definition: VNextTableDefinitionV1
+      operation: VNextTableAuthoringCommitV1
+      issues: []
+    }
+  | {
+      source: typeof VNEXT_TABLE_AUTHORING_SOURCE
+      contractVersion: typeof VNEXT_TABLE_AUTHORING_VERSION
+      status: "blocked"
+      reason:
+        | "invalid-request"
+        | "bundle-not-ready"
+        | "capability-denied"
+        | "target-not-found"
+        | "invalid-command"
+        | "unsupported-capability"
+        | "validation-failed"
+        | "no-op"
+      document: DocumentNodeV4Target | null
+      definition: VNextTableDefinitionV1 | null
+      operation: null
+      issues: VNextTableAuthoringIssueV1[]
+    }
