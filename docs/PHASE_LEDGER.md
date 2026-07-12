@@ -8943,6 +8943,20 @@ visits and 1,000 entry builds. Changing one label affects one heading identity
 and its one TOC without falsely reporting entry movement or structural change.
 No measurement, pagination, rendering, persistence, or editor state is run.
 
+## Phase 341 TOC V4 Semantic Lane Readiness Close Audit
+
+Status: closed.
+
+Phase 341 closes the bounded document-wide body-flow TOC v4 semantic lane
+across strict structure input, nested structural source order, per-TOC filters,
+composite identity, authored-preview labels and field dependencies, exact plan
+comparison, bounded downstream invalidation, and 1,000-heading scale evidence.
+
+TOC measurement, pagination convergence, final v4 page resolution, renderer
+consumption, authoring commands/UI, materialized field labels, and backend
+persistence remain later or external:
+`docs/TOC_V4_SEMANTIC_LANE_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

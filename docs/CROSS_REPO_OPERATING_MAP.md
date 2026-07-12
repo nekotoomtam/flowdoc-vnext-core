@@ -302,6 +302,10 @@ editor intent
   headings, entry changes, and required measurement/pagination/render lanes.
   It remains a pure recommendation boundary; consumers execute no side effect
   through this contract.
+- Phase 341 closes TOC v4 semantic readiness for the bounded document-wide
+  body-flow profile. Measurement, pagination/page resolution, rendering,
+  authoring UX, and persistence remain separate lanes:
+  `docs/TOC_V4_SEMANTIC_LANE_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

@@ -293,6 +293,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 340 adds exact TOC semantic-plan comparison with affected entry/heading
   identities and bounded invalidation, plus deterministic 1,000-heading
   collection and single-label impact evidence.
+- Phase 341 closes TOC v4 semantic readiness across strict source collection,
+  generated identity/labels/dependencies, exact impact, bounded invalidation,
+  and deterministic 1,000-heading evidence without claiming layout output.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
