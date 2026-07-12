@@ -254,6 +254,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 327 closes Table v4 renderer consumption across complete prepared facts,
   strict projection/readiness, single-owner borders, SVG/PDF/DOCX adapter
   evidence, and deterministic 250-page scale without claiming artifact bytes.
+- Phase 328 locks the Table v4 authoring lane as an atomic Structure Draft
+  document/Table-Definition bundle with conservative span-one row, column, and
+  cell commands plus explicit merge/collection/rowSpan capability blocks.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

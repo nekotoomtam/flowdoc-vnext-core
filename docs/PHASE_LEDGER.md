@@ -8759,6 +8759,20 @@ Production typography/media execution, PDF/DOCX bytes, backend export jobs,
 storage, and editor canvas integration remain intentionally open:
 `docs/TABLE_V4_RENDERER_CONSUMPTION_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 328 Table V4 Authoring Lane Architecture Lock
+
+Status: locked.
+
+Phase 328 defines Table authoring as an atomic exact-Structure-Draft edit over
+canonical document v4 plus draft-owned Table Definition v1. The first profile
+supports static row insert/delete, row-source reorder, stable column
+insert/delete/resize, and cell vertical alignment with dedicated policy,
+selection, history, scope, invalidation, and fingerprint facts.
+
+Collection source lifecycle, cell merge/split, rowSpan, cross-Table movement,
+persistence, and editor state remain explicitly blocked or external:
+`docs/TABLE_V4_AUTHORING_LANE_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

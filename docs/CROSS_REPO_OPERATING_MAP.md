@@ -250,6 +250,10 @@ editor intent
   facts, strict relationship/bounds gates, one-owner borders, adapters, and
   250-page scale. Production artifact execution, backend jobs, and editor
   canvas remain separate: `docs/TABLE_V4_RENDERER_CONSUMPTION_READINESS_CLOSE_AUDIT.md`.
+- Phase 328 locks the Table v4 authoring lane around atomic exact-draft
+  document/Table-Definition edits, dedicated policy actions, span-one row/grid
+  commands, selection/history/invalidation facts, and explicit unsupported
+  capabilities: `docs/TABLE_V4_AUTHORING_LANE_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
