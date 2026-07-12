@@ -25,7 +25,7 @@ describe("Table v4 authoring scale", () => {
     expect(JSON.stringify(first)).toBe(JSON.stringify(second))
     if (first.status !== "committed") throw new Error(first.issues.map((item) => item.message).join("\n"))
     expect(first.operation.work).toEqual({
-      rowTemplateVisitCount: ROW_COUNT, cellVisitCount: ROW_COUNT, subtreeNodeVisitCount: 0,
+      rowTemplateVisitCount: ROW_COUNT, cellVisitCount: ROW_COUNT * 3, subtreeNodeVisitCount: 0,
     })
     expect(first.operation.identity.addedNodeIds).toHaveLength(ROW_COUNT)
     expect(first.definition.columns).toEqual([

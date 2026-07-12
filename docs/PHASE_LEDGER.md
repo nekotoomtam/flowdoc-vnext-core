@@ -8823,8 +8823,9 @@ rejected records and blocks artifact, before-state, command-output, or
 after-state drift without persistence or editor state mutation.
 
 A 1,000-row-template span-one fixture inserts one stable column twice to
-byte-identical output with exactly 1,000 template visits, 1,000 cell edits,
-1,000 added nodes, preserved 400pt total width, and immutable source input.
+byte-identical output with exactly 1,000 template visits, 3,000 affected cell
+visits (two resized plus one inserted per template), 1,000 added nodes,
+preserved 400pt total width, and immutable source input.
 
 ## Phase 11 Parent Bridge Boundary
 

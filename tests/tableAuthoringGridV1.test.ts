@@ -95,7 +95,11 @@ describe("Table v4 grid and cell authoring commands", () => {
       identity: { addedNodeIds: ["detail-cell-unit"], addedColumnIds: ["unit"] },
       selectionAfter: { kind: "table-column", columnId: "unit" },
       invalidation: { lane: "table-grid", measurement: true, pagination: true, renderer: true },
-      work: { rowTemplateVisitCount: 1, cellVisitCount: 1, subtreeNodeVisitCount: 0 },
+      scope: {
+        cellIds: ["detail-cell-a", "detail-cell-unit", "detail-cell-b"],
+        textBlockIds: ["detail-cell-a-text", "detail-cell-b-text"],
+      },
+      work: { rowTemplateVisitCount: 1, cellVisitCount: 3, subtreeNodeVisitCount: 0 },
     })
     expect(JSON.stringify(input)).toBe(before)
   })
@@ -137,7 +141,10 @@ describe("Table v4 grid and cell authoring commands", () => {
     expect(widths(result)).toEqual([240])
     expect(result.operation).toMatchObject({
       identity: { removedNodeIds: ["detail-cell-a", "detail-cell-a-text"] },
-      scope: { textBlockIds: ["detail-cell-a-text"] },
+      scope: {
+        cellIds: ["detail-cell-a", "detail-cell-b"],
+        textBlockIds: ["detail-cell-a-text", "detail-cell-b-text"],
+      },
       selectionAfter: { columnId: "value" },
       work: { subtreeNodeVisitCount: 2 },
     })
@@ -158,6 +165,7 @@ describe("Table v4 grid and cell authoring commands", () => {
       historyPolicy: { durableIntent: "layout" },
       invalidation: { lane: "table-width", definition: true, measurement: true, pagination: true, renderer: true },
       selectionAfter: { kind: "table-column", columnId: "metric" },
+      scope: { textBlockIds: ["detail-cell-a-text", "detail-cell-b-text"] },
     })
   })
 

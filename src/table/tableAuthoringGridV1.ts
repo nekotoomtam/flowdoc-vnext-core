@@ -222,31 +222,42 @@ function insertColumn(
   definition.columns.forEach((column, index) => { column.widthShare = newShares[index] })
   const affectedRowIds: string[] = []
   const affectedCellIds: string[] = []
+  const addedCellIds: string[] = []
+  const affectedTextBlockIds: string[] = []
+  let cellVisitCount = 0
   templateIds.forEach((templateId) => {
     const template = definition.rowTemplates[templateId]
     const row = section.nodes[template.sourceRowId]
     if (row?.type !== "table-row") throw new Error("accepted row missing")
     const cellId = command.cellIdsByRowTemplateId[templateId]
+    cellVisitCount += template.cells.length + 1
     template.cells.forEach((cell) => { if (cell.columnStart >= command.index) cell.columnStart += 1 })
     template.cells.splice(command.index, 0, { cellId, columnStart: command.index, colSpan: 1, rowSpan: 1 })
     row.cellIds.splice(command.index, 0, cellId)
     section.nodes[cellId] = { id: cellId, type: "table-cell", props: {}, childIds: [] }
     affectedRowIds.push(row.id)
-    affectedCellIds.push(cellId)
+    addedCellIds.push(cellId)
+    affectedCellIds.push(...row.cellIds)
+    row.cellIds.forEach((affectedCellId) => {
+      affectedTextBlockIds.push(...collectSubtree(section.nodes, affectedCellId).filter(
+        (id) => section.nodes[id]?.type === "text-block",
+      ))
+    })
   })
   syncPhysicalWidths(document, definition, before.sectionId, totalPt)
   return finalize({
     request, before, command, document, definition,
     operation: {
-      kind: command.kind, tableId: before.tableId, targetIds: [command.columnId, ...affectedCellIds],
+      kind: command.kind, tableId: before.tableId, targetIds: [command.columnId, ...addedCellIds],
       identity: {
-        addedNodeIds: affectedCellIds, removedNodeIds: [], retainedNodeIds: [before.tableId, ...affectedRowIds],
+        addedNodeIds: addedCellIds, removedNodeIds: [], retainedNodeIds: [before.tableId, ...affectedRowIds],
         addedColumnIds: [command.columnId], removedColumnIds: [], reorderedIds: [],
       },
       scope: {
         sectionIds: [before.sectionId], tableIds: [before.tableId], rowSourceIds: [],
         rowTemplateIds: templateIds, rowIds: affectedRowIds,
-        columnIds: definition.columns.map((column) => column.columnId), cellIds: affectedCellIds, textBlockIds: [],
+        columnIds: definition.columns.map((column) => column.columnId),
+        cellIds: affectedCellIds, textBlockIds: affectedTextBlockIds,
       },
       historyPolicy: {
         kind: "single-entry", durableIntent: "structure",
@@ -257,7 +268,7 @@ function insertColumn(
         lane: "table-grid", definition: true, measurement: true, pagination: true, renderer: true,
         reasons: ["semantic-column-added", "all-cell-widths-changed", "authored-cells-added"],
       },
-      work: { rowTemplateVisitCount: templateIds.length, cellVisitCount: templateIds.length, subtreeNodeVisitCount: 0 },
+      work: { rowTemplateVisitCount: templateIds.length, cellVisitCount, subtreeNodeVisitCount: 0 },
     },
   })
 }
@@ -283,11 +294,21 @@ function deleteColumn(
   const removedNodeIds: string[] = []
   const removedCellIds: string[] = []
   const removedTextBlockIds: string[] = []
+  const affectedCellIds: string[] = []
+  const affectedTextBlockIds: string[] = []
   const affectedRowIds: string[] = []
+  let cellVisitCount = 0
   templateIds.forEach((templateId) => {
     const template = definition.rowTemplates[templateId]
     const row = section.nodes[template.sourceRowId]
     if (row?.type !== "table-row") throw new Error("accepted row missing")
+    cellVisitCount += template.cells.length
+    template.cells.forEach((cell) => {
+      affectedCellIds.push(cell.cellId)
+      affectedTextBlockIds.push(...collectSubtree(section.nodes, cell.cellId).filter(
+        (id) => section.nodes[id]?.type === "text-block",
+      ))
+    })
     const placement = template.cells[columnIndex]
     const subtree = collectSubtree(section.nodes, placement.cellId)
     removedNodeIds.push(...subtree)
@@ -317,7 +338,7 @@ function deleteColumn(
         sectionIds: [before.sectionId], tableIds: [before.tableId], rowSourceIds: [],
         rowTemplateIds: templateIds, rowIds: affectedRowIds,
         columnIds: before.definition.columns.map((column) => column.columnId),
-        cellIds: removedCellIds, textBlockIds: removedTextBlockIds,
+        cellIds: affectedCellIds, textBlockIds: affectedTextBlockIds,
       },
       historyPolicy: {
         kind: "single-entry", durableIntent: "structure",
@@ -332,7 +353,7 @@ function deleteColumn(
         reasons: ["semantic-column-removed", "all-cell-widths-changed", "authored-cell-subtrees-removed"],
       },
       work: {
-        rowTemplateVisitCount: templateIds.length, cellVisitCount: templateIds.length,
+        rowTemplateVisitCount: templateIds.length, cellVisitCount,
         subtreeNodeVisitCount: removedNodeIds.length,
       },
     },
@@ -363,6 +384,11 @@ function resizeColumn(
   const templateIds = Object.keys(definition.rowTemplates).sort()
   const affectedRowIds = templateIds.map((id) => definition.rowTemplates[id].sourceRowId)
   const affectedCellIds = templateIds.flatMap((id) => definition.rowTemplates[id].cells.map((cell) => cell.cellId))
+  const section = document.document.sections.find((item) => item.id === before.sectionId)
+  if (section == null) throw new Error("accepted section missing")
+  const affectedTextBlockIds = affectedCellIds.flatMap((cellId) => collectSubtree(section.nodes, cellId).filter(
+    (id) => section.nodes[id]?.type === "text-block",
+  ))
   return finalize({
     request, before, command, document, definition,
     operation: {
@@ -375,7 +401,7 @@ function resizeColumn(
         sectionIds: [before.sectionId], tableIds: [before.tableId], rowSourceIds: [],
         rowTemplateIds: templateIds, rowIds: affectedRowIds,
         columnIds: definition.columns.map((column) => column.columnId),
-        cellIds: affectedCellIds, textBlockIds: [],
+        cellIds: affectedCellIds, textBlockIds: affectedTextBlockIds,
       },
       historyPolicy: {
         kind: "single-entry", durableIntent: "layout",
