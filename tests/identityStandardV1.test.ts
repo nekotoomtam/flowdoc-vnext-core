@@ -36,6 +36,8 @@ describe("identity standard v1", () => {
       "resolved-row",
       "resolved-cell",
       "resolved-group",
+      "resolved-node",
+      "resolved-inline",
       "layout-fragment",
       "request",
       "job",
@@ -49,6 +51,32 @@ describe("identity standard v1", () => {
       identity: resolvedRowIdentity(),
       issues: [],
     })
+  })
+
+  it.each([
+    ["resolved-node", "nodei_0123456789ab"],
+    ["resolved-inline", "inli_0123456789ab"],
+  ] as const)("accepts %s identity in document-resolution scope", (identityKind, id) => {
+    const result = safeParseVNextAllocatedIdentityV1({
+      ...resolvedRowIdentity(),
+      identityKind,
+      id,
+    })
+    expect(result.ok).toBe(true)
+  })
+
+  it("blocks resolved node/inline prefix and scope drift", () => {
+    expect(safeParseVNextAllocatedIdentityV1({
+      ...resolvedRowIdentity(),
+      identityKind: "resolved-node",
+      id: "inli_0123456789ab",
+    }).ok).toBe(false)
+    expect(safeParseVNextAllocatedIdentityV1({
+      ...resolvedRowIdentity(),
+      identityKind: "resolved-inline",
+      id: "inli_0123456789ab",
+      scope: { kind: "global" },
+    }).ok).toBe(false)
   })
 
   it.each([

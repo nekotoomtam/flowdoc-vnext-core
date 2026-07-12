@@ -27,7 +27,7 @@ Resolved Table execution remain outside this close.
 
 ### Allocated Identity Contract
 
-- `src/identity/identityStandardV1.ts` binds eleven identity kinds to exact
+- `src/identity/identityStandardV1.ts` binds thirteen identity kinds to exact
   class, prefix, allocation owner, and uniqueness-scope profiles.
 - Opaque payload syntax and bounds are validated without decoding origin facts.
 - Global, document-resolution, and layout-input scopes are strict JSON-safe
@@ -59,6 +59,8 @@ Resolved Table execution remain outside this close.
 
 - `resolved-row` reserves `rowi_` under document-resolution scope and
   resolution-orchestrator ownership.
+- Phase 301 additionally reserves `nodei_` and `inli_` for source-retaining
+  collection-row content materialization under the same resolution scope.
 - A future collection-row origin can retain table id, row-template id, stable
   external item key, Data Snapshot revision, and Structure version pins without
   deriving row identity from array index.

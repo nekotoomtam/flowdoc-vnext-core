@@ -114,6 +114,8 @@ function allocatedIdentity(
     "resolved-row": { identityClass: "resolved-entity", allocationOwner: "resolution-orchestrator" },
     "resolved-cell": { identityClass: "resolved-entity", allocationOwner: "resolution-orchestrator" },
     "resolved-group": { identityClass: "resolved-entity", allocationOwner: "resolution-orchestrator" },
+    "resolved-node": { identityClass: "resolved-entity", allocationOwner: "resolution-orchestrator" },
+    "resolved-inline": { identityClass: "resolved-entity", allocationOwner: "resolution-orchestrator" },
     "layout-fragment": { identityClass: "layout-fragment", allocationOwner: "layout-engine" },
     request: { identityClass: "request", allocationOwner: "boundary-owner" },
     job: { identityClass: "job", allocationOwner: "backend-job-service" },

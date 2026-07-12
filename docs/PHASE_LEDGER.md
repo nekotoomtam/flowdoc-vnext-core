@@ -8447,6 +8447,17 @@ validator aligns owners, parent collection capability, table/template identity,
 row-source scope, and field type without inspecting or cloning source graph
 content yet.
 
+## Phase 301 Resolved Table Content Identity Profiles
+
+Phase 301 adds `resolved-node`/`nodei_` and `resolved-inline`/`inli_` to
+Identity Standard v1. Both are resolved entities supplied by the resolution
+orchestrator under the exact document-resolution scope and use the existing
+canonical provenance/input-key/batch-conflict contracts.
+
+The change is additive and does not narrow existing identity records, allocate
+ids inside core, clone content, persist materialization, or alter canonical
+authored node/inline identity.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

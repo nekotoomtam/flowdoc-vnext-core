@@ -66,6 +66,8 @@ Initial profiles reserve:
 | Resolved row | `rowi` | resolved entity | resolution orchestrator | document resolution |
 | Resolved cell | `celli` | resolved entity | resolution orchestrator | document resolution |
 | Resolved group | `grpi` | resolved entity | resolution orchestrator | document resolution |
+| Resolved node | `nodei` | resolved entity | resolution orchestrator | document resolution |
+| Resolved inline | `inli` | resolved entity | resolution orchestrator | document resolution |
 | Layout fragment | `frag` | layout fragment | layout engine | layout input |
 | Request | `req` | request | boundary owner | global |
 | Job | `job` | job | backend job service | global |
