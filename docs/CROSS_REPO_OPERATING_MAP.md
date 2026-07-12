@@ -361,6 +361,11 @@ editor intent
   capacity, placement, and destination facts and proves 1,000-entry linear
   work. Consumer repos must preserve these exact inputs and diagnostics rather
   than pre-joining, repairing, or dropping malformed rows themselves.
+- Phase 358 closes the core-owned final TOC v4 resolution contract after all
+  three repository gates pass. Backend/editor consumption remains deferred;
+  neither consumer may claim production output until whole-document v4
+  composition, field materialization, and renderer lanes exist:
+  `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

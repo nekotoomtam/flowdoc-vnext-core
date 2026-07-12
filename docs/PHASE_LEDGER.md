@@ -9147,6 +9147,19 @@ before projection. Malformed retained capacity returns diagnostics instead of
 throwing, and no additional measurement, pagination, relayout, or rendering is
 introduced.
 
+## Phase 358 Final TOC V4 Page-Reference Resolution Readiness Close Audit
+
+Status: closed.
+
+Phase 358 closes the bounded pure-core resolution contract across exact
+manifest/map inputs, ownership pins, resolved/partial/blocked projection,
+capacity and preview/artifact readiness, malformed retained-fact hardening, and
+deterministic 1,000-entry linear evidence. Core, editor, and backend full gates
+pass. Production final TOC output remains blocked until whole-document v4
+composition produces the heading-page map, field-backed labels materialize,
+and a renderer consumes the retained references:
+`docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

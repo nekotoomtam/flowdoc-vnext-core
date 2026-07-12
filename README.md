@@ -345,6 +345,11 @@ The package must remain runnable without any parent editor checkout.
 - Phase 357 proves byte-stable immutable final TOC resolution at 1,000 entries
   with exact linear work counters and blocks malformed retained semantic,
   capacity, placement, and heading-page facts before projection.
+- Phase 358 closes the bounded final TOC v4 page-reference resolution contract
+  after core/editor/backend full gates. Production output remains blocked by
+  whole-document v4 composition, field-backed label materialization, and
+  renderer/artifact consumption:
+  `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_READINESS_CLOSE_AUDIT.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
