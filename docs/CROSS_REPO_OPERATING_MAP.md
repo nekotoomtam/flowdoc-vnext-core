@@ -290,6 +290,10 @@ editor intent
   preview continuity, selective undo/redo, budgets, history linkage, and scale.
   Editor/backend integration remains explicitly separate:
   `docs/TABLE_V4_AUTHORING_RISK_HARDENING_CLOSE_AUDIT.md`.
+- Phase 338 locks the TOC v4 semantic lane as a core-owned derived read model
+  over structure-valid body-flow headings. Editor owns TOC configuration UX;
+  backend owns persistence; pagination and renderers consume later contracts:
+  `docs/TOC_V4_SEMANTIC_LANE_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

@@ -8901,6 +8901,20 @@ defaults, durable retention, collaboration merge, and unsupported broader
 Table capabilities remain external or future:
 `docs/TABLE_V4_AUTHORING_RISK_HARDENING_CLOSE_AUDIT.md`.
 
+## Phase 338 TOC V4 Semantic Lane Architecture Lock
+
+Status: locked.
+
+Phase 338 defines TOC v4 as a derived semantic read model over structure-valid
+body-flow heading Text-blocks. It locks structural traversal order, per-TOC
+level filtering, composite `{ tocNodeId, headingNodeId }` identity,
+authored-preview labels with field dependencies, semantic/page invalidation,
+and the fixed-width page-number boundary needed to avoid layout feedback.
+
+Measurement, pagination, final v4 page resolution, renderer output, TOC
+authoring commands, backend persistence, and editor UI remain later or external:
+`docs/TOC_V4_SEMANTIC_LANE_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
