@@ -347,6 +347,9 @@ editor intent
 - Phase 353 exposes strict core inputs for final resolution: a complete TOC
   pagination-window manifest and validated heading-page map. Backend/editor
   consumers must not bypass cursor-chain or page-map validation.
+- Phase 354 resolves complete TOC destinations through core-owned fingerprint
+  pins and reference-based projection. Consumers must not duplicate joins or
+  treat missing destinations as resolved; partial/readiness remain later phases.
 
 ## Default Change Routing
 

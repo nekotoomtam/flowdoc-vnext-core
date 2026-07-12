@@ -9098,6 +9098,18 @@ measured row identity are covered once in order. It also parses a strict
 complete document-v4 heading-page map with unique heading ids, positive page
 numbers, bounded page indexes, document pagination ownership, and fingerprint.
 
+## Phase 354 Final TOC V4 Base Resolver Projection
+
+Status: implemented.
+
+Phase 354 joins a complete semantic TOC, exact measured rows, complete page
+manifest placements, and authoritative heading destinations by composite
+identity. It retains semantic/TOC/measurement/manifest/map/document-pagination
+fingerprints and emits reference-based row/placement/destination facts without
+duplicating geometry or executing measurement, pagination, relayout, rendering,
+or persistence. Ownership, row identity, section, and missing-destination drift
+block atomically in this base phase.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

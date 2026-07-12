@@ -331,6 +331,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 353 implements exact TOC page-window manifest finalization and strict
   complete document-v4 heading-page map parsing with cursor/page/row/title
   coverage, uniqueness, and page-range validation.
+- Phase 354 implements the complete-destination final TOC v4 resolver projection
+  with exact semantic/measurement/manifest/map ownership pins and reference-
+  based semantic, row, placement, and heading destination facts.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
