@@ -398,6 +398,12 @@ The package must remain runnable without any parent editor checkout.
   checkpoints, exact work, deterministic finalize/parse, and stale/tamper
   rejection. No family adapter or composer runtime is activated:
   `docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
+- Phase 368 makes Text-flow the first common Composition window producer with
+  exact first remainder, bounded partial/resume, compact measurement and
+  pagination ownership, per-page cursor checkpoints, heading-first-fragment
+  evidence, tamper rejection, and 6,000-line/250-page scale. Phase 279 remains
+  unchanged and no composer/consumer runtime is activated:
+  `docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

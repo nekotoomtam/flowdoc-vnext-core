@@ -9283,6 +9283,23 @@ input. No family adapter or composer runtime is activated; Text-flow remainder
 and cursor support is selected next:
 `docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
 
+## Phase 368 Text-flow V4 Remainder And Cursor Contract
+
+Status: implemented.
+
+Phase 368 adds a separate composition-oriented Text-flow paginator without
+changing Phase 279. It pins accepted measured lines with compact ownership,
+consumes exact first-page remainder, emits fresh-page demand without progress,
+commits bounded partial/complete pages with exact per-page cursors, resumes to
+one-shot-equivalent pages/final cursor, and rejects stale, complete, impossible,
+oversized, and tampered inputs atomically. The first family adapter projects
+only compact fragment/checkpoint facts into Phase 367 common windows, including
+heading-first-fragment evidence and valid family-blocked state. Direct scale
+covers 6,000 lines/250 pages while the common window remains below 500 KB. No
+composer or consumer runtime is activated; Utility/Media atomic fragments are
+selected next:
+`docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

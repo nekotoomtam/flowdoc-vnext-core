@@ -1,7 +1,7 @@
 # Whole-Document V4 Common Fragment-Window Contract
 
-Status: Phase 367 implemented core contract. Family adapters and the sequential
-composer remain inactive.
+Status: Phase 367 implemented core contract; Phase 368 adds the first Text-flow
+adapter. The sequential composer remains inactive.
 
 ## Outcome
 
@@ -219,7 +219,7 @@ commands and bytes.
 
 ## FAIL / BLOCKER
 
-- No family adapter emits this contract yet.
+- Text-flow emits this contract; Utility/Media, Columns, Table, and TOC do not.
 - Text-flow still lacks first-remainder and resumable source pagination.
 - Columns/Table still lack retained per-page family checkpoints.
 - Utility/media still lack isolated v4 body fragment producers.
@@ -251,7 +251,7 @@ commands and bytes.
 
 ## Next Recommended Direction
 
-Implement the Text-flow V4 Remainder And Cursor Contract. Add exact first-page
-capacity, bounded partial output, compact measurement ownership, per-page cursor
-checkpoints, one-shot/resume equivalence, and a narrow adapter into this common
-window without changing text measurement or renderer behavior.
+Implement Utility And Media V4 Atomic Fragment Contracts. Add page-break,
+divider, spacer, and resolved block-image common windows with compact ownership,
+fresh-page demand, intentional blank-page semantics, atomic oversize failure,
+and no renderer/media-decode execution.

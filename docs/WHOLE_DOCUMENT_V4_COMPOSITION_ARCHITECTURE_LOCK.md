@@ -49,7 +49,7 @@ v1 exposes six families across eight body block types.
 | Canonical node type | Composition role | Composition Node Family | Current evidence | Composer v1 status |
 |---|---|---|---|---|
 | `zone` | structural owner | none | canonical child order and role validation | structural input |
-| `text-block` | body block; heading when role says so | `text-flow` | measured lines and full-page fragments | BLOCKED: no first remainder/cursor/compact pagination pin |
+| `text-block` | body block; heading when role says so | `text-flow` | measured lines, bounded remainder/cursor pages, common adapter | PARTIAL: family window ready; no document composer |
 | `columns` | body container root | `columns-flow` | first remainder, lane cursor, nested depth-three pages | PARTIAL: no per-page retained checkpoint |
 | `column` | Columns internal | none | parent-owned lane cursor | internal only |
 | `table` | body container root | `table-flow` | first remainder, row cursor, repeated headers, synchronized pages | PARTIAL: no per-page retained checkpoint |
@@ -78,6 +78,13 @@ remain owned by `text-flow`; they are not independent composer items.
   optional start page only. `tests/textBlockV4Pagination.test.ts` proves its
   accepted full-page fragments and bounded scale; no first-remainder or cursor
   contract exists there.
+- `paginateVNextTextFlowV4(...)` in
+  `src/pagination/textFlowV4WindowPagination.ts` adds exact first remainder,
+  bounded partial/resume, compact measurement ownership, and per-page cursor
+  checkpoints without changing Phase 279. The adapter in
+  `src/composition/textFlowFragmentWindowV1.ts` is the first retained common
+  fragment-window producer; matching Phase 368 tests prove resume, failure,
+  tamper rejection, source immutability, and 6,000-line/250-page scale.
 - `paginateVNextColumnsV4(...)` in
   `src/pagination/columnsV4Pagination.ts` accepts first-page remainder and a
   lane cursor. `tests/columnsV4Pagination.test.ts` proves atomic longest-lane
@@ -290,8 +297,10 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
    types/parser, compact ownership, per-page cursor checkpoints,
    request/result vocabulary, and invalid fixtures:
    `docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
-2. **Text-flow remainder/cursor contract:** add exact first remainder, bounded
-   partial resume, compact owner pin, and one-shot equivalence.
+2. **Text-flow remainder/cursor contract (Phase 368 implemented):** exact first
+   remainder, bounded partial resume, compact owner pins, per-page checkpoints,
+   one-shot equivalence, and the first common adapter:
+   `docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
 3. **Utility/media atomic contracts:** page-break, divider, spacer, and resolved
    block-image fragment evidence.
 4. **Columns/Table/TOC adapters:** retain per-page checkpoints or bounded
@@ -316,7 +325,7 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
 ## FAIL / BLOCKER
 
 - No family adapter emits the retained common fragment-window contract yet.
-- Text-block cannot consume a first-page remainder or resume from a cursor.
+- Text-flow has no whole-document composer consumer yet.
 - Columns/Table lack retained per-page checkpoints for bounded composition.
 - Utility/media lack isolated accepted v4 body fragments.
 - No pure whole-document composer or authoritative production heading map
@@ -352,8 +361,8 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
 
 ## Next Recommended Direction
 
-Implement the Text-flow V4 Remainder And Cursor Contract against the retained
-common fragment-window vocabulary. Prove exact first remainder, bounded partial
-resume, per-page cursor checkpoints, compact measurement ownership, one-shot
-equivalence, stale rejection, and source immutability before other family
+Implement Utility And Media V4 Atomic Fragment Contracts against the retained
+common fragment-window vocabulary. Lock page-break, divider, spacer, and
+resolved block-image ownership, fresh-page demand, intentional blank-page
+semantics, atomic oversize failure, and source immutability before container
 adapters or the sequential composer.

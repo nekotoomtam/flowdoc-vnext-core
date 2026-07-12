@@ -31,7 +31,7 @@ describe("whole-document v4 common fragment-window contract publication", () => 
     expect(doc).toContain("Every committed family page retains its own cursor-before and cursor-after")
     expect(doc).toContain("10,000 pages and 100,000 fragments")
     expect(doc).toMatch(/Malformed, stale, or tampered envelopes are parser failures/)
-    expect(doc).toContain("No family adapter emits this contract yet")
+    expect(doc).toContain("Text-flow emits this contract")
   })
 
   it("keeps Phase 367 and the next text-flow slice discoverable", () => {
@@ -39,6 +39,6 @@ describe("whole-document v4 common fragment-window contract publication", () => 
     expect(read("../README.md")).toContain("Phase 367 implements the common v4 Composition fragment-window contract")
     expect(read("../docs/CROSS_REPO_OPERATING_MAP.md")).toContain("Phase 367 adds the common Composition fragment-window contract")
     expect(read("../docs/PHASE_LEDGER.md")).toContain("## Phase 367 Whole-Document V4 Common Fragment-Window Contract")
-    expect(doc).toContain("Implement the Text-flow V4 Remainder And Cursor Contract")
+    expect(doc).toContain("Implement Utility And Media V4 Atomic Fragment Contracts")
   })
 })

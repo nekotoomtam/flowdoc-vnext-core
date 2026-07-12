@@ -415,6 +415,11 @@ editor intent
   consumers remain unchanged until retained family adapters and composition
   output exist:
   `docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
+- Phase 368 adds bounded Text-flow remainder/cursor pagination and the first
+  common fragment-window adapter in core. Editor and backend remain unchanged:
+  neither consumer schedules these windows, persists their cursors, presents
+  progress/blockers, or treats them as preview/artifact readiness:
+  `docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
 
 ## Default Change Routing
 

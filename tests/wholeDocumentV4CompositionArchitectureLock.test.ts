@@ -54,7 +54,7 @@ describe("whole-document v4 composition architecture lock", () => {
     expect(doc).toMatch(/Text-block lacks first-remainder and resumable pagination/)
     expect(doc).toMatch(/Columns\/Table results do not\s+retain per-page resume checkpoints/)
     expect(doc).toMatch(/page-break` always advances exactly one document page/)
-    expect(doc).toContain("Implement the Text-flow V4 Remainder And Cursor Contract")
+    expect(doc).toContain("Implement Utility And Media V4 Atomic Fragment Contracts")
     expect(read("../README.md")).toContain("Phase 366 locks whole-document v4 composition")
     expect(read("../docs/CROSS_REPO_OPERATING_MAP.md")).toContain("Phase 366 locks whole-document v4 composition")
     expect(read("../docs/PHASE_LEDGER.md")).toContain("## Phase 366 Whole-Document V4 Composition Architecture Lock")
