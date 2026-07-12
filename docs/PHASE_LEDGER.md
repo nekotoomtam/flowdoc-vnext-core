@@ -8211,6 +8211,19 @@ storage, collaboration, concrete measurement, columns/table split semantics,
 mixed pagination, renderer, and export closed. The next semantic dependency is
 columns parallel child flow followed by table cell/row split policy.
 
+## Phase 282 Columns V4 Architecture Lock
+
+Phase 282 locks Columns as one canonical group of ordered independent column
+flows. Page fragments complete at the longest active column, completed sibling
+lanes remain empty, reading order is column-major, and nested Columns are
+acyclic with a v1 maximum depth of three.
+
+The lock preserves the existing 100-share width contract and direct-body-only
+page breaks. It requires measurement-free cursor planning, legal checkpoints,
+atomic parallel reconciliation, no-progress protection, impact facts, and
+bounded scale evidence without activating a scheduler, mixed layout,
+renderer/export, backend mutation, or editor controls.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -168,6 +168,10 @@ editor intent
   DOM/IME input, production storage/auth, columns/table split semantics, mixed
   pagination, renderer, and export closed:
   `docs/STRUCTURE_AUTHORING_V4_TRANSPORT_CLOSE_AUDIT.md`.
+- Phase 282 locks Columns v4 as depth-three independent parallel flows with
+  longest-column completion, measurement-free plan/reconcile semantics, and
+  bounded performance acceptance while preserving direct-body-only page
+  breaks: `docs/COLUMNS_V4_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

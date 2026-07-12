@@ -138,6 +138,8 @@ as their only authored text surface. The following remain blocked or partial:
 Columns may retain generic whole-subtree lifecycle, but node-specific readiness
 requires text-block acceptance plus parallel child cursors, longest-column group
 completion, nested-column invalidation, and multi-page fragment evidence.
+`docs/COLUMNS_V4_ARCHITECTURE_LOCK.md` fixes independent-flow, depth-three,
+page-break, reconciliation, and performance semantics for that implementation.
 
 ### Table Gate
 

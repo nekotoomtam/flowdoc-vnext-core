@@ -107,6 +107,9 @@ The package must remain runnable without any parent editor checkout.
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,
   renderer, and export closed.
+- Phase 282 locks Columns v4 as independent parallel column flows with
+  longest-column completion, depth-three nesting, direct-body-only page
+  breaks, plan/reconcile cursor semantics, and bounded performance criteria.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
