@@ -377,6 +377,11 @@ editor intent
   local lane pages, synthetic heading maps, or renderer-neutral Table facts as
   whole-document production output:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_SMOKE.md`.
+- Phase 361 proves bounded medium/large integrated workload evidence and
+  compacts final TOC resolution ownership/result fingerprints after scale
+  exposed quadratic serialization. Consumers receive SHA-256 top-level pins
+  and must not depend on repeated raw upstream fingerprint strings per entry:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_SCALE_MATRIX.md`.
 
 ## Default Change Routing
 

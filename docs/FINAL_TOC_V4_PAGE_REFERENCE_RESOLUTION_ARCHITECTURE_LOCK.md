@@ -82,6 +82,17 @@ Resolved entries preserve composite identity, label, level, ordinals, measured
 row index, and TOC page placement reference. They add heading destination
 `pageIndex` and formatted decimal `pageNumberText`.
 
+Producer fingerprints are retained once as browser-safe SHA-256 digests in the
+result-level `pins`. Entry
+references do not repeat measurement, manifest, or heading-map fingerprints;
+their row/placement/destination facts are scoped by those exact top-level pins.
+This prevents content-sized fingerprints from expanding serialized resolution
+output quadratically at large entry counts.
+
+The final resolution fingerprint is also a SHA-256 digest of the resolved facts
+rather than a second escaped copy of those facts. Exact raw upstream equality
+is still validated before projection; compact digests are retained output pins.
+
 The decimal digit count is compared with retained
 `pageNumberCapacityDigits`. Capacity overflow remains a resolved destination
 fact, but marks capacity as `overflow` and blocks renderer readiness. It never

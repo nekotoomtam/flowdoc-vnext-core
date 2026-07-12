@@ -360,6 +360,12 @@ The package must remain runnable without any parent editor checkout.
   It preserves deterministic immutable evidence, explicit synthetic inputs,
   six expected blockers, and no integrated page-count claim:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_SMOKE.md`.
+- Phase 361 executes medium and large integrated workload matrices with exact
+  local page/work evidence up to 6,000 Text-block/Columns units and 1,000
+  Table/TOC units. It also replaces repeated content-sized final TOC owner
+  strings with top-level browser-safe SHA-256 pins after real scale evidence
+  exposed quadratic retained-output growth:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_SCALE_MATRIX.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

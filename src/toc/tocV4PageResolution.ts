@@ -1,5 +1,6 @@
 import type { VNextTocV4MeasurementResult } from "./tocV4Measurement.js"
 import type { VNextTocV4SemanticResult } from "./tocV4Semantic.js"
+import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import {
   VNEXT_DOCUMENT_V4_HEADING_PAGE_MAP_SOURCE,
   VNEXT_TOC_V4_PAGINATION_MANIFEST_SOURCE,
@@ -23,9 +24,8 @@ export interface VNextTocV4ResolvedEntryV1 {
     tocOrdinal: number
     fieldKeys: string[]
   }
-  measurementRef: { measurementFingerprint: string; rowIndex: number }
+  measurementRef: { rowIndex: number }
   tocPlacement: {
-    paginationManifestFingerprint: string
     pageIndex: number
     pageFragmentId: string
     rowYPoint: number
@@ -36,7 +36,6 @@ export interface VNextTocV4ResolvedEntryV1 {
   destination:
     | {
         status: "resolved"
-        headingPageMapFingerprint: string
         headingPageIndex: number
         pageNumber: number
         pageNumberText: string
@@ -44,7 +43,6 @@ export interface VNextTocV4ResolvedEntryV1 {
       }
     | {
         status: "unresolved"
-        headingPageMapFingerprint: string
         headingPageIndex: null
         pageNumber: null
         pageNumberText: null
@@ -60,6 +58,7 @@ export type VNextTocV4PageResolutionResultV1 =
       documentId: string
       tocNodeId: string
       pins: {
+        algorithm: "sha256"
         semanticFingerprint: string
         tocSemanticFingerprint: string
         measurementFingerprint: string
@@ -318,9 +317,8 @@ export function resolveVNextTocV4PageReferences(input: {
         sourceOrdinal: semanticEntry.sourceOrdinal, tocOrdinal: semanticEntry.tocOrdinal,
         fieldKeys: clone(semanticEntry.label.fieldKeys),
       },
-      measurementRef: { measurementFingerprint: measurement.fingerprint, rowIndex },
+      measurementRef: { rowIndex },
       tocPlacement: {
-        paginationManifestFingerprint: input.paginationManifest.fingerprint,
         pageIndex: placed.page.pageIndex, pageFragmentId: placed.page.fragmentId,
         rowYPoint: placed.placement.yPt,
       },
@@ -332,11 +330,11 @@ export function resolveVNextTocV4PageReferences(input: {
           },
       destination: destination == null
         ? {
-            status: "unresolved", headingPageMapFingerprint: input.headingPageMap.fingerprint,
+            status: "unresolved",
             headingPageIndex: null, pageNumber: null, pageNumberText: null, sourceFragmentId: null,
           }
         : {
-            status: "resolved", headingPageMapFingerprint: input.headingPageMap.fingerprint,
+            status: "resolved",
             headingPageIndex: destination.pageIndex, pageNumber: destination.pageNumber,
             pageNumberText: String(destination.pageNumber), sourceFragmentId: destination.sourceFragmentId,
           },
@@ -363,11 +361,13 @@ export function resolveVNextTocV4PageReferences(input: {
   const facts = {
     documentId: semantic.documentId, tocNodeId: input.tocNodeId,
     pins: {
-      semanticFingerprint: semantic.fingerprint, tocSemanticFingerprint: semanticToc.fingerprint,
-      measurementFingerprint: measurement.fingerprint,
-      paginationManifestFingerprint: input.paginationManifest.fingerprint,
-      headingPageMapFingerprint: input.headingPageMap.fingerprint,
-      documentPaginationFingerprint: input.headingPageMap.documentPaginationFingerprint,
+      algorithm: "sha256" as const,
+      semanticFingerprint: createVNextCompactFingerprint(semantic.fingerprint),
+      tocSemanticFingerprint: createVNextCompactFingerprint(semanticToc.fingerprint),
+      measurementFingerprint: createVNextCompactFingerprint(measurement.fingerprint),
+      paginationManifestFingerprint: createVNextCompactFingerprint(input.paginationManifest.fingerprint),
+      headingPageMapFingerprint: createVNextCompactFingerprint(input.headingPageMap.fingerprint),
+      documentPaginationFingerprint: createVNextCompactFingerprint(input.headingPageMap.documentPaginationFingerprint),
     },
     entries,
     summary: {
@@ -394,7 +394,7 @@ export function resolveVNextTocV4PageReferences(input: {
       artifact: {
         status: artifactBlockers.length === 0 ? "ready" as const : "blocked" as const,
         labelMode: "materialized-required" as const,
-        documentCompositionFingerprint: input.headingPageMap.documentPaginationFingerprint,
+        documentCompositionFingerprint: createVNextCompactFingerprint(input.headingPageMap.documentPaginationFingerprint),
         blockers: artifactBlockers,
       },
     },
@@ -412,6 +412,6 @@ export function resolveVNextTocV4PageReferences(input: {
     source: VNEXT_TOC_V4_PAGE_RESOLUTION_SOURCE,
     contractVersion: VNEXT_TOC_V4_PAGE_RESOLUTION_VERSION,
     status: unresolvedEntryCount > 0 ? "partial" : "resolved",
-    ...facts, fingerprint: JSON.stringify(facts), issues: warnings,
+    ...facts, fingerprint: createVNextCompactFingerprint(JSON.stringify(facts)), issues: warnings,
   }
 }

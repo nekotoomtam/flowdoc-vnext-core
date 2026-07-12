@@ -9185,6 +9185,21 @@ row and heading-page map, and always reports `integratedPageCount=null` rather
 than inventing a mixed page plan:
 `docs/V4_INTEGRATED_DOCUMENT_STRESS_SMOKE.md`.
 
+## Phase 361 V4 Integrated Document Stress Scale Matrix
+
+Status: implemented.
+
+Phase 361 executes medium and large real workloads across Text-block, nested
+Columns, synchronized Table, Table renderer-neutral facts, and complete pure
+TOC contracts with exact per-lane pages/work and no integrated page claim. It
+exposed quadratic retained-output amplification from repeated content-sized TOC
+fingerprints. Final resolution now keeps browser-safe SHA-256 digests once in
+top-level pins, omits repeated entry owner strings, and uses a compact result
+fingerprint. The large matrix covers 6,000 text lines, 6,000 depth-three Columns
+fragments, 1,000 Table rows, and 1,000 TOC headings while retaining all six
+expected blockers:
+`docs/V4_INTEGRATED_DOCUMENT_STRESS_SCALE_MATRIX.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

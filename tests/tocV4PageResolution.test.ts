@@ -64,9 +64,12 @@ describe("final TOC v4 page-reference base projection", () => {
     expect(first).toMatchObject({
       status: "resolved", documentId: "doc", tocNodeId: "toc",
       pins: {
-        semanticFingerprint: "semantic-1", measurementFingerprint: "measurement-1",
-        paginationManifestFingerprint: "manifest-1", headingPageMapFingerprint: "heading-map-1",
-        documentPaginationFingerprint: "document-pages-1",
+        algorithm: "sha256",
+        semanticFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+        measurementFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+        paginationManifestFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+        headingPageMapFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+        documentPaginationFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
       },
       summary: { entryCount: 2, resolvedEntryCount: 2 },
       capacity: {
@@ -77,7 +80,7 @@ describe("final TOC v4 page-reference base projection", () => {
         preview: { status: "ready", labelMode: "authored-preview", blockers: [] },
         artifact: {
           status: "ready", labelMode: "materialized-required",
-          documentCompositionFingerprint: "document-pages-1", blockers: [],
+          documentCompositionFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{64}$/), blockers: [],
         },
       },
       work: { entryResolutionCount: 2, placementIndexCount: 2, headingDestinationIndexCount: 2 },
@@ -87,8 +90,8 @@ describe("final TOC v4 page-reference base projection", () => {
     expect(first.entries[1]).toMatchObject({
       identity: { tocNodeId: "toc", headingNodeId: "details" },
       semantic: { label: "details", labelMode: "authored-preview", level: 2, tocOrdinal: 1 },
-      measurementRef: { measurementFingerprint: "measurement-1", rowIndex: 1 },
-      tocPlacement: { paginationManifestFingerprint: "manifest-1", pageIndex: 2, pageFragmentId: "toc:page-2", rowYPoint: 36 },
+      measurementRef: { rowIndex: 1 },
+      tocPlacement: { pageIndex: 2, pageFragmentId: "toc:page-2", rowYPoint: 36 },
       destination: { status: "resolved", headingPageIndex: 11, pageNumber: 12, pageNumberText: "12", sourceFragmentId: "details:f0" },
       pageNumberCapacity: { status: "within-capacity", capacityDigits: 3, requiredDigits: 2 },
     })

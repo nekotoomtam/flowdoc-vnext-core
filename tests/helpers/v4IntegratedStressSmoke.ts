@@ -24,6 +24,14 @@ import {
 } from "../../src/index.js"
 
 export const VNEXT_INTEGRATED_STRESS_SMOKE_PROFILE = "integrated-v4-stress-v1"
+export const VNEXT_INTEGRATED_STRESS_EXPECTED_BLOCKERS = [
+  "mixed-body-composition",
+  "whole-document-heading-page-map-production",
+  "field-backed-toc-label-materialization",
+  "integrated-renderer-artifact",
+  "backend-stress-orchestration-persistence",
+  "editor-integrated-stress-ui",
+] as const
 
 type AcceptedLines = Extract<VNextTextBlockV4MeasuredLinesResult, { status: "accepted" }>
 type ReadyTable = Extract<VNextTablePreparedRowsResultV1, { status: "ready" }>
@@ -278,14 +286,7 @@ export function runV4IntegratedStressSmoke(bundle: V4IntegratedStressSmokeBundle
         syntheticHeadingPageMap: true as const,
       },
     },
-    blockers: [
-      "mixed-body-composition",
-      "whole-document-heading-page-map-production",
-      "field-backed-toc-label-materialization",
-      "integrated-renderer-artifact",
-      "backend-stress-orchestration-persistence",
-      "editor-integrated-stress-ui",
-    ] as const,
+    blockers: VNEXT_INTEGRATED_STRESS_EXPECTED_BLOCKERS,
     integratedPageCount: null,
     contracts: {
       canonicalMutation: false as const, mixedComposition: "not-run" as const,
