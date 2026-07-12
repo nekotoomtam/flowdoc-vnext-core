@@ -210,6 +210,10 @@ The package must remain runnable without any parent editor checkout.
 - Phase 314 proves 1,000 materialized rows prepare twice to byte-identical
   output with 1,000 cells/nodes/text candidates, exact linear work counts,
   source immutability, and no pagination or rendering execution.
+- Phase 315 closes prepared Table cell fragments across exact geometry,
+  collection/authored measurement packets, paired evidence, shared child-family
+  preparation, ordered row assembly, invalidation facts, and 1,000-row scale.
+  Synchronized row pagination remains next.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

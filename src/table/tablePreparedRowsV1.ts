@@ -99,14 +99,14 @@ export function createVNextTablePreparedRowsV1(input: {
     tableDefinitionId: materialization.tableDefinitionId,
     geometryFingerprint: materializedCells.geometryFingerprint,
     rows,
-    fingerprint: [
+    fingerprint: JSON.stringify([
       materialization.documentId,
       materialization.instanceRevision,
       materialization.tableId,
       materialization.tableDefinitionId,
       materializedCells.geometryFingerprint,
       ...rows.map((row) => row.fingerprint),
-    ].join(":"),
+    ]),
     work: {
       rowCount: rows.length,
       authoredRowCount: authoredCells.rows.length,

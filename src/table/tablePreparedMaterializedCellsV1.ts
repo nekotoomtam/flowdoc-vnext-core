@@ -139,7 +139,7 @@ export function createVNextTablePreparedMaterializedCellsV1(input: {
       minimumFirstFragmentHeightPt: template.minHeightPt ?? 0,
       cells: preparedCells,
       maximumCellOuterHeightPt,
-      fingerprint: [
+      fingerprint: JSON.stringify([
         row.rowInstanceId,
         row.rowSourceId,
         row.rowTemplateId,
@@ -147,7 +147,7 @@ export function createVNextTablePreparedMaterializedCellsV1(input: {
         template.breakPolicy,
         template.minHeightPt ?? 0,
         ...preparedCells.map((cell) => cell.fingerprint),
-      ].join(":"),
+      ]),
     })
   })
   if (issues.length > 0) return blocked(issues)

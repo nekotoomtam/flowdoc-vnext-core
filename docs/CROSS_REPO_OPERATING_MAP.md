@@ -211,6 +211,12 @@ editor intent
   policies, prefix heights, fingerprints, and bounded invalidation. Synchronized
   row pagination, renderer, backend, and editor remain inactive:
   `docs/TABLE_V4_PREPARED_CELL_FRAGMENT_ARCHITECTURE_LOCK.md`.
+- Phase 315 closes prepared Table cell fragments with exact point geometry,
+  shared collection/authored Text-block measurement packets, paired evidence,
+  text/atomic candidates, complete ordered rows, invalidation facts, and
+  1,000-row deterministic evidence. Synchronized row pagination, repeated
+  headers, renderer, backend, and editor remain open:
+  `docs/TABLE_V4_PREPARED_CELL_FRAGMENT_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

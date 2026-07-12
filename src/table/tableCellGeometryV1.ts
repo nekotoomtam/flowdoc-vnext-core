@@ -189,7 +189,7 @@ export function createVNextTableCellGeometryV1(value: unknown): VNextTableCellGe
         outerWidthPt,
         insetsPt: { ...insetsPt },
         contentWidthPt,
-        fingerprint: [
+        fingerprint: JSON.stringify([
           request.definition.tableDefinitionId,
           rowTemplateId,
           placement.cellId,
@@ -202,21 +202,21 @@ export function createVNextTableCellGeometryV1(value: unknown): VNextTableCellGe
           insetsPt.left,
           contentWidthPt,
           request.layoutProfile.layoutProfileId,
-        ].join(":"),
+        ]),
       }
     })
     rowTemplates[rowTemplateId] = { rowTemplateId, cells }
   })
   if (issues.length > 0) return blocked(issues)
 
-  const fingerprint = [
+  const fingerprint = JSON.stringify([
     request.definition.tableDefinitionId,
     request.definition.tableId,
     request.layoutProfile.layoutProfileId,
     roundPt(request.tableContentWidthPt),
     ...columns.flatMap((column) => [column.columnId, column.xOffsetPt, column.widthPt]),
     ...Object.values(rowTemplates).flatMap((template) => template.cells.map((cell) => cell.fingerprint)),
-  ].join(":")
+  ])
   return {
     source: VNEXT_TABLE_CELL_GEOMETRY_SOURCE,
     contractVersion: VNEXT_TABLE_CELL_GEOMETRY_VERSION,

@@ -146,7 +146,7 @@ export function createVNextTablePreparedAuthoredCellsV1(input: {
       minimumFirstFragmentHeightPt: template.minHeightPt ?? 0,
       cells,
       maximumCellOuterHeightPt,
-      fingerprint: [
+      fingerprint: JSON.stringify([
         row.sourceRowId,
         descriptor.rowSourceId,
         descriptor.rowTemplateId,
@@ -154,7 +154,7 @@ export function createVNextTablePreparedAuthoredCellsV1(input: {
         template.breakPolicy,
         template.minHeightPt ?? 0,
         ...cells.map((cell) => cell.fingerprint),
-      ].join(":"),
+      ]),
     })
   })
   if (issues.length > 0) return blocked(issues)

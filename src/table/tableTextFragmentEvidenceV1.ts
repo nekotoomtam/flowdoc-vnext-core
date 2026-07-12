@@ -220,7 +220,7 @@ export function createVNextTableTextFragmentEvidenceV1(input: {
       candidates,
       prefixHeightsPt,
       totalHeightPt,
-      fingerprint: [
+      fingerprint: JSON.stringify([
         textBlockId,
         context.request.documentId,
         context.request.instanceRevision,
@@ -236,7 +236,7 @@ export function createVNextTableTextFragmentEvidenceV1(input: {
           candidate.sourceEnd.inlineId ?? "empty",
           candidate.sourceEnd.authoredOffset,
         ]),
-      ].join(":"),
+      ]),
     }
   })
 

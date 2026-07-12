@@ -8606,6 +8606,18 @@ The fixture proves bounded semantic preparation only. It does not execute a
 measurement engine, synchronized row pagination, 200-300 page layout,
 rendering, export, or production cache/memory behavior.
 
+## Phase 315 Table V4 Prepared Cell Fragment Readiness Close Audit
+
+Phase 315 closes the bounded prepared Table cell fragment slice across exact
+`colSpan` geometry, collection/authored measurement packets, paired evidence
+re-acceptance, shared text/image/divider/spacer preparation, complete ordered
+row assembly, invalidation facts, unambiguous fingerprints, and 1,000-row
+determinism.
+
+Synchronized row pagination, break-policy execution, repeated headers,
+oversized/no-progress handling, 200-300 page evidence, renderer/export,
+backend, and editor remain open.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -148,7 +148,7 @@ export function createVNextTablePreparedCellFromContentV1(input: {
       atomicCandidateCount += 1
       childHeightPt = heightPt
       kind = "image"
-      fingerprint = [node.id, "image", widthPt, heightPt, assetId ?? "empty", assetOwner].join(":")
+      fingerprint = JSON.stringify([node.id, "image", widthPt, heightPt, assetId, assetOwner])
     } else if (node.type === "divider") {
       const marginBeforePt = unitToPt(node.props.marginBefore)
       const thicknessPt = unitToPt(node.props.thickness)
@@ -161,7 +161,7 @@ export function createVNextTablePreparedCellFromContentV1(input: {
       atomicCandidateCount += 1
       childHeightPt = heightPt
       kind = "divider"
-      fingerprint = [node.id, "divider", marginBeforePt, thicknessPt, marginAfterPt].join(":")
+      fingerprint = JSON.stringify([node.id, "divider", marginBeforePt, thicknessPt, marginAfterPt])
     } else if (node.type === "spacer") {
       const heightPt = roundPt(node.props.height)
       candidates.push({
@@ -171,7 +171,7 @@ export function createVNextTablePreparedCellFromContentV1(input: {
       atomicCandidateCount += 1
       childHeightPt = heightPt
       kind = "spacer"
-      fingerprint = [node.id, "spacer", heightPt].join(":")
+      fingerprint = JSON.stringify([node.id, "spacer", heightPt])
     } else {
       issues.push(issue(
         "unsupported-table-cell-child", childPath,
@@ -214,13 +214,13 @@ export function createVNextTablePreparedCellFromContentV1(input: {
     contentHeightPt,
     outerHeightPt,
     completeWhenEmpty: candidates.length === 0,
-    fingerprint: [
+    fingerprint: JSON.stringify([
       identityKey(input.rowIdentity),
       identityKey(input.cellIdentity),
       input.geometry.fingerprint,
       ...children.map((child) => child.fingerprint),
       ...prefixHeightsPt,
-    ].join(":"),
+    ]),
   }
   return { status: "ready", cell, work, issues: [] }
 }
