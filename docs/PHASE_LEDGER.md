@@ -8984,6 +8984,16 @@ budget blocks. Geometry fingerprints exclude cache hit/miss execution state.
 No page assignment, final number replacement, pagination, rendering,
 persistence, network, DOM, or editor state is run.
 
+## Phase 344 TOC V4 Measurement Fit And Impact Hardening
+
+Status: implemented.
+
+Phase 344 separates stable row geometry from available-height fit fingerprints.
+Pure refit recomputes fits/split/forced-row-overflow with zero text measurements
+and unchanged title/row geometry. Comparison classifies unchanged, fit-only,
+and geometry-changed impact, while stricter line-box validation blocks malformed
+measurer width/index/height/offset facts before returning layout.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

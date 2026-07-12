@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest"
 import {
   collectVNextTocV4Semantics,
+  compareVNextTocV4Measurements,
   createApproximateVNextTextMeasurer,
   createVNextTextMeasurementCache,
   measureVNextTocV4,
+  refitVNextTocV4Measurement,
   type DocumentNodeV4Target,
   type VNextTocV4MeasurementSpec,
 } from "../src/index.js"
@@ -81,5 +83,51 @@ describe("TOC v4 measurement", () => {
     expect(measureVNextTocV4({
       semantic: source, tocNodeId: "toc", spec: { ...spec(), pageNumberColumnWidthPt: 6 }, textMeasurer: measurer,
     })).toMatchObject({ status: "blocked", issues: [expect.objectContaining({ code: "page-number-capacity-overflow" })] })
+  })
+
+  it("refits height without text measurement or geometry drift and classifies impact", () => {
+    const source = semantic()
+    const measured = measureVNextTocV4({
+      semantic: source, tocNodeId: "toc", spec: spec(),
+      textMeasurer: createApproximateVNextTextMeasurer({ charWidthPt: 6, lineHeightPt: 14 }),
+    })
+    const refit = refitVNextTocV4Measurement({ measurement: measured, availableHeightPt: 30 })
+    expect(refit).toMatchObject({
+      status: "measured", summary: { fit: "split-required" },
+      work: { textMeasurementCount: 0, cacheHitCount: 0, cacheMissCount: 0, uncachedCount: 0 },
+    })
+    if (measured.status !== "measured" || refit.status !== "measured") throw new Error("refit fixture blocked")
+    expect(refit.geometryFingerprint).toBe(measured.geometryFingerprint)
+    expect(refit.fitFingerprint).not.toBe(measured.fitFingerprint)
+    expect(refit.rows).toEqual(measured.rows)
+    expect(compareVNextTocV4Measurements({ before: measured, after: refit })).toEqual({
+      status: "fit-only", textRemeasurementRequired: false,
+      fitRecalculationRequired: true, paginationInvalidated: true,
+    })
+    expect(compareVNextTocV4Measurements({ before: measured, after: measured })).toEqual({
+      status: "unchanged", textRemeasurementRequired: false,
+      fitRecalculationRequired: false, paginationInvalidated: false,
+    })
+  })
+
+  it("blocks malformed measurer geometry", () => {
+    const result = measureVNextTocV4({
+      semantic: semantic(), tocNodeId: "toc", spec: spec(),
+      textMeasurer: {
+        measure(input) {
+          return {
+            lines: [input.text], lineHeightPt: 14, widthPt: input.availableWidthPt + 1, heightPt: 14,
+            lineBoxes: [{
+              index: 0, text: input.text, startOffset: 0, endOffset: input.text.length,
+              widthPt: input.availableWidthPt + 1, heightPt: 14, yOffsetPt: 0,
+            }],
+          }
+        },
+      },
+    })
+    expect(result).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "page-number-capacity-overflow" })],
+    })
   })
 })

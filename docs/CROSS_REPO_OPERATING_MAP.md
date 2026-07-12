@@ -314,6 +314,9 @@ editor intent
 - Phase 343 exposes measured TOC title/row geometry, number-capacity proof,
   leader areas, fit/overflow, budgets, and cache work as pure core facts.
   Pagination and renderers may consume these facts later but do not own them.
+- Phase 344 lets consumers recompute TOC fit for a new available height without
+  remeasuring text, while separate geometry/fit fingerprints and impact facts
+  prevent unnecessary layout work or missed pagination invalidation.
 
 ## Default Change Routing
 

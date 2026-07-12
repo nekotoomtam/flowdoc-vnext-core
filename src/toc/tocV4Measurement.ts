@@ -94,6 +94,8 @@ export type VNextTocV4MeasurementResult =
       }
       work: { textMeasurementCount: number; cacheHitCount: number; cacheMissCount: number; uncachedCount: number }
       contracts: { pagination: "not-run"; rendering: "not-run"; persistence: "not-run"; editorStateMutation: false }
+      geometryFingerprint: string
+      fitFingerprint: string
       fingerprint: string
       issues: Array<{ code: "title-without-entries"; severity: "warning"; path: string; message: string }>
     }
@@ -135,9 +137,23 @@ function validMeasurement(measurement: VNextTextMeasurement): boolean {
     && finitePositive(measurement.heightPt)
     && finitePositive(measurement.lineHeightPt)
     && measurement.lineBoxes.length > 0
-    && measurement.lineBoxes.every((line) => (
-      finiteNonNegative(line.widthPt) && finitePositive(line.heightPt)
+    && measurement.lineBoxes.every((line, index) => (
+      line.index === index
+      && finiteNonNegative(line.widthPt)
+      && line.widthPt <= measurement.availableWidthPt
+      && finitePositive(line.heightPt)
+      && finiteNonNegative(line.yOffsetPt)
     ))
+}
+
+function fitFacts(rows: readonly VNextTocV4MeasuredRow[], totalHeightPt: number, availableHeightPt: number) {
+  const forcedOverflowHeadingNodeIds = rows.filter((row) => row.heightPt > availableHeightPt).map((row) => row.headingNodeId)
+  return {
+    fit: forcedOverflowHeadingNodeIds.length > 0
+      ? "forced-row-overflow" as const
+      : totalHeightPt > availableHeightPt ? "split-required" as const : "fits" as const,
+    forcedOverflowHeadingNodeIds,
+  }
 }
 
 export function measureVNextTocV4(input: {
@@ -275,10 +291,7 @@ export function measureVNextTocV4(input: {
     "line-budget-exceeded", "spec.maximumMeasuredLineCount", `measurement produced ${measuredLineCount} lines but budget is ${spec.maximumMeasuredLineCount}`,
   )])
   const totalHeightPt = rounded(yPt)
-  const forcedOverflowHeadingNodeIds = rows.filter((row) => row.heightPt > spec.availableHeightPt).map((row) => row.headingNodeId)
-  const fit = forcedOverflowHeadingNodeIds.length > 0
-    ? "forced-row-overflow" as const
-    : totalHeightPt > spec.availableHeightPt ? "split-required" as const : "fits" as const
+  const { fit, forcedOverflowHeadingNodeIds } = fitFacts(rows, totalHeightPt, spec.availableHeightPt)
   const minimumFirstFragmentHeightPt = rounded((title?.heightPt ?? 0)
     + (title != null && rows.length > 0 ? spec.titleGapAfterPt : 0)
     + (rows[0]?.heightPt ?? 0))
@@ -286,26 +299,77 @@ export function measureVNextTocV4(input: {
     code: "title-without-entries" as const, severity: "warning" as const, path: "title",
     message: "TOC title has no first entry to keep with",
   }] : []
-  const fingerprintFacts = {
+  const { availableHeightPt: _availableHeightPt, maximumEntryCount: _maximumEntryCount,
+    maximumMeasuredLineCount: _maximumMeasuredLineCount, ...geometrySpec } = spec
+  const geometryFacts = {
     documentId: semantic.documentId, tocNodeId: toc.tocNodeId,
     semanticFingerprint: semantic.fingerprint, tocSemanticFingerprint: toc.fingerprint,
-    spec: JSON.parse(JSON.stringify(spec)) as VNextTocV4MeasurementSpec,
+    spec: geometrySpec,
     title, rows,
     pageNumberProof: {
       sample, capacityDigits: spec.pageNumberCapacityDigits, lineCount: 1 as const,
       widthPt: rounded(pageNumberMeasurement.widthPt), columnWidthPt: spec.pageNumberColumnWidthPt,
     },
-    summary: {
-      entryCount: rows.length, measuredLineCount, totalHeightPt, minimumFirstFragmentHeightPt,
-      fit, forcedOverflowHeadingNodeIds,
-    },
+    summary: { entryCount: rows.length, measuredLineCount, totalHeightPt, minimumFirstFragmentHeightPt },
     contracts: { pagination: "not-run" as const, rendering: "not-run" as const, persistence: "not-run" as const, editorStateMutation: false as const },
   }
+  const geometryFingerprint = JSON.stringify(geometryFacts)
+  const fitFingerprint = JSON.stringify({ geometryFingerprint, availableHeightPt: spec.availableHeightPt, fit, forcedOverflowHeadingNodeIds })
   return {
     source: VNEXT_TOC_V4_MEASUREMENT_SOURCE,
     contractVersion: VNEXT_TOC_V4_MEASUREMENT_VERSION,
-    status: "measured", ...fingerprintFacts,
+    status: "measured", ...geometryFacts, spec: JSON.parse(JSON.stringify(spec)) as VNextTocV4MeasurementSpec,
+    summary: { ...geometryFacts.summary, fit, forcedOverflowHeadingNodeIds },
     work: { textMeasurementCount, cacheHitCount, cacheMissCount, uncachedCount },
-    fingerprint: JSON.stringify(fingerprintFacts), issues: warnings,
+    geometryFingerprint, fitFingerprint,
+    fingerprint: JSON.stringify([geometryFingerprint, fitFingerprint]), issues: warnings,
   }
+}
+
+export function refitVNextTocV4Measurement(input: {
+  measurement: VNextTocV4MeasurementResult
+  availableHeightPt: number
+}): VNextTocV4MeasurementResult {
+  if (input.measurement.status !== "measured") return blocked(input.measurement.tocNodeId, [error(
+    "measurement-blocked", "measurement", "TOC refit requires a measured layout",
+  )])
+  if (!finitePositive(input.availableHeightPt)) return blocked(input.measurement.tocNodeId, [error(
+    "invalid-positive-geometry", "availableHeightPt", "available height must be positive finite points",
+  )])
+  const { fit, forcedOverflowHeadingNodeIds } = fitFacts(
+    input.measurement.rows, input.measurement.summary.totalHeightPt, input.availableHeightPt,
+  )
+  const fitFingerprint = JSON.stringify({
+    geometryFingerprint: input.measurement.geometryFingerprint,
+    availableHeightPt: input.availableHeightPt, fit, forcedOverflowHeadingNodeIds,
+  })
+  return {
+    ...JSON.parse(JSON.stringify(input.measurement)),
+    spec: { ...input.measurement.spec, availableHeightPt: input.availableHeightPt },
+    summary: { ...input.measurement.summary, fit, forcedOverflowHeadingNodeIds },
+    work: { textMeasurementCount: 0, cacheHitCount: 0, cacheMissCount: 0, uncachedCount: 0 },
+    fitFingerprint,
+    fingerprint: JSON.stringify([input.measurement.geometryFingerprint, fitFingerprint]),
+  }
+}
+
+export function compareVNextTocV4Measurements(input: {
+  before: VNextTocV4MeasurementResult
+  after: VNextTocV4MeasurementResult
+}): {
+  status: "unchanged" | "fit-only" | "geometry-changed" | "blocked"
+  textRemeasurementRequired: boolean
+  fitRecalculationRequired: boolean
+  paginationInvalidated: boolean
+} {
+  if (input.before.status !== "measured" || input.after.status !== "measured") return {
+    status: "blocked", textRemeasurementRequired: false, fitRecalculationRequired: false, paginationInvalidated: false,
+  }
+  if (input.before.geometryFingerprint !== input.after.geometryFingerprint) return {
+    status: "geometry-changed", textRemeasurementRequired: true, fitRecalculationRequired: true, paginationInvalidated: true,
+  }
+  if (input.before.fitFingerprint !== input.after.fitFingerprint) return {
+    status: "fit-only", textRemeasurementRequired: false, fitRecalculationRequired: true, paginationInvalidated: true,
+  }
+  return { status: "unchanged", textRemeasurementRequired: false, fitRecalculationRequired: false, paginationInvalidated: false }
 }

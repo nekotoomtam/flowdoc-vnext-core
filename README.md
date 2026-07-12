@@ -302,6 +302,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 343 implements TOC v4 title/row measurement through the generic text
   measurer with fixed number columns, wrapped labels, leader geometry,
   keep policies, fit/overflow facts, cache work, and budget blocks.
+- Phase 344 separates geometry and fit fingerprints, adds zero-measurement
+  height refit, classifies fit-only versus geometry impact, and blocks malformed
+  text-measurer line geometry.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
