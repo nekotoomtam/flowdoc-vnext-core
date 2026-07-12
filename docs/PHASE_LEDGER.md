@@ -8673,6 +8673,16 @@ Missing headers, headers that cannot complete, and fresh pages where repeated
 headers prevent body progress block before emitting header-only loops. Footer
 repetition, renderer borders, backend, and editor behavior remain inactive.
 
+## Phase 321 Table V4 Synchronized Pagination Scale
+
+Phase 321 paginates 1,000 fixed-height body rows plus one repeated authored
+header into exactly 250 full pages twice. It proves byte-identical output,
+1,250 row/cell plans and checkpoint lookups, 249 repeated header fragments,
+source immutability, bounded page/plan limits, and complete cursor progress.
+
+The fixture proves deterministic semantic pagination work. It does not measure,
+render, export, or establish production cache/memory/worker behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

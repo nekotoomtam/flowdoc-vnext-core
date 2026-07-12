@@ -231,6 +231,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 320 repeats contiguous leading authored headers as identity-retaining
   layout fragments on continuation pages, plans them under strict-keep, and
   blocks missing, oversized, or header-only no-progress pages.
+- Phase 321 proves 1,000 body rows plus repeated authored headers paginate twice
+  to byte-identical 250-page output with exact page/row/cell/checkpoint work
+  counts, source immutability, and no measurement or rendering execution.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
