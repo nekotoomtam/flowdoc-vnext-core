@@ -9061,6 +9061,19 @@ row/page bounds, completion truth, title state, and title-before-row ordering.
 Malformed or impossible external cursor state blocks with the original cursor
 and no page fragments.
 
+## Phase 351 TOC V4 Pagination Lane Readiness Close Audit
+
+Status: closed.
+
+Phase 351 closes bounded measured-row TOC v4 pagination across exact cursor
+ownership, title-first-row keep, atomic ordered rows/gaps, explicit impossible
+keep and forced overflow, partial page windows, deterministic resume, and
+1,000-row/167-page scale with complete identity coverage.
+
+Final v4 heading-page resolution, digit-capacity enforcement, renderer/artifact
+consumption, authoring UI, and backend persistence remain later or external:
+`docs/TOC_V4_PAGINATION_LANE_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

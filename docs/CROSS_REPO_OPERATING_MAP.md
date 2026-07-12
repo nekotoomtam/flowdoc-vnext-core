@@ -336,6 +336,10 @@ editor intent
   renderer output, and durable cursor storage remain outside this phase.
 - Phase 350 blocks malformed or impossible retained TOC cursor state atomically;
   consumer persistence must preserve the exact contract and measurement pins.
+- Phase 351 closes TOC v4 pagination readiness for core-owned measured-row page
+  fragments and resumable cursors. Final page references, renderers, authoring,
+  and persistence remain separate:
+  `docs/TOC_V4_PAGINATION_LANE_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

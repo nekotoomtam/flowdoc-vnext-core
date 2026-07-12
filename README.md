@@ -322,6 +322,9 @@ The package must remain runnable without any parent editor checkout.
   and one-shot-equivalent pages/final cursor.
 - Phase 350 hardens external TOC pagination cursors against contract, owner,
   range, completion, title, and row-order drift before any page commit.
+- Phase 351 closes TOC v4 pagination readiness across measured-row pages,
+  title/row keep policy, forced progress, exact cursors, bounded resume, and
+  deterministic 1,000-row/167-page evidence.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
