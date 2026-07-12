@@ -9268,6 +9268,21 @@ and utility/media fragments, then selects the common fragment-window contract
 as the next reversible implementation slice:
 `docs/WHOLE_DOCUMENT_V4_COMPOSITION_ARCHITECTURE_LOCK.md`.
 
+## Phase 367 Whole-Document V4 Common Fragment-Window Contract
+
+Status: implemented.
+
+Phase 367 adds the strict public six-family/eight-root fragment-window
+vocabulary, compact structure/resolution/source/measurement/pagination pins,
+exact capacity, opaque family cursor references, per-page progressing cursor
+checkpoints, renderer-neutral placements, first-heading identity, exact bounded
+work, and distinct complete/partial/fresh-page-required/family-blocked states.
+Deterministic finalize/parse rejects family/root, owner, capacity, cursor,
+geometry, work, unknown-property, and fingerprint drift without mutating source
+input. No family adapter or composer runtime is activated; Text-flow remainder
+and cursor support is selected next:
+`docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -286,8 +286,10 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
 
 ## Implementation Phases
 
-1. **Common fragment-window contract:** strict types/parser, compact ownership,
-   cursor/request/result vocabulary, and invalid fixtures.
+1. **Common fragment-window contract (Phase 367 implemented):** strict
+   types/parser, compact ownership, per-page cursor checkpoints,
+   request/result vocabulary, and invalid fixtures:
+   `docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
 2. **Text-flow remainder/cursor contract:** add exact first remainder, bounded
    partial resume, compact owner pin, and one-shot equivalence.
 3. **Utility/media atomic contracts:** page-break, divider, spacer, and resolved
@@ -305,13 +307,15 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
 - Canonical node inventory maps each authored type exactly once.
 - Structural owners/internals are separated from six Composition Node Families.
 - Family semantics remain owned by existing subsystems.
+- The common fragment-window contract now retains compact ownership, exact
+  capacity, and per-page progressing cursor checkpoints.
 - Input, cursor, output, heading-map, partial, failure, and ownership boundaries
   are locked before runtime implementation.
 - Existing capability gaps are explicit and prevent premature activation.
 
 ## FAIL / BLOCKER
 
-- No common family fragment-window contract exists yet.
+- No family adapter emits the retained common fragment-window contract yet.
 - Text-block cannot consume a first-page remainder or resume from a cursor.
 - Columns/Table lack retained per-page checkpoints for bounded composition.
 - Utility/media lack isolated accepted v4 body fragments.
@@ -348,7 +352,8 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
 
 ## Next Recommended Direction
 
-Implement the strict Whole-Document V4 Common Fragment-Window Contract. Prove
-compact ownership, family/root pairing, capacity pins, bounded cursor/request
-shape, JSON round-trip, stale rejection, and source immutability before changing
-Text-block pagination or writing the sequential composer.
+Implement the Text-flow V4 Remainder And Cursor Contract against the retained
+common fragment-window vocabulary. Prove exact first remainder, bounded partial
+resume, per-page cursor checkpoints, compact measurement ownership, one-shot
+equivalence, stale rejection, and source immutability before other family
+adapters or the sequential composer.

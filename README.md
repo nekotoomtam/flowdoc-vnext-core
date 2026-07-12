@@ -393,6 +393,11 @@ The package must remain runnable without any parent editor checkout.
   prerequisites, strict fragment-window/cursor/page-plan/heading-map contracts,
   and selects the common fragment-window contract before any composer runtime:
   `docs/WHOLE_DOCUMENT_V4_COMPOSITION_ARCHITECTURE_LOCK.md`.
+- Phase 367 implements the common v4 Composition fragment-window contract with
+  strict family/root pairing, compact owner/capacity pins, per-page cursor
+  checkpoints, exact work, deterministic finalize/parse, and stale/tamper
+  rejection. No family adapter or composer runtime is activated:
+  `docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

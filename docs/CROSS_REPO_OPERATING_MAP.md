@@ -409,6 +409,12 @@ editor intent
   durable cursors, retries, and storage, while editor retains progress,
   viewport, selection, and preview policy:
   `docs/WHOLE_DOCUMENT_V4_COMPOSITION_ARCHITECTURE_LOCK.md`.
+- Phase 367 adds the common Composition fragment-window contract to core only.
+  It exposes strict JSON-safe family evidence for future consumers but does not
+  add backend orchestration/storage or editor progress/preview behavior; those
+  consumers remain unchanged until retained family adapters and composition
+  output exist:
+  `docs/WHOLE_DOCUMENT_V4_COMMON_FRAGMENT_WINDOW_CONTRACT.md`.
 
 ## Default Change Routing
 
