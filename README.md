@@ -110,6 +110,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 282 locks Columns v4 as independent parallel column flows with
   longest-column completion, depth-three nesting, direct-body-only page
   breaks, plan/reconcile cursor semantics, and bounded performance criteria.
+- Phase 283 adds deterministic v4 Columns track geometry, capability-owned
+  minimum width, depth-three structure validation, JSON-safe cursor/checkpoint
+  shapes, and factual measurement/pagination/render impact lanes.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

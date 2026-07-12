@@ -23,6 +23,7 @@ export type VNextDocumentV4StructureIssueCode =
   | "page-number-in-body-zone"
   | "duplicate-inline-id"
   | "invalid-columns-width"
+  | "columns-nesting-depth-exceeded"
   | "invalid-table-column-width"
   | "invalid-table-grid"
 
@@ -51,6 +52,8 @@ export interface VNextDocumentV4StructureValidation {
     errorCount: number
   }
 }
+
+export const VNEXT_DOCUMENT_V4_MAX_COLUMNS_NESTING_DEPTH = 3 as const
 
 function childIds(node: AuthoredNodeV4Target): readonly string[] {
   if (node.type === "zone" || node.type === "column" || node.type === "table-cell") return node.childIds
@@ -232,7 +235,12 @@ export function validateVNextDocumentV4Structure(
     const reachable = new Set<string>()
     const active = new Set<string>()
 
-    const visit = (nodeId: string, path: string, zoneRole: ZoneRoleV4Target): void => {
+    const visit = (
+      nodeId: string,
+      path: string,
+      zoneRole: ZoneRoleV4Target,
+      columnsDepth: number,
+    ): void => {
       const node = section.nodes[nodeId]
       if (node == null) {
         issues.push(issue(
@@ -259,7 +267,18 @@ export function validateVNextDocumentV4Structure(
       active.add(nodeId)
 
       if (node.type === "text-block") validateTextBlock(node, zoneRole, section.id, path, issues)
-      if (node.type === "columns") validateColumns(node, section, path, issues)
+      const nextColumnsDepth = columnsDepth + (node.type === "columns" ? 1 : 0)
+      if (node.type === "columns") {
+        validateColumns(node, section, path, issues)
+        if (nextColumnsDepth > VNEXT_DOCUMENT_V4_MAX_COLUMNS_NESTING_DEPTH) {
+          issues.push(issue(
+            "columns-nesting-depth-exceeded",
+            path,
+            `columns "${node.id}" exceeds v1 nesting depth ${VNEXT_DOCUMENT_V4_MAX_COLUMNS_NESTING_DEPTH}`,
+            { sectionId: section.id, nodeId: node.id },
+          ))
+        }
+      }
       if (node.type === "table") validateTable(node, section, path, issues)
 
       childIds(node).forEach((childId, childIndex) => {
@@ -311,7 +330,7 @@ export function validateVNextDocumentV4Structure(
           globalParentByNodeId.set(childId, node.id)
         }
 
-        visit(childId, `${sectionPath}.nodes.${childId}`, zoneRole)
+        visit(childId, `${sectionPath}.nodes.${childId}`, zoneRole, nextColumnsDepth)
       })
 
       active.delete(nodeId)
@@ -341,7 +360,7 @@ export function validateVNextDocumentV4Structure(
       } else {
         globalParentByNodeId.set(zoneId, `section:${section.id}`)
       }
-      visit(zoneId, `${sectionPath}.nodes.${zoneId}`, zone.role)
+      visit(zoneId, `${sectionPath}.nodes.${zoneId}`, zone.role, 0)
     })
 
     Object.keys(section.nodes).forEach((nodeId) => {

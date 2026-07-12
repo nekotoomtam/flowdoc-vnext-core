@@ -8224,6 +8224,20 @@ atomic parallel reconciliation, no-progress protection, impact facts, and
 bounded scale evidence without activating a scheduler, mixed layout,
 renderer/export, backend mutation, or editor controls.
 
+## Phase 283 Columns V4 Geometry And Impact Contract
+
+Phase 283 computes source-immutable track geometry from the existing 100-share
+and point-gap contract, with minimum usable width supplied by a versioned
+planner capability. Document v4 structure validation now accepts at most three
+Columns containers on an ancestor path and blocks a fourth with an explicit
+diagnostic.
+
+The phase also publishes JSON-safe cursor/checkpoint shapes and factual Columns
+impact lanes. Width, gap, and structure changes invalidate measurement,
+pagination, and rendering; minimum-height changes invalidate pagination and
+rendering only. It does not paginate children, classify cost, run a scheduler,
+or alter backend/editor behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
