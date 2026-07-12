@@ -66,6 +66,7 @@ export interface VNextColumnsV4NestedColumnFragment {
 
 export interface VNextColumnsV4NestedPageFragment {
   fragmentId: string
+  signature: string
   columnsId: string
   columnsDepth: number
   pageIndex: number
@@ -391,12 +392,37 @@ function planColumnsPage(input: {
       "pagination-no-progress", "cursor", `nested columns "${columnsId}" made no progress`, columnsId,
     )] }
   }
+  const columns = accepted.map((plan, index): VNextColumnsV4NestedColumnFragment => ({
+    columnId: plan.cursorAfter.columnId,
+    columnIndex: index,
+    xOffsetPt: input.input.geometry.tracks[index].xOffsetPt,
+    widthPt: input.input.geometry.tracks[index].widthPt,
+    usedHeightPt: plan.usedHeightPt,
+    complete: plan.complete,
+    placements: clone(plan.placements),
+  }))
+  const signature = [
+    columnsId,
+    input.depth,
+    input.availableHeightPt,
+    usedHeightPt,
+    complete,
+    ...columns.flatMap((column) => [
+      column.columnId,
+      column.usedHeightPt,
+      column.complete,
+      ...column.placements.map((placement) => placement.kind === "fragment"
+        ? `fragment:${placement.fragment.fragmentId}:${placement.yOffsetPt}`
+        : `columns:${placement.columnsId}:${placement.yOffsetPt}:${placement.fragment.signature}`),
+    ]),
+  ].join(":")
   return {
     status: "planned",
     cursorAfter,
     needsFreshPage,
     page: {
       fragmentId: `${columnsId}:page-${input.pageIndex}:depth-${input.depth}`,
+      signature,
       columnsId,
       columnsDepth: input.depth,
       pageIndex: input.pageIndex,
@@ -404,15 +430,7 @@ function planColumnsPage(input: {
       usedHeightPt,
       remainingHeightPt: roundPt(input.availableHeightPt - usedHeightPt),
       complete,
-      columns: accepted.map((plan, index) => ({
-        columnId: plan.cursorAfter.columnId,
-        columnIndex: index,
-        xOffsetPt: input.input.geometry.tracks[index].xOffsetPt,
-        widthPt: input.input.geometry.tracks[index].widthPt,
-        usedHeightPt: plan.usedHeightPt,
-        complete: plan.complete,
-        placements: clone(plan.placements),
-      })),
+      columns,
     },
   }
 }

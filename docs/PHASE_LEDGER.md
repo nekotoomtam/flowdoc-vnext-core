@@ -8287,6 +8287,18 @@ and atomic nested-lane failure block explicitly. The recursive planner performs
 no measurement, authored mutation, identity allocation, renderer work,
 backend/editor execution, or generic scheduling.
 
+## Phase 288 Columns V4 Determinism And Scale
+
+Phase 288 adds stable recursive page signatures beside the existing input
+fingerprint and work facts. A bounded test paginates 6,000 prepared text
+fragments through three nested Columns levels into 250 deterministic pages.
+
+The accepted run records 250 page attempts, 750 lane plans, 500 nested plans,
+250 prefix-checkpoint lookups, and 6,000 consumed fragments without measurement
+execution or source mutation. Wall-clock coverage is a generous local
+regression guard; operation counts are the primary complexity evidence. This
+does not prove mixed table/media/generated-content or renderer scale.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

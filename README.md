@@ -125,6 +125,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 287 recursively paginates nested Columns through depth three using
   parent track width and remaining page height, retaining nested cursor trees
   and blocking depth, width, or cursor ownership mismatches.
+- Phase 288 adds stable nested-page signatures and proves 6,000 prepared text
+  fragments through depth-three Columns produce 250 pages with bounded linear
+  work facts and no measurement execution.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
