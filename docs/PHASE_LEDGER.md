@@ -8957,6 +8957,20 @@ consumption, authoring commands/UI, materialized field labels, and backend
 persistence remain later or external:
 `docs/TOC_V4_SEMANTIC_LANE_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 342 TOC V4 Measurement Lane Architecture Lock
+
+Status: locked.
+
+Phase 342 defines TOC v4 measurement as deterministic generated title/entry
+row geometry over one accepted semantic TOC. It locks level indentation,
+wrapped label width, leader and fixed trailing number areas, one-line digit
+capacity proof, title/row keep policies, fit/overflow facts, and entry/line
+budgets through the generic text measurer.
+
+Page assignment, final number replacement, pagination convergence, renderer
+consumption, artifacts, authoring commands/UI, and backend persistence remain
+later or external: `docs/TOC_V4_MEASUREMENT_LANE_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

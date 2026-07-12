@@ -296,6 +296,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 341 closes TOC v4 semantic readiness across strict source collection,
   generated identity/labels/dependencies, exact impact, bounded invalidation,
   and deterministic 1,000-heading evidence without claiming layout output.
+- Phase 342 locks the TOC v4 measurement lane around wrapped generated rows,
+  level indentation, fixed-width page-number capacity, leader geometry, title
+  keep-with-first-entry, row overflow, budgets, and layout ownership.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

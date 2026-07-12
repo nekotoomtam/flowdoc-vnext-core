@@ -306,6 +306,11 @@ editor intent
   body-flow profile. Measurement, pagination/page resolution, rendering,
   authoring UX, and persistence remain separate lanes:
   `docs/TOC_V4_SEMANTIC_LANE_READINESS_CLOSE_AUDIT.md`.
+- Phase 342 locks TOC v4 measurement as core-owned generated title/row geometry
+  over accepted semantic entries and the generic text measurer. Pagination and
+  renderer consumers receive later measured contracts; editor/backend do not
+  own or duplicate row geometry:
+  `docs/TOC_V4_MEASUREMENT_LANE_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
