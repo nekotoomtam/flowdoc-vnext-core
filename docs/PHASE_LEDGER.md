@@ -8705,6 +8705,18 @@ single-owner outer/internal/split/repeated-header borders before adapters run.
 It does not change pagination or activate artifact bytes, backend jobs, editor
 canvas, or the active document v3 renderer path.
 
+## Phase 324 Table V4 Renderer-Complete Prepared Facts
+
+Status: implemented.
+
+Phase 324 carries measured line text and width, authored image alignment, and
+cell vertical alignment into prepared Table cells. Synchronized row fragments
+also retain content width and insets so later command projection can position
+content without reopening the authored document or recomputing geometry.
+
+The additions are fingerprinted, JSON-safe, covered for authored and
+materialized rows, and preserve existing pagination decisions and work counts.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

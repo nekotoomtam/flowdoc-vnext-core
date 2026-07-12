@@ -76,6 +76,7 @@ function materialization(): Extract<VNextTableContentMaterializationResultV1, { 
         cells: [{
           sourceCellId: "item-cell",
           cellInstanceId: "celli_000000000001",
+          verticalAlign: "middle",
           childIds: ["text-1", "image-1", "divider-1", "spacer-1"],
           nodes: {
             "text-1": {
@@ -153,7 +154,7 @@ function textEvidence(): Extract<VNextTableTextFragmentEvidenceResultV1, { statu
         measurementProfileId: "profile-v1",
         candidates: [{
           candidateId: "text-1:table-line-0", nodeId: "text-1", candidateIndex: 0,
-          kind: "text-line", heightPt: 12, breakAfter: true,
+          kind: "text-line", text: "Item", widthPt: 24, heightPt: 12, breakAfter: true,
           sourceStart: {
             textBlockId: "text-1", inlineId: "inline-1", authoredOffset: 0,
             resolvedOffset: 0, affinity: "forward",
@@ -193,6 +194,7 @@ describe("prepared materialized Table cells v1", () => {
       cells: [{
         sourceCellId: "item-cell",
         contentWidthPt: 188,
+        verticalAlign: "middle",
         prefixHeightsPt: [0, 12, 40.346457, 46.346457, 50.346457],
         contentHeightPt: 50.346457,
         outerHeightPt: 58.346457,
@@ -201,6 +203,10 @@ describe("prepared materialized Table cells v1", () => {
     expect(result.rows[0].cells[0].candidates.map((candidate) => [candidate.kind, candidate.atomic])).toEqual([
       ["text-line", false], ["image", true], ["divider", true], ["spacer", true],
     ])
+    expect(result.rows[0].cells[0].candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: "text-line", text: "Item", widthPt: 24 }),
+      expect.objectContaining({ kind: "image", align: "left" }),
+    ]))
     expect(result.rows[0].cells[0].children.map((child) => [
       child.kind, child.candidateStartIndex, child.candidateEndIndexExclusive,
     ])).toEqual([

@@ -15,7 +15,8 @@ function preparedCell(sourceCellId: string, heights: number[]): VNextTablePrepar
     return {
       candidateId: `${sourceCellId}:line-${candidateIndex}`,
       nodeId: `${sourceCellId}-text`, candidateIndex, kind: "text-line" as const,
-      atomic: false as const, heightPt, breakAfter: true as const,
+      atomic: false as const, text: `${sourceCellId}-${candidateIndex}`,
+      widthPt: 20, heightPt, breakAfter: true as const,
       sourceStart: {
         textBlockId: `${sourceCellId}-text`, inlineId: `${sourceCellId}-inline`,
         authoredOffset: candidateIndex, resolvedOffset: candidateIndex, affinity: "forward" as const,
@@ -35,6 +36,7 @@ function preparedCell(sourceCellId: string, heights: number[]): VNextTablePrepar
     outerWidthPt: 200,
     contentWidthPt: 200,
     insetsPt: { top: 0, right: 0, bottom: 0, left: 0 },
+    verticalAlign: sourceCellId === "left" ? "middle" : "bottom",
     children: [], candidates, prefixHeightsPt, contentHeightPt: total, outerHeightPt: total,
     completeWhenEmpty: heights.length === 0,
     fingerprint: JSON.stringify([sourceCellId, heights]),
@@ -74,8 +76,16 @@ describe("synchronized Table row pagination v1", () => {
       complete: false,
       progressed: true,
       cells: [
-        { sourceCellId: "left", usedHeightPt: 80, complete: false, placements: [{}, {}] },
-        { sourceCellId: "right", usedHeightPt: 30, complete: true, placements: [{}] },
+        {
+          sourceCellId: "left", contentWidthPt: 200, verticalAlign: "middle",
+          insetsPt: { top: 0, right: 0, bottom: 0, left: 0 },
+          usedHeightPt: 80, complete: false, placements: [{}, {}],
+        },
+        {
+          sourceCellId: "right", contentWidthPt: 200, verticalAlign: "bottom",
+          insetsPt: { top: 0, right: 0, bottom: 0, left: 0 },
+          usedHeightPt: 30, complete: true, placements: [{}],
+        },
       ],
       cursorAfter: { fragmentIndex: 1, complete: false },
       contracts: { cellCursorCommit: "atomic", measurementExecution: false },

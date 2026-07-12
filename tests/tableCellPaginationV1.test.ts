@@ -17,6 +17,8 @@ function cell(heights: number[], insets = { top: 5, right: 0, bottom: 5, left: 0
       candidateIndex,
       kind: "text-line" as const,
       atomic: false as const,
+      text: `line-${candidateIndex}`,
+      widthPt: 20,
       heightPt,
       breakAfter: true as const,
       sourceStart: {
@@ -38,6 +40,7 @@ function cell(heights: number[], insets = { top: 5, right: 0, bottom: 5, left: 0
     outerWidthPt: 200,
     contentWidthPt: 200,
     insetsPt: insets,
+    verticalAlign: "top",
     children: [],
     candidates,
     prefixHeightsPt,

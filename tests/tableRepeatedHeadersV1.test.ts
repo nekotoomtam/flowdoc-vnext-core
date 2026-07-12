@@ -7,9 +7,10 @@ function cell(id: string, heightPt: number, authored: boolean): VNextTablePrepar
     cellIdentity: authored ? { kind: "authored-cell", sourceCellId: id } : { kind: "resolved-cell", cellInstanceId: `celli_${id}` },
     columnStart: 0, colSpan: 1, xOffsetPt: 0, outerWidthPt: 200, contentWidthPt: 200,
     insetsPt: { top: 0, right: 0, bottom: 0, left: 0 }, children: [],
+    verticalAlign: "top",
     candidates: [{
       candidateId: `${id}:line-0`, nodeId: `${id}-text`, candidateIndex: 0,
-      kind: "text-line", atomic: false, heightPt, breakAfter: true,
+      kind: "text-line", atomic: false, text: id, widthPt: 20, heightPt, breakAfter: true,
       sourceStart: { textBlockId: `${id}-text`, inlineId: `${id}-inline`, authoredOffset: 0, resolvedOffset: 0, affinity: "forward" },
       sourceEnd: { textBlockId: `${id}-text`, inlineId: `${id}-inline`, authoredOffset: 1, resolvedOffset: 1, affinity: "backward" },
     }],

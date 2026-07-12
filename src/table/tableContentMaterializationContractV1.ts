@@ -110,6 +110,7 @@ export interface VNextMaterializedTableImageBindingV1 {
 export interface VNextMaterializedTableCellContentV1 {
   sourceCellId: string
   cellInstanceId: string
+  verticalAlign: "top" | "middle" | "bottom"
   childIds: string[]
   nodes: Record<string, AuthoredNodeV4Target>
 }
@@ -118,7 +119,11 @@ export type VNextMaterializedTableRowContentV1 =
   | {
       kind: "authored-content-reference"
       sourceRowId: string
-      cells: Array<{ sourceCellId: string; childIds: string[] }>
+      cells: Array<{
+        sourceCellId: string
+        verticalAlign: "top" | "middle" | "bottom"
+        childIds: string[]
+      }>
     }
   | {
       kind: "materialized-content"

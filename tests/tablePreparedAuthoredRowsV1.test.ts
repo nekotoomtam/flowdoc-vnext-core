@@ -72,7 +72,9 @@ function materialization(): Extract<VNextTableContentMaterializationResultV1, { 
     rows: [{
       kind: "authored-content-reference",
       sourceRowId: "header-row",
-      cells: [{ sourceCellId: "header-cell", childIds: ["header-text", "header-logo"] }],
+      cells: [{
+        sourceCellId: "header-cell", verticalAlign: "top", childIds: ["header-text", "header-logo"],
+      }],
     }],
     bindings: { text: [], images: [] },
     provenance: [],
@@ -243,6 +245,7 @@ describe("prepared authored Table rows v1", () => {
       minimumFirstFragmentHeightPt: 18,
       cells: [{
         cellIdentity: { kind: "authored-cell", sourceCellId: "header-cell" },
+        verticalAlign: "top",
         prefixHeightsPt: [0, 12, 22],
         contentHeightPt: 22,
         outerHeightPt: 28,

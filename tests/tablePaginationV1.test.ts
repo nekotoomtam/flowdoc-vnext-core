@@ -13,7 +13,8 @@ function cell(id: string, heights: number[]): VNextTablePreparedCellV1 {
     prefixHeightsPt.push(total)
     return {
       candidateId: `${id}:line-${candidateIndex}`, nodeId: `${id}-text`, candidateIndex,
-      kind: "text-line" as const, atomic: false as const, heightPt, breakAfter: true as const,
+      kind: "text-line" as const, atomic: false as const,
+      text: `${id}-${candidateIndex}`, widthPt: 20, heightPt, breakAfter: true as const,
       sourceStart: { textBlockId: `${id}-text`, inlineId: `${id}-inline`, authoredOffset: candidateIndex, resolvedOffset: candidateIndex, affinity: "forward" as const },
       sourceEnd: { textBlockId: `${id}-text`, inlineId: `${id}-inline`, authoredOffset: candidateIndex + 1, resolvedOffset: candidateIndex + 1, affinity: "backward" as const },
     }
@@ -22,6 +23,7 @@ function cell(id: string, heights: number[]): VNextTablePreparedCellV1 {
     sourceCellId: id, cellIdentity: { kind: "resolved-cell", cellInstanceId: `celli_${id}` },
     columnStart: 0, colSpan: 1, xOffsetPt: 0, outerWidthPt: 200, contentWidthPt: 200,
     insetsPt: { top: 0, right: 0, bottom: 0, left: 0 }, children: [], candidates,
+    verticalAlign: "top",
     prefixHeightsPt, contentHeightPt: total, outerHeightPt: total,
     completeWhenEmpty: heights.length === 0, fingerprint: JSON.stringify([id, heights]),
   }

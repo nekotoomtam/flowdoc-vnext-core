@@ -233,6 +233,11 @@ editor intent
   page placement/style profiles, command hierarchy, single-owner split and
   repeated-header borders, adapter/readiness boundaries, and 250-page criteria:
   `docs/TABLE_V4_RENDERER_CONSUMPTION_ARCHITECTURE_LOCK.md`.
+- Phase 324 keeps renderer-complete Table facts inside core output: measured
+  text/width and image alignment survive prepared candidates; vertical
+  alignment, content width, and insets survive synchronized row fragments.
+  Editor/backend consumers must not recover these facts from DOM or authored
+  nodes.
 
 ## Default Change Routing
 

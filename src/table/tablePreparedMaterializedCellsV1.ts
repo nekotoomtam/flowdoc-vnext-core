@@ -113,6 +113,7 @@ export function createVNextTablePreparedMaterializedCellsV1(input: {
         sourceCellId: cell.sourceCellId,
         rowIdentity: { kind: "resolved-row", rowInstanceId: row.rowInstanceId },
         cellIdentity: { kind: "resolved-cell", cellInstanceId: cell.cellInstanceId },
+        verticalAlign: cell.verticalAlign,
         childIds: cell.childIds,
         nodes: cell.nodes,
         geometry: cellGeometry,

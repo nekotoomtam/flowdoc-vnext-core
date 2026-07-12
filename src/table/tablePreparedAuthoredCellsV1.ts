@@ -120,6 +120,7 @@ export function createVNextTablePreparedAuthoredCellsV1(input: {
         sourceCellId: cell.sourceCellId,
         rowIdentity: { kind: "authored-row", sourceRowId: row.sourceRowId },
         cellIdentity: { kind: "authored-cell", sourceCellId: cell.sourceCellId },
+        verticalAlign: cell.verticalAlign,
         childIds: cell.childIds,
         nodes: section.nodes,
         geometry: cellGeometry,

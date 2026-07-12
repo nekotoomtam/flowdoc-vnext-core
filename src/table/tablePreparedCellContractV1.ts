@@ -15,6 +15,8 @@ interface VNextTablePreparedCandidateBaseV1 {
 export interface VNextTablePreparedTextLineCandidateV1 extends VNextTablePreparedCandidateBaseV1 {
   kind: "text-line"
   atomic: false
+  text: string
+  widthPt: number
   sourceStart: VNextTextBlockV4MeasurementSourcePoint
   sourceEnd: VNextTextBlockV4MeasurementSourcePoint
 }
@@ -23,6 +25,7 @@ export interface VNextTablePreparedImageCandidateV1 extends VNextTablePreparedCa
   kind: "image"
   atomic: true
   widthPt: number
+  align: "left" | "center" | "right"
   assetId: string | null
   assetOwner: "published-static-media" | "instance-media" | "none"
 }
@@ -66,6 +69,7 @@ export interface VNextTablePreparedCellV1 {
   outerWidthPt: number
   contentWidthPt: number
   insetsPt: VNextTableCellInsetsPtV1
+  verticalAlign: "top" | "middle" | "bottom"
   children: VNextTablePreparedCellChildRangeV1[]
   candidates: VNextTablePreparedCellCandidateV1[]
   prefixHeightsPt: number[]

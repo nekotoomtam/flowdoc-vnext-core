@@ -68,6 +68,7 @@ function materialization(): Extract<VNextTableContentMaterializationResultV1, { 
       cells: [{
         sourceCellId: "item-cell",
         cellInstanceId,
+        verticalAlign: "top" as const,
         childIds: [nodeId],
         nodes: {
           [nodeId]: {
@@ -132,6 +133,8 @@ function textEvidence(): Extract<VNextTableTextFragmentEvidenceResultV1, { statu
         nodeId,
         candidateIndex: 0,
         kind: "text-line" as const,
+        text,
+        widthPt: 40,
         heightPt: 12,
         breakAfter: true as const,
         sourceStart: {

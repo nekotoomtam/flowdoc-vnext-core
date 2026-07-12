@@ -72,6 +72,7 @@ function materialization(): Extract<VNextTableContentMaterializationResultV1, { 
       cells: [{
         sourceCellId: "item-cell",
         cellInstanceId: "celli_000000000001",
+        verticalAlign: "top",
         childIds: ["nodei_000000000001"],
         nodes: {
           "nodei_000000000001": {

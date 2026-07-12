@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { VNextTableCellCursorV1Schema, type VNextTableCellCandidatePlacementV1 } from "./tableCellPaginationContractV1.js"
+import type { VNextTableCellInsetsPtV1 } from "./tableCellGeometryV1.js"
 
 export const VNEXT_TABLE_ROW_PAGINATION_VERSION = 1 as const
 export const VNEXT_TABLE_ROW_PAGINATION_SOURCE = "vnext-table-row-pagination"
@@ -31,6 +32,9 @@ export interface VNextTableRowCellFragmentPlanV1 {
   cellIndex: number
   xOffsetPt: number
   outerWidthPt: number
+  contentWidthPt: number
+  insetsPt: VNextTableCellInsetsPtV1
+  verticalAlign: "top" | "middle" | "bottom"
   usedHeightPt: number
   complete: boolean
   placements: VNextTableCellCandidatePlacementV1[]

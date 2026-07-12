@@ -71,6 +71,7 @@ export function createVNextTablePreparedCellFromContentV1(input: {
   sourceCellId: string
   rowIdentity: VNextTablePreparedRowIdentityV1
   cellIdentity: VNextTablePreparedCellIdentityV1
+  verticalAlign: "top" | "middle" | "bottom"
   childIds: readonly string[]
   nodes: Readonly<Record<string, AuthoredNodeV4Target>>
   geometry: VNextTableCellGeometryV1
@@ -143,12 +144,15 @@ export function createVNextTablePreparedCellFromContentV1(input: {
       const assetOwner = node.source.kind === "asset-ref" ? "published-static-media" as const : binding?.assetOwner ?? "none"
       candidates.push({
         candidateId: `${node.id}:table-atomic`, nodeId: node.id, candidateIndex: candidates.length,
-        kind: "image", atomic: true, widthPt, heightPt, assetId, assetOwner, breakAfter: true,
+        kind: "image", atomic: true, widthPt, heightPt, align: node.props.align ?? "left",
+        assetId, assetOwner, breakAfter: true,
       })
       atomicCandidateCount += 1
       childHeightPt = heightPt
       kind = "image"
-      fingerprint = JSON.stringify([node.id, "image", widthPt, heightPt, assetId, assetOwner])
+      fingerprint = JSON.stringify([
+        node.id, "image", widthPt, heightPt, node.props.align ?? "left", assetId, assetOwner,
+      ])
     } else if (node.type === "divider") {
       const marginBeforePt = unitToPt(node.props.marginBefore)
       const thicknessPt = unitToPt(node.props.thickness)
@@ -208,6 +212,7 @@ export function createVNextTablePreparedCellFromContentV1(input: {
     outerWidthPt: input.geometry.outerWidthPt,
     contentWidthPt: input.geometry.contentWidthPt,
     insetsPt: clone(input.geometry.insetsPt),
+    verticalAlign: input.verticalAlign,
     children,
     candidates,
     prefixHeightsPt,
@@ -217,6 +222,7 @@ export function createVNextTablePreparedCellFromContentV1(input: {
     fingerprint: JSON.stringify([
       identityKey(input.rowIdentity),
       identityKey(input.cellIdentity),
+      input.verticalAlign,
       input.geometry.fingerprint,
       ...children.map((child) => child.fingerprint),
       ...prefixHeightsPt,

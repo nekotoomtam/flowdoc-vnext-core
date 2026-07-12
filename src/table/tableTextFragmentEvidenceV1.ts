@@ -22,6 +22,8 @@ export interface VNextTableTextFragmentLineCandidateV1 {
   nodeId: string
   candidateIndex: number
   kind: "text-line"
+  text: string
+  widthPt: number
   heightPt: number
   breakAfter: true
   sourceStart: VNextTextBlockV4MeasurementSourcePoint
@@ -200,6 +202,8 @@ export function createVNextTableTextFragmentEvidenceV1(input: {
         nodeId: textBlockId,
         candidateIndex,
         kind: "text-line",
+        text: line.text,
+        widthPt: roundPt(line.widthPt),
         heightPt: roundPt(line.heightPt),
         breakAfter: true,
         sourceStart: clone(line.sourceStart),
@@ -230,6 +234,8 @@ export function createVNextTableTextFragmentEvidenceV1(input: {
         context.request.renderedText,
         ...candidates.flatMap((candidate) => [
           candidate.candidateId,
+          candidate.text,
+          candidate.widthPt,
           candidate.heightPt,
           candidate.sourceStart.inlineId ?? "empty",
           candidate.sourceStart.authoredOffset,

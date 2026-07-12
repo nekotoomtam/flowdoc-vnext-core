@@ -83,8 +83,14 @@ describe("table text fragment evidence v1", () => {
       prefixHeightsPt: [0, 12, 26],
       totalHeightPt: 26,
       candidates: [
-        { candidateId: "nodei_000000000001:table-line-0", candidateIndex: 0, heightPt: 12 },
-        { candidateId: "nodei_000000000001:table-line-1", candidateIndex: 1, heightPt: 14 },
+        {
+          candidateId: "nodei_000000000001:table-line-0", candidateIndex: 0,
+          text: "Keyb", widthPt: 32, heightPt: 12,
+        },
+        {
+          candidateId: "nodei_000000000001:table-line-1", candidateIndex: 1,
+          text: "oard", widthPt: 34, heightPt: 14,
+        },
       ],
     })
     expect(result.work).toEqual({ requestCount: 1, measuredLineCount: 2, candidateCount: 2 })

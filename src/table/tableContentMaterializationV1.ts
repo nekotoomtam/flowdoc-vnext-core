@@ -452,7 +452,11 @@ export function materializeVNextTableContentV1(value: unknown): VNextTableConten
       const cells = sourceRow?.type === "table-row"
         ? sourceRow.cellIds.flatMap((cellId) => {
             const cell = section.nodes[cellId]
-            return cell?.type === "table-cell" ? [{ sourceCellId: cell.id, childIds: clone(cell.childIds) }] : []
+            return cell?.type === "table-cell" ? [{
+              sourceCellId: cell.id,
+              verticalAlign: cell.props.verticalAlign ?? "top",
+              childIds: clone(cell.childIds),
+            }] : []
           })
         : []
       rows.push({ kind: "authored-content-reference", sourceRowId, cells })
@@ -472,6 +476,8 @@ export function materializeVNextTableContentV1(value: unknown): VNextTableConten
     const materializedCells: VNextMaterializedTableCellContentV1[] = sourceTemplate.cells.map((sourceCell) => {
       const resolvedCell = row.cells.find((cell) => cell.sourceCellId === sourceCell.sourceCellId)
       if (resolvedCell?.identity.kind !== "allocated-cell") throw new Error("validated cell identity missing")
+      const sourceCellNode = section.nodes[sourceCell.sourceCellId]
+      if (sourceCellNode?.type !== "table-cell") throw new Error("validated source cell missing")
       const assignedCell = assignment.cells[sourceCell.sourceCellId]
       const nodes: Record<string, AuthoredNodeV4Target> = {}
       const childIds: string[] = []
@@ -573,6 +579,7 @@ export function materializeVNextTableContentV1(value: unknown): VNextTableConten
       return {
         sourceCellId: sourceCell.sourceCellId,
         cellInstanceId: resolvedCell.identity.provenance.identity.id,
+        verticalAlign: sourceCellNode.props.verticalAlign ?? "top",
         childIds,
         nodes,
       }

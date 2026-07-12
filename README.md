@@ -242,6 +242,9 @@ The package must remain runnable without any parent editor checkout.
   from accepted pages into page/segment/row/cell/candidate/border commands,
   requiring renderer-complete text/image/alignment facts and single-owner split
   and repeated-header borders.
+- Phase 324 retains measured line text/width, image alignment, cell vertical
+  alignment, content width, and insets through synchronized pagination so
+  renderers do not reopen authored Table nodes.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
