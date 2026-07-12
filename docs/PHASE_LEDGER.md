@@ -8516,6 +8516,17 @@ internal item identities. Prepared cell fragments, synchronized row pagination,
 media registry validation, rendering, authoring, and production cache/memory
 behavior remain open.
 
+## Phase 307 Table V4 Prepared Cell Fragment Architecture Lock
+
+Phase 307 defines prepared Table cells as measurement-complete,
+pagination-free sources with exact `colSpan` geometry, explicit cell insets,
+paired text measurement evidence, family-owned text/atomic child policies,
+prefix heights, deterministic fingerprints, and bounded invalidation facts.
+
+It does not change canonical schemas or activate measurement engines,
+synchronized row pagination, repeated headers, renderer/export, backend, or
+editor behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

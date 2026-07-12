@@ -185,6 +185,10 @@ The package must remain runnable without any parent editor checkout.
   provenance, immutable cloning, separate value bindings, and 1,000-row scale.
   Public values do not expose internal `itemKey`; prepared cell fragments and
   synchronized pagination remain next.
+- Phase 307 locks prepared Table cell fragments as `colSpan`-aware,
+  measurement-complete, pagination-free sources. Exact request/result evidence,
+  family-owned split policy, prefix heights, fingerprints, and invalidation
+  facts precede synchronized row pagination.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

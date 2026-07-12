@@ -206,6 +206,11 @@ editor intent
   1,000-row deterministic evidence. Public input normalization, prepared cell
   fragments, synchronized pagination, backend, and editor remain open:
   `docs/TABLE_V4_CONTENT_MATERIALIZATION_READINESS_CLOSE_AUDIT.md`.
+- Phase 307 locks prepared Table cell fragments around exact `colSpan` geometry,
+  paired measurement request/result evidence, text-line and atomic child-family
+  policies, prefix heights, fingerprints, and bounded invalidation. Synchronized
+  row pagination, renderer, backend, and editor remain inactive:
+  `docs/TABLE_V4_PREPARED_CELL_FRAGMENT_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
