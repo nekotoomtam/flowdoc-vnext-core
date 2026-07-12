@@ -8396,6 +8396,19 @@ The parser blocks duplicate or blank item keys, collection record-key drift,
 and unknown fields. It performs no fetch, field-capability validation, sorting,
 filtering, row identity allocation, table resolution, or persistence.
 
+## Phase 297 Table V4 Resolved Row Projection
+
+Phase 297 validates exact published-definition, field-contract, Document
+Instance, and collection-snapshot pins before producing ordered static,
+empty-state, and collection rows. Collection rows preserve snapshot order and
+require externally allocated `rowi`/`celli` provenance for every occurrence.
+
+Resolution audits exact table/source/template/item/cell references, revision
+pins, document-resolution scope, allocation-input keys, duplicates, missing and
+extra assignments, empty policies, and collection field capability. Output is
+all-or-blocked or explicitly suppressed; content cloning, measurement,
+pagination, rendering, backend allocation, and persistence remain inactive.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

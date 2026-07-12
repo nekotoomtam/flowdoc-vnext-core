@@ -153,6 +153,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 296 adds exact-instance pinned collection snapshots with retained item
   order, unique stable `itemKey`, JSON-safe scalar/image item values, and no
   array-index identity fallback or external fetching.
+- Phase 297 resolves ordered static, empty-state, and collection row streams
+  through published field/snapshot pins and externally allocated `rowi`/`celli`
+  provenance, while content materialization and pagination remain inactive.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
