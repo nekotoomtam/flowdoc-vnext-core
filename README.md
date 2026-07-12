@@ -311,6 +311,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 346 closes TOC v4 measurement readiness across strict generated
   title/row geometry, fixed number capacity, wrapping/leaders, fit/refit,
   impact, diagnostics, budgets, and deterministic 1,000-entry evidence.
+- Phase 347 locks the TOC v4 pagination lane around fingerprint-pinned cursors,
+  atomic title/rows, keep-with-first behavior, forced overflow, bounded page
+  windows, no-progress guards, and deterministic resume.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

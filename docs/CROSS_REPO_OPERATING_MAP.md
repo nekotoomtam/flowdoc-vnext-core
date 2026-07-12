@@ -324,6 +324,10 @@ editor intent
   geometry and fit facts. V4 pagination, final page resolution, renderer
   consumption, authoring UI, and persistence remain separate lanes:
   `docs/TOC_V4_MEASUREMENT_LANE_READINESS_CLOSE_AUDIT.md`.
+- Phase 347 locks TOC v4 pagination as core-owned grouping of retained measured
+  title/rows into cursor-pinned page fragments. Consumers orchestrate/resume
+  pages later without remeasuring or duplicating placement policy:
+  `docs/TOC_V4_PAGINATION_LANE_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

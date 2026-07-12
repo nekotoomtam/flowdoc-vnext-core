@@ -9017,6 +9017,19 @@ V4 pagination/page resolution, renderer/artifacts, production visual-exact
 measurer evidence, authoring commands/UI, and backend persistence remain later
 or external: `docs/TOC_V4_MEASUREMENT_LANE_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 347 TOC V4 Pagination Lane Architecture Lock
+
+Status: locked.
+
+Phase 347 defines measured TOC pagination through an exact-owner cursor,
+atomic title/rows, keep-with-first behavior, explicit impossible-keep and forced
+overflow facts, partial-remainder fresh-page advance, bounded page windows,
+atomic page cursor commits, no-progress guards, and deterministic resume.
+
+Final page-reference replacement, rendering/artifacts, authoring UI, and
+backend persistence remain later or external:
+`docs/TOC_V4_PAGINATION_LANE_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
