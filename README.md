@@ -337,6 +337,11 @@ The package must remain runnable without any parent editor checkout.
 - Phase 355 separates complete `resolved`, missing-destination `partial`, and
   ownership-conflict `blocked` resolution while retaining ordered unresolved
   entries, extra-map counts, and upstream semantic/pagination warning counts.
+- Phase 356 adds per-entry and aggregate decimal page-number capacity facts plus
+  separate preview/artifact readiness. Capacity overflow does not invalidate a
+  resolved destination, trigger relayout, or retry; it blocks renderer
+  readiness, while pending field-backed label materialization additionally
+  blocks artifact readiness.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

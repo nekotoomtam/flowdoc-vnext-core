@@ -7,8 +7,9 @@ Status: Phase 352 architecture lock.
 Final TOC v4 page-reference resolution replaces each semantic entry's pending
 page reference with an authoritative heading destination from completed v4
 document pagination. It preserves semantic labels and measured/paginated TOC
-geometry, enforces page-number digit capacity, and returns renderer-ready entry
-facts without measurement, relayout, rendering, or authored mutation.
+geometry, reports page-number digit capacity, and returns explicit preview and
+artifact readiness facts without measurement, relayout, rendering, or authored
+mutation.
 
 ## Current Dependency Truth
 
@@ -69,10 +70,11 @@ Resolution requires:
 - measured TOC whose semantic and TOC fingerprints match that plan;
 - complete TOC pagination manifest pinned to that measurement;
 - complete heading-page map for the same semantic document; and
-- one map entry for every generated TOC heading identity.
+- zero or one map entry for every generated TOC heading identity.
 
 Any owner/fingerprint/completeness drift blocks before resolved entries are
-returned.
+returned. Missing heading identities are retained as partial unresolved entries
+rather than treated as ownership drift.
 
 ## Resolution And Capacity
 
@@ -80,14 +82,22 @@ Resolved entries preserve composite identity, label, level, ordinals, measured
 row index, and TOC page placement reference. They add heading destination
 `pageIndex` and formatted decimal `pageNumberText`.
 
-The decimal digit count must not exceed retained
-`pageNumberCapacityDigits`. Capacity overflow blocks the exact entry and final
-renderer readiness; it never widens geometry or triggers hidden remeasurement.
+The decimal digit count is compared with retained
+`pageNumberCapacityDigits`. Capacity overflow remains a resolved destination
+fact, but marks capacity as `overflow` and blocks renderer readiness. It never
+widens geometry, changes resolution status, or triggers hidden remeasurement.
 
 Missing heading destinations produce `partial`, retain unresolved entries with
 null page facts, and block final renderer readiness. A strict mode may reject
 partial output entirely; v1 exposes partial diagnostics but no renderer-ready
 claim.
+
+Preview readiness permits authored-preview heading labels, but requires every
+page reference and number capacity to be complete. Artifact readiness has the
+same requirements and additionally blocks while any field-backed heading label
+still requires materialization. The accepted heading-page map's
+`documentPaginationFingerprint` is retained as the document-composition pin.
+Neither readiness lane emits renderer commands or starts a retry.
 
 ## PASS Criteria
 
@@ -95,7 +105,7 @@ claim.
 - strict complete heading-page map shape and ownership;
 - semantic/measurement/pagination/document fingerprint pins;
 - deterministic resolved composite entries and TOC placement references;
-- missing heading partial diagnostics and capacity overflow block;
+- missing heading partial diagnostics and explicit capacity overflow facts;
 - renderer readiness only when every entry resolves within capacity;
 - immutable JSON-safe inputs and byte-identical repeated output;
 - 1,000-entry linear resolution evidence;

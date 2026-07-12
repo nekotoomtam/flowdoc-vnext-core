@@ -9121,6 +9121,19 @@ warnings. Extra document-map headings are counted and ignored normally, while
 section, identity, and fingerprint conflicts still return no entries. Semantic
 and pagination warning counts remain separate from page-reference completeness.
 
+## Phase 356 Final TOC V4 Capacity And Readiness
+
+Status: implemented.
+
+Phase 356 compares every resolved decimal page number with the exact measured
+digit capacity without changing resolution status or geometry. Overflow remains
+a resolved destination plus explicit per-entry and aggregate capacity facts,
+while preview and artifact readiness block without hidden relayout or retry.
+Authored-preview labels may satisfy preview readiness; field-backed labels with
+pending materialization block artifact readiness. The authoritative document
+pagination fingerprint remains the artifact composition pin, and no renderer
+commands are produced.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

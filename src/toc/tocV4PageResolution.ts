@@ -30,6 +30,9 @@ export interface VNextTocV4ResolvedEntryV1 {
     pageFragmentId: string
     rowYPoint: number
   }
+  pageNumberCapacity:
+    | { status: "within-capacity" | "overflow"; capacityDigits: number; requiredDigits: number }
+    | { status: "pending"; capacityDigits: number; requiredDigits: null }
   destination:
     | {
         status: "resolved"
@@ -73,6 +76,30 @@ export type VNextTocV4PageResolutionResultV1 =
         semanticWarningCount: number
         paginationWarningCount: number
       }
+      capacity: {
+        status: "within-capacity" | "overflow" | "pending"
+        capacityDigits: number
+        maximumRequiredDigits: number | null
+        overflowEntryCount: number
+        overflowHeadingNodeIds: string[]
+      }
+      readiness: {
+        preview: {
+          status: "ready" | "blocked"
+          labelMode: "authored-preview"
+          blockers: Array<"page-references-incomplete" | "page-number-capacity-overflow">
+        }
+        artifact: {
+          status: "ready" | "blocked"
+          labelMode: "materialized-required"
+          documentCompositionFingerprint: string
+          blockers: Array<
+            | "page-references-incomplete"
+            | "page-number-capacity-overflow"
+            | "heading-label-materialization-pending"
+          >
+        }
+      }
       contracts: {
         measurement: "not-run"
         pagination: "not-run"
@@ -82,7 +109,13 @@ export type VNextTocV4PageResolutionResultV1 =
         authoredMutation: false
       }
       fingerprint: string
-      issues: Array<{ code: "heading-destination-missing"; severity: "warning"; path: string; message: string; headingNodeId: string }>
+      issues: Array<{
+        code: "heading-destination-missing" | "page-number-capacity-overflow"
+        severity: "warning"
+        path: string
+        message: string
+        headingNodeId: string
+      }>
     }
   | {
       source: typeof VNEXT_TOC_V4_PAGE_RESOLUTION_SOURCE
@@ -100,7 +133,12 @@ function issue(code: string, path: string, message: string, headingNodeId?: stri
   }
 }
 
-function warning(code: "heading-destination-missing", path: string, message: string, headingNodeId: string) {
+function warning(
+  code: "heading-destination-missing" | "page-number-capacity-overflow",
+  path: string,
+  message: string,
+  headingNodeId: string,
+) {
   return { code, severity: "warning" as const, path, message, headingNodeId }
 }
 
@@ -199,6 +237,13 @@ export function resolveVNextTocV4PageReferences(input: {
       "heading destination section must match semantic entry section", semanticEntry.headingNodeId,
     ))
     if (measuredRow == null || placed == null) return
+    const capacityDigits = measuredRow.pageNumber.capacityDigits
+    const requiredDigits = destination == null ? null : String(destination.pageNumber).length
+    if (requiredDigits != null && requiredDigits > capacityDigits) warnings.push(warning(
+      "page-number-capacity-overflow", `headingPageMap.entries.${semanticEntry.headingNodeId}.pageNumber`,
+      `page number ${destination!.pageNumber} requires ${requiredDigits} digits but measured capacity is ${capacityDigits}`,
+      semanticEntry.headingNodeId,
+    ))
     entries.push({
       identity: clone(semanticEntry.identity),
       semantic: {
@@ -212,6 +257,12 @@ export function resolveVNextTocV4PageReferences(input: {
         pageIndex: placed.page.pageIndex, pageFragmentId: placed.page.fragmentId,
         rowYPoint: placed.placement.yPt,
       },
+      pageNumberCapacity: requiredDigits == null
+        ? { status: "pending", capacityDigits, requiredDigits: null }
+        : {
+            status: requiredDigits > capacityDigits ? "overflow" : "within-capacity",
+            capacityDigits, requiredDigits,
+          },
       destination: destination == null
         ? {
             status: "unresolved", headingPageMapFingerprint: input.headingPageMap.fingerprint,
@@ -226,7 +277,22 @@ export function resolveVNextTocV4PageReferences(input: {
   })
   if (issues.length > 0) return blocked(input.tocNodeId, issues)
   const requiredHeadingIds = new Set(semanticToc.entries.map((entry) => entry.headingNodeId))
-  const unresolvedEntryCount = warnings.length
+  const unresolvedEntryCount = entries.filter((entry) => entry.destination.status === "unresolved").length
+  const overflowEntries = entries.filter((entry) => entry.pageNumberCapacity.status === "overflow")
+  const requiredDigitCounts = entries.flatMap((entry) => (
+    entry.pageNumberCapacity.requiredDigits == null ? [] : [entry.pageNumberCapacity.requiredDigits]
+  ))
+  const capacityStatus = overflowEntries.length > 0
+    ? "overflow" as const
+    : unresolvedEntryCount > 0 ? "pending" as const : "within-capacity" as const
+  const sharedRenderBlockers: Array<"page-references-incomplete" | "page-number-capacity-overflow"> = []
+  if (unresolvedEntryCount > 0) sharedRenderBlockers.push("page-references-incomplete")
+  if (overflowEntries.length > 0) sharedRenderBlockers.push("page-number-capacity-overflow")
+  const materializationPending = semanticToc.entries.some((entry) => entry.label.materialization === "pending")
+  const artifactBlockers: Array<
+    "page-references-incomplete" | "page-number-capacity-overflow" | "heading-label-materialization-pending"
+  > = [...sharedRenderBlockers]
+  if (materializationPending) artifactBlockers.push("heading-label-materialization-pending")
   const facts = {
     documentId: semantic.documentId, tocNodeId: input.tocNodeId,
     pins: {
@@ -244,6 +310,26 @@ export function resolveVNextTocV4PageReferences(input: {
       extraMapHeadingCount: input.headingPageMap.entries.filter((entry) => !requiredHeadingIds.has(entry.headingNodeId)).length,
       semanticWarningCount: semantic.issues.filter((item) => item.severity === "warning").length,
       paginationWarningCount: input.paginationManifest.pages.reduce((total, page) => total + page.warnings.length, 0),
+    },
+    capacity: {
+      status: capacityStatus,
+      capacityDigits: measurement.pageNumberProof.capacityDigits,
+      maximumRequiredDigits: requiredDigitCounts.length === 0 ? null : Math.max(...requiredDigitCounts),
+      overflowEntryCount: overflowEntries.length,
+      overflowHeadingNodeIds: overflowEntries.map((entry) => entry.identity.headingNodeId),
+    },
+    readiness: {
+      preview: {
+        status: sharedRenderBlockers.length === 0 ? "ready" as const : "blocked" as const,
+        labelMode: "authored-preview" as const,
+        blockers: sharedRenderBlockers,
+      },
+      artifact: {
+        status: artifactBlockers.length === 0 ? "ready" as const : "blocked" as const,
+        labelMode: "materialized-required" as const,
+        documentCompositionFingerprint: input.headingPageMap.documentPaginationFingerprint,
+        blockers: artifactBlockers,
+      },
     },
     contracts: {
       measurement: "not-run" as const, pagination: "not-run" as const, relayout: false as const,

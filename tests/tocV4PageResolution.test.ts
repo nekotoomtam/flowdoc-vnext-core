@@ -25,7 +25,11 @@ function fixtures() {
   const measurement = {
     status: "measured", documentId: "doc", tocNodeId: "toc",
     semanticFingerprint: "semantic-1", tocSemanticFingerprint: "toc-semantic-1", fingerprint: "measurement-1",
-    rows: semanticToc.entries.map((entry) => ({ identity: entry.identity, headingNodeId: entry.headingNodeId })),
+    pageNumberProof: { capacityDigits: 3 },
+    rows: semanticToc.entries.map((entry) => ({
+      identity: entry.identity, headingNodeId: entry.headingNodeId,
+      pageNumber: { capacityDigits: 3 },
+    })),
   } as unknown as VNextTocV4MeasurementResult
   const manifest = {
     source: "vnext-toc-v4-pagination-manifest", contractVersion: 1, kind: "toc-pagination-manifest",
@@ -65,6 +69,17 @@ describe("final TOC v4 page-reference base projection", () => {
         documentPaginationFingerprint: "document-pages-1",
       },
       summary: { entryCount: 2, resolvedEntryCount: 2 },
+      capacity: {
+        status: "within-capacity", capacityDigits: 3, maximumRequiredDigits: 2,
+        overflowEntryCount: 0, overflowHeadingNodeIds: [],
+      },
+      readiness: {
+        preview: { status: "ready", labelMode: "authored-preview", blockers: [] },
+        artifact: {
+          status: "ready", labelMode: "materialized-required",
+          documentCompositionFingerprint: "document-pages-1", blockers: [],
+        },
+      },
       contracts: { measurement: "not-run", pagination: "not-run", relayout: false, rendering: "not-run", authoredMutation: false },
     })
     if (first.status !== "resolved") throw new Error("resolution fixture blocked")
@@ -74,6 +89,7 @@ describe("final TOC v4 page-reference base projection", () => {
       measurementRef: { measurementFingerprint: "measurement-1", rowIndex: 1 },
       tocPlacement: { paginationManifestFingerprint: "manifest-1", pageIndex: 2, pageFragmentId: "toc:page-2", rowYPoint: 36 },
       destination: { status: "resolved", headingPageIndex: 11, pageNumber: 12, pageNumberText: "12", sourceFragmentId: "details:f0" },
+      pageNumberCapacity: { status: "within-capacity", capacityDigits: 3, requiredDigits: 2 },
     })
     expect(JSON.stringify(second)).toBe(JSON.stringify(first))
     expect(JSON.stringify(input)).toBe(before)
@@ -121,6 +137,56 @@ describe("final TOC v4 page-reference base projection", () => {
       issues: [expect.objectContaining({
         code: "heading-destination-missing", severity: "warning", headingNodeId: "details",
       })],
+      capacity: { status: "pending", overflowEntryCount: 0 },
+      readiness: {
+        preview: { status: "blocked", blockers: ["page-references-incomplete"] },
+        artifact: { status: "blocked", blockers: ["page-references-incomplete"] },
+      },
+    })
+  })
+
+  it("keeps resolution complete while capacity overflow blocks renderer readiness without relayout", () => {
+    const input = fixtures()
+    input.headingPageMap.entries[1].pageNumber = 1234
+    const result = resolveVNextTocV4PageReferences({ ...input, paginationManifest: input.manifest, tocNodeId: "toc" })
+    expect(result).toMatchObject({
+      status: "resolved",
+      entries: [{ pageNumberCapacity: { status: "within-capacity" } }, {
+        destination: { status: "resolved", pageNumberText: "1234" },
+        pageNumberCapacity: { status: "overflow", capacityDigits: 3, requiredDigits: 4 },
+      }],
+      capacity: {
+        status: "overflow", capacityDigits: 3, maximumRequiredDigits: 4,
+        overflowEntryCount: 1, overflowHeadingNodeIds: ["details"],
+      },
+      readiness: {
+        preview: { status: "blocked", blockers: ["page-number-capacity-overflow"] },
+        artifact: { status: "blocked", blockers: ["page-number-capacity-overflow"] },
+      },
+      contracts: { measurement: "not-run", pagination: "not-run", relayout: false, rendering: "not-run" },
+      issues: [expect.objectContaining({
+        code: "page-number-capacity-overflow", severity: "warning", headingNodeId: "details",
+      })],
+    })
+  })
+
+  it("allows authored preview but blocks artifact readiness while field-backed labels await materialization", () => {
+    const input = fixtures()
+    const semantic = input.semantic as Extract<VNextTocV4SemanticResult, { status: "ready" | "partial" }>
+    semantic.tocs[0].entries[0].label.fieldKeys = ["customer.name"]
+    semantic.tocs[0].entries[0].label.materialization = "pending"
+    const result = resolveVNextTocV4PageReferences({
+      ...input, semantic, paginationManifest: input.manifest, tocNodeId: "toc",
+    })
+    expect(result).toMatchObject({
+      status: "resolved",
+      readiness: {
+        preview: { status: "ready", labelMode: "authored-preview", blockers: [] },
+        artifact: {
+          status: "blocked", labelMode: "materialized-required",
+          blockers: ["heading-label-materialization-pending"],
+        },
+      },
     })
   })
 })

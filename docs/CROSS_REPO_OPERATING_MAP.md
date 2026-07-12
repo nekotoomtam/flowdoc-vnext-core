@@ -353,6 +353,10 @@ editor intent
 - Phase 355 keeps missing heading destinations as explicit partial entries while
   ownership/section/identity drift remains atomic block. Consumers must not
   omit unresolved entries or infer completeness from extra document map rows.
+- Phase 356 exposes capacity and readiness as retained core facts. Editor and
+  backend consumers may display or transport preview/artifact blockers, but
+  must not widen measured page-number geometry, silently rerun layout, treat
+  capacity overflow as unresolved identity, or synthesize renderer commands.
 
 ## Default Change Routing
 
