@@ -8238,6 +8238,16 @@ pagination, and rendering; minimum-height changes invalidate pagination and
 rendering only. It does not paginate children, classify cost, run a scheduler,
 or alter backend/editor behavior.
 
+## Phase 284 Columns V4 Text Fragment Candidates
+
+Phase 284 adapts accepted text-block v4 measured lines into reusable Columns
+child fragment candidates. Candidates retain canonical source points, measured
+height, legal line boundaries, prefix heights, keep policy, and deterministic
+input fingerprints while leaving accepted measurement input immutable.
+
+The adapter blocks unaccepted measurement and performs no shaping,
+measurement, pagination, cursor mutation, rendering, or scheduler execution.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
