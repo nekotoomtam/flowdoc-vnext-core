@@ -177,6 +177,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 304 materializes accepted collection-row text/image/divider/spacer
   content with supplied `nodei`/`inli`, exact provenance audits, immutable id
   rewriting, and separate item/global text/image binding tables.
+- Phase 305 proves 1,000 collection rows materialize deterministically with
+  1,000 cloned nodes, inlines, and item bindings, complete provenance, two
+  document-root scans total, and no source mutation or measurement execution.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

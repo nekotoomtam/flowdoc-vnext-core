@@ -8493,6 +8493,17 @@ image values remain separate binding tables with explicit fallback/null source.
 Static rows remain authored references. Identity allocation, media fetch,
 measurement, pagination, rendering, persistence, and editor behavior do not run.
 
+## Phase 305 Table V4 Content Materialization Determinism And Scale
+
+Phase 305 materializes 1,000 collection rows twice from the same pinned request
+and proves byte-stable JSON, source immutability, 1,000 cloned nodes/inlines/item
+bindings, 2,000 content provenance records, and factual work counts with one
+source-plan plus one materialization document-root scan.
+
+The evidence bounds semantic materialization work only. It does not measure text,
+paginate 200-300 pages, fetch media, render artifacts, or prove production
+memory/cache/storage behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

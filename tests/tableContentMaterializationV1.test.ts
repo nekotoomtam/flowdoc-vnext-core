@@ -493,6 +493,29 @@ describe("table content materialization v1", () => {
     }
   })
 
+  it("reorders collection rows without changing item-derived row/content identities", () => {
+    const originalInput = request()
+    const original = materializeVNextTableContentV1(originalInput)
+    const reorderedInput = clone(originalInput)
+    const header = reorderedInput.resolvedRows.rows[0]
+    reorderedInput.resolvedRows.rows = [
+      header,
+      ...reorderedInput.resolvedRows.rows.slice(1).reverse(),
+    ]
+    const reordered = materializeVNextTableContentV1(reorderedInput)
+    expect(original.status).toBe("materialized")
+    expect(reordered.status).toBe("materialized")
+    if (original.status !== "materialized" || reordered.status !== "materialized") return
+    const identityByItem = (rows: typeof original.rows) => Object.fromEntries(
+      rows.flatMap((row) => row.kind === "materialized-content" ? [[row.itemKey, row.rowInstanceId]] : []),
+    )
+    expect(identityByItem(reordered.rows)).toEqual(identityByItem(original.rows))
+    expect(reordered.rows.filter((row) => row.kind === "materialized-content").map((row) => row.itemKey)).toEqual([
+      "item-b",
+      "item-a",
+    ])
+  })
+
   it("blocks missing required, unknown, and type-invalid item values", () => {
     const input = request()
     const rows = input.resolvedRows.rows.filter((row) => row.source.kind === "collection-row")
