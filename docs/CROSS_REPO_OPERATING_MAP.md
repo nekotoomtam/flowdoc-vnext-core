@@ -320,6 +320,10 @@ editor intent
 - Phase 345 proves the measured TOC contract at 1,000 generated entries with
   deterministic geometry, exact work, bounded refit, and explicit entry/line
   budget failures. No consumer repo executes measurement or pagination yet.
+- Phase 346 closes TOC v4 measurement readiness for core-owned generated row
+  geometry and fit facts. V4 pagination, final page resolution, renderer
+  consumption, authoring UI, and persistence remain separate lanes:
+  `docs/TOC_V4_MEASUREMENT_LANE_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

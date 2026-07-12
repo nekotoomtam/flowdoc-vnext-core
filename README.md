@@ -308,6 +308,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 345 proves deterministic 1,000-entry TOC measurement with exact 1,002
   text measurements/lines, zero-measurement forced-overflow refit, and
   one-unit-below entry/line budget blocks.
+- Phase 346 closes TOC v4 measurement readiness across strict generated
+  title/row geometry, fixed number capacity, wrapping/leaders, fit/refit,
+  impact, diagnostics, budgets, and deterministic 1,000-entry evidence.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

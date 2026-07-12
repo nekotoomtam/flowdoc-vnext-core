@@ -9004,6 +9004,19 @@ total height, and stable trailing number geometry. Height-only refit reports
 1,000 forced-overflow rows with zero text measurement. Entry and line limits
 block deterministically one unit below exact work without partial layout.
 
+## Phase 346 TOC V4 Measurement Lane Readiness Close Audit
+
+Status: closed.
+
+Phase 346 closes the bounded TOC v4 generated measurement lane across strict
+input/layout validation, title and wrapped keep-together rows, fixed number
+capacity, non-overlapping leaders, fit/forced-overflow, zero-measurement refit,
+separate geometry/fit impact, budgets, and 1,000-entry deterministic scale.
+
+V4 pagination/page resolution, renderer/artifacts, production visual-exact
+measurer evidence, authoring commands/UI, and backend persistence remain later
+or external: `docs/TOC_V4_MEASUREMENT_LANE_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
