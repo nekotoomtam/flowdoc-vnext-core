@@ -8854,6 +8854,22 @@ Authentication, durable storage, editor confirmation UI, collaboration merge,
 and previously blocked Table capabilities remain external or future:
 `docs/TABLE_V4_AUTHORING_RISK_HARDENING_ARCHITECTURE_LOCK.md`.
 
+## Phase 335 Table V4 Guarded Preview And Reversible Change Sets
+
+Status: implemented.
+
+Phase 335 adds deterministic impact preview over the source-immutable Table
+authoring kernel without returning proposed document/definition artifacts.
+Static row and column deletion require an exact confirmation packet pinned to
+the draft, command, budgets, before/proposed bundles, impact, and change set;
+missing, stale, and stray confirmations block with source artifacts unchanged.
+
+Committed plans emit selective changed-node and Table-Definition snapshots.
+Changed object-key positions are retained so exact undo/redo reconstructs the
+original byte-sensitive bundle fingerprint, while any current-state drift
+blocks before application. Persistence, editor state, measurement, pagination,
+authentication, collaboration merge, and durable undo storage remain external.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

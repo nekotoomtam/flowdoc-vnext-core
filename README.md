@@ -275,6 +275,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 334 locks Table v4 authoring risk hardening around exact impact preview,
   stale destructive confirmation, selective reversible change sets, undo/redo
   fingerprint gates, and explicit execution budgets.
+- Phase 335 implements exact dry-run impact and strict destructive confirmation
+  over the immutable authoring kernel, plus selective node/definition change
+  sets with byte-exact, drift-gated undo/redo reconstruction.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

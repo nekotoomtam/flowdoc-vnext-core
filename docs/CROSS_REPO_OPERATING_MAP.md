@@ -278,6 +278,10 @@ editor intent
   confirmation, reversible change-set, and budget facts without moving UI,
   authentication, or persistence into core:
   `docs/TABLE_V4_AUTHORING_RISK_HARDENING_ARCHITECTURE_LOCK.md`.
+- Phase 335 implements the core-owned dry-run/commit boundary. Destructive row
+  and column deletion require the exact current confirmation packet; selective
+  change sets retain changed slices and exact key positions so undo/redo can
+  reconstruct fingerprint-identical bundles or block on intervening drift.
 
 ## Default Change Routing
 
