@@ -314,6 +314,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 347 locks the TOC v4 pagination lane around fingerprint-pinned cursors,
   atomic title/rows, keep-with-first behavior, forced overflow, bounded page
   windows, no-progress guards, and deterministic resume.
+- Phase 348 implements measured TOC page windows with exact-owner cursors,
+  fresh-page title/first-row handling, atomic rows, explicit forced overflow,
+  gap-safe placements, partial results, and resume equivalence.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

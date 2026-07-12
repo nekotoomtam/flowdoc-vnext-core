@@ -9030,6 +9030,19 @@ Final page-reference replacement, rendering/artifacts, authoring UI, and
 backend persistence remain later or external:
 `docs/TOC_V4_PAGINATION_LANE_ARCHITECTURE_LOCK.md`.
 
+## Phase 348 TOC V4 Measured Row Pagination And Resume
+
+Status: implemented.
+
+Phase 348 groups retained measured title/rows into bounded page windows through
+an exact measurement-pinned cursor. It moves title plus first row from a short
+remainder, preserves atomic ordered rows and same-page gaps, reports impossible
+title keep and forced title/row overflow, returns partial cursors, and proves
+resumed placement/final cursor equivalence with one-shot execution.
+
+No measurement, final page resolution, rendering, persistence, or editor state
+is executed.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

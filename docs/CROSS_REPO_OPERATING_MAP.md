@@ -328,6 +328,9 @@ editor intent
   title/rows into cursor-pinned page fragments. Consumers orchestrate/resume
   pages later without remeasuring or duplicating placement policy:
   `docs/TOC_V4_PAGINATION_LANE_ARCHITECTURE_LOCK.md`.
+- Phase 348 exposes pure bounded TOC page windows and resumable cursors without
+  measurement or final page resolution. Consumer orchestration may retain the
+  cursor but must not rewrite placement, keep, gap, or overflow semantics.
 
 ## Default Change Routing
 
