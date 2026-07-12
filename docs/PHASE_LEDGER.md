@@ -8813,6 +8813,19 @@ Definition, measurement, and pagination facts valid while invalidating renderer
 content offset. All commands retain dedicated capability, history, selection,
 scope, fingerprint, and work facts.
 
+## Phase 332 Table V4 Authoring History And Scale
+
+Status: implemented.
+
+Phase 332 records committed/rejected Table authoring commands with exact draft,
+operation, issue, and before/after bundle fingerprints. Pure replay skips
+rejected records and blocks artifact, before-state, command-output, or
+after-state drift without persistence or editor state mutation.
+
+A 1,000-row-template span-one fixture inserts one stable column twice to
+byte-identical output with exactly 1,000 template visits, 1,000 cell edits,
+1,000 added nodes, preserved 400pt total width, and immutable source input.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -266,6 +266,9 @@ editor intent
   alignment through the same atomic core bundle. Editor confirmation remains
   required for destructive column deletion; core returns removed subtree and
   fallback-selection facts but does not mutate UI or persist revisions.
+- Phase 332 retains committed/rejected Table authoring records with exact draft
+  and before/after bundle fingerprints. Replay is pure core evidence only;
+  backend owns durable history/persistence and editor owns undo presentation.
 
 ## Default Change Routing
 

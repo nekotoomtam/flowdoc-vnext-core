@@ -266,6 +266,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 331 adds stable column insert/delete/resize and cell vertical alignment
   with proportional semantic shares, preserved total point width, per-template
   cell edits, destructive subtree facts, and bounded invalidation.
+- Phase 332 adds fingerprint-pinned Table authoring history records/replay and
+  deterministic 1,000-row-template column insertion with exact linear work and
+  source immutability.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
