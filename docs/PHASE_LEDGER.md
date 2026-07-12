@@ -8971,6 +8971,19 @@ Page assignment, final number replacement, pagination convergence, renderer
 consumption, artifacts, authoring commands/UI, and backend persistence remain
 later or external: `docs/TOC_V4_MEASUREMENT_LANE_ARCHITECTURE_LOCK.md`.
 
+## Phase 343 TOC V4 Title And Entry Row Measurement
+
+Status: implemented.
+
+Phase 343 measures one accepted semantic TOC through the generic text measurer.
+It emits optional title geometry, wrapped entry labels, fixed trailing number
+columns with digit-capacity proof, non-overlapping leader areas, title/row keep
+policies, fits/split/forced-row-overflow facts, cache work, and entry/line
+budget blocks. Geometry fingerprints exclude cache hit/miss execution state.
+
+No page assignment, final number replacement, pagination, rendering,
+persistence, network, DOM, or editor state is run.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

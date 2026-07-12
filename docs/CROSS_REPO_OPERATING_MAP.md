@@ -311,6 +311,9 @@ editor intent
   renderer consumers receive later measured contracts; editor/backend do not
   own or duplicate row geometry:
   `docs/TOC_V4_MEASUREMENT_LANE_ARCHITECTURE_LOCK.md`.
+- Phase 343 exposes measured TOC title/row geometry, number-capacity proof,
+  leader areas, fit/overflow, budgets, and cache work as pure core facts.
+  Pagination and renderers may consume these facts later but do not own them.
 
 ## Default Change Routing
 

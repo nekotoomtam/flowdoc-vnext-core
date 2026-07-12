@@ -299,6 +299,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 342 locks the TOC v4 measurement lane around wrapped generated rows,
   level indentation, fixed-width page-number capacity, leader geometry, title
   keep-with-first-entry, row overflow, budgets, and layout ownership.
+- Phase 343 implements TOC v4 title/row measurement through the generic text
+  measurer with fixed number columns, wrapped labels, leader geometry,
+  keep policies, fit/overflow facts, cache work, and budget blocks.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
