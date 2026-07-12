@@ -171,6 +171,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 302 indexes collection row-template source content once, validates
   authored table/row/cell ownership, supported node families, and exact scoped
   binding completeness, and emits a measurement-free immutable source plan.
+- Phase 303 adds strict acceptance schemas for resolved Table row streams and
+  row/cell/node/inline content identity assignments, including record-key and
+  duplicate-row guards before provenance semantics or cloning execute.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

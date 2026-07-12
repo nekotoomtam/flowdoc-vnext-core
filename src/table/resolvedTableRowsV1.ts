@@ -5,6 +5,7 @@ import {
   type VNextDocumentInstanceIdentityV1,
 } from "../lifecycle/structureIdentity.js"
 import { VNextPublishedFieldContractV1Schema } from "../resolution/resolutionInputPins.js"
+import { DataSnapshotV2ValueSchema } from "../persistence/packageV3ImageTarget.js"
 import {
   VNextDerivedIdentityProvenanceV1Schema,
   type VNextDerivedIdentityProvenanceV1,
@@ -12,6 +13,9 @@ import {
 import { auditVNextDerivedIdentityBatchV1 } from "../identity/identityBatchAuditV1.js"
 import {
   VNextTableDefinitionV1Schema,
+  VNextTableCellPlacementV1Schema,
+  VNextTableRowBreakPolicyV1Schema,
+  VNextTableRowRoleV1Schema,
   type VNextTableCellPlacementV1,
   type VNextTableColumnDefinitionV1,
   type VNextTableDefinitionV1,
@@ -54,6 +58,90 @@ export type VNextTableCollectionIdentityAssignmentV1 = z.infer<
   typeof VNextTableCollectionIdentityAssignmentV1Schema
 >
 export type VNextResolvedTableRowsRequestV1 = z.infer<typeof VNextResolvedTableRowsRequestV1Schema>
+
+export const VNextResolvedTableRowIdentityV1Schema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("authored-row"), rowId: NonBlankIdSchema }).strict(),
+  z.object({
+    kind: z.literal("allocated-row"),
+    provenance: VNextDerivedIdentityProvenanceV1Schema,
+  }).strict(),
+])
+
+export const VNextResolvedTableCellIdentityV1Schema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("authored-cell"), cellId: NonBlankIdSchema }).strict(),
+  z.object({
+    kind: z.literal("allocated-cell"),
+    provenance: VNextDerivedIdentityProvenanceV1Schema,
+  }).strict(),
+])
+
+export const VNextResolvedTableRowSourceV1Schema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("static-row"),
+    rowSourceId: NonBlankIdSchema,
+    rowTemplateId: NonBlankIdSchema,
+    sourceRowId: NonBlankIdSchema,
+  }).strict(),
+  z.object({
+    kind: z.literal("collection-row"),
+    rowSourceId: NonBlankIdSchema,
+    rowTemplateId: NonBlankIdSchema,
+    sourceRowId: NonBlankIdSchema,
+    collectionFieldKey: NonBlankIdSchema,
+    itemKey: NonBlankIdSchema,
+  }).strict(),
+  z.object({
+    kind: z.literal("empty-state-row"),
+    rowSourceId: NonBlankIdSchema,
+    rowTemplateId: NonBlankIdSchema,
+    sourceRowId: NonBlankIdSchema,
+    collectionFieldKey: NonBlankIdSchema,
+  }).strict(),
+])
+
+export const VNextResolvedTableCellV1Schema = VNextTableCellPlacementV1Schema.extend({
+  identity: VNextResolvedTableCellIdentityV1Schema,
+  sourceCellId: NonBlankIdSchema,
+}).strict()
+
+export const VNextResolvedTableRowV1Schema = z.object({
+  identity: VNextResolvedTableRowIdentityV1Schema,
+  source: VNextResolvedTableRowSourceV1Schema,
+  role: VNextTableRowRoleV1Schema,
+  breakPolicy: VNextTableRowBreakPolicyV1Schema,
+  minHeightPt: z.number().finite().nonnegative().optional(),
+  itemValues: z.record(NonBlankIdSchema, DataSnapshotV2ValueSchema).nullable(),
+  cells: z.array(VNextResolvedTableCellV1Schema).min(1),
+}).strict()
+
+export const VNextResolvedTableRowsReadyV1Schema = z.object({
+  source: z.literal(VNEXT_RESOLVED_TABLE_ROWS_SOURCE),
+  contractVersion: z.literal(VNEXT_RESOLVED_TABLE_ROWS_CONTRACT_VERSION),
+  status: z.literal("resolved"),
+  tableId: NonBlankIdSchema,
+  tableDefinitionId: NonBlankIdSchema,
+  instanceId: NonBlankIdSchema,
+  instanceRevision: z.number().int().nonnegative(),
+  resolutionInputFingerprint: NonBlankIdSchema,
+  collectionSnapshotId: NonBlankIdSchema.nullable(),
+  collectionSnapshotRevision: z.number().int().nonnegative().nullable(),
+  columns: z.array(z.object({
+    columnId: NonBlankIdSchema,
+    widthShare: z.number().finite().positive().max(100),
+  }).strict()).min(1),
+  headerPolicy: z.enum(["no-repeat", "repeat-leading-headers"]),
+  leadingHeaderRowCount: z.number().int().nonnegative(),
+  rows: z.array(VNextResolvedTableRowV1Schema),
+  execution: z.object({
+    inputFetch: z.literal("not-run"),
+    authoredGraphMutation: z.literal(false),
+    contentMaterialization: z.literal("not-run"),
+    measurement: z.literal("not-run"),
+    pagination: z.literal("not-run"),
+    rendering: z.literal("not-run"),
+  }).strict(),
+  issues: z.tuple([]),
+}).strict()
 
 export type VNextResolvedTableRowIdentityV1 =
   | { kind: "authored-row"; rowId: string }

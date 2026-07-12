@@ -7,6 +7,7 @@ import type {
 } from "../src/identity/identityStandardV1.js"
 import {
   resolveVNextTableRowsV1,
+  VNextResolvedTableRowsReadyV1Schema,
   type VNextResolvedTableRowsRequestV1,
   type VNextTableCollectionIdentityAssignmentV1,
 } from "../src/table/resolvedTableRowsV1.js"
@@ -243,6 +244,7 @@ describe("resolved table rows v1", () => {
       rendering: "not-run",
     })
     expect(JSON.stringify(input)).toBe(before)
+    expect(VNextResolvedTableRowsReadyV1Schema.safeParse(result).success).toBe(true)
     expect(JSON.parse(JSON.stringify(result))).toEqual(result)
   })
 

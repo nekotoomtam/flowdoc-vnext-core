@@ -8470,6 +8470,17 @@ source cell-map drift, missing/extra bindings, placement-kind mismatch, and
 embedded-key drift. It performs no identity allocation, cloning, value binding,
 measurement, or pagination.
 
+## Phase 303 Resolved Row And Content Identity Assignment Acceptance
+
+Phase 303 publishes strict JSON-safe acceptance for resolved Table row-stream
+output and externally supplied row/cell/node/inline content identity assignment
+envelopes. Assignment record keys must retain source node/cell/inline facts and
+duplicate row assignment ids block.
+
+The schemas do not prove exact materialization provenance, allocate ids, clone
+content, resolve values, measure, or paginate. The materializer remains
+responsible for semantic source/provenance completeness and batch conflict audit.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
