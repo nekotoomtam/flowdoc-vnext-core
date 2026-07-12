@@ -122,6 +122,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 286 reconciles sibling column plans atomically into multi-page Columns
   fragments, retains completed lanes as empty continuations, uses the longest
   lane height, and bounds page attempts without executing measurement.
+- Phase 287 recursively paginates nested Columns through depth three using
+  parent track width and remaining page height, retaining nested cursor trees
+  and blocking depth, width, or cursor ownership mismatches.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

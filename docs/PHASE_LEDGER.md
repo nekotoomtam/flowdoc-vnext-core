@@ -8274,6 +8274,19 @@ fingerprints, and aggregate work facts. It performs no measurement, authored
 mutation, identity allocation, recursion, mixed-flow composition, rendering,
 or scheduling.
 
+## Phase 287 Columns V4 Nested Pagination
+
+Phase 287 adds recursive fragment and nested-Columns flow items. Inner Columns
+receive the exact parent track width and current remaining page height, return
+page-local nested fragments, and retain a JSON-safe cursor tree when they
+continue. Outer lanes preserve preceding y offsets and stop at the same
+physical page continuation.
+
+Depth three is accepted; depth four, width mismatch, cursor ownership drift,
+and atomic nested-lane failure block explicitly. The recursive planner performs
+no measurement, authored mutation, identity allocation, renderer work,
+backend/editor execution, or generic scheduling.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
