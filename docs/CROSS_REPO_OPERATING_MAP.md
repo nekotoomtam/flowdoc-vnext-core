@@ -340,6 +340,10 @@ editor intent
   fragments and resumable cursors. Final page references, renderers, authoring,
   and persistence remain separate:
   `docs/TOC_V4_PAGINATION_LANE_READINESS_CLOSE_AUDIT.md`.
+- Phase 352 locks final TOC v4 page-reference resolution but records that no
+  completed whole-document v4 heading-page producer exists yet. Core owns the
+  strict manifest/map/resolver contract; consumer repos must not synthesize
+  heading destinations: `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

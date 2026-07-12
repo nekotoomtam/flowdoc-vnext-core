@@ -9074,6 +9074,20 @@ Final v4 heading-page resolution, digit-capacity enforcement, renderer/artifact
 consumption, authoring UI, and backend persistence remain later or external:
 `docs/TOC_V4_PAGINATION_LANE_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 352 Final TOC V4 Page-Reference Resolution Architecture Lock
+
+Status: locked.
+
+Phase 352 defines final TOC v4 page references through a complete aggregated
+TOC page-window manifest and an authoritative completed whole-document v4
+heading-page map. It locks exact semantic/measurement/pagination/document pins,
+decimal digit capacity, partial missing-heading diagnostics, renderer readiness,
+and no-measure/no-relayout ownership.
+
+No whole-document v4 heading-page producer exists yet, so end-to-end final
+output remains blocked even when the strict resolver contract is implemented:
+`docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
