@@ -357,6 +357,10 @@ editor intent
   backend consumers may display or transport preview/artifact blockers, but
   must not widen measured page-number geometry, silently rerun layout, treat
   capacity overflow as unresolved identity, or synthesize renderer commands.
+- Phase 357 hardens the final resolver against malformed retained identity,
+  capacity, placement, and destination facts and proves 1,000-entry linear
+  work. Consumer repos must preserve these exact inputs and diagnostics rather
+  than pre-joining, repairing, or dropping malformed rows themselves.
 
 ## Default Change Routing
 

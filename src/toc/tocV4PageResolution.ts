@@ -100,6 +100,11 @@ export type VNextTocV4PageResolutionResultV1 =
           >
         }
       }
+      work: {
+        entryResolutionCount: number
+        placementIndexCount: number
+        headingDestinationIndexCount: number
+      }
       contracts: {
         measurement: "not-run"
         pagination: "not-run"
@@ -206,12 +211,75 @@ export function resolveVNextTocV4PageReferences(input: {
     || input.paginationManifest.summary.rowCount !== semanticToc.entries.length) issues.push(issue(
     "entry-row-count-mismatch", "measurement.rows", "semantic entries, measured rows, and manifest placements must have equal counts",
   ))
-  if (issues.length > 0) return blocked(input.tocNodeId, issues)
+  const retainedPageNumberProof = measurement.pageNumberProof as MeasuredToc["pageNumberProof"] | undefined
+  const retainedCapacityDigits = retainedPageNumberProof?.capacityDigits
+  const capacityDigits = retainedCapacityDigits != null
+    && Number.isInteger(retainedCapacityDigits) && retainedCapacityDigits >= 1
+    ? retainedCapacityDigits
+    : null
+  if (capacityDigits == null) issues.push(issue(
+    "page-number-capacity-invalid", "measurement.pageNumberProof.capacityDigits",
+    "measured page-number capacity must be a positive integer",
+  ))
+  const semanticHeadingIds = new Set<string>()
+  semanticToc.entries.forEach((entry, index) => {
+    if (entry.identity.tocNodeId !== input.tocNodeId
+      || entry.identity.headingNodeId !== entry.headingNodeId
+      || entry.tocOrdinal !== index
+      || semanticHeadingIds.has(entry.headingNodeId)) issues.push(issue(
+      "semantic-entry-identity-invalid", `semantic.entries[${index}]`,
+      "semantic entries must have unique heading identities and contiguous TOC ordinals",
+      entry.headingNodeId,
+    ))
+    semanticHeadingIds.add(entry.headingNodeId)
+  })
+  measurement.rows.forEach((row, index) => {
+    const retainedRowPageNumber = row.pageNumber as MeasuredToc["rows"][number]["pageNumber"] | undefined
+    if (capacityDigits == null || retainedRowPageNumber?.capacityDigits !== capacityDigits) issues.push(issue(
+      "measured-row-capacity-mismatch", `measurement.rows[${index}].pageNumber.capacityDigits`,
+      "every measured row must retain the page-number proof capacity", row.headingNodeId,
+    ))
+  })
+  if (issues.length > 0 || capacityDigits == null) return blocked(input.tocNodeId, issues)
 
-  const placementByRowIndex = new Map(input.paginationManifest.pages.flatMap((page) => (
-    page.rows.map((placement) => [placement.rowIndex, { page, placement }] as const)
-  )))
-  const destinationByHeadingId = new Map(input.headingPageMap.entries.map((entry) => [entry.headingNodeId, entry]))
+  const placementByRowIndex = new Map<number, {
+    page: VNextTocV4PaginationManifest["pages"][number]
+    placement: VNextTocV4PaginationManifest["pages"][number]["rows"][number]
+  }>()
+  let placementIndexCount = 0
+  input.paginationManifest.pages.forEach((page, pageOffset) => {
+    page.rows.forEach((placement, placementOffset) => {
+      placementIndexCount += 1
+      if (!Number.isInteger(placement.rowIndex)
+        || placement.rowIndex < 0
+        || placement.rowIndex >= semanticToc.entries.length
+        || placementByRowIndex.has(placement.rowIndex)) issues.push(issue(
+        "toc-placement-index-invalid", `paginationManifest.pages[${pageOffset}].rows[${placementOffset}].rowIndex`,
+        "TOC placements must use unique in-range measured row indexes", placement.headingNodeId,
+      ))
+      else placementByRowIndex.set(placement.rowIndex, { page, placement })
+    })
+  })
+  if (placementIndexCount !== semanticToc.entries.length) issues.push(issue(
+    "toc-placement-count-mismatch", "paginationManifest.pages",
+    "TOC placement count must equal the semantic entry count",
+  ))
+  const destinationByHeadingId = new Map<string, VNextDocumentV4HeadingPageMap["entries"][number]>()
+  let headingDestinationIndexCount = 0
+  input.headingPageMap.entries.forEach((entry, index) => {
+    headingDestinationIndexCount += 1
+    if (destinationByHeadingId.has(entry.headingNodeId)) issues.push(issue(
+      "duplicate-heading-page-entry", `headingPageMap.entries[${index}].headingNodeId`,
+      `heading "${entry.headingNodeId}" appears more than once`, entry.headingNodeId,
+    ))
+    else destinationByHeadingId.set(entry.headingNodeId, entry)
+    if (!Number.isInteger(entry.pageIndex) || entry.pageIndex < 0 || entry.pageIndex >= input.headingPageMap.pageCount
+      || !Number.isInteger(entry.pageNumber) || entry.pageNumber < 1) issues.push(issue(
+      "heading-page-facts-invalid", `headingPageMap.entries[${index}]`,
+      "heading page index and number must remain inside the accepted complete map", entry.headingNodeId,
+    ))
+  })
+  if (issues.length > 0) return blocked(input.tocNodeId, issues)
   const entries: VNextTocV4ResolvedEntryV1[] = []
   const warnings: ReturnType<typeof warning>[] = []
   semanticToc.entries.forEach((semanticEntry, rowIndex) => {
@@ -237,11 +305,10 @@ export function resolveVNextTocV4PageReferences(input: {
       "heading destination section must match semantic entry section", semanticEntry.headingNodeId,
     ))
     if (measuredRow == null || placed == null) return
-    const capacityDigits = measuredRow.pageNumber.capacityDigits
     const requiredDigits = destination == null ? null : String(destination.pageNumber).length
-    if (requiredDigits != null && requiredDigits > capacityDigits) warnings.push(warning(
+    if (destination != null && requiredDigits != null && requiredDigits > capacityDigits) warnings.push(warning(
       "page-number-capacity-overflow", `headingPageMap.entries.${semanticEntry.headingNodeId}.pageNumber`,
-      `page number ${destination!.pageNumber} requires ${requiredDigits} digits but measured capacity is ${capacityDigits}`,
+      `page number ${destination.pageNumber} requires ${requiredDigits} digits but measured capacity is ${capacityDigits}`,
       semanticEntry.headingNodeId,
     ))
     entries.push({
@@ -330,6 +397,11 @@ export function resolveVNextTocV4PageReferences(input: {
         documentCompositionFingerprint: input.headingPageMap.documentPaginationFingerprint,
         blockers: artifactBlockers,
       },
+    },
+    work: {
+      entryResolutionCount: semanticToc.entries.length,
+      placementIndexCount,
+      headingDestinationIndexCount,
     },
     contracts: {
       measurement: "not-run" as const, pagination: "not-run" as const, relayout: false as const,

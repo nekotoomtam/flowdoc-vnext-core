@@ -9134,6 +9134,19 @@ pending materialization block artifact readiness. The authoritative document
 pagination fingerprint remains the artifact composition pin, and no renderer
 commands are produced.
 
+## Phase 357 Final TOC V4 Resolution Scale And Hardening
+
+Status: implemented.
+
+Phase 357 proves deterministic immutable resolution for 1,000 semantic entries,
+measured rows, TOC placements, and heading destinations with exact linear work
+counters. Resolver hardening now blocks malformed semantic identity/ordinals,
+missing or inconsistent measured digit capacity, duplicate/out-of-range TOC
+placements, duplicate heading destinations, and invalid retained page facts
+before projection. Malformed retained capacity returns diagnostics instead of
+throwing, and no additional measurement, pagination, relayout, or rendering is
+introduced.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

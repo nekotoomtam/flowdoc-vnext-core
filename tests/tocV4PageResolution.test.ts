@@ -80,6 +80,7 @@ describe("final TOC v4 page-reference base projection", () => {
           documentCompositionFingerprint: "document-pages-1", blockers: [],
         },
       },
+      work: { entryResolutionCount: 2, placementIndexCount: 2, headingDestinationIndexCount: 2 },
       contracts: { measurement: "not-run", pagination: "not-run", relayout: false, rendering: "not-run", authoredMutation: false },
     })
     if (first.status !== "resolved") throw new Error("resolution fixture blocked")
@@ -187,6 +188,47 @@ describe("final TOC v4 page-reference base projection", () => {
           blockers: ["heading-label-materialization-pending"],
         },
       },
+    })
+  })
+
+  it("blocks malformed retained capacity, placement, and heading-map facts before projection", () => {
+    const capacity = fixtures()
+    ;(capacity.measurement as any).rows[1].pageNumber.capacityDigits = 4
+    expect(resolveVNextTocV4PageReferences({
+      ...capacity, paginationManifest: capacity.manifest, tocNodeId: "toc",
+    })).toMatchObject({
+      status: "blocked", entries: null,
+      issues: [expect.objectContaining({ code: "measured-row-capacity-mismatch", headingNodeId: "details" })],
+    })
+
+    const missingCapacity = fixtures()
+    delete (missingCapacity.measurement as any).pageNumberProof
+    delete (missingCapacity.measurement as any).rows[0].pageNumber
+    expect(() => resolveVNextTocV4PageReferences({
+      ...missingCapacity, paginationManifest: missingCapacity.manifest, tocNodeId: "toc",
+    })).not.toThrow()
+    const missingCapacityResult = resolveVNextTocV4PageReferences({
+      ...missingCapacity, paginationManifest: missingCapacity.manifest, tocNodeId: "toc",
+    })
+    expect(missingCapacityResult).toMatchObject({ status: "blocked", entries: null })
+    expect(missingCapacityResult.issues).toContainEqual(expect.objectContaining({
+      code: "page-number-capacity-invalid",
+    }))
+
+    const placement = fixtures()
+    placement.manifest.pages[0].rows[1].rowIndex = 0
+    expect(resolveVNextTocV4PageReferences({
+      ...placement, paginationManifest: placement.manifest, tocNodeId: "toc",
+    })).toMatchObject({
+      status: "blocked", entries: null,
+      issues: [expect.objectContaining({ code: "toc-placement-index-invalid" })],
+    })
+
+    const map = fixtures()
+    map.headingPageMap.entries[1].headingNodeId = "intro"
+    expect(resolveVNextTocV4PageReferences({ ...map, paginationManifest: map.manifest, tocNodeId: "toc" })).toMatchObject({
+      status: "blocked", entries: null,
+      issues: [expect.objectContaining({ code: "duplicate-heading-page-entry", headingNodeId: "intro" })],
     })
   })
 })
