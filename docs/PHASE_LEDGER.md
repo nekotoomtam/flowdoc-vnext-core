@@ -8481,6 +8481,18 @@ The schemas do not prove exact materialization provenance, allocate ids, clone
 content, resolve values, measure, or paginate. The materializer remains
 responsible for semantic source/provenance completeness and batch conflict audit.
 
+## Phase 304 Table V4 Content Materialization
+
+Phase 304 recomputes one accepted source plan, validates exact resolved-row and
+global-binding scope, requires complete row/cell/node/inline assignments, and
+audits every `nodei`/`inli` origin plus allocation-input key before cloning.
+
+Supported collection-row text-block, image, divider, and spacer content is
+cloned source-immutably with rewritten block/inline ids. Item and document text/
+image values remain separate binding tables with explicit fallback/null source.
+Static rows remain authored references. Identity allocation, media fetch,
+measurement, pagination, rendering, persistence, and editor behavior do not run.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
