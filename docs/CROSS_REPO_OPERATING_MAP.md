@@ -298,6 +298,10 @@ editor intent
   Consumers receive generated entry identity, preview label, field dependency,
   pending page-reference, invalidation, and work facts without core running
   field materialization, pagination, rendering, persistence, or editor state.
+- Phase 340 compares v4 TOC semantic plans and reports exact affected TOCs,
+  headings, entry changes, and required measurement/pagination/render lanes.
+  It remains a pure recommendation boundary; consumers execute no side effect
+  through this contract.
 
 ## Default Change Routing
 

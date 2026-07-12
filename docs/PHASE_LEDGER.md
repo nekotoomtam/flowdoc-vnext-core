@@ -8929,6 +8929,20 @@ The plan reports semantic/materialized-label/page-reference/presentation
 invalidation boundaries and factual work without resolving field values or
 running measurement, pagination, rendering, persistence, or editor state.
 
+## Phase 340 TOC V4 Semantic Impact And Scale
+
+Status: implemented.
+
+Phase 340 adds deterministic comparison of two accepted TOC v4 semantic plans.
+It reports added/removed/moved, level, authored-label, and field-dependency
+entry changes with exact affected TOC/heading ids and bounded recommendations
+for TOC measurement, pagination, renderer, and page-reference refresh.
+
+A 1,000-heading fixture collects byte-identical output with exactly 1,002 node
+visits and 1,000 entry builds. Changing one label affects one heading identity
+and its one TOC without falsely reporting entry movement or structural change.
+No measurement, pagination, rendering, persistence, or editor state is run.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

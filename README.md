@@ -290,6 +290,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 339 implements strict v4 TOC semantic collection with body-only nested
   structural traversal, per-TOC level filters, composite entry identity,
   authored-preview labels, field dependencies, warnings, and invalidation facts.
+- Phase 340 adds exact TOC semantic-plan comparison with affected entry/heading
+  identities and bounded invalidation, plus deterministic 1,000-heading
+  collection and single-label impact evidence.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
