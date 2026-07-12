@@ -181,7 +181,8 @@ describe("table text measurement preparation v1", () => {
     expect(result.status).toBe("ready")
     if (result.status !== "ready") throw new Error(result.issues.map((item) => item.message).join("\n"))
     expect(result.requestsByTextBlockId["nodei_000000000001"]).toMatchObject({
-      rowInstanceId: "rowi_000000000001",
+      rowIdentity: { kind: "resolved-row", rowInstanceId: "rowi_000000000001" },
+      cellIdentity: { kind: "resolved-cell", cellInstanceId: "celli_000000000001" },
       sourceCellId: "item-cell",
       request: {
         documentId: "instance-1",

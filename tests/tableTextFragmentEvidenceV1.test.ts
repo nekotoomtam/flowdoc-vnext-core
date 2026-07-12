@@ -38,10 +38,10 @@ function preparation(): Extract<VNextTableTextMeasurementPreparationResultV1, { 
     requestsByTextBlockId: {
       "nodei_000000000001": {
         rowIndex: 0,
-        rowInstanceId: "rowi_000000000001",
+        rowIdentity: { kind: "resolved-row", rowInstanceId: "rowi_000000000001" },
         rowTemplateId: "item-template",
         sourceCellId: "item-cell",
-        cellInstanceId: "celli_000000000001",
+        cellIdentity: { kind: "resolved-cell", cellInstanceId: "celli_000000000001" },
         textBlockId: "nodei_000000000001",
         request: request.request,
       },

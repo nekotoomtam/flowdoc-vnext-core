@@ -33,8 +33,12 @@ export interface VNextTablePreparedTextFragmentSourceV1 {
   contractVersion: typeof VNEXT_TABLE_TEXT_FRAGMENT_EVIDENCE_VERSION
   kind: "text-block-lines"
   nodeId: string
-  rowInstanceId: string
-  cellInstanceId: string
+  rowIdentity:
+    | { kind: "resolved-row"; rowInstanceId: string }
+    | { kind: "authored-row"; sourceRowId: string }
+  cellIdentity:
+    | { kind: "resolved-cell"; cellInstanceId: string }
+    | { kind: "authored-cell"; sourceCellId: string }
   sourceCellId: string
   availableWidthPt: number
   measurementProfileId: string
@@ -208,8 +212,8 @@ export function createVNextTableTextFragmentEvidenceV1(input: {
       contractVersion: VNEXT_TABLE_TEXT_FRAGMENT_EVIDENCE_VERSION,
       kind: "text-block-lines",
       nodeId: textBlockId,
-      rowInstanceId: context.rowInstanceId,
-      cellInstanceId: context.cellInstanceId,
+      rowIdentity: clone(context.rowIdentity),
+      cellIdentity: clone(context.cellIdentity),
       sourceCellId: context.sourceCellId,
       availableWidthPt: context.request.availableWidthPt,
       measurementProfileId: context.request.measurementProfileId,

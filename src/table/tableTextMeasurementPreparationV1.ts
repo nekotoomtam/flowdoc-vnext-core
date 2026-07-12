@@ -25,10 +25,14 @@ export interface VNextTableTextMeasurementPreparationInputV1 {
 
 export interface VNextTableTextMeasurementRequestContextV1 {
   rowIndex: number
-  rowInstanceId: string
+  rowIdentity:
+    | { kind: "resolved-row"; rowInstanceId: string }
+    | { kind: "authored-row"; sourceRowId: string }
   rowTemplateId: string
   sourceCellId: string
-  cellInstanceId: string
+  cellIdentity:
+    | { kind: "resolved-cell"; cellInstanceId: string }
+    | { kind: "authored-cell"; sourceCellId: string }
   textBlockId: string
   request: VNextTextBlockV4MeasurementRequest
 }
@@ -261,10 +265,10 @@ export function createVNextTableTextMeasurementPreparationV1(
         }
         requestsByTextBlockId[node.id] = {
           rowIndex,
-          rowInstanceId: row.rowInstanceId,
+          rowIdentity: { kind: "resolved-row", rowInstanceId: row.rowInstanceId },
           rowTemplateId: row.rowTemplateId,
           sourceCellId: cell.sourceCellId,
-          cellInstanceId: cell.cellInstanceId,
+          cellIdentity: { kind: "resolved-cell", cellInstanceId: cell.cellInstanceId },
           textBlockId: node.id,
           request: request.request,
         }

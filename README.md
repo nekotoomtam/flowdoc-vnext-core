@@ -201,6 +201,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 311 prepares collection-materialized Table cells in canonical child
   order from text-line plus atomic image/divider/spacer candidates, retaining
   geometry, child ranges, vertical insets, prefix heights, and row policy.
+- Phase 312 prepares authored static/header/footer/empty-state rows through the
+  exact Resolved Document binding lane, reuses the same cell-family builder,
+  and merges authored/materialized rows back into complete resolved order.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

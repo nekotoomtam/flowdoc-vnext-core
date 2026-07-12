@@ -57,7 +57,9 @@ export interface VNextTablePreparedCellChildRangeV1 {
 
 export interface VNextTablePreparedCellV1 {
   sourceCellId: string
-  cellInstanceId: string
+  cellIdentity:
+    | { kind: "resolved-cell"; cellInstanceId: string }
+    | { kind: "authored-cell"; sourceCellId: string }
   columnStart: number
   colSpan: number
   xOffsetPt: number
@@ -87,6 +89,24 @@ export interface VNextTablePreparedMaterializedRowV1 {
   fingerprint: string
 }
 
+export interface VNextTablePreparedAuthoredRowV1 {
+  kind: "prepared-authored-row"
+  rowIndex: number
+  sourceRowId: string
+  rowSourceId: string
+  rowTemplateId: string
+  role: "header" | "body" | "footer" | "empty-state"
+  breakPolicy: "allow" | "prefer-keep" | "strict-keep"
+  minimumFirstFragmentHeightPt: number
+  cells: VNextTablePreparedCellV1[]
+  maximumCellOuterHeightPt: number
+  fingerprint: string
+}
+
+export type VNextTablePreparedRowV1 =
+  | VNextTablePreparedMaterializedRowV1
+  | VNextTablePreparedAuthoredRowV1
+
 export interface VNextTablePreparedCellIssueV1 {
   code: string
   path: string
@@ -114,6 +134,67 @@ export type VNextTablePreparedMaterializedCellsResultV1 =
         visitedNodeCount: number
         textLineCandidateCount: number
         atomicCandidateCount: number
+        candidateCount: number
+      }
+      execution: { measurement: "accepted-input"; pagination: "not-run"; rendering: "not-run" }
+      issues: []
+    }
+  | {
+      source: typeof VNEXT_TABLE_PREPARED_CELL_SOURCE
+      contractVersion: typeof VNEXT_TABLE_PREPARED_CELL_VERSION
+      status: "blocked"
+      rows: null
+      issues: VNextTablePreparedCellIssueV1[]
+    }
+
+export type VNextTablePreparedAuthoredCellsResultV1 =
+  | {
+      source: typeof VNEXT_TABLE_PREPARED_CELL_SOURCE
+      contractVersion: typeof VNEXT_TABLE_PREPARED_CELL_VERSION
+      status: "ready"
+      documentId: string
+      instanceRevision: number
+      tableId: string
+      tableDefinitionId: string
+      geometryFingerprint: string
+      rows: VNextTablePreparedAuthoredRowV1[]
+      work: {
+        inputRowCount: number
+        preparedRowCount: number
+        preparedCellCount: number
+        visitedNodeCount: number
+        textLineCandidateCount: number
+        atomicCandidateCount: number
+        candidateCount: number
+      }
+      execution: { measurement: "accepted-input"; pagination: "not-run"; rendering: "not-run" }
+      issues: []
+    }
+  | {
+      source: typeof VNEXT_TABLE_PREPARED_CELL_SOURCE
+      contractVersion: typeof VNEXT_TABLE_PREPARED_CELL_VERSION
+      status: "blocked"
+      rows: null
+      issues: VNextTablePreparedCellIssueV1[]
+    }
+
+export type VNextTablePreparedRowsResultV1 =
+  | {
+      source: typeof VNEXT_TABLE_PREPARED_CELL_SOURCE
+      contractVersion: typeof VNEXT_TABLE_PREPARED_CELL_VERSION
+      status: "ready"
+      documentId: string
+      instanceRevision: number
+      tableId: string
+      tableDefinitionId: string
+      geometryFingerprint: string
+      rows: VNextTablePreparedRowV1[]
+      fingerprint: string
+      work: {
+        rowCount: number
+        authoredRowCount: number
+        materializedRowCount: number
+        cellCount: number
         candidateCount: number
       }
       execution: { measurement: "accepted-input"; pagination: "not-run"; rendering: "not-run" }

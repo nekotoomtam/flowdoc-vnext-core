@@ -8573,6 +8573,18 @@ Authored-reference rows remain explicitly pending for the Resolved Document
 measurement lane. Pagination, repeated headers, rendering, media fetch, backend,
 and editor behavior do not run.
 
+## Phase 312 Table V4 Authored Cell Preparation And Row Assembly
+
+Phase 312 prepares authored static, header, footer, and empty-state rows from
+the exact Resolved Document instance/revision and existing scalar/image/style
+bindings. Authored and collection rows share one cell-family builder and retain
+distinct authored versus resolved row/cell identity unions.
+
+The final assembler restores exact materialized row order and blocks missing,
+duplicate, wrong-kind, or cross-scope rows. Measurement is accepted input;
+pagination, repeated headers, rendering, backend, and editor behavior remain
+inactive.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
