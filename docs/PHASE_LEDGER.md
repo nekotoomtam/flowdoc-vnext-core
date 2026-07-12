@@ -9043,6 +9043,15 @@ resumed placement/final cursor equivalence with one-shot execution.
 No measurement, final page resolution, rendering, persistence, or editor state
 is executed.
 
+## Phase 349 TOC V4 Pagination Scale And Window Resume
+
+Status: implemented.
+
+Phase 349 paginates 1,000 measured rows into 167 pages and resumes through
+seven-page windows in 24 calls. Combined resumed pages equal one-shot pages,
+the final cursor is identical, and row indexes cover 0..999 exactly once.
+A one-page window returns partial progress rather than dropping remaining work.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

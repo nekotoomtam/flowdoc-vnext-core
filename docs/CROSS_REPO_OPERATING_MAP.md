@@ -331,6 +331,9 @@ editor intent
 - Phase 348 exposes pure bounded TOC page windows and resumable cursors without
   measurement or final page resolution. Consumer orchestration may retain the
   cursor but must not rewrite placement, keep, gap, or overflow semantics.
+- Phase 349 proves bounded TOC cursor orchestration at 1,000 rows. Backend or
+  editor consumers may schedule page windows later, but final page references,
+  renderer output, and durable cursor storage remain outside this phase.
 
 ## Default Change Routing
 

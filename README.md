@@ -317,6 +317,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 348 implements measured TOC page windows with exact-owner cursors,
   fresh-page title/first-row handling, atomic rows, explicit forced overflow,
   gap-safe placements, partial results, and resume equivalence.
+- Phase 349 proves 1,000-row TOC pagination across 167 pages, bounded seven-page
+  windows, 24 deterministic resume calls, complete ordered identity coverage,
+  and one-shot-equivalent pages/final cursor.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
