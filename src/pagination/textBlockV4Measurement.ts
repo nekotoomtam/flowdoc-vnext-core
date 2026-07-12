@@ -69,6 +69,21 @@ export type VNextTextBlockV4MeasurementRequestResult =
       issues: VNextTextBlockV4MeasurementIssue[]
     }
 
+export interface VNextTextBlockV4ResolvedMeasurementNodeInput {
+  documentId: string
+  instanceRevision: number
+  sectionId: string
+  textBlock: Extract<
+    VNextResolvedDocumentV1["document"]["document"]["sections"][number]["nodes"][string],
+    { type: "text-block" }
+  >
+  availableWidthPt: number
+  measurementProfileId: string
+  styleKey: string
+  resolvedTextByInlineId: Readonly<Record<string, { fieldKey: string; value: string }>>
+  resolvedImageByPlacementId: Readonly<Record<string, { assetId: string | null }>>
+}
+
 export interface VNextTextBlockV4MeasuredLineInput {
   index: number
   startOffset: number
@@ -126,6 +141,103 @@ function requestBlocked(issues: VNextTextBlockV4MeasurementIssue[]): VNextTextBl
   }
 }
 
+export function createVNextTextBlockV4MeasurementRequestFromResolvedNode(
+  input: VNextTextBlockV4ResolvedMeasurementNodeInput,
+): VNextTextBlockV4MeasurementRequestResult {
+  const issues: VNextTextBlockV4MeasurementIssue[] = []
+  if (!Number.isFinite(input.availableWidthPt) || input.availableWidthPt <= 0) issues.push(issue(
+    "invalid-available-width", "availableWidthPt", "available width must be a positive finite point value",
+  ))
+  if (input.measurementProfileId.trim().length === 0) issues.push(issue(
+    "missing-measurement-profile", "measurementProfileId", "measurement profile id must not be blank",
+  ))
+  if (input.styleKey.trim().length === 0) issues.push(issue(
+    "missing-style-key", "styleKey", "style key must not be blank",
+  ))
+
+  const runs: VNextTextBlockV4MeasurementRun[] = []
+  let renderedText = ""
+  input.textBlock.children.forEach((inline, index) => {
+    const start = renderedText.length
+    if (inline.type === "page-number") {
+      issues.push(issue(
+        "generated-inline-unresolved",
+        `document.textBlock.children[${index}]`,
+        "page-number must be expanded before exact text measurement",
+        inline.id,
+      ))
+      return
+    }
+
+    let rendered = ""
+    let run: Omit<VNextTextBlockV4MeasurementRun, "renderStartOffset" | "renderEndOffset" | "renderedText">
+    if (inline.type === "text") {
+      rendered = inline.text
+      run = {
+        inlineId: inline.id,
+        kind: "text",
+        styleKey: input.styleKey,
+        ...(inline.style == null ? {} : { localStyle: clone(inline.style) }),
+      }
+    } else if (inline.type === "field-ref") {
+      const binding = input.resolvedTextByInlineId[inline.id]
+      if (binding == null) {
+        issues.push(issue(
+          "resolved-field-binding-missing",
+          `document.textBlock.children[${index}]`,
+          `resolved field binding for inline "${inline.id}" is missing`,
+          inline.id,
+        ))
+        return
+      }
+      rendered = binding.value
+      run = { inlineId: inline.id, kind: "resolved-field", fieldKey: binding.fieldKey, styleKey: input.styleKey }
+    } else if (inline.type === "line-break") {
+      rendered = "\n"
+      run = { inlineId: inline.id, kind: "hard-break" }
+    } else {
+      const binding = input.resolvedImageByPlacementId[inline.id]
+      if (binding == null) {
+        issues.push(issue(
+          "resolved-image-binding-missing",
+          `document.textBlock.children[${index}]`,
+          `resolved image binding for inline "${inline.id}" is missing`,
+          inline.id,
+        ))
+        return
+      }
+      rendered = "\uFFFC"
+      run = { inlineId: inline.id, kind: "inline-image", assetId: binding.assetId, frame: clone(inline.frame) }
+    }
+    renderedText += rendered
+    runs.push({
+      ...run,
+      renderedText: rendered,
+      renderStartOffset: start,
+      renderEndOffset: renderedText.length,
+    })
+  })
+
+  if (issues.length > 0) return requestBlocked(issues)
+  return {
+    source: VNEXT_TEXT_BLOCK_V4_MEASUREMENT_SOURCE,
+    version: VNEXT_TEXT_BLOCK_V4_MEASUREMENT_VERSION,
+    status: "ready",
+    request: {
+      documentId: input.documentId,
+      instanceRevision: input.instanceRevision,
+      sectionId: input.sectionId,
+      textBlockId: input.textBlock.id,
+      availableWidthPt: input.availableWidthPt,
+      measurementProfileId: input.measurementProfileId,
+      styleKey: input.styleKey,
+      renderedText,
+      runs,
+    },
+    issues: [],
+  }
+}
+
 export function createVNextTextBlockV4MeasurementRequest(
   resolved: VNextResolvedDocumentV1,
   input: { textBlockId: string; availableWidthPt: number; measurementProfileId: string },
@@ -155,102 +267,24 @@ export function createVNextTextBlockV4MeasurementRequest(
   ))
   if (issues.length > 0 || found == null) return requestBlocked(issues)
   const { sectionId, textBlock } = found
-
-  const fieldByInlineId = new Map(resolved.bindings.fields.map((binding) => [binding.inlineId, binding]))
-  const imageByPlacementId = new Map(resolved.bindings.images.map((binding) => [binding.placementId, binding]))
   const blockStyle = resolved.bindings.styles.find((binding) => binding.textBlockId === textBlock.id)
-  const runs: VNextTextBlockV4MeasurementRun[] = []
-  let renderedText = ""
-
-  textBlock.children.forEach((inline, index) => {
-    const start = renderedText.length
-    if (inline.type === "page-number") {
-      issues.push(issue(
-        "generated-inline-unresolved",
-        `document.textBlock.children[${index}]`,
-        "page-number must be expanded before exact text measurement",
-        inline.id,
-      ))
-      return
-    }
-
-    let rendered = ""
-    let run: Omit<VNextTextBlockV4MeasurementRun, "renderStartOffset" | "renderEndOffset" | "renderedText">
-    if (inline.type === "text") {
-      rendered = inline.text
-      run = {
-        inlineId: inline.id,
-        kind: "text",
-        ...(blockStyle == null ? {} : { styleKey: blockStyle.styleKey }),
-        ...(inline.style == null ? {} : { localStyle: clone(inline.style) }),
-      }
-    } else if (inline.type === "field-ref") {
-      const binding = fieldByInlineId.get(inline.id)
-      if (binding == null) {
-        issues.push(issue(
-          "resolved-field-binding-missing",
-          `document.textBlock.children[${index}]`,
-          `resolved field binding for inline "${inline.id}" is missing`,
-          inline.id,
-        ))
-        return
-      }
-      rendered = binding.value
-      run = {
-        inlineId: inline.id,
-        kind: "resolved-field",
-        fieldKey: binding.fieldKey,
-        ...(blockStyle == null ? {} : { styleKey: blockStyle.styleKey }),
-      }
-    } else if (inline.type === "line-break") {
-      rendered = "\n"
-      run = { inlineId: inline.id, kind: "hard-break" }
-    } else {
-      const binding = imageByPlacementId.get(inline.id)
-      if (binding == null) {
-        issues.push(issue(
-          "resolved-image-binding-missing",
-          `document.textBlock.children[${index}]`,
-          `resolved image binding for inline "${inline.id}" is missing`,
-          inline.id,
-        ))
-        return
-      }
-      rendered = "\uFFFC"
-      run = {
-        inlineId: inline.id,
-        kind: "inline-image",
-        assetId: binding.assetId,
-        frame: clone(inline.frame),
-      }
-    }
-    renderedText += rendered
-    runs.push({
-      ...run,
-      renderedText: rendered,
-      renderStartOffset: start,
-      renderEndOffset: renderedText.length,
-    })
+  return createVNextTextBlockV4MeasurementRequestFromResolvedNode({
+    documentId: resolved.instanceId,
+    instanceRevision: resolved.instanceRevision,
+    sectionId,
+    textBlock,
+    availableWidthPt: input.availableWidthPt,
+    measurementProfileId: input.measurementProfileId,
+    styleKey: blockStyle?.styleKey ?? "default",
+    resolvedTextByInlineId: Object.fromEntries(resolved.bindings.fields.map((binding) => [
+      binding.inlineId,
+      { fieldKey: binding.fieldKey, value: binding.value },
+    ])),
+    resolvedImageByPlacementId: Object.fromEntries(resolved.bindings.images.map((binding) => [
+      binding.placementId,
+      { assetId: binding.assetId },
+    ])),
   })
-
-  if (issues.length > 0) return requestBlocked(issues)
-  return {
-    source: VNEXT_TEXT_BLOCK_V4_MEASUREMENT_SOURCE,
-    version: VNEXT_TEXT_BLOCK_V4_MEASUREMENT_VERSION,
-    status: "ready",
-    request: {
-      documentId: resolved.instanceId,
-      instanceRevision: resolved.instanceRevision,
-      sectionId,
-      textBlockId: textBlock.id,
-      availableWidthPt: input.availableWidthPt,
-      measurementProfileId: input.measurementProfileId,
-      styleKey: blockStyle?.styleKey ?? "default",
-      renderedText,
-      runs,
-    },
-    issues: [],
-  }
 }
 
 function pointAt(

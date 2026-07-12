@@ -192,6 +192,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 308 adds strict Table cell layout profiles and deterministic point
   geometry with stable semantic columns, `colSpan` occupancy, explicit insets,
   non-positive content-width blocking, fingerprints, and no measurement.
+- Phase 309 extracts one resolved-node Text-block measurement packet builder
+  and prepares collection-materialized Table text requests from exact cell
+  widths, bindings, style ownership, instance revision, and profile pins.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

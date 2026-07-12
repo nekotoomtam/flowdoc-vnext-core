@@ -8538,6 +8538,18 @@ Unknown overrides and non-positive content widths block. Geometry emits stable
 fingerprints and factual work counts without measurement, pagination, rendering,
 backend, or editor execution.
 
+## Phase 309 Table V4 Text Measurement Preparation
+
+Phase 309 reuses one pure resolved-node Text-block packet builder for existing
+Resolved Document and materialized Table paths. Table preparation validates
+exact definition/geometry/materialization/style ownership, binds cloned inline
+ids, and emits one width/profile/revision-pinned request per collection text
+block.
+
+Static authored text remains on the existing Resolved Document measurement
+path. The phase does not run a measurement engine, accept measured lines,
+prepare fragment candidates, paginate, render, or change backend/editor state.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
