@@ -204,6 +204,12 @@ The package must remain runnable without any parent editor checkout.
 - Phase 312 prepares authored static/header/footer/empty-state rows through the
   exact Resolved Document binding lane, reuses the same cell-family builder,
   and merges authored/materialized rows back into complete resolved order.
+- Phase 313 publishes factual prepared-Table invalidation lanes for local,
+  table-wide, minimum-height, and row-order changes without canonical
+  light/medium/heavy labels.
+- Phase 314 proves 1,000 materialized rows prepare twice to byte-identical
+  output with 1,000 cells/nodes/text candidates, exact linear work counts,
+  source immutability, and no pagination or rendering execution.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

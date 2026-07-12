@@ -8585,6 +8585,27 @@ duplicate, wrong-kind, or cross-scope rows. Measurement is accepted input;
 pagination, repeated headers, rendering, backend, and editor behavior remain
 inactive.
 
+## Phase 313 Table V4 Prepared Cell Invalidation Facts
+
+Phase 313 maps item/document values, source content, geometry, style/profile,
+image frame, minimum row height, and row order changes to explicit measurement,
+preparation, pagination, and render lanes. Local changes require exact affected
+row/cell facts; geometry/profile changes are table-wide; reorder retains
+prepared evidence and invalidates page placement from one earliest row.
+
+The contract emits factual scope and retained-state facts only. It does not
+define product-facing light/medium/heavy labels or execute invalidation.
+
+## Phase 314 Table V4 Prepared Cell Determinism And Scale
+
+Phase 314 prepares 1,000 collection rows twice from the same geometry and text
+evidence and proves byte-identical output, source immutability, 1,000 cells,
+1,000 visited nodes, 1,000 legal text candidates, and exact factual work counts.
+
+The fixture proves bounded semantic preparation only. It does not execute a
+measurement engine, synchronized row pagination, 200-300 page layout,
+rendering, export, or production cache/memory behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
