@@ -65,7 +65,7 @@ describe("Table multi-row pagination v1", () => {
         { pageIndex: 1, usedHeightPt: 60, rows: [{ rowIndex: 2, complete: false }] },
         { pageIndex: 2, usedHeightPt: 60, rows: [{ rowIndex: 2, complete: true }] },
       ],
-      summary: { pageCount: 3, rowFragmentCount: 4, completedRowCount: 3, splitRowCount: 1, maximumUsedPageHeightPt: 70 },
+      summary: { pageCount: 3, rowFragmentCount: 4, completedRowCount: 3, splitRowCount: 1, repeatedHeaderFragmentCount: 0, maximumUsedPageHeightPt: 70 },
       work: { pageAttemptCount: 3, rowPlanCount: 5, consumedCandidateCount: 4, freshPageAdvanceCount: 1 },
       contracts: { measurementExecution: false, preparedInputMutation: false, repeatedHeaders: "not-run" },
       cursorAfter: { rowIndex: 3, activeRow: null, complete: true },

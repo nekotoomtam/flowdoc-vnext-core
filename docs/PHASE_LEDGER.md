@@ -8663,6 +8663,16 @@ factual work counts are explicit.
 Repeated headers remain intentionally inactive until base multi-row pagination
 is stable. Measurement, rendering, backend, and editor behavior do not run.
 
+## Phase 320 Table V4 Repeated Leading Headers
+
+Phase 320 applies explicit repeat-leading-headers policy to contiguous leading
+authored header rows. Continuation pages plan fresh strict-keep layout
+fragments that retain authored row/cell identity without allocation or history.
+
+Missing headers, headers that cannot complete, and fresh pages where repeated
+headers prevent body progress block before emitting header-only loops. Footer
+repetition, renderer borders, backend, and editor behavior remain inactive.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

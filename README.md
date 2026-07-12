@@ -228,6 +228,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 319 paginates complete prepared row streams across bounded pages,
   packing completed rows, carrying one active row cursor, allowing one partial
   first-page advance, and retaining deterministic page/row/cell work facts.
+- Phase 320 repeats contiguous leading authored headers as identity-retaining
+  layout fragments on continuation pages, plans them under strict-keep, and
+  blocks missing, oversized, or header-only no-progress pages.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

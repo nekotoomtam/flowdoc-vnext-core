@@ -25,7 +25,7 @@ export interface VNextTablePageRowFragmentV1 {
   rowFragmentIndex: number
   rowKind: "authored" | "materialized"
   rowKey: string
-  repeatedHeader: false
+  repeatedHeader: boolean
   yOffsetPt: number
   heightPt: number
   complete: boolean
@@ -65,6 +65,7 @@ export type VNextTablePaginationResultV1 =
         rowFragmentCount: number
         completedRowCount: number
         splitRowCount: number
+        repeatedHeaderFragmentCount: number
         maximumUsedPageHeightPt: number
       }
       work: {
@@ -74,12 +75,13 @@ export type VNextTablePaginationResultV1 =
         checkpointLookupCount: number
         consumedCandidateCount: number
         freshPageAdvanceCount: number
+        repeatedHeaderRowPlanCount: number
       }
       contracts: {
         measurementExecution: false
         preparedInputMutation: false
         rowCursorCommit: "atomic"
-        repeatedHeaders: "not-run"
+        repeatedHeaders: "not-run" | "applied"
       }
       issues: []
     }
