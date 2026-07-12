@@ -334,7 +334,7 @@ export function resolveVNextTableRowsV1(value: unknown): VNextResolvedTableRowsR
     "collection row sources require one exact instance-pinned collection snapshot",
   )
 
-  collectionSources.forEach((source, index) => {
+  collectionSources.forEach((source) => {
     const definitionField = fieldContract.registry.fields[source.collectionFieldKey]
     if (definitionField == null) addIssue(
       issues, "field", "missing-collection-field", `definition.rowSources[${definition.rowSources.indexOf(source)}].collectionFieldKey`,
@@ -348,7 +348,6 @@ export function resolveVNextTableRowsV1(value: unknown): VNextResolvedTableRowsR
       issues, "snapshot", "missing-collection-value", `collectionSnapshot.collections.${source.collectionFieldKey}`,
       `collection snapshot is missing "${source.collectionFieldKey}"`,
     )
-    void index
   })
 
   const suppressesTable = collectionSnapshot != null && collectionSources.some((source) => (

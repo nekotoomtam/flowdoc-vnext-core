@@ -156,6 +156,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 297 resolves ordered static, empty-state, and collection row streams
   through published field/snapshot pins and externally allocated `rowi`/`celli`
   provenance, while content materialization and pagination remain inactive.
+- Phase 298 closes the Table v4 semantic row-stream slice across definition,
+  snapshot, empty policy, field capability, ordered resolution, and identity
+  audits while descendant content materialization and pagination remain open.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

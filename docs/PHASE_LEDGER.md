@@ -8409,6 +8409,18 @@ extra assignments, empty policies, and collection field capability. Output is
 all-or-blocked or explicitly suppressed; content cloning, measurement,
 pagination, rendering, backend allocation, and persistence remain inactive.
 
+## Phase 298 Table V4 Semantic Readiness Close Audit
+
+Phase 298 records PASS evidence for exact Structure ownership, stable normalized
+columns, span-aware row templates, ordered static/collection sources, pinned
+collection snapshots, explicit empty policies, collection field capability,
+and all-or-blocked `rowi`/`celli` provenance validation.
+
+The semantic row-stream slice is ready, not the complete Table node. Descendant
+content materialization, nested item-field schema, sorting/grouping, prepared
+cell fragments, synchronized row pagination, renderer/export, backend
+allocation/persistence, and editor authoring remain open.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -265,6 +265,21 @@ describe("resolved table rows v1", () => {
     if (headerOnly.status === "resolved") expect(headerOnly.rows.map((row) => row.role)).toEqual(["header", "footer"])
   })
 
+  it("resolves a static-only table without a collection snapshot", () => {
+    const input = request()
+    input.definition.rowSources = [input.definition.rowSources[0], input.definition.rowSources[2]]
+    delete input.collectionSnapshot
+    input.identityAssignments = []
+
+    const result = resolveVNextTableRowsV1(input)
+    expect(result.status).toBe("resolved")
+    if (result.status === "resolved") {
+      expect(result.collectionSnapshotId).toBeNull()
+      expect(result.rows.map((row) => row.source.kind)).toEqual(["static-row", "static-row"])
+      expect(result.rows.map((row) => row.identity.kind)).toEqual(["authored-row", "authored-row"])
+    }
+  })
+
   it("suppresses the whole table for hide-table and rejects unused allocations", () => {
     const input = request()
     input.collectionSnapshot = snapshot([])

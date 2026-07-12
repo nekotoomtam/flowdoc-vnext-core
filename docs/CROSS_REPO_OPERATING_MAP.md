@@ -190,6 +190,11 @@ editor intent
   sources, stable columns, span-aware occupancy, explicit row policies, and
   pre-pagination resolved rows. Existing v4 parsers and document v3 pagination
   remain unchanged: `docs/TABLE_V4_SEMANTIC_ARCHITECTURE_LOCK.md`.
+- Phase 298 closes the Table v4 semantic row-stream slice with strict
+  definition, collection snapshot, empty-policy, published-field, ordered-row,
+  and `rowi`/`celli` provenance evidence. Descendant content materialization,
+  pagination, backend, and editor remain open:
+  `docs/TABLE_V4_SEMANTIC_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
