@@ -320,6 +320,8 @@ The package must remain runnable without any parent editor checkout.
 - Phase 349 proves 1,000-row TOC pagination across 167 pages, bounded seven-page
   windows, 24 deterministic resume calls, complete ordered identity coverage,
   and one-shot-equivalent pages/final cursor.
+- Phase 350 hardens external TOC pagination cursors against contract, owner,
+  range, completion, title, and row-order drift before any page commit.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

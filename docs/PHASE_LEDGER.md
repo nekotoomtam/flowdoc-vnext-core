@@ -9052,6 +9052,15 @@ seven-page windows in 24 calls. Combined resumed pages equal one-shot pages,
 the final cursor is identical, and row indexes cover 0..999 exactly once.
 A one-page window returns partial progress rather than dropping remaining work.
 
+## Phase 350 TOC V4 Pagination Cursor Hardening
+
+Status: implemented.
+
+Phase 350 validates cursor contract/version, TOC and measurement ownership,
+row/page bounds, completion truth, title state, and title-before-row ordering.
+Malformed or impossible external cursor state blocks with the original cursor
+and no page fragments.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

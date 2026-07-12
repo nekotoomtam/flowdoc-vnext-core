@@ -121,4 +121,27 @@ describe("TOC v4 pagination", () => {
       ],
     })
   })
+
+  it("blocks impossible cursor contract and title progress states atomically", () => {
+    const measurement = measured(2)
+    const complete = paginateVNextTocV4({ measurement, pageBodyHeightPt: 70, maximumPageCount: 10 })
+    if (complete.status === "blocked") throw new Error("cursor fixture blocked")
+    const invalid = {
+      ...complete.cursorAfter,
+      contractVersion: 2 as any,
+      kind: "wrong" as any,
+      titlePlaced: false,
+      nextRowIndex: 1,
+      complete: false,
+    }
+    expect(paginateVNextTocV4({
+      measurement, pageBodyHeightPt: 70, maximumPageCount: 1, cursor: invalid,
+    })).toMatchObject({
+      status: "blocked", cursorAfter: null, pages: null,
+      issues: expect.arrayContaining([
+        expect.objectContaining({ code: "cursor-contract-invalid" }),
+        expect.objectContaining({ code: "cursor-title-row-order-invalid" }),
+      ]),
+    })
+  })
 })

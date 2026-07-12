@@ -136,6 +136,9 @@ export function paginateVNextTocV4(input: {
     "invalid-maximum-page-count", "maximumPageCount", "maximum page count must be a positive integer",
   ))
   if (input.measurement.status === "measured") {
+    if (cursorBefore.contractVersion !== 1 || cursorBefore.kind !== "toc-pagination-cursor") issues.push(issue(
+      "cursor-contract-invalid", "cursor", "cursor contract version and kind must match TOC pagination v1",
+    ))
     if (cursorBefore.tocNodeId !== input.measurement.tocNodeId
       || cursorBefore.measurementFingerprint !== input.measurement.fingerprint) issues.push(issue(
       "cursor-owner-mismatch", "cursor", "cursor must pin the exact measured TOC fingerprint",
@@ -146,6 +149,12 @@ export function paginateVNextTocV4(input: {
     ))
     if (!Number.isInteger(cursorBefore.nextPageIndex) || cursorBefore.nextPageIndex < 0) issues.push(issue(
       "cursor-page-invalid", "cursor.nextPageIndex", "cursor page index must be non-negative",
+    ))
+    if (input.measurement.title == null && !cursorBefore.titlePlaced) issues.push(issue(
+      "cursor-title-state-invalid", "cursor.titlePlaced", "a TOC without a measured title must retain titlePlaced true",
+    ))
+    if (!cursorBefore.titlePlaced && cursorBefore.nextRowIndex !== 0) issues.push(issue(
+      "cursor-title-row-order-invalid", "cursor.nextRowIndex", "rows cannot be consumed before the measured title",
     ))
     const expectedComplete = cursorBefore.titlePlaced && cursorBefore.nextRowIndex === input.measurement.rows.length
     if (cursorBefore.complete !== expectedComplete) issues.push(issue(
