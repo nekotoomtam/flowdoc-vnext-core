@@ -8630,6 +8630,17 @@ no-progress/oversized diagnostics, repeated leading headers, and factual
 It does not change canonical schemas or activate measurement, renderer/export,
 backend, or editor behavior.
 
+## Phase 317 Table V4 Cell Cursor And Planner
+
+Phase 317 publishes strict authored/resolved cell cursor identities and a pure
+one-attempt planner. It consumes prepared prefix heights, applies top inset only
+at the initial boundary and bottom inset only on completion, commits empty-cell
+insets once, advances monotonically, and returns explicit fresh-page or
+oversized diagnostics.
+
+The planner does not reconcile sibling cells, apply row break policy, paginate
+multiple rows, repeat headers, measure, render, or mutate input.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

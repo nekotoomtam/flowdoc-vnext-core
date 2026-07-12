@@ -39,7 +39,8 @@ sourceCellId + cell identity + candidateIndex + complete
 
 - `candidateIndex` is a monotonic boundary from zero through candidate count.
 - Cursor cell identity and source cell id must match the prepared cell exactly.
-- Empty cells begin complete.
+- Empty cells begin uncommitted at candidate index zero; their first plan
+  completes boundary insets exactly once.
 - Completed cells remain complete and consume zero height on later fragments of
   the same row.
 - Cursor serialization is JSON-safe and contains no DOM/range/runtime object.
