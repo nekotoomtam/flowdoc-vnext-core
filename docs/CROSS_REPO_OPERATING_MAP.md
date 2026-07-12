@@ -273,6 +273,11 @@ editor intent
   draft semantics, commands, impact, history, and scale. Backend revision and
   persistence plus editor confirmation/selection/UI remain explicitly external:
   `docs/TABLE_V4_AUTHORING_LANE_READINESS_CLOSE_AUDIT.md`.
+- Phase 334 locks Table v4 authoring risk hardening as a guarded core boundary
+  over the pure kernel: editor/backend consumers receive exact preview,
+  confirmation, reversible change-set, and budget facts without moving UI,
+  authentication, or persistence into core:
+  `docs/TABLE_V4_AUTHORING_RISK_HARDENING_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

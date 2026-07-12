@@ -272,6 +272,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 333 closes the bounded Table v4 authoring lane across exact-draft bundle
   readiness, row/grid/cell commands, complete impact scope, history replay,
   capability blocks, and deterministic 1,000-row scale.
+- Phase 334 locks Table v4 authoring risk hardening around exact impact preview,
+  stale destructive confirmation, selective reversible change sets, undo/redo
+  fingerprint gates, and explicit execution budgets.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

@@ -8841,6 +8841,19 @@ Collection-source lifecycle editing, shared/empty templates, merge/split,
 rowSpan, collaboration, backend persistence, and editor UI remain intentionally
 open: `docs/TABLE_V4_AUTHORING_LANE_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 334 Table V4 Authoring Risk Hardening Architecture Lock
+
+Status: locked.
+
+Phase 334 defines a guarded boundary over the pure Table authoring kernel with
+exact dry-run impact, strict destructive confirmation pins, selective changed
+node/definition snapshots, fingerprint-gated undo/redo, and explicit
+row-template/affected-node/removed-subtree budgets.
+
+Authentication, durable storage, editor confirmation UI, collaboration merge,
+and previously blocked Table capabilities remain external or future:
+`docs/TABLE_V4_AUTHORING_RISK_HARDENING_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
