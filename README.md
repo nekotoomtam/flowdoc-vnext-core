@@ -257,6 +257,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 328 locks the Table v4 authoring lane as an atomic Structure Draft
   document/Table-Definition bundle with conservative span-one row, column, and
   cell commands plus explicit merge/collection/rowSpan capability blocks.
+- Phase 329 adds the strict authoring-ready bundle audit, exact draft owner and
+  graph/definition/header checks, dedicated Table policy actions, and explicit
+  supported/blocked capability facts.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

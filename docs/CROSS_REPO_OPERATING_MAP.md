@@ -254,6 +254,10 @@ editor intent
   document/Table-Definition edits, dedicated policy actions, span-one row/grid
   commands, selection/history/invalidation facts, and explicit unsupported
   capabilities: `docs/TABLE_V4_AUTHORING_LANE_ARCHITECTURE_LOCK.md`.
+- Phase 329 accepts Table authoring only after exact draft ownership,
+  canonical graph, span-one definition mapping, header sync, and policy/session
+  capabilities are audited. Editor consumers may use capability facts but must
+  not bypass blocked collection, merge/split, rowSpan, or cross-owner actions.
 
 ## Default Change Routing
 

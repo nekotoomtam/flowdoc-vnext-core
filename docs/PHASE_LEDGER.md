@@ -8773,6 +8773,18 @@ Collection source lifecycle, cell merge/split, rowSpan, cross-Table movement,
 persistence, and editor state remain explicitly blocked or external:
 `docs/TABLE_V4_AUTHORING_LANE_ARCHITECTURE_LOCK.md`.
 
+## Phase 329 Table V4 Authoring-Ready Bundle And Capabilities
+
+Status: implemented.
+
+Phase 329 adds strict exact-draft document/Table-Definition bundle acceptance,
+canonical structure and one-owner Table lookup, span-one row/template/cell
+mapping, semantic/physical column and header synchronization, dedicated Table
+policy actions, session permission facts, and deterministic capability output.
+
+Collection source lifecycle, merge/split, rowSpan, and cross-owner moves are
+reported as explicit unsupported capabilities rather than raw node mutations.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

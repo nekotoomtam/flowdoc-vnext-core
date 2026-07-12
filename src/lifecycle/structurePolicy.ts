@@ -19,6 +19,13 @@ export const VNEXT_STRUCTURE_POLICY_NODE_ACTIONS = [
   "style.override",
   "field.place",
   "media.place",
+  "table.row.insert",
+  "table.row.delete",
+  "table.row.reorder",
+  "table.column.insert",
+  "table.column.delete",
+  "table.column.resize",
+  "table.cell.vertical-align.patch",
 ] as const
 
 export const VNEXT_STRUCTURE_POLICY_CHILD_ACTIONS = [
