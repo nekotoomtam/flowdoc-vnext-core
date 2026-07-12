@@ -165,7 +165,7 @@ function preparedTable(): ReadyTable {
   }
 }
 
-function tableStyle(): VNextTableRendererStyleProfileV1 {
+export function createV4IntegratedStressTableStyle(): VNextTableRendererStyleProfileV1 {
   return {
     contractVersion: 1, kind: "table-render-style-profile", profileId: "integrated-smoke-table",
     outerBorder: { style: "solid", widthPt: 1, color: "111827" },
@@ -209,16 +209,29 @@ export function createV4IntegratedStressSmokeBundle(): V4IntegratedStressSmokeBu
   }
 }
 
+export function createV4IntegratedStressColumnsInput(bundle: V4IntegratedStressSmokeBundle) {
+  return createVNextColumnsV4NestedInput({
+    document: bundle.document, sectionId: "section-cover", columnsId: "summary-columns",
+    availableWidthPt: 500, capabilities: { maxNestingDepth: 3, minimumTrackWidthPt: 80 },
+    measuredTextByNodeId: bundle.measuredTextByNodeId,
+  })
+}
+
+export function createV4IntegratedStressTocInputs(bundle: V4IntegratedStressSmokeBundle) {
+  const semantic = collectVNextTocV4Semantics(bundle.document)
+  const measurement = measureVNextTocV4({
+    semantic, tocNodeId: "toc-smoke", spec: tocSpec(),
+    textMeasurer: createApproximateVNextTextMeasurer({ charWidthPt: 6, lineHeightPt: 14 }),
+  })
+  return { semantic, measurement }
+}
+
 export function runV4IntegratedStressSmoke(bundle: V4IntegratedStressSmokeBundle) {
   const structure = validateVNextDocumentV4Structure(bundle.document)
   const text = paginateVNextTextBlockV4Lines(bundle.measuredTextByNodeId.title, {
     pageBodyHeightPt: 60,
   })
-  const columnsInput = createVNextColumnsV4NestedInput({
-    document: bundle.document, sectionId: "section-cover", columnsId: "summary-columns",
-    availableWidthPt: 500, capabilities: { maxNestingDepth: 3, minimumTrackWidthPt: 80 },
-    measuredTextByNodeId: bundle.measuredTextByNodeId,
-  })
+  const columnsInput = createV4IntegratedStressColumnsInput(bundle)
   if (columnsInput.status !== "ready") throw new Error("integrated smoke Columns input blocked")
   const columns = paginateVNextNestedColumnsV4({
     columns: columnsInput.columns, pageBodyHeightPt: 60, maximumPageCount: 10,
@@ -233,13 +246,9 @@ export function runV4IntegratedStressSmoke(bundle: V4IntegratedStressSmokeBundle
     sectionId: "section-cover", zoneId: "zone-cover-body",
     expectedPaginationFingerprint: table.fingerprint, pagination: table,
     pageOrigins: table.pages.map((page) => ({ pageIndex: page.pageIndex, xPt: 20, yPt: 30 })),
-    styleProfile: tableStyle(),
+    styleProfile: createV4IntegratedStressTableStyle(),
   })
-  const tocSemantic = collectVNextTocV4Semantics(bundle.document)
-  const tocMeasurement = measureVNextTocV4({
-    semantic: tocSemantic, tocNodeId: "toc-smoke", spec: tocSpec(),
-    textMeasurer: createApproximateVNextTextMeasurer({ charWidthPt: 6, lineHeightPt: 14 }),
-  })
+  const { semantic: tocSemantic, measurement: tocMeasurement } = createV4IntegratedStressTocInputs(bundle)
   const tocPagination = paginateVNextTocV4({
     measurement: tocMeasurement, pageBodyHeightPt: 100, maximumPageCount: 10,
   })

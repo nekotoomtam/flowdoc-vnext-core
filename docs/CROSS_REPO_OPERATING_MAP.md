@@ -387,6 +387,11 @@ editor intent
   evidence only; backend cache/persistence orchestration and editor undo/
   selection presentation remain deferred:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_INVALIDATION_MATRIX.md`.
+- Phase 363 proves core failure isolation, TOC exact cursor resume, and honest
+  all-or-blocked recovery for current Columns/Table contracts. Backend/editor
+  must preserve these diagnostics and accepted-state boundaries rather than
+  synthesize repaired cursors, partial commands, relayout, or hidden retry:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_FAILURE_RECOVERY_MATRIX.md`.
 
 ## Default Change Routing
 

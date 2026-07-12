@@ -9213,6 +9213,20 @@ reruns, unrelated lane evidence remains byte-identical, and all expected
 blockers plus `integratedPageCount=null` remain stable:
 `docs/V4_INTEGRATED_DOCUMENT_STRESS_INVALIDATION_MATRIX.md`.
 
+## Phase 363 V4 Integrated Document Stress Failure And Recovery Matrix
+
+Status: implemented.
+
+Phase 363 proves atomic failure and deterministic recovery for oversized
+Text-block lines, stale Columns/Table/TOC cursors, missing Table media, TOC
+capacity overflow, and stale heading-map ownership. TOC partial windows resume
+from the exact accepted cursor to one-shot-equivalent pages; current Columns
+and Table APIs correctly remain all-or-blocked and recover from unchanged
+accepted input. Missing media emits no partial commands, capacity overflow
+retains resolved identity without retry/relayout, and the six integration
+blockers remain visible:
+`docs/V4_INTEGRATED_DOCUMENT_STRESS_FAILURE_RECOVERY_MATRIX.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

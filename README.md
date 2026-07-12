@@ -372,6 +372,11 @@ The package must remain runnable without any parent editor checkout.
   changes while unrelated outputs, expected blockers, and the null integrated
   page count remain stable:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_INVALIDATION_MATRIX.md`.
+- Phase 363 stresses failure isolation and recovery across malformed Text-block
+  geometry, stale Columns/Table/TOC cursors, missing Table media, TOC capacity,
+  and heading-map ownership. TOC proves exact resume equivalence while current
+  Columns/Table calls retain honest all-or-blocked recovery semantics:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_FAILURE_RECOVERY_MATRIX.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
