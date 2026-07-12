@@ -294,6 +294,10 @@ editor intent
   over structure-valid body-flow headings. Editor owns TOC configuration UX;
   backend owns persistence; pagination and renderers consume later contracts:
   `docs/TOC_V4_SEMANTIC_LANE_ARCHITECTURE_LOCK.md`.
+- Phase 339 exposes pure v4 TOC semantic plans from exact authored structure.
+  Consumers receive generated entry identity, preview label, field dependency,
+  pending page-reference, invalidation, and work facts without core running
+  field materialization, pagination, rendering, persistence, or editor state.
 
 ## Default Change Routing
 

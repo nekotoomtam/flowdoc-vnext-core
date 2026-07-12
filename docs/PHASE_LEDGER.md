@@ -8915,6 +8915,20 @@ Measurement, pagination, final v4 page resolution, renderer output, TOC
 authoring commands, backend persistence, and editor UI remain later or external:
 `docs/TOC_V4_SEMANTIC_LANE_ARCHITECTURE_LOCK.md`.
 
+## Phase 339 TOC V4 Semantic Collector And Generated Entries
+
+Status: implemented.
+
+Phase 339 adds a strict, source-immutable document v4 TOC semantic collector.
+It validates canonical shape and structure, traverses body flows in nested
+structural order, applies each TOC's max level, and emits composite-identity
+entries with authored-preview labels, field dependencies, source/TOC ordinals,
+and pending page references. Empty labels remain visible as warnings.
+
+The plan reports semantic/materialized-label/page-reference/presentation
+invalidation boundaries and factual work without resolving field values or
+running measurement, pagination, rendering, persistence, or editor state.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

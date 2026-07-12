@@ -287,6 +287,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 338 locks the TOC v4 semantic lane around body-flow heading sources,
   structural order, composite generated-entry identity, authored-preview
   labels, field dependencies, invalidation, and the pagination-cycle boundary.
+- Phase 339 implements strict v4 TOC semantic collection with body-only nested
+  structural traversal, per-TOC level filters, composite entry identity,
+  authored-preview labels, field dependencies, warnings, and invalidation facts.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
