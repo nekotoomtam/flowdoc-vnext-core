@@ -8434,6 +8434,19 @@ without mutating authored structure, and emits separate binding facts. TOC,
 pagination, rendering, backend normalization/storage, and editor behavior remain
 inactive.
 
+## Phase 300 Published Collection Item And Content Binding Contracts
+
+Phase 300 publishes exact Published Structure-owned collection item shapes for
+text, number, date, boolean, enum, and image fields. Required fields reject
+missing-value fallbacks; optional fallbacks must match field type, and nested
+collections remain outside v1.
+
+Table Content Binding metadata explicitly maps source placements to document or
+collection-item fields and declares text/image placement kind. The compatibility
+validator aligns owners, parent collection capability, table/template identity,
+row-source scope, and field type without inspecting or cloning source graph
+content yet.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

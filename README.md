@@ -162,6 +162,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 299 locks resolved Table content materialization around internal item
   identity, Published item-field and scoped-placement contracts, externally
   allocated `nodei`/`inli`, immutable cloning, and separate value bindings.
+- Phase 300 publishes strict Published Collection Item and Table Content
+  Binding contracts with required/type-compatible fallback policy, explicit
+  document/item scope, and cross-contract owner/field/template validation.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
