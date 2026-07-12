@@ -8361,6 +8361,18 @@ Backend allocation quality, collision retry, persistence, product display,
 collaboration reconciliation, domain-specific item-key bounds, and table
 execution remain open.
 
+## Phase 294 Table V4 Semantic Architecture Lock
+
+Phase 294 defines Table v4 as one semantic definition with stable normalized
+columns and ordered static/collection row sources. Resolution validates unique
+item keys, applies explicit empty-dataset policy, and emits ordered rows before
+measurement or pagination.
+
+Rows synchronize independent cell flows at one physical page boundary,
+`colSpan` uses gap-free occupancy, `rowSpan` is reserved but blocked above one,
+and row break policy is explicit. Canonical v4 schemas, Resolved Document v1,
+document v3 pagination, backend, editor, renderer, and export remain unchanged.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

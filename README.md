@@ -144,6 +144,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 293 closes Identity Standard v1 as the stable prerequisite for Table
   Definition and Resolved Row contracts while backend allocation/persistence,
   collaboration, product display, and table execution remain open.
+- Phase 294 locks Table v4 as ordered static/collection row sources resolved
+  before measurement, with stable semantic columns, `colSpan` occupancy,
+  explicit empty/break policies, and synchronized cell pagination boundaries.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

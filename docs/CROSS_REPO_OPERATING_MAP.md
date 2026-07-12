@@ -186,6 +186,10 @@ editor intent
   canonical-input, and batch-conflict evidence. It unblocks Table Definition
   and Resolved Row contracts without activating backend allocation or table
   execution: `docs/IDENTITY_STANDARD_V1_READINESS_CLOSE_AUDIT.md`.
+- Phase 294 locks Table v4 semantic truth as ordered static/collection row
+  sources, stable columns, span-aware occupancy, explicit row policies, and
+  pre-pagination resolved rows. Existing v4 parsers and document v3 pagination
+  remain unchanged: `docs/TABLE_V4_SEMANTIC_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
