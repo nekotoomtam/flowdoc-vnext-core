@@ -8248,6 +8248,19 @@ input fingerprints while leaving accepted measurement input immutable.
 The adapter blocks unaccepted measurement and performs no shaping,
 measurement, pagination, cursor mutation, rendering, or scheduler execution.
 
+## Phase 285 Columns V4 Single-lane Planner
+
+Phase 285 consumes prepared child fragment sources through a source-immutable,
+monotonic column cursor. Prefix heights select the largest legal fragment
+prefix for available height; output retains placements, checkpoints,
+continuation reason, and deterministic work facts.
+
+Prefer-together content moves whole when it fits a fresh page and falls back to
+legal splitting when oversized. A fragment taller than the full page body,
+invalid cursor, or no-progress state blocks explicitly. This phase does not
+reconcile sibling lanes, create Columns page fragments, recurse, measure,
+render, or schedule work.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

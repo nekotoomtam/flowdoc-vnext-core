@@ -116,6 +116,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 284 adapts accepted v4 text lines into source-retaining Columns child
   fragment candidates with prefix heights, keep policy, and deterministic
   fingerprints without measuring or paginating content.
+- Phase 285 adds a monotonic single-column planner with prefix-height
+  checkpoint lookup, continuation cursors, prefer-together fallback,
+  oversized-fragment rejection, and no-progress protection.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
