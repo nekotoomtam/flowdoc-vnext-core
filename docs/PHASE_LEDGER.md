@@ -8827,6 +8827,20 @@ byte-identical output with exactly 1,000 template visits, 3,000 affected cell
 visits (two resized plus one inserted per template), 1,000 added nodes,
 preserved 400pt total width, and immutable source input.
 
+## Phase 333 Table V4 Authoring Lane Readiness Close Audit
+
+Status: closed.
+
+Phase 333 closes the span-one Structure Draft authoring profile across exact
+document/definition/policy ownership, capability gates, static row
+insert/delete/reorder, stable column insert/delete/resize, cell vertical
+alignment, complete affected cell/text scope, selection/history/invalidation
+facts, fingerprint-pinned replay, and deterministic 1,000-row scale.
+
+Collection-source lifecycle editing, shared/empty templates, merge/split,
+rowSpan, collaboration, backend persistence, and editor UI remain intentionally
+open: `docs/TABLE_V4_AUTHORING_LANE_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

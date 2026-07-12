@@ -269,6 +269,10 @@ editor intent
 - Phase 332 retains committed/rejected Table authoring records with exact draft
   and before/after bundle fingerprints. Replay is pure core evidence only;
   backend owns durable history/persistence and editor owns undo presentation.
+- Phase 333 closes the bounded Table v4 authoring lane for core-owned exact
+  draft semantics, commands, impact, history, and scale. Backend revision and
+  persistence plus editor confirmation/selection/UI remain explicitly external:
+  `docs/TABLE_V4_AUTHORING_LANE_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
