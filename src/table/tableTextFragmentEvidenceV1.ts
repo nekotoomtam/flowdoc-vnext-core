@@ -17,7 +17,7 @@ export interface VNextTableTextMeasurementEvidenceV1 {
   measured: AcceptedMeasuredLines
 }
 
-export interface VNextTablePreparedTextLineCandidateV1 {
+export interface VNextTableTextFragmentLineCandidateV1 {
   candidateId: string
   nodeId: string
   candidateIndex: number
@@ -38,7 +38,7 @@ export interface VNextTablePreparedTextFragmentSourceV1 {
   sourceCellId: string
   availableWidthPt: number
   measurementProfileId: string
-  candidates: VNextTablePreparedTextLineCandidateV1[]
+  candidates: VNextTableTextFragmentLineCandidateV1[]
   prefixHeightsPt: number[]
   totalHeightPt: number
   fingerprint: string
@@ -188,7 +188,7 @@ export function createVNextTableTextFragmentEvidenceV1(input: {
     if (measured == null) throw new Error("validated Table text evidence missing")
     let totalHeightPt = 0
     const prefixHeightsPt = [0]
-    const candidates = measured.lines.map((line, candidateIndex): VNextTablePreparedTextLineCandidateV1 => {
+    const candidates = measured.lines.map((line, candidateIndex): VNextTableTextFragmentLineCandidateV1 => {
       totalHeightPt = roundPt(totalHeightPt + line.heightPt)
       prefixHeightsPt.push(totalHeightPt)
       return {

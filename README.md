@@ -198,6 +198,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 310 accepts paired Table text measurement request/results, revalidates
   complete UTF-16-safe line coverage, blocks stale width/profile packets, and
   emits deterministic Table-owned line candidates with prefix heights.
+- Phase 311 prepares collection-materialized Table cells in canonical child
+  order from text-line plus atomic image/divider/spacer candidates, retaining
+  geometry, child ranges, vertical insets, prefix heights, and row policy.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

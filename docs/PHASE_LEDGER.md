@@ -8561,6 +8561,18 @@ Missing, extra, width/profile/revision-drifted, or altered measured evidence
 blocks all output. Measurement remains external and pagination/rendering do not
 run.
 
+## Phase 311 Table V4 Materialized Cell Preparation
+
+Phase 311 assembles collection-materialized cells in canonical child order.
+Accepted text lines remain splittable; block image, divider, and spacer become
+family-owned atomic candidates with explicit point geometry. Cells retain
+`colSpan` geometry, child candidate ranges, prefix heights, vertical insets,
+row break policy, minimum first-fragment height, and deterministic fingerprints.
+
+Authored-reference rows remain explicitly pending for the Resolved Document
+measurement lane. Pagination, repeated headers, rendering, media fetch, backend,
+and editor behavior do not run.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
