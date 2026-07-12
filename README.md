@@ -328,6 +328,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 352 locks final TOC v4 page-reference resolution around completed TOC
   window manifests, authoritative whole-document heading-page maps, exact
   ownership pins, decimal digit capacity, partial diagnostics, and no relayout.
+- Phase 353 implements exact TOC page-window manifest finalization and strict
+  complete document-v4 heading-page map parsing with cursor/page/row/title
+  coverage, uniqueness, and page-range validation.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

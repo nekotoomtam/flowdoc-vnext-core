@@ -344,6 +344,9 @@ editor intent
   completed whole-document v4 heading-page producer exists yet. Core owns the
   strict manifest/map/resolver contract; consumer repos must not synthesize
   heading destinations: `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_ARCHITECTURE_LOCK.md`.
+- Phase 353 exposes strict core inputs for final resolution: a complete TOC
+  pagination-window manifest and validated heading-page map. Backend/editor
+  consumers must not bypass cursor-chain or page-map validation.
 
 ## Default Change Routing
 

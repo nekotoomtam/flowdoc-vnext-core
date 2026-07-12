@@ -9088,6 +9088,16 @@ No whole-document v4 heading-page producer exists yet, so end-to-end final
 output remains blocked even when the strict resolver contract is implemented:
 `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_ARCHITECTURE_LOCK.md`.
 
+## Phase 353 TOC V4 Resolution Manifest And Heading-Page Map
+
+Status: implemented.
+
+Phase 353 finalizes exact contiguous TOC pagination windows into one complete
+manifest only when cursor chains, page indexes, title placement, and every
+measured row identity are covered once in order. It also parses a strict
+complete document-v4 heading-page map with unique heading ids, positive page
+numbers, bounded page indexes, document pagination ownership, and fingerprint.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
