@@ -8694,6 +8694,17 @@ and deterministic 250-page evidence.
 Renderer border ownership/consumption, export, incremental repagination,
 rowSpan, backend, and editor behavior remain open.
 
+## Phase 323 Table V4 Renderer Consumption Architecture Lock
+
+Phase 323 defines Table v4 rendering as a pure no-relayout projection from
+accepted synchronized pages into page, table-segment, row, cell, candidate,
+background, and border commands. It requires measured text/width, image
+alignment, cell vertical alignment, explicit page origins/style profile, and
+single-owner outer/internal/split/repeated-header borders before adapters run.
+
+It does not change pagination or activate artifact bytes, backend jobs, editor
+canvas, or the active document v3 renderer path.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

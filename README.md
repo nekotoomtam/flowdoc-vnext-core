@@ -238,6 +238,10 @@ The package must remain runnable without any parent editor checkout.
   cursors, boundary insets, atomic maximum-height reconciliation, all break
   policies, bounded multi-row pages, repeated-header progress guards, and
   deterministic 250-page evidence.
+- Phase 323 locks Table v4 renderer consumption as a no-relayout projection
+  from accepted pages into page/segment/row/cell/candidate/border commands,
+  requiring renderer-complete text/image/alignment facts and single-owner split
+  and repeated-header borders.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

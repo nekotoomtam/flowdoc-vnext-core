@@ -228,6 +228,11 @@ editor intent
   progress guards, and deterministic 250-page evidence. Renderer consumption,
   export, backend, and editor remain open:
   `docs/TABLE_V4_SYNCHRONIZED_ROW_PAGINATION_READINESS_CLOSE_AUDIT.md`.
+- Phase 323 locks Table v4 renderer consumption as a renderer-neutral,
+  no-relayout projection with complete text/image/alignment facts, explicit
+  page placement/style profiles, command hierarchy, single-owner split and
+  repeated-header borders, adapter/readiness boundaries, and 250-page criteria:
+  `docs/TABLE_V4_RENDERER_CONSUMPTION_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
