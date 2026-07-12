@@ -377,6 +377,11 @@ The package must remain runnable without any parent editor checkout.
   and heading-map ownership. TOC proves exact resume equivalence while current
   Columns/Table calls retain honest all-or-blocked recovery semantics:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_FAILURE_RECOVERY_MATRIX.md`.
+- Phase 364 passes the integrated stress cross-repo gate: core, editor, and
+  backend type-check/tests/builds remain compatible with compact final TOC pins
+  and all stress evidence. Consumer repos remain unchanged and do not yet claim
+  integrated orchestration or product readiness:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_CROSS_REPO_GATE.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

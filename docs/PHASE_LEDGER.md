@@ -9227,6 +9227,19 @@ retains resolved identity without retry/relayout, and the six integration
 blockers remain visible:
 `docs/V4_INTEGRATED_DOCUMENT_STRESS_FAILURE_RECOVERY_MATRIX.md`.
 
+## Phase 364 V4 Integrated Document Stress Cross-Repo Gate
+
+Status: passed.
+
+Phase 364 confirms package-boundary compatibility after smoke, large scale,
+compact TOC pins, invalidation, and failure/recovery stress. Core passes 290
+files/1,460 tests; editor passes 27 files/157 tests plus production build; and
+backend passes 13 files/45 tests plus TypeScript build. Editor retains its core
+adapter boundary, backend retains package-only imports, no consumer directly
+uses final TOC resolution/internal compact hashing, no consumer files change,
+and all six product-integration blockers remain:
+`docs/V4_INTEGRATED_DOCUMENT_STRESS_CROSS_REPO_GATE.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

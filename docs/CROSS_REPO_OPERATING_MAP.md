@@ -392,6 +392,11 @@ editor intent
   must preserve these diagnostics and accepted-state boundaries rather than
   synthesize repaired cursors, partial commands, relayout, or hidden retry:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_FAILURE_RECOVERY_MATRIX.md`.
+- Phase 364 passes all three repository gates after the integrated stress
+  phases. Existing editor adapter and backend package boundaries remain intact;
+  neither consumer integrates final TOC/stress orchestration yet, and the six
+  product blockers remain explicit:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_CROSS_REPO_GATE.md`.
 
 ## Default Change Routing
 
