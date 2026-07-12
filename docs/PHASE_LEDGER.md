@@ -9173,6 +9173,18 @@ medium, and large workload phases will test exact identity, ownership,
 determinism, bounded work, invalidation, failure, and resume behavior:
 `docs/V4_INTEGRATED_DOCUMENT_STRESS_GATE_ARCHITECTURE_LOCK.md`.
 
+## Phase 360 V4 Integrated Document Stress Smoke
+
+Status: implemented.
+
+Phase 360 builds one test-local shared v4 document bundle and executes real
+public structure, Text-block, Columns, Table, renderer-neutral Table, and TOC
+contracts. Repeated output is byte-stable and source-immutable. The evidence
+ledger retains six expected integration blockers, labels its synthetic Table
+row and heading-page map, and always reports `integratedPageCount=null` rather
+than inventing a mixed page plan:
+`docs/V4_INTEGRATED_DOCUMENT_STRESS_SMOKE.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

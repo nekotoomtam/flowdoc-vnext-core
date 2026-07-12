@@ -355,6 +355,11 @@ The package must remain runnable without any parent editor checkout.
   TOC, and media references. It separates executable, contract-only, and
   expected-blocked lanes and forbids fake composition/page/renderer readiness:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_GATE_ARCHITECTURE_LOCK.md`.
+- Phase 360 runs one shared v4 integrated stress smoke bundle through exported
+  structure, Text-block, Columns, Table, Table renderer-neutral, and TOC APIs.
+  It preserves deterministic immutable evidence, explicit synthetic inputs,
+  six expected blockers, and no integrated page-count claim:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_SMOKE.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

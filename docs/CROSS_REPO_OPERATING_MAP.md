@@ -372,6 +372,11 @@ editor intent
   materialization, renderer, storage, and UI lanes remain expected blockers and
   must not be mocked into cross-repo readiness:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_GATE_ARCHITECTURE_LOCK.md`.
+- Phase 360 executes the shared integrated smoke bundle entirely inside core
+  tests. Editor/backend behavior remains untouched; consumers must not treat
+  local lane pages, synthetic heading maps, or renderer-neutral Table facts as
+  whole-document production output:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_SMOKE.md`.
 
 ## Default Change Routing
 
