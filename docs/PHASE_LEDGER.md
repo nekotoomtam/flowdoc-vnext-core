@@ -8312,6 +8312,19 @@ and export, v4 Columns authoring/history operations, backend persistence, and
 editor controls remain blocked or unknown. Table row/cell split planning is the
 next core semantic dependency.
 
+## Phase 290 Identity Standard V1 Architecture Lock
+
+Phase 290 separates authored local identity, allocated retained identity, and
+derived layout identity. New allocated contracts use bounded opaque ids with
+registered profiles, explicit allocation owners, and declared uniqueness
+scopes while structured provenance and canonical allocation-input facts remain
+outside the id.
+
+The lock does not narrow existing authored or Structure lifecycle parsers,
+choose backend entropy/digest implementations, persist allocations, or activate
+table resolution. It establishes the prerequisite for stable collection-backed
+Resolved Table row identities that do not depend on array indexes.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

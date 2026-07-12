@@ -132,6 +132,9 @@ The package must remain runnable without any parent editor checkout.
   slice now passes geometry, canonical assembly, parallel/nested pagination,
   determinism, impact, and scale gates while mixed child families, renderer,
   authoring operations, backend, and editor remain open.
+- Phase 290 locks identity, provenance, and deterministic allocation-input
+  facts as separate contracts. New allocated ids are bounded and opaque with
+  explicit owners/scopes; existing authored and lifecycle ids are not rewritten.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

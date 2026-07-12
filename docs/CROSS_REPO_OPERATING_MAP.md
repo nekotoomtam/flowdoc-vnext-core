@@ -177,6 +177,11 @@ editor intent
   and 6,000-fragment/250-page/depth-three evidence. Mixed child families,
   renderer/export, authoring operations, backend, and editor remain open:
   `docs/COLUMNS_V4_READINESS_CLOSE_AUDIT.md`.
+- Phase 290 separates bounded opaque allocated identity from structured
+  provenance and allocation-input facts. Core owns vocabulary and validation;
+  backend and named orchestration boundaries retain allocation/collision
+  ownership. Existing authored and lifecycle ids remain unchanged:
+  `docs/IDENTITY_STANDARD_V1_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
