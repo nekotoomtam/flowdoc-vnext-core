@@ -334,6 +334,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 354 implements the complete-destination final TOC v4 resolver projection
   with exact semantic/measurement/manifest/map ownership pins and reference-
   based semantic, row, placement, and heading destination facts.
+- Phase 355 separates complete `resolved`, missing-destination `partial`, and
+  ownership-conflict `blocked` resolution while retaining ordered unresolved
+  entries, extra-map counts, and upstream semantic/pagination warning counts.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

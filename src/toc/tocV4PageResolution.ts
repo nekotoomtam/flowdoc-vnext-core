@@ -30,20 +30,30 @@ export interface VNextTocV4ResolvedEntryV1 {
     pageFragmentId: string
     rowYPoint: number
   }
-  destination: {
-    headingPageMapFingerprint: string
-    headingPageIndex: number
-    pageNumber: number
-    pageNumberText: string
-    sourceFragmentId: string
-  }
+  destination:
+    | {
+        status: "resolved"
+        headingPageMapFingerprint: string
+        headingPageIndex: number
+        pageNumber: number
+        pageNumberText: string
+        sourceFragmentId: string
+      }
+    | {
+        status: "unresolved"
+        headingPageMapFingerprint: string
+        headingPageIndex: null
+        pageNumber: null
+        pageNumberText: null
+        sourceFragmentId: null
+      }
 }
 
 export type VNextTocV4PageResolutionResultV1 =
   | {
       source: typeof VNEXT_TOC_V4_PAGE_RESOLUTION_SOURCE
       contractVersion: typeof VNEXT_TOC_V4_PAGE_RESOLUTION_VERSION
-      status: "resolved"
+      status: "resolved" | "partial"
       documentId: string
       tocNodeId: string
       pins: {
@@ -55,7 +65,14 @@ export type VNextTocV4PageResolutionResultV1 =
         documentPaginationFingerprint: string
       }
       entries: VNextTocV4ResolvedEntryV1[]
-      summary: { entryCount: number; resolvedEntryCount: number }
+      summary: {
+        entryCount: number
+        resolvedEntryCount: number
+        unresolvedEntryCount: number
+        extraMapHeadingCount: number
+        semanticWarningCount: number
+        paginationWarningCount: number
+      }
       contracts: {
         measurement: "not-run"
         pagination: "not-run"
@@ -65,7 +82,7 @@ export type VNextTocV4PageResolutionResultV1 =
         authoredMutation: false
       }
       fingerprint: string
-      issues: []
+      issues: Array<{ code: "heading-destination-missing"; severity: "warning"; path: string; message: string; headingNodeId: string }>
     }
   | {
       source: typeof VNEXT_TOC_V4_PAGE_RESOLUTION_SOURCE
@@ -81,6 +98,10 @@ function issue(code: string, path: string, message: string, headingNodeId?: stri
     code, severity: "error" as const, path, message,
     ...(headingNodeId == null ? {} : { headingNodeId }),
   }
+}
+
+function warning(code: "heading-destination-missing", path: string, message: string, headingNodeId: string) {
+  return { code, severity: "warning" as const, path, message, headingNodeId }
 }
 
 function blocked(
@@ -154,6 +175,7 @@ export function resolveVNextTocV4PageReferences(input: {
   )))
   const destinationByHeadingId = new Map(input.headingPageMap.entries.map((entry) => [entry.headingNodeId, entry]))
   const entries: VNextTocV4ResolvedEntryV1[] = []
+  const warnings: ReturnType<typeof warning>[] = []
   semanticToc.entries.forEach((semanticEntry, rowIndex) => {
     const measuredRow = measurement.rows[rowIndex]
     const placed = placementByRowIndex.get(rowIndex)
@@ -168,7 +190,7 @@ export function resolveVNextTocV4PageReferences(input: {
       "toc-placement-identity-mismatch", `paginationManifest.rows[${rowIndex}]`, "TOC placement must match semantic entry identity",
       semanticEntry.headingNodeId,
     ))
-    if (destination == null) issues.push(issue(
+    if (destination == null) warnings.push(warning(
       "heading-destination-missing", `headingPageMap.entries`, `heading "${semanticEntry.headingNodeId}" has no destination`,
       semanticEntry.headingNodeId,
     ))
@@ -176,7 +198,7 @@ export function resolveVNextTocV4PageReferences(input: {
       "heading-destination-section-mismatch", `headingPageMap.entries.${semanticEntry.headingNodeId}`,
       "heading destination section must match semantic entry section", semanticEntry.headingNodeId,
     ))
-    if (measuredRow == null || placed == null || destination == null) return
+    if (measuredRow == null || placed == null) return
     entries.push({
       identity: clone(semanticEntry.identity),
       semantic: {
@@ -190,14 +212,21 @@ export function resolveVNextTocV4PageReferences(input: {
         pageIndex: placed.page.pageIndex, pageFragmentId: placed.page.fragmentId,
         rowYPoint: placed.placement.yPt,
       },
-      destination: {
-        headingPageMapFingerprint: input.headingPageMap.fingerprint,
-        headingPageIndex: destination.pageIndex, pageNumber: destination.pageNumber,
-        pageNumberText: String(destination.pageNumber), sourceFragmentId: destination.sourceFragmentId,
-      },
+      destination: destination == null
+        ? {
+            status: "unresolved", headingPageMapFingerprint: input.headingPageMap.fingerprint,
+            headingPageIndex: null, pageNumber: null, pageNumberText: null, sourceFragmentId: null,
+          }
+        : {
+            status: "resolved", headingPageMapFingerprint: input.headingPageMap.fingerprint,
+            headingPageIndex: destination.pageIndex, pageNumber: destination.pageNumber,
+            pageNumberText: String(destination.pageNumber), sourceFragmentId: destination.sourceFragmentId,
+          },
     })
   })
   if (issues.length > 0) return blocked(input.tocNodeId, issues)
+  const requiredHeadingIds = new Set(semanticToc.entries.map((entry) => entry.headingNodeId))
+  const unresolvedEntryCount = warnings.length
   const facts = {
     documentId: semantic.documentId, tocNodeId: input.tocNodeId,
     pins: {
@@ -208,7 +237,14 @@ export function resolveVNextTocV4PageReferences(input: {
       documentPaginationFingerprint: input.headingPageMap.documentPaginationFingerprint,
     },
     entries,
-    summary: { entryCount: entries.length, resolvedEntryCount: entries.length },
+    summary: {
+      entryCount: entries.length,
+      resolvedEntryCount: entries.length - unresolvedEntryCount,
+      unresolvedEntryCount,
+      extraMapHeadingCount: input.headingPageMap.entries.filter((entry) => !requiredHeadingIds.has(entry.headingNodeId)).length,
+      semanticWarningCount: semantic.issues.filter((item) => item.severity === "warning").length,
+      paginationWarningCount: input.paginationManifest.pages.reduce((total, page) => total + page.warnings.length, 0),
+    },
     contracts: {
       measurement: "not-run" as const, pagination: "not-run" as const, relayout: false as const,
       rendering: "not-run" as const, persistence: "not-run" as const, authoredMutation: false as const,
@@ -217,6 +253,7 @@ export function resolveVNextTocV4PageReferences(input: {
   return {
     source: VNEXT_TOC_V4_PAGE_RESOLUTION_SOURCE,
     contractVersion: VNEXT_TOC_V4_PAGE_RESOLUTION_VERSION,
-    status: "resolved", ...facts, fingerprint: JSON.stringify(facts), issues: [],
+    status: unresolvedEntryCount > 0 ? "partial" : "resolved",
+    ...facts, fingerprint: JSON.stringify(facts), issues: warnings,
   }
 }

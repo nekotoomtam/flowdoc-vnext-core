@@ -9110,6 +9110,17 @@ duplicating geometry or executing measurement, pagination, relayout, rendering,
 or persistence. Ownership, row identity, section, and missing-destination drift
 block atomically in this base phase.
 
+## Phase 355 Final TOC V4 Resolution Status And Diagnostics
+
+Status: implemented.
+
+Phase 355 distinguishes complete resolved page references from partial missing
+heading destinations and blocked ownership conflicts. Partial output preserves
+every semantic entry and ordinal with explicit null destination facts and
+warnings. Extra document-map headings are counted and ignored normally, while
+section, identity, and fingerprint conflicts still return no entries. Semantic
+and pagination warning counts remain separate from page-reference completeness.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

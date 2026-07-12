@@ -350,6 +350,9 @@ editor intent
 - Phase 354 resolves complete TOC destinations through core-owned fingerprint
   pins and reference-based projection. Consumers must not duplicate joins or
   treat missing destinations as resolved; partial/readiness remain later phases.
+- Phase 355 keeps missing heading destinations as explicit partial entries while
+  ownership/section/identity drift remains atomic block. Consumers must not
+  omit unresolved entries or infer completeness from extra document map rows.
 
 ## Default Change Routing
 

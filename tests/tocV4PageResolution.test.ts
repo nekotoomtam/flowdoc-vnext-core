@@ -32,7 +32,7 @@ function fixtures() {
     tocNodeId: "toc", measurementFingerprint: "measurement-1", fingerprint: "manifest-1",
     cursorAfter: { complete: true }, summary: { rowCount: 2 },
     pages: [{
-      fragmentId: "toc:page-2", pageIndex: 2,
+      fragmentId: "toc:page-2", pageIndex: 2, warnings: [],
       rows: semanticToc.entries.map((entry, rowIndex) => ({
         rowIndex, identity: entry.identity, headingNodeId: entry.headingNodeId, yPt: 20 + rowIndex * 16,
       })),
@@ -73,13 +73,13 @@ describe("final TOC v4 page-reference base projection", () => {
       semantic: { label: "details", labelMode: "authored-preview", level: 2, tocOrdinal: 1 },
       measurementRef: { measurementFingerprint: "measurement-1", rowIndex: 1 },
       tocPlacement: { paginationManifestFingerprint: "manifest-1", pageIndex: 2, pageFragmentId: "toc:page-2", rowYPoint: 36 },
-      destination: { headingPageIndex: 11, pageNumber: 12, pageNumberText: "12", sourceFragmentId: "details:f0" },
+      destination: { status: "resolved", headingPageIndex: 11, pageNumber: 12, pageNumberText: "12", sourceFragmentId: "details:f0" },
     })
     expect(JSON.stringify(second)).toBe(JSON.stringify(first))
     expect(JSON.stringify(input)).toBe(before)
   })
 
-  it("blocks ownership drift, section conflict, and missing destinations in the base phase", () => {
+  it("blocks ownership drift and section conflict", () => {
     const drift = fixtures()
     ;(drift.measurement as any).semanticFingerprint = "stale"
     expect(resolveVNextTocV4PageReferences({ ...drift, paginationManifest: drift.manifest, tocNodeId: "toc" })).toMatchObject({
@@ -88,13 +88,39 @@ describe("final TOC v4 page-reference base projection", () => {
 
     const invalid = fixtures()
     invalid.headingPageMap.entries[0].sectionId = "other"
-    invalid.headingPageMap.entries.pop()
     expect(resolveVNextTocV4PageReferences({ ...invalid, paginationManifest: invalid.manifest, tocNodeId: "toc" })).toMatchObject({
       status: "blocked", entries: null,
-      issues: expect.arrayContaining([
-        expect.objectContaining({ code: "heading-destination-section-mismatch", headingNodeId: "intro" }),
-        expect.objectContaining({ code: "heading-destination-missing", headingNodeId: "details" }),
-      ]),
+      issues: [expect.objectContaining({ code: "heading-destination-section-mismatch", headingNodeId: "intro" })],
+    })
+  })
+
+  it("keeps missing destinations as ordered partial entries and ignores extra document headings", () => {
+    const input = fixtures()
+    input.headingPageMap.entries.pop()
+    input.headingPageMap.entries.push({
+      headingNodeId: "outside-toc", sectionId: "main", sourceFragmentId: "outside:f0",
+      pageIndex: 15, pageNumber: 16,
+    })
+    const result = resolveVNextTocV4PageReferences({ ...input, paginationManifest: input.manifest, tocNodeId: "toc" })
+    expect(result).toMatchObject({
+      status: "partial",
+      summary: {
+        entryCount: 2, resolvedEntryCount: 1, unresolvedEntryCount: 1,
+        extraMapHeadingCount: 1, semanticWarningCount: 0, paginationWarningCount: 0,
+      },
+      entries: [
+        { identity: { headingNodeId: "intro" }, destination: { status: "resolved", pageNumber: 5 } },
+        {
+          identity: { headingNodeId: "details" },
+          destination: {
+            status: "unresolved", headingPageIndex: null, pageNumber: null,
+            pageNumberText: null, sourceFragmentId: null,
+          },
+        },
+      ],
+      issues: [expect.objectContaining({
+        code: "heading-destination-missing", severity: "warning", headingNodeId: "details",
+      })],
     })
   })
 })
