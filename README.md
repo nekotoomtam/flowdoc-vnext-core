@@ -195,6 +195,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 309 extracts one resolved-node Text-block measurement packet builder
   and prepares collection-materialized Table text requests from exact cell
   widths, bindings, style ownership, instance revision, and profile pins.
+- Phase 310 accepts paired Table text measurement request/results, revalidates
+  complete UTF-16-safe line coverage, blocks stale width/profile packets, and
+  emits deterministic Table-owned line candidates with prefix heights.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

@@ -8550,6 +8550,17 @@ Static authored text remains on the existing Resolved Document measurement
 path. The phase does not run a measurement engine, accept measured lines,
 prepare fragment candidates, paginate, render, or change backend/editor state.
 
+## Phase 310 Table V4 Text Fragment Evidence
+
+Phase 310 requires every collection Table text measurement result to retain the
+exact prepared request. Core re-accepts measured lines against that request,
+including UTF-16-safe source ranges and summary facts, before emitting
+Table-owned line candidates, prefix heights, and deterministic fingerprints.
+
+Missing, extra, width/profile/revision-drifted, or altered measured evidence
+blocks all output. Measurement remains external and pagination/rendering do not
+run.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
