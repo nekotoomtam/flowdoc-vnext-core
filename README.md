@@ -150,6 +150,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 295 publishes strict standalone Table Definition contracts with exact
   Structure ownership, stable normalized columns, mixed row sources, row
   templates, gap-free `colSpan`, and explicit v1 `rowSpan` rejection.
+- Phase 296 adds exact-instance pinned collection snapshots with retained item
+  order, unique stable `itemKey`, JSON-safe scalar/image item values, and no
+  array-index identity fallback or external fetching.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

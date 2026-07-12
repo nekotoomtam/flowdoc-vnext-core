@@ -8385,6 +8385,17 @@ full logical grid, rejects duplicate ids and missing templates, and reserves
 `rowSpan` while accepting only one in v1. It does not alter document v4 parsers,
 resolve collections, paginate rows, or integrate backend/editor behavior.
 
+## Phase 296 Table V4 Collection Snapshot Contract
+
+Phase 296 publishes an exact Document Instance-pinned collection snapshot with
+explicit snapshot revision, named collection records, retained item order,
+unique stable item keys, and JSON-safe scalar/image item values. Empty
+collections are explicit and valid.
+
+The parser blocks duplicate or blank item keys, collection record-key drift,
+and unknown fields. It performs no fetch, field-capability validation, sorting,
+filtering, row identity allocation, table resolution, or persistence.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
