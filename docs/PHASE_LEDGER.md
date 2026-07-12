@@ -9160,6 +9160,19 @@ composition produces the heading-page map, field-backed labels materialize,
 and a renderer consumes the retained references:
 `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 359 V4 Integrated Document Stress Gate Architecture Lock
+
+Status: locked.
+
+Phase 359 defines a test-only integrated scenario across lifecycle/resolution,
+Text-block, Columns, Table, TOC, media references, and cross-repo boundaries.
+Its capability matrix separates executable, contract-only, and expected-blocked
+lanes; its evidence rules forbid fake whole-document composition, summed local
+page claims, placeholder renderer success, or new canonical input. Smoke,
+medium, and large workload phases will test exact identity, ownership,
+determinism, bounded work, invalidation, failure, and resume behavior:
+`docs/V4_INTEGRATED_DOCUMENT_STRESS_GATE_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

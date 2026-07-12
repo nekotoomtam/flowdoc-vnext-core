@@ -366,6 +366,12 @@ editor intent
   neither consumer may claim production output until whole-document v4
   composition, field materialization, and renderer lanes exist:
   `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_READINESS_CLOSE_AUDIT.md`.
+- Phase 359 opens the v4 integrated document stress gate as test evidence, not
+  product orchestration. Core owns executable semantic/layout contracts;
+  backend/editor retain their existing boundaries. Missing mixed composition,
+  materialization, renderer, storage, and UI lanes remain expected blockers and
+  must not be mocked into cross-repo readiness:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_GATE_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

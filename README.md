@@ -350,6 +350,11 @@ The package must remain runnable without any parent editor checkout.
   whole-document v4 composition, field-backed label materialization, and
   renderer/artifact consumption:
   `docs/FINAL_TOC_V4_PAGE_REFERENCE_RESOLUTION_READINESS_CLOSE_AUDIT.md`.
+- Phase 359 locks the v4 integrated document stress gate around one test-only
+  evidence bundle spanning lifecycle/resolution, Text-block, Columns, Table,
+  TOC, and media references. It separates executable, contract-only, and
+  expected-blocked lanes and forbids fake composition/page/renderer readiness:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_GATE_ARCHITECTURE_LOCK.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
