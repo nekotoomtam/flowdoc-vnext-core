@@ -286,6 +286,10 @@ editor intent
   retains the reversible change-set fingerprint in guarded history, and proves
   deterministic 1,000-row preview/commit/undo/redo. Backend still chooses
   tenant/product limits; editor still owns confirmation and undo presentation.
+- Phase 337 closes Table v4 authoring risk hardening for core-owned exact
+  preview continuity, selective undo/redo, budgets, history linkage, and scale.
+  Editor/backend integration remains explicitly separate:
+  `docs/TABLE_V4_AUTHORING_RISK_HARDENING_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

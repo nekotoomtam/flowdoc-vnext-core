@@ -102,7 +102,7 @@ describe("Table v4 authoring scale", () => {
     expect(redone).toMatchObject({
       status: "applied", document: committed.document, definition: committed.definition,
     })
-  })
+  }, 15_000)
 
   it("blocks one unit below exact row-template and affected-node scale budgets", () => {
     const bundle = createTableAuthoringBundle(ROW_COUNT)

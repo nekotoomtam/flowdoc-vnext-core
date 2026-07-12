@@ -8887,6 +8887,20 @@ unique affected nodes, 2,001 changed authored nodes, and 1,000 changed row
 templates, then completes exact fingerprint-gated undo and redo. Product
 defaults, tenant policy, durable retention, and UI presentation remain open.
 
+## Phase 337 Table V4 Authoring Risk Hardening Close Audit
+
+Status: closed.
+
+Phase 337 closes the guarded core boundary across exact dry-run impact,
+fingerprint-pinned destructive confirmation, selective changed slices with
+byte-exact undo/redo reconstruction, explicit execution budgets, guarded
+history linkage, drift blocks, and deterministic 1,000-row evidence.
+
+Editor confirmation/undo UI, backend revision/auth/persistence, product budget
+defaults, durable retention, collaboration merge, and unsupported broader
+Table capabilities remain external or future:
+`docs/TABLE_V4_AUTHORING_RISK_HARDENING_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -281,6 +281,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 336 enforces explicit row-template, affected-node, and removed-subtree
   budgets, links guarded history to change-set fingerprints, and proves
   deterministic preview/commit/undo/redo across 1,000 row templates.
+- Phase 337 closes Table v4 authoring risk hardening across exact preview,
+  destructive confirmation, selective reversibility, execution budgets,
+  guarded history, drift blocks, and deterministic 1,000-row evidence.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
