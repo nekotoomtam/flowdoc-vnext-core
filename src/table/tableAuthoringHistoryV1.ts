@@ -11,6 +11,7 @@ import {
   type VNextTableAuthoringResultV1,
 } from "./tableAuthoringContractV1.js"
 import { runVNextTableAuthoringV1 } from "./tableAuthoringV1.js"
+import type { VNextTableAuthoringGuardedCommitResultV1 } from "./tableAuthoringGuardV1.js"
 
 export const VNEXT_TABLE_AUTHORING_HISTORY_VERSION = 1 as const
 export const VNEXT_TABLE_AUTHORING_HISTORY_SOURCE = "vnext-table-authoring-history"
@@ -21,8 +22,24 @@ export interface VNextTableAuthoringHistoryRecordV1 {
   artifact: VNextTableAuthoringRequestV1["artifact"]
   command: VNextTableAuthoringCommandV1
   operation: VNextTableAuthoringCommitV1 | null
+  changeSetFingerprint?: string
   failureReason?: Extract<VNextTableAuthoringResultV1, { status: "blocked" }>["reason"]
   issues: VNextTableAuthoringIssueV1[]
+}
+
+export function createVNextGuardedTableAuthoringHistoryRecordV1(
+  request: VNextTableAuthoringRequestV1,
+  result: Extract<VNextTableAuthoringGuardedCommitResultV1, { status: "committed" }>,
+): VNextTableAuthoringHistoryRecordV1 {
+  return {
+    schemaVersion: VNEXT_TABLE_AUTHORING_HISTORY_VERSION,
+    status: "committed",
+    artifact: clone(request.artifact),
+    command: clone(request.command),
+    operation: clone(result.operation),
+    changeSetFingerprint: result.changeSet.fingerprint,
+    issues: [],
+  }
 }
 
 export type VNextTableAuthoringHistoryReplayResultV1 =

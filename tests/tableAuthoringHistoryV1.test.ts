@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import {
   createVNextTableAuthoringHistoryRecordV1,
+  createVNextGuardedTableAuthoringHistoryRecordV1,
+  commitGuardedVNextTableAuthoringV1,
+  previewVNextTableAuthoringV1,
   replayVNextTableAuthoringHistoryV1,
   runVNextTableAuthoringV1,
   type VNextTableAuthoringBundleV1,
@@ -15,6 +18,29 @@ function bundleAfter(bundle: VNextTableAuthoringBundleV1, result: any): VNextTab
 }
 
 describe("Table v4 authoring history", () => {
+  it("links guarded committed history to its reversible change set fingerprint", () => {
+    const initial = createTableAuthoringBundle(2)
+    const request = createTableAuthoringRequest(initial, {
+      kind: "table.row.delete.static", tableId: "table", rowSourceId: "source-0",
+    })
+    const budgets = {
+      maximumRowTemplateVisits: 10,
+      maximumAffectedNodeCount: 100,
+      maximumRemovedSubtreeNodeCount: 100,
+    }
+    const preview = previewVNextTableAuthoringV1({ request, budgets })
+    if (preview.status !== "ready" || preview.confirmation == null) throw new Error("preview fixture blocked")
+    const committed = commitGuardedVNextTableAuthoringV1({
+      request, budgets, confirmation: preview.confirmation,
+    })
+    if (committed.status !== "committed") throw new Error("guarded fixture blocked")
+    expect(createVNextGuardedTableAuthoringHistoryRecordV1(request, committed)).toMatchObject({
+      status: "committed",
+      operation: committed.operation,
+      changeSetFingerprint: committed.changeSet.fingerprint,
+    })
+  })
+
   it("records and deterministically replays committed commands with rejected records skipped", () => {
     const initial = createTableAuthoringBundle(2)
     const insertRequest = createTableAuthoringRequest(initial, {

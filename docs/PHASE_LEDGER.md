@@ -8870,6 +8870,23 @@ original byte-sensitive bundle fingerprint, while any current-state drift
 blocks before application. Persistence, editor state, measurement, pagination,
 authentication, collaboration merge, and durable undo storage remain external.
 
+## Phase 336 Table V4 Authoring Budgets History And Scale
+
+Status: implemented.
+
+Phase 336 enforces positive caller-supplied row-template-visit,
+unique-affected-node, and removed-subtree-node budgets. Obvious template excess
+blocks before kernel planning; exact work and impact excess block before any
+proposed artifacts or confirmation are returned. One-unit-below threshold
+tests cover all three budget classes.
+
+Guarded committed history retains the reversible change-set fingerprint while
+remaining compatible with pure forward replay. A 1,000-row-template column
+insertion produces byte-identical repeated previews and commits, exactly 4,001
+unique affected nodes, 2,001 changed authored nodes, and 1,000 changed row
+templates, then completes exact fingerprint-gated undo and redo. Product
+defaults, tenant policy, durable retention, and UI presentation remain open.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

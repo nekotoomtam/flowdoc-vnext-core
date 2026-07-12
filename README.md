@@ -278,6 +278,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 335 implements exact dry-run impact and strict destructive confirmation
   over the immutable authoring kernel, plus selective node/definition change
   sets with byte-exact, drift-gated undo/redo reconstruction.
+- Phase 336 enforces explicit row-template, affected-node, and removed-subtree
+  budgets, links guarded history to change-set fingerprints, and proves
+  deterministic preview/commit/undo/redo across 1,000 row templates.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

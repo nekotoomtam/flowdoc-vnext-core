@@ -282,6 +282,10 @@ editor intent
   and column deletion require the exact current confirmation packet; selective
   change sets retain changed slices and exact key positions so undo/redo can
   reconstruct fingerprint-identical bundles or block on intervening drift.
+- Phase 336 enforces caller-supplied work/impact budgets before guarded handoff,
+  retains the reversible change-set fingerprint in guarded history, and proves
+  deterministic 1,000-row preview/commit/undo/redo. Backend still chooses
+  tenant/product limits; editor still owns confirmation and undo presentation.
 
 ## Default Change Routing
 
