@@ -8373,6 +8373,18 @@ Rows synchronize independent cell flows at one physical page boundary,
 and row break policy is explicit. Canonical v4 schemas, Resolved Document v1,
 document v3 pagination, backend, editor, renderer, and export remain unchanged.
 
+## Phase 295 Table V4 Definition And Occupancy Contracts
+
+Phase 295 publishes standalone Table Definition metadata owned by an exact
+Structure draft or Published Structure Version. Stable semantic columns total
+100 width shares; ordered static and collection row sources reference strict
+row templates with explicit role, empty policy, and break policy.
+
+The validator requires gap-free, non-overlapping `colSpan` occupancy across the
+full logical grid, rejects duplicate ids and missing templates, and reserves
+`rowSpan` while accepting only one in v1. It does not alter document v4 parsers,
+resolve collections, paginate rows, or integrate backend/editor behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

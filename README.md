@@ -147,6 +147,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 294 locks Table v4 as ordered static/collection row sources resolved
   before measurement, with stable semantic columns, `colSpan` occupancy,
   explicit empty/break policies, and synchronized cell pagination boundaries.
+- Phase 295 publishes strict standalone Table Definition contracts with exact
+  Structure ownership, stable normalized columns, mixed row sources, row
+  templates, gap-free `colSpan`, and explicit v1 `rowSpan` rejection.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
