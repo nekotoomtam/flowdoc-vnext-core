@@ -397,6 +397,12 @@ editor intent
   neither consumer integrates final TOC/stress orchestration yet, and the six
   product blockers remain explicit:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_CROSS_REPO_GATE.md`.
+- Phase 365 closes bounded integrated stress readiness without activating
+  consumer orchestration. Whole-document v4 composition is the next core
+  architecture lane; backend will later own scheduling/retention and editor
+  will later own progress/blocker presentation after the retained contract is
+  stable:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

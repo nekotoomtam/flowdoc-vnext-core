@@ -9240,6 +9240,20 @@ uses final TOC resolution/internal compact hashing, no consumer files change,
 and all six product-integration blockers remain:
 `docs/V4_INTEGRATED_DOCUMENT_STRESS_CROSS_REPO_GATE.md`.
 
+## Phase 365 V4 Integrated Document Stress Readiness Close Audit
+
+Status: closed.
+
+Phase 365 closes the bounded integrated contract stress gate across honest
+capability states, shared smoke, medium/large exact work, compact TOC
+fingerprints, localized invalidation, failure/recovery, and all three repository
+gates. It records no blocker for the bounded gate while retaining six production
+blockers and `integratedPageCount=null`. Stress evidence selects whole-document
+v4 composition as the next lane because it unlocks one real page plan,
+authoritative heading-page map, and ordered renderer-neutral fragment stream
+without absorbing field resolution, rendering, persistence, or editor policy:
+`docs/V4_INTEGRATED_DOCUMENT_STRESS_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

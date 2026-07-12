@@ -382,6 +382,12 @@ The package must remain runnable without any parent editor checkout.
   and all stress evidence. Consumer repos remain unchanged and do not yet claim
   integrated orchestration or product readiness:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_CROSS_REPO_GATE.md`.
+- Phase 365 closes the bounded v4 integrated document stress gate across smoke,
+  large exact work, compact fingerprints, invalidation, recovery, and
+  cross-repo compatibility. Production readiness remains blocked on six named
+  lanes; whole-document v4 composition is selected next to produce one real
+  page plan and authoritative heading-page map:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_READINESS_CLOSE_AUDIT.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
