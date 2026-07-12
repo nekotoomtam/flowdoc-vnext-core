@@ -251,6 +251,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 326 adds deterministic bounded SVG geometry evidence, explicit PDF and
   DOCX adapter capability plans, and byte-stable linear renderer projection
   evidence across 250 pages and 1,000 body rows.
+- Phase 327 closes Table v4 renderer consumption across complete prepared facts,
+  strict projection/readiness, single-owner borders, SVG/PDF/DOCX adapter
+  evidence, and deterministic 250-page scale without claiming artifact bytes.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

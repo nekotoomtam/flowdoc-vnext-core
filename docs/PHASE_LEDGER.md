@@ -8746,6 +8746,19 @@ The existing 1,000-body-row fixture now projects 250 pages into 6,250 commands
 with exact page/row/cell/candidate/border work counts. Repeated runs are
 byte-stable and work remains linear in visited fragments and emitted borders.
 
+## Phase 327 Table V4 Renderer Consumption Readiness Close Audit
+
+Status: closed.
+
+Phase 327 closes renderer consumption across renderer-complete prepared facts,
+row roles, strict page/style/fingerprint input, all-or-blocked relationship and
+bounds audits, vertical alignment, missing-media policy, one-owner borders,
+SVG evidence, PDF/DOCX capability plans, and deterministic 250-page scale.
+
+Production typography/media execution, PDF/DOCX bytes, backend export jobs,
+storage, and editor canvas integration remain intentionally open:
+`docs/TABLE_V4_RENDERER_CONSUMPTION_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

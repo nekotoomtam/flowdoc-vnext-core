@@ -246,6 +246,10 @@ editor intent
   plans without artifact bytes, media fetching, or relayout. Adapter fallbacks
   are explicit, and 250-page projection proves deterministic linear work before
   backend jobs or editor preview consume the commands.
+- Phase 327 closes Table v4 renderer consumption readiness across complete
+  facts, strict relationship/bounds gates, one-owner borders, adapters, and
+  250-page scale. Production artifact execution, backend jobs, and editor
+  canvas remain separate: `docs/TABLE_V4_RENDERER_CONSUMPTION_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
