@@ -217,6 +217,11 @@ editor intent
   1,000-row deterministic evidence. Synchronized row pagination, repeated
   headers, renderer, backend, and editor remain open:
   `docs/TABLE_V4_PREPARED_CELL_FRAGMENT_READINESS_CLOSE_AUDIT.md`.
+- Phase 316 locks synchronized Table row pagination with monotonic cell/row
+  cursors, boundary inset accounting, atomic maximum-height reconciliation,
+  allow/prefer-keep/strict-keep execution, repeated leading headers, progress
+  guards, and bounded scale criteria. Renderer, backend, and editor remain
+  inactive: `docs/TABLE_V4_SYNCHRONIZED_ROW_PAGINATION_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

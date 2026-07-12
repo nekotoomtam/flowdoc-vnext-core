@@ -8618,6 +8618,18 @@ Synchronized row pagination, break-policy execution, repeated headers,
 oversized/no-progress handling, 200-300 page evidence, renderer/export,
 backend, and editor remain open.
 
+## Phase 316 Table V4 Synchronized Row Pagination Architecture Lock
+
+Phase 316 defines Table pagination as independent prepared-cell plans reconciled
+into one maximum-height row fragment with atomic all-cell cursor commit. It
+locks monotonic cursors, first/final-only insets, empty/early-complete cells,
+allow/prefer-keep/strict-keep behavior, bounded fresh-page advances,
+no-progress/oversized diagnostics, repeated leading headers, and factual
+200-300 page scale criteria.
+
+It does not change canonical schemas or activate measurement, renderer/export,
+backend, or editor behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

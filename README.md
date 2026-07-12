@@ -214,6 +214,10 @@ The package must remain runnable without any parent editor checkout.
   collection/authored measurement packets, paired evidence, shared child-family
   preparation, ordered row assembly, invalidation facts, and 1,000-row scale.
   Synchronized row pagination remains next.
+- Phase 316 locks synchronized Table row pagination around monotonic cell/row
+  cursors, first/final-only insets, maximum-height reconciliation, atomic
+  commit, row break policies, bounded fresh-page advances, repeated leading
+  headers, no-progress guards, and 200-300 page evidence.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
