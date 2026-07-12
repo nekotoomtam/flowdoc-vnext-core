@@ -182,6 +182,10 @@ editor intent
   backend and named orchestration boundaries retain allocation/collision
   ownership. Existing authored and lifecycle ids remain unchanged:
   `docs/IDENTITY_STANDARD_V1_ARCHITECTURE_LOCK.md`.
+- Phase 293 closes Identity Standard v1 after strict profile, provenance,
+  canonical-input, and batch-conflict evidence. It unblocks Table Definition
+  and Resolved Row contracts without activating backend allocation or table
+  execution: `docs/IDENTITY_STANDARD_V1_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

@@ -141,6 +141,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 292 canonicalizes provenance into length-safe allocation-input keys and
   blocks key drift, duplicate/conflicting ids, cross-scope reuse, and one input
   mapping to multiple ids before consumer persistence or pagination.
+- Phase 293 closes Identity Standard v1 as the stable prerequisite for Table
+  Definition and Resolved Row contracts while backend allocation/persistence,
+  collaboration, product display, and table execution remain open.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
