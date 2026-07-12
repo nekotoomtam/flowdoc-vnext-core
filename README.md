@@ -180,6 +180,11 @@ The package must remain runnable without any parent editor checkout.
 - Phase 305 proves 1,000 collection rows materialize deterministically with
   1,000 cloned nodes, inlines, and item bindings, complete provenance, two
   document-root scans total, and no source mutation or measurement execution.
+- Phase 306 closes resolved Table content materialization across Published item
+  and placement contracts, source planning, supplied row/cell/node/inline
+  provenance, immutable cloning, separate value bindings, and 1,000-row scale.
+  Public values do not expose internal `itemKey`; prepared cell fragments and
+  synchronized pagination remain next.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

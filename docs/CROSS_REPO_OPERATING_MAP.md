@@ -200,6 +200,12 @@ editor intent
   and core validates Published item/binding contracts plus supplied derived
   node/inline identities before immutable cloning:
   `docs/TABLE_V4_CONTENT_MATERIALIZATION_ARCHITECTURE_LOCK.md`.
+- Phase 306 closes resolved Table content materialization with strict Published
+  item/placement contracts, source planning, supplied row/cell/node/inline
+  provenance, immutable supported-node cloning, separate value bindings, and
+  1,000-row deterministic evidence. Public input normalization, prepared cell
+  fragments, synchronized pagination, backend, and editor remain open:
+  `docs/TABLE_V4_CONTENT_MATERIALIZATION_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

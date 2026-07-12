@@ -1,203 +1,32 @@
-import { z } from "zod"
 import {
-  DocumentNodeV4TargetSchema,
   type AuthoredNodeV4Target,
   type DocumentSectionV4Target,
 } from "../schema/documentV4Target.js"
-import { DataSnapshotV2ValueSchema, type DataSnapshotV2Value } from "../persistence/packageV3ImageTarget.js"
-import {
-  VNextDerivedIdentityProvenanceV1Schema,
-  type VNextDerivedIdentityProvenanceV1,
-} from "../identity/identityStandardV1.js"
+import type { VNextDerivedIdentityProvenanceV1 } from "../identity/identityStandardV1.js"
 import { auditVNextDerivedIdentityBatchV1 } from "../identity/identityBatchAuditV1.js"
-import { VNextTableDefinitionV1Schema } from "./tableDefinitionV1.js"
-import { VNextPublishedFieldContractV1Schema } from "../resolution/resolutionInputPins.js"
-import { VNextPublishedCollectionItemContractV1Schema } from "./collectionItemContractV1.js"
-import { VNextPublishedTableContentBindingContractV1Schema } from "./tableContentBindingV1.js"
 import {
   createVNextTableContentSourcePlanV1,
   type VNextTableContentSourcePlanIssue,
-  type VNextTableContentSourceTemplateV1,
 } from "./tableContentSourcePlanV1.js"
-import { VNextResolvedTableRowsReadyV1Schema } from "./resolvedTableRowsV1.js"
-import { VNextTableContentIdentityAssignmentsV1Schema } from "./tableContentIdentityAssignmentsV1.js"
-
-export const VNEXT_TABLE_CONTENT_MATERIALIZATION_VERSION = 1 as const
-export const VNEXT_TABLE_CONTENT_MATERIALIZATION_SOURCE = "vnext-table-content-materialization"
-
-const NonBlankIdSchema = z.string().min(1).refine((value) => value.trim().length > 0, {
-  message: "identity must not be whitespace",
-})
-
-export const VNextTableGlobalTextBindingV1Schema = z.object({
-  sourcePlacementId: NonBlankIdSchema,
-  fieldKey: NonBlankIdSchema,
-  value: z.string(),
-  valueSource: z.enum(["data-snapshot", "authored-fallback", "empty"]),
-}).strict()
-
-export const VNextTableGlobalImageBindingV1Schema = z.object({
-  sourcePlacementId: NonBlankIdSchema,
-  fieldKey: NonBlankIdSchema,
-  assetId: NonBlankIdSchema.nullable(),
-  assetOwner: z.enum(["published-static-media", "instance-media", "none"]),
-  valueSource: z.enum(["data-snapshot", "authored-fallback", "empty"]),
-}).strict()
-
-export const VNextTableGlobalResolvedBindingsV1Schema = z.object({
-  contractVersion: z.literal(VNEXT_TABLE_CONTENT_MATERIALIZATION_VERSION),
-  kind: z.literal("table-global-resolved-bindings"),
-  instanceId: NonBlankIdSchema,
-  instanceRevision: z.number().int().nonnegative(),
-  resolutionInputFingerprint: NonBlankIdSchema,
-  text: z.record(NonBlankIdSchema, VNextTableGlobalTextBindingV1Schema),
-  images: z.record(NonBlankIdSchema, VNextTableGlobalImageBindingV1Schema),
-}).strict().superRefine((bindings, ctx) => {
-  Object.entries(bindings.text).forEach(([key, binding]) => {
-    if (key !== binding.sourcePlacementId) ctx.addIssue({
-      code: "custom", path: ["text", key, "sourcePlacementId"],
-      message: "global text binding record key must equal sourcePlacementId",
-    })
-  })
-  Object.entries(bindings.images).forEach(([key, binding]) => {
-    if (key !== binding.sourcePlacementId) ctx.addIssue({
-      code: "custom", path: ["images", key, "sourcePlacementId"],
-      message: "global image binding record key must equal sourcePlacementId",
-    })
-  })
-})
-
-export const VNextTableContentMaterializationRequestV1Schema = z.object({
-  contractVersion: z.literal(VNEXT_TABLE_CONTENT_MATERIALIZATION_VERSION),
-  kind: z.literal("table-content-materialization-request"),
-  document: DocumentNodeV4TargetSchema,
-  definition: VNextTableDefinitionV1Schema,
-  fieldContract: VNextPublishedFieldContractV1Schema,
-  itemContract: VNextPublishedCollectionItemContractV1Schema,
-  bindingContract: VNextPublishedTableContentBindingContractV1Schema,
-  resolvedRows: VNextResolvedTableRowsReadyV1Schema,
-  identityAssignments: VNextTableContentIdentityAssignmentsV1Schema,
-  globalBindings: VNextTableGlobalResolvedBindingsV1Schema,
-}).strict()
-
-export type VNextTableContentMaterializationRequestV1 = z.infer<
-  typeof VNextTableContentMaterializationRequestV1Schema
->
-
-export interface VNextMaterializedTableTextBindingV1 {
-  kind: "text"
-  resolvedPlacementId: string
-  sourcePlacementId: string
-  scope: "document-field" | "collection-item-field"
-  fieldKey: string
-  collectionFieldKey?: string
-  itemKey?: string
-  value: string
-  valueSource:
-    | "resolved-document"
-    | "item-snapshot"
-    | "explicit-null"
-    | "item-contract-fallback"
-    | "authored-placement-fallback"
-    | "missing-optional"
-}
-
-export interface VNextMaterializedTableImageBindingV1 {
-  kind: "image"
-  resolvedPlacementId: string
-  sourcePlacementId: string
-  scope: "document-field" | "collection-item-field"
-  fieldKey: string
-  collectionFieldKey?: string
-  itemKey?: string
-  assetId: string | null
-  assetOwner: "published-static-media" | "instance-media" | "none"
-  valueSource:
-    | "resolved-document"
-    | "item-snapshot"
-    | "explicit-null"
-    | "item-contract-fallback"
-    | "authored-placement-fallback"
-    | "missing-optional"
-}
-
-export interface VNextMaterializedTableCellContentV1 {
-  sourceCellId: string
-  cellInstanceId: string
-  childIds: string[]
-  nodes: Record<string, AuthoredNodeV4Target>
-}
-
-export type VNextMaterializedTableRowContentV1 =
-  | {
-      kind: "authored-content-reference"
-      sourceRowId: string
-      cells: Array<{ sourceCellId: string; childIds: string[] }>
-    }
-  | {
-      kind: "materialized-content"
-      rowInstanceId: string
-      rowSourceId: string
-      rowTemplateId: string
-      itemKey: string
-      cells: VNextMaterializedTableCellContentV1[]
-    }
-
-export interface VNextTableContentMaterializationIssue {
-  source: "schema" | "source-plan" | "row-stream" | "identity" | "data" | "binding"
-  code: string
-  path: string
-  message: string
-  severity: "error"
-}
-
-export type VNextTableContentMaterializationResultV1 =
-  | {
-      source: typeof VNEXT_TABLE_CONTENT_MATERIALIZATION_SOURCE
-      contractVersion: typeof VNEXT_TABLE_CONTENT_MATERIALIZATION_VERSION
-      status: "materialized"
-      documentId: string
-      tableId: string
-      tableDefinitionId: string
-      instanceRevision: number
-      resolutionInputFingerprint: string
-      rows: VNextMaterializedTableRowContentV1[]
-      bindings: {
-        text: VNextMaterializedTableTextBindingV1[]
-        images: VNextMaterializedTableImageBindingV1[]
-      }
-      provenance: VNextDerivedIdentityProvenanceV1[]
-      work: {
-        rowCount: number
-        materializedRowCount: number
-        authoredReferenceRowCount: number
-        cellCount: number
-        clonedNodeCount: number
-        clonedInlineCount: number
-        textBindingCount: number
-        imageBindingCount: number
-        sourcePlanDocumentRootScans: 1
-        materializationDocumentRootScans: 1
-      }
-      execution: {
-        identityAllocation: "not-run"
-        authoredGraphMutation: false
-        mediaFetch: "not-run"
-        measurement: "not-run"
-        pagination: "not-run"
-        rendering: "not-run"
-      }
-      issues: []
-    }
-  | {
-      source: typeof VNEXT_TABLE_CONTENT_MATERIALIZATION_SOURCE
-      contractVersion: typeof VNEXT_TABLE_CONTENT_MATERIALIZATION_VERSION
-      status: "blocked"
-      rows: null
-      bindings: null
-      provenance: null
-      issues: VNextTableContentMaterializationIssue[]
-    }
+import {
+  VNEXT_TABLE_CONTENT_MATERIALIZATION_SOURCE,
+  VNEXT_TABLE_CONTENT_MATERIALIZATION_VERSION,
+  VNextTableContentMaterializationRequestV1Schema,
+  type VNextMaterializedTableCellContentV1,
+  type VNextMaterializedTableImageBindingV1,
+  type VNextMaterializedTableRowContentV1,
+  type VNextMaterializedTableTextBindingV1,
+  type VNextTableContentMaterializationIssue,
+  type VNextTableContentMaterializationRequestV1,
+  type VNextTableContentMaterializationResultV1,
+} from "./tableContentMaterializationContractV1.js"
+import { validateVNextTableContentProvenanceV1 } from "./tableContentProvenanceV1.js"
+import {
+  formatVNextTableScalarValueV1,
+  getVNextAuthoredPlacementFallbackV1,
+  isVNextTableImageValueV1,
+  isVNextTableItemValueCompatibleV1,
+} from "./tableContentValuePolicyV1.js"
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -233,16 +62,6 @@ function blocked(issues: VNextTableContentMaterializationIssue[]): VNextTableCon
   }
 }
 
-function exactRecord(
-  actual: Readonly<Record<string, string | number>>,
-  expected: Readonly<Record<string, string | number>>,
-): boolean {
-  const actualKeys = Object.keys(actual).sort()
-  const expectedKeys = Object.keys(expected).sort()
-  return actualKeys.length === expectedKeys.length
-    && actualKeys.every((key, index) => key === expectedKeys[index] && actual[key] === expected[key])
-}
-
 function validateProvenance(
   provenance: VNextDerivedIdentityProvenanceV1,
   expectedIdentityKind: "resolved-row" | "resolved-cell" | "resolved-node" | "resolved-inline",
@@ -253,32 +72,17 @@ function validateProvenance(
   path: string,
   issues: VNextTableContentMaterializationIssue[],
 ): void {
-  if (provenance.identity.identityKind !== expectedIdentityKind) addIssue(
-    issues, "identity", "content-identity-kind-mismatch", `${path}.identity.identityKind`,
-    `expected ${expectedIdentityKind} identity`,
-  )
-  const scope = provenance.identity.scope
-  if (
-    scope.kind !== "document-resolution"
-    || scope.documentInstanceId !== request.resolvedRows.instanceId
-    || scope.instanceRevision !== request.resolvedRows.instanceRevision
-    || scope.resolutionInputFingerprint !== request.resolvedRows.resolutionInputFingerprint
-  ) addIssue(
-    issues, "identity", "content-identity-scope-mismatch", `${path}.identity.scope`,
-    "content identity must use the exact resolved row document-resolution scope",
-  )
-  if (provenance.origin.kind !== expectedOriginKind) addIssue(
-    issues, "identity", "content-origin-kind-mismatch", `${path}.origin.kind`,
-    `expected ${expectedOriginKind} origin`,
-  )
-  if (!exactRecord(provenance.origin.refs, refs)) addIssue(
-    issues, "identity", "content-origin-refs-mismatch", `${path}.origin.refs`,
-    "content identity origin references do not match the source graph occurrence",
-  )
-  if (!exactRecord(provenance.origin.revisionPins, revisionPins)) addIssue(
-    issues, "identity", "content-origin-revisions-mismatch", `${path}.origin.revisionPins`,
-    "content identity revision pins do not match the resolved row input",
-  )
+  issues.push(...validateVNextTableContentProvenanceV1(provenance, {
+    identityKind: expectedIdentityKind,
+    originKind: expectedOriginKind,
+    refs,
+    revisionPins,
+    path,
+  }, {
+    instanceId: request.resolvedRows.instanceId,
+    instanceRevision: request.resolvedRows.instanceRevision,
+    resolutionInputFingerprint: request.resolvedRows.resolutionInputFingerprint,
+  }))
 }
 
 function findTableSection(
@@ -287,31 +91,6 @@ function findTableSection(
   return request.document.document.sections.find(
     (section) => section.nodes[request.definition.tableId]?.type === "table",
   ) ?? null
-}
-
-function isImageValue(value: DataSnapshotV2Value | undefined): value is { kind: "image-asset-ref"; assetId: string } {
-  return typeof value === "object" && value != null && value.kind === "image-asset-ref"
-}
-
-function scalarCompatible(type: string, value: DataSnapshotV2Value): boolean {
-  if (value === null) return true
-  if (type === "number") return typeof value === "number" && Number.isFinite(value)
-  if (type === "boolean") return typeof value === "boolean"
-  if (type === "image") return isImageValue(value)
-  return typeof value === "string"
-}
-
-function authoredPlacementFallback(node: AuthoredNodeV4Target, sourcePlacementId: string): string | undefined {
-  if (node.type === "image") return node.source.kind === "image-field-ref" ? node.source.fallbackAssetId : undefined
-  if (node.type !== "text-block") return undefined
-  const inline = node.children.find((candidate) => candidate.id === sourcePlacementId)
-  if (inline?.type === "field-ref") return inline.fallback
-  if (inline?.type === "inline-image" && inline.source.kind === "image-field-ref") return inline.source.fallbackAssetId
-  return undefined
-}
-
-function scalarText(value: string | number | boolean): string {
-  return typeof value === "string" ? value : String(value)
 }
 
 export function materializeVNextTableContentV1(value: unknown): VNextTableContentMaterializationResultV1 {
@@ -644,7 +423,7 @@ export function materializeVNextTableContentV1(value: unknown): VNextTableConten
         issues, "data", "missing-required-item-field", `resolvedRows.rows[${rowIndex}].itemValues.${field.key}`,
         `required item field "${field.key}" is missing`,
       )
-      else if (present && itemValue !== undefined && !scalarCompatible(field.type, itemValue)) addIssue(
+      else if (present && itemValue !== undefined && !isVNextTableItemValueCompatibleV1(field.type, itemValue)) addIssue(
         issues, "data", "item-field-type-mismatch", `resolvedRows.rows[${rowIndex}].itemValues.${field.key}`,
         `item field "${field.key}" is incompatible with ${field.type}`,
       )
@@ -743,16 +522,16 @@ export function materializeVNextTableContentV1(value: unknown): VNextTableConten
           const field = request.itemContract.collections[binding.binding.collectionFieldKey].fields[binding.binding.itemFieldKey]
           const present = Object.prototype.hasOwnProperty.call(itemValues, field.key)
           const itemValue = itemValues[field.key]
-          const authoredFallback = authoredPlacementFallback(sourceNode, placement.sourcePlacementId)
+          const authoredFallback = getVNextAuthoredPlacementFallbackV1(sourceNode, placement.sourcePlacementId)
           if (binding.placementKind === "text-field-ref") {
             let resolvedValue = ""
             let valueSource: VNextMaterializedTableTextBindingV1["valueSource"] = "missing-optional"
             if (present && itemValue === null) valueSource = "explicit-null"
-            else if (present && itemValue !== undefined && itemValue !== null && !isImageValue(itemValue)) {
-              resolvedValue = scalarText(itemValue)
+            else if (present && itemValue !== undefined && itemValue !== null && !isVNextTableImageValueV1(itemValue)) {
+              resolvedValue = formatVNextTableScalarValueV1(itemValue)
               valueSource = "item-snapshot"
             } else if (!present && field.fallback != null && typeof field.fallback !== "object") {
-              resolvedValue = scalarText(field.fallback)
+              resolvedValue = formatVNextTableScalarValueV1(field.fallback)
               valueSource = "item-contract-fallback"
             } else if (!present && authoredFallback != null) {
               resolvedValue = authoredFallback
@@ -769,7 +548,7 @@ export function materializeVNextTableContentV1(value: unknown): VNextTableConten
             let assetOwner: VNextMaterializedTableImageBindingV1["assetOwner"] = "none"
             let valueSource: VNextMaterializedTableImageBindingV1["valueSource"] = "missing-optional"
             if (present && itemValue === null) valueSource = "explicit-null"
-            else if (present && isImageValue(itemValue)) {
+            else if (present && isVNextTableImageValueV1(itemValue)) {
               assetId = itemValue.assetId
               assetOwner = "instance-media"
               valueSource = "item-snapshot"

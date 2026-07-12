@@ -8504,6 +8504,18 @@ The evidence bounds semantic materialization work only. It does not measure text
 paginate 200-300 pages, fetch media, render artifacts, or prove production
 memory/cache/storage behavior.
 
+## Phase 306 Table V4 Content Materialization Readiness Close Audit
+
+Phase 306 closes the bounded resolved Table content materialization slice across
+Published item and scoped-placement contracts, supported source planning,
+externally supplied row/cell/node/inline provenance, immutable graph cloning,
+separate text/image value bindings, reorder stability, and 1,000-row evidence.
+
+Public collection values still require backend normalization into stable
+internal item identities. Prepared cell fragments, synchronized row pagination,
+media registry validation, rendering, authoring, and production cache/memory
+behavior remain open.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
