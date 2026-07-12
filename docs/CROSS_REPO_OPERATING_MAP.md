@@ -262,6 +262,10 @@ editor intent
   one core document/definition transaction. Editor supplies durable identities
   and consumes selection/history/invalidation facts; backend still owns
   revision checks and persistence.
+- Phase 331 commits span-one column insert/delete/resize and cell vertical
+  alignment through the same atomic core bundle. Editor confirmation remains
+  required for destructive column deletion; core returns removed subtree and
+  fallback-selection facts but does not mutate UI or persist revisions.
 
 ## Default Change Routing
 

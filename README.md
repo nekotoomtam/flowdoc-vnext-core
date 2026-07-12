@@ -263,6 +263,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 330 adds atomic static-row insert/delete and row-source reorder across
   authored document plus Table Definition, including deterministic identities,
   preceding-row delete selection, history, scope, and invalidation facts.
+- Phase 331 adds stable column insert/delete/resize and cell vertical alignment
+  with proportional semantic shares, preserved total point width, per-template
+  cell edits, destructive subtree facts, and bounded invalidation.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

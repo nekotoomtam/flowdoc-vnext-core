@@ -12,6 +12,7 @@ import {
   type VNextTableAuthoringRequestV1,
   type VNextTableAuthoringResultV1,
 } from "./tableAuthoringContractV1.js"
+import { runAcceptedVNextTableGridAuthoringV1 } from "./tableAuthoringGridV1.js"
 
 type RowCommand = Extract<VNextTableAuthoringCommandV1,
   { kind: "table.row.insert.static" | "table.row.delete.static" | "table.row.reorder" }>
@@ -413,9 +414,5 @@ export function runVNextTableAuthoringV1(value: unknown): VNextTableAuthoringRes
   if (request.command.kind === "table.row.insert.static") return insertStaticRow(request, before, request.command)
   if (request.command.kind === "table.row.delete.static") return deleteStaticRow(request, before, request.command)
   if (request.command.kind === "table.row.reorder") return reorderRow(request, before, request.command)
-  return blocked(
-    "unsupported-capability",
-    [issue("command-kernel-pending", "command.kind", `${request.command.kind} kernel is not active yet`, { tableId: before.tableId })],
-    request.document, request.definition,
-  )
+  return runAcceptedVNextTableGridAuthoringV1(request, before, request.command)
 }

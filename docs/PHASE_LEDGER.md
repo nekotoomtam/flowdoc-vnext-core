@@ -8799,6 +8799,20 @@ invalidation, fingerprints, work counts, and a selection recommendation. Row
 deletion prefers the preceding surviving row. Collection source deletion and
 invalid header moves remain blocked.
 
+## Phase 331 Table V4 Grid And Cell Authoring Commands
+
+Status: implemented.
+
+Phase 331 adds stable semantic column insert/delete/resize synchronized with
+physical point widths and one authored cell per row template. Existing shares
+redistribute proportionally, total physical width remains fixed, and deletion
+reports every removed cell descendant including text blocks.
+
+Cell vertical-alignment patch is a layout-only commit: it leaves Table
+Definition, measurement, and pagination facts valid while invalidating renderer
+content offset. All commands retain dedicated capability, history, selection,
+scope, fingerprint, and work facts.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
