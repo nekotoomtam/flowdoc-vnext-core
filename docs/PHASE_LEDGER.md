@@ -8683,6 +8683,17 @@ source immutability, bounded page/plan limits, and complete cursor progress.
 The fixture proves deterministic semantic pagination work. It does not measure,
 render, export, or establish production cache/memory/worker behavior.
 
+## Phase 322 Table V4 Synchronized Row Pagination Readiness Close Audit
+
+Phase 322 closes the bounded synchronized Table pagination slice across strict
+cell/row/Table cursors, first/final boundary insets, atomic maximum-height row
+fragments, allow/prefer-keep/strict-keep policy, first-fragment minimum height,
+bounded multi-row pages, repeated authored headers, progress/limit diagnostics,
+and deterministic 250-page evidence.
+
+Renderer border ownership/consumption, export, incremental repagination,
+rowSpan, backend, and editor behavior remain open.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

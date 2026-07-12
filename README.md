@@ -234,6 +234,10 @@ The package must remain runnable without any parent editor checkout.
 - Phase 321 proves 1,000 body rows plus repeated authored headers paginate twice
   to byte-identical 250-page output with exact page/row/cell/checkpoint work
   counts, source immutability, and no measurement or rendering execution.
+- Phase 322 closes synchronized Table row pagination across monotonic cell/row
+  cursors, boundary insets, atomic maximum-height reconciliation, all break
+  policies, bounded multi-row pages, repeated-header progress guards, and
+  deterministic 250-page evidence.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

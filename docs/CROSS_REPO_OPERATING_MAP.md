@@ -222,6 +222,12 @@ editor intent
   allow/prefer-keep/strict-keep execution, repeated leading headers, progress
   guards, and bounded scale criteria. Renderer, backend, and editor remain
   inactive: `docs/TABLE_V4_SYNCHRONIZED_ROW_PAGINATION_ARCHITECTURE_LOCK.md`.
+- Phase 322 closes synchronized Table row pagination with strict cell/row/Table
+  cursors, first/final inset accounting, atomic maximum-height fragments, all
+  row break policies, bounded multi-row pages, repeated authored headers,
+  progress guards, and deterministic 250-page evidence. Renderer consumption,
+  export, backend, and editor remain open:
+  `docs/TABLE_V4_SYNCHRONIZED_ROW_PAGINATION_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
