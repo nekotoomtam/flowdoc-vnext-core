@@ -8421,6 +8421,19 @@ content materialization, nested item-field schema, sorting/grouping, prepared
 cell fragments, synchronized row pagination, renderer/export, backend
 allocation/persistence, and editor authoring remain open.
 
+## Phase 299 Table V4 Content Materialization Architecture Lock
+
+Phase 299 separates public collection values from internal normalized item
+identity and locks explicit document/item binding scope for every field-bearing
+row-template placement. Collection Item and binding contracts belong to the
+exact Published Structure Version.
+
+Collection-row content receives externally allocated `nodei`/`inli` identities,
+retains exact source provenance, clones supported block/inline placements
+without mutating authored structure, and emits separate binding facts. TOC,
+pagination, rendering, backend normalization/storage, and editor behavior remain
+inactive.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

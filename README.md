@@ -159,6 +159,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 298 closes the Table v4 semantic row-stream slice across definition,
   snapshot, empty policy, field capability, ordered resolution, and identity
   audits while descendant content materialization and pagination remain open.
+- Phase 299 locks resolved Table content materialization around internal item
+  identity, Published item-field and scoped-placement contracts, externally
+  allocated `nodei`/`inli`, immutable cloning, and separate value bindings.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

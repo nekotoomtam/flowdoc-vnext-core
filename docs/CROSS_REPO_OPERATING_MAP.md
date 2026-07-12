@@ -195,6 +195,11 @@ editor intent
   and `rowi`/`celli` provenance evidence. Descendant content materialization,
   pagination, backend, and editor remain open:
   `docs/TABLE_V4_SEMANTIC_READINESS_CLOSE_AUDIT.md`.
+- Phase 299 locks resolved Table content materialization: public callers submit
+  values without internal item identity, backend normalization remains external,
+  and core validates Published item/binding contracts plus supplied derived
+  node/inline identities before immutable cloning:
+  `docs/TABLE_V4_CONTENT_MATERIALIZATION_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
