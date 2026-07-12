@@ -221,6 +221,10 @@ The package must remain runnable without any parent editor checkout.
 - Phase 317 publishes strict JSON-safe Table cell cursors and a one-attempt
   prefix-height planner with first/final-only insets, empty-cell commit,
   monotonic continuation, fresh-page requests, and oversized diagnostics.
+- Phase 318 adds strict row cursors and one-attempt synchronized reconciliation
+  with maximum-height fragments, atomic cell commit, early-complete siblings,
+  all three break policies, first-fragment minimum height, and no-progress
+  protection.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

@@ -8641,6 +8641,17 @@ oversized diagnostics.
 The planner does not reconcile sibling cells, apply row break policy, paginate
 multiple rows, repeat headers, measure, render, or mutate input.
 
+## Phase 318 Table V4 Synchronized Row Planner
+
+Phase 318 publishes strict authored/resolved row cursors and a pure one-attempt
+row planner. It snapshots canonical cell cursors, plans every sibling once,
+uses maximum consumed height, commits all cell cursors atomically, retains
+early-complete cells as empty continuations, and executes allow, prefer-keep,
+strict-keep, and first-fragment minimum-height policy.
+
+Blocked cells, oversized strict rows, cursor/order drift, and no-progress states
+return no partial cursor. Multi-row pages and repeated headers remain inactive.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
