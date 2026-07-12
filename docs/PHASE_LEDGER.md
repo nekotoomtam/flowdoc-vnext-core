@@ -8261,6 +8261,19 @@ invalid cursor, or no-progress state blocks explicitly. This phase does not
 reconcile sibling lanes, create Columns page fragments, recurse, measure,
 render, or schedule work.
 
+## Phase 286 Columns V4 Parallel Reconciliation
+
+Phase 286 plans every sibling column from one cursor snapshot and commits all
+lane cursors together only after every lane succeeds. Each page fragment uses
+the greatest lane height; completed lanes remain empty on continuation pages,
+and Columns completes only when all lanes complete.
+
+The paginator retains first-page remainder, full-page continuation, minimum
+height, page-attempt bounds, geometry order, source identity, deterministic
+fingerprints, and aggregate work facts. It performs no measurement, authored
+mutation, identity allocation, recursion, mixed-flow composition, rendering,
+or scheduling.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
