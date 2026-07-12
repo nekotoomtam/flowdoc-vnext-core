@@ -9200,6 +9200,19 @@ fragments, 1,000 Table rows, and 1,000 TOC headings while retaining all six
 expected blockers:
 `docs/V4_INTEGRATED_DOCUMENT_STRESS_SCALE_MATRIX.md`.
 
+## Phase 362 V4 Integrated Document Stress Invalidation Matrix
+
+Status: implemented.
+
+Phase 362 adds compact evidence fingerprints to each shared smoke lane and
+changes one authored heading, measured Text-block line, Columns measurement,
+and prepared Table cell independently. Observed output changes stay limited to
+TOC; Text-block; Columns; and Table plus Table renderer facts respectively.
+TOC semantic and Table prepared-cell impact contracts agree with observed
+reruns, unrelated lane evidence remains byte-identical, and all expected
+blockers plus `integratedPageCount=null` remain stable:
+`docs/V4_INTEGRATED_DOCUMENT_STRESS_INVALIDATION_MATRIX.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

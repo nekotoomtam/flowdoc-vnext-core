@@ -1,4 +1,5 @@
 import fixture from "../../fixtures/product-report-v4-migrated-minimal.flowdoc.json"
+import { createVNextCompactFingerprint } from "../../src/fingerprint/compactFingerprint.js"
 import {
   DocumentNodeV4TargetSchema,
   collectVNextTocV4Semantics,
@@ -266,24 +267,37 @@ export function runV4IntegratedStressSmoke(bundle: V4IntegratedStressSmokeBundle
   const facts = {
     profileId: bundle.profileId,
     lanes: {
-      structure: { capability: "executable" as const, status: structure.status, summary: structure.summary },
-      text: { capability: "executable" as const, status: text.status, summary: text.status === "paginated" ? text.summary : null },
+      structure: {
+        capability: "executable" as const, status: structure.status, summary: structure.summary,
+        evidenceFingerprint: createVNextCompactFingerprint(JSON.stringify(structure)),
+      },
+      text: {
+        capability: "executable" as const, status: text.status,
+        summary: text.status === "paginated" ? text.summary : null,
+        evidenceFingerprint: createVNextCompactFingerprint(JSON.stringify(text)),
+      },
       columns: {
         capability: "executable" as const, status: columns.status,
         summary: columns.status === "paginated"
           ? { pageCount: columns.pages.length, workFacts: columns.workFacts }
           : null,
+        evidenceFingerprint: createVNextCompactFingerprint(JSON.stringify(columns)),
       },
-      table: { capability: "executable" as const, status: table.status, summary: table.summary },
+      table: {
+        capability: "executable" as const, status: table.status, summary: table.summary,
+        evidenceFingerprint: createVNextCompactFingerprint(JSON.stringify(table)),
+      },
       tableRendererFacts: {
         capability: "contract-only" as const, status: tableRenderer.status,
         summary: tableRenderer.status === "consumable" ? tableRenderer.summary : null,
+        evidenceFingerprint: createVNextCompactFingerprint(JSON.stringify(tableRenderer)),
       },
       toc: {
         capability: "contract-only" as const, status: tocResolution.status,
         previewReadiness: tocResolution.status === "blocked" ? null : tocResolution.readiness.preview.status,
         artifactReadiness: tocResolution.status === "blocked" ? null : tocResolution.readiness.artifact.status,
         syntheticHeadingPageMap: true as const,
+        evidenceFingerprint: createVNextCompactFingerprint(JSON.stringify(tocResolution)),
       },
     },
     blockers: VNEXT_INTEGRATED_STRESS_EXPECTED_BLOCKERS,

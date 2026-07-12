@@ -382,6 +382,11 @@ editor intent
   exposed quadratic serialization. Consumers receive SHA-256 top-level pins
   and must not depend on repeated raw upstream fingerprint strings per entry:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_SCALE_MATRIX.md`.
+- Phase 362 proves localized invalidation through core-owned TOC/Table impact
+  contracts and observed Text-block/Columns lane fingerprints. This is core
+  evidence only; backend cache/persistence orchestration and editor undo/
+  selection presentation remain deferred:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_INVALIDATION_MATRIX.md`.
 
 ## Default Change Routing
 

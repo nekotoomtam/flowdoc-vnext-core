@@ -366,6 +366,12 @@ The package must remain runnable without any parent editor checkout.
   strings with top-level browser-safe SHA-256 pins after real scale evidence
   exposed quadratic retained-output growth:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_SCALE_MATRIX.md`.
+- Phase 362 stresses four localized edits across authored heading, measured
+  Text-block, Columns measurement, and prepared Table cell evidence. Compact
+  lane fingerprints and owner TOC/Table impact contracts prove exact dependent
+  changes while unrelated outputs, expected blockers, and the null integrated
+  page count remain stable:
+  `docs/V4_INTEGRATED_DOCUMENT_STRESS_INVALIDATION_MATRIX.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
