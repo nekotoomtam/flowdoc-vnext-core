@@ -8527,6 +8527,17 @@ It does not change canonical schemas or activate measurement engines,
 synchronized row pagination, repeated headers, renderer/export, backend, or
 editor behavior.
 
+## Phase 308 Table V4 Cell Geometry
+
+Phase 308 publishes strict Table cell layout-profile and geometry contracts.
+Stable semantic column shares resolve once to deterministic point tracks; cell
+outer/content widths use exact `columnStart`/`colSpan` occupancy and explicit
+default or row-template-local insets.
+
+Unknown overrides and non-positive content widths block. Geometry emits stable
+fingerprints and factual work counts without measurement, pagination, rendering,
+backend, or editor execution.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

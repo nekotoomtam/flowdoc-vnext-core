@@ -189,6 +189,9 @@ The package must remain runnable without any parent editor checkout.
   measurement-complete, pagination-free sources. Exact request/result evidence,
   family-owned split policy, prefix heights, fingerprints, and invalidation
   facts precede synchronized row pagination.
+- Phase 308 adds strict Table cell layout profiles and deterministic point
+  geometry with stable semantic columns, `colSpan` occupancy, explicit insets,
+  non-positive content-width blocking, fingerprints, and no measurement.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
