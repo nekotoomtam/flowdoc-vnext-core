@@ -138,6 +138,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 291 publishes strict allocated-identity profiles and structured
   provenance schemas for lifecycle, resolved, layout, request, job, and artifact
   domains without allocating or persisting ids inside core.
+- Phase 292 canonicalizes provenance into length-safe allocation-input keys and
+  blocks key drift, duplicate/conflicting ids, cross-scope reuse, and one input
+  mapping to multiple ids before consumer persistence or pagination.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

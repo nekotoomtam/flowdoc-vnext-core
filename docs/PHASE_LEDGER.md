@@ -8337,6 +8337,18 @@ allocation-input key outside the id. Core validates these records but does not
 allocate, retry collisions, persist identity, narrow existing lifecycle ids, or
 activate resolved table behavior.
 
+## Phase 292 Identity Allocation Input And Batch Audit
+
+Phase 292 creates order-independent allocation-input keys from structured
+origin references and revision pins using canonical JSON rather than delimiter
+concatenation. A builder emits accepted provenance records without deriving an
+id or choosing an allocation algorithm.
+
+The batch audit blocks key/origin drift, duplicate ids, conflicting provenance,
+cross-scope identity reuse, and one canonical allocation input mapping to
+multiple ids. Invalid batches return no partial accepted records. Backend
+collision retry, persistence, and table resolution remain inactive.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
