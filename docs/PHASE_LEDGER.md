@@ -8732,6 +8732,20 @@ page/row/cell/candidate relationships and bounds, and blocks stale fingerprints
 or missing media before exposing any partial command list. Outer, internal
 column, internal row, continuation, and repeated-header edges have one owner.
 
+## Phase 326 Table V4 Renderer Adapter Evidence And Scale
+
+Status: implemented.
+
+Phase 326 serializes consumable commands into deterministic bounded SVG markup
+for geometry evidence without media fetching or artifact execution. PDF and
+DOCX adapter plans retain one operation per command, classify semantic spacers
+as no-paint, and report missing-media or DOCX continuation-border fallbacks
+instead of silently changing layout.
+
+The existing 1,000-body-row fixture now projects 250 pages into 6,250 commands
+with exact page/row/cell/candidate/border work counts. Repeated runs are
+byte-stable and work remains linear in visited fragments and emitted borders.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

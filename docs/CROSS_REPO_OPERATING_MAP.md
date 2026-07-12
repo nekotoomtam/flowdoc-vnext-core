@@ -242,6 +242,10 @@ editor intent
   commands. Core owns page/segment/row/cell/candidate relationships, row roles,
   vertical alignment, missing-media readiness, bounds audits, and one-owner
   borders; concrete SVG/PDF/DOCX consumers remain adapters and may not relayout.
+- Phase 326 supplies bounded SVG geometry evidence and PDF/DOCX capability
+  plans without artifact bytes, media fetching, or relayout. Adapter fallbacks
+  are explicit, and 250-page projection proves deterministic linear work before
+  backend jobs or editor preview consume the commands.
 
 ## Default Change Routing
 

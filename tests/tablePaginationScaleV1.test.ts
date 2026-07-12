@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { paginateVNextTableRowsV1, type VNextTablePreparedCellV1, type VNextTablePreparedRowsResultV1 } from "../src/index.js"
+import {
+  paginateVNextTableRowsV1,
+  projectVNextTableRendererCommandsV1,
+  type VNextTablePreparedCellV1,
+  type VNextTablePreparedRowsResultV1,
+  type VNextTableRendererStyleProfileV1,
+} from "../src/index.js"
 
 const BODY_ROW_COUNT = 1_000
 
@@ -102,5 +108,44 @@ describe("Table synchronized pagination scale v1", () => {
       repeatedHeaders: "applied",
     })
     expect(JSON.stringify(input)).toBe(before)
+  })
+
+  it("projects the 250-page result with deterministic linear renderer work", () => {
+    const paginated = paginateVNextTableRowsV1({
+      prepared: prepared(), headerPolicy: "repeat-leading-headers",
+      pageBodyHeightPt: 100, maximumPageCount: 300, maximumRowPlanCount: 2_000,
+    })
+    if (paginated.status !== "paginated") throw new Error(paginated.issues.map((item) => item.message).join("\n"))
+    const styleProfile: VNextTableRendererStyleProfileV1 = {
+      contractVersion: 1, kind: "table-render-style-profile", profileId: "scale-style-v1",
+      outerBorder: { style: "solid", widthPt: 1, color: "111827" },
+      internalRowBorder: { style: "solid", widthPt: 0.5, color: "CBD5E1" },
+      internalColumnBorder: { style: "none", widthPt: 0, color: "000000" },
+      defaultCellBackground: null,
+      rowBackgrounds: { header: null, body: null, footer: null, "empty-state": null, "repeated-header": null },
+      textColorFallback: "0F172A", missingMediaPolicy: "block",
+    }
+    const request = {
+      contractVersion: 1 as const, kind: "table-renderer-projection-request" as const,
+      sectionId: "main", zoneId: "body", expectedPaginationFingerprint: paginated.fingerprint,
+      pagination: paginated,
+      pageOrigins: paginated.pages.map((page) => ({ pageIndex: page.pageIndex, xPt: 20, yPt: 30 })),
+      styleProfile,
+    }
+    const first = projectVNextTableRendererCommandsV1(request)
+    const second = projectVNextTableRendererCommandsV1(request)
+    expect(first.status).toBe("consumable")
+    expect(JSON.stringify(first)).toBe(JSON.stringify(second))
+    if (first.status !== "consumable") throw new Error(first.issues.map((item) => item.message).join("\n"))
+    expect(first.summary).toEqual({
+      pageCount: 250, segmentCount: 250, rowFragmentCount: 1_250,
+      cellFragmentCount: 1_250, candidateCount: 1_250,
+      borderCount: 2_000, commandCount: 6_250,
+    })
+    expect(first.work).toEqual({
+      pageVisitCount: 250, rowVisitCount: 1_250, cellVisitCount: 1_250,
+      candidateVisitCount: 1_250, borderEmitCount: 2_000,
+    })
+    expect(first.commands.filter((command) => command.kind === "border" && command.semanticRole === "continuation")).toHaveLength(0)
   })
 })
