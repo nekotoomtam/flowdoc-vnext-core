@@ -86,6 +86,7 @@ export interface VNextTablePreparedMaterializedRowV1 {
   rowSourceId: string
   rowTemplateId: string
   itemKey: string
+  role: "body"
   breakPolicy: "allow" | "prefer-keep" | "strict-keep"
   minimumFirstFragmentHeightPt: number
   cells: VNextTablePreparedCellV1[]

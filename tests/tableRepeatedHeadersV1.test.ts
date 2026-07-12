@@ -33,6 +33,7 @@ function prepared(headerHeight: number, bodyHeights: number[]): Extract<VNextTab
       kind: "prepared-materialized-row" as const,
       rowIndex: index + 1, rowInstanceId: `rowi_${index}`, rowSourceId: "items-source", rowTemplateId: "body-template",
       itemKey: `item-${index}`, breakPolicy: "allow" as const, minimumFirstFragmentHeightPt: 0,
+      role: "body" as const,
       cells: [bodyCell], maximumCellOuterHeightPt: height, fingerprint: `body-${index}`,
     }
   })

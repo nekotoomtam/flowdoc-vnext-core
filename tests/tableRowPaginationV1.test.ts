@@ -57,6 +57,7 @@ function row(
     rowSourceId: "items-source",
     rowTemplateId: "item-template",
     itemKey: "item-1",
+    role: "body",
     breakPolicy,
     minimumFirstFragmentHeightPt,
     cells,

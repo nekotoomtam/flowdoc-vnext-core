@@ -24,6 +24,7 @@ export interface VNextTablePageRowFragmentV1 {
   rowIndex: number
   rowFragmentIndex: number
   rowKind: "authored" | "materialized"
+  rowRole: "header" | "body" | "footer" | "empty-state"
   rowKey: string
   repeatedHeader: boolean
   yOffsetPt: number

@@ -136,6 +136,7 @@ export function createVNextTablePreparedMaterializedCellsV1(input: {
       rowSourceId: row.rowSourceId,
       rowTemplateId: row.rowTemplateId,
       itemKey: row.itemKey,
+      role: "body",
       breakPolicy: template.breakPolicy,
       minimumFirstFragmentHeightPt: template.minHeightPt ?? 0,
       cells: preparedCells,

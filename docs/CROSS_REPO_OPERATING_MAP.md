@@ -238,6 +238,10 @@ editor intent
   alignment, content width, and insets survive synchronized row fragments.
   Editor/backend consumers must not recover these facts from DOM or authored
   nodes.
+- Phase 325 projects accepted Table pagination into strict renderer-neutral
+  commands. Core owns page/segment/row/cell/candidate relationships, row roles,
+  vertical alignment, missing-media readiness, bounds audits, and one-owner
+  borders; concrete SVG/PDF/DOCX consumers remain adapters and may not relayout.
 
 ## Default Change Routing
 

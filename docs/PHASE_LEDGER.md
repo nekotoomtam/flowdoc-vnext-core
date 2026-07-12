@@ -8717,6 +8717,21 @@ content without reopening the authored document or recomputing geometry.
 The additions are fingerprinted, JSON-safe, covered for authored and
 materialized rows, and preserve existing pagination decisions and work counts.
 
+## Phase 325 Table V4 Renderer-Neutral Command Projection
+
+Status: implemented.
+
+Phase 325 adds strict page-origin, border, background, missing-media, and style
+profile contracts. Accepted synchronized pagination projects deterministically
+into page, segment, background, row, cell, text, image, divider, spacer, and
+border commands without authored document input, measurement, pagination, or
+relayout.
+
+Projection retains row roles, handles per-fragment vertical alignment, audits
+page/row/cell/candidate relationships and bounds, and blocks stale fingerprints
+or missing media before exposing any partial command list. Outer, internal
+column, internal row, continuation, and repeated-header edges have one owner.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

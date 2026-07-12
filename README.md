@@ -245,6 +245,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 324 retains measured line text/width, image alignment, cell vertical
   alignment, content width, and insets through synchronized pagination so
   renderers do not reopen authored Table nodes.
+- Phase 325 adds strict page-origin/style-profile contracts and deterministic
+  renderer-neutral Table commands with row roles, vertical alignment,
+  missing-media policy, relationship/bounds audits, and single-owner borders.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

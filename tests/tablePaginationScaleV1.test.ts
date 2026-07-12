@@ -36,6 +36,7 @@ function prepared(): Extract<VNextTablePreparedRowsResultV1, { status: "ready" }
       rowIndex: index + 1,
       rowInstanceId: `rowi_${String(index + 1).padStart(12, "0")}`,
       rowSourceId: "items-source", rowTemplateId: "body-template", itemKey: `item-${index + 1}`,
+      role: "body" as const,
       breakPolicy: "allow" as const, minimumFirstFragmentHeightPt: 0,
       cells: [bodyCell], maximumCellOuterHeightPt: 20, fingerprint: `body-${index + 1}`,
     }

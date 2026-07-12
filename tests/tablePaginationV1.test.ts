@@ -37,6 +37,7 @@ function prepared(rows: number[][]): Extract<VNextTablePreparedRowsResultV1, { s
     rowSourceId: "items-source",
     rowTemplateId: "item-template",
     itemKey: `item-${rowIndex}`,
+    role: "body" as const,
     breakPolicy: "allow" as const,
     minimumFirstFragmentHeightPt: 0,
     cells: [cell(`cell-${rowIndex}`, heights)],
