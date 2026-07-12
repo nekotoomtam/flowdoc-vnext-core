@@ -8458,6 +8458,18 @@ The change is additive and does not narrow existing identity records, allocate
 ids inside core, clone content, persist materialization, or alter canonical
 authored node/inline identity.
 
+## Phase 302 Table V4 Content Source Plan
+
+Phase 302 validates the exact authored document, Table Definition, Published
+Field/Collection Item contracts, and Content Binding contract before indexing
+collection row-template cells, supported nodes, inlines, and field-bearing
+placements in one document-root scan.
+
+The source plan blocks missing ownership, unsupported TOC/generated content,
+source cell-map drift, missing/extra bindings, placement-kind mismatch, and
+embedded-key drift. It performs no identity allocation, cloning, value binding,
+measurement, or pagination.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

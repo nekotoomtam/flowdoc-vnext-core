@@ -168,6 +168,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 301 extends Identity Standard v1 with resolution-orchestrator-owned
   `nodei_` and `inli_` profiles for derived collection-row blocks and inlines,
   retaining the existing document-resolution scope and conflict audit.
+- Phase 302 indexes collection row-template source content once, validates
+  authored table/row/cell ownership, supported node families, and exact scoped
+  binding completeness, and emits a measurement-free immutable source plan.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
