@@ -24,8 +24,8 @@ axis and retained evidence.
 |---|---|---|---|---|---|---|---|---|---|---|
 | `zone` | zone | PASS | PASS: section-owned role | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
 | `text-block` | text | PASS: v4 grammar/inline/field/image refs | PASS: zone/column/cell | PASS | PASS: block root | PARTIAL: policy-aware rich replace/history | PARTIAL: measured line pages; no mixed flow | BLOCKED | PARTIAL: core contracts; no editor/backend | PARTIAL: 6k lines/250 pages |
-| `columns` | layout | PASS | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
-| `column` | layout | PASS | PASS: columns-owned | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
+| `columns` | layout | PASS | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | PARTIAL: text/nested parallel flow | BLOCKED | PARTIAL: generic lifecycle | PARTIAL: 6k fragments/250 pages/depth 3 |
+| `column` | layout | PASS | PASS: columns-owned | PASS | PASS: protected internal | BLOCKED | PARTIAL: parent-owned lane cursor | BLOCKED | PARTIAL: structural read | PARTIAL: covered through Columns scale |
 | `table` | table | PASS: rectangular grid | PASS: zone/column | PASS | PASS: whole subtree | BLOCKED | BLOCKED | BLOCKED | PARTIAL: generic lifecycle | UNKNOWN |
 | `table-row` | table | PASS: cell count/header law | PASS: table-owned | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
 | `table-cell` | table | PASS | PASS: row-owned | PASS | PASS: protected internal | BLOCKED | BLOCKED | BLOCKED | PARTIAL: structural read | UNKNOWN |
@@ -112,6 +112,20 @@ independent authored block lifecycle targets.
 - Version capability retains `v4-remaining-operation-layout-render-support` as
   an activation blocker.
 
+### E8 Columns V4 Flow
+
+- `src/pagination/columnsV4Contract.ts` owns geometry, cursor/checkpoint, depth,
+  and impact facts.
+- `src/pagination/columnsV4Fragments.ts` and
+  `src/pagination/columnsV4InputBuilder.ts` retain accepted text evidence and
+  canonical child order while blocking unsupported child families.
+- `src/pagination/columnsV4LanePlanner.ts`,
+  `src/pagination/columnsV4Pagination.ts`, and
+  `src/pagination/columnsV4NestedPagination.ts` own monotonic lane planning,
+  atomic longest-column reconciliation, and depth-three recursion.
+- Matching `tests/columnsV4*.test.ts` files prove deterministic 6,000-fragment,
+  250-page scale without measurement execution.
+
 ## Dependency Gates
 
 ### Text-Block Critical Path
@@ -186,7 +200,8 @@ behavior in this matrix.
 - No v4 node has complete node-specific edit, measured pagination, exact render,
   or export readiness.
 - Text-block is not ready for editor input or cross-page editing.
-- Columns/table split planners remain blocked on text-block acceptance.
+- Table split planning and mixed Columns child families remain blocked; the
+  text-backed Columns planner is PARTIAL with direct evidence.
 
 ## RISK
 

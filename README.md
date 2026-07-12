@@ -128,6 +128,10 @@ The package must remain runnable without any parent editor checkout.
 - Phase 288 adds stable nested-page signatures and proves 6,000 prepared text
   fragments through depth-three Columns produce 250 pages with bounded linear
   work facts and no measurement execution.
+- Phase 289 close-audits Columns v4: the text-backed independent-flow core
+  slice now passes geometry, canonical assembly, parallel/nested pagination,
+  determinism, impact, and scale gates while mixed child families, renderer,
+  authoring operations, backend, and editor remain open.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

@@ -172,6 +172,11 @@ editor intent
   longest-column completion, measurement-free plan/reconcile semantics, and
   bounded performance acceptance while preserving direct-body-only page
   breaks: `docs/COLUMNS_V4_ARCHITECTURE_LOCK.md`.
+- Phase 289 closes the text-backed Columns v4 core slice with canonical input
+  assembly, atomic parallel/nested continuation, stable impact/signature facts,
+  and 6,000-fragment/250-page/depth-three evidence. Mixed child families,
+  renderer/export, authoring operations, backend, and editor remain open:
+  `docs/COLUMNS_V4_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
@@ -192,9 +197,10 @@ Use this table before starting broad work.
 The generic v4 node lifecycle, text-block core contract, and cross-repo rich
 replacement transport are complete as bounded slices.
 
-1. Define columns parallel child cursors and height reconciliation over
-   retained text fragments.
-2. Define table cell/row split policy after columns semantics are accepted.
+1. Define table cell/row split policy over the accepted cursor/checkpoint and
+   atomic reconciliation direction.
+2. Keep Columns property/history operations and backend/editor controls in a
+   separate authoring-integration lane.
 3. Keep editor draft/IME, concrete measurement, mixed layout, renderer/export,
    and instance-composer implementation closed until their own gates pass.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the

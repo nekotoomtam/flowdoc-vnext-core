@@ -8299,6 +8299,19 @@ execution or source mutation. Wall-clock coverage is a generous local
 regression guard; operation counts are the primary complexity evidence. This
 does not prove mixed table/media/generated-content or renderer scale.
 
+## Phase 289 Columns V4 Readiness Close Audit
+
+Phase 289 records PASS evidence for deterministic track geometry, canonical
+document-to-planner assembly, accepted text candidates, monotonic lane cursors,
+atomic longest-column reconciliation, depth-three recursive continuation,
+impact facts, stable signatures, and 6,000-fragment/250-page bounded scale.
+
+Columns layout remains PARTIAL rather than product-ready. Non-text child
+fragment contracts, mixed body composition, concrete measurement, renderer
+and export, v4 Columns authoring/history operations, backend persistence, and
+editor controls remain blocked or unknown. Table row/cell split planning is the
+next core semantic dependency.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
