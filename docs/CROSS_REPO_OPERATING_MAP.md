@@ -317,6 +317,9 @@ editor intent
 - Phase 344 lets consumers recompute TOC fit for a new available height without
   remeasuring text, while separate geometry/fit fingerprints and impact facts
   prevent unnecessary layout work or missed pagination invalidation.
+- Phase 345 proves the measured TOC contract at 1,000 generated entries with
+  deterministic geometry, exact work, bounded refit, and explicit entry/line
+  budget failures. No consumer repo executes measurement or pagination yet.
 
 ## Default Change Routing
 

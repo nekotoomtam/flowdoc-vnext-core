@@ -8994,6 +8994,16 @@ and unchanged title/row geometry. Comparison classifies unchanged, fit-only,
 and geometry-changed impact, while stricter line-box validation blocks malformed
 measurer width/index/height/offset facts before returning layout.
 
+## Phase 345 TOC V4 Measurement Scale And Budgets
+
+Status: implemented.
+
+Phase 345 measures 1,000 generated TOC entries twice to byte-identical output
+with exactly 1,002 uncached text measurements and measured lines, 16,020pt
+total height, and stable trailing number geometry. Height-only refit reports
+1,000 forced-overflow rows with zero text measurement. Entry and line limits
+block deterministically one unit below exact work without partial layout.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -305,6 +305,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 344 separates geometry and fit fingerprints, adds zero-measurement
   height refit, classifies fit-only versus geometry impact, and blocks malformed
   text-measurer line geometry.
+- Phase 345 proves deterministic 1,000-entry TOC measurement with exact 1,002
+  text measurements/lines, zero-measurement forced-overflow refit, and
+  one-unit-below entry/line budget blocks.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
