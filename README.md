@@ -225,6 +225,9 @@ The package must remain runnable without any parent editor checkout.
   with maximum-height fragments, atomic cell commit, early-complete siblings,
   all three break policies, first-fragment minimum height, and no-progress
   protection.
+- Phase 319 paginates complete prepared row streams across bounded pages,
+  packing completed rows, carrying one active row cursor, allowing one partial
+  first-page advance, and retaining deterministic page/row/cell work facts.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

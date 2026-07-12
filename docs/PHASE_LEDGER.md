@@ -8652,6 +8652,17 @@ strict-keep, and first-fragment minimum-height policy.
 Blocked cells, oversized strict rows, cursor/order drift, and no-progress states
 return no partial cursor. Multi-row pages and repeated headers remain inactive.
 
+## Phase 319 Table V4 Multi-row Pagination
+
+Phase 319 assembles ordered prepared rows into bounded pages. Completed rows
+share remaining page height, split rows retain one active atomic row cursor,
+and a partial first-page remainder may advance once to a fresh body. Page and
+row-plan limits, deterministic fragments/fingerprints, source immutability, and
+factual work counts are explicit.
+
+Repeated headers remain intentionally inactive until base multi-row pagination
+is stable. Measurement, rendering, backend, and editor behavior do not run.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
