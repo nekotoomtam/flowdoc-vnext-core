@@ -388,6 +388,11 @@ The package must remain runnable without any parent editor checkout.
   lanes; whole-document v4 composition is selected next to produce one real
   page plan and authoritative heading-page map:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_READINESS_CLOSE_AUDIT.md`.
+- Phase 366 locks whole-document v4 composition as a renderer-neutral core
+  boundary across six Composition Node Families. It records current adapter
+  prerequisites, strict fragment-window/cursor/page-plan/heading-map contracts,
+  and selects the common fragment-window contract before any composer runtime:
+  `docs/WHOLE_DOCUMENT_V4_COMPOSITION_ARCHITECTURE_LOCK.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

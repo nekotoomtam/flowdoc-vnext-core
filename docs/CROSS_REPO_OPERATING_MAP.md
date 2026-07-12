@@ -403,6 +403,12 @@ editor intent
   will later own progress/blocker presentation after the retained contract is
   stable:
   `docs/V4_INTEGRATED_DOCUMENT_STRESS_READINESS_CLOSE_AUDIT.md`.
+- Phase 366 locks whole-document v4 composition without activating editor or
+  backend integration. Core owns pure fragment-window validation, composition,
+  page-plan/heading-map identity, and diagnostics; backend retains scheduling,
+  durable cursors, retries, and storage, while editor retains progress,
+  viewport, selection, and preview policy:
+  `docs/WHOLE_DOCUMENT_V4_COMPOSITION_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

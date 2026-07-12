@@ -9254,6 +9254,20 @@ authoritative heading-page map, and ordered renderer-neutral fragment stream
 without absorbing field resolution, rendering, persistence, or editor policy:
 `docs/V4_INTEGRATED_DOCUMENT_STRESS_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 366 Whole-Document V4 Composition Architecture Lock
+
+Status: locked.
+
+Phase 366 defines six Composition Node Families across the canonical 12-node
+inventory, keeps section/zone and container internals outside family adapters,
+and locks family-owned fragment windows, compact ownership, bounded cursor,
+renderer-neutral page plan, authoritative first-fragment heading map, atomic
+partial/failure behavior, and cross-repo responsibility. It explicitly blocks
+composer runtime on missing Text remainder/resume, family per-page checkpoints,
+and utility/media fragments, then selects the common fragment-window contract
+as the next reversible implementation slice:
+`docs/WHOLE_DOCUMENT_V4_COMPOSITION_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
