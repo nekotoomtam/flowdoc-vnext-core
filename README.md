@@ -135,6 +135,9 @@ The package must remain runnable without any parent editor checkout.
 - Phase 290 locks identity, provenance, and deterministic allocation-input
   facts as separate contracts. New allocated ids are bounded and opaque with
   explicit owners/scopes; existing authored and lifecycle ids are not rewritten.
+- Phase 291 publishes strict allocated-identity profiles and structured
+  provenance schemas for lifecycle, resolved, layout, request, job, and artifact
+  domains without allocating or persisting ids inside core.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

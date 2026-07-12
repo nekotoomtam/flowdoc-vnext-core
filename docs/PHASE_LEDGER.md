@@ -8325,6 +8325,18 @@ choose backend entropy/digest implementations, persist allocations, or activate
 table resolution. It establishes the prerequisite for stable collection-backed
 Resolved Table row identities that do not depend on array indexes.
 
+## Phase 291 Identity Standard V1 Contracts
+
+Phase 291 publishes strict allocated-identity profiles for lifecycle, resolved,
+layout, request, job, and artifact domains. Accepted records bind identity kind
+to its class, bounded opaque prefix, allocation owner, and explicit global,
+document-resolution, or layout-input scope.
+
+Structured provenance retains named origin references, revision pins, and an
+allocation-input key outside the id. Core validates these records but does not
+allocate, retry collisions, persist identity, narrow existing lifecycle ids, or
+activate resolved table behavior.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
