@@ -524,6 +524,13 @@ editor intent
   initial page chunks for pages closed before any family window. Advancement,
   routes, editor, and renderer remain inactive:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_INITIALIZATION.md`.
+- Phase 389 adds backend exact-window advancement with one short CAS lease,
+  pure core transition, immutable family-window/page-chunk/receipt staging,
+  one atomic committed head, exact retained replay, concurrent-worker
+  rejection, real null-window structural continuation, and no cursor advance
+  on rejected/failed attempts. Recovery/finalization, routes, editor, and
+  renderer remain inactive:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ADVANCEMENT.md`.
 
 ## Default Change Routing
 

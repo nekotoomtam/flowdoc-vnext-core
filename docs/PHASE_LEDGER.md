@@ -9582,6 +9582,20 @@ retained as transition-zero chunks with no fake family window or transition
 receipt. Exact-window advancement remains Phase 389:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_INITIALIZATION.md`.
 
+## Phase 389 Backend Durable Composition Scheduler Advancement
+
+Status: implemented in backend.
+
+Phase 389 advances one exact `waiting-window` family submission or one
+`ready-to-advance` null-window continuation through a short lease, pure core
+transition, immutable window/page/receipt staging, and one final compare-and-
+swap head commit. Exact committed requests replay their retained receipt/head
+snapshot even after the live head moves; a concurrent worker loses CAS without
+advancing cursor, demand, chain, or counts. Core window rejection and storage
+failure clear the lease while preserving exact pre-transition state. Recovery,
+expiry, cancellation, finalization, and progress remain Phase 390:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ADVANCEMENT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
