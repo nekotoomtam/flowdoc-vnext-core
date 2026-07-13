@@ -9511,6 +9511,21 @@ cursor/open-page/common-window sizes stay bounded. Phase 384 full readiness and
 cross-repo gates are selected next:
 `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_FINALIZATION_SCALE.md`.
 
+## Phase 384 Sequential Whole-Document V4 Readiness Close Audit
+
+Status: closed for core.
+
+Phase 384 closes core sequential-composer readiness across strict state and
+page contracts, canonical scheduling, complete/partial/fresh/family-blocked
+recovery, deterministic retry, authoritative page-plan/heading-map
+finalization, adversarial failures, and 250-page six-family scale. Final gates
+pass at core 327/1,583, editor 27/157 plus build, and backend 13/45 plus build;
+consumer source remains unchanged. Historical no-composer blockers are
+superseded, while durable backend scheduling, editor presentation, and renderer/
+export consumption stay explicit future lanes. Backend scheduler architecture
+is selected next:
+`docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -481,6 +481,11 @@ The package must remain runnable without any parent editor checkout.
   coverage, prefix/owner tamper rejection, compact map fingerprints, and a real
   250-page six-family transition/finalization scale gate pass:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_FINALIZATION_SCALE.md`.
+- Phase 384 closes core sequential-composer readiness across contracts,
+  complete/partial/fresh/blocked recovery, authoritative plan/heading map,
+  adversarial failure, 250-page six-family scale, and all three repository
+  gates. Backend durable scheduling is selected next; consumers stay inactive:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_READINESS_CLOSE_AUDIT.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

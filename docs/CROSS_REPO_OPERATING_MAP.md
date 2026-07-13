@@ -493,6 +493,11 @@ editor intent
   editor, and renderer remain inactive pending the Phase 384 full cross-repo
   readiness close:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_FINALIZATION_SCALE.md`.
+- Phase 384 closes core sequential-composer readiness after core, editor, and
+  backend gates pass without consumer source changes. Core output is ready for
+  a later service contract, but backend scheduling/storage, editor progress/
+  viewport presentation, and renderer/export consumption remain inactive:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 
@@ -517,8 +522,9 @@ replacement transport are complete as bounded slices.
    atomic reconciliation direction.
 2. Keep Columns property/history operations and backend/editor controls in a
    separate authoring-integration lane.
-3. Keep editor draft/IME, concrete measurement, mixed layout, renderer/export,
-   and instance-composer implementation closed until their own gates pass.
+3. Core sequential composition/finalization is ready; keep editor draft/IME,
+   concrete measurement, backend durable scheduling, renderer/export, and
+   instance-composer consumer activation closed until their own gates pass.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
    backend, and stale-gated apply in the editor.
 
