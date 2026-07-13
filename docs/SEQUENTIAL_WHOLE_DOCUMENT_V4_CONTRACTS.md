@@ -79,8 +79,9 @@ The open-page checkpoint retains only one current page:
 - a compact fingerprint over all facts.
 
 Placement facts retain item/root/family identity, common fragment identity,
-document block offset/extent, continuation, family evidence/window
-fingerprints, and optional first-fragment heading identity. They do not flatten
+document block offset/extent, continuation, a family evidence fingerprint, and
+optional first-fragment heading identity. Orchestration-window identity is not
+authoritative page content. Placements do not flatten
 Text, Columns, Table, TOC, Utility, or Media internal geometry.
 
 Open-page finalization rejects page-number/index drift, body-height drift,
@@ -120,8 +121,8 @@ shape with changed geometry or chain identity is still rejected.
 - next page and current open-page position;
 - exact open-page fingerprint;
 - closed-prefix fingerprint/counts;
-- cumulative windows, family pages, placements, completed items, page
-  advances, and cursor commits; and
+- cumulative family pages, placements, completed items, page advances, and
+  cursor commits; and
 - complete state plus a deterministic cursor fingerprint.
 
 Incomplete cursors require one open page. Complete cursors require no active
@@ -131,6 +132,11 @@ Completed-item work must equal the current body-item index.
 
 The cursor contains no measured lines, Table rows/cells, Columns lanes, TOC
 rows, media payloads, complete page prefix, or heading map.
+
+Schedule-dependent accepted-window count is transition work only. It is not
+retained in the cursor because one-shot and valid resumed schedules may use a
+different number of windows while reaching the same semantic page/cursor end
+state.
 
 ## State Acceptance
 

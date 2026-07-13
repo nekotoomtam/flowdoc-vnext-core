@@ -51,7 +51,6 @@ export const VNextDocumentCompositionCursorInputV1Schema = z.object({
     headingCount: z.number().int().nonnegative(),
   }).strict(),
   cumulativeWork: z.object({
-    windowsAccepted: z.number().int().nonnegative(),
     familyPagesConsumed: z.number().int().nonnegative(),
     placementsAccepted: z.number().int().nonnegative(),
     bodyItemsCompleted: z.number().int().nonnegative(),

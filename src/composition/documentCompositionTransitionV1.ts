@@ -79,7 +79,7 @@ export type VNextDocumentCompositionTransitionResultV1 =
       contractVersion: typeof VNEXT_DOCUMENT_COMPOSITION_TRANSITION_V1_VERSION
       kind: "document-composition-transition"
       status: "blocked"
-      reason: "invalid-input" | "window-rejected" | "unsupported-window-state" | "limit-exceeded"
+      reason: "invalid-input" | "window-rejected" | "family-blocked" | "limit-exceeded"
       cursorBefore: VNextDocumentCompositionCursorV1 | null
       cursorAfter: null
       openPageAfter: null
@@ -105,6 +105,14 @@ type CompleteFragmentWindow = VNextCompositionFragmentWindowV1 & {
   cursorAfter: VNextCompositionFamilyCursorRefV1
   pages: VNextCompositionFragmentPageV1[]
 }
+
+type PartialFragmentWindow = VNextCompositionFragmentWindowV1 & {
+  status: "partial"
+  cursorAfter: VNextCompositionFamilyCursorRefV1
+  pages: VNextCompositionFragmentPageV1[]
+}
+
+type ContentFragmentWindow = CompleteFragmentWindow | PartialFragmentWindow
 
 const zeroWork = (): VNextDocumentCompositionTransitionWorkV1 => ({
   windowCount: 0,
@@ -462,21 +470,28 @@ function validateWindow(
     "window.work",
     "family window work exceeds transition limits",
   ))
-  if (window.status === "complete" && window.pages != null) {
+  if ((window.status === "complete" || window.status === "partial") && window.pages != null) {
     const forced = window.pages.some((page) => page.flowEffect === "force-page-advance")
-    const requiredClosedPages = forced ? 1 : Math.max(0, window.pages.length - 1)
+    const requiredClosedPages = forced
+      ? 1
+      : window.status === "partial" ? window.pages.length : Math.max(0, window.pages.length - 1)
     if (requiredClosedPages > limits.maximumClosedPageCount) issues.push(issue(
       "composition-window-closed-page-limit-exceeded",
       "window.pages",
       "family window cannot commit atomically inside the closed-page output limit",
     ))
   }
+  if (window.status === "fresh-page-required" && limits.maximumClosedPageCount < 1) issues.push(issue(
+    "composition-window-closed-page-limit-exceeded",
+    "window.status",
+    "fresh-page-required needs capacity to close the current document page",
+  ))
   return issues.length > 0 ? { window: null, issues } : { window, issues: [] }
 }
 
 function projectContentWindow(
   state: MutableState,
-  window: CompleteFragmentWindow,
+  window: ContentFragmentWindow,
   limits: VNextDocumentCompositionTransitionLimitsV1,
 ): void {
   const item = state.manifest.bodyItems[state.cursor.bodyItemIndex]
@@ -501,7 +516,6 @@ function projectContentWindow(
       blockExtentPt: fragment.blockExtentPt,
       continuation: fragment.continuation,
       familyEvidenceFingerprint: fragment.familyEvidenceFingerprint,
-      familyWindowFingerprint: window.fingerprint,
       heading: fragment.heading,
     }))
     const pageFacts = openPageFacts(pageBefore)
@@ -516,7 +530,9 @@ function projectContentWindow(
     state.work.familyPageCount += 1
     state.work.placementCount += placements.length
     if (pageIndex < window.pages.length - 1) {
-      if (!closePage(state, "family-page-boundary", limits)) throw new Error("internal family page limit drift")
+      if (!closePage(state, familyPage.cursorAfter.complete ? "family-page-boundary" : "family-continuation", limits)) {
+        throw new Error("internal family page limit drift")
+      }
       openSectionPage(state, item.sectionIndex, pageBefore.sectionPageIndex + 1)
     }
   })
@@ -547,7 +563,6 @@ function applyCompleteWindow(
   const nextItemIndex = state.cursor.bodyItemIndex + 1
   const cumulativeWork = {
     ...state.cumulativeWork,
-    windowsAccepted: state.cumulativeWork.windowsAccepted + 1,
     familyPagesConsumed: state.cumulativeWork.familyPagesConsumed + window.pages.length,
     placementsAccepted: state.cumulativeWork.placementsAccepted + window.work.fragmentCount,
     bodyItemsCompleted: nextItemIndex,
@@ -568,6 +583,65 @@ function applyCompleteWindow(
   })
 }
 
+function applyPartialWindow(
+  state: MutableState,
+  window: PartialFragmentWindow,
+  limits: VNextDocumentCompositionTransitionLimitsV1,
+): void {
+  const item = state.manifest.bodyItems[state.cursor.bodyItemIndex]
+  if (item == null) throw new Error("internal partial item missing")
+  projectContentWindow(state, window, limits)
+  if (state.openPage == null) throw new Error("internal partial open page missing")
+  const sectionPageIndex = state.openPage.sectionPageIndex
+  if (!closePage(state, "family-continuation", limits)) throw new Error("internal partial page limit drift")
+  openSectionPage(state, item.sectionIndex, sectionPageIndex + 1)
+  state.cumulativeWork = {
+    ...state.cumulativeWork,
+    familyPagesConsumed: state.cumulativeWork.familyPagesConsumed + window.pages.length,
+    placementsAccepted: state.cumulativeWork.placementsAccepted + window.work.fragmentCount,
+    cursorCommits: state.cumulativeWork.cursorCommits + window.work.cursorCommitCount,
+  }
+  state.work.windowCount = 1
+  state.work.bodyItemCompletionCount = 0
+  state.work.cursorCommitCount = window.work.cursorCommitCount
+  state.cursor = buildCursor(state, {
+    sectionIndex: item.sectionIndex,
+    bodyItemIndex: item.itemIndex,
+    activeRoot: {
+      itemIndex: item.itemIndex,
+      rootNodeId: item.rootNodeId,
+      family: item.family,
+      familyCursor: window.cursorAfter,
+    },
+    openPage: state.openPage,
+    closedPrefix: state.closedPrefix,
+    complete: false,
+    cumulativeWork: state.cumulativeWork,
+  })
+}
+
+function applyFreshPageRequired(
+  state: MutableState,
+  limits: VNextDocumentCompositionTransitionLimitsV1,
+): void {
+  const item = state.manifest.bodyItems[state.cursor.bodyItemIndex]
+  const active = state.cursor.activeRoot
+  if (item == null || active == null || state.openPage == null) throw new Error("internal fresh-page state missing")
+  const sectionPageIndex = state.openPage.sectionPageIndex
+  if (!closePage(state, "fresh-page-required", limits)) throw new Error("internal fresh-page limit drift")
+  openSectionPage(state, item.sectionIndex, sectionPageIndex + 1)
+  state.work.windowCount = 1
+  state.cursor = buildCursor(state, {
+    sectionIndex: item.sectionIndex,
+    bodyItemIndex: item.itemIndex,
+    activeRoot: active,
+    openPage: state.openPage,
+    closedPrefix: state.closedPrefix,
+    complete: false,
+    cumulativeWork: state.cumulativeWork,
+  })
+}
+
 function initialMutableState(manifest: VNextDocumentCompositionManifestV1): MutableState {
   const emptyPrefix = { fingerprint: null, pageCount: 0, placementCount: 0, headingCount: 0 }
   const section = manifest.sections[0]
@@ -585,7 +659,7 @@ function initialMutableState(manifest: VNextDocumentCompositionManifestV1): Muta
     openPageFingerprint: createVNextCompactFingerprint("placeholder-open-page"),
     closedPrefix: emptyPrefix,
     cumulativeWork: {
-      windowsAccepted: 0, familyPagesConsumed: 0, placementsAccepted: 0,
+      familyPagesConsumed: 0, placementsAccepted: 0,
       bodyItemsCompleted: 0, pageAdvances: 0, cursorCommits: 0,
     },
     complete: false,
@@ -677,17 +751,17 @@ export function advanceVNextDocumentCompositionV1(input: {
   if (input.window == null) return accepted(state, "needs-family-window", demand, cursorBefore.fingerprint)
   const validated = validateWindow(state, input.window, demand, input.limits)
   if (validated.window == null) return blocked("window-rejected", cursorBefore, validated.issues)
-  if (validated.window.status !== "complete") return blocked(
-    "unsupported-window-state",
-    cursorBefore,
-    [issue(
-      "composition-window-state-not-active",
-      "window.status",
-      `Phase 381 accepts complete windows only; received ${validated.window.status}`,
-    )],
-  )
+  if (validated.window.status === "blocked") return blocked("family-blocked", cursorBefore, validated.window.issues)
 
   try {
+    if (validated.window.status === "fresh-page-required") {
+      applyFreshPageRequired(state, input.limits)
+      return accepted(state, "needs-family-window", createDemand(state, input.limits), cursorBefore.fingerprint)
+    }
+    if (validated.window.status === "partial") {
+      applyPartialWindow(state, validated.window as PartialFragmentWindow, input.limits)
+      return accepted(state, "needs-family-window", createDemand(state, input.limits), cursorBefore.fingerprint)
+    }
     applyCompleteWindow(state, validated.window as CompleteFragmentWindow, input.limits)
     const normalized = normalizeStructure(state, input.limits)
     if (normalized === "complete") return accepted(state, "document-complete", null, cursorBefore.fingerprint)

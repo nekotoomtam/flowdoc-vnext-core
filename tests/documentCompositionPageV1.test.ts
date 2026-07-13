@@ -43,7 +43,6 @@ function openPageInput(): VNextDocumentCompositionOpenPageInputV1 {
       blockExtentPt: 20,
       continuation: { fromPrevious: false, toNext: false },
       familyEvidenceFingerprint: fp("heading-evidence"),
-      familyWindowFingerprint: fp("heading-window"),
       heading: { headingNodeId: "heading", level: 1 },
     }, {
       placementIndex: 1,
@@ -61,7 +60,6 @@ function openPageInput(): VNextDocumentCompositionOpenPageInputV1 {
       blockExtentPt: 20,
       continuation: { fromPrevious: false, toNext: false },
       familyEvidenceFingerprint: fp("divider-evidence"),
-      familyWindowFingerprint: fp("divider-window"),
       heading: null,
     }],
     usedHeightPt: 40,

@@ -471,6 +471,11 @@ The package must remain runnable without any parent editor checkout.
   intentional blank page breaks, and resumes structural output limits without
   replaying accepted windows. Recovery states remain closed:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_ORDERED_SCHEDULING.md`.
+- Phase 382 activates partial, fresh-page-required, and family-blocked
+  transition semantics with atomic retry and one-shot/resume equivalence.
+  Schedule-dependent window identity/count is removed from authoritative
+  page/cursor state so valid schedules converge on byte-identical output:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_RECOVERY.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

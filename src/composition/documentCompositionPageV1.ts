@@ -43,7 +43,6 @@ export const VNextDocumentCompositionPlacementV1Schema = z.object({
     toNext: z.boolean(),
   }).strict(),
   familyEvidenceFingerprint: VNextDocumentCompositionCompactFingerprintV1Schema,
-  familyWindowFingerprint: VNextDocumentCompositionCompactFingerprintV1Schema,
   heading: HeadingSchema.nullable(),
 }).strict()
 

@@ -483,6 +483,11 @@ editor intent
   present composition yet; fresh/partial/blocked recovery, finalization, scale,
   and readiness gates still precede consumer work:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_ORDERED_SCHEDULING.md`.
+- Phase 382 activates recovery semantics for partial, fresh-page-required, and
+  valid family-blocked windows in core, with byte-identical retry and one-shot/
+  resume end state. Backend/editor remain unchanged and may not orchestrate or
+  present composition before finalization, scale, and readiness close:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_RECOVERY.md`.
 
 ## Default Change Routing
 

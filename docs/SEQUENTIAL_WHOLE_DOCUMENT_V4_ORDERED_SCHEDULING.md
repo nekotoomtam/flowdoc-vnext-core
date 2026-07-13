@@ -70,12 +70,14 @@ Later family pages begin on fresh pages at offset zero.
 
 Each projected document placement retains root/item/family identity, common
 fragment id/index, document block geometry, continuation, and compact family
-evidence/window fingerprints. Text, Columns, Table, TOC, Utility, and Media
-internal geometry is not flattened or recomputed.
+evidence fingerprints. Orchestration-window identity is deliberately excluded
+so valid one-shot and resumed schedules close byte-identical pages. Text,
+Columns, Table, TOC, Utility, and Media internal geometry is not flattened or
+recomputed.
 
-All non-final family pages close as `family-page-boundary`. A complete final
-family page stays open so the next root in the same section can consume its
-exact remainder.
+All non-final family pages with an incomplete family cursor close as
+`family-continuation`. A complete final family page stays open so the next root
+in the same section can consume its exact remainder.
 
 ## Canonical Root And Section Order
 
@@ -125,7 +127,9 @@ resume section or document completion without replaying the accepted window.
 
 Per-transition work reports accepted windows, family pages, closed pages,
 placements, completed body items, page advances, and family cursor commits.
-Cumulative cursor work advances separately and deterministically.
+Cumulative cursor work excludes schedule-dependent window count and advances
+only family pages, placements, completed items, page advances, and cursor
+commits so one-shot and valid resume converge on the same terminal cursor.
 
 ## Active States
 

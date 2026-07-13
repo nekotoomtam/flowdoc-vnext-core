@@ -9481,6 +9481,21 @@ nothing. Fresh, partial, family-blocked, and retry matrices are selected for
 Phase 382:
 `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_ORDERED_SCHEDULING.md`.
 
+## Phase 382 Sequential Whole-Document V4 Recovery
+
+Status: implemented.
+
+Phase 382 activates partial continuation, fresh-page demand, valid family-
+blocked issue propagation, deterministic retry, and atomic bounds. Partial
+pages close semantically as family continuation and resume the same cursor on a
+fresh page; fresh demand advances document state with no family progress;
+family blockers commit nothing. Orchestration window fingerprint and cumulative
+window count are removed from authoritative page/cursor state, allowing one
+complete two-page schedule and partial/resume to produce byte-identical pages,
+prefixes, and terminal cursor. Phase 383 authoritative finalization and mixed-
+family scale are selected next:
+`docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_RECOVERY.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

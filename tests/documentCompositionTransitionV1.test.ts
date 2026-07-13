@@ -103,14 +103,16 @@ function contentWindow(
   demand: VNextDocumentCompositionDemandV1,
   extents: number[],
   status: "complete" | "partial" = "complete",
+  fragmentStartIndex = 0,
 ) {
   const pages = []
   let before = demand.cursorBefore
   for (let index = 0; index < extents.length; index += 1) {
+    const globalIndex = fragmentStartIndex + index
     const availableHeightPt = index === 0
       ? demand.capacity.firstPageAvailableHeightPt
       : demand.capacity.pageBodyHeightPt
-    const after = cursorAfter(demand, index, status === "complete" && index === extents.length - 1)
+    const after = cursorAfter(demand, globalIndex, status === "complete" && index === extents.length - 1)
     pages.push({
       windowPageIndex: index,
       flowEffect: "place-content" as const,
@@ -120,14 +122,14 @@ function contentWindow(
       cursorBefore: before,
       cursorAfter: after,
       fragments: [{
-        fragmentId: `${demand.rootNodeId}:f${index}`,
-        fragmentIndex: index,
+        fragmentId: `${demand.rootNodeId}:f${globalIndex}`,
+        fragmentIndex: globalIndex,
         sourceNodeId: demand.rootNodeId,
         blockOffsetPt: 0,
         blockExtentPt: extents[index],
-        continuation: { fromPrevious: index > 0, toNext: !after.complete },
-        familyEvidenceFingerprint: fp(`evidence:${demand.rootNodeId}:${index}`),
-        heading: demand.rootNodeType === "text-block" && index === 0
+        continuation: { fromPrevious: globalIndex > 0, toNext: !after.complete },
+        familyEvidenceFingerprint: fp(`evidence:${demand.rootNodeId}:${globalIndex}`),
+        heading: demand.rootNodeType === "text-block" && globalIndex === 0
           ? { headingNodeId: demand.rootNodeId, level: 1 as const }
           : null,
       }],
@@ -155,6 +157,61 @@ function contentWindow(
     issues: [],
   })
   if (result.status !== "ready") throw new Error(`window blocked: ${result.issues[0]?.code}`)
+  return result.window
+}
+
+function freshWindow(demand: VNextDocumentCompositionDemandV1) {
+  const result = finalizeVNextCompositionFragmentWindowV1({
+    source: "vnext-composition-fragment-window",
+    contractVersion: 1,
+    kind: "composition-fragment-window",
+    family: demand.family,
+    documentId: demand.documentId,
+    sectionId: demand.sectionId,
+    zoneId: demand.zoneId,
+    rootNodeId: demand.rootNodeId,
+    rootNodeType: demand.rootNodeType,
+    sourceOrder: demand.sourceOrder,
+    ownerPins: { ...demand.ownerPins, pagination: fp(`fresh:${demand.fingerprint}`) },
+    capacity: demand.capacity,
+    cursorBefore: demand.cursorBefore,
+    status: "fresh-page-required",
+    cursorAfter: demand.cursorBefore,
+    pages: [],
+    work: { pageCount: 0, fragmentCount: 0, cursorCommitCount: 0 },
+    issues: [],
+  })
+  if (result.status !== "ready") throw new Error(`fresh window blocked: ${result.issues[0]?.code}`)
+  return result.window
+}
+
+function familyBlockedWindow(demand: VNextDocumentCompositionDemandV1) {
+  const result = finalizeVNextCompositionFragmentWindowV1({
+    source: "vnext-composition-fragment-window",
+    contractVersion: 1,
+    kind: "composition-fragment-window",
+    family: demand.family,
+    documentId: demand.documentId,
+    sectionId: demand.sectionId,
+    zoneId: demand.zoneId,
+    rootNodeId: demand.rootNodeId,
+    rootNodeType: demand.rootNodeType,
+    sourceOrder: demand.sourceOrder,
+    ownerPins: { ...demand.ownerPins, pagination: fp(`blocked:${demand.fingerprint}`) },
+    capacity: demand.capacity,
+    cursorBefore: demand.cursorBefore,
+    status: "blocked",
+    cursorAfter: null,
+    pages: null,
+    work: { pageCount: 0, fragmentCount: 0, cursorCommitCount: 0 },
+    issues: [{
+      code: "atomic-block-oversized",
+      severity: "error",
+      path: "evidence.extentPt",
+      message: "atomic block exceeds a fresh page",
+    }],
+  })
+  if (result.status !== "ready") throw new Error(`family blocked window invalid: ${result.issues[0]?.code}`)
   return result.window
 }
 
@@ -285,7 +342,7 @@ describe("document Composition transition v1", () => {
       fragment: page.placements[0].fragmentId,
       evidence: page.placements[0].familyEvidenceFingerprint,
     }))).toEqual([
-      { pageIndex: 0, reason: "family-page-boundary", fragment: "table:f0", evidence: fp("evidence:table:0") },
+      { pageIndex: 0, reason: "family-continuation", fragment: "table:f0", evidence: fp("evidence:table:0") },
       { pageIndex: 1, reason: "document-complete", fragment: "table:f1", evidence: fp("evidence:table:1") },
     ])
   })
@@ -313,7 +370,7 @@ describe("document Composition transition v1", () => {
     expect(demandOf(second)).toMatchObject({ rootNodeId: "text", capacity: { firstPageAvailableHeightPt: 100 } })
   })
 
-  it("blocks stale/out-of-order and not-yet-active partial windows without committing output", () => {
+  it("blocks stale/out-of-order windows without committing output", () => {
     const input = manifest([{ sectionIndex: 0, rootNodeId: "title", rootNodeType: "text-block", family: "text-flow" }])
     const initial = initializeVNextDocumentCompositionV1({ manifest: input, limits })
     const valid = contentWindow(demandOf(initial), [20])
@@ -331,16 +388,121 @@ describe("document Composition transition v1", () => {
       work: { windowCount: 0, closedPageCount: 0, placementCount: 0 },
     })
 
-    const partial = advanceVNextDocumentCompositionV1({
-      manifest: input, cursor: initial.cursorAfter, openPage: initial.openPageAfter,
-      window: contentWindow(demandOf(initial), [20], "partial"), limits,
-    })
-    expect(partial).toMatchObject({
+    const { fingerprint: _fingerprint, ...validFacts } = valid
+    const reFinalized = finalizeVNextCompositionFragmentWindowV1({ ...validFacts, zoneId: "other-zone" })
+    if (reFinalized.status !== "ready") throw new Error("re-fingerprinted stale window unexpectedly invalid")
+    expect(advanceVNextDocumentCompositionV1({
+      manifest: input,
+      cursor: initial.cursorAfter,
+      openPage: initial.openPageAfter,
+      window: reFinalized.window,
+      limits,
+    })).toMatchObject({
       status: "blocked",
-      reason: "unsupported-window-state",
-      issues: [expect.objectContaining({ code: "composition-window-state-not-active" })],
+      reason: "window-rejected",
+      issues: expect.arrayContaining([expect.objectContaining({ code: "composition-window-identity-mismatch" })]),
       cursorAfter: null,
     })
+
+  })
+
+  it("resumes partial family windows to byte-identical pages and terminal cursor", () => {
+    const input = manifest([{ sectionIndex: 0, rootNodeId: "story", rootNodeType: "text-block", family: "text-flow" }])
+    const oneShotInitial = initializeVNextDocumentCompositionV1({ manifest: input, limits })
+    const oneShot = advanceVNextDocumentCompositionV1({
+      manifest: input,
+      cursor: oneShotInitial.cursorAfter,
+      openPage: oneShotInitial.openPageAfter,
+      window: contentWindow(demandOf(oneShotInitial), [60, 30], "complete", 0),
+      limits,
+    })
+    if (oneShot.status === "blocked") throw new Error("one-shot transition blocked")
+
+    const resumedInitial = initializeVNextDocumentCompositionV1({ manifest: input, limits })
+    const first = advanceVNextDocumentCompositionV1({
+      manifest: input,
+      cursor: resumedInitial.cursorAfter,
+      openPage: resumedInitial.openPageAfter,
+      window: contentWindow(demandOf(resumedInitial), [60], "partial", 0),
+      limits,
+    })
+    expect(first).toMatchObject({
+      status: "partial",
+      reason: "needs-family-window",
+      closedPages: [{ pageIndex: 0, closeReason: "family-continuation", remainingHeightPt: 40 }],
+      demand: { rootNodeId: "story", capacity: { firstPageAvailableHeightPt: 100 } },
+      cursorAfter: { bodyItemIndex: 0, activeRoot: { rootNodeId: "story" } },
+    })
+    const second = advanceVNextDocumentCompositionV1({
+      manifest: input,
+      cursor: first.cursorAfter,
+      openPage: first.openPageAfter,
+      window: contentWindow(demandOf(first), [30], "complete", 1),
+      limits,
+    })
+    if (first.status === "blocked" || second.status === "blocked") throw new Error("resume transition blocked")
+    expect([...first.closedPages, ...second.closedPages]).toEqual(oneShot.closedPages)
+    expect(second.cursorAfter).toEqual(oneShot.cursorAfter)
+  })
+
+  it("advances a fresh page without family progress and then accepts the same root", () => {
+    const input = manifest([
+      { sectionIndex: 0, rootNodeId: "intro", rootNodeType: "text-block", family: "text-flow" },
+      { sectionIndex: 0, rootNodeId: "photo", rootNodeType: "image", family: "media-flow" },
+    ])
+    const initial = initializeVNextDocumentCompositionV1({ manifest: input, limits })
+    const intro = advanceVNextDocumentCompositionV1({
+      manifest: input, cursor: initial.cursorAfter, openPage: initial.openPageAfter,
+      window: contentWindow(demandOf(initial), [40]), limits,
+    })
+    const photoDemand = demandOf(intro)
+    const fresh = advanceVNextDocumentCompositionV1({
+      manifest: input, cursor: intro.cursorAfter, openPage: intro.openPageAfter,
+      window: freshWindow(photoDemand), limits,
+    })
+    expect(fresh).toMatchObject({
+      status: "partial",
+      closedPages: [{ closeReason: "fresh-page-required", usedHeightPt: 40 }],
+      demand: {
+        rootNodeId: "photo",
+        cursorBefore: { stateFingerprint: photoDemand.cursorBefore.stateFingerprint },
+        capacity: { firstPageAvailableHeightPt: 100 },
+      },
+      work: { windowCount: 1, familyPageCount: 0, placementCount: 0, cursorCommitCount: 0 },
+    })
+    const complete = advanceVNextDocumentCompositionV1({
+      manifest: input, cursor: fresh.cursorAfter, openPage: fresh.openPageAfter,
+      window: contentWindow(demandOf(fresh), [80]), limits,
+    })
+    expect(complete).toMatchObject({ status: "complete", closedPages: [{ pageIndex: 1, usedHeightPt: 80 }] })
+  })
+
+  it("propagates valid family blockers atomically and retries deterministically", () => {
+    const input = manifest([{ sectionIndex: 0, rootNodeId: "photo", rootNodeType: "image", family: "media-flow" }])
+    const initial = initializeVNextDocumentCompositionV1({ manifest: input, limits })
+    const blocked = advanceVNextDocumentCompositionV1({
+      manifest: input, cursor: initial.cursorAfter, openPage: initial.openPageAfter,
+      window: familyBlockedWindow(demandOf(initial)), limits,
+    })
+    expect(blocked).toMatchObject({
+      status: "blocked",
+      reason: "family-blocked",
+      issues: [expect.objectContaining({ code: "atomic-block-oversized" })],
+      cursorAfter: null,
+      openPageAfter: null,
+      closedPages: null,
+      work: { windowCount: 0, closedPageCount: 0, placementCount: 0 },
+    })
+
+    const window = contentWindow(demandOf(initial), [80])
+    const firstRetry = advanceVNextDocumentCompositionV1({
+      manifest: input, cursor: initial.cursorAfter, openPage: initial.openPageAfter, window, limits,
+    })
+    const secondRetry = advanceVNextDocumentCompositionV1({
+      manifest: input, cursor: initial.cursorAfter, openPage: initial.openPageAfter, window, limits,
+    })
+    expect(firstRetry).toEqual(secondRetry)
+    expect(firstRetry).toMatchObject({ status: "complete" })
   })
 
   it("commits one bounded page-break transition and resumes structural completion", () => {

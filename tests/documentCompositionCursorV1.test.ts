@@ -116,7 +116,6 @@ function activeCursorInput(): VNextDocumentCompositionCursorInputV1 {
     openPageFingerprint: openPage.fingerprint,
     closedPrefix: { fingerprint: null, pageCount: 0, placementCount: 0, headingCount: 0 },
     cumulativeWork: {
-      windowsAccepted: 0,
       familyPagesConsumed: 0,
       placementsAccepted: 0,
       bodyItemsCompleted: 0,
@@ -218,7 +217,6 @@ describe("document Composition cursor v1", () => {
         headingCount: 0,
       },
       cumulativeWork: {
-        windowsAccepted: 1,
         familyPagesConsumed: 1,
         placementsAccepted: 0,
         bodyItemsCompleted: 1,
