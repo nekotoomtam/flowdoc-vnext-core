@@ -9543,6 +9543,20 @@ composition storage. Runtime contracts and repository implementation remain
 Phase 386+:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ARCHITECTURE_LOCK.md`.
 
+## Phase 386 Backend Durable Composition Scheduler Contracts
+
+Status: implemented in backend.
+
+Phase 386 adds strict compact-fingerprinted backend source pins, bounded
+seven-state job heads, immutable closed-page chunks, exact transition receipts,
+and redacted progress projections. Backend record parsers delegate embedded
+manifest/cursor/open-page/demand/closed-page validation to public core parsers,
+separate backend chunk identity from the core closed-page prefix, and retain
+real demand-free `partial/output-limit` continuation as `ready-to-advance`.
+Focused fixtures use real core text-flow completion and page-break output-limit
+evidence. Repository and scheduler execution remain Phase 387+:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONTRACTS.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

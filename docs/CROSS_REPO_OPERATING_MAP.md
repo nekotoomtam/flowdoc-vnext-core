@@ -505,6 +505,13 @@ editor intent
   finalization. Runtime contracts, repository, routes, editor presentation,
   and renderer consumption remain inactive:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ARCHITECTURE_LOCK.md`.
+- Phase 386 adds strict backend-owned scheduler records for source pins,
+  bounded job heads, immutable page chunks, transition receipts, and redacted
+  progress. Backend reparses embedded core state through public core parsers,
+  retains demand-free continuation, and keeps backend chunk identity separate
+  from the core closed-page prefix. Repository writes, CAS, routes, editor, and
+  renderer remain inactive:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONTRACTS.md`.
 
 ## Default Change Routing
 
@@ -530,7 +537,7 @@ replacement transport are complete as bounded slices.
 2. Keep Columns property/history operations and backend/editor controls in a
    separate authoring-integration lane.
 3. Core sequential composition/finalization is ready and backend durable
-   scheduling architecture is locked; keep scheduler runtime, editor draft/IME,
+   scheduler contracts are strict; keep repository/runtime, editor draft/IME,
    concrete measurement, renderer/export, and instance-composer consumer
    activation closed until their own gates pass.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
