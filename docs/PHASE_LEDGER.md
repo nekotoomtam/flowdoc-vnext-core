@@ -9526,6 +9526,22 @@ export consumption stay explicit future lanes. Backend scheduler architecture
 is selected next:
 `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 385 Backend Durable Composition Scheduler Architecture Lock
+
+Status: architecture locked across core/backend boundary.
+
+Phase 385 pins one immutable source revision and manifest per backend job,
+retains bounded cursor/open-page control state in one compare-and-swap job
+head, moves document-length family evidence and closed pages into immutable
+content-addressed chains, and defines exact replay, short lease, concurrency,
+recovery, cancellation/expiry, progress, and terminal finalization rules.
+Core remains the pure transition/finalization authority; backend owns durable
+identity, orchestration, storage, and policy. The current backend file JSON
+adapter remains non-transactional evidence and is not promoted to production
+composition storage. Runtime contracts and repository implementation remain
+Phase 386+:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

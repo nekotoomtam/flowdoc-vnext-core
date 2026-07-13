@@ -498,6 +498,12 @@ editor intent
   a later service contract, but backend scheduling/storage, editor progress/
   viewport presentation, and renderer/export consumption remain inactive:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_READINESS_CLOSE_AUDIT.md`.
+- Phase 385 locks backend durable composition scheduling around a pinned source
+  revision, exact core demand/window transitions, immutable evidence/page
+  chunks, one compare-and-swap job head as the logical commit point, bounded
+  recovery, and terminal core finalization. Runtime contracts, repository,
+  routes, editor presentation, and renderer consumption remain inactive:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 
@@ -522,9 +528,10 @@ replacement transport are complete as bounded slices.
    atomic reconciliation direction.
 2. Keep Columns property/history operations and backend/editor controls in a
    separate authoring-integration lane.
-3. Core sequential composition/finalization is ready; keep editor draft/IME,
-   concrete measurement, backend durable scheduling, renderer/export, and
-   instance-composer consumer activation closed until their own gates pass.
+3. Core sequential composition/finalization is ready and backend durable
+   scheduling architecture is locked; keep scheduler runtime, editor draft/IME,
+   concrete measurement, renderer/export, and instance-composer consumer
+   activation closed until their own gates pass.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
    backend, and stale-gated apply in the editor.
 
