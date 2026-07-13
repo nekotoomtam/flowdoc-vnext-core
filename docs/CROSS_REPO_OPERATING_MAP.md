@@ -478,6 +478,11 @@ editor intent
   neither may schedule, persist, or present composition until transition,
   recovery, finalization, scale, and readiness phases pass:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_CONTRACTS.md`.
+- Phase 381 adds pure ordered bounded scheduling for complete common windows in
+  core. Backend/editor remain unchanged and must not schedule, persist, or
+  present composition yet; fresh/partial/blocked recovery, finalization, scale,
+  and readiness gates still precede consumer work:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_ORDERED_SCHEDULING.md`.
 
 ## Default Change Routing
 

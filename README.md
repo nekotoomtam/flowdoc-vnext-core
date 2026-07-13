@@ -465,6 +465,12 @@ The package must remain runnable without any parent editor checkout.
   checkpoint, append-only closed-page prefix, and cross-envelope state
   acceptance. Window scheduling and authoritative finalization remain inactive:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_CONTRACTS.md`.
+- Phase 381 implements ordered bounded sequential scheduling for exact complete
+  common windows. It initializes canonical flow, shares page remainder across
+  roots, starts sections fresh, projects multi-page family evidence, preserves
+  intentional blank page breaks, and resumes structural output limits without
+  replaying accepted windows. Recovery states remain closed:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_ORDERED_SCHEDULING.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

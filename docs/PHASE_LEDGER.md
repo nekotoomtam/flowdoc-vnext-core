@@ -9466,6 +9466,21 @@ Sequential window consumption remains inactive while Phase 381 ordered bounded
 scheduling is selected next:
 `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_CONTRACTS.md`.
 
+## Phase 381 Sequential Whole-Document V4 Ordered Scheduling
+
+Status: implemented for complete windows.
+
+Phase 381 initializes canonical section flow and advances one exact complete
+common family window per pure transition. Roots share exact page remainder,
+later family pages and sections open in order, document placements retain only
+compact family evidence, and page-breaks preserve intentional blank pages.
+Closed pages chain append-only prefixes; retained cursors are finalized only
+with an exact open page or terminal state. Structural output limits resume
+without window replay, while stale/out-of-order/over-limit windows commit
+nothing. Fresh, partial, family-blocked, and retry matrices are selected for
+Phase 382:
+`docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_ORDERED_SCHEDULING.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
