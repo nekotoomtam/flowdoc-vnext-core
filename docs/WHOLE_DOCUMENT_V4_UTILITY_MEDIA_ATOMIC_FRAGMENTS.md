@@ -239,7 +239,8 @@ accepted authored frame and page plan.
 
 ## Next Recommended Direction
 
-Open the Columns/Table/TOC Common Adapter Readiness Lock. Compare their retained
-page/cursor evidence, define the smallest honest per-page checkpoint additions,
-and split implementation by family instead of forcing three incompatible
-pagination results through one adapter patch.
+Open the Columns/Table/TOC Common Adapter Readiness Lock was this phase's
+recorded handoff. Phase 370 now locks that readiness and selects the constrained
+TOC one-page adapter first. Columns and Table remain separate bounded-paginator
+slices because their current limits discard page evidence:
+`docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.

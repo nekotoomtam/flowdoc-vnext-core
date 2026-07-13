@@ -258,6 +258,9 @@ commands and bytes.
 
 ## Next Recommended Direction
 
-Open the Columns/Table/TOC Common Adapter Readiness Lock. Compare retained
-cursor/page evidence and define honest per-page checkpoint additions before
-implementing each family adapter separately.
+Open the Columns/Table/TOC Common Adapter Readiness Lock was this phase's
+recorded handoff. Phase 370 now locks that readiness and selects the constrained
+TOC one-page adapter first. Implement it with fresh-page demand, forced-overflow
+rejection, exact resume equivalence, compact ownership, and bounded scale before
+changing Columns or Table pagination:
+`docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.

@@ -410,6 +410,12 @@ The package must remain runnable without any parent editor checkout.
   ownership, tamper rejection, and 1,000-node scale without auto-scale, decode,
   rendering, composer, or consumer activation:
   `docs/WHOLE_DOCUMENT_V4_UTILITY_MEDIA_ATOMIC_FRAGMENTS.md`.
+- Phase 370 locks Columns/Table/TOC common-adapter readiness around an exact
+  capability matrix. TOC can use constrained one-page resumable results;
+  Columns and Table require composition-oriented bounded pagination before an
+  adapter may claim per-page cursors. It also marks future captioned Figure/
+  Table generated indexes without activating schemas or runtime:
+  `docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

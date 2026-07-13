@@ -9316,6 +9316,20 @@ composer or consumer runtime is activated; Columns/Table/TOC adapter readiness
 is selected next:
 `docs/WHOLE_DOCUMENT_V4_UTILITY_MEDIA_ATOMIC_FRAGMENTS.md`.
 
+## Phase 370 Columns Table And TOC Common Adapter Readiness Lock
+
+Status: architecture locked.
+
+Phase 370 compares retained Columns, Table, and TOC page/cursor evidence with
+the common Composition window. TOC can truthfully adapt exact one-page partial
+or complete calls, with fresh-page demand and forced-overflow constraints.
+Columns and Table currently block and discard pages at their limits, so each
+needs a composition-oriented bounded paginator with retained per-page cursors
+before adaptation. Implementation is ordered TOC, Columns, then Table. Future
+captioned Figure/Table generated indexes are marked without schema or runtime
+activation. The constrained TOC one-page adapter is selected next:
+`docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

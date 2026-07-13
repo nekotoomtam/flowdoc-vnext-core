@@ -425,6 +425,12 @@ editor intent
   editor does not activate image/page-break UX or preview consumption; renderer
   does not receive commands until a real document page plan exists:
   `docs/WHOLE_DOCUMENT_V4_UTILITY_MEDIA_ATOMIC_FRAGMENTS.md`.
+- Phase 370 locks the Columns/Table/TOC adapter order in core without changing
+  consumer behavior. TOC is selected first through exact one-page resume;
+  Columns and Table require bounded page checkpoints before adapters. Backend
+  still owns later scheduling/retention, and editor still owns progress and
+  blocker presentation:
+  `docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.
 
 ## Default Change Routing
 
