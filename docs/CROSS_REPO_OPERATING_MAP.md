@@ -501,8 +501,9 @@ editor intent
 - Phase 385 locks backend durable composition scheduling around a pinned source
   revision, exact core demand/window transitions, immutable evidence/page
   chunks, one compare-and-swap job head as the logical commit point, bounded
-  recovery, and terminal core finalization. Runtime contracts, repository,
-  routes, editor presentation, and renderer consumption remain inactive:
+  demand-free `output-limit` continuation, recovery, and terminal core
+  finalization. Runtime contracts, repository, routes, editor presentation,
+  and renderer consumption remain inactive:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing

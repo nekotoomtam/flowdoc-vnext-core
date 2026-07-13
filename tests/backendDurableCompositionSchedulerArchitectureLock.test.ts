@@ -10,9 +10,11 @@ describe("backend durable composition scheduler architecture cross-repo lock", (
 
     expect(map).toContain("Phase 385 locks backend durable composition scheduling")
     expect(map).toContain("one compare-and-swap job head")
+    expect(map).toContain("demand-free `output-limit` continuation")
     expect(map).toContain("../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ARCHITECTURE_LOCK.md")
     expect(ledger).toContain("## Phase 385 Backend Durable Composition Scheduler Architecture Lock")
     expect(ledger).toContain("Runtime contracts and repository implementation remain")
     expect(ledger).toContain("Phase 386+:")
+    expect(ledger).toContain("demand-free `output-limit` continuation")
   })
 })

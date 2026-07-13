@@ -9534,7 +9534,8 @@ Phase 385 pins one immutable source revision and manifest per backend job,
 retains bounded cursor/open-page control state in one compare-and-swap job
 head, moves document-length family evidence and closed pages into immutable
 content-addressed chains, and defines exact replay, short lease, concurrency,
-recovery, cancellation/expiry, progress, and terminal finalization rules.
+recovery, demand-free `output-limit` continuation, cancellation/expiry,
+progress, and terminal finalization rules.
 Core remains the pure transition/finalization authority; backend owns durable
 identity, orchestration, storage, and policy. The current backend file JSON
 adapter remains non-transactional evidence and is not promoted to production
