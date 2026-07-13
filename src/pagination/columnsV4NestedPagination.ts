@@ -130,7 +130,7 @@ type LanePagePlan =
     }
   | { status: "blocked"; issues: VNextColumnsV4Issue[] }
 
-type ColumnsPagePlan =
+export type VNextColumnsV4NestedPagePlan =
   | {
       status: "planned"
       cursorAfter: VNextColumnsV4Cursor
@@ -290,7 +290,7 @@ function planLanePage(input: {
       )] }
     }
     const nestedBefore = nestedCursor ?? initialCursor(item.columns, input.depth + 1)
-    const nested = planColumnsPage({
+    const nested = planVNextColumnsV4NestedPage({
       input: item.columns,
       cursor: nestedBefore,
       availableHeightPt: remainingHeightPt,
@@ -339,7 +339,7 @@ function planLanePage(input: {
   }
 }
 
-function planColumnsPage(input: {
+export function planVNextColumnsV4NestedPage(input: {
   input: VNextColumnsV4NestedInput
   cursor: VNextColumnsV4Cursor
   availableHeightPt: number
@@ -347,7 +347,7 @@ function planColumnsPage(input: {
   pageIndex: number
   depth: number
   work: MutableWorkFacts
-}): ColumnsPagePlan {
+}): VNextColumnsV4NestedPagePlan {
   const columnsId = input.input.geometry.columnsId
   const validationIssues = validateInput(input.input, input.cursor, input.depth)
   if (validationIssues.length > 0) return { status: "blocked", issues: validationIssues }
@@ -507,7 +507,7 @@ export function paginateVNextNestedColumnsV4(input: {
       "columns-page-limit-exceeded", "maximumPageCount", "nested Columns exceeded maximum page attempts", columnsId,
     )])
     const availableHeightPt = work.pageAttemptCount === 0 ? firstPageAvailableHeightPt : input.pageBodyHeightPt
-    const page = planColumnsPage({
+    const page = planVNextColumnsV4NestedPage({
       input: input.columns,
       cursor,
       availableHeightPt,
@@ -523,7 +523,7 @@ export function paginateVNextNestedColumnsV4(input: {
     cursor = page.cursorAfter
   }
   if (pages.length === 0) {
-    const page = planColumnsPage({
+    const page = planVNextColumnsV4NestedPage({
       input: input.columns,
       cursor,
       availableHeightPt: firstPageAvailableHeightPt,

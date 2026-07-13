@@ -1,8 +1,8 @@
 # Whole-Document V4 Common Fragment-Window Contract
 
-Status: Phase 367 implemented core contract; Phases 368, 369, and 371 add
-Text-flow, Utility/Media, and TOC adapters. The sequential composer remains
-inactive.
+Status: Phase 367 implemented core contract; Phases 368, 369, 371, and 372 add
+Text-flow, Utility/Media, TOC, and Columns adapters. The sequential composer
+remains inactive.
 
 ## Outcome
 
@@ -228,7 +228,7 @@ commands and bytes.
 ## FAIL / BLOCKER
 
 - Text-flow and Utility/Media emit this contract was the Phase 369 state;
-  Phase 371 adds TOC. Columns and Table do not yet emit it.
+  Phase 371 adds TOC and Phase 372 adds Columns. Table does not yet emit it.
 - Text-flow still lacks first-remainder and resumable source pagination.
 - Columns/Table still lack retained per-page family checkpoints.
 - Utility/media still lack isolated v4 body fragment producers.
@@ -263,5 +263,6 @@ commands and bytes.
 Open the Columns/Table/TOC Common Adapter Readiness Lock was this phase's
 recorded handoff. Phase 370 now locks that readiness and selects the constrained
 TOC one-page adapter first; Phase 371 implements it. Continue with the Columns
-composition-oriented bounded paginator and adapter:
-`docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
+composition-oriented bounded paginator and adapter was the next step; Phase 372
+implements it. Continue with Table bounded composition:
+`docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.

@@ -436,6 +436,11 @@ editor intent
   editor does not present their progress/blockers; renderer does not consume
   them before a complete document page plan exists:
   `docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
+- Phase 372 adds bounded Columns-flow windows and their common adapter in core.
+  Backend still does not schedule/persist cursors, editor still does not present
+  composition progress or activate Columns controls, and renderer still waits
+  for an authoritative document page plan:
+  `docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.
 
 ## Default Change Routing
 

@@ -1,7 +1,7 @@
 # Whole-Document V4 Columns Table And TOC Adapter Readiness Lock
 
-Status: Phase 370 architecture lock; Phase 371 implements the selected TOC
-one-page adapter. Columns and Table remain pending.
+Status: Phase 370 architecture lock; Phases 371 and 372 implement the selected
+TOC and Columns slices. Table remains pending.
 
 ## Outcome
 
@@ -228,9 +228,9 @@ they do not compose or relayout these windows.
 
 ## FAIL / BLOCKER
 
-- Columns and Table still lack bounded partial results and retained page cursor
+- Table still lacks bounded partial results and retained page cursor
   checkpoints.
-- No common adapter exists for Columns or Table.
+- No common adapter exists for Table.
 - No sequential whole-document composer consumes any family windows.
 
 ## RISK
@@ -271,4 +271,6 @@ recorded handoff; Phase 371 now implements it. Continue with the Columns
 composition-oriented bounded paginator and common adapter. Preserve nested lane
 reconciliation, retain exact per-page cursors, normalize fresh demand, and prove
 parity plus depth-three 250-page scale before changing Table pagination:
-`docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
+Phase 372 now implements that Columns slice. Continue with Table bounded
+composition:
+`docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.

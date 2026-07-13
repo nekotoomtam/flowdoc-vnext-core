@@ -9345,6 +9345,22 @@ windows. No composer or consumer runtime is activated; the Columns bounded
 paginator and adapter are selected next:
 `docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
 
+## Phase 372 Columns V4 Bounded Composition
+
+Status: implemented.
+
+Phase 372 exposes the established nested Columns page planner to both Phase 289
+complete-call and new bounded orchestration. Source-pinned recursive cursors
+retain page/fragment indexes plus terminal commit state; every accepted page
+retains exact cursor checkpoints and compact identity. Partial windows preserve
+accepted pages, short-remainder prefer-together returns fresh demand, and the
+common adapter projects one positive Columns root placement per family page.
+Positive empty-lane minimum height commits once while zero extent blocks. A
+depth-three 6,000-fragment run produces 250 bounded windows byte-equal to Phase
+289 pages. No composer or consumer runtime is activated; Table bounded
+composition is selected next:
+`docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

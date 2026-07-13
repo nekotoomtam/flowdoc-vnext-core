@@ -50,7 +50,7 @@ v1 exposes six families across eight body block types.
 |---|---|---|---|---|
 | `zone` | structural owner | none | canonical child order and role validation | structural input |
 | `text-block` | body block; heading when role says so | `text-flow` | measured lines, bounded remainder/cursor pages, common adapter | PARTIAL: family window ready; no document composer |
-| `columns` | body container root | `columns-flow` | first remainder, lane cursor, nested depth-three pages | PARTIAL: no per-page retained checkpoint |
+| `columns` | body container root | `columns-flow` | first remainder, bounded recursive cursor, per-page checkpoints, nested depth-three common adapter | PARTIAL: family window ready; no document composer |
 | `column` | Columns internal | none | parent-owned lane cursor | internal only |
 | `table` | body container root | `table-flow` | first remainder, row cursor, repeated headers, synchronized pages | PARTIAL: no per-page retained checkpoint |
 | `table-row` | Table internal | none | parent-owned row cursor | internal only |

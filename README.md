@@ -421,6 +421,11 @@ The package must remain runnable without any parent editor checkout.
   compact measurement and cursor ownership, exact content-window resume, and
   1,000-entry/167-window scale. No composer or consumer runtime is activated:
   `docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
+- Phase 372 makes Columns a bounded common window producer through the shared
+  nested page planner, source-pinned recursive cursors, exact per-page
+  checkpoints, partial/fresh outcomes, terminal minimum-height state, common
+  projection, and depth-three 6,000-fragment/250-page Phase 289 parity:
+  `docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

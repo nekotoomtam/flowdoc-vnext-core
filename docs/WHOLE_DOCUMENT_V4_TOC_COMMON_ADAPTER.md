@@ -212,4 +212,6 @@ Implement the Columns composition-oriented bounded paginator and common adapter.
 Reuse existing nested lane reconciliation, retain exact per-page cursors,
 normalize short-remainder fresh demand, prove complete-call parity and
 depth-three behavior, reject stale/tampered evidence, and repeat the established
-250-page scale without changing Phase 289 output.
+250-page scale without changing Phase 289 output. Phase 372 now implements this
+slice; continue with Table bounded composition:
+`docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.
