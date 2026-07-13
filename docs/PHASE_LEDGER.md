@@ -9557,6 +9557,19 @@ Focused fixtures use real core text-flow completion and page-break output-limit
 evidence. Repository and scheduler execution remain Phase 387+:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONTRACTS.md`.
 
+## Phase 387 Backend Durable Composition Scheduler Repository
+
+Status: repository boundary implemented in backend.
+
+Phase 387 adds strict immutable put/get, idempotent revision-zero head creation,
+validated head reads, and one-revision compare-and-swap through a backend-owned
+repository interface plus deterministic in-memory conformance adapter. Tests
+prove exact replay/conflict, one concurrent CAS winner, retained current head on
+stale loss, committed receipt reachability, deep-clone isolation, and staged
+orphan content that cannot alter the accepted head. Core remains free of
+concrete retention. Source-pinned initialization remains Phase 388:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

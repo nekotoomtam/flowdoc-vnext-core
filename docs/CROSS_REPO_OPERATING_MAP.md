@@ -512,6 +512,12 @@ editor intent
   from the core closed-page prefix. Repository writes, CAS, routes, editor, and
   renderer remain inactive:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONTRACTS.md`.
+- Phase 387 adds a backend repository boundary and in-memory conformance adapter
+  for strict immutable records, idempotent head creation, validated reads,
+  exact compare-and-swap, one CAS winner, committed-request replay, and orphan
+  staging isolation. Concrete storage, scheduler services, routes, editor, and
+  renderer remain inactive:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY.md`.
 
 ## Default Change Routing
 
@@ -536,9 +542,9 @@ replacement transport are complete as bounded slices.
    atomic reconciliation direction.
 2. Keep Columns property/history operations and backend/editor controls in a
    separate authoring-integration lane.
-3. Core sequential composition/finalization is ready and backend durable
-   scheduler contracts are strict; keep repository/runtime, editor draft/IME,
-   concrete measurement, renderer/export, and instance-composer consumer
+3. Core sequential composition/finalization is ready and backend repository
+   conformance passes; keep scheduler services, concrete storage, editor draft/
+   IME, concrete measurement, renderer/export, and instance-composer consumer
    activation closed until their own gates pass.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the
    backend, and stale-gated apply in the editor.
