@@ -9411,6 +9411,18 @@ block semantic active-cell, row/header, geometry, work, terminal, and fresh
 drift. Empty policy and the 250-page scale gate remain open:
 `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_HARDENING.md`.
 
+## Phase 377 Table V4 Composition Scale
+
+Status: implemented.
+
+Phase 377 resumes 1,000 body rows plus one repeated header through 250 one-page
+bounded/common windows. Collected pages, final Table cursor, and all 1,250 row/
+cell/checkpoint/candidate work facts equal complete-call evidence; 249 header
+plans, unique common fingerprints, input immutability, and bounded cursor/
+checkpoint/window sizes pass. Source pinning now hashes retained prepared scope
+and fingerprint facts rather than serializing full candidates every resume:
+`docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_SCALE.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

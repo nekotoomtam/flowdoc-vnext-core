@@ -445,6 +445,10 @@ The package must remain runnable without any parent editor checkout.
   semantic tampering across active split cells, terminal replay, row/header
   order, geometry, work, and fresh-page invariants:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_HARDENING.md`.
+- Phase 377 proves 1,000 Table body rows through 250 one-page bounded/common
+  windows with exact complete-call pages/cursor/work, compact source ownership,
+  unique windows, immutable input, and explicit evidence-size ceilings:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_SCALE.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

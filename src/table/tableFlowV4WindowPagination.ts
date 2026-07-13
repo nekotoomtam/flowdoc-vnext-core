@@ -171,7 +171,18 @@ function plannerWork(input: VNextTablePagePlannerWorkV1, freshPageAdvanceCount: 
 export function createVNextTableFlowV4SourceFingerprint(
   prepared: Extract<VNextTablePreparedRowsResultV1, { status: "ready" }>,
 ): string {
-  return compact(prepared)
+  return compact([
+    prepared.source,
+    prepared.contractVersion,
+    prepared.documentId,
+    prepared.instanceRevision,
+    prepared.tableId,
+    prepared.tableDefinitionId,
+    prepared.geometryFingerprint,
+    prepared.fingerprint,
+    prepared.work,
+    prepared.execution,
+  ])
 }
 
 export function createVNextTableFlowV4ProfileFingerprint(input: {

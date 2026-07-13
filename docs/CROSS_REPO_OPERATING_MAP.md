@@ -458,6 +458,10 @@ editor intent
   tampering. Consumers must retain exact core issues and must not repair active
   cells, repeated headers, work, geometry, terminal, or fresh state:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_HARDENING.md`.
+- Phase 377 proves 1,000 rows through 250 bounded/common Table windows and
+  removes full-prepared serialization from each source-pin resume. This remains
+  core evidence; consumers are still inactive pending the close audit:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_SCALE.md`.
 
 ## Default Change Routing
 

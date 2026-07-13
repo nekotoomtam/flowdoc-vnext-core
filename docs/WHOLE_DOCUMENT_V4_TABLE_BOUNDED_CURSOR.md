@@ -19,9 +19,11 @@ Table-flow cursor/checkpoint/result types from
 
 ## Compact Ownership
 
-The source pin hashes the full accepted prepared Table result into one compact
-SHA-256 identity. This detects row, cell, candidate, geometry, revision, and
-prepared-fingerprint drift without repeating content-sized JSON in every
+The source pin hashes the accepted prepared Table ownership chain into one
+compact SHA-256 identity. Phase 377 narrowed this from serializing the full
+prepared result on every resume to exact scope, prepared fingerprint, work, and
+execution facts. Ordered row/cell/candidate ownership remains behind the
+prepared fingerprint without repeating full candidates in every request or
 cursor.
 
 The profile pin covers page-body height, repeated-header policy, and the
