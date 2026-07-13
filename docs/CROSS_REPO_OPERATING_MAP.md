@@ -462,6 +462,10 @@ editor intent
   removes full-prepared serialization from each source-pin resume. This remains
   core evidence; consumers are still inactive pending the close audit:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_SCALE.md`.
+- Phase 378 closes core Table bounded Composition readiness after all three
+  repository gates pass. Backend/editor remain unchanged and must wait for the
+  sequential composer contract before scheduling or presenting family windows:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_READINESS_CLOSE_AUDIT.md`.
 
 ## Default Change Routing
 

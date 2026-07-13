@@ -449,6 +449,11 @@ The package must remain runnable without any parent editor checkout.
   windows with exact complete-call pages/cursor/work, compact source ownership,
   unique windows, immutable input, and explicit evidence-size ceilings:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_SCALE.md`.
+- Phase 378 closes core Table bounded Composition readiness across shared page
+  semantics, cursors/checkpoints, common adaptation, hardening, scale, and all
+  three repository gates. Sequential whole-document composition is selected
+  next; consumer runtimes remain inactive:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_READINESS_CLOSE_AUDIT.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

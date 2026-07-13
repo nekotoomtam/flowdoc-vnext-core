@@ -9423,6 +9423,19 @@ checkpoint/window sizes pass. Source pinning now hashes retained prepared scope
 and fingerprint facts rather than serializing full candidates every resume:
 `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_SCALE.md`.
 
+## Phase 378 Table V4 Composition Readiness Close Audit
+
+Status: closed.
+
+Phase 378 closes core Table bounded Composition readiness across the shared
+page planner, compact cumulative cursor/checkpoints, strict common adapter,
+re-fingerprinted semantic hardening, and 1,000-row/250-window scale. Core
+314/1,541, editor 27/157 plus build, and backend 13/45 plus build gates pass;
+consumer repos remain unchanged. Empty policy and production orchestration stay
+explicit blockers while the sequential whole-document composer is selected
+next. The final core gate passes 315 test files / 1,543 tests:
+`docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_READINESS_CLOSE_AUDIT.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
