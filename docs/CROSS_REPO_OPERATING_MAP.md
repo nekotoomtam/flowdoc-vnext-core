@@ -441,6 +441,11 @@ editor intent
   composition progress or activate Columns controls, and renderer still waits
   for an authoritative document page plan:
   `docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.
+- Phase 373 extracts the shared one-page Table planner in core and preserves
+  complete-call output. Backend/editor remain unchanged; neither consumer may
+  schedule, persist, present, or adapt Table composition until bounded cursor
+  checkpoints and the common adapter are retained in later phases:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_SHARED_PAGE_PLANNER.md`.
 
 ## Default Change Routing
 

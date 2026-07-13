@@ -9361,6 +9361,20 @@ depth-three 6,000-fragment run produces 250 bounded windows byte-equal to Phase
 composition is selected next:
 `docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.
 
+## Phase 373 Table V4 Shared Page Planner
+
+Status: implemented.
+
+Phase 373 extracts one-page Table assembly from the complete paginator into a
+shared core planner while preserving all existing output. Synchronized
+row/cell cursors, active split rows, repeated headers plus body progress, fresh
+demand, geometry, and cumulative row-plan work now have one semantics owner.
+Direct page-by-page evidence equals complete-call pages, final cursor, summary,
+and work for split/fresh cases and 1,000 body rows across 250 pages. Bounded
+composition cursors, compact source pins, common adaptation, and consumers
+remain inactive:
+`docs/WHOLE_DOCUMENT_V4_TABLE_SHARED_PAGE_PLANNER.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

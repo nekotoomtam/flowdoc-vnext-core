@@ -1,14 +1,11 @@
 import type {
-  VNextTablePreparedAuthoredRowV1,
-  VNextTablePreparedRowV1,
   VNextTablePreparedRowsResultV1,
 } from "./tablePreparedCellContractV1.js"
-import { createInitialVNextTableRowCursorV1, planVNextTableRowV1 } from "./tableRowPaginationV1.js"
+import { planVNextTablePageV1 } from "./tablePagePlannerV1.js"
 import {
   VNEXT_TABLE_PAGINATION_SOURCE,
   VNEXT_TABLE_PAGINATION_VERSION,
   VNextTablePaginationCursorV1Schema,
-  type VNextTablePageRowFragmentV1,
   type VNextTablePageV1,
   type VNextTablePaginationCursorV1,
   type VNextTablePaginationIssueV1,
@@ -19,16 +16,8 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
-function roundPt(value: number): number {
-  return Number(value.toFixed(6))
-}
-
 function issue(code: string, path: string, message: string, tableId: string, rowIndex?: number): VNextTablePaginationIssueV1 {
   return { code, path, message, severity: "error", tableId, ...(rowIndex == null ? {} : { rowIndex }) }
-}
-
-function rowKey(row: VNextTablePreparedRowV1): string {
-  return row.kind === "prepared-materialized-row" ? row.rowInstanceId : row.sourceRowId
 }
 
 export function createInitialVNextTablePaginationCursorV1(
@@ -130,8 +119,7 @@ export function paginateVNextTableRowsV1(input: {
     issues: [],
   }
 
-  let rowIndex = cursorBefore.rowIndex
-  let activeRow = clone(cursorBefore.activeRow)
+  let cursor = clone(cursorBefore)
   let pageAttemptCount = 0
   let rowPlanCount = 0
   let cellPlanCount = 0
@@ -144,168 +132,38 @@ export function paginateVNextTableRowsV1(input: {
   const splitRows = new Set<number>()
   const pages: VNextTablePageV1[] = []
   const headerPolicy = input.headerPolicy ?? "no-repeat"
-  const leadingHeaders: VNextTablePreparedAuthoredRowV1[] = []
-  for (const row of prepared.rows) {
-    if (row.kind !== "prepared-authored-row" || row.role !== "header") break
-    leadingHeaders.push(row)
-  }
-  if (headerPolicy === "repeat-leading-headers" && leadingHeaders.length === 0) return blocked(tableId, cursorBefore, [issue(
-    "repeated-header-source-missing", "headerPolicy", "repeat-leading-headers requires leading authored header rows", tableId,
-  )])
 
-  while (rowIndex < prepared.rows.length) {
+  while (!cursor.complete) {
     if (pageAttemptCount >= input.maximumPageCount) return blocked(tableId, cursorBefore, [issue(
-      "table-page-limit-exceeded", "maximumPageCount", `Table pagination exceeded ${input.maximumPageCount} pages`, tableId, rowIndex,
+      "table-page-limit-exceeded", "maximumPageCount", `Table pagination exceeded ${input.maximumPageCount} pages`, tableId, cursor.rowIndex,
     )])
     const availableHeightPt = pageAttemptCount === 0 ? firstPageAvailableHeightPt : input.pageBodyHeightPt
-    let usedHeightPt = 0
-    const rowFragments: VNextTablePageRowFragmentV1[] = []
-    pageAttemptCount += 1
-    const continuationPage = pageAttemptCount > 1
-      || startPageIndex > 0
-      || cursorBefore.rowIndex > 0
-      || cursorBefore.activeRow != null
-    const shouldRepeatHeaders = headerPolicy === "repeat-leading-headers"
-      && continuationPage
-      && rowIndex >= leadingHeaders.length
-    if (shouldRepeatHeaders) {
-      for (let headerIndex = 0; headerIndex < leadingHeaders.length; headerIndex += 1) {
-        if (rowPlanCount >= input.maximumRowPlanCount) return blocked(tableId, cursorBefore, [issue(
-          "table-row-plan-limit-exceeded", "maximumRowPlanCount",
-          `Table pagination exceeded ${input.maximumRowPlanCount} row plans`, tableId, rowIndex,
-        )])
-        const header = clone(leadingHeaders[headerIndex])
-        header.breakPolicy = "strict-keep"
-        const plan = planVNextTableRowV1({
-          row: header,
-          availableHeightPt: roundPt(availableHeightPt - usedHeightPt),
-          pageBodyHeightPt: input.pageBodyHeightPt,
-        })
-        rowPlanCount += 1
-        repeatedHeaderRowPlanCount += 1
-        if (plan.status === "blocked" || !plan.complete || !plan.progressed || plan.needsFreshPage) return blocked(
-          tableId,
-          cursorBefore,
-          [issue(
-            "repeated-header-does-not-fit",
-            `headers[${headerIndex}]`,
-            plan.status === "blocked" ? plan.issues.map((item) => item.message).join("; ") : "repeated header must complete on the continuation page",
-            tableId,
-            header.rowIndex,
-          )],
-        )
-        cellPlanCount += plan.work.cellPlanCount
-        checkpointLookupCount += plan.work.checkpointLookupCount
-        consumedCandidateCount += plan.work.consumedCandidateCount
-        rowFragments.push({
-          fragmentId: JSON.stringify([tableId, "repeated-header", header.rowIndex, startPageIndex + pages.length]),
-          rowIndex: header.rowIndex,
-          rowFragmentIndex: 0,
-          rowKind: "authored",
-          rowRole: header.role,
-          rowKey: header.sourceRowId,
-          repeatedHeader: true,
-          yOffsetPt: usedHeightPt,
-          heightPt: plan.usedHeightPt,
-          complete: true,
-          cells: clone(plan.cells),
-        })
-        repeatedHeaderFragmentCount += 1
-        usedHeightPt = roundPt(usedHeightPt + plan.usedHeightPt)
-      }
-    }
-    const bodyFragmentStartCount = rowFragments.length
-
-    while (rowIndex < prepared.rows.length && usedHeightPt <= availableHeightPt) {
-      if (rowPlanCount >= input.maximumRowPlanCount) return blocked(tableId, cursorBefore, [issue(
-        "table-row-plan-limit-exceeded", "maximumRowPlanCount",
-        `Table pagination exceeded ${input.maximumRowPlanCount} row plans`, tableId, rowIndex,
-      )])
-      const row = prepared.rows[rowIndex]
-      const rowCursor = activeRow ?? createInitialVNextTableRowCursorV1(row)
-      const plan = planVNextTableRowV1({
-        row,
-        availableHeightPt: roundPt(availableHeightPt - usedHeightPt),
-        pageBodyHeightPt: input.pageBodyHeightPt,
-        cursor: rowCursor,
-      })
-      rowPlanCount += 1
-      if (plan.status === "blocked") return blocked(tableId, cursorBefore, plan.issues.map((item) => issue(
-        item.code, item.path, item.message, tableId, item.rowIndex,
-      )))
-      cellPlanCount += plan.work.cellPlanCount
-      checkpointLookupCount += plan.work.checkpointLookupCount
-      consumedCandidateCount += plan.work.consumedCandidateCount
-      if (!plan.progressed && plan.needsFreshPage) {
-        if (shouldRepeatHeaders && rowFragments.length === bodyFragmentStartCount) return blocked(tableId, cursorBefore, [issue(
-          "repeated-header-prevents-body-progress",
-          "headerPolicy",
-          "repeated headers leave no legal body-row progress on a fresh continuation page",
-          tableId,
-          rowIndex,
-        )])
-        if (usedHeightPt === 0 && availableHeightPt >= input.pageBodyHeightPt) return blocked(tableId, cursorBefore, [issue(
-          "table-pagination-no-progress", "cursor", "row requested another fresh page from a fresh page", tableId, rowIndex,
-        )])
-        freshPageAdvanceCount += 1
-        break
-      }
-      if (!plan.progressed && !plan.complete) return blocked(tableId, cursorBefore, [issue(
-        "table-pagination-no-progress", "cursor", "row planning neither progressed nor completed", tableId, rowIndex,
-      )])
-      const fragmentIndex = plan.cursorBefore.fragmentIndex
-      rowFragments.push({
-        fragmentId: JSON.stringify([tableId, rowIndex, fragmentIndex, startPageIndex + pages.length]),
-        rowIndex,
-        rowFragmentIndex: fragmentIndex,
-        rowKind: row.kind === "prepared-authored-row" ? "authored" : "materialized",
-        rowRole: row.role,
-        rowKey: rowKey(row),
-        repeatedHeader: false,
-        yOffsetPt: usedHeightPt,
-        heightPt: plan.usedHeightPt,
-        complete: plan.complete,
-        cells: clone(plan.cells),
-      })
-      usedHeightPt = roundPt(usedHeightPt + plan.usedHeightPt)
-      if (plan.complete) {
-        rowIndex += 1
-        activeRow = null
-        completedRowCount += 1
-      } else {
-        activeRow = clone(plan.cursorAfter)
-        splitRows.add(rowIndex)
-        break
-      }
-      if (usedHeightPt >= availableHeightPt) break
-    }
-    pages.push({
-      pageIndex: startPageIndex + pages.length,
-      bodyHeightPt: input.pageBodyHeightPt,
+    const plan = planVNextTablePageV1({
+      prepared,
+      cursor,
+      pageBodyHeightPt: input.pageBodyHeightPt,
       availableHeightPt,
-      usedHeightPt,
-      remainingHeightPt: roundPt(availableHeightPt - usedHeightPt),
-      rows: rowFragments,
+      pageIndex: startPageIndex + pages.length,
+      headerPolicy,
+      maximumRowPlanCount: input.maximumRowPlanCount,
+      rowPlanCountBefore: rowPlanCount,
     })
-    if (shouldRepeatHeaders && rowFragments.length === bodyFragmentStartCount && rowIndex < prepared.rows.length) {
-      return blocked(tableId, cursorBefore, [issue(
-        "repeated-header-prevents-body-progress",
-        "headerPolicy",
-        "repeated headers produced a header-only continuation page",
-        tableId,
-        rowIndex,
-      )])
-    }
+    pageAttemptCount += 1
+    if (plan.status === "blocked") return blocked(tableId, cursorBefore, plan.issues)
+    pages.push(plan.page)
+    cursor = clone(plan.cursorAfter)
+    rowPlanCount += plan.work.rowPlanCount
+    cellPlanCount += plan.work.cellPlanCount
+    checkpointLookupCount += plan.work.checkpointLookupCount
+    consumedCandidateCount += plan.work.consumedCandidateCount
+    repeatedHeaderRowPlanCount += plan.work.repeatedHeaderRowPlanCount
+    freshPageAdvanceCount += plan.freshPageAdvanceCount
+    completedRowCount += plan.completedRowCount
+    repeatedHeaderFragmentCount += plan.repeatedHeaderFragmentCount
+    if (plan.splitRowIndex != null) splitRows.add(plan.splitRowIndex)
   }
 
-  const cursorAfter: VNextTablePaginationCursorV1 = {
-    contractVersion: VNEXT_TABLE_PAGINATION_VERSION,
-    kind: "table-pagination-cursor",
-    tableId,
-    rowIndex,
-    activeRow,
-    complete: rowIndex >= prepared.rows.length && activeRow == null,
-  }
+  const cursorAfter = clone(cursor)
   const rowFragmentCount = pages.reduce((total, page) => total + page.rows.length, 0)
   return {
     source: VNEXT_TABLE_PAGINATION_SOURCE,

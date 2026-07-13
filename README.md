@@ -426,6 +426,11 @@ The package must remain runnable without any parent editor checkout.
   checkpoints, partial/fresh outcomes, terminal minimum-height state, common
   projection, and depth-three 6,000-fragment/250-page Phase 289 parity:
   `docs/WHOLE_DOCUMENT_V4_COLUMNS_BOUNDED_COMPOSITION.md`.
+- Phase 373 extracts the shared one-page Table planner without changing the
+  complete paginator. Split-row/cell cursors, repeated headers, fresh demand,
+  cumulative row-plan bounds, and 1,000-row/250-page parity now have one
+  semantics owner before bounded cursor work begins:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_SHARED_PAGE_PLANNER.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
