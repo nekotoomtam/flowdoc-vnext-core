@@ -1,7 +1,7 @@
 # Whole-Document V4 Columns Table And TOC Adapter Readiness Lock
 
-Status: Phase 370 architecture lock. No new family adapter or paginator runtime
-is activated by this phase.
+Status: Phase 370 architecture lock; Phase 371 implements the selected TOC
+one-page adapter. Columns and Table remain pending.
 
 ## Outcome
 
@@ -85,9 +85,10 @@ The adapter must preserve these special states:
 - stale measurement ownership, more than one page, page-index drift, cursor
   mismatch, or content-sized/non-compact owner evidence blocks atomically.
 
-One-page calls resumed from the exact accepted cursor must combine to the same
-TOC family pages and final cursor as one-shot TOC pagination before the adapter
-slice closes.
+One-page content calls resumed from the exact accepted cursor must combine to
+the same TOC family pages and final cursor as one-shot TOC pagination. Fresh
+demand is normalized to no common page and retries the unchanged cursor on a
+full page, so the old zero-content family page is intentionally not committed.
 
 ## Columns Bounded Slice
 
@@ -227,7 +228,6 @@ they do not compose or relayout these windows.
 
 ## FAIL / BLOCKER
 
-- No TOC common adapter is implemented yet.
 - Columns and Table still lack bounded partial results and retained page cursor
   checkpoints.
 - No common adapter exists for Columns or Table.
@@ -256,7 +256,8 @@ they do not compose or relayout these windows.
 ## Intentionally Not Changed
 
 - canonical package/document schemas and authored node grammar;
-- Columns, Table, and TOC pagination implementations or public results;
+- Columns/Table pagination implementations and TOC pagination placement
+  semantics;
 - common fragment-window schema;
 - existing Table renderer projection;
 - document v3 measured pagination and renderer paths;
@@ -265,7 +266,9 @@ they do not compose or relayout these windows.
 
 ## Next Recommended Direction
 
-Implement the constrained TOC one-page common adapter first. Prove content,
-fresh-page demand, forced-overflow rejection, stale/tamper failure, exact
-one-page resume equivalence, compact ownership, and 1,000-entry bounded scale
-before changing Columns or Table pagination.
+Implement the constrained TOC one-page common adapter first was Phase 370's
+recorded handoff; Phase 371 now implements it. Continue with the Columns
+composition-oriented bounded paginator and common adapter. Preserve nested lane
+reconciliation, retain exact per-page cursors, normalize fresh demand, and prove
+parity plus depth-three 250-page scale before changing Table pagination:
+`docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.

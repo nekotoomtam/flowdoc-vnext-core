@@ -416,6 +416,11 @@ The package must remain runnable without any parent editor checkout.
   adapter may claim per-page cursors. It also marks future captioned Figure/
   Table generated indexes without activating schemas or runtime:
   `docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.
+- Phase 371 makes TOC a common generated-flow window producer through strict
+  one-page evidence, fresh-page normalization, forced-overflow/empty blockers,
+  compact measurement and cursor ownership, exact content-window resume, and
+  1,000-entry/167-window scale. No composer or consumer runtime is activated:
+  `docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

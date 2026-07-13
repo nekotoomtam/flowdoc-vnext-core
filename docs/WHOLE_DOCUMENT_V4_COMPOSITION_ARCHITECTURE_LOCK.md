@@ -55,7 +55,7 @@ v1 exposes six families across eight body block types.
 | `table` | body container root | `table-flow` | first remainder, row cursor, repeated headers, synchronized pages | PARTIAL: no per-page retained checkpoint |
 | `table-row` | Table internal | none | parent-owned row cursor | internal only |
 | `table-cell` | Table internal | none | synchronized cell candidates | internal only |
-| `toc` | generated body block | `generated-flow` | measured rows, bounded partial cursor, final page resolution | PARTIAL: synthetic heading map only in integrated evidence |
+| `toc` | generated body block | `generated-flow` | measured rows, bounded partial cursor, one-page common adapter, final page resolution | PARTIAL: family window ready; no document composer |
 | `page-break` | forced flow control | `utility-flow` | explicit forced-page effect and common window | PARTIAL: directive ready; no composer |
 | `divider` | atomic measured block | `utility-flow` | exact pt geometry, atomic fit, common window | PARTIAL: family window ready; no composer |
 | `spacer` | atomic measured block | `utility-flow` | exact height, atomic fit, common window | PARTIAL: family window ready; no composer |

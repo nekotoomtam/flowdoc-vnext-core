@@ -431,6 +431,11 @@ editor intent
   still owns later scheduling/retention, and editor still owns progress and
   blocker presentation:
   `docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.
+- Phase 371 adds the TOC one-page common adapter and compact TOC measurement
+  ownership in core. Backend does not schedule or persist these windows;
+  editor does not present their progress/blockers; renderer does not consume
+  them before a complete document page plan exists:
+  `docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
 
 ## Default Change Routing
 

@@ -68,6 +68,9 @@ describe("TOC v4 measurement", () => {
     expect(first.work.cacheMissCount).toBe(4)
     expect(second.work.cacheHitCount).toBe(4)
     expect(second.fingerprint).toBe(first.fingerprint)
+    expect(first.geometryFingerprint).toMatch(/^sha256:[a-f0-9]{64}$/u)
+    expect(first.fitFingerprint).toMatch(/^sha256:[a-f0-9]{64}$/u)
+    expect(first.fingerprint).toMatch(/^sha256:[a-f0-9]{64}$/u)
     expect(JSON.stringify(source)).toBe(before)
   })
 

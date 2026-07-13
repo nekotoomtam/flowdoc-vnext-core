@@ -9330,6 +9330,21 @@ captioned Figure/Table generated indexes are marked without schema or runtime
 activation. The constrained TOC one-page adapter is selected next:
 `docs/WHOLE_DOCUMENT_V4_COLUMNS_TABLE_TOC_ADAPTER_READINESS_LOCK.md`.
 
+## Phase 371 TOC V4 Common Composition Adapter
+
+Status: implemented.
+
+Phase 371 validates exact one-page TOC pagination and emits common
+`generated-flow` content or fresh-page demand. It blocks forced overflow,
+empty untitled output, multi-page evidence, stale/tampered ownership, cursor
+drift, and incompatible geometry. TOC geometry/fit/measurement fingerprints
+are now compact SHA-256 identities after the first one-page 1,000-entry run
+exposed repeated content-sized cursor ownership. Content windows resume to the
+exact one-shot family pages; 1,000 entries adapt through 167 deterministic
+windows. No composer or consumer runtime is activated; the Columns bounded
+paginator and adapter are selected next:
+`docs/WHOLE_DOCUMENT_V4_TOC_COMMON_ADAPTER.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

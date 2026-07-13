@@ -1,5 +1,6 @@
 import type { VNextTextMeasurement, VNextTextMeasurementCache, VNextTextMeasurer } from "../pagination/textMeasurement.js"
 import { measureVNextText } from "../pagination/textMeasurement.js"
+import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import type { VNextTocV4GeneratedEntry, VNextTocV4SemanticResult } from "./tocV4Semantic.js"
 
 export const VNEXT_TOC_V4_MEASUREMENT_SOURCE = "vnext-toc-v4-measurement"
@@ -313,8 +314,13 @@ export function measureVNextTocV4(input: {
     summary: { entryCount: rows.length, measuredLineCount, totalHeightPt, minimumFirstFragmentHeightPt },
     contracts: { pagination: "not-run" as const, rendering: "not-run" as const, persistence: "not-run" as const, editorStateMutation: false as const },
   }
-  const geometryFingerprint = JSON.stringify(geometryFacts)
-  const fitFingerprint = JSON.stringify({ geometryFingerprint, availableHeightPt: spec.availableHeightPt, fit, forcedOverflowHeadingNodeIds })
+  const geometryFingerprint = createVNextCompactFingerprint(JSON.stringify(geometryFacts))
+  const fitFingerprint = createVNextCompactFingerprint(JSON.stringify({
+    geometryFingerprint,
+    availableHeightPt: spec.availableHeightPt,
+    fit,
+    forcedOverflowHeadingNodeIds,
+  }))
   return {
     source: VNEXT_TOC_V4_MEASUREMENT_SOURCE,
     contractVersion: VNEXT_TOC_V4_MEASUREMENT_VERSION,
@@ -322,7 +328,7 @@ export function measureVNextTocV4(input: {
     summary: { ...geometryFacts.summary, fit, forcedOverflowHeadingNodeIds },
     work: { textMeasurementCount, cacheHitCount, cacheMissCount, uncachedCount },
     geometryFingerprint, fitFingerprint,
-    fingerprint: JSON.stringify([geometryFingerprint, fitFingerprint]), issues: warnings,
+    fingerprint: createVNextCompactFingerprint(JSON.stringify([geometryFingerprint, fitFingerprint])), issues: warnings,
   }
 }
 
@@ -339,17 +345,17 @@ export function refitVNextTocV4Measurement(input: {
   const { fit, forcedOverflowHeadingNodeIds } = fitFacts(
     input.measurement.rows, input.measurement.summary.totalHeightPt, input.availableHeightPt,
   )
-  const fitFingerprint = JSON.stringify({
+  const fitFingerprint = createVNextCompactFingerprint(JSON.stringify({
     geometryFingerprint: input.measurement.geometryFingerprint,
     availableHeightPt: input.availableHeightPt, fit, forcedOverflowHeadingNodeIds,
-  })
+  }))
   return {
     ...JSON.parse(JSON.stringify(input.measurement)),
     spec: { ...input.measurement.spec, availableHeightPt: input.availableHeightPt },
     summary: { ...input.measurement.summary, fit, forcedOverflowHeadingNodeIds },
     work: { textMeasurementCount: 0, cacheHitCount: 0, cacheMissCount: 0, uncachedCount: 0 },
     fitFingerprint,
-    fingerprint: JSON.stringify([input.measurement.geometryFingerprint, fitFingerprint]),
+    fingerprint: createVNextCompactFingerprint(JSON.stringify([input.measurement.geometryFingerprint, fitFingerprint])),
   }
 }
 
