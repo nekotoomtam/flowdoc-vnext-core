@@ -124,6 +124,102 @@ function sumCheckpointWork(pages: VNextTableFlowV4PageCheckpoint[]): VNextTableF
   })
 }
 
+function validatePageRows(
+  checkpoint: VNextTableFlowV4PageCheckpoint,
+  path: string,
+  issues: VNextCompositionFragmentWindowIssueV1[],
+): void {
+  const rows = checkpoint.page.rows
+  let expectedY = 0
+  let bodyStarted = false
+  let expectedRowIndex = checkpoint.cursorBefore.state.rowIndex
+  let expectedFragmentIndex = checkpoint.cursorBefore.state.activeRow?.fragmentIndex ?? 0
+  let incompleteRowIndex: number | null = null
+  let completedRowCount = 0
+  let repeatedHeaderCount = 0
+  const fragmentIds = new Set<string>()
+  for (const [rowPosition, row] of rows.entries()) {
+    if (fragmentIds.has(row.fragmentId)) issues.push(issue(
+      "table-composition-row-fragment-duplicate",
+      `${path}.page.rows[${rowPosition}].fragmentId`,
+      "Table page row fragment ids must be unique",
+    ))
+    fragmentIds.add(row.fragmentId)
+    if (!near(row.yOffsetPt, expectedY)) issues.push(issue(
+      "table-composition-row-stack-drift",
+      `${path}.page.rows[${rowPosition}].yOffsetPt`,
+      "Table row fragments must form one contiguous vertical stack",
+    ))
+    expectedY += row.heightPt
+    if (row.repeatedHeader) {
+      repeatedHeaderCount += 1
+      if (bodyStarted
+        || row.rowKind !== "authored"
+        || row.rowRole !== "header"
+        || !row.complete
+        || row.rowFragmentIndex !== 0) issues.push(issue(
+        "table-composition-repeated-header-invalid",
+        `${path}.page.rows[${rowPosition}]`,
+        "repeated headers must be complete authored header fragments at the start of a page",
+      ))
+      continue
+    }
+    bodyStarted = true
+    if (incompleteRowIndex != null) issues.push(issue(
+      "table-composition-row-after-split-invalid",
+      `${path}.page.rows[${rowPosition}]`,
+      "an incomplete split row must be the final body fragment on its page",
+    ))
+    if (row.rowIndex !== expectedRowIndex || row.rowFragmentIndex !== expectedFragmentIndex) issues.push(issue(
+      "table-composition-row-cursor-drift",
+      `${path}.page.rows[${rowPosition}]`,
+      "Table body row and fragment indexes must follow the cursor-before state",
+    ))
+    if (row.complete) {
+      completedRowCount += 1
+      expectedRowIndex += 1
+      expectedFragmentIndex = 0
+    } else {
+      incompleteRowIndex = row.rowIndex
+      expectedFragmentIndex = row.rowFragmentIndex + 1
+    }
+  }
+  if (!near(expectedY, checkpoint.page.usedHeightPt)) issues.push(issue(
+    "table-composition-row-stack-height-drift",
+    `${path}.page.usedHeightPt`,
+    "Table used page height must equal the retained row stack height",
+  ))
+  if (expectedRowIndex !== checkpoint.cursorAfter.state.rowIndex) issues.push(issue(
+    "table-composition-row-cursor-after-drift",
+    `${path}.cursorAfter.state.rowIndex`,
+    "Table cursor-after row index must equal retained body-row progress",
+  ))
+  const activeAfter = checkpoint.cursorAfter.state.activeRow
+  if ((incompleteRowIndex == null && activeAfter != null)
+    || (incompleteRowIndex != null && (activeAfter == null
+      || activeAfter.rowIndex !== incompleteRowIndex
+      || activeAfter.fragmentIndex !== expectedFragmentIndex))) issues.push(issue(
+    "table-composition-split-cursor-after-drift",
+    `${path}.cursorAfter.state.activeRow`,
+    "Table active row cursor must match the final incomplete row fragment",
+  ))
+  if (checkpoint.work.completedRowCount !== completedRowCount
+    || checkpoint.work.splitRowIndex !== incompleteRowIndex
+    || checkpoint.work.repeatedHeaderFragmentCount !== repeatedHeaderCount
+    || checkpoint.work.repeatedHeaderRowPlanCount !== repeatedHeaderCount
+    || checkpoint.work.rowPlanCount !== rows.length + checkpoint.work.freshPageAdvanceCount) issues.push(issue(
+    "table-composition-row-work-drift",
+    `${path}.work`,
+    "Table row, split, repeated-header, fresh, and row-plan work must agree",
+  ))
+  const retainedCellPlanCount = rows.reduce((total, row) => total + row.cells.length, 0)
+  if (checkpoint.work.cellPlanCount < retainedCellPlanCount) issues.push(issue(
+    "table-composition-cell-work-drift",
+    `${path}.work.cellPlanCount`,
+    "Table cell-plan work must cover every retained row cell fragment",
+  ))
+}
+
 function validateCheckpoint(
   checkpoint: VNextTableFlowV4PageCheckpoint,
   index: number,
@@ -175,6 +271,7 @@ function validateCheckpoint(
     `${path}.page.rows`,
     "Table row fragments must remain within positive page geometry",
   ))
+  validatePageRows(checkpoint, path, issues)
   if (checkpoint.cursorAfter.state.complete !== checkpoint.cursorAfter.complete
     || checkpoint.cursorAfter.terminalFragmentCommitted !== checkpoint.cursorAfter.complete) issues.push(issue(
     "table-composition-page-completion-drift",

@@ -454,6 +454,10 @@ editor intent
   inactive until hardening, scale, close audit, and later consumer integration;
   neither may reproduce row/cell layout from the common placement:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMMON_ADAPTER.md`.
+- Phase 376 hardens Table cursor/checkpoint semantics against re-fingerprinted
+  tampering. Consumers must retain exact core issues and must not repair active
+  cells, repeated headers, work, geometry, terminal, or fresh state:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_HARDENING.md`.
 
 ## Default Change Routing
 

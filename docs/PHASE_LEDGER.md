@@ -9399,6 +9399,18 @@ and blocked invariants without re-running Table layout. Hardening, 250-page
 scale, close audit, composer, and consumers remain next:
 `docs/WHOLE_DOCUMENT_V4_TABLE_COMMON_ADAPTER.md`.
 
+## Phase 376 Table V4 Composition Hardening
+
+Status: implemented.
+
+Phase 376 validates active row/cell state against exact prepared evidence and
+locks contiguous row stacks, body/split cursor progress, repeated-header order,
+work relationships, terminal replay, and fresh invariants. Adversarial tests
+recompute valid cursor/checkpoint/result fingerprints after mutation and still
+block semantic active-cell, row/header, geometry, work, terminal, and fresh
+drift. Empty policy and the 250-page scale gate remain open:
+`docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_HARDENING.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

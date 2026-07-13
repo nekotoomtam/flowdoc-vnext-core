@@ -299,6 +299,73 @@ function validateWork(work: VNextTableFlowV4CumulativeWork, tableId: string): VN
   return issues
 }
 
+function exactIdentity(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
+
+function validateStateAgainstPrepared(
+  cursor: VNextTableFlowV4PaginationCursor,
+  prepared: Extract<VNextTablePreparedRowsResultV1, { status: "ready" }>,
+): VNextTablePaginationIssueV1[] {
+  const issues: VNextTablePaginationIssueV1[] = []
+  const state = cursor.state
+  if (state.complete) {
+    if (state.rowIndex !== prepared.rows.length || state.activeRow != null) issues.push(issue(
+      "table-flow-state-completion-invalid",
+      "cursor.state",
+      "complete Table state must point after the final row with no active row",
+      prepared.tableId,
+    ))
+    return issues
+  }
+  if (state.rowIndex >= prepared.rows.length) {
+    issues.push(issue(
+      "table-flow-state-row-invalid",
+      "cursor.state.rowIndex",
+      "incomplete Table state must point to an existing prepared row",
+      prepared.tableId,
+    ))
+    return issues
+  }
+  if (state.activeRow == null) return issues
+  const row = prepared.rows[state.rowIndex]
+  const expectedRowIdentity = row.kind === "prepared-materialized-row"
+    ? { kind: "resolved-row", rowInstanceId: row.rowInstanceId }
+    : { kind: "authored-row", sourceRowId: row.sourceRowId }
+  if (state.activeRow.complete
+    || state.activeRow.fragmentIndex <= 0
+    || !exactIdentity(state.activeRow.rowIdentity, expectedRowIdentity)
+    || state.activeRow.cells.length !== row.cells.length) issues.push(issue(
+    "table-flow-active-row-owner-invalid",
+    "cursor.state.activeRow",
+    "active row cursor must retain the exact incomplete prepared row and cell set",
+    prepared.tableId,
+    state.rowIndex,
+  ))
+  state.activeRow.cells.forEach((cellCursor, cellIndex) => {
+    const cell = row.cells[cellIndex]
+    if (cell == null) return
+    if (cellCursor.sourceCellId !== cell.sourceCellId
+      || !exactIdentity(cellCursor.cellIdentity, cell.cellIdentity)
+      || cellCursor.candidateIndex > cell.candidates.length
+      || cellCursor.complete !== (cellCursor.candidateIndex >= cell.candidates.length)) issues.push(issue(
+      "table-flow-active-cell-state-invalid",
+      `cursor.state.activeRow.cells[${cellIndex}]`,
+      "active cell cursor must retain exact prepared ownership, bounds, and completion",
+      prepared.tableId,
+      state.rowIndex,
+    ))
+  })
+  if (state.activeRow.cells.every((cell) => cell.complete)) issues.push(issue(
+    "table-flow-active-row-no-incomplete-cell",
+    "cursor.state.activeRow.cells",
+    "active split row must retain at least one incomplete cell cursor",
+    prepared.tableId,
+    state.rowIndex,
+  ))
+  return issues
+}
+
 function validateCursor(input: {
   cursor: VNextTableFlowV4PaginationCursor
   prepared: Extract<VNextTablePreparedRowsResultV1, { status: "ready" }>
@@ -352,8 +419,13 @@ function validateCursor(input: {
     tableId,
   ))
   const stateComplete = cursor.state.complete
+  const initialEmptyState = stateComplete
+    && !cursor.terminalFragmentCommitted
+    && cursor.nextFragmentIndex === 0
+    && cursor.cumulativeWork.pageAttemptCount === 0
   if (cursor.complete !== (stateComplete && cursor.terminalFragmentCommitted)
-    || (cursor.terminalFragmentCommitted && (!stateComplete || cursor.nextFragmentIndex === 0))) issues.push(issue(
+    || (stateComplete && !cursor.terminalFragmentCommitted && !initialEmptyState)
+    || (cursor.terminalFragmentCommitted && cursor.nextFragmentIndex === 0)) issues.push(issue(
     "table-flow-cursor-completion-mismatch",
     "cursor.complete",
     "Table-flow completion must match Table state and committed terminal fragment",
@@ -367,6 +439,14 @@ function validateCursor(input: {
     "Table-flow committed work must cover every committed fragment",
     tableId,
   ))
+  if (cursor.cumulativeWork.freshPageAdvanceCount > cursor.cumulativeWork.pageAttemptCount
+    || cursor.cumulativeWork.repeatedHeaderRowPlanCount > cursor.cumulativeWork.rowPlanCount) issues.push(issue(
+    "table-flow-cursor-work-relation-invalid",
+    "cursor.cumulativeWork",
+    "Table-flow fresh and repeated-header work must remain within page and row-plan totals",
+    tableId,
+  ))
+  issues.push(...validateStateAgainstPrepared(cursor, prepared))
   return issues
 }
 

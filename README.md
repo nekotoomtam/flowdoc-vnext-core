@@ -441,6 +441,10 @@ The package must remain runnable without any parent editor checkout.
   geometry, completion, fresh and blocked states without reopening row/cell
   layout:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMMON_ADAPTER.md`.
+- Phase 376 hardens Table cursors and common adaptation against re-fingerprinted
+  semantic tampering across active split cells, terminal replay, row/header
+  order, geometry, work, and fresh-page invariants:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_HARDENING.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
