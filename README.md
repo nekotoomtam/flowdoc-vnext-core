@@ -460,6 +460,11 @@ The package must remain runnable without any parent editor checkout.
   demand, and reserves authoritative page-plan/heading-map finalization until
   the terminal prefix is complete. No runtime or consumer is activated:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_COMPOSER_ARCHITECTURE_LOCK.md`.
+- Phase 380 implements strict sequential composer state contracts for the
+  canonical manifest, exact family demand, compact cursor, bounded open-page
+  checkpoint, append-only closed-page prefix, and cross-envelope state
+  acceptance. Window scheduling and authoritative finalization remain inactive:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_CONTRACTS.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

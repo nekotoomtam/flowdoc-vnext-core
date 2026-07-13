@@ -9451,6 +9451,21 @@ rules are fixed before runtime implementation. Phase 380 strict contracts are
 selected next:
 `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_COMPOSER_ARCHITECTURE_LOCK.md`.
 
+## Phase 380 Sequential Whole-Document V4 Contracts
+
+Status: implemented.
+
+Phase 380 implements strict compact SHA-256 contracts for the canonical
+manifest, exact family demand, compact composer cursor, separately bounded open
+page, append-only closed-page prefix, and cross-envelope state acceptance. All
+six common family/root pairs are pinned with stable owners and incomplete
+initial cursors; per-call pagination remains window-owned. Geometry, canonical
+order, overlap, heading-first-fragment, intentional blank, limits, owner drift,
+terminal coverage, and re-fingerprinted stale state block before scheduling.
+Sequential window consumption remains inactive while Phase 381 ordered bounded
+scheduling is selected next:
+`docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_CONTRACTS.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

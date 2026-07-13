@@ -472,6 +472,12 @@ editor intent
   page-plan/heading-map finalization. Backend will later own durable scheduling
   and retention; editor/renderer remain inactive until the core readiness close:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_COMPOSER_ARCHITECTURE_LOCK.md`.
+- Phase 380 adds strict sequential composer state contracts in core: canonical
+  manifest/demand, compact cursor, bounded open page, append-only closed-page
+  prefix, and whole-state owner validation. Backend/editor remain unchanged;
+  neither may schedule, persist, or present composition until transition,
+  recovery, finalization, scale, and readiness phases pass:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_CONTRACTS.md`.
 
 ## Default Change Routing
 
