@@ -431,6 +431,11 @@ The package must remain runnable without any parent editor checkout.
   cumulative row-plan bounds, and 1,000-row/250-page parity now have one
   semantics owner before bounded cursor work begins:
   `docs/WHOLE_DOCUMENT_V4_TABLE_SHARED_PAGE_PLANNER.md`.
+- Phase 374 adds compact source/profile ownership, self-fingerprinted cumulative
+  cursors, retained per-page checkpoints, partial/fresh outcomes, and exact
+  repeated-header/split-row resume for bounded Table-flow pagination. The common
+  adapter remains closed:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_BOUNDED_CURSOR.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

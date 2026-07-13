@@ -9375,6 +9375,18 @@ composition cursors, compact source pins, common adaptation, and consumers
 remain inactive:
 `docs/WHOLE_DOCUMENT_V4_TABLE_SHARED_PAGE_PLANNER.md`.
 
+## Phase 374 Table V4 Bounded Cursor
+
+Status: implemented.
+
+Phase 374 adds compact full-prepared source and pagination-profile pins,
+self-fingerprinted cursors with cumulative work, retained per-page cursor/work
+checkpoints, and complete/partial/fresh/blocked bounded outcomes. One-page
+resume matches complete-call repeated-header/split-row pages, final Table
+cursor, and work while row-plan limits cannot reset across committed windows.
+Empty Table policy and the common adapter remain blocked:
+`docs/WHOLE_DOCUMENT_V4_TABLE_BOUNDED_CURSOR.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

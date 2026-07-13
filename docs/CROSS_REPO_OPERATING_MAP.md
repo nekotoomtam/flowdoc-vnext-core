@@ -446,6 +446,10 @@ editor intent
   schedule, persist, present, or adapt Table composition until bounded cursor
   checkpoints and the common adapter are retained in later phases:
   `docs/WHOLE_DOCUMENT_V4_TABLE_SHARED_PAGE_PLANNER.md`.
+- Phase 374 adds bounded Table-flow cursors and retained page checkpoints in
+  core. Backend does not persist/schedule them and editor does not present them;
+  consumers must wait for the common adapter and readiness gates:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_BOUNDED_CURSOR.md`.
 
 ## Default Change Routing
 
