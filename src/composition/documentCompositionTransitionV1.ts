@@ -461,6 +461,19 @@ function validateWindow(
   ))
   const pageCount = window.pages?.length ?? 0
   const fragmentCount = window.pages?.reduce((count, page) => count + page.fragments.length, 0) ?? 0
+  const item = state.manifest.bodyItems[state.cursor.bodyItemIndex]
+  const headings = window.pages?.flatMap((page) => page.fragments.flatMap((fragment) => (
+    fragment.heading == null ? [] : [fragment.heading]
+  ))) ?? []
+  const isInitialFamilyCursor = item != null && exact(demand.cursorBefore, item.initialCursor)
+  const expectedHeadingCount = item?.headingLevel != null && isInitialFamilyCursor
+    && (window.status === "complete" || window.status === "partial") ? 1 : 0
+  if (headings.length !== expectedHeadingCount
+    || (expectedHeadingCount === 1 && headings[0]?.level !== item?.headingLevel)) issues.push(issue(
+    "composition-window-heading-expectation-mismatch",
+    "window.pages",
+    "family window heading identity must match the manifest heading level on the initial root fragment only",
+  ))
   const remainingDocumentPlacements = state.manifest.limits.maximumDocumentPlacementCount
     - state.cumulativeWork.placementsAccepted
   if (pageCount > limits.maximumFamilyPageCount || fragmentCount > limits.maximumPlacementCount

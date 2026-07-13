@@ -100,7 +100,10 @@ describe("TOC v4 final resolution inputs", () => {
       ],
     }
     expect(parseVNextDocumentV4HeadingPageMap(value)).toMatchObject({
-      status: "ready", map: { documentId: "doc", pageCount: 3, fingerprint: expect.any(String) },
+      status: "ready", map: {
+        documentId: "doc", pageCount: 3,
+        fingerprint: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+      },
     })
     const invalid = JSON.parse(JSON.stringify(value))
     invalid.entries[1].headingNodeId = "h-0"

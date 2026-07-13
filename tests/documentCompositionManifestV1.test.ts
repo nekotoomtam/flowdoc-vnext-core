@@ -68,6 +68,7 @@ function manifestInput(): VNextDocumentCompositionManifestInputV1 {
         rootNodeId,
         rootNodeType,
         family,
+        headingLevel: rootNodeType === "text-block" ? 1 as const : null,
         ownerPins: {
           documentStructure,
           resolvedProjection,

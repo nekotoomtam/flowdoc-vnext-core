@@ -41,6 +41,7 @@ state.
 - unique static-zone roles and ids per section;
 - contiguous direct body-item descriptors in section/zone/source order;
 - all six common family/root pairings;
+- explicit `headingLevel` or `null` on each body root;
 - stable family-source and measurement owners;
 - exact incomplete initial family cursor references; and
 - explicit document, placement, and open-page placement limits.

@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import type { VNextTocV4MeasurementResult } from "./tocV4Measurement.js"
 import type {
   VNextTocV4PageFragment,
@@ -177,5 +178,9 @@ export function parseVNextDocumentV4HeadingPageMap(value: unknown): VNextDocumen
     ))
   })
   if (issues.length > 0) return { status: "blocked", map: null, issues }
-  return { status: "ready", map: { ...clone(facts), fingerprint: JSON.stringify(facts) }, issues: [] }
+  return {
+    status: "ready",
+    map: { ...clone(facts), fingerprint: createVNextCompactFingerprint(JSON.stringify(facts)) },
+    issues: [],
+  }
 }

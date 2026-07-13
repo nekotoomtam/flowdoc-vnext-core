@@ -488,6 +488,11 @@ editor intent
   resume end state. Backend/editor remain unchanged and may not orchestrate or
   present composition before finalization, scale, and readiness close:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_RECOVERY.md`.
+- Phase 383 adds authoritative terminal finalization and 250-page six-family
+  scale in core. Page plan and heading map share one compact owner; backend,
+  editor, and renderer remain inactive pending the Phase 384 full cross-repo
+  readiness close:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_FINALIZATION_SCALE.md`.
 
 ## Default Change Routing
 

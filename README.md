@@ -476,6 +476,11 @@ The package must remain runnable without any parent editor checkout.
   Schedule-dependent window identity/count is removed from authoritative
   page/cursor state so valid schedules converge on byte-identical output:
   `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_RECOVERY.md`.
+- Phase 383 finalizes terminal sequential composition into one authoritative
+  page plan and heading-page map with a shared compact owner. Declared heading
+  coverage, prefix/owner tamper rejection, compact map fingerprints, and a real
+  250-page six-family transition/finalization scale gate pass:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_FINALIZATION_SCALE.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

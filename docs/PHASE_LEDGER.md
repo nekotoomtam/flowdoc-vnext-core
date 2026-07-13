@@ -9496,6 +9496,21 @@ prefixes, and terminal cursor. Phase 383 authoritative finalization and mixed-
 family scale are selected next:
 `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_RECOVERY.md`.
 
+## Phase 383 Sequential Whole-Document V4 Finalization And Scale
+
+Status: implemented.
+
+Phase 383 adds explicit manifest heading declarations, validates initial
+heading-window identity, and finalizes one terminal cursor plus ordered closed
+pages into an authoritative page plan and heading-page map sharing one compact
+composition owner. Missing/reordered/re-fingerprinted pages, heading coverage,
+summary, owner, and fingerprint drift block atomically. Heading-map identity is
+now compact SHA-256. A real 500-call transition run produces and finalizes 250
+ordered pages, 250 placements, and 42 headings across all six families while
+cursor/open-page/common-window sizes stay bounded. Phase 384 full readiness and
+cross-repo gates are selected next:
+`docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_FINALIZATION_SCALE.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

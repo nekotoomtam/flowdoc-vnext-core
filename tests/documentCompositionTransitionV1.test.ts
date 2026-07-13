@@ -64,6 +64,7 @@ function manifest(specs: ItemSpec[], sectionCount = 1): VNextDocumentComposition
         rootNodeId: spec.rootNodeId,
         rootNodeType: spec.rootNodeType,
         family: spec.family,
+        headingLevel: spec.rootNodeType === "text-block" ? 1 as const : null,
         ownerPins: {
           documentStructure,
           resolvedProjection,

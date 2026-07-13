@@ -52,6 +52,7 @@ function fixtures() {
       rootNodeId: "text-1",
       rootNodeType: "text-block",
       family: "text-flow",
+      headingLevel: 1,
       ownerPins: {
         documentStructure,
         resolvedProjection,

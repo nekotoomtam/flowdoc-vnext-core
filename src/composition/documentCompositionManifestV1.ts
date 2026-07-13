@@ -61,6 +61,10 @@ export const VNextDocumentCompositionBodyItemV1Schema = z.object({
   rootNodeId: NonBlankIdSchema,
   rootNodeType: VNextCompositionRootNodeTypeV1Schema,
   family: VNextCompositionNodeFamilyV1Schema,
+  headingLevel: z.union([
+    z.literal(1), z.literal(2), z.literal(3),
+    z.literal(4), z.literal(5), z.literal(6),
+  ]).nullable(),
   ownerPins: VNextDocumentCompositionStableOwnerPinsV1Schema,
   initialCursor: VNextCompositionFamilyCursorRefV1Schema,
 }).strict()
@@ -241,6 +245,11 @@ function manifestSemanticIssues(facts: VNextDocumentCompositionManifestInputV1):
       "composition-family-root-mismatch",
       `bodyItems[${index}].rootNodeType`,
       `${item.family} cannot own root node type ${item.rootNodeType}`,
+    ))
+    if (item.headingLevel != null && (item.family !== "text-flow" || item.rootNodeType !== "text-block")) issues.push(issue(
+      "composition-heading-root-invalid",
+      `bodyItems[${index}].headingLevel`,
+      "only a text-flow text-block root may declare heading level",
     ))
     if (item.ownerPins.documentStructure !== facts.documentStructureFingerprint
       || item.ownerPins.resolvedProjection !== facts.resolvedProjectionFingerprint) issues.push(issue(
