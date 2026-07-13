@@ -518,6 +518,12 @@ editor intent
   staging isolation. Concrete storage, scheduler services, routes, editor, and
   renderer remain inactive:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY.md`.
+- Phase 388 adds backend source-pinned initialization with stale-before-write
+  revision gating, immutable source/manifest staging, exact core initialization
+  outcome mapping, idempotent revision-zero head creation, and transition-zero
+  initial page chunks for pages closed before any family window. Advancement,
+  routes, editor, and renderer remain inactive:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_INITIALIZATION.md`.
 
 ## Default Change Routing
 
@@ -542,8 +548,8 @@ replacement transport are complete as bounded slices.
    atomic reconciliation direction.
 2. Keep Columns property/history operations and backend/editor controls in a
    separate authoring-integration lane.
-3. Core sequential composition/finalization is ready and backend repository
-   conformance passes; keep scheduler services, concrete storage, editor draft/
+3. Core sequential composition/finalization is ready and backend initialization
+   is revision-gated; keep advancement/recovery services, concrete storage, editor draft/
    IME, concrete measurement, renderer/export, and instance-composer consumer
    activation closed until their own gates pass.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the

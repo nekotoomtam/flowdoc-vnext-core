@@ -9570,6 +9570,18 @@ orphan content that cannot alter the accepted head. Core remains free of
 concrete retention. Source-pinned initialization remains Phase 388:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY.md`.
 
+## Phase 388 Backend Durable Composition Scheduler Initialization
+
+Status: implemented in backend.
+
+Phase 388 checks source revision before core or storage work, pins immutable
+source/manifest/profile/limit/lifetime evidence, maps real core first-demand,
+demand-free output-limit, and terminal outcomes to durable states, and creates
+one idempotent revision-zero head. Empty-section pages emitted by core are
+retained as transition-zero chunks with no fake family window or transition
+receipt. Exact-window advancement remains Phase 389:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_INITIALIZATION.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
