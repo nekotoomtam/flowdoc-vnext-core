@@ -436,6 +436,11 @@ The package must remain runnable without any parent editor checkout.
   repeated-header/split-row resume for bounded Table-flow pagination. The common
   adapter remains closed:
   `docs/WHOLE_DOCUMENT_V4_TABLE_BOUNDED_CURSOR.md`.
+- Phase 375 makes Table a strict common `table-flow` window producer. It
+  validates compact cursor/checkpoint/result ownership, cumulative work,
+  geometry, completion, fresh and blocked states without reopening row/cell
+  layout:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMMON_ADAPTER.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

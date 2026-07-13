@@ -450,6 +450,10 @@ editor intent
   core. Backend does not persist/schedule them and editor does not present them;
   consumers must wait for the common adapter and readiness gates:
   `docs/WHOLE_DOCUMENT_V4_TABLE_BOUNDED_CURSOR.md`.
+- Phase 375 adds the strict Table common adapter in core. Backend/editor remain
+  inactive until hardening, scale, close audit, and later consumer integration;
+  neither may reproduce row/cell layout from the common placement:
+  `docs/WHOLE_DOCUMENT_V4_TABLE_COMMON_ADAPTER.md`.
 
 ## Default Change Routing
 

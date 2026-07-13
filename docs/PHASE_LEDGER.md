@@ -9387,6 +9387,18 @@ cursor, and work while row-plan limits cannot reset across committed windows.
 Empty Table policy and the common adapter remain blocked:
 `docs/WHOLE_DOCUMENT_V4_TABLE_BOUNDED_CURSOR.md`.
 
+## Phase 375 Table V4 Common Composition Adapter
+
+Status: implemented.
+
+Phase 375 projects each accepted bounded Table page into one positive common
+`table-flow` placement while retaining row/cell/split/repeated-header detail in
+family checkpoint evidence. It validates compact cursor/checkpoint/result pins,
+exact cursor and cumulative-work chains, capacity, geometry, completion, fresh,
+and blocked invariants without re-running Table layout. Hardening, 250-page
+scale, close audit, composer, and consumers remain next:
+`docs/WHOLE_DOCUMENT_V4_TABLE_COMMON_ADAPTER.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
