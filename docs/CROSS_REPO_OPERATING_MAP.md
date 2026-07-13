@@ -466,6 +466,12 @@ editor intent
   repository gates pass. Backend/editor remain unchanged and must wait for the
   sequential composer contract before scheduling or presenting family windows:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_READINESS_CLOSE_AUDIT.md`.
+- Phase 379 locks the sequential whole-document composer in core as a pure one-
+  window transition with a compact cursor, bounded open-page checkpoint,
+  append-only closed pages, exact family demand, and terminal authoritative
+  page-plan/heading-map finalization. Backend will later own durable scheduling
+  and retention; editor/renderer remain inactive until the core readiness close:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_COMPOSER_ARCHITECTURE_LOCK.md`.
 
 ## Default Change Routing
 

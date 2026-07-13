@@ -9436,6 +9436,21 @@ explicit blockers while the sequential whole-document composer is selected
 next. The final core gate passes 315 test files / 1,543 tests:
 `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_READINESS_CLOSE_AUDIT.md`.
 
+## Phase 379 Sequential Whole-Document V4 Composer Architecture Lock
+
+Status: architecture locked.
+
+Phase 379 locks the sequential composer as a pure one-family-window transition
+over the six ready common adapters. An immutable canonical manifest pins stable
+owners and initial family cursors; exact demand owns per-call capacity. A
+compact control cursor references one separately bounded open-page checkpoint,
+while closed pages are append-only and terminal finalization emits one
+authoritative page plan plus heading-page map. Fresh, partial, page-break,
+section, atomic failure, retry, bounded-work, and cross-repo responsibility
+rules are fixed before runtime implementation. Phase 380 strict contracts are
+selected next:
+`docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_COMPOSER_ARCHITECTURE_LOCK.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

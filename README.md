@@ -454,6 +454,12 @@ The package must remain runnable without any parent editor checkout.
   three repository gates. Sequential whole-document composition is selected
   next; consumer runtimes remain inactive:
   `docs/WHOLE_DOCUMENT_V4_TABLE_COMPOSITION_READINESS_CLOSE_AUDIT.md`.
+- Phase 379 locks the sequential whole-document v4 composer as a pure one-
+  family-window state machine. It separates a compact control cursor from one
+  bounded open-page checkpoint, emits append-only closed pages and exact next
+  demand, and reserves authoritative page-plan/heading-map finalization until
+  the terminal prefix is complete. No runtime or consumer is activated:
+  `docs/SEQUENTIAL_WHOLE_DOCUMENT_V4_COMPOSER_ARCHITECTURE_LOCK.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,
