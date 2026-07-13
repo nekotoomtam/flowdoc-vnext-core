@@ -420,6 +420,11 @@ editor intent
   neither consumer schedules these windows, persists their cursors, presents
   progress/blockers, or treats them as preview/artifact readiness:
   `docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
+- Phase 369 adds Utility/Media atomic evidence, pagination, and common adapters
+  in core. Backend does not decode/fetch/store media or schedule these windows;
+  editor does not activate image/page-break UX or preview consumption; renderer
+  does not receive commands until a real document page plan exists:
+  `docs/WHOLE_DOCUMENT_V4_UTILITY_MEDIA_ATOMIC_FRAGMENTS.md`.
 
 ## Default Change Routing
 

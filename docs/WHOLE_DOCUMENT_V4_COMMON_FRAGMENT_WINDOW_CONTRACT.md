@@ -104,6 +104,8 @@ the exact first-page capacity; later pages use full body height.
 
 For each page:
 
+- `flowEffect` explicitly distinguishes content placement from forced page
+  advance;
 - used height plus remaining height equals available height within 0.01 pt;
 - ordered placements do not overlap;
 - every positive placement extent ends inside committed used height; and
@@ -112,6 +114,11 @@ For each page:
 Document page number, section page number, renderer coordinates, and artifact
 commands are intentionally absent. The later composer assigns document pages;
 family evidence retains internal layout coordinates.
+
+`force-page-advance` is restricted to one complete page-break utility window
+with zero used height, full remainder, no placements, and cursor progress. This
+retains intentional blank-page semantics without pretending page-break has
+content extent.
 
 ## Heading Identity
 
@@ -219,7 +226,7 @@ commands and bytes.
 
 ## FAIL / BLOCKER
 
-- Text-flow emits this contract; Utility/Media, Columns, Table, and TOC do not.
+- Text-flow and Utility/Media emit this contract; Columns, Table, and TOC do not.
 - Text-flow still lacks first-remainder and resumable source pagination.
 - Columns/Table still lack retained per-page family checkpoints.
 - Utility/media still lack isolated v4 body fragment producers.
@@ -251,7 +258,6 @@ commands and bytes.
 
 ## Next Recommended Direction
 
-Implement Utility And Media V4 Atomic Fragment Contracts. Add page-break,
-divider, spacer, and resolved block-image common windows with compact ownership,
-fresh-page demand, intentional blank-page semantics, atomic oversize failure,
-and no renderer/media-decode execution.
+Open the Columns/Table/TOC Common Adapter Readiness Lock. Compare retained
+cursor/page evidence and define honest per-page checkpoint additions before
+implementing each family adapter separately.

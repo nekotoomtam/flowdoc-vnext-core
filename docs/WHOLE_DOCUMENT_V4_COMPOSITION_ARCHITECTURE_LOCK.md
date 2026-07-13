@@ -56,10 +56,10 @@ v1 exposes six families across eight body block types.
 | `table-row` | Table internal | none | parent-owned row cursor | internal only |
 | `table-cell` | Table internal | none | synchronized cell candidates | internal only |
 | `toc` | generated body block | `generated-flow` | measured rows, bounded partial cursor, final page resolution | PARTIAL: synthetic heading map only in integrated evidence |
-| `page-break` | forced flow control | `utility-flow` | schema/placement policy and older measured path | BLOCKED: no isolated v4 composition fragment |
-| `divider` | atomic measured block | `utility-flow` | canonical dimensions and Table-cell candidate | BLOCKED: no isolated v4 body fragment |
-| `spacer` | atomic measured block | `utility-flow` | canonical height and Table-cell candidate | BLOCKED: no isolated v4 body fragment |
-| `image` | atomic measured block | `media-flow` | source/frame validation and Table-cell candidate | BLOCKED: no resolved body measurement/fragment |
+| `page-break` | forced flow control | `utility-flow` | explicit forced-page effect and common window | PARTIAL: directive ready; no composer |
+| `divider` | atomic measured block | `utility-flow` | exact pt geometry, atomic fit, common window | PARTIAL: family window ready; no composer |
+| `spacer` | atomic measured block | `utility-flow` | exact height, atomic fit, common window | PARTIAL: family window ready; no composer |
+| `image` | atomic measured block | `media-flow` | resolved owner/frame, atomic fit, common window | PARTIAL: family window ready; no decode/renderer/composer |
 
 Inline `text`, `field-ref`, `page-number`, `line-break`, and `inline-image`
 remain owned by `text-flow`; they are not independent composer items.
@@ -103,6 +103,13 @@ remain owned by `text-flow`; they are not independent composer items.
   `tests/measuredPagination.test.ts` are document-v3 path evidence for utility,
   static-zone, and mixed-flow behavior. They are not canonical v4 composition
   input and must not be reused as the new runtime contract.
+- `src/pagination/atomicBlockV4Evidence.ts`,
+  `src/pagination/atomicBlockV4Pagination.ts`, and
+  `src/composition/atomicBlockFragmentWindowV1.ts` retain exact Utility/Media
+  geometry, resolved image ownership, atomic fit/fresh/oversize behavior, and
+  explicit forced-page effects. Phase 369 tests prove no auto-scale/decode,
+  stale/tamper failure, intentional blank-page directive facts, immutability,
+  and 1,000-node scale.
 - `docs/V4_INTEGRATED_DOCUMENT_STRESS_READINESS_CLOSE_AUDIT.md` records the
   missing integrated page count and production heading-page map that this
   architecture is intended to unlock.
@@ -301,8 +308,10 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
    remainder, bounded partial resume, compact owner pins, per-page checkpoints,
    one-shot equivalence, and the first common adapter:
    `docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
-3. **Utility/media atomic contracts:** page-break, divider, spacer, and resolved
-   block-image fragment evidence.
+3. **Utility/media atomic contracts (Phase 369 implemented):** page-break,
+   divider, spacer, resolved block-image evidence, atomic pagination, forced
+   page effect, and common adapters:
+   `docs/WHOLE_DOCUMENT_V4_UTILITY_MEDIA_ATOMIC_FRAGMENTS.md`.
 4. **Columns/Table/TOC adapters:** retain per-page checkpoints or bounded
    windows without moving their family semantics.
 5. **Sequential pure composer:** canonical section/body order, remainder,
@@ -327,7 +336,7 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
 - No family adapter emits the retained common fragment-window contract yet.
 - Text-flow has no whole-document composer consumer yet.
 - Columns/Table lack retained per-page checkpoints for bounded composition.
-- Utility/media lack isolated accepted v4 body fragments.
+- Utility/Media have no whole-document composer consumer yet.
 - No pure whole-document composer or authoritative production heading map
   exists.
 
@@ -361,8 +370,6 @@ preview, PDF, or DOCX bytes without changing accepted pagination.
 
 ## Next Recommended Direction
 
-Implement Utility And Media V4 Atomic Fragment Contracts against the retained
-common fragment-window vocabulary. Lock page-break, divider, spacer, and
-resolved block-image ownership, fresh-page demand, intentional blank-page
-semantics, atomic oversize failure, and source immutability before container
-adapters or the sequential composer.
+Open the Columns/Table/TOC Common Adapter Readiness Lock. Compare retained page
+and cursor evidence, specify the smallest honest per-page checkpoint additions,
+and split implementation by family before the sequential composer.

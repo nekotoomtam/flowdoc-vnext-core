@@ -137,6 +137,7 @@ export function createVNextTextFlowCompositionWindowV1(input: {
 
   const pages = pagination.pages.map((page, windowPageIndex) => ({
     windowPageIndex,
+    flowEffect: "place-content" as const,
     availableHeightPt: page.availableHeightPt,
     usedHeightPt: page.usedHeightPt,
     remainingHeightPt: page.remainingHeightPt,

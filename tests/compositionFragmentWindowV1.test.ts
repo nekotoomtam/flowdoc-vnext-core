@@ -53,6 +53,7 @@ function fixture(): VNextCompositionFragmentWindowInputV1 {
     cursorAfter: after,
     pages: [{
       windowPageIndex: 0,
+      flowEffect: "place-content",
       availableHeightPt: 60,
       usedHeightPt: 50,
       remainingHeightPt: 10,
@@ -175,6 +176,7 @@ describe("whole-document composition common fragment window v1", () => {
     const secondFragment = { ...input.pages[0].fragments[1], blockOffsetPt: 0 }
     input.pages = [{
       windowPageIndex: 0,
+      flowEffect: "place-content",
       availableHeightPt: 60,
       usedHeightPt: 30,
       remainingHeightPt: 30,
@@ -183,6 +185,7 @@ describe("whole-document composition common fragment window v1", () => {
       fragments: [firstFragment],
     }, {
       windowPageIndex: 1,
+      flowEffect: "place-content",
       availableHeightPt: 100,
       usedHeightPt: 20,
       remainingHeightPt: 80,
@@ -257,6 +260,56 @@ describe("whole-document composition common fragment window v1", () => {
     expect(parseVNextCompositionFragmentWindowV1({ ...finalized.window, runtime: 1n })).toMatchObject({
       status: "blocked",
       issues: [expect.objectContaining({ code: "invalid-fragment-window" })],
+    })
+  })
+
+  it("represents page-break as an explicit zero-height forced page advance", () => {
+    const base = fixture()
+    if (base.status !== "complete") throw new Error("fixture must be complete")
+    const utilityCursor = (state: string, complete: boolean) => ({
+      contractVersion: 1 as const,
+      kind: "composition-family-cursor-ref" as const,
+      family: "utility-flow" as const,
+      rootNodeId: "break-1",
+      ownerFingerprint: pin("d"),
+      stateFingerprint: pin(state),
+      complete,
+    })
+    const before = utilityCursor("3", false)
+    const after = utilityCursor("4", true)
+    const forced: VNextCompositionFragmentWindowInputV1 = {
+      ...base,
+      family: "utility-flow",
+      rootNodeId: "break-1",
+      rootNodeType: "page-break",
+      cursorBefore: before,
+      cursorAfter: after,
+      pages: [{
+        windowPageIndex: 0,
+        flowEffect: "force-page-advance",
+        availableHeightPt: 60,
+        usedHeightPt: 0,
+        remainingHeightPt: 60,
+        cursorBefore: before,
+        cursorAfter: after,
+        fragments: [],
+      }],
+      work: { pageCount: 1, fragmentCount: 0, cursorCommitCount: 1 },
+    }
+    expect(finalizeVNextCompositionFragmentWindowV1(forced)).toMatchObject({
+      status: "ready",
+      window: { pages: [{ flowEffect: "force-page-advance", fragments: [] }] },
+    })
+
+    const dishonest = fixture()
+    if (dishonest.status === "blocked" || dishonest.status === "fresh-page-required") throw new Error("fixture invalid")
+    dishonest.pages[0].flowEffect = "force-page-advance"
+    expect(finalizeVNextCompositionFragmentWindowV1(dishonest)).toMatchObject({
+      status: "blocked",
+      issues: expect.arrayContaining([
+        expect.objectContaining({ code: "fragment-window-force-page-owner-invalid" }),
+        expect.objectContaining({ code: "fragment-window-force-page-geometry-invalid" }),
+      ]),
     })
   })
 })

@@ -404,6 +404,12 @@ The package must remain runnable without any parent editor checkout.
   evidence, tamper rejection, and 6,000-line/250-page scale. Phase 279 remains
   unchanged and no composer/consumer runtime is activated:
   `docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
+- Phase 369 adds Utility/Media atomic common windows for page-break, divider,
+  spacer, and resolved block image. It adds explicit forced-page effects,
+  whole-image fresh-page movement, atomic oversize/width failure, compact
+  ownership, tamper rejection, and 1,000-node scale without auto-scale, decode,
+  rendering, composer, or consumer activation:
+  `docs/WHOLE_DOCUMENT_V4_UTILITY_MEDIA_ATOMIC_FRAGMENTS.md`.
 - Phase 260 adds an isolated package 3/document 4 read-only runtime projection;
   active mutation, measured layout, exact rendering, and export remain closed.
 - Phase 261 adds explicit revisioned editor migration intent, idempotent retry,

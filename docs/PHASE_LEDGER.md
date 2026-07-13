@@ -9300,6 +9300,22 @@ composer or consumer runtime is activated; Utility/Media atomic fragments are
 selected next:
 `docs/WHOLE_DOCUMENT_V4_TEXT_FLOW_REMAINDER_CURSOR.md`.
 
+## Phase 369 Utility And Media V4 Atomic Fragment Contracts
+
+Status: implemented.
+
+Phase 369 adds strict canonical evidence, compact ownership, one-step cursor,
+atomic fit/fresh/oversize pagination, and common adapters for page-break,
+divider, spacer, and resolved block image. Common pages now distinguish
+`place-content` from `force-page-advance`; page-break retains intentional blank-
+page semantics without fake extent. Block image moves whole to a fresh page,
+blocks on width/fresh-body overflow or empty media, and never auto-scales,
+splits, crops, decodes, or renders. Fingerprint/cursor tampering fails before
+common finalization, and 1,000 Spacer windows prove constant per-node work. No
+composer or consumer runtime is activated; Columns/Table/TOC adapter readiness
+is selected next:
+`docs/WHOLE_DOCUMENT_V4_UTILITY_MEDIA_ATOMIC_FRAGMENTS.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

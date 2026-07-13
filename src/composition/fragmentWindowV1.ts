@@ -93,6 +93,7 @@ export const VNextCompositionFragmentPlacementV1Schema = z.object({
 
 export const VNextCompositionFragmentPageV1Schema = z.object({
   windowPageIndex: z.number().int().nonnegative(),
+  flowEffect: z.enum(["place-content", "force-page-advance"]),
   availableHeightPt: PointSchema,
   usedHeightPt: PointSchema,
   remainingHeightPt: PointSchema,
@@ -350,6 +351,27 @@ function semanticIssues(facts: VNextCompositionFragmentWindowInputV1): VNextComp
       "fragment-window-page-no-progress",
       `pages[${pageIndex}].cursorAfter`,
       "every committed page must advance the family cursor",
+    ))
+    if (page.flowEffect === "force-page-advance") {
+      if (facts.family !== "utility-flow"
+        || facts.rootNodeType !== "page-break"
+        || facts.status !== "complete"
+        || facts.pages.length !== 1) issues.push(issue(
+        "fragment-window-force-page-owner-invalid",
+        `pages[${pageIndex}].flowEffect`,
+        "force-page-advance requires one complete page-break utility window",
+      ))
+      if (page.fragments.length !== 0
+        || !near(page.usedHeightPt, 0)
+        || !near(page.remainingHeightPt, page.availableHeightPt)) issues.push(issue(
+        "fragment-window-force-page-geometry-invalid",
+        `pages[${pageIndex}]`,
+        "force-page-advance must retain zero used height, full remainder, and no placements",
+      ))
+    } else if (facts.rootNodeType === "page-break") issues.push(issue(
+      "fragment-window-page-break-effect-missing",
+      `pages[${pageIndex}].flowEffect`,
+      "page-break windows must explicitly force page advance",
     ))
 
     let previousEnd = 0
