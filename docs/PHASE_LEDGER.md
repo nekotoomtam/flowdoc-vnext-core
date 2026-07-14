@@ -9749,6 +9749,23 @@ before/after commit retain one logical outcome. No due-work scan, runner,
 queue, provider, route, core semantic, or editor behavior is activated:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_JOURNAL.md`.
 
+## Phase 399 Backend Durable Composition Worker Runner
+
+Status: one-step durable runner and interrupted-write recovery pass; due-work
+dispatch and production activation remain blocked.
+
+Phase 399 invokes one exact journal attempt through claim, durable execution
+start, one Phase 397 reconcile or retry action, and exact release or terminal
+completion. Release/completion now require execution evidence bound to claim,
+phase, revision, and time. If an execution-marked retry expires without a
+journal outcome, the reclaiming worker converts it to reconcile before any
+later write; tests retain one total write through ownership loss and eventual
+committed completion. Different-token competition, same-token redelivery,
+terminal outcomes, SQLite start faults, and completion restart replay pass. No
+due-work scan, polling loop, queue, provider, route, core semantic, or editor
+behavior is activated:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RUNNER.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

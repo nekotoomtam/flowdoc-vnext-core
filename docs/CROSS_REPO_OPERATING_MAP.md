@@ -602,6 +602,14 @@ editor intent
   due-work discovery, queue, provider, route, core, or editor behavior is
   activated:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_JOURNAL.md`.
+- Phase 399 composes that journal with the Phase 397 state machine through one
+  explicitly addressed backend runner step. A durable execution-start receipt
+  distinguishes an unstarted claim from a retry that may have touched storage;
+  expired in-flight retry is converted to reconcile before any later write.
+  Duplicate/competing runners, terminal mapping, SQLite start crashes, and
+  completion restart replay pass. Due-work discovery, polling, queue, provider,
+  route, core, and editor activation remain closed:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RUNNER.md`.
 
 ## Default Change Routing
 
