@@ -578,6 +578,13 @@ editor intent
   transient availability without rejection. SQLite and worker/route activation
   remain unqualified:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONCURRENCY_QUALIFICATION.md`.
+- Phase 396 adds a backend-only provider-neutral head availability boundary.
+  Initialization, advancement, finalization, and lifecycle head writes expose
+  unknown commit state, provider/adapter source, four reconciliation lanes, and
+  a reconcile-before-retry policy bounded to three attempts. SQLite busy and
+  before/after-commit create/CAS evidence pass without changing repository V1;
+  worker/queue/provider activation remains closed:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_TRANSIENT_AVAILABILITY.md`.
 
 ## Default Change Routing
 

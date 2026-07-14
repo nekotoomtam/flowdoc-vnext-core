@@ -9695,6 +9695,23 @@ transient availability status. Provider-neutral availability/retry semantics
 remain Phase 396 before any provider, worker, or route activation:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONCURRENCY_QUALIFICATION.md`.
 
+## Phase 396 Backend Durable Composition Transient Availability
+
+Status: provider-neutral head availability and local reconciliation evidence
+pass; provider and worker activation remain blocked.
+
+Phase 396 keeps repository V1 stable and adds production head create/CAS
+availability methods plus a scheduler invocation boundary. Unknown outcomes
+carry provider-declared versus adapter-exception source, create-request,
+head-read, committed-request, or committed-finalization reconciliation, and a
+250/500 ms reconcile-before-retry policy bounded to three total attempts with
+an explicit exhausted result. Scheduler initialization, advancement,
+finalization, and lifecycle return unavailable without blind retry or
+speculative lease release. SQLite held-writer and before/after-commit tests
+prove exact create replay and old/next head reconciliation. A worker attempt
+state machine remains Phase 397 before queue, route, or provider activation:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_TRANSIENT_AVAILABILITY.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
