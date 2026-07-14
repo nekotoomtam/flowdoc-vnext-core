@@ -9783,6 +9783,23 @@ worker loop, polling, wake-up, queue, provider, route, core semantic, and editor
 behavior remain closed:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_DUE_WORK_DISCOVERY.md`.
 
+## Phase 401 Backend Durable Composition Due-Batch Qualification
+
+Status: independent-process SQLite candidate qualification; automatic worker
+lifecycle and production activation remain blocked.
+
+Phase 401 forces four independent child processes and SQLite connections to
+retain the same 12-attempt due page before claims begin. The resulting 48 list
+observations include 36 expected read-only duplicates while atomic ownership
+admits exactly 12 completion owners, one per attempt. Owner terminals are one
+committed head creation and 11 conflicts; terminal replay observations remain
+separate from unique execution facts. One expired claim is reclaimed, parent
+and worker connection restarts preserve exact journal revisions, every process
+wins controlled delayed work, and bounded latency/throughput guards pass. No
+runtime contract, worker loop, wake-up, queue, provider, route, core semantic,
+or editor behavior changes:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_DUE_BATCH_QUALIFICATION.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

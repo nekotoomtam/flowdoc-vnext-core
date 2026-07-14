@@ -618,6 +618,14 @@ editor intent
   terminal counts. No cursor loop, polling, wake-up, queue, provider, route,
   core, or editor behavior is activated:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_DUE_WORK_DISCOVERY.md`.
+- Phase 401 qualifies four independent backend child processes against one
+  forced shared SQLite due page. The gate distinguishes 36 expected duplicate
+  observations from exactly 12 one-owner executions, proves expired-claim
+  reclaim and repository/worker restart isolation, and retains controlled
+  fairness, latency, and throughput bounds. Runtime contracts, worker loop,
+  wake-up policy, queue, provider, route, core, and editor behavior remain
+  unchanged:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_DUE_BATCH_QUALIFICATION.md`.
 
 ## Default Change Routing
 
