@@ -531,6 +531,13 @@ editor intent
   on rejected/failed attempts. Recovery/finalization, routes, editor, and
   renderer remain inactive:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ADVANCEMENT.md`.
+- Phase 390 adds backend expired-lease recovery, explicit retry timing,
+  cancellation/expiry, source-aware progress, complete reachable-chain
+  verification, core-owned finalization, immutable page-plan/heading-map
+  publication, exact replay, transition-zero coverage, and one concurrent
+  finalizer. Production storage, worker/queue, cleanup, routes, editor, and
+  renderer remain inactive:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_RECOVERY_FINALIZATION.md`.
 
 ## Default Change Routing
 
@@ -555,8 +562,8 @@ replacement transport are complete as bounded slices.
    atomic reconciliation direction.
 2. Keep Columns property/history operations and backend/editor controls in a
    separate authoring-integration lane.
-3. Core sequential composition/finalization is ready and backend initialization
-   is revision-gated; keep advancement/recovery services, concrete storage, editor draft/
+3. Core sequential composition/finalization and the backend in-memory scheduler
+   lifecycle are ready; keep production storage/worker activation, editor draft/
    IME, concrete measurement, renderer/export, and instance-composer consumer
    activation closed until their own gates pass.
 4. Keep core imports behind `src/core/coreAdapter.ts`, revision gates in the

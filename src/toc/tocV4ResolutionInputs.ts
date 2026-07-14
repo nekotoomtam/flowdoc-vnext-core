@@ -158,7 +158,14 @@ export function finalizeVNextTocV4PaginationWindows(input: {
 }
 
 export function parseVNextDocumentV4HeadingPageMap(value: unknown): VNextDocumentV4HeadingPageMapResult {
-  const parsed = HeadingPageMapInputSchema.safeParse(value)
+  if (value == null || typeof value !== "object" || Array.isArray(value)) return {
+    status: "blocked", map: null,
+    issues: [issue("invalid-heading-page-map", "", "heading page map must be an object")],
+  }
+  const record = { ...(value as Record<string, unknown>) }
+  const fingerprint = record.fingerprint
+  delete record.fingerprint
+  const parsed = HeadingPageMapInputSchema.safeParse(record)
   if (!parsed.success) return {
     status: "blocked", map: null,
     issues: parsed.error.issues.map((item) => issue(
@@ -178,9 +185,18 @@ export function parseVNextDocumentV4HeadingPageMap(value: unknown): VNextDocumen
     ))
   })
   if (issues.length > 0) return { status: "blocked", map: null, issues }
+  const expectedFingerprint = createVNextCompactFingerprint(JSON.stringify(facts))
+  if (fingerprint !== undefined && fingerprint !== expectedFingerprint) return {
+    status: "blocked", map: null,
+    issues: [issue(
+      "heading-page-map-fingerprint-mismatch",
+      "fingerprint",
+      "heading page map facts do not match the retained fingerprint",
+    )],
+  }
   return {
     status: "ready",
-    map: { ...clone(facts), fingerprint: createVNextCompactFingerprint(JSON.stringify(facts)) },
+    map: { ...clone(facts), fingerprint: expectedFingerprint },
     issues: [],
   }
 }

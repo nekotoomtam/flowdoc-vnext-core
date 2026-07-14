@@ -9596,6 +9596,21 @@ failure clear the lease while preserving exact pre-transition state. Recovery,
 expiry, cancellation, finalization, and progress remain Phase 390:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ADVANCEMENT.md`.
 
+## Phase 390 Backend Durable Composition Scheduler Recovery And Finalization
+
+Status: implemented across backend lifecycle and retained core output parsing.
+
+Phase 390 recovers only expired leases, retains explicit retry timing, gates
+early work, cancels/expires jobs through exact compare-and-swap, and projects
+source-aware progress. Finalization walks and verifies complete immutable page
+chunk, receipt, family-window, prefix, count, and terminal-cursor chains before
+calling the pure core finalizer. It stores the authoritative page plan and
+heading-page map immutably and commits both refs plus exact request replay in
+one completed-head transaction. Transition-zero and concurrent-finalizer paths
+are covered. Core heading-page maps can now be reopened with strict compact
+fingerprint verification. Production scale/readiness remains Phase 391:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_RECOVERY_FINALIZATION.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

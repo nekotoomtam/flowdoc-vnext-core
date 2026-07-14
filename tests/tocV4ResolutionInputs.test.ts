@@ -116,4 +116,24 @@ describe("TOC v4 final resolution inputs", () => {
       ]),
     })
   })
+
+  it("reopens finalized heading-page maps and blocks retained fingerprint drift", () => {
+    const value = {
+      source: "vnext-document-v4-heading-page-map", contractVersion: 1,
+      kind: "document-v4-heading-page-map", documentId: "doc",
+      documentPaginationFingerprint: "document-pages-1", status: "complete",
+      pageCount: 1,
+      entries: [
+        { headingNodeId: "h-0", sectionId: "main", sourceFragmentId: "f-0", pageIndex: 0, pageNumber: 1 },
+      ],
+    }
+    const finalized = parseVNextDocumentV4HeadingPageMap(value)
+    expect(finalized.status).toBe("ready")
+    if (finalized.status !== "ready") throw new Error("heading-page map fixture did not finalize")
+    expect(parseVNextDocumentV4HeadingPageMap(finalized.map)).toEqual(finalized)
+    expect(parseVNextDocumentV4HeadingPageMap({ ...finalized.map, pageCount: 2 })).toMatchObject({
+      status: "blocked", map: null,
+      issues: [expect.objectContaining({ code: "heading-page-map-fingerprint-mismatch" })],
+    })
+  })
 })
