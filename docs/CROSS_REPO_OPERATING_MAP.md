@@ -553,6 +553,15 @@ editor intent
   adapters remain non-production; concrete storage, worker/route activation,
   editor, and renderer stay closed:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY_CONFORMANCE.md`.
+- Phase 393 implements a backend-only Node SQLite transactional candidate
+  behind a dynamic Node 24.15 runtime gate. A trusted runner launches
+  independent child processes and proves all twelve Phase 392 scenarios,
+  including one-winner CAS, before/after-commit process death, restart,
+  physical quota, and terminal cleanup. The candidate also completes the exact
+  240-page scale workload across a real connection reopen with 1,202 records/
+  3,224,446 bytes, but transaction-per-record cost and unwired physical
+  admission keep production routes/workers, editor, and renderer closed:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SQLITE_CANDIDATE.md`.
 
 ## Default Change Routing
 

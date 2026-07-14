@@ -9644,6 +9644,24 @@ independent production evidence. Core remains free of concrete storage.
 A trusted runner and concrete transactional candidate remain Phase 393:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY_CONFORMANCE.md`.
 
+## Phase 393 Backend Durable Composition SQLite Candidate
+
+Status: local transactional candidate and trusted conformance evidence pass;
+production activation remains blocked.
+
+Phase 393 adds a backend-owned Node SQLite candidate with strict tables, WAL,
+full synchronous durability, atomic immutable usage admission, head/create/CAS
+transactions, ordered batch reads, and terminal head-guarded cleanup. A trusted
+runner uses independent Node child processes and before/after-commit exits to
+pass all twelve Phase 392 scenarios, then persists and reopens the passing
+report. The candidate executes the same 240-page, 479-transition workload
+through a real mid-run connection restart with exact 1,202-record/3,224,446-
+byte physical and logical accounting. The durable local run takes about 67
+seconds versus the Phase 391 in-memory run's approximately 16 seconds, exposing
+the need for admitted immutable batch writes. Core remains storage-free;
+production admission wiring and performance hardening remain Phase 394:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SQLITE_CANDIDATE.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
