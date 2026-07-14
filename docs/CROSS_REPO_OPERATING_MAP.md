@@ -610,6 +610,14 @@ editor intent
   completion restart replay pass. Due-work discovery, polling, queue, provider,
   route, core, and editor activation remain closed:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RUNNER.md`.
+- Phase 400 adds a backend-only read-only discovery page over pending state
+  schedules and expired claims, ordered by exact `(dueAt, attemptId)` with a
+  hard limit of 64. SQLite retains checked `discoverable`/`due_at` projections,
+  backfills Phase 399 candidate tables, and uses an indexed keyset query. One
+  sequential page may invoke Phase 399 and return fingerprinted outcome and
+  terminal counts. No cursor loop, polling, wake-up, queue, provider, route,
+  core, or editor behavior is activated:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_DUE_WORK_DISCOVERY.md`.
 
 ## Default Change Routing
 

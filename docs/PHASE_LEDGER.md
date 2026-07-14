@@ -9766,6 +9766,23 @@ due-work scan, polling loop, queue, provider, route, core semantic, or editor
 behavior is activated:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RUNNER.md`.
 
+## Phase 400 Backend Durable Composition Due-Work Discovery
+
+Status: bounded read-only discovery and one-page runner observability pass;
+worker lifecycle and production activation remain blocked.
+
+Phase 400 discovers pending attempts at their exact state `notBefore` and
+claimed attempts only after exact claim expiry. Completed and active-claim
+entries remain excluded. Results use `(dueAt, attemptId)` keyset order with a
+hard maximum of 64 and no claim/revision side effects. SQLite atomically
+projects `discoverable` and `due_at`, backfills Phase 399 candidate tables, and
+passes explicit due-index query-plan evidence across restart. A bounded batch
+invokes one page sequentially and fingerprints exact runner and terminal
+counts; it never follows its cursor or sleeps. Multi-process qualification,
+worker loop, polling, wake-up, queue, provider, route, core semantic, and editor
+behavior remain closed:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_DUE_WORK_DISCOVERY.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
