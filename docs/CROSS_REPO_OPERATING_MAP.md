@@ -570,6 +570,14 @@ editor intent
   about 57.7 seconds locally, but concurrent provider evidence and production
   worker/route activation remain closed:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ATOMIC_BATCH.md`.
+- Phase 395 runs four independent backend processes against one SQLite file,
+  completing four 60-page/all-family jobs with exact per-job accounting and one
+  concurrent connection reopen. Fairness and bounded immutable busy handling
+  pass, but wall time is about 7.6-7.8 single-job baseline multiples against a
+  target of at most six, and repository V1 head writes cannot represent
+  transient availability without rejection. SQLite and worker/route activation
+  remain unqualified:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONCURRENCY_QUALIFICATION.md`.
 
 ## Default Change Routing
 

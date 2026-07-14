@@ -9679,6 +9679,22 @@ transactions from 1,202 to 481 and local time from about 67 to 57.7 seconds.
 Concurrent multi-job provider qualification remains Phase 395:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ATOMIC_BATCH.md`.
 
+## Phase 395 Backend Durable Composition Concurrency Qualification
+
+Status: local concurrent correctness passes; SQLite production qualification
+fails and activation remains blocked.
+
+Phase 395 launches four independent backend processes against one SQLite file.
+Each completes 60 pages, 119 transitions, 302 records, and all six families;
+one process closes and reopens its connection while peers continue. Exact
+per-job physical/logical accounting and local fairness pass. Four-job wall time
+is about 7.6-7.8 single-job baseline multiples, failing the provisional maximum
+of six. A 100 ms held-writer test returns typed immutable `storage-error` with
+no partial record, but head create still rejects because repository V1 has no
+transient availability status. Provider-neutral availability/retry semantics
+remain Phase 396 before any provider, worker, or route activation:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_CONCURRENCY_QUALIFICATION.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an
