@@ -9611,6 +9611,23 @@ are covered. Core heading-page maps can now be reopened with strict compact
 fingerprint verification. Production scale/readiness remains Phase 391:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_RECOVERY_FINALIZATION.md`.
 
+## Phase 391 Backend Durable Composition Scheduler Scale Readiness
+
+Status: in-memory scale and contract-readiness gate passed; production
+activation remains blocked.
+
+Phase 391 executes 240 ordered mixed-family pages through backend
+initialization, 479 accepted transitions, repository-head resume, complete
+chain verification, core finalization, immutable output retention, and progress
+projection. Exact committed retention is 1,202 records/3,224,446 JSON bytes;
+the maximum serialized head remains 5,364 bytes. Pinned retained-byte limits
+now block before initialization, transition staging, or output publication,
+and CAS/finalization independently reject accounting drift. Explicit
+validated-owner paths reduce the same run from about 274.6 to 16.0 seconds
+without changing record, byte, CAS, page, placement, heading, or fingerprint
+facts. Production repository conformance remains Phase 392:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SCALE_READINESS.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

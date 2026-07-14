@@ -193,24 +193,22 @@ export function parseVNextDocumentCompositionCursorV1(value: unknown): VNextDocu
   return finalized
 }
 
-export function parseVNextDocumentCompositionStateV1(input: {
-  manifest: unknown
+export function parseVNextDocumentCompositionStateWithValidatedManifestV1(input: {
+  manifest: VNextDocumentCompositionManifestV1
   cursor: unknown
   openPage: unknown | null
 }): VNextDocumentCompositionStateResultV1 {
-  const manifestResult = parseVNextDocumentCompositionManifestV1(input.manifest)
   const cursorResult = parseVNextDocumentCompositionCursorV1(input.cursor)
   const openPageResult = input.openPage == null ? null : parseVNextDocumentCompositionOpenPageV1(input.openPage)
   const issues: VNextDocumentCompositionContractIssueV1[] = []
-  if (manifestResult.status === "blocked") issues.push(...manifestResult.issues)
   if (cursorResult.status === "blocked") issues.push(...cursorResult.issues)
   if (openPageResult?.status === "blocked") issues.push(...openPageResult.issues)
-  if (issues.length > 0 || manifestResult.status === "blocked" || cursorResult.status === "blocked"
+  if (issues.length > 0 || cursorResult.status === "blocked"
     || openPageResult?.status === "blocked") return {
     status: "blocked", manifest: null, cursor: null, openPage: null, issues,
   }
 
-  const manifest = manifestResult.manifest
+  const manifest = input.manifest
   const cursor = cursorResult.cursor
   const openPage = openPageResult?.page ?? null
   if (cursor.documentId !== manifest.documentId || cursor.manifestFingerprint !== manifest.fingerprint) issues.push(issue(
@@ -305,4 +303,15 @@ export function parseVNextDocumentCompositionStateV1(input: {
   return issues.length > 0
     ? { status: "blocked", manifest: null, cursor: null, openPage: null, issues }
     : { status: "ready", manifest, cursor, openPage, issues: [] }
+}
+
+export function parseVNextDocumentCompositionStateV1(input: {
+  manifest: unknown
+  cursor: unknown
+  openPage: unknown | null
+}): VNextDocumentCompositionStateResultV1 {
+  const manifest = parseVNextDocumentCompositionManifestV1(input.manifest)
+  return manifest.status === "blocked"
+    ? { status: "blocked", manifest: null, cursor: null, openPage: null, issues: manifest.issues }
+    : parseVNextDocumentCompositionStateWithValidatedManifestV1({ ...input, manifest: manifest.manifest })
 }

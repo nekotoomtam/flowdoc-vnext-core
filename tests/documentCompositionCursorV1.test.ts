@@ -6,6 +6,7 @@ import {
   finalizeVNextDocumentCompositionOpenPageV1,
   parseVNextDocumentCompositionCursorV1,
   parseVNextDocumentCompositionStateV1,
+  parseVNextDocumentCompositionStateWithValidatedManifestV1,
   type VNextDocumentCompositionCursorInputV1,
   type VNextDocumentCompositionOpenPageInputV1,
 } from "../src/index.js"
@@ -137,11 +138,17 @@ describe("document Composition cursor v1", () => {
     expect(input).toEqual(before)
     if (cursor.status !== "ready") throw new Error("cursor fixture blocked")
     expect(parseVNextDocumentCompositionCursorV1(cursor.cursor)).toEqual(cursor)
-    expect(parseVNextDocumentCompositionStateV1({ manifest, cursor: cursor.cursor, openPage })).toMatchObject({
+    const parsed = parseVNextDocumentCompositionStateV1({ manifest, cursor: cursor.cursor, openPage })
+    expect(parsed).toMatchObject({
       status: "ready",
       cursor: { fingerprint: cursor.cursor.fingerprint },
       openPage: { fingerprint: openPage.fingerprint },
     })
+    expect(parseVNextDocumentCompositionStateWithValidatedManifestV1({
+      manifest,
+      cursor: cursor.cursor,
+      openPage,
+    })).toEqual(parsed)
   })
 
   it("blocks cursor terminal, page-position, work, and active-root drift", () => {

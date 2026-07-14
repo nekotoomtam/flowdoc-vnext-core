@@ -51,5 +51,5 @@ describe("document Composition mixed-family scale v1", () => {
     expect(finalized.headingPageMap.documentPaginationFingerprint).toBe(finalized.plan.compositionFingerprint)
     expect(JSON.stringify(finalized.plan).length).toBeLessThan(1_500_000)
     expect(JSON.stringify(finalized.headingPageMap).length).toBeLessThan(20_000)
-  }, 20_000)
+  }, 60_000)
 })

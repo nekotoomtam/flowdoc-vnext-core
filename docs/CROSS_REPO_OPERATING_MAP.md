@@ -538,6 +538,13 @@ editor intent
   finalizer. Production storage, worker/queue, cleanup, routes, editor, and
   renderer remain inactive:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_RECOVERY_FINALIZATION.md`.
+- Phase 391 proves the in-memory scheduler over 240 mixed-family pages, adds
+  exact committed record/byte accounting and quota gates, verifies resume and
+  accounting-failure paths, and removes repeated accepted-owner parsing while
+  retaining strict untrusted parsers. The run retains 1,202 records/3,224,446
+  JSON bytes with a maximum 5,364-byte head. Production transactions, process
+  restart, physical quota/cleanup, routes, editor, and renderer stay closed:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SCALE_READINESS.md`.
 
 ## Default Change Routing
 
