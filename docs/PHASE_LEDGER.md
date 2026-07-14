@@ -9733,6 +9733,22 @@ worker-state store, atomic claim runner, queue, provider, route, core semantic,
 or editor behavior is activated:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RECONCILIATION.md`.
 
+## Phase 398 Backend Durable Composition Worker Journal
+
+Status: durable worker-attempt persistence and atomic ownership pass; runner
+and production activation remain blocked.
+
+Phase 398 persists one exact Phase 397 mutation and fingerprinted attempt state
+under one stable attempt identity. A separate backend journal repository owns
+idempotent creation, monotonic revisions, scheduled claims bounded to five
+minutes, active-owner exclusion, expiry reclaim, exact release transitions,
+and immutable terminal outcomes. SQLite stores canonical entry JSON with exact
+indexed identity/revision columns and updates it under atomic transactions.
+Two-handle contention admits one claimant; close/reopen and release faults
+before/after commit retain one logical outcome. No due-work scan, runner,
+queue, provider, route, core semantic, or editor behavior is activated:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_JOURNAL.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

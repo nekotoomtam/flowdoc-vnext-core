@@ -594,6 +594,14 @@ editor intent
   Durable worker-state claims, queue scheduling, provider qualification,
   routes, core, and editor activation remain closed:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RECONCILIATION.md`.
+- Phase 398 adds a separate backend-owned durable worker-attempt journal. One
+  exact mutation/state pair owns one attempt identity; atomic revision/token
+  claims admit one worker, expire for safe reclaim, and release or complete
+  with idempotent redelivery. In-memory and SQLite implementations pass
+  competing-handle, restart, and before/after-commit crash evidence. No runner,
+  due-work discovery, queue, provider, route, core, or editor behavior is
+  activated:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_JOURNAL.md`.
 
 ## Default Change Routing
 
