@@ -9628,6 +9628,22 @@ without changing record, byte, CAS, page, placement, heading, or fingerprint
 facts. Production repository conformance remains Phase 392:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SCALE_READINESS.md`.
 
+## Phase 392 Backend Durable Composition Repository Conformance
+
+Status: production adapter contract and evidence gate implemented in backend;
+concrete storage and activation remain blocked.
+
+Phase 392 keeps the scheduler V1 logical contract stable and adds a separate
+production extension for bounded ordered batch reads, atomic physical-byte
+admission, usage inspection, and exact-head-guarded orphan cleanup. A strict
+fingerprinted report requires twelve atomicity, uniqueness, concurrency,
+crash, restart, quota, and cleanup scenarios plus evidence from at least two
+independent processes and repository handles. Existing in-memory and file JSON
+adapter values are not accepted as conformance reports and neither has
+independent production evidence. Core remains free of concrete storage.
+A trusted runner and concrete transactional candidate remain Phase 393:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY_CONFORMANCE.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -545,6 +545,14 @@ editor intent
   JSON bytes with a maximum 5,364-byte head. Production transactions, process
   restart, physical quota/cleanup, routes, editor, and renderer stay closed:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SCALE_READINESS.md`.
+- Phase 392 defines a backend-only production repository extension and strict
+  conformance report gate. It requires atomic head/request transactions,
+  immutable id/fingerprint uniqueness, bounded ordered batch reads,
+  independent-process CAS, crash/restart recovery, atomic physical quota
+  admission, and head-guarded bounded orphan cleanup. In-memory and file JSON
+  adapters remain non-production; concrete storage, worker/route activation,
+  editor, and renderer stay closed:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_REPOSITORY_CONFORMANCE.md`.
 
 ## Default Change Routing
 
