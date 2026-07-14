@@ -9712,6 +9712,27 @@ prove exact create replay and old/next head reconciliation. A worker attempt
 state machine remains Phase 397 before queue, route, or provider activation:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_TRANSIENT_AVAILABILITY.md`.
 
+## Phase 397 Backend Durable Composition Worker Reconciliation
+
+Status: fingerprinted worker storage-attempt reconciliation and four-lane
+SQLite restart evidence pass; durable runner and production activation remain
+blocked.
+
+Phase 397 consumes the provider-neutral unavailable result through explicit
+`reconcile` and `retry-ready` states bound to one exact mutation and protected
+by a complete-state fingerprint. Creation identity gains a read-only
+repository method so attempt three can reconcile without an accidental fourth
+write. Head, committed-request, and committed-finalization lanes inspect exact
+retained identities before 250/500 ms retries; write attempts and failed
+reconciliation reads have separate three-attempt budgets. Mutation/state
+drift, early retry, expired lease acquisition, supersession, conflict, and
+exhaustion block without speculative writes. SQLite faults before and after
+commit close/reopen into one logical outcome for all four lanes, and the
+independent-process conformance inventory now has thirteen scenarios. No
+worker-state store, atomic claim runner, queue, provider, route, core semantic,
+or editor behavior is activated:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RECONCILIATION.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

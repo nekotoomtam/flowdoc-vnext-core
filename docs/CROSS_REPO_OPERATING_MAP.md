@@ -585,6 +585,15 @@ editor intent
   before/after-commit create/CAS evidence pass without changing repository V1;
   worker/queue/provider activation remains closed:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_TRANSIENT_AVAILABILITY.md`.
+- Phase 397 adds a backend-owned fingerprinted worker storage-attempt state
+  machine over the Phase 396 boundary. It reconciles exact creation, head,
+  committed-request, and committed-finalization evidence before a bounded,
+  time-gated retry; write and reconciliation-read budgets stay separate and
+  expired lease acquisition is blocked. SQLite before/after-commit reopen
+  evidence passes all four lanes, and conformance now has thirteen scenarios.
+  Durable worker-state claims, queue scheduling, provider qualification,
+  routes, core, and editor activation remain closed:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_WORKER_RECONCILIATION.md`.
 
 ## Default Change Routing
 
