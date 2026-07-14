@@ -9662,6 +9662,23 @@ the need for admitted immutable batch writes. Core remains storage-free;
 production admission wiring and performance hardening remain Phase 394:
 `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SQLITE_CANDIDATE.md`.
 
+## Phase 394 Backend Durable Composition Atomic Batch
+
+Status: production admission wiring and local batch evidence pass; production
+activation remains blocked.
+
+Phase 394 adds a bounded production immutable batch without changing repository
+V1. Backend initialization stages source/manifest/optional initial chunk,
+advancement stages window/chunk/receipt, and finalization stages plan/map through
+one physically admitted transaction per event. SQLite validates the whole batch
+before insert, preserves exact replay, rejects conflicts and quota atomically,
+updates usage once, and retains either no records or every record across the
+before/after-commit crash boundary. The exact 240-page workload remains 1,202
+records/3,224,446 bytes across a real connection reopen while reducing immutable
+transactions from 1,202 to 481 and local time from about 67 to 57.7 seconds.
+Concurrent multi-job provider qualification remains Phase 395:
+`../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ATOMIC_BATCH.md`.
+
 ## Phase 11 Parent Bridge Boundary
 
 Phase 11 connected the old/current editor environment to vNext through an

@@ -562,6 +562,14 @@ editor intent
   3,224,446 bytes, but transaction-per-record cost and unwired physical
   admission keep production routes/workers, editor, and renderer closed:
   `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_SQLITE_CANDIDATE.md`.
+- Phase 394 adds a bounded atomic admitted immutable batch and wires backend
+  initialization, advancement, and finalization to the production admission
+  path while preserving repository V1 compatibility. Exact replay, conflict,
+  quota rejection, and before/after-commit batch crashes remain all-or-nothing.
+  The exact 240-page workload now uses 481 immutable transactions and takes
+  about 57.7 seconds locally, but concurrent provider evidence and production
+  worker/route activation remain closed:
+  `../flowdoc-vnext-backend/docs/DURABLE_COMPOSITION_SCHEDULER_ATOMIC_BATCH.md`.
 
 ## Default Change Routing
 
