@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-03 Thai embedded-font one-page proof accepted.
+Status: PDF-PILOT-04 digest-bound image one-page proof accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -106,6 +106,8 @@ Next phase: `PDF-PILOT-03` Thai embedded-font one-page renderer proof.
 
 ## PDF-PILOT-03 Scope
 
+Status: PDF-PILOT-03 Thai embedded-font one-page proof accepted.
+
 Phase 03 adds an isolated external renderer profile for exactly one Letter
 page. It consumes actual Rustybuzz glyph facts from the Phase 02 contract,
 embeds a renamed GID-retaining IBM-derived TrueType subset through
@@ -122,6 +124,27 @@ Primary Phase 03 evidence:
 - `packages/pdf-renderer-pilot/src/index.ts`;
 - `packages/pdf-renderer-pilot/fixtures/one-page-proof-qa.v1.json`;
 - `tests/pdfRendererPilotOnePage.test.ts`.
+
+Next phase: `PDF-PILOT-04` digest-bound image and complete one-page paint proof.
+
+## PDF-PILOT-04 Scope
+
+Phase 04 executes all four one-page paint-command kinds and binds caller-owned
+PNG bytes to the exact image asset digest, dimensions, and media type. The
+actual pinned OCR accuracy chart is embedded directly from its IDAT stream;
+the external source PNG is not copied into the repository.
+
+Poppler confirms one RGB `1950 x 900`, 8-bit image XObject. Pypdf reconstructs
+the original `65,307` PNG bytes and exact SHA-256. Thai extraction remains
+exact in both engines, and 150 DPI visual QA passes image aspect, bounds,
+sharpness, paint order, and text regression checks.
+
+Primary Phase 04 evidence:
+
+- `docs/PDF_IMAGE_ONE_PAGE_RENDERER_PROOF.md`;
+- `fixtures/pdf-pilot-image-one-page-request.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/image-one-page-proof-qa.v1.json`;
+- `tests/pdfRendererPilotImageOnePage.test.ts`.
 
 ## Reproduction
 
@@ -144,6 +167,25 @@ The builder verifies registered candidate hashes, builds the existing native
 Rustybuzz smoke executable, emits normalized advance summaries, and retains no
 raw glyph arrays or absolute font paths.
 
+Build the retained one-page text/font evidence and local PDF:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:request
+npm --prefix packages/pdf-renderer-pilot run build:subset
+npm --prefix packages/pdf-renderer-pilot run build:proof
+```
+
+Build the digest-bound image request and local PDF. Outside the sibling report
+workspace, provide the external pinned PNG without copying it into Core:
+
+```text
+FLOWDOC_PDF_PILOT_OCR_ACCURACY_IMAGE=<path-to-ocr_accuracy.png> \
+npm --prefix packages/pdf-renderer-pilot run build:image-request
+
+FLOWDOC_PDF_PILOT_OCR_ACCURACY_IMAGE=<path-to-ocr_accuracy.png> \
+npm --prefix packages/pdf-renderer-pilot run build:image-proof
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -158,13 +200,15 @@ raw glyph arrays or absolute font paths.
 - The isolated one-page renderer embeds a real GID-retaining Type0 subset and
   passes exact Thai extraction in Poppler and pypdf.
 - Deterministic subset bytes, PDF bytes, and 150 DPI visual QA evidence pass.
+- Digest-bound PNG execution, exact image round-trip identity, and all four
+  one-page paint-command kinds pass.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-03.
+None for closing PDF-PILOT-04.
 
-Report-level PDF fidelity remains blocked until PDF-PILOT-04 proves
-digest-bound image bytes and the complete one-page paint vocabulary.
+Report-level PDF fidelity remains blocked until PDF-PILOT-05 proves multi-page
+font/image resource reuse before full 12-page composition.
 
 ## RISK
 
@@ -174,7 +218,9 @@ digest-bound image bytes and the complete one-page paint vocabulary.
 - IBM Plex Bold requires per-style calibration and must not inherit a global
   body scale.
 - Phase 03 retains normalized visual QA facts, but its raster remains local and
-  covers only one page with no image command.
+  covers only one page.
+- Phase 04 qualifies opaque RGB PNG only; alpha, palette, JPEG, transparency,
+  and multi-page reuse remain open.
 
 ## UNKNOWN
 
@@ -183,6 +229,7 @@ digest-bound image bytes and the complete one-page paint vocabulary.
 - mixed Thai/Latin extraction order beyond the two accepted one-page lines;
 - table and heading wrap behavior after style-token calibration;
 - concrete PDF package and dependency budget.
+- cross-page image/font XObject reuse and deduplication behavior.
 
 ## Intentionally Not Changed
 
@@ -190,8 +237,9 @@ digest-bound image bytes and the complete one-page paint vocabulary.
 - no default measurer or measurement profile was replaced;
 - no existing PDF adapter or minimal Helvetica spike behavior changed;
 - the new renderer remains an isolated pilot package with no production bind;
+- no external report PNG bytes were copied into the repository;
 - no DOCX work was introduced;
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-04` digest-bound image and complete one-page paint proof.
+Next phase: `PDF-PILOT-05` multi-page font/image resource reuse proof.

@@ -2,12 +2,15 @@ import { createHash } from "node:crypto"
 import type {
   VNextPdfFontAssetV1,
   VNextPdfGlyphRunPaintCommandV1,
+  VNextPdfImageAssetV1,
+  VNextPdfImagePaintCommandV1,
   VNextPdfMeasuredDrawContractResultV1,
   VNextPdfPaintCommandV1,
 } from "@flowdoc/vnext-core"
 
 export const FLOWDOC_PDF_RENDERER_PILOT_SOURCE = "flowdoc-pdf-renderer-pilot" as const
 export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as const
+export const FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE = "digest-bound-image-one-page-proof" as const
 
 export type FlowDocPdfRendererPilotIssueCode =
   | "missing-proof-id"
@@ -15,6 +18,12 @@ export type FlowDocPdfRendererPilotIssueCode =
   | "contract-blocked"
   | "page-count"
   | "unsupported-image"
+  | "duplicate-image-resource"
+  | "missing-image-resource"
+  | "image-hash-mismatch"
+  | "image-dimension-mismatch"
+  | "unsupported-image-media-type"
+  | "invalid-png"
   | "unsupported-opacity"
   | "unsupported-vertical-glyph-offset"
   | "duplicate-font-resource"
@@ -45,10 +54,16 @@ export interface FlowDocPdfRendererPilotFontResource {
   subsetBytes: Uint8Array
 }
 
+export interface FlowDocPdfRendererPilotImageResource {
+  assetId: string
+  bytes: Uint8Array
+}
+
 export interface FlowDocPdfRendererPilotInput {
   proofId: string
   contract: VNextPdfMeasuredDrawContractResultV1
   fontResources: FlowDocPdfRendererPilotFontResource[]
+  imageResources?: FlowDocPdfRendererPilotImageResource[]
   bindProductionRenderer?: boolean
 }
 
@@ -73,11 +88,25 @@ export interface FlowDocPdfRendererPilotArtifactManifest {
     fontFormat: "Type0/CIDFontType2"
     toUnicode: true
   }>
+  embeddedImages: Array<{
+    assetId: string
+    sha256: string
+    byteLength: number
+    pixelWidth: number
+    pixelHeight: number
+    colorSpace: "DeviceGray" | "DeviceRGB"
+    bitsPerComponent: 8
+    sourceFormat: "png"
+    accessibility: {
+      decorative: boolean
+      altText: string | null
+    }
+  }>
 }
 
 export type FlowDocPdfRendererPilotResult = {
   source: typeof FLOWDOC_PDF_RENDERER_PILOT_SOURCE
-  mode: typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
+  mode: typeof FLOWDOC_PDF_RENDERER_PILOT_MODE | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
   proofId: string
   renderContract: {
     consumes: "vnext-pdf-measured-draw-contract-v1"
@@ -85,7 +114,7 @@ export type FlowDocPdfRendererPilotResult = {
     usesProvidedGlyphFacts: true
     embeddedFontSubset: true
     toUnicode: true
-    imagesSupported: false
+    imagesSupported: boolean
     productionFidelity: false
     storageWrites: false
   }
@@ -95,6 +124,7 @@ export type FlowDocPdfRendererPilotResult = {
     glyphRunCount: number
     glyphCount: number
     embeddedFontCount: number
+    imageCount: number
     byteLength: number
   }
   issues: FlowDocPdfRendererPilotIssue[]
@@ -136,6 +166,22 @@ interface FontUsage {
   pdfResourceName: string
   pdfBaseFontName: string
   glyphs: ResolvedGlyph[]
+}
+
+interface ParsedPng {
+  width: number
+  height: number
+  colorSpace: "DeviceGray" | "DeviceRGB"
+  colors: 1 | 3
+  bitsPerComponent: 8
+  idat: Uint8Array
+}
+
+interface ImageUsage {
+  asset: VNextPdfImageAssetV1
+  resource: FlowDocPdfRendererPilotImageResource
+  image: ParsedPng
+  pdfResourceName: string
 }
 
 function issue(
@@ -208,6 +254,93 @@ function parseSfnt(bytes: Uint8Array): SfntMetrics {
     descent: scaleMetric(descent, unitsPerEm),
     capHeight: scaleMetric(capHeight, unitsPerEm),
     italicAngle: buffer.readInt32BE(post + 4) / 65536,
+  }
+}
+
+function crc32(bytes: Uint8Array): number {
+  let crc = 0xffffffff
+  for (const byte of bytes) {
+    crc ^= byte
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0)
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0
+}
+
+function parsePng(bytes: Uint8Array): ParsedPng {
+  const buffer = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+  if (buffer.length < 33 || !buffer.subarray(0, 8).equals(signature)) {
+    throw new Error("image bytes must start with the PNG signature")
+  }
+
+  let offset = 8
+  let header: {
+    width: number
+    height: number
+    bitDepth: number
+    colorType: number
+    compression: number
+    filter: number
+    interlace: number
+  } | null = null
+  const idat: Buffer[] = []
+  let ended = false
+
+  while (offset + 12 <= buffer.length) {
+    const length = buffer.readUInt32BE(offset)
+    const type = buffer.toString("ascii", offset + 4, offset + 8)
+    const dataStart = offset + 8
+    const dataEnd = dataStart + length
+    const chunkEnd = dataEnd + 4
+    if (chunkEnd > buffer.length) throw new Error(`PNG chunk is truncated: ${type}`)
+    const expectedCrc = buffer.readUInt32BE(dataEnd)
+    const actualCrc = crc32(buffer.subarray(offset + 4, dataEnd))
+    if (actualCrc !== expectedCrc) throw new Error(`PNG chunk CRC mismatch: ${type}`)
+
+    if (type === "IHDR") {
+      if (header != null || length !== 13 || offset !== 8) throw new Error("PNG must contain one leading IHDR chunk")
+      header = {
+        width: buffer.readUInt32BE(dataStart),
+        height: buffer.readUInt32BE(dataStart + 4),
+        bitDepth: buffer[dataStart + 8],
+        colorType: buffer[dataStart + 9],
+        compression: buffer[dataStart + 10],
+        filter: buffer[dataStart + 11],
+        interlace: buffer[dataStart + 12],
+      }
+    } else if (type === "IDAT") {
+      idat.push(buffer.subarray(dataStart, dataEnd))
+    } else if (type === "IEND") {
+      if (length !== 0) throw new Error("PNG IEND chunk must be empty")
+      ended = true
+      offset = chunkEnd
+      break
+    } else if (/^[A-Z]/.test(type) && type !== "PLTE") {
+      throw new Error(`unsupported critical PNG chunk: ${type}`)
+    }
+    offset = chunkEnd
+  }
+
+  if (header == null || idat.length === 0 || !ended || offset !== buffer.length) {
+    throw new Error("PNG requires IHDR, IDAT, and terminal IEND chunks")
+  }
+  if (header.width <= 0 || header.height <= 0) throw new Error("PNG dimensions must be positive")
+  if (header.bitDepth !== 8 || ![0, 2].includes(header.colorType)) {
+    throw new Error("pilot PNG support is limited to 8-bit grayscale or RGB without alpha or palette")
+  }
+  if (header.compression !== 0 || header.filter !== 0 || header.interlace !== 0) {
+    throw new Error("pilot PNG support requires standard compression/filter and no interlace")
+  }
+
+  return {
+    width: header.width,
+    height: header.height,
+    colorSpace: header.colorType === 0 ? "DeviceGray" : "DeviceRGB",
+    colors: header.colorType === 0 ? 1 : 3,
+    bitsPerComponent: 8,
+    idat: Buffer.concat(idat),
   }
 }
 
@@ -317,10 +450,52 @@ function plainObject(value: string): Buffer {
   return Buffer.from(value, "ascii")
 }
 
+function imagePaintOperators(
+  command: VNextPdfImagePaintCommandV1,
+  usage: ImageUsage,
+  pageHeight: number,
+): string[] {
+  const crop = command.crop ?? { top: 0, right: 0, bottom: 0, left: 0 }
+  const cropWidth = 1 - crop.left - crop.right
+  const cropHeight = 1 - crop.top - crop.bottom
+  const visibleAspect = (usage.image.width * cropWidth) / (usage.image.height * cropHeight)
+  const boundsAspect = command.bounds.widthPt / command.bounds.heightPt
+  let visibleWidth: number
+  let visibleHeight: number
+
+  if ((command.fit === "contain" && boundsAspect > visibleAspect)
+    || (command.fit === "cover" && boundsAspect < visibleAspect)) {
+    visibleHeight = command.bounds.heightPt
+    visibleWidth = visibleHeight * visibleAspect
+  } else {
+    visibleWidth = command.bounds.widthPt
+    visibleHeight = visibleWidth / visibleAspect
+  }
+
+  const visibleX = command.bounds.xPt + (command.bounds.widthPt - visibleWidth) / 2
+  const visibleTop = command.bounds.yPt + (command.bounds.heightPt - visibleHeight) / 2
+  const visibleBottom = pageHeight - visibleTop - visibleHeight
+  const fullWidth = visibleWidth / cropWidth
+  const fullHeight = visibleHeight / cropHeight
+  const fullX = visibleX - crop.left * fullWidth
+  const fullY = visibleBottom - crop.bottom * fullHeight
+  const boundsBottom = pageHeight - command.bounds.yPt - command.bounds.heightPt
+
+  return [
+    "q",
+    `${formatNumber(command.bounds.xPt)} ${formatNumber(boundsBottom)} ${formatNumber(command.bounds.widthPt)} ${formatNumber(command.bounds.heightPt)} re W n`,
+    `${formatNumber(visibleX)} ${formatNumber(visibleBottom)} ${formatNumber(visibleWidth)} ${formatNumber(visibleHeight)} re W n`,
+    `${formatNumber(fullWidth)} 0 0 ${formatNumber(fullHeight)} ${formatNumber(fullX)} ${formatNumber(fullY)} cm`,
+    `/${usage.pdfResourceName} Do`,
+    "Q",
+  ]
+}
+
 function buildPdf(
   contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>,
   usages: FontUsage[],
   resolvedRuns: Map<string, ResolvedGlyph[]>,
+  imageUsages: ImageUsage[],
 ): Uint8Array {
   const page = contract.pages[0]
   const content: string[] = [
@@ -370,6 +545,10 @@ function buildPdf(
         "ET",
         "EMC",
       )
+    } else if (command.kind === "image") {
+      const usage = imageUsages.find((candidate) => candidate.asset.assetId === command.assetId)
+      if (usage == null) throw new Error(`unresolved image command: ${command.id}`)
+      content.push(...imagePaintOperators(command, usage, page.heightPt))
     }
   })
   const contentBytes = Buffer.from(`${content.join("\n")}\n`, "ascii")
@@ -392,6 +571,11 @@ function buildPdf(
     nextId += 6
     return ids
   })
+  const imageObjectIds = imageUsages.map(() => {
+    const id = nextId
+    nextId += 1
+    return id
+  })
   const infoId = nextId
 
   objects.set(catalogId, plainObject(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`))
@@ -399,11 +583,17 @@ function buildPdf(
   const fontResources = usages.map((usage, index) => (
     `/${usage.pdfResourceName} ${fontObjectIds[index].type0} 0 R`
   )).join(" ")
+  const imageResources = imageUsages.map((usage, index) => (
+    `/${usage.pdfResourceName} ${imageObjectIds[index]} 0 R`
+  )).join(" ")
+  const resources = imageUsages.length === 0
+    ? `/Resources << /Font << ${fontResources} >> >>`
+    : `/Resources << /Font << ${fontResources} >> /XObject << ${imageResources} >> >>`
   objects.set(pageId, plainObject([
     "<< /Type /Page",
     `/Parent ${pagesId} 0 R`,
     `/MediaBox [0 0 ${formatNumber(page.widthPt)} ${formatNumber(page.heightPt)}]`,
-    `/Resources << /Font << ${fontResources} >> >>`,
+    resources,
     `/Contents ${contentId} 0 R >>`,
   ].join(" ")))
   objects.set(contentId, streamObject("", contentBytes))
@@ -443,6 +633,18 @@ function buildPdf(
     objects.set(ids.toUnicode, streamObject("", toUnicodeCMap(usage)))
     objects.set(ids.cidToGid, streamObject("", cidToGidMap(usage)))
   })
+  imageUsages.forEach((usage, index) => {
+    objects.set(imageObjectIds[index], streamObject([
+      "/Type /XObject /Subtype /Image",
+      `/Width ${usage.image.width}`,
+      `/Height ${usage.image.height}`,
+      `/ColorSpace /${usage.image.colorSpace}`,
+      `/BitsPerComponent ${usage.image.bitsPerComponent}`,
+      "/Interpolate false",
+      "/Filter /FlateDecode",
+      `/DecodeParms << /Predictor 15 /Colors ${usage.image.colors} /BitsPerComponent 8 /Columns ${usage.image.width} >>`,
+    ].join(" "), usage.image.idat))
+  })
   objects.set(infoId, plainObject("<< /Title (FlowDoc Thai PDF Pilot) /Producer (FlowDoc PDF Renderer Pilot) >>"))
 
   const header = Buffer.from("%PDF-1.7\n%\xE2\xE3\xCF\xD3\n", "binary")
@@ -481,10 +683,12 @@ function buildPdf(
 function blockedResult(
   input: FlowDocPdfRendererPilotInput,
   issues: FlowDocPdfRendererPilotIssue[],
+  mode: typeof FLOWDOC_PDF_RENDERER_PILOT_MODE | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE,
+  imagesSupported: boolean,
 ): FlowDocPdfRendererPilotResult {
   return {
     source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
-    mode: FLOWDOC_PDF_RENDERER_PILOT_MODE,
+    mode,
     status: "blocked",
     proofId: input.proofId,
     artifact: null,
@@ -495,7 +699,7 @@ function blockedResult(
       usesProvidedGlyphFacts: true,
       embeddedFontSubset: true,
       toUnicode: true,
-      imagesSupported: false,
+      imagesSupported,
       productionFidelity: false,
       storageWrites: false,
     },
@@ -505,29 +709,33 @@ function blockedResult(
       glyphRunCount: 0,
       glyphCount: 0,
       embeddedFontCount: 0,
+      imageCount: 0,
       byteLength: 0,
     },
     issues,
   }
 }
 
-export function renderFlowDocThaiOnePagePdfPilot(
+function renderFlowDocOnePagePdfPilot(
   input: FlowDocPdfRendererPilotInput,
+  mode: typeof FLOWDOC_PDF_RENDERER_PILOT_MODE | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE,
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04",
+  imagesSupported: boolean,
 ): FlowDocPdfRendererPilotResult {
   const issues: FlowDocPdfRendererPilotIssue[] = []
   if (input.proofId.trim().length === 0) {
-    issues.push(issue("missing-proof-id", "proofId", "PDF-PILOT-03 requires a non-blank proof id."))
+    issues.push(issue("missing-proof-id", "proofId", `${phaseId} requires a non-blank proof id.`))
   }
   if (input.bindProductionRenderer === true) {
-    issues.push(issue("production-binding", "bindProductionRenderer", "PDF-PILOT-03 cannot bind production renderer behavior."))
+    issues.push(issue("production-binding", "bindProductionRenderer", `${phaseId} cannot bind production renderer behavior.`))
   }
   if (input.contract.status !== "consumable") {
     issues.push(issue("contract-blocked", "contract", "The PDF pilot requires a consumable measured draw contract."))
-    return blockedResult(input, issues)
+    return blockedResult(input, issues, mode, imagesSupported)
   }
   const contract = input.contract
   if (contract.pages.length !== 1) {
-    issues.push(issue("page-count", "contract.pages", "PDF-PILOT-03 accepts exactly one measured page."))
+    issues.push(issue("page-count", "contract.pages", `${phaseId} accepts exactly one measured page.`))
   }
 
   const duplicateResources = new Set<string>()
@@ -575,11 +783,55 @@ export function renderFlowDocThaiOnePagePdfPilot(
     }
   })
 
+  const imageUsages: ImageUsage[] = []
+  if (imagesSupported) {
+    const imageResources = input.imageResources ?? []
+    const duplicateImageResources = new Set<string>()
+    const seenImageResources = new Set<string>()
+    imageResources.forEach((resource) => {
+      if (seenImageResources.has(resource.assetId)) duplicateImageResources.add(resource.assetId)
+      seenImageResources.add(resource.assetId)
+    })
+    duplicateImageResources.forEach((assetId) => {
+      issues.push(issue("duplicate-image-resource", `imageResources.${assetId}`, "Image resource ids must be unique."))
+    })
+    const imageResourceById = new Map(imageResources.map((resource) => [resource.assetId, resource]))
+
+    contract.imageAssets.forEach((asset, index) => {
+      const resource = imageResourceById.get(asset.assetId)
+      if (resource == null) {
+        issues.push(issue("missing-image-resource", `imageAssets.${index}`, "Every contract image requires caller-supplied bytes."))
+        return
+      }
+      if (asset.mediaType !== "image/png") {
+        issues.push(issue("unsupported-image-media-type", `imageAssets.${index}.mediaType`, "PDF-PILOT-04 accepts PNG image resources only."))
+        return
+      }
+      if (sha256(resource.bytes) !== asset.sha256) {
+        issues.push(issue("image-hash-mismatch", `imageResources.${asset.assetId}.bytes`, "Image bytes must match the contract SHA-256 identity."))
+      }
+      try {
+        const image = parsePng(resource.bytes)
+        if (image.width !== asset.pixelWidth || image.height !== asset.pixelHeight) {
+          issues.push(issue("image-dimension-mismatch", `imageResources.${asset.assetId}.bytes`, "PNG dimensions must match the contract image asset."))
+        }
+        imageUsages.push({
+          asset,
+          resource,
+          image,
+          pdfResourceName: `Im${imageUsages.length + 1}`,
+        })
+      } catch (error) {
+        issues.push(issue("invalid-png", `imageResources.${asset.assetId}.bytes`, error instanceof Error ? error.message : "Invalid PNG image."))
+      }
+    })
+  }
+
   const resolvedRuns = new Map<string, ResolvedGlyph[]>()
   if (contract.pages.length === 1) {
     contract.pages[0].commands.forEach((command, commandIndex) => {
       const path = `contract.pages.0.commands.${commandIndex}`
-      if (command.kind === "image") {
+      if (command.kind === "image" && !imagesSupported) {
         issues.push(issue("unsupported-image", path, "PDF-PILOT-03 intentionally excludes image execution."))
       }
       if (command.opacity !== 1) {
@@ -618,9 +870,9 @@ export function renderFlowDocThaiOnePagePdfPilot(
     })
   }
 
-  if (issues.length > 0) return blockedResult(input, issues)
+  if (issues.length > 0) return blockedResult(input, issues, mode, imagesSupported)
 
-  const bytes = buildPdf(contract, usages, resolvedRuns)
+  const bytes = buildPdf(contract, usages, resolvedRuns, imageUsages)
   const artifact: FlowDocPdfRendererPilotArtifactManifest = {
     artifactId: `pdf-pilot:${input.proofId}`,
     format: "pdf",
@@ -642,11 +894,22 @@ export function renderFlowDocThaiOnePagePdfPilot(
       fontFormat: "Type0/CIDFontType2",
       toUnicode: true,
     })),
+    embeddedImages: imageUsages.map((usage) => ({
+      assetId: usage.asset.assetId,
+      sha256: usage.asset.sha256,
+      byteLength: usage.resource.bytes.byteLength,
+      pixelWidth: usage.image.width,
+      pixelHeight: usage.image.height,
+      colorSpace: usage.image.colorSpace,
+      bitsPerComponent: usage.image.bitsPerComponent,
+      sourceFormat: "png",
+      accessibility: usage.asset.accessibility,
+    })),
   }
 
   return {
     source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
-    mode: FLOWDOC_PDF_RENDERER_PILOT_MODE,
+    mode,
     status: "rendered",
     proofId: input.proofId,
     artifact,
@@ -657,7 +920,7 @@ export function renderFlowDocThaiOnePagePdfPilot(
       usesProvidedGlyphFacts: true,
       embeddedFontSubset: true,
       toUnicode: true,
-      imagesSupported: false,
+      imagesSupported,
       productionFidelity: false,
       storageWrites: false,
     },
@@ -667,8 +930,31 @@ export function renderFlowDocThaiOnePagePdfPilot(
       glyphRunCount: contract.pages[0].commands.filter((command) => command.kind === "glyph-run").length,
       glyphCount: usages.reduce((total, usage) => total + usage.glyphs.length, 0),
       embeddedFontCount: usages.length,
+      imageCount: imageUsages.length,
       byteLength: bytes.byteLength,
     },
     issues: [],
   }
+}
+
+export function renderFlowDocThaiOnePagePdfPilot(
+  input: FlowDocPdfRendererPilotInput,
+): FlowDocPdfRendererPilotResult {
+  return renderFlowDocOnePagePdfPilot(
+    input,
+    FLOWDOC_PDF_RENDERER_PILOT_MODE,
+    "PDF-PILOT-03",
+    false,
+  )
+}
+
+export function renderFlowDocDigestBoundImageOnePagePdfPilot(
+  input: FlowDocPdfRendererPilotInput,
+): FlowDocPdfRendererPilotResult {
+  return renderFlowDocOnePagePdfPilot(
+    input,
+    FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE,
+    "PDF-PILOT-04",
+    true,
+  )
 }

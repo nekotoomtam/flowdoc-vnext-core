@@ -1,17 +1,17 @@
 {
   "summaryVersion": 1,
-  "proofId": "pdf-pilot-03-thai-one-page",
+  "proofId": "pdf-pilot-04-image-one-page",
   "status": "rendered",
   "artifact": {
-    "artifactId": "pdf-pilot:pdf-pilot-03-thai-one-page",
+    "artifactId": "pdf-pilot:pdf-pilot-04-image-one-page",
     "format": "pdf",
     "mediaType": "application/pdf",
-    "byteLength": 17594,
-    "sha256": "fafa7e4d01df4d9f9b5acdffe2d7652e073e5b329142e4c8886085521322fd24",
+    "byteLength": 83266,
+    "sha256": "75050ad4cb4d95d15834b8b84709b5194f3e918bd11d7b86b3fa14d13740e6a8",
     "storageStatus": "not-stored",
     "localOnly": true,
-    "sourceContractFingerprint": "sha256:21e7105b2b4b8c1faba41e9b8851b10c5a71cc80b9fdb3a656a3fa47bc98d2ec",
-    "rendererProfileId": "pdf-pilot-thai-type0-one-page-v1",
+    "sourceContractFingerprint": "sha256:e05aa9a3403670574d1bc1b18f639d85156559d8bc3dec535660b9b245e8b3d5",
+    "rendererProfileId": "pdf-pilot-thai-image-one-page-v1",
     "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
     "embeddedFonts": [
       {
@@ -25,7 +25,22 @@
         "toUnicode": true
       }
     ],
-    "embeddedImages": []
+    "embeddedImages": [
+      {
+        "assetId": "ocr-accuracy-image",
+        "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+        "byteLength": 65307,
+        "pixelWidth": 1950,
+        "pixelHeight": 900,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8,
+        "sourceFormat": "png",
+        "accessibility": {
+          "decorative": false,
+          "altText": "เปรียบเทียบความถูกต้องของ OCR ระหว่าง Google และ Azure"
+        }
+      }
+    ]
   },
   "renderContract": {
     "consumes": "vnext-pdf-measured-draw-contract-v1",
@@ -33,22 +48,23 @@
     "usesProvidedGlyphFacts": true,
     "embeddedFontSubset": true,
     "toUnicode": true,
-    "imagesSupported": false,
+    "imagesSupported": true,
     "productionFidelity": false,
     "storageWrites": false
   },
   "summary": {
     "pageCount": 1,
-    "paintCommandCount": 4,
+    "paintCommandCount": 5,
     "glyphRunCount": 2,
     "glyphCount": 54,
     "embeddedFontCount": 1,
-    "imageCount": 0,
-    "byteLength": 17594
+    "imageCount": 1,
+    "byteLength": 83266
   },
   "expectedExtractedLines": [
     "สรุปผล OCR ภาษาไทย 100%",
     "ค้นหา เลือก และคัดลอกข้อความได้"
   ],
+  "externalImageBytesRetained": false,
   "productionBinding": false
 }

@@ -1,0 +1,60 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-04-image-one-page-qa-v1",
+  "proofId": "pdf-pilot-04-image-one-page",
+  "status": "accepted",
+  "artifact": {
+    "sha256": "75050ad4cb4d95d15834b8b84709b5194f3e918bd11d7b86b3fa14d13740e6a8",
+    "bytes": 83266,
+    "pageCount": 1,
+    "pageSizePt": [612, 792],
+    "pdfVersion": "1.7"
+  },
+  "fontInspection": {
+    "tool": "pdffonts 25.07.0",
+    "type": "CID TrueType",
+    "embedded": true,
+    "subset": true,
+    "unicodeMap": true
+  },
+  "imageInspection": {
+    "tool": "pdfimages 25.07.0",
+    "assetId": "ocr-accuracy-image",
+    "sourceSha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+    "sourceBytes": 65307,
+    "pixelWidth": 1950,
+    "pixelHeight": 900,
+    "color": "rgb",
+    "components": 3,
+    "bitsPerComponent": 8,
+    "interpolated": false,
+    "xPpi": 285,
+    "yPpi": 285,
+    "pypdfRoundTripBytes": 65307,
+    "pypdfRoundTripSha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+    "exactByteIdentity": true
+  },
+  "textExtraction": {
+    "expectedLines": [
+      "สรุปผล OCR ภาษาไทย 100%",
+      "ค้นหา เลือก และคัดลอกข้อความได้"
+    ],
+    "popplerExactMatch": true,
+    "pypdfExactMatch": true
+  },
+  "rasterInspection": {
+    "tool": "pdftoppm 25.07.0",
+    "dpi": 150,
+    "pixelWidth": 1275,
+    "pixelHeight": 1650,
+    "mode": "RGB",
+    "visualReview": "accepted",
+    "imageAspectPreserved": true,
+    "imageClipped": false,
+    "imageDistorted": false,
+    "paintOrderCorrect": true,
+    "textRegression": false
+  },
+  "externalImageBytesRetained": false,
+  "productionBinding": false
+}

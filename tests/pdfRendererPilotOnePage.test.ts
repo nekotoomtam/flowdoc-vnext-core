@@ -110,6 +110,7 @@ describe("PDF-PILOT-03 Thai embedded-font one-page renderer proof", () => {
         glyphRunCount: 2,
         glyphCount: 54,
         embeddedFontCount: 1,
+        imageCount: 0,
       },
       issues: [],
     })
@@ -136,6 +137,7 @@ describe("PDF-PILOT-03 Thai embedded-font one-page renderer proof", () => {
         fontFormat: "Type0/CIDFontType2",
         toUnicode: true,
       }],
+      embeddedImages: [],
     })
     expect(second.bytes).toEqual(first.bytes)
     expect(second.artifact.sha256).toBe(first.artifact.sha256)

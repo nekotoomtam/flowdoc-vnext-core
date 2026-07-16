@@ -852,6 +852,10 @@ The package must remain runnable without any parent editor checkout.
   package, embeds a GID-retaining Type0/CIDFontType2 subset, and preserves exact
   Thai extraction through ToUnicode plus ActualText without reshaping or
   selecting a production renderer.
+- PDF image one-page renderer proof binds caller-owned PNG bytes to contract
+  digest and dimensions, embeds IDAT data as an Image XObject, and executes
+  contain/cover/crop beside glyph, fill, and stroke paint without retaining the
+  external report image or selecting production behavior.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

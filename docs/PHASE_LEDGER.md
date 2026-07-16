@@ -9940,3 +9940,30 @@ Primary evidence:
 - `tests/pdfRendererPilotOnePage.test.ts`.
 
 Next phase: `PDF-PILOT-04` digest-bound image and complete one-page paint proof.
+
+## PDF-PILOT-04 Digest-Bound Image One-Page Paint Proof
+
+Status: accepted as a dedicated side workstream without changing the current
+main phase pointer.
+
+Phase 04 extends the isolated renderer with caller-owned PNG resources and all
+four one-page paint-command kinds. SHA-256, media type, dimensions, PNG chunk
+structure/CRC, and supported 8-bit grayscale/RGB profile must pass before PDF
+bytes exist. IDAT is embedded directly with FlateDecode/predictor 15;
+contain/cover/crop use measured clipping matrices.
+
+The actual external OCR accuracy chart remains outside the repository.
+Poppler sees one RGB `1950 x 900`, 8-bit image XObject, pypdf reconstructs the
+exact original `65,307` bytes and SHA-256, Thai extraction remains exact, and
+150 DPI visual QA passes image aspect, bounds, sharpness, order, and text
+regression. Multi-page, other image profiles, storage, route, worker, and
+production behavior remain blocked.
+
+Primary evidence:
+
+- `docs/PDF_IMAGE_ONE_PAGE_RENDERER_PROOF.md`;
+- `fixtures/pdf-pilot-image-one-page-request.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/image-one-page-proof-qa.v1.json`;
+- `tests/pdfRendererPilotImageOnePage.test.ts`.
+
+Next phase: `PDF-PILOT-05` multi-page font/image resource reuse proof.

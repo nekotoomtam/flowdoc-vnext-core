@@ -14,12 +14,21 @@ and writes both ToUnicode and ActualText extraction data.
 Image commands, vertical glyph offsets, transparency, storage, routes, and
 production binding fail closed.
 
+## PDF-PILOT-04 Profile
+
+The second profile executes all four one-page paint-command kinds. Caller-owned
+8-bit grayscale/RGB PNG bytes are checked against contract digest and dimensions
+before their IDAT stream is embedded as a PDF Image XObject. Contain, cover,
+and normalized crop use explicit clipping matrices; alpha, palette, JPEG,
+transparency, and production binding fail closed.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
 
 ```text
 npm --prefix packages/pdf-renderer-pilot run build:request
+npm --prefix packages/pdf-renderer-pilot run build:image-request
 ```
 
 Build the retained subset with Python FontTools:
@@ -32,8 +41,13 @@ Build the local proof artifact:
 
 ```text
 npm --prefix packages/pdf-renderer-pilot run build:proof
+npm --prefix packages/pdf-renderer-pilot run build:image-proof
 ```
 
 The proof PDF is written to
 `output/pdf/flowdoc-pdf-pilot-thai-one-page.pdf`. It is local evidence and is
 not a stored FlowDoc artifact.
+
+The image proof is written to
+`output/pdf/flowdoc-pdf-pilot-image-one-page.pdf`. The external source image is
+not copied into the repository.
