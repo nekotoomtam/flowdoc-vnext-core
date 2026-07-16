@@ -16,15 +16,20 @@
     "build:all-images-request": "node scripts/build-all-images-multi-page-request.mjs",
     "build:canonical-request": "node scripts/build-canonical-report-request.mjs",
     "build:content-parity-request": "node scripts/build-canonical-report-request.mjs --content-parity-manifest fixtures/pdf-pilot-canonical-report-content-parity.v1.json --output fixtures/pdf-pilot-canonical-report-content-parity-twelve-page-request.v1.json",
+    "build:typography-request": "node scripts/build-canonical-report-request.mjs --content-parity-manifest fixtures/pdf-pilot-canonical-report-content-parity.v1.json --typography-manifest fixtures/pdf-pilot-canonical-report-typography-calibration.v1.json --output fixtures/pdf-pilot-canonical-report-typography-calibrated-twelve-page-request.v1.json",
     "build:subset": "python scripts/build-font-subset.py",
     "build:canonical-subset": "python scripts/build-canonical-report-font-subset.py",
     "build:content-parity-subset": "python scripts/build-canonical-report-font-subset.py --request fixtures/pdf-pilot-canonical-report-content-parity-twelve-page-request.v1.json --subset packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalReportContentParitySubset-Regular.ttf --manifest packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-font-subset-manifest.v1.json --phase-id PDF-PILOT-08A --subset-id pdf-pilot-08a-ibm-plex-regular-content-parity-report --family-name \"FlowDoc Thai Canonical Report Content Parity Subset\" --postscript-name FlowDocThaiCanonicalReportContentParitySubset-Regular --subset-prefix FDPCPA",
+    "build:typography-regular-subset": "python scripts/build-canonical-report-font-subset.py --request fixtures/pdf-pilot-canonical-report-typography-calibrated-twelve-page-request.v1.json --font-id ibm-plex-sans-thai-regular --source assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf --subset packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalReportTypography-Regular.ttf --manifest packages/pdf-renderer-pilot/fixtures/canonical-report-typography-regular-font-subset-manifest.v1.json --phase-id PDF-PILOT-08B --subset-id pdf-pilot-08b-ibm-plex-regular-typography-report --family-name \"FlowDoc Thai Canonical Report Typography\" --postscript-name FlowDocThaiCanonicalReportTypography-Regular --subset-prefix FDPTPR",
+    "build:typography-bold-subset": "python scripts/build-canonical-report-font-subset.py --request fixtures/pdf-pilot-canonical-report-typography-calibrated-twelve-page-request.v1.json --font-id ibm-plex-sans-thai-bold --source assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Bold.ttf --subset packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalReportTypography-Bold.ttf --manifest packages/pdf-renderer-pilot/fixtures/canonical-report-typography-bold-font-subset-manifest.v1.json --phase-id PDF-PILOT-08B --subset-id pdf-pilot-08b-ibm-plex-bold-typography-report --family-name \"FlowDoc Thai Canonical Report Typography\" --postscript-name FlowDocThaiCanonicalReportTypography-Bold --subset-prefix FDPTPB",
+    "build:typography-subsets": "npm run build:typography-regular-subset && npm run build:typography-bold-subset",
     "build:proof": "node scripts/build-one-page-proof.mjs",
     "build:image-proof": "node scripts/build-image-one-page-proof.mjs",
     "build:multi-page-proof": "node scripts/build-shared-resources-multi-page-proof.mjs",
     "build:all-images-proof": "node scripts/build-all-images-multi-page-proof.mjs",
     "build:canonical-proof": "node scripts/build-canonical-report-proof.mjs",
-    "build:content-parity-proof": "node scripts/build-canonical-report-content-parity-proof.mjs"
+    "build:content-parity-proof": "node scripts/build-canonical-report-content-parity-proof.mjs",
+    "build:typography-proof": "node scripts/build-canonical-report-typography-proof.mjs"
   },
   "dependencies": {
     "@flowdoc/vnext-core": "file:../.."

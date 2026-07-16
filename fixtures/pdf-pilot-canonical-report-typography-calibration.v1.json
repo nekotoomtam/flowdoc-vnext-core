@@ -1,0 +1,181 @@
+{
+  "manifestVersion": 1,
+  "manifestId": "pdf-pilot-08b-canonical-report-typography-calibration-v1",
+  "baseCompositionId": "pdf-pilot-canonical-report-content-parity-composition-v1",
+  "contentParityManifestId": "pdf-pilot-08a-canonical-report-decision-content-parity-v1",
+  "outputComposition": {
+    "version": 3,
+    "compositionId": "pdf-pilot-canonical-report-typography-calibrated-composition-v1",
+    "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-bold-v1"
+  },
+  "fontIds": [
+    "ibm-plex-sans-thai-regular",
+    "ibm-plex-sans-thai-bold"
+  ],
+  "stylePatches": {
+    "header": { "fontId": "ibm-plex-sans-thai-bold", "fontSizePt": 8.5, "lineHeightPt": 11 },
+    "footer": { "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 8.5, "lineHeightPt": 11 },
+    "eyebrow": { "fontId": "ibm-plex-sans-thai-bold", "fontSizePt": 10, "lineHeightPt": 14 },
+    "coverTitle": { "fontId": "ibm-plex-sans-thai-bold", "fontSizePt": 25, "lineHeightPt": 31 },
+    "coverSubtitle": { "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 12.5, "lineHeightPt": 17 },
+    "identity": { "fontId": "ibm-plex-sans-thai-bold", "fontSizePt": 12, "lineHeightPt": 16 },
+    "pageTitle": { "fontId": "ibm-plex-sans-thai-bold", "fontSizePt": 16, "lineHeightPt": 22 },
+    "section": { "fontId": "ibm-plex-sans-thai-bold", "fontSizePt": 13, "lineHeightPt": 18 },
+    "body": { "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 10.5, "lineHeightPt": 15 },
+    "small": { "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9, "lineHeightPt": 12 },
+    "callout": { "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 10.5, "lineHeightPt": 14 },
+    "bullet": { "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 10.5, "lineHeightPt": 15 },
+    "caption": { "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9, "lineHeightPt": 12 }
+  },
+  "pagePatches": [
+    {
+      "pageId": "cover",
+      "operations": [
+        { "kind": "merge", "element": { "id": "eyebrow", "yPt": 60 } },
+        { "kind": "merge", "element": { "id": "title", "yPt": 94 } },
+        { "kind": "merge", "element": { "id": "subtitle", "yPt": 168 } },
+        { "kind": "merge", "element": { "id": "suite-label", "yPt": 200 } },
+        { "kind": "merge", "element": { "id": "identity", "yPt": 226 } },
+        { "kind": "merge", "element": { "id": "date", "yPt": 252 } },
+        { "kind": "merge", "element": { "id": "source-evidence", "yPt": 278, "heightPt": 316 } },
+        { "kind": "merge", "element": { "id": "caption", "yPt": 604 } },
+        { "kind": "merge", "element": { "id": "version", "yPt": 634 } }
+      ]
+    },
+    {
+      "pageId": "executive-summary",
+      "operations": [
+        { "kind": "merge", "element": { "id": "summary-panel", "heightPt": 82 } },
+        { "kind": "merge", "element": { "id": "decision-table", "yPt": 190, "headerHeightPt": 26, "rowHeightPt": 38, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12, "rows": [["อ่านข้อความสำคัญครบไหม", "ครบ 29/29", "ครบ 29/29", ["ข้อมูลธุรกิจหลัก", "ไม่ตกหล่น"]], [["อ่านข้อความ", "เร็วแค่ไหน"], "1.76 วินาที", "4.62 วินาที", ["Google เร็วกว่าประมาณ", "2.85 วินาที"]], [["จัดข้อมูลเป็น", "โครงสร้าง"], "23/25", "14/25", ["Google จัดตารางและ", "รายการสินค้าได้ครบกว่า"]], [["ค่าใช้จ่ายงาน", "Native"], "2.01 บาท", "0.67 บาท", ["Azure ต่ำกว่าประมาณ", "3 เท่า"]], [["Mapping เข้า", "GDIM"], "5 จาก 32", "4 จาก 32", ["คอขวดหลักยังอยู่ที่", "Mapper ของเรา"]]] } },
+        { "kind": "merge", "element": { "id": "notes-title", "yPt": 420 } },
+        { "kind": "merge", "element": { "id": "notes", "yPt": 448 } },
+        { "kind": "merge", "element": { "id": "recommendation-panel", "yPt": 526, "heightPt": 112 } },
+        { "kind": "merge", "element": { "id": "recommendation", "yPt": 540 } }
+      ]
+    },
+    {
+      "pageId": "method",
+      "operations": [
+        { "kind": "merge", "element": { "id": "method-table", "yPt": 148, "headerHeightPt": 26, "rowHeightPt": 32, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } },
+        { "kind": "merge", "element": { "id": "stages-title", "yPt": 442 } },
+        { "kind": "merge", "element": { "id": "stages", "yPt": 470 } }
+      ]
+    },
+    {
+      "pageId": "ocr-accuracy",
+      "operations": [
+        { "kind": "merge", "element": { "id": "ocr-table", "headerHeightPt": 26, "rowHeightPt": 28, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } },
+        { "kind": "merge", "element": { "id": "meaning-panel", "yPt": 636, "heightPt": 88 } },
+        { "kind": "merge", "element": { "id": "meaning", "yPt": 648 } }
+      ]
+    },
+    {
+      "pageId": "source-evidence",
+      "operations": [
+        { "kind": "merge", "element": { "id": "shared-title", "yPt": 470 } },
+        { "kind": "merge", "element": { "id": "evidence-table", "yPt": 498, "headerHeightPt": 26, "rowHeightPt": 30, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } }
+      ]
+    },
+    {
+      "pageId": "native-extraction",
+      "operations": [
+        { "kind": "merge", "element": { "id": "differences-title", "yPt": 46 } },
+        { "kind": "merge", "element": { "id": "differences", "yPt": 70 } },
+        { "kind": "merge", "element": { "id": "title", "yPt": 154 } },
+        { "kind": "merge", "element": { "id": "native-extraction", "yPt": 184, "heightPt": 156 } },
+        { "kind": "merge", "element": { "id": "caption", "yPt": 344 } },
+        { "kind": "merge", "element": { "id": "native-table", "yPt": 366, "headerHeightPt": 26, "rowHeightPt": 26, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } },
+        { "kind": "merge", "element": { "id": "native-panel", "yPt": 558, "heightPt": 72 } },
+        { "kind": "merge", "element": { "id": "native-meaning", "yPt": 570 } },
+        { "kind": "merge", "element": { "id": "unstructured-title", "yPt": 638 } },
+        { "kind": "merge", "element": { "id": "unstructured-fields", "yPt": 664 } }
+      ]
+    },
+    {
+      "pageId": "latency-cost-size",
+      "operations": [
+        { "kind": "merge", "element": { "id": "latency-table", "yPt": 350, "headerHeightPt": 26, "rowHeightPt": 34, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } },
+        { "kind": "merge", "element": { "id": "median-panel", "yPt": 530, "heightPt": 108 } },
+        { "kind": "merge", "element": { "id": "median", "yPt": 544 } },
+        { "kind": "merge", "element": { "id": "total-cost", "yPt": 658, "lines": ["ค่าใช้จ่ายประมาณการรวมของการทดสอบ 6 runs เท่ากับ 0.258 USD", "หรือ 8.64 บาท ก่อนหัก free tier"] } }
+      ]
+    },
+    {
+      "pageId": "mapping",
+      "operations": [
+        { "kind": "merge", "element": { "id": "mapping", "yPt": 178, "heightPt": 166 } },
+        { "kind": "merge", "element": { "id": "caption", "yPt": 348 } },
+        { "kind": "merge", "element": { "id": "mapping-table", "yPt": 370, "headerHeightPt": 26, "rowHeightPt": 25, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } },
+        { "kind": "merge", "element": { "id": "mapper-fields-title", "yPt": 578 } },
+        { "kind": "merge", "element": { "id": "mapper-fields", "yPt": 602 } },
+        { "kind": "merge", "element": { "id": "causes-title", "yPt": 658 } },
+        { "kind": "merge", "element": { "id": "causes", "yPt": 680 } }
+      ]
+    },
+    {
+      "pageId": "decision-view",
+      "operations": [
+        { "kind": "merge", "element": { "id": "causes-continuation", "yPt": 54 } },
+        { "kind": "merge", "element": { "id": "title", "yPt": 128 } },
+        { "kind": "merge", "element": { "id": "intro", "yPt": 160 } },
+        { "kind": "merge", "element": { "id": "tradeoff-table", "yPt": 202, "headerHeightPt": 26, "rowHeightPt": 42, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } },
+        { "kind": "merge", "element": { "id": "recommend-title", "yPt": 448 } },
+        { "kind": "merge", "element": { "id": "recommend", "yPt": 474 } },
+        { "kind": "merge", "element": { "id": "short-term-panel", "yPt": 620, "heightPt": 104 } },
+        { "kind": "merge", "element": { "id": "short-term", "yPt": 634 } }
+      ]
+    },
+    {
+      "pageId": "limitations",
+      "operations": [
+        { "kind": "merge", "element": { "id": "limitations", "yPt": 94 } },
+        { "kind": "merge", "element": { "id": "case-panel", "yPt": 318, "heightPt": 100 } },
+        { "kind": "merge", "element": { "id": "case", "yPt": 332 } },
+        { "kind": "merge", "element": { "id": "more-title", "yPt": 438 } },
+        { "kind": "merge", "element": { "id": "more", "yPt": 466 } }
+      ]
+    },
+    {
+      "pageId": "appendix-runs",
+      "operations": [
+        { "kind": "merge", "element": { "id": "runs-table", "headerHeightPt": 26, "rowHeightPt": 32, "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12 } },
+        { "kind": "merge", "element": { "id": "evidence-title", "yPt": 338 } },
+        { "kind": "merge", "element": { "id": "evidence", "yPt": 364 } },
+        { "kind": "merge", "element": { "id": "location-title", "yPt": 500 } },
+        { "kind": "merge", "element": { "id": "location", "yPt": 526, "lines": ["runs/web/outputs", "reports/INV_9437125258", "สคริปต์คำนวณและชุดคำตอบอ้างอิงอยู่ใน", "reports/INV_9437125258 เพื่อให้คำนวณซ้ำได้"] } }
+      ]
+    },
+    {
+      "pageId": "appendix-glossary",
+      "operations": [
+        { "kind": "merge", "element": { "id": "glossary-table", "headerHeightPt": 26, "rowHeightPt": 50, "rowHeightsPt": [52, 46, 52, 46, 52, 52, 52, 52], "fontId": "ibm-plex-sans-thai-regular", "fontSizePt": 9.1, "lineHeightPt": 11, "headerFontId": "ibm-plex-sans-thai-bold", "headerFontSizePt": 9.3, "headerLineHeightPt": 12, "rows": [[["อ่านตัวอักษรและลำดับ", "ได้ถูกแค่ไหน"], ["เทียบตัวอักษรกับข้อความอ้างอิง", "รวมผลลำดับการอ่าน"], "Character Error Rate (CER)"], [["อ่านคำและลำดับ", "ได้ถูกแค่ไหน"], "เทียบคำที่ได้กับข้อความอ้างอิง", "Word Error Rate (WER)"], [["ข้อมูลที่เติม", "เชื่อได้แค่ไหน"], ["ฟิลด์ที่ระบบเติมทั้งหมด", "มีกี่ฟิลด์ที่ถูกจริง"], "Precision"], ["หาเจอครบแค่ไหน", ["ข้อมูลที่มีจริง", "ระบบนำมาใช้ได้กี่ฟิลด์"], "Recall"], ["ตำแหน่งอ้างอิง", ["หน้าและกรอบที่ชี้กลับไปหา", "ข้อความต้นทาง"], "Bounding box / polygon"], ["ผลเหมือนเดิมหรือไม่", ["ยิงเอกสารเดิมซ้ำแล้ว", "ได้ผลเหมือนเดิมแค่ไหน"], "Repeatability"], ["ค่ากลาง", ["ค่าตรงกลางของสามรอบ", "ลดผลจากรอบที่ช้าผิดปกติ"], "Median"], [["จัดข้อมูลเป็น", "โครงสร้าง"], ["แยกข้อความเป็น key-value", "ตาราง และแถวสินค้า"], "Native extraction"]] } },
+        { "kind": "merge", "element": { "id": "reference-title", "yPt": 544 } },
+        { "kind": "merge", "element": { "id": "reference", "yPt": 572 } },
+        { "kind": "merge", "element": { "id": "final-panel", "yPt": 616, "heightPt": 108 } },
+        { "kind": "merge", "element": { "id": "final-note", "yPt": 630 } }
+      ]
+    }
+  ],
+  "requiredStyles": [
+    { "styleId": "header", "minimumFontSizePt": 8.5, "fontId": "ibm-plex-sans-thai-bold" },
+    { "styleId": "footer", "minimumFontSizePt": 8.5, "fontId": "ibm-plex-sans-thai-regular" },
+    { "styleId": "eyebrow", "minimumFontSizePt": 10, "fontId": "ibm-plex-sans-thai-bold" },
+    { "styleId": "coverTitle", "minimumFontSizePt": 25, "fontId": "ibm-plex-sans-thai-bold" },
+    { "styleId": "coverSubtitle", "minimumFontSizePt": 12.5, "fontId": "ibm-plex-sans-thai-regular" },
+    { "styleId": "identity", "minimumFontSizePt": 12, "fontId": "ibm-plex-sans-thai-bold" },
+    { "styleId": "pageTitle", "minimumFontSizePt": 16, "fontId": "ibm-plex-sans-thai-bold" },
+    { "styleId": "section", "minimumFontSizePt": 13, "fontId": "ibm-plex-sans-thai-bold" },
+    { "styleId": "body", "minimumFontSizePt": 10.5, "fontId": "ibm-plex-sans-thai-regular" },
+    { "styleId": "small", "minimumFontSizePt": 9, "fontId": "ibm-plex-sans-thai-regular" },
+    { "styleId": "callout", "minimumFontSizePt": 10.5, "fontId": "ibm-plex-sans-thai-regular" },
+    { "styleId": "bullet", "minimumFontSizePt": 10.5, "fontId": "ibm-plex-sans-thai-regular" },
+    { "styleId": "caption", "minimumFontSizePt": 9, "fontId": "ibm-plex-sans-thai-regular" }
+  ],
+  "tableAcceptance": {
+    "expectedTableCount": 10,
+    "minimumBodyFontSizePt": 9,
+    "minimumHeaderFontSizePt": 9.2,
+    "bodyFontId": "ibm-plex-sans-thai-regular",
+    "headerFontId": "ibm-plex-sans-thai-bold"
+  }
+}

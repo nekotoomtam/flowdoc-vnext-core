@@ -10076,3 +10076,31 @@ Primary evidence:
 - `tests/pdfRendererPilotCanonicalReportContentParity.test.ts`.
 
 Next phase: `PDF-PILOT-08B` typography and layout calibration.
+
+## PDF-PILOT-08B Canonical Report Typography And Layout Calibration
+
+Status: accepted as a dedicated side workstream without changing the current
+main phase pointer.
+
+Phase 08B layers a strict typography manifest over the accepted 08A content
+composition. Thirteen styles and all ten tables now use reference-scale font
+floors. IBM Plex Sans Thai Regular and registered Bold are shaped and embedded
+as separate GID-retaining Type0 subsets. Caller-authored table-cell line arrays
+allow calibrated rows without giving the renderer wrapping ownership.
+
+The result emits 565 measured draw commands, 584 paints, 413 text runs, 10,562
+glyphs, 340 Regular runs, and 73 Bold runs. Weighted page medians align closely
+with the reference: body-heavy pages use `10.5 pt` against `10.56 pt`, while
+table-heavy pages use `9.1 pt` against `9.0 pt`. All 08A semantic requirements,
+dual Poppler raster tools, extraction, image identity, geometry, and
+deterministic rebuild checks pass across 12 pages. Phase 07/08A PDF and subset
+hashes remain unchanged.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_TYPOGRAPHY_CALIBRATION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-typography-calibration.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-typography-calibrated-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportTypography.test.ts`.
+
+Next phase: `PDF-PILOT-08C` visual acceptance thresholds.

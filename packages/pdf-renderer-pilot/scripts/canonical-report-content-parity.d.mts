@@ -12,6 +12,16 @@ export interface CanonicalReportContentParityEvidence {
   referenceCoverageRatio: number
 }
 
+export function applyCanonicalReportPagePatches(
+  inputComposition: any,
+  pagePatches: any[],
+): any
+
+export function validateCanonicalReportContentParity(
+  composition: any,
+  manifest: any,
+): CanonicalReportContentParityEvidence
+
 export function materializeCanonicalReportContentParity(
   baseComposition: any,
   manifest: any,

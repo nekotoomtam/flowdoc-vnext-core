@@ -871,6 +871,11 @@ The package must remain runnable without any parent editor checkout.
   Azure Raw JSON value, and fail-closes 12 elements, 10 tables, 8 exact values,
   19 semantic strings, and a 90% extracted-character coverage floor while
   retaining the Phase 07 byte identity.
+- PDF canonical report typography calibration embeds separate registered IBM
+  Plex Thai Regular/Bold subsets, raises body/table/caption text to
+  reference-scale floors, supports explicit multi-line table cells without
+  renderer wrapping, and passes 12-page extraction, geometry, and visual QA
+  while retaining Phase 07/08A byte identities.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

@@ -54,6 +54,7 @@ npm --prefix packages/pdf-renderer-pilot run build:multi-page-request
 npm --prefix packages/pdf-renderer-pilot run build:all-images-request
 npm --prefix packages/pdf-renderer-pilot run build:canonical-request
 npm --prefix packages/pdf-renderer-pilot run build:content-parity-request
+npm --prefix packages/pdf-renderer-pilot run build:typography-request
 ```
 
 Build the retained subset with Python FontTools:
@@ -62,6 +63,7 @@ Build the retained subset with Python FontTools:
 npm --prefix packages/pdf-renderer-pilot run build:subset
 npm --prefix packages/pdf-renderer-pilot run build:canonical-subset
 npm --prefix packages/pdf-renderer-pilot run build:content-parity-subset
+npm --prefix packages/pdf-renderer-pilot run build:typography-subsets
 ```
 
 Build the local proof artifact:
@@ -73,6 +75,7 @@ npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
 npm --prefix packages/pdf-renderer-pilot run build:all-images-proof
 npm --prefix packages/pdf-renderer-pilot run build:canonical-proof
 npm --prefix packages/pdf-renderer-pilot run build:content-parity-proof
+npm --prefix packages/pdf-renderer-pilot run build:typography-proof
 ```
 
 The proof PDF is written to
@@ -99,3 +102,6 @@ not available in the sibling report workspace.
 The decision-content parity proof is written separately to
 `output/pdf/flowdoc-pdf-pilot-canonical-report-content-parity-twelve-page.pdf`
 so the Phase 07 bytes remain retained.
+
+The Regular/Bold typography proof is written to
+`output/pdf/flowdoc-pdf-pilot-canonical-report-typography-calibrated-twelve-page.pdf`.

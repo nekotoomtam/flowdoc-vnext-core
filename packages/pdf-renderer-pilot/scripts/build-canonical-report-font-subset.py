@@ -11,7 +11,6 @@ from fontTools.ttLib import TTFont
 
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 REPO_ROOT = PACKAGE_ROOT.parent.parent
-SOURCE_PATH = REPO_ROOT / "assets" / "fonts" / "IBM_Plex_Sans_Thai" / "IBMPlexSansThai-Regular.ttf"
 
 
 def repo_path(value: str) -> Path:
@@ -21,6 +20,8 @@ def repo_path(value: str) -> Path:
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--request", default="fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json")
+parser.add_argument("--font-id", default="ibm-plex-sans-thai-regular")
+parser.add_argument("--source", default="assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf")
 parser.add_argument("--subset", default="packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalReportSubset-Regular.ttf")
 parser.add_argument("--manifest", default="packages/pdf-renderer-pilot/fixtures/canonical-report-font-subset-manifest.v1.json")
 parser.add_argument("--phase-id", default="PDF-PILOT-07")
@@ -31,6 +32,7 @@ parser.add_argument("--subset-prefix", default="FDPCRP")
 args = parser.parse_args()
 
 REQUEST_PATH = repo_path(args.request)
+SOURCE_PATH = repo_path(args.source)
 SUBSET_PATH = repo_path(args.subset)
 MANIFEST_PATH = repo_path(args.manifest)
 
@@ -40,7 +42,12 @@ def sha256(path: Path) -> str:
 
 
 request = json.loads(REQUEST_PATH.read_text(encoding="utf-8"))
-font_asset = request["fontAssets"][0]
+font_asset = next(
+    (asset for asset in request["fontAssets"] if asset["fontId"] == args.font_id),
+    None,
+)
+if font_asset is None:
+    raise RuntimeError(f"request does not declare font {args.font_id}")
 if sha256(SOURCE_PATH) != font_asset["sha256"]:
     raise RuntimeError("registered source font hash mismatch")
 
@@ -90,7 +97,7 @@ manifest = {
     "postScriptName": args.postscript_name,
     "subsetPrefix": args.subset_prefix,
     "source": {
-        "path": "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf",
+        "path": SOURCE_PATH.relative_to(REPO_ROOT).as_posix(),
         "sha256": font_asset["sha256"],
         "bytes": SOURCE_PATH.stat().st_size,
     },

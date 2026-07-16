@@ -4,6 +4,7 @@ import { basename, dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { spawnSync } from "node:child_process"
 import { materializeCanonicalReportContentParity } from "./canonical-report-content-parity.mjs"
+import { materializeCanonicalReportTypographyCalibration } from "./canonical-report-typography-calibration.mjs"
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const packageRoot = resolve(scriptDir, "..")
@@ -11,7 +12,6 @@ const repoRoot = resolve(packageRoot, "../..")
 const compositionPath = resolve(repoRoot, "fixtures/pdf-pilot-canonical-report-composition.v1.json")
 const corpusPath = resolve(repoRoot, "fixtures/pdf-report-font-bakeoff-corpus.v1.json")
 const fontManifestPath = resolve(repoRoot, "assets/fonts/font-assets.v1.json")
-const fontPath = resolve(repoRoot, "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf")
 const fallbackReportRoot = resolve(
   repoRoot,
   "../ocr-benchmark-skeleton/reports/INV_9437125258",
@@ -56,6 +56,7 @@ const outputPath = resolve(
   repoRoot,
   readOption("--output") ?? "fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json",
 )
+const typographyManifestOption = readOption("--typography-manifest")
 
 function pngDimensions(bytes) {
   const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
@@ -79,11 +80,11 @@ function byteOffsetMap(text) {
   return offsets
 }
 
-function shape(text, fontSizePt, measurementRequestId) {
+function shape(text, fontSizePt, measurementRequestId, font) {
   const result = spawnSync(requireFile(shaperPath, "Rustybuzz shaper"), [
-    requireFile(fontPath, "IBM Plex Sans Thai Regular"),
+    requireFile(font.path, font.fontId),
     text,
-    "ibm-plex-sans-thai-regular",
+    font.fontId,
   ], {
     cwd: repoRoot,
     encoding: "utf8",
@@ -131,7 +132,20 @@ const contentParityManifest = contentParityManifestOption == null
 const parityMaterialization = contentParityManifest == null
   ? { composition: baseComposition, evidence: null }
   : materializeCanonicalReportContentParity(baseComposition, contentParityManifest)
-const composition = parityMaterialization.composition
+const typographyManifest = typographyManifestOption == null
+  ? null
+  : JSON.parse(readFileSync(resolve(repoRoot, typographyManifestOption), "utf8"))
+if (typographyManifest != null && contentParityManifest == null) {
+  throw new Error("Typography calibration requires the content parity manifest.")
+}
+const typographyMaterialization = typographyManifest == null
+  ? null
+  : materializeCanonicalReportTypographyCalibration(
+    parityMaterialization.composition,
+    typographyManifest,
+    contentParityManifest,
+  )
+const composition = typographyMaterialization?.composition ?? parityMaterialization.composition
 const corpus = JSON.parse(readFileSync(corpusPath, "utf8"))
 const reportRoot = resolve(
   readOption("--report-root")
@@ -159,10 +173,20 @@ if (contentParityManifest != null) {
 }
 
 const fontManifest = JSON.parse(readFileSync(fontManifestPath, "utf8"))
-const font = [...fontManifest.fontAssets, ...(fontManifest.candidateFontAssets ?? [])]
-  .find((asset) => asset.fontId === "ibm-plex-sans-thai-regular")
-if (font == null) throw new Error("IBM Plex Sans Thai Regular is not registered.")
-if (sha256(readFileSync(fontPath)) !== font.sha256) throw new Error("Registered font hash mismatch.")
+const registeredFonts = [...fontManifest.fontAssets, ...(fontManifest.candidateFontAssets ?? [])]
+const requiredFontIds = composition.fontIds ?? ["ibm-plex-sans-thai-regular"]
+const fonts = requiredFontIds.map((fontId) => {
+  const asset = registeredFonts.find((candidate) => candidate.fontId === fontId)
+  if (asset == null) throw new Error(`Font ${fontId} is not registered.`)
+  const path = resolve(repoRoot, asset.target.path)
+  if (sha256(readFileSync(path)) !== asset.sha256) {
+    throw new Error(`Registered font hash mismatch for ${fontId}.`)
+  }
+  return { ...asset, path }
+})
+const fontById = new Map(fonts.map((font) => [font.fontId, font]))
+const defaultFont = fontById.get("ibm-plex-sans-thai-regular")
+if (defaultFont == null) throw new Error("IBM Plex Sans Thai Regular is required.")
 
 const imageAssets = IMAGE_DEFINITIONS.map(([assetId, fileName, pixelWidth, pixelHeight, altText]) => {
   const artifact = artifactsById.get(assetId)
@@ -218,7 +242,9 @@ function pageBuilder(page) {
 
   function addTextLine(elementId, text, style, region, align = "left") {
     const measurementRequestId = `pdf-pilot:canonical:p${page.pageNumber}:${elementId}`
-    const shaped = shape(text, style.fontSizePt, measurementRequestId)
+    const runFont = fontById.get(style.fontId ?? defaultFont.fontId)
+    if (runFont == null) throw new Error(`Unknown composition font ${style.fontId}.`)
+    const shaped = shape(text, style.fontSizePt, measurementRequestId, runFont)
     if (shaped.advancePt > region.widthPt + 0.001) {
       throw new Error(
         `Text overflow on page ${page.pageNumber}/${elementId}: ${shaped.advancePt} > ${region.widthPt} for ${JSON.stringify(text)}`,
@@ -247,7 +273,7 @@ function pageBuilder(page) {
       measurementRequestId,
       measurementProfileId: composition.measurementProfileId,
       text,
-      fontId: font.fontId,
+      fontId: runFont.fontId,
       fontSizePt: style.fontSizePt,
       lineHeightPt: style.lineHeightPt,
       baselineOffsetPt: round(style.lineHeightPt - (style.lineHeightPt - style.fontSizePt) / 2),
@@ -259,17 +285,18 @@ function pageBuilder(page) {
 
   function addText(element) {
     const style = { ...composition.styles[element.style], ...(element.styleOverrides ?? {}) }
-    element.lines.forEach((line, lineIndex) => addTextLine(
-      `${element.id}:line${lineIndex + 1}`,
-      line,
-      style,
-      {
-        xPt: element.xPt,
-        yPt: element.yPt + lineIndex * style.lineHeightPt,
-        widthPt: element.widthPt,
-      },
-      element.align ?? "left",
-    ))
+    let yPt = element.yPt
+    element.lines.forEach((line, lineIndex) => {
+      const lineStyle = { ...style, ...(element.lineStyleOverrides?.[lineIndex] ?? {}) }
+      addTextLine(
+        `${element.id}:line${lineIndex + 1}`,
+        line,
+        lineStyle,
+        { xPt: element.xPt, yPt, widthPt: element.widthPt },
+        element.align ?? "left",
+      )
+      yPt += lineStyle.lineHeightPt
+    })
   }
 
   function addBox(id, bounds, fill, stroke = null, strokeWidthPt = 0.5) {
@@ -327,7 +354,16 @@ function pageBuilder(page) {
   }
 
   function addTable(element) {
-    const totalHeight = element.headerHeightPt + element.rows.length * element.rowHeightPt
+    const rowHeights = element.rows.map((_, rowIndex) => (
+      element.rowHeightsPt?.[rowIndex] ?? element.rowHeightPt
+    ))
+    const rowTops = []
+    let nextRowTop = element.yPt + element.headerHeightPt
+    rowHeights.forEach((heightPt) => {
+      rowTops.push(nextRowTop)
+      nextRowTop += heightPt
+    })
+    const totalHeight = element.headerHeightPt + rowHeights.reduce((total, heightPt) => total + heightPt, 0)
     const tableBounds = {
       xPt: element.xPt,
       yPt: element.yPt,
@@ -345,17 +381,15 @@ function pageBuilder(page) {
       if (rowIndex % 2 === 1) {
         addBox(`${element.id}:row${rowIndex + 1}:shade`, {
           xPt: element.xPt,
-          yPt: element.yPt + element.headerHeightPt + rowIndex * element.rowHeightPt,
+          yPt: rowTops[rowIndex],
           widthPt: element.widthPt,
-          heightPt: element.rowHeightPt,
+          heightPt: rowHeights[rowIndex],
         }, "FAFBFC")
       }
     })
     const horizontalYs = [
       element.yPt + element.headerHeightPt,
-      ...element.rows.slice(0, -1).map((_, rowIndex) => (
-        element.yPt + element.headerHeightPt + (rowIndex + 1) * element.rowHeightPt
-      )),
+      ...rowTops.slice(1),
     ]
     horizontalYs.forEach((yPt, lineIndex) => addBox(`${element.id}:hline${lineIndex + 1}`, {
       xPt: element.xPt,
@@ -374,26 +408,36 @@ function pageBuilder(page) {
       }, "D9E1E8")
     })
     const headerStyle = {
-      fontSizePt: element.fontSizePt,
-      lineHeightPt: element.lineHeightPt,
+      fontId: element.headerFontId ?? element.fontId ?? defaultFont.fontId,
+      fontSizePt: element.headerFontSizePt ?? element.fontSizePt,
+      lineHeightPt: element.headerLineHeightPt ?? element.lineHeightPt,
       color: "17324D",
     }
-    const cellStyle = { ...headerStyle, color: "17202A" }
+    const cellStyle = {
+      fontId: element.fontId ?? defaultFont.fontId,
+      fontSizePt: element.fontSizePt,
+      lineHeightPt: element.lineHeightPt,
+      color: "17202A",
+    }
     function addCells(cells, rowId, rowTop, rowHeight, style) {
       let xPt = element.xPt
       cells.forEach((cell, columnIndex) => {
         const widthPt = element.columnsPt[columnIndex]
-        addTextLine(
-          `${element.id}:${rowId}:cell${columnIndex + 1}`,
-          String(cell),
+        const lines = Array.isArray(cell) ? cell.map(String) : [String(cell)]
+        const textTop = rowTop + (rowHeight - lines.length * style.lineHeightPt) / 2
+        lines.forEach((line, lineIndex) => addTextLine(
+          lines.length === 1
+            ? `${element.id}:${rowId}:cell${columnIndex + 1}`
+            : `${element.id}:${rowId}:cell${columnIndex + 1}:line${lineIndex + 1}`,
+          line,
           style,
           {
             xPt: xPt + 4,
-            yPt: rowTop + (rowHeight - style.lineHeightPt) / 2,
+            yPt: textTop + lineIndex * style.lineHeightPt,
             widthPt: widthPt - 8,
           },
           columnIndex === 0 ? "left" : "center",
-        )
+        ))
         xPt += widthPt
       })
     }
@@ -401,8 +445,8 @@ function pageBuilder(page) {
     element.rows.forEach((row, rowIndex) => addCells(
       row,
       `row${rowIndex + 1}`,
-      element.yPt + element.headerHeightPt + rowIndex * element.rowHeightPt,
-      element.rowHeightPt,
+      rowTops[rowIndex],
+      rowHeights[rowIndex],
       cellStyle,
     ))
   }
@@ -482,7 +526,7 @@ const request = {
     },
   },
   pageBoxes,
-  fontAssets: [{
+  fontAssets: fonts.map((font) => ({
     fontId: font.fontId,
     family: font.family,
     style: font.style,
@@ -493,7 +537,7 @@ const request = {
     licenseId: "OFL-1.1",
     embedding: "subset",
     toUnicodeMap: true,
-  }],
+  })),
   imageAssets,
   paintCommands,
 }

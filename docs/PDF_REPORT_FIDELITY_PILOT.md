@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08A canonical report decision-content parity accepted.
+Status: PDF-PILOT-08B canonical report typography and layout calibration accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -231,6 +231,27 @@ Primary Phase 08A evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-twelve-page-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportContentParity.test.ts`.
 
+## PDF-PILOT-08B Scope
+
+Phase 08B layers a fail-closed typography manifest over the accepted 08A
+content composition. It raises body/callout/bullet text to `10.5 pt`, table body
+to `9.1 pt`, table headers to `9.3 pt`, captions to `9 pt`, and executes a real
+registered IBM Plex Sans Thai Bold subset for headings and table headers.
+
+The builder supports caller-authored multi-line table cells without inferring
+wrapping. All 13 style floors, 10 table contracts, two font identities, and the
+full 08A semantic contract pass. Same-resolution inspection aligns weighted
+median font sizes closely with the reference, while dual Poppler raster,
+extraction, geometry, image identity, and deterministic rebuild checks pass all
+12 pages. Phase 07 and 08A byte identities remain unchanged.
+
+Primary Phase 08B evidence:
+
+- `docs/PDF_CANONICAL_REPORT_TYPOGRAPHY_CALIBRATION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-typography-calibration.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-typography-calibrated-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportTypography.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -315,6 +336,18 @@ FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
 npm --prefix packages/pdf-renderer-pilot run build:content-parity-proof
 ```
 
+Build the calibrated Regular/Bold request, subsets, and local proof:
+
+```text
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:typography-request
+
+npm --prefix packages/pdf-renderer-pilot run build:typography-subsets
+
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:typography-proof
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -340,13 +373,16 @@ npm --prefix packages/pdf-renderer-pilot run build:content-parity-proof
 - Decision-content parity restores every retained semantic requirement, exceeds
   90% extracted-character coverage, and corrects the source-backed Azure Raw
   JSON value without changing Phase 07 bytes.
+- Typography calibration executes source-backed Regular/Bold subsets, matches
+  reference-scale body/table medians, and preserves every 08A content assertion
+  without overlap, clipping, or prior artifact drift.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08A.
+None for closing PDF-PILOT-08B.
 
-Report-level PDF fidelity remains blocked on readable typography/bold execution,
-calibrated report-wide visual-diff thresholds, and production integration.
+Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
+thresholds, broader reader compatibility, and production integration.
 
 ## RISK
 
@@ -359,9 +395,8 @@ calibrated report-wide visual-diff thresholds, and production integration.
   covers only one page.
 - Phase 04/06 qualify opaque RGB PNG only; alpha, palette, JPEG, and
   transparency remain open.
-- Phase 08A closes decision-relevant semantic omissions, but IBM Plex Regular
-  and the Phase 07 small font sizes remain; typography and bold calibration are
-  explicitly deferred to Phase 08B.
+- Phase 08B uses a real 700-weight Bold face. Phase 08C must decide through
+  region-aware visual evidence whether any role needs a lighter weight.
 
 ## UNKNOWN
 
@@ -383,4 +418,4 @@ calibrated report-wide visual-diff thresholds, and production integration.
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-08B` typography and layout calibration.
+Next phase: `PDF-PILOT-08C` visual acceptance thresholds.

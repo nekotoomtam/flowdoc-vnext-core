@@ -56,10 +56,24 @@ interface ContentParityManifest {
 interface CanonicalProofConfig {
   proofId: string
   requestFile: string
-  subsetManifestFile: string
+  subsetManifestFiles: string[]
   pdfFile: string
   summaryFile: string
   contentParityManifestFile?: string
+  typographyManifestFile?: string
+}
+
+interface TypographyManifest {
+  manifestId: string
+  fontIds: string[]
+  requiredStyles: Array<{ styleId: string; minimumFontSizePt: number; fontId: string }>
+  tableAcceptance: {
+    expectedTableCount: number
+    minimumBodyFontSizePt: number
+    minimumHeaderFontSizePt: number
+    bodyFontId: string
+    headerFontId: string
+  }
 }
 
 async function buildCanonicalReportProofWithConfig(config: CanonicalProofConfig): Promise<{
@@ -82,21 +96,27 @@ async function buildCanonicalReportProofWithConfig(config: CanonicalProofConfig)
     resolve(repoRoot, "fixtures/pdf-pilot-canonical-report-composition.v1.json"),
     "utf8",
   )) as CompositionFixture
-  const manifest = JSON.parse(readFileSync(
-    resolve(repoRoot, config.subsetManifestFile),
+  const manifests = config.subsetManifestFiles.map((manifestFile) => JSON.parse(readFileSync(
+    resolve(repoRoot, manifestFile),
     "utf8",
-  )) as SubsetManifest
+  )) as SubsetManifest)
   const contentParity = config.contentParityManifestFile == null
     ? null
     : JSON.parse(readFileSync(
       resolve(repoRoot, config.contentParityManifestFile),
       "utf8",
     )) as ContentParityManifest
+  const typography = config.typographyManifestFile == null
+    ? null
+    : JSON.parse(readFileSync(
+      resolve(repoRoot, config.typographyManifestFile),
+      "utf8",
+    )) as TypographyManifest
   const contract = createVNextPdfMeasuredDrawContractV1(request)
   const result = renderFlowDocCanonicalTwelvePageReportPdfPilot({
     proofId: config.proofId,
     contract,
-    fontResources: [{
+    fontResources: manifests.map((manifest) => ({
       fontId: manifest.fontId,
       subsetId: manifest.subsetId,
       subsetPrefix: manifest.subsetPrefix,
@@ -104,7 +124,7 @@ async function buildCanonicalReportProofWithConfig(config: CanonicalProofConfig)
       subsetSha256: manifest.subset.sha256,
       sourceBytes: readFileSync(resolve(repoRoot, manifest.source.path)),
       subsetBytes: readFileSync(resolve(repoRoot, manifest.subset.path)),
-    }],
+    })),
     imageResources: IMAGE_FILES.map(([assetId, fileName]) => ({
       assetId,
       bytes: readFileSync(resolve(reportRoot, "assets", fileName)),
@@ -153,6 +173,17 @@ async function buildCanonicalReportProofWithConfig(config: CanonicalProofConfig)
         minimumReferenceRatio: contentParity.coverage.minimumReferenceRatio,
       },
     }),
+    ...(typography == null ? {} : {
+      typographyCalibration: {
+        manifestId: typography.manifestId,
+        fontIds: typography.fontIds,
+        requiredStyleCount: typography.requiredStyles.length,
+        bodyStyleMinimumFontSizePt: typography.requiredStyles.find(
+          (item) => item.styleId === "body",
+        )?.minimumFontSizePt,
+        ...typography.tableAcceptance,
+      },
+    }),
     externalReferenceBytesRetained: false,
     externalImageBytesRetained: false,
     productionBinding: false,
@@ -167,7 +198,7 @@ export async function buildCanonicalReportProof(): Promise<{
   return buildCanonicalReportProofWithConfig({
     proofId: "pdf-pilot-07-canonical-report-twelve-page",
     requestFile: "fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json",
-    subsetManifestFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-font-subset-manifest.v1.json",
+    subsetManifestFiles: ["packages/pdf-renderer-pilot/fixtures/canonical-report-font-subset-manifest.v1.json"],
     pdfFile: "output/pdf/flowdoc-pdf-pilot-canonical-report-twelve-page.pdf",
     summaryFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-summary.v1.json",
   })
@@ -180,9 +211,27 @@ export async function buildCanonicalReportContentParityProof(): Promise<{
   return buildCanonicalReportProofWithConfig({
     proofId: "pdf-pilot-08a-canonical-report-content-parity",
     requestFile: "fixtures/pdf-pilot-canonical-report-content-parity-twelve-page-request.v1.json",
-    subsetManifestFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-font-subset-manifest.v1.json",
+    subsetManifestFiles: ["packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-font-subset-manifest.v1.json"],
     pdfFile: "output/pdf/flowdoc-pdf-pilot-canonical-report-content-parity-twelve-page.pdf",
     summaryFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-twelve-page-summary.v1.json",
     contentParityManifestFile: "fixtures/pdf-pilot-canonical-report-content-parity.v1.json",
+  })
+}
+
+export async function buildCanonicalReportTypographyProof(): Promise<{
+  pdfPath: string
+  summaryPath: string
+}> {
+  return buildCanonicalReportProofWithConfig({
+    proofId: "pdf-pilot-08b-canonical-report-typography-calibration",
+    requestFile: "fixtures/pdf-pilot-canonical-report-typography-calibrated-twelve-page-request.v1.json",
+    subsetManifestFiles: [
+      "packages/pdf-renderer-pilot/fixtures/canonical-report-typography-regular-font-subset-manifest.v1.json",
+      "packages/pdf-renderer-pilot/fixtures/canonical-report-typography-bold-font-subset-manifest.v1.json",
+    ],
+    pdfFile: "output/pdf/flowdoc-pdf-pilot-canonical-report-typography-calibrated-twelve-page.pdf",
+    summaryFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-typography-calibrated-twelve-page-summary.v1.json",
+    contentParityManifestFile: "fixtures/pdf-pilot-canonical-report-content-parity.v1.json",
+    typographyManifestFile: "fixtures/pdf-pilot-canonical-report-typography-calibration.v1.json",
   })
 }
