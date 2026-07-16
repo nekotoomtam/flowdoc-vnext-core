@@ -13,6 +13,7 @@ export const FLOWDOC_PDF_RENDERER_PILOT_SOURCE = "flowdoc-pdf-renderer-pilot" as
 export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as const
 export const FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE = "digest-bound-image-one-page-proof" as const
 export const FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE = "shared-resources-multi-page-proof" as const
+export const FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE = "all-five-image-resource-matrix" as const
 
 export type FlowDocPdfRendererPilotIssueCode =
   | "missing-proof-id"
@@ -20,6 +21,10 @@ export type FlowDocPdfRendererPilotIssueCode =
   | "contract-blocked"
   | "page-count"
   | "unsupported-image"
+  | "image-matrix-count"
+  | "image-matrix-duplicate-digest"
+  | "image-matrix-page-coverage"
+  | "image-matrix-asset-coverage"
   | "duplicate-image-resource"
   | "missing-image-resource"
   | "image-hash-mismatch"
@@ -111,6 +116,15 @@ export interface FlowDocPdfRendererPilotArtifactManifest {
     fontResourceReferenceCount: number
     imageResourceReferenceCount: number
   }
+  imageMatrix?: {
+    requiredAssetCount: number
+    uniqueImageDigestCount: number
+    assetIds: string[]
+    pageBindings: Array<{
+      pageNumber: number
+      assetId: string
+    }>
+  }
 }
 
 export type FlowDocPdfRendererPilotResult = {
@@ -119,6 +133,7 @@ export type FlowDocPdfRendererPilotResult = {
     | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
+    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
   proofId: string
   renderContract: {
     consumes: "vnext-pdf-measured-draw-contract-v1"
@@ -128,6 +143,7 @@ export type FlowDocPdfRendererPilotResult = {
     toUnicode: true
     imagesSupported: boolean
     sharedResourceObjects?: true
+    requiredImageAssetCount?: number
     productionFidelity: false
     storageWrites: false
   }
@@ -725,9 +741,11 @@ function blockedResult(
   mode:
     | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE,
+    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
+    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE,
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
+  requiredImageAssetCount?: number,
 ): FlowDocPdfRendererPilotResult {
   return {
     source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
@@ -744,6 +762,7 @@ function blockedResult(
       toUnicode: true,
       imagesSupported,
       ...(sharedResourceObjects ? { sharedResourceObjects: true as const } : {}),
+      ...(requiredImageAssetCount == null ? {} : { requiredImageAssetCount }),
       productionFidelity: false,
       storageWrites: false,
     },
@@ -768,10 +787,12 @@ function renderFlowDocPdfPilot(
   mode:
     | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE,
-  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05",
+    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
+    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE,
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06",
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
+  requiredImageAssetCount?: number,
 ): FlowDocPdfRendererPilotResult {
   const issues: FlowDocPdfRendererPilotIssue[] = []
   if (input.proofId.trim().length === 0) {
@@ -782,13 +803,60 @@ function renderFlowDocPdfPilot(
   }
   if (input.contract.status !== "consumable") {
     issues.push(issue("contract-blocked", "contract", "The PDF pilot requires a consumable measured draw contract."))
-    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects)
+    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects, requiredImageAssetCount)
   }
   const contract = input.contract
   if (!sharedResourceObjects && contract.pages.length !== 1) {
     issues.push(issue("page-count", "contract.pages", `${phaseId} accepts exactly one measured page.`))
   } else if (sharedResourceObjects && (contract.pages.length < 2 || contract.pages.length > 12)) {
     issues.push(issue("page-count", "contract.pages", `${phaseId} accepts 2 through 12 measured pages.`))
+  }
+  if (requiredImageAssetCount != null) {
+    if (contract.imageAssets.length !== requiredImageAssetCount) {
+      issues.push(issue(
+        "image-matrix-count",
+        "contract.imageAssets",
+        `${phaseId} requires exactly ${requiredImageAssetCount} image assets.`,
+      ))
+    }
+    if (contract.pages.length !== requiredImageAssetCount) {
+      issues.push(issue(
+        "page-count",
+        "contract.pages",
+        `${phaseId} requires exactly ${requiredImageAssetCount} measured pages.`,
+      ))
+    }
+    if (new Set(contract.imageAssets.map((asset) => asset.sha256)).size !== contract.imageAssets.length) {
+      issues.push(issue(
+        "image-matrix-duplicate-digest",
+        "contract.imageAssets",
+        `${phaseId} requires a distinct SHA-256 identity for every image asset.`,
+      ))
+    }
+    const imageAssetIds = new Set(contract.imageAssets.map((asset) => asset.assetId))
+    const referenceCounts = new Map<string, number>()
+    contract.pages.forEach((page, pageIndex) => {
+      const pageImages = page.commands.filter((command) => command.kind === "image")
+      if (pageImages.length !== 1) {
+        issues.push(issue(
+          "image-matrix-page-coverage",
+          `contract.pages.${pageIndex}.commands`,
+          `${phaseId} requires exactly one image paint command on every page.`,
+        ))
+      }
+      pageImages.forEach((command) => {
+        referenceCounts.set(command.assetId, (referenceCounts.get(command.assetId) ?? 0) + 1)
+      })
+    })
+    imageAssetIds.forEach((assetId) => {
+      if (referenceCounts.get(assetId) !== 1) {
+        issues.push(issue(
+          "image-matrix-asset-coverage",
+          `contract.imageAssets.${assetId}`,
+          `${phaseId} requires every image asset to be painted exactly once.`,
+        ))
+      }
+    })
   }
 
   const duplicateResources = new Set<string>()
@@ -924,7 +992,7 @@ function renderFlowDocPdfPilot(
   })
 
   if (issues.length > 0) {
-    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects)
+    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects, requiredImageAssetCount)
   }
 
   const fontResourceReferenceCount = contract.pages.reduce((total, page) => (
@@ -980,6 +1048,17 @@ function renderFlowDocPdfPilot(
         imageResourceReferenceCount,
       },
     } : {}),
+    ...(requiredImageAssetCount == null ? {} : {
+      imageMatrix: {
+        requiredAssetCount: requiredImageAssetCount,
+        uniqueImageDigestCount: new Set(contract.imageAssets.map((asset) => asset.sha256)).size,
+        assetIds: contract.imageAssets.map((asset) => asset.assetId),
+        pageBindings: contract.pages.map((page) => ({
+          pageNumber: page.pageNumber,
+          assetId: page.commands.find((command) => command.kind === "image")!.assetId,
+        })),
+      },
+    }),
   }
 
   return {
@@ -997,6 +1076,7 @@ function renderFlowDocPdfPilot(
       toUnicode: true,
       imagesSupported,
       ...(sharedResourceObjects ? { sharedResourceObjects: true as const } : {}),
+      ...(requiredImageAssetCount == null ? {} : { requiredImageAssetCount }),
       productionFidelity: false,
       storageWrites: false,
     },
@@ -1050,5 +1130,18 @@ export function renderFlowDocSharedResourcesMultiPagePdfPilot(
     "PDF-PILOT-05",
     true,
     true,
+  )
+}
+
+export function renderFlowDocAllFiveImageMatrixPdfPilot(
+  input: FlowDocPdfRendererPilotInput,
+): FlowDocPdfRendererPilotResult {
+  return renderFlowDocPdfPilot(
+    input,
+    FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE,
+    "PDF-PILOT-06",
+    true,
+    true,
+    5,
   )
 }

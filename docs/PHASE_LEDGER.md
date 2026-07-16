@@ -9993,3 +9993,30 @@ Primary evidence:
 - `tests/pdfRendererPilotSharedResources.test.ts`.
 
 Next phase: `PDF-PILOT-06` all-five-image multi-page resource matrix.
+
+## PDF-PILOT-06 All-Five-Image Multi-Page Resource Matrix
+
+Status: accepted as a dedicated side workstream without changing the current
+main phase pointer.
+
+Phase 06 adds a fail-closed five-page profile requiring five distinct image
+digests and exact one-image-per-page, one-page-per-image coverage. The retained
+contract executes all five pinned report PNGs while sharing one Type0 font
+object across every page. It contains 25 paint commands, ten Thai glyph runs,
+270 glyph occurrences, five font references, and five image references.
+
+Poppler and pypdf confirm exact Thai extraction, one font object, five image
+objects, image counts `[1, 1, 1, 1, 1]`, and exact source pixel identity on all
+pages. Pdftoppm and pdftocairo pass portrait and landscape placement without
+missing glyphs, clipping, or overlap. Rebuilding preserves the Phase 06 hash,
+and Phase 03-05 hashes remain byte-for-byte unchanged. External image bytes,
+storage, routes, workers, and production behavior remain inactive.
+
+Primary evidence:
+
+- `docs/PDF_ALL_IMAGES_RESOURCE_MATRIX.md`;
+- `fixtures/pdf-pilot-all-five-images-five-page-request.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/all-five-images-five-page-qa.v1.json`;
+- `tests/pdfRendererPilotAllImages.test.ts`.
+
+Next phase: `PDF-PILOT-07` canonical 12-page report composition fixture.

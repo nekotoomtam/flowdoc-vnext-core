@@ -860,6 +860,9 @@ The package must remain runnable without any parent editor checkout.
   object and one shared image object, limits each page dictionary to resources
   it uses, and preserves earlier one-page bytes while extraction and dual
   Poppler raster evidence pass all pages.
+- PDF all-images resource matrix validates all five pinned report PNGs, binds
+  one unique image object per page while reusing one font object across five
+  pages, and fails closed on missing, duplicate, or unreferenced identities.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

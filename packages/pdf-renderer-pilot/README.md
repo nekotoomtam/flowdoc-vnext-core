@@ -29,6 +29,13 @@ unique font/image resource. Page dictionaries reference only resources used by
 their commands. The retained proof shares one font across three pages and one
 image across two pages while preserving both earlier one-page byte identities.
 
+## PDF-PILOT-06 Profile
+
+The fourth profile requires five pages and five distinct image digests, with
+exactly one unique image binding per page. The retained proof executes all five
+pinned report PNGs, reuses one font object across every page, and rejects
+missing, repeated, or unreferenced image-matrix entries.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -37,6 +44,7 @@ Build actual Rustybuzz glyph facts:
 npm --prefix packages/pdf-renderer-pilot run build:request
 npm --prefix packages/pdf-renderer-pilot run build:image-request
 npm --prefix packages/pdf-renderer-pilot run build:multi-page-request
+npm --prefix packages/pdf-renderer-pilot run build:all-images-request
 ```
 
 Build the retained subset with Python FontTools:
@@ -51,6 +59,7 @@ Build the local proof artifact:
 npm --prefix packages/pdf-renderer-pilot run build:proof
 npm --prefix packages/pdf-renderer-pilot run build:image-proof
 npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
+npm --prefix packages/pdf-renderer-pilot run build:all-images-proof
 ```
 
 The proof PDF is written to
@@ -63,3 +72,8 @@ not copied into the repository.
 
 The shared-resource proof is written to
 `output/pdf/flowdoc-pdf-pilot-shared-resources-three-page.pdf`.
+
+The all-images proof is written to
+`output/pdf/flowdoc-pdf-pilot-all-five-images-five-page.pdf`. Set
+`FLOWDOC_PDF_PILOT_REPORT_ASSET_ROOT` when the pinned external report assets are
+not available in the sibling report workspace.

@@ -1,0 +1,3429 @@
+{
+  "contractVersion": 1,
+  "kind": "pdf-measured-draw-contract-request",
+  "pilotId": "PDF-PILOT-INV-9437125258",
+  "rendererProfileId": "pdf-pilot-all-five-images-five-page-v1",
+  "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+  "bindProductionRenderer": false,
+  "plan": {
+    "source": "vnext-pdf-renderer-adapter",
+    "mode": "measured-render-command-adapter",
+    "status": "ready",
+    "rendererContract": {
+      "consumes": "measured-render-commands",
+      "mayRelayout": false,
+      "requiresAuthoredDocumentForLayout": false,
+      "output": "pdf"
+    },
+    "artifact": {
+      "kind": "pdf",
+      "status": "not-rendered",
+      "contentType": "application/pdf",
+      "bytes": null,
+      "storageId": null
+    },
+    "pageCount": 5,
+    "drawCommands": [
+      {
+        "id": "pdf:pilot:panel:p1",
+        "sourceCommandId": "render:pilot:panel:p1",
+        "fragmentId": "fragment:pilot:panel:p1",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-panel:p1",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 60,
+          "widthPt": 492,
+          "heightPt": 124
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:heading:p1",
+        "sourceCommandId": "render:pilot:heading:p1",
+        "fragmentId": "fragment:pilot:heading:p1",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "operation": "draw-text",
+        "nodeId": "pilot-heading:p1",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 80,
+          "widthPt": 450,
+          "heightPt": 32
+        },
+        "text": "สรุปผล OCR ภาษาไทย 100%",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:body:p1",
+        "sourceCommandId": "render:pilot:body:p1",
+        "fragmentId": "fragment:pilot:body:p1",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "operation": "draw-text",
+        "nodeId": "pilot-body:p1",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 128,
+          "widthPt": 450,
+          "heightPt": 24
+        },
+        "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:source-evidence-image:p1",
+        "sourceCommandId": "render:pilot:source-evidence-image:p1",
+        "fragmentId": "fragment:pilot:source-evidence-image:p1",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-source-evidence-image:p1",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 220,
+          "widthPt": 492,
+          "heightPt": 360
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:panel:p2",
+        "sourceCommandId": "render:pilot:panel:p2",
+        "fragmentId": "fragment:pilot:panel:p2",
+        "pageIndex": 1,
+        "pageNumber": 2,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-panel:p2",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 60,
+          "widthPt": 492,
+          "heightPt": 124
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:heading:p2",
+        "sourceCommandId": "render:pilot:heading:p2",
+        "fragmentId": "fragment:pilot:heading:p2",
+        "pageIndex": 1,
+        "pageNumber": 2,
+        "operation": "draw-text",
+        "nodeId": "pilot-heading:p2",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 80,
+          "widthPt": 450,
+          "heightPt": 32
+        },
+        "text": "สรุปผล OCR ภาษาไทย 100%",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:body:p2",
+        "sourceCommandId": "render:pilot:body:p2",
+        "fragmentId": "fragment:pilot:body:p2",
+        "pageIndex": 1,
+        "pageNumber": 2,
+        "operation": "draw-text",
+        "nodeId": "pilot-body:p2",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 128,
+          "widthPt": 450,
+          "heightPt": 24
+        },
+        "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:ocr-accuracy-image:p2",
+        "sourceCommandId": "render:pilot:ocr-accuracy-image:p2",
+        "fragmentId": "fragment:pilot:ocr-accuracy-image:p2",
+        "pageIndex": 1,
+        "pageNumber": 2,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-ocr-accuracy-image:p2",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 220,
+          "widthPt": 492,
+          "heightPt": 360
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:panel:p3",
+        "sourceCommandId": "render:pilot:panel:p3",
+        "fragmentId": "fragment:pilot:panel:p3",
+        "pageIndex": 2,
+        "pageNumber": 3,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-panel:p3",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 60,
+          "widthPt": 492,
+          "heightPt": 124
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:heading:p3",
+        "sourceCommandId": "render:pilot:heading:p3",
+        "fragmentId": "fragment:pilot:heading:p3",
+        "pageIndex": 2,
+        "pageNumber": 3,
+        "operation": "draw-text",
+        "nodeId": "pilot-heading:p3",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 80,
+          "widthPt": 450,
+          "heightPt": 32
+        },
+        "text": "สรุปผล OCR ภาษาไทย 100%",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:body:p3",
+        "sourceCommandId": "render:pilot:body:p3",
+        "fragmentId": "fragment:pilot:body:p3",
+        "pageIndex": 2,
+        "pageNumber": 3,
+        "operation": "draw-text",
+        "nodeId": "pilot-body:p3",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 128,
+          "widthPt": 450,
+          "heightPt": 24
+        },
+        "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:native-extraction-image:p3",
+        "sourceCommandId": "render:pilot:native-extraction-image:p3",
+        "fragmentId": "fragment:pilot:native-extraction-image:p3",
+        "pageIndex": 2,
+        "pageNumber": 3,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-native-extraction-image:p3",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 220,
+          "widthPt": 492,
+          "heightPt": 360
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:panel:p4",
+        "sourceCommandId": "render:pilot:panel:p4",
+        "fragmentId": "fragment:pilot:panel:p4",
+        "pageIndex": 3,
+        "pageNumber": 4,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-panel:p4",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 60,
+          "widthPt": 492,
+          "heightPt": 124
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:heading:p4",
+        "sourceCommandId": "render:pilot:heading:p4",
+        "fragmentId": "fragment:pilot:heading:p4",
+        "pageIndex": 3,
+        "pageNumber": 4,
+        "operation": "draw-text",
+        "nodeId": "pilot-heading:p4",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 80,
+          "widthPt": 450,
+          "heightPt": 32
+        },
+        "text": "สรุปผล OCR ภาษาไทย 100%",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:body:p4",
+        "sourceCommandId": "render:pilot:body:p4",
+        "fragmentId": "fragment:pilot:body:p4",
+        "pageIndex": 3,
+        "pageNumber": 4,
+        "operation": "draw-text",
+        "nodeId": "pilot-body:p4",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 128,
+          "widthPt": 450,
+          "heightPt": 24
+        },
+        "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:mapping-gap-image:p4",
+        "sourceCommandId": "render:pilot:mapping-gap-image:p4",
+        "fragmentId": "fragment:pilot:mapping-gap-image:p4",
+        "pageIndex": 3,
+        "pageNumber": 4,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-mapping-gap-image:p4",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 220,
+          "widthPt": 492,
+          "heightPt": 360
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:panel:p5",
+        "sourceCommandId": "render:pilot:panel:p5",
+        "fragmentId": "fragment:pilot:panel:p5",
+        "pageIndex": 4,
+        "pageNumber": 5,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-panel:p5",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 60,
+          "widthPt": 492,
+          "heightPt": 124
+        },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:heading:p5",
+        "sourceCommandId": "render:pilot:heading:p5",
+        "fragmentId": "fragment:pilot:heading:p5",
+        "pageIndex": 4,
+        "pageNumber": 5,
+        "operation": "draw-text",
+        "nodeId": "pilot-heading:p5",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 80,
+          "widthPt": 450,
+          "heightPt": 32
+        },
+        "text": "สรุปผล OCR ภาษาไทย 100%",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:body:p5",
+        "sourceCommandId": "render:pilot:body:p5",
+        "fragmentId": "fragment:pilot:body:p5",
+        "pageIndex": 4,
+        "pageNumber": 5,
+        "operation": "draw-text",
+        "nodeId": "pilot-body:p5",
+        "nodeType": "text-block",
+        "bounds": {
+          "xPt": 76,
+          "yPt": 128,
+          "widthPt": 450,
+          "heightPt": 24
+        },
+        "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+        "table": null
+      },
+      {
+        "id": "pdf:pilot:latency-rounds-image:p5",
+        "sourceCommandId": "render:pilot:latency-rounds-image:p5",
+        "fragmentId": "fragment:pilot:latency-rounds-image:p5",
+        "pageIndex": 4,
+        "pageNumber": 5,
+        "operation": "draw-fragment-box",
+        "nodeId": "pilot-latency-rounds-image:p5",
+        "nodeType": "zone",
+        "bounds": {
+          "xPt": 60,
+          "yPt": 220,
+          "widthPt": 492,
+          "heightPt": 360
+        },
+        "text": null,
+        "table": null
+      }
+    ],
+    "blockingIssues": [],
+    "warningIssues": [],
+    "summary": {
+      "inputCommandCount": 20,
+      "drawCommandCount": 20,
+      "textCommandCount": 10,
+      "boxCommandCount": 10,
+      "blockingIssueCount": 0,
+      "warningIssueCount": 0
+    }
+  },
+  "pageBoxes": [
+    {
+      "pageIndex": 0,
+      "pageNumber": 1,
+      "widthPt": 612,
+      "heightPt": 792,
+      "backgroundColor": "FFFFFF"
+    },
+    {
+      "pageIndex": 1,
+      "pageNumber": 2,
+      "widthPt": 612,
+      "heightPt": 792,
+      "backgroundColor": "FFFFFF"
+    },
+    {
+      "pageIndex": 2,
+      "pageNumber": 3,
+      "widthPt": 612,
+      "heightPt": 792,
+      "backgroundColor": "FFFFFF"
+    },
+    {
+      "pageIndex": 3,
+      "pageNumber": 4,
+      "widthPt": 612,
+      "heightPt": 792,
+      "backgroundColor": "FFFFFF"
+    },
+    {
+      "pageIndex": 4,
+      "pageNumber": 5,
+      "widthPt": 612,
+      "heightPt": 792,
+      "backgroundColor": "FFFFFF"
+    }
+  ],
+  "fontAssets": [
+    {
+      "fontId": "ibm-plex-sans-thai-regular",
+      "family": "IBM Plex Sans Thai",
+      "style": "normal",
+      "weight": 400,
+      "format": "ttf",
+      "sha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57",
+      "sourceKind": "package-font-asset",
+      "licenseId": "OFL-1.1",
+      "embedding": "subset",
+      "toUnicodeMap": true
+    }
+  ],
+  "imageAssets": [
+    {
+      "assetId": "source-evidence-image",
+      "mediaType": "image/png",
+      "sha256": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2",
+      "pixelWidth": 1548,
+      "pixelHeight": 1376,
+      "bytesOwner": "backend",
+      "accessibility": {
+        "decorative": false,
+        "altText": "ภาพหลักฐานจากเอกสารต้นฉบับที่ใช้ในการทดสอบ OCR"
+      }
+    },
+    {
+      "assetId": "ocr-accuracy-image",
+      "mediaType": "image/png",
+      "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+      "pixelWidth": 1950,
+      "pixelHeight": 900,
+      "bytesOwner": "backend",
+      "accessibility": {
+        "decorative": false,
+        "altText": "เปรียบเทียบความถูกต้องของ OCR ระหว่าง Google และ Azure"
+      }
+    },
+    {
+      "assetId": "native-extraction-image",
+      "mediaType": "image/png",
+      "sha256": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc",
+      "pixelWidth": 1950,
+      "pixelHeight": 900,
+      "bytesOwner": "backend",
+      "accessibility": {
+        "decorative": false,
+        "altText": "เปรียบเทียบผลการสกัดข้อความดิจิทัลโดยตรง"
+      }
+    },
+    {
+      "assetId": "mapping-gap-image",
+      "mediaType": "image/png",
+      "sha256": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5",
+      "pixelWidth": 1950,
+      "pixelHeight": 900,
+      "bytesOwner": "backend",
+      "accessibility": {
+        "decorative": false,
+        "altText": "เปรียบเทียบช่องว่างของการจับคู่ข้อมูลสำคัญ"
+      }
+    },
+    {
+      "assetId": "latency-rounds-image",
+      "mediaType": "image/png",
+      "sha256": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6",
+      "pixelWidth": 1950,
+      "pixelHeight": 900,
+      "bytesOwner": "backend",
+      "accessibility": {
+        "decorative": false,
+        "altText": "เปรียบเทียบเวลาในการประมวลผลแต่ละรอบ"
+      }
+    }
+  ],
+  "paintCommands": [
+    {
+      "id": "paint:pilot:panel-fill:p1",
+      "sourceCommandId": "pdf:pilot:panel:p1",
+      "pageIndex": 0,
+      "paintOrder": 0,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "fill-rect",
+      "color": "EFF4F8",
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-stroke:p1",
+      "sourceCommandId": "pdf:pilot:panel:p1",
+      "pageIndex": 0,
+      "paintOrder": 1,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "stroke-rect",
+      "color": "A7BAC8",
+      "opacity": 1,
+      "widthPt": 0.75,
+      "style": "solid"
+    },
+    {
+      "id": "paint:pilot:heading:p1",
+      "sourceCommandId": "pdf:pilot:heading:p1",
+      "pageIndex": 0,
+      "paintOrder": 2,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 80,
+        "widthPt": 450,
+        "heightPt": 32
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:heading:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "สรุปผล OCR ภาษาไทย 100%",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 20,
+      "lineHeightPt": 28,
+      "baselineOffsetPt": 23,
+      "color": "17324D",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 320,
+          "advancePt": 12.18,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 1
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 318,
+          "advancePt": 10.64,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 498,
+          "advancePt": 0,
+          "offsetXPt": -1.06,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 307,
+          "advancePt": 12.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 313,
+          "advancePt": 13.74,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 319,
+          "advancePt": 11.58,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 47,
+          "advancePt": 14.16,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 8
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 35,
+          "advancePt": 12.42,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 8,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 50,
+          "advancePt": 12.8,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 271,
+          "advancePt": 11.98,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 308,
+          "advancePt": 12.94,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 334,
+          "advancePt": 6.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 16
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 304,
+          "advancePt": 11.92,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 16,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 317,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 62,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 22
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 109,
+          "advancePt": 18.54,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 22,
+          "clusterEndOffset": 23
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:body:p1",
+      "sourceCommandId": "pdf:pilot:body:p1",
+      "pageIndex": 0,
+      "paintOrder": 3,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 128,
+        "widthPt": 450,
+        "heightPt": 24
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:body:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 12,
+      "lineHeightPt": 18,
+      "baselineOffsetPt": 15,
+      "color": "3E5060",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 311,
+          "advancePt": 7.272,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 2,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 324,
+          "advancePt": 7.08,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 330,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 466,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 331,
+          "advancePt": 6.912,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 335,
+          "advancePt": 5.004,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 467,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 286,
+          "advancePt": 6.612,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.84,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 23,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 23,
+          "clusterEndOffset": 24
+        },
+        {
+          "glyphIndex": 24,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 24,
+          "clusterEndOffset": 25
+        },
+        {
+          "glyphIndex": 25,
+          "glyphId": 321,
+          "advancePt": 6.312,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 25,
+          "clusterEndOffset": 26
+        },
+        {
+          "glyphIndex": 26,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 26,
+          "clusterEndOffset": 27
+        },
+        {
+          "glyphIndex": 27,
+          "glyphId": 309,
+          "advancePt": 7.152,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 27,
+          "clusterEndOffset": 28
+        },
+        {
+          "glyphIndex": 28,
+          "glyphId": 334,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 28,
+          "clusterEndOffset": 29
+        },
+        {
+          "glyphIndex": 29,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        },
+        {
+          "glyphIndex": 30,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:source-evidence-image:p1",
+      "sourceCommandId": "pdf:pilot:source-evidence-image:p1",
+      "pageIndex": 0,
+      "paintOrder": 4,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 220,
+        "widthPt": 492,
+        "heightPt": 360
+      },
+      "kind": "image",
+      "assetId": "source-evidence-image",
+      "fit": "contain",
+      "crop": null,
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-fill:p2",
+      "sourceCommandId": "pdf:pilot:panel:p2",
+      "pageIndex": 1,
+      "paintOrder": 0,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "fill-rect",
+      "color": "EFF4F8",
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-stroke:p2",
+      "sourceCommandId": "pdf:pilot:panel:p2",
+      "pageIndex": 1,
+      "paintOrder": 1,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "stroke-rect",
+      "color": "A7BAC8",
+      "opacity": 1,
+      "widthPt": 0.75,
+      "style": "solid"
+    },
+    {
+      "id": "paint:pilot:heading:p2",
+      "sourceCommandId": "pdf:pilot:heading:p2",
+      "pageIndex": 1,
+      "paintOrder": 2,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 80,
+        "widthPt": 450,
+        "heightPt": 32
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:heading:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "สรุปผล OCR ภาษาไทย 100%",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 20,
+      "lineHeightPt": 28,
+      "baselineOffsetPt": 23,
+      "color": "17324D",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 320,
+          "advancePt": 12.18,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 1
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 318,
+          "advancePt": 10.64,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 498,
+          "advancePt": 0,
+          "offsetXPt": -1.06,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 307,
+          "advancePt": 12.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 313,
+          "advancePt": 13.74,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 319,
+          "advancePt": 11.58,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 47,
+          "advancePt": 14.16,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 8
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 35,
+          "advancePt": 12.42,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 8,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 50,
+          "advancePt": 12.8,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 271,
+          "advancePt": 11.98,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 308,
+          "advancePt": 12.94,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 334,
+          "advancePt": 6.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 16
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 304,
+          "advancePt": 11.92,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 16,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 317,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 62,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 22
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 109,
+          "advancePt": 18.54,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 22,
+          "clusterEndOffset": 23
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:body:p2",
+      "sourceCommandId": "pdf:pilot:body:p2",
+      "pageIndex": 1,
+      "paintOrder": 3,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 128,
+        "widthPt": 450,
+        "heightPt": 24
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:body:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 12,
+      "lineHeightPt": 18,
+      "baselineOffsetPt": 15,
+      "color": "3E5060",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 311,
+          "advancePt": 7.272,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 2,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 324,
+          "advancePt": 7.08,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 330,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 466,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 331,
+          "advancePt": 6.912,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 335,
+          "advancePt": 5.004,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 467,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 286,
+          "advancePt": 6.612,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.84,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 23,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 23,
+          "clusterEndOffset": 24
+        },
+        {
+          "glyphIndex": 24,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 24,
+          "clusterEndOffset": 25
+        },
+        {
+          "glyphIndex": 25,
+          "glyphId": 321,
+          "advancePt": 6.312,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 25,
+          "clusterEndOffset": 26
+        },
+        {
+          "glyphIndex": 26,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 26,
+          "clusterEndOffset": 27
+        },
+        {
+          "glyphIndex": 27,
+          "glyphId": 309,
+          "advancePt": 7.152,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 27,
+          "clusterEndOffset": 28
+        },
+        {
+          "glyphIndex": 28,
+          "glyphId": 334,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 28,
+          "clusterEndOffset": 29
+        },
+        {
+          "glyphIndex": 29,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        },
+        {
+          "glyphIndex": 30,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:ocr-accuracy-image:p2",
+      "sourceCommandId": "pdf:pilot:ocr-accuracy-image:p2",
+      "pageIndex": 1,
+      "paintOrder": 4,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 220,
+        "widthPt": 492,
+        "heightPt": 360
+      },
+      "kind": "image",
+      "assetId": "ocr-accuracy-image",
+      "fit": "contain",
+      "crop": null,
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-fill:p3",
+      "sourceCommandId": "pdf:pilot:panel:p3",
+      "pageIndex": 2,
+      "paintOrder": 0,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "fill-rect",
+      "color": "EFF4F8",
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-stroke:p3",
+      "sourceCommandId": "pdf:pilot:panel:p3",
+      "pageIndex": 2,
+      "paintOrder": 1,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "stroke-rect",
+      "color": "A7BAC8",
+      "opacity": 1,
+      "widthPt": 0.75,
+      "style": "solid"
+    },
+    {
+      "id": "paint:pilot:heading:p3",
+      "sourceCommandId": "pdf:pilot:heading:p3",
+      "pageIndex": 2,
+      "paintOrder": 2,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 80,
+        "widthPt": 450,
+        "heightPt": 32
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:heading:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "สรุปผล OCR ภาษาไทย 100%",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 20,
+      "lineHeightPt": 28,
+      "baselineOffsetPt": 23,
+      "color": "17324D",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 320,
+          "advancePt": 12.18,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 1
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 318,
+          "advancePt": 10.64,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 498,
+          "advancePt": 0,
+          "offsetXPt": -1.06,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 307,
+          "advancePt": 12.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 313,
+          "advancePt": 13.74,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 319,
+          "advancePt": 11.58,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 47,
+          "advancePt": 14.16,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 8
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 35,
+          "advancePt": 12.42,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 8,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 50,
+          "advancePt": 12.8,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 271,
+          "advancePt": 11.98,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 308,
+          "advancePt": 12.94,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 334,
+          "advancePt": 6.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 16
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 304,
+          "advancePt": 11.92,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 16,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 317,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 62,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 22
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 109,
+          "advancePt": 18.54,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 22,
+          "clusterEndOffset": 23
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:body:p3",
+      "sourceCommandId": "pdf:pilot:body:p3",
+      "pageIndex": 2,
+      "paintOrder": 3,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 128,
+        "widthPt": 450,
+        "heightPt": 24
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:body:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 12,
+      "lineHeightPt": 18,
+      "baselineOffsetPt": 15,
+      "color": "3E5060",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 311,
+          "advancePt": 7.272,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 2,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 324,
+          "advancePt": 7.08,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 330,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 466,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 331,
+          "advancePt": 6.912,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 335,
+          "advancePt": 5.004,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 467,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 286,
+          "advancePt": 6.612,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.84,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 23,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 23,
+          "clusterEndOffset": 24
+        },
+        {
+          "glyphIndex": 24,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 24,
+          "clusterEndOffset": 25
+        },
+        {
+          "glyphIndex": 25,
+          "glyphId": 321,
+          "advancePt": 6.312,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 25,
+          "clusterEndOffset": 26
+        },
+        {
+          "glyphIndex": 26,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 26,
+          "clusterEndOffset": 27
+        },
+        {
+          "glyphIndex": 27,
+          "glyphId": 309,
+          "advancePt": 7.152,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 27,
+          "clusterEndOffset": 28
+        },
+        {
+          "glyphIndex": 28,
+          "glyphId": 334,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 28,
+          "clusterEndOffset": 29
+        },
+        {
+          "glyphIndex": 29,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        },
+        {
+          "glyphIndex": 30,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:native-extraction-image:p3",
+      "sourceCommandId": "pdf:pilot:native-extraction-image:p3",
+      "pageIndex": 2,
+      "paintOrder": 4,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 220,
+        "widthPt": 492,
+        "heightPt": 360
+      },
+      "kind": "image",
+      "assetId": "native-extraction-image",
+      "fit": "contain",
+      "crop": null,
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-fill:p4",
+      "sourceCommandId": "pdf:pilot:panel:p4",
+      "pageIndex": 3,
+      "paintOrder": 0,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "fill-rect",
+      "color": "EFF4F8",
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-stroke:p4",
+      "sourceCommandId": "pdf:pilot:panel:p4",
+      "pageIndex": 3,
+      "paintOrder": 1,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "stroke-rect",
+      "color": "A7BAC8",
+      "opacity": 1,
+      "widthPt": 0.75,
+      "style": "solid"
+    },
+    {
+      "id": "paint:pilot:heading:p4",
+      "sourceCommandId": "pdf:pilot:heading:p4",
+      "pageIndex": 3,
+      "paintOrder": 2,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 80,
+        "widthPt": 450,
+        "heightPt": 32
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:heading:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "สรุปผล OCR ภาษาไทย 100%",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 20,
+      "lineHeightPt": 28,
+      "baselineOffsetPt": 23,
+      "color": "17324D",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 320,
+          "advancePt": 12.18,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 1
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 318,
+          "advancePt": 10.64,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 498,
+          "advancePt": 0,
+          "offsetXPt": -1.06,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 307,
+          "advancePt": 12.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 313,
+          "advancePt": 13.74,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 319,
+          "advancePt": 11.58,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 47,
+          "advancePt": 14.16,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 8
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 35,
+          "advancePt": 12.42,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 8,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 50,
+          "advancePt": 12.8,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 271,
+          "advancePt": 11.98,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 308,
+          "advancePt": 12.94,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 334,
+          "advancePt": 6.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 16
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 304,
+          "advancePt": 11.92,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 16,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 317,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 62,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 22
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 109,
+          "advancePt": 18.54,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 22,
+          "clusterEndOffset": 23
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:body:p4",
+      "sourceCommandId": "pdf:pilot:body:p4",
+      "pageIndex": 3,
+      "paintOrder": 3,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 128,
+        "widthPt": 450,
+        "heightPt": 24
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:body:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 12,
+      "lineHeightPt": 18,
+      "baselineOffsetPt": 15,
+      "color": "3E5060",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 311,
+          "advancePt": 7.272,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 2,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 324,
+          "advancePt": 7.08,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 330,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 466,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 331,
+          "advancePt": 6.912,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 335,
+          "advancePt": 5.004,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 467,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 286,
+          "advancePt": 6.612,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.84,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 23,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 23,
+          "clusterEndOffset": 24
+        },
+        {
+          "glyphIndex": 24,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 24,
+          "clusterEndOffset": 25
+        },
+        {
+          "glyphIndex": 25,
+          "glyphId": 321,
+          "advancePt": 6.312,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 25,
+          "clusterEndOffset": 26
+        },
+        {
+          "glyphIndex": 26,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 26,
+          "clusterEndOffset": 27
+        },
+        {
+          "glyphIndex": 27,
+          "glyphId": 309,
+          "advancePt": 7.152,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 27,
+          "clusterEndOffset": 28
+        },
+        {
+          "glyphIndex": 28,
+          "glyphId": 334,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 28,
+          "clusterEndOffset": 29
+        },
+        {
+          "glyphIndex": 29,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        },
+        {
+          "glyphIndex": 30,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:mapping-gap-image:p4",
+      "sourceCommandId": "pdf:pilot:mapping-gap-image:p4",
+      "pageIndex": 3,
+      "paintOrder": 4,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 220,
+        "widthPt": 492,
+        "heightPt": 360
+      },
+      "kind": "image",
+      "assetId": "mapping-gap-image",
+      "fit": "contain",
+      "crop": null,
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-fill:p5",
+      "sourceCommandId": "pdf:pilot:panel:p5",
+      "pageIndex": 4,
+      "paintOrder": 0,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "fill-rect",
+      "color": "EFF4F8",
+      "opacity": 1
+    },
+    {
+      "id": "paint:pilot:panel-stroke:p5",
+      "sourceCommandId": "pdf:pilot:panel:p5",
+      "pageIndex": 4,
+      "paintOrder": 1,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 60,
+        "widthPt": 492,
+        "heightPt": 124
+      },
+      "kind": "stroke-rect",
+      "color": "A7BAC8",
+      "opacity": 1,
+      "widthPt": 0.75,
+      "style": "solid"
+    },
+    {
+      "id": "paint:pilot:heading:p5",
+      "sourceCommandId": "pdf:pilot:heading:p5",
+      "pageIndex": 4,
+      "paintOrder": 2,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 80,
+        "widthPt": 450,
+        "heightPt": 32
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:heading:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "สรุปผล OCR ภาษาไทย 100%",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 20,
+      "lineHeightPt": 28,
+      "baselineOffsetPt": 23,
+      "color": "17324D",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 320,
+          "advancePt": 12.18,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 1
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 318,
+          "advancePt": 10.64,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 498,
+          "advancePt": 0,
+          "offsetXPt": -1.06,
+          "offsetYPt": 0,
+          "clusterStartOffset": 1,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 307,
+          "advancePt": 12.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 313,
+          "advancePt": 13.74,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 319,
+          "advancePt": 11.58,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 47,
+          "advancePt": 14.16,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 8
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 35,
+          "advancePt": 12.42,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 8,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 50,
+          "advancePt": 12.8,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 271,
+          "advancePt": 11.98,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 308,
+          "advancePt": 12.94,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 327,
+          "advancePt": 9.66,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 334,
+          "advancePt": 6.32,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 16
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 304,
+          "advancePt": 11.92,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 16,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 317,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 3,
+          "advancePt": 4.72,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 62,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 59,
+          "advancePt": 12,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 22
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 109,
+          "advancePt": 18.54,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 22,
+          "clusterEndOffset": 23
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:body:p5",
+      "sourceCommandId": "pdf:pilot:body:p5",
+      "pageIndex": 4,
+      "paintOrder": 3,
+      "bounds": {
+        "xPt": 76,
+        "yPt": 128,
+        "widthPt": 450,
+        "heightPt": 24
+      },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:body:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+      "text": "ค้นหา เลือก และคัดลอกข้อความได้",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 12,
+      "lineHeightPt": 18,
+      "baselineOffsetPt": 15,
+      "color": "3E5060",
+      "opacity": 1,
+      "glyphs": [
+        {
+          "glyphIndex": 0,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 1,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 0,
+          "clusterEndOffset": 2
+        },
+        {
+          "glyphIndex": 2,
+          "glyphId": 311,
+          "advancePt": 7.272,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 2,
+          "clusterEndOffset": 3
+        },
+        {
+          "glyphIndex": 3,
+          "glyphId": 324,
+          "advancePt": 7.08,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 3,
+          "clusterEndOffset": 4
+        },
+        {
+          "glyphIndex": 4,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 4,
+          "clusterEndOffset": 5
+        },
+        {
+          "glyphIndex": 5,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 5,
+          "clusterEndOffset": 6
+        },
+        {
+          "glyphIndex": 6,
+          "glyphId": 330,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 6,
+          "clusterEndOffset": 7
+        },
+        {
+          "glyphIndex": 7,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 8,
+          "glyphId": 466,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 7,
+          "clusterEndOffset": 9
+        },
+        {
+          "glyphIndex": 9,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 9,
+          "clusterEndOffset": 10
+        },
+        {
+          "glyphIndex": 10,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 10,
+          "clusterEndOffset": 11
+        },
+        {
+          "glyphIndex": 11,
+          "glyphId": 3,
+          "advancePt": 2.832,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 11,
+          "clusterEndOffset": 12
+        },
+        {
+          "glyphIndex": 12,
+          "glyphId": 331,
+          "advancePt": 6.912,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 12,
+          "clusterEndOffset": 13
+        },
+        {
+          "glyphIndex": 13,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 13,
+          "clusterEndOffset": 14
+        },
+        {
+          "glyphIndex": 14,
+          "glyphId": 335,
+          "advancePt": 5.004,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 14,
+          "clusterEndOffset": 15
+        },
+        {
+          "glyphIndex": 15,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 16,
+          "glyphId": 467,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 15,
+          "clusterEndOffset": 17
+        },
+        {
+          "glyphIndex": 17,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 17,
+          "clusterEndOffset": 18
+        },
+        {
+          "glyphIndex": 18,
+          "glyphId": 319,
+          "advancePt": 6.948,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 18,
+          "clusterEndOffset": 19
+        },
+        {
+          "glyphIndex": 19,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 19,
+          "clusterEndOffset": 20
+        },
+        {
+          "glyphIndex": 20,
+          "glyphId": 270,
+          "advancePt": 7.332,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 20,
+          "clusterEndOffset": 21
+        },
+        {
+          "glyphIndex": 21,
+          "glyphId": 286,
+          "advancePt": 6.612,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 22,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.84,
+          "offsetYPt": 0,
+          "clusterStartOffset": 21,
+          "clusterEndOffset": 23
+        },
+        {
+          "glyphIndex": 23,
+          "glyphId": 322,
+          "advancePt": 7.248,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 23,
+          "clusterEndOffset": 24
+        },
+        {
+          "glyphIndex": 24,
+          "glyphId": 292,
+          "advancePt": 7.632,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 24,
+          "clusterEndOffset": 25
+        },
+        {
+          "glyphIndex": 25,
+          "glyphId": 321,
+          "advancePt": 6.312,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 25,
+          "clusterEndOffset": 26
+        },
+        {
+          "glyphIndex": 26,
+          "glyphId": 327,
+          "advancePt": 5.796,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 26,
+          "clusterEndOffset": 27
+        },
+        {
+          "glyphIndex": 27,
+          "glyphId": 309,
+          "advancePt": 7.152,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 27,
+          "clusterEndOffset": 28
+        },
+        {
+          "glyphIndex": 28,
+          "glyphId": 334,
+          "advancePt": 3.792,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 28,
+          "clusterEndOffset": 29
+        },
+        {
+          "glyphIndex": 29,
+          "glyphId": 301,
+          "advancePt": 7.668,
+          "offsetXPt": 0,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        },
+        {
+          "glyphIndex": 30,
+          "glyphId": 470,
+          "advancePt": 0,
+          "offsetXPt": -0.96,
+          "offsetYPt": 0,
+          "clusterStartOffset": 29,
+          "clusterEndOffset": 31
+        }
+      ]
+    },
+    {
+      "id": "paint:pilot:latency-rounds-image:p5",
+      "sourceCommandId": "pdf:pilot:latency-rounds-image:p5",
+      "pageIndex": 4,
+      "paintOrder": 4,
+      "bounds": {
+        "xPt": 60,
+        "yPt": 220,
+        "widthPt": 492,
+        "heightPt": 360
+      },
+      "kind": "image",
+      "assetId": "latency-rounds-image",
+      "fit": "contain",
+      "crop": null,
+      "opacity": 1
+    }
+  ]
+}

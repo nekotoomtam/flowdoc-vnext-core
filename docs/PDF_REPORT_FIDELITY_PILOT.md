@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-05 multi-page shared-resource proof accepted.
+Status: PDF-PILOT-06 all-five-image resource matrix accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -169,6 +169,26 @@ Primary Phase 05 evidence:
 - `packages/pdf-renderer-pilot/fixtures/shared-resources-three-page-qa.v1.json`;
 - `tests/pdfRendererPilotSharedResources.test.ts`.
 
+## PDF-PILOT-06 Scope
+
+Phase 06 assembles five measured Letter pages and binds one different pinned
+report PNG to every page. The profile requires five distinct SHA-256 identities
+and exact one-to-one page coverage. One Type0 font object remains shared by all
+five pages while five image objects remain page-specific.
+
+Poppler and pypdf confirm exact Thai extraction on every page, font object `13`,
+image objects `19` through `23`, page image counts `[1, 1, 1, 1, 1]`, and exact
+RGB pixel identity against every external source. Both Poppler renderers pass
+all portrait/landscape placements. A repeated build preserves the artifact
+SHA-256, and Phase 03-05 identities remain unchanged.
+
+Primary Phase 06 evidence:
+
+- `docs/PDF_ALL_IMAGES_RESOURCE_MATRIX.md`;
+- `fixtures/pdf-pilot-all-five-images-five-page-request.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/all-five-images-five-page-qa.v1.json`;
+- `tests/pdfRendererPilotAllImages.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -218,6 +238,17 @@ FLOWDOC_PDF_PILOT_OCR_ACCURACY_IMAGE=<path-to-ocr_accuracy.png> \
 npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
 ```
 
+Build the all-five-image request and local proof. Set the external asset root
+when the sibling report workspace is unavailable:
+
+```text
+FLOWDOC_PDF_PILOT_REPORT_ASSET_ROOT=<path-to-report-assets> \
+npm --prefix packages/pdf-renderer-pilot run build:all-images-request
+
+FLOWDOC_PDF_PILOT_REPORT_ASSET_ROOT=<path-to-report-assets> \
+npm --prefix packages/pdf-renderer-pilot run build:all-images-proof
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -236,13 +267,15 @@ npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
   one-page paint-command kinds pass.
 - One shared font object and one shared image object pass deterministic
   cross-page reference, extraction, and visual QA.
+- Five distinct pinned image objects pass one-to-one page coverage, exact pixel
+  identity, Thai extraction, and portrait/landscape visual QA.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-05.
+None for closing PDF-PILOT-06.
 
-Report-level PDF fidelity remains blocked until PDF-PILOT-06 proves all five
-pinned images before full 12-page composition.
+Report-level PDF fidelity remains blocked on canonical 12-page content,
+page-specific composition, and report-wide visual comparison.
 
 ## RISK
 
@@ -253,10 +286,10 @@ pinned images before full 12-page composition.
   body scale.
 - Phase 03 retains normalized visual QA facts, but its raster remains local and
   covers only one page.
-- Phase 04 qualifies opaque RGB PNG only; alpha, palette, JPEG, transparency,
-  and multi-page reuse remain open.
-- Phase 05 uses repeated page content and one image identity; distinct report
-  page templates and all-five-image behavior remain open.
+- Phase 04/06 qualify opaque RGB PNG only; alpha, palette, JPEG, and
+  transparency remain open.
+- Phase 06 uses repeated panel/text content; distinct report page templates,
+  headers, footers, tables, and page numbering remain open.
 
 ## UNKNOWN
 
@@ -265,7 +298,7 @@ pinned images before full 12-page composition.
 - mixed Thai/Latin extraction order beyond the two accepted one-page lines;
 - table and heading wrap behavior after style-token calibration;
 - concrete PDF package and dependency budget.
-- cross-page image/font XObject reuse and deduplication behavior.
+- canonical 12-page object counts, artifact size, and visual-diff thresholds.
 
 ## Intentionally Not Changed
 
@@ -278,4 +311,4 @@ pinned images before full 12-page composition.
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-06` all-five-image multi-page resource matrix.
+Next phase: `PDF-PILOT-07` canonical 12-page report composition fixture.

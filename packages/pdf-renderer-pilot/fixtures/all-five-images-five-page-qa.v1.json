@@ -1,0 +1,106 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-06-all-five-images-five-page-qa-v1",
+  "proofId": "pdf-pilot-06-all-five-images-five-page",
+  "status": "accepted",
+  "artifact": {
+    "sha256": "1b5a3a6b8cd09ca0233d71a500cc27ac19842b2dab2d43eeb21f1a9ac2270d8d",
+    "bytes": 492655,
+    "pageCount": 5,
+    "pageSizePt": [612, 792],
+    "pdfVersion": "1.7"
+  },
+  "resourceInspection": {
+    "font": {
+      "tool": "pdffonts 25.07.0",
+      "objectId": 13,
+      "uniqueObjectCount": 1,
+      "pageReferences": [1, 2, 3, 4, 5],
+      "embedded": true,
+      "subset": true,
+      "unicodeMap": true
+    },
+    "images": {
+      "tool": "pdfimages 25.07.0",
+      "uniqueObjectCount": 5,
+      "pageImageCounts": [1, 1, 1, 1, 1],
+      "pageBindings": [
+        {
+          "pageNumber": 1,
+          "objectId": 19,
+          "assetId": "source-evidence-image",
+          "sourceSha256": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2",
+          "pixelIdentity": true
+        },
+        {
+          "pageNumber": 2,
+          "objectId": 20,
+          "assetId": "ocr-accuracy-image",
+          "sourceSha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+          "pixelIdentity": true
+        },
+        {
+          "pageNumber": 3,
+          "objectId": 21,
+          "assetId": "native-extraction-image",
+          "sourceSha256": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc",
+          "pixelIdentity": true
+        },
+        {
+          "pageNumber": 4,
+          "objectId": 22,
+          "assetId": "mapping-gap-image",
+          "sourceSha256": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5",
+          "pixelIdentity": true
+        },
+        {
+          "pageNumber": 5,
+          "objectId": 23,
+          "assetId": "latency-rounds-image",
+          "sourceSha256": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6",
+          "pixelIdentity": true
+        }
+      ]
+    }
+  },
+  "textExtraction": {
+    "expectedLinesPerPage": [
+      "สรุปผล OCR ภาษาไทย 100%",
+      "ค้นหา เลือก และคัดลอกข้อความได้"
+    ],
+    "popplerExactMatchOnAllPages": true,
+    "pypdfExactMatchOnAllPages": true
+  },
+  "rasterInspection": {
+    "dpi": 120,
+    "pixelWidth": 1020,
+    "pixelHeight": 1320,
+    "mode": "RGB",
+    "pdftoppmAccepted": true,
+    "pdftocairoAccepted": true,
+    "pdftocairoPageSha256": [
+      "0cfce297d780aa8aceeecc813d51194333f21b4c0d0ae75d2b312469058a9dbe",
+      "91f2b46e8bfc173e2a44381f69c239d3a75f518d5c1197c40e7341430a6f95bf",
+      "27e7c9bc3a0c79c2585b2bf1f6a45a3d6b4e970a7b6c0cdaf32c89c3d96f33e2",
+      "ae1829ddec902e218763d95efa55a6e21645cae8c59cd793855d9dfe9cdc08f6",
+      "28acf3609b16fbfbb88336250bed1b0558018b8c948515867f14bdbc4d352cf3"
+    ],
+    "portraitAndLandscapeImagesVisible": true,
+    "missingGlyphs": 0,
+    "clippedContent": 0,
+    "overlaps": 0
+  },
+  "deterministicRebuild": {
+    "firstSha256": "1b5a3a6b8cd09ca0233d71a500cc27ac19842b2dab2d43eeb21f1a9ac2270d8d",
+    "secondSha256": "1b5a3a6b8cd09ca0233d71a500cc27ac19842b2dab2d43eeb21f1a9ac2270d8d",
+    "unchanged": true
+  },
+  "priorArtifactIdentityRegression": {
+    "phase03Sha256": "fafa7e4d01df4d9f9b5acdffe2d7652e073e5b329142e4c8886085521322fd24",
+    "phase04Sha256": "75050ad4cb4d95d15834b8b84709b5194f3e918bd11d7b86b3fa14d13740e6a8",
+    "phase05Sha256": "7c15cca1e68bd745189b0d3ef3ce2c9170453e869ab5003b3ad99697bb8aa8b4",
+    "unchanged": true
+  },
+  "externalImageBytesRetained": false,
+  "productionBinding": false
+}
