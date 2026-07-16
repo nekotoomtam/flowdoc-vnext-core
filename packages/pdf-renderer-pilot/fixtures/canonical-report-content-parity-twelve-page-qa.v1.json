@@ -1,0 +1,106 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08a-canonical-report-content-parity-qa-v1",
+  "proofId": "pdf-pilot-08a-canonical-report-content-parity",
+  "status": "accepted",
+  "referenceArtifact": {
+    "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+    "bytes": 714952,
+    "pageCount": 12
+  },
+  "referenceSource": {
+    "pointer": "external-report://INV_9437125258/build_report.py",
+    "sha256": "d074e334ab877dbe1294fe6ecc2b7c080a4932731999f638c0eeac29650d2e49",
+    "bytes": 54349
+  },
+  "artifact": {
+    "sha256": "2b22eda73f9124e5bcb8c3d582f458cec78a8a230bebc6409909ad74c319f338",
+    "bytes": 899486,
+    "pdfVersion": "1.7",
+    "pageCount": 12
+  },
+  "contentContract": {
+    "manifestId": "pdf-pilot-08a-canonical-report-decision-content-parity-v1",
+    "parityLevel": "decision-relevant-semantic-content",
+    "verbatimSentenceParity": false,
+    "visualParity": false,
+    "requiredElementCount": 12,
+    "requiredTableCount": 10,
+    "requiredExactItemCount": 8,
+    "requiredPageTextCount": 19,
+    "referenceNonWhitespaceCharacters": 10619,
+    "renderedNonWhitespaceCharacters": 9743,
+    "referenceCoverageRatio": 0.917506,
+    "minimumReferenceRatio": 0.9,
+    "allRequiredContentPresent": true,
+    "azureRawJsonCorrectedFromMb": 0.2,
+    "azureRawJsonCorrectedToMb": 0.1
+  },
+  "composition": {
+    "drawCommandCount": 543,
+    "paintCommandCount": 562,
+    "textCommandCount": 391,
+    "boxCommandCount": 152,
+    "glyphCount": 10574,
+    "pageCount": 12,
+    "imageAssetCount": 5,
+    "imagePaintCount": 6
+  },
+  "clusterExecution": {
+    "runsWithMeasuredVerticalOffsets": 24,
+    "glyphsWithMeasuredVerticalOffsets": 25,
+    "minimumVerticalOffsetPt": -1.72,
+    "maximumVerticalOffsetPt": 0.368,
+    "continuationGlyphsPaintedAsArtifacts": true,
+    "actualTextRetainedPerRun": true
+  },
+  "textExtraction": {
+    "expectedGlyphRuns": 391,
+    "popplerExactRunPresence": 391,
+    "pypdfRawExactRunPresence": 330,
+    "pypdfWhitespaceNormalizedRunPresence": 391,
+    "requiredPageTextPresence": 19
+  },
+  "resourceInspection": {
+    "fontObjectCount": 1,
+    "fontResourceReferenceCount": 12,
+    "fontSubsetSha256": "1761950a7dd4a3d46742a02373f3ab0aa79760c24920105851e1abffedeb27c7",
+    "fontSubsetBytes": 37596,
+    "retainedGlyphIdCount": 138,
+    "imageObjectCount": 5,
+    "imageResourceReferenceCount": 6,
+    "pixelIdentityPaints": 6
+  },
+  "geometryInspection": {
+    "textBoundsOverlapCount": 0,
+    "maximumNonFooterContentBottomPt": 744,
+    "footerTopPt": 757,
+    "contentFooterCollision": false
+  },
+  "rasterInspection": {
+    "renderer": "pdftoppm 25.07.0",
+    "dpi": 144,
+    "pageWidthPx": 1224,
+    "pageHeightPx": 1584,
+    "pagesRendered": 12,
+    "allPagesNonBlank": true,
+    "allPageMarkersVisible": true,
+    "missingGlyphs": 0,
+    "clippedContent": 0,
+    "overlaps": 0
+  },
+  "deterministicRebuild": {
+    "sha256": "2b22eda73f9124e5bcb8c3d582f458cec78a8a230bebc6409909ad74c319f338",
+    "unchanged": true
+  },
+  "priorPhase07Regression": {
+    "pdfSha256": "39d8191ff58c2da0f03d7319dd5f3818b7f89642d01885f78cae092634ca1819",
+    "fontSubsetSha256": "a4fb4f4f9d7eb9668a013d61ac8a133b454fa8a53c3b45bef7684a02bf02dc24",
+    "unchanged": true
+  },
+  "typographyCalibrationDeferredTo": "PDF-PILOT-08B",
+  "externalReferenceBytesRetained": false,
+  "externalSourceBuilderRetained": false,
+  "externalImageBytesRetained": false,
+  "productionBinding": false
+}

@@ -10047,4 +10047,32 @@ Primary evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReport.test.ts`.
 
-Next phase: `PDF-PILOT-08` report-wide visual-diff calibration and acceptance thresholds.
+Next phase: `PDF-PILOT-08A` canonical report decision-content parity.
+
+## PDF-PILOT-08A Canonical Report Decision-Content Parity
+
+Status: accepted as a dedicated side workstream without changing the current
+main phase pointer.
+
+Phase 08A retains the Phase 07 composition and renderer evidence, pins the
+external `build_report.py` identity, and materializes a separate fail-closed
+content request. The manifest restores omitted Azure Native fields, current
+Mapper fields and BOI mis-mapping, all four Mapping-gap causes, the complete
+source SHA/evidence facts, glossary terminology, and full Azure source URL. It
+also corrects Azure OCR Raw JSON from `0.20 MB` to `0.10 MB`.
+
+The accepted contract requires 12 restored elements, 10 exact table row counts,
+8 exact factual items, 19 semantic strings, and at least 90% of the reference's
+extracted non-whitespace character count. The result reaches `91.7506%`, emits
+543 measured draw commands, 562 paints, 391 text runs, and 10,574 glyphs. All
+12 pages pass extraction, raster, image identity, overlap, footer, and
+determinism checks. The Phase 07 PDF and font subset hashes remain unchanged.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_CONTENT_PARITY_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-content-parity.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportContentParity.test.ts`.
+
+Next phase: `PDF-PILOT-08B` typography and layout calibration.

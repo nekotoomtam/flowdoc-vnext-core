@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-07 canonical twelve-page report composition accepted.
+Status: PDF-PILOT-08A canonical report decision-content parity accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -210,6 +210,27 @@ Primary Phase 07 evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReport.test.ts`.
 
+## PDF-PILOT-08A Scope
+
+Phase 08A pins the external `build_report.py` identity and applies a separate,
+fail-closed decision-content manifest over the unchanged Phase 07 composition.
+The materialized 12-page request restores omitted Azure Native and Mapper facts,
+the full source SHA and evidence details, complete glossary/reference values,
+and corrects Azure OCR Raw JSON from `0.20 MB` to `0.10 MB`.
+
+The contract requires 12 restored elements, 10 table row-count contracts, 8
+exact values, 19 semantic strings, and at least 90% of the reference's extracted
+non-whitespace character count. The accepted request reaches `91.7506%`, emits
+391 text runs and 10,574 glyphs, passes Poppler/pypdf extraction and 12-page
+visual QA, and leaves Phase 07 bytes unchanged.
+
+Primary Phase 08A evidence:
+
+- `docs/PDF_CANONICAL_REPORT_CONTENT_PARITY_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-content-parity.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportContentParity.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -282,6 +303,18 @@ FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
 npm --prefix packages/pdf-renderer-pilot run build:canonical-proof
 ```
 
+Build the separate decision-content parity request, subset, and local proof:
+
+```text
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:content-parity-request
+
+npm --prefix packages/pdf-renderer-pilot run build:content-parity-subset
+
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:content-parity-proof
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -304,13 +337,16 @@ npm --prefix packages/pdf-renderer-pilot run build:canonical-proof
   identity, Thai extraction, and portrait/landscape visual QA.
 - Twelve canonical pages pass fixed page identity, measured table/callout
   composition, full-corpus Thai cluster execution, and exact text-run presence.
+- Decision-content parity restores every retained semantic requirement, exceeds
+  90% extracted-character coverage, and corrects the source-backed Azure Raw
+  JSON value without changing Phase 07 bytes.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-07.
+None for closing PDF-PILOT-08A.
 
-Report-level PDF fidelity remains blocked on calibrated report-wide visual-diff
-thresholds and production integration.
+Report-level PDF fidelity remains blocked on readable typography/bold execution,
+calibrated report-wide visual-diff thresholds, and production integration.
 
 ## RISK
 
@@ -323,8 +359,9 @@ thresholds and production integration.
   covers only one page.
 - Phase 04/06 qualify opaque RGB PNG only; alpha, palette, JPEG, and
   transparency remain open.
-- Phase 07 uses IBM Plex Regular and a concise canonical content inventory;
-  Tahoma/bold metric calibration and verbatim-content parity remain open.
+- Phase 08A closes decision-relevant semantic omissions, but IBM Plex Regular
+  and the Phase 07 small font sizes remain; typography and bold calibration are
+  explicitly deferred to Phase 08B.
 
 ## UNKNOWN
 
@@ -346,4 +383,4 @@ thresholds and production integration.
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-08` report-wide visual-diff calibration and acceptance thresholds.
+Next phase: `PDF-PILOT-08B` typography and layout calibration.

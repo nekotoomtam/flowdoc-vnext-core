@@ -3,13 +3,13 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import { basename, dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { spawnSync } from "node:child_process"
+import { materializeCanonicalReportContentParity } from "./canonical-report-content-parity.mjs"
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const packageRoot = resolve(scriptDir, "..")
 const repoRoot = resolve(packageRoot, "../..")
 const compositionPath = resolve(repoRoot, "fixtures/pdf-pilot-canonical-report-composition.v1.json")
 const corpusPath = resolve(repoRoot, "fixtures/pdf-report-font-bakeoff-corpus.v1.json")
-const outputPath = resolve(repoRoot, "fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json")
 const fontManifestPath = resolve(repoRoot, "assets/fonts/font-assets.v1.json")
 const fontPath = resolve(repoRoot, "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf")
 const fallbackReportRoot = resolve(
@@ -50,6 +50,12 @@ function readOption(name) {
   if (value == null || value.startsWith("--")) throw new Error(`${name} requires a path.`)
   return value
 }
+
+const contentParityManifestOption = readOption("--content-parity-manifest")
+const outputPath = resolve(
+  repoRoot,
+  readOption("--output") ?? "fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json",
+)
 
 function pngDimensions(bytes) {
   const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
@@ -118,7 +124,14 @@ function shape(text, fontSizePt, measurementRequestId) {
   }
 }
 
-const composition = JSON.parse(readFileSync(compositionPath, "utf8"))
+const baseComposition = JSON.parse(readFileSync(compositionPath, "utf8"))
+const contentParityManifest = contentParityManifestOption == null
+  ? null
+  : JSON.parse(readFileSync(resolve(repoRoot, contentParityManifestOption), "utf8"))
+const parityMaterialization = contentParityManifest == null
+  ? { composition: baseComposition, evidence: null }
+  : materializeCanonicalReportContentParity(baseComposition, contentParityManifest)
+const composition = parityMaterialization.composition
 const corpus = JSON.parse(readFileSync(corpusPath, "utf8"))
 const reportRoot = resolve(
   readOption("--report-root")
@@ -136,6 +149,13 @@ if (composition.pages.length !== referenceArtifact.pageCount) {
 const referenceBytes = readFileSync(resolve(reportRoot, basename(referenceArtifact.pointer)))
 if (referenceBytes.byteLength !== referenceArtifact.bytes || sha256(referenceBytes) !== referenceArtifact.sha256) {
   throw new Error("External reference PDF does not match the pinned canonical identity.")
+}
+if (contentParityManifest != null) {
+  const source = contentParityManifest.referenceSource
+  const sourceBytes = readFileSync(requireFile(resolve(reportRoot, source.fileName), "Content parity source"))
+  if (sourceBytes.byteLength !== source.bytes || sha256(sourceBytes) !== source.sha256) {
+    throw new Error("External content parity source does not match the pinned identity.")
+  }
 }
 
 const fontManifest = JSON.parse(readFileSync(fontManifestPath, "utf8"))

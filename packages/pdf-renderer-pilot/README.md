@@ -53,6 +53,7 @@ npm --prefix packages/pdf-renderer-pilot run build:image-request
 npm --prefix packages/pdf-renderer-pilot run build:multi-page-request
 npm --prefix packages/pdf-renderer-pilot run build:all-images-request
 npm --prefix packages/pdf-renderer-pilot run build:canonical-request
+npm --prefix packages/pdf-renderer-pilot run build:content-parity-request
 ```
 
 Build the retained subset with Python FontTools:
@@ -60,6 +61,7 @@ Build the retained subset with Python FontTools:
 ```text
 npm --prefix packages/pdf-renderer-pilot run build:subset
 npm --prefix packages/pdf-renderer-pilot run build:canonical-subset
+npm --prefix packages/pdf-renderer-pilot run build:content-parity-subset
 ```
 
 Build the local proof artifact:
@@ -70,6 +72,7 @@ npm --prefix packages/pdf-renderer-pilot run build:image-proof
 npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
 npm --prefix packages/pdf-renderer-pilot run build:all-images-proof
 npm --prefix packages/pdf-renderer-pilot run build:canonical-proof
+npm --prefix packages/pdf-renderer-pilot run build:content-parity-proof
 ```
 
 The proof PDF is written to
@@ -92,3 +95,7 @@ The canonical report proof is written to
 `output/pdf/flowdoc-pdf-pilot-canonical-report-twelve-page.pdf`. Set
 `FLOWDOC_PDF_PILOT_REPORT_ROOT` when the pinned reference report directory is
 not available in the sibling report workspace.
+
+The decision-content parity proof is written separately to
+`output/pdf/flowdoc-pdf-pilot-canonical-report-content-parity-twelve-page.pdf`
+so the Phase 07 bytes remain retained.

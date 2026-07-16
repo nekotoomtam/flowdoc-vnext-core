@@ -35,7 +35,34 @@ interface CompositionFixture {
   pages: Array<{ pageNumber: number; pageId: string; marker: string }>
 }
 
-export async function buildCanonicalReportProof(): Promise<{
+interface ContentParityManifest {
+  manifestId: string
+  referenceSource: { pointer: string; fileName: string; bytes: number; sha256: string }
+  claim: {
+    parityLevel: string
+    verbatimSentenceParity: boolean
+    visualParity: boolean
+  }
+  coverage: {
+    referenceExtractedNonWhitespaceCharacters: number
+    minimumReferenceRatio: number
+  }
+  requiredElements: unknown[]
+  requiredTableRows: unknown[]
+  requiredExactItems: unknown[]
+  requiredPageText: unknown[]
+}
+
+interface CanonicalProofConfig {
+  proofId: string
+  requestFile: string
+  subsetManifestFile: string
+  pdfFile: string
+  summaryFile: string
+  contentParityManifestFile?: string
+}
+
+async function buildCanonicalReportProofWithConfig(config: CanonicalProofConfig): Promise<{
   pdfPath: string
   summaryPath: string
 }> {
@@ -48,7 +75,7 @@ export async function buildCanonicalReportProof(): Promise<{
     process.env.FLOWDOC_PDF_PILOT_REPORT_ROOT ?? fallbackReportRoot,
   )
   const request = JSON.parse(readFileSync(
-    resolve(repoRoot, "fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json"),
+    resolve(repoRoot, config.requestFile),
     "utf8",
   )) as VNextPdfMeasuredDrawContractRequestV1
   const composition = JSON.parse(readFileSync(
@@ -56,12 +83,18 @@ export async function buildCanonicalReportProof(): Promise<{
     "utf8",
   )) as CompositionFixture
   const manifest = JSON.parse(readFileSync(
-    resolve(repoRoot, "packages/pdf-renderer-pilot/fixtures/canonical-report-font-subset-manifest.v1.json"),
+    resolve(repoRoot, config.subsetManifestFile),
     "utf8",
   )) as SubsetManifest
+  const contentParity = config.contentParityManifestFile == null
+    ? null
+    : JSON.parse(readFileSync(
+      resolve(repoRoot, config.contentParityManifestFile),
+      "utf8",
+    )) as ContentParityManifest
   const contract = createVNextPdfMeasuredDrawContractV1(request)
   const result = renderFlowDocCanonicalTwelvePageReportPdfPilot({
-    proofId: "pdf-pilot-07-canonical-report-twelve-page",
+    proofId: config.proofId,
     contract,
     fontResources: [{
       fontId: manifest.fontId,
@@ -81,11 +114,14 @@ export async function buildCanonicalReportProof(): Promise<{
     throw new Error(`PDF canonical report rendering blocked: ${JSON.stringify(result.issues)}`)
   }
 
-  const pdfPath = resolve(repoRoot, "output/pdf/flowdoc-pdf-pilot-canonical-report-twelve-page.pdf")
-  const summaryPath = resolve(repoRoot, "packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-summary.v1.json")
+  const pdfPath = resolve(repoRoot, config.pdfFile)
+  const summaryPath = resolve(repoRoot, config.summaryFile)
   mkdirSync(dirname(pdfPath), { recursive: true })
   mkdirSync(dirname(summaryPath), { recursive: true })
   writeFileSync(pdfPath, result.bytes)
+  const renderedNonWhitespaceCharacters = request.paintCommands
+    .filter((command) => command.kind === "glyph-run")
+    .reduce((total, command) => total + command.text.replace(/\s+/gu, "").length, 0)
   writeFileSync(summaryPath, `${JSON.stringify({
     summaryVersion: 1,
     proofId: result.proofId,
@@ -99,9 +135,54 @@ export async function buildCanonicalReportProof(): Promise<{
       pageId: page.pageId,
       marker: page.marker,
     })),
+    ...(contentParity == null ? {} : {
+      contentParity: {
+        manifestId: contentParity.manifestId,
+        source: contentParity.referenceSource,
+        ...contentParity.claim,
+        requiredElementCount: contentParity.requiredElements.length,
+        requiredTableCount: contentParity.requiredTableRows.length,
+        requiredExactItemCount: contentParity.requiredExactItems.length,
+        requiredPageTextCount: contentParity.requiredPageText.length,
+        referenceNonWhitespaceCharacters: contentParity.coverage.referenceExtractedNonWhitespaceCharacters,
+        renderedNonWhitespaceCharacters,
+        referenceCoverageRatio: Number((
+          renderedNonWhitespaceCharacters
+          / contentParity.coverage.referenceExtractedNonWhitespaceCharacters
+        ).toFixed(6)),
+        minimumReferenceRatio: contentParity.coverage.minimumReferenceRatio,
+      },
+    }),
     externalReferenceBytesRetained: false,
     externalImageBytesRetained: false,
     productionBinding: false,
   }, null, 2)}\n`, "utf8")
   return { pdfPath, summaryPath }
+}
+
+export async function buildCanonicalReportProof(): Promise<{
+  pdfPath: string
+  summaryPath: string
+}> {
+  return buildCanonicalReportProofWithConfig({
+    proofId: "pdf-pilot-07-canonical-report-twelve-page",
+    requestFile: "fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json",
+    subsetManifestFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-font-subset-manifest.v1.json",
+    pdfFile: "output/pdf/flowdoc-pdf-pilot-canonical-report-twelve-page.pdf",
+    summaryFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-summary.v1.json",
+  })
+}
+
+export async function buildCanonicalReportContentParityProof(): Promise<{
+  pdfPath: string
+  summaryPath: string
+}> {
+  return buildCanonicalReportProofWithConfig({
+    proofId: "pdf-pilot-08a-canonical-report-content-parity",
+    requestFile: "fixtures/pdf-pilot-canonical-report-content-parity-twelve-page-request.v1.json",
+    subsetManifestFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-font-subset-manifest.v1.json",
+    pdfFile: "output/pdf/flowdoc-pdf-pilot-canonical-report-content-parity-twelve-page.pdf",
+    summaryFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-twelve-page-summary.v1.json",
+    contentParityManifestFile: "fixtures/pdf-pilot-canonical-report-content-parity.v1.json",
+  })
 }

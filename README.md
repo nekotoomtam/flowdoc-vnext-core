@@ -866,6 +866,11 @@ The package must remain runnable without any parent editor checkout.
 - PDF canonical report composition fixes twelve page identities, 357 measured
   text runs, tables, callouts, headers/footers, and six image paints without
   renderer relayout while preserving exact Poppler and normalized pypdf text.
+- PDF canonical report decision-content parity pins the external report-builder
+  identity, restores omitted Azure/Mapper/evidence/glossary facts, corrects the
+  Azure Raw JSON value, and fail-closes 12 elements, 10 tables, 8 exact values,
+  19 semantic strings, and a 90% extracted-character coverage floor while
+  retaining the Phase 07 byte identity.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

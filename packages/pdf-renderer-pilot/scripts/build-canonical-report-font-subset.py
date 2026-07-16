@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -10,10 +11,28 @@ from fontTools.ttLib import TTFont
 
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 REPO_ROOT = PACKAGE_ROOT.parent.parent
-REQUEST_PATH = REPO_ROOT / "fixtures" / "pdf-pilot-canonical-report-twelve-page-request.v1.json"
 SOURCE_PATH = REPO_ROOT / "assets" / "fonts" / "IBM_Plex_Sans_Thai" / "IBMPlexSansThai-Regular.ttf"
-SUBSET_PATH = PACKAGE_ROOT / "fixtures" / "fonts" / "FlowDocThaiCanonicalReportSubset-Regular.ttf"
-MANIFEST_PATH = PACKAGE_ROOT / "fixtures" / "canonical-report-font-subset-manifest.v1.json"
+
+
+def repo_path(value: str) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else REPO_ROOT / path
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--request", default="fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json")
+parser.add_argument("--subset", default="packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalReportSubset-Regular.ttf")
+parser.add_argument("--manifest", default="packages/pdf-renderer-pilot/fixtures/canonical-report-font-subset-manifest.v1.json")
+parser.add_argument("--phase-id", default="PDF-PILOT-07")
+parser.add_argument("--subset-id", default="pdf-pilot-07-ibm-plex-regular-canonical-report")
+parser.add_argument("--family-name", default="FlowDoc Thai Canonical Report Subset")
+parser.add_argument("--postscript-name", default="FlowDocThaiCanonicalReportSubset-Regular")
+parser.add_argument("--subset-prefix", default="FDPCRP")
+args = parser.parse_args()
+
+REQUEST_PATH = repo_path(args.request)
+SUBSET_PATH = repo_path(args.subset)
+MANIFEST_PATH = repo_path(args.manifest)
 
 
 def sha256(path: Path) -> str:
@@ -46,12 +65,12 @@ subsetter.populate(gids=glyph_ids)
 subsetter.subset(font)
 
 name_values = {
-    1: "FlowDoc Thai Canonical Report Subset",
+    1: args.family_name,
     2: "Regular",
-    3: "FlowDoc Thai Canonical Report Subset Regular; PDF-PILOT-07",
-    4: "FlowDoc Thai Canonical Report Subset Regular",
-    6: "FlowDocThaiCanonicalReportSubset-Regular",
-    16: "FlowDoc Thai Canonical Report Subset",
+    3: f"{args.family_name} Regular; {args.phase_id}",
+    4: f"{args.family_name} Regular",
+    6: args.postscript_name,
+    16: args.family_name,
     17: "Regular",
 }
 for record in font["name"].names:
@@ -65,18 +84,18 @@ font.save(SUBSET_PATH, reorderTables=True)
 subset_font = TTFont(SUBSET_PATH, recalcTimestamp=False)
 manifest = {
     "manifestVersion": 1,
-    "subsetId": "pdf-pilot-07-ibm-plex-regular-canonical-report",
+    "subsetId": args.subset_id,
     "pilotId": request["pilotId"],
     "fontId": font_asset["fontId"],
-    "postScriptName": "FlowDocThaiCanonicalReportSubset-Regular",
-    "subsetPrefix": "FDPCRP",
+    "postScriptName": args.postscript_name,
+    "subsetPrefix": args.subset_prefix,
     "source": {
         "path": "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf",
         "sha256": font_asset["sha256"],
         "bytes": SOURCE_PATH.stat().st_size,
     },
     "subset": {
-        "path": "packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalReportSubset-Regular.ttf",
+        "path": SUBSET_PATH.relative_to(REPO_ROOT).as_posix(),
         "sha256": sha256(SUBSET_PATH),
         "bytes": SUBSET_PATH.stat().st_size,
         "sfntGlyphCount": subset_font["maxp"].numGlyphs,
