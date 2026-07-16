@@ -1,0 +1,401 @@
+{
+  "summaryVersion": 1,
+  "summaryId": "pdf-report-font-bakeoff-summary-v1",
+  "pilotId": "PDF-PILOT-INV-9437125258",
+  "corpusId": "pdf-report-font-bakeoff-corpus-v1",
+  "policyRevision": "pdf-report-font-bakeoff-policy-v1",
+  "status": "metric-comparison-complete",
+  "engine": {
+    "source": "flowdoc-rustybuzz-native-smoke",
+    "shaperRevision": "rustybuzz-0.20.1",
+    "execution": "package-local-native",
+    "rawGlyphEvidenceRetained": false
+  },
+  "referenceFont": {
+    "family": "Tahoma",
+    "sourceKind": "external-system-font",
+    "fontBytesRetained": false,
+    "repositoryPath": null,
+    "purpose": "metric-and-visual-reference-only",
+    "regularSha256": "9af03d4ad44a3b413d92f7de48b94aa7cc8a1471a75d498406eae837f62ee1d1",
+    "boldSha256": "b16ed1a15e0cabea8d41d9f8899c253cd61ac466af5e3980d02bd0cf311c2267"
+  },
+  "thresholds": {
+    "meanAbsoluteAdvanceDeltaPercent": 5,
+    "maxAbsoluteAdvanceDeltaPercent": 10,
+    "missingGlyphCount": 0
+  },
+  "referenceArtifacts": [
+    {
+      "artifactId": "reference-final-pdf",
+      "pointer": "external-report://INV_9437125258/OCR_Benchmark_INV_9437125258_TH_final.pdf",
+      "mediaType": "application/pdf",
+      "bytes": 714952,
+      "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+      "pageCount": 12
+    },
+    {
+      "artifactId": "source-evidence-image",
+      "pointer": "external-report://INV_9437125258/assets/source_evidence.png",
+      "mediaType": "image/png",
+      "bytes": 230868,
+      "sha256": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2"
+    },
+    {
+      "artifactId": "ocr-accuracy-image",
+      "pointer": "external-report://INV_9437125258/assets/ocr_accuracy.png",
+      "mediaType": "image/png",
+      "bytes": 65307,
+      "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce"
+    },
+    {
+      "artifactId": "native-extraction-image",
+      "pointer": "external-report://INV_9437125258/assets/native_extraction.png",
+      "mediaType": "image/png",
+      "bytes": 52599,
+      "sha256": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc"
+    },
+    {
+      "artifactId": "mapping-gap-image",
+      "pointer": "external-report://INV_9437125258/assets/mapping_gap.png",
+      "mediaType": "image/png",
+      "bytes": 60559,
+      "sha256": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5"
+    },
+    {
+      "artifactId": "latency-rounds-image",
+      "pointer": "external-report://INV_9437125258/assets/latency_rounds.png",
+      "mediaType": "image/png",
+      "bytes": 54714,
+      "sha256": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6"
+    }
+  ],
+  "coverage": {
+    "sampleCount": 6,
+    "familyCount": 3,
+    "qualifiedFamilyCount": 1,
+    "styles": [
+      "bold",
+      "regular"
+    ]
+  },
+  "families": [
+    {
+      "familyId": "ibm-plex-sans-thai",
+      "family": "IBM Plex Sans Thai",
+      "inventoryStatus": "candidate",
+      "regularFont": {
+        "fontId": "ibm-plex-sans-thai-regular",
+        "sha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57"
+      },
+      "boldFont": {
+        "fontId": "ibm-plex-sans-thai-bold",
+        "sha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21"
+      },
+      "summary": {
+        "sampleCount": 6,
+        "missingGlyphCount": 0,
+        "meanAbsoluteAdvanceDeltaPercent": 3.4621,
+        "maxAbsoluteAdvanceDeltaPercent": 11.3957,
+        "byStyle": {
+          "regular": {
+            "sampleCount": 4,
+            "meanAbsoluteAdvanceDeltaPercent": 1.0237,
+            "maxAbsoluteAdvanceDeltaPercent": 2.0742,
+            "meanScaleToReference": 0.989911
+          },
+          "bold": {
+            "sampleCount": 2,
+            "meanAbsoluteAdvanceDeltaPercent": 8.3387,
+            "maxAbsoluteAdvanceDeltaPercent": 11.3957,
+            "meanScaleToReference": 1.092188
+          }
+        },
+        "qualification": "not-advance-compatible"
+      },
+      "samples": [
+        {
+          "sampleId": "report-title",
+          "style": "bold",
+          "referenceAdvanceEm": 24.161133,
+          "candidateAdvanceEm": 22.885,
+          "advanceRatio": 0.947182,
+          "advanceDeltaPercent": -5.2818,
+          "glyphCount": 46,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 4
+        },
+        {
+          "sampleId": "executive-summary",
+          "style": "regular",
+          "referenceAdvanceEm": 26.447754,
+          "candidateAdvanceEm": 26.545,
+          "advanceRatio": 1.003677,
+          "advanceDeltaPercent": 0.3677,
+          "glyphCount": 62,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 14
+        },
+        {
+          "sampleId": "mixed-provider-result",
+          "style": "regular",
+          "referenceAdvanceEm": 22.924316,
+          "candidateAdvanceEm": 23.188,
+          "advanceRatio": 1.011502,
+          "advanceDeltaPercent": 1.1502,
+          "glyphCount": 50,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 6
+        },
+        {
+          "sampleId": "cost-table-label",
+          "style": "regular",
+          "referenceAdvanceEm": 17.393555,
+          "candidateAdvanceEm": 17.481,
+          "advanceRatio": 1.005027,
+          "advanceDeltaPercent": 0.5027,
+          "glyphCount": 37,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 4
+        },
+        {
+          "sampleId": "report-identity-line",
+          "style": "regular",
+          "referenceAdvanceEm": 18.260254,
+          "candidateAdvanceEm": 18.639,
+          "advanceRatio": 1.020742,
+          "advanceDeltaPercent": 2.0742,
+          "glyphCount": 38,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 0
+        },
+        {
+          "sampleId": "section-heading",
+          "style": "bold",
+          "referenceAdvanceEm": 16.947266,
+          "candidateAdvanceEm": 15.016,
+          "advanceRatio": 0.886043,
+          "advanceDeltaPercent": -11.3957,
+          "glyphCount": 38,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 9
+        }
+      ]
+    },
+    {
+      "familyId": "sarabun",
+      "family": "Sarabun",
+      "inventoryStatus": "active-comparison",
+      "regularFont": {
+        "fontId": "sarabun-regular",
+        "sha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d"
+      },
+      "boldFont": {
+        "fontId": "sarabun-bold",
+        "sha256": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+      },
+      "summary": {
+        "sampleCount": 6,
+        "missingGlyphCount": 0,
+        "meanAbsoluteAdvanceDeltaPercent": 4.0471,
+        "maxAbsoluteAdvanceDeltaPercent": 8.0088,
+        "byStyle": {
+          "regular": {
+            "sampleCount": 4,
+            "meanAbsoluteAdvanceDeltaPercent": 2.2161,
+            "maxAbsoluteAdvanceDeltaPercent": 3.4734,
+            "meanScaleToReference": 1.02275
+          },
+          "bold": {
+            "sampleCount": 2,
+            "meanAbsoluteAdvanceDeltaPercent": 7.7089,
+            "maxAbsoluteAdvanceDeltaPercent": 8.0088,
+            "meanScaleToReference": 1.08354
+          }
+        },
+        "qualification": "advance-compatible"
+      },
+      "samples": [
+        {
+          "sampleId": "report-title",
+          "style": "bold",
+          "referenceAdvanceEm": 24.161133,
+          "candidateAdvanceEm": 22.371,
+          "advanceRatio": 0.925909,
+          "advanceDeltaPercent": -7.4091,
+          "glyphCount": 46,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 4
+        },
+        {
+          "sampleId": "executive-summary",
+          "style": "regular",
+          "referenceAdvanceEm": 26.447754,
+          "candidateAdvanceEm": 25.925,
+          "advanceRatio": 0.980234,
+          "advanceDeltaPercent": -1.9766,
+          "glyphCount": 62,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 14
+        },
+        {
+          "sampleId": "mixed-provider-result",
+          "style": "regular",
+          "referenceAdvanceEm": 22.924316,
+          "candidateAdvanceEm": 22.365,
+          "advanceRatio": 0.975602,
+          "advanceDeltaPercent": -2.4398,
+          "glyphCount": 49,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 5
+        },
+        {
+          "sampleId": "cost-table-label",
+          "style": "regular",
+          "referenceAdvanceEm": 17.393555,
+          "candidateAdvanceEm": 17.224,
+          "advanceRatio": 0.990252,
+          "advanceDeltaPercent": -0.9748,
+          "glyphCount": 37,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 4
+        },
+        {
+          "sampleId": "report-identity-line",
+          "style": "regular",
+          "referenceAdvanceEm": 18.260254,
+          "candidateAdvanceEm": 17.626,
+          "advanceRatio": 0.965266,
+          "advanceDeltaPercent": -3.4734,
+          "glyphCount": 38,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 0
+        },
+        {
+          "sampleId": "section-heading",
+          "style": "bold",
+          "referenceAdvanceEm": 16.947266,
+          "candidateAdvanceEm": 15.59,
+          "advanceRatio": 0.919912,
+          "advanceDeltaPercent": -8.0088,
+          "glyphCount": 38,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 9
+        }
+      ]
+    },
+    {
+      "familyId": "noto-sans-thai",
+      "family": "Noto Sans Thai",
+      "inventoryStatus": "active-comparison",
+      "regularFont": {
+        "fontId": "noto-sans-thai-regular",
+        "sha256": "9acb585d8662ca4ed1b1cf5889dfa1393f8555103b3986e1ea1e3af4faef70bd"
+      },
+      "boldFont": {
+        "fontId": "noto-sans-thai-bold",
+        "sha256": "0be544f347b3ab6382bdc2b555a783727a4858a3dc140670406924670967d916"
+      },
+      "summary": {
+        "sampleCount": 6,
+        "missingGlyphCount": 0,
+        "meanAbsoluteAdvanceDeltaPercent": 4.9212,
+        "maxAbsoluteAdvanceDeltaPercent": 11.4134,
+        "byStyle": {
+          "regular": {
+            "sampleCount": 4,
+            "meanAbsoluteAdvanceDeltaPercent": 2.8077,
+            "maxAbsoluteAdvanceDeltaPercent": 5.189,
+            "meanScaleToReference": 1.020161
+          },
+          "bold": {
+            "sampleCount": 2,
+            "meanAbsoluteAdvanceDeltaPercent": 9.1485,
+            "maxAbsoluteAdvanceDeltaPercent": 11.4134,
+            "meanScaleToReference": 1.101381
+          }
+        },
+        "qualification": "not-advance-compatible"
+      },
+      "samples": [
+        {
+          "sampleId": "report-title",
+          "style": "bold",
+          "referenceAdvanceEm": 24.161133,
+          "candidateAdvanceEm": 22.498,
+          "advanceRatio": 0.931165,
+          "advanceDeltaPercent": -6.8835,
+          "glyphCount": 46,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 4
+        },
+        {
+          "sampleId": "executive-summary",
+          "style": "regular",
+          "referenceAdvanceEm": 26.447754,
+          "candidateAdvanceEm": 25.333,
+          "advanceRatio": 0.957851,
+          "advanceDeltaPercent": -4.2149,
+          "glyphCount": 62,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 14
+        },
+        {
+          "sampleId": "mixed-provider-result",
+          "style": "regular",
+          "referenceAdvanceEm": 22.924316,
+          "candidateAdvanceEm": 23.081,
+          "advanceRatio": 1.006835,
+          "advanceDeltaPercent": 0.6835,
+          "glyphCount": 49,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 5
+        },
+        {
+          "sampleId": "cost-table-label",
+          "style": "regular",
+          "referenceAdvanceEm": 17.393555,
+          "candidateAdvanceEm": 16.491,
+          "advanceRatio": 0.94811,
+          "advanceDeltaPercent": -5.189,
+          "glyphCount": 37,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 4
+        },
+        {
+          "sampleId": "report-identity-line",
+          "style": "regular",
+          "referenceAdvanceEm": 18.260254,
+          "candidateAdvanceEm": 18.469,
+          "advanceRatio": 1.011432,
+          "advanceDeltaPercent": 1.1432,
+          "glyphCount": 38,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 0
+        },
+        {
+          "sampleId": "section-heading",
+          "style": "bold",
+          "referenceAdvanceEm": 16.947266,
+          "candidateAdvanceEm": 15.013,
+          "advanceRatio": 0.885866,
+          "advanceDeltaPercent": -11.4134,
+          "glyphCount": 38,
+          "missingGlyphCount": 0,
+          "zeroAdvanceGlyphCount": 9
+        }
+      ]
+    }
+  ],
+  "recommendation": {
+    "dropInMetricLeaderFamilyId": "sarabun",
+    "regularMetricLeaderFamilyId": "ibm-plex-sans-thai",
+    "qualifiedFamilyIds": [
+      "sarabun"
+    ],
+    "promotionStatus": "not-promoted",
+    "activeStyleMappingsChanged": false,
+    "requiresVisualReview": true,
+    "requiresRendererLineBoxReview": true
+  }
+}

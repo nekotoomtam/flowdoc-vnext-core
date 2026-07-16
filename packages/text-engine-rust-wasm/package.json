@@ -12,6 +12,7 @@
   "scripts": {
     "rustybuzz:smoke": "cargo run --manifest-path rust-shaper/Cargo.toml -- ../../assets/fonts/Sarabun/Sarabun-Regular.ttf \"สวัสดีครับตูม\" sarabun-regular",
     "rustybuzz:build": "cargo build --manifest-path rust-shaper/Cargo.toml",
+    "pdf-font-bakeoff": "node scripts/build-pdf-font-bakeoff.mjs",
     "wasm:build": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
     "wasm:check-toolchain": "node scripts/check-wasm-toolchain.mjs",
     "wasm:readiness-smoke": "npm run wasm:check-toolchain",

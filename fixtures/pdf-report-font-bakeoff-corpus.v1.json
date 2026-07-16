@@ -1,0 +1,123 @@
+{
+  "corpusId": "pdf-report-font-bakeoff-corpus-v1",
+  "pilotId": "PDF-PILOT-INV-9437125258",
+  "policyRevision": "pdf-report-font-bakeoff-policy-v1",
+  "referenceFont": {
+    "family": "Tahoma",
+    "sourceKind": "external-system-font",
+    "fontBytesRetained": false,
+    "repositoryPath": null,
+    "purpose": "metric-and-visual-reference-only"
+  },
+  "thresholds": {
+    "meanAbsoluteAdvanceDeltaPercent": 5,
+    "maxAbsoluteAdvanceDeltaPercent": 10,
+    "missingGlyphCount": 0
+  },
+  "referenceArtifacts": [
+    {
+      "artifactId": "reference-final-pdf",
+      "pointer": "external-report://INV_9437125258/OCR_Benchmark_INV_9437125258_TH_final.pdf",
+      "mediaType": "application/pdf",
+      "bytes": 714952,
+      "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+      "pageCount": 12
+    },
+    {
+      "artifactId": "source-evidence-image",
+      "pointer": "external-report://INV_9437125258/assets/source_evidence.png",
+      "mediaType": "image/png",
+      "bytes": 230868,
+      "sha256": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2"
+    },
+    {
+      "artifactId": "ocr-accuracy-image",
+      "pointer": "external-report://INV_9437125258/assets/ocr_accuracy.png",
+      "mediaType": "image/png",
+      "bytes": 65307,
+      "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce"
+    },
+    {
+      "artifactId": "native-extraction-image",
+      "pointer": "external-report://INV_9437125258/assets/native_extraction.png",
+      "mediaType": "image/png",
+      "bytes": 52599,
+      "sha256": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc"
+    },
+    {
+      "artifactId": "mapping-gap-image",
+      "pointer": "external-report://INV_9437125258/assets/mapping_gap.png",
+      "mediaType": "image/png",
+      "bytes": 60559,
+      "sha256": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5"
+    },
+    {
+      "artifactId": "latency-rounds-image",
+      "pointer": "external-report://INV_9437125258/assets/latency_rounds.png",
+      "mediaType": "image/png",
+      "bytes": 54714,
+      "sha256": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6"
+    }
+  ],
+  "comparisonFamilies": [
+    {
+      "familyId": "ibm-plex-sans-thai",
+      "family": "IBM Plex Sans Thai",
+      "inventoryStatus": "candidate",
+      "regularFontId": "ibm-plex-sans-thai-regular",
+      "boldFontId": "ibm-plex-sans-thai-bold"
+    },
+    {
+      "familyId": "sarabun",
+      "family": "Sarabun",
+      "inventoryStatus": "active-comparison",
+      "regularFontId": "sarabun-regular",
+      "boldFontId": "sarabun-bold"
+    },
+    {
+      "familyId": "noto-sans-thai",
+      "family": "Noto Sans Thai",
+      "inventoryStatus": "active-comparison",
+      "regularFontId": "noto-sans-thai-regular",
+      "boldFontId": "noto-sans-thai-bold"
+    }
+  ],
+  "samples": [
+    {
+      "sampleId": "report-title",
+      "style": "bold",
+      "text": "รายงานเปรียบเทียบ OCR และการจัดโครงสร้างเอกสาร",
+      "categories": ["thai", "latin", "heading"]
+    },
+    {
+      "sampleId": "executive-summary",
+      "style": "regular",
+      "text": "ทั้งสองเจ้าอ่านข้อความสำคัญในเอกสารได้ครบ แต่มีจุดเด่นต่างกัน",
+      "categories": ["thai", "body", "combining-mark"]
+    },
+    {
+      "sampleId": "mixed-provider-result",
+      "style": "regular",
+      "text": "Google Document AI จัดข้อมูลสำคัญได้ 23/25 รายการ",
+      "categories": ["thai", "latin", "digit", "table"]
+    },
+    {
+      "sampleId": "cost-table-label",
+      "style": "regular",
+      "text": "ค่าใช้จ่ายประมาณการต่อเอกสาร 2.01 บาท",
+      "categories": ["thai", "digit", "punctuation", "table"]
+    },
+    {
+      "sampleId": "report-identity-line",
+      "style": "regular",
+      "text": "INV_9437125258.pdf • Provider ละ 3 รอบ",
+      "categories": ["thai", "latin", "digit", "punctuation"]
+    },
+    {
+      "sampleId": "section-heading",
+      "style": "bold",
+      "text": "ช่วงที่ 2: เข้าใจและจัดข้อมูลได้แค่ไหน",
+      "categories": ["thai", "digit", "punctuation", "heading"]
+    }
+  ]
+}

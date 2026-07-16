@@ -1,0 +1,62 @@
+{
+  "decisionVersion": 1,
+  "decisionId": "pdf-report-font-bakeoff-decision-v1",
+  "pilotId": "PDF-PILOT-INV-9437125258",
+  "phaseId": "PDF-PILOT-01",
+  "status": "accepted-for-pilot-calibration",
+  "scope": "pdf-pilot-only",
+  "evidence": {
+    "corpusId": "pdf-report-font-bakeoff-corpus-v1",
+    "summaryId": "pdf-report-font-bakeoff-summary-v1",
+    "referenceArtifactId": "reference-final-pdf",
+    "referencePageCount": 12
+  },
+  "selectedFamily": {
+    "familyId": "ibm-plex-sans-thai",
+    "regularFontId": "ibm-plex-sans-thai-regular",
+    "boldFontId": "ibm-plex-sans-thai-bold",
+    "selectionReason": "best-regular-advance-match-plus-accepted-technical-report-tone"
+  },
+  "measuredFacts": {
+    "missingGlyphCount": 0,
+    "regular": {
+      "meanAbsoluteAdvanceDeltaPercent": 1.0237,
+      "maxAbsoluteAdvanceDeltaPercent": 2.0742,
+      "initialScaleToReference": 0.989911
+    },
+    "bold": {
+      "meanAbsoluteAdvanceDeltaPercent": 8.3387,
+      "maxAbsoluteAdvanceDeltaPercent": 11.3957,
+      "initialScaleToReference": 1.092188
+    },
+    "dropInMetricLeaderFamilyId": "sarabun",
+    "regularMetricLeaderFamilyId": "ibm-plex-sans-thai"
+  },
+  "visualReview": {
+    "status": "reviewed-local-specimen",
+    "specimenRetainedInRepository": false,
+    "findings": [
+      "IBM Plex Sans Thai keeps a neutral technical-report tone while making the pilot visibly more contemporary than Tahoma.",
+      "Regular body text remains readable and close enough in horizontal density to calibrate without changing the document model.",
+      "Bold headings are visibly narrower than Tahoma and require a separate style token rather than a global family scale.",
+      "Sarabun remains the safer same-token fallback when minimal width calibration matters more than the selected pilot tone."
+    ]
+  },
+  "promotionGate": {
+    "promotionStatus": "not-promoted",
+    "activeStyleMappingsChanged": false,
+    "requiredBeforePromotion": [
+      "renderer-backed line-box comparison",
+      "regular and bold style-token calibration",
+      "embedded Thai glyph and text-extraction proof",
+      "representative table and heading wrap comparison"
+    ]
+  },
+  "nonGoals": [
+    "production font binding",
+    "default measurement profile replacement",
+    "DOCX rendering",
+    "backend route or storage integration",
+    "PDF renderer dependency selection"
+  ]
+}

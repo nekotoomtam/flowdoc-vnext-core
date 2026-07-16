@@ -9861,3 +9861,29 @@ rejected operation results into JSON-serializable history-ready records.
 `replayVNextOperationHistory(...)` provide an in-memory replay contract. This
 does not persist durable operation history or integrate with the current editor
 runtime yet.
+## PDF-PILOT-01 Font Bake-Off Evidence
+
+Status: done as a dedicated side workstream without changing the current main
+phase pointer.
+
+The phase creates `PDF-PILOT-INV-9437125258` as a real PDF fidelity work item,
+pins the 12-page reference PDF and five PNG identities, defines six
+report-derived font samples, and adds a package-local Rustybuzz bake-off
+builder. The retained summary records no raw glyph arrays or absolute font
+paths and keeps Tahoma external.
+
+Sarabun is the same-token drop-in metric leader. IBM Plex Sans Thai is the
+Regular/body metric leader and is accepted for pilot-only calibration, with
+its narrower Bold metrics and required line-box calibration explicit. No IBM
+font is promoted into active `fontAssets` or `styleMappings`.
+
+Primary evidence:
+
+- `docs/PDF_REPORT_FIDELITY_PILOT.md`;
+- `fixtures/pdf-report-font-bakeoff-corpus.v1.json`;
+- `fixtures/pdf-report-font-bakeoff-decision.v1.json`;
+- `packages/text-engine-rust-wasm/scripts/build-pdf-font-bakeoff.mjs`;
+- `packages/text-engine-rust-wasm/fixtures/pdf-report-font-bakeoff-summary.v1.json`;
+- `tests/pdfReportFontBakeoffPilot.test.ts`.
+
+Next phase: `PDF-PILOT-02` measured PDF draw contract extension.

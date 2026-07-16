@@ -839,6 +839,11 @@ The package must remain runnable without any parent editor checkout.
 - Font asset copy/hash evidence adds the initial Sarabun and Noto Sans Thai
   package font files under `assets/fonts`, records OFL evidence, and verifies
   sha256 hashes from vNext-owned target copies.
+- PDF report fidelity pilot pins one 12-page Thai report target and its source
+  image hashes, compares IBM Plex Sans Thai, Sarabun, and Noto Sans Thai
+  against an external local Tahoma reference through package-local Rustybuzz,
+  and selects IBM Plex for pilot-only style calibration without changing the
+  active measurement profile or claiming concrete PDF fidelity.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.
