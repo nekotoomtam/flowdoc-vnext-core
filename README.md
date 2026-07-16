@@ -856,6 +856,10 @@ The package must remain runnable without any parent editor checkout.
   digest and dimensions, embeds IDAT data as an Image XObject, and executes
   contain/cover/crop beside glyph, fill, and stroke paint without retaining the
   external report image or selecting production behavior.
+- PDF multi-page resource reuse proof assembles three pages with one shared font
+  object and one shared image object, limits each page dictionary to resources
+  it uses, and preserves earlier one-page bytes while extraction and dual
+  Poppler raster evidence pass all pages.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

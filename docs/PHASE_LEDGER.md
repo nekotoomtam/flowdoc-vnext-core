@@ -9967,3 +9967,29 @@ Primary evidence:
 - `tests/pdfRendererPilotImageOnePage.test.ts`.
 
 Next phase: `PDF-PILOT-05` multi-page font/image resource reuse proof.
+
+## PDF-PILOT-05 Multi-Page Font/Image Resource Reuse Proof
+
+Status: accepted as a dedicated side workstream without changing the current
+main phase pointer.
+
+Phase 05 generalizes deterministic PDF page/content assembly to 2-12 pages
+while preserving exact Phase 03/04 one-page hashes. The retained three-page
+contract emits one Type0 font object referenced by all pages and one Image
+XObject referenced by pages 1-2; page 3 has no image resource. Six Thai runs,
+14 paint commands, and exact extraction pass.
+
+Poppler and pypdf confirm one font object, one image object, image counts
+`[1, 1, 0]`, and exact image SHA-256 on both image pages. Pdftoppm and
+pdftocairo raster all pages without missing glyphs, clipping, overlap, or paint
+drift. External image bytes, storage, routes, workers, and production behavior
+remain outside the repository and inactive.
+
+Primary evidence:
+
+- `docs/PDF_MULTI_PAGE_RESOURCE_REUSE_PROOF.md`;
+- `fixtures/pdf-pilot-shared-resources-three-page-request.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/shared-resources-three-page-qa.v1.json`;
+- `tests/pdfRendererPilotSharedResources.test.ts`.
+
+Next phase: `PDF-PILOT-06` all-five-image multi-page resource matrix.

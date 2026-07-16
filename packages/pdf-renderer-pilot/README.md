@@ -22,6 +22,13 @@ before their IDAT stream is embedded as a PDF Image XObject. Contain, cover,
 and normalized crop use explicit clipping matrices; alpha, palette, JPEG,
 transparency, and production binding fail closed.
 
+## PDF-PILOT-05 Profile
+
+The third profile accepts 2-12 measured pages and emits one PDF object per
+unique font/image resource. Page dictionaries reference only resources used by
+their commands. The retained proof shares one font across three pages and one
+image across two pages while preserving both earlier one-page byte identities.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -29,6 +36,7 @@ Build actual Rustybuzz glyph facts:
 ```text
 npm --prefix packages/pdf-renderer-pilot run build:request
 npm --prefix packages/pdf-renderer-pilot run build:image-request
+npm --prefix packages/pdf-renderer-pilot run build:multi-page-request
 ```
 
 Build the retained subset with Python FontTools:
@@ -42,6 +50,7 @@ Build the local proof artifact:
 ```text
 npm --prefix packages/pdf-renderer-pilot run build:proof
 npm --prefix packages/pdf-renderer-pilot run build:image-proof
+npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
 ```
 
 The proof PDF is written to
@@ -51,3 +60,6 @@ not a stored FlowDoc artifact.
 The image proof is written to
 `output/pdf/flowdoc-pdf-pilot-image-one-page.pdf`. The external source image is
 not copied into the repository.
+
+The shared-resource proof is written to
+`output/pdf/flowdoc-pdf-pilot-shared-resources-three-page.pdf`.

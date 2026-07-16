@@ -12,9 +12,11 @@
   "scripts": {
     "build:request": "node scripts/build-one-page-request.mjs",
     "build:image-request": "node scripts/build-image-one-page-request.mjs",
+    "build:multi-page-request": "node scripts/build-shared-resources-multi-page-request.mjs",
     "build:subset": "python scripts/build-font-subset.py",
     "build:proof": "node scripts/build-one-page-proof.mjs",
-    "build:image-proof": "node scripts/build-image-one-page-proof.mjs"
+    "build:image-proof": "node scripts/build-image-one-page-proof.mjs",
+    "build:multi-page-proof": "node scripts/build-shared-resources-multi-page-proof.mjs"
   },
   "dependencies": {
     "@flowdoc/vnext-core": "file:../.."

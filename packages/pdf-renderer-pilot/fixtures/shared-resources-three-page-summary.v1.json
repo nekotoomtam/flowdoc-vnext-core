@@ -1,0 +1,80 @@
+{
+  "summaryVersion": 1,
+  "proofId": "pdf-pilot-05-shared-resources-three-page",
+  "status": "rendered",
+  "artifact": {
+    "artifactId": "pdf-pilot:pdf-pilot-05-shared-resources-three-page",
+    "format": "pdf",
+    "mediaType": "application/pdf",
+    "byteLength": 88019,
+    "sha256": "7c15cca1e68bd745189b0d3ef3ce2c9170453e869ab5003b3ad99697bb8aa8b4",
+    "storageStatus": "not-stored",
+    "localOnly": true,
+    "sourceContractFingerprint": "sha256:046aea450d49bab3df7d149dbab11b61ca245afa07a653a26459f3e820a4de7d",
+    "rendererProfileId": "pdf-pilot-shared-resources-three-page-v1",
+    "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+    "embeddedFonts": [
+      {
+        "fontId": "ibm-plex-sans-thai-regular",
+        "subsetId": "pdf-pilot-03-ibm-plex-regular-thai-one-page",
+        "subsetSha256": "064bf250488d978acad6209a76f1b81d239efbfe96acfd6564ad49aa84214963",
+        "subsetByteLength": 13596,
+        "sourceByteLength": 113464,
+        "pdfBaseFontName": "FDPLTA+FlowDocThaiPilotSubset-Regular",
+        "fontFormat": "Type0/CIDFontType2",
+        "toUnicode": true
+      }
+    ],
+    "embeddedImages": [
+      {
+        "assetId": "ocr-accuracy-image",
+        "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+        "byteLength": 65307,
+        "pixelWidth": 1950,
+        "pixelHeight": 900,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8,
+        "sourceFormat": "png",
+        "accessibility": {
+          "decorative": false,
+          "altText": "เปรียบเทียบความถูกต้องของ OCR ระหว่าง Google และ Azure"
+        }
+      }
+    ],
+    "resourceReuse": {
+      "pageCount": 3,
+      "uniqueFontObjectCount": 1,
+      "uniqueImageObjectCount": 1,
+      "fontResourceReferenceCount": 3,
+      "imageResourceReferenceCount": 2
+    }
+  },
+  "renderContract": {
+    "consumes": "vnext-pdf-measured-draw-contract-v1",
+    "output": "multi-page-pdf-bytes",
+    "usesProvidedGlyphFacts": true,
+    "embeddedFontSubset": true,
+    "toUnicode": true,
+    "imagesSupported": true,
+    "sharedResourceObjects": true,
+    "productionFidelity": false,
+    "storageWrites": false
+  },
+  "summary": {
+    "pageCount": 3,
+    "paintCommandCount": 14,
+    "glyphRunCount": 6,
+    "glyphCount": 162,
+    "embeddedFontCount": 1,
+    "imageCount": 1,
+    "fontResourceReferenceCount": 3,
+    "imageResourceReferenceCount": 2,
+    "byteLength": 88019
+  },
+  "expectedExtractedLinesPerPage": [
+    "สรุปผล OCR ภาษาไทย 100%",
+    "ค้นหา เลือก และคัดลอกข้อความได้"
+  ],
+  "externalImageBytesRetained": false,
+  "productionBinding": false
+}

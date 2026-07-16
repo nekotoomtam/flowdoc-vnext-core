@@ -4,6 +4,7 @@ import type {
   VNextPdfGlyphRunPaintCommandV1,
   VNextPdfImageAssetV1,
   VNextPdfImagePaintCommandV1,
+  VNextPdfMeasuredDrawPageV1,
   VNextPdfMeasuredDrawContractResultV1,
   VNextPdfPaintCommandV1,
 } from "@flowdoc/vnext-core"
@@ -11,6 +12,7 @@ import type {
 export const FLOWDOC_PDF_RENDERER_PILOT_SOURCE = "flowdoc-pdf-renderer-pilot" as const
 export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as const
 export const FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE = "digest-bound-image-one-page-proof" as const
+export const FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE = "shared-resources-multi-page-proof" as const
 
 export type FlowDocPdfRendererPilotIssueCode =
   | "missing-proof-id"
@@ -102,19 +104,30 @@ export interface FlowDocPdfRendererPilotArtifactManifest {
       altText: string | null
     }
   }>
+  resourceReuse?: {
+    pageCount: number
+    uniqueFontObjectCount: number
+    uniqueImageObjectCount: number
+    fontResourceReferenceCount: number
+    imageResourceReferenceCount: number
+  }
 }
 
 export type FlowDocPdfRendererPilotResult = {
   source: typeof FLOWDOC_PDF_RENDERER_PILOT_SOURCE
-  mode: typeof FLOWDOC_PDF_RENDERER_PILOT_MODE | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
+  mode:
+    | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
+    | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
+    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
   proofId: string
   renderContract: {
     consumes: "vnext-pdf-measured-draw-contract-v1"
-    output: "one-page-pdf-bytes"
+    output: "one-page-pdf-bytes" | "multi-page-pdf-bytes"
     usesProvidedGlyphFacts: true
     embeddedFontSubset: true
     toUnicode: true
     imagesSupported: boolean
+    sharedResourceObjects?: true
     productionFidelity: false
     storageWrites: false
   }
@@ -125,6 +138,8 @@ export type FlowDocPdfRendererPilotResult = {
     glyphCount: number
     embeddedFontCount: number
     imageCount: number
+    fontResourceReferenceCount?: number
+    imageResourceReferenceCount?: number
     byteLength: number
   }
   issues: FlowDocPdfRendererPilotIssue[]
@@ -491,13 +506,12 @@ function imagePaintOperators(
   ]
 }
 
-function buildPdf(
-  contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>,
+function buildPageContent(
+  page: VNextPdfMeasuredDrawPageV1,
   usages: FontUsage[],
   resolvedRuns: Map<string, ResolvedGlyph[]>,
   imageUsages: ImageUsage[],
-): Uint8Array {
-  const page = contract.pages[0]
+): Buffer {
   const content: string[] = [
     "q",
     `${colorOperands(page.backgroundColor)} rg`,
@@ -551,14 +565,23 @@ function buildPdf(
       content.push(...imagePaintOperators(command, usage, page.heightPt))
     }
   })
-  const contentBytes = Buffer.from(`${content.join("\n")}\n`, "ascii")
+  return Buffer.from(`${content.join("\n")}\n`, "ascii")
+}
+
+function buildPdf(
+  contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>,
+  usages: FontUsage[],
+  resolvedRuns: Map<string, ResolvedGlyph[]>,
+  imageUsages: ImageUsage[],
+): Uint8Array {
+  const pageContents = contract.pages.map((page) => buildPageContent(page, usages, resolvedRuns, imageUsages))
 
   const objects = new Map<number, Buffer>()
   const catalogId = 1
   const pagesId = 2
-  const pageId = 3
-  const contentId = 4
-  let nextId = 5
+  const pageObjectIds = contract.pages.map((_, pageIndex) => 3 + pageIndex * 2)
+  const contentObjectIds = pageObjectIds.map((pageId) => pageId + 1)
+  let nextId = 3 + contract.pages.length * 2
   const fontObjectIds = usages.map(() => {
     const ids = {
       type0: nextId,
@@ -579,24 +602,40 @@ function buildPdf(
   const infoId = nextId
 
   objects.set(catalogId, plainObject(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`))
-  objects.set(pagesId, plainObject(`<< /Type /Pages /Kids [${pageId} 0 R] /Count 1 >>`))
-  const fontResources = usages.map((usage, index) => (
-    `/${usage.pdfResourceName} ${fontObjectIds[index].type0} 0 R`
-  )).join(" ")
-  const imageResources = imageUsages.map((usage, index) => (
-    `/${usage.pdfResourceName} ${imageObjectIds[index]} 0 R`
-  )).join(" ")
-  const resources = imageUsages.length === 0
-    ? `/Resources << /Font << ${fontResources} >> >>`
-    : `/Resources << /Font << ${fontResources} >> /XObject << ${imageResources} >> >>`
-  objects.set(pageId, plainObject([
-    "<< /Type /Page",
-    `/Parent ${pagesId} 0 R`,
-    `/MediaBox [0 0 ${formatNumber(page.widthPt)} ${formatNumber(page.heightPt)}]`,
-    resources,
-    `/Contents ${contentId} 0 R >>`,
-  ].join(" ")))
-  objects.set(contentId, streamObject("", contentBytes))
+  objects.set(pagesId, plainObject(
+    `<< /Type /Pages /Kids [${pageObjectIds.map((pageId) => `${pageId} 0 R`).join(" ")}] /Count ${contract.pages.length} >>`,
+  ))
+  contract.pages.forEach((page, pageIndex) => {
+    const pageId = pageObjectIds[pageIndex]
+    const contentId = contentObjectIds[pageIndex]
+    const pageFontIds = new Set(page.commands
+      .filter((command) => command.kind === "glyph-run")
+      .map((command) => command.fontId))
+    const pageImageIds = new Set(page.commands
+      .filter((command) => command.kind === "image")
+      .map((command) => command.assetId))
+    const fontResources = usages.map((usage, index) => (
+      pageFontIds.has(usage.asset.fontId)
+        ? `/${usage.pdfResourceName} ${fontObjectIds[index].type0} 0 R`
+        : null
+    )).filter((value) => value != null).join(" ")
+    const imageResources = imageUsages.map((usage, index) => (
+      pageImageIds.has(usage.asset.assetId)
+        ? `/${usage.pdfResourceName} ${imageObjectIds[index]} 0 R`
+        : null
+    )).filter((value) => value != null).join(" ")
+    const resources = imageResources.length === 0
+      ? `/Resources << /Font << ${fontResources} >> >>`
+      : `/Resources << /Font << ${fontResources} >> /XObject << ${imageResources} >> >>`
+    objects.set(pageId, plainObject([
+      "<< /Type /Page",
+      `/Parent ${pagesId} 0 R`,
+      `/MediaBox [0 0 ${formatNumber(page.widthPt)} ${formatNumber(page.heightPt)}]`,
+      resources,
+      `/Contents ${contentId} 0 R >>`,
+    ].join(" ")))
+    objects.set(contentId, streamObject("", pageContents[pageIndex]))
+  })
 
   usages.forEach((usage, index) => {
     const ids = fontObjectIds[index]
@@ -683,8 +722,12 @@ function buildPdf(
 function blockedResult(
   input: FlowDocPdfRendererPilotInput,
   issues: FlowDocPdfRendererPilotIssue[],
-  mode: typeof FLOWDOC_PDF_RENDERER_PILOT_MODE | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE,
+  mode:
+    | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
+    | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
+    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE,
   imagesSupported: boolean,
+  sharedResourceObjects: boolean,
 ): FlowDocPdfRendererPilotResult {
   return {
     source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
@@ -695,11 +738,12 @@ function blockedResult(
     bytes: null,
     renderContract: {
       consumes: "vnext-pdf-measured-draw-contract-v1",
-      output: "one-page-pdf-bytes",
+      output: sharedResourceObjects ? "multi-page-pdf-bytes" : "one-page-pdf-bytes",
       usesProvidedGlyphFacts: true,
       embeddedFontSubset: true,
       toUnicode: true,
       imagesSupported,
+      ...(sharedResourceObjects ? { sharedResourceObjects: true as const } : {}),
       productionFidelity: false,
       storageWrites: false,
     },
@@ -710,17 +754,24 @@ function blockedResult(
       glyphCount: 0,
       embeddedFontCount: 0,
       imageCount: 0,
+      ...(sharedResourceObjects
+        ? { fontResourceReferenceCount: 0, imageResourceReferenceCount: 0 }
+        : {}),
       byteLength: 0,
     },
     issues,
   }
 }
 
-function renderFlowDocOnePagePdfPilot(
+function renderFlowDocPdfPilot(
   input: FlowDocPdfRendererPilotInput,
-  mode: typeof FLOWDOC_PDF_RENDERER_PILOT_MODE | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE,
-  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04",
+  mode:
+    | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
+    | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
+    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE,
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05",
   imagesSupported: boolean,
+  sharedResourceObjects: boolean,
 ): FlowDocPdfRendererPilotResult {
   const issues: FlowDocPdfRendererPilotIssue[] = []
   if (input.proofId.trim().length === 0) {
@@ -731,11 +782,13 @@ function renderFlowDocOnePagePdfPilot(
   }
   if (input.contract.status !== "consumable") {
     issues.push(issue("contract-blocked", "contract", "The PDF pilot requires a consumable measured draw contract."))
-    return blockedResult(input, issues, mode, imagesSupported)
+    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects)
   }
   const contract = input.contract
-  if (contract.pages.length !== 1) {
+  if (!sharedResourceObjects && contract.pages.length !== 1) {
     issues.push(issue("page-count", "contract.pages", `${phaseId} accepts exactly one measured page.`))
+  } else if (sharedResourceObjects && (contract.pages.length < 2 || contract.pages.length > 12)) {
+    issues.push(issue("page-count", "contract.pages", `${phaseId} accepts 2 through 12 measured pages.`))
   }
 
   const duplicateResources = new Set<string>()
@@ -804,7 +857,7 @@ function renderFlowDocOnePagePdfPilot(
         return
       }
       if (asset.mediaType !== "image/png") {
-        issues.push(issue("unsupported-image-media-type", `imageAssets.${index}.mediaType`, "PDF-PILOT-04 accepts PNG image resources only."))
+        issues.push(issue("unsupported-image-media-type", `imageAssets.${index}.mediaType`, `${phaseId} accepts PNG image resources only.`))
         return
       }
       if (sha256(resource.bytes) !== asset.sha256) {
@@ -828,18 +881,18 @@ function renderFlowDocOnePagePdfPilot(
   }
 
   const resolvedRuns = new Map<string, ResolvedGlyph[]>()
-  if (contract.pages.length === 1) {
-    contract.pages[0].commands.forEach((command, commandIndex) => {
-      const path = `contract.pages.0.commands.${commandIndex}`
+  contract.pages.forEach((page, pageIndex) => {
+    page.commands.forEach((command, commandIndex) => {
+      const path = `contract.pages.${pageIndex}.commands.${commandIndex}`
       if (command.kind === "image" && !imagesSupported) {
         issues.push(issue("unsupported-image", path, "PDF-PILOT-03 intentionally excludes image execution."))
       }
       if (command.opacity !== 1) {
-        issues.push(issue("unsupported-opacity", `${path}.opacity`, "PDF-PILOT-03 accepts opaque paint only."))
+        issues.push(issue("unsupported-opacity", `${path}.opacity`, `${phaseId} accepts opaque paint only.`))
       }
       if (command.kind !== "glyph-run") return
       if (command.glyphs.some((glyph) => glyph.offsetYPt !== 0)) {
-        issues.push(issue("unsupported-vertical-glyph-offset", `${path}.glyphs`, "The one-page pilot has not qualified vertical glyph offsets."))
+        issues.push(issue("unsupported-vertical-glyph-offset", `${path}.glyphs`, `${phaseId} has not qualified vertical glyph offsets.`))
       }
       const usage = usages.find((candidate) => candidate.asset.fontId === command.fontId)
       if (usage == null) return
@@ -868,9 +921,22 @@ function renderFlowDocOnePagePdfPilot(
       })
       resolvedRuns.set(command.id, resolved)
     })
+  })
+
+  if (issues.length > 0) {
+    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects)
   }
 
-  if (issues.length > 0) return blockedResult(input, issues, mode, imagesSupported)
+  const fontResourceReferenceCount = contract.pages.reduce((total, page) => (
+    total + new Set(page.commands
+      .filter((command) => command.kind === "glyph-run")
+      .map((command) => command.fontId)).size
+  ), 0)
+  const imageResourceReferenceCount = contract.pages.reduce((total, page) => (
+    total + new Set(page.commands
+      .filter((command) => command.kind === "image")
+      .map((command) => command.assetId)).size
+  ), 0)
 
   const bytes = buildPdf(contract, usages, resolvedRuns, imageUsages)
   const artifact: FlowDocPdfRendererPilotArtifactManifest = {
@@ -905,6 +971,15 @@ function renderFlowDocOnePagePdfPilot(
       sourceFormat: "png",
       accessibility: usage.asset.accessibility,
     })),
+    ...(sharedResourceObjects ? {
+      resourceReuse: {
+        pageCount: contract.pages.length,
+        uniqueFontObjectCount: usages.length,
+        uniqueImageObjectCount: imageUsages.length,
+        fontResourceReferenceCount,
+        imageResourceReferenceCount,
+      },
+    } : {}),
   }
 
   return {
@@ -916,21 +991,26 @@ function renderFlowDocOnePagePdfPilot(
     bytes,
     renderContract: {
       consumes: "vnext-pdf-measured-draw-contract-v1",
-      output: "one-page-pdf-bytes",
+      output: sharedResourceObjects ? "multi-page-pdf-bytes" : "one-page-pdf-bytes",
       usesProvidedGlyphFacts: true,
       embeddedFontSubset: true,
       toUnicode: true,
       imagesSupported,
+      ...(sharedResourceObjects ? { sharedResourceObjects: true as const } : {}),
       productionFidelity: false,
       storageWrites: false,
     },
     summary: {
       pageCount: contract.pages.length,
-      paintCommandCount: contract.pages[0].commands.length,
-      glyphRunCount: contract.pages[0].commands.filter((command) => command.kind === "glyph-run").length,
+      paintCommandCount: contract.pages.reduce((total, page) => total + page.commands.length, 0),
+      glyphRunCount: contract.pages.reduce(
+        (total, page) => total + page.commands.filter((command) => command.kind === "glyph-run").length,
+        0,
+      ),
       glyphCount: usages.reduce((total, usage) => total + usage.glyphs.length, 0),
       embeddedFontCount: usages.length,
       imageCount: imageUsages.length,
+      ...(sharedResourceObjects ? { fontResourceReferenceCount, imageResourceReferenceCount } : {}),
       byteLength: bytes.byteLength,
     },
     issues: [],
@@ -940,10 +1020,11 @@ function renderFlowDocOnePagePdfPilot(
 export function renderFlowDocThaiOnePagePdfPilot(
   input: FlowDocPdfRendererPilotInput,
 ): FlowDocPdfRendererPilotResult {
-  return renderFlowDocOnePagePdfPilot(
+  return renderFlowDocPdfPilot(
     input,
     FLOWDOC_PDF_RENDERER_PILOT_MODE,
     "PDF-PILOT-03",
+    false,
     false,
   )
 }
@@ -951,10 +1032,23 @@ export function renderFlowDocThaiOnePagePdfPilot(
 export function renderFlowDocDigestBoundImageOnePagePdfPilot(
   input: FlowDocPdfRendererPilotInput,
 ): FlowDocPdfRendererPilotResult {
-  return renderFlowDocOnePagePdfPilot(
+  return renderFlowDocPdfPilot(
     input,
     FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE,
     "PDF-PILOT-04",
+    true,
+    false,
+  )
+}
+
+export function renderFlowDocSharedResourcesMultiPagePdfPilot(
+  input: FlowDocPdfRendererPilotInput,
+): FlowDocPdfRendererPilotResult {
+  return renderFlowDocPdfPilot(
+    input,
+    FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE,
+    "PDF-PILOT-05",
+    true,
     true,
   )
 }

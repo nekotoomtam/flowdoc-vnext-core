@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-04 digest-bound image one-page proof accepted.
+Status: PDF-PILOT-05 multi-page shared-resource proof accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -129,6 +129,8 @@ Next phase: `PDF-PILOT-04` digest-bound image and complete one-page paint proof.
 
 ## PDF-PILOT-04 Scope
 
+Status: PDF-PILOT-04 digest-bound image and complete one-page paint proof accepted.
+
 Phase 04 executes all four one-page paint-command kinds and binds caller-owned
 PNG bytes to the exact image asset digest, dimensions, and media type. The
 actual pinned OCR accuracy chart is embedded directly from its IDAT stream;
@@ -145,6 +147,27 @@ Primary Phase 04 evidence:
 - `fixtures/pdf-pilot-image-one-page-request.v1.json`;
 - `packages/pdf-renderer-pilot/fixtures/image-one-page-proof-qa.v1.json`;
 - `tests/pdfRendererPilotImageOnePage.test.ts`.
+
+Next phase: `PDF-PILOT-05` multi-page font/image resource reuse proof.
+
+## PDF-PILOT-05 Scope
+
+Phase 05 assembles three measured Letter pages while emitting one shared font
+object and one shared image object. All pages reference the font; pages 1 and 2
+reference the image; page 3 has no XObject resource. The result retains six
+Thai glyph runs and 14 ordered paint commands.
+
+Poppler and pypdf confirm exact extraction on all pages, one font object, one
+image object reused on two pages, and image counts `[1, 1, 0]`. Pdftoppm and
+pdftocairo visual evidence passes all pages. Phase 03 and Phase 04 PDF hashes
+remain byte-for-byte unchanged.
+
+Primary Phase 05 evidence:
+
+- `docs/PDF_MULTI_PAGE_RESOURCE_REUSE_PROOF.md`;
+- `fixtures/pdf-pilot-shared-resources-three-page-request.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/shared-resources-three-page-qa.v1.json`;
+- `tests/pdfRendererPilotSharedResources.test.ts`.
 
 ## Reproduction
 
@@ -186,6 +209,15 @@ FLOWDOC_PDF_PILOT_OCR_ACCURACY_IMAGE=<path-to-ocr_accuracy.png> \
 npm --prefix packages/pdf-renderer-pilot run build:image-proof
 ```
 
+Build the shared-resource multi-page request and local proof:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:multi-page-request
+
+FLOWDOC_PDF_PILOT_OCR_ACCURACY_IMAGE=<path-to-ocr_accuracy.png> \
+npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -202,13 +234,15 @@ npm --prefix packages/pdf-renderer-pilot run build:image-proof
 - Deterministic subset bytes, PDF bytes, and 150 DPI visual QA evidence pass.
 - Digest-bound PNG execution, exact image round-trip identity, and all four
   one-page paint-command kinds pass.
+- One shared font object and one shared image object pass deterministic
+  cross-page reference, extraction, and visual QA.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-04.
+None for closing PDF-PILOT-05.
 
-Report-level PDF fidelity remains blocked until PDF-PILOT-05 proves multi-page
-font/image resource reuse before full 12-page composition.
+Report-level PDF fidelity remains blocked until PDF-PILOT-06 proves all five
+pinned images before full 12-page composition.
 
 ## RISK
 
@@ -221,6 +255,8 @@ font/image resource reuse before full 12-page composition.
   covers only one page.
 - Phase 04 qualifies opaque RGB PNG only; alpha, palette, JPEG, transparency,
   and multi-page reuse remain open.
+- Phase 05 uses repeated page content and one image identity; distinct report
+  page templates and all-five-image behavior remain open.
 
 ## UNKNOWN
 
@@ -242,4 +278,4 @@ font/image resource reuse before full 12-page composition.
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-05` multi-page font/image resource reuse proof.
+Next phase: `PDF-PILOT-06` all-five-image multi-page resource matrix.

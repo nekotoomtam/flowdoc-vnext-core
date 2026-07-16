@@ -1,0 +1,67 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-05-shared-resources-three-page-qa-v1",
+  "proofId": "pdf-pilot-05-shared-resources-three-page",
+  "status": "accepted",
+  "artifact": {
+    "sha256": "7c15cca1e68bd745189b0d3ef3ce2c9170453e869ab5003b3ad99697bb8aa8b4",
+    "bytes": 88019,
+    "pageCount": 3,
+    "pageSizePt": [612, 792],
+    "pdfVersion": "1.7"
+  },
+  "resourceInspection": {
+    "font": {
+      "tool": "pdffonts 25.07.0",
+      "objectId": 9,
+      "uniqueObjectCount": 1,
+      "pageReferences": [1, 2, 3],
+      "embedded": true,
+      "subset": true,
+      "unicodeMap": true
+    },
+    "image": {
+      "tool": "pdfimages 25.07.0",
+      "objectId": 15,
+      "uniqueObjectCount": 1,
+      "pageReferences": [1, 2],
+      "absentFromPages": [3],
+      "sourceSha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+      "pypdfHashesByPage": [
+        "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+        "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+        null
+      ]
+    }
+  },
+  "textExtraction": {
+    "expectedLinesPerPage": [
+      "สรุปผล OCR ภาษาไทย 100%",
+      "ค้นหา เลือก และคัดลอกข้อความได้"
+    ],
+    "popplerExactMatchOnAllPages": true,
+    "pypdfExactMatchOnAllPages": true
+  },
+  "rasterInspection": {
+    "dpi": 120,
+    "pixelWidth": 1020,
+    "pixelHeight": 1320,
+    "mode": "RGB",
+    "pdftoppmAccepted": true,
+    "pdftocairoAccepted": true,
+    "page1AndPage2PixelIdentical": true,
+    "page1PdftoppmSha256": "82a96350b38b0eba8b4c71e790fb718660baa7f4d2d4b42726ebbc878f67d456",
+    "page2PdftoppmSha256": "82a96350b38b0eba8b4c71e790fb718660baa7f4d2d4b42726ebbc878f67d456",
+    "page3HasNoImage": true,
+    "missingGlyphs": 0,
+    "clippedContent": 0,
+    "overlaps": 0
+  },
+  "singlePageIdentityRegression": {
+    "phase03Sha256": "fafa7e4d01df4d9f9b5acdffe2d7652e073e5b329142e4c8886085521322fd24",
+    "phase04Sha256": "75050ad4cb4d95d15834b8b84709b5194f3e918bd11d7b86b3fa14d13740e6a8",
+    "unchanged": true
+  },
+  "externalImageBytesRetained": false,
+  "productionBinding": false
+}
