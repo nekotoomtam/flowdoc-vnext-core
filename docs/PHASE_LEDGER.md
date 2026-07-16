@@ -10132,3 +10132,34 @@ Primary evidence:
 - `tests/pdfRendererPilotCanonicalReportSourceData.test.ts`.
 
 Next phase: `PDF-PILOT-08C` visual acceptance thresholds.
+
+## PDF-PILOT-08B-R2A Canonical Report Data And Binding Lock
+
+Status: accepted as the first production-integration revision without changing
+the retained R1 PDF artifact.
+
+Phase R2A removes the report data model from the direct source-to-final-lines
+proof path. A package-local OCR benchmark adapter verifies the five R1 data
+identities and five pinned PNG identities, reproduces the accepted source
+snapshot, and emits native FlowDoc contracts for a single exact instance
+revision.
+
+The accepted bundle retains 154 published fields, 148 scalar/image values, 6
+collection shapes, 73 collection items, and 5 instance media assets. Scalar,
+collection-item, and media provenance is complete. Source-set hashes, contract
+owners, instance pins, field/item types, media identity, summary counts, and
+the deterministic bundle fingerprint fail closed on drift.
+
+The adapter owns typed facts and stable binding keys only. Template prose,
+display formatting, authored lines, measurement, glyphs, coordinates, layout,
+pagination, and PDF bytes are forbidden or recorded as `not-run`. The R1 PDF
+therefore remains an oracle and is not promoted as a production-path output.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_DATA_BINDING_LOCK.md`;
+- `fixtures/pdf-pilot-canonical-report-data-bundle.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-data-bundle-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportDataBundle.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2B` canonical report template and resolution.

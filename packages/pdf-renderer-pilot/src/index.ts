@@ -9,6 +9,8 @@ import type {
   VNextPdfPaintCommandV1,
 } from "@flowdoc/vnext-core"
 
+export * from "./canonicalReportDataAdapter.js"
+
 export const FLOWDOC_PDF_RENDERER_PILOT_SOURCE = "flowdoc-pdf-renderer-pilot" as const
 export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as const
 export const FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE = "digest-bound-image-one-page-proof" as const

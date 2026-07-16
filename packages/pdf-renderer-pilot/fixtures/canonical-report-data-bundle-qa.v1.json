@@ -1,0 +1,50 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2a-canonical-report-data-binding-lock-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2A",
+  "status": "accepted",
+  "adapterId": "pdf-pilot-ocr-benchmark-report-data-adapter-v1",
+  "benchmarkId": "INV_9437125258-2026-07-16",
+  "sourceSetId": "source-set-6018cdb46d47ec3b7fc389bb",
+  "sourceSnapshotSha256": "cfca20e65bfac2e2b20fe837d54985fada0e256549aefd18c8b935b20471ac26",
+  "bundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
+  "sourceIdentity": {
+    "dataFileCount": 5,
+    "mediaFileCount": 5,
+    "allHashesAccepted": true,
+    "sourceSnapshotReproduced": true
+  },
+  "contracts": {
+    "fieldContractId": "fields-ocr-benchmark-report-v1",
+    "collectionItemContractId": "collection-items-ocr-benchmark-report-v1",
+    "dataSnapshotId": "data-inv_9437125258-2026-07-16-r1",
+    "collectionSnapshotId": "collections-inv_9437125258-2026-07-16-r1",
+    "mediaSnapshotId": "media-inv_9437125258-2026-07-16-r1",
+    "exactInstanceRevisionPins": true,
+    "schemaValidationAccepted": true
+  },
+  "summary": {
+    "fieldCount": 154,
+    "scalarValueCount": 148,
+    "collectionCount": 6,
+    "collectionItemCount": 73,
+    "mediaAssetCount": 5,
+    "dataSourceFileCount": 5,
+    "mediaSourceFileCount": 5,
+    "scalarProvenanceCount": 148,
+    "collectionProvenanceItemCount": 73,
+    "mediaProvenanceCount": 5
+  },
+  "boundary": {
+    "templateResolution": "not-run",
+    "textMeasurement": "not-run",
+    "lineBreaking": "not-run",
+    "layout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run",
+    "layoutFactsPresent": false,
+    "finalDisplayStringsOwned": false,
+    "deterministicRebuild": true
+  },
+  "nextPhase": "PDF-PILOT-08B-R2B canonical report template and resolution"
+}

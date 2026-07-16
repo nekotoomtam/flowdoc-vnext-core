@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R1 canonical report source-data correction accepted.
+Status: PDF-PILOT-08B-R2A canonical report data and binding lock accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -274,6 +274,31 @@ Primary Phase 08B-R1 evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-source-backed-twelve-page-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportSourceData.test.ts`.
 
+## PDF-PILOT-08B-R2A Scope
+
+Phase 08B-R2A replaces the pilot-only source-to-final-lines bridge with a
+FlowDoc-native report data boundary. The OCR benchmark adapter verifies five
+data files and five image files, reproduces the R1 source snapshot, and emits
+published field/collection contracts plus exact-revision scalar, collection,
+and media snapshots.
+
+The accepted bundle contains 154 fields, 148 scalar/image values, 6
+collections, 73 collection items, and 5 media bindings. Every value or item
+retains source provenance. Contract ownership, source-set identity, field and
+item types, media identity, deterministic fingerprint, and absence of layout
+facts fail closed.
+
+R2A deliberately does not resolve a template, format final display strings,
+measure text, wrap lines, lay out pages, paginate, or render PDF bytes. The R1
+PDF remains the factual/visual oracle rather than a production-path artifact.
+
+Primary Phase 08B-R2A evidence:
+
+- `docs/PDF_CANONICAL_REPORT_DATA_BINDING_LOCK.md`;
+- `fixtures/pdf-pilot-canonical-report-data-bundle.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-data-bundle-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportDataBundle.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -383,6 +408,14 @@ FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
 npm --prefix packages/pdf-renderer-pilot run build:source-data-proof
 ```
 
+Build the FlowDoc-native report data bundle without resolving or laying out a
+document:
+
+```text
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:report-data-bundle
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -414,13 +447,16 @@ npm --prefix packages/pdf-renderer-pilot run build:source-data-proof
 - Source-data binding verifies five external identities, derives 205 values
   across 16 elements, corrects seven factual drifts, and rejects stale source
   or snapshot content before shaping.
+- Report data binding emits exact-revision FlowDoc field, collection, scalar,
+  and media contracts with complete provenance while retaining no layout or
+  PDF facts.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R1.
+None for closing PDF-PILOT-08B-R2A.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, and production integration.
+thresholds, broader reader compatibility, and R2B-R2D production integration.
 
 ## RISK
 
@@ -456,4 +492,4 @@ thresholds, broader reader compatibility, and production integration.
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-08C` visual acceptance thresholds.
+Next phase: `PDF-PILOT-08B-R2B` canonical report template and resolution.

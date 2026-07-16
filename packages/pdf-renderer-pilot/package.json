@@ -32,7 +32,8 @@
     "build:canonical-proof": "node scripts/build-canonical-report-proof.mjs",
     "build:content-parity-proof": "node scripts/build-canonical-report-content-parity-proof.mjs",
     "build:typography-proof": "node scripts/build-canonical-report-typography-proof.mjs",
-    "build:source-data-proof": "node scripts/build-canonical-report-source-data-proof.mjs"
+    "build:source-data-proof": "node scripts/build-canonical-report-source-data-proof.mjs",
+    "build:report-data-bundle": "node scripts/build-canonical-report-data-bundle.mjs"
   },
   "dependencies": {
     "@flowdoc/vnext-core": "file:../.."

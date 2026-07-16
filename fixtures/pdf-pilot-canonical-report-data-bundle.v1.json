@@ -1,0 +1,4158 @@
+{
+  "contractVersion": 1,
+  "kind": "canonical-report-data-bundle",
+  "adapterId": "pdf-pilot-ocr-benchmark-report-data-adapter-v1",
+  "benchmarkId": "INV_9437125258-2026-07-16",
+  "sourceSet": {
+    "sourceSetId": "source-set-6018cdb46d47ec3b7fc389bb",
+    "sourceSnapshotSha256": "cfca20e65bfac2e2b20fe837d54985fada0e256549aefd18c8b935b20471ac26",
+    "dataFiles": [
+      {
+        "sourceId": "reportBuilder",
+        "fileName": "build_report.py",
+        "mediaType": "text/x-python",
+        "role": "authoritative report formatting and prose assembly",
+        "bytes": 54349,
+        "sha256": "d074e334ab877dbe1294fe6ecc2b7c080a4932731999f638c0eeac29650d2e49"
+      },
+      {
+        "sourceId": "metrics",
+        "fileName": "metrics.json",
+        "mediaType": "application/json",
+        "role": "computed benchmark metrics",
+        "bytes": 32550,
+        "sha256": "b9b6f11475b45a15080631dc1c280071704ee09bae55466e7a18699cccd6f309"
+      },
+      {
+        "sourceId": "truth",
+        "fileName": "ground-truth.json",
+        "mediaType": "application/json",
+        "role": "human-reviewed reference values",
+        "bytes": 10506,
+        "sha256": "77e4973ae4f21da4c50bcfb2700551372e3333b0d638840b6879f20a10c8bea0"
+      },
+      {
+        "sourceId": "spec",
+        "fileName": "benchmark-spec.json",
+        "mediaType": "application/json",
+        "role": "benchmark conditions and Run IDs",
+        "bytes": 1172,
+        "sha256": "acbf7d6eaccaa82b8f86f80b8123602ae204b56e8da8f10f19b12df979b54568"
+      },
+      {
+        "sourceId": "analyzer",
+        "fileName": "analyze.ts",
+        "mediaType": "text/typescript",
+        "role": "raw-result metric derivation",
+        "bytes": 15740,
+        "sha256": "f0744b147a69783df8471d852b2785464f7ed0939da35fbf74dd6ec84dc1cffb"
+      }
+    ],
+    "mediaFiles": [
+      {
+        "assetId": "source-evidence-image",
+        "fileName": "source_evidence.png",
+        "mediaType": "image/png",
+        "byteLength": 230868,
+        "sha256": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2",
+        "widthPx": 1548,
+        "heightPx": 1376
+      },
+      {
+        "assetId": "ocr-accuracy-image",
+        "fileName": "ocr_accuracy.png",
+        "mediaType": "image/png",
+        "byteLength": 65307,
+        "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+        "widthPx": 1950,
+        "heightPx": 900
+      },
+      {
+        "assetId": "native-extraction-image",
+        "fileName": "native_extraction.png",
+        "mediaType": "image/png",
+        "byteLength": 52599,
+        "sha256": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc",
+        "widthPx": 1950,
+        "heightPx": 900
+      },
+      {
+        "assetId": "mapping-gap-image",
+        "fileName": "mapping_gap.png",
+        "mediaType": "image/png",
+        "byteLength": 60559,
+        "sha256": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5",
+        "widthPx": 1950,
+        "heightPx": 900
+      },
+      {
+        "assetId": "latency-rounds-image",
+        "fileName": "latency_rounds.png",
+        "mediaType": "image/png",
+        "byteLength": 54714,
+        "sha256": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6",
+        "widthPx": 1950,
+        "heightPx": 900
+      }
+    ]
+  },
+  "structureVersion": {
+    "structureId": "structure-ocr-benchmark-report",
+    "structureVersionId": "structure-ocr-benchmark-report-v1",
+    "versionOrdinal": 1
+  },
+  "instance": {
+    "contractVersion": 1,
+    "kind": "document-instance",
+    "instanceId": "instance-ocr-benchmark-inv_9437125258-2026-07-16",
+    "revision": 1,
+    "structureVersion": {
+      "structureId": "structure-ocr-benchmark-report",
+      "structureVersionId": "structure-ocr-benchmark-report-v1",
+      "versionOrdinal": 1
+    }
+  },
+  "fieldContract": {
+    "contractVersion": 1,
+    "kind": "published-field-contract",
+    "fieldContractId": "fields-ocr-benchmark-report-v1",
+    "owner": {
+      "structureId": "structure-ocr-benchmark-report",
+      "structureVersionId": "structure-ocr-benchmark-report-v1",
+      "versionOrdinal": 1
+    },
+    "registry": {
+      "version": 1,
+      "fields": {
+        "report.benchmark_id": {
+          "key": "report.benchmark_id",
+          "label": "Benchmark ID",
+          "type": "text"
+        },
+        "report.version": {
+          "key": "report.version",
+          "label": "Report version",
+          "type": "text"
+        },
+        "report.test_date": {
+          "key": "report.test_date",
+          "label": "Test date",
+          "type": "date"
+        },
+        "report.metrics_generated_at": {
+          "key": "report.metrics_generated_at",
+          "label": "Metrics generated at",
+          "type": "date"
+        },
+        "report.truth_method": {
+          "key": "report.truth_method",
+          "label": "Ground-truth method",
+          "type": "text"
+        },
+        "report.scope_warning": {
+          "key": "report.scope_warning",
+          "label": "Scope warning",
+          "type": "text"
+        },
+        "report.source.file_name": {
+          "key": "report.source.file_name",
+          "label": "Source file name",
+          "type": "text"
+        },
+        "report.source.sha256": {
+          "key": "report.source.sha256",
+          "label": "Source SHA-256",
+          "type": "text"
+        },
+        "report.source.page_count": {
+          "key": "report.source.page_count",
+          "label": "Source page count",
+          "type": "number"
+        },
+        "report.source.size_bytes": {
+          "key": "report.source.size_bytes",
+          "label": "Source byte length",
+          "type": "number"
+        },
+        "report.settings.processing_scope": {
+          "key": "report.settings.processing_scope",
+          "label": "Processing scope",
+          "type": "enum"
+        },
+        "report.settings.submit_mode": {
+          "key": "report.settings.submit_mode",
+          "label": "Submit mode",
+          "type": "enum"
+        },
+        "report.settings.max_pages": {
+          "key": "report.settings.max_pages",
+          "label": "Maximum pages",
+          "type": "number"
+        },
+        "report.settings.max_estimated_cost_usd_per_run": {
+          "key": "report.settings.max_estimated_cost_usd_per_run",
+          "label": "Maximum estimated cost USD per run",
+          "type": "number"
+        },
+        "report.settings.usd_to_thb_rate": {
+          "key": "report.settings.usd_to_thb_rate",
+          "label": "USD to THB rate",
+          "type": "number"
+        },
+        "report.settings.low_confidence_threshold": {
+          "key": "report.settings.low_confidence_threshold",
+          "label": "Low-confidence threshold",
+          "type": "number"
+        },
+        "report.validation.all_runs_completed": {
+          "key": "report.validation.all_runs_completed",
+          "label": "All runs completed",
+          "type": "boolean"
+        },
+        "report.validation.all_source_hashes_match": {
+          "key": "report.validation.all_source_hashes_match",
+          "label": "All source hashes match",
+          "type": "boolean"
+        },
+        "report.validation.all_runs_have_expected_pages": {
+          "key": "report.validation.all_runs_have_expected_pages",
+          "label": "All runs have expected pages",
+          "type": "boolean"
+        },
+        "report.validation.no_errors": {
+          "key": "report.validation.no_errors",
+          "label": "No run errors",
+          "type": "boolean"
+        },
+        "report.total_cost.usd": {
+          "key": "report.total_cost.usd",
+          "label": "Total estimated cost USD",
+          "type": "number"
+        },
+        "report.total_cost.thb": {
+          "key": "report.total_cost.thb",
+          "label": "Total estimated cost THB",
+          "type": "number"
+        },
+        "report.truth.critical_value_count": {
+          "key": "report.truth.critical_value_count",
+          "label": "Critical value count",
+          "type": "number"
+        },
+        "report.truth.native_concept_count": {
+          "key": "report.truth.native_concept_count",
+          "label": "Native concept count",
+          "type": "number"
+        },
+        "report.truth.gdim_derivable_field_count": {
+          "key": "report.truth.gdim_derivable_field_count",
+          "label": "Derivable GDIM field count",
+          "type": "number"
+        },
+        "report.truth.critical.invoice_number": {
+          "key": "report.truth.critical.invoice_number",
+          "label": "Critical value invoice_number",
+          "type": "text"
+        },
+        "report.truth.critical.delivery_number": {
+          "key": "report.truth.critical.delivery_number",
+          "label": "Critical value delivery_number",
+          "type": "text"
+        },
+        "report.truth.critical.invoice_date": {
+          "key": "report.truth.critical.invoice_date",
+          "label": "Critical value invoice_date",
+          "type": "text"
+        },
+        "report.truth.critical.aeo_number": {
+          "key": "report.truth.critical.aeo_number",
+          "label": "Critical value aeo_number",
+          "type": "text"
+        },
+        "report.truth.critical.customer_code": {
+          "key": "report.truth.critical.customer_code",
+          "label": "Critical value customer_code",
+          "type": "text"
+        },
+        "report.truth.critical.customer_name": {
+          "key": "report.truth.critical.customer_name",
+          "label": "Critical value customer_name",
+          "type": "text"
+        },
+        "report.truth.critical.postcode": {
+          "key": "report.truth.critical.postcode",
+          "label": "Critical value postcode",
+          "type": "text"
+        },
+        "report.truth.critical.transport_mode": {
+          "key": "report.truth.critical.transport_mode",
+          "label": "Critical value transport_mode",
+          "type": "text"
+        },
+        "report.truth.critical.origin_city": {
+          "key": "report.truth.critical.origin_city",
+          "label": "Critical value origin_city",
+          "type": "text"
+        },
+        "report.truth.critical.destination": {
+          "key": "report.truth.critical.destination",
+          "label": "Critical value destination",
+          "type": "text"
+        },
+        "report.truth.critical.ex_factory_date": {
+          "key": "report.truth.critical.ex_factory_date",
+          "label": "Critical value ex_factory_date",
+          "type": "text"
+        },
+        "report.truth.critical.payment_term": {
+          "key": "report.truth.critical.payment_term",
+          "label": "Critical value payment_term",
+          "type": "text"
+        },
+        "report.truth.critical.incoterm": {
+          "key": "report.truth.critical.incoterm",
+          "label": "Critical value incoterm",
+          "type": "text"
+        },
+        "report.truth.critical.package": {
+          "key": "report.truth.critical.package",
+          "label": "Critical value package",
+          "type": "text"
+        },
+        "report.truth.critical.product_group": {
+          "key": "report.truth.critical.product_group",
+          "label": "Critical value product_group",
+          "type": "text"
+        },
+        "report.truth.critical.description": {
+          "key": "report.truth.critical.description",
+          "label": "Critical value description",
+          "type": "text"
+        },
+        "report.truth.critical.product_code": {
+          "key": "report.truth.critical.product_code",
+          "label": "Critical value product_code",
+          "type": "text"
+        },
+        "report.truth.critical.model": {
+          "key": "report.truth.critical.model",
+          "label": "Critical value model",
+          "type": "text"
+        },
+        "report.truth.critical.boi": {
+          "key": "report.truth.critical.boi",
+          "label": "Critical value boi",
+          "type": "text"
+        },
+        "report.truth.critical.quantity": {
+          "key": "report.truth.critical.quantity",
+          "label": "Critical value quantity",
+          "type": "text"
+        },
+        "report.truth.critical.unit_price": {
+          "key": "report.truth.critical.unit_price",
+          "label": "Critical value unit_price",
+          "type": "text"
+        },
+        "report.truth.critical.amount": {
+          "key": "report.truth.critical.amount",
+          "label": "Critical value amount",
+          "type": "text"
+        },
+        "report.truth.critical.origin_country": {
+          "key": "report.truth.critical.origin_country",
+          "label": "Critical value origin_country",
+          "type": "text"
+        },
+        "report.truth.critical.gross_weight": {
+          "key": "report.truth.critical.gross_weight",
+          "label": "Critical value gross_weight",
+          "type": "text"
+        },
+        "report.truth.critical.net_weight": {
+          "key": "report.truth.critical.net_weight",
+          "label": "Critical value net_weight",
+          "type": "text"
+        },
+        "report.truth.critical.tax_id": {
+          "key": "report.truth.critical.tax_id",
+          "label": "Critical value tax_id",
+          "type": "text"
+        },
+        "report.truth.critical.email": {
+          "key": "report.truth.critical.email",
+          "label": "Critical value email",
+          "type": "text"
+        },
+        "report.truth.critical.sales": {
+          "key": "report.truth.critical.sales",
+          "label": "Critical value sales",
+          "type": "text"
+        },
+        "report.truth.critical.plant": {
+          "key": "report.truth.critical.plant",
+          "label": "Critical value plant",
+          "type": "text"
+        },
+        "report.engine.google_vision.words": {
+          "key": "report.engine.google_vision.words",
+          "label": "google_vision Median word count",
+          "type": "number"
+        },
+        "report.engine.google_vision.low_confidence_words": {
+          "key": "report.engine.google_vision.low_confidence_words",
+          "label": "google_vision Median low-confidence words",
+          "type": "number"
+        },
+        "report.engine.google_vision.bbox_coverage": {
+          "key": "report.engine.google_vision.bbox_coverage",
+          "label": "google_vision Median bounding-box coverage",
+          "type": "number"
+        },
+        "report.engine.google_vision.latency_ms.min": {
+          "key": "report.engine.google_vision.latency_ms.min",
+          "label": "google_vision Minimum latency ms",
+          "type": "number"
+        },
+        "report.engine.google_vision.latency_ms.median": {
+          "key": "report.engine.google_vision.latency_ms.median",
+          "label": "google_vision Median latency ms",
+          "type": "number"
+        },
+        "report.engine.google_vision.latency_ms.max": {
+          "key": "report.engine.google_vision.latency_ms.max",
+          "label": "google_vision Maximum latency ms",
+          "type": "number"
+        },
+        "report.engine.google_vision.response_bytes": {
+          "key": "report.engine.google_vision.response_bytes",
+          "label": "google_vision Median response bytes",
+          "type": "number"
+        },
+        "report.engine.google_vision.cost_usd": {
+          "key": "report.engine.google_vision.cost_usd",
+          "label": "google_vision Median estimated cost USD",
+          "type": "number"
+        },
+        "report.engine.google_vision.cost_thb": {
+          "key": "report.engine.google_vision.cost_thb",
+          "label": "google_vision Median estimated cost THB",
+          "type": "number"
+        },
+        "report.engine.google_vision.repeatability.exact_text": {
+          "key": "report.engine.google_vision.repeatability.exact_text",
+          "label": "google_vision Exact text across runs",
+          "type": "boolean"
+        },
+        "report.engine.google_vision.repeatability.exact_key_values": {
+          "key": "report.engine.google_vision.repeatability.exact_key_values",
+          "label": "google_vision Exact key-values across runs",
+          "type": "boolean"
+        },
+        "report.engine.google_vision.repeatability.exact_tables": {
+          "key": "report.engine.google_vision.repeatability.exact_tables",
+          "label": "google_vision Exact tables across runs",
+          "type": "boolean"
+        },
+        "report.engine.azure_document_intelligence.words": {
+          "key": "report.engine.azure_document_intelligence.words",
+          "label": "azure_document_intelligence Median word count",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.low_confidence_words": {
+          "key": "report.engine.azure_document_intelligence.low_confidence_words",
+          "label": "azure_document_intelligence Median low-confidence words",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.bbox_coverage": {
+          "key": "report.engine.azure_document_intelligence.bbox_coverage",
+          "label": "azure_document_intelligence Median bounding-box coverage",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.latency_ms.min": {
+          "key": "report.engine.azure_document_intelligence.latency_ms.min",
+          "label": "azure_document_intelligence Minimum latency ms",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.latency_ms.median": {
+          "key": "report.engine.azure_document_intelligence.latency_ms.median",
+          "label": "azure_document_intelligence Median latency ms",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.latency_ms.max": {
+          "key": "report.engine.azure_document_intelligence.latency_ms.max",
+          "label": "azure_document_intelligence Maximum latency ms",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.response_bytes": {
+          "key": "report.engine.azure_document_intelligence.response_bytes",
+          "label": "azure_document_intelligence Median response bytes",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.cost_usd": {
+          "key": "report.engine.azure_document_intelligence.cost_usd",
+          "label": "azure_document_intelligence Median estimated cost USD",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.cost_thb": {
+          "key": "report.engine.azure_document_intelligence.cost_thb",
+          "label": "azure_document_intelligence Median estimated cost THB",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.repeatability.exact_text": {
+          "key": "report.engine.azure_document_intelligence.repeatability.exact_text",
+          "label": "azure_document_intelligence Exact text across runs",
+          "type": "boolean"
+        },
+        "report.engine.azure_document_intelligence.repeatability.exact_key_values": {
+          "key": "report.engine.azure_document_intelligence.repeatability.exact_key_values",
+          "label": "azure_document_intelligence Exact key-values across runs",
+          "type": "boolean"
+        },
+        "report.engine.azure_document_intelligence.repeatability.exact_tables": {
+          "key": "report.engine.azure_document_intelligence.repeatability.exact_tables",
+          "label": "azure_document_intelligence Exact tables across runs",
+          "type": "boolean"
+        },
+        "report.engine.google_document_ai_native.words": {
+          "key": "report.engine.google_document_ai_native.words",
+          "label": "google_document_ai_native Median word count",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.low_confidence_words": {
+          "key": "report.engine.google_document_ai_native.low_confidence_words",
+          "label": "google_document_ai_native Median low-confidence words",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.bbox_coverage": {
+          "key": "report.engine.google_document_ai_native.bbox_coverage",
+          "label": "google_document_ai_native Median bounding-box coverage",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.latency_ms.min": {
+          "key": "report.engine.google_document_ai_native.latency_ms.min",
+          "label": "google_document_ai_native Minimum latency ms",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.latency_ms.median": {
+          "key": "report.engine.google_document_ai_native.latency_ms.median",
+          "label": "google_document_ai_native Median latency ms",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.latency_ms.max": {
+          "key": "report.engine.google_document_ai_native.latency_ms.max",
+          "label": "google_document_ai_native Maximum latency ms",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.response_bytes": {
+          "key": "report.engine.google_document_ai_native.response_bytes",
+          "label": "google_document_ai_native Median response bytes",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.cost_usd": {
+          "key": "report.engine.google_document_ai_native.cost_usd",
+          "label": "google_document_ai_native Median estimated cost USD",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.cost_thb": {
+          "key": "report.engine.google_document_ai_native.cost_thb",
+          "label": "google_document_ai_native Median estimated cost THB",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.repeatability.exact_text": {
+          "key": "report.engine.google_document_ai_native.repeatability.exact_text",
+          "label": "google_document_ai_native Exact text across runs",
+          "type": "boolean"
+        },
+        "report.engine.google_document_ai_native.repeatability.exact_key_values": {
+          "key": "report.engine.google_document_ai_native.repeatability.exact_key_values",
+          "label": "google_document_ai_native Exact key-values across runs",
+          "type": "boolean"
+        },
+        "report.engine.google_document_ai_native.repeatability.exact_tables": {
+          "key": "report.engine.google_document_ai_native.repeatability.exact_tables",
+          "label": "google_document_ai_native Exact tables across runs",
+          "type": "boolean"
+        },
+        "report.engine.azure_document_intelligence_native.words": {
+          "key": "report.engine.azure_document_intelligence_native.words",
+          "label": "azure_document_intelligence_native Median word count",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.low_confidence_words": {
+          "key": "report.engine.azure_document_intelligence_native.low_confidence_words",
+          "label": "azure_document_intelligence_native Median low-confidence words",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.bbox_coverage": {
+          "key": "report.engine.azure_document_intelligence_native.bbox_coverage",
+          "label": "azure_document_intelligence_native Median bounding-box coverage",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.latency_ms.min": {
+          "key": "report.engine.azure_document_intelligence_native.latency_ms.min",
+          "label": "azure_document_intelligence_native Minimum latency ms",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.latency_ms.median": {
+          "key": "report.engine.azure_document_intelligence_native.latency_ms.median",
+          "label": "azure_document_intelligence_native Median latency ms",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.latency_ms.max": {
+          "key": "report.engine.azure_document_intelligence_native.latency_ms.max",
+          "label": "azure_document_intelligence_native Maximum latency ms",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.response_bytes": {
+          "key": "report.engine.azure_document_intelligence_native.response_bytes",
+          "label": "azure_document_intelligence_native Median response bytes",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.cost_usd": {
+          "key": "report.engine.azure_document_intelligence_native.cost_usd",
+          "label": "azure_document_intelligence_native Median estimated cost USD",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.cost_thb": {
+          "key": "report.engine.azure_document_intelligence_native.cost_thb",
+          "label": "azure_document_intelligence_native Median estimated cost THB",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.repeatability.exact_text": {
+          "key": "report.engine.azure_document_intelligence_native.repeatability.exact_text",
+          "label": "azure_document_intelligence_native Exact text across runs",
+          "type": "boolean"
+        },
+        "report.engine.azure_document_intelligence_native.repeatability.exact_key_values": {
+          "key": "report.engine.azure_document_intelligence_native.repeatability.exact_key_values",
+          "label": "azure_document_intelligence_native Exact key-values across runs",
+          "type": "boolean"
+        },
+        "report.engine.azure_document_intelligence_native.repeatability.exact_tables": {
+          "key": "report.engine.azure_document_intelligence_native.repeatability.exact_tables",
+          "label": "azure_document_intelligence_native Exact tables across runs",
+          "type": "boolean"
+        },
+        "report.engine.google_vision.character_accuracy": {
+          "key": "report.engine.google_vision.character_accuracy",
+          "label": "google_vision character accuracy",
+          "type": "number"
+        },
+        "report.engine.google_vision.word_accuracy": {
+          "key": "report.engine.google_vision.word_accuracy",
+          "label": "google_vision word accuracy",
+          "type": "number"
+        },
+        "report.engine.google_vision.critical_values_found": {
+          "key": "report.engine.google_vision.critical_values_found",
+          "label": "google_vision critical values found",
+          "type": "number"
+        },
+        "report.engine.google_vision.critical_values_total": {
+          "key": "report.engine.google_vision.critical_values_total",
+          "label": "google_vision critical values total",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.character_accuracy": {
+          "key": "report.engine.azure_document_intelligence.character_accuracy",
+          "label": "azure_document_intelligence character accuracy",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.word_accuracy": {
+          "key": "report.engine.azure_document_intelligence.word_accuracy",
+          "label": "azure_document_intelligence word accuracy",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.critical_values_found": {
+          "key": "report.engine.azure_document_intelligence.critical_values_found",
+          "label": "azure_document_intelligence critical values found",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence.critical_values_total": {
+          "key": "report.engine.azure_document_intelligence.critical_values_total",
+          "label": "azure_document_intelligence critical values total",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.non_empty_key_values": {
+          "key": "report.engine.google_document_ai_native.non_empty_key_values",
+          "label": "google_document_ai_native non-empty key-values",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.table_count": {
+          "key": "report.engine.google_document_ai_native.table_count",
+          "label": "google_document_ai_native table count",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.table_cell_count": {
+          "key": "report.engine.google_document_ai_native.table_cell_count",
+          "label": "google_document_ai_native table cell count",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.structured_concepts_found": {
+          "key": "report.engine.google_document_ai_native.structured_concepts_found",
+          "label": "google_document_ai_native structured concepts found",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.structured_concepts_total": {
+          "key": "report.engine.google_document_ai_native.structured_concepts_total",
+          "label": "google_document_ai_native structured concepts total",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.structured_concept_coverage": {
+          "key": "report.engine.google_document_ai_native.structured_concept_coverage",
+          "label": "google_document_ai_native structured concept coverage",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.total_schema_fields": {
+          "key": "report.engine.google_document_ai_native.mapping.total_schema_fields",
+          "label": "google_document_ai_native Total schema fields",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.required_fields": {
+          "key": "report.engine.google_document_ai_native.mapping.required_fields",
+          "label": "google_document_ai_native Required fields",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.mapped_fields": {
+          "key": "report.engine.google_document_ai_native.mapping.mapped_fields",
+          "label": "google_document_ai_native Mapped fields",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.mapped_required_fields": {
+          "key": "report.engine.google_document_ai_native.mapping.mapped_required_fields",
+          "label": "google_document_ai_native Mapped required fields",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.expected_derivable_fields": {
+          "key": "report.engine.google_document_ai_native.mapping.expected_derivable_fields",
+          "label": "google_document_ai_native Expected derivable fields",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.correct_mapped_fields": {
+          "key": "report.engine.google_document_ai_native.mapping.correct_mapped_fields",
+          "label": "google_document_ai_native Correct mapped fields",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.precision": {
+          "key": "report.engine.google_document_ai_native.mapping.precision",
+          "label": "google_document_ai_native Mapping precision",
+          "type": "number"
+        },
+        "report.engine.google_document_ai_native.mapping.recall": {
+          "key": "report.engine.google_document_ai_native.mapping.recall",
+          "label": "google_document_ai_native Mapping recall",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.non_empty_key_values": {
+          "key": "report.engine.azure_document_intelligence_native.non_empty_key_values",
+          "label": "azure_document_intelligence_native non-empty key-values",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.table_count": {
+          "key": "report.engine.azure_document_intelligence_native.table_count",
+          "label": "azure_document_intelligence_native table count",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.table_cell_count": {
+          "key": "report.engine.azure_document_intelligence_native.table_cell_count",
+          "label": "azure_document_intelligence_native table cell count",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.structured_concepts_found": {
+          "key": "report.engine.azure_document_intelligence_native.structured_concepts_found",
+          "label": "azure_document_intelligence_native structured concepts found",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.structured_concepts_total": {
+          "key": "report.engine.azure_document_intelligence_native.structured_concepts_total",
+          "label": "azure_document_intelligence_native structured concepts total",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.structured_concept_coverage": {
+          "key": "report.engine.azure_document_intelligence_native.structured_concept_coverage",
+          "label": "azure_document_intelligence_native structured concept coverage",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.total_schema_fields": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.total_schema_fields",
+          "label": "azure_document_intelligence_native Total schema fields",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.required_fields": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.required_fields",
+          "label": "azure_document_intelligence_native Required fields",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.mapped_fields": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.mapped_fields",
+          "label": "azure_document_intelligence_native Mapped fields",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.mapped_required_fields": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.mapped_required_fields",
+          "label": "azure_document_intelligence_native Mapped required fields",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.expected_derivable_fields": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.expected_derivable_fields",
+          "label": "azure_document_intelligence_native Expected derivable fields",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.correct_mapped_fields": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.correct_mapped_fields",
+          "label": "azure_document_intelligence_native Correct mapped fields",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.precision": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.precision",
+          "label": "azure_document_intelligence_native Mapping precision",
+          "type": "number"
+        },
+        "report.engine.azure_document_intelligence_native.mapping.recall": {
+          "key": "report.engine.azure_document_intelligence_native.mapping.recall",
+          "label": "azure_document_intelligence_native Mapping recall",
+          "type": "number"
+        },
+        "report.decision.ocr_faster_engine": {
+          "key": "report.decision.ocr_faster_engine",
+          "label": "Faster OCR engine",
+          "type": "enum"
+        },
+        "report.decision.ocr_latency_delta_ms": {
+          "key": "report.decision.ocr_latency_delta_ms",
+          "label": "OCR latency delta ms",
+          "type": "number"
+        },
+        "report.decision.native_higher_coverage_engine": {
+          "key": "report.decision.native_higher_coverage_engine",
+          "label": "Higher native coverage engine",
+          "type": "enum"
+        },
+        "report.decision.native_lower_cost_engine": {
+          "key": "report.decision.native_lower_cost_engine",
+          "label": "Lower native cost engine",
+          "type": "enum"
+        },
+        "report.decision.native_cost_ratio": {
+          "key": "report.decision.native_cost_ratio",
+          "label": "Native cost ratio high to low",
+          "type": "number"
+        },
+        "report.media.source_evidence": {
+          "key": "report.media.source_evidence",
+          "label": "Report media source-evidence-image",
+          "type": "image"
+        },
+        "report.media.ocr_accuracy_chart": {
+          "key": "report.media.ocr_accuracy_chart",
+          "label": "Report media ocr-accuracy-image",
+          "type": "image"
+        },
+        "report.media.native_extraction_chart": {
+          "key": "report.media.native_extraction_chart",
+          "label": "Report media native-extraction-image",
+          "type": "image"
+        },
+        "report.media.mapping_gap_chart": {
+          "key": "report.media.mapping_gap_chart",
+          "label": "Report media mapping-gap-image",
+          "type": "image"
+        },
+        "report.media.latency_rounds_chart": {
+          "key": "report.media.latency_rounds_chart",
+          "label": "Report media latency-rounds-image",
+          "type": "image"
+        },
+        "report.runs": {
+          "key": "report.runs",
+          "label": "Benchmark runs",
+          "type": "collection"
+        },
+        "report.ocr_runs": {
+          "key": "report.ocr_runs",
+          "label": "OCR engine runs",
+          "type": "collection"
+        },
+        "report.native_runs": {
+          "key": "report.native_runs",
+          "label": "Native extraction runs",
+          "type": "collection"
+        },
+        "report.native_missing_concepts": {
+          "key": "report.native_missing_concepts",
+          "label": "Missing native concepts",
+          "type": "collection"
+        },
+        "report.mapping_fields": {
+          "key": "report.mapping_fields",
+          "label": "Mapped GDIM fields",
+          "type": "collection"
+        },
+        "report.gdim_expected_fields": {
+          "key": "report.gdim_expected_fields",
+          "label": "Expected derivable GDIM fields",
+          "type": "collection"
+        }
+      }
+    }
+  },
+  "collectionItemContract": {
+    "contractVersion": 1,
+    "kind": "published-collection-item-contract",
+    "collectionItemContractId": "collection-items-ocr-benchmark-report-v1",
+    "publishedFieldContractId": "fields-ocr-benchmark-report-v1",
+    "owner": {
+      "structureId": "structure-ocr-benchmark-report",
+      "structureVersionId": "structure-ocr-benchmark-report-v1",
+      "versionOrdinal": 1
+    },
+    "collections": {
+      "report.runs": {
+        "collectionFieldKey": "report.runs",
+        "fields": {
+          "round": {
+            "key": "round",
+            "label": "Round",
+            "type": "number",
+            "required": true
+          },
+          "order": {
+            "key": "order",
+            "label": "Order",
+            "type": "number",
+            "required": true
+          },
+          "provider": {
+            "key": "provider",
+            "label": "Provider",
+            "type": "enum",
+            "required": true
+          },
+          "run_id": {
+            "key": "run_id",
+            "label": "Run ID",
+            "type": "text",
+            "required": true
+          },
+          "status": {
+            "key": "status",
+            "label": "Status",
+            "type": "enum",
+            "required": true
+          },
+          "source_hash_matches": {
+            "key": "source_hash_matches",
+            "label": "Source hash matches",
+            "type": "boolean",
+            "required": true
+          },
+          "ocr_engine": {
+            "key": "ocr_engine",
+            "label": "OCR engine",
+            "type": "enum",
+            "required": true
+          },
+          "native_engine": {
+            "key": "native_engine",
+            "label": "Native engine",
+            "type": "enum",
+            "required": true
+          },
+          "ocr_pages": {
+            "key": "ocr_pages",
+            "label": "OCR pages",
+            "type": "number",
+            "required": true
+          },
+          "native_pages": {
+            "key": "native_pages",
+            "label": "Native pages",
+            "type": "number",
+            "required": true
+          },
+          "error_count": {
+            "key": "error_count",
+            "label": "Error count",
+            "type": "number",
+            "required": true
+          }
+        }
+      },
+      "report.ocr_runs": {
+        "collectionFieldKey": "report.ocr_runs",
+        "fields": {
+          "engine": {
+            "key": "engine",
+            "label": "Engine",
+            "type": "enum",
+            "required": true
+          },
+          "provider": {
+            "key": "provider",
+            "label": "Provider",
+            "type": "enum",
+            "required": true
+          },
+          "run_id": {
+            "key": "run_id",
+            "label": "Run ID",
+            "type": "text",
+            "required": true
+          },
+          "round": {
+            "key": "round",
+            "label": "Round",
+            "type": "number",
+            "required": true
+          },
+          "order": {
+            "key": "order",
+            "label": "Order",
+            "type": "number",
+            "required": true
+          },
+          "pages": {
+            "key": "pages",
+            "label": "Pages",
+            "type": "number",
+            "required": true
+          },
+          "words": {
+            "key": "words",
+            "label": "Words",
+            "type": "number",
+            "required": true
+          },
+          "average_confidence": {
+            "key": "average_confidence",
+            "label": "Average confidence",
+            "type": "number",
+            "required": true
+          },
+          "minimum_confidence": {
+            "key": "minimum_confidence",
+            "label": "Minimum confidence",
+            "type": "number",
+            "required": true
+          },
+          "low_confidence_words": {
+            "key": "low_confidence_words",
+            "label": "Low-confidence words",
+            "type": "number",
+            "required": true
+          },
+          "bbox_coverage": {
+            "key": "bbox_coverage",
+            "label": "Bounding-box coverage",
+            "type": "number",
+            "required": true
+          },
+          "latency_ms": {
+            "key": "latency_ms",
+            "label": "Latency ms",
+            "type": "number",
+            "required": true
+          },
+          "response_bytes": {
+            "key": "response_bytes",
+            "label": "Response bytes",
+            "type": "number",
+            "required": true
+          },
+          "cost_usd": {
+            "key": "cost_usd",
+            "label": "Cost USD",
+            "type": "number",
+            "required": true
+          },
+          "cost_thb": {
+            "key": "cost_thb",
+            "label": "Cost THB",
+            "type": "number",
+            "required": true
+          },
+          "character_accuracy": {
+            "key": "character_accuracy",
+            "label": "Character accuracy",
+            "type": "number",
+            "required": true
+          },
+          "word_accuracy": {
+            "key": "word_accuracy",
+            "label": "Word accuracy",
+            "type": "number",
+            "required": true
+          },
+          "critical_values_found": {
+            "key": "critical_values_found",
+            "label": "Critical values found",
+            "type": "number",
+            "required": true
+          },
+          "critical_values_total": {
+            "key": "critical_values_total",
+            "label": "Critical values total",
+            "type": "number",
+            "required": true
+          }
+        }
+      },
+      "report.native_runs": {
+        "collectionFieldKey": "report.native_runs",
+        "fields": {
+          "engine": {
+            "key": "engine",
+            "label": "Engine",
+            "type": "enum",
+            "required": true
+          },
+          "provider": {
+            "key": "provider",
+            "label": "Provider",
+            "type": "enum",
+            "required": true
+          },
+          "run_id": {
+            "key": "run_id",
+            "label": "Run ID",
+            "type": "text",
+            "required": true
+          },
+          "round": {
+            "key": "round",
+            "label": "Round",
+            "type": "number",
+            "required": true
+          },
+          "order": {
+            "key": "order",
+            "label": "Order",
+            "type": "number",
+            "required": true
+          },
+          "pages": {
+            "key": "pages",
+            "label": "Pages",
+            "type": "number",
+            "required": true
+          },
+          "words": {
+            "key": "words",
+            "label": "Words",
+            "type": "number",
+            "required": true
+          },
+          "average_confidence": {
+            "key": "average_confidence",
+            "label": "Average confidence",
+            "type": "number",
+            "required": true
+          },
+          "minimum_confidence": {
+            "key": "minimum_confidence",
+            "label": "Minimum confidence",
+            "type": "number",
+            "required": true
+          },
+          "low_confidence_words": {
+            "key": "low_confidence_words",
+            "label": "Low-confidence words",
+            "type": "number",
+            "required": true
+          },
+          "bbox_coverage": {
+            "key": "bbox_coverage",
+            "label": "Bounding-box coverage",
+            "type": "number",
+            "required": true
+          },
+          "non_empty_key_values": {
+            "key": "non_empty_key_values",
+            "label": "Non-empty key-values",
+            "type": "number",
+            "required": true
+          },
+          "table_count": {
+            "key": "table_count",
+            "label": "Table count",
+            "type": "number",
+            "required": true
+          },
+          "table_cell_count": {
+            "key": "table_cell_count",
+            "label": "Table cell count",
+            "type": "number",
+            "required": true
+          },
+          "latency_ms": {
+            "key": "latency_ms",
+            "label": "Latency ms",
+            "type": "number",
+            "required": true
+          },
+          "response_bytes": {
+            "key": "response_bytes",
+            "label": "Response bytes",
+            "type": "number",
+            "required": true
+          },
+          "cost_usd": {
+            "key": "cost_usd",
+            "label": "Cost USD",
+            "type": "number",
+            "required": true
+          },
+          "cost_thb": {
+            "key": "cost_thb",
+            "label": "Cost THB",
+            "type": "number",
+            "required": true
+          },
+          "structured_concepts_found": {
+            "key": "structured_concepts_found",
+            "label": "Structured concepts found",
+            "type": "number",
+            "required": true
+          },
+          "structured_concepts_total": {
+            "key": "structured_concepts_total",
+            "label": "Structured concepts total",
+            "type": "number",
+            "required": true
+          },
+          "structured_concept_coverage": {
+            "key": "structured_concept_coverage",
+            "label": "Structured concept coverage",
+            "type": "number",
+            "required": true
+          }
+        }
+      },
+      "report.native_missing_concepts": {
+        "collectionFieldKey": "report.native_missing_concepts",
+        "fields": {
+          "engine": {
+            "key": "engine",
+            "label": "Engine",
+            "type": "enum",
+            "required": true
+          },
+          "concept_id": {
+            "key": "concept_id",
+            "label": "Concept ID",
+            "type": "text",
+            "required": true
+          }
+        }
+      },
+      "report.mapping_fields": {
+        "collectionFieldKey": "report.mapping_fields",
+        "fields": {
+          "engine": {
+            "key": "engine",
+            "label": "Engine",
+            "type": "enum",
+            "required": true
+          },
+          "schema_path": {
+            "key": "schema_path",
+            "label": "Schema path",
+            "type": "text",
+            "required": true
+          },
+          "value_text": {
+            "key": "value_text",
+            "label": "Mapped value",
+            "type": "text",
+            "required": true
+          },
+          "expected_value_text": {
+            "key": "expected_value_text",
+            "label": "Expected value",
+            "type": "text",
+            "required": true
+          },
+          "source_label": {
+            "key": "source_label",
+            "label": "Source label",
+            "type": "text",
+            "required": true
+          },
+          "confidence": {
+            "key": "confidence",
+            "label": "Confidence",
+            "type": "number",
+            "required": true
+          },
+          "page": {
+            "key": "page",
+            "label": "Page",
+            "type": "number",
+            "required": true
+          },
+          "correct": {
+            "key": "correct",
+            "label": "Correct",
+            "type": "boolean",
+            "required": true
+          }
+        }
+      },
+      "report.gdim_expected_fields": {
+        "collectionFieldKey": "report.gdim_expected_fields",
+        "fields": {
+          "schema_path": {
+            "key": "schema_path",
+            "label": "Schema path",
+            "type": "text",
+            "required": true
+          },
+          "expected_value_text": {
+            "key": "expected_value_text",
+            "label": "Expected value",
+            "type": "text",
+            "required": true
+          }
+        }
+      }
+    }
+  },
+  "dataSnapshot": {
+    "contractVersion": 1,
+    "kind": "instance-data-snapshot",
+    "dataSnapshotId": "data-inv_9437125258-2026-07-16-r1",
+    "instance": {
+      "contractVersion": 1,
+      "kind": "document-instance",
+      "instanceId": "instance-ocr-benchmark-inv_9437125258-2026-07-16",
+      "revision": 1,
+      "structureVersion": {
+        "structureId": "structure-ocr-benchmark-report",
+        "structureVersionId": "structure-ocr-benchmark-report-v1",
+        "versionOrdinal": 1
+      }
+    },
+    "data": {
+      "version": 2,
+      "values": {
+        "report.benchmark_id": "INV_9437125258-2026-07-16",
+        "report.version": "1.0",
+        "report.test_date": "2026-07-16",
+        "report.metrics_generated_at": "2026-07-16T12:55:06.182Z",
+        "report.truth_method": "Human-reviewed reference transcribed from 240 DPI page renders. Whitespace and punctuation are normalized before CER/WER calculation.",
+        "report.scope_warning": "The source is an invoice for a Thailand-to-Taiwan shipment, not a Thai import declaration. GDIM evaluation covers only values that can reasonably be derived from this invoice.",
+        "report.source.file_name": "INV_9437125258.pdf",
+        "report.source.sha256": "a8598f04d40445b911d4c17d86fe065e15e5d0166d990290ef97e7efa5ead173",
+        "report.source.page_count": 2,
+        "report.source.size_bytes": 4053388,
+        "report.settings.processing_scope": "native_extraction",
+        "report.settings.submit_mode": "page_by_page",
+        "report.settings.max_pages": 50,
+        "report.settings.max_estimated_cost_usd_per_run": 2,
+        "report.settings.usd_to_thb_rate": 33.48,
+        "report.settings.low_confidence_threshold": 0.8,
+        "report.validation.all_runs_completed": true,
+        "report.validation.all_source_hashes_match": true,
+        "report.validation.all_runs_have_expected_pages": true,
+        "report.validation.no_errors": true,
+        "report.total_cost.usd": 0.258,
+        "report.total_cost.thb": 8.63784,
+        "report.truth.critical_value_count": 29,
+        "report.truth.native_concept_count": 25,
+        "report.truth.gdim_derivable_field_count": 32,
+        "report.truth.critical.invoice_number": "9437125258",
+        "report.truth.critical.delivery_number": "8142515582",
+        "report.truth.critical.invoice_date": "06/20/2024",
+        "report.truth.critical.aeo_number": "THIE570073",
+        "report.truth.critical.customer_code": "Q510004",
+        "report.truth.critical.customer_name": "COMPUTER, INC.",
+        "report.truth.critical.postcode": "33377",
+        "report.truth.critical.transport_mode": "AIR",
+        "report.truth.critical.origin_city": "BANGKOK",
+        "report.truth.critical.destination": "TAOYUAN CITY, TAIWAN",
+        "report.truth.critical.ex_factory_date": "09/27/2024",
+        "report.truth.critical.payment_term": "O/A 60 Days",
+        "report.truth.critical.incoterm": "DAP TAIWAN",
+        "report.truth.critical.package": "1 PALLETS (540PCE)",
+        "report.truth.critical.product_group": "ELECTRO MAGNETIC PRODUCT",
+        "report.truth.critical.description": "DC DC CONVERTER",
+        "report.truth.critical.product_code": "1077309227",
+        "report.truth.critical.model": "Q50SN12072RNDHQ",
+        "report.truth.critical.boi": "61-1505-1-00-1-0",
+        "report.truth.critical.quantity": "540 PCE",
+        "report.truth.critical.unit_price": "29.36",
+        "report.truth.critical.amount": "15,854.40",
+        "report.truth.critical.origin_country": "COUNTRY OF ORIGIN THAILAND",
+        "report.truth.critical.gross_weight": "79.14 KGS",
+        "report.truth.critical.net_weight": "43.20 KGS",
+        "report.truth.critical.tax_id": "0105542003108",
+        "report.truth.critical.email": "support@tiffaedit.com",
+        "report.truth.critical.sales": "NEWZY.KONG",
+        "report.truth.critical.plant": "PSB7/DDC04",
+        "report.engine.google_vision.words": 750,
+        "report.engine.google_vision.low_confidence_words": 30,
+        "report.engine.google_vision.bbox_coverage": 1,
+        "report.engine.google_vision.latency_ms.min": 1662.7567999996245,
+        "report.engine.google_vision.latency_ms.median": 1762.5466000027955,
+        "report.engine.google_vision.latency_ms.max": 2086.849199999124,
+        "report.engine.google_vision.response_bytes": 1047191,
+        "report.engine.google_vision.cost_usd": 0.003,
+        "report.engine.google_vision.cost_thb": 0.10043999999999999,
+        "report.engine.google_vision.repeatability.exact_text": true,
+        "report.engine.google_vision.repeatability.exact_key_values": true,
+        "report.engine.google_vision.repeatability.exact_tables": true,
+        "report.engine.azure_document_intelligence.words": 593,
+        "report.engine.azure_document_intelligence.low_confidence_words": 19,
+        "report.engine.azure_document_intelligence.bbox_coverage": 1,
+        "report.engine.azure_document_intelligence.latency_ms.min": 4553.184299997985,
+        "report.engine.azure_document_intelligence.latency_ms.median": 4617.086899999529,
+        "report.engine.azure_document_intelligence.latency_ms.max": 6495.463799998164,
+        "report.engine.azure_document_intelligence.response_bytes": 105661,
+        "report.engine.azure_document_intelligence.cost_usd": 0.003,
+        "report.engine.azure_document_intelligence.cost_thb": 0.10043999999999999,
+        "report.engine.azure_document_intelligence.repeatability.exact_text": true,
+        "report.engine.azure_document_intelligence.repeatability.exact_key_values": true,
+        "report.engine.azure_document_intelligence.repeatability.exact_tables": true,
+        "report.engine.google_document_ai_native.words": 700,
+        "report.engine.google_document_ai_native.low_confidence_words": 53,
+        "report.engine.google_document_ai_native.bbox_coverage": 1,
+        "report.engine.google_document_ai_native.latency_ms.min": 9529.766199998558,
+        "report.engine.google_document_ai_native.latency_ms.median": 9564.177899997681,
+        "report.engine.google_document_ai_native.latency_ms.max": 9747.661099996418,
+        "report.engine.google_document_ai_native.response_bytes": 2026477,
+        "report.engine.google_document_ai_native.cost_usd": 0.06,
+        "report.engine.google_document_ai_native.cost_thb": 2.0088,
+        "report.engine.google_document_ai_native.repeatability.exact_text": true,
+        "report.engine.google_document_ai_native.repeatability.exact_key_values": true,
+        "report.engine.google_document_ai_native.repeatability.exact_tables": true,
+        "report.engine.azure_document_intelligence_native.words": 594,
+        "report.engine.azure_document_intelligence_native.low_confidence_words": 24,
+        "report.engine.azure_document_intelligence_native.bbox_coverage": 1,
+        "report.engine.azure_document_intelligence_native.latency_ms.min": 8611.356200002134,
+        "report.engine.azure_document_intelligence_native.latency_ms.median": 8657.797399997711,
+        "report.engine.azure_document_intelligence_native.latency_ms.max": 43655.4338000007,
+        "report.engine.azure_document_intelligence_native.response_bytes": 127487,
+        "report.engine.azure_document_intelligence_native.cost_usd": 0.02,
+        "report.engine.azure_document_intelligence_native.cost_thb": 0.6696,
+        "report.engine.azure_document_intelligence_native.repeatability.exact_text": true,
+        "report.engine.azure_document_intelligence_native.repeatability.exact_key_values": true,
+        "report.engine.azure_document_intelligence_native.repeatability.exact_tables": true,
+        "report.engine.google_vision.character_accuracy": 0.848809922896413,
+        "report.engine.google_vision.word_accuracy": 0.829192546583851,
+        "report.engine.google_vision.critical_values_found": 29,
+        "report.engine.google_vision.critical_values_total": 29,
+        "report.engine.azure_document_intelligence.character_accuracy": 0.8826684545759302,
+        "report.engine.azure_document_intelligence.word_accuracy": 0.8571428571428572,
+        "report.engine.azure_document_intelligence.critical_values_found": 29,
+        "report.engine.azure_document_intelligence.critical_values_total": 29,
+        "report.engine.google_document_ai_native.non_empty_key_values": 48,
+        "report.engine.google_document_ai_native.table_count": 7,
+        "report.engine.google_document_ai_native.table_cell_count": 51,
+        "report.engine.google_document_ai_native.structured_concepts_found": 23,
+        "report.engine.google_document_ai_native.structured_concepts_total": 25,
+        "report.engine.google_document_ai_native.structured_concept_coverage": 0.92,
+        "report.engine.google_document_ai_native.mapping.total_schema_fields": 199,
+        "report.engine.google_document_ai_native.mapping.required_fields": 98,
+        "report.engine.google_document_ai_native.mapping.mapped_fields": 5,
+        "report.engine.google_document_ai_native.mapping.mapped_required_fields": 3,
+        "report.engine.google_document_ai_native.mapping.expected_derivable_fields": 32,
+        "report.engine.google_document_ai_native.mapping.correct_mapped_fields": 5,
+        "report.engine.google_document_ai_native.mapping.precision": 1,
+        "report.engine.google_document_ai_native.mapping.recall": 0.15625,
+        "report.engine.azure_document_intelligence_native.non_empty_key_values": 40,
+        "report.engine.azure_document_intelligence_native.table_count": 1,
+        "report.engine.azure_document_intelligence_native.table_cell_count": 15,
+        "report.engine.azure_document_intelligence_native.structured_concepts_found": 14,
+        "report.engine.azure_document_intelligence_native.structured_concepts_total": 25,
+        "report.engine.azure_document_intelligence_native.structured_concept_coverage": 0.56,
+        "report.engine.azure_document_intelligence_native.mapping.total_schema_fields": 199,
+        "report.engine.azure_document_intelligence_native.mapping.required_fields": 98,
+        "report.engine.azure_document_intelligence_native.mapping.mapped_fields": 5,
+        "report.engine.azure_document_intelligence_native.mapping.mapped_required_fields": 3,
+        "report.engine.azure_document_intelligence_native.mapping.expected_derivable_fields": 32,
+        "report.engine.azure_document_intelligence_native.mapping.correct_mapped_fields": 4,
+        "report.engine.azure_document_intelligence_native.mapping.precision": 0.8,
+        "report.engine.azure_document_intelligence_native.mapping.recall": 0.125,
+        "report.decision.ocr_faster_engine": "google_vision",
+        "report.decision.ocr_latency_delta_ms": 2854.5402999967337,
+        "report.decision.native_higher_coverage_engine": "google_document_ai_native",
+        "report.decision.native_lower_cost_engine": "azure_document_intelligence_native",
+        "report.decision.native_cost_ratio": 3,
+        "report.media.source_evidence": {
+          "kind": "image-asset-ref",
+          "assetId": "source-evidence-image"
+        },
+        "report.media.ocr_accuracy_chart": {
+          "kind": "image-asset-ref",
+          "assetId": "ocr-accuracy-image"
+        },
+        "report.media.native_extraction_chart": {
+          "kind": "image-asset-ref",
+          "assetId": "native-extraction-image"
+        },
+        "report.media.mapping_gap_chart": {
+          "kind": "image-asset-ref",
+          "assetId": "mapping-gap-image"
+        },
+        "report.media.latency_rounds_chart": {
+          "kind": "image-asset-ref",
+          "assetId": "latency-rounds-image"
+        }
+      }
+    }
+  },
+  "collectionSnapshot": {
+    "contractVersion": 1,
+    "kind": "table-collection-snapshot",
+    "collectionSnapshotId": "collections-inv_9437125258-2026-07-16-r1",
+    "snapshotRevision": 1,
+    "instance": {
+      "contractVersion": 1,
+      "kind": "document-instance",
+      "instanceId": "instance-ocr-benchmark-inv_9437125258-2026-07-16",
+      "revision": 1,
+      "structureVersion": {
+        "structureId": "structure-ocr-benchmark-report",
+        "structureVersionId": "structure-ocr-benchmark-report-v1",
+        "versionOrdinal": 1
+      }
+    },
+    "collections": {
+      "report.runs": {
+        "collectionFieldKey": "report.runs",
+        "items": [
+          {
+            "itemKey": "2026-07-16T11-52-22-028Z",
+            "values": {
+              "round": 1,
+              "order": 1,
+              "provider": "google",
+              "run_id": "2026-07-16T11-52-22-028Z",
+              "status": "completed",
+              "source_hash_matches": true,
+              "ocr_engine": "google_vision",
+              "native_engine": "google_document_ai_native",
+              "ocr_pages": 2,
+              "native_pages": 2,
+              "error_count": 0
+            }
+          },
+          {
+            "itemKey": "2026-07-16T11-52-39-170Z",
+            "values": {
+              "round": 1,
+              "order": 2,
+              "provider": "azure",
+              "run_id": "2026-07-16T11-52-39-170Z",
+              "status": "completed",
+              "source_hash_matches": true,
+              "ocr_engine": "azure_document_intelligence",
+              "native_engine": "azure_document_intelligence_native",
+              "ocr_pages": 2,
+              "native_pages": 2,
+              "error_count": 0
+            }
+          },
+          {
+            "itemKey": "2026-07-16T11-52-57-651Z",
+            "values": {
+              "round": 2,
+              "order": 1,
+              "provider": "azure",
+              "run_id": "2026-07-16T11-52-57-651Z",
+              "status": "completed",
+              "source_hash_matches": true,
+              "ocr_engine": "azure_document_intelligence",
+              "native_engine": "azure_document_intelligence_native",
+              "ocr_pages": 2,
+              "native_pages": 2,
+              "error_count": 0
+            }
+          },
+          {
+            "itemKey": "2026-07-16T11-53-50-392Z",
+            "values": {
+              "round": 2,
+              "order": 2,
+              "provider": "google",
+              "run_id": "2026-07-16T11-53-50-392Z",
+              "status": "completed",
+              "source_hash_matches": true,
+              "ocr_engine": "google_vision",
+              "native_engine": "google_document_ai_native",
+              "ocr_pages": 2,
+              "native_pages": 2,
+              "error_count": 0
+            }
+          },
+          {
+            "itemKey": "2026-07-16T11-54-06-893Z",
+            "values": {
+              "round": 3,
+              "order": 1,
+              "provider": "google",
+              "run_id": "2026-07-16T11-54-06-893Z",
+              "status": "completed",
+              "source_hash_matches": true,
+              "ocr_engine": "google_vision",
+              "native_engine": "google_document_ai_native",
+              "ocr_pages": 2,
+              "native_pages": 2,
+              "error_count": 0
+            }
+          },
+          {
+            "itemKey": "2026-07-16T11-54-21-384Z",
+            "values": {
+              "round": 3,
+              "order": 2,
+              "provider": "azure",
+              "run_id": "2026-07-16T11-54-21-384Z",
+              "status": "completed",
+              "source_hash_matches": true,
+              "ocr_engine": "azure_document_intelligence",
+              "native_engine": "azure_document_intelligence_native",
+              "ocr_pages": 2,
+              "native_pages": 2,
+              "error_count": 0
+            }
+          }
+        ]
+      },
+      "report.ocr_runs": {
+        "collectionFieldKey": "report.ocr_runs",
+        "items": [
+          {
+            "itemKey": "google_vision:2026-07-16T11-52-22-028Z",
+            "values": {
+              "engine": "google_vision",
+              "provider": "google",
+              "run_id": "2026-07-16T11-52-22-028Z",
+              "round": 1,
+              "order": 1,
+              "pages": 2,
+              "words": 750,
+              "average_confidence": 0.9561337738037109,
+              "minimum_confidence": 0.5178187489509583,
+              "low_confidence_words": 30,
+              "bbox_coverage": 1,
+              "latency_ms": 2086.849199999124,
+              "response_bytes": 1047191,
+              "cost_usd": 0.003,
+              "cost_thb": 0.10043999999999999,
+              "character_accuracy": 0.848809922896413,
+              "word_accuracy": 0.829192546583851,
+              "critical_values_found": 29,
+              "critical_values_total": 29
+            }
+          },
+          {
+            "itemKey": "google_vision:2026-07-16T11-53-50-392Z",
+            "values": {
+              "engine": "google_vision",
+              "provider": "google",
+              "run_id": "2026-07-16T11-53-50-392Z",
+              "round": 2,
+              "order": 2,
+              "pages": 2,
+              "words": 750,
+              "average_confidence": 0.9560874079863231,
+              "minimum_confidence": 0.5100787878036499,
+              "low_confidence_words": 30,
+              "bbox_coverage": 1,
+              "latency_ms": 1762.5466000027955,
+              "response_bytes": 1047185,
+              "cost_usd": 0.003,
+              "cost_thb": 0.10043999999999999,
+              "character_accuracy": 0.848809922896413,
+              "word_accuracy": 0.829192546583851,
+              "critical_values_found": 29,
+              "critical_values_total": 29
+            }
+          },
+          {
+            "itemKey": "google_vision:2026-07-16T11-54-06-893Z",
+            "values": {
+              "engine": "google_vision",
+              "provider": "google",
+              "run_id": "2026-07-16T11-54-06-893Z",
+              "round": 3,
+              "order": 1,
+              "pages": 2,
+              "words": 750,
+              "average_confidence": 0.9561337738037109,
+              "minimum_confidence": 0.5178187489509583,
+              "low_confidence_words": 30,
+              "bbox_coverage": 1,
+              "latency_ms": 1662.7567999996245,
+              "response_bytes": 1047191,
+              "cost_usd": 0.003,
+              "cost_thb": 0.10043999999999999,
+              "character_accuracy": 0.848809922896413,
+              "word_accuracy": 0.829192546583851,
+              "critical_values_found": 29,
+              "critical_values_total": 29
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence:2026-07-16T11-52-39-170Z",
+            "values": {
+              "engine": "azure_document_intelligence",
+              "provider": "azure",
+              "run_id": "2026-07-16T11-52-39-170Z",
+              "round": 1,
+              "order": 2,
+              "pages": 2,
+              "words": 593,
+              "average_confidence": 0.9656913996627351,
+              "minimum_confidence": 0.015,
+              "low_confidence_words": 19,
+              "bbox_coverage": 1,
+              "latency_ms": 6495.463799998164,
+              "response_bytes": 105661,
+              "cost_usd": 0.003,
+              "cost_thb": 0.10043999999999999,
+              "character_accuracy": 0.8826684545759302,
+              "word_accuracy": 0.8571428571428572,
+              "critical_values_found": 29,
+              "critical_values_total": 29
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence:2026-07-16T11-52-57-651Z",
+            "values": {
+              "engine": "azure_document_intelligence",
+              "provider": "azure",
+              "run_id": "2026-07-16T11-52-57-651Z",
+              "round": 2,
+              "order": 1,
+              "pages": 2,
+              "words": 593,
+              "average_confidence": 0.9656913996627351,
+              "minimum_confidence": 0.015,
+              "low_confidence_words": 19,
+              "bbox_coverage": 1,
+              "latency_ms": 4617.086899999529,
+              "response_bytes": 105661,
+              "cost_usd": 0.003,
+              "cost_thb": 0.10043999999999999,
+              "character_accuracy": 0.8826684545759302,
+              "word_accuracy": 0.8571428571428572,
+              "critical_values_found": 29,
+              "critical_values_total": 29
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence:2026-07-16T11-54-21-384Z",
+            "values": {
+              "engine": "azure_document_intelligence",
+              "provider": "azure",
+              "run_id": "2026-07-16T11-54-21-384Z",
+              "round": 3,
+              "order": 2,
+              "pages": 2,
+              "words": 593,
+              "average_confidence": 0.9656913996627351,
+              "minimum_confidence": 0.015,
+              "low_confidence_words": 19,
+              "bbox_coverage": 1,
+              "latency_ms": 4553.184299997985,
+              "response_bytes": 105661,
+              "cost_usd": 0.003,
+              "cost_thb": 0.10043999999999999,
+              "character_accuracy": 0.8826684545759302,
+              "word_accuracy": 0.8571428571428572,
+              "critical_values_found": 29,
+              "critical_values_total": 29
+            }
+          }
+        ]
+      },
+      "report.native_runs": {
+        "collectionFieldKey": "report.native_runs",
+        "items": [
+          {
+            "itemKey": "google_document_ai_native:2026-07-16T11-52-22-028Z",
+            "values": {
+              "engine": "google_document_ai_native",
+              "provider": "google",
+              "run_id": "2026-07-16T11-52-22-028Z",
+              "round": 1,
+              "order": 1,
+              "pages": 2,
+              "words": 700,
+              "average_confidence": 0.9378494989446231,
+              "minimum_confidence": 0.2683335840702057,
+              "low_confidence_words": 53,
+              "bbox_coverage": 1,
+              "non_empty_key_values": 48,
+              "table_count": 7,
+              "table_cell_count": 51,
+              "latency_ms": 9529.766199998558,
+              "response_bytes": 2026477,
+              "cost_usd": 0.06,
+              "cost_thb": 2.0088,
+              "structured_concepts_found": 23,
+              "structured_concepts_total": 25,
+              "structured_concept_coverage": 0.92
+            }
+          },
+          {
+            "itemKey": "google_document_ai_native:2026-07-16T11-53-50-392Z",
+            "values": {
+              "engine": "google_document_ai_native",
+              "provider": "google",
+              "run_id": "2026-07-16T11-53-50-392Z",
+              "round": 2,
+              "order": 2,
+              "pages": 2,
+              "words": 700,
+              "average_confidence": 0.9378494989446231,
+              "minimum_confidence": 0.2683335840702057,
+              "low_confidence_words": 53,
+              "bbox_coverage": 1,
+              "non_empty_key_values": 48,
+              "table_count": 7,
+              "table_cell_count": 51,
+              "latency_ms": 9747.661099996418,
+              "response_bytes": 2026475,
+              "cost_usd": 0.06,
+              "cost_thb": 2.0088,
+              "structured_concepts_found": 23,
+              "structured_concepts_total": 25,
+              "structured_concept_coverage": 0.92
+            }
+          },
+          {
+            "itemKey": "google_document_ai_native:2026-07-16T11-54-06-893Z",
+            "values": {
+              "engine": "google_document_ai_native",
+              "provider": "google",
+              "run_id": "2026-07-16T11-54-06-893Z",
+              "round": 3,
+              "order": 1,
+              "pages": 2,
+              "words": 700,
+              "average_confidence": 0.9378495109507016,
+              "minimum_confidence": 0.2683334946632385,
+              "low_confidence_words": 53,
+              "bbox_coverage": 1,
+              "non_empty_key_values": 48,
+              "table_count": 7,
+              "table_cell_count": 51,
+              "latency_ms": 9564.177899997681,
+              "response_bytes": 2026481,
+              "cost_usd": 0.06,
+              "cost_thb": 2.0088,
+              "structured_concepts_found": 23,
+              "structured_concepts_total": 25,
+              "structured_concept_coverage": 0.92
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:2026-07-16T11-52-39-170Z",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "provider": "azure",
+              "run_id": "2026-07-16T11-52-39-170Z",
+              "round": 1,
+              "order": 2,
+              "pages": 2,
+              "words": 594,
+              "average_confidence": 0.9634629629629637,
+              "minimum_confidence": 0.014,
+              "low_confidence_words": 24,
+              "bbox_coverage": 1,
+              "non_empty_key_values": 40,
+              "table_count": 1,
+              "table_cell_count": 15,
+              "latency_ms": 8611.356200002134,
+              "response_bytes": 127487,
+              "cost_usd": 0.02,
+              "cost_thb": 0.6696,
+              "structured_concepts_found": 14,
+              "structured_concepts_total": 25,
+              "structured_concept_coverage": 0.56
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:2026-07-16T11-52-57-651Z",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "provider": "azure",
+              "run_id": "2026-07-16T11-52-57-651Z",
+              "round": 2,
+              "order": 1,
+              "pages": 2,
+              "words": 594,
+              "average_confidence": 0.9634629629629637,
+              "minimum_confidence": 0.014,
+              "low_confidence_words": 24,
+              "bbox_coverage": 1,
+              "non_empty_key_values": 40,
+              "table_count": 1,
+              "table_cell_count": 15,
+              "latency_ms": 43655.4338000007,
+              "response_bytes": 127487,
+              "cost_usd": 0.02,
+              "cost_thb": 0.6696,
+              "structured_concepts_found": 14,
+              "structured_concepts_total": 25,
+              "structured_concept_coverage": 0.56
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:2026-07-16T11-54-21-384Z",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "provider": "azure",
+              "run_id": "2026-07-16T11-54-21-384Z",
+              "round": 3,
+              "order": 2,
+              "pages": 2,
+              "words": 594,
+              "average_confidence": 0.9634629629629637,
+              "minimum_confidence": 0.014,
+              "low_confidence_words": 24,
+              "bbox_coverage": 1,
+              "non_empty_key_values": 40,
+              "table_count": 1,
+              "table_cell_count": 15,
+              "latency_ms": 8657.797399997711,
+              "response_bytes": 127487,
+              "cost_usd": 0.02,
+              "cost_thb": 0.6696,
+              "structured_concepts_found": 14,
+              "structured_concepts_total": 25,
+              "structured_concept_coverage": 0.56
+            }
+          }
+        ]
+      },
+      "report.native_missing_concepts": {
+        "collectionFieldKey": "report.native_missing_concepts",
+        "items": [
+          {
+            "itemKey": "google_document_ai_native:origin_country",
+            "values": {
+              "engine": "google_document_ai_native",
+              "concept_id": "origin_country"
+            }
+          },
+          {
+            "itemKey": "google_document_ai_native:shipping_marks",
+            "values": {
+              "engine": "google_document_ai_native",
+              "concept_id": "shipping_marks"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:invoice_date",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "invoice_date"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:package",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "package"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:product_group",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "product_group"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:description",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "description"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:product_code",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "product_code"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:model",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "model"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:boi",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "boi"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:origin_country",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "origin_country"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:gross_weight",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "gross_weight"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:shipping_marks",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "shipping_marks"
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:aeo_number",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "concept_id": "aeo_number"
+            }
+          }
+        ]
+      },
+      "report.mapping_fields": {
+        "collectionFieldKey": "report.mapping_fields",
+        "items": [
+          {
+            "itemKey": "google_document_ai_native:goods_shipment.invoice.number",
+            "values": {
+              "engine": "google_document_ai_native",
+              "schema_path": "goods_shipment.invoice.number",
+              "value_text": "9437125258",
+              "expected_value_text": "9437125258",
+              "source_label": "Invoice No.:",
+              "confidence": 0.7907,
+              "page": 2,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "google_document_ai_native:goods_shipment.invoice.date",
+            "values": {
+              "engine": "google_document_ai_native",
+              "schema_path": "goods_shipment.invoice.date",
+              "value_text": "06/20/2024",
+              "expected_value_text": "06/20/2024",
+              "source_label": "Invoice Date:",
+              "confidence": 0.8837,
+              "page": 2,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "google_document_ai_native:goods_shipment.invoice.consignor_info.email",
+            "values": {
+              "engine": "google_document_ai_native",
+              "schema_path": "goods_shipment.invoice.consignor_info.email",
+              "value_text": "support@tiffaedit.com",
+              "expected_value_text": "support@tiffaedit.com",
+              "source_label": "E-mail:",
+              "confidence": 0.5946,
+              "page": 1,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "google_document_ai_native:goods_shipment.detail.product_info.net_weight.weight",
+            "values": {
+              "engine": "google_document_ai_native",
+              "schema_path": "goods_shipment.detail.product_info.net_weight.weight",
+              "value_text": "43.2",
+              "expected_value_text": "43.20",
+              "source_label": "TAIWAN NET WEIGHT",
+              "confidence": 0.7858,
+              "page": 1,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "google_document_ai_native:goods_shipment.detail.gross_weight",
+            "values": {
+              "engine": "google_document_ai_native",
+              "schema_path": "goods_shipment.detail.gross_weight",
+              "value_text": "79.14",
+              "expected_value_text": "79.14",
+              "source_label": "TOTAL GROSS WEIGHT",
+              "confidence": 0.812,
+              "page": 1,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.invoice.number",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "schema_path": "goods_shipment.invoice.number",
+              "value_text": "9437125258",
+              "expected_value_text": "9437125258",
+              "source_label": "Invoice No .:",
+              "confidence": 0.989,
+              "page": 2,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.invoice.consignor_info.email",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "schema_path": "goods_shipment.invoice.consignor_info.email",
+              "value_text": "support@tiffaedit.com",
+              "expected_value_text": "support@tiffaedit.com",
+              "source_label": "E-mail",
+              "confidence": 0.947,
+              "page": 1,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.detail.product_info.net_weight.weight",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "schema_path": "goods_shipment.detail.product_info.net_weight.weight",
+              "value_text": "43.2",
+              "expected_value_text": "43.20",
+              "source_label": "NET WEIGHT :",
+              "confidence": 0.987,
+              "page": 1,
+              "correct": true
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.detail.boi",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "schema_path": "goods_shipment.detail.boi",
+              "value_text": "61-1505-1-00-1-0",
+              "expected_value_text": "",
+              "source_label": "*BOI",
+              "confidence": 0.8598,
+              "page": 1,
+              "correct": false
+            }
+          },
+          {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.detail.gross_weight",
+            "values": {
+              "engine": "azure_document_intelligence_native",
+              "schema_path": "goods_shipment.detail.gross_weight",
+              "value_text": "79.14",
+              "expected_value_text": "79.14",
+              "source_label": "TOTAL GROSS WEIGHT :",
+              "confidence": 0.8863,
+              "page": 1,
+              "correct": true
+            }
+          }
+        ]
+      },
+      "report.gdim_expected_fields": {
+        "collectionFieldKey": "report.gdim_expected_fields",
+        "items": [
+          {
+            "itemKey": "document_control.border_transport_means.mode_code",
+            "values": {
+              "schema_path": "document_control.border_transport_means.mode_code",
+              "expected_value_text": "AIR"
+            }
+          },
+          {
+            "itemKey": "document_control.origin_country_code",
+            "values": {
+              "schema_path": "document_control.origin_country_code",
+              "expected_value_text": "THAILAND"
+            }
+          },
+          {
+            "itemKey": "document_control.total_package.shipping_marks",
+            "values": {
+              "schema_path": "document_control.total_package.shipping_marks",
+              "expected_value_text": "INV#9437125258"
+            }
+          },
+          {
+            "itemKey": "document_control.total_package.amount",
+            "values": {
+              "schema_path": "document_control.total_package.amount",
+              "expected_value_text": "1"
+            }
+          },
+          {
+            "itemKey": "document_control.total_package.unit_code",
+            "values": {
+              "schema_path": "document_control.total_package.unit_code",
+              "expected_value_text": "PALLET"
+            }
+          },
+          {
+            "itemKey": "document_control.total_net_weight.weight",
+            "values": {
+              "schema_path": "document_control.total_net_weight.weight",
+              "expected_value_text": "43.20"
+            }
+          },
+          {
+            "itemKey": "document_control.total_net_weight.unit_code",
+            "values": {
+              "schema_path": "document_control.total_net_weight.unit_code",
+              "expected_value_text": "KGS"
+            }
+          },
+          {
+            "itemKey": "document_control.total_gross_weight.weight",
+            "values": {
+              "schema_path": "document_control.total_gross_weight.weight",
+              "expected_value_text": "79.14"
+            }
+          },
+          {
+            "itemKey": "document_control.total_gross_weight.unit_code",
+            "values": {
+              "schema_path": "document_control.total_gross_weight.unit_code",
+              "expected_value_text": "KGS"
+            }
+          },
+          {
+            "itemKey": "document_control.currency_code",
+            "values": {
+              "schema_path": "document_control.currency_code",
+              "expected_value_text": "USD"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.number",
+            "values": {
+              "schema_path": "goods_shipment.invoice.number",
+              "expected_value_text": "9437125258"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.date",
+            "values": {
+              "schema_path": "goods_shipment.invoice.date",
+              "expected_value_text": "06/20/2024"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.term_of_payment_code",
+            "values": {
+              "schema_path": "goods_shipment.invoice.term_of_payment_code",
+              "expected_value_text": "O/A 60 Days"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.trade_terms",
+            "values": {
+              "schema_path": "goods_shipment.invoice.trade_terms",
+              "expected_value_text": "DAP"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.consignor_info.email",
+            "values": {
+              "schema_path": "goods_shipment.invoice.consignor_info.email",
+              "expected_value_text": "support@tiffaedit.com"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.currency_code",
+            "values": {
+              "schema_path": "goods_shipment.invoice.currency_code",
+              "expected_value_text": "USD"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.total_amount",
+            "values": {
+              "schema_path": "goods_shipment.invoice.total_amount",
+              "expected_value_text": "15854.40"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.invoice.aeos_reference_number",
+            "values": {
+              "schema_path": "goods_shipment.invoice.aeos_reference_number",
+              "expected_value_text": "THIE570073"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_code",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_code",
+              "expected_value_text": "1077309227"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.goods_description.english",
+            "values": {
+              "schema_path": "goods_shipment.detail.goods_description.english",
+              "expected_value_text": "DC DC CONVERTER"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.origin_country_code",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.origin_country_code",
+              "expected_value_text": "THAILAND"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.net_weight.weight",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.net_weight.weight",
+              "expected_value_text": "43.20"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.invoice_quantity.quantity",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.invoice_quantity.quantity",
+              "expected_value_text": "540"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.invoice_quantity.unit_code",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.invoice_quantity.unit_code",
+              "expected_value_text": "PCE"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.currency_code",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.currency_code",
+              "expected_value_text": "USD"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.unit_price.foreign",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.unit_price.foreign",
+              "expected_value_text": "29.36"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.invoice_amount.foreign",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.invoice_amount.foreign",
+              "expected_value_text": "15854.40"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.shipping_marks",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.shipping_marks",
+              "expected_value_text": "INV#9437125258"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.package.amount",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.package.amount",
+              "expected_value_text": "1"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.product_info.package.unit_code",
+            "values": {
+              "schema_path": "goods_shipment.detail.product_info.package.unit_code",
+              "expected_value_text": "PALLET"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.boi_license_number",
+            "values": {
+              "schema_path": "goods_shipment.detail.boi_license_number",
+              "expected_value_text": "61-1505-1-00-1-0"
+            }
+          },
+          {
+            "itemKey": "goods_shipment.detail.gross_weight",
+            "values": {
+              "schema_path": "goods_shipment.detail.gross_weight",
+              "expected_value_text": "79.14"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "mediaSnapshot": {
+    "contractVersion": 1,
+    "kind": "instance-media-snapshot",
+    "mediaSnapshotId": "media-inv_9437125258-2026-07-16-r1",
+    "instance": {
+      "contractVersion": 1,
+      "kind": "document-instance",
+      "instanceId": "instance-ocr-benchmark-inv_9437125258-2026-07-16",
+      "revision": 1,
+      "structureVersion": {
+        "structureId": "structure-ocr-benchmark-report",
+        "structureVersionId": "structure-ocr-benchmark-report-v1",
+        "versionOrdinal": 1
+      }
+    },
+    "registry": {
+      "version": 1,
+      "images": {
+        "source-evidence-image": {
+          "id": "source-evidence-image",
+          "kind": "image",
+          "mediaType": "image/png",
+          "byteLength": 230868,
+          "digest": {
+            "algorithm": "sha256",
+            "value": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2"
+          },
+          "intrinsic": {
+            "widthPx": 1548,
+            "heightPx": 1376
+          }
+        },
+        "ocr-accuracy-image": {
+          "id": "ocr-accuracy-image",
+          "kind": "image",
+          "mediaType": "image/png",
+          "byteLength": 65307,
+          "digest": {
+            "algorithm": "sha256",
+            "value": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce"
+          },
+          "intrinsic": {
+            "widthPx": 1950,
+            "heightPx": 900
+          }
+        },
+        "native-extraction-image": {
+          "id": "native-extraction-image",
+          "kind": "image",
+          "mediaType": "image/png",
+          "byteLength": 52599,
+          "digest": {
+            "algorithm": "sha256",
+            "value": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc"
+          },
+          "intrinsic": {
+            "widthPx": 1950,
+            "heightPx": 900
+          }
+        },
+        "mapping-gap-image": {
+          "id": "mapping-gap-image",
+          "kind": "image",
+          "mediaType": "image/png",
+          "byteLength": 60559,
+          "digest": {
+            "algorithm": "sha256",
+            "value": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5"
+          },
+          "intrinsic": {
+            "widthPx": 1950,
+            "heightPx": 900
+          }
+        },
+        "latency-rounds-image": {
+          "id": "latency-rounds-image",
+          "kind": "image",
+          "mediaType": "image/png",
+          "byteLength": 54714,
+          "digest": {
+            "algorithm": "sha256",
+            "value": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6"
+          },
+          "intrinsic": {
+            "widthPx": 1950,
+            "heightPx": 900
+          }
+        }
+      }
+    }
+  },
+  "provenance": {
+    "contractVersion": 1,
+    "kind": "canonical-report-data-provenance",
+    "sourceSetId": "source-set-6018cdb46d47ec3b7fc389bb",
+    "scalars": {
+      "report.benchmark_id": {
+        "fieldKey": "report.benchmark_id",
+        "sourcePointers": [
+          "benchmark-spec.json#/benchmarkId"
+        ],
+        "derivation": "copy"
+      },
+      "report.version": {
+        "fieldKey": "report.version",
+        "sourcePointers": [
+          "build_report.py#/build_document"
+        ],
+        "derivation": "copy"
+      },
+      "report.test_date": {
+        "fieldKey": "report.test_date",
+        "sourcePointers": [
+          "benchmark-spec.json#/benchmarkId"
+        ],
+        "derivation": "copy"
+      },
+      "report.metrics_generated_at": {
+        "fieldKey": "report.metrics_generated_at",
+        "sourcePointers": [
+          "metrics.json#/generatedAt"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth_method": {
+        "fieldKey": "report.truth_method",
+        "sourcePointers": [
+          "ground-truth.json#/method"
+        ],
+        "derivation": "copy"
+      },
+      "report.scope_warning": {
+        "fieldKey": "report.scope_warning",
+        "sourcePointers": [
+          "ground-truth.json#/scopeWarning"
+        ],
+        "derivation": "copy"
+      },
+      "report.source.file_name": {
+        "fieldKey": "report.source.file_name",
+        "sourcePointers": [
+          "benchmark-spec.json#/source/fileName"
+        ],
+        "derivation": "copy"
+      },
+      "report.source.sha256": {
+        "fieldKey": "report.source.sha256",
+        "sourcePointers": [
+          "benchmark-spec.json#/source/sha256"
+        ],
+        "derivation": "copy"
+      },
+      "report.source.page_count": {
+        "fieldKey": "report.source.page_count",
+        "sourcePointers": [
+          "benchmark-spec.json#/source/pages"
+        ],
+        "derivation": "copy"
+      },
+      "report.source.size_bytes": {
+        "fieldKey": "report.source.size_bytes",
+        "sourcePointers": [
+          "benchmark-spec.json#/source/sizeBytes"
+        ],
+        "derivation": "copy"
+      },
+      "report.settings.processing_scope": {
+        "fieldKey": "report.settings.processing_scope",
+        "sourcePointers": [
+          "benchmark-spec.json#/settings/processingScope"
+        ],
+        "derivation": "copy"
+      },
+      "report.settings.submit_mode": {
+        "fieldKey": "report.settings.submit_mode",
+        "sourcePointers": [
+          "benchmark-spec.json#/settings/submitMode"
+        ],
+        "derivation": "copy"
+      },
+      "report.settings.max_pages": {
+        "fieldKey": "report.settings.max_pages",
+        "sourcePointers": [
+          "benchmark-spec.json#/settings/maxPages"
+        ],
+        "derivation": "copy"
+      },
+      "report.settings.max_estimated_cost_usd_per_run": {
+        "fieldKey": "report.settings.max_estimated_cost_usd_per_run",
+        "sourcePointers": [
+          "benchmark-spec.json#/settings/maxEstimatedCostUsdPerRun"
+        ],
+        "derivation": "copy"
+      },
+      "report.settings.usd_to_thb_rate": {
+        "fieldKey": "report.settings.usd_to_thb_rate",
+        "sourcePointers": [
+          "benchmark-spec.json#/settings/usdToThbRate"
+        ],
+        "derivation": "copy"
+      },
+      "report.settings.low_confidence_threshold": {
+        "fieldKey": "report.settings.low_confidence_threshold",
+        "sourcePointers": [
+          "benchmark-spec.json#/settings/lowConfidenceThreshold"
+        ],
+        "derivation": "copy"
+      },
+      "report.validation.all_runs_completed": {
+        "fieldKey": "report.validation.all_runs_completed",
+        "sourcePointers": [
+          "metrics.json#/validation/allRunsCompleted"
+        ],
+        "derivation": "copy"
+      },
+      "report.validation.all_source_hashes_match": {
+        "fieldKey": "report.validation.all_source_hashes_match",
+        "sourcePointers": [
+          "metrics.json#/validation/allSourceHashesMatch"
+        ],
+        "derivation": "copy"
+      },
+      "report.validation.all_runs_have_expected_pages": {
+        "fieldKey": "report.validation.all_runs_have_expected_pages",
+        "sourcePointers": [
+          "metrics.json#/validation/allRunsHaveTwoPagesPerEngine"
+        ],
+        "derivation": "copy"
+      },
+      "report.validation.no_errors": {
+        "fieldKey": "report.validation.no_errors",
+        "sourcePointers": [
+          "metrics.json#/validation/noErrors"
+        ],
+        "derivation": "copy"
+      },
+      "report.total_cost.usd": {
+        "fieldKey": "report.total_cost.usd",
+        "sourcePointers": [
+          "metrics.json#/totalEstimatedCost/usd"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.total_cost.thb": {
+        "fieldKey": "report.total_cost.thb",
+        "sourcePointers": [
+          "metrics.json#/totalEstimatedCost/thb"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.truth.critical_value_count": {
+        "fieldKey": "report.truth.critical_value_count",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.truth.native_concept_count": {
+        "fieldKey": "report.truth.native_concept_count",
+        "sourcePointers": [
+          "ground-truth.json#/nativeConcepts"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.truth.gdim_derivable_field_count": {
+        "fieldKey": "report.truth.gdim_derivable_field_count",
+        "sourcePointers": [
+          "ground-truth.json#/gdimFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.truth.critical.invoice_number": {
+        "fieldKey": "report.truth.critical.invoice_number",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/0/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.delivery_number": {
+        "fieldKey": "report.truth.critical.delivery_number",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/1/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.invoice_date": {
+        "fieldKey": "report.truth.critical.invoice_date",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/2/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.aeo_number": {
+        "fieldKey": "report.truth.critical.aeo_number",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/3/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.customer_code": {
+        "fieldKey": "report.truth.critical.customer_code",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/4/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.customer_name": {
+        "fieldKey": "report.truth.critical.customer_name",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/5/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.postcode": {
+        "fieldKey": "report.truth.critical.postcode",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/6/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.transport_mode": {
+        "fieldKey": "report.truth.critical.transport_mode",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/7/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.origin_city": {
+        "fieldKey": "report.truth.critical.origin_city",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/8/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.destination": {
+        "fieldKey": "report.truth.critical.destination",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/9/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.ex_factory_date": {
+        "fieldKey": "report.truth.critical.ex_factory_date",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/10/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.payment_term": {
+        "fieldKey": "report.truth.critical.payment_term",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/11/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.incoterm": {
+        "fieldKey": "report.truth.critical.incoterm",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/12/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.package": {
+        "fieldKey": "report.truth.critical.package",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/13/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.product_group": {
+        "fieldKey": "report.truth.critical.product_group",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/14/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.description": {
+        "fieldKey": "report.truth.critical.description",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/15/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.product_code": {
+        "fieldKey": "report.truth.critical.product_code",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/16/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.model": {
+        "fieldKey": "report.truth.critical.model",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/17/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.boi": {
+        "fieldKey": "report.truth.critical.boi",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/18/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.quantity": {
+        "fieldKey": "report.truth.critical.quantity",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/19/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.unit_price": {
+        "fieldKey": "report.truth.critical.unit_price",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/20/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.amount": {
+        "fieldKey": "report.truth.critical.amount",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/21/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.origin_country": {
+        "fieldKey": "report.truth.critical.origin_country",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/22/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.gross_weight": {
+        "fieldKey": "report.truth.critical.gross_weight",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/23/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.net_weight": {
+        "fieldKey": "report.truth.critical.net_weight",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/24/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.tax_id": {
+        "fieldKey": "report.truth.critical.tax_id",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/25/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.email": {
+        "fieldKey": "report.truth.critical.email",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/26/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.sales": {
+        "fieldKey": "report.truth.critical.sales",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/27/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.truth.critical.plant": {
+        "fieldKey": "report.truth.critical.plant",
+        "sourcePointers": [
+          "ground-truth.json#/criticalValues/28/value"
+        ],
+        "derivation": "copy"
+      },
+      "report.engine.google_vision.words": {
+        "fieldKey": "report.engine.google_vision.words",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/words/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.low_confidence_words": {
+        "fieldKey": "report.engine.google_vision.low_confidence_words",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/lowConfidenceWords/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.bbox_coverage": {
+        "fieldKey": "report.engine.google_vision.bbox_coverage",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/bboxCoverage/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.latency_ms.min": {
+        "fieldKey": "report.engine.google_vision.latency_ms.min",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/latencyMs/min"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.latency_ms.median": {
+        "fieldKey": "report.engine.google_vision.latency_ms.median",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/latencyMs/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.latency_ms.max": {
+        "fieldKey": "report.engine.google_vision.latency_ms.max",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/latencyMs/max"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.response_bytes": {
+        "fieldKey": "report.engine.google_vision.response_bytes",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/responseBytes/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.cost_usd": {
+        "fieldKey": "report.engine.google_vision.cost_usd",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/costUsd/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.cost_thb": {
+        "fieldKey": "report.engine.google_vision.cost_thb",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/costThb/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.repeatability.exact_text": {
+        "fieldKey": "report.engine.google_vision.repeatability.exact_text",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/repeatability/exactTextAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.repeatability.exact_key_values": {
+        "fieldKey": "report.engine.google_vision.repeatability.exact_key_values",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/repeatability/exactKeyValuesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.repeatability.exact_tables": {
+        "fieldKey": "report.engine.google_vision.repeatability.exact_tables",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/repeatability/exactTablesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.words": {
+        "fieldKey": "report.engine.azure_document_intelligence.words",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/words/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.low_confidence_words": {
+        "fieldKey": "report.engine.azure_document_intelligence.low_confidence_words",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/lowConfidenceWords/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.bbox_coverage": {
+        "fieldKey": "report.engine.azure_document_intelligence.bbox_coverage",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/bboxCoverage/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.latency_ms.min": {
+        "fieldKey": "report.engine.azure_document_intelligence.latency_ms.min",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/latencyMs/min"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.latency_ms.median": {
+        "fieldKey": "report.engine.azure_document_intelligence.latency_ms.median",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/latencyMs/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.latency_ms.max": {
+        "fieldKey": "report.engine.azure_document_intelligence.latency_ms.max",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/latencyMs/max"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.response_bytes": {
+        "fieldKey": "report.engine.azure_document_intelligence.response_bytes",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/responseBytes/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.cost_usd": {
+        "fieldKey": "report.engine.azure_document_intelligence.cost_usd",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/costUsd/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.cost_thb": {
+        "fieldKey": "report.engine.azure_document_intelligence.cost_thb",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/costThb/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.repeatability.exact_text": {
+        "fieldKey": "report.engine.azure_document_intelligence.repeatability.exact_text",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/repeatability/exactTextAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.repeatability.exact_key_values": {
+        "fieldKey": "report.engine.azure_document_intelligence.repeatability.exact_key_values",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/repeatability/exactKeyValuesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.repeatability.exact_tables": {
+        "fieldKey": "report.engine.azure_document_intelligence.repeatability.exact_tables",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/repeatability/exactTablesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.words": {
+        "fieldKey": "report.engine.google_document_ai_native.words",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/words/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.low_confidence_words": {
+        "fieldKey": "report.engine.google_document_ai_native.low_confidence_words",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/lowConfidenceWords/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.bbox_coverage": {
+        "fieldKey": "report.engine.google_document_ai_native.bbox_coverage",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/bboxCoverage/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.latency_ms.min": {
+        "fieldKey": "report.engine.google_document_ai_native.latency_ms.min",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/latencyMs/min"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.latency_ms.median": {
+        "fieldKey": "report.engine.google_document_ai_native.latency_ms.median",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/latencyMs/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.latency_ms.max": {
+        "fieldKey": "report.engine.google_document_ai_native.latency_ms.max",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/latencyMs/max"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.response_bytes": {
+        "fieldKey": "report.engine.google_document_ai_native.response_bytes",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/responseBytes/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.cost_usd": {
+        "fieldKey": "report.engine.google_document_ai_native.cost_usd",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/costUsd/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.cost_thb": {
+        "fieldKey": "report.engine.google_document_ai_native.cost_thb",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/costThb/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.repeatability.exact_text": {
+        "fieldKey": "report.engine.google_document_ai_native.repeatability.exact_text",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/repeatability/exactTextAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.repeatability.exact_key_values": {
+        "fieldKey": "report.engine.google_document_ai_native.repeatability.exact_key_values",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/repeatability/exactKeyValuesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.repeatability.exact_tables": {
+        "fieldKey": "report.engine.google_document_ai_native.repeatability.exact_tables",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/repeatability/exactTablesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.words": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.words",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/words/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.low_confidence_words": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.low_confidence_words",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/lowConfidenceWords/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.bbox_coverage": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.bbox_coverage",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/bboxCoverage/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.latency_ms.min": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.latency_ms.min",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/latencyMs/min"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.latency_ms.median": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.latency_ms.median",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/latencyMs/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.latency_ms.max": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.latency_ms.max",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/latencyMs/max"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.response_bytes": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.response_bytes",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/responseBytes/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.cost_usd": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.cost_usd",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/costUsd/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.cost_thb": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.cost_thb",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/costThb/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.repeatability.exact_text": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.repeatability.exact_text",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/repeatability/exactTextAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.repeatability.exact_key_values": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.repeatability.exact_key_values",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/repeatability/exactKeyValuesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.repeatability.exact_tables": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.repeatability.exact_tables",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/repeatability/exactTablesAcrossRuns"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.character_accuracy": {
+        "fieldKey": "report.engine.google_vision.character_accuracy",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/characterAccuracy/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.word_accuracy": {
+        "fieldKey": "report.engine.google_vision.word_accuracy",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/summary/wordAccuracy/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.critical_values_found": {
+        "fieldKey": "report.engine.google_vision.critical_values_found",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/runs/*/criticalValuesFound"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_vision.critical_values_total": {
+        "fieldKey": "report.engine.google_vision.critical_values_total",
+        "sourcePointers": [
+          "metrics.json#/engines/google_vision/runs/*/criticalValuesTotal"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.character_accuracy": {
+        "fieldKey": "report.engine.azure_document_intelligence.character_accuracy",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/characterAccuracy/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.word_accuracy": {
+        "fieldKey": "report.engine.azure_document_intelligence.word_accuracy",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/summary/wordAccuracy/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.critical_values_found": {
+        "fieldKey": "report.engine.azure_document_intelligence.critical_values_found",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/runs/*/criticalValuesFound"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence.critical_values_total": {
+        "fieldKey": "report.engine.azure_document_intelligence.critical_values_total",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence/runs/*/criticalValuesTotal"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.non_empty_key_values": {
+        "fieldKey": "report.engine.google_document_ai_native.non_empty_key_values",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/nonEmptyKeyValues/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.table_count": {
+        "fieldKey": "report.engine.google_document_ai_native.table_count",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/tables/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.table_cell_count": {
+        "fieldKey": "report.engine.google_document_ai_native.table_cell_count",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/tableCells/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.structured_concepts_found": {
+        "fieldKey": "report.engine.google_document_ai_native.structured_concepts_found",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/runs/*/structuredConceptsFound"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.structured_concepts_total": {
+        "fieldKey": "report.engine.google_document_ai_native.structured_concepts_total",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/runs/*/structuredConceptsTotal"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.structured_concept_coverage": {
+        "fieldKey": "report.engine.google_document_ai_native.structured_concept_coverage",
+        "sourcePointers": [
+          "metrics.json#/engines/google_document_ai_native/summary/structuredConceptCoverage/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.total_schema_fields": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.total_schema_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/totalSchemaFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.required_fields": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.required_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/requiredFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.mapped_fields": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.mapped_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappedFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.mapped_required_fields": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.mapped_required_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappedRequiredFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.expected_derivable_fields": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.expected_derivable_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/expectedDerivableFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.correct_mapped_fields": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.correct_mapped_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/correctMappedFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.precision": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.precision",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappingPrecision"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.google_document_ai_native.mapping.recall": {
+        "fieldKey": "report.engine.google_document_ai_native.mapping.recall",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappingRecall"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.non_empty_key_values": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.non_empty_key_values",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/nonEmptyKeyValues/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.table_count": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.table_count",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/tables/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.table_cell_count": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.table_cell_count",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/tableCells/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.structured_concepts_found": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.structured_concepts_found",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/runs/*/structuredConceptsFound"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.structured_concepts_total": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.structured_concepts_total",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/runs/*/structuredConceptsTotal"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.structured_concept_coverage": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.structured_concept_coverage",
+        "sourcePointers": [
+          "metrics.json#/engines/azure_document_intelligence_native/summary/structuredConceptCoverage/median"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.total_schema_fields": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.total_schema_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/totalSchemaFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.required_fields": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.required_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/requiredFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.mapped_fields": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.mapped_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappedFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.mapped_required_fields": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.mapped_required_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappedRequiredFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.expected_derivable_fields": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.expected_derivable_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/expectedDerivableFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.correct_mapped_fields": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.correct_mapped_fields",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/correctMappedFields"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.precision": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.precision",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappingPrecision"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.engine.azure_document_intelligence_native.mapping.recall": {
+        "fieldKey": "report.engine.azure_document_intelligence_native.mapping.recall",
+        "sourcePointers": [
+          "metrics.json#/forcedGdim/*/mappingRecall"
+        ],
+        "derivation": "aggregate"
+      },
+      "report.decision.ocr_faster_engine": {
+        "fieldKey": "report.decision.ocr_faster_engine",
+        "sourcePointers": [
+          "metrics.json#/engines/*/summary/latencyMs/median"
+        ],
+        "derivation": "comparison"
+      },
+      "report.decision.ocr_latency_delta_ms": {
+        "fieldKey": "report.decision.ocr_latency_delta_ms",
+        "sourcePointers": [
+          "metrics.json#/engines/*/summary/latencyMs/median"
+        ],
+        "derivation": "comparison"
+      },
+      "report.decision.native_higher_coverage_engine": {
+        "fieldKey": "report.decision.native_higher_coverage_engine",
+        "sourcePointers": [
+          "metrics.json#/engines/*/summary/structuredConceptCoverage/median"
+        ],
+        "derivation": "comparison"
+      },
+      "report.decision.native_lower_cost_engine": {
+        "fieldKey": "report.decision.native_lower_cost_engine",
+        "sourcePointers": [
+          "metrics.json#/engines/*/summary/costThb/median"
+        ],
+        "derivation": "comparison"
+      },
+      "report.decision.native_cost_ratio": {
+        "fieldKey": "report.decision.native_cost_ratio",
+        "sourcePointers": [
+          "metrics.json#/engines/*/summary/costThb/median"
+        ],
+        "derivation": "comparison"
+      },
+      "report.media.source_evidence": {
+        "fieldKey": "report.media.source_evidence",
+        "sourcePointers": [
+          "external-report://INV_9437125258/assets/source_evidence.png"
+        ],
+        "derivation": "media-identity"
+      },
+      "report.media.ocr_accuracy_chart": {
+        "fieldKey": "report.media.ocr_accuracy_chart",
+        "sourcePointers": [
+          "external-report://INV_9437125258/assets/ocr_accuracy.png"
+        ],
+        "derivation": "media-identity"
+      },
+      "report.media.native_extraction_chart": {
+        "fieldKey": "report.media.native_extraction_chart",
+        "sourcePointers": [
+          "external-report://INV_9437125258/assets/native_extraction.png"
+        ],
+        "derivation": "media-identity"
+      },
+      "report.media.mapping_gap_chart": {
+        "fieldKey": "report.media.mapping_gap_chart",
+        "sourcePointers": [
+          "external-report://INV_9437125258/assets/mapping_gap.png"
+        ],
+        "derivation": "media-identity"
+      },
+      "report.media.latency_rounds_chart": {
+        "fieldKey": "report.media.latency_rounds_chart",
+        "sourcePointers": [
+          "external-report://INV_9437125258/assets/latency_rounds.png"
+        ],
+        "derivation": "media-identity"
+      }
+    },
+    "collections": {
+      "report.runs": {
+        "collectionFieldKey": "report.runs",
+        "items": {
+          "2026-07-16T11-52-22-028Z": {
+            "itemKey": "2026-07-16T11-52-22-028Z",
+            "sourcePointers": [
+              "benchmark-spec.json#/runs/0",
+              "metrics.json#/validation/runs/0"
+            ],
+            "derivation": "copy"
+          },
+          "2026-07-16T11-52-39-170Z": {
+            "itemKey": "2026-07-16T11-52-39-170Z",
+            "sourcePointers": [
+              "benchmark-spec.json#/runs/1",
+              "metrics.json#/validation/runs/1"
+            ],
+            "derivation": "copy"
+          },
+          "2026-07-16T11-52-57-651Z": {
+            "itemKey": "2026-07-16T11-52-57-651Z",
+            "sourcePointers": [
+              "benchmark-spec.json#/runs/2",
+              "metrics.json#/validation/runs/2"
+            ],
+            "derivation": "copy"
+          },
+          "2026-07-16T11-53-50-392Z": {
+            "itemKey": "2026-07-16T11-53-50-392Z",
+            "sourcePointers": [
+              "benchmark-spec.json#/runs/3",
+              "metrics.json#/validation/runs/3"
+            ],
+            "derivation": "copy"
+          },
+          "2026-07-16T11-54-06-893Z": {
+            "itemKey": "2026-07-16T11-54-06-893Z",
+            "sourcePointers": [
+              "benchmark-spec.json#/runs/4",
+              "metrics.json#/validation/runs/4"
+            ],
+            "derivation": "copy"
+          },
+          "2026-07-16T11-54-21-384Z": {
+            "itemKey": "2026-07-16T11-54-21-384Z",
+            "sourcePointers": [
+              "benchmark-spec.json#/runs/5",
+              "metrics.json#/validation/runs/5"
+            ],
+            "derivation": "copy"
+          }
+        }
+      },
+      "report.ocr_runs": {
+        "collectionFieldKey": "report.ocr_runs",
+        "items": {
+          "google_vision:2026-07-16T11-52-22-028Z": {
+            "itemKey": "google_vision:2026-07-16T11-52-22-028Z",
+            "sourcePointers": [
+              "metrics.json#/engines/google_vision/runs/0"
+            ],
+            "derivation": "copy"
+          },
+          "google_vision:2026-07-16T11-53-50-392Z": {
+            "itemKey": "google_vision:2026-07-16T11-53-50-392Z",
+            "sourcePointers": [
+              "metrics.json#/engines/google_vision/runs/1"
+            ],
+            "derivation": "copy"
+          },
+          "google_vision:2026-07-16T11-54-06-893Z": {
+            "itemKey": "google_vision:2026-07-16T11-54-06-893Z",
+            "sourcePointers": [
+              "metrics.json#/engines/google_vision/runs/2"
+            ],
+            "derivation": "copy"
+          },
+          "azure_document_intelligence:2026-07-16T11-52-39-170Z": {
+            "itemKey": "azure_document_intelligence:2026-07-16T11-52-39-170Z",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence/runs/0"
+            ],
+            "derivation": "copy"
+          },
+          "azure_document_intelligence:2026-07-16T11-52-57-651Z": {
+            "itemKey": "azure_document_intelligence:2026-07-16T11-52-57-651Z",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence/runs/1"
+            ],
+            "derivation": "copy"
+          },
+          "azure_document_intelligence:2026-07-16T11-54-21-384Z": {
+            "itemKey": "azure_document_intelligence:2026-07-16T11-54-21-384Z",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence/runs/2"
+            ],
+            "derivation": "copy"
+          }
+        }
+      },
+      "report.native_runs": {
+        "collectionFieldKey": "report.native_runs",
+        "items": {
+          "google_document_ai_native:2026-07-16T11-52-22-028Z": {
+            "itemKey": "google_document_ai_native:2026-07-16T11-52-22-028Z",
+            "sourcePointers": [
+              "metrics.json#/engines/google_document_ai_native/runs/0"
+            ],
+            "derivation": "copy"
+          },
+          "google_document_ai_native:2026-07-16T11-53-50-392Z": {
+            "itemKey": "google_document_ai_native:2026-07-16T11-53-50-392Z",
+            "sourcePointers": [
+              "metrics.json#/engines/google_document_ai_native/runs/1"
+            ],
+            "derivation": "copy"
+          },
+          "google_document_ai_native:2026-07-16T11-54-06-893Z": {
+            "itemKey": "google_document_ai_native:2026-07-16T11-54-06-893Z",
+            "sourcePointers": [
+              "metrics.json#/engines/google_document_ai_native/runs/2"
+            ],
+            "derivation": "copy"
+          },
+          "azure_document_intelligence_native:2026-07-16T11-52-39-170Z": {
+            "itemKey": "azure_document_intelligence_native:2026-07-16T11-52-39-170Z",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/0"
+            ],
+            "derivation": "copy"
+          },
+          "azure_document_intelligence_native:2026-07-16T11-52-57-651Z": {
+            "itemKey": "azure_document_intelligence_native:2026-07-16T11-52-57-651Z",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/1"
+            ],
+            "derivation": "copy"
+          },
+          "azure_document_intelligence_native:2026-07-16T11-54-21-384Z": {
+            "itemKey": "azure_document_intelligence_native:2026-07-16T11-54-21-384Z",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/2"
+            ],
+            "derivation": "copy"
+          }
+        }
+      },
+      "report.native_missing_concepts": {
+        "collectionFieldKey": "report.native_missing_concepts",
+        "items": {
+          "google_document_ai_native:origin_country": {
+            "itemKey": "google_document_ai_native:origin_country",
+            "sourcePointers": [
+              "metrics.json#/engines/google_document_ai_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "google_document_ai_native:shipping_marks": {
+            "itemKey": "google_document_ai_native:shipping_marks",
+            "sourcePointers": [
+              "metrics.json#/engines/google_document_ai_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:invoice_date": {
+            "itemKey": "azure_document_intelligence_native:invoice_date",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:package": {
+            "itemKey": "azure_document_intelligence_native:package",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:product_group": {
+            "itemKey": "azure_document_intelligence_native:product_group",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:description": {
+            "itemKey": "azure_document_intelligence_native:description",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:product_code": {
+            "itemKey": "azure_document_intelligence_native:product_code",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:model": {
+            "itemKey": "azure_document_intelligence_native:model",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:boi": {
+            "itemKey": "azure_document_intelligence_native:boi",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:origin_country": {
+            "itemKey": "azure_document_intelligence_native:origin_country",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:gross_weight": {
+            "itemKey": "azure_document_intelligence_native:gross_weight",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:shipping_marks": {
+            "itemKey": "azure_document_intelligence_native:shipping_marks",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          },
+          "azure_document_intelligence_native:aeo_number": {
+            "itemKey": "azure_document_intelligence_native:aeo_number",
+            "sourcePointers": [
+              "metrics.json#/engines/azure_document_intelligence_native/runs/*/missingStructuredConcepts"
+            ],
+            "derivation": "aggregate"
+          }
+        }
+      },
+      "report.mapping_fields": {
+        "collectionFieldKey": "report.mapping_fields",
+        "items": {
+          "google_document_ai_native:goods_shipment.invoice.number": {
+            "itemKey": "google_document_ai_native:goods_shipment.invoice.number",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "google_document_ai_native:goods_shipment.invoice.date": {
+            "itemKey": "google_document_ai_native:goods_shipment.invoice.date",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "google_document_ai_native:goods_shipment.invoice.consignor_info.email": {
+            "itemKey": "google_document_ai_native:goods_shipment.invoice.consignor_info.email",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "google_document_ai_native:goods_shipment.detail.product_info.net_weight.weight": {
+            "itemKey": "google_document_ai_native:goods_shipment.detail.product_info.net_weight.weight",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "google_document_ai_native:goods_shipment.detail.gross_weight": {
+            "itemKey": "google_document_ai_native:goods_shipment.detail.gross_weight",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "azure_document_intelligence_native:goods_shipment.invoice.number": {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.invoice.number",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "azure_document_intelligence_native:goods_shipment.invoice.consignor_info.email": {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.invoice.consignor_info.email",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "azure_document_intelligence_native:goods_shipment.detail.product_info.net_weight.weight": {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.detail.product_info.net_weight.weight",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "azure_document_intelligence_native:goods_shipment.detail.boi": {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.detail.boi",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          },
+          "azure_document_intelligence_native:goods_shipment.detail.gross_weight": {
+            "itemKey": "azure_document_intelligence_native:goods_shipment.detail.gross_weight",
+            "sourcePointers": [
+              "metrics.json#/forcedGdim/*/mapped",
+              "ground-truth.json#/gdimFields"
+            ],
+            "derivation": "comparison"
+          }
+        }
+      },
+      "report.gdim_expected_fields": {
+        "collectionFieldKey": "report.gdim_expected_fields",
+        "items": {
+          "document_control.border_transport_means.mode_code": {
+            "itemKey": "document_control.border_transport_means.mode_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/0"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.origin_country_code": {
+            "itemKey": "document_control.origin_country_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/1"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.total_package.shipping_marks": {
+            "itemKey": "document_control.total_package.shipping_marks",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/2"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.total_package.amount": {
+            "itemKey": "document_control.total_package.amount",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/3"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.total_package.unit_code": {
+            "itemKey": "document_control.total_package.unit_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/4"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.total_net_weight.weight": {
+            "itemKey": "document_control.total_net_weight.weight",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/5"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.total_net_weight.unit_code": {
+            "itemKey": "document_control.total_net_weight.unit_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/6"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.total_gross_weight.weight": {
+            "itemKey": "document_control.total_gross_weight.weight",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/7"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.total_gross_weight.unit_code": {
+            "itemKey": "document_control.total_gross_weight.unit_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/8"
+            ],
+            "derivation": "copy"
+          },
+          "document_control.currency_code": {
+            "itemKey": "document_control.currency_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/9"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.number": {
+            "itemKey": "goods_shipment.invoice.number",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/10"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.date": {
+            "itemKey": "goods_shipment.invoice.date",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/11"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.term_of_payment_code": {
+            "itemKey": "goods_shipment.invoice.term_of_payment_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/12"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.trade_terms": {
+            "itemKey": "goods_shipment.invoice.trade_terms",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/13"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.consignor_info.email": {
+            "itemKey": "goods_shipment.invoice.consignor_info.email",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/14"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.currency_code": {
+            "itemKey": "goods_shipment.invoice.currency_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/15"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.total_amount": {
+            "itemKey": "goods_shipment.invoice.total_amount",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/16"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.invoice.aeos_reference_number": {
+            "itemKey": "goods_shipment.invoice.aeos_reference_number",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/17"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_code": {
+            "itemKey": "goods_shipment.detail.product_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/18"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.goods_description.english": {
+            "itemKey": "goods_shipment.detail.goods_description.english",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/19"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.origin_country_code": {
+            "itemKey": "goods_shipment.detail.product_info.origin_country_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/20"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.net_weight.weight": {
+            "itemKey": "goods_shipment.detail.product_info.net_weight.weight",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/21"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.invoice_quantity.quantity": {
+            "itemKey": "goods_shipment.detail.product_info.invoice_quantity.quantity",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/22"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.invoice_quantity.unit_code": {
+            "itemKey": "goods_shipment.detail.product_info.invoice_quantity.unit_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/23"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.currency_code": {
+            "itemKey": "goods_shipment.detail.product_info.currency_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/24"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.unit_price.foreign": {
+            "itemKey": "goods_shipment.detail.product_info.unit_price.foreign",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/25"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.invoice_amount.foreign": {
+            "itemKey": "goods_shipment.detail.product_info.invoice_amount.foreign",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/26"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.shipping_marks": {
+            "itemKey": "goods_shipment.detail.product_info.shipping_marks",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/27"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.package.amount": {
+            "itemKey": "goods_shipment.detail.product_info.package.amount",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/28"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.product_info.package.unit_code": {
+            "itemKey": "goods_shipment.detail.product_info.package.unit_code",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/29"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.boi_license_number": {
+            "itemKey": "goods_shipment.detail.boi_license_number",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/30"
+            ],
+            "derivation": "copy"
+          },
+          "goods_shipment.detail.gross_weight": {
+            "itemKey": "goods_shipment.detail.gross_weight",
+            "sourcePointers": [
+              "ground-truth.json#/gdimFields/31"
+            ],
+            "derivation": "copy"
+          }
+        }
+      }
+    },
+    "media": {
+      "report.media.source_evidence": {
+        "fieldKey": "report.media.source_evidence",
+        "assetId": "source-evidence-image",
+        "sourcePointer": "external-report://INV_9437125258/assets/source_evidence.png",
+        "derivation": "media-identity"
+      },
+      "report.media.ocr_accuracy_chart": {
+        "fieldKey": "report.media.ocr_accuracy_chart",
+        "assetId": "ocr-accuracy-image",
+        "sourcePointer": "external-report://INV_9437125258/assets/ocr_accuracy.png",
+        "derivation": "media-identity"
+      },
+      "report.media.native_extraction_chart": {
+        "fieldKey": "report.media.native_extraction_chart",
+        "assetId": "native-extraction-image",
+        "sourcePointer": "external-report://INV_9437125258/assets/native_extraction.png",
+        "derivation": "media-identity"
+      },
+      "report.media.mapping_gap_chart": {
+        "fieldKey": "report.media.mapping_gap_chart",
+        "assetId": "mapping-gap-image",
+        "sourcePointer": "external-report://INV_9437125258/assets/mapping_gap.png",
+        "derivation": "media-identity"
+      },
+      "report.media.latency_rounds_chart": {
+        "fieldKey": "report.media.latency_rounds_chart",
+        "assetId": "latency-rounds-image",
+        "sourcePointer": "external-report://INV_9437125258/assets/latency_rounds.png",
+        "derivation": "media-identity"
+      }
+    }
+  },
+  "ownership": {
+    "adapterOwns": [
+      "typed-source-facts",
+      "stable-field-keys",
+      "stable-collection-items",
+      "source-provenance"
+    ],
+    "adapterMustNotOwn": [
+      "template-prose",
+      "display-formatting",
+      "authored-visual-lines",
+      "layout-coordinates",
+      "glyph-shaping",
+      "page-breaking",
+      "pdf-bytes"
+    ]
+  },
+  "execution": {
+    "templateResolution": "not-run",
+    "textMeasurement": "not-run",
+    "lineBreaking": "not-run",
+    "layout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "summary": {
+    "fieldCount": 154,
+    "scalarValueCount": 148,
+    "collectionCount": 6,
+    "collectionItemCount": 73,
+    "mediaAssetCount": 5,
+    "dataSourceFileCount": 5,
+    "mediaSourceFileCount": 5,
+    "scalarProvenanceCount": 148,
+    "collectionProvenanceItemCount": 73,
+    "mediaProvenanceCount": 5
+  },
+  "bundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d"
+}

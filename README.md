@@ -880,6 +880,10 @@ The package must remain runnable without any parent editor checkout.
   metrics, ground truth, benchmark spec, and analyzer; derives 205 scalar
   values across 16 elements; and corrects two latency maxima plus five Run IDs
   while retaining the prior typography artifact as regression evidence.
+- PDF canonical report data and binding lock converts those authoritative
+  sources into revision-pinned FlowDoc field, collection, scalar, and media
+  snapshots with full provenance, while explicitly deferring template
+  resolution, wrapping, layout, pagination, and PDF rendering.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.
