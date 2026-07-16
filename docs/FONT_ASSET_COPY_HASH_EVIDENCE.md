@@ -39,6 +39,20 @@ The copied initial set is:
 - `assets/fonts/Noto_Sans_Thai/static/NotoSansThai-Bold.ttf`;
 - `assets/fonts/Noto_Sans_Thai/OFL.txt`.
 
+The manifest also records these inactive IBM Plex Sans Thai comparison
+candidates:
+
+- `assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf`;
+- `assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Bold.ttf`;
+- `assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Light.ttf`;
+- `assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Thin.ttf`;
+- `assets/fonts/IBM_Plex_Sans_Thai/OFL.txt`.
+
+Candidate assets have target-copy byte sizes, sha256 hashes, and verified OFL
+evidence, but remain outside `fontAssets` and `styleMappings`. They therefore
+do not change the active measurement profile identity until a later comparison
+phase selects and promotes specific weights.
+
 ## Ownership And Identity
 
 Hash authority is `vnext-target-copy`.

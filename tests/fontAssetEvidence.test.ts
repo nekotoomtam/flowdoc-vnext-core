@@ -46,6 +46,30 @@ interface FontAssetManifest {
     bytes: number
     sha256: string
   }>
+  candidateFontAssets: Array<{
+    fontId: string
+    family: string
+    style: "normal" | "italic"
+    weight: number
+    format: "ttf"
+    role: "primary-thai" | "fallback-thai" | "style-variant" | "comparison"
+    supportedScripts: string[]
+    sourceReference: {
+      path: string
+      canonical: boolean
+    }
+    target: {
+      kind: "package-font-asset"
+      path: string
+    }
+    license: {
+      id: "OFL-1.1"
+      verified: boolean
+      path: string
+    }
+    bytes: number
+    sha256: string
+  }>
   styleMappings: Array<{
     styleKey: string
     primaryFontId: string
@@ -137,12 +161,44 @@ describe("vNext font asset copy and hash evidence", () => {
     })
   })
 
+  it("registers hash-verified IBM Plex assets as inactive comparison candidates", () => {
+    const manifest = readManifest()
+
+    expect(manifest.candidateFontAssets.map((asset) => asset.fontId)).toEqual([
+      "ibm-plex-sans-thai-regular",
+      "ibm-plex-sans-thai-bold",
+      "ibm-plex-sans-thai-light",
+      "ibm-plex-sans-thai-thin",
+    ])
+    manifest.candidateFontAssets.forEach((asset) => {
+      expect(asset.family).toBe("IBM Plex Sans Thai")
+      expect(asset.target.kind).toBe("package-font-asset")
+      expect(asset.target.path.startsWith("assets/fonts/IBM_Plex_Sans_Thai/")).toBe(true)
+      expect(asset.sourceReference.canonical).toBe(false)
+      expect(asset.license).toMatchObject({
+        id: "OFL-1.1",
+        verified: true,
+        path: "assets/fonts/IBM_Plex_Sans_Thai/OFL.txt",
+      })
+      expect(asset.supportedScripts).toEqual(["Latin", "Thai"])
+      expect(asset.sha256).toMatch(/^[a-f0-9]{64}$/)
+      expect(statSync(repoPath(asset.target.path)).size).toBe(asset.bytes)
+      expect(sha256File(asset.target.path)).toBe(asset.sha256)
+    })
+    const mappedFontIds = manifest.styleMappings.flatMap((mapping) => [
+      mapping.primaryFontId,
+      ...mapping.fallbackFontIds,
+    ])
+    expect(manifest.candidateFontAssets.every((asset) => !mappedFontIds.includes(asset.fontId))).toBe(true)
+  })
+
   it("records copied OFL license evidence with target-copy hashes", () => {
     const manifest = readManifest()
 
     expect(manifest.licenseFiles.map((license) => license.family)).toEqual([
       "Sarabun",
       "Noto Sans Thai",
+      "IBM Plex Sans Thai",
     ])
     manifest.licenseFiles.forEach((license) => {
       const licenseText = readFileSync(repoPath(license.path), "utf8")

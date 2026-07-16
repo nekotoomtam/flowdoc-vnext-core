@@ -20,6 +20,13 @@
       "path": "assets/fonts/Noto_Sans_Thai/OFL.txt",
       "bytes": 4473,
       "sha256": "917b77d971a644ae57343452c19642c48989dba27816350444dbda63b1323db2"
+    },
+    {
+      "licenseId": "OFL-1.1",
+      "family": "IBM Plex Sans Thai",
+      "path": "assets/fonts/IBM_Plex_Sans_Thai/OFL.txt",
+      "bytes": 4362,
+      "sha256": "65fc2f0dd4812f7a323b363ec014786a12ef5e56703ce1f677830cde4399408b"
     }
   ],
   "fontAssets": [
@@ -166,6 +173,104 @@
       },
       "bytes": 47480,
       "sha256": "0be544f347b3ab6382bdc2b555a783727a4858a3dc140670406924670967d916"
+    }
+  ],
+  "candidateFontAssets": [
+    {
+      "fontId": "ibm-plex-sans-thai-regular",
+      "family": "IBM Plex Sans Thai",
+      "style": "normal",
+      "weight": 400,
+      "format": "ttf",
+      "role": "comparison",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "Google Fonts family bundle/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/OFL.txt"
+      },
+      "bytes": 113464,
+      "sha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57"
+    },
+    {
+      "fontId": "ibm-plex-sans-thai-bold",
+      "family": "IBM Plex Sans Thai",
+      "style": "normal",
+      "weight": 700,
+      "format": "ttf",
+      "role": "style-variant",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "Google Fonts family bundle/IBM_Plex_Sans_Thai/IBMPlexSansThai-Bold.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Bold.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/OFL.txt"
+      },
+      "bytes": 113996,
+      "sha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21"
+    },
+    {
+      "fontId": "ibm-plex-sans-thai-light",
+      "family": "IBM Plex Sans Thai",
+      "style": "normal",
+      "weight": 300,
+      "format": "ttf",
+      "role": "style-variant",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "Google Fonts family bundle/IBM_Plex_Sans_Thai/IBMPlexSansThai-Light.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Light.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/OFL.txt"
+      },
+      "bytes": 115800,
+      "sha256": "a481bffe77a7429c2c002422dc799f4462a58cfa6f1a48c80d769d05a2e55174"
+    },
+    {
+      "fontId": "ibm-plex-sans-thai-thin",
+      "family": "IBM Plex Sans Thai",
+      "style": "normal",
+      "weight": 100,
+      "format": "ttf",
+      "role": "style-variant",
+      "supportedScripts": ["Latin", "Thai"],
+      "sourceReference": {
+        "path": "Google Fonts family bundle/IBM_Plex_Sans_Thai/IBMPlexSansThai-Thin.ttf",
+        "canonical": false
+      },
+      "target": {
+        "kind": "package-font-asset",
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Thin.ttf"
+      },
+      "license": {
+        "id": "OFL-1.1",
+        "verified": true,
+        "path": "assets/fonts/IBM_Plex_Sans_Thai/OFL.txt"
+      },
+      "bytes": 118328,
+      "sha256": "35265052452ba5ec8f9a9dcb9b02a0ca2a22961c96f21ee158e8813332cf451e"
     }
   ],
   "styleMappings": [
