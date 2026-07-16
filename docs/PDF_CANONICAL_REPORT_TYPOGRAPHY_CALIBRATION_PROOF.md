@@ -2,6 +2,12 @@
 
 Status: PDF-PILOT-08B typography and layout calibration accepted.
 
+Correction notice: PDF-PILOT-08B-R1 later found two incorrect latency maxima
+and five incorrect Run IDs inherited from the composition. This phase's
+typography, geometry, and byte evidence remains retained, but its factual
+content claim is superseded by
+`docs/PDF_CANONICAL_REPORT_SOURCE_DATA_CORRECTION_PROOF.md`.
+
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
 ## Objective

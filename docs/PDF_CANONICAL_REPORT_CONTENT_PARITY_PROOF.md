@@ -2,6 +2,11 @@
 
 Status: PDF-PILOT-08A decision-content parity proof accepted.
 
+Correction notice: PDF-PILOT-08B-R1 later found two incorrect latency maxima
+and five incorrect Run IDs. This phase's renderer, semantic-presence, and
+coverage evidence remains retained, but its factual parity claim is superseded
+by `docs/PDF_CANONICAL_REPORT_SOURCE_DATA_CORRECTION_PROOF.md`.
+
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
 ## Objective

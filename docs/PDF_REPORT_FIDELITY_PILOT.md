@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B canonical report typography and layout calibration accepted.
+Status: PDF-PILOT-08B-R1 canonical report source-data correction accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -252,6 +252,28 @@ Primary Phase 08B evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-typography-calibrated-twelve-page-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportTypography.test.ts`.
 
+## PDF-PILOT-08B-R1 Scope
+
+Phase 08B-R1 corrects the acceptance gap left by semantic coverage and
+typography checks. It pins `build_report.py`, `metrics.json`,
+`ground-truth.json`, `benchmark-spec.json`, and `analyze.ts`; verifies their
+byte identities; recomputes summary consistency; and derives 205 scalar values
+for 16 report elements before shaping.
+
+The audit corrects two maximum-latency values and five Run IDs. The corrected
+request retains the 08B geometry, 413 text runs, 10,562 glyphs, two font
+subsets, and five images. Both Poppler raster tools, extraction, visual checks,
+and deterministic rebuild pass all 12 pages. The 08B artifact remains
+unchanged as regression evidence, while its factual claim is explicitly
+superseded.
+
+Primary Phase 08B-R1 evidence:
+
+- `docs/PDF_CANONICAL_REPORT_SOURCE_DATA_CORRECTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-source-data.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-source-backed-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportSourceData.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -348,6 +370,19 @@ FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
 npm --prefix packages/pdf-renderer-pilot run build:typography-proof
 ```
 
+Build the source snapshot, source-bound request, and corrected local proof:
+
+```text
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:source-data-manifest
+
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:source-data-request
+
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:source-data-proof
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -376,10 +411,13 @@ npm --prefix packages/pdf-renderer-pilot run build:typography-proof
 - Typography calibration executes source-backed Regular/Bold subsets, matches
   reference-scale body/table medians, and preserves every 08A content assertion
   without overlap, clipping, or prior artifact drift.
+- Source-data binding verifies five external identities, derives 205 values
+  across 16 elements, corrects seven factual drifts, and rejects stale source
+  or snapshot content before shaping.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B.
+None for closing PDF-PILOT-08B-R1.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
 thresholds, broader reader compatibility, and production integration.

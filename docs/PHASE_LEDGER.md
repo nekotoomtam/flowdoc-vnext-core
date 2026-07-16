@@ -10104,3 +10104,31 @@ Primary evidence:
 - `tests/pdfRendererPilotCanonicalReportTypography.test.ts`.
 
 Next phase: `PDF-PILOT-08C` visual acceptance thresholds.
+
+## PDF-PILOT-08B-R1 Canonical Report Source-Data Correction
+
+Status: accepted as a corrective side-workstream revision without changing the
+current main phase pointer.
+
+Phase 08B-R1 audits the report against `build_report.py`, `metrics.json`,
+`ground-truth.json`, `benchmark-spec.json`, and `analyze.ts`. An isolated
+analyzer rerun reproduces every metric except the expected new `generatedAt`
+timestamp. The source manifest pins all five external hashes, validates metric
+summaries against run values, and derives 205 scalar values across 16 report
+elements before shaping.
+
+The revision corrects Azure OCR maximum latency from `4.90` to `6.50` seconds,
+Google Document AI maximum latency from `9.70` to `9.75` seconds, and five stale
+Run IDs. The corrected PDF retains 12 pages, 584 paints, 413 text runs, 10,562
+glyphs, two embedded font subsets, and five image objects. Poppler raster,
+ActualText order, geometry, visual inspection, and deterministic rebuild pass.
+The Phase 08B PDF remains byte-identical but its factual claim is superseded.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_SOURCE_DATA_CORRECTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-source-data.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-source-backed-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportSourceData.test.ts`.
+
+Next phase: `PDF-PILOT-08C` visual acceptance thresholds.

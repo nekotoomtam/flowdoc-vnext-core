@@ -60,7 +60,31 @@ interface CanonicalProofConfig {
   pdfFile: string
   summaryFile: string
   contentParityManifestFile?: string
+  sourceDataManifestFile?: string
   typographyManifestFile?: string
+}
+
+interface SourceDataManifest {
+  manifestId: string
+  sourceSnapshotSha256: string
+  sourceFiles: Array<{
+    sourceId: string
+    fileName: string
+    mediaType: string
+    role: string
+    bytes: number
+    sha256: string
+  }>
+  sourceSnapshot: {
+    bindings: unknown[]
+  }
+  acceptance: {
+    expectedBindingCount: number
+    expectedSourceScalarValueCount: number
+    expectedFactualCorrectionCount: number
+    analyzerReproduction: string
+    supersedesFactualClaimsFrom: string[]
+  }
 }
 
 interface TypographyManifest {
@@ -112,6 +136,12 @@ async function buildCanonicalReportProofWithConfig(config: CanonicalProofConfig)
       resolve(repoRoot, config.typographyManifestFile),
       "utf8",
     )) as TypographyManifest
+  const sourceData = config.sourceDataManifestFile == null
+    ? null
+    : JSON.parse(readFileSync(
+      resolve(repoRoot, config.sourceDataManifestFile),
+      "utf8",
+    )) as SourceDataManifest
   const contract = createVNextPdfMeasuredDrawContractV1(request)
   const result = renderFlowDocCanonicalTwelvePageReportPdfPilot({
     proofId: config.proofId,
@@ -184,6 +214,15 @@ async function buildCanonicalReportProofWithConfig(config: CanonicalProofConfig)
         ...typography.tableAcceptance,
       },
     }),
+    ...(sourceData == null ? {} : {
+      sourceDataBinding: {
+        manifestId: sourceData.manifestId,
+        sourceSnapshotSha256: sourceData.sourceSnapshotSha256,
+        sourceFiles: sourceData.sourceFiles,
+        sourceBindingCount: sourceData.sourceSnapshot.bindings.length,
+        ...sourceData.acceptance,
+      },
+    }),
     externalReferenceBytesRetained: false,
     externalImageBytesRetained: false,
     productionBinding: false,
@@ -233,5 +272,24 @@ export async function buildCanonicalReportTypographyProof(): Promise<{
     summaryFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-typography-calibrated-twelve-page-summary.v1.json",
     contentParityManifestFile: "fixtures/pdf-pilot-canonical-report-content-parity.v1.json",
     typographyManifestFile: "fixtures/pdf-pilot-canonical-report-typography-calibration.v1.json",
+  })
+}
+
+export async function buildCanonicalReportSourceDataProof(): Promise<{
+  pdfPath: string
+  summaryPath: string
+}> {
+  return buildCanonicalReportProofWithConfig({
+    proofId: "pdf-pilot-08b-r1-canonical-report-source-data",
+    requestFile: "fixtures/pdf-pilot-canonical-report-source-backed-typography-twelve-page-request.v1.json",
+    subsetManifestFiles: [
+      "packages/pdf-renderer-pilot/fixtures/canonical-report-typography-regular-font-subset-manifest.v1.json",
+      "packages/pdf-renderer-pilot/fixtures/canonical-report-typography-bold-font-subset-manifest.v1.json",
+    ],
+    pdfFile: "output/pdf/flowdoc-pdf-pilot-canonical-report-source-backed-twelve-page.pdf",
+    summaryFile: "packages/pdf-renderer-pilot/fixtures/canonical-report-source-backed-twelve-page-summary.v1.json",
+    contentParityManifestFile: "fixtures/pdf-pilot-canonical-report-content-parity.v1.json",
+    typographyManifestFile: "fixtures/pdf-pilot-canonical-report-typography-calibration.v1.json",
+    sourceDataManifestFile: "fixtures/pdf-pilot-canonical-report-source-data.v1.json",
   })
 }

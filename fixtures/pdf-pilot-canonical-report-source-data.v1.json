@@ -1,0 +1,606 @@
+{
+  "manifestVersion": 1,
+  "manifestId": "pdf-pilot-08b-r1-canonical-report-source-data-v1",
+  "baseCompositionId": "pdf-pilot-canonical-report-typography-calibrated-composition-v1",
+  "outputComposition": {
+    "version": 4,
+    "compositionId": "pdf-pilot-canonical-report-source-backed-typography-composition-v1"
+  },
+  "claim": {
+    "parityLevel": "source-derived decision data",
+    "sourceBoundFacts": true,
+    "verbatimSentenceParity": false,
+    "visualParity": false
+  },
+  "sourceFiles": [
+    {
+      "sourceId": "reportBuilder",
+      "fileName": "build_report.py",
+      "mediaType": "text/x-python",
+      "role": "authoritative report formatting and prose assembly",
+      "bytes": 54349,
+      "sha256": "d074e334ab877dbe1294fe6ecc2b7c080a4932731999f638c0eeac29650d2e49"
+    },
+    {
+      "sourceId": "metrics",
+      "fileName": "metrics.json",
+      "mediaType": "application/json",
+      "role": "computed benchmark metrics",
+      "bytes": 32550,
+      "sha256": "b9b6f11475b45a15080631dc1c280071704ee09bae55466e7a18699cccd6f309"
+    },
+    {
+      "sourceId": "truth",
+      "fileName": "ground-truth.json",
+      "mediaType": "application/json",
+      "role": "human-reviewed reference values",
+      "bytes": 10506,
+      "sha256": "77e4973ae4f21da4c50bcfb2700551372e3333b0d638840b6879f20a10c8bea0"
+    },
+    {
+      "sourceId": "spec",
+      "fileName": "benchmark-spec.json",
+      "mediaType": "application/json",
+      "role": "benchmark conditions and Run IDs",
+      "bytes": 1172,
+      "sha256": "acbf7d6eaccaa82b8f86f80b8123602ae204b56e8da8f10f19b12df979b54568"
+    },
+    {
+      "sourceId": "analyzer",
+      "fileName": "analyze.ts",
+      "mediaType": "text/typescript",
+      "role": "raw-result metric derivation",
+      "bytes": 15740,
+      "sha256": "f0744b147a69783df8471d852b2785464f7ed0939da35fbf74dd6ec84dc1cffb"
+    }
+  ],
+  "sourceSnapshotSha256": "cfca20e65bfac2e2b20fe837d54985fada0e256549aefd18c8b935b20471ac26",
+  "sourceSnapshot": {
+    "snapshotVersion": 1,
+    "benchmarkId": "INV_9437125258-2026-07-16",
+    "metricsGeneratedAt": "2026-07-16T12:55:06.182Z",
+    "document": {
+      "headerText": "OCR BENCHMARK | INV_9437125258"
+    },
+    "invariants": {
+      "sourcePageCount": 2,
+      "providerRunCount": 3,
+      "criticalValueCount": 29,
+      "nativeConceptCount": 25,
+      "derivableGdimFieldCount": 32,
+      "engineCount": 4,
+      "allRunsCompleted": true,
+      "allSourceHashesMatch": true,
+      "allRunsHaveExpectedPages": true,
+      "noErrors": true
+    },
+    "bindings": [
+      {
+        "pageId": "cover",
+        "elementId": "identity",
+        "property": "lines",
+        "value": [
+          "INV_9437125258.pdf | 2 หน้า | Provider ละ 3 รอบ"
+        ],
+        "lineage": [
+          "benchmark-spec.json#/source",
+          "benchmark-spec.json#/runs"
+        ]
+      },
+      {
+        "pageId": "cover",
+        "elementId": "date",
+        "property": "lines",
+        "value": [
+          "วันที่ทดสอบ 16 กรกฎาคม 2026 | อัตราอ้างอิง 33.48 บาท/USD"
+        ],
+        "lineage": [
+          "benchmark-spec.json#/benchmarkId",
+          "benchmark-spec.json#/settings/usdToThbRate"
+        ]
+      },
+      {
+        "pageId": "cover",
+        "elementId": "version",
+        "property": "lines",
+        "value": [
+          "ฉบับที่ 1.0 | Benchmark ID: INV_9437125258-2026-07-16"
+        ],
+        "lineage": [
+          "benchmark-spec.json#/benchmarkId"
+        ]
+      },
+      {
+        "pageId": "executive-summary",
+        "elementId": "decision-table",
+        "property": "rows",
+        "value": [
+          [
+            "อ่านข้อความสำคัญครบไหม",
+            "ครบ 29/29",
+            "ครบ 29/29",
+            [
+              "ข้อมูลธุรกิจหลัก",
+              "ไม่ตกหล่น"
+            ]
+          ],
+          [
+            [
+              "อ่านข้อความ",
+              "เร็วแค่ไหน"
+            ],
+            "1.76 วินาที",
+            "4.62 วินาที",
+            [
+              "Google เร็วกว่าประมาณ",
+              "2.85 วินาที"
+            ]
+          ],
+          [
+            [
+              "จัดข้อมูลเป็น",
+              "โครงสร้าง"
+            ],
+            "23/25",
+            "14/25",
+            [
+              "Google จัดตารางและ",
+              "รายการสินค้าได้ครบกว่า"
+            ]
+          ],
+          [
+            [
+              "ค่าใช้จ่ายงาน",
+              "Native"
+            ],
+            "2.01 บาท",
+            "0.67 บาท",
+            [
+              "Azure ต่ำกว่าประมาณ",
+              "3 เท่า"
+            ]
+          ],
+          [
+            [
+              "Mapping เข้า",
+              "GDIM"
+            ],
+            "5 จาก 32",
+            "4 จาก 32",
+            [
+              "คอขวดหลักยังอยู่ที่",
+              "Mapper ของเรา"
+            ]
+          ]
+        ],
+        "lineage": [
+          "metrics.json#/engines",
+          "metrics.json#/forcedGdim",
+          "ground-truth.json#/criticalValues",
+          "ground-truth.json#/nativeConcepts"
+        ]
+      },
+      {
+        "pageId": "method",
+        "elementId": "method-table",
+        "property": "rows",
+        "value": [
+          [
+            "เอกสาร",
+            "INV_9437125258.pdf, 2 หน้า, 4,053,388 bytes"
+          ],
+          [
+            "SHA-256",
+            "a8598f04d40445b911d4c17d86fe065e15e5d0166d990290ef97e7efa5ead173"
+          ],
+          [
+            "รูปแบบส่ง",
+            "Page by page"
+          ],
+          [
+            "ขอบเขต",
+            "OCR และ Native Extraction"
+          ],
+          [
+            "จำนวนรอบ",
+            "Google 3 รอบ และ Azure 3 รอบ"
+          ],
+          [
+            "Cost cap",
+            "2 USD ต่อ run"
+          ],
+          [
+            "อัตราแปลงเงิน",
+            "33.48 บาท/USD"
+          ],
+          [
+            "คำตอบอ้างอิง",
+            "ตรวจจากภาพ PDF ที่ render 240 DPI"
+          ]
+        ],
+        "lineage": [
+          "benchmark-spec.json#/source",
+          "benchmark-spec.json#/settings",
+          "ground-truth.json#/method"
+        ]
+      },
+      {
+        "pageId": "ocr-accuracy",
+        "elementId": "ocr-table",
+        "property": "rows",
+        "value": [
+          [
+            "ค่าธุรกิจสำคัญที่อ่านพบ",
+            "29/29",
+            "29/29"
+          ],
+          [
+            "ตัวอักษรและลำดับ",
+            "84.9%",
+            "88.3%"
+          ],
+          [
+            "คำและลำดับ",
+            "82.9%",
+            "85.7%"
+          ],
+          [
+            "จำนวนคำที่แบ่งออกมา",
+            "750",
+            "593"
+          ],
+          [
+            "คำ confidence ต่ำกว่า 0.8",
+            "30",
+            "19"
+          ],
+          [
+            "คำที่มีตำแหน่งอ้างอิง",
+            "100%",
+            "100%"
+          ],
+          [
+            "เวลาค่ากลาง",
+            "1.76 วินาที",
+            "4.62 วินาที"
+          ],
+          [
+            "ขนาด Raw JSON",
+            "1.00 MB",
+            "0.10 MB"
+          ],
+          [
+            "ค่าใช้จ่ายประมาณการ",
+            "0.10 บาท",
+            "0.10 บาท"
+          ]
+        ],
+        "lineage": [
+          "metrics.json#/engines/google_vision",
+          "metrics.json#/engines/azure_document_intelligence",
+          "benchmark-spec.json#/settings/lowConfidenceThreshold"
+        ]
+      },
+      {
+        "pageId": "source-evidence",
+        "elementId": "evidence-table",
+        "property": "rows",
+        "value": [
+          [
+            "เลขอ้างอิง",
+            "Invoice 9437125258, Delivery 8142515582, AEO THIE570073"
+          ],
+          [
+            "คู่ค้าและปลายทาง",
+            "Q510004 COMPUTER, INC., TAOYUAN CITY, TAIWAN"
+          ],
+          [
+            "การขนส่ง",
+            "AIR, BANGKOK, 09/27/2024, O/A 60 Days"
+          ],
+          [
+            "สินค้า",
+            "DC DC CONVERTER, 1077309227, Q50SN12072RNDHQ"
+          ],
+          [
+            "ราคาและจำนวน",
+            "540 PCE, 29.36 USD/UNIT, 15,854.40 USD"
+          ],
+          [
+            "น้ำหนัก",
+            "Gross 79.14 KGS, Net 43.20 KGS"
+          ]
+        ],
+        "lineage": [
+          "ground-truth.json#/criticalValues",
+          "ground-truth.json#/gdimFields"
+        ]
+      },
+      {
+        "pageId": "native-extraction",
+        "elementId": "native-table",
+        "property": "rows",
+        "value": [
+          [
+            "ข้อมูลที่จัดโครงสร้างได้",
+            "23/25 (92%)",
+            "14/25 (56%)"
+          ],
+          [
+            "Key-value ที่มีชื่อและค่า",
+            "48",
+            "40"
+          ],
+          [
+            "ตาราง / cells",
+            "7 / 51",
+            "1 / 15"
+          ],
+          [
+            "เวลาค่ากลาง",
+            "9.56 วินาที",
+            "8.66 วินาที"
+          ],
+          [
+            "ขนาด Raw JSON",
+            "1.93 MB",
+            "0.12 MB"
+          ],
+          [
+            "ค่าใช้จ่ายประมาณการ",
+            "2.01 บาท",
+            "0.67 บาท"
+          ]
+        ],
+        "lineage": [
+          "metrics.json#/engines/google_document_ai_native",
+          "metrics.json#/engines/azure_document_intelligence_native",
+          "ground-truth.json#/nativeConcepts"
+        ]
+      },
+      {
+        "pageId": "native-extraction",
+        "elementId": "unstructured-fields",
+        "property": "lines",
+        "value": [
+          "Invoice Date, package, product description, product code, model และ BOI",
+          "country of origin, gross weight, shipping marks และ AEO number ยังอยู่ใน OCR",
+          "แต่ไม่อยู่ใน key-value/table ที่ใช้วัด Native coverage"
+        ],
+        "lineage": [
+          "metrics.json#/engines/azure_document_intelligence_native/runs/0/missingStructuredConcepts"
+        ]
+      },
+      {
+        "pageId": "latency-cost-size",
+        "elementId": "latency-table",
+        "property": "rows",
+        "value": [
+          [
+            "Google Vision",
+            "1.66 วิ",
+            "1.76 วิ",
+            "2.09 วิ",
+            "0.10 บาท"
+          ],
+          [
+            "Azure OCR",
+            "4.55 วิ",
+            "4.62 วิ",
+            "6.50 วิ",
+            "0.10 บาท"
+          ],
+          [
+            "Google Document AI",
+            "9.53 วิ",
+            "9.56 วิ",
+            "9.75 วิ",
+            "2.01 บาท"
+          ],
+          [
+            "Azure Native",
+            "8.61 วิ",
+            "8.66 วิ",
+            "43.66 วิ",
+            "0.67 บาท"
+          ]
+        ],
+        "lineage": [
+          "metrics.json#/engines/*/summary/latencyMs",
+          "metrics.json#/engines/*/summary/costThb"
+        ]
+      },
+      {
+        "pageId": "latency-cost-size",
+        "elementId": "total-cost",
+        "property": "lines",
+        "value": [
+          "ค่าใช้จ่ายประมาณการรวมของการทดสอบ 6 runs เท่ากับ 0.258 USD",
+          "หรือ 8.64 บาท ก่อนหัก free tier"
+        ],
+        "lineage": [
+          "metrics.json#/totalEstimatedCost",
+          "benchmark-spec.json#/runs"
+        ]
+      },
+      {
+        "pageId": "mapping",
+        "elementId": "mapping-table",
+        "property": "rows",
+        "value": [
+          [
+            "GDIM fields ทั้งหมด",
+            "199",
+            "199"
+          ],
+          [
+            "Required fields",
+            "98",
+            "98"
+          ],
+          [
+            "Mapper เติมได้",
+            "5",
+            "5"
+          ],
+          [
+            "Mapper เติม required fields ได้",
+            "3",
+            "3"
+          ],
+          [
+            "ฟิลด์ที่ตรวจว่าถูก",
+            "5",
+            "4"
+          ],
+          [
+            "ความถูกต้องของฟิลด์ที่เติม",
+            "100%",
+            "80%"
+          ],
+          [
+            "ข้อมูลที่ควรใช้ได้และถูกนำมาใช้",
+            "15.6%",
+            "12.5%"
+          ]
+        ],
+        "lineage": [
+          "metrics.json#/forcedGdim",
+          "ground-truth.json#/gdimFields"
+        ]
+      },
+      {
+        "pageId": "mapping",
+        "elementId": "mapper-fields",
+        "property": "lines",
+        "value": [
+          "Google: Invoice No., Invoice Date, E-mail, Net Weight และ Gross Weight",
+          "Azure: Invoice No., E-mail, Net Weight, Gross Weight และ BOI",
+          "แต่ BOI ถูกใส่ช่อง indicator แทน BOI license number จึงเป็นการ map ผิด"
+        ],
+        "lineage": [
+          "metrics.json#/forcedGdim/*/mapped",
+          "metrics.json#/forcedGdim/*/wrongMappings"
+        ]
+      },
+      {
+        "pageId": "decision-view",
+        "elementId": "tradeoff-table",
+        "property": "rows",
+        "value": [
+          [
+            "อ่านข้อความเร็ว",
+            "Google Vision",
+            "Median 1.76 วินาที เทียบ Azure OCR 4.62 วินาที"
+          ],
+          [
+            "ตารางและรายการสินค้า",
+            "Google Document AI",
+            "จัดข้อมูลสำคัญได้ 92% และคืน 7 ตาราง"
+          ],
+          [
+            "ลดค่าใช้จ่าย Native",
+            "Azure Native",
+            "0.67 บาท เทียบ Google 2.01 บาท"
+          ],
+          [
+            "ผลลัพธ์ขนาดเล็ก",
+            "Azure",
+            "Raw Native 0.12 MB เทียบ Google 1.93 MB"
+          ],
+          [
+            "GDIM พร้อมใช้",
+            "ยังสรุปไม่ได้",
+            "Mapper ใช้ข้อมูลได้เพียง 12.5-15.6%"
+          ]
+        ],
+        "lineage": [
+          "metrics.json#/engines",
+          "metrics.json#/forcedGdim"
+        ]
+      },
+      {
+        "pageId": "appendix-runs",
+        "elementId": "runs-table",
+        "property": "rows",
+        "value": [
+          [
+            "1",
+            "1",
+            "Google",
+            "2026-07-16T11-52-22-028Z",
+            "Completed"
+          ],
+          [
+            "1",
+            "2",
+            "Azure",
+            "2026-07-16T11-52-39-170Z",
+            "Completed"
+          ],
+          [
+            "2",
+            "1",
+            "Azure",
+            "2026-07-16T11-52-57-651Z",
+            "Completed"
+          ],
+          [
+            "2",
+            "2",
+            "Google",
+            "2026-07-16T11-53-50-392Z",
+            "Completed"
+          ],
+          [
+            "3",
+            "1",
+            "Google",
+            "2026-07-16T11-54-06-893Z",
+            "Completed"
+          ],
+          [
+            "3",
+            "2",
+            "Azure",
+            "2026-07-16T11-54-21-384Z",
+            "Completed"
+          ]
+        ],
+        "lineage": [
+          "benchmark-spec.json#/runs",
+          "metrics.json#/validation/runs"
+        ]
+      },
+      {
+        "pageId": "appendix-runs",
+        "elementId": "evidence",
+        "property": "lines",
+        "value": [
+          "- ทุก run มี manifest, summary.csv, normalized_results.json และ Raw JSON",
+          "  แยกตาม engine และหน้า",
+          "- ทุก run ใช้ source SHA-256 เดียวกัน:",
+          "  a8598f04d40445b911d4c17d86fe065e15e5d0166d990290ef97e7efa5ead173",
+          "- ทุก engine ประมวลผลครบ 2 หน้าและไม่มี error",
+          "- ผลข้อความ key-value และตารางของแต่ละ engine เหมือนเดิมทั้ง 3 รอบ"
+        ],
+        "lineage": [
+          "benchmark-spec.json#/source",
+          "metrics.json#/validation",
+          "metrics.json#/engines/*/repeatability"
+        ]
+      }
+    ]
+  },
+  "acceptance": {
+    "expectedBindingCount": 16,
+    "expectedSourceScalarValueCount": 205,
+    "expectedFactualCorrectionCount": 7,
+    "analyzerReproduction": "metrics equal after excluding generatedAt",
+    "supersedesFactualClaimsFrom": [
+      "pdf-pilot-08a-canonical-report-decision-content-parity-v1",
+      "pdf-pilot-08b-canonical-report-typography-calibration-v1"
+    ]
+  },
+  "nextPhase": "PDF-PILOT-08C visual acceptance thresholds"
+}

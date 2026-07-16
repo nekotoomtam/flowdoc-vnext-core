@@ -876,6 +876,10 @@ The package must remain runnable without any parent editor checkout.
   reference-scale floors, supports explicit multi-line table cells without
   renderer wrapping, and passes 12-page extraction, geometry, and visual QA
   while retaining Phase 07/08A byte identities.
+- PDF canonical report source-data correction pins the report builder,
+  metrics, ground truth, benchmark spec, and analyzer; derives 205 scalar
+  values across 16 elements; and corrects two latency maxima plus five Run IDs
+  while retaining the prior typography artifact as regression evidence.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

@@ -1,0 +1,104 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r1-canonical-report-source-data-qa-v1",
+  "proofId": "pdf-pilot-08b-r1-canonical-report-source-data",
+  "status": "accepted",
+  "artifact": {
+    "sha256": "78c35020d987fb478ea269fb2cb90181c64444b7f8f59a175276d350b01bfca5",
+    "bytes": 941026,
+    "pdfVersion": "1.7",
+    "pageCount": 12,
+    "pageSizePt": [612, 792]
+  },
+  "sourceDataContract": {
+    "manifestId": "pdf-pilot-08b-r1-canonical-report-source-data-v1",
+    "sourceSnapshotSha256": "cfca20e65bfac2e2b20fe837d54985fada0e256549aefd18c8b935b20471ac26",
+    "sourceFileCount": 5,
+    "sourceBindingCount": 16,
+    "sourceScalarValueCount": 205,
+    "factualCorrectionCount": 7,
+    "analyzerReproduction": "metrics equal after excluding generatedAt",
+    "allSourceHashesAccepted": true,
+    "allMetricSummariesRecomputedFromRuns": true,
+    "benchmarkValidationAccepted": true,
+    "supersedesFactualClaimsFrom": [
+      "pdf-pilot-08a-canonical-report-decision-content-parity-v1",
+      "pdf-pilot-08b-canonical-report-typography-calibration-v1"
+    ]
+  },
+  "corrections": [
+    {
+      "pageNumber": 7,
+      "field": "Azure OCR maximum latency",
+      "before": "4.90 วิ",
+      "after": "6.50 วิ",
+      "source": "metrics.json#/engines/azure_document_intelligence/summary/latencyMs/max"
+    },
+    {
+      "pageNumber": 7,
+      "field": "Google Document AI maximum latency",
+      "before": "9.70 วิ",
+      "after": "9.75 วิ",
+      "source": "metrics.json#/engines/google_document_ai_native/summary/latencyMs/max"
+    },
+    {
+      "pageNumber": 11,
+      "field": "Run IDs 2-6",
+      "beforeCount": 5,
+      "afterCount": 5,
+      "source": "benchmark-spec.json#/runs",
+      "crossCheck": "metrics.json#/validation/runs"
+    }
+  ],
+  "composition": {
+    "drawCommandCount": 565,
+    "paintCommandCount": 584,
+    "textCommandCount": 413,
+    "boxCommandCount": 152,
+    "glyphCount": 10562,
+    "regularGlyphRunCount": 340,
+    "boldGlyphRunCount": 73,
+    "fontAssetCount": 2,
+    "imageAssetCount": 5,
+    "imagePaintCount": 6
+  },
+  "textExtraction": {
+    "expectedGlyphRuns": 413,
+    "actualTextExactOrderRuns": 413,
+    "popplerWhitespaceNormalizedRunPresence": 413,
+    "correctedActualTextValueCount": 7,
+    "staleActualTextValueCount": 0
+  },
+  "geometryInspection": {
+    "textBoundsOverlapCount": 0,
+    "maximumNonFooterContentBottomPt": 740,
+    "footerTopPt": 757,
+    "contentFooterCollision": false
+  },
+  "rasterInspection": {
+    "pdftoppmAccepted": true,
+    "pdftocairoAccepted": true,
+    "dpi": 144,
+    "pageWidthPx": 1224,
+    "pageHeightPx": 1584,
+    "pagesRenderedByEachTool": 12,
+    "allPagesNonBlank": true,
+    "correctedLatencyTableVisuallyAccepted": true,
+    "correctedRunIdTableVisuallyAccepted": true,
+    "missingGlyphs": 0,
+    "clippedContent": 0,
+    "overlaps": 0
+  },
+  "deterministicRebuild": {
+    "sha256": "78c35020d987fb478ea269fb2cb90181c64444b7f8f59a175276d350b01bfca5",
+    "unchanged": true
+  },
+  "priorArtifactIdentityRegression": {
+    "phase08bPdfSha256": "45f9969ec01b1e1d168b624fff969b1fc32056f17d0596ced1c00ead58273b92",
+    "unchanged": true
+  },
+  "externalReferenceBytesRetained": false,
+  "externalSourceBytesRetained": false,
+  "externalImageBytesRetained": false,
+  "productionBinding": false
+}

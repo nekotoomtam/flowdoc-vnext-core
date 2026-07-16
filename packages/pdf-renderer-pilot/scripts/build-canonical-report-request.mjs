@@ -4,6 +4,7 @@ import { basename, dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { spawnSync } from "node:child_process"
 import { materializeCanonicalReportContentParity } from "./canonical-report-content-parity.mjs"
+import { materializeCanonicalReportSourceData } from "./canonical-report-source-data.mjs"
 import { materializeCanonicalReportTypographyCalibration } from "./canonical-report-typography-calibration.mjs"
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
@@ -56,6 +57,7 @@ const outputPath = resolve(
   repoRoot,
   readOption("--output") ?? "fixtures/pdf-pilot-canonical-report-twelve-page-request.v1.json",
 )
+const sourceDataManifestOption = readOption("--source-data-manifest")
 const typographyManifestOption = readOption("--typography-manifest")
 
 function pngDimensions(bytes) {
@@ -125,6 +127,11 @@ function shape(text, fontSizePt, measurementRequestId, font) {
   }
 }
 
+const reportRoot = resolve(
+  readOption("--report-root")
+    ?? process.env.FLOWDOC_PDF_PILOT_REPORT_ROOT
+    ?? fallbackReportRoot,
+)
 const baseComposition = JSON.parse(readFileSync(compositionPath, "utf8"))
 const contentParityManifest = contentParityManifestOption == null
   ? null
@@ -145,13 +152,25 @@ const typographyMaterialization = typographyManifest == null
     typographyManifest,
     contentParityManifest,
   )
-const composition = typographyMaterialization?.composition ?? parityMaterialization.composition
+const typographyComposition = typographyMaterialization?.composition ?? parityMaterialization.composition
+const sourceDataManifest = sourceDataManifestOption == null
+  ? null
+  : JSON.parse(readFileSync(resolve(repoRoot, sourceDataManifestOption), "utf8"))
+if (sourceDataManifest != null && typographyManifest == null) {
+  throw new Error("Source-data binding requires the typography calibration manifest.")
+}
+const sourceDataMaterialization = sourceDataManifest == null
+  ? null
+  : materializeCanonicalReportSourceData(
+    typographyComposition,
+    sourceDataManifest,
+    Object.fromEntries(sourceDataManifest.sourceFiles.map((source) => [
+      source.sourceId,
+      readFileSync(requireFile(resolve(reportRoot, source.fileName), `Source data ${source.sourceId}`)),
+    ])),
+  )
+const composition = sourceDataMaterialization?.composition ?? typographyComposition
 const corpus = JSON.parse(readFileSync(corpusPath, "utf8"))
-const reportRoot = resolve(
-  readOption("--report-root")
-    ?? process.env.FLOWDOC_PDF_PILOT_REPORT_ROOT
-    ?? fallbackReportRoot,
-)
 const artifactsById = new Map(corpus.referenceArtifacts.map((artifact) => [artifact.artifactId, artifact]))
 const referenceArtifact = artifactsById.get("reference-final-pdf")
 if (referenceArtifact == null || JSON.stringify(referenceArtifact) !== JSON.stringify(composition.referenceArtifact)) {
@@ -451,7 +470,7 @@ function pageBuilder(page) {
     ))
   }
 
-  addTextLine("header", "OCR BENCHMARK | INV_9437125258", composition.styles.header, {
+  addTextLine("header", composition.headerText ?? "OCR BENCHMARK | INV_9437125258", composition.styles.header, {
     xPt: 60,
     yPt: 25,
     widthPt: 260,
