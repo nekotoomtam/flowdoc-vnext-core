@@ -1,0 +1,49 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-03-thai-one-page-qa-v1",
+  "proofId": "pdf-pilot-03-thai-one-page",
+  "status": "accepted",
+  "artifact": {
+    "sha256": "fafa7e4d01df4d9f9b5acdffe2d7652e073e5b329142e4c8886085521322fd24",
+    "bytes": 17594,
+    "pageCount": 1,
+    "pageSizePt": [612, 792],
+    "pdfVersion": "1.7"
+  },
+  "fontInspection": {
+    "tool": "pdffonts 25.07.0",
+    "name": "FDPLTA+FlowDocThaiPilotSubset-Regular",
+    "type": "CID TrueType",
+    "encoding": "Identity-H",
+    "embedded": true,
+    "subset": true,
+    "unicodeMap": true
+  },
+  "textExtraction": {
+    "expectedLines": [
+      "สรุปผล OCR ภาษาไทย 100%",
+      "ค้นหา เลือก และคัดลอกข้อความได้"
+    ],
+    "poppler": {
+      "tool": "pdftotext 25.07.0",
+      "exactMatch": true
+    },
+    "pypdf": {
+      "tool": "pypdf 6.10.0",
+      "exactMatch": true
+    }
+  },
+  "rasterInspection": {
+    "tool": "pdftoppm 25.07.0",
+    "dpi": 150,
+    "pixelWidth": 1275,
+    "pixelHeight": 1650,
+    "mode": "RGB",
+    "visualReview": "accepted",
+    "missingGlyphs": 0,
+    "clippedGlyphs": 0,
+    "overlaps": 0,
+    "panelGeometryMatches": true
+  },
+  "productionBinding": false
+}

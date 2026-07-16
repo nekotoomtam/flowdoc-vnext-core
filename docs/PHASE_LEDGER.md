@@ -9914,3 +9914,29 @@ Primary evidence:
 - `tests/pdfMeasuredDrawContractV1.test.ts`.
 
 Next phase: `PDF-PILOT-03` Thai embedded-font one-page renderer proof.
+
+## PDF-PILOT-03 Thai Embedded-Font One-Page Renderer Proof
+
+Status: accepted as a dedicated side workstream without changing the current
+main phase pointer.
+
+Phase 03 adds the isolated `packages/pdf-renderer-pilot` profile. It consumes a
+one-page measured draw contract with actual Rustybuzz `0.20.1` glyph facts,
+uses no renderer-side shaping or relayout, and emits deterministic PDF 1.7
+bytes. The registered IBM source is reduced from `113,464` to a deterministic
+`13,596`-byte GID-retaining derivative whose Reserved Font Name is removed.
+
+The PDF uses Type0/CIDFontType2, Identity-H, CIDToGIDMap, contract widths and
+offsets, ToUnicode, and ActualText. Poppler reports embedded/subset/Unicode
+flags, Poppler and pypdf extract both Thai lines exactly, and the 150 DPI raster
+passes visual glyph, clipping, overlap, baseline, and panel checks. Image,
+multi-page, storage, route, worker, and production behavior remain blocked.
+
+Primary evidence:
+
+- `docs/PDF_THAI_ONE_PAGE_RENDERER_PROOF.md`;
+- `packages/pdf-renderer-pilot/src/index.ts`;
+- `packages/pdf-renderer-pilot/fixtures/one-page-proof-qa.v1.json`;
+- `tests/pdfRendererPilotOnePage.test.ts`.
+
+Next phase: `PDF-PILOT-04` digest-bound image and complete one-page paint proof.

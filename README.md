@@ -848,6 +848,10 @@ The package must remain runnable without any parent editor checkout.
   page, font/hash, shaped-glyph, rectangle, image, and paint-order facts into a
   deterministic fail-closed renderer handoff. It preserves measured bounds and
   emits no PDF bytes or production binding.
+- PDF Thai one-page renderer proof consumes that handoff in a separate pilot
+  package, embeds a GID-retaining Type0/CIDFontType2 subset, and preserves exact
+  Thai extraction through ToUnicode plus ActualText without reshaping or
+  selecting a production renderer.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

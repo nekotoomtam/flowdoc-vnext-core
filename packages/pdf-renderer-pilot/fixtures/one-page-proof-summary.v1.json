@@ -1,0 +1,52 @@
+{
+  "summaryVersion": 1,
+  "proofId": "pdf-pilot-03-thai-one-page",
+  "status": "rendered",
+  "artifact": {
+    "artifactId": "pdf-pilot:pdf-pilot-03-thai-one-page",
+    "format": "pdf",
+    "mediaType": "application/pdf",
+    "byteLength": 17594,
+    "sha256": "fafa7e4d01df4d9f9b5acdffe2d7652e073e5b329142e4c8886085521322fd24",
+    "storageStatus": "not-stored",
+    "localOnly": true,
+    "sourceContractFingerprint": "sha256:21e7105b2b4b8c1faba41e9b8851b10c5a71cc80b9fdb3a656a3fa47bc98d2ec",
+    "rendererProfileId": "pdf-pilot-thai-type0-one-page-v1",
+    "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+    "embeddedFonts": [
+      {
+        "fontId": "ibm-plex-sans-thai-regular",
+        "subsetId": "pdf-pilot-03-ibm-plex-regular-thai-one-page",
+        "subsetSha256": "064bf250488d978acad6209a76f1b81d239efbfe96acfd6564ad49aa84214963",
+        "subsetByteLength": 13596,
+        "sourceByteLength": 113464,
+        "pdfBaseFontName": "FDPLTA+FlowDocThaiPilotSubset-Regular",
+        "fontFormat": "Type0/CIDFontType2",
+        "toUnicode": true
+      }
+    ]
+  },
+  "renderContract": {
+    "consumes": "vnext-pdf-measured-draw-contract-v1",
+    "output": "one-page-pdf-bytes",
+    "usesProvidedGlyphFacts": true,
+    "embeddedFontSubset": true,
+    "toUnicode": true,
+    "imagesSupported": false,
+    "productionFidelity": false,
+    "storageWrites": false
+  },
+  "summary": {
+    "pageCount": 1,
+    "paintCommandCount": 4,
+    "glyphRunCount": 2,
+    "glyphCount": 54,
+    "embeddedFontCount": 1,
+    "byteLength": 17594
+  },
+  "expectedExtractedLines": [
+    "สรุปผล OCR ภาษาไทย 100%",
+    "ค้นหา เลือก และคัดลอกข้อความได้"
+  ],
+  "productionBinding": false
+}

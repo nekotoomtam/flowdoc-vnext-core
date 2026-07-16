@@ -1,0 +1,80 @@
+{
+  "manifestVersion": 1,
+  "subsetId": "pdf-pilot-03-ibm-plex-regular-thai-one-page",
+  "pilotId": "PDF-PILOT-INV-9437125258",
+  "fontId": "ibm-plex-sans-thai-regular",
+  "postScriptName": "FlowDocThaiPilotSubset-Regular",
+  "subsetPrefix": "FDPLTA",
+  "source": {
+    "path": "assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf",
+    "sha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57",
+    "bytes": 113464
+  },
+  "subset": {
+    "path": "packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiPilotSubset-Regular.ttf",
+    "sha256": "064bf250488d978acad6209a76f1b81d239efbfe96acfd6564ad49aa84214963",
+    "bytes": 13596,
+    "sfntGlyphCount": 499,
+    "retainedGlyphIds": [
+      0,
+      3,
+      35,
+      47,
+      50,
+      59,
+      62,
+      109,
+      270,
+      271,
+      286,
+      292,
+      301,
+      304,
+      307,
+      308,
+      309,
+      311,
+      313,
+      317,
+      318,
+      319,
+      320,
+      321,
+      322,
+      324,
+      327,
+      330,
+      331,
+      334,
+      335,
+      466,
+      467,
+      470,
+      498
+    ],
+    "retainGlyphIds": true,
+    "hintingRetained": false
+  },
+  "fontMetrics": {
+    "unitsPerEm": 1000,
+    "fontBBox": [
+      -432,
+      -344,
+      862,
+      1043
+    ],
+    "ascent": 1116,
+    "descent": -534,
+    "capHeight": 698
+  },
+  "license": {
+    "id": "OFL-1.1",
+    "path": "assets/fonts/IBM_Plex_Sans_Thai/OFL.txt",
+    "reservedNameRemovedFromDerivative": true
+  },
+  "builder": {
+    "fontToolsVersion": "4.58.2",
+    "shaperRevision": "rustybuzz-0.20.1",
+    "productionBinding": false
+  }
+}

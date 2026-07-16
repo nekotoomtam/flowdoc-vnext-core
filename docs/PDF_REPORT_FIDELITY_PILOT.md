@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-02 measured draw contract accepted.
+Status: PDF-PILOT-03 Thai embedded-font one-page proof accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -83,6 +83,8 @@ and `styleMappings` are unchanged.
 
 ## PDF-PILOT-02 Scope
 
+Status: PDF-PILOT-02 measured draw contract accepted.
+
 Phase 02 adds the fail-closed measured draw handoff between the existing PDF
 adapter plan and a future concrete renderer. It requires exact page boxes,
 registered font/hash facts, shaped glyph runs, fill and stroke rectangles,
@@ -99,6 +101,27 @@ Primary Phase 02 evidence:
 - `src/renderer/pdfMeasuredDrawContractV1.ts`;
 - `fixtures/pdf-pilot-measured-draw-contract.v1.json`;
 - `tests/pdfMeasuredDrawContractV1.test.ts`.
+
+Next phase: `PDF-PILOT-03` Thai embedded-font one-page renderer proof.
+
+## PDF-PILOT-03 Scope
+
+Phase 03 adds an isolated external renderer profile for exactly one Letter
+page. It consumes actual Rustybuzz glyph facts from the Phase 02 contract,
+embeds a renamed GID-retaining IBM-derived TrueType subset through
+Type0/CIDFontType2, and emits CIDToGIDMap, ToUnicode, and ActualText data.
+
+Poppler and pypdf extract both retained Thai lines exactly. Poppler also
+confirms embedded/subset/Unicode font flags, and a 150 DPI raster review passes
+glyph placement, clipping, overlap, and panel geometry checks. Images,
+multi-page execution, storage, and production binding remain blocked.
+
+Primary Phase 03 evidence:
+
+- `docs/PDF_THAI_ONE_PAGE_RENDERER_PROOF.md`;
+- `packages/pdf-renderer-pilot/src/index.ts`;
+- `packages/pdf-renderer-pilot/fixtures/one-page-proof-qa.v1.json`;
+- `tests/pdfRendererPilotOnePage.test.ts`.
 
 ## Reproduction
 
@@ -130,29 +153,34 @@ raw glyph arrays or absolute font paths.
 - Rustybuzz comparison evidence is generated from report-derived text.
 - IBM Plex is selected for pilot calibration with its Bold mismatch explicit.
 - Active measurement identity and style mappings remain unchanged.
+- The measured draw contract preserves exact source bounds, paint order,
+  font/image identity, and complete glyph-cluster coverage without rendering.
+- The isolated one-page renderer embeds a real GID-retaining Type0 subset and
+  passes exact Thai extraction in Poppler and pypdf.
+- Deterministic subset bytes, PDF bytes, and 150 DPI visual QA evidence pass.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-02.
+None for closing PDF-PILOT-03.
 
-Concrete PDF fidelity remains blocked until PDF-PILOT-03 proves one-page Thai
-font embedding, glyph placement, and text extraction in an isolated renderer.
+Report-level PDF fidelity remains blocked until PDF-PILOT-04 proves
+digest-bound image bytes and the complete one-page paint vocabulary.
 
 ## RISK
 
-- Advance compatibility does not prove ascent, descent, line-gap, wrapping,
-  embedding, or text-extraction fidelity.
+- Phase 01 advance compatibility alone does not prove ascent, descent,
+  line-gap, or wrapping fidelity.
 - Local Tahoma hashes identify this machine's reference version only.
 - IBM Plex Bold requires per-style calibration and must not inherit a global
   body scale.
-- Visual review used a local raster specimen and is not retained as canonical
-  renderer evidence.
+- Phase 03 retains normalized visual QA facts, but its raster remains local and
+  covers only one page with no image command.
 
 ## UNKNOWN
 
-- final embedded-font subset strategy;
+- final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- mixed Thai/Latin extraction order in the chosen PDF implementation;
+- mixed Thai/Latin extraction order beyond the two accepted one-page lines;
 - table and heading wrap behavior after style-token calibration;
 - concrete PDF package and dependency budget.
 
@@ -160,9 +188,10 @@ font embedding, glyph placement, and text extraction in an isolated renderer.
 
 - no font candidate was promoted into active style mappings;
 - no default measurer or measurement profile was replaced;
-- no PDF adapter or renderer bytes changed;
+- no existing PDF adapter or minimal Helvetica spike behavior changed;
+- the new renderer remains an isolated pilot package with no production bind;
 - no DOCX work was introduced;
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-03` Thai embedded-font one-page renderer proof.
+Next phase: `PDF-PILOT-04` digest-bound image and complete one-page paint proof.
