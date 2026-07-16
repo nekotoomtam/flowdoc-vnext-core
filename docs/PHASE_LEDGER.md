@@ -9887,3 +9887,30 @@ Primary evidence:
 - `tests/pdfReportFontBakeoffPilot.test.ts`.
 
 Next phase: `PDF-PILOT-02` measured PDF draw contract extension.
+
+## PDF-PILOT-02 Measured PDF Draw Contract
+
+Status: done as a dedicated side workstream without changing the current main
+phase pointer.
+
+Phase 02 publishes a strict, fail-closed contract from the existing measured
+PDF adapter plan to a future concrete renderer. It retains exact page and
+source-command bounds, registered font/hash and subset/ToUnicode requirements,
+shaped glyph facts with complete UTF-16 cluster coverage, backend-owned image
+identities, fills, strokes, and explicit per-page paint order.
+
+The representative Letter-page fixture binds IBM Plex Sans Thai Regular and a
+pinned report PNG. Invalid geometry, missing source coverage, conflicting
+identity/order, unknown assets, incomplete glyph coverage, blocked plans, and
+production binding return no partial pages or asset results. The artifact is
+still `not-rendered`; Core reads no font/image bytes, shapes no text, and emits
+no PDF bytes.
+
+Primary evidence:
+
+- `docs/PDF_MEASURED_DRAW_CONTRACT_V1.md`;
+- `src/renderer/pdfMeasuredDrawContractV1.ts`;
+- `fixtures/pdf-pilot-measured-draw-contract.v1.json`;
+- `tests/pdfMeasuredDrawContractV1.test.ts`.
+
+Next phase: `PDF-PILOT-03` Thai embedded-font one-page renderer proof.

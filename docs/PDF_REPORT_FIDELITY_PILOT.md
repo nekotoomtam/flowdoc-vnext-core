@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-01 font bake-off evidence accepted.
+Status: PDF-PILOT-02 measured draw contract accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -33,6 +33,8 @@ storage, auth/authz, and worker lifecycle integration are outside this pilot.
 
 ## PDF-PILOT-01 Scope
 
+Status: PDF-PILOT-01 font bake-off evidence accepted.
+
 Phase 01 pins the reference artifact and source-image hashes, defines six
 report-derived Thai/mixed-script samples, and compares these registered font
 pairs through the package-local native Rustybuzz path:
@@ -45,6 +47,8 @@ pairs through the package-local native Rustybuzz path:
 Tahoma bytes are not copied, retained, packaged, or referenced through a
 repository path. The retained summary stores only its local SHA-256 identity
 and normalized measurement results.
+
+Next phase: `PDF-PILOT-02` measured PDF draw contract extension.
 
 ## Evidence Result
 
@@ -76,6 +80,25 @@ Measured facts:
 
 The selection remains pilot-only. `font-assets.v1.json` active `fontAssets`
 and `styleMappings` are unchanged.
+
+## PDF-PILOT-02 Scope
+
+Phase 02 adds the fail-closed measured draw handoff between the existing PDF
+adapter plan and a future concrete renderer. It requires exact page boxes,
+registered font/hash facts, shaped glyph runs, fill and stroke rectangles,
+backend-owned image identities, and deterministic per-page paint order.
+
+The representative fixture binds IBM Plex Sans Thai Regular and one pinned
+report PNG to one Letter page. Every paint command preserves its source adapter
+bounds exactly, and every source command must be covered. The result remains a
+`not-rendered` artifact with null bytes and no production binding.
+
+Primary Phase 02 evidence:
+
+- `docs/PDF_MEASURED_DRAW_CONTRACT_V1.md`;
+- `src/renderer/pdfMeasuredDrawContractV1.ts`;
+- `fixtures/pdf-pilot-measured-draw-contract.v1.json`;
+- `tests/pdfMeasuredDrawContractV1.test.ts`.
 
 ## Reproduction
 
@@ -110,10 +133,10 @@ raw glyph arrays or absolute font paths.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-01.
+None for closing PDF-PILOT-02.
 
-Concrete PDF fidelity remains blocked until PDF-PILOT-02 extends the draw
-contract with font/style/glyph and paint facts.
+Concrete PDF fidelity remains blocked until PDF-PILOT-03 proves one-page Thai
+font embedding, glyph placement, and text extraction in an isolated renderer.
 
 ## RISK
 
@@ -142,4 +165,4 @@ contract with font/style/glyph and paint facts.
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-02` measured PDF draw contract extension.
+Next phase: `PDF-PILOT-03` Thai embedded-font one-page renderer proof.

@@ -1,0 +1,180 @@
+{
+  "contractVersion": 1,
+  "kind": "pdf-measured-draw-contract-request",
+  "pilotId": "PDF-PILOT-INV-9437125258",
+  "rendererProfileId": "pdf-pilot-draw-contract-v1",
+  "measurementProfileId": "pdf-pilot-measurement-profile-v1",
+  "bindProductionRenderer": false,
+  "plan": {
+    "source": "vnext-pdf-renderer-adapter",
+    "mode": "measured-render-command-adapter",
+    "status": "ready",
+    "rendererContract": {
+      "consumes": "measured-render-commands",
+      "mayRelayout": false,
+      "requiresAuthoredDocumentForLayout": false,
+      "output": "pdf"
+    },
+    "artifact": {
+      "kind": "pdf",
+      "status": "not-rendered",
+      "contentType": "application/pdf",
+      "bytes": null,
+      "storageId": null
+    },
+    "pageCount": 1,
+    "drawCommands": [
+      {
+        "id": "pdf:render:title",
+        "sourceCommandId": "render:title",
+        "fragmentId": "fragment:title",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "operation": "draw-text",
+        "nodeId": "report-title",
+        "nodeType": "text-block",
+        "bounds": { "xPt": 72, "yPt": 72, "widthPt": 200, "heightPt": 26 },
+        "text": "สรุปผล OCR",
+        "table": null
+      },
+      {
+        "id": "pdf:render:summary-box",
+        "sourceCommandId": "render:summary-box",
+        "fragmentId": "fragment:summary-box",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "operation": "draw-fragment-box",
+        "nodeId": "summary-zone",
+        "nodeType": "zone",
+        "bounds": { "xPt": 72, "yPt": 120, "widthPt": 468, "heightPt": 72 },
+        "text": null,
+        "table": null
+      },
+      {
+        "id": "pdf:render:chart-zone",
+        "sourceCommandId": "render:chart-zone",
+        "fragmentId": "fragment:chart-zone",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "operation": "draw-fragment-box",
+        "nodeId": "chart-zone",
+        "nodeType": "zone",
+        "bounds": { "xPt": 72, "yPt": 220, "widthPt": 468, "heightPt": 216 },
+        "text": null,
+        "table": null
+      }
+    ],
+    "blockingIssues": [],
+    "warningIssues": [],
+    "summary": {
+      "inputCommandCount": 3,
+      "drawCommandCount": 3,
+      "textCommandCount": 1,
+      "boxCommandCount": 2,
+      "blockingIssueCount": 0,
+      "warningIssueCount": 0
+    }
+  },
+  "pageBoxes": [
+    {
+      "pageIndex": 0,
+      "pageNumber": 1,
+      "widthPt": 612,
+      "heightPt": 792,
+      "backgroundColor": "FFFFFF"
+    }
+  ],
+  "fontAssets": [
+    {
+      "fontId": "ibm-plex-sans-thai-regular",
+      "family": "IBM Plex Sans Thai",
+      "style": "normal",
+      "weight": 400,
+      "format": "ttf",
+      "sha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57",
+      "sourceKind": "package-font-asset",
+      "licenseId": "OFL-1.1",
+      "embedding": "subset",
+      "toUnicodeMap": true
+    }
+  ],
+  "imageAssets": [
+    {
+      "assetId": "ocr-accuracy-image",
+      "mediaType": "image/png",
+      "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+      "pixelWidth": 1950,
+      "pixelHeight": 900,
+      "bytesOwner": "backend",
+      "accessibility": {
+        "decorative": false,
+        "altText": "เปรียบเทียบความถูกต้องของ OCR ระหว่าง Google และ Azure"
+      }
+    }
+  ],
+  "paintCommands": [
+    {
+      "id": "paint:summary-fill",
+      "sourceCommandId": "pdf:render:summary-box",
+      "pageIndex": 0,
+      "paintOrder": 0,
+      "bounds": { "xPt": 72, "yPt": 120, "widthPt": 468, "heightPt": 72 },
+      "kind": "fill-rect",
+      "color": "EAF1FF",
+      "opacity": 1
+    },
+    {
+      "id": "paint:summary-stroke",
+      "sourceCommandId": "pdf:render:summary-box",
+      "pageIndex": 0,
+      "paintOrder": 1,
+      "bounds": { "xPt": 72, "yPt": 120, "widthPt": 468, "heightPt": 72 },
+      "kind": "stroke-rect",
+      "color": "D9E1E8",
+      "opacity": 1,
+      "widthPt": 0.75,
+      "style": "solid"
+    },
+    {
+      "id": "paint:ocr-chart",
+      "sourceCommandId": "pdf:render:chart-zone",
+      "pageIndex": 0,
+      "paintOrder": 2,
+      "bounds": { "xPt": 72, "yPt": 220, "widthPt": 468, "heightPt": 216 },
+      "kind": "image",
+      "assetId": "ocr-accuracy-image",
+      "fit": "contain",
+      "crop": null,
+      "opacity": 1
+    },
+    {
+      "id": "paint:title-glyphs",
+      "sourceCommandId": "pdf:render:title",
+      "pageIndex": 0,
+      "paintOrder": 3,
+      "bounds": { "xPt": 72, "yPt": 72, "widthPt": 200, "heightPt": 26 },
+      "kind": "glyph-run",
+      "measurementRequestId": "pdf-pilot:title:ibm-plex-regular",
+      "measurementProfileId": "pdf-pilot-measurement-profile-v1",
+      "text": "สรุปผล OCR",
+      "fontId": "ibm-plex-sans-thai-regular",
+      "fontSizePt": 16,
+      "lineHeightPt": 20,
+      "baselineOffsetPt": 17,
+      "color": "17324D",
+      "opacity": 1,
+      "glyphs": [
+        { "glyphIndex": 0, "glyphId": 401, "advancePt": 8.1, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 0, "clusterEndOffset": 1 },
+        { "glyphIndex": 1, "glyphId": 427, "advancePt": 7.8, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 1, "clusterEndOffset": 3 },
+        { "glyphIndex": 2, "glyphId": 439, "advancePt": 0, "offsetXPt": -2.1, "offsetYPt": 4.2, "clusterStartOffset": 1, "clusterEndOffset": 3 },
+        { "glyphIndex": 3, "glyphId": 415, "advancePt": 8.4, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 3, "clusterEndOffset": 4 },
+        { "glyphIndex": 4, "glyphId": 448, "advancePt": 8.2, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 4, "clusterEndOffset": 5 },
+        { "glyphIndex": 5, "glyphId": 421, "advancePt": 7.9, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 5, "clusterEndOffset": 6 },
+        { "glyphIndex": 6, "glyphId": 3, "advancePt": 4, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 6, "clusterEndOffset": 7 },
+        { "glyphIndex": 7, "glyphId": 52, "advancePt": 10.1, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 7, "clusterEndOffset": 8 },
+        { "glyphIndex": 8, "glyphId": 40, "advancePt": 9.7, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 8, "clusterEndOffset": 9 },
+        { "glyphIndex": 9, "glyphId": 55, "advancePt": 9.9, "offsetXPt": 0, "offsetYPt": 0, "clusterStartOffset": 9, "clusterEndOffset": 10 }
+      ]
+    }
+  ]
+}

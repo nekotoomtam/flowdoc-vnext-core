@@ -844,6 +844,10 @@ The package must remain runnable without any parent editor checkout.
   against an external local Tahoma reference through package-local Rustybuzz,
   and selects IBM Plex for pilot-only style calibration without changing the
   active measurement profile or claiming concrete PDF fidelity.
+- PDF measured draw contract v1 converts the ready adapter plan plus explicit
+  page, font/hash, shaped-glyph, rectangle, image, and paint-order facts into a
+  deterministic fail-closed renderer handoff. It preserves measured bounds and
+  emits no PDF bytes or production binding.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.
