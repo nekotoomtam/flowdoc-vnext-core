@@ -14,6 +14,31 @@ export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as co
 export const FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE = "digest-bound-image-one-page-proof" as const
 export const FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE = "shared-resources-multi-page-proof" as const
 export const FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE = "all-five-image-resource-matrix" as const
+export const FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE = "canonical-twelve-page-report-proof" as const
+
+const CANONICAL_REPORT_PAGE_MARKERS = [
+  "รายงานเปรียบเทียบ OCR",
+  "สรุปสำหรับผู้ตัดสินใจ",
+  "วิธีทดสอบที่ใช้",
+  "ช่วงที่ 1 อ่านข้อความได้ถูกต้องแค่ไหน",
+  "หลักฐานจากข้อความจริง",
+  "ช่วงที่ 2 เข้าใจและจัดข้อมูลได้แค่ไหน",
+  "เวลา ราคา และขนาดผลลัพธ์",
+  "ช่วงที่ 3 นำข้อมูลมาใส่รูปแบบของเราได้แค่ไหน",
+  "มุมมองเพื่อการตัดสินใจ",
+  "ข้อจำกัดของรายงาน",
+  "ภาคผนวก A Run ID และหลักฐาน",
+  "ภาคผนวก B คำศัพท์ที่ใช้ในรายงาน",
+] as const
+
+const CANONICAL_REPORT_IMAGE_BINDINGS = [
+  { pageNumber: 1, assetId: "source-evidence-image" },
+  { pageNumber: 4, assetId: "ocr-accuracy-image" },
+  { pageNumber: 5, assetId: "source-evidence-image" },
+  { pageNumber: 6, assetId: "native-extraction-image" },
+  { pageNumber: 7, assetId: "latency-rounds-image" },
+  { pageNumber: 8, assetId: "mapping-gap-image" },
+] as const
 
 export type FlowDocPdfRendererPilotIssueCode =
   | "missing-proof-id"
@@ -25,6 +50,11 @@ export type FlowDocPdfRendererPilotIssueCode =
   | "image-matrix-duplicate-digest"
   | "image-matrix-page-coverage"
   | "image-matrix-asset-coverage"
+  | "report-composition-profile"
+  | "report-composition-page-count"
+  | "report-composition-image-count"
+  | "report-composition-image-binding"
+  | "report-composition-page-marker"
   | "duplicate-image-resource"
   | "missing-image-resource"
   | "image-hash-mismatch"
@@ -125,6 +155,16 @@ export interface FlowDocPdfRendererPilotArtifactManifest {
       assetId: string
     }>
   }
+  reportComposition?: {
+    requiredPageCount: number
+    requiredImageAssetCount: number
+    imagePaintCount: number
+    pageMarkers: string[]
+    pageBindings: Array<{
+      pageNumber: number
+      assetId: string
+    }>
+  }
 }
 
 export type FlowDocPdfRendererPilotResult = {
@@ -134,6 +174,7 @@ export type FlowDocPdfRendererPilotResult = {
     | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
     | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
+    | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE
   proofId: string
   renderContract: {
     consumes: "vnext-pdf-measured-draw-contract-v1"
@@ -144,6 +185,10 @@ export type FlowDocPdfRendererPilotResult = {
     imagesSupported: boolean
     sharedResourceObjects?: true
     requiredImageAssetCount?: number
+    canonicalPageComposition?: true
+    requiredPageCount?: number
+    measuredVerticalGlyphOffsets?: true
+    clusterActualTextFallback?: true
     productionFidelity: false
     storageWrites: false
   }
@@ -375,7 +420,10 @@ function parsePng(bytes: Uint8Array): ParsedPng {
   }
 }
 
-function unicodeAssignments(command: VNextPdfGlyphRunPaintCommandV1): string[] | null {
+function unicodeAssignments(
+  command: VNextPdfGlyphRunPaintCommandV1,
+  allowClusterContinuation: boolean,
+): string[] | null {
   const assignments = new Array<string>(command.glyphs.length)
   const groups = new Map<string, number[]>()
 
@@ -389,6 +437,27 @@ function unicodeAssignments(command: VNextPdfGlyphRunPaintCommandV1): string[] |
   for (const indexes of groups.values()) {
     const first = command.glyphs[indexes[0]]
     const scalars = Array.from(command.text.slice(first.clusterStartOffset, first.clusterEndOffset))
+    if (allowClusterContinuation) {
+      const clusterText = scalars.join("")
+      if (clusterText.length === 0) return null
+      indexes.forEach((glyphIndex) => {
+        assignments[glyphIndex] = ""
+      })
+      const primaryIndexes = indexes.filter((glyphIndex) => command.glyphs[glyphIndex].offsetYPt === 0)
+      if (primaryIndexes.length === 0) return null
+      if (scalars.length < primaryIndexes.length) {
+        const mappedIndex = primaryIndexes.find((glyphIndex) => command.glyphs[glyphIndex].advancePt > 0)
+          ?? primaryIndexes[0]
+        assignments[mappedIndex] = clusterText
+      } else {
+        primaryIndexes.forEach((glyphIndex, index) => {
+          assignments[glyphIndex] = index === primaryIndexes.length - 1
+            ? scalars.slice(index).join("")
+            : scalars[index]
+        })
+      }
+      continue
+    }
     if (scalars.length < indexes.length) return null
     indexes.forEach((glyphIndex, index) => {
       assignments[glyphIndex] = index === indexes.length - 1
@@ -397,7 +466,7 @@ function unicodeAssignments(command: VNextPdfGlyphRunPaintCommandV1): string[] |
     })
   }
 
-  return assignments.every((value) => value != null && value.length > 0) ? assignments : null
+  return assignments.every((value) => value != null) ? assignments : null
 }
 
 function utf16BeHex(value: string): string {
@@ -557,24 +626,70 @@ function buildPageContent(
       const usage = usages.find((candidate) => candidate.asset.fontId === command.fontId)
       const glyphs = resolvedRuns.get(command.id)
       if (usage == null || glyphs == null) throw new Error(`unresolved glyph run: ${command.id}`)
-      const textArray: string[] = []
-      let currentOffset = 0
-      glyphs.forEach((glyph) => {
-        const adjustment = -(glyph.offsetX - currentOffset)
-        if (adjustment !== 0) textArray.push(formatNumber(adjustment))
-        textArray.push(`<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}>`)
-        currentOffset = glyph.offsetX
-      })
-      content.push(
-        `/Span << /ActualText <${actualTextHex(command.text)}> >> BDC`,
-        "BT",
-        `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
-        `${colorOperands(command.color)} rg`,
-        `1 0 0 1 ${formatNumber(command.bounds.xPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt)} Tm`,
-        `[${textArray.join(" ")}] TJ`,
-        "ET",
-        "EMC",
-      )
+      if (glyphs.some((glyph) => glyph.unicode.length === 0)) {
+        const textArray: string[] = []
+        let currentOffset = 0
+        glyphs.forEach((glyph, glyphIndex) => {
+          const measured = command.glyphs[glyphIndex]
+          if (measured.offsetYPt !== 0) return
+          const adjustment = -(glyph.offsetX - currentOffset)
+          if (adjustment !== 0) textArray.push(formatNumber(adjustment))
+          textArray.push(`<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}>`)
+          currentOffset = glyph.offsetX
+        })
+        content.push(
+          `/Span << /ActualText <${actualTextHex(command.text)}> >> BDC`,
+          "BT",
+          `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
+          `${colorOperands(command.color)} rg`,
+          `1 0 0 1 ${formatNumber(command.bounds.xPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt)} Tm`,
+          `[${textArray.join(" ")}] TJ`,
+          "ET",
+          "EMC",
+        )
+        const overlayOperators: string[] = []
+        let cursorXPt = 0
+        glyphs.forEach((glyph, glyphIndex) => {
+          const measured = command.glyphs[glyphIndex]
+          if (measured.offsetYPt !== 0) {
+            overlayOperators.push(
+              `1 0 0 1 ${formatNumber(command.bounds.xPt + cursorXPt + measured.offsetXPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt + measured.offsetYPt)} Tm`,
+              `<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}> Tj`,
+            )
+          }
+          cursorXPt += measured.advancePt
+        })
+        if (overlayOperators.length > 0) {
+          content.push(
+            "/Artifact BMC",
+            "BT",
+            `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
+            `${colorOperands(command.color)} rg`,
+            ...overlayOperators,
+            "ET",
+            "EMC",
+          )
+        }
+      } else {
+        const textArray: string[] = []
+        let currentOffset = 0
+        glyphs.forEach((glyph) => {
+          const adjustment = -(glyph.offsetX - currentOffset)
+          if (adjustment !== 0) textArray.push(formatNumber(adjustment))
+          textArray.push(`<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}>`)
+          currentOffset = glyph.offsetX
+        })
+        content.push(
+          `/Span << /ActualText <${actualTextHex(command.text)}> >> BDC`,
+          "BT",
+          `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
+          `${colorOperands(command.color)} rg`,
+          `1 0 0 1 ${formatNumber(command.bounds.xPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt)} Tm`,
+          `[${textArray.join(" ")}] TJ`,
+          "ET",
+          "EMC",
+        )
+      }
     } else if (command.kind === "image") {
       const usage = imageUsages.find((candidate) => candidate.asset.assetId === command.assetId)
       if (usage == null) throw new Error(`unresolved image command: ${command.id}`)
@@ -742,10 +857,12 @@ function blockedResult(
     | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
-    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE,
+    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
+    | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE,
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
   requiredImageAssetCount?: number,
+  canonicalPageComposition = false,
 ): FlowDocPdfRendererPilotResult {
   return {
     source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
@@ -763,6 +880,12 @@ function blockedResult(
       imagesSupported,
       ...(sharedResourceObjects ? { sharedResourceObjects: true as const } : {}),
       ...(requiredImageAssetCount == null ? {} : { requiredImageAssetCount }),
+      ...(canonicalPageComposition ? {
+        canonicalPageComposition: true as const,
+        requiredPageCount: CANONICAL_REPORT_PAGE_MARKERS.length,
+        measuredVerticalGlyphOffsets: true as const,
+        clusterActualTextFallback: true as const,
+      } : {}),
       productionFidelity: false,
       storageWrites: false,
     },
@@ -788,11 +911,13 @@ function renderFlowDocPdfPilot(
     | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
     | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
-    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE,
-  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06",
+    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
+    | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE,
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07",
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
   requiredImageAssetCount?: number,
+  canonicalPageComposition = false,
 ): FlowDocPdfRendererPilotResult {
   const issues: FlowDocPdfRendererPilotIssue[] = []
   if (input.proofId.trim().length === 0) {
@@ -803,7 +928,15 @@ function renderFlowDocPdfPilot(
   }
   if (input.contract.status !== "consumable") {
     issues.push(issue("contract-blocked", "contract", "The PDF pilot requires a consumable measured draw contract."))
-    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects, requiredImageAssetCount)
+    return blockedResult(
+      input,
+      issues,
+      mode,
+      imagesSupported,
+      sharedResourceObjects,
+      requiredImageAssetCount,
+      canonicalPageComposition,
+    )
   }
   const contract = input.contract
   if (!sharedResourceObjects && contract.pages.length !== 1) {
@@ -857,6 +990,70 @@ function renderFlowDocPdfPilot(
         ))
       }
     })
+  }
+  if (canonicalPageComposition) {
+    if (contract.rendererProfileId !== "pdf-pilot-canonical-report-twelve-page-v1") {
+      issues.push(issue(
+        "report-composition-profile",
+        "contract.rendererProfileId",
+        `${phaseId} requires the canonical twelve-page renderer profile.`,
+      ))
+    }
+    if (contract.pages.length !== CANONICAL_REPORT_PAGE_MARKERS.length) {
+      issues.push(issue(
+        "report-composition-page-count",
+        "contract.pages",
+        `${phaseId} requires exactly ${CANONICAL_REPORT_PAGE_MARKERS.length} measured pages.`,
+      ))
+    }
+    if (contract.imageAssets.length !== 5) {
+      issues.push(issue(
+        "report-composition-image-count",
+        "contract.imageAssets",
+        `${phaseId} requires exactly five pinned report image assets.`,
+      ))
+    }
+    if (new Set(contract.imageAssets.map((asset) => asset.sha256)).size !== contract.imageAssets.length) {
+      issues.push(issue(
+        "report-composition-image-count",
+        "contract.imageAssets",
+        `${phaseId} requires five distinct report image digests.`,
+      ))
+    }
+    CANONICAL_REPORT_PAGE_MARKERS.forEach((marker, pageIndex) => {
+      const page = contract.pages[pageIndex]
+      if (page == null || !page.commands.some((command) => (
+        command.kind === "glyph-run" && command.text === marker
+      ))) {
+        issues.push(issue(
+          "report-composition-page-marker",
+          `contract.pages.${pageIndex}.commands`,
+          `${phaseId} requires canonical marker ${JSON.stringify(marker)} on page ${pageIndex + 1}.`,
+        ))
+      }
+    })
+    const actualBindings = contract.pages.flatMap((page) => page.commands
+      .filter((command): command is VNextPdfImagePaintCommandV1 => command.kind === "image")
+      .map((command) => ({ pageNumber: page.pageNumber, assetId: command.assetId })))
+    const expectedBindings = CANONICAL_REPORT_IMAGE_BINDINGS.map((binding) => ({ ...binding }))
+    if (JSON.stringify(actualBindings) !== JSON.stringify(expectedBindings)) {
+      issues.push(issue(
+        "report-composition-image-binding",
+        "contract.pages",
+        `${phaseId} requires the canonical six page-to-image bindings.`,
+      ))
+    }
+  }
+  if (canonicalPageComposition && issues.length > 0) {
+    return blockedResult(
+      input,
+      issues,
+      mode,
+      imagesSupported,
+      sharedResourceObjects,
+      requiredImageAssetCount,
+      canonicalPageComposition,
+    )
   }
 
   const duplicateResources = new Set<string>()
@@ -959,12 +1156,12 @@ function renderFlowDocPdfPilot(
         issues.push(issue("unsupported-opacity", `${path}.opacity`, `${phaseId} accepts opaque paint only.`))
       }
       if (command.kind !== "glyph-run") return
-      if (command.glyphs.some((glyph) => glyph.offsetYPt !== 0)) {
+      if (!canonicalPageComposition && command.glyphs.some((glyph) => glyph.offsetYPt !== 0)) {
         issues.push(issue("unsupported-vertical-glyph-offset", `${path}.glyphs`, `${phaseId} has not qualified vertical glyph offsets.`))
       }
       const usage = usages.find((candidate) => candidate.asset.fontId === command.fontId)
       if (usage == null) return
-      const assignments = unicodeAssignments(command)
+      const assignments = unicodeAssignments(command, canonicalPageComposition)
       if (assignments == null) {
         issues.push(issue("unmappable-text-cluster", `${path}.glyphs`, "Glyph clusters cannot be mapped losslessly into ToUnicode entries."))
         return
@@ -992,7 +1189,15 @@ function renderFlowDocPdfPilot(
   })
 
   if (issues.length > 0) {
-    return blockedResult(input, issues, mode, imagesSupported, sharedResourceObjects, requiredImageAssetCount)
+    return blockedResult(
+      input,
+      issues,
+      mode,
+      imagesSupported,
+      sharedResourceObjects,
+      requiredImageAssetCount,
+      canonicalPageComposition,
+    )
   }
 
   const fontResourceReferenceCount = contract.pages.reduce((total, page) => (
@@ -1059,6 +1264,15 @@ function renderFlowDocPdfPilot(
         })),
       },
     }),
+    ...(canonicalPageComposition ? {
+      reportComposition: {
+        requiredPageCount: CANONICAL_REPORT_PAGE_MARKERS.length,
+        requiredImageAssetCount: 5,
+        imagePaintCount: CANONICAL_REPORT_IMAGE_BINDINGS.length,
+        pageMarkers: [...CANONICAL_REPORT_PAGE_MARKERS],
+        pageBindings: CANONICAL_REPORT_IMAGE_BINDINGS.map((binding) => ({ ...binding })),
+      },
+    } : {}),
   }
 
   return {
@@ -1077,6 +1291,12 @@ function renderFlowDocPdfPilot(
       imagesSupported,
       ...(sharedResourceObjects ? { sharedResourceObjects: true as const } : {}),
       ...(requiredImageAssetCount == null ? {} : { requiredImageAssetCount }),
+      ...(canonicalPageComposition ? {
+        canonicalPageComposition: true as const,
+        requiredPageCount: CANONICAL_REPORT_PAGE_MARKERS.length,
+        measuredVerticalGlyphOffsets: true as const,
+        clusterActualTextFallback: true as const,
+      } : {}),
       productionFidelity: false,
       storageWrites: false,
     },
@@ -1143,5 +1363,19 @@ export function renderFlowDocAllFiveImageMatrixPdfPilot(
     true,
     true,
     5,
+  )
+}
+
+export function renderFlowDocCanonicalTwelvePageReportPdfPilot(
+  input: FlowDocPdfRendererPilotInput,
+): FlowDocPdfRendererPilotResult {
+  return renderFlowDocPdfPilot(
+    input,
+    FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE,
+    "PDF-PILOT-07",
+    true,
+    true,
+    undefined,
+    true,
   )
 }

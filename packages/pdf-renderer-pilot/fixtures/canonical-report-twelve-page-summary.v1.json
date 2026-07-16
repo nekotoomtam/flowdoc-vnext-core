@@ -1,0 +1,252 @@
+{
+  "summaryVersion": 1,
+  "proofId": "pdf-pilot-07-canonical-report-twelve-page",
+  "status": "rendered",
+  "referenceArtifact": {
+    "artifactId": "reference-final-pdf",
+    "pointer": "external-report://INV_9437125258/OCR_Benchmark_INV_9437125258_TH_final.pdf",
+    "mediaType": "application/pdf",
+    "bytes": 714952,
+    "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+    "pageCount": 12
+  },
+  "artifact": {
+    "artifactId": "pdf-pilot:pdf-pilot-07-canonical-report-twelve-page",
+    "format": "pdf",
+    "mediaType": "application/pdf",
+    "byteLength": 830467,
+    "sha256": "39d8191ff58c2da0f03d7319dd5f3818b7f89642d01885f78cae092634ca1819",
+    "storageStatus": "not-stored",
+    "localOnly": true,
+    "sourceContractFingerprint": "sha256:f743a3261bd7a39d3e6ba146b643d5791b1342589bee38df60c74e1792e7973d",
+    "rendererProfileId": "pdf-pilot-canonical-report-twelve-page-v1",
+    "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+    "embeddedFonts": [
+      {
+        "fontId": "ibm-plex-sans-thai-regular",
+        "subsetId": "pdf-pilot-07-ibm-plex-regular-canonical-report",
+        "subsetSha256": "a4fb4f4f9d7eb9668a013d61ac8a133b454fa8a53c3b45bef7684a02bf02dc24",
+        "subsetByteLength": 37164,
+        "sourceByteLength": 113464,
+        "pdfBaseFontName": "FDPCRP+FlowDocThaiCanonicalReportSubset-Regular",
+        "fontFormat": "Type0/CIDFontType2",
+        "toUnicode": true
+      }
+    ],
+    "embeddedImages": [
+      {
+        "assetId": "source-evidence-image",
+        "sha256": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2",
+        "byteLength": 230868,
+        "pixelWidth": 1548,
+        "pixelHeight": 1376,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8,
+        "sourceFormat": "png",
+        "accessibility": {
+          "decorative": false,
+          "altText": "ภาพหลักฐานจากเอกสารต้นฉบับที่ใช้ในการทดสอบ OCR"
+        }
+      },
+      {
+        "assetId": "ocr-accuracy-image",
+        "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+        "byteLength": 65307,
+        "pixelWidth": 1950,
+        "pixelHeight": 900,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8,
+        "sourceFormat": "png",
+        "accessibility": {
+          "decorative": false,
+          "altText": "เปรียบเทียบความถูกต้องของ OCR ระหว่าง Google และ Azure"
+        }
+      },
+      {
+        "assetId": "native-extraction-image",
+        "sha256": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc",
+        "byteLength": 52599,
+        "pixelWidth": 1950,
+        "pixelHeight": 900,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8,
+        "sourceFormat": "png",
+        "accessibility": {
+          "decorative": false,
+          "altText": "เปรียบเทียบผลการสกัดข้อมูลแบบมีโครงสร้าง"
+        }
+      },
+      {
+        "assetId": "mapping-gap-image",
+        "sha256": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5",
+        "byteLength": 60559,
+        "pixelWidth": 1950,
+        "pixelHeight": 900,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8,
+        "sourceFormat": "png",
+        "accessibility": {
+          "decorative": false,
+          "altText": "เปรียบเทียบช่องว่างของการจับคู่ข้อมูลเข้า GDIM"
+        }
+      },
+      {
+        "assetId": "latency-rounds-image",
+        "sha256": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6",
+        "byteLength": 54714,
+        "pixelWidth": 1950,
+        "pixelHeight": 900,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8,
+        "sourceFormat": "png",
+        "accessibility": {
+          "decorative": false,
+          "altText": "เปรียบเทียบเวลาในการประมวลผลแต่ละรอบ"
+        }
+      }
+    ],
+    "resourceReuse": {
+      "pageCount": 12,
+      "uniqueFontObjectCount": 1,
+      "uniqueImageObjectCount": 5,
+      "fontResourceReferenceCount": 12,
+      "imageResourceReferenceCount": 6
+    },
+    "reportComposition": {
+      "requiredPageCount": 12,
+      "requiredImageAssetCount": 5,
+      "imagePaintCount": 6,
+      "pageMarkers": [
+        "รายงานเปรียบเทียบ OCR",
+        "สรุปสำหรับผู้ตัดสินใจ",
+        "วิธีทดสอบที่ใช้",
+        "ช่วงที่ 1 อ่านข้อความได้ถูกต้องแค่ไหน",
+        "หลักฐานจากข้อความจริง",
+        "ช่วงที่ 2 เข้าใจและจัดข้อมูลได้แค่ไหน",
+        "เวลา ราคา และขนาดผลลัพธ์",
+        "ช่วงที่ 3 นำข้อมูลมาใส่รูปแบบของเราได้แค่ไหน",
+        "มุมมองเพื่อการตัดสินใจ",
+        "ข้อจำกัดของรายงาน",
+        "ภาคผนวก A Run ID และหลักฐาน",
+        "ภาคผนวก B คำศัพท์ที่ใช้ในรายงาน"
+      ],
+      "pageBindings": [
+        {
+          "pageNumber": 1,
+          "assetId": "source-evidence-image"
+        },
+        {
+          "pageNumber": 4,
+          "assetId": "ocr-accuracy-image"
+        },
+        {
+          "pageNumber": 5,
+          "assetId": "source-evidence-image"
+        },
+        {
+          "pageNumber": 6,
+          "assetId": "native-extraction-image"
+        },
+        {
+          "pageNumber": 7,
+          "assetId": "latency-rounds-image"
+        },
+        {
+          "pageNumber": 8,
+          "assetId": "mapping-gap-image"
+        }
+      ]
+    }
+  },
+  "renderContract": {
+    "consumes": "vnext-pdf-measured-draw-contract-v1",
+    "output": "multi-page-pdf-bytes",
+    "usesProvidedGlyphFacts": true,
+    "embeddedFontSubset": true,
+    "toUnicode": true,
+    "imagesSupported": true,
+    "sharedResourceObjects": true,
+    "canonicalPageComposition": true,
+    "requiredPageCount": 12,
+    "measuredVerticalGlyphOffsets": true,
+    "clusterActualTextFallback": true,
+    "productionFidelity": false,
+    "storageWrites": false
+  },
+  "summary": {
+    "pageCount": 12,
+    "paintCommandCount": 528,
+    "glyphRunCount": 357,
+    "glyphCount": 8549,
+    "embeddedFontCount": 1,
+    "imageCount": 5,
+    "fontResourceReferenceCount": 12,
+    "imageResourceReferenceCount": 6,
+    "byteLength": 830467
+  },
+  "expectedPageMarkers": [
+    {
+      "pageNumber": 1,
+      "pageId": "cover",
+      "marker": "รายงานเปรียบเทียบ OCR"
+    },
+    {
+      "pageNumber": 2,
+      "pageId": "executive-summary",
+      "marker": "สรุปสำหรับผู้ตัดสินใจ"
+    },
+    {
+      "pageNumber": 3,
+      "pageId": "method",
+      "marker": "วิธีทดสอบที่ใช้"
+    },
+    {
+      "pageNumber": 4,
+      "pageId": "ocr-accuracy",
+      "marker": "ช่วงที่ 1 อ่านข้อความได้ถูกต้องแค่ไหน"
+    },
+    {
+      "pageNumber": 5,
+      "pageId": "source-evidence",
+      "marker": "หลักฐานจากข้อความจริง"
+    },
+    {
+      "pageNumber": 6,
+      "pageId": "native-extraction",
+      "marker": "ช่วงที่ 2 เข้าใจและจัดข้อมูลได้แค่ไหน"
+    },
+    {
+      "pageNumber": 7,
+      "pageId": "latency-cost-size",
+      "marker": "เวลา ราคา และขนาดผลลัพธ์"
+    },
+    {
+      "pageNumber": 8,
+      "pageId": "mapping",
+      "marker": "ช่วงที่ 3 นำข้อมูลมาใส่รูปแบบของเราได้แค่ไหน"
+    },
+    {
+      "pageNumber": 9,
+      "pageId": "decision-view",
+      "marker": "มุมมองเพื่อการตัดสินใจ"
+    },
+    {
+      "pageNumber": 10,
+      "pageId": "limitations",
+      "marker": "ข้อจำกัดของรายงาน"
+    },
+    {
+      "pageNumber": 11,
+      "pageId": "appendix-runs",
+      "marker": "ภาคผนวก A Run ID และหลักฐาน"
+    },
+    {
+      "pageNumber": 12,
+      "pageId": "appendix-glossary",
+      "marker": "ภาคผนวก B คำศัพท์ที่ใช้ในรายงาน"
+    }
+  ],
+  "externalReferenceBytesRetained": false,
+  "externalImageBytesRetained": false,
+  "productionBinding": false
+}

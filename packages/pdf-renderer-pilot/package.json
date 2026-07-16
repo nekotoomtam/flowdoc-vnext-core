@@ -14,11 +14,14 @@
     "build:image-request": "node scripts/build-image-one-page-request.mjs",
     "build:multi-page-request": "node scripts/build-shared-resources-multi-page-request.mjs",
     "build:all-images-request": "node scripts/build-all-images-multi-page-request.mjs",
+    "build:canonical-request": "node scripts/build-canonical-report-request.mjs",
     "build:subset": "python scripts/build-font-subset.py",
+    "build:canonical-subset": "python scripts/build-canonical-report-font-subset.py",
     "build:proof": "node scripts/build-one-page-proof.mjs",
     "build:image-proof": "node scripts/build-image-one-page-proof.mjs",
     "build:multi-page-proof": "node scripts/build-shared-resources-multi-page-proof.mjs",
-    "build:all-images-proof": "node scripts/build-all-images-multi-page-proof.mjs"
+    "build:all-images-proof": "node scripts/build-all-images-multi-page-proof.mjs",
+    "build:canonical-proof": "node scripts/build-canonical-report-proof.mjs"
   },
   "dependencies": {
     "@flowdoc/vnext-core": "file:../.."

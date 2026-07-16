@@ -10020,3 +10020,31 @@ Primary evidence:
 - `tests/pdfRendererPilotAllImages.test.ts`.
 
 Next phase: `PDF-PILOT-07` canonical 12-page report composition fixture.
+
+## PDF-PILOT-07 Canonical Twelve-Page Report Composition
+
+Status: accepted as a dedicated side workstream without changing the current
+main phase pointer.
+
+Phase 07 verifies the pinned reference PDF identity and expands a readable
+twelve-page composition into 509 measured draw commands, 528 ordered paints,
+357 glyph runs, 8,549 glyph occurrences, 152 box commands, and six image
+paints. The profile rejects drift in renderer identity, page count, page marker
+order, image digest inventory, or page-to-image bindings.
+
+The report corpus qualifies measured Thai vertical offsets and clusters with
+more glyphs than Unicode scalars. Logical CIDs retain extraction while empty
+continuation CIDs are painted as measured artifact overlays. Poppler finds all
+357 text runs raw and pypdf finds all after Thai-adjacent whitespace
+normalization. Pdftoppm and pdftocairo pass all twelve pages without missing
+glyphs, clipping, or overlap. One font object and five image objects are reused,
+the build is deterministic, and Phase 03-06 hashes remain unchanged.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_COMPOSITION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-composition.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReport.test.ts`.
+
+Next phase: `PDF-PILOT-08` report-wide visual-diff calibration and acceptance thresholds.

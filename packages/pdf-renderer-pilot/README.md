@@ -36,6 +36,13 @@ exactly one unique image binding per page. The retained proof executes all five
 pinned report PNGs, reuses one font object across every page, and rejects
 missing, repeated, or unreferenced image-matrix entries.
 
+## PDF-PILOT-07 Profile
+
+The fifth profile accepts only the canonical 12-page OCR benchmark composition.
+It validates page markers and six page-to-image bindings, executes 357 measured
+text runs and table/callout geometry, and supports measured Thai vertical
+offsets through non-extracting continuation-glyph overlays.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -45,12 +52,14 @@ npm --prefix packages/pdf-renderer-pilot run build:request
 npm --prefix packages/pdf-renderer-pilot run build:image-request
 npm --prefix packages/pdf-renderer-pilot run build:multi-page-request
 npm --prefix packages/pdf-renderer-pilot run build:all-images-request
+npm --prefix packages/pdf-renderer-pilot run build:canonical-request
 ```
 
 Build the retained subset with Python FontTools:
 
 ```text
 npm --prefix packages/pdf-renderer-pilot run build:subset
+npm --prefix packages/pdf-renderer-pilot run build:canonical-subset
 ```
 
 Build the local proof artifact:
@@ -60,6 +69,7 @@ npm --prefix packages/pdf-renderer-pilot run build:proof
 npm --prefix packages/pdf-renderer-pilot run build:image-proof
 npm --prefix packages/pdf-renderer-pilot run build:multi-page-proof
 npm --prefix packages/pdf-renderer-pilot run build:all-images-proof
+npm --prefix packages/pdf-renderer-pilot run build:canonical-proof
 ```
 
 The proof PDF is written to
@@ -76,4 +86,9 @@ The shared-resource proof is written to
 The all-images proof is written to
 `output/pdf/flowdoc-pdf-pilot-all-five-images-five-page.pdf`. Set
 `FLOWDOC_PDF_PILOT_REPORT_ASSET_ROOT` when the pinned external report assets are
+not available in the sibling report workspace.
+
+The canonical report proof is written to
+`output/pdf/flowdoc-pdf-pilot-canonical-report-twelve-page.pdf`. Set
+`FLOWDOC_PDF_PILOT_REPORT_ROOT` when the pinned reference report directory is
 not available in the sibling report workspace.

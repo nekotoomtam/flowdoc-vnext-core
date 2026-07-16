@@ -863,6 +863,9 @@ The package must remain runnable without any parent editor checkout.
 - PDF all-images resource matrix validates all five pinned report PNGs, binds
   one unique image object per page while reusing one font object across five
   pages, and fails closed on missing, duplicate, or unreferenced identities.
+- PDF canonical report composition fixes twelve page identities, 357 measured
+  text runs, tables, callouts, headers/footers, and six image paints without
+  renderer relayout while preserving exact Poppler and normalized pypdf text.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

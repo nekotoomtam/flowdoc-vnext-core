@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-06 all-five-image resource matrix accepted.
+Status: PDF-PILOT-07 canonical twelve-page report composition accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -189,6 +189,27 @@ Primary Phase 06 evidence:
 - `packages/pdf-renderer-pilot/fixtures/all-five-images-five-page-qa.v1.json`;
 - `tests/pdfRendererPilotAllImages.test.ts`.
 
+## PDF-PILOT-07 Scope
+
+Phase 07 verifies the pinned 12-page reference identity, then expands a readable
+canonical composition fixture into 509 measured draw commands and 528 paint
+commands. The result executes 357 text runs, 8,549 glyph occurrences, 152 box
+commands, five unique image objects, and six image paints. Page markers and
+image bindings fail closed if their canonical order changes.
+
+The larger Thai corpus qualifies vertical glyph offsets and multi-glyph
+clusters through logical CIDs plus non-extracting artifact overlays. Poppler
+finds all 357 runs raw; pypdf finds all after Thai-adjacent whitespace
+normalization. Dual Poppler raster inspection passes all twelve pages, and
+Phase 03-06 hashes remain unchanged.
+
+Primary Phase 07 evidence:
+
+- `docs/PDF_CANONICAL_REPORT_COMPOSITION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-composition.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReport.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -249,6 +270,18 @@ FLOWDOC_PDF_PILOT_REPORT_ASSET_ROOT=<path-to-report-assets> \
 npm --prefix packages/pdf-renderer-pilot run build:all-images-proof
 ```
 
+Build the canonical composition, dedicated subset, and local twelve-page proof:
+
+```text
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:canonical-request
+
+npm --prefix packages/pdf-renderer-pilot run build:canonical-subset
+
+FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
+npm --prefix packages/pdf-renderer-pilot run build:canonical-proof
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -269,13 +302,15 @@ npm --prefix packages/pdf-renderer-pilot run build:all-images-proof
   cross-page reference, extraction, and visual QA.
 - Five distinct pinned image objects pass one-to-one page coverage, exact pixel
   identity, Thai extraction, and portrait/landscape visual QA.
+- Twelve canonical pages pass fixed page identity, measured table/callout
+  composition, full-corpus Thai cluster execution, and exact text-run presence.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-06.
+None for closing PDF-PILOT-07.
 
-Report-level PDF fidelity remains blocked on canonical 12-page content,
-page-specific composition, and report-wide visual comparison.
+Report-level PDF fidelity remains blocked on calibrated report-wide visual-diff
+thresholds and production integration.
 
 ## RISK
 
@@ -288,17 +323,17 @@ page-specific composition, and report-wide visual comparison.
   covers only one page.
 - Phase 04/06 qualify opaque RGB PNG only; alpha, palette, JPEG, and
   transparency remain open.
-- Phase 06 uses repeated panel/text content; distinct report page templates,
-  headers, footers, tables, and page numbering remain open.
+- Phase 07 uses IBM Plex Regular and a concise canonical content inventory;
+  Tahoma/bold metric calibration and verbatim-content parity remain open.
 
 ## UNKNOWN
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- mixed Thai/Latin extraction order beyond the two accepted one-page lines;
-- table and heading wrap behavior after style-token calibration;
-- concrete PDF package and dependency budget.
-- canonical 12-page object counts, artifact size, and visual-diff thresholds.
+- automatic table and heading wrap behavior after style-token calibration;
+- concrete PDF package and dependency budget;
+- report-wide visual-diff thresholds and reader compatibility beyond Poppler
+  and pypdf.
 
 ## Intentionally Not Changed
 
@@ -311,4 +346,4 @@ page-specific composition, and report-wide visual comparison.
 - no backend/editor route, worker, storage, or UI behavior changed;
 - no package/document schema changed.
 
-Next phase: `PDF-PILOT-07` canonical 12-page report composition fixture.
+Next phase: `PDF-PILOT-08` report-wide visual-diff calibration and acceptance thresholds.

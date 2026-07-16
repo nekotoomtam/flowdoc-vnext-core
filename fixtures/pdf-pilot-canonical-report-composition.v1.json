@@ -1,0 +1,405 @@
+{
+  "compositionVersion": 1,
+  "compositionId": "pdf-pilot-canonical-report-composition-v1",
+  "pilotId": "PDF-PILOT-INV-9437125258",
+  "rendererProfileId": "pdf-pilot-canonical-report-twelve-page-v1",
+  "measurementProfileId": "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-v1",
+  "referenceArtifact": {
+    "artifactId": "reference-final-pdf",
+    "pointer": "external-report://INV_9437125258/OCR_Benchmark_INV_9437125258_TH_final.pdf",
+    "mediaType": "application/pdf",
+    "bytes": 714952,
+    "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+    "pageCount": 12
+  },
+  "pageBox": {
+    "widthPt": 612,
+    "heightPt": 792,
+    "backgroundColor": "FFFFFF"
+  },
+  "styles": {
+    "header": { "fontSizePt": 7.5, "lineHeightPt": 10, "color": "5E6B78" },
+    "footer": { "fontSizePt": 7.5, "lineHeightPt": 10, "color": "5E6B78" },
+    "eyebrow": { "fontSizePt": 9, "lineHeightPt": 12, "color": "2F6FED" },
+    "coverTitle": { "fontSizePt": 22, "lineHeightPt": 28, "color": "17324D" },
+    "coverSubtitle": { "fontSizePt": 10, "lineHeightPt": 14, "color": "5E6B78" },
+    "identity": { "fontSizePt": 11, "lineHeightPt": 15, "color": "17202A" },
+    "pageTitle": { "fontSizePt": 16, "lineHeightPt": 22, "color": "17324D" },
+    "section": { "fontSizePt": 11.5, "lineHeightPt": 16, "color": "2F6FED" },
+    "body": { "fontSizePt": 9.2, "lineHeightPt": 13, "color": "17202A" },
+    "small": { "fontSizePt": 7.8, "lineHeightPt": 11, "color": "5E6B78" },
+    "callout": { "fontSizePt": 8.6, "lineHeightPt": 12, "color": "17202A" },
+    "bullet": { "fontSizePt": 8.6, "lineHeightPt": 13, "color": "17202A" },
+    "caption": { "fontSizePt": 7.3, "lineHeightPt": 10, "color": "5E6B78" }
+  },
+  "pages": [
+    {
+      "pageNumber": 1,
+      "pageId": "cover",
+      "marker": "รายงานเปรียบเทียบ OCR",
+      "elements": [
+        { "kind": "text", "id": "eyebrow", "style": "eyebrow", "xPt": 60, "yPt": 66, "widthPt": 492, "align": "center", "lines": ["OCR BENCHMARK REPORT"] },
+        { "kind": "text", "id": "title", "style": "coverTitle", "xPt": 60, "yPt": 105, "widthPt": 492, "align": "center", "lines": ["รายงานเปรียบเทียบ OCR", "และการจัดโครงสร้างเอกสาร"] },
+        { "kind": "text", "id": "subtitle", "style": "coverSubtitle", "xPt": 60, "yPt": 174, "widthPt": 492, "align": "center", "lines": ["Google Cloud Vision / Document AI เทียบกับ Azure Document Intelligence"] },
+        { "kind": "text", "id": "identity", "style": "identity", "xPt": 60, "yPt": 214, "widthPt": 492, "align": "center", "lines": ["INV_9437125258.pdf | 2 หน้า | Provider ละ 3 รอบ"] },
+        { "kind": "text", "id": "date", "style": "small", "xPt": 60, "yPt": 238, "widthPt": 492, "align": "center", "lines": ["วันที่ทดสอบ 16 กรกฎาคม 2026 | อัตราอ้างอิง 33.48 บาท/USD"] },
+        { "kind": "image", "id": "source-evidence", "assetId": "source-evidence-image", "xPt": 86, "yPt": 270, "widthPt": 440, "heightPt": 330, "fit": "contain" },
+        { "kind": "text", "id": "caption", "style": "caption", "xPt": 60, "yPt": 612, "widthPt": 492, "align": "center", "lines": ["ตัวอย่างข้อมูลจริงในใบแจ้งหนี้ที่ใช้ทดสอบ"] },
+        { "kind": "text", "id": "version", "style": "small", "xPt": 60, "yPt": 646, "widthPt": 492, "align": "center", "lines": ["ฉบับที่ 1.0 | Benchmark ID: INV_9437125258-2026-07-16"] }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "pageId": "executive-summary",
+      "marker": "สรุปสำหรับผู้ตัดสินใจ",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["สรุปสำหรับผู้ตัดสินใจ"] },
+        { "kind": "panel", "id": "summary-panel", "xPt": 60, "yPt": 94, "widthPt": 492, "heightPt": 64, "fill": "EAF1FF", "stroke": "D9E1E8" },
+        { "kind": "text", "id": "summary", "style": "callout", "xPt": 76, "yPt": 106, "widthPt": 460, "lines": ["ข้อสรุปสั้น: ทั้งสองเจ้าอ่านข้อความสำคัญได้ครบ แต่มีจุดเด่นต่างกัน", "Google ตอบเร็วและจัดตารางละเอียดกว่า ส่วน Azure ใช้ต้นทุนและข้อมูลตอบกลับต่ำกว่า"] },
+        {
+          "kind": "table",
+          "id": "decision-table",
+          "xPt": 60,
+          "yPt": 180,
+          "widthPt": 492,
+          "headerHeightPt": 24,
+          "rowHeightPt": 34,
+          "fontSizePt": 7.2,
+          "lineHeightPt": 9,
+          "columnsPt": [120, 82, 82, 208],
+          "headers": ["คำถาม", "Google", "Azure", "ความหมาย"],
+          "rows": [
+            ["อ่านข้อความสำคัญครบไหม", "ครบ 29/29", "ครบ 29/29", "ข้อมูลธุรกิจหลักไม่ตกหล่น"],
+            ["อ่านข้อความเร็วแค่ไหน", "1.76 วินาที", "4.62 วินาที", "Google เร็วกว่าประมาณ 2.85 วินาที"],
+            ["จัดข้อมูลเป็นโครงสร้าง", "23/25", "14/25", "Google เก็บตารางและรายการสินค้าได้มากกว่า"],
+            ["ค่าใช้จ่าย Native", "2.01 บาท", "0.67 บาท", "Azure ต่ำกว่าประมาณ 3 เท่า"],
+            ["Mapping เข้า GDIM", "5 จาก 32", "4 จาก 32", "คอขวดหลักยังอยู่ที่ Mapper ของเรา"]
+          ]
+        },
+        { "kind": "text", "id": "notes-title", "style": "section", "xPt": 60, "yPt": 398, "widthPt": 492, "lines": ["สิ่งที่ควรรู้ก่อนอ่านคะแนน"] },
+        { "kind": "text", "id": "notes", "style": "bullet", "xPt": 76, "yPt": 428, "widthPt": 460, "lines": ["- ใช้ไฟล์และ hash เดียวกันทุกครั้ง จำนวน 3 รอบต่อ provider", "- ทุก engine ให้ข้อความและโครงสร้างเหมือนเดิมทั้ง 3 รอบ", "- Confidence ของแต่ละเจ้าใช้เกณฑ์ต่างกัน จึงไม่เทียบข้ามเจ้าโดยตรง", "- ประเมิน GDIM เฉพาะข้อมูลที่อนุมานได้จาก Invoice นี้"] },
+        { "kind": "panel", "id": "recommendation-panel", "xPt": 60, "yPt": 510, "widthPt": 492, "heightPt": 90, "fill": "FFF5D9", "stroke": "E7D7A5" },
+        { "kind": "text", "id": "recommendation", "style": "callout", "xPt": 76, "yPt": 524, "widthPt": 460, "lines": ["ข้อเสนอแนะ: ยังไม่ควรเลือก provider จากคะแนน Mapping ปัจจุบัน", "ตัว Mapper ยังใช้ข้อมูลตารางและ semantic alias ได้ไม่ครบ", "ควรปรับ Mapping แล้วทดสอบซ้ำด้วยชุดเดิม"] }
+      ]
+    },
+    {
+      "pageNumber": 3,
+      "pageId": "method",
+      "marker": "วิธีทดสอบที่ใช้",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["วิธีทดสอบที่ใช้"] },
+        { "kind": "text", "id": "intro", "style": "body", "xPt": 60, "yPt": 92, "widthPt": 492, "lines": ["ทั้งสองเจ้าได้รับข้อมูลเดียวกันและไม่ยิงพร้อมกัน ลำดับถูกสลับในแต่ละรอบ", "ผล Raw JSON ถูกเก็บแยกตาม Run ID เพื่อให้ตรวจสอบย้อนกลับได้"] },
+        {
+          "kind": "table",
+          "id": "method-table",
+          "xPt": 60,
+          "yPt": 132,
+          "widthPt": 492,
+          "headerHeightPt": 24,
+          "rowHeightPt": 27,
+          "fontSizePt": 7.4,
+          "lineHeightPt": 9,
+          "columnsPt": [128, 364],
+          "headers": ["รายการ", "ค่าที่ใช้"],
+          "rows": [
+            ["เอกสาร", "INV_9437125258.pdf, 2 หน้า, 4,053,388 bytes"],
+            ["SHA-256", "a8598f04d40445b9...e7efa5ead173"],
+            ["รูปแบบส่ง", "Page by page"],
+            ["ขอบเขต", "OCR และ Native Extraction"],
+            ["จำนวนรอบ", "Google 3 รอบ และ Azure 3 รอบ"],
+            ["Cost cap", "2 USD ต่อ run"],
+            ["อัตราแปลงเงิน", "33.48 บาท/USD"],
+            ["คำตอบอ้างอิง", "ตรวจจากภาพ PDF ที่ render 240 DPI"]
+          ]
+        },
+        { "kind": "text", "id": "stages-title", "style": "section", "xPt": 60, "yPt": 396, "widthPt": 492, "lines": ["สามช่วงของรายงาน"] },
+        { "kind": "text", "id": "stages", "style": "body", "xPt": 60, "yPt": 426, "widthPt": 492, "lines": ["ช่วงที่ 1 อ่านข้อความได้ถูกต้องแค่ไหน", "ดูข้อความ ตัวเลข ลำดับ ตำแหน่ง เวลา ราคา และขนาดผลลัพธ์", "ช่วงที่ 2 เข้าใจและจัดข้อมูลได้แค่ไหน", "ดู key-value ตาราง แถวสินค้า และข้อมูลที่อยู่เป็นชุดเดียวกัน", "ช่วงที่ 3 นำข้อมูลมาใส่รูปแบบของเราได้แค่ไหน", "ดู schema, GDIM, ตำแหน่งฟิลด์ และข้อมูลที่ Mapper ยังใช้ไม่ได้"] }
+      ]
+    },
+    {
+      "pageNumber": 4,
+      "pageId": "ocr-accuracy",
+      "marker": "ช่วงที่ 1 อ่านข้อความได้ถูกต้องแค่ไหน",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["ช่วงที่ 1 อ่านข้อความได้ถูกต้องแค่ไหน"] },
+        { "kind": "image", "id": "ocr-accuracy", "assetId": "ocr-accuracy-image", "xPt": 60, "yPt": 96, "widthPt": 492, "heightPt": 220, "fit": "contain" },
+        { "kind": "text", "id": "caption", "style": "caption", "xPt": 60, "yPt": 320, "widthPt": 492, "align": "center", "lines": ["คะแนนรวมผลของข้อความและ reading order หลัง normalize ช่องว่างและวรรคตอน"] },
+        {
+          "kind": "table",
+          "id": "ocr-table",
+          "xPt": 60,
+          "yPt": 344,
+          "widthPt": 492,
+          "headerHeightPt": 23,
+          "rowHeightPt": 27,
+          "fontSizePt": 7.1,
+          "lineHeightPt": 9,
+          "columnsPt": [218, 137, 137],
+          "headers": ["ตัวชี้วัด", "Google Vision", "Azure OCR"],
+          "rows": [
+            ["ค่าธุรกิจสำคัญที่อ่านพบ", "29/29", "29/29"],
+            ["ตัวอักษรและลำดับ", "84.9%", "88.3%"],
+            ["คำและลำดับ", "82.9%", "85.7%"],
+            ["จำนวนคำที่แบ่งออกมา", "750", "593"],
+            ["คำ confidence ต่ำกว่า 0.8", "30", "19"],
+            ["คำที่มีตำแหน่งอ้างอิง", "100%", "100%"],
+            ["เวลาค่ากลาง", "1.76 วินาที", "4.62 วินาที"],
+            ["ขนาด Raw JSON", "1.00 MB", "0.20 MB"],
+            ["ค่าใช้จ่ายประมาณการ", "0.10 บาท", "0.10 บาท"]
+          ]
+        },
+        { "kind": "panel", "id": "meaning-panel", "xPt": 60, "yPt": 632, "widthPt": 492, "heightPt": 72, "fill": "F3F6FA", "stroke": "D9E1E8" },
+        { "kind": "text", "id": "meaning", "style": "callout", "xPt": 76, "yPt": 646, "widthPt": 460, "lines": ["ทั้งคู่เก็บ Invoice No., วันที่, จำนวน, ราคา, น้ำหนัก และรหัสสินค้าครบ", "คะแนนรวมต่างกันจาก reading order และการแบ่งคำ ไม่ใช่ข้อมูลธุรกิจตกหล่น"] }
+      ]
+    },
+    {
+      "pageNumber": 5,
+      "pageId": "source-evidence",
+      "marker": "หลักฐานจากข้อความจริง",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["หลักฐานจากข้อความจริง"] },
+        { "kind": "image", "id": "source-evidence", "assetId": "source-evidence-image", "xPt": 82, "yPt": 94, "widthPt": 448, "heightPt": 330, "fit": "contain" },
+        { "kind": "text", "id": "caption", "style": "caption", "xPt": 60, "yPt": 430, "widthPt": 492, "align": "center", "lines": ["กรอบ 1 ชี้รายการสินค้าและยอดเงิน กรอบ 2 ชี้ประเทศต้นทางและน้ำหนัก"] },
+        { "kind": "text", "id": "shared-title", "style": "section", "xPt": 60, "yPt": 462, "widthPt": 492, "lines": ["ข้อมูลที่ทั้งสองเจ้าพบตรงกัน"] },
+        {
+          "kind": "table",
+          "id": "evidence-table",
+          "xPt": 60,
+          "yPt": 492,
+          "widthPt": 492,
+          "headerHeightPt": 23,
+          "rowHeightPt": 28,
+          "fontSizePt": 7.1,
+          "lineHeightPt": 9,
+          "columnsPt": [122, 370],
+          "headers": ["กลุ่มข้อมูล", "ตัวอย่างค่าที่พบ"],
+          "rows": [
+            ["เลขอ้างอิง", "Invoice 9437125258, Delivery 8142515582, AEO THIE570073"],
+            ["คู่ค้าและปลายทาง", "Q510004 COMPUTER, INC., TAOYUAN CITY, TAIWAN"],
+            ["การขนส่ง", "AIR, BANGKOK, 09/27/2024, O/A 60 Days"],
+            ["สินค้า", "DC DC CONVERTER, 1077309227, Q50SN12072RNDHQ"],
+            ["ราคาและจำนวน", "540 PCE, 29.36 USD/UNIT, 15,854.40 USD"],
+            ["น้ำหนัก", "Gross 79.14 KGS, Net 43.20 KGS"]
+          ]
+        }
+      ]
+    },
+    {
+      "pageNumber": 6,
+      "pageId": "native-extraction",
+      "marker": "ช่วงที่ 2 เข้าใจและจัดข้อมูลได้แค่ไหน",
+      "elements": [
+        { "kind": "text", "id": "differences-title", "style": "section", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["ตัวอย่างความต่างที่พบ"] },
+        { "kind": "text", "id": "differences", "style": "bullet", "xPt": 76, "yPt": 84, "widthPt": 460, "lines": ["- Azure อ่านหัวข้อ AEO เป็น ADO แต่ยังอ่านหมายเลขได้ถูกต้อง", "- Azure Native คืนค่าน้ำหนัก 79.14 K KGS ใน key-value", "- Reading order ต่างกัน แต่ข้อมูลสำคัญยังอยู่ครบ"] },
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 142, "widthPt": 492, "lines": ["ช่วงที่ 2 เข้าใจและจัดข้อมูลได้แค่ไหน"] },
+        { "kind": "image", "id": "native-extraction", "assetId": "native-extraction-image", "xPt": 60, "yPt": 178, "widthPt": 492, "heightPt": 205, "fit": "contain" },
+        { "kind": "text", "id": "caption", "style": "caption", "xPt": 60, "yPt": 386, "widthPt": 492, "align": "center", "lines": ["Coverage วัดจากข้อมูลสำคัญ 25 รายการที่ควรจัดเป็นโครงสร้างได้"] },
+        {
+          "kind": "table",
+          "id": "native-table",
+          "xPt": 60,
+          "yPt": 412,
+          "widthPt": 492,
+          "headerHeightPt": 23,
+          "rowHeightPt": 27,
+          "fontSizePt": 7,
+          "lineHeightPt": 9,
+          "columnsPt": [206, 143, 143],
+          "headers": ["ตัวชี้วัด", "Google Document AI", "Azure Native"],
+          "rows": [
+            ["ข้อมูลที่จัดโครงสร้างได้", "23/25 (92%)", "14/25 (56%)"],
+            ["Key-value ที่มีชื่อและค่า", "48", "40"],
+            ["ตาราง / cells", "7 / 51", "1 / 15"],
+            ["เวลาค่ากลาง", "9.56 วินาที", "8.66 วินาที"],
+            ["ขนาด Raw JSON", "1.93 MB", "0.12 MB"],
+            ["ค่าใช้จ่ายประมาณการ", "2.01 บาท", "0.67 บาท"]
+          ]
+        },
+        { "kind": "panel", "id": "native-panel", "xPt": 60, "yPt": 616, "widthPt": 492, "heightPt": 72, "fill": "E7F7F5", "stroke": "B9E4DF" },
+        { "kind": "text", "id": "native-meaning", "style": "callout", "xPt": 76, "yPt": 630, "widthPt": 460, "lines": ["Google จัดแถวสินค้า รายละเอียด จำนวน ราคา และยอดเงินเป็นชุดได้ดีกว่า", "Azure ส่งผลลัพธ์กะทัดรัดกว่าและมีต้นทุนประมาณการต่ำกว่า"] }
+      ]
+    },
+    {
+      "pageNumber": 7,
+      "pageId": "latency-cost-size",
+      "marker": "เวลา ราคา และขนาดผลลัพธ์",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["เวลา ราคา และขนาดผลลัพธ์"] },
+        { "kind": "image", "id": "latency", "assetId": "latency-rounds-image", "xPt": 60, "yPt": 96, "widthPt": 492, "heightPt": 220, "fit": "contain" },
+        { "kind": "text", "id": "caption", "style": "caption", "xPt": 60, "yPt": 320, "widthPt": 492, "align": "center", "lines": ["เส้นแสดงเวลาจริงแต่ละรอบ โดย Azure Native รอบที่ 2 เป็น outlier"] },
+        {
+          "kind": "table",
+          "id": "latency-table",
+          "xPt": 60,
+          "yPt": 348,
+          "widthPt": 492,
+          "headerHeightPt": 23,
+          "rowHeightPt": 31,
+          "fontSizePt": 7,
+          "lineHeightPt": 9,
+          "columnsPt": [138, 84, 84, 84, 102],
+          "headers": ["Engine", "ต่ำสุด", "ค่ากลาง", "สูงสุด", "ราคา"],
+          "rows": [
+            ["Google Vision", "1.66 วิ", "1.76 วิ", "2.09 วิ", "0.10 บาท"],
+            ["Azure OCR", "4.55 วิ", "4.62 วิ", "4.90 วิ", "0.10 บาท"],
+            ["Google Document AI", "9.53 วิ", "9.56 วิ", "9.70 วิ", "2.01 บาท"],
+            ["Azure Native", "8.61 วิ", "8.66 วิ", "43.66 วิ", "0.67 บาท"]
+          ]
+        },
+        { "kind": "panel", "id": "median-panel", "xPt": 60, "yPt": 530, "widthPt": 492, "heightPt": 94, "fill": "FFF5D9", "stroke": "E7D7A5" },
+        { "kind": "text", "id": "median", "style": "callout", "xPt": 76, "yPt": 544, "widthPt": 460, "lines": ["เหตุผลที่ใช้ค่ากลาง: Azure Native รอบที่ 2 ใช้เวลา 43.66 วินาที", "แต่อีกสองรอบอยู่ประมาณ 8.6 วินาที ค่าเฉลี่ยจึงบิดภาพพฤติกรรมปกติ", "รายงานใช้ median พร้อมช่วงต่ำสุด-สูงสุด"] },
+        { "kind": "text", "id": "total-cost", "style": "body", "xPt": 60, "yPt": 650, "widthPt": 492, "lines": ["ค่าใช้จ่ายรวม 6 runs = 0.258 USD หรือ 8.64 บาท ก่อนหัก free tier"] }
+      ]
+    },
+    {
+      "pageNumber": 8,
+      "pageId": "mapping",
+      "marker": "ช่วงที่ 3 นำข้อมูลมาใส่รูปแบบของเราได้แค่ไหน",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["ช่วงที่ 3 นำข้อมูลมาใส่รูปแบบของเราได้แค่ไหน"] },
+        { "kind": "panel", "id": "condition-panel", "xPt": 60, "yPt": 94, "widthPt": 492, "heightPt": 66, "fill": "FFF5D9", "stroke": "E7D7A5" },
+        { "kind": "text", "id": "condition", "style": "callout", "xPt": 76, "yPt": 106, "widthPt": 460, "lines": ["ระบบจำแนกไฟล์เป็น Invoice ได้ถูกต้องและไม่เลือก GDIM อัตโนมัติ", "รายงานจึงบังคับใช้ GDIM กับผล Native เดิมโดยไม่ยิง API เพิ่ม"] },
+        { "kind": "image", "id": "mapping", "assetId": "mapping-gap-image", "xPt": 60, "yPt": 176, "widthPt": 492, "heightPt": 200, "fit": "contain" },
+        { "kind": "text", "id": "caption", "style": "caption", "xPt": 60, "yPt": 380, "widthPt": 492, "align": "center", "lines": ["32 คือข้อมูลจากเอกสารที่ระบุเส้นทาง GDIM ได้ ไม่ใช่ฟิลด์ทั้งหมด 199 ฟิลด์"] },
+        {
+          "kind": "table",
+          "id": "mapping-table",
+          "xPt": 60,
+          "yPt": 406,
+          "widthPt": 492,
+          "headerHeightPt": 22,
+          "rowHeightPt": 25,
+          "fontSizePt": 7.1,
+          "lineHeightPt": 9,
+          "columnsPt": [228, 132, 132],
+          "headers": ["ผล Mapping", "จาก Google", "จาก Azure"],
+          "rows": [
+            ["GDIM fields ทั้งหมด", "199", "199"],
+            ["Required fields", "98", "98"],
+            ["Mapper เติมได้", "5", "5"],
+            ["Mapper เติม required", "3", "3"],
+            ["ฟิลด์ที่ตรวจว่าถูก", "5", "4"],
+            ["ความถูกต้องของฟิลด์ที่เติม", "100%", "80%"],
+            ["ข้อมูลที่ควรใช้ได้และถูกใช้", "15.6%", "12.5%"]
+          ]
+        },
+        { "kind": "text", "id": "causes-title", "style": "section", "xPt": 60, "yPt": 622, "widthPt": 492, "lines": ["สาเหตุหลัก"] },
+        { "kind": "text", "id": "causes", "style": "bullet", "xPt": 76, "yPt": 648, "widthPt": 460, "lines": ["- Mapper ยังใช้ตารางไม่เต็มรูปแบบ", "- ชื่อฟิลด์ GDIM กับศัพท์ Invoice ยังไม่มี semantic aliases"] }
+      ]
+    },
+    {
+      "pageNumber": 9,
+      "pageId": "decision-view",
+      "marker": "มุมมองเพื่อการตัดสินใจ",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["มุมมองเพื่อการตัดสินใจ"] },
+        { "kind": "text", "id": "intro", "style": "body", "xPt": 60, "yPt": 92, "widthPt": 492, "lines": ["ไม่มี provider หนึ่งชนะทุกด้าน ผลทดสอบแสดง trade-off ที่แตกต่างกัน"] },
+        {
+          "kind": "table",
+          "id": "tradeoff-table",
+          "xPt": 60,
+          "yPt": 122,
+          "widthPt": 492,
+          "headerHeightPt": 24,
+          "rowHeightPt": 37,
+          "fontSizePt": 6.9,
+          "lineHeightPt": 9,
+          "columnsPt": [132, 148, 212],
+          "headers": ["โจทย์", "ตัวเลือกที่เด่นกว่า", "เหตุผล"],
+          "rows": [
+            ["อ่านข้อความเร็ว", "Google Vision", "Median 1.76 วินาที เทียบ Azure 4.62 วินาที"],
+            ["ตารางและรายการสินค้า", "Google Document AI", "Coverage 92% และคืน 7 ตาราง"],
+            ["ลดค่าใช้จ่าย Native", "Azure Native", "0.67 บาท เทียบ Google 2.01 บาท"],
+            ["ผลลัพธ์ขนาดเล็ก", "Azure", "Native 0.12 MB เทียบ Google 1.93 MB"],
+            ["GDIM พร้อมใช้", "ยังสรุปไม่ได้", "Mapper ใช้ข้อมูลได้เพียง 12.5-15.6%"]
+          ]
+        },
+        { "kind": "text", "id": "recommend-title", "style": "section", "xPt": 60, "yPt": 360, "widthPt": 492, "lines": ["ข้อเสนอแนะก่อนตัดสินใจเลือก provider"] },
+        { "kind": "text", "id": "recommend", "style": "bullet", "xPt": 76, "yPt": 390, "widthPt": 460, "lines": ["- แยก Target schema ออกจากผล classification", "- เพิ่ม semantic aliases ของศัพท์ Invoice และ GDIM", "- ใช้ table cells สร้างรายการสินค้าและตรวจ Quantity, Price, Amount", "- ตรวจชนิดวันที่ หน่วย สกุลเงิน รหัสประเทศ และ indicator/license", "- ปรับ Mapper แล้วรันทดสอบชุดเดิม 3 รอบอีกครั้ง"] },
+        { "kind": "panel", "id": "short-term-panel", "xPt": 60, "yPt": 488, "widthPt": 492, "heightPt": 92, "fill": "EAF1FF", "stroke": "D9E1E8" },
+        { "kind": "text", "id": "short-term", "style": "callout", "xPt": 76, "yPt": 502, "widthPt": 460, "lines": ["แนวทางระยะสั้น: Google Document AI ให้ข้อมูลโครงสร้างพร้อมใช้ต่อมากกว่า", "Azure ยังน่าสนใจเมื่อจำกัดต้นทุนและเรามี logic อ่านตารางเพิ่มเอง"] }
+      ]
+    },
+    {
+      "pageNumber": 10,
+      "pageId": "limitations",
+      "marker": "ข้อจำกัดของรายงาน",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["ข้อจำกัดของรายงาน"] },
+        { "kind": "text", "id": "limitations", "style": "bullet", "xPt": 76, "yPt": 96, "widthPt": 460, "lines": ["- ใช้เอกสารหลักหนึ่งชุด จำนวน 2 หน้า", "- มีเพียง 3 รอบ จึงยังไม่ใช่สถิติระดับ production", "- ค่าใช้จ่ายเป็นค่าประมาณก่อน free tier และส่วนลด", "- Confidence ของแต่ละ provider ใช้เกณฑ์ต่างกัน", "- CER/WER รวมผลของ reading order หลัง normalize", "- เอกสารเป็น Invoice ส่งจากไทยไปไต้หวัน ไม่ใช่ Thai Import Declaration", "- Azure F0 จำกัด whole-document PDF แต่รอบนี้ใช้ page-by-page"] },
+        { "kind": "panel", "id": "case-panel", "xPt": 60, "yPt": 220, "widthPt": 492, "heightPt": 84, "fill": "F3F6FA", "stroke": "D9E1E8" },
+        { "kind": "text", "id": "case", "style": "callout", "xPt": 76, "yPt": 234, "widthPt": 460, "lines": ["กรณีศึกษาเสริม: ไฟล์ 8 หน้าเหมาะแสดงข้อจำกัด Whole Document ของ Azure F0", "แต่ไม่ควรคิดคะแนน accuracy เทียบ Google เมื่อจำนวนหน้าที่ประมวลผลไม่เท่ากัน"] },
+        { "kind": "text", "id": "more-title", "style": "section", "xPt": 60, "yPt": 334, "widthPt": 492, "lines": ["สิ่งที่ควรทดสอบเพิ่ม"] },
+        { "kind": "text", "id": "more", "style": "body", "xPt": 60, "yPt": 366, "widthPt": 492, "lines": ["เพิ่ม Invoice, Packing List, Bill of Lading และ Custom Declaration หลายรูปแบบ", "รวมภาพเอียง ภาพจาง ตารางหลายหน้า และเอกสารไทย/อังกฤษผสม", "เป้าหมายคือดูว่าข้อสรุปยังคงเดิมหรือเปลี่ยนตามชนิดเอกสาร"] }
+      ]
+    },
+    {
+      "pageNumber": 11,
+      "pageId": "appendix-runs",
+      "marker": "ภาคผนวก A Run ID และหลักฐาน",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["ภาคผนวก A Run ID และหลักฐาน"] },
+        {
+          "kind": "table",
+          "id": "runs-table",
+          "xPt": 60,
+          "yPt": 100,
+          "widthPt": 492,
+          "headerHeightPt": 24,
+          "rowHeightPt": 31,
+          "fontSizePt": 6.8,
+          "lineHeightPt": 9,
+          "columnsPt": [42, 45, 76, 240, 89],
+          "headers": ["รอบ", "ลำดับ", "Provider", "Run ID", "สถานะ"],
+          "rows": [
+            ["1", "1", "Google", "2026-07-16T11-52-22-028Z", "Completed"],
+            ["1", "2", "Azure", "2026-07-16T11-54-39-432Z", "Completed"],
+            ["2", "1", "Azure", "2026-07-16T11-57-51-612Z", "Completed"],
+            ["2", "2", "Google", "2026-07-16T12-00-39-322Z", "Completed"],
+            ["3", "1", "Google", "2026-07-16T12-04-06-892Z", "Completed"],
+            ["3", "2", "Azure", "2026-07-16T12-06-23-394Z", "Completed"]
+          ]
+        },
+        { "kind": "text", "id": "evidence-title", "style": "section", "xPt": 60, "yPt": 336, "widthPt": 492, "lines": ["ความครบถ้วนของหลักฐาน"] },
+        { "kind": "text", "id": "evidence", "style": "bullet", "xPt": 76, "yPt": 366, "widthPt": 460, "lines": ["- ทุก run มี manifest, summary.csv, normalized_results.json และ Raw JSON", "- ทุก run ใช้ source SHA-256 เดียวกัน", "- ทุก engine ประมวลผลครบ 2 หน้าและไม่มี error", "- ข้อความ key-value และตารางเหมือนเดิมทั้ง 3 รอบ"] },
+        { "kind": "text", "id": "location-title", "style": "section", "xPt": 60, "yPt": 452, "widthPt": 492, "lines": ["ตำแหน่งไฟล์หลักฐาน"] },
+        { "kind": "text", "id": "location", "style": "small", "xPt": 60, "yPt": 482, "widthPt": 492, "lines": ["runs/web/outputs", "reports/INV_9437125258"] }
+      ]
+    },
+    {
+      "pageNumber": 12,
+      "pageId": "appendix-glossary",
+      "marker": "ภาคผนวก B คำศัพท์ที่ใช้ในรายงาน",
+      "elements": [
+        { "kind": "text", "id": "title", "style": "pageTitle", "xPt": 60, "yPt": 58, "widthPt": 492, "lines": ["ภาคผนวก B คำศัพท์ที่ใช้ในรายงาน"] },
+        {
+          "kind": "table",
+          "id": "glossary-table",
+          "xPt": 60,
+          "yPt": 100,
+          "widthPt": 492,
+          "headerHeightPt": 24,
+          "rowHeightPt": 43,
+          "fontSizePt": 6.4,
+          "lineHeightPt": 8,
+          "columnsPt": [132, 226, 134],
+          "headers": ["คำที่ใช้", "ความหมายแบบอ่านง่าย", "ชื่อเชิงเทคนิค"],
+          "rows": [
+            ["ตัวอักษรและลำดับถูกแค่ไหน", "เทียบตัวอักษรกับข้อความอ้างอิง รวม reading order", "Character Error Rate"],
+            ["คำและลำดับถูกแค่ไหน", "เทียบคำที่ได้กับข้อความอ้างอิง", "Word Error Rate"],
+            ["ข้อมูลที่เติมเชื่อได้แค่ไหน", "ฟิลด์ที่ระบบเติมทั้งหมด มีกี่ฟิลด์ที่ถูก", "Precision"],
+            ["หาเจอครบแค่ไหน", "ข้อมูลที่มีจริง ระบบนำมาใช้ได้กี่ฟิลด์", "Recall"],
+            ["ตำแหน่งอ้างอิง", "หน้าและกรอบที่ชี้กลับไปข้อความต้นทาง", "Bounding box"],
+            ["ผลเหมือนเดิมหรือไม่", "ยิงเอกสารเดิมซ้ำแล้วผลเหมือนเดิมแค่ไหน", "Repeatability"],
+            ["ค่ากลาง", "ค่าตรงกลางของสามรอบ ลดผลจาก outlier", "Median"],
+            ["จัดข้อมูลเป็นโครงสร้าง", "แยกข้อความเป็น key-value ตาราง และแถวสินค้า", "Native extraction"]
+          ]
+        },
+        { "kind": "text", "id": "reference-title", "style": "section", "xPt": 60, "yPt": 500, "widthPt": 492, "lines": ["แหล่งอ้างอิงข้อจำกัด Azure"] },
+        { "kind": "text", "id": "reference", "style": "small", "xPt": 60, "yPt": 530, "widthPt": 492, "lines": ["Microsoft Learn: Service quotas and limits - Document Intelligence", "learn.microsoft.com/azure/ai-services/document-intelligence/service-limits"] },
+        { "kind": "panel", "id": "final-panel", "xPt": 60, "yPt": 592, "widthPt": 492, "heightPt": 90, "fill": "F3F6FA", "stroke": "D9E1E8" },
+        { "kind": "text", "id": "final-note", "style": "callout", "xPt": 76, "yPt": 606, "widthPt": 460, "lines": ["หมายเหตุสุดท้าย: รายงานนี้เป็นหลักฐานประกอบการตัดสินใจ", "ไม่ใช่การจัดอันดับผู้ชนะรายเดียว ต้องอ่านร่วมกับรูปแบบเอกสารจริง", "ต้นทุนที่ยอมรับ และความสามารถของ Mapping ที่เราจะพัฒนาต่อ"] }
+      ]
+    }
+  ]
+}
