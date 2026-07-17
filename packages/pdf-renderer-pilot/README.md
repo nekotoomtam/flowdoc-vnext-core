@@ -78,6 +78,15 @@ capacity sample `8888` through native rustybuzz, ICU4X, line wrapping, and Core
 acceptance. Actual family pagination, page numbers, page assignment, and PDF
 rendering remain blocked.
 
+## Pagination Execution Evidence
+
+`PDF-PILOT-08B-R2C-J` executes all family paginators through the Core spacing
+bridge and document transition with one-page, one-fragment windows. The
+resumable execution finalizes all 173 roots as 178 placements on thirteen
+pages, including five repeated table-header fragments. This is one page over
+the twelve-page fidelity target. Actual footer page-number expansion, static
+zone paint instances, renderer handoff, and PDF output remain blocked.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -96,6 +105,7 @@ npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
 npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
 npm --prefix packages/pdf-renderer-pilot run build:report-section-reconciliation
 npm --prefix packages/pdf-renderer-pilot run build:report-pagination-inputs
+npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
 ```
 
 Build the retained subset with Python FontTools:

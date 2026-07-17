@@ -929,6 +929,11 @@ The package must remain runnable without any parent editor checkout.
   measurement owners with family-owned text/table/media identities and exact
   initial cursors, then accept a native-shaped four-digit generated-footer
   capacity sample while leaving pagination and page assignment inactive.
+- PDF canonical report bounded pagination execution advances one family page
+  and placement per Core transition, resumes through retained checkpoints, and
+  finalizes all 173 roots as 178 placements on thirteen pages. The evidence is
+  one page over the twelve-page target and does not hide the miss by deleting
+  content or bypassing repeated table headers.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

@@ -1,0 +1,278 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-j-canonical-report-pagination-execution-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-J",
+  "status": "accepted-bounded-pagination-and-authoritative-page-plan-rendering-not-run",
+  "sourceFingerprints": {
+    "paginationInputs": "53b7625803925243bbb62ca9a7afcb12257f3fd47e82deebc7de3162ae63de00",
+    "measuredComposition": "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
+    "sectionReconciliation": "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
+    "coreCompositionManifest": "sha256:e168b089540c1022cf40da1f62a6750f58b4e8950b2eb67e0fac7ddb535f3e42"
+  },
+  "bundleFingerprint": "75390eb748762fff6a6f181c5da9503208a7632b5f63d14e1f29f1bad23888c6",
+  "pagePlanFingerprint": "sha256:a8e66333fbbb7f1a7cffeafcee2379c62b64278cfc20595cd4148b8cc34146d6",
+  "compositionFingerprint": "sha256:29e2a3bace769c9008aa9c98b3ae68167f0206eb508af39cddda0de517ee2409",
+  "terminalCheckpointFingerprint": "sha256:06597f4ae707eb24870197af84975bbd09c1709517becd7119ed380de1349c22",
+  "summary": {
+    "targetPageCount": 12,
+    "actualPageCount": 13,
+    "targetComparison": "over-target",
+    "bodyItemCount": 173,
+    "placedRootCount": 173,
+    "placementCount": 178,
+    "headingCount": 12,
+    "transitionCount": 185,
+    "familyWindowTransitionCount": 185,
+    "structureResumeTransitionCount": 0,
+    "textFlowTransitionCount": 159,
+    "tableFlowTransitionCount": 20,
+    "mediaFlowTransitionCount": 6,
+    "freshPageRequiredTransitionCount": 7,
+    "appliedSpacingCount": 165,
+    "appliedSpacingPt": 881,
+    "suppressedPageTopSpacingCount": 12,
+    "suppressedPageTopSpacingPt": 78,
+    "repeatedHeaderFragmentCount": 5,
+    "sliceCount": 12,
+    "paginationExecuted": true,
+    "pageAssignmentExecuted": true,
+    "actualPageNumberExpansionExecuted": false,
+    "pdfRendered": false
+  },
+  "pages": [
+    {
+      "pageIndex": 0,
+      "pageNumber": 1,
+      "sectionPageIndex": 0,
+      "usedHeightPt": 640.637795,
+      "remainingHeightPt": 1.31,
+      "placementCount": 15,
+      "closeReason": "fresh-page-required",
+      "firstRootNodeId": "cover-title",
+      "lastRootNodeId": "executive-summary-field-decision-ocr-faster-engine",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:c2cbdbdcc4e87ad218d986497caf441240eff240df6fb2e402909408fb0cda60"
+    },
+    {
+      "pageIndex": 1,
+      "pageNumber": 2,
+      "sectionPageIndex": 1,
+      "usedHeightPt": 526,
+      "remainingHeightPt": 115.95,
+      "placementCount": 26,
+      "closeReason": "fresh-page-required",
+      "firstRootNodeId": "executive-summary-field-decision-ocr-latency-delta-ms",
+      "lastRootNodeId": "ocr-accuracy-field-engine-azure-document-intelligence-critical-values-total",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:901524f0e060ca4453c6e523b39b028aee6825010d87dbfae563faa18e1a2000"
+    },
+    {
+      "pageIndex": 2,
+      "pageNumber": 3,
+      "sectionPageIndex": 2,
+      "usedHeightPt": 637.102362,
+      "remainingHeightPt": 4.85,
+      "placementCount": 7,
+      "closeReason": "family-continuation",
+      "firstRootNodeId": "ocr-accuracy-image-media-ocr-accuracy-chart",
+      "lastRootNodeId": "table-ocr-runs-ocr-quality",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:f54f6bee31cf46eea8068d74528c7f91297c2eab8c1be9daf8ac44d56ed7847e"
+    },
+    {
+      "pageIndex": 3,
+      "pageNumber": 4,
+      "sectionPageIndex": 3,
+      "usedHeightPt": 625,
+      "remainingHeightPt": 16.95,
+      "placementCount": 22,
+      "closeReason": "fresh-page-required",
+      "firstRootNodeId": "table-ocr-runs-ocr-quality",
+      "lastRootNodeId": "source-evidence-field-engine-azure-document-intelligence-native-repeatability-exact-key-values",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:ada9a2919adbb8d91f00c57290e30102733ae79c7924b85937b91b3599d2d98d"
+    },
+    {
+      "pageIndex": 4,
+      "pageNumber": 5,
+      "sectionPageIndex": 4,
+      "usedHeightPt": 631.102362,
+      "remainingHeightPt": 10.847638,
+      "placementCount": 22,
+      "closeReason": "fresh-page-required",
+      "firstRootNodeId": "source-evidence-field-engine-azure-document-intelligence-native-repeatability-exact-tables",
+      "lastRootNodeId": "native-extraction-image-media-native-extraction-chart",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:29be3a0d3a8517772edb0c9e26b7844c14a989dd091e6efa008888fa22e1813a"
+    },
+    {
+      "pageIndex": 5,
+      "pageNumber": 6,
+      "sectionPageIndex": 5,
+      "usedHeightPt": 634,
+      "remainingHeightPt": 7.95,
+      "placementCount": 8,
+      "closeReason": "family-continuation",
+      "firstRootNodeId": "table-native-runs-native-run-context-projection-title",
+      "lastRootNodeId": "table-native-runs-native-structure-coverage",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:cfb8d78ccaed66566e33506ce02a60a39424090d97680208d56a9f41446939f3"
+    },
+    {
+      "pageIndex": 6,
+      "pageNumber": 7,
+      "sectionPageIndex": 6,
+      "usedHeightPt": 625,
+      "remainingHeightPt": 16.95,
+      "placementCount": 22,
+      "closeReason": "fresh-page-required",
+      "firstRootNodeId": "table-native-runs-native-structure-coverage",
+      "lastRootNodeId": "latency-cost-size-field-engine-google-document-ai-native-cost-usd",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:b9e6d672194e2b71e9e85e2cbe9aad3e72ab33d3883463107946fe1962050b19"
+    },
+    {
+      "pageIndex": 7,
+      "pageNumber": 8,
+      "sectionPageIndex": 7,
+      "usedHeightPt": 631.102362,
+      "remainingHeightPt": 10.85,
+      "placementCount": 22,
+      "closeReason": "fresh-page-required",
+      "firstRootNodeId": "latency-cost-size-field-engine-google-document-ai-native-cost-thb",
+      "lastRootNodeId": "mapping-field-engine-azure-document-intelligence-native-mapping-mapped-required-fields",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:7fb23180003dbab64f0c57d48f6e95c93171dda98cb8668f9a406f9d92a8a472"
+    },
+    {
+      "pageIndex": 8,
+      "pageNumber": 9,
+      "sectionPageIndex": 8,
+      "usedHeightPt": 641.102362,
+      "remainingHeightPt": 0.85,
+      "placementCount": 7,
+      "closeReason": "fresh-page-required",
+      "firstRootNodeId": "mapping-field-engine-azure-document-intelligence-native-mapping-expected-derivable-fields",
+      "lastRootNodeId": "table-mapping-fields-mapping-comparison",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:b9711c2a408b1728aff19e150e00d8ba174de1949d314f6d04be265fd69145b7"
+    },
+    {
+      "pageIndex": 9,
+      "pageNumber": 10,
+      "sectionPageIndex": 9,
+      "usedHeightPt": 635,
+      "remainingHeightPt": 6.95,
+      "placementCount": 13,
+      "closeReason": "family-continuation",
+      "firstRootNodeId": "table-mapping-fields-mapping-evidence-projection-title",
+      "lastRootNodeId": "table-native-missing-concepts-native-missing-concepts",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:6f79432579dfca5b342cbef92df383d6df2777f2cf67f1e661a640b12b71dc60"
+    },
+    {
+      "pageIndex": 10,
+      "pageNumber": 11,
+      "sectionPageIndex": 10,
+      "usedHeightPt": 629,
+      "remainingHeightPt": 12.95,
+      "placementCount": 8,
+      "closeReason": "family-continuation",
+      "firstRootNodeId": "table-native-missing-concepts-native-missing-concepts",
+      "lastRootNodeId": "table-runs-run-engines-pages",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:4a67e292cb9e7386c84b27a3c7080e97e20c891929065a58944702c91df79ff0"
+    },
+    {
+      "pageIndex": 11,
+      "pageNumber": 12,
+      "sectionPageIndex": 11,
+      "usedHeightPt": 624,
+      "remainingHeightPt": 17.95,
+      "placementCount": 5,
+      "closeReason": "family-continuation",
+      "firstRootNodeId": "table-runs-run-engines-pages",
+      "lastRootNodeId": "table-gdim-expected-fields-gdim-expected-fields",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:c0ebd55ce3209440583d4afbd12f2d9fc7a46ae8a277d2d75b022d036eafbcab"
+    },
+    {
+      "pageIndex": 12,
+      "pageNumber": 13,
+      "sectionPageIndex": 12,
+      "usedHeightPt": 328,
+      "remainingHeightPt": 313.952756,
+      "placementCount": 1,
+      "closeReason": "document-complete",
+      "firstRootNodeId": "table-gdim-expected-fields-gdim-expected-fields",
+      "lastRootNodeId": "table-gdim-expected-fields-gdim-expected-fields",
+      "staticZoneCount": 2,
+      "pageFingerprint": "sha256:23eb8a57acb1713109fa29c76bfaf9e6f325ca8a9608fdb1f6f389e8825940c0"
+    }
+  ],
+  "executionGate": {
+    "status": "authoritative-page-plan-ready-renderer-handoff-blocked",
+    "everyBodyRootPlaced": true,
+    "boundedOnePageFamilyWindows": true,
+    "boundedOnePlacementTransitions": true,
+    "resumableSlicesRetained": true,
+    "familyPaginationExecuted": true,
+    "spacingBridgeExecuted": true,
+    "pageAssignmentFinalized": true,
+    "actualPageNumbersExpanded": false,
+    "staticZonePaintPlanned": false,
+    "pdfRendered": false,
+    "blockers": [
+      {
+        "code": "actual-page-number-expansion-pending",
+        "blocks": "final-footer-paint",
+        "message": "Page assignments are final, but generated footer instances have not expanded each actual page number."
+      },
+      {
+        "code": "static-zone-paint-plan-pending",
+        "blocks": "renderer-handoff",
+        "message": "Closed pages retain static-zone evidence, but page-specific header and footer paint instances are not built."
+      },
+      {
+        "code": "pdf-rendering-not-run",
+        "blocks": "pdf-bytes",
+        "message": "The authoritative Core page plan has not entered the PDF renderer."
+      },
+      {
+        "code": "visual-fidelity-validation-pending",
+        "blocks": "report-acceptance",
+        "message": "No rendered PDF exists for region-aware visual comparison against the reference report."
+      }
+    ]
+  },
+  "ownership": {
+    "paginationExecutionOwns": [
+      "bounded-family-pagination",
+      "spacing-aware-document-transition",
+      "resumable-composition-checkpoints",
+      "closed-page-chain",
+      "authoritative-page-plan",
+      "heading-page-map"
+    ],
+    "paginationExecutionMustNotOwn": [
+      "actual-page-number-expansion",
+      "static-zone-paint-instances",
+      "renderer-display-list",
+      "pdf-bytes",
+      "visual-fidelity-acceptance"
+    ]
+  },
+  "boundary": {
+    "paginationInputs": "consumed",
+    "familyPagination": "executed-bounded",
+    "spacingBridge": "executed",
+    "documentCompositionTransition": "executed-bounded",
+    "documentCompositionFinalization": "executed",
+    "pageAssignment": "finalized",
+    "headingPageMap": "finalized",
+    "actualPageNumberExpansion": "not-run",
+    "staticZonePaintPlanning": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-K generated static-zone instances and renderer handoff"
+}

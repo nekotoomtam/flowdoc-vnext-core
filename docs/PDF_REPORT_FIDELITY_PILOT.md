@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-I pagination inputs and footer capacity proof accepted; pagination remains blocked.
+Status: PDF-PILOT-08B-R2C-J bounded pagination and authoritative thirteen-page plan accepted; renderer handoff remains blocked.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -577,6 +577,32 @@ Primary Phase 08B-R2C-I evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-inputs-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportPaginationInputs.test.ts`.
 
+## PDF-PILOT-08B-R2C-J Scope
+
+Phase 08B-R2C-J executes the exact R2C-I family inputs through the Core spacing
+bridge, text/table/media paginators, document transition, and finalizer. Each
+transition accepts at most one family page, one fragment, one placement, and
+one closed page. The 185-transition run is retained as twelve resumable slices;
+one-transition slices reproduce the same page plan and terminal cursor.
+
+All 173 roots are placed without deletion. Five table continuations produce
+178 placements and five repeated header fragments. Committed root spacing is
+881pt; twelve fresh-page or continuation decisions suppress 78pt of attempted
+page-top spacing. The authoritative result is thirteen pages, one page over the
+twelve-page target. Page 13 contains only the 328pt terminal fragment of the
+final GDIM expected-fields table.
+
+Core finalization now owns consecutive page assignments and a twelve-entry
+heading-page map. Actual footer page-number instances, static-zone paint plans,
+renderer display lists, PDF bytes, and visual acceptance remain downstream.
+
+Primary Phase 08B-R2C-J evidence:
+
+- `docs/PDF_CANONICAL_REPORT_PAGINATION_EXECUTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-pagination-execution.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-execution-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportPaginationExecution.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -747,6 +773,7 @@ Build and validate reconciled family inputs and generated-footer capacity:
 ```text
 npm --prefix packages/pdf-renderer-pilot run build:report-section-reconciliation
 npm --prefix packages/pdf-renderer-pilot run build:report-pagination-inputs
+npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
 ```
 
 ## PASS
@@ -821,17 +848,24 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-inputs
 - Pagination-input preparation binds all 173 family sources and real initial
   cursors, replaces every provisional manifest measurement owner, and accepts
   a four-digit native generated-footer capacity proof with 12pt vertical slack.
+- Bounded pagination executes 185 one-page family transitions, places all 173
+  roots as 178 placements, retains five repeated table headers, and finalizes a
+  consecutive thirteen-page Core page plan with resumable checkpoints.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-I family pagination-input and generated
-footer-capacity evidence.
+None for closing PDF-PILOT-08B-R2C-J bounded pagination and Core page-plan
+evidence.
+
+The current twelve-page fidelity target fails under the accepted R2C-J inputs:
+the authoritative result is thirteen pages. The terminal page contains one
+328pt continuation fragment from the final table; no content was removed to
+force the target.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
 thresholds, broader reader compatibility, source-profile promotion, native to
-WASM parity, actual page-number shaping, vertical placement, pagination, and
-PDF rendering. The reconciled gross demand is thirteen capacity units; twelve
-pages remain sensitive to page-top gap suppression and pagination overhead.
+WASM parity, actual page-number expansion, page-specific static-zone paint
+instances, renderer handoff, and PDF rendering.
 
 ## RISK
 
@@ -853,9 +887,8 @@ pages remain sensitive to page-top gap suppression and pagination overhead.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- exact page-top gap suppression under real family pagination;
-- repeated table-header and continuation overhead against the 83.385829pt
-  theoretical twelve-page budget;
+- exact evidence-backed layout calibration, if any, that can recover the final
+  table continuation page without content loss or policy bypass;
 - final per-page footer glyph evidence after page assignment;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
@@ -874,5 +907,5 @@ pages remain sensitive to page-top gap suppression and pagination overhead.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-J` bounded document composition transition and
-pagination execution.
+Next phase: `PDF-PILOT-08B-R2C-K` generated static-zone instances and renderer
+handoff.

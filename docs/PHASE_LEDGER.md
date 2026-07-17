@@ -10514,3 +10514,41 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-J` bounded document composition transition and
 pagination execution.
+
+## PDF-PILOT-08B-R2C-J Pagination Execution
+
+Status: bounded family pagination and the authoritative thirteen-page Core
+page plan are accepted; renderer handoff remains blocked.
+
+R2C-J consumes the exact R2C-I family inputs, R2C-F measured sources, and R2C-H
+spacing bindings. The pilot executes text, table, and media families through
+the Core spacing bridge and document transition. Every transition is bounded
+to one family page, one fragment, one placement, and one emitted closed page.
+The complete 185-transition execution is grouped into twelve resumable slices;
+one-transition slices reproduce the same terminal cursor and page plan.
+
+All 173 roots are retained as 178 placements. Five table continuations retain
+five repeated header fragments. The spacing bridge commits 881pt before 165
+placed first fragments and suppresses 78pt across twelve fresh-page or
+continuation decisions. Core finalization produces thirteen consecutive pages
+and a twelve-entry heading-page map.
+
+The twelve-page target does not pass under these accepted inputs. Page 13
+contains only the 328pt second fragment of
+`table-gdim-expected-fields-gdim-expected-fields`; no content, repeated header,
+or source lineage is removed to force the target.
+
+R2C-J does not expand actual footer page numbers, create page-specific static
+zone paint instances, build renderer display lists, emit PDF bytes, or claim
+visual fidelity acceptance.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_PAGINATION_EXECUTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-pagination-execution.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-execution-qa.v1.json`;
+- `packages/pdf-renderer-pilot/src/canonicalReportPaginationExecution.ts`;
+- `tests/pdfRendererPilotCanonicalReportPaginationExecution.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-K` generated static-zone instances and renderer
+handoff.
