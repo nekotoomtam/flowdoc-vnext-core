@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-L measured body display list and full Core renderer contract accepted; PDF rendering remains pending.
+Status: PDF-PILOT-08B-R2C-M deterministic thirteen-page PDF execution and structural verification accepted; visual fidelity remains pending.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -659,6 +659,33 @@ Primary Phase 08B-R2C-L evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-body-display-list-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportBodyDisplayList.test.ts`.
 
+## PDF-PILOT-08B-R2C-M Scope
+
+Phase 08B-R2C-M executes only the exact R2C-L full-document contract. The
+renderer pins its profile, Core fingerprint, serialized-content SHA-256,
+thirteen-page count, two fonts, and five images before reading resources or
+emitting bytes. Separate Regular/Bold subsets retain the exact per-font GIDs.
+
+Repeated execution emits byte-identical PDF 1.7 output with 13 Letter pages,
+1,771 paint commands, 14,784 glyph instances, two shared embedded Type0 fonts,
+five shared image objects, and 696 Table border paths. The local artifact is
+1,194,703 bytes with SHA-256
+`014b313690041ba312b10dc0bcbf65a3131580258d80e2f8b07465d8e107ed0f`.
+
+Independent `pypdf` inspection accepts the strict page tree, font embedding,
+image dimensions, all 978 whitespace-normalized extracted runs, and exact
+content-stream operator counts. Poppler accepts the PDF and produces thirteen
+nonblank 96-DPI rasters. These checks establish structural execution only;
+visual parity and the twelve-page target remain open.
+
+Primary Phase 08B-R2C-M evidence:
+
+- `docs/PDF_CANONICAL_FULL_DOCUMENT_RENDERER_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-summary.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-qa.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-proof.py`;
+- `tests/pdfRendererPilotCanonicalFullDocument.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -962,5 +989,5 @@ and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-M` execute the full isolated renderer and verify
-PDF structure. Visual fidelity and twelve-page calibration remain separate.
+Next phase: `PDF-PILOT-08B-R2C-N` compare rendered regions with the reference
+and make an evidence-backed visual-fidelity and twelve-page layout decision.

@@ -10622,3 +10622,37 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-M` full renderer execution and PDF structural
 verification. Visual comparison and twelve-page calibration remain separate.
+
+## PDF-PILOT-08B-R2C-M Full-Document Renderer Execution
+
+Status: deterministic thirteen-page PDF execution and structural verification
+accepted; visual fidelity remains pending.
+
+R2C-M adds an isolated full-document renderer profile that accepts only the
+exact R2C-L renderer profile, Core fingerprint, serialized contract SHA-256,
+thirteen pages, two font assets, and five image assets. In-memory content drift
+is blocked even when the caller retains the accepted Core fingerprint.
+
+Regular and Bold GID-retaining subsets are built from their actual contract
+usage. The renderer verifies all external PNG hashes and dimensions, renders
+twice, and emits byte-identical PDF 1.7 output. The ignored local artifact has
+13 Letter pages, 1,194,703 bytes, 1,771 paint commands, 978 glyph runs, 14,784
+glyph instances, 696 Table line paths, and five image paints.
+
+Independent pypdf and Poppler evidence accepts the page tree, trailer, Type0
+font embedding, ToUnicode/CIDToGID maps, image objects, all expected extracted
+text runs, exact line-path operator counts, and thirteen nonblank raster pages.
+This phase does not accept visual parity, alter authored content, hide the
+thirteen-page result, bind production behavior, or retain source PNG bytes.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_FULL_DOCUMENT_RENDERER_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-summary.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-qa.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-*-font-subset-manifest.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-proof.py`;
+- `tests/pdfRendererPilotCanonicalFullDocument.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-N` visual comparison and evidence-backed
+twelve-page layout decision.

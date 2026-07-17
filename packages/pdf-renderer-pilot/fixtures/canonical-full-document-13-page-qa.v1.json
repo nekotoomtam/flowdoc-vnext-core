@@ -1,0 +1,370 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-m-canonical-full-document-structural-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-M",
+  "status": "accepted-pdf-structural-proof-visual-fidelity-pending",
+  "artifact": {
+    "sha256": "014b313690041ba312b10dc0bcbf65a3131580258d80e2f8b07465d8e107ed0f",
+    "bytes": 1194703,
+    "pageCount": 13,
+    "pdfVersion": "%PDF-1.7",
+    "strictParserAccepted": true,
+    "trailerRootPresent": true
+  },
+  "source": {
+    "bundleFingerprint": "32d067a3b17e1c6598711445067877e29f0c609fe0c1d288d2d0e57871f95990",
+    "contractFingerprint": "sha256:cbc4102ce70fe3cceaaad18618211839192177eb787adb75e4bb81224003ae42",
+    "rendererArtifactSha256": "014b313690041ba312b10dc0bcbf65a3131580258d80e2f8b07465d8e107ed0f"
+  },
+  "pageTree": {
+    "pageCount": 13,
+    "allLetter612x792Pt": true,
+    "pages": [
+      {
+        "pageNumber": 1,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 1,
+        "extractedCharacterCount": 630,
+        "glyphRunOperatorCount": 27,
+        "strokeLineOperatorCount": 0
+      },
+      {
+        "pageNumber": 2,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1212,
+        "glyphRunOperatorCount": 51,
+        "strokeLineOperatorCount": 0
+      },
+      {
+        "pageNumber": 3,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 1,
+        "extractedCharacterCount": 857,
+        "glyphRunOperatorCount": 104,
+        "strokeLineOperatorCount": 108
+      },
+      {
+        "pageNumber": 4,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1622,
+        "glyphRunOperatorCount": 99,
+        "strokeLineOperatorCount": 66
+      },
+      {
+        "pageNumber": 5,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 1,
+        "extractedCharacterCount": 1255,
+        "glyphRunOperatorCount": 42,
+        "strokeLineOperatorCount": 0
+      },
+      {
+        "pageNumber": 6,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1131,
+        "glyphRunOperatorCount": 136,
+        "strokeLineOperatorCount": 136
+      },
+      {
+        "pageNumber": 7,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1644,
+        "glyphRunOperatorCount": 94,
+        "strokeLineOperatorCount": 61
+      },
+      {
+        "pageNumber": 8,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 1,
+        "extractedCharacterCount": 1261,
+        "glyphRunOperatorCount": 42,
+        "strokeLineOperatorCount": 0
+      },
+      {
+        "pageNumber": 9,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 1,
+        "extractedCharacterCount": 1193,
+        "glyphRunOperatorCount": 78,
+        "strokeLineOperatorCount": 58
+      },
+      {
+        "pageNumber": 10,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1501,
+        "glyphRunOperatorCount": 91,
+        "strokeLineOperatorCount": 69
+      },
+      {
+        "pageNumber": 11,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1244,
+        "glyphRunOperatorCount": 111,
+        "strokeLineOperatorCount": 109
+      },
+      {
+        "pageNumber": 12,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1354,
+        "glyphRunOperatorCount": 68,
+        "strokeLineOperatorCount": 62
+      },
+      {
+        "pageNumber": 13,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "fontResourceCount": 2,
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 738,
+        "glyphRunOperatorCount": 35,
+        "strokeLineOperatorCount": 27
+      }
+    ]
+  },
+  "resourceInspection": {
+    "uniqueFontObjectCount": 2,
+    "uniqueImageObjectCount": 5,
+    "fonts": [
+      {
+        "objectReference": "29:0",
+        "baseFont": "/FDFDBD+FlowDocThaiCanonicalFullDocument-Bold",
+        "subtype": "/Type0",
+        "encoding": "/Identity-H",
+        "descendantSubtype": "/CIDFontType2",
+        "embeddedFontBytes": 28644,
+        "toUnicodeBytes": 90133,
+        "cidToGidMap": true
+      },
+      {
+        "objectReference": "35:0",
+        "baseFont": "/FDFDRG+FlowDocThaiCanonicalFullDocument-Regular",
+        "subtype": "/Type0",
+        "encoding": "/Identity-H",
+        "descendantSubtype": "/CIDFontType2",
+        "embeddedFontBytes": 34652,
+        "toUnicodeBytes": 121336,
+        "cidToGidMap": true
+      }
+    ],
+    "images": [
+      {
+        "objectReference": "41:0",
+        "width": 1548,
+        "height": 1376,
+        "colorSpace": "/DeviceRGB",
+        "bitsPerComponent": 8,
+        "filter": "/FlateDecode"
+      },
+      {
+        "objectReference": "42:0",
+        "width": 1950,
+        "height": 900,
+        "colorSpace": "/DeviceRGB",
+        "bitsPerComponent": 8,
+        "filter": "/FlateDecode"
+      },
+      {
+        "objectReference": "43:0",
+        "width": 1950,
+        "height": 900,
+        "colorSpace": "/DeviceRGB",
+        "bitsPerComponent": 8,
+        "filter": "/FlateDecode"
+      },
+      {
+        "objectReference": "44:0",
+        "width": 1950,
+        "height": 900,
+        "colorSpace": "/DeviceRGB",
+        "bitsPerComponent": 8,
+        "filter": "/FlateDecode"
+      },
+      {
+        "objectReference": "45:0",
+        "width": 1950,
+        "height": 900,
+        "colorSpace": "/DeviceRGB",
+        "bitsPerComponent": 8,
+        "filter": "/FlateDecode"
+      }
+    ],
+    "imageDimensionsMatchContract": true
+  },
+  "contentStreamInspection": {
+    "operatorCounts": {
+      "q": 806,
+      "rg": 1090,
+      "re": 115,
+      "f": 105,
+      "Q": 806,
+      "BDC": 978,
+      "BT": 985,
+      "Tf": 985,
+      "Tm": 985,
+      "TJ": 978,
+      "ET": 985,
+      "EMC": 985,
+      "W": 10,
+      "n": 10,
+      "cm": 5,
+      "Do": 5,
+      "BMC": 7,
+      "Tj": 7,
+      "RG": 696,
+      "w": 696,
+      "d": 696,
+      "m": 696,
+      "l": 696,
+      "S": 696
+    },
+    "expectedGlyphRunCount": 978,
+    "expectedStrokeLineCount": 696,
+    "expectedImagePaintCount": 5
+  },
+  "textExtraction": {
+    "engine": "pypdf",
+    "engineVersion": "6.10.0",
+    "expectedGlyphRuns": 978,
+    "whitespaceNormalizedRunPresence": 978,
+    "allExpectedRunsPresent": true
+  },
+  "popplerInspection": {
+    "pdfinfoAccepted": true,
+    "reportedPageCount": 13,
+    "reportedPageSize": "612 x 792 pts (letter)",
+    "reportedPdfVersion": "1.7"
+  },
+  "rasterSmoke": {
+    "renderer": "pdftoppm",
+    "dpi": 96,
+    "pageCount": 13,
+    "allPagesNonBlank": true,
+    "pages": [
+      {
+        "pageNumber": 1,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 2,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 3,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 4,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 5,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 6,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 7,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 8,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 9,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 10,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 11,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 12,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      },
+      {
+        "pageNumber": 13,
+        "widthPx": 816,
+        "heightPx": 1056,
+        "nonBlank": true
+      }
+    ],
+    "visualFidelityAccepted": false
+  },
+  "acceptance": {
+    "rendererArtifactMatches": true,
+    "pageTreeValid": true,
+    "fontEmbeddingValid": true,
+    "imageResourcesValid": true,
+    "glyphRunOperatorsComplete": true,
+    "strokeLineOperatorsComplete": true,
+    "imagePaintOperatorsComplete": true,
+    "textExtractionComplete": true,
+    "allRasterPagesNonBlank": true,
+    "pdfRendered": true,
+    "visualFidelityAccepted": false,
+    "productionBinding": false
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-N visual comparison and layout-fidelity decision"
+}

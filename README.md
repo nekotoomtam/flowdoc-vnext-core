@@ -939,7 +939,13 @@ The package must remain runnable without any parent editor checkout.
   boundary, and merges 1,745 body commands with 26 static-zone commands into a
   thirteen-page Core measured-draw contract. The contract retains Regular/Bold
   glyph runs, five images, Table backgrounds and 696 exact border lines with
-  no relayout; PDF bytes and visual acceptance remain pending.
+  no relayout.
+- PDF canonical full-document execution binds per-font GID-retaining subsets
+  and five digest-verified images to that exact contract, emits deterministic
+  13-page PDF 1.7 bytes, and independently verifies the page tree, embedded
+  Type0 fonts, image objects, all 978 extracted text runs, 696 Table line
+  paths, and nonblank Poppler rasters. Visual fidelity and twelve-page
+  calibration remain pending.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

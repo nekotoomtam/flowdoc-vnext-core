@@ -95,7 +95,17 @@ backgrounds, text, and border lines, and merges them with page-specific static
 zones. Core accepts the resulting thirteen-page measured-draw contract with
 1,771 commands, two IBM Plex font assets, five backend-owned image assets,
 zero missing glyphs, and no renderer relayout. PDF bytes and visual acceptance
-remain downstream.
+remain downstream from R2C-L.
+
+## Full-Document Renderer Execution
+
+`PDF-PILOT-08B-R2C-M` pins the complete R2C-L contract by profile, Core
+fingerprint, and serialized-content SHA-256. It builds separate Regular/Bold
+GID-retaining subsets, verifies five external PNG resources, and emits the
+same 1,194,703-byte thirteen-page PDF on repeated execution. Independent
+`pypdf`, Poppler, content-stream, extraction, and raster checks accept the PDF
+structure. The artifact remains local under `output/pdf/`; visual fidelity and
+the twelve-page decision are not accepted by this phase.
 
 ## Reproduction
 
@@ -118,6 +128,8 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-inputs
 npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
 npm --prefix packages/pdf-renderer-pilot run build:report-static-zone-handoff
 npm --prefix packages/pdf-renderer-pilot run build:report-body-display-list
+npm --prefix packages/pdf-renderer-pilot run build:full-document-subsets
+npm --prefix packages/pdf-renderer-pilot run build:full-document-proof
 ```
 
 Build the retained subset with Python FontTools:

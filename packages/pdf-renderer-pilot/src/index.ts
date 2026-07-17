@@ -30,6 +30,25 @@ export const FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE = "digest-bound-image-one-pag
 export const FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE = "shared-resources-multi-page-proof" as const
 export const FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE = "all-five-image-resource-matrix" as const
 export const FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE = "canonical-twelve-page-report-proof" as const
+export const FLOWDOC_PDF_FULL_DOCUMENT_PILOT_MODE = "canonical-full-document-handoff-proof" as const
+
+export type FlowDocPdfRendererPilotMode =
+  | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
+  | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
+  | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
+  | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
+  | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE
+  | typeof FLOWDOC_PDF_FULL_DOCUMENT_PILOT_MODE
+
+const FULL_DOCUMENT_HANDOFF = {
+  rendererProfileId: "pdf-pilot-08b-r2c-l-full-document-v1",
+  contractFingerprint: "sha256:cbc4102ce70fe3cceaaad18618211839192177eb787adb75e4bb81224003ae42",
+  contractContentSha256: "17bec29d5833e3c9ab61c63746f1de0cf008fb0259c8f0620776879d3edf7826",
+  pageCount: 13,
+  fontAssetCount: 2,
+  imageAssetCount: 5,
+} as const
+const GEOMETRY_EPSILON_PT = 1e-6
 
 const CANONICAL_REPORT_PAGE_MARKERS = [
   "รายงานเปรียบเทียบ OCR",
@@ -70,6 +89,12 @@ export type FlowDocPdfRendererPilotIssueCode =
   | "report-composition-image-count"
   | "report-composition-image-binding"
   | "report-composition-page-marker"
+  | "full-document-profile"
+  | "full-document-contract-fingerprint"
+  | "full-document-contract-content"
+  | "full-document-page-count"
+  | "full-document-font-count"
+  | "full-document-image-count"
   | "duplicate-image-resource"
   | "missing-image-resource"
   | "image-hash-mismatch"
@@ -180,16 +205,20 @@ export interface FlowDocPdfRendererPilotArtifactManifest {
       assetId: string
     }>
   }
+  fullDocumentHandoff?: {
+    requiredPageCount: number
+    requiredFontAssetCount: number
+    requiredImageAssetCount: number
+    imagePaintCount: number
+    strokeLineCount: number
+    sourceContractFingerprint: string
+    sourceContractContentSha256: string
+  }
 }
 
 export type FlowDocPdfRendererPilotResult = {
   source: typeof FLOWDOC_PDF_RENDERER_PILOT_SOURCE
-  mode:
-    | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
-    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
-    | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE
+  mode: FlowDocPdfRendererPilotMode
   proofId: string
   renderContract: {
     consumes: "vnext-pdf-measured-draw-contract-v1"
@@ -201,6 +230,8 @@ export type FlowDocPdfRendererPilotResult = {
     sharedResourceObjects?: true
     requiredImageAssetCount?: number
     canonicalPageComposition?: true
+    fullDocumentHandoff?: true
+    axisAlignedStrokeLines?: true
     requiredPageCount?: number
     measuredVerticalGlyphOffsets?: true
     clusterActualTextFallback?: true
@@ -889,16 +920,12 @@ function buildPdf(
 function blockedResult(
   input: FlowDocPdfRendererPilotInput,
   issues: FlowDocPdfRendererPilotIssue[],
-  mode:
-    | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
-    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
-    | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE,
+  mode: FlowDocPdfRendererPilotMode,
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
   requiredImageAssetCount?: number,
   canonicalPageComposition = false,
+  fullDocumentHandoff = false,
 ): FlowDocPdfRendererPilotResult {
   return {
     source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
@@ -919,6 +946,13 @@ function blockedResult(
       ...(canonicalPageComposition ? {
         canonicalPageComposition: true as const,
         requiredPageCount: CANONICAL_REPORT_PAGE_MARKERS.length,
+        measuredVerticalGlyphOffsets: true as const,
+        clusterActualTextFallback: true as const,
+      } : {}),
+      ...(fullDocumentHandoff ? {
+        fullDocumentHandoff: true as const,
+        axisAlignedStrokeLines: true as const,
+        requiredPageCount: FULL_DOCUMENT_HANDOFF.pageCount,
         measuredVerticalGlyphOffsets: true as const,
         clusterActualTextFallback: true as const,
       } : {}),
@@ -943,17 +977,13 @@ function blockedResult(
 
 function renderFlowDocPdfPilot(
   input: FlowDocPdfRendererPilotInput,
-  mode:
-    | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_IMAGE_RENDERER_PILOT_MODE
-    | typeof FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE
-    | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
-    | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE,
-  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07",
+  mode: FlowDocPdfRendererPilotMode,
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07" | "PDF-PILOT-08B-R2C-M",
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
   requiredImageAssetCount?: number,
   canonicalPageComposition = false,
+  fullDocumentHandoff = false,
 ): FlowDocPdfRendererPilotResult {
   const issues: FlowDocPdfRendererPilotIssue[] = []
   if (input.proofId.trim().length === 0) {
@@ -972,10 +1002,19 @@ function renderFlowDocPdfPilot(
       sharedResourceObjects,
       requiredImageAssetCount,
       canonicalPageComposition,
+      fullDocumentHandoff,
     )
   }
   const contract = input.contract
-  if (!sharedResourceObjects && contract.pages.length !== 1) {
+  if (fullDocumentHandoff) {
+    if (contract.pages.length !== FULL_DOCUMENT_HANDOFF.pageCount) {
+      issues.push(issue(
+        "full-document-page-count",
+        "contract.pages",
+        `${phaseId} requires exactly ${FULL_DOCUMENT_HANDOFF.pageCount} measured pages.`,
+      ))
+    }
+  } else if (!sharedResourceObjects && contract.pages.length !== 1) {
     issues.push(issue("page-count", "contract.pages", `${phaseId} accepts exactly one measured page.`))
   } else if (sharedResourceObjects && (contract.pages.length < 2 || contract.pages.length > 12)) {
     issues.push(issue("page-count", "contract.pages", `${phaseId} accepts 2 through 12 measured pages.`))
@@ -1080,7 +1119,44 @@ function renderFlowDocPdfPilot(
       ))
     }
   }
-  if (canonicalPageComposition && issues.length > 0) {
+  if (fullDocumentHandoff) {
+    if (contract.rendererProfileId !== FULL_DOCUMENT_HANDOFF.rendererProfileId) {
+      issues.push(issue(
+        "full-document-profile",
+        "contract.rendererProfileId",
+        `${phaseId} requires the accepted R2C-L full-document renderer profile.`,
+      ))
+    }
+    if (contract.fingerprint !== FULL_DOCUMENT_HANDOFF.contractFingerprint) {
+      issues.push(issue(
+        "full-document-contract-fingerprint",
+        "contract.fingerprint",
+        `${phaseId} requires the accepted R2C-L measured-draw contract fingerprint.`,
+      ))
+    }
+    if (sha256(Buffer.from(JSON.stringify(contract), "utf8")) !== FULL_DOCUMENT_HANDOFF.contractContentSha256) {
+      issues.push(issue(
+        "full-document-contract-content",
+        "contract",
+        `${phaseId} requires byte-stable R2C-L contract content.`,
+      ))
+    }
+    if (contract.fontAssets.length !== FULL_DOCUMENT_HANDOFF.fontAssetCount) {
+      issues.push(issue(
+        "full-document-font-count",
+        "contract.fontAssets",
+        `${phaseId} requires exactly ${FULL_DOCUMENT_HANDOFF.fontAssetCount} font assets.`,
+      ))
+    }
+    if (contract.imageAssets.length !== FULL_DOCUMENT_HANDOFF.imageAssetCount) {
+      issues.push(issue(
+        "full-document-image-count",
+        "contract.imageAssets",
+        `${phaseId} requires exactly ${FULL_DOCUMENT_HANDOFF.imageAssetCount} image assets.`,
+      ))
+    }
+  }
+  if ((canonicalPageComposition || fullDocumentHandoff) && issues.length > 0) {
     return blockedResult(
       input,
       issues,
@@ -1089,6 +1165,7 @@ function renderFlowDocPdfPilot(
       sharedResourceObjects,
       requiredImageAssetCount,
       canonicalPageComposition,
+      fullDocumentHandoff,
     )
   }
 
@@ -1192,18 +1269,18 @@ function renderFlowDocPdfPilot(
         issues.push(issue("unsupported-opacity", `${path}.opacity`, `${phaseId} accepts opaque paint only.`))
       }
       if (command.kind !== "glyph-run") return
-      if (!canonicalPageComposition && command.glyphs.some((glyph) => glyph.offsetYPt !== 0)) {
+      if (!canonicalPageComposition && !fullDocumentHandoff && command.glyphs.some((glyph) => glyph.offsetYPt !== 0)) {
         issues.push(issue("unsupported-vertical-glyph-offset", `${path}.glyphs`, `${phaseId} has not qualified vertical glyph offsets.`))
       }
       const usage = usages.find((candidate) => candidate.asset.fontId === command.fontId)
       if (usage == null) return
-      const assignments = unicodeAssignments(command, canonicalPageComposition)
+      const assignments = unicodeAssignments(command, canonicalPageComposition || fullDocumentHandoff)
       if (assignments == null) {
         issues.push(issue("unmappable-text-cluster", `${path}.glyphs`, "Glyph clusters cannot be mapped losslessly into ToUnicode entries."))
         return
       }
       const advance = command.glyphs.reduce((total, glyph) => total + glyph.advancePt, 0)
-      if (advance > command.bounds.widthPt) {
+      if (advance - command.bounds.widthPt > GEOMETRY_EPSILON_PT) {
         issues.push(issue("glyph-run-overflow", `${path}.bounds.widthPt`, "Measured glyph advances exceed the source command bounds."))
       }
       const resolved = command.glyphs.map((glyph, glyphIndex): ResolvedGlyph => {
@@ -1233,6 +1310,7 @@ function renderFlowDocPdfPilot(
       sharedResourceObjects,
       requiredImageAssetCount,
       canonicalPageComposition,
+      fullDocumentHandoff,
     )
   }
 
@@ -1309,6 +1387,17 @@ function renderFlowDocPdfPilot(
         pageBindings: CANONICAL_REPORT_IMAGE_BINDINGS.map((binding) => ({ ...binding })),
       },
     } : {}),
+    ...(fullDocumentHandoff ? {
+      fullDocumentHandoff: {
+        requiredPageCount: FULL_DOCUMENT_HANDOFF.pageCount,
+        requiredFontAssetCount: FULL_DOCUMENT_HANDOFF.fontAssetCount,
+        requiredImageAssetCount: FULL_DOCUMENT_HANDOFF.imageAssetCount,
+        imagePaintCount: contract.summary.imageCount,
+        strokeLineCount: contract.summary.strokeLineCount ?? 0,
+        sourceContractFingerprint: FULL_DOCUMENT_HANDOFF.contractFingerprint,
+        sourceContractContentSha256: FULL_DOCUMENT_HANDOFF.contractContentSha256,
+      },
+    } : {}),
   }
 
   return {
@@ -1330,6 +1419,13 @@ function renderFlowDocPdfPilot(
       ...(canonicalPageComposition ? {
         canonicalPageComposition: true as const,
         requiredPageCount: CANONICAL_REPORT_PAGE_MARKERS.length,
+        measuredVerticalGlyphOffsets: true as const,
+        clusterActualTextFallback: true as const,
+      } : {}),
+      ...(fullDocumentHandoff ? {
+        fullDocumentHandoff: true as const,
+        axisAlignedStrokeLines: true as const,
+        requiredPageCount: FULL_DOCUMENT_HANDOFF.pageCount,
         measuredVerticalGlyphOffsets: true as const,
         clusterActualTextFallback: true as const,
       } : {}),
@@ -1412,6 +1508,21 @@ export function renderFlowDocCanonicalTwelvePageReportPdfPilot(
     true,
     true,
     undefined,
+    true,
+  )
+}
+
+export function renderFlowDocCanonicalFullDocumentPdfPilot(
+  input: FlowDocPdfRendererPilotInput,
+): FlowDocPdfRendererPilotResult {
+  return renderFlowDocPdfPilot(
+    input,
+    FLOWDOC_PDF_FULL_DOCUMENT_PILOT_MODE,
+    "PDF-PILOT-08B-R2C-M",
+    true,
+    true,
+    undefined,
+    false,
     true,
   )
 }

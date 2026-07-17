@@ -196,6 +196,35 @@ describe("PDF-PILOT-03 Thai embedded-font one-page renderer proof", () => {
     expect(Buffer.from(result.bytes).toString("latin1")).toContain("60 608 m 552 608 l S")
   })
 
+  it("tolerates sub-micro-point accumulation but still blocks real glyph overflow", () => {
+    const withinTolerance = request()
+    const withinPaint = withinTolerance.paintCommands as VNextPdfPaintCommandV1[]
+    const withinRun = withinPaint.find((command) => command.kind === "glyph-run")
+    if (withinRun?.kind !== "glyph-run") throw new Error("glyph run fixture is missing")
+    const withinAdvance = withinRun.glyphs.reduce((total, glyph) => total + glyph.advancePt, 0)
+    withinRun.glyphs[0].advancePt += withinRun.bounds.widthPt - withinAdvance + 0.0000005
+    const withinResult = renderFlowDocThaiOnePagePdfPilot({
+      proofId: "pdf-pilot-geometry-epsilon",
+      contract: createVNextPdfMeasuredDrawContractV1(withinTolerance),
+      fontResources: [fontResource()],
+    })
+    expect(withinResult.status).toBe("rendered")
+
+    const overflow = request()
+    const overflowPaint = overflow.paintCommands as VNextPdfPaintCommandV1[]
+    const overflowRun = overflowPaint.find((command) => command.kind === "glyph-run")
+    if (overflowRun?.kind !== "glyph-run") throw new Error("glyph run fixture is missing")
+    const overflowAdvance = overflowRun.glyphs.reduce((total, glyph) => total + glyph.advancePt, 0)
+    overflowRun.glyphs[0].advancePt += overflowRun.bounds.widthPt - overflowAdvance + 0.001
+    const overflowResult = renderFlowDocThaiOnePagePdfPilot({
+      proofId: "pdf-pilot-real-overflow",
+      contract: createVNextPdfMeasuredDrawContractV1(overflow),
+      fontResources: [fontResource()],
+    })
+    expect(overflowResult).toMatchObject({ status: "blocked", bytes: null, artifact: null })
+    expect(overflowResult.issues.map((candidate) => candidate.code)).toContain("glyph-run-overflow")
+  })
+
   it("pins a smaller GID-retaining derivative without the reserved font name", () => {
     const value = manifest()
     const source = readFileSync(resolve(process.cwd(), value.source.path))

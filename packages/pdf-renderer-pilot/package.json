@@ -46,7 +46,11 @@
     "build:report-pagination-inputs": "node scripts/build-canonical-report-pagination-inputs.mjs",
     "build:report-pagination-execution": "node scripts/build-canonical-report-pagination-execution.mjs",
     "build:report-static-zone-handoff": "node scripts/build-canonical-report-static-zone-handoff.mjs",
-    "build:report-body-display-list": "node scripts/build-canonical-report-body-display-list.mjs"
+    "build:report-body-display-list": "node scripts/build-canonical-report-body-display-list.mjs",
+    "build:full-document-regular-subset": "python scripts/build-canonical-report-font-subset.py --request fixtures/pdf-pilot-canonical-report-body-display-list.v1.json --font-id ibm-plex-sans-thai-regular --source assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Regular.ttf --subset packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalFullDocument-Regular.ttf --manifest packages/pdf-renderer-pilot/fixtures/canonical-full-document-regular-font-subset-manifest.v1.json --phase-id PDF-PILOT-08B-R2C-M --subset-id pdf-pilot-08b-r2c-m-ibm-plex-regular-full-document --family-name \"FlowDoc Thai Canonical Full Document\" --postscript-name FlowDocThaiCanonicalFullDocument-Regular --subset-prefix FDFDRG --style-name Regular --font-specific-glyphs",
+    "build:full-document-bold-subset": "python scripts/build-canonical-report-font-subset.py --request fixtures/pdf-pilot-canonical-report-body-display-list.v1.json --font-id ibm-plex-sans-thai-bold --source assets/fonts/IBM_Plex_Sans_Thai/IBMPlexSansThai-Bold.ttf --subset packages/pdf-renderer-pilot/fixtures/fonts/FlowDocThaiCanonicalFullDocument-Bold.ttf --manifest packages/pdf-renderer-pilot/fixtures/canonical-full-document-bold-font-subset-manifest.v1.json --phase-id PDF-PILOT-08B-R2C-M --subset-id pdf-pilot-08b-r2c-m-ibm-plex-bold-full-document --family-name \"FlowDoc Thai Canonical Full Document\" --postscript-name FlowDocThaiCanonicalFullDocument-Bold --subset-prefix FDFDBD --style-name Bold --font-specific-glyphs",
+    "build:full-document-subsets": "npm run build:full-document-regular-subset && npm run build:full-document-bold-subset",
+    "build:full-document-proof": "node scripts/build-canonical-full-document-proof.mjs"
   },
   "dependencies": {
     "@flowdoc/text-engine-rust-wasm": "file:../text-engine-rust-wasm",

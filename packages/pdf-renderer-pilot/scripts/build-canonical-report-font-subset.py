@@ -29,6 +29,8 @@ parser.add_argument("--subset-id", default="pdf-pilot-07-ibm-plex-regular-canoni
 parser.add_argument("--family-name", default="FlowDoc Thai Canonical Report Subset")
 parser.add_argument("--postscript-name", default="FlowDocThaiCanonicalReportSubset-Regular")
 parser.add_argument("--subset-prefix", default="FDPCRP")
+parser.add_argument("--style-name", default="Regular")
+parser.add_argument("--font-specific-glyphs", action="store_true")
 args = parser.parse_args()
 
 REQUEST_PATH = repo_path(args.request)
@@ -41,7 +43,8 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-request = json.loads(REQUEST_PATH.read_text(encoding="utf-8"))
+document = json.loads(REQUEST_PATH.read_text(encoding="utf-8"))
+request = document.get("rendererHandoff", {}).get("measuredDrawContract", document)
 font_asset = next(
     (asset for asset in request["fontAssets"] if asset["fontId"] == args.font_id),
     None,
@@ -51,10 +54,19 @@ if font_asset is None:
 if sha256(SOURCE_PATH) != font_asset["sha256"]:
     raise RuntimeError("registered source font hash mismatch")
 
+paint_commands = request.get("paintCommands")
+if paint_commands is None:
+    paint_commands = [
+        command
+        for page in request["pages"]
+        for command in page["commands"]
+    ]
+
 glyph_ids = sorted({
     glyph["glyphId"]
-    for command in request["paintCommands"]
+    for command in paint_commands
     if command["kind"] == "glyph-run"
+    and (not args.font_specific_glyphs or command["fontId"] == args.font_id)
     for glyph in command["glyphs"]
 } | {0})
 
@@ -73,12 +85,12 @@ subsetter.subset(font)
 
 name_values = {
     1: args.family_name,
-    2: "Regular",
-    3: f"{args.family_name} Regular; {args.phase_id}",
-    4: f"{args.family_name} Regular",
+    2: args.style_name,
+    3: f"{args.family_name} {args.style_name}; {args.phase_id}",
+    4: f"{args.family_name} {args.style_name}",
     6: args.postscript_name,
     16: args.family_name,
-    17: "Regular",
+    17: args.style_name,
 }
 for record in font["name"].names:
     replacement = name_values.get(record.nameID)
