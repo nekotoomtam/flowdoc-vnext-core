@@ -10552,3 +10552,39 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-K` generated static-zone instances and renderer
 handoff.
+
+## PDF-PILOT-08B-R2C-K Static-Zone Handoff
+
+Status: actual page-number expansion and page-specific static-zone renderer
+handoff accepted; body display-list construction remains blocked.
+
+R2C-K consumes the final thirteen-page R2C-J plan. It creates one
+generation-owner fingerprint and one Core measurement request for every actual
+footer page number from 1 through 13, then executes native Rustybuzz shaping,
+native ICU4X segmentation, line wrapping, and Core acceptance. All actual
+footers remain one 12pt line with zero missing glyphs. The widest actual footer
+is `117.72pt`, below the retained `128.52pt` four-digit capacity proof.
+
+The accepted header evidence is repeated per page. Explicit placement policy
+keeps the header start-aligned, footer end-aligned, both lines at the start of
+their 24pt reservations, and the baseline on the existing half-leading
+formula. Core consumes all 26 static-zone glyph commands across thirteen page
+boxes with 719 glyph facts and `mayRelayout: false`.
+
+The resulting renderer handoff is explicitly scoped to
+`page-specific-static-zones-only`. R2C-K does not build body commands, claim a
+full-document measured-draw contract, emit PDF bytes, accept visual fidelity,
+or alter the thirteen-page result to conceal the open twelve-page calibration
+decision.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_STATIC_ZONE_HANDOFF_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-static-zone-handoff.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-static-zone-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-static-zone-handoff-qa.v1.json`;
+- `packages/pdf-renderer-pilot/src/canonicalReportStaticZoneHandoff.ts`;
+- `tests/pdfRendererPilotCanonicalReportStaticZoneHandoff.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-L` measured body display list and full renderer
+contract merge.

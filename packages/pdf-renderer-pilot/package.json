@@ -44,7 +44,8 @@
     "build:report-vertical-capacity": "node scripts/build-canonical-report-vertical-capacity.mjs",
     "build:report-section-reconciliation": "node scripts/build-canonical-report-section-reconciliation.mjs",
     "build:report-pagination-inputs": "node scripts/build-canonical-report-pagination-inputs.mjs",
-    "build:report-pagination-execution": "node scripts/build-canonical-report-pagination-execution.mjs"
+    "build:report-pagination-execution": "node scripts/build-canonical-report-pagination-execution.mjs",
+    "build:report-static-zone-handoff": "node scripts/build-canonical-report-static-zone-handoff.mjs"
   },
   "dependencies": {
     "@flowdoc/text-engine-rust-wasm": "file:../text-engine-rust-wasm",

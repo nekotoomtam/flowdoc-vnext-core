@@ -1,0 +1,402 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-k-canonical-report-static-zone-handoff-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-K",
+  "status": "accepted-actual-page-numbers-and-static-zone-renderer-handoff-body-pending",
+  "sourceFingerprints": {
+    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+    "nativeShaping": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+    "lineBreaking": "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
+    "measuredComposition": "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
+    "paginationInputs": "53b7625803925243bbb62ca9a7afcb12257f3fd47e82deebc7de3162ae63de00",
+    "paginationExecution": "75390eb748762fff6a6f181c5da9503208a7632b5f63d14e1f29f1bad23888c6",
+    "pagePlan": "sha256:a8e66333fbbb7f1a7cffeafcee2379c62b64278cfc20595cd4148b8cc34146d6",
+    "fontManifest": "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077",
+    "rawEvidence": "c0a56202bf24ab69df1807b3071a1f0967027cae877f50ad42f1e833a7fbd178"
+  },
+  "planFingerprint": "sha256:e2b8f5e9809964b480853b62d86cdae2b3a47c9d640e03eb6860c4eaf888bf0e",
+  "bundleFingerprint": "11bd19f2e945b6e285678cd4a9cf07067ad07ee9f34b04c55ab09b107317dfb4",
+  "measuredDrawContractFingerprint": "sha256:b2b485b1d987fd779ab3802a440ba1f4cf6a6f10fd0c25db7cb5e5757d8200f4",
+  "placementPolicy": {
+    "policyId": "canonical-report-static-zone-placement-v1",
+    "headerHorizontalAlignment": "start",
+    "footerHorizontalAlignment": "end",
+    "verticalAlignmentWithinReservation": "start",
+    "baselinePolicy": "line-height-minus-half-leading",
+    "baselineFormula": "lineHeightPt - (lineHeightPt - fontSizePt) / 2",
+    "geometrySource": "core-page-plan-body-geometry-plus-authored-reservations",
+    "alignmentSource": "canonical-report-renderer-profile",
+    "sourceDocumentMutation": false
+  },
+  "summary": {
+    "pageCount": 13,
+    "actualFooterCount": 13,
+    "staticZoneInstanceCount": 26,
+    "headerInstanceCount": 13,
+    "footerInstanceCount": 13,
+    "drawCommandCount": 26,
+    "paintCommandCount": 26,
+    "glyphCount": 719,
+    "missingGlyphCount": 0,
+    "maximumFooterWidthPt": 117.72,
+    "footerCapacityWidthPt": 128.52,
+    "footerCapacityHeld": true,
+    "rendererHandoffConsumable": true,
+    "actualPageNumbersExpanded": true,
+    "bodyDisplayListBuilt": false,
+    "pdfRendered": false
+  },
+  "pages": [
+    {
+      "pageIndex": 0,
+      "pageNumber": 1,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 1",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:b46de0d17eb6d6d3da5b4b8b8f9a0f54339e50dcdd5cda2529fb8f649dc36113",
+      "pageFingerprint": "sha256:d34015a9024ba81c9ba09d8ebcd518d74c6b33b202430976b8bdd65a63507bd7"
+    },
+    {
+      "pageIndex": 1,
+      "pageNumber": 2,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 2",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:57bf7bd56da5a43f20da42189e197cbc6507aca0a61b95124c7505f9233a36eb",
+      "pageFingerprint": "sha256:76ee28283d4d06cc5730a73de50b6ef725addfb544e0affe9854b110be9d422c"
+    },
+    {
+      "pageIndex": 2,
+      "pageNumber": 3,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 3",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:dd2e0a047d5a0264bcb2e6a01447da6d64b0f0fd45a5fdef23e19c79ea8f7390",
+      "pageFingerprint": "sha256:9aff0972bcbb298787d3862563e1acaa72dff9c9983ec23d8f01ab7019c84bb4"
+    },
+    {
+      "pageIndex": 3,
+      "pageNumber": 4,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 4",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:9ec1c4b75eea0515a9cb38e417ba609528abaeaa951408da89a886e2f7e37828",
+      "pageFingerprint": "sha256:f3e294061a89c3dabc9d5710677afc84eef010560ca2f1d4d642ab176738ecb7"
+    },
+    {
+      "pageIndex": 4,
+      "pageNumber": 5,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 5",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:d490b7029d21eaf969e6322beca601e956c2dd190bae430f27e239a8d10465bd",
+      "pageFingerprint": "sha256:9e9becc28741993461a7982111c1c1154956445229b52ac3d5684c33691cc782"
+    },
+    {
+      "pageIndex": 5,
+      "pageNumber": 6,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 6",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:1166d55b5b4cb97e6e1b6b40d53ea0d2a9bb433455ae40d3c179f8ac094add27",
+      "pageFingerprint": "sha256:bd183fe459cbd3838373169dfb957d89a203a9c75643329105eeea33d00debe2"
+    },
+    {
+      "pageIndex": 6,
+      "pageNumber": 7,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 7",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:b91a4b56a5f14fddf53b1433f9d17dbc1b7bf7f90a7a2bd389b67c52c51f071c",
+      "pageFingerprint": "sha256:4caf9c097991bca88287ec10f41e76dc0b4003ffdd3b59c11e17280433ba4d70"
+    },
+    {
+      "pageIndex": 7,
+      "pageNumber": 8,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 8",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:97a6dfef6747e9a661115a53d76c74f9f3e98649da722f116cc1d0b06b9fbb6b",
+      "pageFingerprint": "sha256:38d61fc922b7edb45b3f43666a9bc8b10e8a7e6618056f306b15afe9f6c4951d"
+    },
+    {
+      "pageIndex": 8,
+      "pageNumber": 9,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 9",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 442.987086,
+        "yPt": 716.976378,
+        "widthPt": 112.32,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 25,
+      "footerMeasurementFingerprint": "sha256:66e346c3271164d28ab4a7c9f3535b00efbe8209c287fb5e54c15f562216f70a",
+      "pageFingerprint": "sha256:1e7195251ef99d4ccdadc182ae3dfd234d05db82d9bf7df9dd0b62bed39d3833"
+    },
+    {
+      "pageIndex": 9,
+      "pageNumber": 10,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 10",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 437.587086,
+        "yPt": 716.976378,
+        "widthPt": 117.72,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 26,
+      "footerMeasurementFingerprint": "sha256:b4d371489a51fe1d150bd09498761d2543e6ef05f0da4c680e333a08c53ebfa1",
+      "pageFingerprint": "sha256:ecf858e4115c5f8919cf6dc50c22835e90c1d34ecbf9d2a90a3851351c6782ea"
+    },
+    {
+      "pageIndex": 10,
+      "pageNumber": 11,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 11",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 437.587086,
+        "yPt": 716.976378,
+        "widthPt": 117.72,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 26,
+      "footerMeasurementFingerprint": "sha256:4bb997deed1951b2657d302b816c6499ced450adac56de41c2d5abd68763ef81",
+      "pageFingerprint": "sha256:c3ae355ccf04f8f570f6e0e2a3bc0de2f4c42f0698a9e9aaa2007c47192b99e3"
+    },
+    {
+      "pageIndex": 11,
+      "pageNumber": 12,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 12",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 437.587086,
+        "yPt": 716.976378,
+        "widthPt": 117.72,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 26,
+      "footerMeasurementFingerprint": "sha256:447aefbc08abc1429de2637b831928409eb19c4460028fd4888756c72afba05d",
+      "pageFingerprint": "sha256:1bf1db44f5bab1daa59e7435b878b27cd5cc6de7972c61eadda5fc8726b6c0ef"
+    },
+    {
+      "pageIndex": 12,
+      "pageNumber": 13,
+      "headerText": "OCR BENCHMARK | INV_9437125258",
+      "footerText": "รายงานผลการทดสอบ | หน้า 13",
+      "headerBounds": {
+        "xPt": 56.692913,
+        "yPt": 51.023622,
+        "widthPt": 154.8,
+        "heightPt": 12
+      },
+      "footerBounds": {
+        "xPt": 437.587086,
+        "yPt": 716.976378,
+        "widthPt": 117.72,
+        "heightPt": 12
+      },
+      "headerGlyphCount": 30,
+      "footerGlyphCount": 26,
+      "footerMeasurementFingerprint": "sha256:2dc952e2f7c54f2a9a48c5150bc205312e025bf6b524f6217557d10a5b3d82f2",
+      "pageFingerprint": "sha256:7367f1b9b7ae3d2e02b09f99b020cd5ee4b657a22e9849e21fc2a2786e6ae34e"
+    }
+  ],
+  "executionGate": {
+    "status": "static-zones-consumable-full-document-handoff-blocked",
+    "authoritativePageCountRetained": true,
+    "actualPageNumbersExpanded": true,
+    "pageSpecificHeaderInstancesBuilt": true,
+    "pageSpecificFooterInstancesBuilt": true,
+    "footerCapacityHeld": true,
+    "missingGlyphCount": 0,
+    "staticZoneMeasuredDrawContractConsumable": true,
+    "bodyDisplayListBuilt": false,
+    "fullDocumentMeasuredDrawContractBuilt": false,
+    "pdfRendered": false,
+    "blockers": [
+      {
+        "code": "body-display-list-pending",
+        "blocks": "full-renderer-handoff",
+        "message": "Static zones are renderer-consumable, but body placements have not been decomposed into measured draw commands."
+      },
+      {
+        "code": "pdf-rendering-not-run",
+        "blocks": "pdf-bytes",
+        "message": "The static-zone handoff is not a complete document display list and has not been rendered to PDF bytes."
+      },
+      {
+        "code": "visual-fidelity-validation-pending",
+        "blocks": "report-acceptance",
+        "message": "No complete rendered PDF exists for region-aware comparison with the canonical report."
+      },
+      {
+        "code": "twelve-page-layout-calibration-open",
+        "blocks": "twelve-page-fidelity-target",
+        "message": "The authoritative page plan remains thirteen pages; static-zone generation must not conceal the extra body page."
+      }
+    ]
+  },
+  "ownership": {
+    "staticZoneHandoffOwns": [
+      "actual-page-number-expansion",
+      "page-specific-header-instances",
+      "page-specific-footer-instances",
+      "static-zone-placement-policy",
+      "static-zone-glyph-paint-commands",
+      "static-zone-measured-draw-contract"
+    ],
+    "staticZoneHandoffMustNotOwn": [
+      "body-display-list",
+      "full-document-measured-draw-contract",
+      "pdf-bytes",
+      "visual-fidelity-acceptance",
+      "twelve-page-layout-calibration"
+    ]
+  },
+  "boundary": {
+    "pageAssignment": "consumed-final",
+    "actualPageNumberExpansion": "executed",
+    "footerNativeShaping": "executed-per-page",
+    "footerNativeSegmentation": "executed-per-page",
+    "headerEvidence": "reused-accepted-r2c-d-e-f",
+    "staticZonePlacement": "executed",
+    "staticZoneMeasuredDrawContract": "consumable",
+    "bodyDisplayList": "not-run",
+    "fullDocumentMeasuredDrawContract": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-L measured body display list and full renderer contract merge"
+}

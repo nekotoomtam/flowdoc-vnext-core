@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-J bounded pagination and authoritative thirteen-page plan accepted; renderer handoff remains blocked.
+Status: PDF-PILOT-08B-R2C-K actual page-number expansion and static-zone renderer handoff accepted; body display-list construction remains blocked.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -603,6 +603,35 @@ Primary Phase 08B-R2C-J evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-execution-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportPaginationExecution.test.ts`.
 
+## PDF-PILOT-08B-R2C-K Scope
+
+Phase 08B-R2C-K consumes the authoritative thirteen-page Core plan and expands
+the authored generated footer with actual page numbers 1 through 13. Each
+page-specific footer executes native Rustybuzz shaping, native ICU4X
+segmentation, line wrapping, and Core measurement acceptance. All thirteen
+footers remain one 12pt line with zero missing glyphs; the maximum actual width
+is `117.72pt`, below the retained four-digit capacity proof of `128.52pt`.
+
+The phase repeats the accepted R2C-D/E/F header evidence on each page and
+records explicit static-zone placement policy: start-aligned header,
+end-aligned footer, start alignment within each 24pt reservation, and the
+existing half-leading baseline formula. This produces 26 page-specific draw
+commands and 26 glyph-run paint commands containing 719 glyph facts.
+
+Core accepts the static-zone measured-draw contract as `consumable` with
+`mayRelayout: false`. Its scope remains `page-specific-static-zones-only`;
+body placement decomposition, a full-document measured-draw contract, PDF
+bytes, visual acceptance, and the separate twelve-page calibration decision
+remain downstream.
+
+Primary Phase 08B-R2C-K evidence:
+
+- `docs/PDF_CANONICAL_REPORT_STATIC_ZONE_HANDOFF_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-static-zone-handoff.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-static-zone-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-static-zone-handoff-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportStaticZoneHandoff.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -864,8 +893,8 @@ force the target.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
 thresholds, broader reader compatibility, source-profile promotion, native to
-WASM parity, actual page-number expansion, page-specific static-zone paint
-instances, renderer handoff, and PDF rendering.
+WASM parity, body display-list construction, full-document renderer handoff,
+and PDF rendering.
 
 ## RISK
 
@@ -889,7 +918,6 @@ instances, renderer handoff, and PDF rendering.
 - renderer-backed line-box deltas;
 - exact evidence-backed layout calibration, if any, that can recover the final
   table continuation page without content loss or policy bypass;
-- final per-page footer glyph evidence after page assignment;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -907,5 +935,5 @@ instances, renderer handoff, and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-K` generated static-zone instances and renderer
-handoff.
+Next phase: `PDF-PILOT-08B-R2C-L` measured body display list and full renderer
+contract merge.
