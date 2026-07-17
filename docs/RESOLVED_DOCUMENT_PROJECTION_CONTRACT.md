@@ -26,6 +26,12 @@ Text, date, and enum strings are preserved. Finite numbers and booleans use
 locale-independent JavaScript string forms. Unknown keys, incompatible values,
 image/collection inline fields, and non-finite numbers block resolution.
 
+Phase PDF-PILOT-08B-R2C-A intentionally leaves this resolver behavior intact.
+Typed display formatting is a separate Published Structure-owned sidecar and
+overlay. It retains the raw resolved binding string beside each display string
+so selection/provenance and future measurement inputs do not rewrite authored
+or resolved facts.
+
 Field definitions remain in the Published Field Contract. A Data Snapshot may
 provide values but cannot change a field key, label, type, or capability.
 

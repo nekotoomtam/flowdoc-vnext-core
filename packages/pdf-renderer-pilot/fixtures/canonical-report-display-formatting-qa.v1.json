@@ -1,0 +1,59 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-a-canonical-report-display-formatting-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-A",
+  "status": "accepted",
+  "sourceDataBundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
+  "sourceTemplateBundleFingerprint": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
+  "resolutionInputFingerprint": "report-resolution-10fc0b213ab9b695b2263762",
+  "bundleFingerprint": "e4f0411afc7d6868971019fb536146f63aa355b5a6e48c606502342bd6302e26",
+  "locale": {
+    "localeId": "th-TH",
+    "numberSystem": "latn",
+    "decimalSeparator": ".",
+    "groupingSeparator": ",",
+    "calendar": "gregorian"
+  },
+  "determinism": {
+    "runtimeIntl": false,
+    "numberAlgorithm": "ecmascript-to-fixed-v1",
+    "timeZone": "UTC",
+    "deterministicRebuild": true
+  },
+  "summary": {
+    "formatCount": 22,
+    "fieldFormatAssignmentCount": 143,
+    "collectionFormatAssignmentCount": 63,
+    "documentBindingCount": 114,
+    "collectionBindingCount": 476,
+    "totalFormattedBindingCount": 590,
+    "changedDisplayTextCount": 268
+  },
+  "examples": {
+    "testDate": "16 กรกฎาคม 2026",
+    "azureOcrMaxLatency": "6.50 วินาที",
+    "totalCostThb": "8.64 บาท",
+    "googleCharacterAccuracy": "84.9%"
+  },
+  "measurementHandoff": {
+    "status": "ready-for-measurement-request-preparation",
+    "consumes": "r2b-resolved-bindings-plus-r2c-display-overlay",
+    "rawValuesRetained": true,
+    "authoredGraphMutation": false,
+    "documentBindingCount": 114,
+    "collectionBindingCount": 476,
+    "tableGeometry": "not-run",
+    "measurementRequests": "not-run"
+  },
+  "boundary": {
+    "localeDisplayFormatting": "formatted",
+    "runtimeIntl": false,
+    "textMeasurement": "not-run",
+    "lineBreaking": "not-run",
+    "tableGeometry": "not-run",
+    "layout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-B measurement-request and table-geometry handoff"
+}

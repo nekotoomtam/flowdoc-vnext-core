@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2B canonical report template and resolution accepted.
+Status: PDF-PILOT-08B-R2C-A typed display formatting accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -326,6 +326,32 @@ Primary Phase 08B-R2B evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-template-resolution-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportTemplateResolution.test.ts`.
 
+## PDF-PILOT-08B-R2C-A Scope
+
+Phase 08B-R2C-A adds a published, typed Display Formatting v1 sidecar between
+R2B resolution and future text measurement. The report catalog contains 22
+used deterministic formats, assigns all 143 scalar fields and 63 collection
+item fields, and formats 114 document plus 476 collection bindings without
+changing raw values, resolved identities, or the Document v4 graph.
+
+The formatter reproduces the accepted report oracle for percentages,
+durations, byte sizes, THB/USD values, boolean and enum labels, Thai Gregorian
+dates, and UTC instants. It pins Latin digits, decimal/group separators, UTC,
+Gregorian calendar, and ECMAScript fixed-digit behavior with
+`runtimeIntl: false`.
+
+R2C-A produces a complete display overlay that is ready for measurement-request
+preparation. Available widths, table geometry, measurement requests, text
+measurement, line breaking, layout, pagination, and PDF rendering remain
+`not-run`.
+
+Primary Phase 08B-R2C-A evidence:
+
+- `docs/PDF_CANONICAL_REPORT_DISPLAY_FORMATTING_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-display-formatting.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-display-formatting-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportDisplayFormatting.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -449,6 +475,12 @@ Build and validate the deterministic canonical template-resolution bundle:
 npm --prefix packages/pdf-renderer-pilot run build:report-template-resolution
 ```
 
+Build and validate the typed display-formatting overlay:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-display-formatting
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -487,14 +519,18 @@ npm --prefix packages/pdf-renderer-pilot run build:report-template-resolution
   validates six collection scopes before deferral, materializes all 73 rows
   and 476 item values deterministically, and classifies all 154 fields without
   introducing measurement or layout facts.
+- Typed display formatting assigns every scalar and collection item field,
+  reproduces 590 report display strings with retained raw lineage, and avoids
+  runtime locale dependencies while leaving measurement and layout inactive.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2B.
+None for closing PDF-PILOT-08B-R2C-A.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, locale-aware display formatting,
-text measurement, line breaking, layout, pagination, and PDF rendering.
+thresholds, broader reader compatibility, measurement request projection,
+table geometry, text measurement, line breaking, layout, pagination, and PDF
+rendering.
 
 ## RISK
 
@@ -515,8 +551,7 @@ text measurement, line breaking, layout, pagination, and PDF rendering.
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
 - automatic table and heading wrap behavior after style-token calibration;
-- locale and field-type formatting rules for percentages, durations, money,
-  dates, booleans, and numeric rounding;
+- cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
   and pypdf.
@@ -533,5 +568,5 @@ text measurement, line breaking, layout, pagination, and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C` locale formatting and text-engine/layout
-integration.
+Next phase: `PDF-PILOT-08B-R2C-B` measurement-request and table-geometry
+handoff.

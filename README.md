@@ -889,6 +889,10 @@ The package must remain runnable without any parent editor checkout.
   deferral, resolves 119 scalar/image placements, and deterministically
   materializes 73 rows and 476 item bindings while leaving formatting,
   wrapping, layout, pagination, and PDF rendering inactive.
+- PDF canonical report typed display formatting publishes 22 deterministic
+  profiles across all 143 scalar and 63 collection item definitions, formats
+  590 R2B bindings with retained raw values and identities, and prepares a
+  measurement handoff without calculating widths, lines, layout, or PDF bytes.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

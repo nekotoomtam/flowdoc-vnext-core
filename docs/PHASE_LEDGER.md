@@ -10196,3 +10196,36 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C` locale formatting and text-engine/layout
 integration.
+
+## PDF-PILOT-08B-R2C-A Typed Display Formatting
+
+Status: accepted as the deterministic display-string boundary before text
+measurement.
+
+R2C-A adds a generic Published Display Format Contract v1 and pure formatter.
+The contract pins exact Published Field and Collection Item contracts, requires
+complete scalar assignment coverage, validates format/type compatibility, and
+blocks owner, contract, enum-label, date, or malformed-value drift.
+
+The canonical report publishes 22 used formats for 143 scalar fields and 63
+collection item fields. It produces 114 document and 476 collection display
+bindings while retaining every raw typed value, raw resolved string, format
+identity, table/item identity, and resolved placement identity. Of 590 outputs,
+268 intentionally differ from locale-neutral resolver text.
+
+Formatting pins `th-TH` presentation choices, Latin digits, fixed decimal and
+group separators, Gregorian calendar, UTC, ECMAScript fixed-digit behavior,
+and `runtimeIntl: false`. The R2B graph and materialized bindings remain
+unchanged. Width calculation, table geometry, measurement requests, text
+measurement, line breaking, layout, pagination, and PDF rendering remain
+`not-run`.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_DISPLAY_FORMATTING_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-display-formatting.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-display-formatting-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportDisplayFormatting.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-B` measurement-request and table-geometry
+handoff.
