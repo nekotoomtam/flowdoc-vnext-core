@@ -69,15 +69,15 @@ describe("PDF-PILOT-08B-R2C-K canonical report static-zone handoff", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-K",
-      bundleFingerprint: "11bd19f2e945b6e285678cd4a9cf07067ad07ee9f34b04c55ab09b107317dfb4",
-      planFingerprint: "sha256:e2b8f5e9809964b480853b62d86cdae2b3a47c9d640e03eb6860c4eaf888bf0e",
-      sourceRawEvidenceFingerprint: "c0a56202bf24ab69df1807b3071a1f0967027cae877f50ad42f1e833a7fbd178",
+      bundleFingerprint: "c14598e9f6d4b42b932d25b6fded3e360b69105bac0e0dc113a2b8083ef199fe",
+      planFingerprint: "sha256:7f104d2ffe88763f9cfac597c5409b09daac6b076e9cf66d813665a9d7e6b4ef",
+      sourceRawEvidenceFingerprint: "d101d82f01f3f8d6614c34d30c024d9e8af257694f7c9e77f7dd23a3a2d88109",
       rendererHandoff: {
         scope: "page-specific-static-zones-only",
         bodyDisplayList: "pending-r2c-l",
         measuredDrawContract: {
           status: "consumable",
-          fingerprint: "sha256:b2b485b1d987fd779ab3802a440ba1f4cf6a6f10fd0c25db7cb5e5757d8200f4",
+          fingerprint: "sha256:43aab80634a6e921cf6e8fbd0be3caf254f334260ea5ca8a57a39985a32e4526",
           issues: [],
         },
       },

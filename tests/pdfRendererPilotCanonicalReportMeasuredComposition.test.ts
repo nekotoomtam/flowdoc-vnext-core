@@ -47,17 +47,17 @@ describe("PDF-PILOT-08B-R2C-F canonical report measured composition", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-F",
-      sourceProjectionFingerprint: "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-      sourceNativeShapingFingerprint: "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
-      sourceLineBreakingFingerprint: "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
-      planFingerprint: "cfe5a2d3db3f786e224045bd50b42ff02764f587904a0cdab2e73f8f61d9f1a2",
-      bundleFingerprint: "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
+      sourceProjectionFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+      sourceNativeShapingFingerprint: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
+      sourceLineBreakingFingerprint: "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
+      planFingerprint: "83d1db1a674dc34cde6e2df18cd5524c7693fb12c79482970c3943e76616bf6a",
+      bundleFingerprint: "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
       summary: {
-        sourceConsumerCount: 782,
-        coreAcceptedConsumerCount: 782,
-        coreAcceptedLineCount: 832,
-        documentBlockCount: 165,
-        documentBlockLineCount: 168,
+        sourceConsumerCount: 794,
+        coreAcceptedConsumerCount: 794,
+        coreAcceptedLineCount: 847,
+        documentBlockCount: 177,
+        documentBlockLineCount: 183,
         fixedImageBlockCount: 5,
         preparedTableCount: 15,
         preparedRowCount: 146,
@@ -65,16 +65,16 @@ describe("PDF-PILOT-08B-R2C-F canonical report measured composition", () => {
         tableTextLineCandidateCount: 664,
         multiLineTableCellCount: 47,
         emptyLineTableCellCount: 1,
-        flowNodeCount: 197,
-        readyFlowNodeCount: 185,
+        flowNodeCount: 209,
+        readyFlowNodeCount: 197,
         deferredGeneratedFlowNodeCount: 12,
-        bodyReadyFlowNodeCount: 173,
+        bodyReadyFlowNodeCount: 185,
         headerReadyFlowNodeCount: 12,
         footerDeferredFlowNodeCount: 12,
-        naturalDocumentBlockHeightPt: 2548,
+        naturalDocumentBlockHeightPt: 2773,
         naturalFixedImageHeightPt: 1182.047243,
         naturalTableHeightPt: 3240,
-        naturalReadyFlowHeightWithoutSpacingPt: 6970.047243,
+        naturalReadyFlowHeightWithoutSpacingPt: 7195.047243,
         minimumNaturalRowHeightPt: 19,
         maximumNaturalRowHeightPt: 30,
       },
@@ -82,10 +82,10 @@ describe("PDF-PILOT-08B-R2C-F canonical report measured composition", () => {
   }, 60_000)
 
   it("accepts every concrete consumer through Core and retains safe document source ranges", () => {
-    expect(BUNDLE.coreAcceptedConsumers).toHaveLength(782)
-    expect(new Set(BUNDLE.coreAcceptedConsumers.map((item) => item.consumerId)).size).toBe(782)
+    expect(BUNDLE.coreAcceptedConsumers).toHaveLength(794)
+    expect(new Set(BUNDLE.coreAcceptedConsumers.map((item) => item.consumerId)).size).toBe(794)
     expect(BUNDLE.coreAcceptedConsumers.every((item) => item.coreStatus === "accepted")).toBe(true)
-    expect(BUNDLE.documentBlocks).toHaveLength(165)
+    expect(BUNDLE.documentBlocks).toHaveLength(177)
     for (const block of BUNDLE.documentBlocks) {
       expect(block.measured.status).toBe("accepted")
       expect(block.naturalHeightPt).toBe(block.measured.summary.totalHeightPt)

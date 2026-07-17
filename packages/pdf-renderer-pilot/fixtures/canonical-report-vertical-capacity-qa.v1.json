@@ -4,12 +4,12 @@
   "phaseId": "PDF-PILOT-08B-R2C-G",
   "status": "accepted-capacity-evidence-target-page-count-blocked",
   "sourceFingerprints": {
-    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-    "measuredComposition": "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108"
+    "projection": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+    "measuredComposition": "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028"
   },
-  "planFingerprint": "2f260b4c9f98ed839430f31eed05a26b2a4a4c38bf38c6d3c92716377b491b1a",
-  "bundleFingerprint": "5926711cbca1000888e4d7accb99d000f4c6549d504b2359c4b97884272bc994",
-  "coreCompositionManifestFingerprint": "sha256:a5af7493019f73d69382afbf3872ebd14c58d325c06924ff0898c4a4788bdb49",
+  "planFingerprint": "07362efd5a507e37408a273296996980a4e5e136429ee9b35743a78403d8bf36",
+  "bundleFingerprint": "b3be7cbe49177946de1f0ec7db4c9f37f08ffc66375fe03778d6825fbc7f624a",
+  "coreCompositionManifestFingerprint": "sha256:9a06d18184ad04e07cfe1e80dbc9ce297746e1bfd0e3b1833c4111f9d969db9b",
   "spacingProfile": {
     "profileId": "ocr-benchmark-report-flow-spacing-v1",
     "collapsePolicy": "exact-adjacency-rule-no-margin-collapse",
@@ -28,7 +28,7 @@
       {
         "styleKey": "report-body",
         "lineHeightPt": 15,
-        "acceptedBlockCount": 126
+        "acceptedBlockCount": 138
       },
       {
         "styleKey": "report-caption",
@@ -150,7 +150,7 @@
       "basisLineHeightPt": 15,
       "multiplier": 0.2,
       "gapBeforePt": 3,
-      "appliedCount": 114
+      "appliedCount": 126
     },
     {
       "ruleId": "body-to-image",
@@ -231,11 +231,11 @@
     {
       "sectionIndex": 1,
       "sectionId": "section-executive-summary",
-      "bodyItemCount": 9,
+      "bodyItemCount": 15,
       "pageBodyHeightPt": 641.952756,
-      "naturalBodyHeightPt": 142,
-      "preservedSpacingHeightPt": 32,
-      "preservedSpacingDemandPt": 174,
+      "naturalBodyHeightPt": 277,
+      "preservedSpacingHeightPt": 50,
+      "preservedSpacingDemandPt": 327,
       "naturalCapacityFloorCount": 1,
       "preservedSpacingCapacityCount": 1,
       "naturalSinglePageFit": true,
@@ -434,11 +434,11 @@
     {
       "sectionIndex": 8,
       "sectionId": "section-decision-view",
-      "bodyItemCount": 2,
+      "bodyItemCount": 8,
       "pageBodyHeightPt": 641.952756,
-      "naturalBodyHeightPt": 37,
-      "preservedSpacingHeightPt": 11,
-      "preservedSpacingDemandPt": 48,
+      "naturalBodyHeightPt": 127,
+      "preservedSpacingHeightPt": 29,
+      "preservedSpacingDemandPt": 156,
       "naturalCapacityFloorCount": 1,
       "preservedSpacingCapacityCount": 1,
       "naturalSinglePageFit": true,
@@ -561,22 +561,22 @@
   ],
   "summary": {
     "sectionCount": 12,
-    "bodyItemCount": 173,
-    "textFlowItemCount": 153,
+    "bodyItemCount": 185,
+    "textFlowItemCount": 165,
     "tableFlowItemCount": 15,
     "mediaFlowItemCount": 5,
     "spacingRuleCount": 8,
-    "appliedSpacingCount": 161,
-    "totalPreservedSpacingPt": 808,
-    "naturalBodyHeightPt": 6826.047243,
-    "preservedSpacingBodyDemandPt": 7634.047243,
+    "appliedSpacingCount": 173,
+    "totalPreservedSpacingPt": 844,
+    "naturalBodyHeightPt": 7051.047243,
+    "preservedSpacingBodyDemandPt": 7895.047243,
     "pageBodyHeightPt": 641.952756,
     "measuredHeaderFitCount": 12,
     "generatedFooterReservationCount": 12,
-    "progressCapacityFitCount": 173,
+    "progressCapacityFitCount": 185,
     "wholeTableRootOverflowCount": 1,
     "naturalGlobalCapacityFloorCount": 11,
-    "preservedSpacingGlobalCapacityCount": 12,
+    "preservedSpacingGlobalCapacityCount": 13,
     "naturalSectionCapacityFloorCount": 17,
     "preservedSpacingSectionCapacityCount": 18,
     "naturalSinglePageSectionCount": 8,

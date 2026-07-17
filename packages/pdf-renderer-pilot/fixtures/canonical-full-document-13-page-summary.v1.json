@@ -3,24 +3,24 @@
   "phaseId": "PDF-PILOT-08B-R2C-M",
   "proofId": "pdf-pilot-08b-r2c-m-canonical-full-document",
   "status": "rendered",
-  "sourceBundleFingerprint": "32d067a3b17e1c6598711445067877e29f0c609fe0c1d288d2d0e57871f95990",
+  "sourceBundleFingerprint": "ab21f6dab062eea2950587be2ac5bfbbda65d3e9a31206701793d46a0ac6aacc",
   "artifact": {
     "artifactId": "pdf-pilot:pdf-pilot-08b-r2c-m-canonical-full-document",
     "format": "pdf",
     "mediaType": "application/pdf",
-    "byteLength": 1194703,
-    "sha256": "014b313690041ba312b10dc0bcbf65a3131580258d80e2f8b07465d8e107ed0f",
+    "byteLength": 1223440,
+    "sha256": "91787999d2e2711293d4adc1bafcceba610201b934212f0d7b22cc96ea703041",
     "storageStatus": "not-stored",
     "localOnly": true,
-    "sourceContractFingerprint": "sha256:cbc4102ce70fe3cceaaad18618211839192177eb787adb75e4bb81224003ae42",
+    "sourceContractFingerprint": "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
     "rendererProfileId": "pdf-pilot-08b-r2c-l-full-document-v1",
     "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
     "embeddedFonts": [
       {
         "fontId": "ibm-plex-sans-thai-bold",
         "subsetId": "pdf-pilot-08b-r2c-m-ibm-plex-bold-full-document",
-        "subsetSha256": "7abf4d29e1a74cc73648d55e1df95ae0caaaf77af24a57715a5f2c49577ba877",
-        "subsetByteLength": 28644,
+        "subsetSha256": "93d573d8412ad3118c70a5ada4337cfd0cbe87297efc6875a89bcb943ad597d0",
+        "subsetByteLength": 25756,
         "sourceByteLength": 113996,
         "pdfBaseFontName": "FDFDBD+FlowDocThaiCanonicalFullDocument-Bold",
         "fontFormat": "Type0/CIDFontType2",
@@ -29,8 +29,8 @@
       {
         "fontId": "ibm-plex-sans-thai-regular",
         "subsetId": "pdf-pilot-08b-r2c-m-ibm-plex-regular-full-document",
-        "subsetSha256": "090ebc8f55577bc7fa30c92c14bf62fc651dcda4f39c6bf3a400d6e75c45021d",
-        "subsetByteLength": 34652,
+        "subsetSha256": "1e9e6841c7324f2c911e53536f40bf651ce5e60f338ff96c14fe004c419232cf",
+        "subsetByteLength": 35016,
         "sourceByteLength": 113464,
         "pdfBaseFontName": "FDFDRG+FlowDocThaiCanonicalFullDocument-Regular",
         "fontFormat": "Type0/CIDFontType2",
@@ -121,9 +121,9 @@
       "requiredFontAssetCount": 2,
       "requiredImageAssetCount": 5,
       "imagePaintCount": 5,
-      "strokeLineCount": 696,
-      "sourceContractFingerprint": "sha256:cbc4102ce70fe3cceaaad18618211839192177eb787adb75e4bb81224003ae42",
-      "sourceContractContentSha256": "17bec29d5833e3c9ab61c63746f1de0cf008fb0259c8f0620776879d3edf7826"
+      "strokeLineCount": 675,
+      "sourceContractFingerprint": "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
+      "sourceContractContentSha256": "37481597e139c52e30d0eea4b413264ed06d666bcaa8fbf0bdcd5d3cf44a4b29"
     }
   },
   "renderContract": {
@@ -144,22 +144,22 @@
   },
   "summary": {
     "pageCount": 13,
-    "paintCommandCount": 1771,
-    "glyphRunCount": 978,
-    "glyphCount": 14784,
+    "paintCommandCount": 1778,
+    "glyphRunCount": 1018,
+    "glyphCount": 15691,
     "embeddedFontCount": 2,
     "imageCount": 5,
     "fontResourceReferenceCount": 26,
     "imageResourceReferenceCount": 5,
-    "byteLength": 1194703
+    "byteLength": 1223440
   },
   "commandInventory": {
-    "sourceCommandCount": 1771,
-    "paintCommandCount": 1771,
-    "glyphRunCount": 978,
-    "fillRectCount": 92,
+    "sourceCommandCount": 1778,
+    "paintCommandCount": 1778,
+    "glyphRunCount": 1018,
+    "fillRectCount": 80,
     "strokeRectCount": 0,
-    "strokeLineCount": 696,
+    "strokeLineCount": 675,
     "imageCount": 5
   },
   "pageImageBindings": [
@@ -172,7 +172,7 @@
       "assetId": "ocr-accuracy-image"
     },
     {
-      "pageNumber": 5,
+      "pageNumber": 6,
       "assetId": "native-extraction-image"
     },
     {
@@ -190,23 +190,23 @@
       "fontId": "ibm-plex-sans-thai-regular",
       "sourceSha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57",
       "sourceBytes": 113464,
-      "subsetSha256": "090ebc8f55577bc7fa30c92c14bf62fc651dcda4f39c6bf3a400d6e75c45021d",
-      "subsetBytes": 34652,
-      "retainedGlyphCount": 118
+      "subsetSha256": "1e9e6841c7324f2c911e53536f40bf651ce5e60f338ff96c14fe004c419232cf",
+      "subsetBytes": 35016,
+      "retainedGlyphCount": 122
     },
     {
       "subsetId": "pdf-pilot-08b-r2c-m-ibm-plex-bold-full-document",
       "fontId": "ibm-plex-sans-thai-bold",
       "sourceSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
       "sourceBytes": 113996,
-      "subsetSha256": "7abf4d29e1a74cc73648d55e1df95ae0caaaf77af24a57715a5f2c49577ba877",
-      "subsetBytes": 28644,
-      "retainedGlyphCount": 109
+      "subsetSha256": "93d573d8412ad3118c70a5ada4337cfd0cbe87297efc6875a89bcb943ad597d0",
+      "subsetBytes": 25756,
+      "retainedGlyphCount": 97
     }
   ],
   "deterministicRebuild": {
     "unchanged": true,
-    "sha256": "014b313690041ba312b10dc0bcbf65a3131580258d80e2f8b07465d8e107ed0f"
+    "sha256": "91787999d2e2711293d4adc1bafcceba610201b934212f0d7b22cc96ea703041"
   },
   "externalImageBytesRetained": false,
   "productionBinding": false,

@@ -4,9 +4,9 @@
   "phaseId": "PDF-PILOT-08B-R2C-A",
   "status": "accepted",
   "sourceDataBundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-  "sourceTemplateBundleFingerprint": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
-  "resolutionInputFingerprint": "report-resolution-10fc0b213ab9b695b2263762",
-  "bundleFingerprint": "e4f0411afc7d6868971019fb536146f63aa355b5a6e48c606502342bd6302e26",
+  "sourceTemplateBundleFingerprint": "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb",
+  "resolutionInputFingerprint": "report-resolution-7e7f208c6ac5dfa00fdf4972",
+  "bundleFingerprint": "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
   "locale": {
     "localeId": "th-TH",
     "numberSystem": "latn",
@@ -24,10 +24,10 @@
     "formatCount": 22,
     "fieldFormatAssignmentCount": 143,
     "collectionFormatAssignmentCount": 63,
-    "documentBindingCount": 114,
+    "documentBindingCount": 136,
     "collectionBindingCount": 476,
-    "totalFormattedBindingCount": 590,
-    "changedDisplayTextCount": 268
+    "totalFormattedBindingCount": 612,
+    "changedDisplayTextCount": 287
   },
   "examples": {
     "testDate": "16 กรกฎาคม 2026",
@@ -40,7 +40,7 @@
     "consumes": "r2b-resolved-bindings-plus-r2c-display-overlay",
     "rawValuesRetained": true,
     "authoredGraphMutation": false,
-    "documentBindingCount": 114,
+    "documentBindingCount": 136,
     "collectionBindingCount": 476,
     "tableGeometry": "not-run",
     "measurementRequests": "not-run"

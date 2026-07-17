@@ -5,8 +5,8 @@
   "status": "accepted",
   "templateId": "ocr-benchmark-canonical-report-template-v1",
   "sourceDataBundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-  "resolutionInputFingerprint": "report-resolution-10fc0b213ab9b695b2263762",
-  "bundleFingerprint": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
+  "resolutionInputFingerprint": "report-resolution-7e7f208c6ac5dfa00fdf4972",
+  "bundleFingerprint": "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb",
   "pageContract": {
     "size": "Letter",
     "semanticSectionCount": 12,
@@ -15,7 +15,7 @@
   "coverage": {
     "presentationFieldCount": 125,
     "evidenceOnlyFieldCount": 29,
-    "scalarPlacementCount": 114,
+    "scalarPlacementCount": 136,
     "imagePlacementCount": 5,
     "collectionPlacementCount": 6,
     "collectionItemBindingCount": 476,

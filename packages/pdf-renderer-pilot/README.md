@@ -63,7 +63,7 @@ generated footer measurement, pagination, and PDF rendering remain blocked.
 
 `PDF-PILOT-08B-R2C-H` proves all twelve semantic sections share equivalent
 page, header, and footer content, then projects them into one continuous Core
-composition section while retaining all 173 roots and semantic-zone lineage.
+composition section while retaining all 185 roots and semantic-zone lineage.
 It binds every root to the Core demand/window spacing bridge and restores an
 explicit 11pt gap before eleven non-initial semantic headings. Gross demand is
 thirteen capacity units; twelve-page fidelity remains blocked until real
@@ -71,7 +71,7 @@ page-top suppression and pagination overhead are known.
 
 ## Pagination Input Evidence
 
-`PDF-PILOT-08B-R2C-I` binds all 173 roots to exact measured/prepared/atomic
+`PDF-PILOT-08B-R2C-I` binds all 185 roots to exact measured/prepared/atomic
 sources, bounded family configurations, real initial family cursors, and a
 refinalized Core composition manifest. It also measures the generated footer
 capacity sample `8888` through native rustybuzz, ICU4X, line wrapping, and Core
@@ -82,9 +82,9 @@ rendering remain blocked.
 
 `PDF-PILOT-08B-R2C-J` executes all family paginators through the Core spacing
 bridge and document transition with one-page, one-fragment windows. The
-resumable execution finalizes all 173 roots as 178 placements on thirteen
-pages, including five repeated table-header fragments. This is one page over
-the twelve-page fidelity target. Actual footer page-number expansion, static
+resumable execution finalizes all 185 roots as 187 placements on thirteen
+pages, including two repeated table-header fragments. Page count is
+content-driven under R2C-N. Actual footer page-number expansion, static
 zone paint instances, renderer handoff, and PDF output remain blocked.
 
 ## Full Renderer Handoff Evidence
@@ -93,7 +93,7 @@ zone paint instances, renderer handoff, and PDF output remain blocked.
 the exact Table windows, projects all measured body text, fixed images, Table
 backgrounds, text, and border lines, and merges them with page-specific static
 zones. Core accepts the resulting thirteen-page measured-draw contract with
-1,771 commands, two IBM Plex font assets, five backend-owned image assets,
+1,778 commands, two IBM Plex font assets, five backend-owned image assets,
 zero missing glyphs, and no renderer relayout. PDF bytes and visual acceptance
 remain downstream from R2C-L.
 
@@ -102,7 +102,7 @@ remain downstream from R2C-L.
 `PDF-PILOT-08B-R2C-M` pins the complete R2C-L contract by profile, Core
 fingerprint, and serialized-content SHA-256. It builds separate Regular/Bold
 GID-retaining subsets, verifies five external PNG resources, and emits the
-same 1,194,703-byte thirteen-page PDF on repeated execution. Independent
+same 1,223,440-byte thirteen-page PDF on repeated execution. Independent
 `pypdf`, Poppler, content-stream, extraction, and raster checks accept the PDF
 structure. The artifact remains local under `output/pdf/`; visual fidelity and
 the twelve-page decision are not accepted by this phase.
@@ -119,6 +119,19 @@ theoretical twelve-page headroom and is not capacity proof.
 Visual fidelity remains rejected. The corrected source-backed profile now uses
 content-driven page count, with this exact thirteen-page result authoritative.
 No PDF or raster bytes are retained by the comparison fixture.
+
+## Reader Hierarchy Calibration
+
+`PDF-PILOT-08B-R2C-O` binds executive and decision narrative to 22 ordinary
+scalar placements, removes generic Bold from scalar labels, and retains local
+Bold only for two reader labels. The exact regenerated PDF remains 13 pages
+with 185 body entries, 187 placements, and zero missing glyphs.
+
+Against the accepted R2C-N baseline, Bold share moves from 41.75% to 9.16%
+versus 15.89% in the reference. Executive-summary extracted text grows from
+290 to 810 characters and decision-view text from 74 to 468, while total
+candidate density increases. Information hierarchy is accepted; static-zone
+geometry, section composition, visual fidelity, and production binding are not.
 
 ## Reproduction
 

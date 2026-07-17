@@ -44,31 +44,31 @@ describe("PDF-PILOT-08B-R2C-G canonical report vertical capacity", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-G",
-      sourceProjectionFingerprint: "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-      sourceMeasuredCompositionFingerprint: "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
-      planFingerprint: "2f260b4c9f98ed839430f31eed05a26b2a4a4c38bf38c6d3c92716377b491b1a",
-      bundleFingerprint: "5926711cbca1000888e4d7accb99d000f4c6549d504b2359c4b97884272bc994",
+      sourceProjectionFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+      sourceMeasuredCompositionFingerprint: "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
+      planFingerprint: "07362efd5a507e37408a273296996980a4e5e136429ee9b35743a78403d8bf36",
+      bundleFingerprint: "b3be7cbe49177946de1f0ec7db4c9f37f08ffc66375fe03778d6825fbc7f624a",
       coreCompositionManifest: {
-        fingerprint: "sha256:a5af7493019f73d69382afbf3872ebd14c58d325c06924ff0898c4a4788bdb49",
+        fingerprint: "sha256:9a06d18184ad04e07cfe1e80dbc9ce297746e1bfd0e3b1833c4111f9d969db9b",
       },
       summary: {
         sectionCount: 12,
-        bodyItemCount: 173,
-        textFlowItemCount: 153,
+        bodyItemCount: 185,
+        textFlowItemCount: 165,
         tableFlowItemCount: 15,
         mediaFlowItemCount: 5,
         spacingRuleCount: 8,
-        appliedSpacingCount: 161,
-        totalPreservedSpacingPt: 808,
-        naturalBodyHeightPt: 6826.047243,
-        preservedSpacingBodyDemandPt: 7634.047243,
+        appliedSpacingCount: 173,
+        totalPreservedSpacingPt: 844,
+        naturalBodyHeightPt: 7051.047243,
+        preservedSpacingBodyDemandPt: 7895.047243,
         pageBodyHeightPt: 641.952756,
         measuredHeaderFitCount: 12,
         generatedFooterReservationCount: 12,
-        progressCapacityFitCount: 173,
+        progressCapacityFitCount: 185,
         wholeTableRootOverflowCount: 1,
         naturalGlobalCapacityFloorCount: 11,
-        preservedSpacingGlobalCapacityCount: 12,
+        preservedSpacingGlobalCapacityCount: 13,
         naturalSectionCapacityFloorCount: 17,
         preservedSpacingSectionCapacityCount: 18,
         naturalSinglePageSectionCount: 8,
@@ -87,7 +87,7 @@ describe("PDF-PILOT-08B-R2C-G canonical report vertical capacity", () => {
       lineHeightBindings: [
         { styleKey: "report-title", lineHeightPt: 31, acceptedBlockCount: 1 },
         { styleKey: "section-heading", lineHeightPt: 22, acceptedBlockCount: 11 },
-        { styleKey: "report-body", lineHeightPt: 15, acceptedBlockCount: 126 },
+        { styleKey: "report-body", lineHeightPt: 15, acceptedBlockCount: 138 },
         { styleKey: "report-caption", lineHeightPt: 12, acceptedBlockCount: 12 },
         { styleKey: "table-header", lineHeightPt: 12, acceptedBlockCount: 15 },
       ],
@@ -100,7 +100,7 @@ describe("PDF-PILOT-08B-R2C-G canonical report vertical capacity", () => {
     }))).toEqual([
       { ruleId: "report-title-to-body", pair: "report-title->report-body", gap: 15, applied: 1 },
       { ruleId: "section-heading-to-body", pair: "section-heading->report-body", gap: 11, applied: 11 },
-      { ruleId: "body-stack", pair: "report-body->report-body", gap: 3, applied: 114 },
+      { ruleId: "body-stack", pair: "report-body->report-body", gap: 3, applied: 126 },
       { ruleId: "body-to-image", pair: "report-body->fixed-image", gap: 12, applied: 5 },
       { ruleId: "image-to-table-label", pair: "fixed-image->table-label", gap: 12, applied: 3 },
       { ruleId: "body-to-table-label", pair: "report-body->table-label", gap: 12, applied: 3 },
@@ -108,7 +108,7 @@ describe("PDF-PILOT-08B-R2C-G canonical report vertical capacity", () => {
       { ruleId: "table-to-table-label", pair: "prepared-table->table-label", gap: 12, applied: 9 },
     ])
     expect(BUNDLE.spacedBodyItems.filter((item) => item.spacingRuleId === "zone-start")).toHaveLength(12)
-    expect(BUNDLE.spacedBodyItems.reduce((total, item) => total + item.spacingBeforePt, 0)).toBe(808)
+    expect(BUNDLE.spacedBodyItems.reduce((total, item) => total + item.spacingBeforePt, 0)).toBe(844)
   })
 
   it("binds exact Letter body geometry and reserves static zones without guessing footer text", () => {
@@ -144,14 +144,14 @@ describe("PDF-PILOT-08B-R2C-G canonical report vertical capacity", () => {
     }
   })
 
-  it("finalizes a Core composition manifest for all 173 authored body roots", () => {
+  it("finalizes a Core composition manifest for all 185 authored body roots", () => {
     expect(parseVNextDocumentCompositionManifestV1(BUNDLE.coreCompositionManifest)).toEqual({
       status: "ready",
       manifest: BUNDLE.coreCompositionManifest,
       issues: [],
     })
     expect(BUNDLE.coreCompositionManifest.sections).toHaveLength(12)
-    expect(BUNDLE.coreCompositionManifest.bodyItems).toHaveLength(173)
+    expect(BUNDLE.coreCompositionManifest.bodyItems).toHaveLength(185)
     expect(BUNDLE.coreCompositionManifest.bodyItems.map((item) => item.rootNodeId)).toEqual(
       BUNDLE.spacedBodyItems.map((item) => item.rootNodeId),
     )

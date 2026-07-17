@@ -322,10 +322,138 @@ function fieldBlock(
     role: { role: "paragraph" },
     props: { textStyleId: "report-body" },
     children: [
-      { id: `${id}-label`, type: "text", text: `${label}: `, style: { fontWeight: "bold" } },
+      { id: `${id}-label`, type: "text", text: `${label}: ` },
       { id: `${id}-value`, type: "field-ref", key, label },
     ],
   }
+}
+
+type NarrativePart =
+  | { kind: "text"; text: string }
+  | { kind: "field"; key: string }
+
+function narrativeBlock(
+  id: string,
+  parts: NarrativePart[],
+  bundle: FlowDocCanonicalReportDataBundleV1,
+): Extract<AuthoredNodeV4Target, { type: "text-block" }> {
+  return {
+    id,
+    type: "text-block",
+    role: { role: "paragraph" },
+    props: { textStyleId: "report-body" },
+    children: parts.map((part, index) => {
+      if (part.kind === "text") {
+        return { id: `${id}-part-${index}`, type: "text" as const, text: part.text }
+      }
+      const definition = bundle.fieldContract.registry.fields[part.key]
+      requireFact(definition != null && definition.type !== "collection" && definition.type !== "image", `narrative field is not scalar: ${part.key}`)
+      return {
+        id: `${id}-part-${index}`,
+        type: "field-ref" as const,
+        key: part.key,
+        label: definition.label,
+      }
+    }),
+  }
+}
+
+function narrativeLabelBlock(
+  id: string,
+  text: string,
+): Extract<AuthoredNodeV4Target, { type: "text-block" }> {
+  return {
+    id,
+    type: "text-block",
+    role: { role: "label" },
+    props: { textStyleId: "report-body" },
+    children: [{ id: `${id}-text`, type: "text", text, style: { fontWeight: "bold" } }],
+  }
+}
+
+function readerNarrative(
+  sectionId: string,
+  bundle: FlowDocCanonicalReportDataBundleV1,
+): AuthoredNodeV4Target[] {
+  if (sectionId === "executive-summary") {
+    return [
+      narrativeLabelBlock("executive-summary-reader-label", "ข้อสรุปจากข้อมูลจริง"),
+      narrativeBlock("executive-summary-critical-values", [
+        { kind: "text", text: "ทั้ง Google Vision และ Azure OCR อ่านค่าธุรกิจสำคัญครบ " },
+        { kind: "field", key: "report.engine.google_vision.critical_values_found" },
+        { kind: "text", text: " จาก " },
+        { kind: "field", key: "report.engine.google_vision.critical_values_total" },
+        { kind: "text", text: " ค่า จึงยังไม่มีข้อมูลธุรกิจหลักตกหล่นจาก OCR ทั้งสองเจ้า" },
+      ], bundle),
+      narrativeBlock("executive-summary-ocr-speed", [
+        { kind: "text", text: "Google Vision ใช้เวลากลาง " },
+        { kind: "field", key: "report.engine.google_vision.latency_ms.median" },
+        { kind: "text", text: " เทียบกับ Azure OCR " },
+        { kind: "field", key: "report.engine.azure_document_intelligence.latency_ms.median" },
+        { kind: "text", text: " โดยต่างกัน " },
+        { kind: "field", key: "report.decision.ocr_latency_delta_ms" },
+      ], bundle),
+      narrativeBlock("executive-summary-native-coverage", [
+        { kind: "text", text: "Google Document AI จัดข้อมูลสำคัญเป็นโครงสร้างได้ " },
+        { kind: "field", key: "report.engine.google_document_ai_native.structured_concept_coverage" },
+        { kind: "text", text: " ขณะที่ Azure Native ได้ " },
+        { kind: "field", key: "report.engine.azure_document_intelligence_native.structured_concept_coverage" },
+      ], bundle),
+      narrativeBlock("executive-summary-native-cost", [
+        { kind: "text", text: "Azure Native มีต้นทุนประมาณ " },
+        { kind: "field", key: "report.engine.azure_document_intelligence_native.cost_thb" },
+        { kind: "text", text: " ต่อเอกสาร เทียบกับ Google Document AI " },
+        { kind: "field", key: "report.engine.google_document_ai_native.cost_thb" },
+        { kind: "text", text: " หรือต่ำกว่าประมาณ " },
+        { kind: "field", key: "report.decision.native_cost_ratio" },
+      ], bundle),
+      narrativeBlock("executive-summary-mapping-limit", [
+        { kind: "text", text: "Mapper ปัจจุบันนำข้อมูลที่ควรอนุมานได้มาใช้ถูกต้องเพียง " },
+        { kind: "field", key: "report.engine.google_document_ai_native.mapping.recall" },
+        { kind: "text", text: " จาก Google และ " },
+        { kind: "field", key: "report.engine.azure_document_intelligence_native.mapping.recall" },
+        { kind: "text", text: " จาก Azure จึงยังไม่ควรตัดสิน provider จากผล GDIM" },
+      ], bundle),
+    ]
+  }
+  if (sectionId === "decision-view") {
+    return [
+      narrativeLabelBlock("decision-view-reader-label", "แนวทางเลือกตามโจทย์"),
+      narrativeBlock("decision-view-ocr-speed", [
+        { kind: "text", text: "ถ้าเน้นอ่านข้อความเร็ว ให้เริ่มจาก Google Vision ที่ค่ากลาง " },
+        { kind: "field", key: "report.engine.google_vision.latency_ms.median" },
+        { kind: "text", text: " เทียบ Azure OCR " },
+        { kind: "field", key: "report.engine.azure_document_intelligence.latency_ms.median" },
+      ], bundle),
+      narrativeBlock("decision-view-native-detail", [
+        { kind: "text", text: "ถ้าเน้นตารางและรายการสินค้า Google Document AI ครอบคลุม concept " },
+        { kind: "field", key: "report.engine.google_document_ai_native.structured_concept_coverage" },
+        { kind: "text", text: " และตรวจพบ " },
+        { kind: "field", key: "report.engine.google_document_ai_native.table_count" },
+        { kind: "text", text: " ตาราง" },
+      ], bundle),
+      narrativeBlock("decision-view-native-cost", [
+        { kind: "text", text: "ถ้าเน้นต้นทุน Native ให้พิจารณา Azure ที่ " },
+        { kind: "field", key: "report.engine.azure_document_intelligence_native.cost_thb" },
+        { kind: "text", text: " เทียบกับ Google " },
+        { kind: "field", key: "report.engine.google_document_ai_native.cost_thb" },
+      ], bundle),
+      narrativeBlock("decision-view-response-size", [
+        { kind: "text", text: "ถ้าต้องลดขนาดข้อมูลตอบกลับ Azure Native อยู่ที่ " },
+        { kind: "field", key: "report.engine.azure_document_intelligence_native.response_bytes" },
+        { kind: "text", text: " เทียบกับ Google Document AI " },
+        { kind: "field", key: "report.engine.google_document_ai_native.response_bytes" },
+      ], bundle),
+      narrativeBlock("decision-view-mapping-gate", [
+        { kind: "text", text: "งาน GDIM ยังต้องแก้ Mapper ก่อน เพราะ recall อยู่ที่ " },
+        { kind: "field", key: "report.engine.google_document_ai_native.mapping.recall" },
+        { kind: "text", text: " และ " },
+        { kind: "field", key: "report.engine.azure_document_intelligence_native.mapping.recall" },
+        { kind: "text", text: " เท่านั้น" },
+      ], bundle),
+    ]
+  }
+  return []
 }
 
 function tableGraph(
@@ -481,6 +609,10 @@ function buildTemplate(bundle: FlowDocCanonicalReportDataBundleV1): {
       "heading",
     )))
     bodyChildIds.push(addNode(nodes, textBlock(introId, intro, "report-body")))
+
+    readerNarrative(sectionId, bundle).forEach((node) => {
+      bodyChildIds.push(addNode(nodes, node))
+    })
 
     for (const key of fieldsBySection.get(sectionId) ?? []) {
       const definition = bundle.fieldContract.registry.fields[key]

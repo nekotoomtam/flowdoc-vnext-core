@@ -61,15 +61,27 @@ parser.add_argument(
 )
 parser.add_argument(
     "--reference-raster-dir",
-    default="tmp/pdfs/r2c-n/reference",
+    default="tmp/pdfs/r2c-o/reference",
 )
 parser.add_argument(
     "--candidate-raster-dir",
-    default="tmp/pdfs/r2c-n/current",
+    default="tmp/pdfs/r2c-o/current",
 )
 parser.add_argument(
     "--output",
-    default="packages/pdf-renderer-pilot/fixtures/canonical-full-document-visual-comparison.v1.json",
+    default="packages/pdf-renderer-pilot/fixtures/canonical-full-document-reader-hierarchy.v1.json",
+)
+parser.add_argument(
+    "--phase-id",
+    choices=["PDF-PILOT-08B-R2C-N", "PDF-PILOT-08B-R2C-O"],
+    default="PDF-PILOT-08B-R2C-O",
+)
+parser.add_argument(
+    "--baseline-comparison",
+    default=(
+        "packages/pdf-renderer-pilot/fixtures/"
+        "canonical-full-document-visual-comparison.v1.json"
+    ),
 )
 args = parser.parse_args()
 
@@ -579,6 +591,179 @@ comparison = {
     ),
 }
 
+if args.phase_id == "PDF-PILOT-08B-R2C-O":
+    if not args.baseline_comparison:
+        raise RuntimeError("R2C-O requires --baseline-comparison")
+
+    baseline_path = repo_path(args.baseline_comparison)
+    baseline = read_json(baseline_path)
+    if baseline["phaseId"] != "PDF-PILOT-08B-R2C-N":
+        raise RuntimeError("R2C-O baseline must be the accepted R2C-N comparison")
+    if baseline["inputs"]["reference"]["sha256"] != reference["sha256"]:
+        raise RuntimeError("R2C-O and R2C-N must use the same pinned reference")
+
+    baseline_sections = {
+        section["sectionId"]: section
+        for section in baseline["comparison"]["sections"]
+    }
+    current_sections = {
+        section["sectionId"]: section for section in section_comparison
+    }
+    baseline_bold_gap = abs(
+        baseline["candidate"]["boldCharacterShare"]
+        - baseline["reference"]["boldCharacterShare"]
+    )
+    current_bold_gap = abs(
+        candidate["boldCharacterShare"] - reference["boldCharacterShare"]
+    )
+    acceptance = {
+        "referenceIdentityPreserved": True,
+        "candidateStructuralIdentityAligned": (
+            candidate["sha256"] == summary["artifact"]["sha256"]
+            and candidate["pageCount"] == summary["summary"]["pageCount"]
+        ),
+        "pageCountRemainsContentDriven": (
+            candidate["pageCount"] == baseline["candidate"]["pageCount"]
+        ),
+        "extractedDensityNonDecreasing": (
+            candidate["extractedNonWhitespaceCharacterCount"]
+            >= baseline["candidate"]["extractedNonWhitespaceCharacterCount"]
+        ),
+        "executiveNarrativeExpanded": (
+            current_sections["executive-summary"]["candidateCharacterCount"]
+            > baseline_sections["executive-summary"]["candidateCharacterCount"]
+        ),
+        "decisionNarrativeExpanded": (
+            current_sections["decision-view"]["candidateCharacterCount"]
+            > baseline_sections["decision-view"]["candidateCharacterCount"]
+        ),
+        "roleWeightGapImproved": current_bold_gap < baseline_bold_gap,
+        "roleWeightWithinEightPercentagePoints": current_bold_gap <= 0.08,
+        "visualFidelityAccepted": False,
+    }
+    if not all(value for key, value in acceptance.items() if key != "visualFidelityAccepted"):
+        raise RuntimeError(f"R2C-O hierarchy acceptance failed: {acceptance}")
+
+    comparison.update({
+        "comparisonId": (
+            "pdf-pilot-08b-r2c-o-canonical-full-document-reader-hierarchy-v1"
+        ),
+        "phaseId": "PDF-PILOT-08B-R2C-O",
+        "status": (
+            "accepted-reader-hierarchy-visual-fidelity-still-rejected"
+        ),
+        "baseline": {
+            "comparisonId": baseline["comparisonId"],
+            "phaseId": baseline["phaseId"],
+            "pointer": (
+                "packages/pdf-renderer-pilot/fixtures/"
+                "canonical-full-document-visual-comparison.v1.json"
+            ),
+            "sha256": sha256(baseline_path),
+            "candidateSha256": baseline["candidate"]["sha256"],
+        },
+        "calibration": {
+            "boldCharacterShare": {
+                "reference": reference["boldCharacterShare"],
+                "before": baseline["candidate"]["boldCharacterShare"],
+                "after": candidate["boldCharacterShare"],
+                "absoluteGapBefore": rounded(baseline_bold_gap, 6),
+                "absoluteGapAfter": rounded(current_bold_gap, 6),
+                "absoluteGapImprovement": rounded(
+                    baseline_bold_gap - current_bold_gap, 6
+                ),
+            },
+            "extractedNonWhitespaceCharacterCount": {
+                "before": baseline["candidate"][
+                    "extractedNonWhitespaceCharacterCount"
+                ],
+                "after": candidate["extractedNonWhitespaceCharacterCount"],
+                "delta": (
+                    candidate["extractedNonWhitespaceCharacterCount"]
+                    - baseline["candidate"][
+                        "extractedNonWhitespaceCharacterCount"
+                    ]
+                ),
+            },
+            "executiveSummaryCharacterCount": {
+                "reference": current_sections["executive-summary"][
+                    "referenceCharacterCount"
+                ],
+                "before": baseline_sections["executive-summary"][
+                    "candidateCharacterCount"
+                ],
+                "after": current_sections["executive-summary"][
+                    "candidateCharacterCount"
+                ],
+            },
+            "decisionViewCharacterCount": {
+                "reference": current_sections["decision-view"][
+                    "referenceCharacterCount"
+                ],
+                "before": baseline_sections["decision-view"][
+                    "candidateCharacterCount"
+                ],
+                "after": current_sections["decision-view"][
+                    "candidateCharacterCount"
+                ],
+            },
+            "sourceBackedBody": {
+                "pageCount": bundle["summary"]["pageCount"],
+                "bodyEntryCount": bundle["summary"]["bodyEntryCount"],
+                "textEntryCount": bundle["summary"]["textEntryCount"],
+                "tableEntryCount": bundle["summary"]["tableEntryCount"],
+                "missingGlyphCount": bundle["summary"]["missingGlyphCount"],
+            },
+            "acceptance": acceptance,
+        },
+    })
+
+    for region in comparison["comparison"]["regionClassifications"]:
+        if region["region"] == "typography-weight":
+            region.update({
+                "classification": "calibrated-near-reference",
+                "evidence": (
+                    "Absolute Bold-share gap improved from "
+                    f"{rounded(baseline_bold_gap * 100, 2)} to "
+                    f"{rounded(current_bold_gap * 100, 2)} percentage points."
+                ),
+            })
+        elif region["region"] == "semantic-composition":
+            region.update({
+                "classification": "source-backed-hierarchy-improved-not-parity",
+                "evidence": (
+                    "Executive and decision narrative expanded without reducing "
+                    "the candidate extracted-text density."
+                ),
+            })
+
+    comparison["decision"].update({
+        "informationHierarchyAccepted": True,
+        "roleLevelWeightCalibrationAccepted": True,
+        "sourceBackedNarrativeAccepted": True,
+        "visualFidelityAccepted": False,
+        "reasonCodes": [
+            "role-weight-gap-materially-reduced",
+            "executive-narrative-expanded",
+            "decision-narrative-expanded",
+            "source-backed-density-preserved",
+            "static-zone-and-section-composition-still-diverge",
+        ],
+        "allowedNextChanges": [
+            "calibrate static-zone geometry through measured layout inputs",
+            "rebalance section composition without deleting audit evidence",
+            "repaginate through the existing measured Core boundary",
+        ],
+        "prohibitedShortcuts": [
+            "delete source-backed rows to imitate the reference",
+            "bypass measured wrapping or pagination",
+            "hard-code a twelve-page renderer layout",
+        ],
+    })
+    comparison["nextPhase"] = (
+        "PDF-PILOT-08B-R2C-P measured static-zone and section-composition calibration"
+    )
+
 if not comparison["reference"]["allLetter612x792Pt"]:
     raise RuntimeError("Reference page boxes are not all Letter")
 if not comparison["candidate"]["allLetter612x792Pt"]:
@@ -586,7 +771,7 @@ if not comparison["candidate"]["allLetter612x792Pt"]:
 if not comparison["comparison"]["anchorPageDeltasAreNonUniform"]:
     raise RuntimeError("Expected non-uniform semantic anchor drift")
 if comparison["decision"]["visualFidelityAccepted"]:
-    raise RuntimeError("R2C-N must not accept visual fidelity for non-parity content")
+    raise RuntimeError(f"{args.phase_id} must not accept visual fidelity for non-parity content")
 
 output_path = repo_path(args.output)
 output_path.parent.mkdir(parents=True, exist_ok=True)

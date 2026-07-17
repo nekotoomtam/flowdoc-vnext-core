@@ -891,11 +891,11 @@ The package must remain runnable without any parent editor checkout.
   wrapping, layout, pagination, and PDF rendering inactive.
 - PDF canonical report typed display formatting publishes 22 deterministic
   profiles across all 143 scalar and 63 collection item definitions, formats
-  590 R2B bindings with retained raw values and identities, and prepares a
+  612 R2B bindings with retained raw values and identities, and prepares a
   measurement handoff without calculating widths, lines, layout, or PDF bytes.
 - PDF canonical report measurement-request handoff pins an IBM Plex
   Regular/Bold measurement identity, computes exact Letter/body/table/cell
-  widths, and prepares 689 display-backed requests while deferring 12 generated
+  widths, and prepares 701 display-backed requests while deferring 12 generated
   page-number blocks. The geometry also gates report-wide engine execution on
   revising the current 19/21-column exhaustive tables.
 - PDF canonical report table projection replaces six exhaustive tables with
@@ -903,47 +903,45 @@ The package must remain runnable without any parent editor checkout.
   gives all 63 source fields one primary placement, caps each view at six
   columns, and raises minimum cell content width from `15.622047pt` to
   `41.606299pt` before text-engine execution.
-- PDF canonical report native shaping binds 782 block consumers and 896 runs
-  through 412 measurement variants into 434 deduplicated native rustybuzz
-  executions, preserves 114 mixed Bold overrides and one empty zero-glyph run,
-  and maps 10,032 IBM Plex glyphs with zero missing glyphs while keeping line
+- PDF canonical report native shaping binds 794 block consumers and 946 runs
+  through 424 measurement variants into 462 deduplicated native rustybuzz
+  executions, preserves two intentional Bold overrides and one empty zero-glyph
+  run, and maps 10,893 IBM Plex glyphs with zero missing glyphs while keeping line
   breaking and line boxes blocked.
 - PDF canonical report native line breaking binds six retained typography line
-  heights, executes 352 deduplicated ICU4X segmentations, converts byte breaks
-  to UTF-16 offsets, and creates 441 bounded line boxes covering all 10,998
+  heights, executes 364 deduplicated ICU4X segmentations, converts byte breaks
+  to UTF-16 offsets, and creates 456 bounded line boxes covering all 12,000
   measurement glyphs, with explicit machine-identifier delimiter tailoring.
-- PDF canonical report measured composition submits all 782 concrete consumers
-  to Core measured-line acceptance, prepares 165 document blocks, five image
-  frames, 15 tables with 146 rows and 617 cells, and inventories 197 authored
+- PDF canonical report measured composition submits all 794 concrete consumers
+  to Core measured-line acceptance, prepares 177 document blocks, five image
+  frames, 15 tables with 146 rows and 617 cells, and inventories 209 authored
   flow nodes while deferring twelve generated page-number footers.
 - PDF canonical report vertical capacity binds eight accepted-line-height
-  spacing rules across 161 root adjacencies, finalizes a Core composition
-  manifest for 173 body roots, and exposes a seventeen-page natural section
-  floor that blocks the current twelve-page fidelity target.
+  spacing rules across 173 root adjacencies, finalizes a Core composition
+  manifest for 185 body roots, and retains the historical twelve-page capacity
+  diagnostic superseded by the content-driven R2C-N decision.
 - PDF canonical report section reconciliation proves equivalent repeating page
-  regions, retains twelve semantic sections and all 173 roots inside one
+  regions, retains twelve semantic sections and all 185 roots inside one
   continuous Core composition section, binds a demand/window spacing bridge,
-  and exposes a pagination-sensitive thirteen-unit gross demand against the
-  twelve-page target without deleting content.
-- PDF canonical report pagination inputs replace all 173 provisional manifest
+  and preserves the old reference-page diagnostic without deleting content.
+- PDF canonical report pagination inputs replace all 185 provisional manifest
   measurement owners with family-owned text/table/media identities and exact
   initial cursors, then accept a native-shaped four-digit generated-footer
   capacity sample while leaving pagination and page assignment inactive.
 - PDF canonical report bounded pagination execution advances one family page
   and placement per Core transition, resumes through retained checkpoints, and
-  finalizes all 173 roots as 178 placements on thirteen pages. The evidence is
-  one page over the twelve-page target and does not hide the miss by deleting
-  content or bypassing repeated table headers.
-- PDF canonical report full renderer handoff covers all 173 body roots and 178
+  finalizes all 185 roots as 187 placements on thirteen pages. Page count is
+  content-driven and does not hide source evidence or bypass repeated headers.
+- PDF canonical report full renderer handoff covers all 185 body roots and 187
   placements, replays 15 Tables at the original bounded checkpoint/demand
-  boundary, and merges 1,745 body commands with 26 static-zone commands into a
+  boundary, and merges 1,752 body commands with 26 static-zone commands into a
   thirteen-page Core measured-draw contract. The contract retains Regular/Bold
-  glyph runs, five images, Table backgrounds and 696 exact border lines with
+  glyph runs, five images, Table backgrounds and 675 exact border lines with
   no relayout.
 - PDF canonical full-document execution binds per-font GID-retaining subsets
   and five digest-verified images to that exact contract, emits deterministic
   13-page PDF 1.7 bytes, and independently verifies the page tree, embedded
-  Type0 fonts, image objects, all 978 extracted text runs, 696 Table line
+  Type0 fonts, image objects, all 1,018 extracted text runs, 675 Table line
   paths, and nonblank Poppler rasters. That execution phase leaves visual
   comparison and page-count policy to the next boundary.
 - PDF canonical visual comparison pins the 12-page reference and exact
@@ -951,6 +949,11 @@ The package must remain runnable without any parent editor checkout.
   non-uniform section drift, rejects visual fidelity and a margin-only
   twelve-page claim, and makes page count content-driven without deleting the
   retained 328pt final Table continuation.
+- PDF canonical reader hierarchy binds executive and decision prose to 22 real
+  scalar placements, reduces Bold share from 41.75% to 9.16%, preserves all
+  audit density, and repaginates through Core to an unchanged 13-page result.
+  Visual fidelity remains rejected pending static-zone and section-composition
+  calibration.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

@@ -4,12 +4,12 @@
   "phaseId": "PDF-PILOT-08B-R2C-F",
   "status": "accepted-natural-block-and-prepared-table-row-evidence-only",
   "sourceFingerprints": {
-    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-    "nativeShaping": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
-    "lineBreaking": "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56"
+    "projection": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+    "nativeShaping": "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
+    "lineBreaking": "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a"
   },
-  "planFingerprint": "cfe5a2d3db3f786e224045bd50b42ff02764f587904a0cdab2e73f8f61d9f1a2",
-  "bundleFingerprint": "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
+  "planFingerprint": "83d1db1a674dc34cde6e2df18cd5524c7693fb12c79482970c3943e76616bf6a",
+  "bundleFingerprint": "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
   "byZone": [
     {
       "sectionId": "section-cover",
@@ -44,10 +44,10 @@
     {
       "sectionId": "section-executive-summary",
       "zoneRole": "body",
-      "flowNodeCount": 9,
-      "readyNodeCount": 9,
+      "flowNodeCount": 15,
+      "readyNodeCount": 15,
       "deferredNodeCount": 0,
-      "naturalHeightWithoutSpacingPt": 142,
+      "naturalHeightWithoutSpacingPt": 277,
       "interBlockSpacing": "not-bound",
       "coordinates": "not-assigned"
     },
@@ -254,10 +254,10 @@
     {
       "sectionId": "section-decision-view",
       "zoneRole": "body",
-      "flowNodeCount": 2,
-      "readyNodeCount": 2,
+      "flowNodeCount": 8,
+      "readyNodeCount": 8,
       "deferredNodeCount": 0,
-      "naturalHeightWithoutSpacingPt": 37,
+      "naturalHeightWithoutSpacingPt": 127,
       "interBlockSpacing": "not-bound",
       "coordinates": "not-assigned"
     },
@@ -386,7 +386,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "8b234ba635b475ef7dfbde3552cef72dc749b595350ebd0a42fe194a72416728"
+      "preparedRowsFingerprintSha256": "63b45d3ecd777dcd66edde78ec339491a3e40d811adb7fb0cae8fb7256bae8a7"
     },
     {
       "projectionId": "ocr-confidence",
@@ -401,7 +401,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "e694dfa87a3af6dccaf28d547f502b00f614797070ffc675c8fb0bb6be8f7cbe"
+      "preparedRowsFingerprintSha256": "5250e27160926f85257e77aecda4df13c51ee24e276c5b992f7d3823d5a846c5"
     },
     {
       "projectionId": "ocr-quality",
@@ -416,7 +416,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "3a364eeb03f4ee5bef86fbaf4d8b184c878e6fd354f296513058b165fcd44544"
+      "preparedRowsFingerprintSha256": "88e565ef8894dcd834ce42fbaed39901d0eecb69ffc7ceca1f1db55d5b93fd37"
     },
     {
       "projectionId": "ocr-runtime-cost",
@@ -431,7 +431,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "ab692f583f4e32fbfd6ca6086e6549b747ccd621e23b7dd153e370ee2b7ce190"
+      "preparedRowsFingerprintSha256": "6ea79ddeb0263d1e5b96eed22b6a2b111f23f7f14bed66493fb57c9ce6a0ed66"
     },
     {
       "projectionId": "native-run-context",
@@ -446,7 +446,7 @@
       "naturalTableHeightPt": 167,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 30,
-      "preparedRowsFingerprintSha256": "9c46169eaac69b54c311f80dc30a5015b828d0d39d9c927cebfaad9c4a793e0e"
+      "preparedRowsFingerprintSha256": "f0e55d0d420372b7c5209edf3be460b0dd962c451f89c2034784c5086d16f556"
     },
     {
       "projectionId": "native-confidence",
@@ -461,7 +461,7 @@
       "naturalTableHeightPt": 167,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 30,
-      "preparedRowsFingerprintSha256": "cf68a21c53cadedcc72e84a44890d55f66cd3c9cda6fea59999e0ac87fc0b95d"
+      "preparedRowsFingerprintSha256": "fc1a61f5b441cc47da86a84fc0bef731ace52e6146c2bda934d93f50e45ce196"
     },
     {
       "projectionId": "native-structure-inventory",
@@ -476,7 +476,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "a2ab26e21c13108fa46a88b337ad2dce6670a3429a61f7fb8a0d263f4a9c8115"
+      "preparedRowsFingerprintSha256": "9a950df3c371225ee65e4637b17769da8afb214454459c4e05f83f803f4be5fa"
     },
     {
       "projectionId": "native-structure-coverage",
@@ -491,7 +491,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "443f0e0ba60bf18be7ba631744c856001dd1174c4d1e0004ccd48b9079c10fe8"
+      "preparedRowsFingerprintSha256": "20ade3025aeb0280247b16c2a470c54f68320ac5c539d918ad4c3bead551bfbf"
     },
     {
       "projectionId": "native-runtime-cost",
@@ -506,7 +506,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "bac6833129356bf635faa41d57d2f218bf3cbafec5ee9a17a26342956baa7d25"
+      "preparedRowsFingerprintSha256": "cb5d8968eca43ab679aa86e6988be0901f7fbd7f86c9ca0f5c9979f157b8fc36"
     },
     {
       "projectionId": "mapping-comparison",
@@ -521,7 +521,7 @@
       "naturalTableHeightPt": 309,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 30,
-      "preparedRowsFingerprintSha256": "ee60b9b6757fa2b82e3616d83d160a78fda8e0bcf727f48f5824f1382df13fc1"
+      "preparedRowsFingerprintSha256": "a4ce7a041a01c719c6b74ac35380a6a50feeffb1706ed7640ee5a4925b5c9791"
     },
     {
       "projectionId": "mapping-evidence",
@@ -536,7 +536,7 @@
       "naturalTableHeightPt": 287,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 30,
-      "preparedRowsFingerprintSha256": "a0b85b93e9c978919573d54eec41cf451de891d1eb6175fae5eb7d90e9dcbc6d"
+      "preparedRowsFingerprintSha256": "f3d52f1a31d119055dffeb45315932ee82c7f121bb37c0a36c0322914040b622"
     },
     {
       "projectionId": "native-missing-concepts",
@@ -551,7 +551,7 @@
       "naturalTableHeightPt": 267,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "59c2832d3d991a5ac0454ee8c1921fd15f073e7e3ff8b7448ba8f89d825f74b0"
+      "preparedRowsFingerprintSha256": "a5f6e9412de0c47242ca46c6f4038d7167d999a3950fd925a69761815c30c226"
     },
     {
       "projectionId": "run-status",
@@ -566,7 +566,7 @@
       "naturalTableHeightPt": 134,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 20,
-      "preparedRowsFingerprintSha256": "76a61eaf51331cced13d24fb6e1c01025b7f53d8b7f6429c390153d940d97e6a"
+      "preparedRowsFingerprintSha256": "034edb3681939b23ea826a3793c7e285841b3b3cf7c366841778893e74c8699f"
     },
     {
       "projectionId": "run-engines-pages",
@@ -581,7 +581,7 @@
       "naturalTableHeightPt": 167,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 30,
-      "preparedRowsFingerprintSha256": "95786693f3f86051e612770ae25da36d53ae5c80b579c1f53811787662223bd6"
+      "preparedRowsFingerprintSha256": "ffb7d6927ce7d6a19447b7aa6b76fe0dab8d1457ab5b5806de65ada7dba7ccd1"
     },
     {
       "projectionId": "gdim-expected-fields",
@@ -596,7 +596,7 @@
       "naturalTableHeightPt": 804,
       "minimumNaturalRowHeightPt": 19,
       "maximumNaturalRowHeightPt": 30,
-      "preparedRowsFingerprintSha256": "884d6e0b6f54e930cfa59c3e7498e39330173eff0a25c891a8a20a4de407df91"
+      "preparedRowsFingerprintSha256": "94c3b341fe433b85ba575ab474146dbf7b24076c7b33ac83eb1121b5a2708a91"
     }
   ],
   "tallestRows": [
@@ -606,7 +606,7 @@
       "rowIndex": 1,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_724a135fd47a48a1772bbc5a",
+        "rowInstanceId": "rowi_2673e954803f2f2ee2cf67fa",
         "itemKey": "document_control.border_transport_means.mode_code"
       },
       "role": "body",
@@ -623,7 +623,7 @@
       "rowIndex": 3,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_ca0f7717591b5a1fb7d8b64e",
+        "rowInstanceId": "rowi_6b86ef43fc1b4a431ef8ebf9",
         "itemKey": "document_control.total_package.shipping_marks"
       },
       "role": "body",
@@ -640,7 +640,7 @@
       "rowIndex": 9,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_f624cfac66ed1c6b36793e53",
+        "rowInstanceId": "rowi_63fc353976dd94de47850d74",
         "itemKey": "document_control.total_gross_weight.unit_code"
       },
       "role": "body",
@@ -657,7 +657,7 @@
       "rowIndex": 13,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_d69cc512e52d39c2ab308116",
+        "rowInstanceId": "rowi_671ef28a7bcc022da53e02c2",
         "itemKey": "goods_shipment.invoice.term_of_payment_code"
       },
       "role": "body",
@@ -674,7 +674,7 @@
       "rowIndex": 18,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_d0a3d1e09852ea873e2cae22",
+        "rowInstanceId": "rowi_092b2e7cc4a97ed1ffef6049",
         "itemKey": "goods_shipment.invoice.aeos_reference_number"
       },
       "role": "body",
@@ -691,7 +691,7 @@
       "rowIndex": 20,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_36b232104ba38e8f7b8b7078",
+        "rowInstanceId": "rowi_47b7ee98564f9264aee479e5",
         "itemKey": "goods_shipment.detail.goods_description.english"
       },
       "role": "body",
@@ -708,7 +708,7 @@
       "rowIndex": 21,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_9ac11aa3eab9dfdd77bb8e28",
+        "rowInstanceId": "rowi_1970a5f90a9e788d0c668176",
         "itemKey": "goods_shipment.detail.product_info.origin_country_code"
       },
       "role": "body",
@@ -725,7 +725,7 @@
       "rowIndex": 22,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_1a85a285bff756166069985b",
+        "rowInstanceId": "rowi_587d5b2dca2ea5ec25071823",
         "itemKey": "goods_shipment.detail.product_info.net_weight.weight"
       },
       "role": "body",
@@ -742,7 +742,7 @@
       "rowIndex": 23,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_379f42b3beb7b3c79671dd02",
+        "rowInstanceId": "rowi_7bb571883c7a63a9fb2126b5",
         "itemKey": "goods_shipment.detail.product_info.invoice_quantity.quantity"
       },
       "role": "body",
@@ -759,7 +759,7 @@
       "rowIndex": 24,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_3a43e992e87a255a6f866e00",
+        "rowInstanceId": "rowi_7b8a7fb4317860d37c1f7001",
         "itemKey": "goods_shipment.detail.product_info.invoice_quantity.unit_code"
       },
       "role": "body",
@@ -776,7 +776,7 @@
       "rowIndex": 25,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_0317beb9254479c917415e85",
+        "rowInstanceId": "rowi_4a576faae625f25964988a71",
         "itemKey": "goods_shipment.detail.product_info.currency_code"
       },
       "role": "body",
@@ -793,7 +793,7 @@
       "rowIndex": 26,
       "rowIdentity": {
         "kind": "resolved-row",
-        "rowInstanceId": "rowi_15f43c53ecfec96683d8a438",
+        "rowInstanceId": "rowi_bab1b319cc89184d7e084513",
         "itemKey": "goods_shipment.detail.product_info.unit_price.foreign"
       },
       "role": "body",
@@ -806,11 +806,11 @@
     }
   ],
   "summary": {
-    "sourceConsumerCount": 782,
-    "coreAcceptedConsumerCount": 782,
-    "coreAcceptedLineCount": 832,
-    "documentBlockCount": 165,
-    "documentBlockLineCount": 168,
+    "sourceConsumerCount": 794,
+    "coreAcceptedConsumerCount": 794,
+    "coreAcceptedLineCount": 847,
+    "documentBlockCount": 177,
+    "documentBlockLineCount": 183,
     "fixedImageBlockCount": 5,
     "preparedTableCount": 15,
     "preparedRowCount": 146,
@@ -818,16 +818,16 @@
     "tableTextLineCandidateCount": 664,
     "multiLineTableCellCount": 47,
     "emptyLineTableCellCount": 1,
-    "flowNodeCount": 197,
-    "readyFlowNodeCount": 185,
+    "flowNodeCount": 209,
+    "readyFlowNodeCount": 197,
     "deferredGeneratedFlowNodeCount": 12,
-    "bodyReadyFlowNodeCount": 173,
+    "bodyReadyFlowNodeCount": 185,
     "headerReadyFlowNodeCount": 12,
     "footerDeferredFlowNodeCount": 12,
-    "naturalDocumentBlockHeightPt": 2548,
+    "naturalDocumentBlockHeightPt": 2773,
     "naturalFixedImageHeightPt": 1182.047243,
     "naturalTableHeightPt": 3240,
-    "naturalReadyFlowHeightWithoutSpacingPt": 6970.047243,
+    "naturalReadyFlowHeightWithoutSpacingPt": 7195.047243,
     "minimumNaturalRowHeightPt": 19,
     "maximumNaturalRowHeightPt": 30
   },

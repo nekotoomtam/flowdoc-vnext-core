@@ -2,7 +2,7 @@
   "contractVersion": 1,
   "kind": "canonical-report-static-zone-raw-evidence",
   "phaseId": "PDF-PILOT-08B-R2C-K",
-  "sourcePlanFingerprint": "sha256:e2b8f5e9809964b480853b62d86cdae2b3a47c9d640e03eb6860c4eaf888bf0e",
+  "sourcePlanFingerprint": "sha256:7f104d2ffe88763f9cfac597c5409b09daac6b076e9cf66d813665a9d7e6b4ef",
   "executions": [
     {
       "pageIndex": 0,
@@ -3473,5 +3473,5 @@
       }
     }
   ],
-  "rawEvidenceFingerprint": "c0a56202bf24ab69df1807b3071a1f0967027cae877f50ad42f1e833a7fbd178"
+  "rawEvidenceFingerprint": "d101d82f01f3f8d6614c34d30c024d9e8af257694f7c9e77f7dd23a3a2d88109"
 }

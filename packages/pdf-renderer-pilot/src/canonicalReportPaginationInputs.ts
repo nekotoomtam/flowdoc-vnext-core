@@ -48,11 +48,11 @@ export const FLOWDOC_CANONICAL_REPORT_PAGINATION_INPUTS_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_PAGINATION_INPUTS_ID =
   "ocr-benchmark-report-pagination-inputs-v1" as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c"
-const ACCEPTED_NATIVE_SHAPING_FINGERPRINT = "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f"
-const ACCEPTED_LINE_BREAKING_FINGERPRINT = "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56"
-const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108"
-const ACCEPTED_SECTION_RECONCILIATION_FINGERPRINT = "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972"
+const ACCEPTED_PROJECTION_FINGERPRINT = "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088"
+const ACCEPTED_NATIVE_SHAPING_FINGERPRINT = "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2"
+const ACCEPTED_LINE_BREAKING_FINGERPRINT = "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a"
+const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028"
+const ACCEPTED_SECTION_RECONCILIATION_FINGERPRINT = "b3b22197f8f5668cc5c2a9928f610d7f24e77a321bc899bcefdeff259d7e3ab2"
 const FOOTER_STYLE_KEY = "report-caption"
 const FOOTER_CAPACITY_DIGITS = 4
 const FOOTER_CAPACITY_SAMPLE = "8".repeat(FOOTER_CAPACITY_DIGITS)
@@ -958,7 +958,7 @@ function buildBundle(
     pageAssignmentExecuted: false,
   }
   requireFact(summary.familyInputCount === summary.bodyItemCount, "family input coverage is incomplete")
-  requireFact(summary.textFlowInputCount === 153 && summary.tableFlowInputCount === 15 && summary.mediaFlowInputCount === 5, "canonical family counts drifted")
+  requireFact(summary.textFlowInputCount === 165 && summary.tableFlowInputCount === 15 && summary.mediaFlowInputCount === 5, "canonical family counts drifted")
   requireFact(summary.measurementOwnerReplacementCount === summary.bodyItemCount, "placeholder manifest owners were not fully replaced")
   requireFact(summary.generatedFooterLineCount === 1, "generated footer capacity proof is not one line")
   const unsigned: Omit<FlowDocCanonicalReportPaginationInputsBundleV1, "bundleFingerprint"> = {

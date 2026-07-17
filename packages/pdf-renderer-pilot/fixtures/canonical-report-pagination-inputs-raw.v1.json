@@ -2,7 +2,7 @@
   "contractVersion": 1,
   "kind": "canonical-report-pagination-inputs-raw-evidence",
   "phaseId": "PDF-PILOT-08B-R2C-I",
-  "sourcePlanFingerprint": "d13f1bf650d515ebccf945c24b254a00363364cf5252185167c6a08e118fcbf2",
+  "sourcePlanFingerprint": "ed5f496f051b10db8351ebb2df5eda205981dd91b2d2d418af9dc7faed64bb23",
   "shapeExecution": {
     "shapeRequestId": "report-footer-shape:f0aec021e29702f75cc4c4ed61b007ed",
     "rawOutput": {
@@ -294,5 +294,5 @@
       ]
     }
   },
-  "rawEvidenceFingerprint": "e91ae9ed121332008b14fd6c3cd581969f495446aa85407f8cfdba90cefb21d1"
+  "rawEvidenceFingerprint": "2d06c947ec2c8d271193ae5368b5a6535ae3cba1ed4aef6856a4861de6d031fe"
 }

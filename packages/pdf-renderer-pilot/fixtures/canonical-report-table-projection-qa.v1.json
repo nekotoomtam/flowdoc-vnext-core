@@ -5,12 +5,12 @@
   "status": "accepted",
   "sourceFingerprints": {
     "data": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-    "template": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
-    "formatting": "e4f0411afc7d6868971019fb536146f63aa355b5a6e48c606502342bd6302e26",
-    "measurementHandoff": "07126bb73a6c9dd7342b1fb9e33cdd696d89cb660056d237cb708118fb2f15d2"
+    "template": "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb",
+    "formatting": "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
+    "measurementHandoff": "1a2868d58fb52e62ae6d6a1002460ba81bd019b57b1d328828a89c41ef73a84f"
   },
   "projectionContractFingerprint": "028956cc81c16d7f29c42913ee9a154f56faaf20d5b39097fb0c73b62b066f3c",
-  "bundleFingerprint": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+  "bundleFingerprint": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
   "projections": [
     {
       "collectionFieldKey": "report.ocr_runs",
@@ -685,11 +685,11 @@
     "projectedCollectionRowCount": 131,
     "projectedItemBindingCount": 544,
     "tableCellGeometryCount": 146,
-    "documentRequestCount": 165,
+    "documentRequestCount": 177,
     "projectionTitleRequestCount": 15,
     "authoredTableRequestCount": 73,
     "materializedTableRequestCount": 544,
-    "totalReadyRequestCount": 782,
+    "totalReadyRequestCount": 794,
     "generatedInlineDeferredBlockCount": 12,
     "minimumCellContentWidthPt": 41.606299,
     "maximumCellContentWidthPt": 339.244094,

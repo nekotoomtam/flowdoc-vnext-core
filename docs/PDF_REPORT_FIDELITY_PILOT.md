@@ -1,7 +1,7 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-N comparison evidence accepted; visual fidelity is
-not accepted, and the source-backed thirteen-page result is authoritative.
+Status: PDF-PILOT-08B-R2C-O reader hierarchy accepted; visual fidelity is not
+accepted, and the source-backed thirteen-page result remains authoritative.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -400,7 +400,7 @@ Each projected view has at most six columns, explicit shares totaling 100%,
 and a minimum 10% share within the retained 175mm table width. The minimum
 cell content width rises from `15.622047pt` to `41.606299pt`. Core scoped
 resolution materializes 131 presentation rows and 544 item bindings, then
-prepares 165 document, 73 authored table, and 544 materialized table requests:
+prepares 177 document, 73 authored table, and 544 materialized table requests:
 782 ready requests in total. Twelve generated page-number blocks remain
 deferred.
 
@@ -424,7 +424,7 @@ Bold label overrides inside Regular blocks remain separate shaping runs.
 The 782 block consumers contain 896 runs. One empty cell remains a zero-glyph
 run. The remaining 895 runs deduplicate into 434 native executions, while 412
 width-sensitive measurement variants preserve the later line-break inputs.
-The accepted evidence maps 10,032 glyphs from UTF-8 byte clusters to FlowDoc
+The accepted evidence maps 10,893 glyphs from UTF-8 byte clusters to FlowDoc
 UTF-16 ranges with zero missing glyphs.
 
 This closes native glyph execution only. Concrete ICU4X code/data revisions,
@@ -447,11 +447,11 @@ styles to retained typography line heights, and executes native
 byte boundaries are converted to verified FlowDoc UTF-16 offsets before
 wrapping.
 
-The 412 measurement variants deduplicate into 352 non-empty segmentation
+The 424 measurement variants deduplicate into 364 non-empty segmentation
 executions plus one explicit empty-line policy. ICU4X supplies the base UAX #14
 breaks. A report-only policy adds breaks after machine-identifier delimiters;
-normal Thai and prose remain unchanged. This creates 441 line boxes, wraps 29
-measurements, covers all 10,998 measurement glyphs exactly once, and leaves
+normal Thai and prose remain unchanged. This creates 456 line boxes, wraps 32
+measurements, covers all 12,000 measurement glyphs exactly once, and leaves
 zero width overflow.
 
 This closes node-native break and line-box evidence only. The source profile
@@ -555,7 +555,7 @@ Primary Phase 08B-R2C-H evidence:
 ## PDF-PILOT-08B-R2C-I Scope
 
 Phase 08B-R2C-I consumes the exact R2C-C through R2C-F evidence and the R2C-H
-continuous-section manifest. It binds all 173 roots to family-owned source
+continuous-section manifest. It binds all 185 roots to family-owned source
 locators, bounded input profiles, real initial cursors, and composition cursor
 references: 153 text flows, fifteen table flows with repeated leading headers,
 and five atomic media flows.
@@ -586,14 +586,14 @@ Primary Phase 08B-R2C-I evidence:
 Phase 08B-R2C-J executes the exact R2C-I family inputs through the Core spacing
 bridge, text/table/media paginators, document transition, and finalizer. Each
 transition accepts at most one family page, one fragment, one placement, and
-one closed page. The 185-transition run is retained as twelve resumable slices;
+one closed page. The 197-transition run is retained as thirteen resumable slices;
 one-transition slices reproduce the same page plan and terminal cursor.
 
-All 173 roots are placed without deletion. Five table continuations produce
-178 placements and five repeated header fragments. Committed root spacing is
-881pt; twelve fresh-page or continuation decisions suppress 78pt of attempted
-page-top spacing. The authoritative result is thirteen pages, one page over the
-twelve-page target. Page 13 contains only the 328pt terminal fragment of the
+All 185 roots are placed without deletion. Two table continuations produce
+187 placements and two repeated header fragments. Committed root spacing is
+917pt; twelve page-top decisions suppress 60pt of attempted spacing. The
+authoritative result is thirteen content-driven pages. Page 13 contains the
+630pt terminal fragment of the
 final GDIM expected-fields table.
 
 Core finalization now owns consecutive page assignments and a twelve-entry
@@ -717,6 +717,35 @@ Primary Phase 08B-R2C-N evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-full-document-visual-comparison.v1.json`;
 - `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
 - `tests/pdfRendererPilotCanonicalVisualComparison.test.ts`.
+
+## PDF-PILOT-08B-R2C-O Scope
+
+Phase 08B-R2C-O adds source-backed prose to the executive-summary and
+decision-view sections through 22 ordinary scalar placements. Generic scalar
+labels no longer force Bold; only two reader labels retain local Bold. The
+complete measurement, shaping, line-breaking, composition, pagination, and
+renderer pipeline is regenerated rather than patched after layout.
+
+Bold share falls from the R2C-N baseline's 41.7496% to 9.1591%, reducing the
+absolute gap to the 15.8866% reference from 25.8630 to 6.7275 percentage
+points. Executive-summary extracted text grows from 290 to 810 characters and
+decision-view text from 74 to 468. Total extracted non-whitespace text grows
+from 13,866 to 14,663, so the improvement does not come from deleting audit
+evidence.
+
+Core retains 185 body roots as 187 placements and independently returns 13
+pages with zero missing glyphs. R2C-O accepts information hierarchy and
+role-level weight calibration only. It still rejects visual fidelity,
+static-zone parity, section-composition parity, fixed 12-page output, and
+production binding. Any `targetPageCount: 12` field retained in earlier
+pipeline fixtures is a historical diagnostic superseded by R2C-N.
+
+Primary Phase 08B-R2C-O evidence:
+
+- `docs/PDF_CANONICAL_READER_HIERARCHY_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-reader-hierarchy.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
+- `tests/pdfRendererPilotCanonicalReaderHierarchy.test.ts`.
 
 ## Reproduction
 
@@ -930,57 +959,53 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
   and 476 item values deterministically, and classifies all 154 fields without
   introducing measurement or layout facts.
 - Typed display formatting assigns every scalar and collection item field,
-  reproduces 590 report display strings with retained raw lineage, and avoids
+  reproduces 612 report display strings with retained raw lineage, and avoids
   runtime locale dependencies while leaving measurement and layout inactive.
-- Measurement-request handoff prepares 689 exact-width display-backed requests,
+- Measurement-request handoff prepares 701 exact-width display-backed requests,
   retains all source identities, defers generated page numbers, and exposes the
   19/21-column table geometry before engine execution.
 - Table projection gives all 63 collection item fields one primary placement,
   preserves ten explicit contexts across fifteen views, caps views at six
-  columns, prepares 782 requests, and clears the narrow-cell geometry gate
+  columns, prepares 794 requests, and clears the narrow-cell geometry gate
   without mutating source contracts or running the text engine.
-- Native report shaping preserves all 782 consumers and 896 authored runs,
-  deduplicates 895 non-empty runs into 434 real rustybuzz executions, maps
-  10,032 IBM Plex glyphs with no missing glyphs, and retains no synthetic line
+- Native report shaping preserves all 794 consumers and 946 authored runs,
+  deduplicates 945 non-empty runs into 462 real rustybuzz executions, maps
+  10,893 IBM Plex glyphs with no missing glyphs, and retains no synthetic line
   boxes.
-- Native report line breaking binds six calibrated line heights, executes 352
-  unique ICU4X segmentations for 412 variants, creates 441 contiguous line
-  boxes, covers 10,998 measurement glyphs exactly once, and clears all width
+- Native report line breaking binds six calibrated line heights, executes 364
+  unique ICU4X segmentations for 424 variants, creates 456 contiguous line
+  boxes, covers 12,000 measurement glyphs exactly once, and clears all width
   overflow with explicit machine-identifier delimiter tailoring.
-- Measured report composition expands line boxes to 782 Core-accepted
-  consumers, prepares 165 document blocks, five image frames, 15 tables, 146
-  rows, and 617 cells, and inventories 197 ordered flow nodes with twelve
+- Measured report composition expands line boxes to 794 Core-accepted
+  consumers, prepares 177 document blocks, five image frames, 15 tables, 146
+  rows, and 617 cells, and inventories 209 ordered flow nodes with twelve
   generated footer blocks explicitly deferred.
-- Vertical-capacity preparation binds all 161 body adjacencies, finalizes a
-  Core manifest for 173 roots, proves every root can make fresh-page progress,
-  and exposes a seventeen-page natural section floor against the twelve-page
-  fidelity target.
+- Vertical-capacity preparation binds all 173 body adjacencies, finalizes a
+  Core manifest for 185 roots, proves every root can make fresh-page progress,
+  and retains the historical twelve-page capacity diagnostic superseded by
+  R2C-N.
 - Section reconciliation retains twelve semantic lineages inside one
-  continuous Core composition section, binds 173 spacing decisions through the
-  demand/window bridge, and exposes a thirteen-unit gross demand whose final
-  twelve-page result depends on real page-top suppression and pagination
-  overhead.
-- Pagination-input preparation binds all 173 family sources and real initial
+  continuous Core composition section, binds 185 spacing decisions through the
+  demand/window bridge, and retains the historical reference-page diagnostic.
+- Pagination-input preparation binds all 185 family sources and real initial
   cursors, replaces every provisional manifest measurement owner, and accepts
   a four-digit native generated-footer capacity proof with 12pt vertical slack.
-- Bounded pagination executes 185 one-page family transitions, places all 173
-  roots as 178 placements, retains five repeated table headers, and finalizes a
+- Bounded pagination executes 197 one-page family transitions, places all 185
+  roots as 187 placements, retains two repeated table headers, and finalizes a
   consecutive thirteen-page Core page plan with resumable checkpoints.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-J bounded pagination and Core page-plan
-evidence.
+None for closing PDF-PILOT-08B-R2C-O reader hierarchy evidence.
 
-The current twelve-page fidelity target fails under the accepted R2C-J inputs:
-the authoritative result is thirteen pages. The terminal page contains one
-328pt continuation fragment from the final table; no content was removed to
-force the target.
+R2C-N retired twelve pages as a hard gate. The authoritative R2C-O result is
+thirteen pages, and the terminal page contains one 630pt continuation fragment
+from the final table; no content was removed to imitate the reference.
 
-Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, source-profile promotion, native to
-WASM parity, body display-list construction, full-document renderer handoff,
-and PDF rendering.
+Report-level PDF fidelity remains blocked on measured static-zone geometry,
+section/callout composition, calibrated region-aware visual-diff thresholds,
+broader reader compatibility, source-profile promotion, and native-to-WASM
+parity.
 
 ## RISK
 
@@ -993,9 +1018,9 @@ and PDF rendering.
   covers only one page.
 - Phase 04/06 qualify opaque RGB PNG only; alpha, palette, JPEG, and
   transparency remain open.
-- Phase 08B uses a real 700-weight Bold face. R2C-N measures 41.75% Bold
-  characters versus 15.89% in the reference, so role-level weight remains an
-  explicit calibration risk.
+- Phase 08B uses a real 700-weight Bold face. R2C-O reduces Bold share from
+  41.75% to 9.16% versus 15.89% in the reference; the residual gap remains a
+  visual-composition risk rather than a hierarchy blocker.
 - R2C-E tailors machine identifiers after `.`, `_`, `/`, and `-`; later
   multilingual and URL policy must remain separately qualified.
 
@@ -1003,8 +1028,8 @@ and PDF rendering.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- source-backed information hierarchy that restores decision narrative without
-  removing the expanded audit evidence;
+- source-backed callout and section composition without removing expanded
+  audit evidence;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -1022,6 +1047,6 @@ and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-O` define source-backed information hierarchy,
-calibrate role-level weight/static zones, and repaginate through the measured
-Core boundary without imposing a fixed page count.
+Next phase: `PDF-PILOT-08B-R2C-P` calibrate measured static zones and section
+composition through the existing Core boundary without deleting evidence or
+imposing a fixed page count.

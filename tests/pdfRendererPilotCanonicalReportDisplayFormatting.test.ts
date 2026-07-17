@@ -130,15 +130,15 @@ describe("PDF-PILOT-08B-R2C-A canonical report display formatting", () => {
       sourceDataBundleFingerprint: DATA_BUNDLE.bundleFingerprint,
       sourceTemplateBundleFingerprint: TEMPLATE_BUNDLE.bundleFingerprint,
       resolutionInputFingerprint: TEMPLATE_BUNDLE.resolutionInputFingerprint,
-      bundleFingerprint: "e4f0411afc7d6868971019fb536146f63aa355b5a6e48c606502342bd6302e26",
+      bundleFingerprint: "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
       summary: {
         formatCount: 22,
         fieldFormatAssignmentCount: 143,
         collectionFormatAssignmentCount: 63,
-        documentBindingCount: 114,
+        documentBindingCount: 136,
         collectionBindingCount: 476,
-        totalFormattedBindingCount: 590,
-        changedDisplayTextCount: 268,
+        totalFormattedBindingCount: 612,
+        changedDisplayTextCount: 287,
       },
       execution: {
         localeDisplayFormatting: "formatted",
@@ -164,7 +164,7 @@ describe("PDF-PILOT-08B-R2C-A canonical report display formatting", () => {
       "report.source.size_bytes": { raw: 4053388, display: "4,053,388 bytes", format: "bytes-grouped" },
       "report.engine.google_vision.character_accuracy": { raw: 0.848809922896413, display: "84.9%", format: "percent-1" },
     })
-    expect(new Set(FORMATTING_BUNDLE.documentBindings.map((binding) => binding.inlineId)).size).toBe(114)
+    expect(new Set(FORMATTING_BUNDLE.documentBindings.map((binding) => binding.inlineId)).size).toBe(136)
     expect(FORMATTING_BUNDLE.documentBindings.every((binding) => (
       TEMPLATE_BUNDLE.scopedResolution.resolvedDocument.bindings.fields.some((source) => (
         source.inlineId === binding.inlineId
@@ -200,7 +200,7 @@ describe("PDF-PILOT-08B-R2C-A canonical report display formatting", () => {
       rawValue: 2086.849199999124,
       displayText: "2.09 วินาที",
       formatKey: "seconds-2",
-      resolvedPlacementId: "inli_ad40050fc231f34bf6dbaf6d",
+      resolvedPlacementId: "inli_7ef176dc91f5822f0b7fa37b",
     })
     expect(example("report.native_runs", "structured_concept_coverage")).toMatchObject({
       rawValue: 0.92,

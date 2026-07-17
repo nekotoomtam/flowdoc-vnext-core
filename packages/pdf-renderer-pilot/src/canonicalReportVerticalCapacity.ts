@@ -17,8 +17,8 @@ export const FLOWDOC_CANONICAL_REPORT_VERTICAL_CAPACITY_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_VERTICAL_CAPACITY_ID = "ocr-benchmark-report-vertical-capacity-v1" as const
 export const FLOWDOC_CANONICAL_REPORT_TARGET_PAGE_COUNT = 12 as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c"
-const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108"
+const ACCEPTED_PROJECTION_FINGERPRINT = "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088"
+const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028"
 const LETTER_PORTRAIT_PT = { width: 612, height: 792 } as const
 
 export type FlowDocCanonicalReportSpacingCategoryV1 =
@@ -387,7 +387,7 @@ function validateSources(input: FlowDocCanonicalReportVerticalCapacitySourceInpu
   if (input.projection.bundleFingerprint !== sha256(JSON.stringify(withoutFingerprint(input.projection, "bundleFingerprint")))) errors.push("R2C-C projection fingerprint does not match content")
   if (input.measuredComposition.bundleFingerprint !== sha256(JSON.stringify(withoutFingerprint(input.measuredComposition, "bundleFingerprint")))) errors.push("R2C-F measured-composition fingerprint does not match content")
   if (input.measuredComposition.sourceProjectionFingerprint !== input.projection.bundleFingerprint) errors.push("R2C-F does not consume the accepted R2C-C projection")
-  if (input.measuredComposition.summary.readyFlowNodeCount !== 185) errors.push("R2C-F ready-flow coverage drifted")
+  if (input.measuredComposition.summary.readyFlowNodeCount !== 197) errors.push("R2C-F ready-flow coverage drifted")
   if (input.measuredComposition.summary.footerDeferredFlowNodeCount !== 12) errors.push("R2C-F footer deferral coverage drifted")
   return errors
 }

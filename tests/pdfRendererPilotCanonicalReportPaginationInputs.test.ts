@@ -76,27 +76,27 @@ describe("PDF-PILOT-08B-R2C-I canonical report pagination inputs", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-I",
-      sourceProjectionFingerprint: "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-      sourceNativeShapingFingerprint: "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
-      sourceLineBreakingFingerprint: "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
-      sourceMeasuredCompositionFingerprint: "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
-      sourceSectionReconciliationFingerprint: "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
+      sourceProjectionFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+      sourceNativeShapingFingerprint: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
+      sourceLineBreakingFingerprint: "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
+      sourceMeasuredCompositionFingerprint: "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
+      sourceSectionReconciliationFingerprint: "b3b22197f8f5668cc5c2a9928f610d7f24e77a321bc899bcefdeff259d7e3ab2",
       sourceFontManifestFingerprint: "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077",
-      sourceRawEvidenceFingerprint: "e91ae9ed121332008b14fd6c3cd581969f495446aa85407f8cfdba90cefb21d1",
-      planFingerprint: "d13f1bf650d515ebccf945c24b254a00363364cf5252185167c6a08e118fcbf2",
-      bundleFingerprint: "53b7625803925243bbb62ca9a7afcb12257f3fd47e82deebc7de3162ae63de00",
+      sourceRawEvidenceFingerprint: "2d06c947ec2c8d271193ae5368b5a6535ae3cba1ed4aef6856a4861de6d031fe",
+      planFingerprint: "ed5f496f051b10db8351ebb2df5eda205981dd91b2d2d418af9dc7faed64bb23",
+      bundleFingerprint: "1980d9fd60f684e49213348120c625b889bcad03c1dbab03e4860d347349f0f4",
       coreCompositionManifest: {
-        fingerprint: "sha256:e168b089540c1022cf40da1f62a6750f58b4e8950b2eb67e0fac7ddb535f3e42",
+        fingerprint: "sha256:ebab78bd6715028948c673c0b24fc682906bebef606bfbfc373b723fff363413",
       },
       summary: {
-        bodyItemCount: 173,
-        familyInputCount: 173,
-        textFlowInputCount: 153,
+        bodyItemCount: 185,
+        familyInputCount: 185,
+        textFlowInputCount: 165,
         tableFlowInputCount: 15,
         mediaFlowInputCount: 5,
-        measurementOwnerReplacementCount: 173,
-        sourceLocatorCount: 173,
-        initialCursorCount: 173,
+        measurementOwnerReplacementCount: 185,
+        sourceLocatorCount: 185,
+        initialCursorCount: 185,
         generatedFooterCapacityDigits: 4,
         generatedFooterMaximumPageNumber: 1000,
         generatedFooterLineCount: 1,
@@ -110,8 +110,8 @@ describe("PDF-PILOT-08B-R2C-I canonical report pagination inputs", () => {
   }, 90_000)
 
   it("binds every manifest root to its exact source owner, bounded config, and initial cursor", () => {
-    expect(BUNDLE.familyPaginationInputs).toHaveLength(173)
-    expect(BUNDLE.coreCompositionManifest.bodyItems).toHaveLength(173)
+    expect(BUNDLE.familyPaginationInputs).toHaveLength(185)
+    expect(BUNDLE.coreCompositionManifest.bodyItems).toHaveLength(185)
     BUNDLE.familyPaginationInputs.forEach((family, index) => {
       const item = BUNDLE.coreCompositionManifest.bodyItems[index]
       const previous = INPUT.sectionReconciliation.coreCompositionManifest.bodyItems[index]

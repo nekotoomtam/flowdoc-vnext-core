@@ -62,10 +62,10 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-D",
-      sourceProjectionFingerprint: "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-      sourceRawEvidenceFingerprint: "a810f30f9964567b56cec7fc88470a8f99b450fe39e6f3abc6b596791e79cae8",
-      planFingerprint: "0d68a40d45b56582b5e180794b92822a0b2297d773f0f764e07a7f7ba0eae9d1",
-      bundleFingerprint: "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+      sourceProjectionFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+      sourceRawEvidenceFingerprint: "563924d99e0be7764a9da33a0133305054410c285aad79e874a657491bcd000b",
+      planFingerprint: "dd293ec3c163ab20213873eb450a177f9a35ff0b961a66284e19f44136879eed",
+      bundleFingerprint: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
       profileBinding: {
         status: "bound-native-shaping-only",
         shaperEngine: "rustybuzz",
@@ -76,26 +76,26 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
         productionBinding: false,
       },
       summary: {
-        sourceBlockRequestCount: 782,
-        sourceRunCount: 896,
+        sourceBlockRequestCount: 794,
+        sourceRunCount: 946,
         emptyRunCount: 1,
-        nativeShapeRunCount: 895,
-        localBoldOverrideRunCount: 114,
-        uniqueMeasurementVariantCount: 412,
-        uniqueShapeExecutionCount: 434,
-        deduplicatedShapeRunCount: 461,
+        nativeShapeRunCount: 945,
+        localBoldOverrideRunCount: 2,
+        uniqueMeasurementVariantCount: 424,
+        uniqueShapeExecutionCount: 462,
+        deduplicatedShapeRunCount: 483,
         styleBindingCount: 6,
         fontAssetCount: 2,
-        glyphCount: 10032,
+        glyphCount: 10893,
         missingGlyphCount: 0,
-        zeroAdvanceGlyphCount: 329,
-        repeatedClusterGlyphCount: 344,
+        zeroAdvanceGlyphCount: 452,
+        repeatedClusterGlyphCount: 469,
         generatedInlineDeferredBlockCount: 12,
       },
     })
   }, 60_000)
 
-  it("binds mixed-weight runs independently and preserves the empty cell without an engine call", () => {
+  it("binds inline runs independently and preserves the empty cell without an engine call", () => {
     const executionById = new Map(BUNDLE.shapeExecutions.map((execution) => (
       [execution.shapeRequest.shapeRequestId, execution]
     )))
@@ -111,9 +111,9 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
     }))).toEqual([
       {
         inlineId: "cover-field-benchmark-id-label",
-        fontId: "ibm-plex-sans-thai-bold",
+        fontId: "ibm-plex-sans-thai-regular",
         range: [0, 14],
-        localBoldOverride: true,
+        localBoldOverride: false,
       },
       {
         inlineId: "cover-field-benchmark-id-value",
@@ -137,7 +137,7 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
   })
 
   it("maps real rustybuzz font-unit glyphs into bounded UTF-16 report evidence", () => {
-    expect(RAW.executions).toHaveLength(434)
+    expect(RAW.executions).toHaveLength(462)
     expect(RAW.executions.every((execution) => (
       execution.rawOutput.source === "flowdoc-rustybuzz-native-smoke"
       && execution.rawOutput.shaperRevision === "rustybuzz-0.20.1"
@@ -165,9 +165,9 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
   })
 
   it("keeps consumer, measurement, and shaping cache identities complete and separate", () => {
-    expect(new Set(BUNDLE.consumers.map((consumer) => consumer.consumerId)).size).toBe(782)
-    expect(new Set(BUNDLE.measurementVariants.map((variant) => variant.measurementVariantId)).size).toBe(412)
-    expect(new Set(BUNDLE.shapeExecutions.map((execution) => execution.shapeRequest.shapeRequestId)).size).toBe(434)
+    expect(new Set(BUNDLE.consumers.map((consumer) => consumer.consumerId)).size).toBe(794)
+    expect(new Set(BUNDLE.measurementVariants.map((variant) => variant.measurementVariantId)).size).toBe(424)
+    expect(new Set(BUNDLE.shapeExecutions.map((execution) => execution.shapeRequest.shapeRequestId)).size).toBe(462)
     const measurementIds = new Set(BUNDLE.measurementVariants.map((variant) => variant.measurementVariantId))
     const shapeIds = new Set(BUNDLE.shapeExecutions.map((execution) => execution.shapeRequest.shapeRequestId))
     expect(BUNDLE.consumers.every((consumer) => measurementIds.has(consumer.measurementVariantId))).toBe(true)

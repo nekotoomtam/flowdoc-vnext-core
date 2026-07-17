@@ -44,27 +44,27 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-H",
-      sourceProjectionFingerprint: "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-      sourceVerticalCapacityFingerprint: "5926711cbca1000888e4d7accb99d000f4c6549d504b2359c4b97884272bc994",
-      planFingerprint: "99d723197d7928bc4b5e2d3071d9a060ea401e85b410db8a4dca93c31fcc5839",
-      bundleFingerprint: "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
-      reconciledResolvedProjectionFingerprint: "sha256:6d1cdede9cf3d55894bc9673e4bda34942ceb1d16e4f827d2f7a3c4688f97af3",
+      sourceProjectionFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+      sourceVerticalCapacityFingerprint: "b3be7cbe49177946de1f0ec7db4c9f37f08ffc66375fe03778d6825fbc7f624a",
+      planFingerprint: "c7c61e20c418e69fa148e25439aac51ace858d4d1fea11bac9cbb62f32b9941b",
+      bundleFingerprint: "b3b22197f8f5668cc5c2a9928f610d7f24e77a321bc899bcefdeff259d7e3ab2",
+      reconciledResolvedProjectionFingerprint: "sha256:54699a89e7da5183f5d16b5d7dafd4f76bda72c7d17de02aca34cddfa7863809",
       coreCompositionManifest: {
-        fingerprint: "sha256:9a39de97f63947451093bf3d709548068f78f8fe2d3f7ead7a954da186b2cbba",
+        fingerprint: "sha256:9b81349b6a4ea261321f80d3a1f9370897d9bab634cd961dba63382e6632b315",
       },
       summary: {
         semanticSectionCount: 12,
         compositionSectionCount: 1,
         removedForcedSectionBoundaryCount: 11,
-        bodyItemCount: 173,
-        sourcePositiveSpacingBindingCount: 161,
-        reconciledPositiveSpacingBindingCount: 172,
+        bodyItemCount: 185,
+        sourcePositiveSpacingBindingCount: 173,
+        reconciledPositiveSpacingBindingCount: 184,
         semanticSectionStartBindingCount: 11,
-        sourcePreservedSpacingPt: 808,
+        sourcePreservedSpacingPt: 844,
         semanticSectionStartSpacingPt: 121,
-        reconciledGrossSpacingPt: 929,
-        naturalBodyHeightPt: 6826.047243,
-        reconciledGrossDemandPt: 7755.047243,
+        reconciledGrossSpacingPt: 965,
+        naturalBodyHeightPt: 7051.047243,
+        reconciledGrossDemandPt: 8016.047243,
         pageBodyHeightPt: 641.952756,
         previousNaturalSectionCapacityFloorCount: 17,
         previousPreservedSpacingSectionCapacityCount: 18,
@@ -72,9 +72,9 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
         reconciledGrossSpacingCapacityCount: 13,
         targetPageCount: 12,
         grossTargetPageDelta: 1,
-        grossOverflowAboveTargetPt: 51.614171,
+        grossOverflowAboveTargetPt: 312.614171,
         maximumTheoreticalPageTopSuppressionPt: 135,
-        maximumTheoreticalPaginationOverheadBudgetPt: 83.385829,
+        maximumTheoreticalPaginationOverheadBudgetPt: -177.614171,
         equivalentPageProfileCount: 12,
         equivalentHeaderCount: 12,
         equivalentFooterCount: 12,
@@ -121,7 +121,7 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
       sectionId: "composition-section-ocr-benchmark-report",
       staticZones: INPUT.verticalCapacity.coreCompositionManifest.sections[0].staticZones,
     })])
-    expect(BUNDLE.coreCompositionManifest.bodyItems).toHaveLength(173)
+    expect(BUNDLE.coreCompositionManifest.bodyItems).toHaveLength(185)
     expect(BUNDLE.coreCompositionManifest.bodyItems.map((item) => item.rootNodeId)).toEqual(
       INPUT.verticalCapacity.coreCompositionManifest.bodyItems.map((item) => item.rootNodeId),
     )
@@ -160,8 +160,8 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
       gapBeforePt: 11,
       provenance: "accepted-r2c-e-line-height-ratio",
     })
-    expect(BUNDLE.spacingBridgeBindings).toHaveLength(173)
-    expect(BUNDLE.spacingBridgeBindings.reduce((total, item) => total + item.gapBeforePt, 0)).toBe(929)
+    expect(BUNDLE.spacingBridgeBindings).toHaveLength(185)
+    expect(BUNDLE.spacingBridgeBindings.reduce((total, item) => total + item.gapBeforePt, 0)).toBe(965)
     expect(BUNDLE.spacingBridgeBindings[0]).toMatchObject({
       rootNodeId: "cover-title",
       reconciledSpacingRuleId: "zone-start",
@@ -178,7 +178,7 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
     expect(BUNDLE.coreCompositionManifest.bodyItems.some((item) => item.rootNodeType === "spacer")).toBe(false)
   })
 
-  it("keeps twelve-page fidelity blocked until real suppression and pagination overhead are known", () => {
+  it("retains the historical twelve-page diagnostic superseded by R2C-N", () => {
     expect(BUNDLE.fidelityGate).toEqual({
       status: "blocked-pagination-sensitive-twelve-page-capacity",
       targetPageCount: 12,
@@ -186,11 +186,11 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
       previousPreservedSpacingSectionCapacityCount: 18,
       reconciledNaturalGlobalCapacityCount: 11,
       reconciledGrossSpacingCapacityCount: 13,
-      grossDemandPt: 7755.047243,
+      grossDemandPt: 8016.047243,
       targetCapacityPt: 7703.433072,
-      grossOverflowAboveTargetPt: 51.614171,
+      grossOverflowAboveTargetPt: 312.614171,
       maximumTheoreticalPageTopSuppressionPt: 135,
-      maximumTheoreticalPaginationOverheadBudgetPt: 83.385829,
+      maximumTheoreticalPaginationOverheadBudgetPt: -177.614171,
       reason: "page-top-gap-suppression-and-pagination-overhead-not-executed",
     })
     expect(BUNDLE.rejectedAlternatives.map((item) => item.alternative)).toEqual([

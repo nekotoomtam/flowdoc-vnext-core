@@ -62,10 +62,16 @@ function qa(bundle: FlowDocCanonicalReportBodyDisplayListBundleV1) {
     })),
     executionGate: {
       status: "full-measured-draw-contract-consumable-pdf-bytes-pending",
-      sourceBodyPlacementsCovered: bundle.summary.sourceBodyPlacementCount === 178,
-      bodyEntriesCovered: bundle.summary.bodyEntryCount === 173,
+      sourceBodyPlacementsCovered: bundle.entries.reduce(
+        (total, entry) => total + entry.sourcePlacementCount,
+        0,
+      ) === bundle.summary.sourceBodyPlacementCount,
+      bodyEntriesCovered: bundle.entries.length === bundle.summary.bodyEntryCount,
       tableReplaysCovered: bundle.summary.tableReplayCount === 15,
-      tableReplayPagesCovered: bundle.summary.tableReplayPageCount === 20,
+      tableReplayPagesCovered: bundle.tableReplays.reduce(
+        (total, replay) => total + replay.pageCount,
+        0,
+      ) === bundle.summary.tableReplayPageCount,
       imageAssetsCovered: bundle.summary.imageAssetCount === 5,
       emptyTextHandledWithoutFakeGlyphs: bundle.summary.emptyTextReceiptCount === 1,
       missingGlyphCount: bundle.summary.missingGlyphCount,

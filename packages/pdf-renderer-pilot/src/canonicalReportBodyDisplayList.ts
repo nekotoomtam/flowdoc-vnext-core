@@ -47,14 +47,14 @@ export const FLOWDOC_CANONICAL_REPORT_BODY_DISPLAY_LIST_ID =
 
 const ACCEPTED = {
   data: "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-  projection: "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
-  native: "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
-  lineBreaking: "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
-  measured: "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
-  paginationInputs: "53b7625803925243bbb62ca9a7afcb12257f3fd47e82deebc7de3162ae63de00",
-  sectionReconciliation: "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
-  pagination: "75390eb748762fff6a6f181c5da9503208a7632b5f63d14e1f29f1bad23888c6",
-  staticZones: "11bd19f2e945b6e285678cd4a9cf07067ad07ee9f34b04c55ab09b107317dfb4",
+  projection: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+  native: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
+  lineBreaking: "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
+  measured: "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
+  paginationInputs: "1980d9fd60f684e49213348120c625b889bcad03c1dbab03e4860d347349f0f4",
+  sectionReconciliation: "b3b22197f8f5668cc5c2a9928f610d7f24e77a321bc899bcefdeff259d7e3ab2",
+  pagination: "bf6024cef64a0f7a25c6b8acdf442f552642cde3396905efcddcd3d5f5f003c5",
+  staticZones: "c14598e9f6d4b42b932d25b6fded3e360b69105bac0e0dc113a2b8083ef199fe",
 } as const
 
 const RENDERER_PROFILE_ID = "pdf-pilot-08b-r2c-l-full-document-v1"

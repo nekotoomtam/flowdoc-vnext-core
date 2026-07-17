@@ -10690,3 +10690,44 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-O` source-backed information hierarchy and
 role-level visual calibration through the existing measured Core boundary.
+
+## PDF-PILOT-08B-R2C-O Reader Hierarchy Calibration
+
+Status: source-backed information hierarchy and role-level weight calibration
+accepted; visual fidelity and production binding remain rejected.
+
+R2C-O adds executive and decision narrative through 22 registered scalar
+placements. No metric value is copied into literal template text. Generic
+scalar labels return to the role's Regular face, while two explicit reader
+labels retain local Bold. This changes the resolved template from 473 to 485
+nodes and from 114 to 136 scalar placements.
+
+The complete downstream chain is regenerated. Native shaping executes 946
+runs with only two local Bold overrides and zero missing glyphs. Core composes
+185 body roots, paginates them as 187 placements, and returns the same 13-page
+content-driven result. The exact PDF has 1,223,440 bytes, 1,778 paint commands,
+1,018 glyph runs, 15,691 glyph instances, 675 Table lines, and five images.
+
+Compared with the accepted R2C-N baseline, Bold share improves from 41.7496%
+to 9.1591% against a 15.8866% reference. Executive-summary extracted text
+increases from 290 to 810 characters and decision-view text from 74 to 468;
+overall candidate extracted text increases by 797 characters. Visual review
+finds no overlap or clipping, but static-zone geometry, callout treatment, and
+section density still differ materially from the reference.
+
+R2C-N remains the authority that retired 12 pages as a hard gate. Historical
+`targetPageCount: 12` and capacity-blocker fields in R2C-G through R2C-L remain
+diagnostic evidence and do not override the content-driven policy.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_READER_HIERARCHY_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-reader-hierarchy.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-summary.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-qa.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
+- `tests/pdfRendererPilotCanonicalReaderHierarchy.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-P` measured static-zone and
+section-composition calibration without deleting source-backed evidence or
+imposing a page count.

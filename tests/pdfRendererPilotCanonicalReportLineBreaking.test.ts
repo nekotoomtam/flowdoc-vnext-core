@@ -48,11 +48,11 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-E",
-      sourceNativeShapingFingerprint: "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+      sourceNativeShapingFingerprint: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
       sourceTypographyCalibrationFingerprint: "9f3568dd46a1ff9c6a0e40cf8aed66135a63ae74436c92788788ad00726ba04f",
-      sourceRawSegmentationFingerprint: "8461dc9c9dfd1f8d7509ab9b9d8d180b235c9ae03febead5e1f34acaf0c66ea5",
-      planFingerprint: "0aadd3a51d4aea8f961089631283ff00fed4befc69649af699d5430a2cabc827",
-      bundleFingerprint: "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
+      sourceRawSegmentationFingerprint: "6c8bce106835710ab71f719e8174656a7311379b1ffe29088ee079ee3f887475",
+      planFingerprint: "9c7ffd99e6e3b5a157f3c860dcfd66982a130876e46273027a749de1b26d6ca1",
+      bundleFingerprint: "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
       profileBinding: {
         status: "bound-native-line-breaking-only",
         sourceProfileSegmenterRevision: "icu4x-planned",
@@ -62,18 +62,18 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
         productionBinding: false,
       },
       summary: {
-        sourceConsumerCount: 782,
-        measurementVariantCount: 412,
+        sourceConsumerCount: 794,
+        measurementVariantCount: 424,
         emptyMeasurementVariantCount: 1,
-        nativeSegmentExecutionCount: 352,
+        nativeSegmentExecutionCount: 364,
         deduplicatedSegmentExecutionCount: 59,
         lineHeightBindingCount: 6,
-        measurementGlyphCount: 10998,
-        coveredGlyphCount: 10998,
-        breakOpportunityCount: 1642,
+        measurementGlyphCount: 12000,
+        coveredGlyphCount: 12000,
+        breakOpportunityCount: 1906,
         tailoredBreakOpportunityCount: 226,
-        lineCount: 441,
-        multiLineMeasurementCount: 29,
+        lineCount: 456,
+        multiLineMeasurementCount: 32,
         overflowLineCount: 0,
         maxLineCount: 2,
       },
@@ -81,8 +81,8 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
   }, 60_000)
 
   it("executes one concrete ICU4X segmentation per unique non-empty text", () => {
-    expect(RAW.executions).toHaveLength(352)
-    expect(new Set(RAW.executions.map((execution) => execution.rawOutput.text)).size).toBe(352)
+    expect(RAW.executions).toHaveLength(364)
+    expect(new Set(RAW.executions.map((execution) => execution.rawOutput.text)).size).toBe(364)
     for (const execution of RAW.executions) {
       const raw = execution.rawOutput
       expect(raw).toMatchObject({

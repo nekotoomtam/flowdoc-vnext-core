@@ -61,44 +61,44 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-J",
-      sourcePaginationInputsFingerprint: "53b7625803925243bbb62ca9a7afcb12257f3fd47e82deebc7de3162ae63de00",
-      sourceMeasuredCompositionFingerprint: "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
-      sourceSectionReconciliationFingerprint: "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
-      sourceCoreCompositionManifestFingerprint: "sha256:e168b089540c1022cf40da1f62a6750f58b4e8950b2eb67e0fac7ddb535f3e42",
-      bundleFingerprint: "75390eb748762fff6a6f181c5da9503208a7632b5f63d14e1f29f1bad23888c6",
+      sourcePaginationInputsFingerprint: "1980d9fd60f684e49213348120c625b889bcad03c1dbab03e4860d347349f0f4",
+      sourceMeasuredCompositionFingerprint: "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
+      sourceSectionReconciliationFingerprint: "b3b22197f8f5668cc5c2a9928f610d7f24e77a321bc899bcefdeff259d7e3ab2",
+      sourceCoreCompositionManifestFingerprint: "sha256:ebab78bd6715028948c673c0b24fc682906bebef606bfbfc373b723fff363413",
+      bundleFingerprint: "bf6024cef64a0f7a25c6b8acdf442f552642cde3396905efcddcd3d5f5f003c5",
       terminalCheckpoint: {
         complete: true,
-        transitionCount: 185,
-        fingerprint: "sha256:06597f4ae707eb24870197af84975bbd09c1709517becd7119ed380de1349c22",
+        transitionCount: 197,
+        fingerprint: "sha256:170b902ccaabbeb14795544381c2a639897ef427c0e4372e05e456abefa0a609",
       },
       corePagePlan: {
-        fingerprint: "sha256:a8e66333fbbb7f1a7cffeafcee2379c62b64278cfc20595cd4148b8cc34146d6",
-        compositionFingerprint: "sha256:29e2a3bace769c9008aa9c98b3ae68167f0206eb508af39cddda0de517ee2409",
+        fingerprint: "sha256:90b2678a79b67ad8a7142a94a975ffda538a07c50aa24e4c0179dcd0bf81ddd2",
+        compositionFingerprint: "sha256:833d911e462d959ec6d141f1eb15b1989e17c928a2fd6f2a8042a73b416c4a26",
       },
       headingPageMap: {
-        fingerprint: "sha256:b00c0a1f11da91868c44b86623b545da6603cce5978a00d95eb1aac9dbc9f433",
+        fingerprint: "sha256:0d9cea4a4ccb48da66f19dc3b70f8880b181782bc2ec1af293eb24965a0747e2",
       },
       summary: {
         targetPageCount: 12,
         actualPageCount: 13,
         targetComparison: "over-target",
-        bodyItemCount: 173,
-        placedRootCount: 173,
-        placementCount: 178,
+        bodyItemCount: 185,
+        placedRootCount: 185,
+        placementCount: 187,
         headingCount: 12,
-        transitionCount: 185,
-        familyWindowTransitionCount: 185,
+        transitionCount: 197,
+        familyWindowTransitionCount: 197,
         structureResumeTransitionCount: 0,
-        textFlowTransitionCount: 159,
+        textFlowTransitionCount: 171,
         tableFlowTransitionCount: 20,
         mediaFlowTransitionCount: 6,
-        freshPageRequiredTransitionCount: 7,
-        appliedSpacingCount: 165,
-        appliedSpacingPt: 881,
+        freshPageRequiredTransitionCount: 10,
+        appliedSpacingCount: 174,
+        appliedSpacingPt: 917,
         suppressedPageTopSpacingCount: 12,
-        suppressedPageTopSpacingPt: 78,
-        repeatedHeaderFragmentCount: 5,
-        sliceCount: 12,
+        suppressedPageTopSpacingPt: 60,
+        repeatedHeaderFragmentCount: 2,
+        sliceCount: 13,
         paginationExecuted: true,
         pageAssignmentExecuted: true,
         actualPageNumberExpansionExecuted: false,
@@ -128,28 +128,28 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
       page.placements.map((placement) => placement.itemIndex)
     )))
     expect([...placedItems].sort((left, right) => left - right)).toEqual(
-      Array.from({ length: 173 }, (_, index) => index),
+      Array.from({ length: 185 }, (_, index) => index),
     )
     expect(BUNDLE.corePagePlan.pages.at(-1)).toMatchObject({
       pageIndex: 12,
       pageNumber: 13,
-      usedHeightPt: 328,
-      remainingHeightPt: 313.952756,
+      usedHeightPt: 630,
+      remainingHeightPt: 11.952756,
       closeReason: "document-complete",
       placements: [{
-        itemIndex: 172,
+        itemIndex: 184,
         rootNodeId: "table-gdim-expected-fields-gdim-expected-fields",
         family: "table-flow",
         fragmentIndex: 1,
         blockOffsetPt: 0,
-        blockExtentPt: 328,
+        blockExtentPt: 630,
         continuation: { fromPrevious: true, toNext: false },
       }],
     })
   })
 
   it("retains one-page family windows, one-placement transition bounds, and chained slice receipts", () => {
-    expect(BUNDLE.transitionTraces).toHaveLength(185)
+    expect(BUNDLE.transitionTraces).toHaveLength(197)
     BUNDLE.transitionTraces.forEach((trace, index) => {
       expect(trace.transitionIndex).toBe(index + 1)
       expect(trace.traceFingerprint).toMatch(/^sha256:[a-f0-9]{64}$/u)
@@ -159,7 +159,7 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
       expect(trace.familyExecution?.paginationPageCount).toBeLessThanOrEqual(1)
       expect(trace.familyExecution?.paginationFragmentCount).toBeLessThanOrEqual(1)
     })
-    expect(BUNDLE.sliceReceipts).toHaveLength(12)
+    expect(BUNDLE.sliceReceipts).toHaveLength(13)
     BUNDLE.sliceReceipts.forEach((receipt, index) => {
       expect(receipt.sliceIndex).toBe(index)
       expect(receipt.transitionEndIndex - receipt.transitionStartIndex + 1).toBeLessThanOrEqual(16)
@@ -171,7 +171,7 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
       }
     })
     expect(BUNDLE.sliceReceipts.at(-1)).toMatchObject({
-      transitionEndIndex: 185,
+      transitionEndIndex: 197,
       checkpointAfterFingerprint: BUNDLE.terminalCheckpoint.fingerprint,
       status: "complete",
       reason: "document-complete",
@@ -185,13 +185,13 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
     ))
     const suppressed = family.filter((trace) => trace.suppressedGapBeforePt > 0)
     const fresh = family.filter((trace) => trace.paginationStatus === "fresh-page-required")
-    expect(committedSpacing).toHaveLength(165)
-    expect(committedSpacing.reduce((total, trace) => total + trace.appliedGapBeforePt, 0)).toBe(881)
+    expect(committedSpacing).toHaveLength(174)
+    expect(committedSpacing.reduce((total, trace) => total + trace.appliedGapBeforePt, 0)).toBe(917)
     expect(suppressed).toHaveLength(12)
-    expect(suppressed.reduce((total, trace) => total + trace.suppressedGapBeforePt, 0)).toBe(78)
-    expect(fresh).toHaveLength(7)
+    expect(suppressed.reduce((total, trace) => total + trace.suppressedGapBeforePt, 0)).toBe(60)
+    expect(fresh).toHaveLength(10)
     expect(fresh.every((trace) => trace.paginationPageCount === 0 && trace.paginationFragmentCount === 0)).toBe(true)
-    expect(family.reduce((total, trace) => total + trace.repeatedHeaderFragmentCount, 0)).toBe(5)
+    expect(family.reduce((total, trace) => total + trace.repeatedHeaderFragmentCount, 0)).toBe(2)
   })
 
   it("resumes one transition per slice to the byte-identical page plan and terminal cursor", () => {
@@ -199,7 +199,7 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
       source: SOURCE,
       limits: ONE_TRANSITION_SLICE_LIMITS,
     })
-    expect(oneTransition.sliceReceipts).toHaveLength(185)
+    expect(oneTransition.sliceReceipts).toHaveLength(197)
     expect(oneTransition.traces).toEqual(BUNDLE.transitionTraces)
     expect(oneTransition.pagePlan).toEqual(BUNDLE.corePagePlan)
     expect(oneTransition.headingPageMap).toEqual(BUNDLE.headingPageMap)
