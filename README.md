@@ -884,6 +884,11 @@ The package must remain runnable without any parent editor checkout.
   sources into revision-pinned FlowDoc field, collection, scalar, and media
   snapshots with full provenance, while explicitly deferring template
   resolution, wrapping, layout, pagination, and PDF rendering.
+- PDF canonical report template and resolution consumes that bundle through a
+  twelve-section US Letter Document v4 template, validates scoped collection
+  deferral, resolves 119 scalar/image placements, and deterministically
+  materializes 73 rows and 476 item bindings while leaving formatting,
+  wrapping, layout, pagination, and PDF rendering inactive.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

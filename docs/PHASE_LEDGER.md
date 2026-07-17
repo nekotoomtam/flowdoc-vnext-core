@@ -10163,3 +10163,36 @@ Primary evidence:
 - `tests/pdfRendererPilotCanonicalReportDataBundle.test.ts`.
 
 Next phase: `PDF-PILOT-08B-R2B` canonical report template and resolution.
+
+## PDF-PILOT-08B-R2B Canonical Report Template And Resolution
+
+Status: accepted as the first native template-resolution revision without
+changing the retained R1 PDF artifact.
+
+R2B consumes the exact R2A bundle through a Document v4 report template with
+twelve semantic sections on additive US Letter page settings. The template
+owns report prose and section order, IBM Plex Sans Thai style roles, 114 scalar
+placements, five image placements, and six collection table shapes. Twelve
+sections are not treated as a fixed twelve-page pagination claim.
+
+A generic scoped-resolution bridge validates table definitions, collection
+item contracts, content-binding contracts, and source graphs before deferring
+item-scoped placements from document-level field resolution. The accepted
+bundle resolves the scalar/image lane and materializes 73 rows, 476 cells, and
+476 item bindings with exact instance pins and deterministic `rowi`, `celli`,
+`nodei`, and `inli` provenance. All 154 fields are classified as 125
+presentation-bound or 29 critical evidence-only fields.
+
+The R2A instance is already revision 1, so initial instance materialization is
+explicitly `not-run-existing-revision`. Locale formatting, text measurement,
+line breaking, layout, pagination, and PDF rendering remain `not-run`.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_TEMPLATE_RESOLUTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-template-resolution.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-template-resolution-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportTemplateResolution.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C` locale formatting and text-engine/layout
+integration.

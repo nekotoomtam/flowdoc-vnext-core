@@ -13,6 +13,14 @@ containment, inline identity, zone restrictions, columns, and table grids.
 
 The active document v3 schema and graph do not import this target module.
 
+## Page Settings
+
+Document v4 page settings accept `A4` and `Letter`. `A4` remains the existing
+accepted value used by current callers; `Letter` is an additive target-schema
+option introduced for the canonical report integration proof. This page-size
+contract does not itself measure content, calculate page geometry, paginate,
+or activate document v4 in the product runtime.
+
 ## Authored Union
 
 Document v4 contains twelve structural/authored node forms:

@@ -1,0 +1,44 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2b-canonical-report-template-resolution-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2B",
+  "status": "accepted",
+  "templateId": "ocr-benchmark-canonical-report-template-v1",
+  "sourceDataBundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
+  "resolutionInputFingerprint": "report-resolution-10fc0b213ab9b695b2263762",
+  "bundleFingerprint": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
+  "pageContract": {
+    "size": "Letter",
+    "semanticSectionCount": 12,
+    "fixedPageCountClaimed": false
+  },
+  "coverage": {
+    "presentationFieldCount": 125,
+    "evidenceOnlyFieldCount": 29,
+    "scalarPlacementCount": 114,
+    "imagePlacementCount": 5,
+    "collectionPlacementCount": 6,
+    "collectionItemBindingCount": 476,
+    "allFieldsClassified": true
+  },
+  "resolution": {
+    "scopedDocumentStatus": "resolved",
+    "validatedTableScopeCount": 6,
+    "deferredItemPlacementCount": 63,
+    "collectionRowCount": 73,
+    "collectionCellCount": 476,
+    "deterministicRebuild": true
+  },
+  "boundary": {
+    "initialInstanceMaterialization": "not-run-existing-revision",
+    "localeDisplayFormatting": "not-run",
+    "textMeasurement": "not-run",
+    "lineBreaking": "not-run",
+    "layout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run",
+    "fixedPageCountClaimed": false,
+    "productionPdfClaimed": false
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C locale formatting and text-engine/layout integration"
+}

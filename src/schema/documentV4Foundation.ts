@@ -85,7 +85,7 @@ export const ZoneRoleV4TargetSchema = z.enum([
 ])
 
 export const PageSettingsV4TargetSchema = z.object({
-  size: z.literal("A4"),
+  size: z.enum(["A4", "Letter"]),
   orientation: z.enum(["portrait", "landscape"]),
   margin: z.object({
     top: UnitValueV4TargetSchema,

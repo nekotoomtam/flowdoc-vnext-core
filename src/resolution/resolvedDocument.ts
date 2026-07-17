@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { TextRunStyleV4Target } from "../schema/documentV4Foundation.js"
 import type {
   ImageAssetDataValue,
@@ -7,12 +8,19 @@ import type { FieldDefinitionV1V3 } from "../persistence/packageV3.js"
 import type { DocumentNodeV4Target } from "../schema/documentV4Target.js"
 import { validateVNextDocumentV4Structure } from "../schema/documentV4Structure.js"
 import {
+  VNextResolvedProjectionInputV1Schema,
   safeParseVNextResolvedProjectionInputV1,
   type VNextResolvedProjectionInputV1,
 } from "./resolutionInputPins.js"
+import { VNextTableDefinitionV1Schema } from "../table/tableDefinitionV1.js"
+import { VNextPublishedCollectionItemContractV1Schema } from "../table/collectionItemContractV1.js"
+import { VNextPublishedTableContentBindingContractV1Schema } from "../table/tableContentBindingV1.js"
+import { createVNextTableContentSourcePlanV1 } from "../table/tableContentSourcePlanV1.js"
 
 export const VNEXT_RESOLVED_DOCUMENT_SOURCE = "vnext-resolved-document"
 export const VNEXT_RESOLVED_DOCUMENT_CONTRACT_VERSION = 1 as const
+export const VNEXT_SCOPED_RESOLVED_DOCUMENT_SOURCE = "vnext-scoped-resolved-document"
+export const VNEXT_SCOPED_RESOLVED_DOCUMENT_CONTRACT_VERSION = 1 as const
 
 export type VNextResolvedDocumentIssueCode =
   | "invalid-resolution-input"
@@ -106,6 +114,80 @@ export interface VNextResolvedDocumentBlockedV1 {
 
 export type VNextResolvedDocumentResultV1 = VNextResolvedDocumentV1 | VNextResolvedDocumentBlockedV1
 
+export const VNextScopedTableResolutionContractV1Schema = z.object({
+  definition: VNextTableDefinitionV1Schema,
+  itemContract: VNextPublishedCollectionItemContractV1Schema,
+  bindingContract: VNextPublishedTableContentBindingContractV1Schema,
+}).strict()
+
+export const VNextScopedResolvedProjectionInputV1Schema = z.object({
+  contractVersion: z.literal(VNEXT_SCOPED_RESOLVED_DOCUMENT_CONTRACT_VERSION),
+  kind: z.literal("scoped-resolved-projection-input"),
+  projection: VNextResolvedProjectionInputV1Schema,
+  tables: z.array(VNextScopedTableResolutionContractV1Schema),
+}).strict()
+
+export type VNextScopedTableResolutionContractV1 = z.infer<
+  typeof VNextScopedTableResolutionContractV1Schema
+>
+export type VNextScopedResolvedProjectionInputV1 = z.infer<
+  typeof VNextScopedResolvedProjectionInputV1Schema
+>
+
+export interface VNextDeferredCollectionItemPlacementV1 {
+  tableId: string
+  tableDefinitionId: string
+  rowTemplateId: string
+  sourceNodeId: string
+  sourcePlacementId: string
+  placementKind: "text-field-ref" | "image-field-ref"
+  collectionFieldKey: string
+  itemFieldKey: string
+}
+
+export interface VNextScopedResolvedTablePlanV1 {
+  tableId: string
+  tableDefinitionId: string
+  templateCount: number
+  fieldPlacementCount: number
+}
+
+export interface VNextScopedResolvedDocumentIssueV1 {
+  source: "schema" | "table-scope" | "document-resolution"
+  code: string
+  path: string
+  message: string
+  severity: "error"
+}
+
+export type VNextScopedResolvedDocumentResultV1 =
+  | {
+      source: typeof VNEXT_SCOPED_RESOLVED_DOCUMENT_SOURCE
+      contractVersion: typeof VNEXT_SCOPED_RESOLVED_DOCUMENT_CONTRACT_VERSION
+      status: "resolved"
+      resolvedDocument: VNextResolvedDocumentV1
+      tablePlans: VNextScopedResolvedTablePlanV1[]
+      deferredCollectionItemPlacements: VNextDeferredCollectionItemPlacementV1[]
+      execution: {
+        tableScopeValidation: "validated"
+        collectionRowResolution: "not-run"
+        collectionContentMaterialization: "not-run"
+        measurement: "not-run"
+        pagination: "not-run"
+        rendering: "not-run"
+      }
+      issues: []
+    }
+  | {
+      source: typeof VNEXT_SCOPED_RESOLVED_DOCUMENT_SOURCE
+      contractVersion: typeof VNEXT_SCOPED_RESOLVED_DOCUMENT_CONTRACT_VERSION
+      status: "blocked"
+      resolvedDocument: null
+      tablePlans: null
+      deferredCollectionItemPlacements: null
+      issues: VNextScopedResolvedDocumentIssueV1[]
+    }
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
@@ -119,6 +201,32 @@ function blocked(issues: VNextResolvedDocumentIssue[]): VNextResolvedDocumentBlo
     bindings: null,
     issues,
   }
+}
+
+function scopedBlocked(
+  issues: VNextScopedResolvedDocumentIssueV1[],
+): Extract<VNextScopedResolvedDocumentResultV1, { status: "blocked" }> {
+  return {
+    source: VNEXT_SCOPED_RESOLVED_DOCUMENT_SOURCE,
+    contractVersion: VNEXT_SCOPED_RESOLVED_DOCUMENT_CONTRACT_VERSION,
+    status: "blocked",
+    resolvedDocument: null,
+    tablePlans: null,
+    deferredCollectionItemPlacements: null,
+    issues,
+  }
+}
+
+function formatIssuePath(path: readonly PropertyKey[]): string {
+  return path.reduce<string>((current, segment) => {
+    if (typeof segment === "number") return `${current}[${segment}]`
+    const key = String(segment)
+    return current === "" ? key : `${current}.${key}`
+  }, "")
+}
+
+function placementScopeKey(sourceNodeId: string, sourcePlacementId: string): string {
+  return `${sourceNodeId}\u0000${sourcePlacementId}`
 }
 
 function isImageValue(value: DataSnapshotV2Value): value is ImageAssetDataValue {
@@ -174,7 +282,10 @@ function validateData(input: VNextResolvedProjectionInputV1): VNextResolvedDocum
   return issues
 }
 
-function resolveBindings(input: VNextResolvedProjectionInputV1): {
+function resolveBindings(
+  input: VNextResolvedProjectionInputV1,
+  deferredItemPlacementKeys: ReadonlySet<string> = new Set(),
+): {
   fields: VNextResolvedFieldBindingV1[]
   images: VNextResolvedImageBindingV1[]
   styles: VNextResolvedStyleBindingV1[]
@@ -254,7 +365,9 @@ function resolveBindings(input: VNextResolvedProjectionInputV1): {
   input.document.document.sections.forEach((section, sectionIndex) => {
     Object.entries(section.nodes).forEach(([nodeKey, node]) => {
       const nodePath = `document.document.sections[${sectionIndex}].nodes.${nodeKey}`
-      if (node.type === "image") resolveImage(node.id, nodePath, node.source)
+      if (node.type === "image" && !deferredItemPlacementKeys.has(placementScopeKey(node.id, node.id))) {
+        resolveImage(node.id, nodePath, node.source)
+      }
       if (node.type !== "text-block") return
 
       if (node.props.textStyleId != null) {
@@ -275,10 +388,13 @@ function resolveBindings(input: VNextResolvedProjectionInputV1): {
       node.children.forEach((inline, inlineIndex) => {
         const inlinePath = `${nodePath}.children[${inlineIndex}]`
         if (inline.type === "inline-image") {
-          resolveImage(inline.id, inlinePath, inline.source)
+          if (!deferredItemPlacementKeys.has(placementScopeKey(node.id, inline.id))) {
+            resolveImage(inline.id, inlinePath, inline.source)
+          }
           return
         }
         if (inline.type !== "field-ref") return
+        if (deferredItemPlacementKeys.has(placementScopeKey(node.id, inline.id))) return
         const definition = definitions[inline.key]
         if (definition == null) {
           issues.push({
@@ -325,17 +441,10 @@ function resolveBindings(input: VNextResolvedProjectionInputV1): {
   return { fields, images, styles, issues }
 }
 
-export function resolveVNextDocumentV1(value: unknown): VNextResolvedDocumentResultV1 {
-  const parsed = safeParseVNextResolvedProjectionInputV1(value)
-  if (!parsed.ok) return blocked(parsed.issues.map((item) => ({
-    source: "schema",
-    severity: "error",
-    code: "invalid-resolution-input",
-    path: item.path,
-    message: item.message,
-  })))
-
-  const input = parsed.input
+function resolveParsedVNextDocumentV1(
+  input: VNextResolvedProjectionInputV1,
+  deferredItemPlacementKeys: ReadonlySet<string> = new Set(),
+): VNextResolvedDocumentResultV1 {
   const structure = validateVNextDocumentV4Structure(input.document)
   const issues: VNextResolvedDocumentIssue[] = structure.issues.map((item) => ({
     source: "structure",
@@ -346,7 +455,7 @@ export function resolveVNextDocumentV1(value: unknown): VNextResolvedDocumentRes
     ...(item.nodeId == null ? {} : { targetId: item.nodeId }),
   }))
   issues.push(...validateData(input))
-  const bindings = resolveBindings(input)
+  const bindings = resolveBindings(input, deferredItemPlacementKeys)
   issues.push(...bindings.issues)
   if (issues.length > 0) return blocked(issues)
 
@@ -378,6 +487,124 @@ export function resolveVNextDocumentV1(value: unknown): VNextResolvedDocumentRes
       inputFetch: "not-run",
       authoredGraphMutation: false,
       generatedExpansion: "not-run",
+      pagination: "not-run",
+      rendering: "not-run",
+    },
+    issues: [],
+  }
+}
+
+export function resolveVNextDocumentV1(value: unknown): VNextResolvedDocumentResultV1 {
+  const parsed = safeParseVNextResolvedProjectionInputV1(value)
+  if (!parsed.ok) return blocked(parsed.issues.map((item) => ({
+    source: "schema",
+    severity: "error",
+    code: "invalid-resolution-input",
+    path: item.path,
+    message: item.message,
+  })))
+  return resolveParsedVNextDocumentV1(parsed.input)
+}
+
+export function resolveVNextScopedDocumentV1(
+  value: unknown,
+): VNextScopedResolvedDocumentResultV1 {
+  const parsed = VNextScopedResolvedProjectionInputV1Schema.safeParse(value)
+  if (!parsed.success) return scopedBlocked(parsed.error.issues.map((item) => ({
+    source: "schema",
+    code: item.code,
+    path: formatIssuePath(item.path),
+    message: item.message,
+    severity: "error",
+  })))
+
+  const issues: VNextScopedResolvedDocumentIssueV1[] = []
+  const tableIds = new Set<string>()
+  const deferredKeys = new Set<string>()
+  const deferredCollectionItemPlacements: VNextDeferredCollectionItemPlacementV1[] = []
+  const tablePlans: VNextScopedResolvedTablePlanV1[] = []
+
+  parsed.data.tables.forEach((table, tableIndex) => {
+    if (tableIds.has(table.definition.tableId)) issues.push({
+      source: "table-scope",
+      code: "duplicate-table-scope",
+      path: `tables[${tableIndex}].definition.tableId`,
+      message: `table scope for "${table.definition.tableId}" appears more than once`,
+      severity: "error",
+    })
+    tableIds.add(table.definition.tableId)
+    const plan = createVNextTableContentSourcePlanV1({
+      document: parsed.data.projection.document,
+      definition: table.definition,
+      fieldContract: parsed.data.projection.published.fieldContract,
+      itemContract: table.itemContract,
+      bindingContract: table.bindingContract,
+    })
+    if (plan.status === "blocked") {
+      plan.issues.forEach((item) => issues.push({
+        source: "table-scope",
+        code: item.code,
+        path: `tables[${tableIndex}].${item.path}`,
+        message: item.message,
+        severity: "error",
+      }))
+      return
+    }
+    tablePlans.push({
+      tableId: plan.tableId,
+      tableDefinitionId: plan.definition.tableDefinitionId,
+      templateCount: plan.work.templateCount,
+      fieldPlacementCount: plan.work.fieldPlacementCount,
+    })
+    plan.templates.forEach((template) => {
+      const bindings = table.bindingContract.rowTemplates[template.rowTemplateId]
+      template.fieldPlacements.forEach((placement) => {
+        const binding = bindings?.placements[placement.sourcePlacementId]?.binding
+        if (binding?.scope !== "collection-item-field") return
+        const key = placementScopeKey(placement.sourceNodeId, placement.sourcePlacementId)
+        if (deferredKeys.has(key)) issues.push({
+          source: "table-scope",
+          code: "duplicate-deferred-placement",
+          path: `tables[${tableIndex}].bindingContract.rowTemplates.${template.rowTemplateId}`,
+          message: `item-scoped placement "${placement.sourcePlacementId}" is claimed more than once`,
+          severity: "error",
+        })
+        deferredKeys.add(key)
+        deferredCollectionItemPlacements.push({
+          tableId: plan.tableId,
+          tableDefinitionId: plan.definition.tableDefinitionId,
+          rowTemplateId: template.rowTemplateId,
+          sourceNodeId: placement.sourceNodeId,
+          sourcePlacementId: placement.sourcePlacementId,
+          placementKind: placement.placementKind,
+          collectionFieldKey: binding.collectionFieldKey,
+          itemFieldKey: binding.itemFieldKey,
+        })
+      })
+    })
+  })
+  if (issues.length > 0) return scopedBlocked(issues)
+
+  const resolvedDocument = resolveParsedVNextDocumentV1(parsed.data.projection, deferredKeys)
+  if (resolvedDocument.status === "blocked") return scopedBlocked(resolvedDocument.issues.map((item) => ({
+    source: "document-resolution",
+    code: item.code,
+    path: item.path,
+    message: item.message,
+    severity: "error",
+  })))
+  return {
+    source: VNEXT_SCOPED_RESOLVED_DOCUMENT_SOURCE,
+    contractVersion: VNEXT_SCOPED_RESOLVED_DOCUMENT_CONTRACT_VERSION,
+    status: "resolved",
+    resolvedDocument,
+    tablePlans,
+    deferredCollectionItemPlacements,
+    execution: {
+      tableScopeValidation: "validated",
+      collectionRowResolution: "not-run",
+      collectionContentMaterialization: "not-run",
+      measurement: "not-run",
       pagination: "not-run",
       rendering: "not-run",
     },

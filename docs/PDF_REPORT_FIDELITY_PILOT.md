@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2A canonical report data and binding lock accepted.
+Status: PDF-PILOT-08B-R2B canonical report template and resolution accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -299,6 +299,33 @@ Primary Phase 08B-R2A evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-data-bundle-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportDataBundle.test.ts`.
 
+## PDF-PILOT-08B-R2B Scope
+
+Phase 08B-R2B consumes the accepted R2A data bundle through a native Document
+v4 report template. The template owns twelve semantic sections, IBM Plex Sans
+Thai style roles, five image placements, 114 scalar placements, and six
+collection tables on additive US Letter page settings. It does not claim that
+the twelve sections will paginate to twelve pages.
+
+The generic scoped-resolution bridge validates each table definition,
+collection-item contract, content-binding contract, and source graph before it
+defers item-scoped placements from document-level resolution. It then resolves
+document-scoped scalar/image fields and materializes 73 collection rows, 476
+cells, and 476 item bindings with deterministic derived identities. All 154
+published fields are explicitly classified: 125 presentation-bound and 29
+critical evidence-only fields.
+
+R2B preserves the revision-1 instance graph rather than claiming initial
+materialization. Locale-aware display formatting, text measurement, automatic
+line breaking, layout, pagination, and PDF rendering remain `not-run`.
+
+Primary Phase 08B-R2B evidence:
+
+- `docs/PDF_CANONICAL_REPORT_TEMPLATE_RESOLUTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-template-resolution.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-template-resolution-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportTemplateResolution.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -416,6 +443,12 @@ FLOWDOC_PDF_PILOT_REPORT_ROOT=<path-to-report-directory> \
 npm --prefix packages/pdf-renderer-pilot run build:report-data-bundle
 ```
 
+Build and validate the deterministic canonical template-resolution bundle:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-template-resolution
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -450,13 +483,18 @@ npm --prefix packages/pdf-renderer-pilot run build:report-data-bundle
 - Report data binding emits exact-revision FlowDoc field, collection, scalar,
   and media contracts with complete provenance while retaining no layout or
   PDF facts.
+- Canonical template resolution preserves the exact R2A instance graph,
+  validates six collection scopes before deferral, materializes all 73 rows
+  and 476 item values deterministically, and classifies all 154 fields without
+  introducing measurement or layout facts.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2A.
+None for closing PDF-PILOT-08B-R2B.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, and R2B-R2D production integration.
+thresholds, broader reader compatibility, locale-aware display formatting,
+text measurement, line breaking, layout, pagination, and PDF rendering.
 
 ## RISK
 
@@ -477,6 +515,8 @@ thresholds, broader reader compatibility, and R2B-R2D production integration.
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
 - automatic table and heading wrap behavior after style-token calibration;
+- locale and field-type formatting rules for percentages, durations, money,
+  dates, booleans, and numeric rounding;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
   and pypdf.
@@ -490,6 +530,8 @@ thresholds, broader reader compatibility, and R2B-R2D production integration.
 - no external report PNG bytes were copied into the repository;
 - no DOCX work was introduced;
 - no backend/editor route, worker, storage, or UI behavior changed;
-- no package/document schema changed.
+- active package v2/document v3 behavior did not change; target Document v4
+  gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2B` canonical report template and resolution.
+Next phase: `PDF-PILOT-08B-R2C` locale formatting and text-engine/layout
+integration.

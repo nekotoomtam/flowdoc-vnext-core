@@ -10,6 +10,7 @@ import type {
 } from "@flowdoc/vnext-core"
 
 export * from "./canonicalReportDataAdapter.js"
+export * from "./canonicalReportTemplateResolution.js"
 
 export const FLOWDOC_PDF_RENDERER_PILOT_SOURCE = "flowdoc-pdf-renderer-pilot" as const
 export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as const
