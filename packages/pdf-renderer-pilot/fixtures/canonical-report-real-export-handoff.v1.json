@@ -1,0 +1,282 @@
+{
+  "evidenceVersion": 1,
+  "phaseId": "PDF-EXPORT-T",
+  "status": "rendered",
+  "sourceIdentity": {
+    "documentId": "instance-ocr-benchmark-inv_9437125258-2026-07-16",
+    "documentRevision": 1,
+    "documentFingerprint": "sha256:96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67",
+    "sourcePackageId": "body-display-list:ocr-benchmark-report-body-display-list-v1",
+    "sessionId": null
+  },
+  "resolutionInputFingerprint": "report-resolution-ddcd06573934017425235b02",
+  "sourceBundleFingerprint": "96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67",
+  "request": {
+    "source": "vnext-pdf-export-handoff",
+    "contractVersion": 1,
+    "kind": "pdf-export-request",
+    "exportRequestId": "export:ocr-benchmark:inv_9437125258:revision-1",
+    "artifactId": "pdf:ocr-benchmark:inv_9437125258:revision-1",
+    "requestedAt": "2026-07-17T12:00:00.000Z",
+    "expectedSource": {
+      "documentId": "instance-ocr-benchmark-inv_9437125258-2026-07-16",
+      "documentRevision": 1,
+      "documentFingerprint": "sha256:96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67",
+      "sourcePackageId": "body-display-list:ocr-benchmark-report-body-display-list-v1",
+      "sessionId": null
+    },
+    "measuredDrawContract": {
+      "source": "vnext-pdf-measured-draw-contract",
+      "contractVersion": 1,
+      "fingerprint": "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
+      "contentFingerprint": "sha256:5f28958947715a3a9bdc006a73688bf8226f782047db5f5c53ffe0349dbd8b78",
+      "rendererProfileId": "pdf-pilot-08b-r2c-l-full-document-v1",
+      "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "pageCount": 13
+    },
+    "output": {
+      "format": "pdf",
+      "mediaType": "application/pdf"
+    },
+    "constraints": {
+      "consumesMeasuredDrawContract": true,
+      "mayRemeasure": false,
+      "mayRepaginate": false,
+      "mayRelayout": false,
+      "mayRegroupSemantics": false,
+      "productionBinding": false
+    },
+    "requestFingerprint": "sha256:d33c6082c16d7d566cfa6e9cec9a470461fe76ed7ad57feacca131210221f846"
+  },
+  "handoff": {
+    "status": "ready",
+    "handoffFingerprint": "sha256:47ac90dac28ab72689d5206a4295de90a74ea818f2080d1249051b06f7bfa686",
+    "measuredDrawContract": {
+      "source": "vnext-pdf-measured-draw-contract",
+      "contractVersion": 1,
+      "fingerprint": "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
+      "contentFingerprint": "sha256:5f28958947715a3a9bdc006a73688bf8226f782047db5f5c53ffe0349dbd8b78",
+      "rendererProfileId": "pdf-pilot-08b-r2c-l-full-document-v1",
+      "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "pageCount": 13
+    },
+    "contracts": {
+      "consumes": "vnext-pdf-measured-draw-contract-v1",
+      "sourceRevisionPinned": true,
+      "sourceFingerprintPinned": true,
+      "rendererProfilePinned": true,
+      "measurementProfilePinned": true,
+      "contractContentPinned": true,
+      "mayRemeasure": false,
+      "mayRepaginate": false,
+      "mayRelayout": false,
+      "mayRegroupSemantics": false
+    }
+  },
+  "renderer": {
+    "mode": "canonical-full-document-handoff-proof",
+    "status": "rendered",
+    "artifact": {
+      "artifactId": "pdf:ocr-benchmark:inv_9437125258:revision-1",
+      "format": "pdf",
+      "mediaType": "application/pdf",
+      "byteLength": 1212656,
+      "sha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+      "storageStatus": "not-stored",
+      "localOnly": true,
+      "sourceContractFingerprint": "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
+      "rendererProfileId": "pdf-pilot-08b-r2c-l-full-document-v1",
+      "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+      "embeddedFonts": [
+        {
+          "fontId": "ibm-plex-sans-thai-bold",
+          "subsetId": "pdf-pilot-08b-r2c-m-ibm-plex-bold-full-document",
+          "subsetSha256": "93d573d8412ad3118c70a5ada4337cfd0cbe87297efc6875a89bcb943ad597d0",
+          "subsetByteLength": 25756,
+          "sourceByteLength": 113996,
+          "pdfBaseFontName": "FDFDBD+FlowDocThaiCanonicalFullDocument-Bold",
+          "fontFormat": "Type0/CIDFontType2",
+          "toUnicode": true
+        },
+        {
+          "fontId": "ibm-plex-sans-thai-regular",
+          "subsetId": "pdf-pilot-08b-r2c-m-ibm-plex-regular-full-document",
+          "subsetSha256": "1e9e6841c7324f2c911e53536f40bf651ce5e60f338ff96c14fe004c419232cf",
+          "subsetByteLength": 35016,
+          "sourceByteLength": 113464,
+          "pdfBaseFontName": "FDFDRG+FlowDocThaiCanonicalFullDocument-Regular",
+          "fontFormat": "Type0/CIDFontType2",
+          "toUnicode": true
+        }
+      ],
+      "embeddedImages": [
+        {
+          "assetId": "source-evidence-image",
+          "sha256": "c4dd7d8ed04a216ba5979bb847cb4bfb9aaf1e311b2c9ae32949894459692cd2",
+          "byteLength": 230868,
+          "pixelWidth": 1548,
+          "pixelHeight": 1376,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "Report media source-evidence-image"
+          }
+        },
+        {
+          "assetId": "ocr-accuracy-image",
+          "sha256": "322a132d2aa8746a5345dc78e3f80c53f09aa057ffffa9ffab5765096d9331ce",
+          "byteLength": 65307,
+          "pixelWidth": 1950,
+          "pixelHeight": 900,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "Report media ocr-accuracy-image"
+          }
+        },
+        {
+          "assetId": "native-extraction-image",
+          "sha256": "5840eb65f359d7c0a4d490e59719a6b0d03200f305e88bbd21209eac93347bfc",
+          "byteLength": 52599,
+          "pixelWidth": 1950,
+          "pixelHeight": 900,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "Report media native-extraction-image"
+          }
+        },
+        {
+          "assetId": "latency-rounds-image",
+          "sha256": "d2c04dbd7078f3f2634b7a76a81983e12210c3c980b65297713602ab9f798be6",
+          "byteLength": 54714,
+          "pixelWidth": 1950,
+          "pixelHeight": 900,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "Report media latency-rounds-image"
+          }
+        },
+        {
+          "assetId": "mapping-gap-image",
+          "sha256": "d9335c495106b24766978964b3aa178c3662e516ccd5b191d3f32c4dba6d97c5",
+          "byteLength": 60559,
+          "pixelWidth": 1950,
+          "pixelHeight": 900,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "Report media mapping-gap-image"
+          }
+        }
+      ],
+      "resourceReuse": {
+        "pageCount": 13,
+        "uniqueFontObjectCount": 2,
+        "uniqueImageObjectCount": 5,
+        "fontResourceReferenceCount": 26,
+        "imageResourceReferenceCount": 5
+      },
+      "fullDocumentHandoff": {
+        "requiredPageCount": 13,
+        "requiredFontAssetCount": 2,
+        "requiredImageAssetCount": 5,
+        "imagePaintCount": 5,
+        "strokeLineCount": 688,
+        "sourceContractFingerprint": "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
+        "sourceContractContentSha256": "5f28958947715a3a9bdc006a73688bf8226f782047db5f5c53ffe0349dbd8b78"
+      }
+    },
+    "summary": {
+      "pageCount": 13,
+      "paintCommandCount": 1814,
+      "glyphRunCount": 1031,
+      "glyphCount": 15732,
+      "embeddedFontCount": 2,
+      "imageCount": 5,
+      "fontResourceReferenceCount": 26,
+      "imageResourceReferenceCount": 5,
+      "byteLength": 1212656
+    },
+    "issues": []
+  },
+  "receipt": {
+    "source": "vnext-pdf-export-handoff",
+    "contractVersion": 1,
+    "kind": "pdf-export-receipt",
+    "status": "rendered",
+    "exportRequestId": "export:ocr-benchmark:inv_9437125258:revision-1",
+    "requestFingerprint": "sha256:d33c6082c16d7d566cfa6e9cec9a470461fe76ed7ad57feacca131210221f846",
+    "handoffFingerprint": "sha256:47ac90dac28ab72689d5206a4295de90a74ea818f2080d1249051b06f7bfa686",
+    "sourceIdentity": {
+      "documentId": "instance-ocr-benchmark-inv_9437125258-2026-07-16",
+      "documentRevision": 1,
+      "documentFingerprint": "sha256:96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67",
+      "sourcePackageId": "body-display-list:ocr-benchmark-report-body-display-list-v1",
+      "sessionId": null
+    },
+    "artifact": {
+      "artifactId": "pdf:ocr-benchmark:inv_9437125258:revision-1",
+      "format": "pdf",
+      "mediaType": "application/pdf",
+      "byteLength": 1212656,
+      "sha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+      "pageCount": 13,
+      "storageStatus": "not-stored",
+      "storageKey": null
+    },
+    "rendererProfileId": "pdf-pilot-08b-r2c-l-full-document-v1",
+    "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+    "sourceContractFingerprint": "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
+    "sourceContractContentFingerprint": "sha256:5f28958947715a3a9bdc006a73688bf8226f782047db5f5c53ffe0349dbd8b78",
+    "contracts": {
+      "mayRelayout": false,
+      "carriesBytes": false,
+      "storageWrites": false,
+      "artifactManifestProjection": "pending-storage-binding",
+      "productionBinding": false
+    },
+    "receiptFingerprint": "sha256:94f55d7bc673af196c9f67ef0179d1c46afa39017f83f0de7e57bbb1e9dd707f"
+  },
+  "deterministicRebuild": {
+    "unchanged": true,
+    "sha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+    "receiptFingerprint": "sha256:94f55d7bc673af196c9f67ef0179d1c46afa39017f83f0de7e57bbb1e9dd707f"
+  },
+  "executionBoundary": {
+    "actualPdfBytesReturned": true,
+    "pdfBytesRetainedInEvidence": false,
+    "exportExecutionFileWrites": false,
+    "exportExecutionStorageWrites": false,
+    "evidenceFixtureWriteOnly": true,
+    "backendRoute": false,
+    "workerOrQueue": false,
+    "artifactManifestProjection": "pending-storage-binding",
+    "productionBinding": false
+  },
+  "contracts": {
+    "consumesCoreHandoff": true,
+    "returnsCoreReceipt": true,
+    "mayRemeasure": false,
+    "mayRepaginate": false,
+    "mayRelayout": false,
+    "mayRegroupSemantics": false,
+    "fileWrites": false,
+    "storageWrites": false,
+    "backendRoute": false,
+    "workerOrQueue": false,
+    "productionBinding": false
+  },
+  "nextPhase": "PDF-EXPORT-U production-hardening baseline"
+}

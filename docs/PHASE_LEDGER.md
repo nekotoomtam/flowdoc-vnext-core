@@ -10862,3 +10862,37 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-T` real export handoff without exporter-owned
 measurement, semantic regrouping, or relayout.
+
+## PDF-PILOT-08B-R2C-T Real Export Handoff
+
+Status: deterministic source-pinned PDF byte handoff accepted; production
+route, worker, storage, artifact projection, and production binding remain
+rejected.
+
+R2C-T adds a Core request/handoff/receipt boundary. The request pins source
+document revision and fingerprint plus the complete measured-contract content,
+renderer/measurement profiles, page count, and artifact identity. The handoff
+revalidates all pins before exposing the exact measured contract. The receipt
+accepts renderer evidence only when byte and identity facts match and retains
+metadata only.
+
+The pilot execution wrapper performs no measurement, pagination, layout, or
+semantic regrouping. It returns actual PDF bytes only after receipt acceptance.
+Stale source identity blocks before renderer execution; missing resources or
+receipt mismatch return no bytes and no partial receipt.
+
+The canonical report remains 13 pages and 1,212,656 bytes with SHA-256
+`c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b`.
+Repeated in-memory executions retain exact byte and receipt identity.
+
+Primary evidence:
+
+- `docs/PDF_REAL_EXPORT_HANDOFF.md`;
+- `src/generation/pdfExportHandoffV1.ts`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-real-export-handoff.v1.json`;
+- `tests/pdfExportHandoffV1.test.ts`;
+- `tests/pdfRendererPilotRealExportHandoff.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-U` production-hardening baseline covering
+lifecycle, idempotency, cancellation, limits, storage, and observability
+without claiming a production route.

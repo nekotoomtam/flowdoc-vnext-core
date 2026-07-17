@@ -855,6 +855,29 @@ Primary Phase 08B-R2C-S evidence:
 - `tests/authoredBoxContractV1.test.ts`;
 - `tests/pdfRendererPilotReusableAuthoredBoxContract.test.ts`.
 
+## PDF-PILOT-08B-R2C-T Scope
+
+Phase 08B-R2C-T adds the first real request-to-PDF-bytes handoff. A Core export
+request pins the exact document revision, source fingerprint, complete
+measured-contract content, renderer/measurement profiles, page count, and
+artifact identity. Handoff validation fails closed before execution when any
+pin drifts. The pilot renderer consumes the exact handoff without measuring,
+paginating, laying out, or regrouping semantics.
+
+Core accepts a metadata-only receipt only after artifact id, byte count,
+SHA-256, page count, profiles, and measured-contract identities agree. PDF
+bytes are returned only on receipt acceptance. The canonical run remains 13
+pages and 1,212,656 bytes with SHA-256
+`c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b`.
+
+Primary Phase 08B-R2C-T evidence:
+
+- `docs/PDF_REAL_EXPORT_HANDOFF.md`;
+- `src/generation/pdfExportHandoffV1.ts`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-real-export-handoff.v1.json`;
+- `tests/pdfExportHandoffV1.test.ts`;
+- `tests/pdfRendererPilotRealExportHandoff.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -1105,18 +1128,21 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
   content width, page-split fragments, and fill/border intents in Core. The
   canonical adapter retains semantic grouping only, and all accepted canonical
   bundle and PDF identities remain byte-exact.
+- Real export execution pins source revision and full measured-contract
+  content, returns deterministic PDF bytes only after Core receipt acceptance,
+  and preserves the accepted canonical artifact identity.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-S reusable authored box contract
-evidence.
+None for closing PDF-PILOT-08B-R2C-T real export handoff evidence.
 
 R2C-N retired twelve pages as a hard gate. The authoritative R2C-O result is
 thirteen pages, and the terminal page contains one 630pt continuation fragment
 from the final table; no content was removed to imitate the reference.
 
-Report-level PDF fidelity remains blocked on real export handoff, reader
-compatibility beyond Poppler/PDFium, source-profile promotion, and
+Production PDF export remains blocked on route/worker lifecycle, durable
+storage and artifact projection, cancellation/idempotency/resource limits,
+reader compatibility beyond Poppler/PDFium, source-profile promotion, and
 native-to-WASM parity.
 
 ## RISK
@@ -1141,6 +1167,7 @@ native-to-WASM parity.
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
 - generic authored-border execution through a real export artifact;
+- durable export idempotency, cancellation, storage, and artifact projection;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -1158,5 +1185,6 @@ native-to-WASM parity.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-T` bind the accepted contracts to a real export
-handoff without exporter-owned measurement, grouping, or relayout.
+Next phase: `PDF-PILOT-08B-R2C-U` establish the production-hardening baseline
+for lifecycle, idempotency, cancellation, limits, storage, and observability
+without prematurely binding a production route.

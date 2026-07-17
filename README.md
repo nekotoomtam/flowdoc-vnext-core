@@ -971,6 +971,10 @@ The package must remain runnable without any parent editor checkout.
   width, page-fragment geometry, and paint intents into Core while retaining
   report-specific label/note grouping in the canonical adapter. All accepted
   canonical bundle and PDF identities remain byte-exact.
+- PDF real export handoff pins the exact source revision and complete measured
+  contract before renderer execution, returns actual deterministic PDF bytes
+  only after a metadata-only Core receipt accepts every identity, and leaves
+  route, worker, storage, artifact projection, and production binding pending.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

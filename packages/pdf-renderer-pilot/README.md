@@ -196,8 +196,23 @@ geometry to Core. Twelve nodes retain a 449.95pt content width and the two
 semantic groups retain their exact three fragments on pages 1, 2, and 10.
 
 Rebuilding the accepted chain leaves the display bundle fingerprint and
-1,212,656-byte PDF SHA-256 unchanged. Authored-border export execution, real
-export binding, visual fidelity, and production binding remain downstream.
+1,212,656-byte PDF SHA-256 unchanged. Authored-border execution, visual
+fidelity, and production binding remain downstream.
+
+## Real Export Handoff
+
+`PDF-PILOT-08B-R2C-T` creates a source-revision-pinned Core export request,
+revalidates the complete measured contract at handoff, executes the existing
+renderer without remeasurement or relayout, and accepts a metadata-only Core
+receipt before returning PDF bytes. Stale source identity blocks before the
+renderer; missing resources or receipt drift return no bytes and no partial
+receipt.
+
+The canonical execution returns the same 13-page, 1,212,656-byte PDF with
+SHA-256
+`c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b`.
+No route, worker, storage write, artifact-manifest projection, or production
+binding is introduced.
 
 ## Reproduction
 
@@ -222,6 +237,7 @@ npm --prefix packages/pdf-renderer-pilot run build:report-static-zone-handoff
 npm --prefix packages/pdf-renderer-pilot run build:report-body-display-list
 npm --prefix packages/pdf-renderer-pilot run build:full-document-subsets
 npm --prefix packages/pdf-renderer-pilot run build:full-document-proof
+npm --prefix packages/pdf-renderer-pilot run build:report-export-handoff
 ```
 
 Build the retained subset with Python FontTools:
