@@ -234,6 +234,26 @@ function initialCursor(input: {
   })
 }
 
+export function createInitialVNextTableFlowV4PaginationCursor(input: {
+  prepared: Extract<VNextTablePreparedRowsResultV1, { status: "ready" }>
+  pageBodyHeightPt: number
+  headerPolicy?: "no-repeat" | "repeat-leading-headers"
+  maximumRowPlanCount: number
+  startPageIndex?: number
+}): VNextTableFlowV4PaginationCursor {
+  const headerPolicy = input.headerPolicy ?? "no-repeat"
+  return initialCursor({
+    prepared: input.prepared,
+    sourceFingerprint: createVNextTableFlowV4SourceFingerprint(input.prepared),
+    profileFingerprint: createVNextTableFlowV4ProfileFingerprint({
+      pageBodyHeightPt: input.pageBodyHeightPt,
+      headerPolicy,
+      maximumRowPlanCount: input.maximumRowPlanCount,
+    }),
+    startPageIndex: input.startPageIndex ?? 0,
+  })
+}
+
 function contracts(headerPolicy: "no-repeat" | "repeat-leading-headers") {
   return {
     preparedInputMutation: false as const,
@@ -505,7 +525,13 @@ export function paginateVNextTableFlowV4(input: {
     cumulativeWork: emptyWork(),
   })
   const cursorBefore = clone(input.cursor ?? (input.prepared.status === "ready"
-    ? initialCursor({ prepared: input.prepared, sourceFingerprint, profileFingerprint, startPageIndex })
+    ? createInitialVNextTableFlowV4PaginationCursor({
+        prepared: input.prepared,
+        pageBodyHeightPt: input.pageBodyHeightPt,
+        headerPolicy,
+        maximumRowPlanCount: input.maximumRowPlanCount,
+        startPageIndex,
+      })
     : fallbackCursor))
   const work = emptyWork()
   const baseInput = {

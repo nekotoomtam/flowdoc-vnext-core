@@ -1,0 +1,138 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-i-canonical-report-pagination-inputs-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-I",
+  "status": "accepted-family-inputs-and-footer-capacity-proof-pagination-not-run",
+  "sourceFingerprints": {
+    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+    "nativeShaping": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+    "lineBreaking": "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
+    "measuredComposition": "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
+    "sectionReconciliation": "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
+    "fontManifest": "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077",
+    "rawEvidence": "e91ae9ed121332008b14fd6c3cd581969f495446aa85407f8cfdba90cefb21d1"
+  },
+  "planFingerprint": "d13f1bf650d515ebccf945c24b254a00363364cf5252185167c6a08e118fcbf2",
+  "bundleFingerprint": "53b7625803925243bbb62ca9a7afcb12257f3fd47e82deebc7de3162ae63de00",
+  "coreCompositionManifestFingerprint": "sha256:e168b089540c1022cf40da1f62a6750f58b4e8950b2eb67e0fac7ddb535f3e42",
+  "byFamily": [
+    {
+      "family": "text-flow",
+      "inputCount": 153,
+      "uniqueMeasurementOwnerCount": 153,
+      "initialCursorCount": 153
+    },
+    {
+      "family": "table-flow",
+      "inputCount": 15,
+      "uniqueMeasurementOwnerCount": 15,
+      "initialCursorCount": 15
+    },
+    {
+      "family": "media-flow",
+      "inputCount": 5,
+      "uniqueMeasurementOwnerCount": 5,
+      "initialCursorCount": 5
+    }
+  ],
+  "generatedFooter": {
+    "sourceSectionId": "section-cover",
+    "zoneId": "cover-footer-zone",
+    "textBlockId": "cover-footer-text",
+    "pageNumberInlineId": "cover-footer-text-page",
+    "renderedCapacitySample": "รายงานผลการทดสอบ | หน้า 8888",
+    "capacityDigits": 4,
+    "maximumPageNumber": 1000,
+    "lineCount": 1,
+    "widthPt": 128.52,
+    "heightPt": 12,
+    "reservedHeightPt": 24,
+    "reservedSlackPt": 12,
+    "glyphCount": 28,
+    "missingGlyphCount": 0,
+    "evidenceFingerprint": "sha256:6af7d13320315a99cff5465a9acc257130bd4a178f888cf61bd9e0d52c99ad5f"
+  },
+  "summary": {
+    "bodyItemCount": 173,
+    "familyInputCount": 173,
+    "textFlowInputCount": 153,
+    "tableFlowInputCount": 15,
+    "mediaFlowInputCount": 5,
+    "measurementOwnerReplacementCount": 173,
+    "sourceLocatorCount": 173,
+    "initialCursorCount": 173,
+    "generatedFooterCapacityDigits": 4,
+    "generatedFooterMaximumPageNumber": 1000,
+    "generatedFooterLineCount": 1,
+    "generatedFooterHeightPt": 12,
+    "generatedFooterReservedHeightPt": 24,
+    "generatedFooterReservedSlackPt": 12,
+    "paginationExecuted": false,
+    "pageAssignmentExecuted": false
+  },
+  "executionGate": {
+    "status": "pagination-inputs-ready-document-transition-blocked",
+    "everyBodyRootBound": true,
+    "everyPlaceholderMeasurementOwnerReplaced": true,
+    "exactInitialCursorsCreated": true,
+    "tableHeaderPolicyPinned": "repeat-leading-headers",
+    "generatedFooterCapacityMeasured": true,
+    "actualPageNumbersExpanded": false,
+    "familyPaginationExecuted": false,
+    "documentCompositionTransitionExecuted": false,
+    "pageAssignmentExecuted": false,
+    "pdfRendered": false,
+    "blockers": [
+      {
+        "code": "document-pagination-not-executed",
+        "blocks": "page-assignment",
+        "message": "All family inputs and initial cursors are bound, but no family window or document transition has executed."
+      },
+      {
+        "code": "actual-page-number-expansion-pending",
+        "blocks": "final-footer-paint",
+        "message": "The four-digit capacity sample is measured, but actual page-number glyphs require final page assignment."
+      },
+      {
+        "code": "twelve-page-pagination-sensitive",
+        "blocks": "twelve-page-fidelity",
+        "message": "The twelve-page target still depends on actual page-top spacing suppression and family fragmentation overhead."
+      },
+      {
+        "code": "page-assignment-not-executed",
+        "blocks": "pdf-rendering",
+        "message": "No body fragment, static zone, or generated footer has a final page assignment."
+      }
+    ]
+  },
+  "ownership": {
+    "paginationInputsOwns": [
+      "family-source-locators",
+      "bounded-family-pagination-config",
+      "exact-family-initial-cursors",
+      "generated-page-number-capacity-measurement",
+      "pagination-ready-core-composition-manifest"
+    ],
+    "paginationInputsMustNotOwn": [
+      "family-pagination-execution",
+      "document-composition-transition",
+      "actual-page-number-expansion",
+      "page-assignment",
+      "pdf-bytes"
+    ]
+  },
+  "boundary": {
+    "measuredComposition": "consumed-by-reference",
+    "sectionReconciliation": "consumed",
+    "familyPaginationInputs": "bound",
+    "familyInitialCursors": "created",
+    "generatedFooterCapacityMeasurement": "executed",
+    "coreCompositionManifest": "refinalized",
+    "familyPagination": "not-run",
+    "documentCompositionTransition": "not-run",
+    "actualPageNumberExpansion": "not-run",
+    "pageAssignment": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-J bounded document composition transition and pagination execution"
+}

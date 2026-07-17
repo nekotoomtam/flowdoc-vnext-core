@@ -9,6 +9,7 @@ export const VNEXT_TEXT_BLOCK_V4_MEASUREMENT_VERSION = 1 as const
 export type VNextTextBlockV4MeasurementRunKind =
   | "text"
   | "resolved-field"
+  | "generated-page-number"
   | "hard-break"
   | "inline-image"
 
@@ -27,10 +28,17 @@ export interface VNextTextBlockV4MeasurementRun {
   renderEndOffset: number
   renderedText: string
   fieldKey?: string
+  generatedOwnerFingerprint?: string
   assetId?: string | null
   frame?: InlineImageV4Target["frame"]
   styleKey?: string
   localStyle?: TextRunStyleV4Target
+}
+
+export interface VNextTextBlockV4GeneratedInlineMeasurementBinding {
+  kind: "page-number"
+  value: string
+  ownerFingerprint: string
 }
 
 export interface VNextTextBlockV4MeasurementRequest {
@@ -82,6 +90,7 @@ export interface VNextTextBlockV4ResolvedMeasurementNodeInput {
   styleKey: string
   resolvedTextByInlineId: Readonly<Record<string, { fieldKey: string; value: string }>>
   resolvedImageByPlacementId: Readonly<Record<string, { assetId: string | null }>>
+  generatedTextByInlineId?: Readonly<Record<string, VNextTextBlockV4GeneratedInlineMeasurementBinding>>
 }
 
 export interface VNextTextBlockV4MeasuredLineInput {
@@ -160,12 +169,44 @@ export function createVNextTextBlockV4MeasurementRequestFromResolvedNode(
   input.textBlock.children.forEach((inline, index) => {
     const start = renderedText.length
     if (inline.type === "page-number") {
-      issues.push(issue(
-        "generated-inline-unresolved",
-        `document.textBlock.children[${index}]`,
-        "page-number must be expanded before exact text measurement",
-        inline.id,
-      ))
+      const binding = input.generatedTextByInlineId?.[inline.id]
+      if (binding == null) {
+        issues.push(issue(
+          "generated-inline-unresolved",
+          `document.textBlock.children[${index}]`,
+          "page-number must be expanded before exact text measurement",
+          inline.id,
+        ))
+        return
+      }
+      if (binding.kind !== "page-number" || binding.value.length === 0) {
+        issues.push(issue(
+          "generated-inline-binding-invalid",
+          `generatedTextByInlineId.${inline.id}`,
+          "page-number expansion must retain a non-empty generated value",
+          inline.id,
+        ))
+        return
+      }
+      if (!/^sha256:[a-f0-9]{64}$/u.test(binding.ownerFingerprint)) {
+        issues.push(issue(
+          "generated-inline-owner-invalid",
+          `generatedTextByInlineId.${inline.id}.ownerFingerprint`,
+          "page-number expansion must pin its compact generation owner fingerprint",
+          inline.id,
+        ))
+        return
+      }
+      renderedText += binding.value
+      runs.push({
+        inlineId: inline.id,
+        kind: "generated-page-number",
+        renderedText: binding.value,
+        renderStartOffset: start,
+        renderEndOffset: renderedText.length,
+        styleKey: input.styleKey,
+        generatedOwnerFingerprint: binding.ownerFingerprint,
+      })
       return
     }
 

@@ -925,6 +925,10 @@ The package must remain runnable without any parent editor checkout.
   continuous Core composition section, binds a demand/window spacing bridge,
   and exposes a pagination-sensitive thirteen-unit gross demand against the
   twelve-page target without deleting content.
+- PDF canonical report pagination inputs replace all 173 provisional manifest
+  measurement owners with family-owned text/table/media identities and exact
+  initial cursors, then accept a native-shaped four-digit generated-footer
+  capacity sample while leaving pagination and page assignment inactive.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

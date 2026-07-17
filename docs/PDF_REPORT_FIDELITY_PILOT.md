@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-H reconciliation accepted; twelve-page pagination remains blocked.
+Status: PDF-PILOT-08B-R2C-I pagination inputs and footer capacity proof accepted; pagination remains blocked.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -548,6 +548,35 @@ Primary Phase 08B-R2C-H evidence:
 - `tests/documentCompositionSpacingBridgeV1.test.ts`;
 - `tests/pdfRendererPilotCanonicalReportSectionReconciliation.test.ts`.
 
+## PDF-PILOT-08B-R2C-I Scope
+
+Phase 08B-R2C-I consumes the exact R2C-C through R2C-F evidence and the R2C-H
+continuous-section manifest. It binds all 173 roots to family-owned source
+locators, bounded input profiles, real initial cursors, and composition cursor
+references: 153 text flows, fifteen table flows with repeated leading headers,
+and five atomic media flows.
+
+Core now retains generated page-number expansion as a distinct measurement run
+with its generation-owner fingerprint. The canonical footer capacity sample
+`รายงานผลการทดสอบ | หน้า 8888` covers the manifest's 1,000-page limit and is
+measured through native rustybuzz, native ICU4X, line wrapping, and Core
+acceptance. It is one `128.52pt`-wide, 12pt-high line inside the 24pt footer
+reservation with zero missing glyphs.
+
+The refinalized Core manifest replaces all 173 provisional measurement owners
+and the deferred footer evidence. No family paginator or document transition
+runs in this phase. Actual page-number glyphs, page-top spacing suppression,
+repeated-header overhead, final page count, page assignment, and PDF rendering
+remain blocked.
+
+Primary Phase 08B-R2C-I evidence:
+
+- `docs/PDF_CANONICAL_REPORT_PAGINATION_INPUTS_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-pagination-inputs.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-inputs-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-inputs-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportPaginationInputs.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -713,6 +742,13 @@ Build and validate spacing and vertical-capacity evidence:
 npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
 ```
 
+Build and validate reconciled family inputs and generated-footer capacity:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-section-reconciliation
+npm --prefix packages/pdf-renderer-pilot run build:report-pagination-inputs
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -782,18 +818,20 @@ npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
   demand/window bridge, and exposes a thirteen-unit gross demand whose final
   twelve-page result depends on real page-top suppression and pagination
   overhead.
+- Pagination-input preparation binds all 173 family sources and real initial
+  cursors, replaces every provisional manifest measurement owner, and accepts
+  a four-digit native generated-footer capacity proof with 12pt vertical slack.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-H section reconciliation and spacing-bridge
-evidence.
+None for closing PDF-PILOT-08B-R2C-I family pagination-input and generated
+footer-capacity evidence.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
 thresholds, broader reader compatibility, source-profile promotion, native to
-WASM parity, family pagination input binding, generated footer measurement,
-vertical placement, pagination, and PDF rendering. The reconciled gross demand
-is thirteen capacity units; twelve pages remain sensitive to page-top gap
-suppression and pagination overhead.
+WASM parity, actual page-number shaping, vertical placement, pagination, and
+PDF rendering. The reconciled gross demand is thirteen capacity units; twelve
+pages remain sensitive to page-top gap suppression and pagination overhead.
 
 ## RISK
 
@@ -818,6 +856,7 @@ suppression and pagination overhead.
 - exact page-top gap suppression under real family pagination;
 - repeated table-header and continuation overhead against the 83.385829pt
   theoretical twelve-page budget;
+- final per-page footer glyph evidence after page assignment;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -835,5 +874,5 @@ suppression and pagination overhead.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-I` family pagination input binding and generated
-footer measurement.
+Next phase: `PDF-PILOT-08B-R2C-J` bounded document composition transition and
+pagination execution.

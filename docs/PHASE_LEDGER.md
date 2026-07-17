@@ -10479,3 +10479,38 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-I` family pagination input binding and generated
 footer measurement.
+
+## PDF-PILOT-08B-R2C-I Pagination Inputs
+
+Status: family pagination inputs and generated-footer capacity proof accepted;
+pagination remains blocked.
+
+R2C-I consumes the exact R2C-C through R2C-F evidence and R2C-H reconciled
+manifest. All 173 body roots now retain exact source locators, bounded family
+input profiles, full initial cursors, and composition cursor references: 153
+text flows, fifteen table flows, and five atomic media flows. Table inputs pin
+`repeat-leading-headers`; no table page planner executes.
+
+Core text measurement now retains generated page numbers as distinct
+`generated-page-number` runs with compact generation-owner fingerprints. The
+canonical four-digit sample `รายงานผลการทดสอบ | หน้า 8888` is shaped with
+native rustybuzz, segmented with native ICU4X, wrapped at `498.614173pt`, and
+accepted by Core as one `128.52pt`-wide, 12pt-high line. The 24pt footer
+reservation retains 12pt slack and all 28 glyphs are covered without missing
+glyphs.
+
+The refinalized Core manifest replaces all 173 provisional measurement owners
+and the deferred footer evidence. It does not contain pages, placements, or PDF
+bytes. Actual page-number expansion, family pagination, spacing suppression,
+page assignment, and the twelve-page decision remain downstream.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_PAGINATION_INPUTS_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-pagination-inputs.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-inputs-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-inputs-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportPaginationInputs.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-J` bounded document composition transition and
+pagination execution.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  createInitialVNextTableFlowV4PaginationCursor,
   hasValidVNextTableFlowV4CursorFingerprint,
   hasValidVNextTableFlowV4PageCheckpointFingerprint,
   hasValidVNextTableFlowV4WindowPaginationFingerprint,
@@ -63,6 +64,33 @@ function prepared(bodyRows: number[][], headerHeightPt?: number): Extract<VNextT
 }
 
 describe("Table-flow v4 bounded window pagination", () => {
+  it("creates the same initial cursor owned by the paginator source and profile", () => {
+    const input = prepared([[50], [60, 60]], 20)
+    const cursor = createInitialVNextTableFlowV4PaginationCursor({
+      prepared: input,
+      pageBodyHeightPt: 100,
+      headerPolicy: "repeat-leading-headers",
+      maximumRowPlanCount: 20,
+    })
+    const pagination = paginateVNextTableFlowV4({
+      prepared: input,
+      pageBodyHeightPt: 100,
+      headerPolicy: "repeat-leading-headers",
+      maximumPageCount: 1,
+      maximumRowPlanCount: 20,
+    })
+
+    expect(cursor).toEqual(pagination.cursorBefore)
+    expect(cursor).toMatchObject({
+      nextPageIndex: 0,
+      nextFragmentIndex: 0,
+      terminalFragmentCommitted: false,
+      complete: false,
+      cumulativeWork: { pageAttemptCount: 0, rowPlanCount: 0 },
+    })
+    expect(hasValidVNextTableFlowV4CursorFingerprint(cursor)).toBe(true)
+  })
+
   it("resumes one-page checkpoints to exact complete pages and final Table cursor", () => {
     const input = prepared([[50], [60, 60]], 20)
     const baseline = paginateVNextTableRowsV1({

@@ -69,6 +69,15 @@ explicit 11pt gap before eleven non-initial semantic headings. Gross demand is
 thirteen capacity units; twelve-page fidelity remains blocked until real
 page-top suppression and pagination overhead are known.
 
+## Pagination Input Evidence
+
+`PDF-PILOT-08B-R2C-I` binds all 173 roots to exact measured/prepared/atomic
+sources, bounded family configurations, real initial family cursors, and a
+refinalized Core composition manifest. It also measures the generated footer
+capacity sample `8888` through native rustybuzz, ICU4X, line wrapping, and Core
+acceptance. Actual family pagination, page numbers, page assignment, and PDF
+rendering remain blocked.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -86,6 +95,7 @@ npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
 npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
 npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
 npm --prefix packages/pdf-renderer-pilot run build:report-section-reconciliation
+npm --prefix packages/pdf-renderer-pilot run build:report-pagination-inputs
 ```
 
 Build the retained subset with Python FontTools:

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockV4MeasuredLines,
   createVNextTextBlockV4MeasurementRequest,
+  createVNextTextBlockV4MeasurementRequestFromResolvedNode,
   type VNextResolvedDocumentV1,
 } from "../src/index.js"
 
@@ -205,6 +206,83 @@ describe("text-block v4 measurement source ranges", () => {
     expect(createVNextTextBlockV4MeasurementRequest(missingImage, {
       textBlockId: "body-text", availableWidthPt: 300, measurementProfileId: "profile",
     })).toMatchObject({ status: "blocked", issues: [expect.objectContaining({ code: "resolved-image-binding-missing" })] })
+  })
+
+  it("retains generated page-number ownership through exact measurement", () => {
+    const resolved = resolvedFixture()
+    const section = resolved.document.document.sections[0]
+    const zone = section.nodes["body-zone"]
+    if (zone.type !== "zone") throw new Error("fixture zone missing")
+    zone.role = "footer"
+    const textBlock = section.nodes["body-text"]
+    if (textBlock.type !== "text-block") throw new Error("fixture body missing")
+    textBlock.children = [
+      { id: "label", type: "text", text: "Page " },
+      { id: "page", type: "page-number" },
+    ]
+    const ownerFingerprint = `sha256:${"a".repeat(64)}`
+    const requestResult = createVNextTextBlockV4MeasurementRequestFromResolvedNode({
+      documentId: resolved.instanceId,
+      instanceRevision: resolved.instanceRevision,
+      sectionId: section.id,
+      textBlock,
+      availableWidthPt: 300,
+      measurementProfileId: "thai-primary-v1",
+      styleKey: "body",
+      resolvedTextByInlineId: {},
+      resolvedImageByPlacementId: {},
+      generatedTextByInlineId: {
+        page: { kind: "page-number", value: "8888", ownerFingerprint },
+      },
+    })
+
+    expect(requestResult.status).toBe("ready")
+    if (requestResult.status !== "ready") throw new Error("generated request blocked")
+    expect(requestResult.request).toMatchObject({
+      renderedText: "Page 8888",
+      runs: [
+        { inlineId: "label", kind: "text", renderedText: "Page " },
+        {
+          inlineId: "page",
+          kind: "generated-page-number",
+          renderedText: "8888",
+          generatedOwnerFingerprint: ownerFingerprint,
+        },
+      ],
+    })
+    const accepted = acceptVNextTextBlockV4MeasuredLines(requestResult.request, [{
+      index: 0,
+      startOffset: 0,
+      endOffset: 9,
+      text: "Page 8888",
+      widthPt: 48,
+      heightPt: 12,
+    }])
+    expect(accepted).toMatchObject({
+      status: "accepted",
+      lines: [{
+        sourceEnd: { inlineId: "page", authoredOffset: 1, resolvedOffset: 4 },
+      }],
+    })
+
+    const invalidOwner = createVNextTextBlockV4MeasurementRequestFromResolvedNode({
+      documentId: resolved.instanceId,
+      instanceRevision: resolved.instanceRevision,
+      sectionId: section.id,
+      textBlock,
+      availableWidthPt: 300,
+      measurementProfileId: "thai-primary-v1",
+      styleKey: "body",
+      resolvedTextByInlineId: {},
+      resolvedImageByPlacementId: {},
+      generatedTextByInlineId: {
+        page: { kind: "page-number", value: "1", ownerFingerprint: "not-pinned" },
+      },
+    })
+    expect(invalidOwner).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "generated-inline-owner-invalid" })],
+    })
   })
 
   it("blocks incomplete, discontinuous, invalid-geometry, and unsafe UTF-16 line results", () => {
