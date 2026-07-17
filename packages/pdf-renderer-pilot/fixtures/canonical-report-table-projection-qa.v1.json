@@ -1,0 +1,713 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-c-canonical-report-table-projection-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-C",
+  "status": "accepted",
+  "sourceFingerprints": {
+    "data": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
+    "template": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
+    "formatting": "e4f0411afc7d6868971019fb536146f63aa355b5a6e48c606502342bd6302e26",
+    "measurementHandoff": "07126bb73a6c9dd7342b1fb9e33cdd696d89cb660056d237cb708118fb2f15d2"
+  },
+  "projectionContractFingerprint": "028956cc81c16d7f29c42913ee9a154f56faaf20d5b39097fb0c73b62b066f3c",
+  "bundleFingerprint": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+  "projections": [
+    {
+      "collectionFieldKey": "report.ocr_runs",
+      "projectionId": "ocr-run-context",
+      "viewLabel": "ข้อมูลรอบ OCR",
+      "tableId": "table-ocr-runs-ocr-run-context",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "primary",
+          "widthShare": 16
+        },
+        {
+          "fieldKey": "provider",
+          "headerLabel": "Provider",
+          "coverageRole": "primary",
+          "widthShare": 12
+        },
+        {
+          "fieldKey": "run_id",
+          "headerLabel": "Run ID",
+          "coverageRole": "primary",
+          "widthShare": 30
+        },
+        {
+          "fieldKey": "round",
+          "headerLabel": "รอบ",
+          "coverageRole": "primary",
+          "widthShare": 10
+        },
+        {
+          "fieldKey": "order",
+          "headerLabel": "ลำดับ",
+          "coverageRole": "primary",
+          "widthShare": 16
+        },
+        {
+          "fieldKey": "pages",
+          "headerLabel": "หน้า",
+          "coverageRole": "primary",
+          "widthShare": 16
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 36,
+      "authoredRequestCount": 6,
+      "materializedRequestCount": 36,
+      "minimumCellContentWidthPt": 41.606299
+    },
+    {
+      "collectionFieldKey": "report.ocr_runs",
+      "projectionId": "ocr-confidence",
+      "viewLabel": "ปริมาณข้อความและ Confidence",
+      "tableId": "table-ocr-runs-ocr-confidence",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 18
+        },
+        {
+          "fieldKey": "words",
+          "headerLabel": "จำนวนคำ",
+          "coverageRole": "primary",
+          "widthShare": 14
+        },
+        {
+          "fieldKey": "average_confidence",
+          "headerLabel": "Conf. เฉลี่ย",
+          "coverageRole": "primary",
+          "widthShare": 17
+        },
+        {
+          "fieldKey": "minimum_confidence",
+          "headerLabel": "Conf. ต่ำสุด",
+          "coverageRole": "primary",
+          "widthShare": 17
+        },
+        {
+          "fieldKey": "low_confidence_words",
+          "headerLabel": "คำ Conf. ต่ำ",
+          "coverageRole": "primary",
+          "widthShare": 18
+        },
+        {
+          "fieldKey": "bbox_coverage",
+          "headerLabel": "BBox coverage",
+          "coverageRole": "primary",
+          "widthShare": 16
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 36,
+      "authoredRequestCount": 6,
+      "materializedRequestCount": 36,
+      "minimumCellContentWidthPt": 61.448819
+    },
+    {
+      "collectionFieldKey": "report.ocr_runs",
+      "projectionId": "ocr-quality",
+      "viewLabel": "ความแม่นยำและข้อมูลสำคัญ",
+      "tableId": "table-ocr-runs-ocr-quality",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "character_accuracy",
+          "headerLabel": "Character",
+          "coverageRole": "primary",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "word_accuracy",
+          "headerLabel": "Word",
+          "coverageRole": "primary",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "critical_values_found",
+          "headerLabel": "ค่าที่พบ",
+          "coverageRole": "primary",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "critical_values_total",
+          "headerLabel": "ค่าทั้งหมด",
+          "coverageRole": "primary",
+          "widthShare": 20
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 30,
+      "authoredRequestCount": 5,
+      "materializedRequestCount": 30,
+      "minimumCellContentWidthPt": 91.212598
+    },
+    {
+      "collectionFieldKey": "report.ocr_runs",
+      "projectionId": "ocr-runtime-cost",
+      "viewLabel": "เวลา ขนาดผลลัพธ์ และต้นทุน OCR",
+      "tableId": "table-ocr-runs-ocr-runtime-cost",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "latency_ms",
+          "headerLabel": "เวลา",
+          "coverageRole": "primary",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "response_bytes",
+          "headerLabel": "ขนาดผลลัพธ์",
+          "coverageRole": "primary",
+          "widthShare": 22
+        },
+        {
+          "fieldKey": "cost_usd",
+          "headerLabel": "USD",
+          "coverageRole": "primary",
+          "widthShare": 19
+        },
+        {
+          "fieldKey": "cost_thb",
+          "headerLabel": "บาท",
+          "coverageRole": "primary",
+          "widthShare": 19
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 30,
+      "authoredRequestCount": 5,
+      "materializedRequestCount": 30,
+      "minimumCellContentWidthPt": 86.251968
+    },
+    {
+      "collectionFieldKey": "report.native_runs",
+      "projectionId": "native-run-context",
+      "viewLabel": "ข้อมูลรอบ Native Extraction",
+      "tableId": "table-native-runs-native-run-context",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "primary",
+          "widthShare": 16
+        },
+        {
+          "fieldKey": "provider",
+          "headerLabel": "Provider",
+          "coverageRole": "primary",
+          "widthShare": 12
+        },
+        {
+          "fieldKey": "run_id",
+          "headerLabel": "Run ID",
+          "coverageRole": "primary",
+          "widthShare": 30
+        },
+        {
+          "fieldKey": "round",
+          "headerLabel": "รอบ",
+          "coverageRole": "primary",
+          "widthShare": 10
+        },
+        {
+          "fieldKey": "order",
+          "headerLabel": "ลำดับ",
+          "coverageRole": "primary",
+          "widthShare": 16
+        },
+        {
+          "fieldKey": "pages",
+          "headerLabel": "หน้า",
+          "coverageRole": "primary",
+          "widthShare": 16
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 36,
+      "authoredRequestCount": 6,
+      "materializedRequestCount": 36,
+      "minimumCellContentWidthPt": 41.606299
+    },
+    {
+      "collectionFieldKey": "report.native_runs",
+      "projectionId": "native-confidence",
+      "viewLabel": "ปริมาณข้อความและ Confidence",
+      "tableId": "table-native-runs-native-confidence",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 18
+        },
+        {
+          "fieldKey": "words",
+          "headerLabel": "จำนวนคำ",
+          "coverageRole": "primary",
+          "widthShare": 14
+        },
+        {
+          "fieldKey": "average_confidence",
+          "headerLabel": "Conf. เฉลี่ย",
+          "coverageRole": "primary",
+          "widthShare": 17
+        },
+        {
+          "fieldKey": "minimum_confidence",
+          "headerLabel": "Conf. ต่ำสุด",
+          "coverageRole": "primary",
+          "widthShare": 17
+        },
+        {
+          "fieldKey": "low_confidence_words",
+          "headerLabel": "คำ Conf. ต่ำ",
+          "coverageRole": "primary",
+          "widthShare": 18
+        },
+        {
+          "fieldKey": "bbox_coverage",
+          "headerLabel": "BBox coverage",
+          "coverageRole": "primary",
+          "widthShare": 16
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 36,
+      "authoredRequestCount": 6,
+      "materializedRequestCount": 36,
+      "minimumCellContentWidthPt": 61.448819
+    },
+    {
+      "collectionFieldKey": "report.native_runs",
+      "projectionId": "native-structure-inventory",
+      "viewLabel": "โครงสร้างที่ตรวจพบ",
+      "tableId": "table-native-runs-native-structure-inventory",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 22
+        },
+        {
+          "fieldKey": "non_empty_key_values",
+          "headerLabel": "Key-value",
+          "coverageRole": "primary",
+          "widthShare": 30
+        },
+        {
+          "fieldKey": "table_count",
+          "headerLabel": "ตาราง",
+          "coverageRole": "primary",
+          "widthShare": 22
+        },
+        {
+          "fieldKey": "table_cell_count",
+          "headerLabel": "เซลล์ตาราง",
+          "coverageRole": "primary",
+          "widthShare": 26
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 24,
+      "authoredRequestCount": 4,
+      "materializedRequestCount": 24,
+      "minimumCellContentWidthPt": 101.133858
+    },
+    {
+      "collectionFieldKey": "report.native_runs",
+      "projectionId": "native-structure-coverage",
+      "viewLabel": "Coverage ของข้อมูลเชิงโครงสร้าง",
+      "tableId": "table-native-runs-native-structure-coverage",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 25
+        },
+        {
+          "fieldKey": "structured_concepts_found",
+          "headerLabel": "Concept ที่พบ",
+          "coverageRole": "primary",
+          "widthShare": 25
+        },
+        {
+          "fieldKey": "structured_concepts_total",
+          "headerLabel": "Concept ทั้งหมด",
+          "coverageRole": "primary",
+          "widthShare": 25
+        },
+        {
+          "fieldKey": "structured_concept_coverage",
+          "headerLabel": "Coverage",
+          "coverageRole": "primary",
+          "widthShare": 25
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 24,
+      "authoredRequestCount": 4,
+      "materializedRequestCount": 24,
+      "minimumCellContentWidthPt": 116.015748
+    },
+    {
+      "collectionFieldKey": "report.native_runs",
+      "projectionId": "native-runtime-cost",
+      "viewLabel": "เวลา ขนาดผลลัพธ์ และต้นทุน Native",
+      "tableId": "table-native-runs-native-runtime-cost",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "latency_ms",
+          "headerLabel": "เวลา",
+          "coverageRole": "primary",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "response_bytes",
+          "headerLabel": "ขนาดผลลัพธ์",
+          "coverageRole": "primary",
+          "widthShare": 22
+        },
+        {
+          "fieldKey": "cost_usd",
+          "headerLabel": "USD",
+          "coverageRole": "primary",
+          "widthShare": 19
+        },
+        {
+          "fieldKey": "cost_thb",
+          "headerLabel": "บาท",
+          "coverageRole": "primary",
+          "widthShare": 19
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 30,
+      "authoredRequestCount": 5,
+      "materializedRequestCount": 30,
+      "minimumCellContentWidthPt": 86.251968
+    },
+    {
+      "collectionFieldKey": "report.mapping_fields",
+      "projectionId": "mapping-comparison",
+      "viewLabel": "ผล Mapping เทียบค่าที่คาดหวัง",
+      "tableId": "table-mapping-fields-mapping-comparison",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "primary",
+          "widthShare": 14
+        },
+        {
+          "fieldKey": "schema_path",
+          "headerLabel": "Schema path",
+          "coverageRole": "primary",
+          "widthShare": 28
+        },
+        {
+          "fieldKey": "expected_value_text",
+          "headerLabel": "ค่าที่คาดหวัง",
+          "coverageRole": "primary",
+          "widthShare": 22
+        },
+        {
+          "fieldKey": "value_text",
+          "headerLabel": "ค่าที่ Mapping",
+          "coverageRole": "primary",
+          "widthShare": 22
+        },
+        {
+          "fieldKey": "correct",
+          "headerLabel": "ถูกต้อง",
+          "coverageRole": "primary",
+          "widthShare": 14
+        }
+      ],
+      "sourceRowCount": 10,
+      "formattedBindingCount": 50,
+      "authoredRequestCount": 5,
+      "materializedRequestCount": 50,
+      "minimumCellContentWidthPt": 61.448819
+    },
+    {
+      "collectionFieldKey": "report.mapping_fields",
+      "projectionId": "mapping-evidence",
+      "viewLabel": "หลักฐานที่ใช้ Mapping",
+      "tableId": "table-mapping-fields-mapping-evidence",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "context",
+          "widthShare": 15
+        },
+        {
+          "fieldKey": "schema_path",
+          "headerLabel": "Schema path",
+          "coverageRole": "context",
+          "widthShare": 35
+        },
+        {
+          "fieldKey": "source_label",
+          "headerLabel": "Source label",
+          "coverageRole": "primary",
+          "widthShare": 25
+        },
+        {
+          "fieldKey": "confidence",
+          "headerLabel": "Confidence",
+          "coverageRole": "primary",
+          "widthShare": 15
+        },
+        {
+          "fieldKey": "page",
+          "headerLabel": "หน้า",
+          "coverageRole": "primary",
+          "widthShare": 10
+        }
+      ],
+      "sourceRowCount": 10,
+      "formattedBindingCount": 50,
+      "authoredRequestCount": 5,
+      "materializedRequestCount": 50,
+      "minimumCellContentWidthPt": 41.606299
+    },
+    {
+      "collectionFieldKey": "report.native_missing_concepts",
+      "projectionId": "native-missing-concepts",
+      "viewLabel": "Concept ที่ Native Extraction ยังไม่พบ",
+      "tableId": "table-native-missing-concepts-native-missing-concepts",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "engine",
+          "headerLabel": "Engine",
+          "coverageRole": "primary",
+          "widthShare": 30
+        },
+        {
+          "fieldKey": "concept_id",
+          "headerLabel": "Concept",
+          "coverageRole": "primary",
+          "widthShare": 70
+        }
+      ],
+      "sourceRowCount": 13,
+      "formattedBindingCount": 26,
+      "authoredRequestCount": 2,
+      "materializedRequestCount": 26,
+      "minimumCellContentWidthPt": 140.818898
+    },
+    {
+      "collectionFieldKey": "report.runs",
+      "projectionId": "run-status",
+      "viewLabel": "สถานะและความถูกต้องของ Run",
+      "tableId": "table-runs-run-status",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "round",
+          "headerLabel": "รอบ",
+          "coverageRole": "primary",
+          "widthShare": 10
+        },
+        {
+          "fieldKey": "provider",
+          "headerLabel": "Provider",
+          "coverageRole": "primary",
+          "widthShare": 14
+        },
+        {
+          "fieldKey": "run_id",
+          "headerLabel": "Run ID",
+          "coverageRole": "primary",
+          "widthShare": 30
+        },
+        {
+          "fieldKey": "status",
+          "headerLabel": "สถานะ",
+          "coverageRole": "primary",
+          "widthShare": 16
+        },
+        {
+          "fieldKey": "source_hash_matches",
+          "headerLabel": "Source hash",
+          "coverageRole": "primary",
+          "widthShare": 20
+        },
+        {
+          "fieldKey": "error_count",
+          "headerLabel": "Error",
+          "coverageRole": "primary",
+          "widthShare": 10
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 36,
+      "authoredRequestCount": 6,
+      "materializedRequestCount": 36,
+      "minimumCellContentWidthPt": 41.606299
+    },
+    {
+      "collectionFieldKey": "report.runs",
+      "projectionId": "run-engines-pages",
+      "viewLabel": "Engine และจำนวนหน้าต่อ Run",
+      "tableId": "table-runs-run-engines-pages",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "run_id",
+          "headerLabel": "Run ID",
+          "coverageRole": "context",
+          "widthShare": 30
+        },
+        {
+          "fieldKey": "order",
+          "headerLabel": "ลำดับ",
+          "coverageRole": "primary",
+          "widthShare": 10
+        },
+        {
+          "fieldKey": "ocr_engine",
+          "headerLabel": "OCR engine",
+          "coverageRole": "primary",
+          "widthShare": 18
+        },
+        {
+          "fieldKey": "native_engine",
+          "headerLabel": "Native engine",
+          "coverageRole": "primary",
+          "widthShare": 18
+        },
+        {
+          "fieldKey": "ocr_pages",
+          "headerLabel": "หน้า OCR",
+          "coverageRole": "primary",
+          "widthShare": 12
+        },
+        {
+          "fieldKey": "native_pages",
+          "headerLabel": "หน้า Native",
+          "coverageRole": "primary",
+          "widthShare": 12
+        }
+      ],
+      "sourceRowCount": 6,
+      "formattedBindingCount": 36,
+      "authoredRequestCount": 6,
+      "materializedRequestCount": 36,
+      "minimumCellContentWidthPt": 41.606299
+    },
+    {
+      "collectionFieldKey": "report.gdim_expected_fields",
+      "projectionId": "gdim-expected-fields",
+      "viewLabel": "ฟิลด์ GDIM ที่คาดหวัง",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "tableContentWidthPt": 496.062992,
+      "columns": [
+        {
+          "fieldKey": "schema_path",
+          "headerLabel": "Schema path",
+          "coverageRole": "primary",
+          "widthShare": 40
+        },
+        {
+          "fieldKey": "expected_value_text",
+          "headerLabel": "ค่าที่คาดหวัง",
+          "coverageRole": "primary",
+          "widthShare": 60
+        }
+      ],
+      "sourceRowCount": 32,
+      "formattedBindingCount": 64,
+      "authoredRequestCount": 2,
+      "materializedRequestCount": 64,
+      "minimumCellContentWidthPt": 190.425197
+    }
+  ],
+  "geometryGate": {
+    "status": "accepted-ready-for-text-engine-binding",
+    "sourceTableCount": 6,
+    "projectedTableCount": 15,
+    "sourceMaximumColumnCount": 21,
+    "projectedMaximumColumnCount": 6,
+    "sourceMinimumCellContentWidthPt": 15.622047,
+    "projectedMinimumCellContentWidthPt": 41.606299,
+    "tableWidthMm": 175,
+    "minimumColumnWidthShare": 10,
+    "sourceCollectionContractMutation": false
+  },
+  "summary": {
+    "sourceCollectionCount": 6,
+    "sourceItemFieldCount": 63,
+    "sourceCollectionRowCount": 73,
+    "projectionTableCount": 15,
+    "projectionPrimaryColumnCount": 63,
+    "projectionContextColumnCount": 10,
+    "projectionColumnCount": 73,
+    "maximumProjectedColumnCount": 6,
+    "projectedCollectionRowCount": 131,
+    "projectedItemBindingCount": 544,
+    "tableCellGeometryCount": 146,
+    "documentRequestCount": 165,
+    "projectionTitleRequestCount": 15,
+    "authoredTableRequestCount": 73,
+    "materializedTableRequestCount": 544,
+    "totalReadyRequestCount": 782,
+    "generatedInlineDeferredBlockCount": 12,
+    "minimumCellContentWidthPt": 41.606299,
+    "maximumCellContentWidthPt": 339.244094,
+    "sourceMinimumCellContentWidthPt": 15.622047
+  },
+  "boundary": {
+    "tableProjection": "projected",
+    "scalarImageResolution": "resolved",
+    "collectionContentMaterialization": "materialized",
+    "localeDisplayFormatting": "consumed",
+    "tableGeometry": "prepared",
+    "measurementRequests": "prepared",
+    "textShaping": "not-run",
+    "lineBreaking": "not-run",
+    "lineBoxes": "not-run",
+    "layout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-D text-engine profile binding and execution boundary"
+}

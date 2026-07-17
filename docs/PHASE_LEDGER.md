@@ -10262,3 +10262,35 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-C` report table projection and geometry
 correction before report-wide text-engine execution.
+
+## PDF-PILOT-08B-R2C-C Report Table Projection And Geometry Correction
+
+Status: accepted as the presentation projection boundary before text-engine
+execution.
+
+R2C-C consumes the accepted R2A through R2C-B fingerprints and replaces six
+exhaustive collection tables with fifteen labelled views. Every one of the 63
+source item fields has exactly one primary placement. Ten engine, Run ID, and
+schema-path fields repeat only as explicit context placements. The source
+collection contracts, 73 source rows, raw values, and display-formatting
+definitions are not mutated.
+
+Each view uses at most six columns and explicit width shares totaling 100%
+within the retained 175mm table width. Minimum cell content width rises from
+`15.622047pt` to `41.606299pt`. Core resolves 131 projected presentation rows,
+materializes 544 formatted item bindings, and prepares 165 document, 73
+authored table, and 544 materialized table requests, for 782 ready packets.
+The twelve page-number footers remain deferred.
+
+Shaping, line breaking, line boxes, layout, pagination, and rendering remain
+`not-run`.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_TABLE_PROJECTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-table-projection.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-table-projection-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportTableProjection.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-D` text-engine profile binding and execution
+boundary.

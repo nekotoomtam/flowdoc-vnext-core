@@ -383,6 +383,33 @@ Primary Phase 08B-R2C-B evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-measurement-handoff-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportMeasurementHandoff.test.ts`.
 
+## PDF-PILOT-08B-R2C-C Scope
+
+Phase 08B-R2C-C consumes the exact R2A through R2C-B fingerprints and replaces
+the six exhaustive collection tables with fifteen labelled presentation
+views. All 63 source item fields retain exactly one primary placement; ten
+engine, Run ID, and schema-path contexts repeat explicitly across split views.
+The source collection contracts, source rows, raw values, and R2C-A formatting
+overlay remain unchanged.
+
+Each projected view has at most six columns, explicit shares totaling 100%,
+and a minimum 10% share within the retained 175mm table width. The minimum
+cell content width rises from `15.622047pt` to `41.606299pt`. Core scoped
+resolution materializes 131 presentation rows and 544 item bindings, then
+prepares 165 document, 73 authored table, and 544 materialized table requests:
+782 ready requests in total. Twelve generated page-number blocks remain
+deferred.
+
+Text shaping, line breaking, line boxes, layout, pagination, and PDF rendering
+remain `not-run`.
+
+Primary Phase 08B-R2C-C evidence:
+
+- `docs/PDF_CANONICAL_REPORT_TABLE_PROJECTION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-table-projection.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-table-projection-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportTableProjection.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -518,6 +545,12 @@ Build and validate the measurement-request and table-geometry handoff:
 npm --prefix packages/pdf-renderer-pilot run build:report-measurement-handoff
 ```
 
+Build and validate the table projection and corrected geometry handoff:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-table-projection
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -562,14 +595,18 @@ npm --prefix packages/pdf-renderer-pilot run build:report-measurement-handoff
 - Measurement-request handoff prepares 689 exact-width display-backed requests,
   retains all source identities, defers generated page numbers, and exposes the
   19/21-column table geometry before engine execution.
+- Table projection gives all 63 collection item fields one primary placement,
+  preserves ten explicit contexts across fifteen views, caps views at six
+  columns, prepares 782 requests, and clears the narrow-cell geometry gate
+  without mutating source contracts or running the text engine.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-B request preparation.
+None for closing PDF-PILOT-08B-R2C-C table projection and geometry correction.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, table projection correction, text
-measurement, line breaking, layout, pagination, and PDF rendering.
+thresholds, broader reader compatibility, text measurement, line breaking,
+layout, pagination, and PDF rendering.
 
 ## RISK
 
@@ -589,7 +626,7 @@ measurement, line breaking, layout, pagination, and PDF rendering.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- automatic table and heading wrap behavior after style-token calibration;
+- automatic table-cell and heading wrap behavior after projection;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -607,5 +644,5 @@ measurement, line breaking, layout, pagination, and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-C` report table projection and geometry
-correction before report-wide text-engine execution.
+Next phase: `PDF-PILOT-08B-R2C-D` text-engine profile binding and execution
+boundary.

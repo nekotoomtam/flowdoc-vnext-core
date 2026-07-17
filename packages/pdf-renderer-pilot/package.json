@@ -36,7 +36,8 @@
     "build:report-data-bundle": "node scripts/build-canonical-report-data-bundle.mjs",
     "build:report-template-resolution": "node scripts/build-canonical-report-template-resolution.mjs",
     "build:report-display-formatting": "node scripts/build-canonical-report-display-formatting.mjs",
-    "build:report-measurement-handoff": "node scripts/build-canonical-report-measurement-handoff.mjs"
+    "build:report-measurement-handoff": "node scripts/build-canonical-report-measurement-handoff.mjs",
+    "build:report-table-projection": "node scripts/build-canonical-report-table-projection.mjs"
   },
   "dependencies": {
     "@flowdoc/vnext-core": "file:../.."

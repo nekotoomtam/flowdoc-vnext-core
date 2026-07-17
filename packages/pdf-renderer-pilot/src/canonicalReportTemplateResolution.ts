@@ -196,7 +196,7 @@ function sameStringSet(left: string[], right: string[]): boolean {
   return JSON.stringify([...left].sort()) === JSON.stringify([...right].sort())
 }
 
-function createResolutionInputFingerprint(
+export function createFlowDocCanonicalReportResolutionInputFingerprintV1(
   sourceDataBundleFingerprint: string,
   template: DocumentNodeV4Target,
   styles: VNextPublishedStyleCatalogV1,
@@ -716,7 +716,7 @@ function contentAssignments(
   }
 }
 
-function resolveCollections(
+export function resolveFlowDocCanonicalReportCollectionsV1(
   document: DocumentNodeV4Target,
   tableContracts: Array<{
     collectionFieldKey: string
@@ -858,7 +858,7 @@ function validateFlowDocCanonicalReportTemplateResolutionBundleInternalV1(
       issues.push(issue("table-binding-scope", `collectionTables[${index}].materializedContent.bindings`, "canonical table bindings must remain item-scoped to their named collection"))
     }
   }
-  const expectedResolutionInputFingerprint = createResolutionInputFingerprint(
+  const expectedResolutionInputFingerprint = createFlowDocCanonicalReportResolutionInputFingerprintV1(
     bundle.sourceDataBundleFingerprint,
     bundle.starterTemplate,
     bundle.styleCatalog,
@@ -934,7 +934,7 @@ export function createFlowDocCanonicalReportTemplateResolutionBundleV1(
     dataBundle.bundleFingerprint === ACCEPTED_SOURCE_DATA_BUNDLE_FINGERPRINT,
     "canonical report template requires the accepted R2A data bundle",
   )
-  const resolutionInputFingerprint = createResolutionInputFingerprint(
+  const resolutionInputFingerprint = createFlowDocCanonicalReportResolutionInputFingerprintV1(
     dataBundle.bundleFingerprint,
     starterTemplate,
     styles,
@@ -967,7 +967,12 @@ export function createFlowDocCanonicalReportTemplateResolutionBundleV1(
     })),
   })
   requireFact(scopedResolution.status === "resolved", `scoped resolution blocked: ${scopedResolution.status === "blocked" ? scopedResolution.issues.map((item) => item.message).join("; ") : "unknown"}`)
-  const collectionTables = resolveCollections(instanceDocument, built.tables, dataBundle, resolutionInputFingerprint)
+  const collectionTables = resolveFlowDocCanonicalReportCollectionsV1(
+    instanceDocument,
+    built.tables,
+    dataBundle,
+    resolutionInputFingerprint,
+  )
   const collectionItemBindingCount = countMaterializedBindings(collectionTables)
   const unsigned: Omit<FlowDocCanonicalReportTemplateResolutionBundleV1, "bundleFingerprint"> = {
     contractVersion: 1,

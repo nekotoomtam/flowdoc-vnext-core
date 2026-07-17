@@ -898,6 +898,11 @@ The package must remain runnable without any parent editor checkout.
   widths, and prepares 689 display-backed requests while deferring 12 generated
   page-number blocks. The geometry also gates report-wide engine execution on
   revising the current 19/21-column exhaustive tables.
+- PDF canonical report table projection replaces six exhaustive tables with
+  fifteen labelled views without changing the source collection contracts,
+  gives all 63 source fields one primary placement, caps each view at six
+  columns, and raises minimum cell content width from `15.622047pt` to
+  `41.606299pt` before text-engine execution.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.
