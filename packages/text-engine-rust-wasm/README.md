@@ -81,6 +81,12 @@ these package-local summaries as source evidence, decides the minimal subset is
 enough for a mini infrastructure checkpoint only, and keeps full measurement
 production readiness plus default-measurer replacement blocked.
 
+The PDF canonical report R2C-D pilot reuses the package-local native smoke
+binary as a non-production run-level shaping executor. It validates IBM Plex
+font hashes, maps raw UTF-8 clusters through the public raw-evidence mapper,
+and deliberately discards the mapper's single-line smoke envelope. This does
+not qualify ICU4X, line boxes, WASM shaping exports, or production measurement.
+
 Run the smoke from this package:
 
 ```sh

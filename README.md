@@ -903,6 +903,11 @@ The package must remain runnable without any parent editor checkout.
   gives all 63 source fields one primary placement, caps each view at six
   columns, and raises minimum cell content width from `15.622047pt` to
   `41.606299pt` before text-engine execution.
+- PDF canonical report native shaping binds 782 block consumers and 896 runs
+  through 412 measurement variants into 434 deduplicated native rustybuzz
+  executions, preserves 114 mixed Bold overrides and one empty zero-glyph run,
+  and maps 10,032 IBM Plex glyphs with zero missing glyphs while keeping line
+  breaking and line boxes blocked.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

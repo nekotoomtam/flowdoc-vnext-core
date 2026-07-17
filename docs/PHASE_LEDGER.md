@@ -10294,3 +10294,35 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-D` text-engine profile binding and execution
 boundary.
+
+## PDF-PILOT-08B-R2C-D Native Rustybuzz Shaping Execution
+
+Status: accepted for node-native glyph evidence only.
+
+R2C-D consumes the accepted R2C-C fingerprint and binds the report profile to
+the registered IBM Plex Sans Thai Regular/Bold assets. It preserves 782 source
+block consumers and 896 runs, including 114 local Bold overrides inside
+Regular blocks and one empty zero-glyph run.
+
+The run-aware plan retains 412 width-sensitive measurement variants and
+deduplicates 895 non-empty runs into 434 native rustybuzz `0.20.1`
+executions. Both font hashes are verified before execution. Raw UTF-8 byte
+clusters map to FlowDoc UTF-16 ranges, producing 10,032 glyph facts with zero
+missing glyphs. Package-local raw evidence retains no absolute font paths.
+
+This phase does not accept the raw mapper's synthetic single-line smoke box as
+report line evidence. Concrete ICU4X code/data revisions and report-native
+line heights remain unresolved, so break opportunities and line boxes are not
+run. WASM shaping, production binding, layout, pagination, and rendering also
+remain inactive.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_NATIVE_SHAPING_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-native-shaping.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-native-shaping-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-native-shaping-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportNativeShaping.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-E` concrete ICU4X and line-height binding for
+line-break execution.

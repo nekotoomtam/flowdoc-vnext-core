@@ -410,6 +410,31 @@ Primary Phase 08B-R2C-C evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-table-projection-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportTableProjection.test.ts`.
 
+## PDF-PILOT-08B-R2C-D Scope
+
+Phase 08B-R2C-D consumes the exact R2C-C fingerprint, binds the report profile
+to registered IBM Plex Sans Thai Regular/Bold assets, and executes the
+package-local native rustybuzz `0.20.1` binary. The binding is run-aware: 114
+Bold label overrides inside Regular blocks remain separate shaping runs.
+
+The 782 block consumers contain 896 runs. One empty cell remains a zero-glyph
+run. The remaining 895 runs deduplicate into 434 native executions, while 412
+width-sensitive measurement variants preserve the later line-break inputs.
+The accepted evidence maps 10,032 glyphs from UTF-8 byte clusters to FlowDoc
+UTF-16 ranges with zero missing glyphs.
+
+This closes native glyph execution only. Concrete ICU4X code/data revisions,
+native line-height bindings, line boxes, WASM shaping parity, layout,
+pagination, and PDF rendering remain blocked or `not-run`.
+
+Primary Phase 08B-R2C-D evidence:
+
+- `docs/PDF_CANONICAL_REPORT_NATIVE_SHAPING_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-native-shaping.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-native-shaping-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-native-shaping-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportNativeShaping.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -551,6 +576,12 @@ Build and validate the table projection and corrected geometry handoff:
 npm --prefix packages/pdf-renderer-pilot run build:report-table-projection
 ```
 
+Build and validate native report shaping evidence:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-native-shaping
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -599,14 +630,18 @@ npm --prefix packages/pdf-renderer-pilot run build:report-table-projection
   preserves ten explicit contexts across fifteen views, caps views at six
   columns, prepares 782 requests, and clears the narrow-cell geometry gate
   without mutating source contracts or running the text engine.
+- Native report shaping preserves all 782 consumers and 896 authored runs,
+  deduplicates 895 non-empty runs into 434 real rustybuzz executions, maps
+  10,032 IBM Plex glyphs with no missing glyphs, and retains no synthetic line
+  boxes.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-C table projection and geometry correction.
+None for closing PDF-PILOT-08B-R2C-D node-native glyph shaping.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, text measurement, line breaking,
-layout, pagination, and PDF rendering.
+thresholds, broader reader compatibility, concrete ICU4X and line-height
+binding, line breaking, line boxes, layout, pagination, and PDF rendering.
 
 ## RISK
 
@@ -644,5 +679,5 @@ layout, pagination, and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-D` text-engine profile binding and execution
-boundary.
+Next phase: `PDF-PILOT-08B-R2C-E` concrete ICU4X and line-height binding for
+line-break execution.

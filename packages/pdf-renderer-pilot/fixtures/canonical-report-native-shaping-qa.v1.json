@@ -1,0 +1,155 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-d-canonical-report-native-shaping-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-D",
+  "status": "accepted-native-shaping-only",
+  "sourceFingerprints": {
+    "data": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
+    "template": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
+    "formatting": "e4f0411afc7d6868971019fb536146f63aa355b5a6e48c606502342bd6302e26",
+    "measurementHandoff": "07126bb73a6c9dd7342b1fb9e33cdd696d89cb660056d237cb708118fb2f15d2",
+    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+    "rawEvidence": "a810f30f9964567b56cec7fc88470a8f99b450fe39e6f3abc6b596791e79cae8"
+  },
+  "planFingerprint": "0d68a40d45b56582b5e180794b92822a0b2297d773f0f764e07a7f7ba0eae9d1",
+  "bundleFingerprint": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+  "profileBinding": {
+    "status": "bound-native-shaping-only",
+    "shaperEngine": "rustybuzz",
+    "profileShaperRevision": "0.20.1",
+    "nativeShaperRevision": "rustybuzz-0.20.1",
+    "revisionCompatibility": "matched-normalized",
+    "segmenterEngine": "icu4x",
+    "segmenterRevision": "icu4x-planned",
+    "segmenterDataRevision": "icu4x-data-planned",
+    "outputShapeVersion": "glyph-line-box-v1",
+    "productionBinding": false
+  },
+  "styleBindings": [
+    {
+      "styleKey": "report-title",
+      "fontSizePt": 24,
+      "primaryFontId": "ibm-plex-sans-thai-bold",
+      "primaryFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "boldOverrideFontId": "ibm-plex-sans-thai-bold",
+      "boldOverrideFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "lineHeightBinding": "deferred-until-line-break-phase"
+    },
+    {
+      "styleKey": "section-heading",
+      "fontSizePt": 16,
+      "primaryFontId": "ibm-plex-sans-thai-bold",
+      "primaryFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "boldOverrideFontId": "ibm-plex-sans-thai-bold",
+      "boldOverrideFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "lineHeightBinding": "deferred-until-line-break-phase"
+    },
+    {
+      "styleKey": "report-body",
+      "fontSizePt": 10.5,
+      "primaryFontId": "ibm-plex-sans-thai-regular",
+      "primaryFontSha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57",
+      "boldOverrideFontId": "ibm-plex-sans-thai-bold",
+      "boldOverrideFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "lineHeightBinding": "deferred-until-line-break-phase"
+    },
+    {
+      "styleKey": "report-caption",
+      "fontSizePt": 9,
+      "primaryFontId": "ibm-plex-sans-thai-regular",
+      "primaryFontSha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57",
+      "boldOverrideFontId": "ibm-plex-sans-thai-bold",
+      "boldOverrideFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "lineHeightBinding": "deferred-until-line-break-phase"
+    },
+    {
+      "styleKey": "table-header",
+      "fontSizePt": 9.3,
+      "primaryFontId": "ibm-plex-sans-thai-bold",
+      "primaryFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "boldOverrideFontId": "ibm-plex-sans-thai-bold",
+      "boldOverrideFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "lineHeightBinding": "deferred-until-line-break-phase"
+    },
+    {
+      "styleKey": "table-body",
+      "fontSizePt": 9.1,
+      "primaryFontId": "ibm-plex-sans-thai-regular",
+      "primaryFontSha256": "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57",
+      "boldOverrideFontId": "ibm-plex-sans-thai-bold",
+      "boldOverrideFontSha256": "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21",
+      "lineHeightBinding": "deferred-until-line-break-phase"
+    }
+  ],
+  "byFont": [
+    {
+      "fontId": "ibm-plex-sans-thai-bold",
+      "shapeExecutionCount": 179,
+      "glyphCount": 5858,
+      "missingGlyphCount": 0
+    },
+    {
+      "fontId": "ibm-plex-sans-thai-regular",
+      "shapeExecutionCount": 255,
+      "glyphCount": 4174,
+      "missingGlyphCount": 0
+    }
+  ],
+  "summary": {
+    "sourceBlockRequestCount": 782,
+    "sourceRunCount": 896,
+    "emptyRunCount": 1,
+    "nativeShapeRunCount": 895,
+    "localBoldOverrideRunCount": 114,
+    "uniqueMeasurementVariantCount": 412,
+    "uniqueShapeExecutionCount": 434,
+    "deduplicatedShapeRunCount": 461,
+    "styleBindingCount": 6,
+    "fontAssetCount": 2,
+    "glyphCount": 10032,
+    "missingGlyphCount": 0,
+    "zeroAdvanceGlyphCount": 329,
+    "repeatedClusterGlyphCount": 344,
+    "generatedInlineDeferredBlockCount": 12
+  },
+  "executionGate": {
+    "status": "native-glyph-evidence-accepted-line-breaking-blocked",
+    "nativeShapingExecuted": true,
+    "allFontsHashVerified": true,
+    "missingGlyphCount": 0,
+    "lineBreakingExecuted": false,
+    "lineBoxesCreated": false,
+    "productionBinding": false,
+    "blockers": [
+      {
+        "code": "icu4x-runtime-not-concrete",
+        "blocks": "line-breaking",
+        "message": "The accepted profile still names planned ICU4X code and data revisions; no concrete segmenter execution is available."
+      },
+      {
+        "code": "line-height-not-bound",
+        "blocks": "line-boxes",
+        "message": "The R2B style catalog pins font sizes but does not yet bind report-native line-height values."
+      },
+      {
+        "code": "wasm-shaping-export-not-qualified",
+        "blocks": "browser-worker-shaping",
+        "message": "The pinned WASM artifact exposes readiness identity only and has not qualified a shaping export for this report profile."
+      }
+    ]
+  },
+  "boundary": {
+    "tableProjection": "consumed",
+    "measurementProfileBinding": "bound-native-shaping-only",
+    "fontAssets": "hash-verified",
+    "nativeRustybuzzShaping": "executed",
+    "glyphEvidence": "mapped",
+    "lineBreakSegmentation": "blocked-planned-icu4x-runtime",
+    "lineBoxes": "not-run",
+    "wasmShaping": "not-run",
+    "layout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-E concrete ICU4X and line-height binding for line-break execution"
+}
