@@ -912,6 +912,10 @@ The package must remain runnable without any parent editor checkout.
   heights, executes 352 deduplicated ICU4X segmentations, converts byte breaks
   to UTF-16 offsets, and creates 441 bounded line boxes covering all 10,998
   measurement glyphs, with explicit machine-identifier delimiter tailoring.
+- PDF canonical report measured composition submits all 782 concrete consumers
+  to Core measured-line acceptance, prepares 165 document blocks, five image
+  frames, 15 tables with 146 rows and 617 cells, and inventories 197 authored
+  flow nodes while deferring twelve generated page-number footers.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

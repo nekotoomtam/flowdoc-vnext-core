@@ -43,6 +43,14 @@ It validates page markers and six page-to-image bindings, executes 357 measured
 text runs and table/callout geometry, and supports measured Thai vertical
 offsets through non-extracting continuation-glyph overlays.
 
+## Measured Composition Evidence
+
+`PDF-PILOT-08B-R2C-F` consumes the canonical projection, native shaping, and
+line-breaking bundles. It accepts all concrete line results through Core,
+prepares table cells and rows with the public Core pipeline, derives natural
+text/image/row heights, and inventories authored zone order. This evidence does
+not assign coordinates or pages and does not render PDF bytes.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -57,6 +65,7 @@ npm --prefix packages/pdf-renderer-pilot run build:content-parity-request
 npm --prefix packages/pdf-renderer-pilot run build:typography-request
 npm --prefix packages/pdf-renderer-pilot run build:report-native-shaping
 npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
+npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
 ```
 
 Build the retained subset with Python FontTools:

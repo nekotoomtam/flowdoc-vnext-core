@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-A typed display formatting accepted.
+Status: PDF-PILOT-08B-R2C-F natural composition evidence accepted.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -463,6 +463,32 @@ Primary Phase 08B-R2C-E evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-line-breaking-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportLineBreaking.test.ts`.
 
+## PDF-PILOT-08B-R2C-F Scope
+
+Phase 08B-R2C-F expands the 412 deduplicated R2C-E measurements back to all
+782 concrete source consumers and submits each result to Core measured-line
+acceptance. All consumers pass, producing 832 consumer-specific lines with
+safe authored/resolved source endpoints. The document lane retains 165 text
+blocks and five fixed instance-media image frames.
+
+The existing Core table preparation pipeline accepts both authored and
+materialized text evidence, then prepares 15 tables, 146 rows, and 617 cells.
+Natural whole-row heights use the Core minimum-fragment/cell-outer-height rule,
+range from 19pt to 30pt, and total 3240pt. The 36 zone flows preserve all 197
+top-level nodes in authored order: 185 are ready and twelve generated
+page-number footer blocks remain explicitly deferred.
+
+This closes natural block, image, table-row, and ordered-flow evidence only.
+Inter-block spacing, coordinates, page capacity, header repetition, row
+splitting, pagination, and PDF rendering remain blocked or `not-run`.
+
+Primary Phase 08B-R2C-F evidence:
+
+- `docs/PDF_CANONICAL_REPORT_MEASURED_COMPOSITION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-measured-composition.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-measured-composition-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportMeasuredComposition.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -616,6 +642,12 @@ Build and validate native report line-breaking evidence:
 npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
 ```
 
+Build and validate measured block/table composition evidence:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -672,14 +704,19 @@ npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
   unique ICU4X segmentations for 412 variants, creates 441 contiguous line
   boxes, covers 10,998 measurement glyphs exactly once, and clears all width
   overflow with explicit machine-identifier delimiter tailoring.
+- Measured report composition expands line boxes to 782 Core-accepted
+  consumers, prepares 165 document blocks, five image frames, 15 tables, 146
+  rows, and 617 cells, and inventories 197 ordered flow nodes with twelve
+  generated footer blocks explicitly deferred.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-E node-native line-box evidence.
+None for closing PDF-PILOT-08B-R2C-F natural composition evidence.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
 thresholds, broader reader compatibility, source-profile promotion, native to
-WASM parity, vertical layout, pagination, and PDF rendering.
+WASM parity, inter-block spacing, page-capacity composition, vertical
+placement, pagination, and PDF rendering.
 
 ## RISK
 
@@ -701,7 +738,8 @@ WASM parity, vertical layout, pagination, and PDF rendering.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- automatic block spacing and table-row height from accepted line boxes;
+- automatic block spacing and page-capacity policy over accepted natural
+  block/table heights;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -719,5 +757,5 @@ WASM parity, vertical layout, pagination, and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-F` line-box acceptance and vertical block/table
-composition readiness.
+Next phase: `PDF-PILOT-08B-R2C-G` vertical flow spacing and page-capacity
+composition.

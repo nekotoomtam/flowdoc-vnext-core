@@ -10365,3 +10365,39 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-F` line-box acceptance and vertical block/table
 composition readiness.
+
+## PDF-PILOT-08B-R2C-F Measured Composition
+
+Status: accepted for natural block, image, prepared table-row, and ordered-flow
+evidence only.
+
+R2C-F consumes the exact R2C-C, R2C-D, and R2C-E fingerprints. It expands 412
+deduplicated line measurements back to 782 concrete consumers and passes every
+consumer through `acceptVNextTextBlockV4MeasuredLines`. Core accepts all 782,
+retaining 832 consumer-specific lines with safe source endpoints. The document
+lane contains 165 measured text blocks; five fixed instance-media images retain
+their authored frames.
+
+The phase passes authored and materialized table evidence through the existing
+Core text-fragment, prepared-cell, and prepared-row contracts. Fifteen tables
+produce 146 rows and 617 cells, including 47 multi-line cells and one explicit
+empty-line cell. Natural whole-row heights range from 19pt to 30pt and follow
+`max(minimumFirstFragmentHeightPt, maximumCellOuterHeightPt)`.
+
+Thirty-six zone flows retain all 197 top-level nodes in authored order. All 173
+body and twelve header nodes are ready; twelve generated page-number footer
+blocks remain deferred. Natural ready height totals `6970.047243pt` before
+inter-block spacing.
+
+No spacing, coordinates, page assignment, header repetition, row splitting,
+pagination, or PDF bytes are produced.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_MEASURED_COMPOSITION_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-measured-composition.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-measured-composition-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportMeasuredComposition.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-G` vertical flow spacing and page-capacity
+composition.

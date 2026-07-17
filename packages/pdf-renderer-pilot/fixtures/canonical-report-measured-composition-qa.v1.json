@@ -1,0 +1,902 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-f-canonical-report-measured-composition-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-F",
+  "status": "accepted-natural-block-and-prepared-table-row-evidence-only",
+  "sourceFingerprints": {
+    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+    "nativeShaping": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+    "lineBreaking": "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56"
+  },
+  "planFingerprint": "cfe5a2d3db3f786e224045bd50b42ff02764f587904a0cdab2e73f8f61d9f1a2",
+  "bundleFingerprint": "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
+  "byZone": [
+    {
+      "sectionId": "section-cover",
+      "zoneRole": "body",
+      "flowNodeCount": 10,
+      "readyNodeCount": 10,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 479.637795,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-cover",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-cover",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-executive-summary",
+      "zoneRole": "body",
+      "flowNodeCount": 9,
+      "readyNodeCount": 9,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 142,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-executive-summary",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-executive-summary",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-method",
+      "zoneRole": "body",
+      "flowNodeCount": 12,
+      "readyNodeCount": 12,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 202,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-method",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-method",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-ocr-accuracy",
+      "zoneRole": "body",
+      "flowNodeCount": 19,
+      "readyNodeCount": 19,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 962.102362,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-ocr-accuracy",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-ocr-accuracy",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-source-evidence",
+      "zoneRole": "body",
+      "flowNodeCount": 20,
+      "readyNodeCount": 20,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 307,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-source-evidence",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-source-evidence",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-native-extraction",
+      "zoneRole": "body",
+      "flowNodeCount": 31,
+      "readyNodeCount": 31,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 1324.102362,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-native-extraction",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-native-extraction",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-latency-cost-size",
+      "zoneRole": "body",
+      "flowNodeCount": 27,
+      "readyNodeCount": 27,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 618.102362,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-latency-cost-size",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-latency-cost-size",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-mapping",
+      "zoneRole": "body",
+      "flowNodeCount": 23,
+      "readyNodeCount": 23,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 1118.102362,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-mapping",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-mapping",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-decision-view",
+      "zoneRole": "body",
+      "flowNodeCount": 2,
+      "readyNodeCount": 2,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 37,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-decision-view",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-decision-view",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-limitations",
+      "zoneRole": "body",
+      "flowNodeCount": 9,
+      "readyNodeCount": 9,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 406,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-limitations",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-limitations",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-appendix-runs",
+      "zoneRole": "body",
+      "flowNodeCount": 7,
+      "readyNodeCount": 7,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 377,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-appendix-runs",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-appendix-runs",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-appendix-evidence",
+      "zoneRole": "body",
+      "flowNodeCount": 4,
+      "readyNodeCount": 4,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 853,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-appendix-evidence",
+      "zoneRole": "header",
+      "flowNodeCount": 1,
+      "readyNodeCount": 1,
+      "deferredNodeCount": 0,
+      "naturalHeightWithoutSpacingPt": 12,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    },
+    {
+      "sectionId": "section-appendix-evidence",
+      "zoneRole": "footer",
+      "flowNodeCount": 1,
+      "readyNodeCount": 0,
+      "deferredNodeCount": 1,
+      "naturalHeightWithoutSpacingPt": 0,
+      "interBlockSpacing": "not-bound",
+      "coordinates": "not-assigned"
+    }
+  ],
+  "byTable": [
+    {
+      "projectionId": "ocr-run-context",
+      "collectionFieldKey": "report.ocr_runs",
+      "tableId": "table-ocr-runs-ocr-run-context",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 42,
+      "textLineCandidateCount": 42,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "8b234ba635b475ef7dfbde3552cef72dc749b595350ebd0a42fe194a72416728"
+    },
+    {
+      "projectionId": "ocr-confidence",
+      "collectionFieldKey": "report.ocr_runs",
+      "tableId": "table-ocr-runs-ocr-confidence",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 42,
+      "textLineCandidateCount": 42,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "e694dfa87a3af6dccaf28d547f502b00f614797070ffc675c8fb0bb6be8f7cbe"
+    },
+    {
+      "projectionId": "ocr-quality",
+      "collectionFieldKey": "report.ocr_runs",
+      "tableId": "table-ocr-runs-ocr-quality",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 35,
+      "textLineCandidateCount": 35,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "3a364eeb03f4ee5bef86fbaf4d8b184c878e6fd354f296513058b165fcd44544"
+    },
+    {
+      "projectionId": "ocr-runtime-cost",
+      "collectionFieldKey": "report.ocr_runs",
+      "tableId": "table-ocr-runs-ocr-runtime-cost",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 35,
+      "textLineCandidateCount": 35,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "ab692f583f4e32fbfd6ca6086e6549b747ccd621e23b7dd153e370ee2b7ce190"
+    },
+    {
+      "projectionId": "native-run-context",
+      "collectionFieldKey": "report.native_runs",
+      "tableId": "table-native-runs-native-run-context",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 42,
+      "textLineCandidateCount": 45,
+      "multiLineCellCount": 3,
+      "naturalTableHeightPt": 167,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 30,
+      "preparedRowsFingerprintSha256": "9c46169eaac69b54c311f80dc30a5015b828d0d39d9c927cebfaad9c4a793e0e"
+    },
+    {
+      "projectionId": "native-confidence",
+      "collectionFieldKey": "report.native_runs",
+      "tableId": "table-native-runs-native-confidence",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 42,
+      "textLineCandidateCount": 45,
+      "multiLineCellCount": 3,
+      "naturalTableHeightPt": 167,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 30,
+      "preparedRowsFingerprintSha256": "cf68a21c53cadedcc72e84a44890d55f66cd3c9cda6fea59999e0ac87fc0b95d"
+    },
+    {
+      "projectionId": "native-structure-inventory",
+      "collectionFieldKey": "report.native_runs",
+      "tableId": "table-native-runs-native-structure-inventory",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 28,
+      "textLineCandidateCount": 28,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "a2ab26e21c13108fa46a88b337ad2dce6670a3429a61f7fb8a0d263f4a9c8115"
+    },
+    {
+      "projectionId": "native-structure-coverage",
+      "collectionFieldKey": "report.native_runs",
+      "tableId": "table-native-runs-native-structure-coverage",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 28,
+      "textLineCandidateCount": 28,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "443f0e0ba60bf18be7ba631744c856001dd1174c4d1e0004ccd48b9079c10fe8"
+    },
+    {
+      "projectionId": "native-runtime-cost",
+      "collectionFieldKey": "report.native_runs",
+      "tableId": "table-native-runs-native-runtime-cost",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 35,
+      "textLineCandidateCount": 35,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "bac6833129356bf635faa41d57d2f218bf3cbafec5ee9a17a26342956baa7d25"
+    },
+    {
+      "projectionId": "mapping-comparison",
+      "collectionFieldKey": "report.mapping_fields",
+      "tableId": "table-mapping-fields-mapping-comparison",
+      "rowCount": 11,
+      "authoredRowCount": 1,
+      "materializedRowCount": 10,
+      "cellCount": 55,
+      "textLineCandidateCount": 68,
+      "multiLineCellCount": 13,
+      "naturalTableHeightPt": 309,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 30,
+      "preparedRowsFingerprintSha256": "ee60b9b6757fa2b82e3616d83d160a78fda8e0bcf727f48f5824f1382df13fc1"
+    },
+    {
+      "projectionId": "mapping-evidence",
+      "collectionFieldKey": "report.mapping_fields",
+      "tableId": "table-mapping-fields-mapping-evidence",
+      "rowCount": 11,
+      "authoredRowCount": 1,
+      "materializedRowCount": 10,
+      "cellCount": 55,
+      "textLineCandidateCount": 64,
+      "multiLineCellCount": 9,
+      "naturalTableHeightPt": 287,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 30,
+      "preparedRowsFingerprintSha256": "a0b85b93e9c978919573d54eec41cf451de891d1eb6175fae5eb7d90e9dcbc6d"
+    },
+    {
+      "projectionId": "native-missing-concepts",
+      "collectionFieldKey": "report.native_missing_concepts",
+      "tableId": "table-native-missing-concepts-native-missing-concepts",
+      "rowCount": 14,
+      "authoredRowCount": 1,
+      "materializedRowCount": 13,
+      "cellCount": 28,
+      "textLineCandidateCount": 28,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 267,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "59c2832d3d991a5ac0454ee8c1921fd15f073e7e3ff8b7448ba8f89d825f74b0"
+    },
+    {
+      "projectionId": "run-status",
+      "collectionFieldKey": "report.runs",
+      "tableId": "table-runs-run-status",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 42,
+      "textLineCandidateCount": 42,
+      "multiLineCellCount": 0,
+      "naturalTableHeightPt": 134,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 20,
+      "preparedRowsFingerprintSha256": "76a61eaf51331cced13d24fb6e1c01025b7f53d8b7f6429c390153d940d97e6a"
+    },
+    {
+      "projectionId": "run-engines-pages",
+      "collectionFieldKey": "report.runs",
+      "tableId": "table-runs-run-engines-pages",
+      "rowCount": 7,
+      "authoredRowCount": 1,
+      "materializedRowCount": 6,
+      "cellCount": 42,
+      "textLineCandidateCount": 45,
+      "multiLineCellCount": 3,
+      "naturalTableHeightPt": 167,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 30,
+      "preparedRowsFingerprintSha256": "95786693f3f86051e612770ae25da36d53ae5c80b579c1f53811787662223bd6"
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "collectionFieldKey": "report.gdim_expected_fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowCount": 33,
+      "authoredRowCount": 1,
+      "materializedRowCount": 32,
+      "cellCount": 66,
+      "textLineCandidateCount": 82,
+      "multiLineCellCount": 16,
+      "naturalTableHeightPt": 804,
+      "minimumNaturalRowHeightPt": 19,
+      "maximumNaturalRowHeightPt": 30,
+      "preparedRowsFingerprintSha256": "884d6e0b6f54e930cfa59c3e7498e39330173eff0a25c891a8a20a4de407df91"
+    }
+  ],
+  "tallestRows": [
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 1,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_724a135fd47a48a1772bbc5a",
+        "itemKey": "document_control.border_transport_means.mode_code"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 3,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_ca0f7717591b5a1fb7d8b64e",
+        "itemKey": "document_control.total_package.shipping_marks"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 9,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_f624cfac66ed1c6b36793e53",
+        "itemKey": "document_control.total_gross_weight.unit_code"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 13,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_d69cc512e52d39c2ab308116",
+        "itemKey": "goods_shipment.invoice.term_of_payment_code"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 18,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_d0a3d1e09852ea873e2cae22",
+        "itemKey": "goods_shipment.invoice.aeos_reference_number"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 20,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_36b232104ba38e8f7b8b7078",
+        "itemKey": "goods_shipment.detail.goods_description.english"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 21,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_9ac11aa3eab9dfdd77bb8e28",
+        "itemKey": "goods_shipment.detail.product_info.origin_country_code"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 22,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_1a85a285bff756166069985b",
+        "itemKey": "goods_shipment.detail.product_info.net_weight.weight"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 23,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_379f42b3beb7b3c79671dd02",
+        "itemKey": "goods_shipment.detail.product_info.invoice_quantity.quantity"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 24,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_3a43e992e87a255a6f866e00",
+        "itemKey": "goods_shipment.detail.product_info.invoice_quantity.unit_code"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 25,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_0317beb9254479c917415e85",
+        "itemKey": "goods_shipment.detail.product_info.currency_code"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    },
+    {
+      "projectionId": "gdim-expected-fields",
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "rowIndex": 26,
+      "rowIdentity": {
+        "kind": "resolved-row",
+        "rowInstanceId": "rowi_15f43c53ecfec96683d8a438",
+        "itemKey": "goods_shipment.detail.product_info.unit_price.foreign"
+      },
+      "role": "body",
+      "naturalWholeRowHeightPt": 30,
+      "maximumCellOuterHeightPt": 30,
+      "multiLineCellCount": 1,
+      "tallestSourceCellIds": [
+        "table-gdim-expected-fields-gdim-expected-fields-body-cell-schema-path"
+      ]
+    }
+  ],
+  "summary": {
+    "sourceConsumerCount": 782,
+    "coreAcceptedConsumerCount": 782,
+    "coreAcceptedLineCount": 832,
+    "documentBlockCount": 165,
+    "documentBlockLineCount": 168,
+    "fixedImageBlockCount": 5,
+    "preparedTableCount": 15,
+    "preparedRowCount": 146,
+    "preparedCellCount": 617,
+    "tableTextLineCandidateCount": 664,
+    "multiLineTableCellCount": 47,
+    "emptyLineTableCellCount": 1,
+    "flowNodeCount": 197,
+    "readyFlowNodeCount": 185,
+    "deferredGeneratedFlowNodeCount": 12,
+    "bodyReadyFlowNodeCount": 173,
+    "headerReadyFlowNodeCount": 12,
+    "footerDeferredFlowNodeCount": 12,
+    "naturalDocumentBlockHeightPt": 2548,
+    "naturalFixedImageHeightPt": 1182.047243,
+    "naturalTableHeightPt": 3240,
+    "naturalReadyFlowHeightWithoutSpacingPt": 6970.047243,
+    "minimumNaturalRowHeightPt": 19,
+    "maximumNaturalRowHeightPt": 30
+  },
+  "executionGate": {
+    "status": "natural-composition-evidence-accepted-vertical-placement-blocked",
+    "everyConsumerAcceptedByCore": true,
+    "documentBlocksMeasured": true,
+    "fixedImageFramesDerived": true,
+    "tableTextFragmentsAccepted": true,
+    "tableCellsPrepared": true,
+    "tableRowsPrepared": true,
+    "orderedZoneFlowInventoried": true,
+    "interBlockSpacingBound": false,
+    "coordinatesAssigned": false,
+    "paginationExecuted": false,
+    "pdfRendered": false,
+    "blockers": [
+      {
+        "code": "inter-block-spacing-not-bound",
+        "blocks": "vertical-placement",
+        "message": "Natural block and table heights are ready, but section and sibling spacing policy is not bound."
+      },
+      {
+        "code": "generated-page-number-not-expanded",
+        "blocks": "footer-final-measurement",
+        "message": "Twelve footer blocks still require generated page-number expansion before final footer measurement."
+      },
+      {
+        "code": "page-capacity-not-composed",
+        "blocks": "pagination",
+        "message": "Ordered flow is inventoried without page capacity, y placement, row splitting, or header repetition."
+      }
+    ]
+  },
+  "ownership": {
+    "preparationOwns": [
+      "core-measured-line-acceptance",
+      "natural-text-block-height",
+      "fixed-image-frame-height",
+      "table-text-fragment-evidence",
+      "prepared-table-cells",
+      "prepared-table-rows",
+      "natural-whole-row-height",
+      "ordered-zone-flow-inventory"
+    ],
+    "preparationMustNotOwn": [
+      "inter-block-spacing",
+      "x-y-placement",
+      "page-assignment",
+      "header-row-repetition",
+      "row-fragment-splitting",
+      "pagination",
+      "pdf-bytes"
+    ]
+  },
+  "boundary": {
+    "lineBreaking": "consumed",
+    "coreMeasuredLineAcceptance": "accepted",
+    "documentBlockHeights": "derived",
+    "fixedImageFrameHeights": "derived",
+    "tableTextFragments": "accepted",
+    "tableCells": "prepared",
+    "tableRows": "prepared",
+    "zoneFlowOrder": "inventoried",
+    "interBlockSpacing": "not-run",
+    "verticalPlacement": "not-run",
+    "tablePagination": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-G vertical flow spacing and page-capacity composition"
+}
