@@ -94,6 +94,7 @@ export type {
 } from "./workflow/submissionState.js"
 export * from "./renderer/pdfAdapter.js"
 export * from "./renderer/pdfMeasuredDrawContractV1.js"
+export * from "./renderer/authoredBoxContractV1.js"
 export * from "./renderer/docxAdapter.js"
 export * from "./renderer/textMeasurementAdapter.js"
 export * from "./renderer/textMeasurementEngineSpike.js"

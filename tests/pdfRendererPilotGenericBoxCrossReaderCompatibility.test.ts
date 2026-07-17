@@ -145,10 +145,6 @@ describe("PDF-PILOT-08B-R2C-R generic box and cross-reader audit", () => {
     const target = readFileSync(resolve(process.cwd(), "src/schema/documentV4Target.ts"), "utf8")
     const measured = readFileSync(resolve(process.cwd(), "src/renderer/pdfMeasuredDrawContractV1.ts"), "utf8")
     const renderer = readFileSync(resolve(process.cwd(), "packages/pdf-renderer-pilot/src/index.ts"), "utf8")
-    const measurementAdapter = readFileSync(resolve(
-      process.cwd(),
-      "packages/pdf-renderer-pilot/src/canonicalReportMeasurementRequestHandoff.ts",
-    ), "utf8")
     const calloutAdapter = readFileSync(resolve(
       process.cwd(),
       "packages/pdf-renderer-pilot/src/canonicalReportBodyDisplayList.ts",
@@ -171,7 +167,6 @@ describe("PDF-PILOT-08B-R2C-R generic box and cross-reader audit", () => {
     expect(measured).toContain("VNextPdfStrokeRectPaintCommandV1Schema")
     expect(renderer).toContain('command.kind === "fill-rect"')
     expect(renderer).toContain('command.kind === "stroke-rect"')
-    expect(measurementAdapter).toContain("function textBlockContentWidthPt")
     expect(calloutAdapter).toContain("function calloutProjection")
     expect(proof).toContain("Status: PDF-PILOT-08B-R2C-R cross-reader baseline accepted")
     expect(pilot).toContain("## PDF-PILOT-08B-R2C-R Scope")

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto"
 import {
+  createVNextAuthoredBoxPlanV1,
   createVNextMeasurementProfileIdentityPlan,
   createVNextTableAuthoredTextMeasurementPreparationV1,
   createVNextTableCellGeometryV1,
@@ -305,19 +306,6 @@ function sectionBodyWidthPt(
   return roundPt(LETTER_PORTRAIT_PT.width - unitToPt(section.page.margin.left) - unitToPt(section.page.margin.right))
 }
 
-function textBlockContentWidthPt(
-  node: Extract<AuthoredNodeV4Target, { type: "text-block" }>,
-  availableWidthPt: number,
-): number {
-  const padding = node.props.box?.padding
-  if (padding == null) return availableWidthPt
-  const contentWidthPt = roundPt(
-    availableWidthPt - unitToPt(padding.left) - unitToPt(padding.right),
-  )
-  requireFact(contentWidthPt > 0, `text block box padding consumes its available width: ${node.id}`)
-  return contentWidthPt
-}
-
 function sectionForTable(
   templateBundle: FlowDocCanonicalReportTemplateResolutionBundleV1,
   tableId: string,
@@ -399,12 +387,17 @@ function createDocumentRequests(input: {
       }
       const styleKey = styles.get(node.id)
       requireFact(styleKey != null, `resolved style is missing for ${node.id}`)
+      const boxPlan = createVNextAuthoredBoxPlanV1({ ownerNode: node, availableWidthPt })
+      requireFact(
+        boxPlan.status === "ready",
+        `authored box plan blocked for ${node.id}: ${boxPlan.issues[0]?.code ?? "unknown"}`,
+      )
       const prepared = createVNextTextBlockV4MeasurementRequestFromResolvedNode({
         documentId: resolved.instanceId,
         instanceRevision: resolved.instanceRevision,
         sectionId: section.id,
         textBlock: node,
-        availableWidthPt: textBlockContentWidthPt(node, availableWidthPt),
+        availableWidthPt: boxPlan.plan.contentWidthPt,
         measurementProfileId: input.measurementProfileId,
         styleKey,
         resolvedTextByInlineId: textBindings,

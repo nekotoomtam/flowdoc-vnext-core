@@ -827,6 +827,34 @@ Primary Phase 08B-R2C-R evidence:
 - `packages/pdf-renderer-pilot/scripts/inspect-generic-box-cross-reader-compatibility.py`;
 - `tests/pdfRendererPilotGenericBoxCrossReaderCompatibility.test.ts`.
 
+## PDF-PILOT-08B-R2C-S Scope
+
+Phase 08B-R2C-S moves authored-box geometry behind a reusable Core contract.
+`createVNextAuthoredBoxPlanV1` normalizes fill, padding, and four border edges
+for Document v4 `text-block`, `column`, and `table-cell` owners. It derives
+content insets and a positive measurement width. The fragment projector binds
+authoritative page placements to fill and per-edge border intents while
+leaving continuation top/bottom edges open.
+
+The canonical measurement handoff now consumes the Core content width, and the
+body display adapter consumes Core fragment bounds and fill intents. The
+adapter retains only the report-specific rule that consecutive label/note
+nodes form a callout. No callout or reader-summary semantics enter Core.
+
+All twelve canonical boxed nodes retain `449.95pt` inner width. The same two
+semantic groups produce the same three fragments on pages 1, 2, and 10. The
+accepted body bundle fingerprint remains
+`96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67`,
+and the 13-page PDF remains exactly 1,212,656 bytes with SHA-256
+`c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b`.
+
+Primary Phase 08B-R2C-S evidence:
+
+- `docs/PDF_REUSABLE_AUTHORED_BOX_CONTRACT.md`;
+- `src/renderer/authoredBoxContractV1.ts`;
+- `tests/authoredBoxContractV1.test.ts`;
+- `tests/pdfRendererPilotReusableAuthoredBoxContract.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -1073,18 +1101,22 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
 - Bounded pagination executes 197 one-page family transitions, places all 185
   roots as 187 placements, retains two repeated table headers, and finalizes a
   consecutive thirteen-page Core page plan with resumable checkpoints.
+- Reusable authored-box planning owns normalized padding/border geometry,
+  content width, page-split fragments, and fill/border intents in Core. The
+  canonical adapter retains semantic grouping only, and all accepted canonical
+  bundle and PDF identities remain byte-exact.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-R generic box and cross-reader audit
+None for closing PDF-PILOT-08B-R2C-S reusable authored box contract
 evidence.
 
 R2C-N retired twelve pages as a hard gate. The authoritative R2C-O result is
 thirteen pages, and the terminal page contains one 630pt continuation fragment
 from the final table; no content was removed to imitate the reference.
 
-Report-level PDF fidelity remains blocked on reusable authored-box projection,
-reader compatibility beyond Poppler/PDFium, source-profile promotion, and
+Report-level PDF fidelity remains blocked on real export handoff, reader
+compatibility beyond Poppler/PDFium, source-profile promotion, and
 native-to-WASM parity.
 
 ## RISK
@@ -1108,7 +1140,7 @@ native-to-WASM parity.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- generic authored-box measurement, fragmentation, and border projection;
+- generic authored-border execution through a real export artifact;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -1126,5 +1158,5 @@ native-to-WASM parity.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-S` define a reusable authored-box contract
-without promoting canonical label/note policy into Core.
+Next phase: `PDF-PILOT-08B-R2C-T` bind the accepted contracts to a real export
+handoff without exporter-owned measurement, grouping, or relayout.

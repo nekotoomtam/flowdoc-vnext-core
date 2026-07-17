@@ -967,6 +967,10 @@ The package must remain runnable without any parent editor checkout.
   and all three canonical callout fragments through Poppler and PDFium with at
   most one pixel of reader edge drift. Generic rectangle paints are accepted;
   padding-aware authored-box projection remains outside Core and downstream.
+- PDF reusable authored box contract moves normalized padding, border, content
+  width, page-fragment geometry, and paint intents into Core while retaining
+  report-specific label/note grouping in the canonical adapter. All accepted
+  canonical bundle and PDF identities remain byte-exact.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

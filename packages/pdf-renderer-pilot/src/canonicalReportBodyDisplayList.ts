@@ -1,12 +1,14 @@
 import { createHash } from "node:crypto"
 import {
+  createVNextAuthoredBoxPlanV1,
   createVNextDocumentCompositionSpacingBridgePlanV1,
   createVNextPdfMeasuredDrawContractV1,
   paginateVNextTableFlowV4,
   paginateVNextTableRowsV1,
+  projectVNextAuthoredBoxFragmentsV1,
   projectVNextTableRendererCommandsV1,
   type AuthoredNodeV4Target,
-  type UnitValueV4Target,
+  type VNextAuthoredBoxPlanV1,
   type VNextPdfDrawCommand,
   type VNextPdfFillRectPaintCommandV1,
   type VNextPdfFontAssetV1,
@@ -314,10 +316,6 @@ function roundPt(value: number): number {
   return Number(value.toFixed(6))
 }
 
-function unitToPt(value: UnitValueV4Target): number {
-  return value.unit === "pt" ? value.value : (value.value * 72) / 25.4
-}
-
 function exact(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right)
 }
@@ -385,21 +383,16 @@ function authoredNode(
   return matches[0]
 }
 
-function boxPaddingPt(node: Extract<AuthoredNodeV4Target, { type: "text-block" }>): {
-  top: number
-  right: number
-  bottom: number
-  left: number
-} {
-  const padding = node.props.box?.padding
-  return padding == null
-    ? { top: 0, right: 0, bottom: 0, left: 0 }
-    : {
-        top: roundPt(unitToPt(padding.top)),
-        right: roundPt(unitToPt(padding.right)),
-        bottom: roundPt(unitToPt(padding.bottom)),
-        left: roundPt(unitToPt(padding.left)),
-      }
+function authoredBoxPlan(
+  node: Extract<AuthoredNodeV4Target, { type: "text-block" }>,
+  availableWidthPt: number,
+): VNextAuthoredBoxPlanV1 {
+  const result = createVNextAuthoredBoxPlanV1({ ownerNode: node, availableWidthPt })
+  requireFact(
+    result.status === "ready",
+    `authored box plan blocked for ${node.id}: ${result.issues[0]?.code ?? "unknown"}`,
+  )
+  return result.plan
 }
 
 interface CalloutProjection {
@@ -414,26 +407,33 @@ function calloutProjection(
   const items = input.paginationInputs.coreCompositionManifest.bodyItems
   const groups: FlowDocCanonicalReportCalloutGroupV1[] = []
   const paints: PendingPaint[] = []
+  const bodyWidthPt = bodyPlacements[0]?.page.pageGeometry.bodyWidthPt
+  requireFact(bodyWidthPt != null, "callout projection requires body placements")
+  requireFact(
+    bodyPlacements.every((placement) => placement.page.pageGeometry.bodyWidthPt === bodyWidthPt),
+    "callout projection body width drifted across pages",
+  )
 
   for (let itemOffset = 0; itemOffset < items.length; itemOffset += 1) {
     const labelItem = items[itemOffset]
     const labelNode = authoredNode(input, labelItem.rootNodeId)
     if (labelNode.type !== "text-block" || labelNode.role.role !== "label" || labelNode.props.box?.fill == null) continue
-    const fillColor = labelNode.props.box.fill
-    const paddingPt = boxPaddingPt(labelNode)
-    const styleIdentity = JSON.stringify({ fill: fillColor, paddingPt })
+    const labelBoxPlan = authoredBoxPlan(labelNode, bodyWidthPt)
+    requireFact(labelBoxPlan.fillColor != null, `boxed reader label has no fill: ${labelNode.id}`)
+    const fillColor = labelBoxPlan.fillColor
+    const paddingPt = labelBoxPlan.paddingPt
+    const styleIdentity = labelBoxPlan.styleFingerprint
     const groupItems = [labelItem]
     let nextOffset = itemOffset + 1
     while (nextOffset < items.length) {
       const candidateItem = items[nextOffset]
       const candidateNode = authoredNode(input, candidateItem.rootNodeId)
-      if (
-        candidateItem.zoneId !== labelItem.zoneId
+      if (candidateItem.zoneId !== labelItem.zoneId
         || candidateNode.type !== "text-block"
         || candidateNode.role.role !== "note"
-        || candidateNode.props.box?.fill == null
-        || JSON.stringify({ fill: candidateNode.props.box.fill, paddingPt: boxPaddingPt(candidateNode) }) !== styleIdentity
-      ) break
+        || candidateNode.props.box?.fill == null) break
+      const candidateBoxPlan = authoredBoxPlan(candidateNode, bodyWidthPt)
+      if (candidateBoxPlan.styleFingerprint !== styleIdentity) break
       groupItems.push(candidateItem)
       nextOffset += 1
     }
@@ -452,29 +452,42 @@ function calloutProjection(
     const firstItemIndex = groupItems[0].itemIndex
     const lastItemIndex = groupItems[groupItems.length - 1].itemIndex
     const fragments: FlowDocCanonicalReportCalloutFragmentV1[] = []
-
-    const pageIndexes = [...new Set(groupPlacements.map((placement) => placement.page.pageIndex))].sort((left, right) => left - right)
-    pageIndexes.forEach((pageIndex) => {
-      const pagePlacements = groupPlacements.filter((placement) => placement.page.pageIndex === pageIndex)
+    const genericProjection = projectVNextAuthoredBoxFragmentsV1({
+      boxId: groupId,
+      plan: labelBoxPlan,
+      placements: groupPlacements.map((placement) => ({
+        placementId: placement.fragmentId,
+        pageIndex: placement.page.pageIndex,
+        pageNumber: placement.page.pageNumber,
+        containerBounds: {
+          xPt: placement.page.pageGeometry.bodyOriginXPt,
+          yPt: placement.page.pageGeometry.bodyOriginYPt,
+          widthPt: placement.page.pageGeometry.bodyWidthPt,
+          heightPt: placement.page.pageGeometry.bodyHeightPt,
+        },
+        blockOffsetPt: placement.blockOffsetPt,
+        blockExtentPt: placement.blockExtentPt,
+        startsBox: placement.itemIndex === firstItemIndex && !placement.continuation.fromPrevious,
+        endsBox: placement.itemIndex === lastItemIndex && !placement.continuation.toNext,
+      })),
+    })
+    requireFact(
+      genericProjection.status === "consumable",
+      `generic authored box projection blocked for ${groupId}: ${genericProjection.issues[0]?.code ?? "unknown"}`,
+    )
+    genericProjection.fragments.forEach((genericFragment) => {
+      const pagePlacements = groupPlacements.filter(
+        (placement) => placement.page.pageIndex === genericFragment.pageIndex,
+      )
       const page = pagePlacements[0].page
-      const bodyTopPt = page.pageGeometry.bodyOriginYPt
-      const bodyBottomPt = roundPt(bodyTopPt + page.pageGeometry.bodyHeightPt)
-      const startsGroup = pagePlacements.some((placement) => placement.itemIndex === firstItemIndex)
-      const endsGroup = pagePlacements.some((placement) => placement.itemIndex === lastItemIndex)
-      const textTopPt = Math.min(...pagePlacements.map((placement) => bodyTopPt + placement.blockOffsetPt))
-      const textBottomPt = Math.max(...pagePlacements.map((placement) => (
-        bodyTopPt + placement.blockOffsetPt + placement.blockExtentPt
-      )))
-      const topPt = startsGroup ? Math.max(bodyTopPt, textTopPt - paddingPt.top) : bodyTopPt
-      const bottomPt = endsGroup ? Math.min(bodyBottomPt, textBottomPt + paddingPt.bottom) : bodyBottomPt
-      requireFact(bottomPt > topPt, `callout fragment has no height: ${groupId}:${pageIndex}`)
-      const bounds = {
-        xPt: page.pageGeometry.bodyOriginXPt,
-        yPt: roundPt(topPt),
-        widthPt: page.pageGeometry.bodyWidthPt,
-        heightPt: roundPt(bottomPt - topPt),
-      }
-      const fragmentId = `${groupId}:page-${page.pageNumber}`
+      const fillIntent = genericFragment.paintIntents.find((intent) => intent.kind === "fill-rect")
+      requireFact(fillIntent?.kind === "fill-rect", `callout fill intent is missing: ${genericFragment.fragmentId}`)
+      requireFact(
+        genericFragment.paintIntents.every((intent) => intent.kind === "fill-rect"),
+        `canonical callout unexpectedly authored a border: ${genericFragment.fragmentId}`,
+      )
+      const bounds = genericFragment.bounds
+      const fragmentId = genericFragment.fragmentId
       const commandToken = token({ fragmentId, bounds, fill: fillColor })
       const draw: VNextPdfDrawCommand = {
         id: `pdf:canonical-body:callout:${commandToken}`,
@@ -496,7 +509,7 @@ function calloutProjection(
         paintOrder: 0,
         bounds,
         kind: "fill-rect",
-        color: fillColor,
+        color: fillIntent.color,
         opacity: 1,
       }
       const fragmentFacts = {
@@ -504,8 +517,8 @@ function calloutProjection(
         groupId,
         pageIndex: page.pageIndex,
         pageNumber: page.pageNumber,
-        continuesFromPreviousPage: !startsGroup,
-        continuesOnNextPage: !endsGroup,
+        continuesFromPreviousPage: genericFragment.continuesFromPreviousPage,
+        continuesOnNextPage: genericFragment.continuesOnNextPage,
         sourcePlacementCount: pagePlacements.length,
         sourcePlacementFingerprints: pagePlacements.map((placement) => compact(placement)),
         bounds,
@@ -665,9 +678,9 @@ function textEntry(
   requireFact(color != null, `resolved style color is missing: ${facts.measurement.styleKey}`)
   const node = authoredNode(input, placement.rootNodeId)
   requireFact(node.type === "text-block", `measured text root type drifted: ${placement.rootNodeId}`)
-  const paddingPt = boxPaddingPt(node)
+  const boxPlan = authoredBoxPlan(node, placement.page.pageGeometry.bodyWidthPt)
   const paints = lines.flatMap((line) => glyphSegments(input, facts, line.startOffset, line.endOffset, {
-    xPt: roundPt(placement.page.pageGeometry.bodyOriginXPt + paddingPt.left),
+    xPt: roundPt(placement.page.pageGeometry.bodyOriginXPt + boxPlan.contentInsetPt.left),
     yPt: roundPt(placement.page.pageGeometry.bodyOriginYPt + placement.blockOffsetPt + line.yOffsetPt - lines[0].yOffsetPt),
     widthPt: line.widthPt,
     heightPt: line.heightPt,

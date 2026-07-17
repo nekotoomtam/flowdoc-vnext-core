@@ -183,6 +183,22 @@ Padding-aware measurement and label/note grouping remain report-adapter code;
 the reusable authored-box contract is explicitly downstream. MuPDF, Acrobat,
 visual fidelity, and production binding are not claimed.
 
+## Reusable Authored Box Contract
+
+`PDF-PILOT-08B-R2C-S` moves reusable box planning and page-fragment projection
+into Core. The contract normalizes authored fill, padding, and per-edge borders;
+derives content insets and available measurement width; validates layout-owned
+placements; and emits fill/border intents with open continuation edges.
+
+The canonical adapter still owns the report-specific rule that consecutive
+reader label/note nodes form a callout. It now delegates all width and fragment
+geometry to Core. Twelve nodes retain a 449.95pt content width and the two
+semantic groups retain their exact three fragments on pages 1, 2, and 10.
+
+Rebuilding the accepted chain leaves the display bundle fingerprint and
+1,212,656-byte PDF SHA-256 unchanged. Authored-border export execution, real
+export binding, visual fidelity, and production binding remain downstream.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:

@@ -10825,3 +10825,40 @@ Primary evidence:
 - `tests/pdfRendererPilotGenericBoxCrossReaderCompatibility.test.ts`.
 
 Next phase: `PDF-PILOT-08B-R2C-S` reusable authored box contract.
+
+## PDF-PILOT-08B-R2C-S Reusable Authored Box Contract
+
+Status: reusable authored-box planning and page-fragment projection accepted;
+real export and production binding remain pending.
+
+R2C-S adds a public Core contract for Document v4 `text-block`, `column`, and
+`table-cell` box owners. It normalizes fill, padding, and four borders, derives
+content insets and measurement width, fingerprints style/plan facts, and
+projects authoritative placements into page fragments with fill and border
+intents. Invalid widths, border semantics, page lineage, container geometry,
+or padding reserve fail closed without partial fragments.
+
+The canonical measurement and body-display adapters now delegate width and
+fragment geometry to Core. Report-specific consecutive label/note grouping
+remains in `calloutProjection`; Core contains no callout or reader-summary
+policy. The twelve boxed nodes retain `449.95pt` content width, and the two
+groups retain three fragments on pages 1, 2, and 10.
+
+Rebuilding the chain leaves the body bundle fingerprint
+`96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67`
+and the 1,212,656-byte PDF SHA-256
+`c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b`
+unchanged. This phase accepts contract ownership, not an authored-border export
+artifact, visual fidelity, or production routing.
+
+Primary evidence:
+
+- `docs/PDF_REUSABLE_AUTHORED_BOX_CONTRACT.md`;
+- `src/renderer/authoredBoxContractV1.ts`;
+- `tests/authoredBoxContractV1.test.ts`;
+- `tests/pdfRendererPilotReusableAuthoredBoxContract.test.ts`;
+- `packages/pdf-renderer-pilot/src/canonicalReportMeasurementRequestHandoff.ts`;
+- `packages/pdf-renderer-pilot/src/canonicalReportBodyDisplayList.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-T` real export handoff without exporter-owned
+measurement, semantic regrouping, or relayout.
