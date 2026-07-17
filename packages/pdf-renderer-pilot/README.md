@@ -214,6 +214,20 @@ SHA-256
 No route, worker, storage write, artifact-manifest projection, or production
 binding is introduced.
 
+## Production-Hardening Baseline
+
+`PDF-PILOT-08B-R2C-U` revalidates the exact Phase T request, contract, and
+receipt before deriving a deterministic idempotency payload and bounded
+resource facts. The canonical 13-page artifact uses 1,814 paint commands,
+15,732 glyphs, two fonts, five images, 9,150,048 source pixels, and 1,212,656
+output bytes; all remain below the provisional policy envelope.
+
+The baseline fixes cancellation checkpoints, stop reasons, byte-before-
+metadata commit order, read-after-write integrity, artifact-manifest/job CAS
+projection, and metadata-only observability requirements. Production
+activation remains blocked on ten backend/renderer/runtime bindings. No PDF is
+rendered and no worker, storage, route, or production behavior runs in Phase U.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -238,6 +252,7 @@ npm --prefix packages/pdf-renderer-pilot run build:report-body-display-list
 npm --prefix packages/pdf-renderer-pilot run build:full-document-subsets
 npm --prefix packages/pdf-renderer-pilot run build:full-document-proof
 npm --prefix packages/pdf-renderer-pilot run build:report-export-handoff
+npm --prefix packages/pdf-renderer-pilot run build:report-production-baseline
 ```
 
 Build the retained subset with Python FontTools:

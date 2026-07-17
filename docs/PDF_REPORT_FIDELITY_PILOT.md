@@ -878,6 +878,32 @@ Primary Phase 08B-R2C-T evidence:
 - `tests/pdfExportHandoffV1.test.ts`;
 - `tests/pdfRendererPilotRealExportHandoff.test.ts`.
 
+## PDF-PILOT-08B-R2C-U Scope
+
+Phase 08B-R2C-U revalidates the exact Phase T request, measured contract, and
+receipt before creating a production-hardening baseline. It derives an exact
+request/contract/policy idempotency payload fingerprint and computes page,
+paint, glyph, font, image, pixel, and output-byte facts against finite policy
+ceilings. Invalid policy,
+resource overflow, receipt drift, or contract drift fails closed.
+
+The baseline fixes three cancellation checkpoints, bounded attempt/deadline
+values, stop reasons, byte-before-metadata commit order, read-after-write
+integrity, artifact-manifest/job CAS targets, and privacy-safe observability
+requirements. It performs none of those backend actions.
+
+The canonical workload passes its provisional envelope at 13 pages, 1,814
+paint commands, 15,732 glyphs, two fonts, five images, 9,150,048 source pixels,
+and 1,212,656 PDF bytes. Production activation remains blocked on ten explicit
+backend, renderer, and runtime bindings.
+
+Primary Phase 08B-R2C-U evidence:
+
+- `docs/PDF_EXPORT_PRODUCTION_BASELINE.md`;
+- `src/generation/pdfExportProductionBaselineV1.ts`;
+- `tests/pdfExportProductionBaselineV1.test.ts`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-production-baseline.v1.json`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -1131,17 +1157,20 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
 - Real export execution pins source revision and full measured-contract
   content, returns deterministic PDF bytes only after Core receipt acceptance,
   and preserves the accepted canonical artifact identity.
+- Production-hardening baseline revalidates Phase T, derives exact idempotency
+  and resource facts, and fixes lifecycle/storage/observability requirements
+  while retaining ten explicit activation blockers.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-T real export handoff evidence.
+None for closing PDF-PILOT-08B-R2C-U production-hardening baseline evidence.
 
 R2C-N retired twelve pages as a hard gate. The authoritative R2C-O result is
 thirteen pages, and the terminal page contains one 630pt continuation fragment
 from the final table; no content was removed to imitate the reference.
 
 Production PDF export remains blocked on route/worker lifecycle, durable
-storage and artifact projection, cancellation/idempotency/resource limits,
+storage and artifact projection, cancellation/idempotency/resource enforcement,
 reader compatibility beyond Poppler/PDFium, source-profile promotion, and
 native-to-WASM parity.
 
@@ -1185,6 +1214,5 @@ native-to-WASM parity.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-U` establish the production-hardening baseline
-for lifecycle, idempotency, cancellation, limits, storage, and observability
-without prematurely binding a production route.
+Next decision: review cross-repo binding order before naming or implementing
+`PDF-EXPORT-V`. Phase U does not authorize production activation.

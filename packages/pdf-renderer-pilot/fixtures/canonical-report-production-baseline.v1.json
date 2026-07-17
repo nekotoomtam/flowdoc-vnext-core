@@ -1,0 +1,213 @@
+{
+  "evidenceVersion": 1,
+  "phaseId": "PDF-EXPORT-U",
+  "status": "accepted",
+  "phaseTIdentity": {
+    "phaseId": "PDF-EXPORT-T",
+    "requestFingerprint": "sha256:d33c6082c16d7d566cfa6e9cec9a470461fe76ed7ad57feacca131210221f846",
+    "receiptFingerprint": "sha256:94f55d7bc673af196c9f67ef0179d1c46afa39017f83f0de7e57bbb1e9dd707f",
+    "artifactSha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+    "deterministicBytes": true
+  },
+  "baseline": {
+    "source": "vnext-pdf-export-production-baseline",
+    "contractVersion": 1,
+    "kind": "pdf-export-production-baseline",
+    "baselineId": "baseline:ocr-benchmark:inv_9437125258:revision-1",
+    "policy": {
+      "policyId": "canonical-pdf-production-baseline-v1",
+      "maxAttempts": 2,
+      "executionDeadlineMs": 120000,
+      "resources": {
+        "maxPageCount": 100,
+        "maxPaintCommandCount": 100000,
+        "maxGlyphCount": 1000000,
+        "maxFontAssetCount": 16,
+        "maxImageAssetCount": 50,
+        "maxSingleImagePixelCount": 25000000,
+        "maxTotalImagePixelCount": 250000000,
+        "maxOutputByteLength": 100000000
+      }
+    },
+    "exportIdentity": {
+      "exportRequestId": "export:ocr-benchmark:inv_9437125258:revision-1",
+      "artifactId": "pdf:ocr-benchmark:inv_9437125258:revision-1",
+      "requestFingerprint": "sha256:d33c6082c16d7d566cfa6e9cec9a470461fe76ed7ad57feacca131210221f846",
+      "handoffFingerprint": "sha256:47ac90dac28ab72689d5206a4295de90a74ea818f2080d1249051b06f7bfa686",
+      "receiptFingerprint": "sha256:94f55d7bc673af196c9f67ef0179d1c46afa39017f83f0de7e57bbb1e9dd707f",
+      "sourceContractFingerprint": "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
+      "sourceContractContentFingerprint": "sha256:5f28958947715a3a9bdc006a73688bf8226f782047db5f5c53ffe0349dbd8b78"
+    },
+    "idempotency": {
+      "payloadFingerprint": "sha256:54baa750ff352bc47779b020695dce69585a267d3c04ed525ac0e429d8927752",
+      "backendKeyRequired": true,
+      "scope": "source-revision-request-contract-and-policy",
+      "duplicateInFlight": "return-existing-operation",
+      "duplicateTerminal": "return-existing-receipt",
+      "conflictingPayload": "reject",
+      "stageKeysDerivedByBackend": true
+    },
+    "lifecycle": {
+      "maxAttempts": 2,
+      "executionDeadlineMs": 120000,
+      "cancellationCheckpoints": [
+        "before-handoff",
+        "before-render",
+        "before-persist"
+      ],
+      "midRenderCancellationRequired": true,
+      "drainPolicy": "reject-new-then-finish-or-cancel-in-flight",
+      "automaticLoop": false,
+      "stopReasons": [
+        "completed",
+        "cancelled-before-handoff",
+        "cancelled-before-render",
+        "cancelled-before-persist",
+        "deadline-exceeded",
+        "resource-limit-exceeded",
+        "source-revision-drift",
+        "idempotency-conflict",
+        "renderer-blocked",
+        "storage-failed",
+        "shutdown-drain-complete",
+        "shutdown-forced"
+      ]
+    },
+    "resources": {
+      "actual": {
+        "pageCount": 13,
+        "paintCommandCount": 1814,
+        "glyphCount": 15732,
+        "fontAssetCount": 2,
+        "imageAssetCount": 5,
+        "maxSingleImagePixelCount": 2130048,
+        "totalImagePixelCount": 9150048,
+        "outputByteLength": 1212656
+      },
+      "limits": {
+        "maxPageCount": 100,
+        "maxPaintCommandCount": 100000,
+        "maxGlyphCount": 1000000,
+        "maxFontAssetCount": 16,
+        "maxImageAssetCount": 50,
+        "maxSingleImagePixelCount": 25000000,
+        "maxTotalImagePixelCount": 250000000,
+        "maxOutputByteLength": 100000000
+      },
+      "allWithinLimits": true,
+      "postRenderByteLimitRequired": true
+    },
+    "storage": {
+      "projectionTargets": [
+        "artifact-manifest",
+        "artifact-job"
+      ],
+      "commitOrder": [
+        "write-content-addressed-bytes",
+        "verify-byte-length-and-sha256",
+        "compare-and-swap-artifact-manifest",
+        "compare-and-swap-artifact-job"
+      ],
+      "metadataBeforeBytes": false,
+      "readAfterWriteIntegrityRequired": true,
+      "orphanCleanupPolicyRequired": true,
+      "writesExecuted": false
+    },
+    "observability": {
+      "requiredEvents": [
+        "pdf-export.accepted",
+        "pdf-export.deduplicated",
+        "pdf-export.render-started",
+        "pdf-export.render-completed",
+        "pdf-export.persist-started",
+        "pdf-export.persist-completed",
+        "pdf-export.cancelled",
+        "pdf-export.deadline-exceeded",
+        "pdf-export.resource-rejected",
+        "pdf-export.failed"
+      ],
+      "requiredDimensions": [
+        "exportRequestId",
+        "artifactId",
+        "documentId",
+        "documentRevision",
+        "requestFingerprint",
+        "sourceContractFingerprint",
+        "rendererProfileId",
+        "measurementProfileId",
+        "attempt",
+        "stopReason",
+        "pageCount",
+        "byteLength",
+        "durationMs"
+      ],
+      "sourceTextAllowed": false,
+      "pdfBytesAllowed": false,
+      "sinkBound": false
+    },
+    "activation": {
+      "status": "blocked",
+      "requiredBindings": [
+        "backend-idempotency-binding",
+        "deadline-enforcement",
+        "cooperative-cancellation",
+        "worker-lifecycle-binding",
+        "durable-byte-storage",
+        "atomic-manifest-job-projection",
+        "observability-sink",
+        "authorization-and-tenancy",
+        "production-renderer-profile-promotion",
+        "runtime-profile-qualification"
+      ],
+      "satisfiedBindings": [],
+      "productionBinding": false
+    },
+    "contracts": {
+      "baselineOnly": true,
+      "revalidatesPhaseTReceipt": true,
+      "backendOwnsRuntimePolicy": true,
+      "workerExecution": false,
+      "deadlineExecution": false,
+      "cancellationExecution": false,
+      "storageWrites": false,
+      "manifestOrJobMutation": false,
+      "observabilityWrites": false,
+      "backendRoute": false,
+      "productionBinding": false
+    },
+    "baselineFingerprint": "sha256:e66094979bdc5675dbdbd4b2fae13200036fb26c6244c6abacb401d969a07051"
+  },
+  "activationDecision": {
+    "status": "blocked",
+    "productionBinding": false,
+    "blockerCount": 10,
+    "blockers": [
+      "backend-idempotency-binding",
+      "deadline-enforcement",
+      "cooperative-cancellation",
+      "worker-lifecycle-binding",
+      "durable-byte-storage",
+      "atomic-manifest-job-projection",
+      "observability-sink",
+      "authorization-and-tenancy",
+      "production-renderer-profile-promotion",
+      "runtime-profile-qualification"
+    ],
+    "reason": "baseline-and-resource-envelope-accepted-but-runtime-bindings-are-not-proven"
+  },
+  "ownership": {
+    "core": "identity-resource-and-readiness-facts",
+    "backend": "idempotency-deadline-cancellation-worker-storage-observability-authz",
+    "renderer": "bounded-byte-execution-and-production-profile-qualification"
+  },
+  "executionBoundary": {
+    "pdfRenderedInThisPhase": false,
+    "workerExecution": false,
+    "storageWrites": false,
+    "manifestOrJobMutation": false,
+    "backendRoute": false,
+    "productionActivation": false,
+    "evidenceFixtureWriteOnly": true
+  },
+  "nextDecision": "review-cross-repo-production-binding-order-before-PDF-EXPORT-V"
+}

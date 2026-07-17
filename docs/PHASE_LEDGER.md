@@ -10896,3 +10896,37 @@ Primary evidence:
 Next phase: `PDF-PILOT-08B-R2C-U` production-hardening baseline covering
 lifecycle, idempotency, cancellation, limits, storage, and observability
 without claiming a production route.
+
+## PDF-PILOT-08B-R2C-U Production-Hardening Baseline
+
+Status: bounded policy and canonical resource envelope accepted; production
+activation remains blocked on ten named cross-repo bindings.
+
+R2C-U adds a pure Core assessment that revalidates the Phase T request,
+measured contract, and receipt. It derives a deterministic idempotency payload
+from exact source/request/contract/policy identity and computes page, paint,
+glyph, font, image, pixel, and output-byte facts against finite policy limits.
+Unbounded policy values, resource overflow, receipt drift, and contract drift
+fail closed.
+
+The baseline fixes cancellation checkpoints, bounded attempt/deadline values,
+stop reasons, byte-before-metadata commit order, read-after-write integrity,
+artifact-manifest/job CAS projection, and privacy-safe observability fields.
+Core executes no worker, timer, cancellation, storage, route, or event sink.
+
+The canonical workload passes at 13 pages, 1,814 paint commands, 15,732
+glyphs, two fonts, five images, 9,150,048 source pixels, and 1,212,656 output
+bytes. Activation remains blocked on backend idempotency, deadline,
+cancellation, PDF worker lifecycle, durable storage, atomic metadata
+projection, observability, auth/tenancy, production renderer promotion, and
+runtime profile qualification.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_PRODUCTION_BASELINE.md`;
+- `src/generation/pdfExportProductionBaselineV1.ts`;
+- `tests/pdfExportProductionBaselineV1.test.ts`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-production-baseline.v1.json`.
+
+Next decision: pause for a cross-repo production-binding review before naming
+or implementing `PDF-EXPORT-V`.

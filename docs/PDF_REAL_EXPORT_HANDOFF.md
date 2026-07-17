@@ -60,3 +60,5 @@ Phase T does not add or accept a backend route, worker or queue, cancellation,
 idempotency, durable byte storage, artifact-manifest projection, access
 control, resource limits, production renderer binding, or production
 fidelity. Those concerns begin with Phase U production-hardening baseline.
+Phase U records them in `docs/PDF_EXPORT_PRODUCTION_BASELINE.md` without
+claiming that any runtime binding is complete.
