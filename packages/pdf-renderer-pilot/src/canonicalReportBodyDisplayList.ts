@@ -5,6 +5,8 @@ import {
   paginateVNextTableFlowV4,
   paginateVNextTableRowsV1,
   projectVNextTableRendererCommandsV1,
+  type AuthoredNodeV4Target,
+  type UnitValueV4Target,
   type VNextPdfDrawCommand,
   type VNextPdfFillRectPaintCommandV1,
   type VNextPdfFontAssetV1,
@@ -47,14 +49,14 @@ export const FLOWDOC_CANONICAL_REPORT_BODY_DISPLAY_LIST_ID =
 
 const ACCEPTED = {
   data: "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-  projection: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
-  native: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
-  lineBreaking: "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
-  measured: "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
-  paginationInputs: "73e19092ffa8b203e2aa0fb73463bcb882dcc9b83c652969aad7ed0ef39eb724",
-  sectionReconciliation: "8c805719625c7c071568db8f90f9fad1b67c66f519ba880c16183314447c8364",
-  pagination: "f22854d8cb99e451f9c8b29c977f822a9e44fc8afd345d50087a77a0c94a83d0",
-  staticZones: "3a24b5807bd744392292789b4f11e1a330279cc4fa49b7516659b746365d4b91",
+  projection: "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850",
+  native: "d86f7f0eb9954cedcb8dd9bfc4b850feaf88ac61a406a1e11a8f5c9d186c093a",
+  lineBreaking: "2f4dee43082a5305d222d1e5a0eb5c7aec4a33fc1f98a9756ecbb2104282b13d",
+  measured: "1c988eca85984869c8be8b1f5af9a763cc72fa01b66f1da7cb1c046cfb7ad854",
+  paginationInputs: "6395b57d085965e37022a9ae5a68eca0b57c12717b475089a5f148d60b9235b6",
+  sectionReconciliation: "06159f79a648efce2c78aa4fcde6f17032a31b383c3e4e8a28a741f968789553",
+  pagination: "d1a9dc3067ce1861f1e4f35e27bb42235e71175e7ffefeb330aa6b5eff0dbeaa",
+  staticZones: "ba2654339d312a9aad8137aa24b4d20db4274449b8ef42f50309ba8dacc6c3e1",
 } as const
 
 const RENDERER_PROFILE_ID = "pdf-pilot-08b-r2c-l-full-document-v1"
@@ -126,6 +128,34 @@ export interface FlowDocCanonicalReportTableReplayV1 {
   replayFingerprint: string
 }
 
+export interface FlowDocCanonicalReportCalloutFragmentV1 {
+  fragmentId: string
+  groupId: string
+  pageIndex: number
+  pageNumber: number
+  continuesFromPreviousPage: boolean
+  continuesOnNextPage: boolean
+  sourcePlacementCount: number
+  sourcePlacementFingerprints: string[]
+  bounds: VNextPdfPaintBoundsV1
+  drawCommandId: string
+  paintCommandId: string
+  fragmentFingerprint: string
+}
+
+export interface FlowDocCanonicalReportCalloutGroupV1 {
+  groupId: string
+  zoneId: string
+  labelNodeId: string
+  summaryNodeIds: string[]
+  itemIndexes: number[]
+  sourceFieldBindingInlineIds: string[]
+  fillColor: string
+  paddingPt: { top: number; right: number; bottom: number; left: number }
+  fragments: FlowDocCanonicalReportCalloutFragmentV1[]
+  groupFingerprint: string
+}
+
 export interface FlowDocCanonicalReportBodyDisplayListBundleV1 {
   contractVersion: typeof FLOWDOC_CANONICAL_REPORT_BODY_DISPLAY_LIST_VERSION
   kind: "canonical-report-body-display-list-bundle"
@@ -150,8 +180,15 @@ export interface FlowDocCanonicalReportBodyDisplayListBundleV1 {
     geometrySource: "core-table-pagination-and-renderer-projection"
     zebraStriping: "not-authored-not-applied"
   }
+  calloutRenderPolicy: {
+    styleSource: "authored-text-block-box"
+    groupingSource: "consecutive-label-and-note-semantics"
+    geometrySource: "measured-page-placements"
+    pageSplitPolicy: "paint-continuation-fragment-per-page"
+  }
   entries: FlowDocCanonicalReportBodyDisplayEntryV1[]
   tableReplays: FlowDocCanonicalReportTableReplayV1[]
+  calloutGroups: FlowDocCanonicalReportCalloutGroupV1[]
   bodyDisplayList: {
     drawCommandIds: string[]
     paintCommandIds: string[]
@@ -180,6 +217,7 @@ export interface FlowDocCanonicalReportBodyDisplayListBundleV1 {
       "table-pagination-replay",
       "table-renderer-projection",
       "table-background-text-border-paint-commands",
+      "authored-callout-fragment-paint-commands",
       "full-document-measured-draw-contract",
     ]
     bodyDisplayListMustNotOwn: [
@@ -195,6 +233,7 @@ export interface FlowDocCanonicalReportBodyDisplayListBundleV1 {
     mediaProjection: "executed"
     tablePaginationReplay: "executed"
     tableRendererProjection: "executed"
+    calloutProjection: "executed"
     bodyDisplayList: "executed"
     staticZoneMerge: "executed"
     fullDocumentMeasuredDrawContract: "consumable"
@@ -213,6 +252,10 @@ export interface FlowDocCanonicalReportBodyDisplayListBundleV1 {
     bodyImageCount: number
     bodyFillRectCount: number
     bodyStrokeLineCount: number
+    calloutGroupCount: number
+    calloutFragmentCount: number
+    calloutFillRectCount: number
+    calloutSourceFieldBindingCount: number
     structuralReceiptCount: number
     emptyTextReceiptCount: number
     fullDrawCommandCount: number
@@ -271,6 +314,10 @@ function roundPt(value: number): number {
   return Number(value.toFixed(6))
 }
 
+function unitToPt(value: UnitValueV4Target): number {
+  return value.unit === "pt" ? value.value : (value.value * 72) / 25.4
+}
+
 function exact(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right)
 }
@@ -325,6 +372,165 @@ function placements(input: FlowDocCanonicalReportBodyDisplayListSourceV1): Array
   return input.paginationExecution.corePagePlan.pages.flatMap((page) => (
     page.placements.map((placement) => ({ ...clone(placement), page }))
   ))
+}
+
+function authoredNode(
+  input: FlowDocCanonicalReportBodyDisplayListSourceV1,
+  nodeId: string,
+): AuthoredNodeV4Target {
+  const matches = input.projection.projectedInstanceDocument.document.sections
+    .map((section) => section.nodes[nodeId])
+    .filter((node): node is AuthoredNodeV4Target => node != null)
+  requireFact(matches.length === 1, `authored node is not unique: ${nodeId}`)
+  return matches[0]
+}
+
+function boxPaddingPt(node: Extract<AuthoredNodeV4Target, { type: "text-block" }>): {
+  top: number
+  right: number
+  bottom: number
+  left: number
+} {
+  const padding = node.props.box?.padding
+  return padding == null
+    ? { top: 0, right: 0, bottom: 0, left: 0 }
+    : {
+        top: roundPt(unitToPt(padding.top)),
+        right: roundPt(unitToPt(padding.right)),
+        bottom: roundPt(unitToPt(padding.bottom)),
+        left: roundPt(unitToPt(padding.left)),
+      }
+}
+
+interface CalloutProjection {
+  groups: FlowDocCanonicalReportCalloutGroupV1[]
+  paints: PendingPaint[]
+}
+
+function calloutProjection(
+  input: FlowDocCanonicalReportBodyDisplayListSourceV1,
+  bodyPlacements: Array<Placement & { page: Page }>,
+): CalloutProjection {
+  const items = input.paginationInputs.coreCompositionManifest.bodyItems
+  const groups: FlowDocCanonicalReportCalloutGroupV1[] = []
+  const paints: PendingPaint[] = []
+
+  for (let itemOffset = 0; itemOffset < items.length; itemOffset += 1) {
+    const labelItem = items[itemOffset]
+    const labelNode = authoredNode(input, labelItem.rootNodeId)
+    if (labelNode.type !== "text-block" || labelNode.role.role !== "label" || labelNode.props.box?.fill == null) continue
+    const fillColor = labelNode.props.box.fill
+    const paddingPt = boxPaddingPt(labelNode)
+    const styleIdentity = JSON.stringify({ fill: fillColor, paddingPt })
+    const groupItems = [labelItem]
+    let nextOffset = itemOffset + 1
+    while (nextOffset < items.length) {
+      const candidateItem = items[nextOffset]
+      const candidateNode = authoredNode(input, candidateItem.rootNodeId)
+      if (
+        candidateItem.zoneId !== labelItem.zoneId
+        || candidateNode.type !== "text-block"
+        || candidateNode.role.role !== "note"
+        || candidateNode.props.box?.fill == null
+        || JSON.stringify({ fill: candidateNode.props.box.fill, paddingPt: boxPaddingPt(candidateNode) }) !== styleIdentity
+      ) break
+      groupItems.push(candidateItem)
+      nextOffset += 1
+    }
+    requireFact(groupItems.length > 1, `boxed reader label has no consecutive summaries: ${labelNode.id}`)
+    itemOffset = nextOffset - 1
+
+    const groupId = `${labelNode.id}:callout-group`
+    const groupItemIndexes = new Set(groupItems.map((item) => item.itemIndex))
+    const groupNodeIds = new Set(groupItems.map((item) => item.rootNodeId))
+    const sourceFieldBindingInlineIds = input.projection.scopedResolution.resolvedDocument.bindings.fields
+      .filter((binding) => groupNodeIds.has(binding.textBlockId))
+      .map((binding) => binding.inlineId)
+    requireFact(sourceFieldBindingInlineIds.length > 0, `callout has no source field bindings: ${groupId}`)
+    const groupPlacements = bodyPlacements.filter((placement) => groupItemIndexes.has(placement.itemIndex))
+    requireFact(groupPlacements.length >= groupItems.length, `callout placement coverage is incomplete: ${groupId}`)
+    const firstItemIndex = groupItems[0].itemIndex
+    const lastItemIndex = groupItems[groupItems.length - 1].itemIndex
+    const fragments: FlowDocCanonicalReportCalloutFragmentV1[] = []
+
+    const pageIndexes = [...new Set(groupPlacements.map((placement) => placement.page.pageIndex))].sort((left, right) => left - right)
+    pageIndexes.forEach((pageIndex) => {
+      const pagePlacements = groupPlacements.filter((placement) => placement.page.pageIndex === pageIndex)
+      const page = pagePlacements[0].page
+      const bodyTopPt = page.pageGeometry.bodyOriginYPt
+      const bodyBottomPt = roundPt(bodyTopPt + page.pageGeometry.bodyHeightPt)
+      const startsGroup = pagePlacements.some((placement) => placement.itemIndex === firstItemIndex)
+      const endsGroup = pagePlacements.some((placement) => placement.itemIndex === lastItemIndex)
+      const textTopPt = Math.min(...pagePlacements.map((placement) => bodyTopPt + placement.blockOffsetPt))
+      const textBottomPt = Math.max(...pagePlacements.map((placement) => (
+        bodyTopPt + placement.blockOffsetPt + placement.blockExtentPt
+      )))
+      const topPt = startsGroup ? Math.max(bodyTopPt, textTopPt - paddingPt.top) : bodyTopPt
+      const bottomPt = endsGroup ? Math.min(bodyBottomPt, textBottomPt + paddingPt.bottom) : bodyBottomPt
+      requireFact(bottomPt > topPt, `callout fragment has no height: ${groupId}:${pageIndex}`)
+      const bounds = {
+        xPt: page.pageGeometry.bodyOriginXPt,
+        yPt: roundPt(topPt),
+        widthPt: page.pageGeometry.bodyWidthPt,
+        heightPt: roundPt(bottomPt - topPt),
+      }
+      const fragmentId = `${groupId}:page-${page.pageNumber}`
+      const commandToken = token({ fragmentId, bounds, fill: fillColor })
+      const draw: VNextPdfDrawCommand = {
+        id: `pdf:canonical-body:callout:${commandToken}`,
+        sourceCommandId: `canonical-body:callout:${commandToken}`,
+        fragmentId,
+        pageIndex: page.pageIndex,
+        pageNumber: page.pageNumber,
+        operation: "draw-fragment-box",
+        nodeId: labelNode.id,
+        nodeType: "text-block",
+        bounds,
+        text: null,
+        table: null,
+      }
+      const paint: VNextPdfFillRectPaintCommandV1 = {
+        id: `paint:canonical-body:callout:${commandToken}`,
+        sourceCommandId: draw.id,
+        pageIndex: page.pageIndex,
+        paintOrder: 0,
+        bounds,
+        kind: "fill-rect",
+        color: fillColor,
+        opacity: 1,
+      }
+      const fragmentFacts = {
+        fragmentId,
+        groupId,
+        pageIndex: page.pageIndex,
+        pageNumber: page.pageNumber,
+        continuesFromPreviousPage: !startsGroup,
+        continuesOnNextPage: !endsGroup,
+        sourcePlacementCount: pagePlacements.length,
+        sourcePlacementFingerprints: pagePlacements.map((placement) => compact(placement)),
+        bounds,
+        drawCommandId: draw.id,
+        paintCommandId: paint.id,
+      }
+      fragments.push({ ...fragmentFacts, fragmentFingerprint: compact(fragmentFacts) })
+      paints.push({ draw, paint })
+    })
+
+    const groupFacts = {
+      groupId,
+      zoneId: labelItem.zoneId,
+      labelNodeId: labelNode.id,
+      summaryNodeIds: groupItems.slice(1).map((item) => item.rootNodeId),
+      itemIndexes: groupItems.map((item) => item.itemIndex),
+      sourceFieldBindingInlineIds,
+      fillColor,
+      paddingPt,
+      fragments,
+    }
+    groups.push({ ...groupFacts, groupFingerprint: compact(groupFacts) })
+  }
+
+  return { groups, paints }
 }
 
 function colorByStyle(input: FlowDocCanonicalReportBodyDisplayListSourceV1): Map<string, string> {
@@ -457,8 +663,11 @@ function textEntry(
   requireFact(roundPt(lines.reduce((sum, line) => sum + line.heightPt, 0)) === roundPt(placement.blockExtentPt), `text placement height drifted: ${placement.rootNodeId}`)
   const color = colors.get(facts.measurement.styleKey)
   requireFact(color != null, `resolved style color is missing: ${facts.measurement.styleKey}`)
+  const node = authoredNode(input, placement.rootNodeId)
+  requireFact(node.type === "text-block", `measured text root type drifted: ${placement.rootNodeId}`)
+  const paddingPt = boxPaddingPt(node)
   const paints = lines.flatMap((line) => glyphSegments(input, facts, line.startOffset, line.endOffset, {
-    xPt: placement.page.pageGeometry.bodyOriginXPt,
+    xPt: roundPt(placement.page.pageGeometry.bodyOriginXPt + paddingPt.left),
     yPt: roundPt(placement.page.pageGeometry.bodyOriginYPt + placement.blockOffsetPt + line.yOffsetPt - lines[0].yOffsetPt),
     widthPt: line.widthPt,
     heightPt: line.heightPt,
@@ -901,7 +1110,8 @@ function buildBundle(input: FlowDocCanonicalReportBodyDisplayListSourceV1): Flow
   const colors = colorByStyle(input)
   const entries: FlowDocCanonicalReportBodyDisplayEntryV1[] = []
   const tableReplays: FlowDocCanonicalReportTableReplayV1[] = []
-  const pending: PendingPaint[] = []
+  const callouts = calloutProjection(input, bodyPlacements)
+  const pending: PendingPaint[] = [...callouts.paints]
   const receipts: FlowDocCanonicalReportBodyDisplayListBundleV1["bodyDisplayList"]["structuralReceipts"] = []
   const tableWindows = captureTableWindows(input)
   const handledItems = new Set<number>()
@@ -992,6 +1202,13 @@ function buildBundle(input: FlowDocCanonicalReportBodyDisplayListSourceV1): Flow
     bodyImageCount: bodyPaintCommands.filter((command) => command.kind === "image").length,
     bodyFillRectCount: bodyPaintCommands.filter((command) => command.kind === "fill-rect").length,
     bodyStrokeLineCount: bodyPaintCommands.filter((command) => command.kind === "stroke-line").length,
+    calloutGroupCount: callouts.groups.length,
+    calloutFragmentCount: callouts.groups.reduce((sum, group) => sum + group.fragments.length, 0),
+    calloutFillRectCount: callouts.paints.filter((entry) => entry.paint.kind === "fill-rect").length,
+    calloutSourceFieldBindingCount: callouts.groups.reduce(
+      (sum, group) => sum + group.sourceFieldBindingInlineIds.length,
+      0,
+    ),
     structuralReceiptCount: receipts.length,
     emptyTextReceiptCount: receipts.filter((receipt) => receipt.reason === "empty-measured-text-no-glyph-paint").length,
     fullDrawCommandCount: measuredDrawContract.summary.sourceCommandCount,
@@ -1032,8 +1249,15 @@ function buildBundle(input: FlowDocCanonicalReportBodyDisplayListSourceV1): Flow
       geometrySource: "core-table-pagination-and-renderer-projection",
       zebraStriping: "not-authored-not-applied",
     },
+    calloutRenderPolicy: {
+      styleSource: "authored-text-block-box",
+      groupingSource: "consecutive-label-and-note-semantics",
+      geometrySource: "measured-page-placements",
+      pageSplitPolicy: "paint-continuation-fragment-per-page",
+    },
     entries,
     tableReplays,
+    calloutGroups: callouts.groups,
     bodyDisplayList,
     rendererHandoff: {
       scope: "full-document-body-plus-static-zones",
@@ -1052,6 +1276,7 @@ function buildBundle(input: FlowDocCanonicalReportBodyDisplayListSourceV1): Flow
         "table-pagination-replay",
         "table-renderer-projection",
         "table-background-text-border-paint-commands",
+        "authored-callout-fragment-paint-commands",
         "full-document-measured-draw-contract",
       ],
       bodyDisplayListMustNotOwn: ["pdf-bytes", "visual-fidelity-acceptance", "twelve-page-layout-calibration", "authored-document-mutation"],
@@ -1062,6 +1287,7 @@ function buildBundle(input: FlowDocCanonicalReportBodyDisplayListSourceV1): Flow
       mediaProjection: "executed",
       tablePaginationReplay: "executed",
       tableRendererProjection: "executed",
+      calloutProjection: "executed",
       bodyDisplayList: "executed",
       staticZoneMerge: "executed",
       fullDocumentMeasuredDrawContract: "consumable",

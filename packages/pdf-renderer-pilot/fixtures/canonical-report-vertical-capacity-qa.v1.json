@@ -4,12 +4,12 @@
   "phaseId": "PDF-PILOT-08B-R2C-G",
   "status": "accepted-capacity-evidence-target-page-count-blocked",
   "sourceFingerprints": {
-    "projection": "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
-    "measuredComposition": "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a"
+    "projection": "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850",
+    "measuredComposition": "1c988eca85984869c8be8b1f5af9a763cc72fa01b66f1da7cb1c046cfb7ad854"
   },
-  "planFingerprint": "c3c43a0c377a20cc999e6d2f7063eacfa3f70cb261fe55c873388dcd429cded2",
-  "bundleFingerprint": "2321b3b26571b9bae7706418c6e2eecc7bdc1f3aae4dc04b614d78bcb4fb1586",
-  "coreCompositionManifestFingerprint": "sha256:9e005232ea436f881e83b6dc7246b024fd491f733769a60f5d211e8fff1b8b7a",
+  "planFingerprint": "a1a3c07ae9dbb71e904e5d57bb013e7e6ea9d8c0852146e90f81a9bdefa3f9d7",
+  "bundleFingerprint": "4d89a4f8bf9b99fbaf7d75825319153021b915cf24cd5f4b15ff467af1a0e2fb",
+  "coreCompositionManifestFingerprint": "sha256:5e05d9fbcbeaf3c8babde954c2a0382a0834cd9d7b31b2cc28311bea533f015e",
   "spacingProfile": {
     "profileId": "ocr-benchmark-report-flow-spacing-v2",
     "collapsePolicy": "exact-adjacency-rule-no-margin-collapse",
@@ -77,9 +77,9 @@
         "previousCategory": "report-body",
         "currentCategory": "reader-label",
         "basisStyleKey": "report-body",
-        "multiplier": 0.8,
+        "multiplier": 1.2666666666666666,
         "basisLineHeightPt": 15,
-        "gapBeforePt": 12,
+        "gapBeforePt": 19,
         "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
@@ -107,9 +107,9 @@
         "previousCategory": "reader-summary",
         "currentCategory": "report-body",
         "basisStyleKey": "report-body",
-        "multiplier": 0.8,
+        "multiplier": 1.2666666666666666,
         "basisLineHeightPt": 15,
-        "gapBeforePt": 12,
+        "gapBeforePt": 19,
         "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
@@ -197,8 +197,8 @@
       "adjacency": "report-body->reader-label",
       "basisStyleKey": "report-body",
       "basisLineHeightPt": 15,
-      "multiplier": 0.8,
-      "gapBeforePt": 12,
+      "multiplier": 1.2666666666666666,
+      "gapBeforePt": 19,
       "appliedCount": 2
     },
     {
@@ -224,8 +224,8 @@
       "adjacency": "reader-summary->report-body",
       "basisStyleKey": "report-body",
       "basisLineHeightPt": 15,
-      "multiplier": 0.8,
-      "gapBeforePt": 12,
+      "multiplier": 1.2666666666666666,
+      "gapBeforePt": 19,
       "appliedCount": 1
     },
     {
@@ -310,8 +310,8 @@
       "bodyItemCount": 15,
       "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 277,
-      "preservedSpacingHeightPt": 71,
-      "preservedSpacingDemandPt": 348,
+      "preservedSpacingHeightPt": 85,
+      "preservedSpacingDemandPt": 362,
       "naturalCapacityFloorCount": 1,
       "preservedSpacingCapacityCount": 1,
       "naturalSinglePageFit": true,
@@ -513,8 +513,8 @@
       "bodyItemCount": 8,
       "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 127,
-      "preservedSpacingHeightPt": 41,
-      "preservedSpacingDemandPt": 168,
+      "preservedSpacingHeightPt": 48,
+      "preservedSpacingDemandPt": 175,
       "naturalCapacityFloorCount": 1,
       "preservedSpacingCapacityCount": 1,
       "naturalSinglePageFit": true,
@@ -643,9 +643,9 @@
     "mediaFlowItemCount": 5,
     "spacingRuleCount": 12,
     "appliedSpacingCount": 173,
-    "totalPreservedSpacingPt": 877,
+    "totalPreservedSpacingPt": 898,
     "naturalBodyHeightPt": 7106.047243,
-    "preservedSpacingBodyDemandPt": 7983.047243,
+    "preservedSpacingBodyDemandPt": 8004.047243,
     "pageBodyHeightPt": 699.19,
     "measuredHeaderFitCount": 12,
     "generatedFooterReservationCount": 12,

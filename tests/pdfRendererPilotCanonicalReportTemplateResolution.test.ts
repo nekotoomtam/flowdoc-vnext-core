@@ -118,8 +118,8 @@ describe("PDF-PILOT-08B-R2B canonical report template and resolution", () => {
     expect(validation).toEqual({ status: "valid", issues: [], summary: TEMPLATE_BUNDLE.summary })
     expect(TEMPLATE_BUNDLE).toMatchObject({
       sourceDataBundleFingerprint: DATA_BUNDLE.bundleFingerprint,
-      resolutionInputFingerprint: "report-resolution-73c8712e05099a9c658e07af",
-      bundleFingerprint: "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4",
+      resolutionInputFingerprint: "report-resolution-ddcd06573934017425235b02",
+      bundleFingerprint: "0898dea47c83f70eb93682ece5628b42f96af669ee302a8ca74f2f02001e9623",
       summary: {
         semanticSectionCount: 12,
         templateNodeCount: 485,

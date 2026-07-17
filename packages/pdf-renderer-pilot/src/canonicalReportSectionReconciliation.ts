@@ -18,8 +18,8 @@ export const FLOWDOC_CANONICAL_REPORT_SECTION_RECONCILIATION_VERSION = 1 as cons
 export const FLOWDOC_CANONICAL_REPORT_SECTION_RECONCILIATION_ID =
   "ocr-benchmark-report-section-reconciliation-v1" as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193"
-const ACCEPTED_VERTICAL_CAPACITY_FINGERPRINT = "2321b3b26571b9bae7706418c6e2eecc7bdc1f3aae4dc04b614d78bcb4fb1586"
+const ACCEPTED_PROJECTION_FINGERPRINT = "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850"
+const ACCEPTED_VERTICAL_CAPACITY_FINGERPRINT = "4d89a4f8bf9b99fbaf7d75825319153021b915cf24cd5f4b15ff467af1a0e2fb"
 const COMPOSITION_SECTION_ID = "composition-section-ocr-benchmark-report"
 
 export interface FlowDocCanonicalReportSectionReconciliationSourceInputV1 {

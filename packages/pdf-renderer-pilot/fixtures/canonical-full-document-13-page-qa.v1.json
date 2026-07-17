@@ -4,17 +4,17 @@
   "phaseId": "PDF-PILOT-08B-R2C-M",
   "status": "accepted-pdf-structural-proof-visual-fidelity-pending",
   "artifact": {
-    "sha256": "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a",
-    "bytes": 1212504,
+    "sha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+    "bytes": 1212656,
     "pageCount": 13,
     "pdfVersion": "%PDF-1.7",
     "strictParserAccepted": true,
     "trailerRootPresent": true
   },
   "source": {
-    "bundleFingerprint": "18f4e7a322e6af1d4073dd4de277a3fb4d9d64905eac50c160c3cb7faebfa084",
-    "contractFingerprint": "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
-    "rendererArtifactSha256": "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a"
+    "bundleFingerprint": "96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67",
+    "contractFingerprint": "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
+    "rendererArtifactSha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b"
   },
   "pageTree": {
     "pageCount": 13,
@@ -116,9 +116,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1813,
-        "glyphRunOperatorCount": 103,
-        "strokeLineOperatorCount": 61
+        "extractedCharacterCount": 1792,
+        "glyphRunOperatorCount": 101,
+        "strokeLineOperatorCount": 59
       },
       {
         "pageNumber": 11,
@@ -126,9 +126,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1369,
-        "glyphRunOperatorCount": 117,
-        "strokeLineOperatorCount": 113
+        "extractedCharacterCount": 1322,
+        "glyphRunOperatorCount": 118,
+        "strokeLineOperatorCount": 115
       },
       {
         "pageNumber": 12,
@@ -136,9 +136,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1460,
-        "glyphRunOperatorCount": 72,
-        "strokeLineOperatorCount": 57
+        "extractedCharacterCount": 1467,
+        "glyphRunOperatorCount": 70,
+        "strokeLineOperatorCount": 55
       },
       {
         "pageNumber": 13,
@@ -146,9 +146,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 430,
-        "glyphRunOperatorCount": 20,
-        "strokeLineOperatorCount": 17
+        "extractedCharacterCount": 491,
+        "glyphRunOperatorCount": 23,
+        "strokeLineOperatorCount": 19
       }
     ]
   },
@@ -223,11 +223,11 @@
   },
   "contentStreamInspection": {
     "operatorCounts": {
-      "q": 793,
-      "rg": 1140,
-      "re": 110,
-      "f": 100,
-      "Q": 793,
+      "q": 796,
+      "rg": 1143,
+      "re": 113,
+      "f": 103,
+      "Q": 796,
       "BDC": 1031,
       "BT": 1040,
       "Tf": 1040,

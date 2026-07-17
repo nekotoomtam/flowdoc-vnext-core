@@ -60,11 +60,11 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
     expect(PROJECTION_BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-C",
       sourceDataBundleFingerprint: "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-      sourceTemplateBundleFingerprint: "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4",
-      sourceFormattingBundleFingerprint: "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698",
-      sourceMeasurementHandoffFingerprint: "c7c4f45b061cb975e1d6b215d786b58a1976935753c93bbae8eaf463480bdd30",
+      sourceTemplateBundleFingerprint: "0898dea47c83f70eb93682ece5628b42f96af669ee302a8ca74f2f02001e9623",
+      sourceFormattingBundleFingerprint: "0e03c8a280714fd291ae73c9775125f06f91c9e3f1eca72739d9e923346fe809",
+      sourceMeasurementHandoffFingerprint: "9ace7bf4ad5d0e3866d5d12b826c30c776e0313c8afffa08d95f3c916f4bcb74",
       projectionContractFingerprint: "8038892b0919734eccff3ec46feade4cde03e9e5cddd2134197aef4b93bdeeb4",
-      bundleFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+      bundleFingerprint: "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850",
       summary: {
         sourceCollectionCount: 6,
         sourceItemFieldCount: 63,

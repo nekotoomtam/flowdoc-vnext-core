@@ -959,6 +959,10 @@ The package must remain runnable without any parent editor checkout.
   command inside the 467.95pt content width, and composes reader summaries
   through explicit semantic spacing. The source-backed result remains 13 pages;
   callout treatment and visual parity remain downstream.
+- PDF canonical callout and region thresholds carry authored box padding
+  through both document measurement boundaries, retain 22 source field
+  bindings, and project two semantic groups as three measured page fragments.
+  Six independent region gates pass while document parity remains rejected.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

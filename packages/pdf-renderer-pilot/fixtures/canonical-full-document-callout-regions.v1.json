@@ -1,0 +1,2405 @@
+{
+  "comparisonVersion": 1,
+  "comparisonId": "pdf-pilot-08b-r2c-q-canonical-full-document-callout-regions-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-Q",
+  "status": "accepted-callout-region-thresholds-visual-fidelity-still-rejected",
+  "inputs": {
+    "reference": {
+      "artifactId": "reference-final-pdf",
+      "pointer": "external-report://INV_9437125258/OCR_Benchmark_INV_9437125258_TH_final.pdf",
+      "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+      "bytes": 714952,
+      "pageCount": 12
+    },
+    "candidate": {
+      "artifactId": "pdf-pilot:pdf-pilot-08b-r2c-m-canonical-full-document",
+      "pointer": "local-output://pdf/flowdoc-pdf-pilot-canonical-full-document-13-page.pdf",
+      "sha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+      "bytes": 1212656,
+      "pageCount": 13,
+      "sourceBundleFingerprint": "96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67"
+    },
+    "externalPdfBytesRetained": false,
+    "rasterBytesRetained": false
+  },
+  "method": {
+    "geometryAndTextEngine": "pdfplumber",
+    "geometryAndTextEngineVersion": "0.11.6",
+    "rasterRenderer": "pdftoppm",
+    "rasterDpi": 96,
+    "nonWhiteThreshold": "grayscale < 250",
+    "headingDetection": {
+      "coverFontSizeMinimumPt": 23.5,
+      "sectionFontSizeRangePt": [
+        15.8,
+        16.2
+      ],
+      "nearBaselineClusterTolerancePt": 0.8,
+      "semanticBinding": "document-order-to-pinned-twelve-section-order"
+    },
+    "referenceBodyAnalysisWindowPt": [
+      45.0,
+      745.0
+    ],
+    "candidateBodyAnalysisWindowPt": [
+      52.87,
+      752.06
+    ],
+    "limitations": [
+      "Reference Thai extraction contains producer-specific glyph ordering artifacts.",
+      "Character counts are a normalized extracted-text density proxy, not semantic equality.",
+      "Raster occupancy is region evidence, not a pixel-parity score.",
+      "Observed reference content bounds are not a reusable pagination frame."
+    ]
+  },
+  "reference": {
+    "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+    "bytes": 714952,
+    "pageCount": 12,
+    "allLetter612x792Pt": true,
+    "extractedNonWhitespaceCharacterCount": 10619,
+    "bodyCharacterCount": 10028,
+    "fontCharacterCounts": {
+      "BCDGEE+Tahoma": 7156,
+      "BCDFEE+Tahoma": 1749,
+      "BCDHEE+Tahoma-Bold": 644,
+      "BCDIEE+BrowalliaNew-Bold": 525,
+      "BCDEEE+Tahoma-Bold": 481,
+      "BCDMEE+Calibri-Bold": 37,
+      "BCDKEE+SymbolMT": 27
+    },
+    "fontSizeCharacterCounts": {
+      "10.6": 4850,
+      "9.0": 3997,
+      "8.5": 624,
+      "11.0": 345,
+      "16.0": 282,
+      "13.0": 280,
+      "12.5": 61,
+      "9.5": 49,
+      "10.0": 48,
+      "25.0": 44,
+      "12.0": 39
+    },
+    "dominantFontSizePt": 10.6,
+    "boldCharacterCount": 1687,
+    "boldCharacterShare": 0.158866,
+    "bodyAnalysisWindow": {
+      "topPt": 45.0,
+      "bottomPt": 745.0
+    },
+    "observedBodyBounds": {
+      "x0Pt": 72.02,
+      "topPt": 60.73,
+      "x1Pt": 539.45,
+      "bottomPt": 730.18,
+      "widthPt": 467.43,
+      "heightPt": 669.45
+    },
+    "observedStaticEnvelope": {
+      "topPt": 26.96,
+      "bottomPt": 766.98
+    },
+    "imagePageNumbers": [
+      1,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "wideFilledRectangles": [
+      {
+        "pageNumber": 2,
+        "x0Pt": 69.024,
+        "topPt": 90.02,
+        "x1Pt": 537.094,
+        "bottomPt": 148.82,
+        "widthPt": 468.07,
+        "heightPt": 58.8,
+        "fillRgb": [
+          0.918,
+          0.945,
+          1.0
+        ]
+      },
+      {
+        "pageNumber": 2,
+        "x0Pt": 78.024,
+        "topPt": 124.94,
+        "x1Pt": 528.094,
+        "bottomPt": 141.86,
+        "widthPt": 450.07,
+        "heightPt": 16.92,
+        "fillRgb": [
+          0.918,
+          0.945,
+          1.0
+        ]
+      },
+      {
+        "pageNumber": 2,
+        "x0Pt": 69.024,
+        "topPt": 463.15,
+        "x1Pt": 537.094,
+        "bottomPt": 508.03,
+        "widthPt": 468.07,
+        "heightPt": 44.88,
+        "fillRgb": [
+          1.0,
+          0.961,
+          0.851
+        ]
+      },
+      {
+        "pageNumber": 2,
+        "x0Pt": 78.024,
+        "topPt": 484.15,
+        "x1Pt": 528.094,
+        "bottomPt": 501.07,
+        "widthPt": 450.07,
+        "heightPt": 16.92,
+        "fillRgb": [
+          1.0,
+          0.961,
+          0.851
+        ]
+      },
+      {
+        "pageNumber": 4,
+        "x0Pt": 69.024,
+        "topPt": 549.796,
+        "x1Pt": 537.094,
+        "bottomPt": 608.5,
+        "widthPt": 468.07,
+        "heightPt": 58.704,
+        "fillRgb": [
+          0.953,
+          0.965,
+          0.98
+        ]
+      },
+      {
+        "pageNumber": 4,
+        "x0Pt": 78.024,
+        "topPt": 584.62,
+        "x1Pt": 528.094,
+        "bottomPt": 601.54,
+        "widthPt": 450.07,
+        "heightPt": 16.92,
+        "fillRgb": [
+          0.953,
+          0.965,
+          0.98
+        ]
+      },
+      {
+        "pageNumber": 6,
+        "x0Pt": 69.024,
+        "topPt": 584.98,
+        "x1Pt": 537.094,
+        "bottomPt": 629.74,
+        "widthPt": 468.07,
+        "heightPt": 44.76,
+        "fillRgb": [
+          0.906,
+          0.969,
+          0.961
+        ]
+      },
+      {
+        "pageNumber": 6,
+        "x0Pt": 78.024,
+        "topPt": 605.86,
+        "x1Pt": 528.094,
+        "bottomPt": 622.78,
+        "widthPt": 450.07,
+        "heightPt": 16.92,
+        "fillRgb": [
+          0.906,
+          0.969,
+          0.961
+        ]
+      },
+      {
+        "pageNumber": 7,
+        "x0Pt": 69.024,
+        "topPt": 446.11,
+        "x1Pt": 537.094,
+        "bottomPt": 504.91,
+        "widthPt": 468.07,
+        "heightPt": 58.8,
+        "fillRgb": [
+          1.0,
+          0.961,
+          0.851
+        ]
+      },
+      {
+        "pageNumber": 7,
+        "x0Pt": 78.024,
+        "topPt": 480.91,
+        "x1Pt": 528.094,
+        "bottomPt": 497.95,
+        "widthPt": 450.07,
+        "heightPt": 17.04,
+        "fillRgb": [
+          1.0,
+          0.961,
+          0.851
+        ]
+      },
+      {
+        "pageNumber": 8,
+        "x0Pt": 69.024,
+        "topPt": 91.34,
+        "x1Pt": 537.094,
+        "bottomPt": 150.14,
+        "widthPt": 468.07,
+        "heightPt": 58.8,
+        "fillRgb": [
+          1.0,
+          0.961,
+          0.851
+        ]
+      },
+      {
+        "pageNumber": 8,
+        "x0Pt": 78.024,
+        "topPt": 126.14,
+        "x1Pt": 528.094,
+        "bottomPt": 143.18,
+        "widthPt": 450.07,
+        "heightPt": 17.04,
+        "fillRgb": [
+          1.0,
+          0.961,
+          0.851
+        ]
+      },
+      {
+        "pageNumber": 9,
+        "x0Pt": 69.024,
+        "topPt": 488.71,
+        "x1Pt": 537.094,
+        "bottomPt": 547.51,
+        "widthPt": 468.07,
+        "heightPt": 58.8,
+        "fillRgb": [
+          0.918,
+          0.945,
+          1.0
+        ]
+      },
+      {
+        "pageNumber": 9,
+        "x0Pt": 78.024,
+        "topPt": 523.63,
+        "x1Pt": 528.094,
+        "bottomPt": 540.55,
+        "widthPt": 450.07,
+        "heightPt": 16.92,
+        "fillRgb": [
+          0.918,
+          0.945,
+          1.0
+        ]
+      },
+      {
+        "pageNumber": 10,
+        "x0Pt": 69.024,
+        "topPt": 234.866,
+        "x1Pt": 537.094,
+        "bottomPt": 279.65,
+        "widthPt": 468.07,
+        "heightPt": 44.784,
+        "fillRgb": [
+          0.953,
+          0.965,
+          0.98
+        ]
+      },
+      {
+        "pageNumber": 10,
+        "x0Pt": 78.024,
+        "topPt": 255.77,
+        "x1Pt": 528.094,
+        "bottomPt": 272.69,
+        "widthPt": 450.07,
+        "heightPt": 16.92,
+        "fillRgb": [
+          0.953,
+          0.965,
+          0.98
+        ]
+      },
+      {
+        "pageNumber": 12,
+        "x0Pt": 69.024,
+        "topPt": 397.726,
+        "x1Pt": 537.094,
+        "bottomPt": 456.55,
+        "widthPt": 468.07,
+        "heightPt": 58.824,
+        "fillRgb": [
+          0.953,
+          0.965,
+          0.98
+        ]
+      },
+      {
+        "pageNumber": 12,
+        "x0Pt": 78.024,
+        "topPt": 432.55,
+        "x1Pt": 528.094,
+        "bottomPt": 449.59,
+        "widthPt": 450.07,
+        "heightPt": 17.04,
+        "fillRgb": [
+          0.953,
+          0.965,
+          0.98
+        ]
+      }
+    ],
+    "headings": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 95.7,
+        "documentTopPt": 95.7
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 2,
+        "topPt": 60.7,
+        "documentTopPt": 852.7
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 3,
+        "topPt": 60.7,
+        "documentTopPt": 1644.7
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 4,
+        "topPt": 62.3,
+        "documentTopPt": 2438.3
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 5,
+        "topPt": 60.7,
+        "documentTopPt": 3228.7
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 6,
+        "topPt": 158.9,
+        "documentTopPt": 4118.9
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 61.1,
+        "documentTopPt": 4813.1
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 62.3,
+        "documentTopPt": 5606.3
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 9,
+        "topPt": 104.8,
+        "documentTopPt": 6440.8
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 61.1,
+        "documentTopPt": 7189.1
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 62.3,
+        "documentTopPt": 7982.3
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 12,
+        "topPt": 62.3,
+        "documentTopPt": 8774.3
+      }
+    ],
+    "sections": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 95.7,
+        "documentTopPt": 95.7,
+        "nonWhitespaceCharacterCount": 274
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 2,
+        "topPt": 60.7,
+        "documentTopPt": 852.7,
+        "nonWhitespaceCharacterCount": 1143
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 3,
+        "topPt": 60.7,
+        "documentTopPt": 1644.7,
+        "nonWhitespaceCharacterCount": 836
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 4,
+        "topPt": 62.3,
+        "documentTopPt": 2438.3,
+        "nonWhitespaceCharacterCount": 640
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 5,
+        "topPt": 60.7,
+        "documentTopPt": 3228.7,
+        "nonWhitespaceCharacterCount": 748
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 6,
+        "topPt": 158.9,
+        "documentTopPt": 4118.9,
+        "nonWhitespaceCharacterCount": 740
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 61.1,
+        "documentTopPt": 4813.1,
+        "nonWhitespaceCharacterCount": 566
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 62.3,
+        "documentTopPt": 5606.3,
+        "nonWhitespaceCharacterCount": 1039
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 9,
+        "topPt": 104.8,
+        "documentTopPt": 6440.8,
+        "nonWhitespaceCharacterCount": 1202
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 61.1,
+        "documentTopPt": 7189.1,
+        "nonWhitespaceCharacterCount": 984
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 62.3,
+        "documentTopPt": 7982.3,
+        "nonWhitespaceCharacterCount": 755
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 12,
+        "topPt": 62.3,
+        "documentTopPt": 8774.3,
+        "nonWhitespaceCharacterCount": 1063
+      }
+    ],
+    "pages": [
+      {
+        "pageNumber": 1,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 361,
+        "bodyCharacterCount": 312,
+        "bodyBounds": {
+          "x0Pt": 103.58,
+          "topPt": 61.22,
+          "x1Pt": 508.26,
+          "bottomPt": 670.74
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 0,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 2,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1192,
+        "bodyCharacterCount": 1143,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 527.99,
+          "bottomPt": 496.9
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 151,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 3,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 885,
+        "bodyCharacterCount": 836,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 531.47,
+          "bottomPt": 480.58
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 90,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 4,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 689,
+        "bodyCharacterCount": 640,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 522.13,
+          "bottomPt": 597.37
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 153,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 5,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 543,
+        "bodyCharacterCount": 494,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 475.41,
+          "bottomPt": 697.72
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 74,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 6,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1021,
+        "bodyCharacterCount": 972,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.8,
+          "x1Pt": 536.74,
+          "bottomPt": 722.76
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 119,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 7,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 637,
+        "bodyCharacterCount": 588,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 61.09,
+          "x1Pt": 531.98,
+          "bottomPt": 549.22
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 142,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 8,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 957,
+        "bodyCharacterCount": 908,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 538.44,
+          "bottomPt": 730.18
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 131,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 9,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1365,
+        "bodyCharacterCount": 1316,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.75,
+          "x1Pt": 539.45,
+          "bottomPt": 536.38
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 109,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 10,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1051,
+        "bodyCharacterCount": 1001,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 61.09,
+          "x1Pt": 533.25,
+          "bottomPt": 357.68
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 17,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 11,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 805,
+        "bodyCharacterCount": 755,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 521.43,
+          "bottomPt": 424.54
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 158,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 12,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1113,
+        "bodyCharacterCount": 1063,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 531.0,
+          "bottomPt": 445.3
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 142,
+        "imageObjectCount": 0
+      }
+    ],
+    "raster": {
+      "renderer": "pdftoppm",
+      "dpi": 96,
+      "pageCount": 12,
+      "allPages816x1056Px": true,
+      "meanNonWhitePixelRatio": 0.108246,
+      "meanBandNonWhitePixelRatios": {
+        "top-static": 0.026137,
+        "top-transition": 0.038218,
+        "body-core": 0.131445,
+        "bottom-transition": 0.013636,
+        "bottom-static": 0.012239
+      },
+      "pages": [
+        {
+          "pageNumber": 1,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.050556,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 26.25,
+            "x1Pt": 539.25,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.032424,
+            "body-core": 0.059369,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.011929
+          }
+        },
+        {
+          "pageNumber": 2,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.157724,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.026757,
+            "body-core": 0.195706,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012063
+          }
+        },
+        {
+          "pageNumber": 3,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.065932,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 71.25,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.01851,
+            "body-core": 0.079669,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012159
+          }
+        },
+        {
+          "pageNumber": 4,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.154017,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.042024,
+            "body-core": 0.190122,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012044
+          }
+        },
+        {
+          "pageNumber": 5,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.072614,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.026093,
+            "body-core": 0.087711,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012178
+          }
+        },
+        {
+          "pageNumber": 6,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.132469,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.015395,
+            "body-core": 0.163372,
+            "bottom-transition": 0.015931,
+            "bottom-static": 0.012274
+          }
+        },
+        {
+          "pageNumber": 7,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.111756,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.027293,
+            "body-core": 0.137337,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.011987
+          }
+        },
+        {
+          "pageNumber": 8,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.162318,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.053692,
+            "body-core": 0.191437,
+            "bottom-transition": 0.147697,
+            "bottom-static": 0.012389
+          }
+        },
+        {
+          "pageNumber": 9,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.12978,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.118464,
+            "body-core": 0.15493,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012293
+          }
+        },
+        {
+          "pageNumber": 10,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.083411,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.0,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.021165,
+            "body-core": 0.101658,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012714
+          }
+        },
+        {
+          "pageNumber": 11,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.059931,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.038475,
+            "body-core": 0.070885,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012351
+          }
+        },
+        {
+          "pageNumber": 12,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.118442,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.038322,
+            "body-core": 0.145148,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012485
+          }
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "sha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+    "bytes": 1212656,
+    "pageCount": 13,
+    "allLetter612x792Pt": true,
+    "extractedNonWhitespaceCharacterCount": 14705,
+    "bodyCharacterCount": 14008,
+    "fontCharacterCounts": {
+      "FDFDRG+FlowDocThaiCanonicalFullDocument-Regular": 13320,
+      "FDFDBD+FlowDocThaiCanonicalFullDocument-Bold": 1385
+    },
+    "fontSizeCharacterCounts": {
+      "10.5": 6983,
+      "9.1": 5735,
+      "9.3": 1028,
+      "9.0": 641,
+      "16.0": 274,
+      "24.0": 44
+    },
+    "dominantFontSizePt": 10.5,
+    "boldCharacterCount": 1385,
+    "boldCharacterShare": 0.094186,
+    "bodyAnalysisWindow": {
+      "topPt": 52.87,
+      "bottomPt": 752.06
+    },
+    "observedBodyBounds": {
+      "x0Pt": 72.02,
+      "topPt": 59.19,
+      "x1Pt": 539.15,
+      "bottomPt": 749.88,
+      "widthPt": 467.13,
+      "heightPt": 690.69
+    },
+    "observedStaticEnvelope": {
+      "topPt": 26.96,
+      "bottomPt": 767.37
+    },
+    "imagePageNumbers": [
+      1,
+      3,
+      5,
+      8,
+      9
+    ],
+    "wideFilledRectangles": [
+      {
+        "pageNumber": 1,
+        "x0Pt": 72.02,
+        "topPt": 651.507795,
+        "x1Pt": 539.97,
+        "bottomPt": 752.06,
+        "widthPt": 467.95,
+        "heightPt": 100.552205,
+        "fillRgb": [
+          0.917647,
+          0.945098,
+          1.0
+        ]
+      },
+      {
+        "pageNumber": 2,
+        "x0Pt": 72.02,
+        "topPt": 52.87,
+        "x1Pt": 539.97,
+        "bottomPt": 122.87,
+        "widthPt": 467.95,
+        "heightPt": 70.0,
+        "fillRgb": [
+          0.917647,
+          0.945098,
+          1.0
+        ]
+      },
+      {
+        "pageNumber": 10,
+        "x0Pt": 72.02,
+        "topPt": 350.87,
+        "x1Pt": 539.97,
+        "bottomPt": 472.87,
+        "widthPt": 467.95,
+        "heightPt": 122.0,
+        "fillRgb": [
+          0.917647,
+          0.945098,
+          1.0
+        ]
+      }
+    ],
+    "headings": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 69.2,
+        "documentTopPt": 69.2
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 1,
+        "topPt": 603.1,
+        "documentTopPt": 603.1
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 2,
+        "topPt": 280.4,
+        "documentTopPt": 1072.4
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 2,
+        "topPt": 534.4,
+        "documentTopPt": 1326.4
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 4,
+        "topPt": 278.4,
+        "documentTopPt": 2654.4
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 4,
+        "topPt": 661.4,
+        "documentTopPt": 3037.4
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 64.4,
+        "documentTopPt": 4816.4
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 296.5,
+        "documentTopPt": 5840.5
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 10,
+        "topPt": 302.4,
+        "documentTopPt": 7430.4
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 488.4,
+        "documentTopPt": 7616.4
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 285.4,
+        "documentTopPt": 8205.4
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 11,
+        "topPt": 723.4,
+        "documentTopPt": 8643.4
+      }
+    ],
+    "sections": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 69.2,
+        "documentTopPt": 69.2,
+        "nonWhitespaceCharacterCount": 332
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 1,
+        "topPt": 603.1,
+        "documentTopPt": 603.1,
+        "nonWhitespaceCharacterCount": 774
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 2,
+        "topPt": 280.4,
+        "documentTopPt": 1072.4,
+        "nonWhitespaceCharacterCount": 455
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 2,
+        "topPt": 534.4,
+        "documentTopPt": 1326.4,
+        "nonWhitespaceCharacterCount": 1532
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 4,
+        "topPt": 278.4,
+        "documentTopPt": 2654.4,
+        "nonWhitespaceCharacterCount": 998
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 4,
+        "topPt": 661.4,
+        "documentTopPt": 3037.4,
+        "nonWhitespaceCharacterCount": 2288
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 64.4,
+        "documentTopPt": 4816.4,
+        "nonWhitespaceCharacterCount": 1349
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 296.5,
+        "documentTopPt": 5840.5,
+        "nonWhitespaceCharacterCount": 2477
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 10,
+        "topPt": 302.4,
+        "documentTopPt": 7430.4,
+        "nonWhitespaceCharacterCount": 473
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 488.4,
+        "documentTopPt": 7616.4,
+        "nonWhitespaceCharacterCount": 685
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 285.4,
+        "documentTopPt": 8205.4,
+        "nonWhitespaceCharacterCount": 851
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 11,
+        "topPt": 723.4,
+        "documentTopPt": 8643.4,
+        "nonWhitespaceCharacterCount": 1765
+      }
+    ],
+    "pages": [
+      {
+        "pageNumber": 1,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 750,
+        "bodyCharacterCount": 701,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 69.19,
+          "x1Pt": 539.15,
+          "bottomPt": 748.86
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 2,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 2,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1364,
+        "bodyCharacterCount": 1315,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.31,
+          "x1Pt": 521.44,
+          "bottomPt": 718.23
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 2,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 3,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 796,
+        "bodyCharacterCount": 747,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 292.29,
+          "x1Pt": 533.31,
+          "bottomPt": 746.88
+        },
+        "lineObjectCount": 123,
+        "rectangleObjectCount": 18,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 4,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1644,
+        "bodyCharacterCount": 1539,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 63.19,
+          "x1Pt": 491.49,
+          "bottomPt": 737.23
+        },
+        "lineObjectCount": 51,
+        "rectangleObjectCount": 11,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 5,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1179,
+        "bodyCharacterCount": 1130,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 485.35,
+          "bottomPt": 749.88
+        },
+        "lineObjectCount": 45,
+        "rectangleObjectCount": 7,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 6,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1025,
+        "bodyCharacterCount": 976,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 59.19,
+          "x1Pt": 533.31,
+          "bottomPt": 729.78
+        },
+        "lineObjectCount": 145,
+        "rectangleObjectCount": 20,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 7,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1398,
+        "bodyCharacterCount": 1349,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 64.41,
+          "x1Pt": 433.56,
+          "bottomPt": 536.23
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 1,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 8,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 942,
+        "bodyCharacterCount": 893,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 296.52,
+          "x1Pt": 384.41,
+          "bottomPt": 624.33
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 1,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 9,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1043,
+        "bodyCharacterCount": 994,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 292.29,
+          "x1Pt": 513.42,
+          "bottomPt": 744.88
+        },
+        "lineObjectCount": 76,
+        "rectangleObjectCount": 11,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 10,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1574,
+        "bodyCharacterCount": 1524,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 63.19,
+          "x1Pt": 527.4,
+          "bottomPt": 736.78
+        },
+        "lineObjectCount": 59,
+        "rectangleObjectCount": 9,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 11,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1146,
+        "bodyCharacterCount": 1096,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 63.19,
+          "x1Pt": 534.6,
+          "bottomPt": 739.41
+        },
+        "lineObjectCount": 115,
+        "rectangleObjectCount": 15,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 12,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1382,
+        "bodyCharacterCount": 1332,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 361.49,
+          "bottomPt": 746.78
+        },
+        "lineObjectCount": 55,
+        "rectangleObjectCount": 3,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 13,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 462,
+        "bodyCharacterCount": 412,
+        "bodyBounds": {
+          "x0Pt": 76.02,
+          "topPt": 63.19,
+          "x1Pt": 341.41,
+          "bottomPt": 260.78
+        },
+        "lineObjectCount": 19,
+        "rectangleObjectCount": 3,
+        "imageObjectCount": 0
+      }
+    ],
+    "raster": {
+      "renderer": "pdftoppm",
+      "dpi": 96,
+      "pageCount": 13,
+      "allPages816x1056Px": true,
+      "meanNonWhitePixelRatio": 0.114139,
+      "meanBandNonWhitePixelRatios": {
+        "top-static": 0.019244,
+        "top-transition": 0.258488,
+        "body-core": 0.120011,
+        "bottom-transition": 0.107714,
+        "bottom-static": 0.029257
+      },
+      "pages": [
+        {
+          "pageNumber": 1,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.144871,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 70.5,
+            "topPt": 23.25,
+            "x1Pt": 540.0,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.141748,
+            "body-core": 0.119066,
+            "bottom-transition": 0.764706,
+            "bottom-static": 0.14344
+          }
+        },
+        {
+          "pageNumber": 2,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.119708,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.0,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.669118,
+            "body-core": 0.109181,
+            "bottom-transition": 0.03028,
+            "bottom-static": 0.012044
+          }
+        },
+        {
+          "pageNumber": 3,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.154007,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.047743,
+            "body-core": 0.184749,
+            "bottom-transition": 0.079759,
+            "bottom-static": 0.02451
+          }
+        },
+        {
+          "pageNumber": 4,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.114853,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.462163,
+            "body-core": 0.108491,
+            "bottom-transition": 0.095001,
+            "bottom-static": 0.047564
+          }
+        },
+        {
+          "pageNumber": 5,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.10188,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.105213,
+            "body-core": 0.113753,
+            "bottom-transition": 0.100158,
+            "bottom-static": 0.028971
+          }
+        },
+        {
+          "pageNumber": 6,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.136138,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 71.25,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.312883,
+            "body-core": 0.148355,
+            "bottom-transition": 0.068883,
+            "bottom-static": 0.012102
+          }
+        },
+        {
+          "pageNumber": 7,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.060569,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.0,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.051088,
+            "body-core": 0.071526,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.011987
+          }
+        },
+        {
+          "pageNumber": 8,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.05696,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.0,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.070006,
+            "body-core": 0.065832,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012274
+          }
+        },
+        {
+          "pageNumber": 9,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.133351,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.053309,
+            "body-core": 0.158596,
+            "bottom-transition": 0.073555,
+            "bottom-static": 0.024146
+          }
+        },
+        {
+          "pageNumber": 10,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.212841,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.470869,
+            "body-core": 0.236377,
+            "bottom-transition": 0.071589,
+            "bottom-static": 0.012887
+          }
+        },
+        {
+          "pageNumber": 11,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.121306,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.455959,
+            "body-core": 0.122365,
+            "bottom-transition": 0.049173,
+            "bottom-static": 0.012714
+          }
+        },
+        {
+          "pageNumber": 12,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.086614,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.05576,
+            "body-core": 0.099446,
+            "bottom-transition": 0.067172,
+            "bottom-static": 0.024893
+          }
+        },
+        {
+          "pageNumber": 13,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.040715,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 23.25,
+            "x1Pt": 540.75,
+            "bottomPt": 763.5
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.019244,
+            "top-transition": 0.464486,
+            "body-core": 0.022414,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.01281
+          }
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "pageCountDelta": 1,
+    "extractedNonWhitespaceCharacterDelta": 4086,
+    "candidateToReferenceExtractedCharacterRatio": 1.3848,
+    "dominantFontSizeDeltaPt": -0.1,
+    "boldCharacterShareDelta": -0.06468,
+    "observedBodyWidthDeltaPt": -0.3,
+    "meanRasterInkRatioDelta": 0.005893,
+    "anchors": [
+      {
+        "sectionId": "cover",
+        "reference": {
+          "pageNumber": 1,
+          "topPt": 95.7
+        },
+        "candidate": {
+          "pageNumber": 1,
+          "topPt": 69.2
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": -26.5
+      },
+      {
+        "sectionId": "executive-summary",
+        "reference": {
+          "pageNumber": 2,
+          "topPt": 60.7
+        },
+        "candidate": {
+          "pageNumber": 1,
+          "topPt": 603.1
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -249.6
+      },
+      {
+        "sectionId": "method",
+        "reference": {
+          "pageNumber": 3,
+          "topPt": 60.7
+        },
+        "candidate": {
+          "pageNumber": 2,
+          "topPt": 280.4
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -572.3
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "reference": {
+          "pageNumber": 4,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 2,
+          "topPt": 534.4
+        },
+        "pageDelta": -2,
+        "documentTopDeltaPt": -1111.9
+      },
+      {
+        "sectionId": "source-evidence",
+        "reference": {
+          "pageNumber": 5,
+          "topPt": 60.7
+        },
+        "candidate": {
+          "pageNumber": 4,
+          "topPt": 278.4
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -574.3
+      },
+      {
+        "sectionId": "native-extraction",
+        "reference": {
+          "pageNumber": 6,
+          "topPt": 158.9
+        },
+        "candidate": {
+          "pageNumber": 4,
+          "topPt": 661.4
+        },
+        "pageDelta": -2,
+        "documentTopDeltaPt": -1081.5
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "reference": {
+          "pageNumber": 7,
+          "topPt": 61.1
+        },
+        "candidate": {
+          "pageNumber": 7,
+          "topPt": 64.4
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 3.3
+      },
+      {
+        "sectionId": "mapping",
+        "reference": {
+          "pageNumber": 8,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 8,
+          "topPt": 296.5
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 234.2
+      },
+      {
+        "sectionId": "decision-view",
+        "reference": {
+          "pageNumber": 9,
+          "topPt": 104.8
+        },
+        "candidate": {
+          "pageNumber": 10,
+          "topPt": 302.4
+        },
+        "pageDelta": 1,
+        "documentTopDeltaPt": 989.6
+      },
+      {
+        "sectionId": "limitations",
+        "reference": {
+          "pageNumber": 10,
+          "topPt": 61.1
+        },
+        "candidate": {
+          "pageNumber": 10,
+          "topPt": 488.4
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 427.3
+      },
+      {
+        "sectionId": "appendix-runs",
+        "reference": {
+          "pageNumber": 11,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 11,
+          "topPt": 285.4
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 223.1
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "reference": {
+          "pageNumber": 12,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 11,
+          "topPt": 723.4
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -130.9
+      }
+    ],
+    "sections": [
+      {
+        "sectionId": "cover",
+        "referenceCharacterCount": 274,
+        "candidateCharacterCount": 332,
+        "characterCountDelta": 58,
+        "candidateToReferenceRatio": 1.2117
+      },
+      {
+        "sectionId": "executive-summary",
+        "referenceCharacterCount": 1143,
+        "candidateCharacterCount": 774,
+        "characterCountDelta": -369,
+        "candidateToReferenceRatio": 0.6772
+      },
+      {
+        "sectionId": "method",
+        "referenceCharacterCount": 836,
+        "candidateCharacterCount": 455,
+        "characterCountDelta": -381,
+        "candidateToReferenceRatio": 0.5443
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "referenceCharacterCount": 640,
+        "candidateCharacterCount": 1532,
+        "characterCountDelta": 892,
+        "candidateToReferenceRatio": 2.3937
+      },
+      {
+        "sectionId": "source-evidence",
+        "referenceCharacterCount": 748,
+        "candidateCharacterCount": 998,
+        "characterCountDelta": 250,
+        "candidateToReferenceRatio": 1.3342
+      },
+      {
+        "sectionId": "native-extraction",
+        "referenceCharacterCount": 740,
+        "candidateCharacterCount": 2288,
+        "characterCountDelta": 1548,
+        "candidateToReferenceRatio": 3.0919
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "referenceCharacterCount": 566,
+        "candidateCharacterCount": 1349,
+        "characterCountDelta": 783,
+        "candidateToReferenceRatio": 2.3834
+      },
+      {
+        "sectionId": "mapping",
+        "referenceCharacterCount": 1039,
+        "candidateCharacterCount": 2477,
+        "characterCountDelta": 1438,
+        "candidateToReferenceRatio": 2.384
+      },
+      {
+        "sectionId": "decision-view",
+        "referenceCharacterCount": 1202,
+        "candidateCharacterCount": 473,
+        "characterCountDelta": -729,
+        "candidateToReferenceRatio": 0.3935
+      },
+      {
+        "sectionId": "limitations",
+        "referenceCharacterCount": 984,
+        "candidateCharacterCount": 685,
+        "characterCountDelta": -299,
+        "candidateToReferenceRatio": 0.6961
+      },
+      {
+        "sectionId": "appendix-runs",
+        "referenceCharacterCount": 755,
+        "candidateCharacterCount": 851,
+        "characterCountDelta": 96,
+        "candidateToReferenceRatio": 1.1272
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "referenceCharacterCount": 1063,
+        "candidateCharacterCount": 1765,
+        "characterCountDelta": 702,
+        "candidateToReferenceRatio": 1.6604
+      }
+    ],
+    "anchorPageDeltasAreNonUniform": true,
+    "terminalContinuation": {
+      "pageNumber": 13,
+      "bodyCommandCount": 42,
+      "topPt": 52.87,
+      "bottomPt": 260.87,
+      "spanPt": 208.0
+    },
+    "verticalReclamationHypothesis": {
+      "referenceObservedBodyEnvelopeHeightPt": 669.45,
+      "candidateContractBodyFrameHeightPt": 699.19,
+      "theoreticalGainPerPagePt": -29.74,
+      "theoreticalGainAcrossTwelvePagesPt": -356.88,
+      "terminalContinuationSpanPt": 208.0,
+      "theoreticalHeadroomPt": -564.88,
+      "capacityProof": false,
+      "classification": "numerically-close-but-fragmentation-and-content-policy-unproven"
+    },
+    "regionClassifications": [
+      {
+        "region": "page-box",
+        "classification": "matched",
+        "evidence": "Both artifacts use 612x792pt Letter pages."
+      },
+      {
+        "region": "typography-scale",
+        "classification": "near-reference",
+        "evidence": "Section headings are 16pt in both artifacts and dominant text differs by 0.1pt."
+      },
+      {
+        "region": "typography-weight",
+        "classification": "materially-diverged",
+        "evidence": "Candidate bold-character share exceeds the reference by more than 25 percentage points."
+      },
+      {
+        "region": "static-zones",
+        "classification": "materially-diverged",
+        "evidence": "Candidate header/footer ink is inset relative to the reference envelope."
+      },
+      {
+        "region": "semantic-composition",
+        "classification": "source-backed-callouts-accepted-not-parity",
+        "evidence": "Two authored semantic groups preserve 22 source field bindings and project to three measured page fragments."
+      },
+      {
+        "region": "pagination",
+        "classification": "content-driven-extra-page",
+        "evidence": "The final 328pt table continuation is retained on page 13."
+      },
+      {
+        "region": "callout-treatment",
+        "classification": "calibrated-near-reference",
+        "evidence": "Rendered EAF1FF groups match the authored 9pt horizontal and 7pt vertical padding; outer width differs from the reference by 0.12pt."
+      }
+    ],
+    "regionThresholdContract": {
+      "contractId": "pdf-pilot-08b-r2c-q-region-aware-visual-thresholds-v1",
+      "comparisonModel": "region-aware-non-pixel-parity",
+      "regions": [
+        {
+          "region": "page-box",
+          "thresholds": {
+            "requiredSizePt": [
+              612.0,
+              792.0
+            ]
+          },
+          "observed": {
+            "referenceAllLetter": true,
+            "candidateAllLetter": true
+          },
+          "accepted": true
+        },
+        {
+          "region": "static-zones",
+          "thresholds": {
+            "maximumTopGapPt": 1.0,
+            "maximumBottomGapPt": 1.0
+          },
+          "observed": {
+            "topGapPt": 0.0,
+            "bottomGapPt": 0.39
+          },
+          "accepted": true
+        },
+        {
+          "region": "body-frame",
+          "thresholds": {
+            "maximumObservedLeftGapPt": 0.1,
+            "maximumObservedTopGapPt": 2.0,
+            "maximumCommandOverflowPt": 0.001
+          },
+          "observed": {
+            "leftGapPt": 0.0,
+            "topGapPt": 1.54,
+            "leftCommandOverflowPt": 0.0,
+            "rightCommandOverflowPt": 0.0
+          },
+          "accepted": true
+        },
+        {
+          "region": "typography",
+          "thresholds": {
+            "maximumDominantScaleGapPt": 0.1,
+            "maximumBoldShareGap": 0.08
+          },
+          "observed": {
+            "dominantScaleGapPt": 0.1,
+            "boldShareGap": 0.06468
+          },
+          "accepted": true
+        },
+        {
+          "region": "callout-treatment",
+          "thresholds": {
+            "semanticGroupCount": 2,
+            "renderedFragmentCount": 3,
+            "sourceFieldBindingCount": 22,
+            "maximumFillChannelGap": 0.001,
+            "maximumWidthGapPt": 0.25,
+            "maximumLeftEdgeGapPt": 3.1,
+            "maximumRightEdgeGapPt": 3.1,
+            "maximumTextInsetGapPt": 0.1,
+            "authoredHorizontalPaddingPt": 9.0,
+            "authoredVerticalPaddingPt": 7.0
+          },
+          "observed": {
+            "referenceSemanticGroupProxyCount": 2,
+            "candidateSemanticGroupCount": 2,
+            "candidateRenderedFragmentCount": 3,
+            "candidateSourceFieldBindingCount": 22,
+            "referenceOuterWidthPt": 468.07,
+            "candidateOuterWidthPt": 467.95,
+            "outerWidthGapPt": 0.12,
+            "leftEdgeGapPt": 2.996,
+            "rightEdgeGapPt": 2.876,
+            "referenceTextLeftInsetPt": 9.0,
+            "candidateMeasuredTextLeftInsetsPt": [
+              9.0,
+              9.0,
+              9.0
+            ],
+            "maximumTextInsetGapPt": 0.0,
+            "referenceMaximumFillChannelGap": 0.000353,
+            "candidateMaximumFillChannelGap": 0.0,
+            "renderedGeometryMatchesMeasuredContract": true,
+            "groups": [
+              {
+                "groupId": "executive-summary-reader-label:callout-group",
+                "sourceFieldBindingCount": 12,
+                "fragmentCount": 2,
+                "pageNumbers": [
+                  1,
+                  2
+                ],
+                "paddingPt": {
+                  "top": 7,
+                  "right": 9,
+                  "bottom": 7,
+                  "left": 9
+                },
+                "measuredTextLeftInsetsPt": [
+                  9.0,
+                  9.0
+                ]
+              },
+              {
+                "groupId": "decision-view-reader-label:callout-group",
+                "sourceFieldBindingCount": 10,
+                "fragmentCount": 1,
+                "pageNumbers": [
+                  10
+                ],
+                "paddingPt": {
+                  "top": 7,
+                  "right": 9,
+                  "bottom": 7,
+                  "left": 9
+                },
+                "measuredTextLeftInsetsPt": [
+                  9.0
+                ]
+              }
+            ]
+          },
+          "accepted": true
+        },
+        {
+          "region": "source-density",
+          "thresholds": {
+            "minimumBaselineRetentionRatio": 1.0,
+            "requiredPageCountPolicy": "content-driven"
+          },
+          "observed": {
+            "baselineCharacterCount": 14705,
+            "candidateCharacterCount": 14705,
+            "baselinePageCount": 13,
+            "candidatePageCount": 13
+          },
+          "accepted": true
+        }
+      ],
+      "allRegionThresholdsAccepted": true
+    }
+  },
+  "decision": {
+    "comparisonEvidenceAccepted": true,
+    "visualFidelityAccepted": false,
+    "pixelParityApplicable": false,
+    "twelvePageHardGateAccepted": false,
+    "sourceBackedPageCountAccepted": true,
+    "authoritativeCandidatePageCount": 13,
+    "pageCountPolicy": "content-driven-not-reference-fixed",
+    "reasonCodes": [
+      "authored-box-style-drives-measured-text-width",
+      "callout-fragments-follow-authoritative-pagination",
+      "twenty-two-source-field-bindings-preserved",
+      "all-region-thresholds-accepted",
+      "source-backed-content-still-precludes-page-parity"
+    ],
+    "allowedNextChanges": [
+      "audit generic box treatment outside the canonical pilot",
+      "validate PDF behavior across independent readers",
+      "retain region-specific thresholds for later fidelity work"
+    ],
+    "prohibitedShortcuts": [
+      "paint callout rectangles without measured semantic ownership",
+      "collapse region thresholds into an unsupported pixel-parity score",
+      "delete source-backed rows to imitate the reference"
+    ],
+    "productionBinding": false,
+    "measuredCalloutTreatmentAccepted": true,
+    "regionAwareVisualThresholdsAccepted": true,
+    "sourceFieldLineagePreserved": true,
+    "measuredStaticZoneCalibrationAccepted": true,
+    "semanticSectionCompositionAccepted": true,
+    "informationHierarchyAccepted": true
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-R generic box-boundary and cross-reader compatibility audit",
+  "baseline": {
+    "comparisonId": "pdf-pilot-08b-r2c-p-canonical-full-document-static-section-calibration-v1",
+    "phaseId": "PDF-PILOT-08B-R2C-P",
+    "pointer": "packages/pdf-renderer-pilot/fixtures/canonical-full-document-static-section-calibration.v1.json",
+    "sha256": "bfd2ae505f1301c2f445954b7ebed2f8050cb9a313594dd42ad7771b3f3b8431",
+    "candidateSha256": "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a"
+  },
+  "calibration": {
+    "calloutTreatment": {
+      "referenceSemanticGroupProxyCount": 2,
+      "candidateSemanticGroupCount": 2,
+      "candidateRenderedFragmentCount": 3,
+      "candidateSourceFieldBindingCount": 22,
+      "referenceOuterWidthPt": 468.07,
+      "candidateOuterWidthPt": 467.95,
+      "outerWidthGapPt": 0.12,
+      "leftEdgeGapPt": 2.996,
+      "rightEdgeGapPt": 2.876,
+      "referenceTextLeftInsetPt": 9.0,
+      "candidateMeasuredTextLeftInsetsPt": [
+        9.0,
+        9.0,
+        9.0
+      ],
+      "maximumTextInsetGapPt": 0.0,
+      "referenceMaximumFillChannelGap": 0.000353,
+      "candidateMaximumFillChannelGap": 0.0,
+      "renderedGeometryMatchesMeasuredContract": true,
+      "groups": [
+        {
+          "groupId": "executive-summary-reader-label:callout-group",
+          "sourceFieldBindingCount": 12,
+          "fragmentCount": 2,
+          "pageNumbers": [
+            1,
+            2
+          ],
+          "paddingPt": {
+            "top": 7,
+            "right": 9,
+            "bottom": 7,
+            "left": 9
+          },
+          "measuredTextLeftInsetsPt": [
+            9.0,
+            9.0
+          ]
+        },
+        {
+          "groupId": "decision-view-reader-label:callout-group",
+          "sourceFieldBindingCount": 10,
+          "fragmentCount": 1,
+          "pageNumbers": [
+            10
+          ],
+          "paddingPt": {
+            "top": 7,
+            "right": 9,
+            "bottom": 7,
+            "left": 9
+          },
+          "measuredTextLeftInsetsPt": [
+            9.0
+          ]
+        }
+      ]
+    },
+    "regionThresholdContract": {
+      "contractId": "pdf-pilot-08b-r2c-q-region-aware-visual-thresholds-v1",
+      "comparisonModel": "region-aware-non-pixel-parity",
+      "regions": [
+        {
+          "region": "page-box",
+          "thresholds": {
+            "requiredSizePt": [
+              612.0,
+              792.0
+            ]
+          },
+          "observed": {
+            "referenceAllLetter": true,
+            "candidateAllLetter": true
+          },
+          "accepted": true
+        },
+        {
+          "region": "static-zones",
+          "thresholds": {
+            "maximumTopGapPt": 1.0,
+            "maximumBottomGapPt": 1.0
+          },
+          "observed": {
+            "topGapPt": 0.0,
+            "bottomGapPt": 0.39
+          },
+          "accepted": true
+        },
+        {
+          "region": "body-frame",
+          "thresholds": {
+            "maximumObservedLeftGapPt": 0.1,
+            "maximumObservedTopGapPt": 2.0,
+            "maximumCommandOverflowPt": 0.001
+          },
+          "observed": {
+            "leftGapPt": 0.0,
+            "topGapPt": 1.54,
+            "leftCommandOverflowPt": 0.0,
+            "rightCommandOverflowPt": 0.0
+          },
+          "accepted": true
+        },
+        {
+          "region": "typography",
+          "thresholds": {
+            "maximumDominantScaleGapPt": 0.1,
+            "maximumBoldShareGap": 0.08
+          },
+          "observed": {
+            "dominantScaleGapPt": 0.1,
+            "boldShareGap": 0.06468
+          },
+          "accepted": true
+        },
+        {
+          "region": "callout-treatment",
+          "thresholds": {
+            "semanticGroupCount": 2,
+            "renderedFragmentCount": 3,
+            "sourceFieldBindingCount": 22,
+            "maximumFillChannelGap": 0.001,
+            "maximumWidthGapPt": 0.25,
+            "maximumLeftEdgeGapPt": 3.1,
+            "maximumRightEdgeGapPt": 3.1,
+            "maximumTextInsetGapPt": 0.1,
+            "authoredHorizontalPaddingPt": 9.0,
+            "authoredVerticalPaddingPt": 7.0
+          },
+          "observed": {
+            "referenceSemanticGroupProxyCount": 2,
+            "candidateSemanticGroupCount": 2,
+            "candidateRenderedFragmentCount": 3,
+            "candidateSourceFieldBindingCount": 22,
+            "referenceOuterWidthPt": 468.07,
+            "candidateOuterWidthPt": 467.95,
+            "outerWidthGapPt": 0.12,
+            "leftEdgeGapPt": 2.996,
+            "rightEdgeGapPt": 2.876,
+            "referenceTextLeftInsetPt": 9.0,
+            "candidateMeasuredTextLeftInsetsPt": [
+              9.0,
+              9.0,
+              9.0
+            ],
+            "maximumTextInsetGapPt": 0.0,
+            "referenceMaximumFillChannelGap": 0.000353,
+            "candidateMaximumFillChannelGap": 0.0,
+            "renderedGeometryMatchesMeasuredContract": true,
+            "groups": [
+              {
+                "groupId": "executive-summary-reader-label:callout-group",
+                "sourceFieldBindingCount": 12,
+                "fragmentCount": 2,
+                "pageNumbers": [
+                  1,
+                  2
+                ],
+                "paddingPt": {
+                  "top": 7,
+                  "right": 9,
+                  "bottom": 7,
+                  "left": 9
+                },
+                "measuredTextLeftInsetsPt": [
+                  9.0,
+                  9.0
+                ]
+              },
+              {
+                "groupId": "decision-view-reader-label:callout-group",
+                "sourceFieldBindingCount": 10,
+                "fragmentCount": 1,
+                "pageNumbers": [
+                  10
+                ],
+                "paddingPt": {
+                  "top": 7,
+                  "right": 9,
+                  "bottom": 7,
+                  "left": 9
+                },
+                "measuredTextLeftInsetsPt": [
+                  9.0
+                ]
+              }
+            ]
+          },
+          "accepted": true
+        },
+        {
+          "region": "source-density",
+          "thresholds": {
+            "minimumBaselineRetentionRatio": 1.0,
+            "requiredPageCountPolicy": "content-driven"
+          },
+          "observed": {
+            "baselineCharacterCount": 14705,
+            "candidateCharacterCount": 14705,
+            "baselinePageCount": 13,
+            "candidatePageCount": 13
+          },
+          "accepted": true
+        }
+      ],
+      "allRegionThresholdsAccepted": true
+    },
+    "acceptance": {
+      "referenceIdentityPreserved": true,
+      "baselineStaticSectionCalibrationAccepted": true,
+      "candidateStructuralIdentityAligned": true,
+      "regionThresholdsAccepted": true,
+      "measuredCalloutTreatmentAccepted": true,
+      "sourceFieldBindingsPreserved": true,
+      "missingGlyphCountIsZero": true,
+      "visualFidelityAccepted": false
+    }
+  }
+}

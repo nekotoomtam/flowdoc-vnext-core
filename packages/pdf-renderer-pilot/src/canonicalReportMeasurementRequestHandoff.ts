@@ -32,8 +32,8 @@ export const FLOWDOC_CANONICAL_REPORT_MEASUREMENT_HANDOFF_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_TABLE_LAYOUT_PROFILE_ID = "ocr-benchmark-report-table-layout-v1" as const
 
 const ACCEPTED_DATA_BUNDLE_FINGERPRINT = "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d"
-const ACCEPTED_TEMPLATE_BUNDLE_FINGERPRINT = "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4"
-const ACCEPTED_FORMATTING_BUNDLE_FINGERPRINT = "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698"
+const ACCEPTED_TEMPLATE_BUNDLE_FINGERPRINT = "0898dea47c83f70eb93682ece5628b42f96af669ee302a8ca74f2f02001e9623"
+const ACCEPTED_FORMATTING_BUNDLE_FINGERPRINT = "0e03c8a280714fd291ae73c9775125f06f91c9e3f1eca72739d9e923346fe809"
 const IBM_PLEX_REGULAR_HASH = "bdf527758ba47d68d42c104b9167cb15660e88a16b40136504a7ea8c56792b57"
 const IBM_PLEX_BOLD_HASH = "ba5e62ecf0d5f19338b6d34360bce097d29fe56142eec5f612f2d7dd91c6bf21"
 const LETTER_PORTRAIT_PT = { width: 612, height: 792 } as const
@@ -305,6 +305,19 @@ function sectionBodyWidthPt(
   return roundPt(LETTER_PORTRAIT_PT.width - unitToPt(section.page.margin.left) - unitToPt(section.page.margin.right))
 }
 
+function textBlockContentWidthPt(
+  node: Extract<AuthoredNodeV4Target, { type: "text-block" }>,
+  availableWidthPt: number,
+): number {
+  const padding = node.props.box?.padding
+  if (padding == null) return availableWidthPt
+  const contentWidthPt = roundPt(
+    availableWidthPt - unitToPt(padding.left) - unitToPt(padding.right),
+  )
+  requireFact(contentWidthPt > 0, `text block box padding consumes its available width: ${node.id}`)
+  return contentWidthPt
+}
+
 function sectionForTable(
   templateBundle: FlowDocCanonicalReportTemplateResolutionBundleV1,
   tableId: string,
@@ -391,7 +404,7 @@ function createDocumentRequests(input: {
         instanceRevision: resolved.instanceRevision,
         sectionId: section.id,
         textBlock: node,
-        availableWidthPt,
+        availableWidthPt: textBlockContentWidthPt(node, availableWidthPt),
         measurementProfileId: input.measurementProfileId,
         styleKey,
         resolvedTextByInlineId: textBindings,

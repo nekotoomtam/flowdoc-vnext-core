@@ -76,17 +76,17 @@ describe("PDF-PILOT-08B-R2C-I canonical report pagination inputs", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-I",
-      sourceProjectionFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
-      sourceNativeShapingFingerprint: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
-      sourceLineBreakingFingerprint: "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
-      sourceMeasuredCompositionFingerprint: "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
-      sourceSectionReconciliationFingerprint: "8c805719625c7c071568db8f90f9fad1b67c66f519ba880c16183314447c8364",
+      sourceProjectionFingerprint: "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850",
+      sourceNativeShapingFingerprint: "d86f7f0eb9954cedcb8dd9bfc4b850feaf88ac61a406a1e11a8f5c9d186c093a",
+      sourceLineBreakingFingerprint: "2f4dee43082a5305d222d1e5a0eb5c7aec4a33fc1f98a9756ecbb2104282b13d",
+      sourceMeasuredCompositionFingerprint: "1c988eca85984869c8be8b1f5af9a763cc72fa01b66f1da7cb1c046cfb7ad854",
+      sourceSectionReconciliationFingerprint: "06159f79a648efce2c78aa4fcde6f17032a31b383c3e4e8a28a741f968789553",
       sourceFontManifestFingerprint: "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077",
-      sourceRawEvidenceFingerprint: "ad0bd1b3b80eecb4fcfff6477fb27b08c654de59f9b4b65aaa2609f6bb9f2328",
-      planFingerprint: "2f011d5164d7c9373d44767bbbefd736a66712671dc11af6326d21aeda72f43f",
-      bundleFingerprint: "73e19092ffa8b203e2aa0fb73463bcb882dcc9b83c652969aad7ed0ef39eb724",
+      sourceRawEvidenceFingerprint: "cb429884f76ba6e4f796bdf1814b0538c0e5ea9e0f992f59c75c4cb4137a6535",
+      planFingerprint: "1663641bb6b25be5cad9ea158f1d8efbfb80e5f9c69505c94dd29549570eda1d",
+      bundleFingerprint: "6395b57d085965e37022a9ae5a68eca0b57c12717b475089a5f148d60b9235b6",
       coreCompositionManifest: {
-        fingerprint: "sha256:d0192518baa0c017046cf794d43c82869959e3b702b80681c88166e913d1fc1e",
+        fingerprint: "sha256:50bf4ea84e4d9676af098be3681c99d43614c4e1deac1b087335c32b49d0ff4d",
       },
       summary: {
         bodyItemCount: 185,

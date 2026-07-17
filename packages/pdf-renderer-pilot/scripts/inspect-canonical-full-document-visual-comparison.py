@@ -77,6 +77,7 @@ parser.add_argument(
         "PDF-PILOT-08B-R2C-N",
         "PDF-PILOT-08B-R2C-O",
         "PDF-PILOT-08B-R2C-P",
+        "PDF-PILOT-08B-R2C-Q",
     ],
     default="PDF-PILOT-08B-R2C-O",
 )
@@ -185,6 +186,7 @@ def analyze_pdf(path: Path, body_top_pt: float, body_bottom_pt: float) -> dict:
     body_chars: list[dict] = []
     all_chars: list[dict] = []
     image_page_numbers = []
+    wide_filled_rectangles = []
 
     with pdfplumber.open(path) as pdf:
         headings = detect_headings(pdf.pages)
@@ -214,6 +216,26 @@ def analyze_pdf(path: Path, body_top_pt: float, body_bottom_pt: float) -> dict:
 
             if page.images:
                 image_page_numbers.append(page_number)
+            for rectangle in page.rects:
+                color = rectangle.get("non_stroking_color")
+                if (
+                    rectangle.get("fill")
+                    and float(rectangle.get("width", 0.0)) >= 400.0
+                    and float(rectangle.get("height", 0.0)) >= 15.0
+                    and isinstance(color, (list, tuple))
+                    and len(color) == 3
+                    and not all(float(channel) >= 0.999 for channel in color)
+                ):
+                    wide_filled_rectangles.append({
+                        "pageNumber": page_number,
+                        "x0Pt": rounded(rectangle["x0"], 6),
+                        "topPt": rounded(rectangle["top"], 6),
+                        "x1Pt": rounded(rectangle["x1"], 6),
+                        "bottomPt": rounded(rectangle["bottom"], 6),
+                        "widthPt": rounded(rectangle["width"], 6),
+                        "heightPt": rounded(rectangle["height"], 6),
+                        "fillRgb": [rounded(channel, 6) for channel in color],
+                    })
             body_bounds = None
             if page_body_chars:
                 body_bounds = {
@@ -283,6 +305,7 @@ def analyze_pdf(path: Path, body_top_pt: float, body_bottom_pt: float) -> dict:
             "observedBodyBounds": body_bounds,
             "observedStaticEnvelope": static_envelope,
             "imagePageNumbers": image_page_numbers,
+            "wideFilledRectangles": wide_filled_rectangles,
             "headings": headings,
             "sections": section_facts,
             "pages": page_facts,
@@ -1011,6 +1034,438 @@ if args.phase_id == "PDF-PILOT-08B-R2C-P":
     })
     comparison["nextPhase"] = (
         "PDF-PILOT-08B-R2C-Q measured callout treatment and region-aware visual thresholds"
+    )
+
+if args.phase_id == "PDF-PILOT-08B-R2C-Q":
+    baseline_path = repo_path(
+        args.baseline_comparison
+        or (
+            "packages/pdf-renderer-pilot/fixtures/"
+            "canonical-full-document-static-section-calibration.v1.json"
+        )
+    )
+    baseline = read_json(baseline_path)
+    if baseline["phaseId"] != "PDF-PILOT-08B-R2C-P":
+        raise RuntimeError("R2C-Q baseline must be the accepted R2C-P calibration")
+    if baseline["inputs"]["reference"]["sha256"] != reference["sha256"]:
+        raise RuntimeError("R2C-Q and R2C-P must use the same pinned reference")
+
+    expected_fill = [234 / 255, 241 / 255, 1.0]
+
+    def color_gap(rectangle: dict) -> float:
+        return max(
+            abs(float(actual) - expected)
+            for actual, expected in zip(rectangle["fillRgb"], expected_fill)
+        )
+
+    reference_callout_rectangles = [
+        rectangle
+        for rectangle in reference["wideFilledRectangles"]
+        if float(rectangle["widthPt"]) >= 460.0 and color_gap(rectangle) <= 0.001
+    ]
+    candidate_callout_rectangles = [
+        rectangle
+        for rectangle in candidate["wideFilledRectangles"]
+        if float(rectangle["widthPt"]) >= 460.0 and color_gap(rectangle) <= 0.001
+    ]
+    if not reference_callout_rectangles or not candidate_callout_rectangles:
+        raise RuntimeError("R2C-Q requires rendered blue callout rectangles")
+
+    contract_commands = [
+        command
+        for page in bundle["rendererHandoff"]["measuredDrawContract"]["pages"]
+        for command in page["commands"]
+    ]
+    command_by_id = {command["id"]: command for command in contract_commands}
+    entry_by_root = {entry["rootNodeId"]: entry for entry in bundle["entries"]}
+    group_metrics = []
+    for group in bundle["calloutGroups"]:
+        node_ids = [group["labelNodeId"], *group["summaryNodeIds"]]
+        paint_ids = {
+            paint_id
+            for node_id in node_ids
+            for paint_id in entry_by_root[node_id]["paintCommandIds"]
+        }
+        text_commands = [
+            command_by_id[paint_id]
+            for paint_id in paint_ids
+            if command_by_id[paint_id]["kind"] == "glyph-run"
+        ]
+        page_insets = []
+        for fragment in group["fragments"]:
+            page_text = [
+                command
+                for command in text_commands
+                if command["pageIndex"] == fragment["pageIndex"]
+            ]
+            if not page_text:
+                raise RuntimeError(
+                    f"R2C-Q callout fragment has no measured text: {fragment['fragmentId']}"
+                )
+            page_insets.append(rounded(
+                min(float(command["bounds"]["xPt"]) for command in page_text)
+                - float(fragment["bounds"]["xPt"]),
+                6,
+            ))
+        group_metrics.append({
+            "groupId": group["groupId"],
+            "sourceFieldBindingCount": len(group["sourceFieldBindingInlineIds"]),
+            "fragmentCount": len(group["fragments"]),
+            "pageNumbers": [fragment["pageNumber"] for fragment in group["fragments"]],
+            "paddingPt": group["paddingPt"],
+            "measuredTextLeftInsetsPt": page_insets,
+        })
+
+    rendered_geometry_matches_contract = True
+    for group in bundle["calloutGroups"]:
+        for fragment in group["fragments"]:
+            matches = [
+                rectangle
+                for rectangle in candidate_callout_rectangles
+                if rectangle["pageNumber"] == fragment["pageNumber"]
+            ]
+            if len(matches) != 1:
+                rendered_geometry_matches_contract = False
+                continue
+            rectangle = matches[0]
+            bounds = fragment["bounds"]
+            rendered_geometry_matches_contract = (
+                rendered_geometry_matches_contract
+                and abs(float(rectangle["x0Pt"]) - float(bounds["xPt"])) <= 0.001
+                and abs(float(rectangle["topPt"]) - float(bounds["yPt"])) <= 0.001
+                and abs(float(rectangle["widthPt"]) - float(bounds["widthPt"])) <= 0.001
+                and abs(
+                    float(rectangle["heightPt"]) - float(bounds["heightPt"])
+                ) <= 0.001
+            )
+
+    reference_width = mean(
+        float(rectangle["widthPt"]) for rectangle in reference_callout_rectangles
+    )
+    candidate_width = mean(
+        float(rectangle["widthPt"]) for rectangle in candidate_callout_rectangles
+    )
+    reference_left = mean(
+        float(rectangle["x0Pt"]) for rectangle in reference_callout_rectangles
+    )
+    candidate_left = mean(
+        float(rectangle["x0Pt"]) for rectangle in candidate_callout_rectangles
+    )
+    reference_right = mean(
+        float(rectangle["x1Pt"]) for rectangle in reference_callout_rectangles
+    )
+    candidate_right = mean(
+        float(rectangle["x1Pt"]) for rectangle in candidate_callout_rectangles
+    )
+    measured_insets = [
+        inset
+        for group in group_metrics
+        for inset in group["measuredTextLeftInsetsPt"]
+    ]
+    reference_inset_pt = 9.0
+
+    reference_static = reference["observedStaticEnvelope"]
+    current_static = candidate["observedStaticEnvelope"]
+    reference_body = reference["observedBodyBounds"]
+    current_body = candidate["observedBodyBounds"]
+    body_frame_left = float(candidate_geometry["bodyOriginXPt"])
+    body_frame_right = body_frame_left + float(candidate_geometry["bodyWidthPt"])
+    role_weight_gap = abs(
+        candidate["boldCharacterShare"] - reference["boldCharacterShare"]
+    )
+
+    callout_thresholds = {
+        "semanticGroupCount": 2,
+        "renderedFragmentCount": 3,
+        "sourceFieldBindingCount": 22,
+        "maximumFillChannelGap": 0.001,
+        "maximumWidthGapPt": 0.25,
+        "maximumLeftEdgeGapPt": 3.1,
+        "maximumRightEdgeGapPt": 3.1,
+        "maximumTextInsetGapPt": 0.1,
+        "authoredHorizontalPaddingPt": 9.0,
+        "authoredVerticalPaddingPt": 7.0,
+    }
+    callout_observed = {
+        "referenceSemanticGroupProxyCount": len(reference_callout_rectangles),
+        "candidateSemanticGroupCount": bundle["summary"]["calloutGroupCount"],
+        "candidateRenderedFragmentCount": bundle["summary"]["calloutFragmentCount"],
+        "candidateSourceFieldBindingCount": bundle["summary"][
+            "calloutSourceFieldBindingCount"
+        ],
+        "referenceOuterWidthPt": rounded(reference_width, 6),
+        "candidateOuterWidthPt": rounded(candidate_width, 6),
+        "outerWidthGapPt": rounded(abs(candidate_width - reference_width), 6),
+        "leftEdgeGapPt": rounded(abs(candidate_left - reference_left), 6),
+        "rightEdgeGapPt": rounded(abs(candidate_right - reference_right), 6),
+        "referenceTextLeftInsetPt": reference_inset_pt,
+        "candidateMeasuredTextLeftInsetsPt": measured_insets,
+        "maximumTextInsetGapPt": rounded(
+            max(abs(inset - reference_inset_pt) for inset in measured_insets), 6
+        ),
+        "referenceMaximumFillChannelGap": rounded(
+            max(color_gap(rectangle) for rectangle in reference_callout_rectangles),
+            6,
+        ),
+        "candidateMaximumFillChannelGap": rounded(
+            max(color_gap(rectangle) for rectangle in candidate_callout_rectangles),
+            6,
+        ),
+        "renderedGeometryMatchesMeasuredContract": rendered_geometry_matches_contract,
+        "groups": group_metrics,
+    }
+    callout_accepted = (
+        callout_observed["referenceSemanticGroupProxyCount"]
+        == callout_thresholds["semanticGroupCount"]
+        and callout_observed["candidateSemanticGroupCount"]
+        == callout_thresholds["semanticGroupCount"]
+        and callout_observed["candidateRenderedFragmentCount"]
+        == callout_thresholds["renderedFragmentCount"]
+        and callout_observed["candidateSourceFieldBindingCount"]
+        == callout_thresholds["sourceFieldBindingCount"]
+        and callout_observed["referenceMaximumFillChannelGap"]
+        <= callout_thresholds["maximumFillChannelGap"]
+        and callout_observed["candidateMaximumFillChannelGap"]
+        <= callout_thresholds["maximumFillChannelGap"]
+        and callout_observed["outerWidthGapPt"]
+        <= callout_thresholds["maximumWidthGapPt"]
+        and callout_observed["leftEdgeGapPt"]
+        <= callout_thresholds["maximumLeftEdgeGapPt"]
+        and callout_observed["rightEdgeGapPt"]
+        <= callout_thresholds["maximumRightEdgeGapPt"]
+        and callout_observed["maximumTextInsetGapPt"]
+        <= callout_thresholds["maximumTextInsetGapPt"]
+        and all(
+            group["paddingPt"] == {"top": 7, "right": 9, "bottom": 7, "left": 9}
+            for group in bundle["calloutGroups"]
+        )
+        and rendered_geometry_matches_contract
+    )
+
+    region_thresholds = [
+        {
+            "region": "page-box",
+            "thresholds": {"requiredSizePt": [612.0, 792.0]},
+            "observed": {
+                "referenceAllLetter": reference["allLetter612x792Pt"],
+                "candidateAllLetter": candidate["allLetter612x792Pt"],
+            },
+            "accepted": (
+                reference["allLetter612x792Pt"]
+                and candidate["allLetter612x792Pt"]
+            ),
+        },
+        {
+            "region": "static-zones",
+            "thresholds": {"maximumTopGapPt": 1.0, "maximumBottomGapPt": 1.0},
+            "observed": {
+                "topGapPt": rounded(
+                    abs(current_static["topPt"] - reference_static["topPt"]), 6
+                ),
+                "bottomGapPt": rounded(
+                    abs(current_static["bottomPt"] - reference_static["bottomPt"]),
+                    6,
+                ),
+            },
+            "accepted": (
+                abs(current_static["topPt"] - reference_static["topPt"]) <= 1.0
+                and abs(current_static["bottomPt"] - reference_static["bottomPt"])
+                <= 1.0
+            ),
+        },
+        {
+            "region": "body-frame",
+            "thresholds": {
+                "maximumObservedLeftGapPt": 0.1,
+                "maximumObservedTopGapPt": 2.0,
+                "maximumCommandOverflowPt": 0.001,
+            },
+            "observed": {
+                "leftGapPt": rounded(
+                    abs(current_body["x0Pt"] - reference_body["x0Pt"]), 6
+                ),
+                "topGapPt": rounded(
+                    abs(current_body["topPt"] - reference_body["topPt"]), 6
+                ),
+                "leftCommandOverflowPt": rounded(
+                    max(0.0, body_frame_left - body_command_left), 6
+                ),
+                "rightCommandOverflowPt": rounded(
+                    max(0.0, body_command_right - body_frame_right), 6
+                ),
+            },
+            "accepted": (
+                abs(current_body["x0Pt"] - reference_body["x0Pt"]) <= 0.1
+                and abs(current_body["topPt"] - reference_body["topPt"]) <= 2.0
+                and body_command_left >= body_frame_left - 0.001
+                and body_command_right <= body_frame_right + 0.001
+            ),
+        },
+        {
+            "region": "typography",
+            "thresholds": {
+                "maximumDominantScaleGapPt": 0.1,
+                "maximumBoldShareGap": 0.08,
+            },
+            "observed": {
+                "dominantScaleGapPt": rounded(
+                    abs(candidate["dominantFontSizePt"] - reference["dominantFontSizePt"]),
+                    6,
+                ),
+                "boldShareGap": rounded(role_weight_gap, 6),
+            },
+            "accepted": (
+                abs(candidate["dominantFontSizePt"] - reference["dominantFontSizePt"])
+                <= 0.1
+                and role_weight_gap <= 0.08
+            ),
+        },
+        {
+            "region": "callout-treatment",
+            "thresholds": callout_thresholds,
+            "observed": callout_observed,
+            "accepted": callout_accepted,
+        },
+        {
+            "region": "source-density",
+            "thresholds": {
+                "minimumBaselineRetentionRatio": 1.0,
+                "requiredPageCountPolicy": "content-driven",
+            },
+            "observed": {
+                "baselineCharacterCount": baseline["candidate"][
+                    "extractedNonWhitespaceCharacterCount"
+                ],
+                "candidateCharacterCount": candidate[
+                    "extractedNonWhitespaceCharacterCount"
+                ],
+                "baselinePageCount": baseline["candidate"]["pageCount"],
+                "candidatePageCount": candidate["pageCount"],
+            },
+            "accepted": (
+                candidate["extractedNonWhitespaceCharacterCount"]
+                >= baseline["candidate"]["extractedNonWhitespaceCharacterCount"]
+                and candidate["pageCount"] == baseline["candidate"]["pageCount"]
+            ),
+        },
+    ]
+    all_region_thresholds_accepted = all(
+        region["accepted"] for region in region_thresholds
+    )
+    acceptance = {
+        "referenceIdentityPreserved": True,
+        "baselineStaticSectionCalibrationAccepted": (
+            baseline["decision"]["measuredStaticZoneCalibrationAccepted"]
+            and baseline["decision"]["semanticSectionCompositionAccepted"]
+        ),
+        "candidateStructuralIdentityAligned": (
+            candidate["sha256"] == summary["artifact"]["sha256"]
+            and bundle["bundleFingerprint"] == summary["sourceBundleFingerprint"]
+        ),
+        "regionThresholdsAccepted": all_region_thresholds_accepted,
+        "measuredCalloutTreatmentAccepted": callout_accepted,
+        "sourceFieldBindingsPreserved": (
+            bundle["summary"]["calloutSourceFieldBindingCount"] == 22
+        ),
+        "missingGlyphCountIsZero": bundle["summary"]["missingGlyphCount"] == 0,
+        "visualFidelityAccepted": False,
+    }
+    if not all(
+        value for key, value in acceptance.items() if key != "visualFidelityAccepted"
+    ):
+        region_status = {
+            region["region"]: region["accepted"] for region in region_thresholds
+        }
+        rejected_regions = [
+            region for region in region_thresholds if not region["accepted"]
+        ]
+        raise RuntimeError(
+            f"R2C-Q region-aware acceptance failed: {acceptance}; "
+            f"regions={region_status}; rejected={rejected_regions}"
+        )
+
+    comparison.update({
+        "comparisonId": (
+            "pdf-pilot-08b-r2c-q-canonical-full-document-callout-regions-v1"
+        ),
+        "phaseId": "PDF-PILOT-08B-R2C-Q",
+        "status": (
+            "accepted-callout-region-thresholds-visual-fidelity-still-rejected"
+        ),
+        "baseline": {
+            "comparisonId": baseline["comparisonId"],
+            "phaseId": baseline["phaseId"],
+            "pointer": (
+                "packages/pdf-renderer-pilot/fixtures/"
+                "canonical-full-document-static-section-calibration.v1.json"
+            ),
+            "sha256": sha256(baseline_path),
+            "candidateSha256": baseline["candidate"]["sha256"],
+        },
+        "calibration": {
+            "calloutTreatment": callout_observed,
+            "regionThresholdContract": {
+                "contractId": (
+                    "pdf-pilot-08b-r2c-q-region-aware-visual-thresholds-v1"
+                ),
+                "comparisonModel": "region-aware-non-pixel-parity",
+                "regions": region_thresholds,
+                "allRegionThresholdsAccepted": all_region_thresholds_accepted,
+            },
+            "acceptance": acceptance,
+        },
+    })
+
+    for region in comparison["comparison"]["regionClassifications"]:
+        if region["region"] == "semantic-composition":
+            region.update({
+                "classification": "source-backed-callouts-accepted-not-parity",
+                "evidence": (
+                    "Two authored semantic groups preserve 22 source field bindings "
+                    "and project to three measured page fragments."
+                ),
+            })
+    comparison["comparison"]["regionClassifications"].append({
+        "region": "callout-treatment",
+        "classification": "calibrated-near-reference",
+        "evidence": (
+            "Rendered EAF1FF groups match the authored 9pt horizontal and 7pt "
+            "vertical padding; outer width differs from the reference by "
+            f"{callout_observed['outerWidthGapPt']}pt."
+        ),
+    })
+    comparison["comparison"]["regionThresholdContract"] = comparison[
+        "calibration"
+    ]["regionThresholdContract"]
+    comparison["decision"].update({
+        "measuredCalloutTreatmentAccepted": True,
+        "regionAwareVisualThresholdsAccepted": True,
+        "sourceFieldLineagePreserved": True,
+        "measuredStaticZoneCalibrationAccepted": True,
+        "semanticSectionCompositionAccepted": True,
+        "informationHierarchyAccepted": True,
+        "visualFidelityAccepted": False,
+        "pixelParityApplicable": False,
+        "reasonCodes": [
+            "authored-box-style-drives-measured-text-width",
+            "callout-fragments-follow-authoritative-pagination",
+            "twenty-two-source-field-bindings-preserved",
+            "all-region-thresholds-accepted",
+            "source-backed-content-still-precludes-page-parity",
+        ],
+        "allowedNextChanges": [
+            "audit generic box treatment outside the canonical pilot",
+            "validate PDF behavior across independent readers",
+            "retain region-specific thresholds for later fidelity work",
+        ],
+        "prohibitedShortcuts": [
+            "paint callout rectangles without measured semantic ownership",
+            "collapse region thresholds into an unsupported pixel-parity score",
+            "delete source-backed rows to imitate the reference",
+        ],
+    })
+    comparison["nextPhase"] = (
+        "PDF-PILOT-08B-R2C-R generic box-boundary and cross-reader compatibility audit"
     )
 
 if not comparison["reference"]["allLetter612x792Pt"]:

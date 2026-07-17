@@ -33,7 +33,7 @@ import {
 export const FLOWDOC_CANONICAL_REPORT_NATIVE_SHAPING_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_NATIVE_SHAPING_ID = "ocr-benchmark-report-native-shaping-v1" as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193"
+const ACCEPTED_PROJECTION_FINGERPRINT = "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850"
 const RAW_SHAPER_SOURCE = "flowdoc-rustybuzz-native-smoke"
 const RAW_SHAPER_REVISION = "rustybuzz-0.20.1"
 const REQUIRED_SHAPING_FACTS = [

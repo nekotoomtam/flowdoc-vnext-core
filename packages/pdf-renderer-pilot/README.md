@@ -147,6 +147,24 @@ with measured 12/6/3/12pt adjacency rules. Core regenerates 185 body roots as
 semantic composition are accepted; callout styling, region-level parity,
 fixed page count, and production binding remain rejected.
 
+## Callout and Region Threshold Evidence
+
+`PDF-PILOT-08B-R2C-Q` assigns the reader labels and summaries authored
+`text-block` boxes with `EAF1FF` fill, 9pt horizontal padding, and 7pt vertical
+padding. The measurement handoff and projected document requests both retain
+the 449.95pt inner width. Box styling therefore changes wrapping before Core
+pagination instead of moving glyphs after layout.
+
+Two semantic groups preserve 22 field bindings. Core places the executive
+group across pages 1 and 2 and the decision group on page 10, producing three
+measured background fragments. The exact rendered outer width differs from the
+reference by 0.12pt, text inset matches at 9pt, and body-command overflow is
+zero.
+
+The accepted comparison uses separate gates for page box, static zones, body
+frame, typography, callout treatment, and source density. All six pass, but
+visual fidelity, fixed page count, and production binding remain rejected.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:

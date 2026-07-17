@@ -62,10 +62,10 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-D",
-      sourceProjectionFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
-      sourceRawEvidenceFingerprint: "8f8441754fd6fb4256bc37ffd30d21cdcf15f80e445bc9a9f05f751dc579548c",
-      planFingerprint: "269d682d22288f26a951d942787a659fad1edfee90b8459340900414120cdadb",
-      bundleFingerprint: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+      sourceProjectionFingerprint: "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850",
+      sourceRawEvidenceFingerprint: "da3552bf4056060552af3db327bf35b3ce31b69fbd1d4c42e2ecd4bb863fe799",
+      planFingerprint: "4ee650fa0e7cc11d536d3ef980bd6c3f3f28d58eb170ce16db5cef3d30387987",
+      bundleFingerprint: "d86f7f0eb9954cedcb8dd9bfc4b850feaf88ac61a406a1e11a8f5c9d186c093a",
       profileBinding: {
         status: "bound-native-shaping-only",
         shaperEngine: "rustybuzz",

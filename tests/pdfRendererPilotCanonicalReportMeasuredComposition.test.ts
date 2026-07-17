@@ -47,11 +47,11 @@ describe("PDF-PILOT-08B-R2C-F canonical report measured composition", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-F",
-      sourceProjectionFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
-      sourceNativeShapingFingerprint: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
-      sourceLineBreakingFingerprint: "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
-      planFingerprint: "7d03614b2714f3267483f0c038b1e69c1b908bb76943665d8c53e9960a56c6a9",
-      bundleFingerprint: "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
+      sourceProjectionFingerprint: "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850",
+      sourceNativeShapingFingerprint: "d86f7f0eb9954cedcb8dd9bfc4b850feaf88ac61a406a1e11a8f5c9d186c093a",
+      sourceLineBreakingFingerprint: "2f4dee43082a5305d222d1e5a0eb5c7aec4a33fc1f98a9756ecbb2104282b13d",
+      planFingerprint: "5e41a708dcc6333a28bd25ed19ab78366508c64c1e4bf3dc991fc11c07df3675",
+      bundleFingerprint: "1c988eca85984869c8be8b1f5af9a763cc72fa01b66f1da7cb1c046cfb7ad854",
       summary: {
         sourceConsumerCount: 794,
         coreAcceptedConsumerCount: 794,

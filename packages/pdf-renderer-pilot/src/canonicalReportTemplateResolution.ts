@@ -348,6 +348,20 @@ type NarrativePart =
   | { kind: "text"; text: string }
   | { kind: "field"; key: string }
 
+function readerCalloutBox(): NonNullable<
+  Extract<AuthoredNodeV4Target, { type: "text-block" }>["props"]["box"]
+> {
+  return {
+    fill: "EAF1FF",
+    padding: {
+      top: { unit: "pt", value: 7 },
+      right: { unit: "pt", value: 9 },
+      bottom: { unit: "pt", value: 7 },
+      left: { unit: "pt", value: 9 },
+    },
+  }
+}
+
 function narrativeBlock(
   id: string,
   parts: NarrativePart[],
@@ -357,7 +371,7 @@ function narrativeBlock(
     id,
     type: "text-block",
     role: { role: "note" },
-    props: { textStyleId: "report-body" },
+    props: { textStyleId: "report-body", box: readerCalloutBox() },
     children: parts.map((part, index) => {
       if (part.kind === "text") {
         return { id: `${id}-part-${index}`, type: "text" as const, text: part.text }
@@ -382,7 +396,7 @@ function narrativeLabelBlock(
     id,
     type: "text-block",
     role: { role: "label" },
-    props: { textStyleId: "report-body" },
+    props: { textStyleId: "report-body", box: readerCalloutBox() },
     children: [{ id: `${id}-text`, type: "text", text, style: { fontWeight: "bold" } }],
   }
 }

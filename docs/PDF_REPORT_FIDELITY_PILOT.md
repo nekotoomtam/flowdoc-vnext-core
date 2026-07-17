@@ -774,6 +774,34 @@ Primary Phase 08B-R2C-P evidence:
 - `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
 - `tests/pdfRendererPilotCanonicalStaticSectionCalibration.test.ts`.
 
+## PDF-PILOT-08B-R2C-Q Scope
+
+Phase 08B-R2C-Q promotes the two reader-summary regions from plain text to
+authored `text-block` boxes. All twelve participating nodes carry `EAF1FF`
+fill, 9pt horizontal padding, and 7pt vertical padding. The inner width is
+449.95pt, and table projection must reuse that accepted measurement width for
+the original nodes rather than recreate a full-width request.
+
+The display-list projection groups consecutive label/note semantics into two
+callouts and derives three page fragments from authoritative placements. The
+executive group continues from page 1 to page 2; the decision group remains on
+page 10. All 22 source field bindings remain attached to their original text
+blocks, and no glyph or content is removed.
+
+R2C-Q also defines six independent visual regions: page box, static zones,
+body frame, typography, callout treatment, and source density. Every regional
+threshold passes. The callout outer-width gap is 0.12pt, measured text inset
+matches the reference exactly at 9pt, and the final body-command overflow is
+zero. Visual fidelity remains rejected because source density and page count
+are intentionally not parity claims.
+
+Primary Phase 08B-R2C-Q evidence:
+
+- `docs/PDF_CANONICAL_CALLOUT_REGION_THRESHOLDS_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-callout-regions.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
+- `tests/pdfRendererPilotCanonicalCalloutRegions.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -1023,16 +1051,15 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-O reader hierarchy evidence.
+None for closing PDF-PILOT-08B-R2C-Q callout and region-threshold evidence.
 
 R2C-N retired twelve pages as a hard gate. The authoritative R2C-O result is
 thirteen pages, and the terminal page contains one 630pt continuation fragment
 from the final table; no content was removed to imitate the reference.
 
-Report-level PDF fidelity remains blocked on measured static-zone geometry,
-section/callout composition, calibrated region-aware visual-diff thresholds,
-broader reader compatibility, source-profile promotion, and native-to-WASM
-parity.
+Report-level PDF fidelity remains blocked on generic box behavior outside the
+canonical pilot, broader reader compatibility, source-profile promotion, and
+native-to-WASM parity.
 
 ## RISK
 
@@ -1055,8 +1082,7 @@ parity.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- source-backed callout and section composition without removing expanded
-  audit evidence;
+- generic authored-box behavior outside the canonical report policy;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -1074,6 +1100,5 @@ parity.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-P` calibrate measured static zones and section
-composition through the existing Core boundary without deleting evidence or
-imposing a fixed page count.
+Next phase: `PDF-PILOT-08B-R2C-R` audit the generic authored-box boundary and
+cross-reader compatibility without promoting report-specific policy into Core.

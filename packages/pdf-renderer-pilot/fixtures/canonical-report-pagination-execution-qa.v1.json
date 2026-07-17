@@ -4,15 +4,15 @@
   "phaseId": "PDF-PILOT-08B-R2C-J",
   "status": "accepted-bounded-pagination-and-authoritative-page-plan-rendering-not-run",
   "sourceFingerprints": {
-    "paginationInputs": "73e19092ffa8b203e2aa0fb73463bcb882dcc9b83c652969aad7ed0ef39eb724",
-    "measuredComposition": "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
-    "sectionReconciliation": "8c805719625c7c071568db8f90f9fad1b67c66f519ba880c16183314447c8364",
-    "coreCompositionManifest": "sha256:d0192518baa0c017046cf794d43c82869959e3b702b80681c88166e913d1fc1e"
+    "paginationInputs": "6395b57d085965e37022a9ae5a68eca0b57c12717b475089a5f148d60b9235b6",
+    "measuredComposition": "1c988eca85984869c8be8b1f5af9a763cc72fa01b66f1da7cb1c046cfb7ad854",
+    "sectionReconciliation": "06159f79a648efce2c78aa4fcde6f17032a31b383c3e4e8a28a741f968789553",
+    "coreCompositionManifest": "sha256:50bf4ea84e4d9676af098be3681c99d43614c4e1deac1b087335c32b49d0ff4d"
   },
-  "bundleFingerprint": "f22854d8cb99e451f9c8b29c977f822a9e44fc8afd345d50087a77a0c94a83d0",
-  "pagePlanFingerprint": "sha256:0dffaba9fe75bad851f080b1ffec049388622881ad20f73d391819a20538da65",
-  "compositionFingerprint": "sha256:125311f5c8ec2395760ab0f53f1ee55f3f5f6f220c2ac7d904144f13f3c2b079",
-  "terminalCheckpointFingerprint": "sha256:c44ce951bfb6c959c21feba6e74371047b2fb8d4c31118572d37ddedc0cb0611",
+  "bundleFingerprint": "d1a9dc3067ce1861f1e4f35e27bb42235e71175e7ffefeb330aa6b5eff0dbeaa",
+  "pagePlanFingerprint": "sha256:840b61f582bed8a06bc02f4cfcfd932cbf61c98d9a834e2f6ca6587f476dcb1f",
+  "compositionFingerprint": "sha256:5f282d6ea9eb729242c2ef8eff049afc9a9045b14fb60e0a04e0e7ac2b2e35a1",
+  "terminalCheckpointFingerprint": "sha256:ee19f08f014fb0b7dafadaf2f230b4610a03d2c68750ce06e56f2919f6f6ce67",
   "summary": {
     "targetPageCount": 12,
     "actualPageCount": 13,
@@ -29,9 +29,9 @@
     "mediaFlowTransitionCount": 8,
     "freshPageRequiredTransitionCount": 8,
     "appliedSpacingCount": 176,
-    "appliedSpacingPt": 921,
+    "appliedSpacingPt": 943,
     "suppressedPageTopSpacingCount": 12,
-    "suppressedPageTopSpacingPt": 101,
+    "suppressedPageTopSpacingPt": 100,
     "repeatedHeaderFragmentCount": 4,
     "sliceCount": 13,
     "paginationExecuted": true,
@@ -44,27 +44,27 @@
       "pageIndex": 0,
       "pageNumber": 1,
       "sectionPageIndex": 0,
-      "usedHeightPt": 685.637795,
-      "remainingHeightPt": 13.55,
+      "usedHeightPt": 692.637795,
+      "remainingHeightPt": 6.55,
       "placementCount": 16,
       "closeReason": "fresh-page-required",
       "firstRootNodeId": "cover-title",
       "lastRootNodeId": "executive-summary-native-coverage",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:90e6228bd5676ae15785fe8916826e31ca1c595db32736fa6007ed745cea4dbd"
+      "pageFingerprint": "sha256:2b18710d2a981c0350e29394e74a2415943cd328266201845579e6ba4c9e93d4"
     },
     {
       "pageIndex": 1,
       "pageNumber": 2,
       "sectionPageIndex": 1,
-      "usedHeightPt": 655,
-      "remainingHeightPt": 44.19,
+      "usedHeightPt": 662,
+      "remainingHeightPt": 37.19,
       "placementCount": 31,
       "closeReason": "fresh-page-required",
       "firstRootNodeId": "executive-summary-native-cost",
       "lastRootNodeId": "ocr-accuracy-field-engine-azure-document-intelligence-critical-values-total",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:4caac6ed3240928bd91bfd4f64ed420da69d66aa4e14816d036223585186dde0"
+      "pageFingerprint": "sha256:f6350f8711c76faa1649573aa3e0104dda1a8e0e63fb13e24997a92dbe0d3080"
     },
     {
       "pageIndex": 2,
@@ -77,7 +77,7 @@
       "firstRootNodeId": "ocr-accuracy-image-media-ocr-accuracy-chart",
       "lastRootNodeId": "table-ocr-runs-ocr-quality",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:d4b62f771bc28003eb788e8cccde869223512ab623d21c081c3fd98657454f50"
+      "pageFingerprint": "sha256:1d5f26d9e1cb1654462aa9d9f77f8beb74fa403985daf0ead924608a298e1a0d"
     },
     {
       "pageIndex": 3,
@@ -90,7 +90,7 @@
       "firstRootNodeId": "table-ocr-runs-ocr-quality",
       "lastRootNodeId": "native-extraction-field-engine-google-document-ai-native-bbox-coverage",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:60b0899632fe60205f22fcd982098494ad64560ca97822ff842dca6e9f4319cd"
+      "pageFingerprint": "sha256:98fad541d38872db5e656d5af509fa50d2859bf4516c8b05ca6c137206ab7345"
     },
     {
       "pageIndex": 4,
@@ -103,7 +103,7 @@
       "firstRootNodeId": "native-extraction-field-engine-azure-document-intelligence-native-words",
       "lastRootNodeId": "table-native-runs-native-run-context",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:660a6ec53a3abe9794d73eba36fd76cd5432893a3fce9ee4ad5a9edc212e3d0e"
+      "pageFingerprint": "sha256:778ce323aa190e664b87f0323cd1f19c9ecda650a0613875a6e13d01917811c6"
     },
     {
       "pageIndex": 5,
@@ -116,7 +116,7 @@
       "firstRootNodeId": "table-native-runs-native-confidence-projection-title",
       "lastRootNodeId": "table-native-runs-native-runtime-cost",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:e3b87fcc57e3f5a62a4849b5b1cd3f064357423b5e9f6875f3bb68c6fac645c3"
+      "pageFingerprint": "sha256:5cee3e6d93026724b3a4579ad2feeb3aa645d78d03d8807fcd17e8745eb6dcbf"
     },
     {
       "pageIndex": 6,
@@ -129,7 +129,7 @@
       "firstRootNodeId": "latency-cost-size-title",
       "lastRootNodeId": "latency-cost-size-field-engine-azure-document-intelligence-native-cost-thb",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:3821eefc7a4a5cd130650df5d45bbdd2f217537c724f3a8b4e6b0629e1ef2daf"
+      "pageFingerprint": "sha256:bebfd5b945f2140ba611d8d96197837937e9ad24cbd5035f7c060421b38c91df"
     },
     {
       "pageIndex": 7,
@@ -142,7 +142,7 @@
       "firstRootNodeId": "latency-cost-size-image-media-latency-rounds-chart",
       "lastRootNodeId": "mapping-field-engine-azure-document-intelligence-native-mapping-recall",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:1d2685a647601d109ea3dd58979c96d601eaf9ec7e05655982795772164601f5"
+      "pageFingerprint": "sha256:ed59e33089e3226ccd0a2c0667a719dc29fa9599db7423e413557edaccd58228"
     },
     {
       "pageIndex": 8,
@@ -155,59 +155,59 @@
       "firstRootNodeId": "mapping-image-media-mapping-gap-chart",
       "lastRootNodeId": "table-mapping-fields-mapping-evidence",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:65402d194da94913a9d7265649aa951bfa9e4d7b83b23116b8c332e0aab7b586"
+      "pageFingerprint": "sha256:f279c101a427a5e7b7434b8cd83e49e8fb7e2a0c9e92f270a587194be6461c62"
     },
     {
       "pageIndex": 9,
       "pageNumber": 10,
       "sectionPageIndex": 9,
-      "usedHeightPt": 696,
-      "remainingHeightPt": 3.19,
+      "usedHeightPt": 684,
+      "remainingHeightPt": 15.19,
       "placementCount": 18,
       "closeReason": "family-continuation",
       "firstRootNodeId": "table-mapping-fields-mapping-evidence",
       "lastRootNodeId": "table-native-missing-concepts-native-missing-concepts",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:dc879a4052f5be94f20a02f2489178f675872339b8d39db46bf3d9471751cb08"
+      "pageFingerprint": "sha256:75cdc4fffd7592c6f89d893dd3f8a78470a6ffd6f7bae08f5abf020449c86b62"
     },
     {
       "pageIndex": 10,
       "pageNumber": 11,
       "sectionPageIndex": 10,
-      "usedHeightPt": 688,
-      "remainingHeightPt": 11.19,
-      "placementCount": 10,
+      "usedHeightPt": 681,
+      "remainingHeightPt": 18.19,
+      "placementCount": 9,
       "closeReason": "fresh-page-required",
       "firstRootNodeId": "table-native-missing-concepts-native-missing-concepts",
-      "lastRootNodeId": "appendix-evidence-intro",
+      "lastRootNodeId": "appendix-evidence-title",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:97b68b8f258bdfcf650f3ab7e655dcddba3b604ec92cec609ff9ded574f8ab6e"
+      "pageFingerprint": "sha256:e84716a3790362891fdf357d0516c8e2b1a1a02aaff0a960932dd3033b61d843"
     },
     {
       "pageIndex": 11,
       "pageNumber": 12,
       "sectionPageIndex": 11,
-      "usedHeightPt": 697,
-      "remainingHeightPt": 2.19,
-      "placementCount": 2,
+      "usedHeightPt": 694,
+      "remainingHeightPt": 5.19,
+      "placementCount": 3,
       "closeReason": "family-continuation",
-      "firstRootNodeId": "table-gdim-expected-fields-gdim-expected-fields-projection-title",
+      "firstRootNodeId": "appendix-evidence-intro",
       "lastRootNodeId": "table-gdim-expected-fields-gdim-expected-fields",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:91a26558fb09037b38e68e20909ce1e7a179e2761914251e93090262b9439ed1"
+      "pageFingerprint": "sha256:552efd010232f8de3df74d72ae16a749c284c8b92283e0dfde38a1a03f6c4e5f"
     },
     {
       "pageIndex": 12,
       "pageNumber": 13,
       "sectionPageIndex": 12,
-      "usedHeightPt": 178,
-      "remainingHeightPt": 521.19,
+      "usedHeightPt": 208,
+      "remainingHeightPt": 491.19,
       "placementCount": 1,
       "closeReason": "document-complete",
       "firstRootNodeId": "table-gdim-expected-fields-gdim-expected-fields",
       "lastRootNodeId": "table-gdim-expected-fields-gdim-expected-fields",
       "staticZoneCount": 2,
-      "pageFingerprint": "sha256:53019d5121d5bd471b160fa872169f08f6304b076303f6327012839435977dcb"
+      "pageFingerprint": "sha256:662465393122c29113e897da86660fbceca28077a1f3afe784296157a9be6af2"
     }
   ],
   "executionGate": {

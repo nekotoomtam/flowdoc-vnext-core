@@ -13,15 +13,9 @@ const CAPACITY = readJson<any>(
   "fixtures/pdf-pilot-canonical-report-vertical-capacity.v1.json",
 )
 const BODY = readJson<any>("fixtures/pdf-pilot-canonical-report-body-display-list.v1.json")
-const SUMMARY = readJson<any>(
-  "packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-summary.v1.json",
-)
-const QA = readJson<any>(
-  "packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-qa.v1.json",
-)
 
 describe("PDF-PILOT-08B-R2C-P canonical static and section calibration", () => {
-  it("pins R2C-O as the historical baseline and aligns the current artifact", () => {
+  it("pins R2C-O as the baseline and preserves the historical Phase P artifact", () => {
     expect(CALIBRATION).toMatchObject({
       comparisonVersion: 1,
       comparisonId:
@@ -40,14 +34,13 @@ describe("PDF-PILOT-08B-R2C-P canonical static and section calibration", () => {
           pageCount: 12,
         },
         candidate: {
-          sha256: SUMMARY.artifact.sha256,
-          bytes: SUMMARY.artifact.byteLength,
+          sha256: "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a",
+          bytes: 1212504,
           pageCount: 13,
-          sourceBundleFingerprint: BODY.bundleFingerprint,
+          sourceBundleFingerprint: "18f4e7a322e6af1d4073dd4de277a3fb4d9d64905eac50c160c3cb7faebfa084",
         },
       },
     })
-    expect(QA.artifact.sha256).toBe(CALIBRATION.inputs.candidate.sha256)
     expect(JSON.stringify(CALIBRATION)).not.toMatch(/[A-Z]:\\Users\\/u)
   })
 

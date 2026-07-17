@@ -2,10 +2,10 @@
   "contractVersion": 1,
   "kind": "canonical-report-line-breaking-bundle",
   "phaseId": "PDF-PILOT-08B-R2C-E",
-  "sourceNativeShapingFingerprint": "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+  "sourceNativeShapingFingerprint": "d86f7f0eb9954cedcb8dd9bfc4b850feaf88ac61a406a1e11a8f5c9d186c093a",
   "sourceTypographyCalibrationFingerprint": "9f3568dd46a1ff9c6a0e40cf8aed66135a63ae74436c92788788ad00726ba04f",
-  "sourceRawSegmentationFingerprint": "ed27ede053169d397596fdee351add232bc46c811bf12975f059e196c9ff0add",
-  "planFingerprint": "e4874b4fff3cca45e33cb2617a6fd5b9d7eef4d51f62316758f2eba2ae67b540",
+  "sourceRawSegmentationFingerprint": "b934d7cec044266bc12ae208f9753b9e0f446effa5c9dac9698f136b8f632e94",
+  "planFingerprint": "351af50cbacbb2c1fdd0532399aebe4d836b9fba962336ad4c49db38be9b8a4b",
   "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
   "profileBinding": {
     "status": "bound-native-line-breaking-only",
@@ -1107,11 +1107,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:1b2c2b40148458eecfee868c4aee9300",
-      "measurementCacheFingerprint": "1b2c2b40148458eecfee868c4aee93000e79cfe5f09bbd17926af130c4497384",
+      "measurementVariantId": "report-measure:8fd61e77004468b03195b831a35ad654",
+      "measurementCacheFingerprint": "8fd61e77004468b03195b831a35ad654a7b7278e26af517f66d9fefc2c55742b",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "ข้อสรุปจากข้อมูลจริง",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:2921ac3b56e865397c1f8d1fea1e11f0",
@@ -1182,11 +1182,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:2289122d79fd35d27c451c3b48d82b23",
-      "measurementCacheFingerprint": "2289122d79fd35d27c451c3b48d82b23e3ec5450d4e81071f639d230253d0fbf",
+      "measurementVariantId": "report-measure:47247a7077ee811ca356607fa2c656e6",
+      "measurementCacheFingerprint": "47247a7077ee811ca356607fa2c656e61aa54f88991daa5a5f54bc919ef710c5",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "ทั้ง Google Vision และ Azure OCR อ่านค่าธุรกิจสำคัญครบ 29 จาก 29 ค่า จึงยังไม่มีข้อมูลธุรกิจหลักตกหล่นจาก OCR ทั้งสองเจ้า",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:63c6b0b269237a7aeb8c0d891e08e62a",
@@ -1363,21 +1363,21 @@
         {
           "lineIndex": 0,
           "startOffset": 0,
-          "endOffset": 102,
-          "widthPt": 457.8,
+          "endOffset": 98,
+          "widthPt": 439.1625,
           "heightPt": 15,
           "yOffsetPt": 0,
           "glyphStartIndex": 0,
-          "glyphEndIndex": 103
+          "glyphEndIndex": 99
         },
         {
           "lineIndex": 1,
-          "startOffset": 102,
+          "startOffset": 98,
           "endOffset": 121,
-          "widthPt": 87.9165,
+          "widthPt": 106.554,
           "heightPt": 15,
           "yOffsetPt": 15,
-          "glyphStartIndex": 103,
+          "glyphStartIndex": 99,
           "glyphEndIndex": 122
         }
       ],
@@ -1385,22 +1385,22 @@
         {
           "lineIndex": 0,
           "startOffset": 0,
-          "endOffset": 102,
+          "endOffset": 98,
           "glyphStartIndex": 0,
-          "glyphEndIndex": 103,
-          "widthPt": 457.8,
-          "breakOffset": 102,
+          "glyphEndIndex": 99,
+          "widthPt": 439.1625,
+          "breakOffset": 98,
           "breakKind": "word",
           "breakReason": "available-width",
           "overflowsAvailableWidth": false
         },
         {
           "lineIndex": 1,
-          "startOffset": 102,
+          "startOffset": 98,
           "endOffset": 121,
-          "glyphStartIndex": 103,
+          "glyphStartIndex": 99,
           "glyphEndIndex": 122,
-          "widthPt": 87.9165,
+          "widthPt": 106.554,
           "breakOffset": 121,
           "breakKind": "mandatory",
           "breakReason": "mandatory-break",
@@ -1419,11 +1419,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:365f7b4be83fc48d753768e831ce24b7",
-      "measurementCacheFingerprint": "365f7b4be83fc48d753768e831ce24b75741a583d1623e75b33d63e38b7556ee",
+      "measurementVariantId": "report-measure:a413d78b5d971a7334b67be35723693b",
+      "measurementCacheFingerprint": "a413d78b5d971a7334b67be35723693b648d401fa911b41e4122779ae30a2d75",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "Google Vision ใช้เวลากลาง 1.76 วินาที เทียบกับ Azure OCR 4.62 วินาที โดยต่างกัน 2.85 วินาที",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:d2594501dbdf9892009c20003384acd9",
@@ -1591,11 +1591,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:626b72830de424817c871e7ba5f61cbb",
-      "measurementCacheFingerprint": "626b72830de424817c871e7ba5f61cbb3c949f5ca6ceec1005ed41538cd52145",
+      "measurementVariantId": "report-measure:756b778c0c0ef87f46cf9c1c09fc1a95",
+      "measurementCacheFingerprint": "756b778c0c0ef87f46cf9c1c09fc1a950b078b768371e5bfa1fbd89229998ba0",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "Google Document AI จัดข้อมูลสำคัญเป็นโครงสร้างได้ 92% ขณะที่ Azure Native ได้ 56%",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:83aa830c1748555d04f0cec22202570a",
@@ -1737,11 +1737,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:46c2f0b2023b16595ae18577fa1aac6f",
-      "measurementCacheFingerprint": "46c2f0b2023b16595ae18577fa1aac6f49c2c6652e930e9ff525777c49804df7",
+      "measurementVariantId": "report-measure:a4f517ba7998a589a54fb4feb3408c0c",
+      "measurementCacheFingerprint": "a4f517ba7998a589a54fb4feb3408c0cc8cf86e3fa03f2aaddadf9f5cf30dccd",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "Azure Native มีต้นทุนประมาณ 0.67 บาท ต่อเอกสาร เทียบกับ Google Document AI 2.01 บาท หรือต่ำกว่าประมาณ 3 เท่า",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:1bb25a11e6a17b9255c539e810f797f0",
@@ -1899,21 +1899,21 @@
         {
           "lineIndex": 0,
           "startOffset": 0,
-          "endOffset": 95,
-          "widthPt": 457.4325,
+          "endOffset": 91,
+          "widthPt": 440.4225,
           "heightPt": 15,
           "yOffsetPt": 0,
           "glyphStartIndex": 0,
-          "glyphEndIndex": 96
+          "glyphEndIndex": 92
         },
         {
           "lineIndex": 1,
-          "startOffset": 95,
+          "startOffset": 91,
           "endOffset": 108,
-          "widthPt": 63.378,
+          "widthPt": 80.388,
           "heightPt": 15,
           "yOffsetPt": 15,
-          "glyphStartIndex": 96,
+          "glyphStartIndex": 92,
           "glyphEndIndex": 109
         }
       ],
@@ -1921,22 +1921,22 @@
         {
           "lineIndex": 0,
           "startOffset": 0,
-          "endOffset": 95,
+          "endOffset": 91,
           "glyphStartIndex": 0,
-          "glyphEndIndex": 96,
-          "widthPt": 457.4325,
-          "breakOffset": 95,
+          "glyphEndIndex": 92,
+          "widthPt": 440.4225,
+          "breakOffset": 91,
           "breakKind": "word",
           "breakReason": "available-width",
           "overflowsAvailableWidth": false
         },
         {
           "lineIndex": 1,
-          "startOffset": 95,
+          "startOffset": 91,
           "endOffset": 108,
-          "glyphStartIndex": 96,
+          "glyphStartIndex": 92,
           "glyphEndIndex": 109,
-          "widthPt": 63.378,
+          "widthPt": 80.388,
           "breakOffset": 108,
           "breakKind": "mandatory",
           "breakReason": "mandatory-break",
@@ -1955,11 +1955,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:e00cccd560faf6b53d690c04b13556d1",
-      "measurementCacheFingerprint": "e00cccd560faf6b53d690c04b13556d10b700c576aef2b4645b934aa2ca72d08",
+      "measurementVariantId": "report-measure:7ac7958bc9f673c80a8616a715082569",
+      "measurementCacheFingerprint": "7ac7958bc9f673c80a8616a715082569f19b96e38103fe542bb382e0aa9c5b62",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "Mapper ปัจจุบันนำข้อมูลที่ควรอนุมานได้มาใช้ถูกต้องเพียง 15.6% จาก Google และ 12.5% จาก Azure จึงยังไม่ควรตัดสิน provider จากผล GDIM",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:3792d93eb0de2bdf93e901f910dde69d",
@@ -2140,21 +2140,21 @@
         {
           "lineIndex": 0,
           "startOffset": 0,
-          "endOffset": 99,
-          "widthPt": 463.4595,
+          "endOffset": 93,
+          "widthPt": 439.7085,
           "heightPt": 15,
           "yOffsetPt": 0,
           "glyphStartIndex": 0,
-          "glyphEndIndex": 100
+          "glyphEndIndex": 94
         },
         {
           "lineIndex": 1,
-          "startOffset": 99,
+          "startOffset": 93,
           "endOffset": 131,
-          "widthPt": 158.235,
+          "widthPt": 181.986,
           "heightPt": 15,
           "yOffsetPt": 15,
-          "glyphStartIndex": 100,
+          "glyphStartIndex": 94,
           "glyphEndIndex": 132
         }
       ],
@@ -2162,22 +2162,22 @@
         {
           "lineIndex": 0,
           "startOffset": 0,
-          "endOffset": 99,
+          "endOffset": 93,
           "glyphStartIndex": 0,
-          "glyphEndIndex": 100,
-          "widthPt": 463.4595,
-          "breakOffset": 99,
-          "breakKind": "word",
+          "glyphEndIndex": 94,
+          "widthPt": 439.7085,
+          "breakOffset": 93,
+          "breakKind": "space",
           "breakReason": "available-width",
           "overflowsAvailableWidth": false
         },
         {
           "lineIndex": 1,
-          "startOffset": 99,
+          "startOffset": 93,
           "endOffset": 131,
-          "glyphStartIndex": 100,
+          "glyphStartIndex": 94,
           "glyphEndIndex": 132,
-          "widthPt": 158.235,
+          "widthPt": 181.986,
           "breakOffset": 131,
           "breakKind": "mandatory",
           "breakReason": "mandatory-break",
@@ -12862,11 +12862,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:88f1b52ab962167dcad1aa97c202b7f2",
-      "measurementCacheFingerprint": "88f1b52ab962167dcad1aa97c202b7f2b5c428620a595e4d3e13cf030f080f18",
+      "measurementVariantId": "report-measure:cc50a1ff4067a219db8af3556264041b",
+      "measurementCacheFingerprint": "cc50a1ff4067a219db8af3556264041bf1bfa1a87073856709db16953310163e",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "แนวทางเลือกตามโจทย์",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:3683d39c85c8ed957840ba4bb5dde4fa",
@@ -12929,11 +12929,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:b678c3a4886ede14502b1b8f5d38ee1a",
-      "measurementCacheFingerprint": "b678c3a4886ede14502b1b8f5d38ee1a47a6c9f7b5037fb1a27db1322d0b8c94",
+      "measurementVariantId": "report-measure:24f8dc570b9d3aae57a5ebbdc52fab6a",
+      "measurementCacheFingerprint": "24f8dc570b9d3aae57a5ebbdc52fab6aab4fb46c21a3bb31847c29ff8dd3482d",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "ถ้าเน้นอ่านข้อความเร็ว ให้เริ่มจาก Google Vision ที่ค่ากลาง 1.76 วินาที เทียบ Azure OCR 4.62 วินาที",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:5755800cd4925e9a1d57ad096ae6d448",
@@ -13103,11 +13103,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:14ee9293f9ed187cddc7669719ee7d7f",
-      "measurementCacheFingerprint": "14ee9293f9ed187cddc7669719ee7d7f5d477ffe865c3ff9881cd78f0beaa89e",
+      "measurementVariantId": "report-measure:cd0cd706ec29a5edb2ac5a3b4f6f1813",
+      "measurementCacheFingerprint": "cd0cd706ec29a5edb2ac5a3b4f6f18137cbd43957e673362687de533f15ad84a",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "ถ้าเน้นตารางและรายการสินค้า Google Document AI ครอบคลุม concept 92% และตรวจพบ 7 ตาราง",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:2db34d85463126de292050e5fbb424cd",
@@ -13266,11 +13266,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:9989c94841e03fbe79c8230dc25d351b",
-      "measurementCacheFingerprint": "9989c94841e03fbe79c8230dc25d351b9e8246edba73ff5e6a3baceb4842ffb2",
+      "measurementVariantId": "report-measure:388a311782a2bd03669991398c8da28d",
+      "measurementCacheFingerprint": "388a311782a2bd03669991398c8da28d1fd6d907e18d511d5d5e1842995124f1",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "ถ้าเน้นต้นทุน Native ให้พิจารณา Azure ที่ 0.67 บาท เทียบกับ Google 2.01 บาท",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:ebd12d8b9069fe59182d73b7cca9cf6e",
@@ -13420,11 +13420,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:ad9651acb350f6c88fe5777e81f68fba",
-      "measurementCacheFingerprint": "ad9651acb350f6c88fe5777e81f68fba7536122d73f3bc6944f33dfc63af77bf",
+      "measurementVariantId": "report-measure:4ac0744a5b518df3bd10319ee794a3e0",
+      "measurementCacheFingerprint": "4ac0744a5b518df3bd10319ee794a3e090043376305e6c2fada320765783bb8a",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "ถ้าต้องลดขนาดข้อมูลตอบกลับ Azure Native อยู่ที่ 0.12 MB เทียบกับ Google Document AI 1.93 MB",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:4147cc8d70010335156e8e047aed0cb0",
@@ -13582,11 +13582,11 @@
       }
     },
     {
-      "measurementVariantId": "report-measure:ec5bc363bcf170a85e477e357c3fdfd5",
-      "measurementCacheFingerprint": "ec5bc363bcf170a85e477e357c3fdfd54c1de804b06a6a7923f3f907b477b7e5",
+      "measurementVariantId": "report-measure:6d89080902a9b13167c5fad11106591f",
+      "measurementCacheFingerprint": "6d89080902a9b13167c5fad11106591f46acab5884b36151f8681965173b5072",
       "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
       "styleKey": "report-body",
-      "availableWidthPt": 467.95,
+      "availableWidthPt": 449.95,
       "renderedText": "งาน GDIM ยังต้องแก้ Mapper ก่อน เพราะ recall อยู่ที่ 15.6% และ 12.5% เท่านั้น",
       "lineHeightPt": 15,
       "segmentRequestId": "report-segment:bf5f30b1dc2f84ae1a0425fc017e1d28",
@@ -32462,5 +32462,5 @@
     "overflowLineCount": 0,
     "maxLineCount": 3
   },
-  "bundleFingerprint": "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4"
+  "bundleFingerprint": "2f4dee43082a5305d222d1e5a0eb5c7aec4a33fc1f98a9756ecbb2104282b13d"
 }

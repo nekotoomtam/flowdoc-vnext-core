@@ -54,7 +54,7 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
       sourceDataBundleFingerprint: DATA_BUNDLE.bundleFingerprint,
       sourceTemplateBundleFingerprint: TEMPLATE_BUNDLE.bundleFingerprint,
       sourceFormattingBundleFingerprint: FORMATTING_BUNDLE.bundleFingerprint,
-      bundleFingerprint: "c7c4f45b061cb975e1d6b215d786b58a1976935753c93bbae8eaf463480bdd30",
+      bundleFingerprint: "9ace7bf4ad5d0e3866d5d12b826c30c776e0313c8afffa08d95f3c916f4bcb74",
       pageGeometry: {
         pageSize: "Letter",
         orientation: "portrait",

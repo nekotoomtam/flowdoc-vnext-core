@@ -17,9 +17,11 @@ export const FLOWDOC_CANONICAL_REPORT_VERTICAL_CAPACITY_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_VERTICAL_CAPACITY_ID = "ocr-benchmark-report-vertical-capacity-v1" as const
 export const FLOWDOC_CANONICAL_REPORT_TARGET_PAGE_COUNT = 12 as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193"
-const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a"
+const ACCEPTED_PROJECTION_FINGERPRINT = "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850"
+const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "1c988eca85984869c8be8b1f5af9a763cc72fa01b66f1da7cb1c046cfb7ad854"
 const LETTER_PORTRAIT_PT = { width: 612, height: 792 } as const
+// Preserve the 12pt external gap while reserving the authored 7pt callout edge padding.
+const READER_CALLOUT_EDGE_GAP_MULTIPLIER = (12 + 7) / 15
 
 export type FlowDocCanonicalReportSpacingCategoryV1 =
   | "report-title"
@@ -276,10 +278,10 @@ const SPACING_RULE_DEFINITIONS: Array<{
   { ruleId: "report-title-to-body", previousCategory: "report-title", currentCategory: "report-body", basisStyleKey: "report-body", multiplier: 1 },
   { ruleId: "section-heading-to-body", previousCategory: "section-heading", currentCategory: "report-body", basisStyleKey: "section-heading", multiplier: 0.5 },
   { ruleId: "body-stack", previousCategory: "report-body", currentCategory: "report-body", basisStyleKey: "report-body", multiplier: 0.2 },
-  { ruleId: "body-to-reader-label", previousCategory: "report-body", currentCategory: "reader-label", basisStyleKey: "report-body", multiplier: 0.8 },
+  { ruleId: "body-to-reader-label", previousCategory: "report-body", currentCategory: "reader-label", basisStyleKey: "report-body", multiplier: READER_CALLOUT_EDGE_GAP_MULTIPLIER },
   { ruleId: "reader-label-to-summary", previousCategory: "reader-label", currentCategory: "reader-summary", basisStyleKey: "report-body", multiplier: 0.4 },
   { ruleId: "reader-summary-stack", previousCategory: "reader-summary", currentCategory: "reader-summary", basisStyleKey: "report-body", multiplier: 0.2 },
-  { ruleId: "reader-summary-to-body", previousCategory: "reader-summary", currentCategory: "report-body", basisStyleKey: "report-body", multiplier: 0.8 },
+  { ruleId: "reader-summary-to-body", previousCategory: "reader-summary", currentCategory: "report-body", basisStyleKey: "report-body", multiplier: READER_CALLOUT_EDGE_GAP_MULTIPLIER },
   { ruleId: "body-to-image", previousCategory: "report-body", currentCategory: "fixed-image", basisStyleKey: "report-caption", multiplier: 1 },
   { ruleId: "image-to-table-label", previousCategory: "fixed-image", currentCategory: "table-label", basisStyleKey: "table-header", multiplier: 1 },
   { ruleId: "body-to-table-label", previousCategory: "report-body", currentCategory: "table-label", basisStyleKey: "table-header", multiplier: 1 },

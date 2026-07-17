@@ -53,13 +53,13 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
     })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-L",
-      bundleFingerprint: "18f4e7a322e6af1d4073dd4de277a3fb4d9d64905eac50c160c3cb7faebfa084",
-      bodyDisplayList: { fingerprint: "sha256:eb528afde14675de9723d9820b6b532d8a2cba80f6a01f54fe5adb2c54d04ec2" },
+      bundleFingerprint: "96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67",
+      bodyDisplayList: { fingerprint: "sha256:36506a441bca39699737711784b39a6d1fe309e5cf83a842be0c68b4274580d3" },
       rendererHandoff: {
         scope: "full-document-body-plus-static-zones",
         measuredDrawContract: {
           status: "consumable",
-          fingerprint: "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
+          fingerprint: "sha256:020881c6099d8eec5e73d5558efa0c0d65de67599aa99e82f8cbf9d62e4e6917",
           contracts: { mayRelayout: false },
           issues: [],
         },
@@ -71,16 +71,20 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
         mediaEntryCount: 5,
         tableEntryCount: 15,
         sourceBodyPlacementCount: 189,
-        bodyDrawCommandCount: 1785,
-        bodyPaintCommandCount: 1785,
+        bodyDrawCommandCount: 1788,
+        bodyPaintCommandCount: 1788,
         bodyGlyphRunCount: 1005,
         bodyImageCount: 5,
-        bodyFillRectCount: 87,
+        bodyFillRectCount: 90,
         bodyStrokeLineCount: 688,
+        calloutGroupCount: 2,
+        calloutFragmentCount: 3,
+        calloutFillRectCount: 3,
+        calloutSourceFieldBindingCount: 22,
         structuralReceiptCount: 820,
         emptyTextReceiptCount: 1,
-        fullDrawCommandCount: 1811,
-        fullPaintCommandCount: 1811,
+        fullDrawCommandCount: 1814,
+        fullPaintCommandCount: 1814,
         fullGlyphRunCount: 1031,
         fontAssetCount: 2,
         imageAssetCount: 5,
@@ -97,10 +101,10 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
     expect(BUNDLE.entries).toHaveLength(185)
     expect(new Set(BUNDLE.entries.map((entry) => entry.itemIndex))).toHaveLength(185)
     expect(BUNDLE.entries.reduce((sum, entry) => sum + entry.sourcePlacementCount, 0)).toBe(189)
-    expect(BUNDLE.bodyDisplayList.drawCommandIds).toHaveLength(1785)
-    expect(BUNDLE.bodyDisplayList.paintCommandIds).toHaveLength(1785)
-    expect(new Set(BUNDLE.bodyDisplayList.drawCommandIds)).toHaveLength(1785)
-    expect(new Set(BUNDLE.bodyDisplayList.paintCommandIds)).toHaveLength(1785)
+    expect(BUNDLE.bodyDisplayList.drawCommandIds).toHaveLength(1788)
+    expect(BUNDLE.bodyDisplayList.paintCommandIds).toHaveLength(1788)
+    expect(new Set(BUNDLE.bodyDisplayList.drawCommandIds)).toHaveLength(1788)
+    expect(new Set(BUNDLE.bodyDisplayList.paintCommandIds)).toHaveLength(1788)
 
     const contract = BUNDLE.rendererHandoff.measuredDrawContract
     expect(contract.pages).toHaveLength(13)
@@ -116,10 +120,10 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
       ))).toBe(true)
     })
     expect(contract.summary).toMatchObject({
-      sourceCommandCount: 1811,
-      paintCommandCount: 1811,
+      sourceCommandCount: 1814,
+      paintCommandCount: 1814,
       glyphRunCount: 1031,
-      fillRectCount: 87,
+      fillRectCount: 90,
       strokeRectCount: 0,
       strokeLineCount: 688,
       imageCount: 5,

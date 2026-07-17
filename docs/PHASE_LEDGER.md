@@ -10767,3 +10767,30 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-Q` measured callout treatment and region-aware
 visual thresholds without post-layout patches or source-evidence deletion.
+
+## PDF-PILOT-08B-R2C-Q Callout and Region Thresholds
+
+Status: measured callout treatment and six-region visual threshold contract
+accepted; document parity and production binding remain rejected.
+
+R2C-Q gives twelve reader label/note nodes authored `EAF1FF` boxes with 9pt
+horizontal and 7pt vertical padding. The accepted 449.95pt inner width now
+survives both measurement-request boundaries. A region gate exposed and closed
+a 4.5095pt overflow where table projection had recreated the request at the
+full body width.
+
+The display list groups the nodes into two semantic callouts, retains all 22
+field bindings, and derives three fill fragments from Core placements on pages
+1, 2, and 10. The final 13-page artifact has zero missing glyphs and zero body
+overflow. Page-box, static-zone, body-frame, typography, callout, and source
+density thresholds all pass without claiming pixel or document parity.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_CALLOUT_REGION_THRESHOLDS_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-callout-regions.v1.json`;
+- `fixtures/pdf-pilot-canonical-report-body-display-list.v1.json`;
+- `tests/pdfRendererPilotCanonicalCalloutRegions.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-R` generic box-boundary and cross-reader
+compatibility audit.

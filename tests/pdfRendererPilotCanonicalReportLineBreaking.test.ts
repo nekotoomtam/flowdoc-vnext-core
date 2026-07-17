@@ -48,11 +48,11 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-E",
-      sourceNativeShapingFingerprint: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+      sourceNativeShapingFingerprint: "d86f7f0eb9954cedcb8dd9bfc4b850feaf88ac61a406a1e11a8f5c9d186c093a",
       sourceTypographyCalibrationFingerprint: "9f3568dd46a1ff9c6a0e40cf8aed66135a63ae74436c92788788ad00726ba04f",
-      sourceRawSegmentationFingerprint: "ed27ede053169d397596fdee351add232bc46c811bf12975f059e196c9ff0add",
-      planFingerprint: "e4874b4fff3cca45e33cb2617a6fd5b9d7eef4d51f62316758f2eba2ae67b540",
-      bundleFingerprint: "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
+      sourceRawSegmentationFingerprint: "b934d7cec044266bc12ae208f9753b9e0f446effa5c9dac9698f136b8f632e94",
+      planFingerprint: "351af50cbacbb2c1fdd0532399aebe4d836b9fba962336ad4c49db38be9b8a4b",
+      bundleFingerprint: "2f4dee43082a5305d222d1e5a0eb5c7aec4a33fc1f98a9756ecbb2104282b13d",
       profileBinding: {
         status: "bound-native-line-breaking-only",
         sourceProfileSegmenterRevision: "icu4x-planned",

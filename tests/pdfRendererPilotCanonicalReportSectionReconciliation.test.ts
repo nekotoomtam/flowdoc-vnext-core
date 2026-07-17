@@ -44,13 +44,13 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-H",
-      sourceProjectionFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
-      sourceVerticalCapacityFingerprint: "2321b3b26571b9bae7706418c6e2eecc7bdc1f3aae4dc04b614d78bcb4fb1586",
-      planFingerprint: "109e63683eed3f38a40aaafb96ab4be8f2a02a9ac920192baae7c0b212d897e4",
-      bundleFingerprint: "8c805719625c7c071568db8f90f9fad1b67c66f519ba880c16183314447c8364",
-      reconciledResolvedProjectionFingerprint: "sha256:a87c107fee1b4c615f149aed2a55003e282b46f77062c45edc949c6b5a6638b6",
+      sourceProjectionFingerprint: "c44832960277c9e7cdfed60f4a3ec9638b0ca78b4860e77455f16d0633ad7850",
+      sourceVerticalCapacityFingerprint: "4d89a4f8bf9b99fbaf7d75825319153021b915cf24cd5f4b15ff467af1a0e2fb",
+      planFingerprint: "6498b2892fcc034ded86eeb0b8e536b98340cccf243b98da0aff27e01c5ee580",
+      bundleFingerprint: "06159f79a648efce2c78aa4fcde6f17032a31b383c3e4e8a28a741f968789553",
+      reconciledResolvedProjectionFingerprint: "sha256:f7a4345025a1c6c125445baed8b1eb21e5d7c2e06d918d4ec12e21e3f2826c3d",
       coreCompositionManifest: {
-        fingerprint: "sha256:890ceeb57d3c8f2f450093714fb8f82676b328e89e7a5177e60ea7bea3a163ea",
+        fingerprint: "sha256:a29c0159b6fedc22359cdfb80f980fcae816701f0596cbeda1050f0f839297ec",
       },
       summary: {
         semanticSectionCount: 12,
@@ -60,11 +60,11 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
         sourcePositiveSpacingBindingCount: 173,
         reconciledPositiveSpacingBindingCount: 184,
         semanticSectionStartBindingCount: 11,
-        sourcePreservedSpacingPt: 877,
+        sourcePreservedSpacingPt: 898,
         semanticSectionStartSpacingPt: 121,
-        reconciledGrossSpacingPt: 998,
+        reconciledGrossSpacingPt: 1019,
         naturalBodyHeightPt: 7106.047243,
-        reconciledGrossDemandPt: 8104.047243,
+        reconciledGrossDemandPt: 8125.047243,
         pageBodyHeightPt: 699.19,
         previousNaturalSectionCapacityFloorCount: 16,
         previousPreservedSpacingSectionCapacityCount: 18,
@@ -72,10 +72,10 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
         reconciledGrossSpacingCapacityCount: 12,
         targetPageCount: 12,
         grossTargetPageDelta: 0,
-        grossCapacityDeltaPt: -286.232757,
+        grossCapacityDeltaPt: -265.232757,
         grossOverflowAboveTargetPt: 0,
-        grossSlackBelowTargetPt: 286.232757,
-        maximumTheoreticalPageTopSuppressionPt: 135,
+        grossSlackBelowTargetPt: 265.232757,
+        maximumTheoreticalPageTopSuppressionPt: 156,
         maximumTheoreticalPaginationOverheadBudgetPt: 421.232757,
         equivalentPageProfileCount: 12,
         equivalentHeaderCount: 12,
@@ -163,7 +163,7 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
       provenance: "accepted-r2c-e-line-height-ratio",
     })
     expect(BUNDLE.spacingBridgeBindings).toHaveLength(185)
-    expect(BUNDLE.spacingBridgeBindings.reduce((total, item) => total + item.gapBeforePt, 0)).toBe(998)
+    expect(BUNDLE.spacingBridgeBindings.reduce((total, item) => total + item.gapBeforePt, 0)).toBe(1019)
     expect(BUNDLE.spacingBridgeBindings[0]).toMatchObject({
       rootNodeId: "cover-title",
       reconciledSpacingRuleId: "zone-start",
@@ -188,12 +188,12 @@ describe("PDF-PILOT-08B-R2C-H canonical report section reconciliation", () => {
       previousPreservedSpacingSectionCapacityCount: 18,
       reconciledNaturalGlobalCapacityCount: 11,
       reconciledGrossSpacingCapacityCount: 12,
-      grossDemandPt: 8104.047243,
+      grossDemandPt: 8125.047243,
       targetCapacityPt: 8390.28,
-      grossCapacityDeltaPt: -286.232757,
+      grossCapacityDeltaPt: -265.232757,
       grossOverflowAboveTargetPt: 0,
-      grossSlackBelowTargetPt: 286.232757,
-      maximumTheoreticalPageTopSuppressionPt: 135,
+      grossSlackBelowTargetPt: 265.232757,
+      maximumTheoreticalPageTopSuppressionPt: 156,
       maximumTheoreticalPaginationOverheadBudgetPt: 421.232757,
       reason: "gross-capacity-does-not-decide-actual-page-count",
     })

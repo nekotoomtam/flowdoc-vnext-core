@@ -57,8 +57,8 @@ describe("PDF-PILOT-08B-R2C-M canonical full-document renderer execution", () =>
       status: "rendered",
       sourceBundleFingerprint: BUNDLE.bundleFingerprint,
       artifact: {
-        byteLength: 1212504,
-        sha256: "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a",
+        byteLength: 1212656,
+        sha256: "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
         sourceContractFingerprint: BUNDLE.rendererHandoff.measuredDrawContract.fingerprint,
         rendererProfileId: "pdf-pilot-08b-r2c-l-full-document-v1",
         resourceReuse: {
@@ -74,7 +74,7 @@ describe("PDF-PILOT-08B-R2C-M canonical full-document renderer execution", () =>
           requiredImageAssetCount: 5,
           imagePaintCount: 5,
           strokeLineCount: 688,
-          sourceContractContentSha256: "311ac48149c2b146c8f325b1201c3c8557693e4a97326e2546ab82b6b71c0fbc",
+          sourceContractContentSha256: "5f28958947715a3a9bdc006a73688bf8226f782047db5f5c53ffe0349dbd8b78",
         },
       },
       renderContract: {
@@ -88,16 +88,16 @@ describe("PDF-PILOT-08B-R2C-M canonical full-document renderer execution", () =>
       },
       summary: {
         pageCount: 13,
-        paintCommandCount: 1811,
+        paintCommandCount: 1814,
         glyphRunCount: 1031,
         glyphCount: 15732,
         embeddedFontCount: 2,
         imageCount: 5,
-        byteLength: 1212504,
+        byteLength: 1212656,
       },
       deterministicRebuild: {
         unchanged: true,
-        sha256: "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a",
+        sha256: "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
       },
       externalImageBytesRetained: false,
       productionBinding: false,
