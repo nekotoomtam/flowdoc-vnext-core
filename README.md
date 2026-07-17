@@ -893,6 +893,11 @@ The package must remain runnable without any parent editor checkout.
   profiles across all 143 scalar and 63 collection item definitions, formats
   590 R2B bindings with retained raw values and identities, and prepares a
   measurement handoff without calculating widths, lines, layout, or PDF bytes.
+- PDF canonical report measurement-request handoff pins an IBM Plex
+  Regular/Bold measurement identity, computes exact Letter/body/table/cell
+  widths, and prepares 689 display-backed requests while deferring 12 generated
+  page-number blocks. The geometry also gates report-wide engine execution on
+  revising the current 19/21-column exhaustive tables.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

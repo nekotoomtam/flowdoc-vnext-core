@@ -352,6 +352,37 @@ Primary Phase 08B-R2C-A evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-display-formatting-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportDisplayFormatting.test.ts`.
 
+## PDF-PILOT-08B-R2C-B Scope
+
+Phase 08B-R2C-B consumes the exact R2A, R2B, and R2C-A fingerprints and
+prepares the first native measurement-request handoff. It derives one stable
+IBM Plex Sans Thai Regular/Bold profile from registered font hashes and all six
+report style mappings, while retaining rustybuzz and planned ICU4X identity
+without executing either engine.
+
+Portrait Letter geometry produces a `498.614173pt` body width. Authored 175mm
+tables use the retained `4pt` cell insets and produce 126 deterministic cell
+geometries. The display overlay reaches 150 document requests, 63 authored
+header requests, and 476 materialized item requests: 689 ready requests in
+total. Twelve footer blocks remain deferred because their page-number inlines
+require generated expansion.
+
+The geometry reveals that the exhaustive equal-width OCR and Native tables use
+19 and 21 columns, leaving only `18.108579pt` and `15.622047pt` of text width.
+The handoff is accepted, but report-wide engine execution is gated on revising
+the table projection. Automatic wrapping cannot repair an unsuitable table
+shape.
+
+Text shaping, line breaking, line boxes, layout, pagination, and PDF rendering
+remain `not-run`.
+
+Primary Phase 08B-R2C-B evidence:
+
+- `docs/PDF_CANONICAL_REPORT_MEASUREMENT_HANDOFF_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-measurement-handoff.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-measurement-handoff-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportMeasurementHandoff.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -481,6 +512,12 @@ Build and validate the typed display-formatting overlay:
 npm --prefix packages/pdf-renderer-pilot run build:report-display-formatting
 ```
 
+Build and validate the measurement-request and table-geometry handoff:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-measurement-handoff
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -522,15 +559,17 @@ npm --prefix packages/pdf-renderer-pilot run build:report-display-formatting
 - Typed display formatting assigns every scalar and collection item field,
   reproduces 590 report display strings with retained raw lineage, and avoids
   runtime locale dependencies while leaving measurement and layout inactive.
+- Measurement-request handoff prepares 689 exact-width display-backed requests,
+  retains all source identities, defers generated page numbers, and exposes the
+  19/21-column table geometry before engine execution.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-A.
+None for closing PDF-PILOT-08B-R2C-B request preparation.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, measurement request projection,
-table geometry, text measurement, line breaking, layout, pagination, and PDF
-rendering.
+thresholds, broader reader compatibility, table projection correction, text
+measurement, line breaking, layout, pagination, and PDF rendering.
 
 ## RISK
 
@@ -568,5 +607,5 @@ rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-B` measurement-request and table-geometry
-handoff.
+Next phase: `PDF-PILOT-08B-R2C-C` report table projection and geometry
+correction before report-wide text-engine execution.

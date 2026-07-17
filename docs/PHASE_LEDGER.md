@@ -10229,3 +10229,36 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-B` measurement-request and table-geometry
 handoff.
+
+## PDF-PILOT-08B-R2C-B Measurement Request And Table Geometry Handoff
+
+Status: accepted as the exact-width request boundary before text-engine
+execution.
+
+R2C-B consumes the accepted R2A, R2B, and R2C-A fingerprints, derives an IBM
+Plex Sans Thai Regular/Bold measurement identity from registered font hashes
+and six style mappings, and converts the display overlay into exact Core
+measurement packets.
+
+The bundle computes twelve portrait Letter body widths, six authored table
+widths, and 126 cell geometries with retained `4pt` insets. It prepares 150
+document requests, 63 authored table-header requests, and 476 materialized
+collection requests, for 689 ready packets. Twelve generated page-number
+footers remain explicitly deferred. Source resolved bindings, materialized
+rows, and the authored Document v4 graph are not mutated.
+
+The new geometry evidence also finds that the exhaustive equal-width OCR and
+Native tables contain 19 and 21 columns with minimum content widths of
+`18.108579pt` and `15.622047pt`. This closes request preparation but gates
+report-wide measurement until the table presentation is revised. Shaping,
+line breaking, line boxes, layout, pagination, and rendering remain `not-run`.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_MEASUREMENT_HANDOFF_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-measurement-handoff.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-measurement-handoff-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportMeasurementHandoff.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-C` report table projection and geometry
+correction before report-wide text-engine execution.

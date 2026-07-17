@@ -1,0 +1,193 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-b-canonical-report-measurement-handoff-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-B",
+  "status": "accepted",
+  "sourceDataBundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
+  "sourceTemplateBundleFingerprint": "86f4fc3ddea01bfeba013292b09cbddb92dc7731cc07398c6c65f536ab27cf38",
+  "sourceFormattingBundleFingerprint": "e4f0411afc7d6868971019fb536146f63aa355b5a6e48c606502342bd6302e26",
+  "bundleFingerprint": "07126bb73a6c9dd7342b1fb9e33cdd696d89cb660056d237cb708118fb2f15d2",
+  "measurementProfile": {
+    "status": "stable",
+    "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+    "fontAssetIds": [
+      "ibm-plex-sans-thai-regular",
+      "ibm-plex-sans-thai-bold"
+    ],
+    "styleMappingCount": 6,
+    "shaperRevision": "0.20.1",
+    "segmenterRevision": "icu4x-planned",
+    "productionBinding": false
+  },
+  "pageGeometry": {
+    "pageSize": "Letter",
+    "widthPt": 612,
+    "heightPt": 792,
+    "bodyWidthPt": 498.614173,
+    "tableLayoutProfile": {
+      "contractVersion": 1,
+      "kind": "table-cell-layout-profile",
+      "layoutProfileId": "ocr-benchmark-report-table-layout-v1",
+      "defaultInsetsPt": {
+        "top": 4,
+        "right": 4,
+        "bottom": 4,
+        "left": 4
+      },
+      "insetsByRowTemplate": {}
+    }
+  },
+  "tableWidths": [
+    {
+      "collectionFieldKey": "report.ocr_runs",
+      "tableId": "table-ocr-runs",
+      "tableContentWidthPt": 496.062992,
+      "columnCount": 19,
+      "authoredRequestCount": 19,
+      "materializedRequestCount": 114,
+      "minimumCellContentWidthPt": 18.10857
+    },
+    {
+      "collectionFieldKey": "report.native_runs",
+      "tableId": "table-native-runs",
+      "tableContentWidthPt": 496.062992,
+      "columnCount": 21,
+      "authoredRequestCount": 21,
+      "materializedRequestCount": 126,
+      "minimumCellContentWidthPt": 15.622047
+    },
+    {
+      "collectionFieldKey": "report.mapping_fields",
+      "tableId": "table-mapping-fields",
+      "tableContentWidthPt": 496.062992,
+      "columnCount": 8,
+      "authoredRequestCount": 8,
+      "materializedRequestCount": 80,
+      "minimumCellContentWidthPt": 54.007874
+    },
+    {
+      "collectionFieldKey": "report.native_missing_concepts",
+      "tableId": "table-native-missing-concepts",
+      "tableContentWidthPt": 496.062992,
+      "columnCount": 2,
+      "authoredRequestCount": 2,
+      "materializedRequestCount": 26,
+      "minimumCellContentWidthPt": 240.031496
+    },
+    {
+      "collectionFieldKey": "report.runs",
+      "tableId": "table-runs",
+      "tableContentWidthPt": 496.062992,
+      "columnCount": 11,
+      "authoredRequestCount": 11,
+      "materializedRequestCount": 66,
+      "minimumCellContentWidthPt": 37.096632
+    },
+    {
+      "collectionFieldKey": "report.gdim_expected_fields",
+      "tableId": "table-gdim-expected-fields",
+      "tableContentWidthPt": 496.062992,
+      "columnCount": 2,
+      "authoredRequestCount": 2,
+      "materializedRequestCount": 64,
+      "minimumCellContentWidthPt": 240.031496
+    }
+  ],
+  "summary": {
+    "semanticSectionCount": 12,
+    "tableCount": 6,
+    "tableCellGeometryCount": 126,
+    "documentRequestCount": 150,
+    "authoredTableRequestCount": 63,
+    "materializedTableRequestCount": 476,
+    "totalReadyRequestCount": 689,
+    "generatedInlineDeferredBlockCount": 12,
+    "formattedDocumentBindingCount": 114,
+    "formattedCollectionBindingCount": 476,
+    "measurementProfileFontCount": 2,
+    "measurementProfileStyleMappingCount": 6,
+    "minimumCellContentWidthPt": 15.622047,
+    "maximumCellContentWidthPt": 240.031496
+  },
+  "generatedInlineDeferrals": [
+    {
+      "sectionId": "section-cover",
+      "textBlockId": "cover-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-executive-summary",
+      "textBlockId": "executive-summary-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-method",
+      "textBlockId": "method-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-ocr-accuracy",
+      "textBlockId": "ocr-accuracy-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-source-evidence",
+      "textBlockId": "source-evidence-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-native-extraction",
+      "textBlockId": "native-extraction-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-latency-cost-size",
+      "textBlockId": "latency-cost-size-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-mapping",
+      "textBlockId": "mapping-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-decision-view",
+      "textBlockId": "decision-view-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-limitations",
+      "textBlockId": "limitations-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-appendix-runs",
+      "textBlockId": "appendix-runs-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    },
+    {
+      "sectionId": "section-appendix-evidence",
+      "textBlockId": "appendix-evidence-footer-text",
+      "reason": "page-number-requires-generated-expansion"
+    }
+  ],
+  "executionGate": {
+    "status": "table-template-revision-required-before-report-wide-measurement",
+    "reason": "The exhaustive equal-width OCR and Native tables expose 19 and 21 columns with 18.108579pt and 15.622047pt minimum content widths at 9.1-9.3pt table styles.",
+    "handoffAccepted": true,
+    "textEngineExecuted": false
+  },
+  "boundary": {
+    "localeDisplayFormatting": "consumed",
+    "measurementProfileIdentity": "stable",
+    "tableGeometry": "prepared",
+    "measurementRequests": "prepared",
+    "textShaping": "not-run",
+    "lineBreaking": "not-run",
+    "lineBoxes": "not-run",
+    "layout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-C report table projection and geometry correction"
+}
