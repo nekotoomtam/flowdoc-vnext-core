@@ -18,8 +18,8 @@ export const FLOWDOC_CANONICAL_REPORT_SECTION_RECONCILIATION_VERSION = 1 as cons
 export const FLOWDOC_CANONICAL_REPORT_SECTION_RECONCILIATION_ID =
   "ocr-benchmark-report-section-reconciliation-v1" as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088"
-const ACCEPTED_VERTICAL_CAPACITY_FINGERPRINT = "b3be7cbe49177946de1f0ec7db4c9f37f08ffc66375fe03778d6825fbc7f624a"
+const ACCEPTED_PROJECTION_FINGERPRINT = "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193"
+const ACCEPTED_VERTICAL_CAPACITY_FINGERPRINT = "2321b3b26571b9bae7706418c6e2eecc7bdc1f3aae4dc04b614d78bcb4fb1586"
 const COMPOSITION_SECTION_ID = "composition-section-ocr-benchmark-report"
 
 export interface FlowDocCanonicalReportSectionReconciliationSourceInputV1 {
@@ -139,7 +139,7 @@ export interface FlowDocCanonicalReportSectionReconciliationBundleV1 {
   reconciledResolvedProjectionFingerprint: string
   coreCompositionManifest: VNextDocumentCompositionManifestV1
   fidelityGate: {
-    status: "blocked-pagination-sensitive-twelve-page-capacity"
+    status: "pagination-required-twelve-page-capacity-diagnostic"
     targetPageCount: number
     previousNaturalSectionCapacityFloorCount: number
     previousPreservedSpacingSectionCapacityCount: number
@@ -147,10 +147,12 @@ export interface FlowDocCanonicalReportSectionReconciliationBundleV1 {
     reconciledGrossSpacingCapacityCount: number
     grossDemandPt: number
     targetCapacityPt: number
+    grossCapacityDeltaPt: number
     grossOverflowAboveTargetPt: number
+    grossSlackBelowTargetPt: number
     maximumTheoreticalPageTopSuppressionPt: number
     maximumTheoreticalPaginationOverheadBudgetPt: number
-    reason: "page-top-gap-suppression-and-pagination-overhead-not-executed"
+    reason: "gross-capacity-does-not-decide-actual-page-count"
   }
   rejectedAlternatives: Array<{
     alternative:
@@ -223,7 +225,9 @@ export interface FlowDocCanonicalReportSectionReconciliationBundleV1 {
     reconciledGrossSpacingCapacityCount: number
     targetPageCount: number
     grossTargetPageDelta: number
+    grossCapacityDeltaPt: number
     grossOverflowAboveTargetPt: number
+    grossSlackBelowTargetPt: number
     maximumTheoreticalPageTopSuppressionPt: number
     maximumTheoreticalPaginationOverheadBudgetPt: number
     equivalentPageProfileCount: number
@@ -294,7 +298,7 @@ const EXPECTED_BLOCKERS: FlowDocCanonicalReportSectionReconciliationBundleV1["do
   {
     code: "twelve-page-pagination-sensitive",
     blocks: "twelve-page-fidelity",
-    message: "Twelve pages require enough page-top gap suppression to cover the gross overflow plus table and continuation overhead.",
+    message: "Gross capacity cannot decide twelve-page fidelity; Core must execute page-top suppression, table splitting, and continuation overhead.",
   },
   {
     code: "pagination-not-executed",
@@ -626,7 +630,9 @@ function buildBundle(
   const reconciledGrossSpacingPt = roundPt(plan.spacingBridgeBindings.reduce((total, item) => total + item.gapBeforePt, 0))
   const reconciledGrossDemandPt = roundPt(sourceSummary.naturalBodyHeightPt + reconciledGrossSpacingPt)
   const targetCapacityPt = roundPt(sourceSummary.targetPageCount * sourceSummary.pageBodyHeightPt)
-  const grossOverflowAboveTargetPt = roundPt(reconciledGrossDemandPt - targetCapacityPt)
+  const grossCapacityDeltaPt = roundPt(reconciledGrossDemandPt - targetCapacityPt)
+  const grossOverflowAboveTargetPt = Math.max(0, grossCapacityDeltaPt)
+  const grossSlackBelowTargetPt = Math.max(0, -grossCapacityDeltaPt)
   const pageTopCount = sourceSummary.targetPageCount - 1
   const maximumTheoreticalPageTopSuppressionPt = roundPt(plan.spacingBridgeBindings
     .map((item) => item.gapBeforePt)
@@ -634,7 +640,7 @@ function buildBundle(
     .slice(0, pageTopCount)
     .reduce((total, gap) => total + gap, 0))
   const maximumTheoreticalPaginationOverheadBudgetPt = roundPt(
-    maximumTheoreticalPageTopSuppressionPt - grossOverflowAboveTargetPt,
+    maximumTheoreticalPageTopSuppressionPt - grossCapacityDeltaPt,
   )
   const summary: FlowDocCanonicalReportSectionReconciliationBundleV1["summary"] = {
     semanticSectionCount: plan.semanticSectionBindings.length,
@@ -656,7 +662,9 @@ function buildBundle(
     reconciledGrossSpacingCapacityCount: Math.ceil(reconciledGrossDemandPt / sourceSummary.pageBodyHeightPt),
     targetPageCount: sourceSummary.targetPageCount,
     grossTargetPageDelta: Math.ceil(reconciledGrossDemandPt / sourceSummary.pageBodyHeightPt) - sourceSummary.targetPageCount,
+    grossCapacityDeltaPt,
     grossOverflowAboveTargetPt,
+    grossSlackBelowTargetPt,
     maximumTheoreticalPageTopSuppressionPt,
     maximumTheoreticalPaginationOverheadBudgetPt,
     equivalentPageProfileCount: plan.staticZoneEquivalence.sections.length,
@@ -665,13 +673,16 @@ function buildBundle(
   }
   requireFact(summary.semanticSectionStartBindingCount === 11, "semantic section-start coverage drifted")
   requireFact(summary.bodyItemCount === sourceSummary.bodyItemCount, "reconciled manifest lost body roots")
-  requireFact(summary.reconciledGrossSpacingCapacityCount === 13, "gross continuous capacity no longer exposes the pagination-sensitive target")
+  requireFact(
+    summary.reconciledGrossSpacingCapacityCount >= summary.reconciledNaturalGlobalCapacityCount,
+    "gross spacing capacity fell below natural capacity",
+  )
   requireFact(
     Number.isFinite(summary.maximumTheoreticalPaginationOverheadBudgetPt),
     "reference-page diagnostic budget is not finite",
   )
   const fidelityGate: FlowDocCanonicalReportSectionReconciliationBundleV1["fidelityGate"] = {
-    status: "blocked-pagination-sensitive-twelve-page-capacity",
+    status: "pagination-required-twelve-page-capacity-diagnostic",
     targetPageCount: summary.targetPageCount,
     previousNaturalSectionCapacityFloorCount: summary.previousNaturalSectionCapacityFloorCount,
     previousPreservedSpacingSectionCapacityCount: summary.previousPreservedSpacingSectionCapacityCount,
@@ -679,10 +690,12 @@ function buildBundle(
     reconciledGrossSpacingCapacityCount: summary.reconciledGrossSpacingCapacityCount,
     grossDemandPt: summary.reconciledGrossDemandPt,
     targetCapacityPt,
+    grossCapacityDeltaPt,
     grossOverflowAboveTargetPt,
+    grossSlackBelowTargetPt,
     maximumTheoreticalPageTopSuppressionPt,
     maximumTheoreticalPaginationOverheadBudgetPt,
-    reason: "page-top-gap-suppression-and-pagination-overhead-not-executed",
+    reason: "gross-capacity-does-not-decide-actual-page-count",
   }
   const unsigned: Omit<FlowDocCanonicalReportSectionReconciliationBundleV1, "bundleFingerprint"> = {
     contractVersion: FLOWDOC_CANONICAL_REPORT_SECTION_RECONCILIATION_VERSION,

@@ -27,9 +27,9 @@ import type { FlowDocCanonicalReportTableProjectionBundleV1 } from "./canonicalR
 export const FLOWDOC_CANONICAL_REPORT_MEASURED_COMPOSITION_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_MEASURED_COMPOSITION_ID = "ocr-benchmark-report-measured-composition-v1" as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088"
-const ACCEPTED_NATIVE_SHAPING_FINGERPRINT = "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2"
-const ACCEPTED_LINE_BREAKING_FINGERPRINT = "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a"
+const ACCEPTED_PROJECTION_FINGERPRINT = "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193"
+const ACCEPTED_NATIVE_SHAPING_FINGERPRINT = "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8"
+const ACCEPTED_LINE_BREAKING_FINGERPRINT = "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4"
 
 type AcceptedMeasuredLines = Extract<VNextTextBlockV4MeasuredLinesResult, { status: "accepted" }>
 type ReadyTextFragmentEvidence = Extract<VNextTableTextFragmentEvidenceResultV1, { status: "ready" }>

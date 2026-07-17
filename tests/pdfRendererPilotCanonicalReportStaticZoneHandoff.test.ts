@@ -69,15 +69,15 @@ describe("PDF-PILOT-08B-R2C-K canonical report static-zone handoff", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-K",
-      bundleFingerprint: "c14598e9f6d4b42b932d25b6fded3e360b69105bac0e0dc113a2b8083ef199fe",
-      planFingerprint: "sha256:7f104d2ffe88763f9cfac597c5409b09daac6b076e9cf66d813665a9d7e6b4ef",
-      sourceRawEvidenceFingerprint: "d101d82f01f3f8d6614c34d30c024d9e8af257694f7c9e77f7dd23a3a2d88109",
+      bundleFingerprint: "3a24b5807bd744392292789b4f11e1a330279cc4fa49b7516659b746365d4b91",
+      planFingerprint: "sha256:c9950e2063dc7c197b3893ac526eef1331b152e84601c36df9c545026832bfcb",
+      sourceRawEvidenceFingerprint: "98805a179de18630af0b5fbec6d25976ff1ac53d3398be75e1c8cf1ca338da8a",
       rendererHandoff: {
         scope: "page-specific-static-zones-only",
         bodyDisplayList: "pending-r2c-l",
         measuredDrawContract: {
           status: "consumable",
-          fingerprint: "sha256:43aab80634a6e921cf6e8fbd0be3caf254f334260ea5ca8a57a39985a32e4526",
+          fingerprint: "sha256:15b5d9711ce36cdaa3ba4455832df3b7f9bfb7262ae5456e01502e1bc2273a65",
           issues: [],
         },
       },
@@ -123,27 +123,27 @@ describe("PDF-PILOT-08B-R2C-K canonical report static-zone handoff", () => {
   it("places start-aligned headers and end-aligned footers inside the authored reservations", () => {
     BUNDLE.pages.forEach((page) => {
       expect(page.header.reservationBounds).toEqual({
-        xPt: 56.692913,
-        yPt: 51.023622,
-        widthPt: 498.614173,
-        heightPt: 24,
+        xPt: 72.02,
+        yPt: 20.65,
+        widthPt: 467.95,
+        heightPt: 32.22,
       })
       expect(page.footer.reservationBounds).toEqual({
-        xPt: 56.692913,
-        yPt: 716.976378,
-        widthPt: 498.614173,
+        xPt: 72.02,
+        yPt: 752.06,
+        widthPt: 467.95,
         heightPt: 24,
       })
       expect(page.header.paintBounds).toEqual({
-        xPt: 56.692913,
-        yPt: 51.023622,
+        xPt: 72.02,
+        yPt: 20.65,
         widthPt: 154.8,
         heightPt: 12,
       })
       expect(page.header.alignment).toBe("start")
       expect(page.footer.alignment).toBe("end")
-      expect(page.footer.paintBounds.xPt + page.footer.paintBounds.widthPt).toBeCloseTo(555.307086, 6)
-      expect(page.footer.paintBounds.yPt).toBe(716.976378)
+      expect(page.footer.paintBounds.xPt + page.footer.paintBounds.widthPt).toBeCloseTo(539.97, 6)
+      expect(page.footer.paintBounds.yPt).toBe(752.06)
       expect(page.header.baselineOffsetPt).toBe(10.5)
       expect(page.footer.baselineOffsetPt).toBe(10.5)
     })

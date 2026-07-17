@@ -5,19 +5,19 @@
   "status": "accepted",
   "sourceFingerprints": {
     "data": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-    "template": "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb",
-    "formatting": "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
-    "measurementHandoff": "1a2868d58fb52e62ae6d6a1002460ba81bd019b57b1d328828a89c41ef73a84f"
+    "template": "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4",
+    "formatting": "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698",
+    "measurementHandoff": "c7c4f45b061cb975e1d6b215d786b58a1976935753c93bbae8eaf463480bdd30"
   },
-  "projectionContractFingerprint": "028956cc81c16d7f29c42913ee9a154f56faaf20d5b39097fb0c73b62b066f3c",
-  "bundleFingerprint": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+  "projectionContractFingerprint": "8038892b0919734eccff3ec46feade4cde03e9e5cddd2134197aef4b93bdeeb4",
+  "bundleFingerprint": "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
   "projections": [
     {
       "collectionFieldKey": "report.ocr_runs",
       "projectionId": "ocr-run-context",
       "viewLabel": "ข้อมูลรอบ OCR",
       "tableId": "table-ocr-runs-ocr-run-context",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -60,14 +60,14 @@
       "formattedBindingCount": 36,
       "authoredRequestCount": 6,
       "materializedRequestCount": 36,
-      "minimumCellContentWidthPt": 41.606299
+      "minimumCellContentWidthPt": 38.795
     },
     {
       "collectionFieldKey": "report.ocr_runs",
       "projectionId": "ocr-confidence",
       "viewLabel": "ปริมาณข้อความและ Confidence",
       "tableId": "table-ocr-runs-ocr-confidence",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -110,14 +110,14 @@
       "formattedBindingCount": 36,
       "authoredRequestCount": 6,
       "materializedRequestCount": 36,
-      "minimumCellContentWidthPt": 61.448819
+      "minimumCellContentWidthPt": 57.513
     },
     {
       "collectionFieldKey": "report.ocr_runs",
       "projectionId": "ocr-quality",
       "viewLabel": "ความแม่นยำและข้อมูลสำคัญ",
       "tableId": "table-ocr-runs-ocr-quality",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -154,14 +154,14 @@
       "formattedBindingCount": 30,
       "authoredRequestCount": 5,
       "materializedRequestCount": 30,
-      "minimumCellContentWidthPt": 91.212598
+      "minimumCellContentWidthPt": 85.59
     },
     {
       "collectionFieldKey": "report.ocr_runs",
       "projectionId": "ocr-runtime-cost",
       "viewLabel": "เวลา ขนาดผลลัพธ์ และต้นทุน OCR",
       "tableId": "table-ocr-runs-ocr-runtime-cost",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -198,14 +198,14 @@
       "formattedBindingCount": 30,
       "authoredRequestCount": 5,
       "materializedRequestCount": 30,
-      "minimumCellContentWidthPt": 86.251968
+      "minimumCellContentWidthPt": 80.9105
     },
     {
       "collectionFieldKey": "report.native_runs",
       "projectionId": "native-run-context",
       "viewLabel": "ข้อมูลรอบ Native Extraction",
       "tableId": "table-native-runs-native-run-context",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -248,14 +248,14 @@
       "formattedBindingCount": 36,
       "authoredRequestCount": 6,
       "materializedRequestCount": 36,
-      "minimumCellContentWidthPt": 41.606299
+      "minimumCellContentWidthPt": 38.795
     },
     {
       "collectionFieldKey": "report.native_runs",
       "projectionId": "native-confidence",
       "viewLabel": "ปริมาณข้อความและ Confidence",
       "tableId": "table-native-runs-native-confidence",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -298,14 +298,14 @@
       "formattedBindingCount": 36,
       "authoredRequestCount": 6,
       "materializedRequestCount": 36,
-      "minimumCellContentWidthPt": 61.448819
+      "minimumCellContentWidthPt": 57.513
     },
     {
       "collectionFieldKey": "report.native_runs",
       "projectionId": "native-structure-inventory",
       "viewLabel": "โครงสร้างที่ตรวจพบ",
       "tableId": "table-native-runs-native-structure-inventory",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -336,14 +336,14 @@
       "formattedBindingCount": 24,
       "authoredRequestCount": 4,
       "materializedRequestCount": 24,
-      "minimumCellContentWidthPt": 101.133858
+      "minimumCellContentWidthPt": 94.949
     },
     {
       "collectionFieldKey": "report.native_runs",
       "projectionId": "native-structure-coverage",
       "viewLabel": "Coverage ของข้อมูลเชิงโครงสร้าง",
       "tableId": "table-native-runs-native-structure-coverage",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -374,14 +374,14 @@
       "formattedBindingCount": 24,
       "authoredRequestCount": 4,
       "materializedRequestCount": 24,
-      "minimumCellContentWidthPt": 116.015748
+      "minimumCellContentWidthPt": 108.9875
     },
     {
       "collectionFieldKey": "report.native_runs",
       "projectionId": "native-runtime-cost",
       "viewLabel": "เวลา ขนาดผลลัพธ์ และต้นทุน Native",
       "tableId": "table-native-runs-native-runtime-cost",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -418,14 +418,14 @@
       "formattedBindingCount": 30,
       "authoredRequestCount": 5,
       "materializedRequestCount": 30,
-      "minimumCellContentWidthPt": 86.251968
+      "minimumCellContentWidthPt": 80.9105
     },
     {
       "collectionFieldKey": "report.mapping_fields",
       "projectionId": "mapping-comparison",
       "viewLabel": "ผล Mapping เทียบค่าที่คาดหวัง",
       "tableId": "table-mapping-fields-mapping-comparison",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -462,14 +462,14 @@
       "formattedBindingCount": 50,
       "authoredRequestCount": 5,
       "materializedRequestCount": 50,
-      "minimumCellContentWidthPt": 61.448819
+      "minimumCellContentWidthPt": 57.513
     },
     {
       "collectionFieldKey": "report.mapping_fields",
       "projectionId": "mapping-evidence",
       "viewLabel": "หลักฐานที่ใช้ Mapping",
       "tableId": "table-mapping-fields-mapping-evidence",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -506,14 +506,14 @@
       "formattedBindingCount": 50,
       "authoredRequestCount": 5,
       "materializedRequestCount": 50,
-      "minimumCellContentWidthPt": 41.606299
+      "minimumCellContentWidthPt": 38.795
     },
     {
       "collectionFieldKey": "report.native_missing_concepts",
       "projectionId": "native-missing-concepts",
       "viewLabel": "Concept ที่ Native Extraction ยังไม่พบ",
       "tableId": "table-native-missing-concepts-native-missing-concepts",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "engine",
@@ -532,14 +532,14 @@
       "formattedBindingCount": 26,
       "authoredRequestCount": 2,
       "materializedRequestCount": 26,
-      "minimumCellContentWidthPt": 140.818898
+      "minimumCellContentWidthPt": 132.385
     },
     {
       "collectionFieldKey": "report.runs",
       "projectionId": "run-status",
       "viewLabel": "สถานะและความถูกต้องของ Run",
       "tableId": "table-runs-run-status",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "round",
@@ -582,14 +582,14 @@
       "formattedBindingCount": 36,
       "authoredRequestCount": 6,
       "materializedRequestCount": 36,
-      "minimumCellContentWidthPt": 41.606299
+      "minimumCellContentWidthPt": 38.795
     },
     {
       "collectionFieldKey": "report.runs",
       "projectionId": "run-engines-pages",
       "viewLabel": "Engine และจำนวนหน้าต่อ Run",
       "tableId": "table-runs-run-engines-pages",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "run_id",
@@ -632,14 +632,14 @@
       "formattedBindingCount": 36,
       "authoredRequestCount": 6,
       "materializedRequestCount": 36,
-      "minimumCellContentWidthPt": 41.606299
+      "minimumCellContentWidthPt": 38.795
     },
     {
       "collectionFieldKey": "report.gdim_expected_fields",
       "projectionId": "gdim-expected-fields",
       "viewLabel": "ฟิลด์ GDIM ที่คาดหวัง",
       "tableId": "table-gdim-expected-fields-gdim-expected-fields",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columns": [
         {
           "fieldKey": "schema_path",
@@ -658,7 +658,7 @@
       "formattedBindingCount": 64,
       "authoredRequestCount": 2,
       "materializedRequestCount": 64,
-      "minimumCellContentWidthPt": 190.425197
+      "minimumCellContentWidthPt": 179.18
     }
   ],
   "geometryGate": {
@@ -667,9 +667,9 @@
     "projectedTableCount": 15,
     "sourceMaximumColumnCount": 21,
     "projectedMaximumColumnCount": 6,
-    "sourceMinimumCellContentWidthPt": 15.622047,
-    "projectedMinimumCellContentWidthPt": 41.606299,
-    "tableWidthMm": 175,
+    "sourceMinimumCellContentWidthPt": 14.283333,
+    "projectedMinimumCellContentWidthPt": 38.795,
+    "tableWidthPt": 467.95,
     "minimumColumnWidthShare": 10,
     "sourceCollectionContractMutation": false
   },
@@ -691,9 +691,9 @@
     "materializedTableRequestCount": 544,
     "totalReadyRequestCount": 794,
     "generatedInlineDeferredBlockCount": 12,
-    "minimumCellContentWidthPt": 41.606299,
-    "maximumCellContentWidthPt": 339.244094,
-    "sourceMinimumCellContentWidthPt": 15.622047
+    "minimumCellContentWidthPt": 38.795,
+    "maximumCellContentWidthPt": 319.565,
+    "sourceMinimumCellContentWidthPt": 14.283333
   },
   "boundary": {
     "tableProjection": "projected",

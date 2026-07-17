@@ -10731,3 +10731,39 @@ Primary evidence:
 Next phase: `PDF-PILOT-08B-R2C-P` measured static-zone and
 section-composition calibration without deleting source-backed evidence or
 imposing a page count.
+
+## PDF-PILOT-08B-R2C-P Static and Section Calibration
+
+Status: measured static-zone geometry and semantic section composition
+accepted; visual fidelity and production binding remain rejected.
+
+R2C-P replaces generic page margins with a measured Letter frame derived from
+the pinned reference envelope and font offsets. The accepted body is
+`x=72.02pt`, `y=52.87pt`, `467.95 x 699.19pt`, with `32.22pt` header and `24pt`
+footer reservations. Relative to R2C-O, header-envelope error changes from
+30.37pt to zero, footer error from 34.70pt to 0.39pt, body-left error from
+15.33pt to zero, and body-top error from 22.15pt to 1.54pt.
+
+Reader labels and summaries become explicit layout categories. Four measured
+adjacency rules preserve 12pt body-to-label, 6pt label-to-summary, 3pt summary
+stacking, and 12pt summary-to-body gaps. The same body width constrains text,
+Tables, and images before measurement. The complete body-command envelope is
+`72.02..539.97pt`, so horizontal overflow is zero without post-layout
+translation.
+
+The regenerated artifact contains 185 body roots, 189 placements, 15 Tables,
+five images, and zero missing glyphs. Core still returns 13 pages, including a
+178pt terminal Table continuation. R2C-N's content-driven page-count decision
+remains authoritative; R2C-P does not delete evidence or force 12 pages.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_STATIC_SECTION_CALIBRATION_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-static-section-calibration.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-summary.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-13-page-qa.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
+- `tests/pdfRendererPilotCanonicalStaticSectionCalibration.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-Q` measured callout treatment and region-aware
+visual thresholds without post-layout patches or source-evidence deletion.

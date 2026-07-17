@@ -47,23 +47,23 @@ describe("PDF-PILOT-08B-R2C-F canonical report measured composition", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-F",
-      sourceProjectionFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
-      sourceNativeShapingFingerprint: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
-      sourceLineBreakingFingerprint: "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
-      planFingerprint: "83d1db1a674dc34cde6e2df18cd5524c7693fb12c79482970c3943e76616bf6a",
-      bundleFingerprint: "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
+      sourceProjectionFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+      sourceNativeShapingFingerprint: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+      sourceLineBreakingFingerprint: "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
+      planFingerprint: "7d03614b2714f3267483f0c038b1e69c1b908bb76943665d8c53e9960a56c6a9",
+      bundleFingerprint: "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
       summary: {
         sourceConsumerCount: 794,
         coreAcceptedConsumerCount: 794,
-        coreAcceptedLineCount: 847,
+        coreAcceptedLineCount: 852,
         documentBlockCount: 177,
         documentBlockLineCount: 183,
         fixedImageBlockCount: 5,
         preparedTableCount: 15,
         preparedRowCount: 146,
         preparedCellCount: 617,
-        tableTextLineCandidateCount: 664,
-        multiLineTableCellCount: 47,
+        tableTextLineCandidateCount: 669,
+        multiLineTableCellCount: 50,
         emptyLineTableCellCount: 1,
         flowNodeCount: 209,
         readyFlowNodeCount: 197,
@@ -73,10 +73,10 @@ describe("PDF-PILOT-08B-R2C-F canonical report measured composition", () => {
         footerDeferredFlowNodeCount: 12,
         naturalDocumentBlockHeightPt: 2773,
         naturalFixedImageHeightPt: 1182.047243,
-        naturalTableHeightPt: 3240,
-        naturalReadyFlowHeightWithoutSpacingPt: 7195.047243,
+        naturalTableHeightPt: 3295,
+        naturalReadyFlowHeightWithoutSpacingPt: 7250.047243,
         minimumNaturalRowHeightPt: 19,
-        maximumNaturalRowHeightPt: 30,
+        maximumNaturalRowHeightPt: 41,
       },
     })
   }, 60_000)
@@ -117,11 +117,11 @@ describe("PDF-PILOT-08B-R2C-F canonical report measured composition", () => {
       fit: image.fit,
       align: image.align,
     }))).toEqual([
-      { sectionId: "section-cover", assetId: "source-evidence-image", widthPt: 481.889764, heightPt: 297.637795, fit: "contain", align: "center" },
-      { sectionId: "section-ocr-accuracy", assetId: "ocr-accuracy-image", widthPt: 481.889764, heightPt: 221.102362, fit: "contain", align: "center" },
-      { sectionId: "section-native-extraction", assetId: "native-extraction-image", widthPt: 481.889764, heightPt: 221.102362, fit: "contain", align: "center" },
-      { sectionId: "section-latency-cost-size", assetId: "latency-rounds-image", widthPt: 481.889764, heightPt: 221.102362, fit: "contain", align: "center" },
-      { sectionId: "section-mapping", assetId: "mapping-gap-image", widthPt: 481.889764, heightPt: 221.102362, fit: "contain", align: "center" },
+      { sectionId: "section-cover", assetId: "source-evidence-image", widthPt: 467.95, heightPt: 297.637795, fit: "contain", align: "center" },
+      { sectionId: "section-ocr-accuracy", assetId: "ocr-accuracy-image", widthPt: 467.95, heightPt: 221.102362, fit: "contain", align: "center" },
+      { sectionId: "section-native-extraction", assetId: "native-extraction-image", widthPt: 467.95, heightPt: 221.102362, fit: "contain", align: "center" },
+      { sectionId: "section-latency-cost-size", assetId: "latency-rounds-image", widthPt: 467.95, heightPt: 221.102362, fit: "contain", align: "center" },
+      { sectionId: "section-mapping", assetId: "mapping-gap-image", widthPt: 467.95, heightPt: 221.102362, fit: "contain", align: "center" },
     ])
     expect(BUNDLE.fixedImageBlocks.every((image) => (
       image.assetOwner === "instance-media" && image.naturalHeightPt === image.heightPt

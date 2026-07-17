@@ -33,6 +33,18 @@ import type { FlowDocCanonicalReportDataBundleV1 } from "./canonicalReportDataAd
 
 export const FLOWDOC_CANONICAL_REPORT_TEMPLATE_RESOLUTION_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_TEMPLATE_ID = "ocr-benchmark-canonical-report-template-v1" as const
+export const FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1 = {
+  source: "reference-pdf-envelope-plus-measured-font-offsets-v1",
+  marginPt: { top: 20.65, right: 72.03, bottom: 15.94, left: 72.02 },
+  headerReservedPt: 32.22,
+  footerReservedPt: 24,
+  expectedBodyGeometryPt: {
+    originX: 72.02,
+    originY: 52.87,
+    width: 467.95,
+    height: 699.19,
+  },
+} as const
 const ACCEPTED_SOURCE_DATA_BUNDLE_FINGERPRINT = "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d"
 
 const SECTION_SPECS = [
@@ -165,6 +177,10 @@ function slug(value: string): string {
 
 function mm(value: number): { value: number; unit: "mm" } {
   return { value, unit: "mm" }
+}
+
+function pt(value: number): { value: number; unit: "pt" } {
+  return { value, unit: "pt" }
 }
 
 function requireFact(condition: unknown, message: string): asserts condition {
@@ -340,7 +356,7 @@ function narrativeBlock(
   return {
     id,
     type: "text-block",
-    role: { role: "paragraph" },
+    role: { role: "note" },
     props: { textStyleId: "report-body" },
     children: parts.map((part, index) => {
       if (part.kind === "text") {
@@ -511,7 +527,9 @@ function tableGraph(
     id: tableId,
     type: "table",
     props: { headerRowCount: 1, repeatHeaderRows: true, align: "left" },
-    columns: itemFields.map(() => ({ width: mm(175 / itemFields.length) })),
+    columns: itemFields.map(() => ({
+      width: pt(FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.expectedBodyGeometryPt.width / itemFields.length),
+    })),
     rowIds: [headerRowId, bodyRowId],
   })
 
@@ -627,7 +645,14 @@ function buildTemplate(bundle: FlowDocCanonicalReportDataBundleV1): {
           type: "image",
           source: { kind: "image-field-ref", fieldKey: key },
           accessibility: { kind: "described", altText: definition.label },
-          props: { frame: { width: mm(170), height: mm(key.endsWith("source_evidence") ? 105 : 78), fit: "contain" }, align: "center" },
+          props: {
+            frame: {
+              width: pt(FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.expectedBodyGeometryPt.width),
+              height: mm(key.endsWith("source_evidence") ? 105 : 78),
+              fit: "contain",
+            },
+            align: "center",
+          },
         }))
       } else {
         bodyChildIds.push(addNode(nodes, fieldBlock(`${sectionId}-field-${slug(key)}`, key, definition.label)))
@@ -656,9 +681,14 @@ function buildTemplate(bundle: FlowDocCanonicalReportDataBundleV1): {
       page: {
         size: "Letter" as const,
         orientation: "portrait" as const,
-        margin: { top: mm(18), right: mm(20), bottom: mm(18), left: mm(20) },
-        headerReserved: 24,
-        footerReserved: 24,
+        margin: {
+          top: pt(FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.marginPt.top),
+          right: pt(FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.marginPt.right),
+          bottom: pt(FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.marginPt.bottom),
+          left: pt(FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.marginPt.left),
+        },
+        headerReserved: FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.headerReservedPt,
+        footerReserved: FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.footerReservedPt,
         headerFooterHorizontalMode: "body" as const,
         ...(sectionIndex === 0 ? { pageNumberStart: 1 } : {}),
       },

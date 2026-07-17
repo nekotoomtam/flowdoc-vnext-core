@@ -4,19 +4,19 @@
   "phaseId": "PDF-PILOT-08B-R2C-K",
   "status": "accepted-actual-page-numbers-and-static-zone-renderer-handoff-body-pending",
   "sourceFingerprints": {
-    "projection": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
-    "nativeShaping": "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
-    "lineBreaking": "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
-    "measuredComposition": "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
-    "paginationInputs": "1980d9fd60f684e49213348120c625b889bcad03c1dbab03e4860d347349f0f4",
-    "paginationExecution": "bf6024cef64a0f7a25c6b8acdf442f552642cde3396905efcddcd3d5f5f003c5",
-    "pagePlan": "sha256:90b2678a79b67ad8a7142a94a975ffda538a07c50aa24e4c0179dcd0bf81ddd2",
+    "projection": "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+    "nativeShaping": "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+    "lineBreaking": "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
+    "measuredComposition": "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
+    "paginationInputs": "73e19092ffa8b203e2aa0fb73463bcb882dcc9b83c652969aad7ed0ef39eb724",
+    "paginationExecution": "f22854d8cb99e451f9c8b29c977f822a9e44fc8afd345d50087a77a0c94a83d0",
+    "pagePlan": "sha256:0dffaba9fe75bad851f080b1ffec049388622881ad20f73d391819a20538da65",
     "fontManifest": "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077",
-    "rawEvidence": "d101d82f01f3f8d6614c34d30c024d9e8af257694f7c9e77f7dd23a3a2d88109"
+    "rawEvidence": "98805a179de18630af0b5fbec6d25976ff1ac53d3398be75e1c8cf1ca338da8a"
   },
-  "planFingerprint": "sha256:7f104d2ffe88763f9cfac597c5409b09daac6b076e9cf66d813665a9d7e6b4ef",
-  "bundleFingerprint": "c14598e9f6d4b42b932d25b6fded3e360b69105bac0e0dc113a2b8083ef199fe",
-  "measuredDrawContractFingerprint": "sha256:43aab80634a6e921cf6e8fbd0be3caf254f334260ea5ca8a57a39985a32e4526",
+  "planFingerprint": "sha256:c9950e2063dc7c197b3893ac526eef1331b152e84601c36df9c545026832bfcb",
+  "bundleFingerprint": "3a24b5807bd744392292789b4f11e1a330279cc4fa49b7516659b746365d4b91",
+  "measuredDrawContractFingerprint": "sha256:15b5d9711ce36cdaa3ba4455832df3b7f9bfb7262ae5456e01502e1bc2273a65",
   "placementPolicy": {
     "policyId": "canonical-report-static-zone-placement-v1",
     "headerHorizontalAlignment": "start",
@@ -53,21 +53,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 1",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:b46de0d17eb6d6d3da5b4b8b8f9a0f54339e50dcdd5cda2529fb8f649dc36113",
-      "pageFingerprint": "sha256:aec284db51828d0eba7f63670bc32a003b658130ce73c6625233f143f47a7b12"
+      "pageFingerprint": "sha256:7d54949cf6ad6373f0c5d39e7fab44401c4a502c930a3f6593c8f7ca0bcb95cf"
     },
     {
       "pageIndex": 1,
@@ -75,21 +75,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 2",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:57bf7bd56da5a43f20da42189e197cbc6507aca0a61b95124c7505f9233a36eb",
-      "pageFingerprint": "sha256:d360e9826969c37617fb30c1d99793b7e52d84ce6c1d2de888df5fa99ec6a32c"
+      "pageFingerprint": "sha256:251fddedcf5cc7b56f89c835f545d46381a45dc6fe007ca4734b6de2fcc010ac"
     },
     {
       "pageIndex": 2,
@@ -97,21 +97,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 3",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:dd2e0a047d5a0264bcb2e6a01447da6d64b0f0fd45a5fdef23e19c79ea8f7390",
-      "pageFingerprint": "sha256:9b6f227bd7a472ba2140170bf504c112fd075610c79970f94935eda683067afd"
+      "pageFingerprint": "sha256:c538ead01613e089a6f0a2f7227e558c58622c382ee2fd3e6b18e4bbaec8b2f1"
     },
     {
       "pageIndex": 3,
@@ -119,21 +119,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 4",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:9ec1c4b75eea0515a9cb38e417ba609528abaeaa951408da89a886e2f7e37828",
-      "pageFingerprint": "sha256:49c4d748bcea3828552fb4ac2e4f08517de069cedecbde8b16d2b8ce43430b4e"
+      "pageFingerprint": "sha256:e84af2b8af00d27b43f3c71dc392e2c674eb41e10066b9890b4c40ce38d0dc29"
     },
     {
       "pageIndex": 4,
@@ -141,21 +141,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 5",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:d490b7029d21eaf969e6322beca601e956c2dd190bae430f27e239a8d10465bd",
-      "pageFingerprint": "sha256:175c80721ad4f47a74a2b025fefafbb50453cc37f0063c015b3ec968c6533e0d"
+      "pageFingerprint": "sha256:8912950b257e29fae537b107c3a8c328c6d2137c061c842d42a8909f41e18ede"
     },
     {
       "pageIndex": 5,
@@ -163,21 +163,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 6",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:1166d55b5b4cb97e6e1b6b40d53ea0d2a9bb433455ae40d3c179f8ac094add27",
-      "pageFingerprint": "sha256:481e7743c3c3df272481cd7e6e62b24aa5729af1a1dd62e517c461a29d1e912a"
+      "pageFingerprint": "sha256:681af21207aff6704e482552b1d75e57f1285cd79442a5daec78c98b7d1556ea"
     },
     {
       "pageIndex": 6,
@@ -185,21 +185,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 7",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:b91a4b56a5f14fddf53b1433f9d17dbc1b7bf7f90a7a2bd389b67c52c51f071c",
-      "pageFingerprint": "sha256:48a54c3308738414adee8fe18e170cd6f6b71b3c316b8037594e790b640d5f29"
+      "pageFingerprint": "sha256:55d11d43caa9d23a444ab028eb0df2482159675a0880ed2303f3d86abdeae0b6"
     },
     {
       "pageIndex": 7,
@@ -207,21 +207,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 8",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:97a6dfef6747e9a661115a53d76c74f9f3e98649da722f116cc1d0b06b9fbb6b",
-      "pageFingerprint": "sha256:973f6cac06acec42e99626a7832c76bcd33d2229c74813595259ea340e617f27"
+      "pageFingerprint": "sha256:24345b3ca15837b90a2ff8516e7f3f9b66a1baad2df1ae858b50e1b6b44f571d"
     },
     {
       "pageIndex": 8,
@@ -229,21 +229,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 9",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 442.987086,
-        "yPt": 716.976378,
+        "xPt": 427.65,
+        "yPt": 752.06,
         "widthPt": 112.32,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 25,
       "footerMeasurementFingerprint": "sha256:66e346c3271164d28ab4a7c9f3535b00efbe8209c287fb5e54c15f562216f70a",
-      "pageFingerprint": "sha256:b0dcc430d6f3c0b99e5e0ae630ad177fc3e2953882c4df5782da7c41dfc12ee5"
+      "pageFingerprint": "sha256:268a0476e5dcf3260d1a85cd8ec095290134f60ff4b673ceefd28b49f1fbec2e"
     },
     {
       "pageIndex": 9,
@@ -251,21 +251,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 10",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 437.587086,
-        "yPt": 716.976378,
+        "xPt": 422.25,
+        "yPt": 752.06,
         "widthPt": 117.72,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 26,
       "footerMeasurementFingerprint": "sha256:b4d371489a51fe1d150bd09498761d2543e6ef05f0da4c680e333a08c53ebfa1",
-      "pageFingerprint": "sha256:cad35b6020a6aaa337eb4b1bc10ff50601f6e60d15a14327df75663334a9f892"
+      "pageFingerprint": "sha256:79f5000def467971fee1e0321de227ccbb644777025e4dc11e64f120c2133d43"
     },
     {
       "pageIndex": 10,
@@ -273,21 +273,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 11",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 437.587086,
-        "yPt": 716.976378,
+        "xPt": 422.25,
+        "yPt": 752.06,
         "widthPt": 117.72,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 26,
       "footerMeasurementFingerprint": "sha256:4bb997deed1951b2657d302b816c6499ced450adac56de41c2d5abd68763ef81",
-      "pageFingerprint": "sha256:3d1ae7cc57aa213ced0665e63b4a76477d33babfc63f94c5710fee655d5f2104"
+      "pageFingerprint": "sha256:8b0f916e2661b6dd39e7e8a01758f43c6a975e356f85a086dc360eb24b03c62f"
     },
     {
       "pageIndex": 11,
@@ -295,21 +295,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 12",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 437.587086,
-        "yPt": 716.976378,
+        "xPt": 422.25,
+        "yPt": 752.06,
         "widthPt": 117.72,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 26,
       "footerMeasurementFingerprint": "sha256:447aefbc08abc1429de2637b831928409eb19c4460028fd4888756c72afba05d",
-      "pageFingerprint": "sha256:c1f2a74f5c1b4ec1feda5669bd92153f72ac408efef9dee8e006ea1eac23b825"
+      "pageFingerprint": "sha256:6971cc4a9ef24986f39ec3c2cd6f9e25e217ef186724ac79e3bf801e32afb079"
     },
     {
       "pageIndex": 12,
@@ -317,21 +317,21 @@
       "headerText": "OCR BENCHMARK | INV_9437125258",
       "footerText": "รายงานผลการทดสอบ | หน้า 13",
       "headerBounds": {
-        "xPt": 56.692913,
-        "yPt": 51.023622,
+        "xPt": 72.02,
+        "yPt": 20.65,
         "widthPt": 154.8,
         "heightPt": 12
       },
       "footerBounds": {
-        "xPt": 437.587086,
-        "yPt": 716.976378,
+        "xPt": 422.25,
+        "yPt": 752.06,
         "widthPt": 117.72,
         "heightPt": 12
       },
       "headerGlyphCount": 30,
       "footerGlyphCount": 26,
       "footerMeasurementFingerprint": "sha256:2dc952e2f7c54f2a9a48c5150bc205312e025bf6b524f6217557d10a5b3d82f2",
-      "pageFingerprint": "sha256:0296eb06ca36d82ac8445af93c4db2e55a0db20948db9e0cd19cd6d6d0b14381"
+      "pageFingerprint": "sha256:c6bb0ffeca68b393a55e33123811d4008521df326bc8350948871f071b63574a"
     }
   ],
   "executionGate": {

@@ -4,9 +4,9 @@
   "phaseId": "PDF-PILOT-08B-R2C-A",
   "status": "accepted",
   "sourceDataBundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-  "sourceTemplateBundleFingerprint": "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb",
-  "resolutionInputFingerprint": "report-resolution-7e7f208c6ac5dfa00fdf4972",
-  "bundleFingerprint": "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
+  "sourceTemplateBundleFingerprint": "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4",
+  "resolutionInputFingerprint": "report-resolution-73c8712e05099a9c658e07af",
+  "bundleFingerprint": "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698",
   "locale": {
     "localeId": "th-TH",
     "numberSystem": "latn",

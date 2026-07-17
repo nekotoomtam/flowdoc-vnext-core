@@ -954,6 +954,11 @@ The package must remain runnable without any parent editor checkout.
   audit density, and repaginates through Core to an unchanged 13-page result.
   Visual fidelity remains rejected pending static-zone and section-composition
   calibration.
+- PDF canonical static and section calibration aligns the measured header,
+  footer, and body frame to the pinned reference envelope, keeps every body
+  command inside the 467.95pt content width, and composes reader summaries
+  through explicit semantic spacing. The source-backed result remains 13 pages;
+  callout treatment and visual parity remain downstream.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

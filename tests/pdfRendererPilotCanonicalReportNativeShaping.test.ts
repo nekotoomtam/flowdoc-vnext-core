@@ -62,10 +62,10 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-D",
-      sourceProjectionFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
-      sourceRawEvidenceFingerprint: "563924d99e0be7764a9da33a0133305054410c285aad79e874a657491bcd000b",
-      planFingerprint: "dd293ec3c163ab20213873eb450a177f9a35ff0b961a66284e19f44136879eed",
-      bundleFingerprint: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
+      sourceProjectionFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+      sourceRawEvidenceFingerprint: "8f8441754fd6fb4256bc37ffd30d21cdcf15f80e445bc9a9f05f751dc579548c",
+      planFingerprint: "269d682d22288f26a951d942787a659fad1edfee90b8459340900414120cdadb",
+      bundleFingerprint: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
       profileBinding: {
         status: "bound-native-shaping-only",
         shaperEngine: "rustybuzz",
@@ -81,7 +81,7 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
         emptyRunCount: 1,
         nativeShapeRunCount: 945,
         localBoldOverrideRunCount: 2,
-        uniqueMeasurementVariantCount: 424,
+        uniqueMeasurementVariantCount: 421,
         uniqueShapeExecutionCount: 462,
         deduplicatedShapeRunCount: 483,
         styleBindingCount: 6,
@@ -166,7 +166,7 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
 
   it("keeps consumer, measurement, and shaping cache identities complete and separate", () => {
     expect(new Set(BUNDLE.consumers.map((consumer) => consumer.consumerId)).size).toBe(794)
-    expect(new Set(BUNDLE.measurementVariants.map((variant) => variant.measurementVariantId)).size).toBe(424)
+    expect(new Set(BUNDLE.measurementVariants.map((variant) => variant.measurementVariantId)).size).toBe(421)
     expect(new Set(BUNDLE.shapeExecutions.map((execution) => execution.shapeRequest.shapeRequestId)).size).toBe(462)
     const measurementIds = new Set(BUNDLE.measurementVariants.map((variant) => variant.measurementVariantId))
     const shapeIds = new Set(BUNDLE.shapeExecutions.map((execution) => execution.shapeRequest.shapeRequestId))

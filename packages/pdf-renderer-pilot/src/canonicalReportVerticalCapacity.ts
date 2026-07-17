@@ -17,14 +17,16 @@ export const FLOWDOC_CANONICAL_REPORT_VERTICAL_CAPACITY_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_VERTICAL_CAPACITY_ID = "ocr-benchmark-report-vertical-capacity-v1" as const
 export const FLOWDOC_CANONICAL_REPORT_TARGET_PAGE_COUNT = 12 as const
 
-const ACCEPTED_PROJECTION_FINGERPRINT = "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088"
-const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028"
+const ACCEPTED_PROJECTION_FINGERPRINT = "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193"
+const ACCEPTED_MEASURED_COMPOSITION_FINGERPRINT = "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a"
 const LETTER_PORTRAIT_PT = { width: 612, height: 792 } as const
 
 export type FlowDocCanonicalReportSpacingCategoryV1 =
   | "report-title"
   | "section-heading"
   | "report-body"
+  | "reader-label"
+  | "reader-summary"
   | "table-label"
   | "prepared-table"
   | "fixed-image"
@@ -42,11 +44,11 @@ export interface FlowDocCanonicalReportSpacingRuleV1 {
   basisLineHeightPt: number
   multiplier: number
   gapBeforePt: number
-  provenance: "accepted-r2c-e-line-height-ratio"
+  provenance: "accepted-r2c-p-semantic-role-and-line-height-ratio"
 }
 
 export interface FlowDocCanonicalReportSpacingProfileV1 {
-  profileId: "ocr-benchmark-report-flow-spacing-v1"
+  profileId: "ocr-benchmark-report-flow-spacing-v2"
   collapsePolicy: "exact-adjacency-rule-no-margin-collapse"
   pageTopPolicy: "suppress-before-first-fragment"
   lineHeightBindings: Array<{
@@ -274,6 +276,10 @@ const SPACING_RULE_DEFINITIONS: Array<{
   { ruleId: "report-title-to-body", previousCategory: "report-title", currentCategory: "report-body", basisStyleKey: "report-body", multiplier: 1 },
   { ruleId: "section-heading-to-body", previousCategory: "section-heading", currentCategory: "report-body", basisStyleKey: "section-heading", multiplier: 0.5 },
   { ruleId: "body-stack", previousCategory: "report-body", currentCategory: "report-body", basisStyleKey: "report-body", multiplier: 0.2 },
+  { ruleId: "body-to-reader-label", previousCategory: "report-body", currentCategory: "reader-label", basisStyleKey: "report-body", multiplier: 0.8 },
+  { ruleId: "reader-label-to-summary", previousCategory: "reader-label", currentCategory: "reader-summary", basisStyleKey: "report-body", multiplier: 0.4 },
+  { ruleId: "reader-summary-stack", previousCategory: "reader-summary", currentCategory: "reader-summary", basisStyleKey: "report-body", multiplier: 0.2 },
+  { ruleId: "reader-summary-to-body", previousCategory: "reader-summary", currentCategory: "report-body", basisStyleKey: "report-body", multiplier: 0.8 },
   { ruleId: "body-to-image", previousCategory: "report-body", currentCategory: "fixed-image", basisStyleKey: "report-caption", multiplier: 1 },
   { ruleId: "image-to-table-label", previousCategory: "fixed-image", currentCategory: "table-label", basisStyleKey: "table-header", multiplier: 1 },
   { ruleId: "body-to-table-label", previousCategory: "report-body", currentCategory: "table-label", basisStyleKey: "table-header", multiplier: 1 },
@@ -413,11 +419,11 @@ function spacingProfile(
       ...definition,
       basisLineHeightPt,
       gapBeforePt: roundPt(basisLineHeightPt * definition.multiplier),
-      provenance: "accepted-r2c-e-line-height-ratio",
+      provenance: "accepted-r2c-p-semantic-role-and-line-height-ratio",
     }
   })
   return {
-    profileId: "ocr-benchmark-report-flow-spacing-v1",
+    profileId: "ocr-benchmark-report-flow-spacing-v2",
     collapsePolicy: "exact-adjacency-rule-no-margin-collapse",
     pageTopPolicy: "suppress-before-first-fragment",
     lineHeightBindings,
@@ -440,6 +446,8 @@ function categoryFor(
   requireFact(entry.kind === "measured-text-block" && node?.type === "text-block", `unsupported ready body root: ${entry.nodeId}`)
   if (node.props.textStyleId === "report-title") return "report-title"
   if (node.props.textStyleId === "section-heading") return "section-heading"
+  if (node.props.textStyleId === "report-body" && node.role.role === "label") return "reader-label"
+  if (node.props.textStyleId === "report-body" && node.role.role === "note") return "reader-summary"
   if (node.props.textStyleId === "report-body") return "report-body"
   if (node.props.textStyleId === "table-header" && node.role.role === "label") return "table-label"
   throw new Error(`unsupported body text category: ${entry.nodeId}:${node.props.textStyleId ?? "none"}`)

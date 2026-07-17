@@ -4,17 +4,17 @@
   "phaseId": "PDF-PILOT-08B-R2C-M",
   "status": "accepted-pdf-structural-proof-visual-fidelity-pending",
   "artifact": {
-    "sha256": "91787999d2e2711293d4adc1bafcceba610201b934212f0d7b22cc96ea703041",
-    "bytes": 1223440,
+    "sha256": "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a",
+    "bytes": 1212504,
     "pageCount": 13,
     "pdfVersion": "%PDF-1.7",
     "strictParserAccepted": true,
     "trailerRootPresent": true
   },
   "source": {
-    "bundleFingerprint": "ab21f6dab062eea2950587be2ac5bfbbda65d3e9a31206701793d46a0ac6aacc",
-    "contractFingerprint": "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
-    "rendererArtifactSha256": "91787999d2e2711293d4adc1bafcceba610201b934212f0d7b22cc96ea703041"
+    "bundleFingerprint": "18f4e7a322e6af1d4073dd4de277a3fb4d9d64905eac50c160c3cb7faebfa084",
+    "contractFingerprint": "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
+    "rendererArtifactSha256": "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a"
   },
   "pageTree": {
     "pageCount": 13,
@@ -26,8 +26,8 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 1,
-        "extractedCharacterCount": 671,
-        "glyphRunOperatorCount": 28,
+        "extractedCharacterCount": 848,
+        "glyphRunOperatorCount": 38,
         "strokeLineOperatorCount": 0
       },
       {
@@ -36,8 +36,8 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1583,
-        "glyphRunOperatorCount": 73,
+        "extractedCharacterCount": 1563,
+        "glyphRunOperatorCount": 70,
         "strokeLineOperatorCount": 0
       },
       {
@@ -46,9 +46,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 1,
-        "extractedCharacterCount": 908,
-        "glyphRunOperatorCount": 95,
-        "strokeLineOperatorCount": 90
+        "extractedCharacterCount": 945,
+        "glyphRunOperatorCount": 119,
+        "strokeLineOperatorCount": 123
       },
       {
         "pageNumber": 4,
@@ -56,29 +56,29 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1548,
-        "glyphRunOperatorCount": 105,
-        "strokeLineOperatorCount": 76
+        "extractedCharacterCount": 1863,
+        "glyphRunOperatorCount": 94,
+        "strokeLineOperatorCount": 51
       },
       {
         "pageNumber": 5,
         "widthPt": 612.0,
         "heightPt": 792.0,
         "fontResourceCount": 2,
-        "imageResourceCount": 0,
-        "extractedCharacterCount": 1392,
-        "glyphRunOperatorCount": 46,
-        "strokeLineOperatorCount": 0
+        "imageResourceCount": 1,
+        "extractedCharacterCount": 1315,
+        "glyphRunOperatorCount": 78,
+        "strokeLineOperatorCount": 45
       },
       {
         "pageNumber": 6,
         "widthPt": 612.0,
         "heightPt": 792.0,
         "fontResourceCount": 2,
-        "imageResourceCount": 1,
-        "extractedCharacterCount": 813,
-        "glyphRunOperatorCount": 95,
-        "strokeLineOperatorCount": 90
+        "imageResourceCount": 0,
+        "extractedCharacterCount": 1244,
+        "glyphRunOperatorCount": 142,
+        "strokeLineOperatorCount": 145
       },
       {
         "pageNumber": 7,
@@ -86,9 +86,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1256,
-        "glyphRunOperatorCount": 109,
-        "strokeLineOperatorCount": 100
+        "extractedCharacterCount": 1567,
+        "glyphRunOperatorCount": 52,
+        "strokeLineOperatorCount": 0
       },
       {
         "pageNumber": 8,
@@ -96,8 +96,8 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 1,
-        "extractedCharacterCount": 1347,
-        "glyphRunOperatorCount": 42,
+        "extractedCharacterCount": 1029,
+        "glyphRunOperatorCount": 36,
         "strokeLineOperatorCount": 0
       },
       {
@@ -106,9 +106,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 1,
-        "extractedCharacterCount": 1220,
-        "glyphRunOperatorCount": 58,
-        "strokeLineOperatorCount": 23
+        "extractedCharacterCount": 1166,
+        "glyphRunOperatorCount": 90,
+        "strokeLineOperatorCount": 76
       },
       {
         "pageNumber": 10,
@@ -116,9 +116,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1693,
-        "glyphRunOperatorCount": 121,
-        "strokeLineOperatorCount": 101
+        "extractedCharacterCount": 1813,
+        "glyphRunOperatorCount": 103,
+        "strokeLineOperatorCount": 61
       },
       {
         "pageNumber": 11,
@@ -126,9 +126,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1328,
-        "glyphRunOperatorCount": 67,
-        "strokeLineOperatorCount": 31
+        "extractedCharacterCount": 1369,
+        "glyphRunOperatorCount": 117,
+        "strokeLineOperatorCount": 113
       },
       {
         "pageNumber": 12,
@@ -136,9 +136,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1414,
-        "glyphRunOperatorCount": 113,
-        "strokeLineOperatorCount": 111
+        "extractedCharacterCount": 1460,
+        "glyphRunOperatorCount": 72,
+        "strokeLineOperatorCount": 57
       },
       {
         "pageNumber": 13,
@@ -146,9 +146,9 @@
         "heightPt": 792.0,
         "fontResourceCount": 2,
         "imageResourceCount": 0,
-        "extractedCharacterCount": 1385,
-        "glyphRunOperatorCount": 66,
-        "strokeLineOperatorCount": 53
+        "extractedCharacterCount": 430,
+        "glyphRunOperatorCount": 20,
+        "strokeLineOperatorCount": 17
       }
     ]
   },
@@ -163,7 +163,7 @@
         "encoding": "/Identity-H",
         "descendantSubtype": "/CIDFontType2",
         "embeddedFontBytes": 25756,
-        "toUnicodeBytes": 20647,
+        "toUnicodeBytes": 21225,
         "cidToGidMap": true
       },
       {
@@ -223,40 +223,40 @@
   },
   "contentStreamInspection": {
     "operatorCounts": {
-      "q": 773,
-      "rg": 1120,
-      "re": 103,
-      "f": 93,
-      "Q": 773,
-      "BDC": 1018,
-      "BT": 1027,
-      "Tf": 1027,
-      "Tm": 1027,
-      "TJ": 1018,
-      "ET": 1027,
-      "EMC": 1027,
+      "q": 793,
+      "rg": 1140,
+      "re": 110,
+      "f": 100,
+      "Q": 793,
+      "BDC": 1031,
+      "BT": 1040,
+      "Tf": 1040,
+      "Tm": 1040,
+      "TJ": 1031,
+      "ET": 1040,
+      "EMC": 1040,
       "W": 10,
       "n": 10,
       "cm": 5,
       "Do": 5,
       "BMC": 9,
       "Tj": 9,
-      "RG": 675,
-      "w": 675,
-      "d": 675,
-      "m": 675,
-      "l": 675,
-      "S": 675
+      "RG": 688,
+      "w": 688,
+      "d": 688,
+      "m": 688,
+      "l": 688,
+      "S": 688
     },
-    "expectedGlyphRunCount": 1018,
-    "expectedStrokeLineCount": 675,
+    "expectedGlyphRunCount": 1031,
+    "expectedStrokeLineCount": 688,
     "expectedImagePaintCount": 5
   },
   "textExtraction": {
     "engine": "pypdf",
     "engineVersion": "6.10.0",
-    "expectedGlyphRuns": 1018,
-    "whitespaceNormalizedRunPresence": 1018,
+    "expectedGlyphRuns": 1031,
+    "whitespaceNormalizedRunPresence": 1031,
     "allExpectedRunsPresent": true
   },
   "popplerInspection": {

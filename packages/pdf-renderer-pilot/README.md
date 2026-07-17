@@ -133,6 +133,20 @@ versus 15.89% in the reference. Executive-summary extracted text grows from
 candidate density increases. Information hierarchy is accepted; static-zone
 geometry, section composition, visual fidelity, and production binding are not.
 
+## Static and Section Calibration
+
+`PDF-PILOT-08B-R2C-P` moves the Letter frame to measured reference-backed
+inputs: `72.02pt` left, `72.03pt` right, a `32.22pt` header reservation, and a
+`24pt` footer reservation. Header error falls to zero, footer error to `0.39pt`,
+body-left error to zero, and body-top error to `1.54pt`. Tables, images, and
+text share the calibrated `467.95pt` width with zero draw-command overflow.
+
+Ten reader summaries and two reader labels use explicit semantic categories
+with measured 12/6/3/12pt adjacency rules. Core regenerates 185 body roots as
+189 placements on 13 pages with zero missing glyphs. Static geometry and
+semantic composition are accepted; callout styling, region-level parity,
+fixed page count, and production binding remain rejected.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:

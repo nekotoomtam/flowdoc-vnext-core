@@ -73,15 +73,16 @@ parser.add_argument(
 )
 parser.add_argument(
     "--phase-id",
-    choices=["PDF-PILOT-08B-R2C-N", "PDF-PILOT-08B-R2C-O"],
+    choices=[
+        "PDF-PILOT-08B-R2C-N",
+        "PDF-PILOT-08B-R2C-O",
+        "PDF-PILOT-08B-R2C-P",
+    ],
     default="PDF-PILOT-08B-R2C-O",
 )
 parser.add_argument(
     "--baseline-comparison",
-    default=(
-        "packages/pdf-renderer-pilot/fixtures/"
-        "canonical-full-document-visual-comparison.v1.json"
-    ),
+    default="",
 )
 args = parser.parse_args()
 
@@ -385,6 +386,17 @@ terminal_bottom = max(
     for command in terminal_body_commands
 )
 terminal_span = terminal_bottom - terminal_top
+body_commands = [
+    command
+    for page in bundle["rendererHandoff"]["measuredDrawContract"]["pages"]
+    for command in page["commands"]
+    if "canonical-body" in command["sourceCommandId"]
+]
+body_command_left = min(float(command["bounds"]["xPt"]) for command in body_commands)
+body_command_right = max(
+    float(command["bounds"]["xPt"]) + float(command["bounds"]["widthPt"])
+    for command in body_commands
+)
 
 anchor_comparison = []
 for reference_heading, candidate_heading in zip(reference["headings"], candidate["headings"]):
@@ -592,10 +604,13 @@ comparison = {
 }
 
 if args.phase_id == "PDF-PILOT-08B-R2C-O":
-    if not args.baseline_comparison:
-        raise RuntimeError("R2C-O requires --baseline-comparison")
-
-    baseline_path = repo_path(args.baseline_comparison)
+    baseline_path = repo_path(
+        args.baseline_comparison
+        or (
+            "packages/pdf-renderer-pilot/fixtures/"
+            "canonical-full-document-visual-comparison.v1.json"
+        )
+    )
     baseline = read_json(baseline_path)
     if baseline["phaseId"] != "PDF-PILOT-08B-R2C-N":
         raise RuntimeError("R2C-O baseline must be the accepted R2C-N comparison")
@@ -762,6 +777,240 @@ if args.phase_id == "PDF-PILOT-08B-R2C-O":
     })
     comparison["nextPhase"] = (
         "PDF-PILOT-08B-R2C-P measured static-zone and section-composition calibration"
+    )
+
+if args.phase_id == "PDF-PILOT-08B-R2C-P":
+    baseline_path = repo_path(
+        args.baseline_comparison
+        or (
+            "packages/pdf-renderer-pilot/fixtures/"
+            "canonical-full-document-reader-hierarchy.v1.json"
+        )
+    )
+    baseline = read_json(baseline_path)
+    if baseline["phaseId"] != "PDF-PILOT-08B-R2C-O":
+        raise RuntimeError("R2C-P baseline must be the accepted R2C-O comparison")
+    if baseline["inputs"]["reference"]["sha256"] != reference["sha256"]:
+        raise RuntimeError("R2C-P and R2C-O must use the same pinned reference")
+
+    reference_static = reference["observedStaticEnvelope"]
+    baseline_static = baseline["candidate"]["observedStaticEnvelope"]
+    current_static = candidate["observedStaticEnvelope"]
+    reference_body = reference["observedBodyBounds"]
+    baseline_body = baseline["candidate"]["observedBodyBounds"]
+    current_body = candidate["observedBodyBounds"]
+
+    def absolute_gap(subject: dict, target: dict, key: str) -> float:
+        return abs(float(subject[key]) - float(target[key]))
+
+    static_top_gap_before = absolute_gap(baseline_static, reference_static, "topPt")
+    static_top_gap_after = absolute_gap(current_static, reference_static, "topPt")
+    static_bottom_gap_before = absolute_gap(
+        baseline_static, reference_static, "bottomPt"
+    )
+    static_bottom_gap_after = absolute_gap(
+        current_static, reference_static, "bottomPt"
+    )
+    body_left_gap_before = absolute_gap(baseline_body, reference_body, "x0Pt")
+    body_left_gap_after = absolute_gap(current_body, reference_body, "x0Pt")
+    body_top_gap_before = absolute_gap(baseline_body, reference_body, "topPt")
+    body_top_gap_after = absolute_gap(current_body, reference_body, "topPt")
+    body_frame_left = float(candidate_geometry["bodyOriginXPt"])
+    body_frame_right = body_frame_left + float(candidate_geometry["bodyWidthPt"])
+
+    category_counts = Counter(
+        item["category"] for item in capacity["spacedBodyItems"]
+    )
+    spacing_rules = {
+        rule["ruleId"]: rule for rule in capacity["spacingProfile"]["rules"]
+    }
+    semantic_rule_ids = [
+        "body-to-reader-label",
+        "reader-label-to-summary",
+        "reader-summary-stack",
+        "reader-summary-to-body",
+    ]
+    semantic_rules = [spacing_rules[rule_id] for rule_id in semantic_rule_ids]
+
+    acceptance = {
+        "referenceIdentityPreserved": True,
+        "baselineHierarchyAccepted": baseline["decision"][
+            "informationHierarchyAccepted"
+        ],
+        "candidateStructuralIdentityAligned": (
+            candidate["sha256"] == summary["artifact"]["sha256"]
+            and candidate["pageCount"] == summary["summary"]["pageCount"]
+            and bundle["bundleFingerprint"] == summary["sourceBundleFingerprint"]
+        ),
+        "pageCountRemainsContentDriven": (
+            candidate["pageCount"] == baseline["candidate"]["pageCount"]
+        ),
+        "extractedDensityNonDecreasing": (
+            candidate["extractedNonWhitespaceCharacterCount"]
+            >= baseline["candidate"]["extractedNonWhitespaceCharacterCount"]
+        ),
+        "staticTopGapImproved": static_top_gap_after < static_top_gap_before,
+        "staticTopWithinOnePoint": static_top_gap_after <= 1.0,
+        "staticBottomGapImproved": (
+            static_bottom_gap_after < static_bottom_gap_before
+        ),
+        "staticBottomWithinOnePoint": static_bottom_gap_after <= 1.0,
+        "bodyLeftGapImproved": body_left_gap_after < body_left_gap_before,
+        "bodyLeftWithinOneTenthPoint": body_left_gap_after <= 0.1,
+        "bodyTopGapImproved": body_top_gap_after < body_top_gap_before,
+        "bodyTopWithinTwoPoints": body_top_gap_after <= 2.0,
+        "bodyCommandsStayInsideCalibratedWidth": (
+            body_command_left >= body_frame_left - 0.001
+            and body_command_right <= body_frame_right + 0.001
+        ),
+        "readerRoleBindingsPresent": (
+            category_counts["reader-label"] == 2
+            and category_counts["reader-summary"] == 10
+        ),
+        "semanticSpacingRulesPresent": len(semantic_rules) == 4,
+        "visualFidelityAccepted": False,
+    }
+    if not all(
+        value for key, value in acceptance.items() if key != "visualFidelityAccepted"
+    ):
+        raise RuntimeError(f"R2C-P calibration acceptance failed: {acceptance}")
+
+    comparison.update({
+        "comparisonId": (
+            "pdf-pilot-08b-r2c-p-canonical-full-document-static-section-calibration-v1"
+        ),
+        "phaseId": "PDF-PILOT-08B-R2C-P",
+        "status": (
+            "accepted-static-section-calibration-visual-fidelity-still-rejected"
+        ),
+        "baseline": {
+            "comparisonId": baseline["comparisonId"],
+            "phaseId": baseline["phaseId"],
+            "pointer": (
+                "packages/pdf-renderer-pilot/fixtures/"
+                "canonical-full-document-reader-hierarchy.v1.json"
+            ),
+            "sha256": sha256(baseline_path),
+            "candidateSha256": baseline["candidate"]["sha256"],
+        },
+        "calibration": {
+            "pageFramePt": {
+                "margin": capacity["sectionCapacities"][0]["marginPt"],
+                "headerReservedPt": capacity["sectionCapacities"][0][
+                    "headerReservedPt"
+                ],
+                "footerReservedPt": capacity["sectionCapacities"][0][
+                    "footerReservedPt"
+                ],
+                "body": candidate_geometry,
+            },
+            "staticEnvelopeGapsPt": {
+                "top": {
+                    "before": rounded(static_top_gap_before, 2),
+                    "after": rounded(static_top_gap_after, 2),
+                },
+                "bottom": {
+                    "before": rounded(static_bottom_gap_before, 2),
+                    "after": rounded(static_bottom_gap_after, 2),
+                },
+            },
+            "observedBodyGapsPt": {
+                "left": {
+                    "before": rounded(body_left_gap_before, 2),
+                    "after": rounded(body_left_gap_after, 2),
+                },
+                "top": {
+                    "before": rounded(body_top_gap_before, 2),
+                    "after": rounded(body_top_gap_after, 2),
+                },
+            },
+            "bodyCommandEnvelopePt": {
+                "left": rounded(body_command_left, 6),
+                "right": rounded(body_command_right, 6),
+                "calibratedLeft": rounded(body_frame_left, 6),
+                "calibratedRight": rounded(body_frame_right, 6),
+                "horizontalOverflowPt": rounded(
+                    max(0.0, body_command_right - body_frame_right), 6
+                ),
+            },
+            "semanticComposition": {
+                "spacingProfileId": capacity["spacingProfile"]["profileId"],
+                "readerLabelCount": category_counts["reader-label"],
+                "readerSummaryCount": category_counts["reader-summary"],
+                "rules": semantic_rules,
+            },
+            "sourceBackedBody": {
+                "pageCount": bundle["summary"]["pageCount"],
+                "bodyEntryCount": bundle["summary"]["bodyEntryCount"],
+                "sourceBodyPlacementCount": bundle["summary"][
+                    "sourceBodyPlacementCount"
+                ],
+                "missingGlyphCount": bundle["summary"]["missingGlyphCount"],
+            },
+            "acceptance": acceptance,
+        },
+    })
+
+    for region in comparison["comparison"]["regionClassifications"]:
+        if region["region"] == "typography-weight":
+            region.update({
+                "classification": "calibrated-near-reference",
+                "evidence": (
+                    "The accepted R2C-O role-weight calibration remains within "
+                    "eight percentage points of the reference Bold share."
+                ),
+            })
+        elif region["region"] == "static-zones":
+            region.update({
+                "classification": "calibrated-near-reference",
+                "evidence": (
+                    "Header ink matches the reference top and footer ink is within "
+                    f"{rounded(static_bottom_gap_after, 2)}pt of its bottom envelope."
+                ),
+            })
+        elif region["region"] == "semantic-composition":
+            region.update({
+                "classification": "semantic-boundaries-calibrated-not-parity",
+                "evidence": (
+                    "Reader labels and summaries use explicit semantic roles and "
+                    "measured adjacency spacing while source-backed section density differs."
+                ),
+            })
+        elif region["region"] == "pagination":
+            region.update({
+                "classification": "content-driven-extra-page",
+                "evidence": (
+                    f"The final {rounded(terminal_span, 0)}pt table continuation is "
+                    "retained on page 13."
+                ),
+            })
+
+    comparison["decision"].update({
+        "measuredStaticZoneCalibrationAccepted": True,
+        "semanticSectionCompositionAccepted": True,
+        "bodyWidthBoundaryAccepted": True,
+        "informationHierarchyAccepted": True,
+        "visualFidelityAccepted": False,
+        "reasonCodes": [
+            "static-envelope-aligned-to-pinned-reference",
+            "body-frame-aligned-through-measured-layout-inputs",
+            "reader-summary-boundaries-use-semantic-spacing",
+            "source-backed-density-preserved",
+            "callout-treatment-and-region-parity-remain-open",
+        ],
+        "allowedNextChanges": [
+            "calibrate reader-summary callout treatment through document semantics",
+            "define region-aware visual thresholds without pixel-parity claims",
+            "repaginate through the existing measured Core boundary",
+        ],
+        "prohibitedShortcuts": [
+            "translate rendered commands after layout",
+            "delete source-backed rows to imitate the reference",
+            "hard-code a twelve-page renderer layout",
+        ],
+    })
+    comparison["nextPhase"] = (
+        "PDF-PILOT-08B-R2C-Q measured callout treatment and region-aware visual thresholds"
     )
 
 if not comparison["reference"]["allLetter612x792Pt"]:

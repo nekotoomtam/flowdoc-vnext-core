@@ -42,8 +42,8 @@ export type FlowDocPdfRendererPilotMode =
 
 const FULL_DOCUMENT_HANDOFF = {
   rendererProfileId: "pdf-pilot-08b-r2c-l-full-document-v1",
-  contractFingerprint: "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
-  contractContentSha256: "37481597e139c52e30d0eea4b413264ed06d666bcaa8fbf0bdcd5d3cf44a4b29",
+  contractFingerprint: "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
+  contractContentSha256: "311ac48149c2b146c8f325b1201c3c8557693e4a97326e2546ab82b6b71c0fbc",
   pageCount: 13,
   fontAssetCount: 2,
   imageAssetCount: 5,

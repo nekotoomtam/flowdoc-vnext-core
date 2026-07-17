@@ -3,16 +3,16 @@
   "phaseId": "PDF-PILOT-08B-R2C-M",
   "proofId": "pdf-pilot-08b-r2c-m-canonical-full-document",
   "status": "rendered",
-  "sourceBundleFingerprint": "ab21f6dab062eea2950587be2ac5bfbbda65d3e9a31206701793d46a0ac6aacc",
+  "sourceBundleFingerprint": "18f4e7a322e6af1d4073dd4de277a3fb4d9d64905eac50c160c3cb7faebfa084",
   "artifact": {
     "artifactId": "pdf-pilot:pdf-pilot-08b-r2c-m-canonical-full-document",
     "format": "pdf",
     "mediaType": "application/pdf",
-    "byteLength": 1223440,
-    "sha256": "91787999d2e2711293d4adc1bafcceba610201b934212f0d7b22cc96ea703041",
+    "byteLength": 1212504,
+    "sha256": "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a",
     "storageStatus": "not-stored",
     "localOnly": true,
-    "sourceContractFingerprint": "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
+    "sourceContractFingerprint": "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
     "rendererProfileId": "pdf-pilot-08b-r2c-l-full-document-v1",
     "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
     "embeddedFonts": [
@@ -121,9 +121,9 @@
       "requiredFontAssetCount": 2,
       "requiredImageAssetCount": 5,
       "imagePaintCount": 5,
-      "strokeLineCount": 675,
-      "sourceContractFingerprint": "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
-      "sourceContractContentSha256": "37481597e139c52e30d0eea4b413264ed06d666bcaa8fbf0bdcd5d3cf44a4b29"
+      "strokeLineCount": 688,
+      "sourceContractFingerprint": "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
+      "sourceContractContentSha256": "311ac48149c2b146c8f325b1201c3c8557693e4a97326e2546ab82b6b71c0fbc"
     }
   },
   "renderContract": {
@@ -144,22 +144,22 @@
   },
   "summary": {
     "pageCount": 13,
-    "paintCommandCount": 1778,
-    "glyphRunCount": 1018,
-    "glyphCount": 15691,
+    "paintCommandCount": 1811,
+    "glyphRunCount": 1031,
+    "glyphCount": 15732,
     "embeddedFontCount": 2,
     "imageCount": 5,
     "fontResourceReferenceCount": 26,
     "imageResourceReferenceCount": 5,
-    "byteLength": 1223440
+    "byteLength": 1212504
   },
   "commandInventory": {
-    "sourceCommandCount": 1778,
-    "paintCommandCount": 1778,
-    "glyphRunCount": 1018,
-    "fillRectCount": 80,
+    "sourceCommandCount": 1811,
+    "paintCommandCount": 1811,
+    "glyphRunCount": 1031,
+    "fillRectCount": 87,
     "strokeRectCount": 0,
-    "strokeLineCount": 675,
+    "strokeLineCount": 688,
     "imageCount": 5
   },
   "pageImageBindings": [
@@ -172,7 +172,7 @@
       "assetId": "ocr-accuracy-image"
     },
     {
-      "pageNumber": 6,
+      "pageNumber": 5,
       "assetId": "native-extraction-image"
     },
     {
@@ -206,7 +206,7 @@
   ],
   "deterministicRebuild": {
     "unchanged": true,
-    "sha256": "91787999d2e2711293d4adc1bafcceba610201b934212f0d7b22cc96ea703041"
+    "sha256": "1e78e3b4a4e9d78b0e7b02fd535bd486db1d3fbab9c37228e6082e00d0c1f36a"
   },
   "externalImageBytesRetained": false,
   "productionBinding": false,

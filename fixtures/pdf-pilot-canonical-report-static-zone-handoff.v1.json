@@ -3,16 +3,16 @@
   "kind": "canonical-report-static-zone-handoff-bundle",
   "phaseId": "PDF-PILOT-08B-R2C-K",
   "handoffId": "ocr-benchmark-report-static-zone-handoff-v1",
-  "sourceProjectionFingerprint": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
-  "sourceNativeShapingFingerprint": "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
-  "sourceLineBreakingFingerprint": "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
-  "sourceMeasuredCompositionFingerprint": "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
-  "sourcePaginationInputsFingerprint": "1980d9fd60f684e49213348120c625b889bcad03c1dbab03e4860d347349f0f4",
-  "sourcePaginationExecutionFingerprint": "bf6024cef64a0f7a25c6b8acdf442f552642cde3396905efcddcd3d5f5f003c5",
-  "sourcePagePlanFingerprint": "sha256:90b2678a79b67ad8a7142a94a975ffda538a07c50aa24e4c0179dcd0bf81ddd2",
+  "sourceProjectionFingerprint": "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+  "sourceNativeShapingFingerprint": "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+  "sourceLineBreakingFingerprint": "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
+  "sourceMeasuredCompositionFingerprint": "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
+  "sourcePaginationInputsFingerprint": "73e19092ffa8b203e2aa0fb73463bcb882dcc9b83c652969aad7ed0ef39eb724",
+  "sourcePaginationExecutionFingerprint": "f22854d8cb99e451f9c8b29c977f822a9e44fc8afd345d50087a77a0c94a83d0",
+  "sourcePagePlanFingerprint": "sha256:0dffaba9fe75bad851f080b1ffec049388622881ad20f73d391819a20538da65",
   "sourceFontManifestFingerprint": "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077",
-  "sourceRawEvidenceFingerprint": "d101d82f01f3f8d6614c34d30c024d9e8af257694f7c9e77f7dd23a3a2d88109",
-  "planFingerprint": "sha256:7f104d2ffe88763f9cfac597c5409b09daac6b076e9cf66d813665a9d7e6b4ef",
+  "sourceRawEvidenceFingerprint": "98805a179de18630af0b5fbec6d25976ff1ac53d3398be75e1c8cf1ca338da8a",
+  "planFingerprint": "sha256:c9950e2063dc7c197b3893ac526eef1331b152e84601c36df9c545026832bfcb",
   "placementPolicy": {
     "policyId": "canonical-report-static-zone-placement-v1",
     "headerHorizontalAlignment": "start",
@@ -28,7 +28,7 @@
     {
       "pageIndex": 0,
       "pageNumber": 1,
-      "sourcePageFingerprint": "sha256:ecf997a611da4bb0729ada6cba16c768852dcd81d1ed2c07a0d02d71e0d993eb",
+      "sourcePageFingerprint": "sha256:90e6228bd5676ae15785fe8916826e31ca1c595db32736fa6007ed745cea4dbd",
       "pageBox": {
         "pageIndex": 0,
         "pageNumber": 1,
@@ -40,7 +40,7 @@
         "role": "header",
         "pageIndex": 0,
         "pageNumber": 1,
-        "sourcePageFingerprint": "sha256:ecf997a611da4bb0729ada6cba16c768852dcd81d1ed2c07a0d02d71e0d993eb",
+        "sourcePageFingerprint": "sha256:90e6228bd5676ae15785fe8916826e31ca1c595db32736fa6007ed745cea4dbd",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -50,7 +50,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -103,14 +103,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -394,7 +394,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -410,8 +410,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -424,13 +424,13 @@
           "pageIndex": 0,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -712,13 +712,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:fab19d8930cd8eaf41b49bcbf4a28436585bf0b2461d0bc92b3219b89e9627b7"
+        "instanceFingerprint": "sha256:9a41bd3c953482be09cabf64cd9018c0a6ad54a3246b40cdcb16042e43dad258"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 0,
         "pageNumber": 1,
-        "sourcePageFingerprint": "sha256:ecf997a611da4bb0729ada6cba16c768852dcd81d1ed2c07a0d02d71e0d993eb",
+        "sourcePageFingerprint": "sha256:90e6228bd5676ae15785fe8916826e31ca1c595db32736fa6007ed745cea4dbd",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -728,7 +728,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 1",
@@ -748,7 +748,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:57bd209543a83ab316039e3ec15f980f9d5307406bffc88a1c60c1772ec32139"
+              "generatedOwnerFingerprint": "sha256:d2d684b2a291d602b937e939d81d7366a6d722ac97451f89de7a31275cb79c26"
             }
           ]
         },
@@ -790,14 +790,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:b46de0d17eb6d6d3da5b4b8b8f9a0f54339e50dcdd5cda2529fb8f649dc36113",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -1052,8 +1052,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -1066,13 +1066,13 @@
           "pageIndex": 0,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:6ebb4ab7811617e732e6d804cd8e913839641a889fb33fc78ec3c92ec918641d",
+          "measurementRequestId": "sha256:19a535eb4b3611320c5b70d31ccf7c5532e22bf11bbb85fe98cf81fc71a1a5c3",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 1",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -1309,14 +1309,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:4a0ee1bf0b7a575d3a4258064f3cefe81283b309d04e27629f7778063e003016"
+        "instanceFingerprint": "sha256:02933bad3e23516f2af845e9c49c941bfbc93522bd3e22f102a1d6947ed26db8"
       },
-      "pageFingerprint": "sha256:aec284db51828d0eba7f63670bc32a003b658130ce73c6625233f143f47a7b12"
+      "pageFingerprint": "sha256:7d54949cf6ad6373f0c5d39e7fab44401c4a502c930a3f6593c8f7ca0bcb95cf"
     },
     {
       "pageIndex": 1,
       "pageNumber": 2,
-      "sourcePageFingerprint": "sha256:37856426f407f388bfcefac2efbccbe0183d85684a28b17d2666daac709e8a94",
+      "sourcePageFingerprint": "sha256:4caac6ed3240928bd91bfd4f64ed420da69d66aa4e14816d036223585186dde0",
       "pageBox": {
         "pageIndex": 1,
         "pageNumber": 2,
@@ -1328,7 +1328,7 @@
         "role": "header",
         "pageIndex": 1,
         "pageNumber": 2,
-        "sourcePageFingerprint": "sha256:37856426f407f388bfcefac2efbccbe0183d85684a28b17d2666daac709e8a94",
+        "sourcePageFingerprint": "sha256:4caac6ed3240928bd91bfd4f64ed420da69d66aa4e14816d036223585186dde0",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -1338,7 +1338,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -1391,14 +1391,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -1682,7 +1682,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -1698,8 +1698,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -1712,13 +1712,13 @@
           "pageIndex": 1,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -2000,13 +2000,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:366931ac04d37e4c8793f584dadf7d6d9bf3607d685c95f0282a1a2e401621a4"
+        "instanceFingerprint": "sha256:3bb23af751ec94ab51a1d29168c442bf87b3940a0b44ae55c92d0e1b9c8fd849"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 1,
         "pageNumber": 2,
-        "sourcePageFingerprint": "sha256:37856426f407f388bfcefac2efbccbe0183d85684a28b17d2666daac709e8a94",
+        "sourcePageFingerprint": "sha256:4caac6ed3240928bd91bfd4f64ed420da69d66aa4e14816d036223585186dde0",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -2016,7 +2016,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 2",
@@ -2036,7 +2036,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:d3a31ccb842b4e2a1e51b1c224ea26e2e6e8798384ae1c00459ad483ae5c75e0"
+              "generatedOwnerFingerprint": "sha256:734ef01e3e3d3f7a72630a1e4f00496e41423e5ca22de185e8253c12571c9d85"
             }
           ]
         },
@@ -2078,14 +2078,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:57bf7bd56da5a43f20da42189e197cbc6507aca0a61b95124c7505f9233a36eb",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -2340,8 +2340,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -2354,13 +2354,13 @@
           "pageIndex": 1,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:d299bf96da9c088c19f81cca99c41c797074388809dd0cb296fa38aabbd3d794",
+          "measurementRequestId": "sha256:bb5b5efaa49a7030f5d5b2faa4d38af813df22848b1b8c2991ce0dc16d6abcc6",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 2",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -2597,14 +2597,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:46e5d9fcb32f4ab3cff5611b5a641c0b4fecd0d4a975ab1158d04c935d58d930"
+        "instanceFingerprint": "sha256:e15fd2f29176d1d0e8f9bc684640ca1a787e8d64078aa1e1b666d4fa99937ece"
       },
-      "pageFingerprint": "sha256:d360e9826969c37617fb30c1d99793b7e52d84ce6c1d2de888df5fa99ec6a32c"
+      "pageFingerprint": "sha256:251fddedcf5cc7b56f89c835f545d46381a45dc6fe007ca4734b6de2fcc010ac"
     },
     {
       "pageIndex": 2,
       "pageNumber": 3,
-      "sourcePageFingerprint": "sha256:4e473bc60b22d6226fef02096a0efa96e9b99b8ec60f1f1663ef91ab1ba0e9c0",
+      "sourcePageFingerprint": "sha256:d4b62f771bc28003eb788e8cccde869223512ab623d21c081c3fd98657454f50",
       "pageBox": {
         "pageIndex": 2,
         "pageNumber": 3,
@@ -2616,7 +2616,7 @@
         "role": "header",
         "pageIndex": 2,
         "pageNumber": 3,
-        "sourcePageFingerprint": "sha256:4e473bc60b22d6226fef02096a0efa96e9b99b8ec60f1f1663ef91ab1ba0e9c0",
+        "sourcePageFingerprint": "sha256:d4b62f771bc28003eb788e8cccde869223512ab623d21c081c3fd98657454f50",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -2626,7 +2626,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -2679,14 +2679,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -2970,7 +2970,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -2986,8 +2986,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -3000,13 +3000,13 @@
           "pageIndex": 2,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -3288,13 +3288,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:676bd43f3b6a499fde2032cc9ff82a37e1c1610b488383995543c02e697770ce"
+        "instanceFingerprint": "sha256:372c33bb1ab778fe5270abbd02a2602dcfb432b0c517acb64613e620b2146fd0"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 2,
         "pageNumber": 3,
-        "sourcePageFingerprint": "sha256:4e473bc60b22d6226fef02096a0efa96e9b99b8ec60f1f1663ef91ab1ba0e9c0",
+        "sourcePageFingerprint": "sha256:d4b62f771bc28003eb788e8cccde869223512ab623d21c081c3fd98657454f50",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -3304,7 +3304,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 3",
@@ -3324,7 +3324,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:e9caef10fd7526beb6ffedd68a88b31cbf6fdbd947ecda4889f03ea85d744cbd"
+              "generatedOwnerFingerprint": "sha256:70caad2b3c0091533928c59975e6ef7993b7eb69b0327e00e0307e9995b9c12c"
             }
           ]
         },
@@ -3366,14 +3366,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:dd2e0a047d5a0264bcb2e6a01447da6d64b0f0fd45a5fdef23e19c79ea8f7390",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -3628,8 +3628,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -3642,13 +3642,13 @@
           "pageIndex": 2,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:1f309d99404bf4f01fbb66ee7c5c77061ff488285b18f2d52db854347798e5bb",
+          "measurementRequestId": "sha256:e73981ba3ced7718204eaa53781fe9667971bc73c703789d3a69b3556465bba0",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 3",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -3885,14 +3885,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:09db6715163e3c618be86a6ea108c3fcb3812cfc1f26fe6a5aa2f4e3cf76f711"
+        "instanceFingerprint": "sha256:501f2f26cd8b15187cc4ed8389bab4169609127cd2f8aa2b6fe571370bcb58c2"
       },
-      "pageFingerprint": "sha256:9b6f227bd7a472ba2140170bf504c112fd075610c79970f94935eda683067afd"
+      "pageFingerprint": "sha256:c538ead01613e089a6f0a2f7227e558c58622c382ee2fd3e6b18e4bbaec8b2f1"
     },
     {
       "pageIndex": 3,
       "pageNumber": 4,
-      "sourcePageFingerprint": "sha256:6ad2a437b85dfa0bf137d8574ea36d1c2c95ba97d0976f3dc34b2a76ced019b9",
+      "sourcePageFingerprint": "sha256:60b0899632fe60205f22fcd982098494ad64560ca97822ff842dca6e9f4319cd",
       "pageBox": {
         "pageIndex": 3,
         "pageNumber": 4,
@@ -3904,7 +3904,7 @@
         "role": "header",
         "pageIndex": 3,
         "pageNumber": 4,
-        "sourcePageFingerprint": "sha256:6ad2a437b85dfa0bf137d8574ea36d1c2c95ba97d0976f3dc34b2a76ced019b9",
+        "sourcePageFingerprint": "sha256:60b0899632fe60205f22fcd982098494ad64560ca97822ff842dca6e9f4319cd",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -3914,7 +3914,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -3967,14 +3967,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -4258,7 +4258,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -4274,8 +4274,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -4288,13 +4288,13 @@
           "pageIndex": 3,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -4576,13 +4576,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:6a8055af65a1c2b12badd11d49152c74c400c18ef632bc9dddf6a1b817f04936"
+        "instanceFingerprint": "sha256:7211fb5a88081a518ca720a7971c3d278a66cf8d28af896e37dc56fa8117fd31"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 3,
         "pageNumber": 4,
-        "sourcePageFingerprint": "sha256:6ad2a437b85dfa0bf137d8574ea36d1c2c95ba97d0976f3dc34b2a76ced019b9",
+        "sourcePageFingerprint": "sha256:60b0899632fe60205f22fcd982098494ad64560ca97822ff842dca6e9f4319cd",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -4592,7 +4592,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 4",
@@ -4612,7 +4612,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:7ed5fe5b5beabb8e70ac129a10618d896abe39603cad0f509f9d9daa508ad4c9"
+              "generatedOwnerFingerprint": "sha256:287dbfdafc50bf1a4094bd2d9b986731966b9e08f8c7115a8abfdc95d9289655"
             }
           ]
         },
@@ -4654,14 +4654,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:9ec1c4b75eea0515a9cb38e417ba609528abaeaa951408da89a886e2f7e37828",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -4916,8 +4916,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -4930,13 +4930,13 @@
           "pageIndex": 3,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3e1d1c1a2b79d07eaa5287211bfd6e6048e0eff26df0ca83278da53b92e7b4f8",
+          "measurementRequestId": "sha256:ea3e2a87730882383a810ad154385d7e3981a72810652c0562db993126fa449d",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 4",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -5173,14 +5173,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:31f8f230d47946a95099897072411598a4569257c58d611c35955230d1b7c982"
+        "instanceFingerprint": "sha256:1e52809502a54b7aa49deca87199c7cc4bef895ae9cb217badcc2561be6139d1"
       },
-      "pageFingerprint": "sha256:49c4d748bcea3828552fb4ac2e4f08517de069cedecbde8b16d2b8ce43430b4e"
+      "pageFingerprint": "sha256:e84af2b8af00d27b43f3c71dc392e2c674eb41e10066b9890b4c40ce38d0dc29"
     },
     {
       "pageIndex": 4,
       "pageNumber": 5,
-      "sourcePageFingerprint": "sha256:8158f33b956767dc559647d367f5c84c9de0aa4ce70fabb7c99ce2192192c7d1",
+      "sourcePageFingerprint": "sha256:660a6ec53a3abe9794d73eba36fd76cd5432893a3fce9ee4ad5a9edc212e3d0e",
       "pageBox": {
         "pageIndex": 4,
         "pageNumber": 5,
@@ -5192,7 +5192,7 @@
         "role": "header",
         "pageIndex": 4,
         "pageNumber": 5,
-        "sourcePageFingerprint": "sha256:8158f33b956767dc559647d367f5c84c9de0aa4ce70fabb7c99ce2192192c7d1",
+        "sourcePageFingerprint": "sha256:660a6ec53a3abe9794d73eba36fd76cd5432893a3fce9ee4ad5a9edc212e3d0e",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -5202,7 +5202,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -5255,14 +5255,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -5546,7 +5546,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -5562,8 +5562,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -5576,13 +5576,13 @@
           "pageIndex": 4,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -5864,13 +5864,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:771f2377da45b759aef9049aa6d2b0a0ec474faff340db2c348014f5ff0d7bd1"
+        "instanceFingerprint": "sha256:d54dce35ddede28a68fac1d094d2afc14101babb0e99df9c175fe1631a5707c5"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 4,
         "pageNumber": 5,
-        "sourcePageFingerprint": "sha256:8158f33b956767dc559647d367f5c84c9de0aa4ce70fabb7c99ce2192192c7d1",
+        "sourcePageFingerprint": "sha256:660a6ec53a3abe9794d73eba36fd76cd5432893a3fce9ee4ad5a9edc212e3d0e",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -5880,7 +5880,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 5",
@@ -5900,7 +5900,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:31bd46e8f56be311422811aeb54b978dcf20b454fb31680abe3480c194d30cc8"
+              "generatedOwnerFingerprint": "sha256:c27e0f778c0ef1912af02edcc7ab4a228b435d9d9c1653a28d16975ccaf5a14e"
             }
           ]
         },
@@ -5942,14 +5942,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:d490b7029d21eaf969e6322beca601e956c2dd190bae430f27e239a8d10465bd",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -6204,8 +6204,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -6218,13 +6218,13 @@
           "pageIndex": 4,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:b5c03c9d3f4904abb0e7cb6d6fe64a99c46122056ae9feec136780397a5cabfc",
+          "measurementRequestId": "sha256:0affa15b60b34ce6133f031438db9641af926615dcf73fc50d1dbcfe3c7e1b64",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 5",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -6461,14 +6461,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:488bdeb32c5c090feea4f2e4345f1ebbb22030f0a910e7f35101024b04ab5376"
+        "instanceFingerprint": "sha256:006b74a99e202e8b1b4098a5fdab45169aaf8cbcc9837b6d17fb1aa817684aff"
       },
-      "pageFingerprint": "sha256:175c80721ad4f47a74a2b025fefafbb50453cc37f0063c015b3ec968c6533e0d"
+      "pageFingerprint": "sha256:8912950b257e29fae537b107c3a8c328c6d2137c061c842d42a8909f41e18ede"
     },
     {
       "pageIndex": 5,
       "pageNumber": 6,
-      "sourcePageFingerprint": "sha256:995acc110a416cfc7c4e6edf9a4f7b711c0c4cd0cbbfeb1c95983b97b17e3a99",
+      "sourcePageFingerprint": "sha256:e3b87fcc57e3f5a62a4849b5b1cd3f064357423b5e9f6875f3bb68c6fac645c3",
       "pageBox": {
         "pageIndex": 5,
         "pageNumber": 6,
@@ -6480,7 +6480,7 @@
         "role": "header",
         "pageIndex": 5,
         "pageNumber": 6,
-        "sourcePageFingerprint": "sha256:995acc110a416cfc7c4e6edf9a4f7b711c0c4cd0cbbfeb1c95983b97b17e3a99",
+        "sourcePageFingerprint": "sha256:e3b87fcc57e3f5a62a4849b5b1cd3f064357423b5e9f6875f3bb68c6fac645c3",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -6490,7 +6490,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -6543,14 +6543,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -6834,7 +6834,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -6850,8 +6850,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -6864,13 +6864,13 @@
           "pageIndex": 5,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -7152,13 +7152,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:2b7325f4e2759b8e707868836c2e4457ac5cd6dd290af1c4cfd2340df875968b"
+        "instanceFingerprint": "sha256:1301fb1a360a6881584ae83814fc05c2b5513168c4291c7722d37fc13d586036"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 5,
         "pageNumber": 6,
-        "sourcePageFingerprint": "sha256:995acc110a416cfc7c4e6edf9a4f7b711c0c4cd0cbbfeb1c95983b97b17e3a99",
+        "sourcePageFingerprint": "sha256:e3b87fcc57e3f5a62a4849b5b1cd3f064357423b5e9f6875f3bb68c6fac645c3",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -7168,7 +7168,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 6",
@@ -7188,7 +7188,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:33f1f5a4a4ac59a1121e8ddefe6a5dfa7d892d6f849793ad44c154082a75325d"
+              "generatedOwnerFingerprint": "sha256:0e288c0869e495620e348f40ef590603cf0f30983f5bd53903de4038e2b99b48"
             }
           ]
         },
@@ -7230,14 +7230,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:1166d55b5b4cb97e6e1b6b40d53ea0d2a9bb433455ae40d3c179f8ac094add27",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -7492,8 +7492,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -7506,13 +7506,13 @@
           "pageIndex": 5,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:fcbb010b7bd18c1d674288150e69181e5cd6477e4d73b716fff05cc74e3c6106",
+          "measurementRequestId": "sha256:45fe594f7ffa108b748196fe0ad971b33f49123c1b5e1d84b2eafffec6909acd",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 6",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -7749,14 +7749,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:e157011da6830feba325cf76b2455c6080aec6fd8963b2670aac1541245789ea"
+        "instanceFingerprint": "sha256:4adb329608c2563c74fe9472cf626aae08431a8fb9992d9cde863f95c19b48ce"
       },
-      "pageFingerprint": "sha256:481e7743c3c3df272481cd7e6e62b24aa5729af1a1dd62e517c461a29d1e912a"
+      "pageFingerprint": "sha256:681af21207aff6704e482552b1d75e57f1285cd79442a5daec78c98b7d1556ea"
     },
     {
       "pageIndex": 6,
       "pageNumber": 7,
-      "sourcePageFingerprint": "sha256:5146f5dfaaad41324db41b8f06edcc36a383426a9df43053d355822b04edd48e",
+      "sourcePageFingerprint": "sha256:3821eefc7a4a5cd130650df5d45bbdd2f217537c724f3a8b4e6b0629e1ef2daf",
       "pageBox": {
         "pageIndex": 6,
         "pageNumber": 7,
@@ -7768,7 +7768,7 @@
         "role": "header",
         "pageIndex": 6,
         "pageNumber": 7,
-        "sourcePageFingerprint": "sha256:5146f5dfaaad41324db41b8f06edcc36a383426a9df43053d355822b04edd48e",
+        "sourcePageFingerprint": "sha256:3821eefc7a4a5cd130650df5d45bbdd2f217537c724f3a8b4e6b0629e1ef2daf",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -7778,7 +7778,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -7831,14 +7831,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -8122,7 +8122,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -8138,8 +8138,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -8152,13 +8152,13 @@
           "pageIndex": 6,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -8440,13 +8440,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:0e79d02851e7b002a0de8044db78680bb9e29e5d919438f697abc5d25f4e9b52"
+        "instanceFingerprint": "sha256:5e1e6c2e7fba4b8b5e37c773f6481bb9c0154c3c437e88da82ec22ef8ed742cb"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 6,
         "pageNumber": 7,
-        "sourcePageFingerprint": "sha256:5146f5dfaaad41324db41b8f06edcc36a383426a9df43053d355822b04edd48e",
+        "sourcePageFingerprint": "sha256:3821eefc7a4a5cd130650df5d45bbdd2f217537c724f3a8b4e6b0629e1ef2daf",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -8456,7 +8456,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 7",
@@ -8476,7 +8476,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:5d27d2bee0ce0c25e1bb3bec6c2a43dbd50a3419d152e2741cb39cb34fb4e996"
+              "generatedOwnerFingerprint": "sha256:43619fcf199c4eb2e9dfff9db1d0dc5888a99869ee65adedc664cadc0e8469ab"
             }
           ]
         },
@@ -8518,14 +8518,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:b91a4b56a5f14fddf53b1433f9d17dbc1b7bf7f90a7a2bd389b67c52c51f071c",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -8780,8 +8780,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -8794,13 +8794,13 @@
           "pageIndex": 6,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:b0e99ec0a9f3ce83713da24c9514fa0f118033775ff5cc01dffbd927e3506cca",
+          "measurementRequestId": "sha256:c3d8d07ff45ef01155667e1661d994a6dc07503104ceb79bda8913a87b2b8021",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 7",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -9037,14 +9037,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:9723726c00b67a815d49b3c2aee9f458162861a5e954a5dce648b733b8bee992"
+        "instanceFingerprint": "sha256:7c0fc8a34c6b98ad5ed1c4c388b56d346932c8511f05ad2aeb4e335b54438c53"
       },
-      "pageFingerprint": "sha256:48a54c3308738414adee8fe18e170cd6f6b71b3c316b8037594e790b640d5f29"
+      "pageFingerprint": "sha256:55d11d43caa9d23a444ab028eb0df2482159675a0880ed2303f3d86abdeae0b6"
     },
     {
       "pageIndex": 7,
       "pageNumber": 8,
-      "sourcePageFingerprint": "sha256:2117ae9c46ec115ddb38e99414174574e6d99311de5ca53d9026c9d15c824ad4",
+      "sourcePageFingerprint": "sha256:1d2685a647601d109ea3dd58979c96d601eaf9ec7e05655982795772164601f5",
       "pageBox": {
         "pageIndex": 7,
         "pageNumber": 8,
@@ -9056,7 +9056,7 @@
         "role": "header",
         "pageIndex": 7,
         "pageNumber": 8,
-        "sourcePageFingerprint": "sha256:2117ae9c46ec115ddb38e99414174574e6d99311de5ca53d9026c9d15c824ad4",
+        "sourcePageFingerprint": "sha256:1d2685a647601d109ea3dd58979c96d601eaf9ec7e05655982795772164601f5",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -9066,7 +9066,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -9119,14 +9119,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -9410,7 +9410,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -9426,8 +9426,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -9440,13 +9440,13 @@
           "pageIndex": 7,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -9728,13 +9728,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:2a45cb3c21738ea06462734e21ab6642ef4c5181809601d7761cd30d136bc7de"
+        "instanceFingerprint": "sha256:2ed8169a599c7881d82dd1f9862c1bfd5671eb98e3e0941a197cecf00fd702fc"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 7,
         "pageNumber": 8,
-        "sourcePageFingerprint": "sha256:2117ae9c46ec115ddb38e99414174574e6d99311de5ca53d9026c9d15c824ad4",
+        "sourcePageFingerprint": "sha256:1d2685a647601d109ea3dd58979c96d601eaf9ec7e05655982795772164601f5",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -9744,7 +9744,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 8",
@@ -9764,7 +9764,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:7e76820c18aceef47aec994ab8bf1197eb0d6c25bdcdb69aaeb3382ca75dcad6"
+              "generatedOwnerFingerprint": "sha256:aa0e2918a55c89d1abc038d0cff2ac0332f55f3ae9a8c0a2da7aaa83dd2eff03"
             }
           ]
         },
@@ -9806,14 +9806,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:97a6dfef6747e9a661115a53d76c74f9f3e98649da722f116cc1d0b06b9fbb6b",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -10068,8 +10068,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -10082,13 +10082,13 @@
           "pageIndex": 7,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:c0ecf7c70a0e5ad035cdb30c52f6ea5a455c4f7cab8ef275b259df6c8466cf0b",
+          "measurementRequestId": "sha256:84643f34cdec5009f70f5ed0d3a2c4be607bcc68726912a6020d689f7bbf0779",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 8",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -10325,14 +10325,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:c2540ae12eb04be26438184d074377a7445f58a1d4743b62a3d56ad22c4d7ca8"
+        "instanceFingerprint": "sha256:5b775152602143302995333d53acbc43f279af53174d54d0e6e89758b997a7b2"
       },
-      "pageFingerprint": "sha256:973f6cac06acec42e99626a7832c76bcd33d2229c74813595259ea340e617f27"
+      "pageFingerprint": "sha256:24345b3ca15837b90a2ff8516e7f3f9b66a1baad2df1ae858b50e1b6b44f571d"
     },
     {
       "pageIndex": 8,
       "pageNumber": 9,
-      "sourcePageFingerprint": "sha256:fa39d373efd41372427b91cc0e0ecf772e07d4005643031a87fd091a90f97540",
+      "sourcePageFingerprint": "sha256:65402d194da94913a9d7265649aa951bfa9e4d7b83b23116b8c332e0aab7b586",
       "pageBox": {
         "pageIndex": 8,
         "pageNumber": 9,
@@ -10344,7 +10344,7 @@
         "role": "header",
         "pageIndex": 8,
         "pageNumber": 9,
-        "sourcePageFingerprint": "sha256:fa39d373efd41372427b91cc0e0ecf772e07d4005643031a87fd091a90f97540",
+        "sourcePageFingerprint": "sha256:65402d194da94913a9d7265649aa951bfa9e4d7b83b23116b8c332e0aab7b586",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -10354,7 +10354,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -10407,14 +10407,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -10698,7 +10698,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -10714,8 +10714,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -10728,13 +10728,13 @@
           "pageIndex": 8,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -11016,13 +11016,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:e94760a881f49fa5d1e96f9315251a20796b2cb05a560b59eaa427463e17420b"
+        "instanceFingerprint": "sha256:bc5536ff7d732f8ae400954d8d29ad4971e7361ade10f9fe4bfc9781b6df2034"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 8,
         "pageNumber": 9,
-        "sourcePageFingerprint": "sha256:fa39d373efd41372427b91cc0e0ecf772e07d4005643031a87fd091a90f97540",
+        "sourcePageFingerprint": "sha256:65402d194da94913a9d7265649aa951bfa9e4d7b83b23116b8c332e0aab7b586",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -11032,7 +11032,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 9",
@@ -11052,7 +11052,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 25,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:7045183b7e4447a87c92df8de81a2fd3eded470a228ec018c9b4ed311adf36e1"
+              "generatedOwnerFingerprint": "sha256:54bd29249add9b4541a5e4e19b77bf057bcdcb230e6773aaa4a97c6ddd5137b6"
             }
           ]
         },
@@ -11094,14 +11094,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:66e346c3271164d28ab4a7c9f3535b00efbe8209c287fb5e54c15f562216f70a",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 442.987086,
-          "yPt": 716.976378,
+          "xPt": 427.65,
+          "yPt": 752.06,
           "widthPt": 112.32,
           "heightPt": 12
         },
@@ -11356,8 +11356,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -11370,13 +11370,13 @@
           "pageIndex": 8,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:da4ed49ca77b701122e8a2723477b333d694c9e235ed4eecdf340703ab152ac3",
+          "measurementRequestId": "sha256:22c4c0cc097e023b8afc16c65829a22c3558df66510c4be923f3daed8eb56ad4",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 9",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -11613,14 +11613,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:d7fc6fb49b4b7a23882cc10ada1fbdc17fe4e036b529804f041766e1dc654ce1"
+        "instanceFingerprint": "sha256:aab10ab0269f8721c5fec05fd9c87ea8c4d8710e1c9a508c8cdfae825043df31"
       },
-      "pageFingerprint": "sha256:b0dcc430d6f3c0b99e5e0ae630ad177fc3e2953882c4df5782da7c41dfc12ee5"
+      "pageFingerprint": "sha256:268a0476e5dcf3260d1a85cd8ec095290134f60ff4b673ceefd28b49f1fbec2e"
     },
     {
       "pageIndex": 9,
       "pageNumber": 10,
-      "sourcePageFingerprint": "sha256:d5bb7ea2dd9b1c301cee5278c8fe4df0fe85bd2725e0ff898d21695207006086",
+      "sourcePageFingerprint": "sha256:dc879a4052f5be94f20a02f2489178f675872339b8d39db46bf3d9471751cb08",
       "pageBox": {
         "pageIndex": 9,
         "pageNumber": 10,
@@ -11632,7 +11632,7 @@
         "role": "header",
         "pageIndex": 9,
         "pageNumber": 10,
-        "sourcePageFingerprint": "sha256:d5bb7ea2dd9b1c301cee5278c8fe4df0fe85bd2725e0ff898d21695207006086",
+        "sourcePageFingerprint": "sha256:dc879a4052f5be94f20a02f2489178f675872339b8d39db46bf3d9471751cb08",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -11642,7 +11642,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -11695,14 +11695,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -11986,7 +11986,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -12002,8 +12002,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -12016,13 +12016,13 @@
           "pageIndex": 9,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -12304,13 +12304,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:95bd994006a12965995d5a4a609fe725ba476faaa6babb9b68958a2c01790618"
+        "instanceFingerprint": "sha256:b41fb724459b2a5e2582b385fc1e6454095e30ca04aeb1fc4ed82fecd4b2fa09"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 9,
         "pageNumber": 10,
-        "sourcePageFingerprint": "sha256:d5bb7ea2dd9b1c301cee5278c8fe4df0fe85bd2725e0ff898d21695207006086",
+        "sourcePageFingerprint": "sha256:dc879a4052f5be94f20a02f2489178f675872339b8d39db46bf3d9471751cb08",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -12320,7 +12320,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 10",
@@ -12340,7 +12340,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 26,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:a2142defcea27212109733549c67750d26ddd2412c6a10d5d99bf9ef0a430902"
+              "generatedOwnerFingerprint": "sha256:4b7c8dff7afafc26b5c2be60dad0c5a24abb90f42d37b69070ba67e33118cf3a"
             }
           ]
         },
@@ -12382,14 +12382,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:b4d371489a51fe1d150bd09498761d2543e6ef05f0da4c680e333a08c53ebfa1",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 437.587086,
-          "yPt": 716.976378,
+          "xPt": 422.25,
+          "yPt": 752.06,
           "widthPt": 117.72,
           "heightPt": 12
         },
@@ -12653,8 +12653,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -12667,13 +12667,13 @@
           "pageIndex": 9,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:6b731802401ecffe4e4e90a96e9d94416ff3d5d256e5c165133a5743c343f16a",
+          "measurementRequestId": "sha256:f0aea69efaa8f90dd61e30aa69f9e7ccdc6a63708ad8587ff5f856b4a91f2f92",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 10",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -12919,14 +12919,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:0aeefdf7d756e2d9ebe1c4f9919fcf27896a0ada7d06af35d3bf56d96ed0efe1"
+        "instanceFingerprint": "sha256:60255b7884c339e5caedfdb15d18a690b952ade23da790e405ea9c40e03b8b73"
       },
-      "pageFingerprint": "sha256:cad35b6020a6aaa337eb4b1bc10ff50601f6e60d15a14327df75663334a9f892"
+      "pageFingerprint": "sha256:79f5000def467971fee1e0321de227ccbb644777025e4dc11e64f120c2133d43"
     },
     {
       "pageIndex": 10,
       "pageNumber": 11,
-      "sourcePageFingerprint": "sha256:228896d1c5cacbc0a421bbd730102beb4a394f84c1632214246bb581e24e5808",
+      "sourcePageFingerprint": "sha256:97b68b8f258bdfcf650f3ab7e655dcddba3b604ec92cec609ff9ded574f8ab6e",
       "pageBox": {
         "pageIndex": 10,
         "pageNumber": 11,
@@ -12938,7 +12938,7 @@
         "role": "header",
         "pageIndex": 10,
         "pageNumber": 11,
-        "sourcePageFingerprint": "sha256:228896d1c5cacbc0a421bbd730102beb4a394f84c1632214246bb581e24e5808",
+        "sourcePageFingerprint": "sha256:97b68b8f258bdfcf650f3ab7e655dcddba3b604ec92cec609ff9ded574f8ab6e",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -12948,7 +12948,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -13001,14 +13001,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -13292,7 +13292,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -13308,8 +13308,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -13322,13 +13322,13 @@
           "pageIndex": 10,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -13610,13 +13610,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:9d43240808178d94e6ae0bfd050253b05a87f443a08223002e02839e348871bc"
+        "instanceFingerprint": "sha256:75bbcb1c22dbbdf6fd19463701f1a4f136774fdbf2c48e3e31869dca7c9c9de1"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 10,
         "pageNumber": 11,
-        "sourcePageFingerprint": "sha256:228896d1c5cacbc0a421bbd730102beb4a394f84c1632214246bb581e24e5808",
+        "sourcePageFingerprint": "sha256:97b68b8f258bdfcf650f3ab7e655dcddba3b604ec92cec609ff9ded574f8ab6e",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -13626,7 +13626,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 11",
@@ -13646,7 +13646,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 26,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:aef01410b480e9f56efb83bd5d40046af35821baf18770eeb066dfd0acd68ceb"
+              "generatedOwnerFingerprint": "sha256:93299622ca0822db72884aeb9749b9505c281127538571f4c3760432f5624913"
             }
           ]
         },
@@ -13688,14 +13688,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:4bb997deed1951b2657d302b816c6499ced450adac56de41c2d5abd68763ef81",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 437.587086,
-          "yPt": 716.976378,
+          "xPt": 422.25,
+          "yPt": 752.06,
           "widthPt": 117.72,
           "heightPt": 12
         },
@@ -13959,8 +13959,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -13973,13 +13973,13 @@
           "pageIndex": 10,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:fe8bf4042b2db6e593efa9ea998043acfeac7826959f806b16ace98d7a99b7aa",
+          "measurementRequestId": "sha256:29b6b98459630ef2685dc713598c70cd1ddc78cde19a592680fdc2b5956bd9cc",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 11",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -14225,14 +14225,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:12d412cc086b5b2985d4297c4246b87670b254ac7b74d8438d04fec80cc153f1"
+        "instanceFingerprint": "sha256:fea49c6692e73199061077b9f33275f4ce4b3392631b7d5cb46355f18e87d957"
       },
-      "pageFingerprint": "sha256:3d1ae7cc57aa213ced0665e63b4a76477d33babfc63f94c5710fee655d5f2104"
+      "pageFingerprint": "sha256:8b0f916e2661b6dd39e7e8a01758f43c6a975e356f85a086dc360eb24b03c62f"
     },
     {
       "pageIndex": 11,
       "pageNumber": 12,
-      "sourcePageFingerprint": "sha256:8dfdf049a9c2d6684b1174335cef9e3e11086cc37b8cbfa5892ae932236db620",
+      "sourcePageFingerprint": "sha256:91a26558fb09037b38e68e20909ce1e7a179e2761914251e93090262b9439ed1",
       "pageBox": {
         "pageIndex": 11,
         "pageNumber": 12,
@@ -14244,7 +14244,7 @@
         "role": "header",
         "pageIndex": 11,
         "pageNumber": 12,
-        "sourcePageFingerprint": "sha256:8dfdf049a9c2d6684b1174335cef9e3e11086cc37b8cbfa5892ae932236db620",
+        "sourcePageFingerprint": "sha256:91a26558fb09037b38e68e20909ce1e7a179e2761914251e93090262b9439ed1",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -14254,7 +14254,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -14307,14 +14307,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -14598,7 +14598,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -14614,8 +14614,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -14628,13 +14628,13 @@
           "pageIndex": 11,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -14916,13 +14916,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:0042bac381cae7701a9316bb03bb454f1f42ae412e40f8ee9434613a1417921f"
+        "instanceFingerprint": "sha256:86541c722fb3b9cbf8ba0dd8061faae671ca0d7d2d0e4722a95480a97f594018"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 11,
         "pageNumber": 12,
-        "sourcePageFingerprint": "sha256:8dfdf049a9c2d6684b1174335cef9e3e11086cc37b8cbfa5892ae932236db620",
+        "sourcePageFingerprint": "sha256:91a26558fb09037b38e68e20909ce1e7a179e2761914251e93090262b9439ed1",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -14932,7 +14932,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 12",
@@ -14952,7 +14952,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 26,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:78def13ed0ad6175bd870bd2b97ff1894161a265df536b36310b9c7def9d750a"
+              "generatedOwnerFingerprint": "sha256:42ccf50c8c98f5348efa988e3b0b2eb44d45493c42b42a07b1a26905da4ef1ad"
             }
           ]
         },
@@ -14994,14 +14994,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:447aefbc08abc1429de2637b831928409eb19c4460028fd4888756c72afba05d",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 437.587086,
-          "yPt": 716.976378,
+          "xPt": 422.25,
+          "yPt": 752.06,
           "widthPt": 117.72,
           "heightPt": 12
         },
@@ -15265,8 +15265,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -15279,13 +15279,13 @@
           "pageIndex": 11,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:5e96b2f0c708457742fa2b3546c9324ff3f8ffbf5ef17f693b146cd63ab7dc6a",
+          "measurementRequestId": "sha256:547bbd10d809c0bca3a0bf81a4ddc3f5cc7c4b0604542a9a9ae23ec49b166dbc",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 12",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -15531,14 +15531,14 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:5fbccb99cc435357dc516e3517e088a814858fc8a627bffead2cdc8b5eb05c10"
+        "instanceFingerprint": "sha256:9e2ede65c0e4995ed87a151cd8a4b289616ffa450d74c1819eb4b785b486ccb6"
       },
-      "pageFingerprint": "sha256:c1f2a74f5c1b4ec1feda5669bd92153f72ac408efef9dee8e006ea1eac23b825"
+      "pageFingerprint": "sha256:6971cc4a9ef24986f39ec3c2cd6f9e25e217ef186724ac79e3bf801e32afb079"
     },
     {
       "pageIndex": 12,
       "pageNumber": 13,
-      "sourcePageFingerprint": "sha256:72ffc2207e8ffbf073766a097c46319b22fdff02217a7a28c8e7b2dfea1ff6bf",
+      "sourcePageFingerprint": "sha256:53019d5121d5bd471b160fa872169f08f6304b076303f6327012839435977dcb",
       "pageBox": {
         "pageIndex": 12,
         "pageNumber": 13,
@@ -15550,7 +15550,7 @@
         "role": "header",
         "pageIndex": 12,
         "pageNumber": 13,
-        "sourcePageFingerprint": "sha256:72ffc2207e8ffbf073766a097c46319b22fdff02217a7a28c8e7b2dfea1ff6bf",
+        "sourcePageFingerprint": "sha256:53019d5121d5bd471b160fa872169f08f6304b076303f6327012839435977dcb",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-header-zone",
         "textBlockId": "cover-header-text",
@@ -15560,7 +15560,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-header-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "OCR BENCHMARK | INV_9437125258",
@@ -15613,14 +15613,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:02b76a232ee0eebe1fc73e6d9ef6b3dbc0c66e2ff1595c2431330e4d2ad220ba",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
-          "widthPt": 498.614173,
-          "heightPt": 24
+          "xPt": 72.02,
+          "yPt": 20.65,
+          "widthPt": 467.95,
+          "heightPt": 32.22
         },
         "paintBounds": {
-          "xPt": 56.692913,
-          "yPt": 51.023622,
+          "xPt": 72.02,
+          "yPt": 20.65,
           "widthPt": 154.8,
           "heightPt": 12
         },
@@ -15904,7 +15904,7 @@
         ],
         "nativeEvidence": {
           "source": "accepted-r2c-d",
-          "evidenceFingerprint": "sha256:ff63764a565785c877b9f413e07902f9321ede578ac8610aad830ab214fadeeb",
+          "evidenceFingerprint": "sha256:6b205de2b77e8bf141b590ce5faf08907be1abcb5c78b5b975abaffa1a20af01",
           "glyphCount": 30,
           "missingGlyphCount": 0,
           "breakOpportunityCount": 4,
@@ -15920,8 +15920,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -15934,13 +15934,13 @@
           "pageIndex": 12,
           "paintOrder": 0,
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+          "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "OCR BENCHMARK | INV_9437125258",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -16222,13 +16222,13 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:0e225e968c3716c1e6659846ea461dc78342c0bcf4e810520eebe8b914943f89"
+        "instanceFingerprint": "sha256:683e66453acac51eb922e6818a4a98bdffbe3f350b1195a9ab7f1be8170d1c5b"
       },
       "footer": {
         "role": "footer",
         "pageIndex": 12,
         "pageNumber": 13,
-        "sourcePageFingerprint": "sha256:72ffc2207e8ffbf073766a097c46319b22fdff02217a7a28c8e7b2dfea1ff6bf",
+        "sourcePageFingerprint": "sha256:53019d5121d5bd471b160fa872169f08f6304b076303f6327012839435977dcb",
         "sourceSectionId": "section-cover",
         "zoneId": "cover-footer-zone",
         "textBlockId": "cover-footer-text",
@@ -16238,7 +16238,7 @@
           "instanceRevision": 1,
           "sectionId": "section-cover",
           "textBlockId": "cover-footer-text",
-          "availableWidthPt": 498.614173,
+          "availableWidthPt": 467.95,
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "styleKey": "report-caption",
           "renderedText": "รายงานผลการทดสอบ | หน้า 13",
@@ -16258,7 +16258,7 @@
               "renderStartOffset": 24,
               "renderEndOffset": 26,
               "styleKey": "report-caption",
-              "generatedOwnerFingerprint": "sha256:368212377e6377ccdb7fdcdc00d3e8e1c8edf058931a7780ae31159b5e0a3135"
+              "generatedOwnerFingerprint": "sha256:12d6af74f0b7052321a0fee18830768bc78738303187befc4005c34579e0545f"
             }
           ]
         },
@@ -16300,14 +16300,14 @@
         },
         "acceptedMeasurementFingerprint": "sha256:2dc952e2f7c54f2a9a48c5150bc205312e025bf6b524f6217557d10a5b3d82f2",
         "reservationBounds": {
-          "xPt": 56.692913,
-          "yPt": 716.976378,
-          "widthPt": 498.614173,
+          "xPt": 72.02,
+          "yPt": 752.06,
+          "widthPt": 467.95,
           "heightPt": 24
         },
         "paintBounds": {
-          "xPt": 437.587086,
-          "yPt": 716.976378,
+          "xPt": 422.25,
+          "yPt": 752.06,
           "widthPt": 117.72,
           "heightPt": 12
         },
@@ -16571,8 +16571,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -16585,13 +16585,13 @@
           "pageIndex": 12,
           "paintOrder": 1,
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
           "kind": "glyph-run",
-          "measurementRequestId": "sha256:8c535272e99334dc6b48780d57a93602348d412f544b2dacf1a4767933eb3a84",
+          "measurementRequestId": "sha256:971af2b65d1b6304bf9bf0db533336edc600f9fc0d0da5dfc4125b8268fe8453",
           "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
           "text": "รายงานผลการทดสอบ | หน้า 13",
           "fontId": "ibm-plex-sans-thai-regular",
@@ -16837,9 +16837,9 @@
             }
           ]
         },
-        "instanceFingerprint": "sha256:64fbd9ffdc00ca5f491ccb2f1a0b0cb7208c588e08ddbee89ba6cbad83f9ebff"
+        "instanceFingerprint": "sha256:78b0ad9406fa2536d41cbdadbf6d9c73c188d282036692f467325bfd98395f6f"
       },
-      "pageFingerprint": "sha256:0296eb06ca36d82ac8445af93c4db2e55a0db20948db9e0cd19cd6d6d0b14381"
+      "pageFingerprint": "sha256:c6bb0ffeca68b393a55e33123811d4008521df326bc8350948871f071b63574a"
     }
   ],
   "rendererHandoff": {
@@ -16875,8 +16875,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -16893,8 +16893,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -16911,8 +16911,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -16929,8 +16929,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -16947,8 +16947,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -16965,8 +16965,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -16983,8 +16983,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17001,8 +17001,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -17019,8 +17019,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17037,8 +17037,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -17055,8 +17055,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17073,8 +17073,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -17091,8 +17091,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17109,8 +17109,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -17127,8 +17127,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17145,8 +17145,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -17163,8 +17163,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17181,8 +17181,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 442.987086,
-            "yPt": 716.976378,
+            "xPt": 427.65,
+            "yPt": 752.06,
             "widthPt": 112.32,
             "heightPt": 12
           },
@@ -17199,8 +17199,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17217,8 +17217,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -17235,8 +17235,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17253,8 +17253,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -17271,8 +17271,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17289,8 +17289,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -17307,8 +17307,8 @@
           "nodeId": "cover-header-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 56.692913,
-            "yPt": 51.023622,
+            "xPt": 72.02,
+            "yPt": 20.65,
             "widthPt": 154.8,
             "heightPt": 12
           },
@@ -17325,8 +17325,8 @@
           "nodeId": "cover-footer-text",
           "nodeType": "text-block",
           "bounds": {
-            "xPt": 437.587086,
-            "yPt": 716.976378,
+            "xPt": 422.25,
+            "yPt": 752.06,
             "widthPt": 117.72,
             "heightPt": 12
           },
@@ -17366,13 +17366,13 @@
               "pageIndex": 0,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -17660,13 +17660,13 @@
               "pageIndex": 0,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:6ebb4ab7811617e732e6d804cd8e913839641a889fb33fc78ec3c92ec918641d",
+              "measurementRequestId": "sha256:19a535eb4b3611320c5b70d31ccf7c5532e22bf11bbb85fe98cf81fc71a1a5c3",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 1",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -17918,13 +17918,13 @@
               "pageIndex": 1,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -18212,13 +18212,13 @@
               "pageIndex": 1,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:d299bf96da9c088c19f81cca99c41c797074388809dd0cb296fa38aabbd3d794",
+              "measurementRequestId": "sha256:bb5b5efaa49a7030f5d5b2faa4d38af813df22848b1b8c2991ce0dc16d6abcc6",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 2",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -18470,13 +18470,13 @@
               "pageIndex": 2,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -18764,13 +18764,13 @@
               "pageIndex": 2,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:1f309d99404bf4f01fbb66ee7c5c77061ff488285b18f2d52db854347798e5bb",
+              "measurementRequestId": "sha256:e73981ba3ced7718204eaa53781fe9667971bc73c703789d3a69b3556465bba0",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 3",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -19022,13 +19022,13 @@
               "pageIndex": 3,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -19316,13 +19316,13 @@
               "pageIndex": 3,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3e1d1c1a2b79d07eaa5287211bfd6e6048e0eff26df0ca83278da53b92e7b4f8",
+              "measurementRequestId": "sha256:ea3e2a87730882383a810ad154385d7e3981a72810652c0562db993126fa449d",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 4",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -19574,13 +19574,13 @@
               "pageIndex": 4,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -19868,13 +19868,13 @@
               "pageIndex": 4,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:b5c03c9d3f4904abb0e7cb6d6fe64a99c46122056ae9feec136780397a5cabfc",
+              "measurementRequestId": "sha256:0affa15b60b34ce6133f031438db9641af926615dcf73fc50d1dbcfe3c7e1b64",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 5",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -20126,13 +20126,13 @@
               "pageIndex": 5,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -20420,13 +20420,13 @@
               "pageIndex": 5,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:fcbb010b7bd18c1d674288150e69181e5cd6477e4d73b716fff05cc74e3c6106",
+              "measurementRequestId": "sha256:45fe594f7ffa108b748196fe0ad971b33f49123c1b5e1d84b2eafffec6909acd",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 6",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -20678,13 +20678,13 @@
               "pageIndex": 6,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -20972,13 +20972,13 @@
               "pageIndex": 6,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:b0e99ec0a9f3ce83713da24c9514fa0f118033775ff5cc01dffbd927e3506cca",
+              "measurementRequestId": "sha256:c3d8d07ff45ef01155667e1661d994a6dc07503104ceb79bda8913a87b2b8021",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 7",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -21230,13 +21230,13 @@
               "pageIndex": 7,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -21524,13 +21524,13 @@
               "pageIndex": 7,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:c0ecf7c70a0e5ad035cdb30c52f6ea5a455c4f7cab8ef275b259df6c8466cf0b",
+              "measurementRequestId": "sha256:84643f34cdec5009f70f5ed0d3a2c4be607bcc68726912a6020d689f7bbf0779",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 8",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -21782,13 +21782,13 @@
               "pageIndex": 8,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -22076,13 +22076,13 @@
               "pageIndex": 8,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 442.987086,
-                "yPt": 716.976378,
+                "xPt": 427.65,
+                "yPt": 752.06,
                 "widthPt": 112.32,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:da4ed49ca77b701122e8a2723477b333d694c9e235ed4eecdf340703ab152ac3",
+              "measurementRequestId": "sha256:22c4c0cc097e023b8afc16c65829a22c3558df66510c4be923f3daed8eb56ad4",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 9",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -22334,13 +22334,13 @@
               "pageIndex": 9,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -22628,13 +22628,13 @@
               "pageIndex": 9,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 437.587086,
-                "yPt": 716.976378,
+                "xPt": 422.25,
+                "yPt": 752.06,
                 "widthPt": 117.72,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:6b731802401ecffe4e4e90a96e9d94416ff3d5d256e5c165133a5743c343f16a",
+              "measurementRequestId": "sha256:f0aea69efaa8f90dd61e30aa69f9e7ccdc6a63708ad8587ff5f856b4a91f2f92",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 10",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -22895,13 +22895,13 @@
               "pageIndex": 10,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -23189,13 +23189,13 @@
               "pageIndex": 10,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 437.587086,
-                "yPt": 716.976378,
+                "xPt": 422.25,
+                "yPt": 752.06,
                 "widthPt": 117.72,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:fe8bf4042b2db6e593efa9ea998043acfeac7826959f806b16ace98d7a99b7aa",
+              "measurementRequestId": "sha256:29b6b98459630ef2685dc713598c70cd1ddc78cde19a592680fdc2b5956bd9cc",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 11",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -23456,13 +23456,13 @@
               "pageIndex": 11,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -23750,13 +23750,13 @@
               "pageIndex": 11,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 437.587086,
-                "yPt": 716.976378,
+                "xPt": 422.25,
+                "yPt": 752.06,
                 "widthPt": 117.72,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:5e96b2f0c708457742fa2b3546c9324ff3f8ffbf5ef17f693b146cd63ab7dc6a",
+              "measurementRequestId": "sha256:547bbd10d809c0bca3a0bf81a4ddc3f5cc7c4b0604542a9a9ae23ec49b166dbc",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 12",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -24017,13 +24017,13 @@
               "pageIndex": 12,
               "paintOrder": 0,
               "bounds": {
-                "xPt": 56.692913,
-                "yPt": 51.023622,
+                "xPt": 72.02,
+                "yPt": 20.65,
                 "widthPt": 154.8,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:3a9d26355bbb7deed0642eba3cc35ee4eb5f68a0f70b529747756d510c9790e5",
+              "measurementRequestId": "sha256:be1ddd5c8ababa04ce678fbf9a516240d6f1380baaae29c4130cf831a87ec639",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "OCR BENCHMARK | INV_9437125258",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -24311,13 +24311,13 @@
               "pageIndex": 12,
               "paintOrder": 1,
               "bounds": {
-                "xPt": 437.587086,
-                "yPt": 716.976378,
+                "xPt": 422.25,
+                "yPt": 752.06,
                 "widthPt": 117.72,
                 "heightPt": 12
               },
               "kind": "glyph-run",
-              "measurementRequestId": "sha256:8c535272e99334dc6b48780d57a93602348d412f544b2dacf1a4767933eb3a84",
+              "measurementRequestId": "sha256:971af2b65d1b6304bf9bf0db533336edc600f9fc0d0da5dfc4125b8268fe8453",
               "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
               "text": "รายงานผลการทดสอบ | หน้า 13",
               "fontId": "ibm-plex-sans-thai-regular",
@@ -24581,7 +24581,7 @@
         }
       ],
       "imageAssets": [],
-      "fingerprint": "sha256:43aab80634a6e921cf6e8fbd0be3caf254f334260ea5ca8a57a39985a32e4526",
+      "fingerprint": "sha256:15b5d9711ce36cdaa3ba4455832df3b7f9bfb7262ae5456e01502e1bc2273a65",
       "artifact": {
         "kind": "pdf",
         "status": "not-rendered",
@@ -24689,5 +24689,5 @@
     "bodyDisplayListBuilt": false,
     "pdfRendered": false
   },
-  "bundleFingerprint": "c14598e9f6d4b42b932d25b6fded3e360b69105bac0e0dc113a2b8083ef199fe"
+  "bundleFingerprint": "3a24b5807bd744392292789b4f11e1a330279cc4fa49b7516659b746365d4b91"
 }

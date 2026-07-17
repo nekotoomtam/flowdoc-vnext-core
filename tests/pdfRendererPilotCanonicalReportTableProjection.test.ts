@@ -60,11 +60,11 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
     expect(PROJECTION_BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-C",
       sourceDataBundleFingerprint: "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-      sourceTemplateBundleFingerprint: "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb",
-      sourceFormattingBundleFingerprint: "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
-      sourceMeasurementHandoffFingerprint: "1a2868d58fb52e62ae6d6a1002460ba81bd019b57b1d328828a89c41ef73a84f",
-      projectionContractFingerprint: "028956cc81c16d7f29c42913ee9a154f56faaf20d5b39097fb0c73b62b066f3c",
-      bundleFingerprint: "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
+      sourceTemplateBundleFingerprint: "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4",
+      sourceFormattingBundleFingerprint: "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698",
+      sourceMeasurementHandoffFingerprint: "c7c4f45b061cb975e1d6b215d786b58a1976935753c93bbae8eaf463480bdd30",
+      projectionContractFingerprint: "8038892b0919734eccff3ec46feade4cde03e9e5cddd2134197aef4b93bdeeb4",
+      bundleFingerprint: "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
       summary: {
         sourceCollectionCount: 6,
         sourceItemFieldCount: 63,
@@ -83,9 +83,9 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
         materializedTableRequestCount: 544,
         totalReadyRequestCount: 794,
         generatedInlineDeferredBlockCount: 12,
-        minimumCellContentWidthPt: 41.606299,
-        maximumCellContentWidthPt: 339.244094,
-        sourceMinimumCellContentWidthPt: 15.622047,
+        minimumCellContentWidthPt: 38.795,
+        maximumCellContentWidthPt: 319.565,
+        sourceMinimumCellContentWidthPt: 14.283333,
       },
     })
   }, 60_000)
@@ -146,7 +146,7 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
       (table) => table.projectionId === "mapping-comparison",
     )
     expect(mappingMeasurement).toMatchObject({
-      tableContentWidthPt: 496.062992,
+      tableContentWidthPt: 467.95,
       formattedBindingCount: 50,
       authoredPreparation: { work: { textMeasurementRequestCount: 5 } },
       materializedPreparation: { work: { textMeasurementRequestCount: 50 } },
@@ -162,7 +162,7 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
     )
     expect(latency).toMatchObject({
       sourceCellId: "table-ocr-runs-ocr-runtime-cost-body-cell-latency-ms",
-      request: { availableWidthPt: 91.212598, styleKey: "table-body" },
+      request: { availableWidthPt: 85.59, styleKey: "table-body" },
     })
     expect(DATA_BUNDLE.collectionSnapshot.collections["report.ocr_runs"].items.some((item) => (
       item.values.latency_ms === 2086.849199999124
@@ -247,8 +247,9 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
         projectedTableCount: 15,
         sourceMaximumColumnCount: 21,
         projectedMaximumColumnCount: 6,
-        sourceMinimumCellContentWidthPt: 15.622047,
-        projectedMinimumCellContentWidthPt: 41.606299,
+        tableWidthPt: 467.95,
+        sourceMinimumCellContentWidthPt: 14.283333,
+        projectedMinimumCellContentWidthPt: 38.795,
         sourceCollectionContractMutation: false,
       },
       boundary: { textShaping: "not-run", lineBreaking: "not-run", pagination: "not-run" },

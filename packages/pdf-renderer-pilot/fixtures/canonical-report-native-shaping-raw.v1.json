@@ -2,8 +2,8 @@
   "contractVersion": 1,
   "kind": "canonical-report-native-raw-shaping-evidence",
   "phaseId": "PDF-PILOT-08B-R2C-D",
-  "sourceProjectionFingerprint": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
-  "sourcePlanFingerprint": "dd293ec3c163ab20213873eb450a177f9a35ff0b961a66284e19f44136879eed",
+  "sourceProjectionFingerprint": "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+  "sourcePlanFingerprint": "269d682d22288f26a951d942787a659fad1edfee90b8459340900414120cdadb",
   "shaper": {
     "source": "flowdoc-rustybuzz-native-smoke",
     "revision": "rustybuzz-0.20.1",
@@ -105440,5 +105440,5 @@
       }
     }
   ],
-  "rawEvidenceFingerprint": "563924d99e0be7764a9da33a0133305054410c285aad79e874a657491bcd000b"
+  "rawEvidenceFingerprint": "8f8441754fd6fb4256bc37ffd30d21cdcf15f80e445bc9a9f05f751dc579548c"
 }

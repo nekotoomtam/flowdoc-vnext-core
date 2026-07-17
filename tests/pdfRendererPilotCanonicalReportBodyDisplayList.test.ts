@@ -53,13 +53,13 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
     })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-L",
-      bundleFingerprint: "ab21f6dab062eea2950587be2ac5bfbbda65d3e9a31206701793d46a0ac6aacc",
-      bodyDisplayList: { fingerprint: "sha256:49f9427fcf770e144d4e809790b6002d2b08447703f8d6272878cdccd46cf897" },
+      bundleFingerprint: "18f4e7a322e6af1d4073dd4de277a3fb4d9d64905eac50c160c3cb7faebfa084",
+      bodyDisplayList: { fingerprint: "sha256:eb528afde14675de9723d9820b6b532d8a2cba80f6a01f54fe5adb2c54d04ec2" },
       rendererHandoff: {
         scope: "full-document-body-plus-static-zones",
         measuredDrawContract: {
           status: "consumable",
-          fingerprint: "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
+          fingerprint: "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
           contracts: { mayRelayout: false },
           issues: [],
         },
@@ -70,23 +70,23 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
         textEntryCount: 165,
         mediaEntryCount: 5,
         tableEntryCount: 15,
-        sourceBodyPlacementCount: 187,
-        bodyDrawCommandCount: 1752,
-        bodyPaintCommandCount: 1752,
-        bodyGlyphRunCount: 992,
+        sourceBodyPlacementCount: 189,
+        bodyDrawCommandCount: 1785,
+        bodyPaintCommandCount: 1785,
+        bodyGlyphRunCount: 1005,
         bodyImageCount: 5,
-        bodyFillRectCount: 80,
-        bodyStrokeLineCount: 675,
-        structuralReceiptCount: 807,
+        bodyFillRectCount: 87,
+        bodyStrokeLineCount: 688,
+        structuralReceiptCount: 820,
         emptyTextReceiptCount: 1,
-        fullDrawCommandCount: 1778,
-        fullPaintCommandCount: 1778,
-        fullGlyphRunCount: 1018,
+        fullDrawCommandCount: 1811,
+        fullPaintCommandCount: 1811,
+        fullGlyphRunCount: 1031,
         fontAssetCount: 2,
         imageAssetCount: 5,
         missingGlyphCount: 0,
         tableReplayCount: 15,
-        tableReplayPageCount: 17,
+        tableReplayPageCount: 19,
         fullRendererHandoffConsumable: true,
         pdfRendered: false,
       },
@@ -96,11 +96,11 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
   it("binds every body entry and page command without duplicate paint order", () => {
     expect(BUNDLE.entries).toHaveLength(185)
     expect(new Set(BUNDLE.entries.map((entry) => entry.itemIndex))).toHaveLength(185)
-    expect(BUNDLE.entries.reduce((sum, entry) => sum + entry.sourcePlacementCount, 0)).toBe(187)
-    expect(BUNDLE.bodyDisplayList.drawCommandIds).toHaveLength(1752)
-    expect(BUNDLE.bodyDisplayList.paintCommandIds).toHaveLength(1752)
-    expect(new Set(BUNDLE.bodyDisplayList.drawCommandIds)).toHaveLength(1752)
-    expect(new Set(BUNDLE.bodyDisplayList.paintCommandIds)).toHaveLength(1752)
+    expect(BUNDLE.entries.reduce((sum, entry) => sum + entry.sourcePlacementCount, 0)).toBe(189)
+    expect(BUNDLE.bodyDisplayList.drawCommandIds).toHaveLength(1785)
+    expect(BUNDLE.bodyDisplayList.paintCommandIds).toHaveLength(1785)
+    expect(new Set(BUNDLE.bodyDisplayList.drawCommandIds)).toHaveLength(1785)
+    expect(new Set(BUNDLE.bodyDisplayList.paintCommandIds)).toHaveLength(1785)
 
     const contract = BUNDLE.rendererHandoff.measuredDrawContract
     expect(contract.pages).toHaveLength(13)
@@ -116,12 +116,12 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
       ))).toBe(true)
     })
     expect(contract.summary).toMatchObject({
-      sourceCommandCount: 1778,
-      paintCommandCount: 1778,
-      glyphRunCount: 1018,
-      fillRectCount: 80,
+      sourceCommandCount: 1811,
+      paintCommandCount: 1811,
+      glyphRunCount: 1031,
+      fillRectCount: 87,
       strokeRectCount: 0,
-      strokeLineCount: 675,
+      strokeLineCount: 688,
       imageCount: 5,
       fontAssetCount: 2,
       imageAssetCount: 5,
@@ -130,22 +130,22 @@ describe("PDF-PILOT-08B-R2C-L canonical report body display list", () => {
 
   it("replays all Table windows and records structure and empty text without fake paint", () => {
     expect(BUNDLE.tableReplays).toHaveLength(15)
-    expect(BUNDLE.tableReplays.reduce((sum, replay) => sum + replay.pageCount, 0)).toBe(17)
+    expect(BUNDLE.tableReplays.reduce((sum, replay) => sum + replay.pageCount, 0)).toBe(19)
     expect(BUNDLE.tableReplays.every((replay) => (
       replay.v4PaginationFingerprint.startsWith("sha256:")
       && replay.v1PaginationFingerprint.startsWith("sha256:")
       && replay.rendererProjectionFingerprint.startsWith("sha256:")
       && replay.sourceFamilyEvidenceFingerprints.length === replay.pageCount
     ))).toBe(true)
-    expect(BUNDLE.tableReplays.filter((replay) => replay.pageCount === 2)).toHaveLength(2)
-    expect(BUNDLE.tableReplays.reduce((sum, replay) => sum + replay.borderCommandCount, 0)).toBe(675)
+    expect(BUNDLE.tableReplays.filter((replay) => replay.pageCount === 2)).toHaveLength(4)
+    expect(BUNDLE.tableReplays.reduce((sum, replay) => sum + replay.borderCommandCount, 0)).toBe(688)
 
     const empty = BUNDLE.bodyDisplayList.structuralReceipts.filter((receipt) => (
       receipt.reason === "empty-measured-text-no-glyph-paint"
     ))
     expect(empty).toEqual([{
       tableId: "table-mapping-fields-mapping-comparison",
-      sourceCommandId: "table-render:row:1:6:cell:2:candidate:0",
+      sourceCommandId: "table-render:row:0:9:cell:2:candidate:0",
       kind: "text-line",
       reason: "empty-measured-text-no-glyph-paint",
     }])

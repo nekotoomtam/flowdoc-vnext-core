@@ -19,7 +19,7 @@ import type {
 export const FLOWDOC_CANONICAL_REPORT_LINE_BREAKING_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_LINE_BREAKING_ID = "ocr-benchmark-report-line-breaking-v1" as const
 
-const ACCEPTED_NATIVE_SHAPING_FINGERPRINT = "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2"
+const ACCEPTED_NATIVE_SHAPING_FINGERPRINT = "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8"
 const ACCEPTED_TYPOGRAPHY_MANIFEST_ID = "pdf-pilot-08b-canonical-report-typography-calibration-v1"
 const RAW_SEGMENTER_SOURCE = "flowdoc-icu4x-native-line-segmenter"
 const SEGMENTER_REVISION = "icu_segmenter-2.2.0"

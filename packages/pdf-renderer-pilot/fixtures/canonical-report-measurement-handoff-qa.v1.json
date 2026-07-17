@@ -4,9 +4,9 @@
   "phaseId": "PDF-PILOT-08B-R2C-B",
   "status": "accepted",
   "sourceDataBundleFingerprint": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-  "sourceTemplateBundleFingerprint": "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb",
-  "sourceFormattingBundleFingerprint": "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
-  "bundleFingerprint": "1a2868d58fb52e62ae6d6a1002460ba81bd019b57b1d328828a89c41ef73a84f",
+  "sourceTemplateBundleFingerprint": "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4",
+  "sourceFormattingBundleFingerprint": "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698",
+  "bundleFingerprint": "c7c4f45b061cb975e1d6b215d786b58a1976935753c93bbae8eaf463480bdd30",
   "measurementProfile": {
     "status": "stable",
     "measurementProfileId": "measurement-profile-v1:ocr-benchmark-ibm-plex-thai-v1:pdf-pilot-r2c-b-v1:fonts-font-ibm-plex-sans-thai-bold-700-normal-ba5e62ecf0d5f193+font-ibm-plex-sans-thai-regular-400-normal-bdf527758ba47d68:styles-style-report-body-ibm-plex-sans-thai-regular+style-report-caption-ibm-plex-sans-thai-regular+style-report-title-ibm-plex-sans-thai-bold+style-section-heading-ibm-plex-sans-thai-bold+style-table-body-ibm-plex-sans-thai-regular+style-table-header-ibm-plex-sans-thai-bold:shape-rustybuzz-rustybuzz-wasm-0-20-1-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
@@ -23,7 +23,7 @@
     "pageSize": "Letter",
     "widthPt": 612,
     "heightPt": 792,
-    "bodyWidthPt": 498.614173,
+    "bodyWidthPt": 467.95,
     "tableLayoutProfile": {
       "contractVersion": 1,
       "kind": "table-cell-layout-profile",
@@ -41,56 +41,56 @@
     {
       "collectionFieldKey": "report.ocr_runs",
       "tableId": "table-ocr-runs",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columnCount": 19,
       "authoredRequestCount": 19,
       "materializedRequestCount": 114,
-      "minimumCellContentWidthPt": 18.10857
+      "minimumCellContentWidthPt": 16.628947
     },
     {
       "collectionFieldKey": "report.native_runs",
       "tableId": "table-native-runs",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columnCount": 21,
       "authoredRequestCount": 21,
       "materializedRequestCount": 126,
-      "minimumCellContentWidthPt": 15.622047
+      "minimumCellContentWidthPt": 14.283333
     },
     {
       "collectionFieldKey": "report.mapping_fields",
       "tableId": "table-mapping-fields",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columnCount": 8,
       "authoredRequestCount": 8,
       "materializedRequestCount": 80,
-      "minimumCellContentWidthPt": 54.007874
+      "minimumCellContentWidthPt": 50.49375
     },
     {
       "collectionFieldKey": "report.native_missing_concepts",
       "tableId": "table-native-missing-concepts",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columnCount": 2,
       "authoredRequestCount": 2,
       "materializedRequestCount": 26,
-      "minimumCellContentWidthPt": 240.031496
+      "minimumCellContentWidthPt": 225.975
     },
     {
       "collectionFieldKey": "report.runs",
       "tableId": "table-runs",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columnCount": 11,
       "authoredRequestCount": 11,
       "materializedRequestCount": 66,
-      "minimumCellContentWidthPt": 37.096632
+      "minimumCellContentWidthPt": 34.540909
     },
     {
       "collectionFieldKey": "report.gdim_expected_fields",
       "tableId": "table-gdim-expected-fields",
-      "tableContentWidthPt": 496.062992,
+      "tableContentWidthPt": 467.95,
       "columnCount": 2,
       "authoredRequestCount": 2,
       "materializedRequestCount": 64,
-      "minimumCellContentWidthPt": 240.031496
+      "minimumCellContentWidthPt": 225.975
     }
   ],
   "summary": {
@@ -106,8 +106,8 @@
     "formattedCollectionBindingCount": 476,
     "measurementProfileFontCount": 2,
     "measurementProfileStyleMappingCount": 6,
-    "minimumCellContentWidthPt": 15.622047,
-    "maximumCellContentWidthPt": 240.031496
+    "minimumCellContentWidthPt": 14.283333,
+    "maximumCellContentWidthPt": 225.975
   },
   "generatedInlineDeferrals": [
     {

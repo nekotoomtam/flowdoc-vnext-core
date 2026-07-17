@@ -79,7 +79,7 @@ function createQa(bundle: FlowDocCanonicalReportTableProjectionBundleV1) {
       projectedMaximumColumnCount: bundle.summary.maximumProjectedColumnCount,
       sourceMinimumCellContentWidthPt: bundle.summary.sourceMinimumCellContentWidthPt,
       projectedMinimumCellContentWidthPt: bundle.summary.minimumCellContentWidthPt,
-      tableWidthMm: bundle.projectionContract.requirements.tableWidthMm,
+      tableWidthPt: bundle.projectionContract.requirements.tableWidthPt,
       minimumColumnWidthShare: bundle.projectionContract.requirements.minimumColumnWidthShare,
       sourceCollectionContractMutation: bundle.projectionContract.requirements.sourceCollectionContractMutation,
     },

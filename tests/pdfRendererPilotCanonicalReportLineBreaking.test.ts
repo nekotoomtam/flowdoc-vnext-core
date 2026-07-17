@@ -48,11 +48,11 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
     expect(validate(BUNDLE)).toEqual({ status: "valid", issues: [], summary: BUNDLE.summary })
     expect(BUNDLE).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-E",
-      sourceNativeShapingFingerprint: "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
+      sourceNativeShapingFingerprint: "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
       sourceTypographyCalibrationFingerprint: "9f3568dd46a1ff9c6a0e40cf8aed66135a63ae74436c92788788ad00726ba04f",
-      sourceRawSegmentationFingerprint: "6c8bce106835710ab71f719e8174656a7311379b1ffe29088ee079ee3f887475",
-      planFingerprint: "9c7ffd99e6e3b5a157f3c860dcfd66982a130876e46273027a749de1b26d6ca1",
-      bundleFingerprint: "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
+      sourceRawSegmentationFingerprint: "ed27ede053169d397596fdee351add232bc46c811bf12975f059e196c9ff0add",
+      planFingerprint: "e4874b4fff3cca45e33cb2617a6fd5b9d7eef4d51f62316758f2eba2ae67b540",
+      bundleFingerprint: "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
       profileBinding: {
         status: "bound-native-line-breaking-only",
         sourceProfileSegmenterRevision: "icu4x-planned",
@@ -63,19 +63,19 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
       },
       summary: {
         sourceConsumerCount: 794,
-        measurementVariantCount: 424,
+        measurementVariantCount: 421,
         emptyMeasurementVariantCount: 1,
         nativeSegmentExecutionCount: 364,
-        deduplicatedSegmentExecutionCount: 59,
+        deduplicatedSegmentExecutionCount: 56,
         lineHeightBindingCount: 6,
-        measurementGlyphCount: 12000,
-        coveredGlyphCount: 12000,
-        breakOpportunityCount: 1906,
+        measurementGlyphCount: 11996,
+        coveredGlyphCount: 11996,
+        breakOpportunityCount: 1903,
         tailoredBreakOpportunityCount: 226,
-        lineCount: 456,
-        multiLineMeasurementCount: 32,
+        lineCount: 457,
+        multiLineMeasurementCount: 35,
         overflowLineCount: 0,
-        maxLineCount: 2,
+        maxLineCount: 3,
       },
     })
   }, 60_000)
@@ -146,28 +146,29 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
     const title = BUNDLE.measurements.find((measurement) => measurement.styleKey === "report-title")
     expect(title).toMatchObject({
       renderedText: "รายงานเปรียบเทียบ OCR และการจัดโครงสร้างเอกสาร",
-      availableWidthPt: 498.614173,
+      availableWidthPt: 467.95,
       lineHeightPt: 31,
       summary: { lineCount: 2, overflowLineCount: 0, tailoredBreakOpportunityCount: 0 },
       lineBoxes: [
-        { startOffset: 0, endOffset: 40, widthPt: 470.664 },
-        { startOffset: 40, endOffset: 46, widthPt: 78.576 },
+        { startOffset: 0, endOffset: 31, widthPt: 366.768 },
+        { startOffset: 31, endOffset: 46, widthPt: 182.472 },
       ],
     })
 
     const identifier = BUNDLE.measurements.find((measurement) => (
       measurement.renderedText === "goods_shipment.detail.product_info.net_weight.weight"
-      && measurement.availableWidthPt === 130.897638
+      && measurement.availableWidthPt === 123.026
     ))
     expect(identifier).toMatchObject({
       summary: {
-        lineCount: 2,
+        lineCount: 3,
         overflowLineCount: 0,
         tailoredBreakOpportunityCount: 7,
       },
       lineBoxes: [
         { startOffset: 0, endOffset: 22, widthPt: 95.6865 },
-        { startOffset: 22, endOffset: 52, widthPt: 130.0572 },
+        { startOffset: 22, endOffset: 46, widthPt: 102.6753 },
+        { startOffset: 46, endOffset: 52, widthPt: 27.3819 },
       ],
     })
     expect(identifier?.breakOpportunities.slice(0, -1).every((item) => item.kind === "punctuation")).toBe(true)

@@ -5,20 +5,20 @@
   "status": "accepted-full-core-measured-draw-contract-pdf-rendering-pending",
   "sourceFingerprints": {
     "data": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
-    "projection": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
-    "nativeShaping": "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
-    "lineBreaking": "004634a19b37f73b2945f8d1db52c3a512e014c9ced8c0e088577e8063089c2a",
-    "measuredComposition": "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028",
-    "paginationInputs": "1980d9fd60f684e49213348120c625b889bcad03c1dbab03e4860d347349f0f4",
-    "sectionReconciliation": "b3b22197f8f5668cc5c2a9928f610d7f24e77a321bc899bcefdeff259d7e3ab2",
-    "paginationExecution": "bf6024cef64a0f7a25c6b8acdf442f552642cde3396905efcddcd3d5f5f003c5",
-    "pagePlan": "sha256:90b2678a79b67ad8a7142a94a975ffda538a07c50aa24e4c0179dcd0bf81ddd2",
-    "staticZones": "c14598e9f6d4b42b932d25b6fded3e360b69105bac0e0dc113a2b8083ef199fe",
+    "projection": "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+    "nativeShaping": "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+    "lineBreaking": "e1a9612766a6342ab3c36bbd0475f170bd4ef64d706161513bdf2f4a64b634a4",
+    "measuredComposition": "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a",
+    "paginationInputs": "73e19092ffa8b203e2aa0fb73463bcb882dcc9b83c652969aad7ed0ef39eb724",
+    "sectionReconciliation": "8c805719625c7c071568db8f90f9fad1b67c66f519ba880c16183314447c8364",
+    "paginationExecution": "f22854d8cb99e451f9c8b29c977f822a9e44fc8afd345d50087a77a0c94a83d0",
+    "pagePlan": "sha256:0dffaba9fe75bad851f080b1ffec049388622881ad20f73d391819a20538da65",
+    "staticZones": "3a24b5807bd744392292789b4f11e1a330279cc4fa49b7516659b746365d4b91",
     "fontManifest": "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077"
   },
-  "bundleFingerprint": "ab21f6dab062eea2950587be2ac5bfbbda65d3e9a31206701793d46a0ac6aacc",
-  "bodyDisplayListFingerprint": "sha256:49f9427fcf770e144d4e809790b6002d2b08447703f8d6272878cdccd46cf897",
-  "measuredDrawContractFingerprint": "sha256:264bfc087e6e1c9f52518b82f78f0019125890a447dfbdc8a25812ceda1c53fe",
+  "bundleFingerprint": "18f4e7a322e6af1d4073dd4de277a3fb4d9d64905eac50c160c3cb7faebfa084",
+  "bodyDisplayListFingerprint": "sha256:eb528afde14675de9723d9820b6b532d8a2cba80f6a01f54fe5adb2c54d04ec2",
+  "measuredDrawContractFingerprint": "sha256:ab39833ed53b7ac787e658a96233b9c7c69e59f96f58e76aa2131fcfd0e6a7b4",
   "tableRenderPolicy": {
     "styleProfile": {
       "contractVersion": 1,
@@ -60,26 +60,26 @@
     "textEntryCount": 165,
     "mediaEntryCount": 5,
     "tableEntryCount": 15,
-    "sourceBodyPlacementCount": 187,
-    "bodyDrawCommandCount": 1752,
-    "bodyPaintCommandCount": 1752,
-    "bodyGlyphRunCount": 992,
+    "sourceBodyPlacementCount": 189,
+    "bodyDrawCommandCount": 1785,
+    "bodyPaintCommandCount": 1785,
+    "bodyGlyphRunCount": 1005,
     "bodyImageCount": 5,
-    "bodyFillRectCount": 80,
-    "bodyStrokeLineCount": 675,
-    "structuralReceiptCount": 807,
+    "bodyFillRectCount": 87,
+    "bodyStrokeLineCount": 688,
+    "structuralReceiptCount": 820,
     "emptyTextReceiptCount": 1,
-    "fullDrawCommandCount": 1778,
-    "fullPaintCommandCount": 1778,
-    "fullGlyphRunCount": 1018,
+    "fullDrawCommandCount": 1811,
+    "fullPaintCommandCount": 1811,
+    "fullGlyphRunCount": 1031,
     "fullImageCount": 5,
-    "fullFillRectCount": 80,
-    "fullStrokeLineCount": 675,
+    "fullFillRectCount": 87,
+    "fullStrokeLineCount": 688,
     "fontAssetCount": 2,
     "imageAssetCount": 5,
     "missingGlyphCount": 0,
     "tableReplayCount": 15,
-    "tableReplayPageCount": 17,
+    "tableReplayPageCount": 19,
     "fullRendererHandoffConsumable": true,
     "pdfRendered": false
   },
@@ -93,14 +93,14 @@
         2
       ],
       "sourcePlacementFingerprints": [
-        "sha256:2348573bcae9f33598976676177ac235a8dfb50a36afdb42a99c61acf7f77ccf"
+        "sha256:4e2a1a6db3ef3d64a8f0fb4457fbd944b9d62c8622a9cf841d8ea88de56419ca"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:5bcb5b7cff27f7bb213629d5cd80bc76377c1d31b0a5b92ae730f75986b874a8"
+        "sha256:fbfe326a3c9633154c662f77148cf3fe42766150feb47dd1d8aa0fc79c3ee5f0"
       ],
-      "v4PaginationFingerprint": "sha256:1269dbad4ae081b1f610e01f637ea068cd960c6e3791c69914ec6e63dfdbd63a",
-      "v1PaginationFingerprint": "sha256:242f6cd5cc04eae329e7566c6c249cb5be9e1e07241b503588b426f5bbef3507",
-      "rendererProjectionFingerprint": "sha256:a6598117d5ecbd3f3da21ad9c2daeddccc28af73bd37e55be9c1fe0108fd2e4f",
+      "v4PaginationFingerprint": "sha256:a2dd51be16a57bd9a3e9449c052f7cf404a18b5e32f5c9bd82fd8c5c6519fecd",
+      "v1PaginationFingerprint": "sha256:0d5b1b3603306e3481a83db1620ffaaaf705a43af65560108eb3de5b84829be9",
+      "rendererProjectionFingerprint": "sha256:dee293c16440715f249dc4282d2f585e4241def2a290ee60d6516359f100af9a",
       "pageCount": 1,
       "rendererCommandCount": 144,
       "structuralCommandCount": 51,
@@ -108,7 +108,7 @@
       "textLineCommandCount": 42,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 45,
-      "replayFingerprint": "sha256:37984cb3bfadf0cc67acd34f87cb4aabfa42c9c9a54f0c9a39ca53bcf1ad9865"
+      "replayFingerprint": "sha256:616fd835b244842fc7607be7b53e6f737c65a4ca94357dcca0741bc73490e0a2"
     },
     {
       "itemIndex": 51,
@@ -119,14 +119,14 @@
         2
       ],
       "sourcePlacementFingerprints": [
-        "sha256:28a2daeb31dad029fbe7f602f15fbf0783d9b7434e131893a3bf2ae1706256e2"
+        "sha256:75f85424e3a9e784ddbf6ece1d80f44cd61c18e7b07a089077743e9fb87b25da"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:d3284f0cca3e0715d0244e3f39e4d6660952e20ce0707b25b11cfa0bad5e554a"
+        "sha256:a6f7026f35e9f489f3123ea1ced84c05e3bb34c8fe6ae74ad32f58003ff97ca8"
       ],
-      "v4PaginationFingerprint": "sha256:0b83677300983ebb14daf654ba13907089380940db7877ca244f51d2b46a4baa",
-      "v1PaginationFingerprint": "sha256:f3a125b77a68731273818871226ddacd2afa4f0fedebc4ff2d8a0570b426d712",
-      "rendererProjectionFingerprint": "sha256:86d8890f062cf4864eb19c94b82a116938970ab5133ba2c890a887a3536647c3",
+      "v4PaginationFingerprint": "sha256:19bb94f245348bce95426c85832d04e55b9926fde2e4de413ab415e275d4c0a6",
+      "v1PaginationFingerprint": "sha256:8b90f274b94ebb0de930a7a545354357def3460fc6faed14e83988ef9cdd2ff2",
+      "rendererProjectionFingerprint": "sha256:84f0fb8076d80515791f7976a80b3cfcbd7b90712805ac8a01827d016f994a9f",
       "pageCount": 1,
       "rendererCommandCount": 144,
       "structuralCommandCount": 51,
@@ -134,33 +134,36 @@
       "textLineCommandCount": 42,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 45,
-      "replayFingerprint": "sha256:b3f49d8a8af34b00e221a33bae1c4b39ec579fa7288816d202f9a95f1bba2e11"
+      "replayFingerprint": "sha256:e2c0252c812a59e36e2f9487a60b65b126816ae9bfa1b111060073640bdf6324"
     },
     {
       "itemIndex": 53,
       "tableId": "table-ocr-runs-ocr-quality",
       "projectionId": "ocr-quality",
-      "firstDocumentPageIndex": 3,
+      "firstDocumentPageIndex": 2,
       "documentPageIndexes": [
+        2,
         3
       ],
       "sourcePlacementFingerprints": [
-        "sha256:d0d072aa1014995596509a38c7ecee5470b6581fab762ed5bce51b32ed78ff5a"
+        "sha256:2b6f2ddee6e94cf292ef85399e8221dfaed0ac9f143fbb07a20fe4edd61f4567",
+        "sha256:c5fb64f4c33361ee09ccf5821d452e5a2336bf099c9876162ae7a87919cc7fd9"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:8bedd4439a1726315b5772c5737fdb2acf2c451a08ba9c214f884330763bf3c5"
+        "sha256:88b81f420e10b6dd53d6e700d43dde7f4cc758eef79ffc7f13c950e428fecec6",
+        "sha256:a666393f5296d8dfe6e4e7a83fd1d395e53d2446e9f04b1b9866623a829d0aed"
       ],
-      "v4PaginationFingerprint": "sha256:ca61ac5d6c071cf17663eccb8f58fc627beb3b040f100dc17a3acb9bdbd2d450",
-      "v1PaginationFingerprint": "sha256:5490fd396d149a51e162fe64aec177a4d920b458813ac397f810dd669183efab",
-      "rendererProjectionFingerprint": "sha256:333252b6a8510430e2189a4dc579aef6128ca5cc2d788e7742c18c8995b1d081",
-      "pageCount": 1,
-      "rendererCommandCount": 122,
-      "structuralCommandCount": 44,
-      "cellBackgroundCommandCount": 5,
-      "textLineCommandCount": 35,
+      "v4PaginationFingerprint": "sha256:ae75bba75c9d22da63287faf8af8830e367018e9081aabdf3b5d8ca9497d6893",
+      "v1PaginationFingerprint": "sha256:dab8c1a1e8fbce2ec3adb3a453e26a3b85afa6c56113b9c9385e519792116b24",
+      "rendererProjectionFingerprint": "sha256:a685a39188555c03481466395ca72917c9e5fb89b0f997f235a0e801eab7545f",
+      "pageCount": 2,
+      "rendererCommandCount": 148,
+      "structuralCommandCount": 52,
+      "cellBackgroundCommandCount": 10,
+      "textLineCommandCount": 40,
       "emptyTextLineReceiptCount": 0,
-      "borderCommandCount": 38,
-      "replayFingerprint": "sha256:947076c15158b1f8115bc563881ad730e38f3484d237e8a9fe2963517cbd0f00"
+      "borderCommandCount": 46,
+      "replayFingerprint": "sha256:1727d38fa21bf392635085ea74f720a6247759632c12fa4c62e0bdadee136a78"
     },
     {
       "itemIndex": 55,
@@ -171,14 +174,14 @@
         3
       ],
       "sourcePlacementFingerprints": [
-        "sha256:d24ae28ef371befb0846ca7400af2671b3b5f0aadf78e8a5220fc60160157cc0"
+        "sha256:1caca1f9324bb799bedea180294e290ff30f3359ec2f7efb0cc929a4f70d2257"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:bb0b12ec36955d23e17ff04b59f31bbb1398f76184357265ff13bab23a5da24e"
+        "sha256:a5fe8f624f3b1823254c2d7d6d17f2c0e845d9fea55dd6b004b2760a7ff2e3d6"
       ],
-      "v4PaginationFingerprint": "sha256:111cac5acde7b0fe16aea65763b594425fb2192ddd04e8d395661c23c3b44e8d",
-      "v1PaginationFingerprint": "sha256:0aa8fc83beedc60ed063521e4d86ae1d780bb830f3ae02723576cc33d764a18d",
-      "rendererProjectionFingerprint": "sha256:35cc98febe1aa4fccad569087c41175ba623a882fc076263253eff70818fabf7",
+      "v4PaginationFingerprint": "sha256:15eba95c7ee7480a0eec9c91e46ce0fb019680bb7834b817d2df43b39dfee71f",
+      "v1PaginationFingerprint": "sha256:15a790a283eecd83dee3d32f9144ef6b8209dc664e5f99a82e8a34c3b3c7059d",
+      "rendererProjectionFingerprint": "sha256:f312b48962de5930717f907dbec4726d2d43436406b70070dcdfcc44b7d15823",
       "pageCount": 1,
       "rendererCommandCount": 122,
       "structuralCommandCount": 44,
@@ -186,25 +189,25 @@
       "textLineCommandCount": 35,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 38,
-      "replayFingerprint": "sha256:1dd56100e86c4b55df6cec9f6da2fbe323347313b56e44fbf51abc18515a8f6a"
+      "replayFingerprint": "sha256:ad4382fd7a6454908a8f9b75383246a771399d7b5091db7841c9f3a0c54e900a"
     },
     {
       "itemIndex": 98,
       "tableId": "table-native-runs-native-run-context",
       "projectionId": "native-run-context",
-      "firstDocumentPageIndex": 5,
+      "firstDocumentPageIndex": 4,
       "documentPageIndexes": [
-        5
+        4
       ],
       "sourcePlacementFingerprints": [
-        "sha256:fec4c5e4571e2832388f076335c9008825764a8468877c2679e0c7c459e36693"
+        "sha256:6f3a4fe10d929bd408772218cd9c3042a518a4d97b8ec708c50943853157d57e"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:6a756a6cd729e527c45b90fa08abfe1ba5dc5176aaaeb118a4b770de6a670242"
+        "sha256:714277e21e98a4ba6f233d0a1c50c7da485c67efeba8ca8e50a08f51c8a6b910"
       ],
-      "v4PaginationFingerprint": "sha256:dd909af374b71807f3549b8fe34cb01eb7710903f9f1c7a9d9c0473a2ce7fdb3",
-      "v1PaginationFingerprint": "sha256:5912aac22f982e4657df460b789d743eb4e6b5c891da9e190ac27caee3eb642c",
-      "rendererProjectionFingerprint": "sha256:bcdf50f0c0279d9792d48ba9b2999d093324079a49b9a6897dcc0df48849b353",
+      "v4PaginationFingerprint": "sha256:cbd07183046cfd6a4f8181e278c110d059b78eeb3769b037c7f3f6557a26217d",
+      "v1PaginationFingerprint": "sha256:fff13a7feeb2d18f7548bf86ce1737f7cfc792292fcf6c913409c2167d357262",
+      "rendererProjectionFingerprint": "sha256:369d78198e8b20e1dc32d81d3ca41e96138866914611f5c3a66fc5c3c84a7984",
       "pageCount": 1,
       "rendererCommandCount": 147,
       "structuralCommandCount": 51,
@@ -212,7 +215,7 @@
       "textLineCommandCount": 45,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 45,
-      "replayFingerprint": "sha256:d7b1aeeb0062a8f08daee05f1d5e0714ba007853dd7018c2e87fafd367c857eb"
+      "replayFingerprint": "sha256:8000ac4d3b66b30239b4293994c607bd7cfe3ff8486ab6e680d3eea3b95fd445"
     },
     {
       "itemIndex": 100,
@@ -223,14 +226,14 @@
         5
       ],
       "sourcePlacementFingerprints": [
-        "sha256:c4dad4cd97f2db589022fddda40d420ddcfcf4778a7ef073e2e8e444946a2101"
+        "sha256:e54c46824e31f3ec30a5ecea98b436c8bf755aea15316837818c4c66fcc59607"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:9a7fc901b93ea48302d4bf57e593402b3de5bdf650b2227ce59c6a22b58c2d4c"
+        "sha256:a28360c0bbacd3942e306dbbabee8865c2b9e02ac47944130f31d04e59a63678"
       ],
-      "v4PaginationFingerprint": "sha256:7b873dc3d17ebe9fef67a3c03c8e0a16a4e2a69d5829eb9b2c9da796db79ba9f",
-      "v1PaginationFingerprint": "sha256:6d629769678aa5e2d8f652a3b6f7c8c4a50e1b06ccb2c663c82518939b87893f",
-      "rendererProjectionFingerprint": "sha256:d3e366b624780753d57d510adebd90d1a207d173963062f165df9e4030958667",
+      "v4PaginationFingerprint": "sha256:780d837e9c0552ab0f512aee7e779355c0996842fb58ddc45e6c08d21e9df637",
+      "v1PaginationFingerprint": "sha256:48771d18657a03c0456ff3c058d9dc4aedae028b880a4ef62a96686a9f12f09e",
+      "rendererProjectionFingerprint": "sha256:36c665ad87ddedb7a3ae8d3e4a8717ce3385015742ead73eae8ad3e4007108e6",
       "pageCount": 1,
       "rendererCommandCount": 147,
       "structuralCommandCount": 51,
@@ -238,25 +241,25 @@
       "textLineCommandCount": 45,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 45,
-      "replayFingerprint": "sha256:561759a44107cfa3be37197522116e81b8a032cdc6f76c7e4cd243d45a24cc28"
+      "replayFingerprint": "sha256:b3cfe6930db5a41d00931c6604935a461921cb702212c1b8236c4eaa564f6c16"
     },
     {
       "itemIndex": 102,
       "tableId": "table-native-runs-native-structure-inventory",
       "projectionId": "native-structure-inventory",
-      "firstDocumentPageIndex": 6,
+      "firstDocumentPageIndex": 5,
       "documentPageIndexes": [
-        6
+        5
       ],
       "sourcePlacementFingerprints": [
-        "sha256:08143707b4afc8891240a1744a578fa2ab86055ac8d9b853f29e174909a8e814"
+        "sha256:cbe7c492b06307545af025ecfec0a79f82b913d3c4b70858f66580e74c31afbd"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:e13f706db41b9cd8562a135b38598a3366721ec1c1c94342ec1d2b74c1da9632"
+        "sha256:300079a1295181b1a968530c43da868d8f082bf35910dd8faba145afcf1e5a53"
       ],
-      "v4PaginationFingerprint": "sha256:53f8da4e5a572d578aae29513625bd5df49ea1a60f3441fd84cd27bf6b750963",
-      "v1PaginationFingerprint": "sha256:718fa970df81ae0fbb75da97fc9cc263279ffc4746e01ab65cbea5ebbb06b49f",
-      "rendererProjectionFingerprint": "sha256:f3f54de8f71597b1ef8d1c6c89a4509bb562cf371ffae1afffd737f187686618",
+      "v4PaginationFingerprint": "sha256:98c5044aa0018f1daab030a8645437d16c09f36adac72460ba6450e42f8b3781",
+      "v1PaginationFingerprint": "sha256:d9380d5491de6db26da48d7929518a38c211c3c7a7cd880bed7428ed826d9e04",
+      "rendererProjectionFingerprint": "sha256:75dc8ef1cd2f89856f624d78f30334cd36ea228d8bcfb5bc680063c47013e571",
       "pageCount": 1,
       "rendererCommandCount": 100,
       "structuralCommandCount": 37,
@@ -264,25 +267,25 @@
       "textLineCommandCount": 28,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 31,
-      "replayFingerprint": "sha256:d4118000afdb58be1f3de8a932879732fbc7e870ac7c718d759a12381417e49a"
+      "replayFingerprint": "sha256:b782f7b8dc8808de4bab3e0a514f79066320efb363ecaa4cc17dac815a61ac30"
     },
     {
       "itemIndex": 104,
       "tableId": "table-native-runs-native-structure-coverage",
       "projectionId": "native-structure-coverage",
-      "firstDocumentPageIndex": 6,
+      "firstDocumentPageIndex": 5,
       "documentPageIndexes": [
-        6
+        5
       ],
       "sourcePlacementFingerprints": [
-        "sha256:30fd542bf45baa0d2ff09360212711fa37e8afbe80176b38757a3881b1b85476"
+        "sha256:8d5fa86f6c28953c56bf21da7271e6ac017f4b8b01c10034b589acb3eb569235"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:8b62a9b068dd9ff2e661d17242fe54b15ad1fdbd9634a07dc9f2de64aaf60ce5"
+        "sha256:5c4373452d494ae297e082c2ce3f05159c4b740cfcf7edfe8083511348ce4877"
       ],
-      "v4PaginationFingerprint": "sha256:b47ac6087f8c569f22688f03d2691d2e3553fa1d74e44ff98c5d811f5d66964e",
-      "v1PaginationFingerprint": "sha256:59fe28c56bc5a63296e98c33b1281b99ea16faf98b9bf4871e4c0d96c56984c4",
-      "rendererProjectionFingerprint": "sha256:18afd8e6a59704ca33bdb8c0e46d6ed82ce10113eac5c87888d7aef115398d3f",
+      "v4PaginationFingerprint": "sha256:ad08c9ead8b86fc1d5e9a41121866cc020657c80567b746374e4029fcab9156f",
+      "v1PaginationFingerprint": "sha256:efc9c943db1e42aad41adad7caf475b3f12b22b8c23638ad03c69793ba88948d",
+      "rendererProjectionFingerprint": "sha256:62eb5be921714b8de59d28fe83fc45ac3cd69816a9727f5d57caa32f51c93745",
       "pageCount": 1,
       "rendererCommandCount": 100,
       "structuralCommandCount": 37,
@@ -290,25 +293,25 @@
       "textLineCommandCount": 28,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 31,
-      "replayFingerprint": "sha256:35911029e4f4cc0659287c62b3bc55362dd7b1cb34cacca69ace0631271e2179"
+      "replayFingerprint": "sha256:cc46cbe44e70ade9350e96aed0e0ab7fa315ba678049556e7f3a4b2574af08b0"
     },
     {
       "itemIndex": 106,
       "tableId": "table-native-runs-native-runtime-cost",
       "projectionId": "native-runtime-cost",
-      "firstDocumentPageIndex": 6,
+      "firstDocumentPageIndex": 5,
       "documentPageIndexes": [
-        6
+        5
       ],
       "sourcePlacementFingerprints": [
-        "sha256:f2885ba414dbf377be9a514328d1f259409229043fac020064b56f3130f91d62"
+        "sha256:53c6750e4084bddc6c6b259f7948e27ea8610f9ee6cbe91c3edb6214c4686771"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:1fa70eb95870e1f57298c6477cd7a2a4683f034b6aea8dc707c26d2cd5f9a217"
+        "sha256:e16d5d773b12167e1ddbfb31d9a4c6816e296d205be90acb23aef3d5793910df"
       ],
-      "v4PaginationFingerprint": "sha256:70aa7ebd043fd91abd6d29df7dd61c18be6421a45dad72b31d00cfcaa8d6eb04",
-      "v1PaginationFingerprint": "sha256:f42d419bca396329b34b3d43a3e82be32030c08df94cc458e81632f68d3caa86",
-      "rendererProjectionFingerprint": "sha256:cfc6aad7f207ad6ffc5bab92c3b021bfa34878192ef8e59456f94d622903f719",
+      "v4PaginationFingerprint": "sha256:43c79586369612de6e3d63b0450cd793bf5aa7ba9eed98b1030d8bdda7b9c68d",
+      "v1PaginationFingerprint": "sha256:cf5ccef75cf4c9d05a599fe4a1bc6aff139a441300dbbac890e9c54185b4af6c",
+      "rendererProjectionFingerprint": "sha256:0615991884e8de0012fdafe3e61ac883da77c89d8f653dc92ce932a70fa82e6c",
       "pageCount": 1,
       "rendererCommandCount": 122,
       "structuralCommandCount": 44,
@@ -316,7 +319,7 @@
       "textLineCommandCount": 35,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 38,
-      "replayFingerprint": "sha256:a661ba6366cfb510f945013c578901287fda7123bfda41ff4f4568bbb838dbd1"
+      "replayFingerprint": "sha256:8fd0604c614f35634b77f8fef4d235e0a51da1f47ec818fe6bb879205c3f653e"
     },
     {
       "itemIndex": 154,
@@ -324,98 +327,101 @@
       "projectionId": "mapping-comparison",
       "firstDocumentPageIndex": 8,
       "documentPageIndexes": [
-        8,
-        9
+        8
       ],
       "sourcePlacementFingerprints": [
-        "sha256:6fba57e50a18a923ab8a64d6ee37c428b028323b22b501e8c73ad145bf0cf5af",
-        "sha256:ef64ba0ca82176c91be963f3db0267e09ea80c0d226ff4cddb1e9e71e19ed1a9"
+        "sha256:7701a48d803286b6a6e4a38354655c8514a9ecaff4a6b9e72fd3170a8ec1e465"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:4cdb2a0668bbb8fd4d379254a43ce4e79c10bf4a168856ac6aac2f6a07ef0742",
-        "sha256:0c0fba712a973db66bd31780111eb68abd1be1bbb23d8580c21a12c86999ee23"
+        "sha256:7589eaf0156a89e16e14f71bd460573870f0484bfcab58184bd3ca3ac549629d"
       ],
-      "v4PaginationFingerprint": "sha256:5e1a266f93d3815092a67be52fcdc62fb3b509470640293a160b4c606d51613a",
-      "v1PaginationFingerprint": "sha256:a1897d8a157cb1ba5890e1609f7b5f408fffdc833a4345e523dfdb50e70d26a7",
-      "rendererProjectionFingerprint": "sha256:1c84dae5820e75abc37432cee8ad30387f1e971eef3d0d3f7996de1de5798fe9",
-      "pageCount": 2,
-      "rendererCommandCount": 225,
-      "structuralCommandCount": 76,
-      "cellBackgroundCommandCount": 10,
-      "textLineCommandCount": 73,
+      "v4PaginationFingerprint": "sha256:456db439c1a0a390170d391258d45b4928db0941e20b412d946b76d6861e7fa8",
+      "v1PaginationFingerprint": "sha256:ee7b770952cf0ddbd530e4c4514ed1191ba940fa6d139ec7bc4e31fa75b53637",
+      "rendererProjectionFingerprint": "sha256:32760d3fb4de4c23737be72c18874b98519f0522307e1cc6dcecb62bde4b6df7",
+      "pageCount": 1,
+      "rendererCommandCount": 201,
+      "structuralCommandCount": 68,
+      "cellBackgroundCommandCount": 5,
+      "textLineCommandCount": 70,
       "emptyTextLineReceiptCount": 1,
-      "borderCommandCount": 66,
-      "replayFingerprint": "sha256:1c64f0c557b346785054884fe11428e47727aceb4062f906e4fbe5bc413ccedf"
+      "borderCommandCount": 58,
+      "replayFingerprint": "sha256:33b9a4d7b746fabf7fee7f39d3e8020718258beef9482cef0aededdcefeba5cf"
     },
     {
       "itemIndex": 156,
       "tableId": "table-mapping-fields-mapping-evidence",
       "projectionId": "mapping-evidence",
-      "firstDocumentPageIndex": 9,
+      "firstDocumentPageIndex": 8,
       "documentPageIndexes": [
+        8,
         9
       ],
       "sourcePlacementFingerprints": [
-        "sha256:5bc82724a3231bab770d8b3a536ed0ce1fb34c178723d032cc86a89acd7f0cf8"
+        "sha256:995535db86560f1d29222e8514e80643efdac506d29c91e46dc22dd9aa6c084a",
+        "sha256:13446b741fe98c5b82454985746a375542bf9e940a9154aa4cfff7f5140ed928"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:adadac60d0f2183c19b147e8dc6fbcec2e3063584b857d07acf549a3a1d1426b"
+        "sha256:8983a2d3cde7a39a0e3572384f292fd075195eda6bb3ad4a562c3cbb4c5144b8",
+        "sha256:7354b597831e899ab037ff89e2c34f385599c4abdbf570a2fe32dd50b7f8c93a"
       ],
-      "v4PaginationFingerprint": "sha256:51f99409f565c4e1dd13dc530233557f85ca9e23c2b49f0c676af92995421208",
-      "v1PaginationFingerprint": "sha256:01c97194ee17a603899d47b6e3baea9541be29db26118d0b2f9670cc7322ef59",
-      "rendererProjectionFingerprint": "sha256:9eb0b56c192de1dc2b4765a839f383dcc7f44542460c6b15f655589a31919776",
-      "pageCount": 1,
-      "rendererCommandCount": 195,
-      "structuralCommandCount": 68,
-      "cellBackgroundCommandCount": 5,
-      "textLineCommandCount": 64,
+      "v4PaginationFingerprint": "sha256:5e24f1c45db2fb9b1ccede93f007985e7ac4d448890609e6e9d1088f37ae2fda",
+      "v1PaginationFingerprint": "sha256:0928a6bbbefac482a26e0df912f3a70ffadd18c8c4229f1aed1e16504bb22093",
+      "rendererProjectionFingerprint": "sha256:739c9fa1debb90ce091425e3616889d25083e14ec7aca4265f72b30c217092e4",
+      "pageCount": 2,
+      "rendererCommandCount": 221,
+      "structuralCommandCount": 76,
+      "cellBackgroundCommandCount": 10,
+      "textLineCommandCount": 69,
       "emptyTextLineReceiptCount": 0,
-      "borderCommandCount": 58,
-      "replayFingerprint": "sha256:c92222acfe3e96222a86dc6e7f3ac20221a926030610e3447b0299fad906decf"
+      "borderCommandCount": 66,
+      "replayFingerprint": "sha256:ccdb238ea5972965a6de79e4d41f9a7dbd90109f7e1c9390aea6c8e4835adaee"
     },
     {
       "itemIndex": 173,
       "tableId": "table-native-missing-concepts-native-missing-concepts",
       "projectionId": "native-missing-concepts",
-      "firstDocumentPageIndex": 10,
+      "firstDocumentPageIndex": 9,
       "documentPageIndexes": [
+        9,
         10
       ],
       "sourcePlacementFingerprints": [
-        "sha256:741233ad7eb117115ea695e145f0bf7953e3163eb5e7e17fc7ba8463d80a3f66"
+        "sha256:68dbbd92fd3896cb25db0eeae8fd66b5cd84642fec3b13a1167fe4358ecf2b4d",
+        "sha256:f6d3ee9c9e1ad4e0f01eb1e3002b44104ad3033c2aa3ebebfaed4fabc94b99ed"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:36b179d57e21443d663b1d4e9dbb7cb409220589692a2f9c3f1e58480f6cc4ec"
+        "sha256:4e0c35f29d07a2fbfc24935b20d1433654d9a0b165754b55c653130f4c7aa843",
+        "sha256:f937187e8ff31a3169e09a9138708fdb3c922f5532a62e4f4117d7d0e8309a26"
       ],
-      "v4PaginationFingerprint": "sha256:6d1cd3e23772b5027a265778b9429f721510fdfa4e91e671349305256b80ac6c",
-      "v1PaginationFingerprint": "sha256:2b9b88578c94b054a39d2b5050b84f1ffded099139e346394e6137ca4f9c8c3f",
-      "rendererProjectionFingerprint": "sha256:09cd3b69e6ab509660aa622ff7f0facb383e7a099f09dfa09d0fcb7f7d509bdb",
-      "pageCount": 1,
-      "rendererCommandCount": 105,
-      "structuralCommandCount": 44,
-      "cellBackgroundCommandCount": 2,
-      "textLineCommandCount": 28,
+      "v4PaginationFingerprint": "sha256:a63ed442838b6255ca09f4c1ff6c8a8afa98c85eec91711c51b641d7c430e569",
+      "v1PaginationFingerprint": "sha256:c66f6fb989a35882af564f9d702ffb628abe8adbcc49b69b246c77185b3286f2",
+      "rendererProjectionFingerprint": "sha256:65d469908efcef3cf1e23aa099d33f97f299fa340bb0cf0e86aaf57507c84d86",
+      "pageCount": 2,
+      "rendererCommandCount": 119,
+      "structuralCommandCount": 49,
+      "cellBackgroundCommandCount": 4,
+      "textLineCommandCount": 30,
       "emptyTextLineReceiptCount": 0,
-      "borderCommandCount": 31,
-      "replayFingerprint": "sha256:b6cdfe4845783b0d37c2aaee752fcf1934c1424d557bae60e24be39729a3d688"
+      "borderCommandCount": 36,
+      "replayFingerprint": "sha256:735e13abb17caa118be1466f7f04a2742becaf239bead3020273cba79bcfaf56"
     },
     {
       "itemIndex": 178,
       "tableId": "table-runs-run-status",
       "projectionId": "run-status",
-      "firstDocumentPageIndex": 11,
+      "firstDocumentPageIndex": 10,
       "documentPageIndexes": [
-        11
+        10
       ],
       "sourcePlacementFingerprints": [
-        "sha256:9e9a997e2ce04fe41d9020def623e102ffb5faf001a714c3f97747807488c503"
+        "sha256:18bee074b31f91925e63b85846cc526bb7f6124cb4af60bfa9e5ad5b2b07b845"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:6bffa2d75195370df56f4eefcac2f4f7a423b0c96c0716afc1d9dc838d6127ae"
+        "sha256:2d26ffe1a177b5905faa9750ef27c276ef537cb105cafe63bfdb87fd5eddd623"
       ],
-      "v4PaginationFingerprint": "sha256:aa96f0bdd7db0989b26133f7e425bdcfff3cc178b3719f55e344c76ac80724f4",
-      "v1PaginationFingerprint": "sha256:256526901ee9cf496a725f53a616471e1e52c529e0de3124d3c4067f5d8e9bb3",
-      "rendererProjectionFingerprint": "sha256:c35db7a0bc7a0891861d644a98e6c4b78aa2942bf489a380948e69408a0dc1d4",
+      "v4PaginationFingerprint": "sha256:d8e28e00ef86ca8924dec0baf8482caa5d7d88307bcfd9fa95f0f123b5c8292c",
+      "v1PaginationFingerprint": "sha256:d9cd65f99d0e5e432d1b5672ea93d4b9bf7fa2162e70a6ede7b2c15ee01c5f7e",
+      "rendererProjectionFingerprint": "sha256:bbc15bb26646029de3371148c340c603836b2f2ca44ecfaba0f7fe0e82d6c1e9",
       "pageCount": 1,
       "rendererCommandCount": 144,
       "structuralCommandCount": 51,
@@ -423,25 +429,25 @@
       "textLineCommandCount": 42,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 45,
-      "replayFingerprint": "sha256:9aae70bed1b7bed2927fcc56980ba4acdaec98d211f33ffbd5bc2b5d241801d7"
+      "replayFingerprint": "sha256:02307a5feff8116f024486d082c58568ac76c5a8d410be5825598c0e224149c9"
     },
     {
       "itemIndex": 180,
       "tableId": "table-runs-run-engines-pages",
       "projectionId": "run-engines-pages",
-      "firstDocumentPageIndex": 11,
+      "firstDocumentPageIndex": 10,
       "documentPageIndexes": [
-        11
+        10
       ],
       "sourcePlacementFingerprints": [
-        "sha256:e604848e6199119ccce162b5f570c114b593bf7f013c92087a002355097717e2"
+        "sha256:42293fc91f51a6801411bbbe6431d41b370d3dcb1833b52adddf13756fd436f4"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:2d8820d07b3f713eaae9d5390d3cf9a7b39598b1fe062d3feef7e8a7363bc725"
+        "sha256:183e22f9d17e711e6ae1742971c28f6feb61015ee1fca4a84e1abe8fb58f7b36"
       ],
-      "v4PaginationFingerprint": "sha256:e216af658763dbbb958ceb8433e056a4701182913e606b1577f529995bc1f4c0",
-      "v1PaginationFingerprint": "sha256:f67044e2adbd49da751d17f6f82482ebcd6faee378a0e9be35bd1e883dc03b2f",
-      "rendererProjectionFingerprint": "sha256:473bef780931bba66915cd5855ace9d847c980cda1c67256825df9e5b26c7a69",
+      "v4PaginationFingerprint": "sha256:c4a530919c0b6b8a309a6c990e89ef512fa71bb2eb73854122b8f9aabb05f9af",
+      "v1PaginationFingerprint": "sha256:9c83c507e2ce9a1c21aae1ae1181d2178f60a1aa9d96df4719d6e48879dcb81d",
+      "rendererProjectionFingerprint": "sha256:1db319ce5971835b2accddfe7320b3fd6bd0262e917986a32c3ca7546e8b13ef",
       "pageCount": 1,
       "rendererCommandCount": 147,
       "structuralCommandCount": 51,
@@ -449,7 +455,7 @@
       "textLineCommandCount": 45,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 45,
-      "replayFingerprint": "sha256:1d9a4d3b05edf74f221cbef8552f4900180b86e0a219923c09c7efed576ec425"
+      "replayFingerprint": "sha256:7df4a7eecf0c0f3fa0efe5d988053453cf6a00ece42a937c02fc1fb348f5472d"
     },
     {
       "itemIndex": 184,
@@ -461,32 +467,32 @@
         12
       ],
       "sourcePlacementFingerprints": [
-        "sha256:8550493fbaecdff44a6cdac2c6b7a5e1425f2d3d1ac28296f25059d550a5f906",
-        "sha256:f6f2d86d1181d147a371d4ace8cf0dc8de4c0e31d0f4fb86cd0de74eb6ab626a"
+        "sha256:5f7d369142811ef65f8105f01213efd52a618c64f87b666850c56b0c06e78c6a",
+        "sha256:44c3aa72c4d7ae91f6ba1a4761037840e47ccc0bc1a971bb5e0089456e606a35"
       ],
       "sourceFamilyEvidenceFingerprints": [
-        "sha256:c38d1ea96c6ce5be6a97598950d81c6cbdc30fd21a61e696c24614408aa158ce",
-        "sha256:4b6dab3f62bbe029059c6d068cd2f53fb79498c1dc3e66c5cc3620b9b5046be7"
+        "sha256:5a73cb315e7733e777246931854d11210848026611d935b0b9e52f6b81118c72",
+        "sha256:b69389544c60056e9bcda8090cb4c6e5fa5ef6ca4b42a69c16f7e707c504f0d6"
       ],
-      "v4PaginationFingerprint": "sha256:7745e911095f7518408f00515b06a07ac3fef1d8d6e201cb39e623ccdec25aaf",
-      "v1PaginationFingerprint": "sha256:23e7f1a85eb2f71e2a6e03ce4ad3a7feba8eb8a47bebe3a84dd9b42f07ae81d8",
-      "rendererProjectionFingerprint": "sha256:e0b9cb7a1a839f0fda47503dfe3f187899e57180840e948cfe32b5ecabba71f4",
+      "v4PaginationFingerprint": "sha256:8a69ac980626ff5b0335e3e6013b01e747d4e5094a1a3c195af00d3ecc7de783",
+      "v1PaginationFingerprint": "sha256:e6038b8e84e45c122d0a08d8534991f5fa7d5c63a81e21bafbcb0147f242c1b8",
+      "rendererProjectionFingerprint": "sha256:58b5db134019fb43ce8a102bf33f1020d8dacc111f50abae2fd48c3b488a746a",
       "pageCount": 2,
-      "rendererCommandCount": 268,
+      "rendererCommandCount": 271,
       "structuralCommandCount": 106,
       "cellBackgroundCommandCount": 4,
-      "textLineCommandCount": 84,
+      "textLineCommandCount": 87,
       "emptyTextLineReceiptCount": 0,
       "borderCommandCount": 74,
-      "replayFingerprint": "sha256:4526c6ccfa69cdac043fbff0db25c331f1eee10429a371762bfae5f240678fa3"
+      "replayFingerprint": "sha256:cb71db46a8a3bbeb689bc7424caaf50fac4a170248cb438a13e7bd6bb32c0d67"
     }
   ],
   "pages": [
     {
       "pageIndex": 0,
       "pageNumber": 1,
-      "commandCount": 29,
-      "glyphRunCount": 28,
+      "commandCount": 39,
+      "glyphRunCount": 38,
       "imageCount": 1,
       "fillRectCount": 0,
       "strokeLineCount": 0
@@ -494,8 +500,8 @@
     {
       "pageIndex": 1,
       "pageNumber": 2,
-      "commandCount": 73,
-      "glyphRunCount": 73,
+      "commandCount": 70,
+      "glyphRunCount": 70,
       "imageCount": 0,
       "fillRectCount": 0,
       "strokeLineCount": 0
@@ -503,53 +509,53 @@
     {
       "pageIndex": 2,
       "pageNumber": 3,
-      "commandCount": 198,
-      "glyphRunCount": 95,
+      "commandCount": 260,
+      "glyphRunCount": 119,
       "imageCount": 1,
-      "fillRectCount": 12,
-      "strokeLineCount": 90
+      "fillRectCount": 17,
+      "strokeLineCount": 123
     },
     {
       "pageIndex": 3,
       "pageNumber": 4,
-      "commandCount": 191,
-      "glyphRunCount": 105,
+      "commandCount": 155,
+      "glyphRunCount": 94,
       "imageCount": 0,
       "fillRectCount": 10,
-      "strokeLineCount": 76
+      "strokeLineCount": 51
     },
     {
       "pageIndex": 4,
       "pageNumber": 5,
-      "commandCount": 46,
-      "glyphRunCount": 46,
+      "commandCount": 130,
+      "glyphRunCount": 78,
+      "imageCount": 1,
+      "fillRectCount": 6,
+      "strokeLineCount": 45
+    },
+    {
+      "pageIndex": 5,
+      "pageNumber": 6,
+      "commandCount": 306,
+      "glyphRunCount": 142,
+      "imageCount": 0,
+      "fillRectCount": 19,
+      "strokeLineCount": 145
+    },
+    {
+      "pageIndex": 6,
+      "pageNumber": 7,
+      "commandCount": 52,
+      "glyphRunCount": 52,
       "imageCount": 0,
       "fillRectCount": 0,
       "strokeLineCount": 0
     },
     {
-      "pageIndex": 5,
-      "pageNumber": 6,
-      "commandCount": 198,
-      "glyphRunCount": 95,
-      "imageCount": 1,
-      "fillRectCount": 12,
-      "strokeLineCount": 90
-    },
-    {
-      "pageIndex": 6,
-      "pageNumber": 7,
-      "commandCount": 222,
-      "glyphRunCount": 109,
-      "imageCount": 0,
-      "fillRectCount": 13,
-      "strokeLineCount": 100
-    },
-    {
       "pageIndex": 7,
       "pageNumber": 8,
-      "commandCount": 43,
-      "glyphRunCount": 42,
+      "commandCount": 37,
+      "glyphRunCount": 36,
       "imageCount": 1,
       "fillRectCount": 0,
       "strokeLineCount": 0
@@ -557,47 +563,47 @@
     {
       "pageIndex": 8,
       "pageNumber": 9,
-      "commandCount": 87,
-      "glyphRunCount": 58,
+      "commandCount": 177,
+      "glyphRunCount": 90,
       "imageCount": 1,
-      "fillRectCount": 5,
-      "strokeLineCount": 23
+      "fillRectCount": 10,
+      "strokeLineCount": 76
     },
     {
       "pageIndex": 9,
       "pageNumber": 10,
-      "commandCount": 232,
-      "glyphRunCount": 121,
+      "commandCount": 171,
+      "glyphRunCount": 103,
       "imageCount": 0,
-      "fillRectCount": 10,
-      "strokeLineCount": 101
+      "fillRectCount": 7,
+      "strokeLineCount": 61
     },
     {
       "pageIndex": 10,
       "pageNumber": 11,
-      "commandCount": 100,
-      "glyphRunCount": 67,
+      "commandCount": 244,
+      "glyphRunCount": 117,
       "imageCount": 0,
-      "fillRectCount": 2,
-      "strokeLineCount": 31
+      "fillRectCount": 14,
+      "strokeLineCount": 113
     },
     {
       "pageIndex": 11,
       "pageNumber": 12,
-      "commandCount": 238,
-      "glyphRunCount": 113,
+      "commandCount": 131,
+      "glyphRunCount": 72,
       "imageCount": 0,
-      "fillRectCount": 14,
-      "strokeLineCount": 111
+      "fillRectCount": 2,
+      "strokeLineCount": 57
     },
     {
       "pageIndex": 12,
       "pageNumber": 13,
-      "commandCount": 121,
-      "glyphRunCount": 66,
+      "commandCount": 39,
+      "glyphRunCount": 20,
       "imageCount": 0,
       "fillRectCount": 2,
-      "strokeLineCount": 53
+      "strokeLineCount": 17
     }
   ],
   "executionGate": {

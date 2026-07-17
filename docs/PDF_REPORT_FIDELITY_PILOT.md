@@ -747,6 +747,33 @@ Primary Phase 08B-R2C-O evidence:
 - `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
 - `tests/pdfRendererPilotCanonicalReaderHierarchy.test.ts`.
 
+## PDF-PILOT-08B-R2C-P Scope
+
+Phase 08B-R2C-P calibrates the Letter page frame through measured template
+inputs. The body becomes `x=72.02pt`, `y=52.87pt`, `467.95 x 699.19pt`; header
+and footer reservations become `32.22pt` and `24pt`. Header-envelope error
+falls from 30.37pt to zero, footer error from 34.70pt to 0.39pt, body-left
+error from 15.33pt to zero, and body-top error from 22.15pt to 1.54pt.
+
+The ten reader summaries and two labels now use explicit semantic categories.
+Four measured adjacency rules preserve 12pt before labels, 6pt after labels,
+3pt between summaries, and 12pt after each summary group. Tables and images
+are constrained to the calibrated 467.95pt body width before measurement;
+the final draw-command envelope ends exactly at 539.97pt with zero overflow.
+
+The regenerated source-backed artifact remains 13 pages with 185 body roots,
+189 placements, 15 Tables, five images, and zero missing glyphs. R2C-P accepts
+static geometry and semantic composition only. Visual parity, callout
+treatment, region thresholds, fixed 12-page output, and production binding
+remain rejected.
+
+Primary Phase 08B-R2C-P evidence:
+
+- `docs/PDF_CANONICAL_STATIC_SECTION_CALIBRATION_PROOF.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-static-section-calibration.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
+- `tests/pdfRendererPilotCanonicalStaticSectionCalibration.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:

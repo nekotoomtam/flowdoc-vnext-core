@@ -2,8 +2,8 @@
   "contractVersion": 1,
   "kind": "canonical-report-native-line-segment-evidence",
   "phaseId": "PDF-PILOT-08B-R2C-E",
-  "sourceNativeShapingFingerprint": "17face4682906cc901a172512aabd37c2ba1258aa3a00ed0a7a58a06756d79b2",
-  "sourcePlanFingerprint": "9c7ffd99e6e3b5a157f3c860dcfd66982a130876e46273027a749de1b26d6ca1",
+  "sourceNativeShapingFingerprint": "efa4ba9339398d694d9496588fc0410bca6c1c9c9a02cd3b3394559bf7c002f8",
+  "sourcePlanFingerprint": "e4874b4fff3cca45e33cb2617a6fd5b9d7eef4d51f62316758f2eba2ae67b540",
   "segmenter": {
     "source": "flowdoc-icu4x-native-line-segmenter",
     "revision": "icu_segmenter-2.2.0",
@@ -6700,5 +6700,5 @@
       }
     }
   ],
-  "rawEvidenceFingerprint": "6c8bce106835710ab71f719e8174656a7311379b1ffe29088ee079ee3f887475"
+  "rawEvidenceFingerprint": "ed27ede053169d397596fdee351add232bc46c811bf12975f059e196c9ff0add"
 }

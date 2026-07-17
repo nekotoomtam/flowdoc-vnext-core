@@ -32,6 +32,7 @@ import {
   type FlowDocFontAssetManifestV1,
 } from "./canonicalReportMeasurementRequestHandoff.js"
 import {
+  FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1,
   createFlowDocCanonicalReportResolutionInputFingerprintV1,
   resolveFlowDocCanonicalReportCollectionsV1,
   validateFlowDocCanonicalReportTemplateResolutionBundleV1,
@@ -43,10 +44,10 @@ export const FLOWDOC_CANONICAL_REPORT_TABLE_PROJECTION_VERSION = 1 as const
 export const FLOWDOC_CANONICAL_REPORT_TABLE_PROJECTION_ID = "ocr-benchmark-report-table-projection-v1" as const
 
 const ACCEPTED_DATA_BUNDLE_FINGERPRINT = "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d"
-const ACCEPTED_TEMPLATE_BUNDLE_FINGERPRINT = "a64f2f945a23ecbc75d7210512d96a594a0b84b50dc03a1089bfc5b90ecadcdb"
-const ACCEPTED_FORMATTING_BUNDLE_FINGERPRINT = "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d"
-const ACCEPTED_MEASUREMENT_HANDOFF_FINGERPRINT = "1a2868d58fb52e62ae6d6a1002460ba81bd019b57b1d328828a89c41ef73a84f"
-const TABLE_WIDTH_MM = 175
+const ACCEPTED_TEMPLATE_BUNDLE_FINGERPRINT = "80e8468f1cd29cee60cb7acace276c89501ce923a4cf423fa298986f808601a4"
+const ACCEPTED_FORMATTING_BUNDLE_FINGERPRINT = "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698"
+const ACCEPTED_MEASUREMENT_HANDOFF_FINGERPRINT = "c7c4f45b061cb975e1d6b215d786b58a1976935753c93bbae8eaf463480bdd30"
+const TABLE_WIDTH_PT = FLOWDOC_CANONICAL_REPORT_PAGE_CALIBRATION_V1.expectedBodyGeometryPt.width
 const MAX_PROJECTED_COLUMNS = 6
 const MIN_COLUMN_WIDTH_SHARE = 10
 
@@ -79,7 +80,7 @@ export interface FlowDocCanonicalReportTableProjectionContractV1 {
     repeatedContextMustAlsoHavePrimaryPlacement: true
     maximumColumnsPerView: typeof MAX_PROJECTED_COLUMNS
     minimumColumnWidthShare: typeof MIN_COLUMN_WIDTH_SHARE
-    tableWidthMm: typeof TABLE_WIDTH_MM
+    tableWidthPt: typeof TABLE_WIDTH_PT
     sourceCollectionContractMutation: false
   }
 }
@@ -377,7 +378,7 @@ const PROJECTION_CONTRACT: FlowDocCanonicalReportTableProjectionContractV1 = {
     repeatedContextMustAlsoHavePrimaryPlacement: true,
     maximumColumnsPerView: MAX_PROJECTED_COLUMNS,
     minimumColumnWidthShare: MIN_COLUMN_WIDTH_SHARE,
-    tableWidthMm: TABLE_WIDTH_MM,
+    tableWidthPt: TABLE_WIDTH_PT,
     sourceCollectionContractMutation: false,
   },
 }
@@ -414,8 +415,8 @@ function slug(value: string): string {
   return value.replace(/^report\./, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase()
 }
 
-function mm(value: number): { value: number; unit: "mm" } {
-  return { value, unit: "mm" }
+function pt(value: number): { value: number; unit: "pt" } {
+  return { value, unit: "pt" }
 }
 
 function roundPt(value: number): number {
@@ -591,7 +592,7 @@ function buildProjectedTableGraph(input: {
     id: tableId,
     type: "table",
     props: { headerRowCount: 1, repeatHeaderRows: true, align: "left" },
-    columns: input.view.columns.map((item) => ({ width: mm(TABLE_WIDTH_MM * item.widthShare / 100) })),
+    columns: input.view.columns.map((item) => ({ width: pt(TABLE_WIDTH_PT * item.widthShare / 100) })),
     rowIds: [headerRowId, bodyRowId],
   })
 

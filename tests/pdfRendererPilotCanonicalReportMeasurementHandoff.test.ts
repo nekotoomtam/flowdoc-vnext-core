@@ -54,13 +54,13 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
       sourceDataBundleFingerprint: DATA_BUNDLE.bundleFingerprint,
       sourceTemplateBundleFingerprint: TEMPLATE_BUNDLE.bundleFingerprint,
       sourceFormattingBundleFingerprint: FORMATTING_BUNDLE.bundleFingerprint,
-      bundleFingerprint: "1a2868d58fb52e62ae6d6a1002460ba81bd019b57b1d328828a89c41ef73a84f",
+      bundleFingerprint: "c7c4f45b061cb975e1d6b215d786b58a1976935753c93bbae8eaf463480bdd30",
       pageGeometry: {
         pageSize: "Letter",
         orientation: "portrait",
         widthPt: 612,
         heightPt: 792,
-        sections: expect.arrayContaining([expect.objectContaining({ bodyWidthPt: 498.614173 })]),
+        sections: expect.arrayContaining([expect.objectContaining({ bodyWidthPt: 467.95 })]),
       },
       tableLayoutProfile: {
         layoutProfileId: "ocr-benchmark-report-table-layout-v1",
@@ -79,8 +79,8 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
         formattedCollectionBindingCount: 476,
         measurementProfileFontCount: 2,
         measurementProfileStyleMappingCount: 6,
-        minimumCellContentWidthPt: 15.622047,
-        maximumCellContentWidthPt: 240.031496,
+        minimumCellContentWidthPt: 14.283333,
+        maximumCellContentWidthPt: 225.975,
       },
     })
     expect(HANDOFF_BUNDLE.measurementProfile).toMatchObject({
@@ -113,7 +113,7 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
       zoneRole: "body",
       displayBindingInlineIds: ["latency-cost-size-field-engine-azure-document-intelligence-latency-ms-max-value"],
       request: {
-        availableWidthPt: 498.614173,
+        availableWidthPt: 467.95,
         styleKey: "report-body",
         renderedText: "azure_document_intelligence Maximum latency ms: 6.50 วินาที",
       },
@@ -136,7 +136,7 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
       cellIdentity: { kind: "resolved-cell" },
       sourceCellId: "table-ocr-runs-body-cell-latency-ms",
       request: {
-        availableWidthPt: 18.108579,
+        availableWidthPt: 16.628947,
         styleKey: "table-body",
         renderedText: "2.09 วินาที",
       },
@@ -144,7 +144,7 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
     expect(ocrTable.authoredPreparation.requestsByTextBlockId["table-ocr-runs-header-cell-engine-text"])
       .toMatchObject({
         rowIdentity: { kind: "authored-row", sourceRowId: "table-ocr-runs-header-row" },
-        request: { availableWidthPt: 18.108579, styleKey: "table-header", renderedText: "Engine" },
+        request: { availableWidthPt: 16.628947, styleKey: "table-header", renderedText: "Engine" },
       })
     const sourceTable = TEMPLATE_BUNDLE.collectionTables.find(
       (table) => table.collectionFieldKey === "report.ocr_runs",

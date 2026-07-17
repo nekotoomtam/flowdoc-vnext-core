@@ -130,7 +130,7 @@ describe("PDF-PILOT-08B-R2C-A canonical report display formatting", () => {
       sourceDataBundleFingerprint: DATA_BUNDLE.bundleFingerprint,
       sourceTemplateBundleFingerprint: TEMPLATE_BUNDLE.bundleFingerprint,
       resolutionInputFingerprint: TEMPLATE_BUNDLE.resolutionInputFingerprint,
-      bundleFingerprint: "41877d47ea365f01790faf3041a610629489931ad1fe1aa6d88e2389ed8a5d0d",
+      bundleFingerprint: "3e713a87bf080349f668f89f777f2a68c1b885c7a3779e105c468ba413d3d698",
       summary: {
         formatCount: 22,
         fieldFormatAssignmentCount: 143,
@@ -200,7 +200,7 @@ describe("PDF-PILOT-08B-R2C-A canonical report display formatting", () => {
       rawValue: 2086.849199999124,
       displayText: "2.09 วินาที",
       formatKey: "seconds-2",
-      resolvedPlacementId: "inli_7ef176dc91f5822f0b7fa37b",
+      resolvedPlacementId: "inli_d8b311e9f35fa6b91f6f25eb",
     })
     expect(example("report.native_runs", "structured_concept_coverage")).toMatchObject({
       rawValue: 0.92,

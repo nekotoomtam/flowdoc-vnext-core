@@ -4,14 +4,14 @@
   "phaseId": "PDF-PILOT-08B-R2C-G",
   "status": "accepted-capacity-evidence-target-page-count-blocked",
   "sourceFingerprints": {
-    "projection": "378f1325b76c4c772febe2013a6bf8a14486844c00a87b8e2e1b6ed4b0173088",
-    "measuredComposition": "984e95643d5db71ef32d9fc236c4d466b61d33b9d90bcdac2a217dcc71598028"
+    "projection": "f9ade0a648bd5f4f5d93fe73f44e5d8c0b3f447d66a9c3b2e5db95e17ea58193",
+    "measuredComposition": "a80b13c98aee27c949d2a80bc4b73b8c619ef3f9fa1678792fdb64a28b20127a"
   },
-  "planFingerprint": "07362efd5a507e37408a273296996980a4e5e136429ee9b35743a78403d8bf36",
-  "bundleFingerprint": "b3be7cbe49177946de1f0ec7db4c9f37f08ffc66375fe03778d6825fbc7f624a",
-  "coreCompositionManifestFingerprint": "sha256:9a06d18184ad04e07cfe1e80dbc9ce297746e1bfd0e3b1833c4111f9d969db9b",
+  "planFingerprint": "c3c43a0c377a20cc999e6d2f7063eacfa3f70cb261fe55c873388dcd429cded2",
+  "bundleFingerprint": "2321b3b26571b9bae7706418c6e2eecc7bdc1f3aae4dc04b614d78bcb4fb1586",
+  "coreCompositionManifestFingerprint": "sha256:9e005232ea436f881e83b6dc7246b024fd491f733769a60f5d211e8fff1b8b7a",
   "spacingProfile": {
-    "profileId": "ocr-benchmark-report-flow-spacing-v1",
+    "profileId": "ocr-benchmark-report-flow-spacing-v2",
     "collapsePolicy": "exact-adjacency-rule-no-margin-collapse",
     "pageTopPolicy": "suppress-before-first-fragment",
     "lineHeightBindings": [
@@ -50,7 +50,7 @@
         "multiplier": 1,
         "basisLineHeightPt": 15,
         "gapBeforePt": 15,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
         "ruleId": "section-heading-to-body",
@@ -60,7 +60,7 @@
         "multiplier": 0.5,
         "basisLineHeightPt": 22,
         "gapBeforePt": 11,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
         "ruleId": "body-stack",
@@ -70,7 +70,47 @@
         "multiplier": 0.2,
         "basisLineHeightPt": 15,
         "gapBeforePt": 3,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
+      },
+      {
+        "ruleId": "body-to-reader-label",
+        "previousCategory": "report-body",
+        "currentCategory": "reader-label",
+        "basisStyleKey": "report-body",
+        "multiplier": 0.8,
+        "basisLineHeightPt": 15,
+        "gapBeforePt": 12,
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
+      },
+      {
+        "ruleId": "reader-label-to-summary",
+        "previousCategory": "reader-label",
+        "currentCategory": "reader-summary",
+        "basisStyleKey": "report-body",
+        "multiplier": 0.4,
+        "basisLineHeightPt": 15,
+        "gapBeforePt": 6,
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
+      },
+      {
+        "ruleId": "reader-summary-stack",
+        "previousCategory": "reader-summary",
+        "currentCategory": "reader-summary",
+        "basisStyleKey": "report-body",
+        "multiplier": 0.2,
+        "basisLineHeightPt": 15,
+        "gapBeforePt": 3,
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
+      },
+      {
+        "ruleId": "reader-summary-to-body",
+        "previousCategory": "reader-summary",
+        "currentCategory": "report-body",
+        "basisStyleKey": "report-body",
+        "multiplier": 0.8,
+        "basisLineHeightPt": 15,
+        "gapBeforePt": 12,
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
         "ruleId": "body-to-image",
@@ -80,7 +120,7 @@
         "multiplier": 1,
         "basisLineHeightPt": 12,
         "gapBeforePt": 12,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
         "ruleId": "image-to-table-label",
@@ -90,7 +130,7 @@
         "multiplier": 1,
         "basisLineHeightPt": 12,
         "gapBeforePt": 12,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
         "ruleId": "body-to-table-label",
@@ -100,7 +140,7 @@
         "multiplier": 1,
         "basisLineHeightPt": 12,
         "gapBeforePt": 12,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
         "ruleId": "table-label-to-table",
@@ -110,7 +150,7 @@
         "multiplier": 0.5,
         "basisLineHeightPt": 12,
         "gapBeforePt": 6,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       },
       {
         "ruleId": "table-to-table-label",
@@ -120,7 +160,7 @@
         "multiplier": 1,
         "basisLineHeightPt": 12,
         "gapBeforePt": 12,
-        "provenance": "accepted-r2c-e-line-height-ratio"
+        "provenance": "accepted-r2c-p-semantic-role-and-line-height-ratio"
       }
     ]
   },
@@ -150,7 +190,43 @@
       "basisLineHeightPt": 15,
       "multiplier": 0.2,
       "gapBeforePt": 3,
-      "appliedCount": 126
+      "appliedCount": 113
+    },
+    {
+      "ruleId": "body-to-reader-label",
+      "adjacency": "report-body->reader-label",
+      "basisStyleKey": "report-body",
+      "basisLineHeightPt": 15,
+      "multiplier": 0.8,
+      "gapBeforePt": 12,
+      "appliedCount": 2
+    },
+    {
+      "ruleId": "reader-label-to-summary",
+      "adjacency": "reader-label->reader-summary",
+      "basisStyleKey": "report-body",
+      "basisLineHeightPt": 15,
+      "multiplier": 0.4,
+      "gapBeforePt": 6,
+      "appliedCount": 2
+    },
+    {
+      "ruleId": "reader-summary-stack",
+      "adjacency": "reader-summary->reader-summary",
+      "basisStyleKey": "report-body",
+      "basisLineHeightPt": 15,
+      "multiplier": 0.2,
+      "gapBeforePt": 3,
+      "appliedCount": 8
+    },
+    {
+      "ruleId": "reader-summary-to-body",
+      "adjacency": "reader-summary->report-body",
+      "basisStyleKey": "report-body",
+      "basisLineHeightPt": 15,
+      "multiplier": 0.8,
+      "gapBeforePt": 12,
+      "appliedCount": 1
     },
     {
       "ruleId": "body-to-image",
@@ -203,7 +279,7 @@
       "sectionIndex": 0,
       "sectionId": "section-cover",
       "bodyItemCount": 10,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 479.637795,
       "preservedSpacingHeightPt": 48,
       "preservedSpacingDemandPt": 527.637795,
@@ -214,10 +290,10 @@
       "header": {
         "zoneId": "cover-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:3f79c1d52972ab4f5b9fc16af00baa877c5c4fdd67a3388de84502ec28442f1c"
+        "evidenceFingerprint": "sha256:acfb3caae5ec857891b2786d30ca112d62a82f30a0ab84d0aa028348b3239804"
       },
       "footer": {
         "zoneId": "cover-footer-zone",
@@ -232,10 +308,10 @@
       "sectionIndex": 1,
       "sectionId": "section-executive-summary",
       "bodyItemCount": 15,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 277,
-      "preservedSpacingHeightPt": 50,
-      "preservedSpacingDemandPt": 327,
+      "preservedSpacingHeightPt": 71,
+      "preservedSpacingDemandPt": 348,
       "naturalCapacityFloorCount": 1,
       "preservedSpacingCapacityCount": 1,
       "naturalSinglePageFit": true,
@@ -243,10 +319,10 @@
       "header": {
         "zoneId": "executive-summary-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:3778d36ff9615cc8cd00cf5c30acd30319e798f00f0f942a93752c179ea2f5a4"
+        "evidenceFingerprint": "sha256:86d3302ad0d5ee5965384cd0c2daff65c481f45bb13b4f2e4773e3cd57e25626"
       },
       "footer": {
         "zoneId": "executive-summary-footer-zone",
@@ -261,7 +337,7 @@
       "sectionIndex": 2,
       "sectionId": "section-method",
       "bodyItemCount": 12,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 202,
       "preservedSpacingHeightPt": 41,
       "preservedSpacingDemandPt": 243,
@@ -272,10 +348,10 @@
       "header": {
         "zoneId": "method-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:facddf03423b885a696efe56ce6784405dfdb434ee676e2afa011f1f9dae9fd0"
+        "evidenceFingerprint": "sha256:59b9211d5b32812fc5ce69e6c389228c69852b0c9f74533dc150a1176709f33b"
       },
       "footer": {
         "zoneId": "method-footer-zone",
@@ -290,7 +366,7 @@
       "sectionIndex": 3,
       "sectionId": "section-ocr-accuracy",
       "bodyItemCount": 19,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 962.102362,
       "preservedSpacingHeightPt": 119,
       "preservedSpacingDemandPt": 1081.102362,
@@ -301,10 +377,10 @@
       "header": {
         "zoneId": "ocr-accuracy-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:4d5e97a61abe951cb614a2099facacab31e427f859c8b287b6ea66ad676530b2"
+        "evidenceFingerprint": "sha256:d7f17781fa1110c1fa92d1cca8e3c6731614f1fd0ae19c201bc352d52bb55145"
       },
       "footer": {
         "zoneId": "ocr-accuracy-footer-zone",
@@ -319,7 +395,7 @@
       "sectionIndex": 4,
       "sectionId": "section-source-evidence",
       "bodyItemCount": 20,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 307,
       "preservedSpacingHeightPt": 65,
       "preservedSpacingDemandPt": 372,
@@ -330,10 +406,10 @@
       "header": {
         "zoneId": "source-evidence-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:24d10d997bad05938639df4852da9fce62bfde1cc377ad76807595fd5bff85bb"
+        "evidenceFingerprint": "sha256:d84ffb8a46e8df082ad983343c0a49ca2e9e786d4ca32053a8108a60c10732dc"
       },
       "footer": {
         "zoneId": "source-evidence-footer-zone",
@@ -348,21 +424,21 @@
       "sectionIndex": 5,
       "sectionId": "section-native-extraction",
       "bodyItemCount": 31,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 1324.102362,
       "preservedSpacingHeightPt": 167,
       "preservedSpacingDemandPt": 1491.102362,
-      "naturalCapacityFloorCount": 3,
+      "naturalCapacityFloorCount": 2,
       "preservedSpacingCapacityCount": 3,
       "naturalSinglePageFit": false,
       "preservedSpacingSinglePageFit": false,
       "header": {
         "zoneId": "native-extraction-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:b33f7c33ca6cfdf77f06d22d041443b2dae02da1cfac110d78d61879a9617324"
+        "evidenceFingerprint": "sha256:31e9031324c53ed1220574e719dad14658df95a94541e700eb6f1fab635571a9"
       },
       "footer": {
         "zoneId": "native-extraction-footer-zone",
@@ -377,7 +453,7 @@
       "sectionIndex": 6,
       "sectionId": "section-latency-cost-size",
       "bodyItemCount": 27,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 618.102362,
       "preservedSpacingHeightPt": 95,
       "preservedSpacingDemandPt": 713.102362,
@@ -388,10 +464,10 @@
       "header": {
         "zoneId": "latency-cost-size-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:9fab6d738dd1ef38dce5c3afefbc023746aa77798c174934c888706c0c37bbaf"
+        "evidenceFingerprint": "sha256:a62a07dd8a52720a35a938e3d80254bdf8feb4ae8ec3dc187c671a7acd246573"
       },
       "footer": {
         "zoneId": "latency-cost-size-footer-zone",
@@ -406,10 +482,10 @@
       "sectionIndex": 7,
       "sectionId": "section-mapping",
       "bodyItemCount": 23,
-      "pageBodyHeightPt": 641.952756,
-      "naturalBodyHeightPt": 1118.102362,
+      "pageBodyHeightPt": 699.19,
+      "naturalBodyHeightPt": 1140.102362,
       "preservedSpacingHeightPt": 107,
-      "preservedSpacingDemandPt": 1225.102362,
+      "preservedSpacingDemandPt": 1247.102362,
       "naturalCapacityFloorCount": 2,
       "preservedSpacingCapacityCount": 2,
       "naturalSinglePageFit": false,
@@ -417,10 +493,10 @@
       "header": {
         "zoneId": "mapping-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:e13c106e0479d1fbfe5eea7b2a5a90bc11fe805c37486968df0ae97e388be7e7"
+        "evidenceFingerprint": "sha256:f3221f5ea507e1981abd4e645ea33afac56aa0b884b929060e10521a92e3b63f"
       },
       "footer": {
         "zoneId": "mapping-footer-zone",
@@ -435,10 +511,10 @@
       "sectionIndex": 8,
       "sectionId": "section-decision-view",
       "bodyItemCount": 8,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 127,
-      "preservedSpacingHeightPt": 29,
-      "preservedSpacingDemandPt": 156,
+      "preservedSpacingHeightPt": 41,
+      "preservedSpacingDemandPt": 168,
       "naturalCapacityFloorCount": 1,
       "preservedSpacingCapacityCount": 1,
       "naturalSinglePageFit": true,
@@ -446,10 +522,10 @@
       "header": {
         "zoneId": "decision-view-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:d40af04c0f7d4bec62584e4efa15af68eb21c3dbe1ca87c8784ad9aa58a66288"
+        "evidenceFingerprint": "sha256:a7a9edbb55f00301141eda92664e951605576f67f0cb3137bcf69d362d064d6e"
       },
       "footer": {
         "zoneId": "decision-view-footer-zone",
@@ -464,7 +540,7 @@
       "sectionIndex": 9,
       "sectionId": "section-limitations",
       "bodyItemCount": 9,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 406,
       "preservedSpacingHeightPt": 44,
       "preservedSpacingDemandPt": 450,
@@ -475,10 +551,10 @@
       "header": {
         "zoneId": "limitations-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:fc1a65d7609bfe85a842ea7332070f3cd22d49e386e9f317cf4894432bf50353"
+        "evidenceFingerprint": "sha256:19a00acbfda0bd5cd0bd396ebf32410e1b9e873b1da560173658cdbe8f472443"
       },
       "footer": {
         "zoneId": "limitations-footer-zone",
@@ -493,7 +569,7 @@
       "sectionIndex": 10,
       "sectionId": "section-appendix-runs",
       "bodyItemCount": 7,
-      "pageBodyHeightPt": 641.952756,
+      "pageBodyHeightPt": 699.19,
       "naturalBodyHeightPt": 377,
       "preservedSpacingHeightPt": 50,
       "preservedSpacingDemandPt": 427,
@@ -504,10 +580,10 @@
       "header": {
         "zoneId": "appendix-runs-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:05dc53732d7bcc202bf006ebe5fe1b902380ad6e418c2faab56628c1da0125ab"
+        "evidenceFingerprint": "sha256:36317581a2266a71e3d9769012eff2d60b1d81fc5e49e32893ebc8df66185468"
       },
       "footer": {
         "zoneId": "appendix-runs-footer-zone",
@@ -522,10 +598,10 @@
       "sectionIndex": 11,
       "sectionId": "section-appendix-evidence",
       "bodyItemCount": 4,
-      "pageBodyHeightPt": 641.952756,
-      "naturalBodyHeightPt": 853,
+      "pageBodyHeightPt": 699.19,
+      "naturalBodyHeightPt": 886,
       "preservedSpacingHeightPt": 29,
-      "preservedSpacingDemandPt": 882,
+      "preservedSpacingDemandPt": 915,
       "naturalCapacityFloorCount": 2,
       "preservedSpacingCapacityCount": 2,
       "naturalSinglePageFit": false,
@@ -533,10 +609,10 @@
       "header": {
         "zoneId": "appendix-evidence-header-zone",
         "measuredHeightPt": 12,
-        "reservedHeightPt": 24,
-        "reservedSlackPt": 12,
+        "reservedHeightPt": 32.22,
+        "reservedSlackPt": 20.22,
         "status": "measured-fits-reservation",
-        "evidenceFingerprint": "sha256:5e08dc2344928f54f6c7a65f2c3badb15e9e205d71b746886c87681a2cf2dabf"
+        "evidenceFingerprint": "sha256:00ad477c800ac3cf0f0afea917df57ca91bef9f3754f81a662887c5b4d233db0"
       },
       "footer": {
         "zoneId": "appendix-evidence-footer-zone",
@@ -552,8 +628,8 @@
     {
       "sectionId": "section-appendix-evidence",
       "rootNodeId": "table-gdim-expected-fields-gdim-expected-fields",
-      "naturalHeightPt": 804,
-      "pageBodyHeightPt": 641.952756,
+      "naturalHeightPt": 837,
+      "pageBodyHeightPt": 699.19,
       "samePageMinimumProgressHeightPt": 56,
       "freshPageMinimumProgressHeightPt": 50,
       "capacityMode": "splittable-table-row-stream"
@@ -565,30 +641,30 @@
     "textFlowItemCount": 165,
     "tableFlowItemCount": 15,
     "mediaFlowItemCount": 5,
-    "spacingRuleCount": 8,
+    "spacingRuleCount": 12,
     "appliedSpacingCount": 173,
-    "totalPreservedSpacingPt": 844,
-    "naturalBodyHeightPt": 7051.047243,
-    "preservedSpacingBodyDemandPt": 7895.047243,
-    "pageBodyHeightPt": 641.952756,
+    "totalPreservedSpacingPt": 877,
+    "naturalBodyHeightPt": 7106.047243,
+    "preservedSpacingBodyDemandPt": 7983.047243,
+    "pageBodyHeightPt": 699.19,
     "measuredHeaderFitCount": 12,
     "generatedFooterReservationCount": 12,
     "progressCapacityFitCount": 185,
     "wholeTableRootOverflowCount": 1,
     "naturalGlobalCapacityFloorCount": 11,
-    "preservedSpacingGlobalCapacityCount": 13,
-    "naturalSectionCapacityFloorCount": 17,
+    "preservedSpacingGlobalCapacityCount": 12,
+    "naturalSectionCapacityFloorCount": 16,
     "preservedSpacingSectionCapacityCount": 18,
     "naturalSinglePageSectionCount": 8,
     "preservedSpacingSinglePageSectionCount": 7,
     "targetPageCount": 12,
-    "minimumTargetPageDelta": 5
+    "minimumTargetPageDelta": 4
   },
   "fidelityGate": {
     "status": "blocked-target-page-count-capacity-floor",
     "targetPageCount": 12,
-    "naturalSectionCapacityFloorCount": 17,
-    "minimumPageCountDelta": 5,
+    "naturalSectionCapacityFloorCount": 16,
+    "minimumPageCountDelta": 4,
     "reason": "section-boundary-natural-height-floor-exceeds-target"
   },
   "executionGate": {
