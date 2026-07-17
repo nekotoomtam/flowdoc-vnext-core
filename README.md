@@ -963,6 +963,10 @@ The package must remain runnable without any parent editor checkout.
   through both document measurement boundaries, retain 22 source field
   bindings, and project two semantic groups as three measured page fragments.
   Six independent region gates pass while document parity remains rejected.
+- PDF generic box and cross-reader audit proves the independent one-page panel
+  and all three canonical callout fragments through Poppler and PDFium with at
+  most one pixel of reader edge drift. Generic rectangle paints are accepted;
+  padding-aware authored-box projection remains outside Core and downstream.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

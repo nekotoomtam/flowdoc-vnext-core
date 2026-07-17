@@ -802,6 +802,31 @@ Primary Phase 08B-R2C-Q evidence:
 - `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
 - `tests/pdfRendererPilotCanonicalCalloutRegions.test.ts`.
 
+## PDF-PILOT-08B-R2C-R Scope
+
+Phase 08B-R2C-R separates renderer genericity from authored-policy reuse. The
+retained Thai one-page panel supplies a non-report `fill-rect` plus
+`stroke-rect` artifact, while the current full document supplies the three
+measured callout fragments on pages 1, 2, and 10.
+
+Poppler and PDFium independently render all selected pages at `816 x 1056`
+pixels. Every page is nonblank, all pinned Thai text sentinels are recovered,
+and every box stays within 1px of the measured contract and the other reader.
+Pixel parity is not applicable because engine anti-aliasing differs.
+
+The audit accepts generic rectangle paint commands and renderer consumption.
+It does not accept the canonical `textBlockContentWidthPt` measurement helper
+or `calloutProjection` grouping as generic Core behavior. MuPDF and Acrobat are
+not exercised, and reusable authored-box, visual-fidelity, and production
+claims remain false.
+
+Primary Phase 08B-R2C-R evidence:
+
+- `docs/PDF_GENERIC_BOX_CROSS_READER_AUDIT.md`;
+- `packages/pdf-renderer-pilot/fixtures/generic-box-cross-reader-compatibility.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-generic-box-cross-reader-compatibility.py`;
+- `tests/pdfRendererPilotGenericBoxCrossReaderCompatibility.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -1051,14 +1076,15 @@ npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-Q callout and region-threshold evidence.
+None for closing PDF-PILOT-08B-R2C-R generic box and cross-reader audit
+evidence.
 
 R2C-N retired twelve pages as a hard gate. The authoritative R2C-O result is
 thirteen pages, and the terminal page contains one 630pt continuation fragment
 from the final table; no content was removed to imitate the reference.
 
-Report-level PDF fidelity remains blocked on generic box behavior outside the
-canonical pilot, broader reader compatibility, source-profile promotion, and
+Report-level PDF fidelity remains blocked on reusable authored-box projection,
+reader compatibility beyond Poppler/PDFium, source-profile promotion, and
 native-to-WASM parity.
 
 ## RISK
@@ -1082,11 +1108,11 @@ native-to-WASM parity.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- generic authored-box behavior outside the canonical report policy;
+- generic authored-box measurement, fragmentation, and border projection;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
-  and pypdf.
+  and PDFium, including MuPDF and Acrobat.
 
 ## Intentionally Not Changed
 
@@ -1100,5 +1126,5 @@ native-to-WASM parity.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-R` audit the generic authored-box boundary and
-cross-reader compatibility without promoting report-specific policy into Core.
+Next phase: `PDF-PILOT-08B-R2C-S` define a reusable authored-box contract
+without promoting canonical label/note policy into Core.

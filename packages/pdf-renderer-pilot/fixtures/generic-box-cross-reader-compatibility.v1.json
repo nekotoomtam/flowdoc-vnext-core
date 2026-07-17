@@ -1,0 +1,611 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "pdf-pilot-08b-r2c-r-generic-box-cross-reader-compatibility-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-R",
+  "status": "accepted-generic-paint-boundary-cross-reader-baseline",
+  "scope": {
+    "dpi": 96,
+    "independentEngineFamilyRequirement": 2,
+    "contractEdgeTolerancePx": 2,
+    "readerEdgeTolerancePx": 1,
+    "pixelParityApplicable": false
+  },
+  "inputs": {
+    "genericRequest": {
+      "pointer": "fixtures/pdf-pilot-thai-one-page-request.v1.json",
+      "sha256": "788e650fdad3e4ea6fd1c1b48e4e59e10aa2d1b427eb89622eb4a245145e3985"
+    },
+    "canonicalBundle": {
+      "pointer": "fixtures/pdf-pilot-canonical-report-body-display-list.v1.json",
+      "sha256": "0635ee177a136263261d0f8c865dc2c5df62071a7ef8feec0c480f2d0fd0d35b",
+      "bundleFingerprint": "96c48b7287fc0c5532059cf8ad4ff135df5f07fb63bfe6bf6054e150775a8b67"
+    }
+  },
+  "boundaryAudit": {
+    "coreAuthoredSchema": {
+      "sources": [
+        "src/schema/documentV4Foundation.ts",
+        "src/schema/documentV4Target.ts"
+      ],
+      "owners": [
+        "text-block",
+        "column",
+        "table-cell"
+      ],
+      "properties": [
+        "fill",
+        "padding",
+        "border"
+      ],
+      "genericDefinitionPresent": true
+    },
+    "measuredPaintContract": {
+      "source": "src/renderer/pdfMeasuredDrawContractV1.ts",
+      "paintKinds": [
+        "fill-rect",
+        "stroke-rect"
+      ],
+      "genericPrimitivePresent": true
+    },
+    "pdfRenderer": {
+      "source": "packages/pdf-renderer-pilot/src/index.ts",
+      "consumes": [
+        "fill-rect",
+        "stroke-rect"
+      ],
+      "requiresCalloutSemantics": false
+    },
+    "canonicalMeasurementAdapter": {
+      "source": "packages/pdf-renderer-pilot/src/canonicalReportMeasurementRequestHandoff.ts",
+      "function": "textBlockContentWidthPt",
+      "genericCoreBoundary": false
+    },
+    "canonicalCalloutAdapter": {
+      "source": "packages/pdf-renderer-pilot/src/canonicalReportBodyDisplayList.ts",
+      "function": "calloutProjection",
+      "grouping": "consecutive-label-and-note-semantics",
+      "genericCoreBoundary": false
+    }
+  },
+  "readerCoverage": {
+    "exercised": [
+      {
+        "engineId": "poppler",
+        "engineFamily": "Poppler",
+        "version": "25.07.0"
+      },
+      {
+        "engineId": "pdfium",
+        "engineFamily": "PDFium",
+        "version": "151.0.7920.0",
+        "bindingVersion": "5.11.0"
+      }
+    ],
+    "notExercised": [
+      {
+        "engineFamily": "MuPDF",
+        "reason": "no callable PyMuPDF runtime in the pinned workspace dependency set"
+      },
+      {
+        "engineFamily": "Adobe Acrobat",
+        "reason": "no deterministic command-line raster and text harness in this phase"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "artifactId": "generic-thai-panel",
+      "pointer": "local-output://pdf/flowdoc-pdf-pilot-thai-one-page.pdf",
+      "sha256": "fafa7e4d01df4d9f9b5acdffe2d7652e073e5b329142e4c8886085521322fd24",
+      "bytes": 17594,
+      "expectedPageCount": 1,
+      "selectedPageNumbers": [
+        1
+      ],
+      "readerResults": [
+        {
+          "engineId": "poppler",
+          "engineFamily": "Poppler",
+          "renderer": "pdftocairo 25.07.0",
+          "textExtractor": "pdftotext 25.07.0",
+          "pageCount": 1,
+          "selectedPages": [
+            {
+              "pageNumber": 1,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "2c62e7d209647cee995b251f98882d59ff2c21d5f39b646210302ff60bf98594",
+              "nonWhitePixelCount": 109062,
+              "nonBlank": true,
+              "normalizedTextSha256": "feaff92679d4d437020fcf1f320d939feecddb7892394dc94c669ee09d2cadac",
+              "sentinels": [
+                {
+                  "value": "สรุปผล OCR ภาษาไทย 100%",
+                  "accepted": true
+                },
+                {
+                  "value": "ค้นหา เลือก และคัดลอกข้อความได้",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            }
+          ]
+        },
+        {
+          "engineId": "pdfium",
+          "engineFamily": "PDFium",
+          "renderer": "pypdfium2 5.11.0 / PDFium 151.0.7920.0",
+          "textExtractor": "PDFium text page API",
+          "pageCount": 1,
+          "selectedPages": [
+            {
+              "pageNumber": 1,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "5726911edcd301b0a90090502c01b0a8965848f976858e896d426c8a65ffe13b",
+              "nonWhitePixelCount": 109886,
+              "nonBlank": true,
+              "normalizedTextSha256": "feaff92679d4d437020fcf1f320d939feecddb7892394dc94c669ee09d2cadac",
+              "sentinels": [
+                {
+                  "value": "สรุปผล OCR ภาษาไทย 100%",
+                  "accepted": true
+                },
+                {
+                  "value": "ค้นหา เลือก และคัดลอกข้อความได้",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "regionId": "generic-panel-fill-and-stroke",
+          "semanticOwner": "independent-one-page-panel",
+          "pageNumber": 1,
+          "boundsPt": {
+            "xPt": 60,
+            "yPt": 60,
+            "widthPt": 492,
+            "heightPt": 124
+          },
+          "colors": [
+            "EFF4F8",
+            "A7BAC8"
+          ],
+          "paintKinds": [
+            "fill-rect",
+            "stroke-rect"
+          ],
+          "expectedBoundsPx": [
+            80,
+            80,
+            735,
+            244
+          ],
+          "byEngine": {
+            "poppler": {
+              "observedBoundsPx": [
+                80,
+                80,
+                736,
+                245
+              ],
+              "contractEdgeDeltasPx": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "maxContractEdgeDeltaPx": 1,
+              "matchingColorPixelCount": 105617
+            },
+            "pdfium": {
+              "observedBoundsPx": [
+                79,
+                79,
+                736,
+                245
+              ],
+              "contractEdgeDeltasPx": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "maxContractEdgeDeltaPx": 1,
+              "matchingColorPixelCount": 102667
+            }
+          },
+          "readerEdgeDeltasPx": [
+            1,
+            1,
+            0,
+            0
+          ],
+          "maxContractEdgeDeltaPx": 1,
+          "maxReaderEdgeDeltaPx": 1,
+          "accepted": true
+        }
+      ],
+      "allSelectedPagesNonblank": true,
+      "allTextSentinelsAccepted": true,
+      "allBoxRegionsAccepted": true
+    },
+    {
+      "artifactId": "canonical-report-callouts",
+      "pointer": "local-output://pdf/flowdoc-pdf-pilot-canonical-full-document-13-page.pdf",
+      "sha256": "c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b",
+      "bytes": 1212656,
+      "expectedPageCount": 13,
+      "selectedPageNumbers": [
+        1,
+        2,
+        10
+      ],
+      "readerResults": [
+        {
+          "engineId": "poppler",
+          "engineFamily": "Poppler",
+          "renderer": "pdftocairo 25.07.0",
+          "textExtractor": "pdftotext 25.07.0",
+          "pageCount": 13,
+          "selectedPages": [
+            {
+              "pageNumber": 1,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "4bc7c633c0b06ff42b74d9deee3df90809b76ae7584ecb52339ab7848dcdb975",
+              "nonWhitePixelCount": 127409,
+              "nonBlank": true,
+              "normalizedTextSha256": "df52b3e02fd983068b764be159e543a8f4b327712929bc5b460b277eae0005c7",
+              "sentinels": [
+                {
+                  "value": "สรุปสำหรับผู้ตัดสินใจ",
+                  "accepted": true
+                },
+                {
+                  "value": "ข้อสรุปจากข้อมูลจริง",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            },
+            {
+              "pageNumber": 2,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "985968085e317fedcd3407e4c153b75ee91b369b833581f45fdcaa6c3611f4b1",
+              "nonWhitePixelCount": 103534,
+              "nonBlank": true,
+              "normalizedTextSha256": "0b33e3dc593b29e428be788f2c274216235e970be11cfd142a276908d87cc9fb",
+              "sentinels": [
+                {
+                  "value": "วิธีทดสอบที่ใช้",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            },
+            {
+              "pageNumber": 10,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "c2a8e9004a03c8d45a0dcd18d6ebed3c0312058621808c35d933954b6ef9a0f2",
+              "nonWhitePixelCount": 184290,
+              "nonBlank": true,
+              "normalizedTextSha256": "1a346b466a5678c00e6a94e6c5d6a73134005cadc843b9892b30a17c21a7a23f",
+              "sentinels": [
+                {
+                  "value": "มุมมองเพื่อการตัดสินใจ",
+                  "accepted": true
+                },
+                {
+                  "value": "แนวทางเลือกตามโจทย์",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            }
+          ]
+        },
+        {
+          "engineId": "pdfium",
+          "engineFamily": "PDFium",
+          "renderer": "pypdfium2 5.11.0 / PDFium 151.0.7920.0",
+          "textExtractor": "PDFium text page API",
+          "pageCount": 13,
+          "selectedPages": [
+            {
+              "pageNumber": 1,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "a6cc1e75e2cb6c84256be2e673ad7671d890e2e8b4fae4f7fcd38d70ace88f87",
+              "nonWhitePixelCount": 130808,
+              "nonBlank": true,
+              "normalizedTextSha256": "9aa102d60f4c3f45525c233ad251dfa19c7a21a8fec17d8172b96d6c01bfc806",
+              "sentinels": [
+                {
+                  "value": "สรุปสำหรับผู้ตัดสินใจ",
+                  "accepted": true
+                },
+                {
+                  "value": "ข้อสรุปจากข้อมูลจริง",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            },
+            {
+              "pageNumber": 2,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "f44cf978760f0c334b5da1ba26d42fc34e1dda09a4e229c8cb8a3698e333b2f8",
+              "nonWhitePixelCount": 111816,
+              "nonBlank": true,
+              "normalizedTextSha256": "4484995eff6c7e903fa9c43d6153de5220b3bd5c9072c5d68e5fc9db11fdf3a2",
+              "sentinels": [
+                {
+                  "value": "วิธีทดสอบที่ใช้",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            },
+            {
+              "pageNumber": 10,
+              "pixelWidth": 816,
+              "pixelHeight": 1056,
+              "mode": "RGB",
+              "rasterSha256": "a2b41a09b54ff69ce5e677d5b9e31a1e93c0097aa67127331dd7dbb0ff8d3495",
+              "nonWhitePixelCount": 197551,
+              "nonBlank": true,
+              "normalizedTextSha256": "7772595e52fbb6f656877947257ed297235ae985da9a8e83d552dc9881eb7bca",
+              "sentinels": [
+                {
+                  "value": "มุมมองเพื่อการตัดสินใจ",
+                  "accepted": true
+                },
+                {
+                  "value": "แนวทางเลือกตามโจทย์",
+                  "accepted": true
+                }
+              ],
+              "allSentinelsAccepted": true
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "regionId": "executive-summary-reader-label:callout-group:page-1",
+          "semanticOwner": "executive-summary-reader-label:callout-group",
+          "pageNumber": 1,
+          "boundsPt": {
+            "xPt": 72.02,
+            "yPt": 651.507795,
+            "widthPt": 467.95,
+            "heightPt": 100.552205
+          },
+          "colors": [
+            "EAF1FF"
+          ],
+          "paintKinds": [
+            "fill-rect"
+          ],
+          "expectedBoundsPx": [
+            96,
+            869,
+            719,
+            1002
+          ],
+          "byEngine": {
+            "poppler": {
+              "observedBoundsPx": [
+                96,
+                869,
+                719,
+                1002
+              ],
+              "contractEdgeDeltasPx": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "maxContractEdgeDeltaPx": 0,
+              "matchingColorPixelCount": 74089
+            },
+            "pdfium": {
+              "observedBoundsPx": [
+                96,
+                868,
+                719,
+                1002
+              ],
+              "contractEdgeDeltasPx": [
+                0,
+                1,
+                0,
+                0
+              ],
+              "maxContractEdgeDeltaPx": 1,
+              "matchingColorPixelCount": 72747
+            }
+          },
+          "readerEdgeDeltasPx": [
+            0,
+            1,
+            0,
+            0
+          ],
+          "maxContractEdgeDeltaPx": 1,
+          "maxReaderEdgeDeltaPx": 1,
+          "accepted": true
+        },
+        {
+          "regionId": "executive-summary-reader-label:callout-group:page-2",
+          "semanticOwner": "executive-summary-reader-label:callout-group",
+          "pageNumber": 2,
+          "boundsPt": {
+            "xPt": 72.02,
+            "yPt": 52.87,
+            "widthPt": 467.95,
+            "heightPt": 70
+          },
+          "colors": [
+            "EAF1FF"
+          ],
+          "paintKinds": [
+            "fill-rect"
+          ],
+          "expectedBoundsPx": [
+            96,
+            70,
+            719,
+            163
+          ],
+          "byEngine": {
+            "poppler": {
+              "observedBoundsPx": [
+                96,
+                71,
+                719,
+                163
+              ],
+              "contractEdgeDeltasPx": [
+                0,
+                1,
+                0,
+                0
+              ],
+              "maxContractEdgeDeltaPx": 1,
+              "matchingColorPixelCount": 50513
+            },
+            "pdfium": {
+              "observedBoundsPx": [
+                96,
+                70,
+                719,
+                163
+              ],
+              "contractEdgeDeltasPx": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "maxContractEdgeDeltaPx": 0,
+              "matchingColorPixelCount": 49929
+            }
+          },
+          "readerEdgeDeltasPx": [
+            0,
+            1,
+            0,
+            0
+          ],
+          "maxContractEdgeDeltaPx": 1,
+          "maxReaderEdgeDeltaPx": 1,
+          "accepted": true
+        },
+        {
+          "regionId": "decision-view-reader-label:callout-group:page-10",
+          "semanticOwner": "decision-view-reader-label:callout-group",
+          "pageNumber": 10,
+          "boundsPt": {
+            "xPt": 72.02,
+            "yPt": 350.87,
+            "widthPt": 467.95,
+            "heightPt": 122
+          },
+          "colors": [
+            "EAF1FF"
+          ],
+          "paintKinds": [
+            "fill-rect"
+          ],
+          "expectedBoundsPx": [
+            96,
+            468,
+            719,
+            629
+          ],
+          "byEngine": {
+            "poppler": {
+              "observedBoundsPx": [
+                96,
+                468,
+                719,
+                629
+              ],
+              "contractEdgeDeltasPx": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "maxContractEdgeDeltaPx": 0,
+              "matchingColorPixelCount": 87242
+            },
+            "pdfium": {
+              "observedBoundsPx": [
+                96,
+                468,
+                719,
+                630
+              ],
+              "contractEdgeDeltasPx": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "maxContractEdgeDeltaPx": 1,
+              "matchingColorPixelCount": 85667
+            }
+          },
+          "readerEdgeDeltasPx": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "maxContractEdgeDeltaPx": 1,
+          "maxReaderEdgeDeltaPx": 1,
+          "accepted": true
+        }
+      ],
+      "allSelectedPagesNonblank": true,
+      "allTextSentinelsAccepted": true,
+      "allBoxRegionsAccepted": true
+    }
+  ],
+  "acceptance": {
+    "observedIndependentEngineFamilyCount": 2,
+    "genericPanelBoundaryAccepted": true,
+    "canonicalCalloutFragmentsAccepted": true,
+    "allSelectedPagesNonblank": true,
+    "allTextSentinelsAccepted": true,
+    "crossReaderCompatibilityAccepted": true
+  },
+  "decision": {
+    "genericRendererPrimitivesAccepted": true,
+    "canonicalCalloutProjectionGeneric": false,
+    "reusableAuthoredBoxContractAccepted": false,
+    "visualFidelityAccepted": false,
+    "productionBinding": false,
+    "nextTopic": "PDF-PILOT-08B-R2C-S reusable authored box contract"
+  }
+}

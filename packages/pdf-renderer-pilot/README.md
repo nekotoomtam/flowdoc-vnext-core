@@ -165,6 +165,24 @@ The accepted comparison uses separate gates for page box, static zones, body
 frame, typography, callout treatment, and source density. All six pass, but
 visual fidelity, fixed page count, and production binding remain rejected.
 
+## Generic Box and Cross-Reader Audit
+
+`PDF-PILOT-08B-R2C-R` compares two independent artifacts through Poppler and
+PDFium at 96 DPI. The original Thai one-page panel proves generic `fill-rect`
+and `stroke-rect` consumption without canonical-report semantics. The full
+document contributes the three measured callout fragments on pages 1, 2, and
+10.
+
+Every selected page is nonblank, both readers recover the pinned Thai text,
+and every box edge stays within 1px of the other reader and 1px of the measured
+contract. Full-page pixel parity is not used because raster anti-aliasing is
+reader-specific.
+
+The audit accepts the generic measured-paint and PDF-renderer boundary only.
+Padding-aware measurement and label/note grouping remain report-adapter code;
+the reusable authored-box contract is explicitly downstream. MuPDF, Acrobat,
+visual fidelity, and production binding are not claimed.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:

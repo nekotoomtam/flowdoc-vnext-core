@@ -10794,3 +10794,34 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-R` generic box-boundary and cross-reader
 compatibility audit.
+
+## PDF-PILOT-08B-R2C-R Generic Box and Cross-Reader Audit
+
+Status: generic rectangle paint boundary and two-reader compatibility baseline
+accepted; reusable authored-box, visual fidelity, and production binding
+remain rejected.
+
+R2C-R uses the retained Thai one-page panel as evidence outside the canonical
+report. Its measured contract paints one `492 x 124pt` panel through both
+`fill-rect` and `stroke-rect`. The canonical artifact contributes the three
+Phase Q callout fragments on pages 1, 2, and 10.
+
+Poppler and PDFium render every selected page as nonblank `816 x 1056` RGB and
+recover all pinned Thai text sentinels. Every observed box edge remains within
+1px of the measured contract and within 1px between readers. Pixel parity is
+not used as an acceptance rule.
+
+The audit confirms that Document v4 exposes generic box schema and that the
+measured PDF contract and renderer consume generic rectangle paints. It also
+records that padding-aware measurement and consecutive label/note grouping
+remain canonical-report adapter behavior. No report-specific policy moves into
+Core, and MuPDF/Acrobat are not claimed as exercised.
+
+Primary evidence:
+
+- `docs/PDF_GENERIC_BOX_CROSS_READER_AUDIT.md`;
+- `packages/pdf-renderer-pilot/fixtures/generic-box-cross-reader-compatibility.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-generic-box-cross-reader-compatibility.py`;
+- `tests/pdfRendererPilotGenericBoxCrossReaderCompatibility.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-S` reusable authored box contract.
