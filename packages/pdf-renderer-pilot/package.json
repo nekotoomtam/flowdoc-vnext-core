@@ -41,7 +41,8 @@
     "build:report-native-shaping": "node scripts/build-canonical-report-native-shaping.mjs",
     "build:report-line-breaking": "node scripts/build-canonical-report-line-breaking.mjs",
     "build:report-measured-composition": "node scripts/build-canonical-report-measured-composition.mjs",
-    "build:report-vertical-capacity": "node scripts/build-canonical-report-vertical-capacity.mjs"
+    "build:report-vertical-capacity": "node scripts/build-canonical-report-vertical-capacity.mjs",
+    "build:report-section-reconciliation": "node scripts/build-canonical-report-section-reconciliation.mjs"
   },
   "dependencies": {
     "@flowdoc/text-engine-rust-wasm": "file:../text-engine-rust-wasm",

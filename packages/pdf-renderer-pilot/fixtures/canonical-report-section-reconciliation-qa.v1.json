@@ -1,0 +1,528 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-h-canonical-report-section-reconciliation-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-H",
+  "status": "accepted-reconciliation-strategy-twelve-page-pagination-blocked",
+  "sourceFingerprints": {
+    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+    "verticalCapacity": "5926711cbca1000888e4d7accb99d000f4c6549d504b2359c4b97884272bc994"
+  },
+  "planFingerprint": "99d723197d7928bc4b5e2d3071d9a060ea401e85b410db8a4dca93c31fcc5839",
+  "bundleFingerprint": "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
+  "reconciledResolvedProjectionFingerprint": "sha256:6d1cdede9cf3d55894bc9673e4bda34942ceb1d16e4f827d2f7a3c4688f97af3",
+  "coreCompositionManifestFingerprint": "sha256:9a39de97f63947451093bf3d709548068f78f8fe2d3f7ead7a954da186b2cbba",
+  "reconciliationPolicy": {
+    "policyId": "continuous-semantic-sections-single-composition-section-v1",
+    "semanticSectionTreatment": "retain-lineage-order-and-body-zone",
+    "compositionSectionTreatment": "single-continuous-section",
+    "sourceDocumentMutation": false,
+    "contentRemoval": false,
+    "standaloneSpacerRoots": false
+  },
+  "staticZoneEquivalence": {
+    "status": "equivalent-repeating-static-zones",
+    "normalizedPageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+    "normalizedHeaderContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+    "normalizedFooterContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+    "canonicalSourceSectionIndex": 0,
+    "canonicalSourceSectionId": "section-cover",
+    "canonicalHeaderZoneId": "cover-header-zone",
+    "canonicalFooterZoneId": "cover-footer-zone",
+    "pageNumberPolicy": {
+      "start": 1,
+      "startOwner": "first-source-section",
+      "continuation": "continuous-generated-page-number"
+    },
+    "sections": [
+      {
+        "sourceSectionIndex": 0,
+        "sourceSectionId": "section-cover",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:3f79c1d52972ab4f5b9fc16af00baa877c5c4fdd67a3388de84502ec28442f1c",
+        "footerEvidenceFingerprint": "sha256:e84a9c38c1c102e9dcc8a1d793ef1d4b41b89869bb36da243de7149f06ac55e4",
+        "pageNumberStart": 1
+      },
+      {
+        "sourceSectionIndex": 1,
+        "sourceSectionId": "section-executive-summary",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:3778d36ff9615cc8cd00cf5c30acd30319e798f00f0f942a93752c179ea2f5a4",
+        "footerEvidenceFingerprint": "sha256:b0f31fcdf94981f02109c4e1817f618d68f4b3bd7b73a417d702e8c03301d0a7",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 2,
+        "sourceSectionId": "section-method",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:facddf03423b885a696efe56ce6784405dfdb434ee676e2afa011f1f9dae9fd0",
+        "footerEvidenceFingerprint": "sha256:3e3d318b641e34a64e3c13c01e8824a6b8df979c775692b387e2ce45339c1ceb",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 3,
+        "sourceSectionId": "section-ocr-accuracy",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:4d5e97a61abe951cb614a2099facacab31e427f859c8b287b6ea66ad676530b2",
+        "footerEvidenceFingerprint": "sha256:af0898a87f3a62417973d8d6fcbd742bd0bd82b4b991705b39ccc4211ecdd960",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 4,
+        "sourceSectionId": "section-source-evidence",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:24d10d997bad05938639df4852da9fce62bfde1cc377ad76807595fd5bff85bb",
+        "footerEvidenceFingerprint": "sha256:4d724e5c8991f65abdb939b8a62ed8bb14d40a5cdc812dce9eb8fe10536a0c16",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 5,
+        "sourceSectionId": "section-native-extraction",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:b33f7c33ca6cfdf77f06d22d041443b2dae02da1cfac110d78d61879a9617324",
+        "footerEvidenceFingerprint": "sha256:54871233c04d8ca005a8db704950fd25dc59f4ee6d430898bf981a45f8ed0640",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 6,
+        "sourceSectionId": "section-latency-cost-size",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:9fab6d738dd1ef38dce5c3afefbc023746aa77798c174934c888706c0c37bbaf",
+        "footerEvidenceFingerprint": "sha256:f758ae3906390907fb6c33f6cbe46e2f0a05e2fc34307ea1c16e1dcef57112dd",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 7,
+        "sourceSectionId": "section-mapping",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:e13c106e0479d1fbfe5eea7b2a5a90bc11fe805c37486968df0ae97e388be7e7",
+        "footerEvidenceFingerprint": "sha256:9346f94a101dae65150d074e2523f1e4be32a5bc89bea1d289eee0e6ec227f5f",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 8,
+        "sourceSectionId": "section-decision-view",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:d40af04c0f7d4bec62584e4efa15af68eb21c3dbe1ca87c8784ad9aa58a66288",
+        "footerEvidenceFingerprint": "sha256:ec4f1da6f63b53817a273a47aaf9cc4c552f066aa5c175bdc6ea8f5c51e25ebd",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 9,
+        "sourceSectionId": "section-limitations",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:fc1a65d7609bfe85a842ea7332070f3cd22d49e386e9f317cf4894432bf50353",
+        "footerEvidenceFingerprint": "sha256:dcf3455225c9c12e92c705879a16c2bedc3ecc038a987b9e1b78e6181487dcd0",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 10,
+        "sourceSectionId": "section-appendix-runs",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:05dc53732d7bcc202bf006ebe5fe1b902380ad6e418c2faab56628c1da0125ab",
+        "footerEvidenceFingerprint": "sha256:2bd43edd4341e2e8712444f08b98f363553f3a6664fa7944bf51bb2cd1c77a85",
+        "pageNumberStart": null
+      },
+      {
+        "sourceSectionIndex": 11,
+        "sourceSectionId": "section-appendix-evidence",
+        "pageProfileFingerprint": "sha256:6907affdd315772b67f986121190c11d576e91f98fd834c6e16faaa689851c78",
+        "headerContentFingerprint": "sha256:89caf5f2c40bb1961643ba84c29fb7fce1ff0894f46f1a163d2dd12f89cf45c6",
+        "footerContentFingerprint": "sha256:50f410aa30254a055f48a374e05e120c601a67d10296a0af61dac38f7a9c360d",
+        "headerEvidenceFingerprint": "sha256:5e08dc2344928f54f6c7a65f2c3badb15e9e205d71b746886c87681a2cf2dabf",
+        "footerEvidenceFingerprint": "sha256:0725dd7dada93299d3a9d04600e588fecef5dfc2032b20657d94d6efd57261fb",
+        "pageNumberStart": null
+      }
+    ]
+  },
+  "semanticSectionStartSpacingRule": {
+    "ruleId": "semantic-section-start",
+    "currentCategory": "section-heading",
+    "basisStyleKey": "section-heading",
+    "basisLineHeightPt": 22,
+    "multiplier": 0.5,
+    "gapBeforePt": 11,
+    "provenance": "accepted-r2c-e-line-height-ratio"
+  },
+  "semanticSections": [
+    {
+      "sourceSectionIndex": 0,
+      "sourceSectionId": "section-cover",
+      "sourceBodyZoneId": "cover-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 0,
+      "firstItemIndex": 0,
+      "itemCount": 10,
+      "naturalBodyHeightPt": 479.637795,
+      "sourcePreservedSpacingHeightPt": 48,
+      "sourcePreservedSpacingDemandPt": 527.637795
+    },
+    {
+      "sourceSectionIndex": 1,
+      "sourceSectionId": "section-executive-summary",
+      "sourceBodyZoneId": "executive-summary-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 1,
+      "firstItemIndex": 10,
+      "itemCount": 9,
+      "naturalBodyHeightPt": 142,
+      "sourcePreservedSpacingHeightPt": 32,
+      "sourcePreservedSpacingDemandPt": 174
+    },
+    {
+      "sourceSectionIndex": 2,
+      "sourceSectionId": "section-method",
+      "sourceBodyZoneId": "method-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 2,
+      "firstItemIndex": 19,
+      "itemCount": 12,
+      "naturalBodyHeightPt": 202,
+      "sourcePreservedSpacingHeightPt": 41,
+      "sourcePreservedSpacingDemandPt": 243
+    },
+    {
+      "sourceSectionIndex": 3,
+      "sourceSectionId": "section-ocr-accuracy",
+      "sourceBodyZoneId": "ocr-accuracy-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 3,
+      "firstItemIndex": 31,
+      "itemCount": 19,
+      "naturalBodyHeightPt": 962.102362,
+      "sourcePreservedSpacingHeightPt": 119,
+      "sourcePreservedSpacingDemandPt": 1081.102362
+    },
+    {
+      "sourceSectionIndex": 4,
+      "sourceSectionId": "section-source-evidence",
+      "sourceBodyZoneId": "source-evidence-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 4,
+      "firstItemIndex": 50,
+      "itemCount": 20,
+      "naturalBodyHeightPt": 307,
+      "sourcePreservedSpacingHeightPt": 65,
+      "sourcePreservedSpacingDemandPt": 372
+    },
+    {
+      "sourceSectionIndex": 5,
+      "sourceSectionId": "section-native-extraction",
+      "sourceBodyZoneId": "native-extraction-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 5,
+      "firstItemIndex": 70,
+      "itemCount": 31,
+      "naturalBodyHeightPt": 1324.102362,
+      "sourcePreservedSpacingHeightPt": 167,
+      "sourcePreservedSpacingDemandPt": 1491.102362
+    },
+    {
+      "sourceSectionIndex": 6,
+      "sourceSectionId": "section-latency-cost-size",
+      "sourceBodyZoneId": "latency-cost-size-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 6,
+      "firstItemIndex": 101,
+      "itemCount": 27,
+      "naturalBodyHeightPt": 618.102362,
+      "sourcePreservedSpacingHeightPt": 95,
+      "sourcePreservedSpacingDemandPt": 713.102362
+    },
+    {
+      "sourceSectionIndex": 7,
+      "sourceSectionId": "section-mapping",
+      "sourceBodyZoneId": "mapping-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 7,
+      "firstItemIndex": 128,
+      "itemCount": 23,
+      "naturalBodyHeightPt": 1118.102362,
+      "sourcePreservedSpacingHeightPt": 107,
+      "sourcePreservedSpacingDemandPt": 1225.102362
+    },
+    {
+      "sourceSectionIndex": 8,
+      "sourceSectionId": "section-decision-view",
+      "sourceBodyZoneId": "decision-view-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 8,
+      "firstItemIndex": 151,
+      "itemCount": 2,
+      "naturalBodyHeightPt": 37,
+      "sourcePreservedSpacingHeightPt": 11,
+      "sourcePreservedSpacingDemandPt": 48
+    },
+    {
+      "sourceSectionIndex": 9,
+      "sourceSectionId": "section-limitations",
+      "sourceBodyZoneId": "limitations-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 9,
+      "firstItemIndex": 153,
+      "itemCount": 9,
+      "naturalBodyHeightPt": 406,
+      "sourcePreservedSpacingHeightPt": 44,
+      "sourcePreservedSpacingDemandPt": 450
+    },
+    {
+      "sourceSectionIndex": 10,
+      "sourceSectionId": "section-appendix-runs",
+      "sourceBodyZoneId": "appendix-runs-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 10,
+      "firstItemIndex": 162,
+      "itemCount": 7,
+      "naturalBodyHeightPt": 377,
+      "sourcePreservedSpacingHeightPt": 50,
+      "sourcePreservedSpacingDemandPt": 427
+    },
+    {
+      "sourceSectionIndex": 11,
+      "sourceSectionId": "section-appendix-evidence",
+      "sourceBodyZoneId": "appendix-evidence-body-zone",
+      "compositionSectionIndex": 0,
+      "compositionSectionId": "composition-section-ocr-benchmark-report",
+      "compositionZoneOrder": 11,
+      "firstItemIndex": 169,
+      "itemCount": 4,
+      "naturalBodyHeightPt": 853,
+      "sourcePreservedSpacingHeightPt": 29,
+      "sourcePreservedSpacingDemandPt": 882
+    }
+  ],
+  "spacingBridgeContract": {
+    "source": "vnext-document-composition-spacing-bridge",
+    "contractVersion": 1,
+    "pageTopPolicy": "suppress-before-first-fragment",
+    "demandAdjustment": "subtract-gap-before-family-pagination",
+    "freshPageRetry": "return-fresh-page-required-then-suppress-gap",
+    "windowProjection": "first-page-no-paint-offset"
+  },
+  "spacingByRule": [
+    {
+      "ruleId": "zone-start",
+      "appliedCount": 1,
+      "positiveCount": 0,
+      "totalGapPt": 0
+    },
+    {
+      "ruleId": "report-title-to-body",
+      "appliedCount": 1,
+      "positiveCount": 1,
+      "totalGapPt": 15
+    },
+    {
+      "ruleId": "body-stack",
+      "appliedCount": 114,
+      "positiveCount": 114,
+      "totalGapPt": 342
+    },
+    {
+      "ruleId": "body-to-image",
+      "appliedCount": 5,
+      "positiveCount": 5,
+      "totalGapPt": 60
+    },
+    {
+      "ruleId": "semantic-section-start",
+      "appliedCount": 11,
+      "positiveCount": 11,
+      "totalGapPt": 121
+    },
+    {
+      "ruleId": "section-heading-to-body",
+      "appliedCount": 11,
+      "positiveCount": 11,
+      "totalGapPt": 121
+    },
+    {
+      "ruleId": "image-to-table-label",
+      "appliedCount": 3,
+      "positiveCount": 3,
+      "totalGapPt": 36
+    },
+    {
+      "ruleId": "table-label-to-table",
+      "appliedCount": 15,
+      "positiveCount": 15,
+      "totalGapPt": 90
+    },
+    {
+      "ruleId": "table-to-table-label",
+      "appliedCount": 9,
+      "positiveCount": 9,
+      "totalGapPt": 108
+    },
+    {
+      "ruleId": "body-to-table-label",
+      "appliedCount": 3,
+      "positiveCount": 3,
+      "totalGapPt": 36
+    }
+  ],
+  "fidelityGate": {
+    "status": "blocked-pagination-sensitive-twelve-page-capacity",
+    "targetPageCount": 12,
+    "previousNaturalSectionCapacityFloorCount": 17,
+    "previousPreservedSpacingSectionCapacityCount": 18,
+    "reconciledNaturalGlobalCapacityCount": 11,
+    "reconciledGrossSpacingCapacityCount": 13,
+    "grossDemandPt": 7755.047243,
+    "targetCapacityPt": 7703.433072,
+    "grossOverflowAboveTargetPt": 51.614171,
+    "maximumTheoreticalPageTopSuppressionPt": 135,
+    "maximumTheoreticalPaginationOverheadBudgetPt": 83.385829,
+    "reason": "page-top-gap-suppression-and-pagination-overhead-not-executed"
+  },
+  "rejectedAlternatives": [
+    {
+      "alternative": "retain-twelve-fresh-core-sections",
+      "reason": "Core closes every section boundary, retaining the proven seventeen-page natural and eighteen-page spaced floors."
+    },
+    {
+      "alternative": "preserve-zero-semantic-section-start-gap",
+      "reason": "Zone-start zero spacing was valid only at a fresh page; continuous semantic headings require an explicit leading gap."
+    },
+    {
+      "alternative": "insert-standalone-utility-spacer-roots",
+      "reason": "An atomic spacer can move to a fresh page independently and violate suppress-before-first-fragment semantics."
+    },
+    {
+      "alternative": "remove-report-content-to-hit-page-count",
+      "reason": "Page-count reconciliation must not discard source-backed report evidence or mutate the authored document."
+    }
+  ],
+  "summary": {
+    "semanticSectionCount": 12,
+    "compositionSectionCount": 1,
+    "removedForcedSectionBoundaryCount": 11,
+    "bodyItemCount": 173,
+    "sourcePositiveSpacingBindingCount": 161,
+    "reconciledPositiveSpacingBindingCount": 172,
+    "semanticSectionStartBindingCount": 11,
+    "sourcePreservedSpacingPt": 808,
+    "semanticSectionStartSpacingPt": 121,
+    "reconciledGrossSpacingPt": 929,
+    "naturalBodyHeightPt": 6826.047243,
+    "reconciledGrossDemandPt": 7755.047243,
+    "pageBodyHeightPt": 641.952756,
+    "previousNaturalSectionCapacityFloorCount": 17,
+    "previousPreservedSpacingSectionCapacityCount": 18,
+    "reconciledNaturalGlobalCapacityCount": 11,
+    "reconciledGrossSpacingCapacityCount": 13,
+    "targetPageCount": 12,
+    "grossTargetPageDelta": 1,
+    "grossOverflowAboveTargetPt": 51.614171,
+    "maximumTheoreticalPageTopSuppressionPt": 135,
+    "maximumTheoreticalPaginationOverheadBudgetPt": 83.385829,
+    "equivalentPageProfileCount": 12,
+    "equivalentHeaderCount": 12,
+    "equivalentFooterCount": 12
+  },
+  "executionGate": {
+    "status": "reconciliation-ready-pagination-blocked",
+    "allSemanticSectionsRetained": true,
+    "allBodyRootsRetained": true,
+    "staticZonesEquivalent": true,
+    "continuousCompositionSectionFinalized": true,
+    "semanticSectionStartGapBound": true,
+    "coreSpacingBridgeContractBound": true,
+    "standaloneSpacerRootsInserted": false,
+    "sourceDocumentMutated": false,
+    "familyPaginationInputsBound": false,
+    "generatedFooterMeasured": false,
+    "documentCompositionTransitionExecuted": false,
+    "paginationExecuted": false,
+    "pdfRendered": false,
+    "blockers": [
+      {
+        "code": "family-pagination-inputs-not-bound",
+        "blocks": "document-composition-transition",
+        "message": "Each reconciled manifest item still needs its exact family initial cursor and bounded pagination input."
+      },
+      {
+        "code": "generated-page-number-not-measured",
+        "blocks": "final-footer-placement",
+        "message": "The repeating footer is structurally equivalent, but generated page-number text still lacks final measurement."
+      },
+      {
+        "code": "twelve-page-pagination-sensitive",
+        "blocks": "twelve-page-fidelity",
+        "message": "Twelve pages require enough page-top gap suppression to cover the gross overflow plus table and continuation overhead."
+      },
+      {
+        "code": "pagination-not-executed",
+        "blocks": "page-assignment",
+        "message": "The reconciled manifest and spacing bindings are ready, but no family window or document transition has executed."
+      }
+    ]
+  },
+  "ownership": {
+    "reconciliationOwns": [
+      "static-zone-content-equivalence",
+      "continuous-composition-section-projection",
+      "semantic-section-lineage-map",
+      "semantic-section-start-spacing",
+      "core-spacing-bridge-bindings",
+      "reconciled-core-composition-manifest",
+      "pagination-sensitive-twelve-page-gate"
+    ],
+    "reconciliationMustNotOwn": [
+      "source-document-section-mutation",
+      "content-removal",
+      "family-pagination-input-materialization",
+      "generated-page-number-measurement",
+      "table-row-splitting",
+      "header-row-repetition",
+      "page-assignment",
+      "pdf-bytes"
+    ]
+  },
+  "boundary": {
+    "verticalCapacity": "consumed",
+    "staticZoneEquivalence": "checked",
+    "semanticSectionReconciliation": "projected",
+    "semanticSectionStartSpacing": "bound",
+    "coreCompositionManifest": "finalized",
+    "coreSpacingBridge": "contract-bound-not-run",
+    "familyPaginationInputs": "not-bound",
+    "generatedFooterMeasurement": "not-run",
+    "documentCompositionTransition": "not-run",
+    "pageAssignment": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-I family pagination input binding and generated footer measurement"
+}

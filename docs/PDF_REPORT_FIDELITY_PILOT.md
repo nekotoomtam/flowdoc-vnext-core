@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-G capacity evidence accepted; twelve-page fidelity blocked.
+Status: PDF-PILOT-08B-R2C-H reconciliation accepted; twelve-page pagination remains blocked.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -517,6 +517,37 @@ Primary Phase 08B-R2C-G evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-vertical-capacity-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportVerticalCapacity.test.ts`.
 
+## PDF-PILOT-08B-R2C-H Scope
+
+Phase 08B-R2C-H consumes the exact R2C-C and R2C-G fingerprints. It proves
+that all twelve semantic sections have equivalent normalized Letter page,
+header, and footer content, then projects them into one continuous Core
+composition section. The reconciled manifest retains all twelve semantic-zone
+lineages and all 173 body roots without mutating Document v4.
+
+Core now exposes a generic demand/window spacing bridge. It subtracts a root's
+gap before family pagination, requests a fresh page when necessary, suppresses
+the gap at page top, and returns a transition-compatible window with a
+fingerprinted no-paint offset. No standalone spacer roots are inserted.
+
+Continuous flow invalidates the old zero gap at eleven non-initial semantic
+section starts. R2C-H adds an 11pt section-heading gap, raising gross spacing
+from 808pt to 929pt. Gross demand is `7755.047243pt`, or thirteen capacity
+units, and exceeds twelve body capacities by `51.614171pt`. Page-top gap
+suppression can theoretically recover at most 135pt, leaving at most
+`83.385829pt` for pagination overhead. This is not a page-count pass; family
+pagination, repeated table headers, generated footer measurement, page
+assignment, and PDF rendering remain blocked or `not-run`.
+
+Primary Phase 08B-R2C-H evidence:
+
+- `docs/PDF_CANONICAL_REPORT_SECTION_RECONCILIATION_PROOF.md`;
+- `src/composition/documentCompositionSpacingBridgeV1.ts`;
+- `fixtures/pdf-pilot-canonical-report-section-reconciliation.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-section-reconciliation-qa.v1.json`;
+- `tests/documentCompositionSpacingBridgeV1.test.ts`;
+- `tests/pdfRendererPilotCanonicalReportSectionReconciliation.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -746,17 +777,23 @@ npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
   Core manifest for 173 roots, proves every root can make fresh-page progress,
   and exposes a seventeen-page natural section floor against the twelve-page
   fidelity target.
+- Section reconciliation retains twelve semantic lineages inside one
+  continuous Core composition section, binds 173 spacing decisions through the
+  demand/window bridge, and exposes a thirteen-unit gross demand whose final
+  twelve-page result depends on real page-top suppression and pagination
+  overhead.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-G spacing and capacity evidence.
+None for closing PDF-PILOT-08B-R2C-H section reconciliation and spacing-bridge
+evidence.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
 thresholds, broader reader compatibility, source-profile promotion, native to
-WASM parity, section-capacity reconciliation, the Core spacing transition
-bridge, generated footer measurement, vertical placement, pagination, and PDF
-rendering. The natural section-capacity floor is seventeen pages against the
-twelve-page target.
+WASM parity, family pagination input binding, generated footer measurement,
+vertical placement, pagination, and PDF rendering. The reconciled gross demand
+is thirteen capacity units; twelve pages remain sensitive to page-top gap
+suppression and pagination overhead.
 
 ## RISK
 
@@ -778,8 +815,9 @@ twelve-page target.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- content-density or section-boundary reconciliation for the twelve-page target;
-- a Core transition representation for accepted inter-root spacing;
+- exact page-top gap suppression under real family pagination;
+- repeated table-header and continuation overhead against the 83.385829pt
+  theoretical twelve-page budget;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -797,5 +835,5 @@ twelve-page target.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-H` section-capacity reconciliation and Core
-spacing transition bridge.
+Next phase: `PDF-PILOT-08B-R2C-I` family pagination input binding and generated
+footer measurement.

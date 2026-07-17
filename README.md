@@ -920,6 +920,11 @@ The package must remain runnable without any parent editor checkout.
   spacing rules across 161 root adjacencies, finalizes a Core composition
   manifest for 173 body roots, and exposes a seventeen-page natural section
   floor that blocks the current twelve-page fidelity target.
+- PDF canonical report section reconciliation proves equivalent repeating page
+  regions, retains twelve semantic sections and all 173 roots inside one
+  continuous Core composition section, binds a demand/window spacing bridge,
+  and exposes a pagination-sensitive thirteen-unit gross demand against the
+  twelve-page target without deleting content.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

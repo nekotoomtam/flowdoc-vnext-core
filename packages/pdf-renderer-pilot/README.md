@@ -59,6 +59,16 @@ root can make fresh-page progress, but fresh section boundaries produce a
 seventeen-page natural floor against the twelve-page target. The spacing bridge,
 generated footer measurement, pagination, and PDF rendering remain blocked.
 
+## Section Reconciliation Evidence
+
+`PDF-PILOT-08B-R2C-H` proves all twelve semantic sections share equivalent
+page, header, and footer content, then projects them into one continuous Core
+composition section while retaining all 173 roots and semantic-zone lineage.
+It binds every root to the Core demand/window spacing bridge and restores an
+explicit 11pt gap before eleven non-initial semantic headings. Gross demand is
+thirteen capacity units; twelve-page fidelity remains blocked until real
+page-top suppression and pagination overhead are known.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -75,6 +85,7 @@ npm --prefix packages/pdf-renderer-pilot run build:report-native-shaping
 npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
 npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
 npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
+npm --prefix packages/pdf-renderer-pilot run build:report-section-reconciliation
 ```
 
 Build the retained subset with Python FontTools:

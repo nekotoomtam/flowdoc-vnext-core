@@ -10440,3 +10440,42 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-H` section-capacity reconciliation and Core
 spacing transition bridge.
+
+## PDF-PILOT-08B-R2C-H Section Reconciliation
+
+Status: reconciliation accepted; twelve-page pagination remains blocked.
+
+R2C-H consumes the exact R2C-C and R2C-G fingerprints. It proves all twelve
+semantic sections have equivalent normalized Letter page profiles, header
+content, and footer structure. The reconciled Core manifest uses one continuous
+composition section while retaining all twelve semantic body-zone lineages and
+all 173 root identities.
+
+Core now publishes a demand/window spacing bridge that subtracts leading gap
+capacity before family pagination, propagates fresh-page retry, suppresses the
+gap at page top, and projects preserved spacing as a fingerprinted no-paint
+fragment offset. Standalone utility spacer roots are rejected because they can
+move independently to a fresh page.
+
+Continuous semantic flow requires an explicit 11pt gap before the eleven
+non-initial section headings. Reconciled gross spacing is `929pt` and total
+demand is `7755.047243pt`, thirteen Letter-body capacity units. Twelve bodies
+provide `7703.433072pt`, leaving a `51.614171pt` gross deficit. The largest
+theoretical eleven page-top gap suppressions total `135pt`, so no more than
+`83.385829pt` remains for table and continuation overhead. Only real pagination
+can decide whether the twelve-page target passes.
+
+No family pagination input, generated page number, row split, repeated header,
+page assignment, pagination, or PDF byte is produced.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_SECTION_RECONCILIATION_PROOF.md`;
+- `src/composition/documentCompositionSpacingBridgeV1.ts`;
+- `fixtures/pdf-pilot-canonical-report-section-reconciliation.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-section-reconciliation-qa.v1.json`;
+- `tests/documentCompositionSpacingBridgeV1.test.ts`;
+- `tests/pdfRendererPilotCanonicalReportSectionReconciliation.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-I` family pagination input binding and generated
+footer measurement.
