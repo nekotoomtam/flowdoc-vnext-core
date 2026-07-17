@@ -21,7 +21,7 @@ export interface VNextPdfDrawCommand {
   pageNumber: number
   operation: VNextPdfDrawOperation
   nodeId: string
-  nodeType: VNextMeasuredRenderCommand["nodeType"]
+  nodeType: VNextMeasuredRenderCommand["nodeType"] | "image"
   bounds: VNextMeasuredRenderCommand["bounds"]
   text: string | null
   table: VNextMeasuredRenderCommand["table"] | null

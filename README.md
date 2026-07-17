@@ -934,6 +934,12 @@ The package must remain runnable without any parent editor checkout.
   finalizes all 173 roots as 178 placements on thirteen pages. The evidence is
   one page over the twelve-page target and does not hide the miss by deleting
   content or bypassing repeated table headers.
+- PDF canonical report full renderer handoff covers all 173 body roots and 178
+  placements, replays 15 Tables at the original bounded checkpoint/demand
+  boundary, and merges 1,745 body commands with 26 static-zone commands into a
+  thirteen-page Core measured-draw contract. The contract retains Regular/Bold
+  glyph runs, five images, Table backgrounds and 696 exact border lines with
+  no relayout; PDF bytes and visual acceptance remain pending.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

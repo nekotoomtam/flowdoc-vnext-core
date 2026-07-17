@@ -10588,3 +10588,37 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-L` measured body display list and full renderer
 contract merge.
+
+## PDF-PILOT-08B-R2C-L Full Renderer Handoff
+
+Status: measured body display list and full Core renderer contract accepted;
+PDF rendering remains pending.
+
+R2C-L consumes all 173 body roots and 178 final R2C-J placements. It emits 153
+measured-text entries, five fixed-image entries, and 15 prepared-Table entries
+spanning 20 Table pages. Text commands retain measured line geometry and split
+native Regular/Bold runs; all glyph IDs are present.
+
+Table replay walks the original R2C-J checkpoint/demand lifecycle one
+transition at a time and requires byte-identical transition traces and terminal
+checkpoint. Core Table renderer projection owns row, cell, text, background,
+and border geometry. One empty measured Table line becomes a no-paint receipt.
+The additive measured-draw `stroke-line` command preserves all 696 Table border
+segments without rectangle inflation.
+
+The merged static and body handoff is `consumable` across thirteen pages with
+1,771 draw/paint commands, 978 glyph runs, 92 fills, five backend-owned image
+assets, two registered IBM Plex font assets, and `mayRelayout: false`. It does
+not emit PDF bytes, accept visual fidelity, mutate authored content, or hide
+the open twelve-page calibration decision.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_BODY_DISPLAY_LIST_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-body-display-list.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-body-display-list-qa.v1.json`;
+- `packages/pdf-renderer-pilot/src/canonicalReportBodyDisplayList.ts`;
+- `tests/pdfRendererPilotCanonicalReportBodyDisplayList.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-M` full renderer execution and PDF structural
+verification. Visual comparison and twelve-page calibration remain separate.

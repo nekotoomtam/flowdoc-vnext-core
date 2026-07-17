@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest"
 import {
   createVNextPdfMeasuredDrawContractV1,
   type VNextPdfMeasuredDrawContractRequestV1,
+  type VNextPdfPaintCommandV1,
 } from "../src/index.js"
 import {
   FLOWDOC_PDF_RENDERER_PILOT_MODE,
@@ -141,6 +142,58 @@ describe("PDF-PILOT-03 Thai embedded-font one-page renderer proof", () => {
     })
     expect(second.bytes).toEqual(first.bytes)
     expect(second.artifact.sha256).toBe(first.artifact.sha256)
+  })
+
+  it("writes axis-aligned stroke-line commands as PDF path operators", () => {
+    const fixture = request()
+    const bounds = { xPt: 60, yPt: 184, widthPt: 492, heightPt: 0 }
+    fixture.plan.drawCommands.push({
+      id: "pdf:pilot:panel-rule",
+      sourceCommandId: "render:pilot:panel-rule",
+      fragmentId: "fragment:pilot:panel-rule",
+      pageIndex: 0,
+      pageNumber: 1,
+      operation: "draw-fragment-box",
+      nodeId: "pilot-panel-rule",
+      nodeType: "zone",
+      bounds,
+      text: null,
+      table: null,
+    })
+    fixture.plan.summary.inputCommandCount += 1
+    fixture.plan.summary.drawCommandCount += 1
+    fixture.plan.summary.boxCommandCount += 1
+    const paintCommands = fixture.paintCommands as VNextPdfPaintCommandV1[]
+    paintCommands.push({
+      id: "paint:pilot:panel-rule",
+      sourceCommandId: "pdf:pilot:panel-rule",
+      pageIndex: 0,
+      paintOrder: 4,
+      bounds,
+      kind: "stroke-line",
+      color: "A7BAC8",
+      opacity: 1,
+      widthPt: 0.75,
+      style: "solid",
+    })
+
+    const contract = createVNextPdfMeasuredDrawContractV1(fixture)
+    const result = renderFlowDocThaiOnePagePdfPilot({
+      proofId: "pdf-pilot-stroke-line",
+      contract,
+      fontResources: [fontResource()],
+    })
+
+    expect(contract).toMatchObject({
+      status: "consumable",
+      summary: { paintCommandCount: 5, strokeLineCount: 1 },
+    })
+    expect(result).toMatchObject({
+      status: "rendered",
+      summary: { pageCount: 1, paintCommandCount: 5 },
+    })
+    if (result.status !== "rendered") throw new Error("stroke-line proof must render")
+    expect(Buffer.from(result.bytes).toString("latin1")).toContain("60 608 m 552 608 l S")
   })
 
   it("pins a smaller GID-retaining derivative without the reserved font name", () => {

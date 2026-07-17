@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-K actual page-number expansion and static-zone renderer handoff accepted; body display-list construction remains blocked.
+Status: PDF-PILOT-08B-R2C-L measured body display list and full Core renderer contract accepted; PDF rendering remains pending.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -632,6 +632,33 @@ Primary Phase 08B-R2C-K evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-static-zone-handoff-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportStaticZoneHandoff.test.ts`.
 
+## PDF-PILOT-08B-R2C-L Scope
+
+Phase 08B-R2C-L covers all 173 body roots and 178 final placements with 153
+measured text entries, five fixed images, and 15 prepared Tables spanning 20
+Table page fragments. Text paint is split by measured line and native font run;
+the body retains 952 glyph runs with zero missing glyphs.
+
+Table pagination is replayed from the original R2C-J checkpoint, demand,
+spacing, and cursor boundary one transition at a time. Core Table renderer
+projection then emits 92 header-cell fills, 664 non-empty measured text lines,
+one empty-text receipt, and 696 border segments. The additive Core
+`stroke-line` command preserves zero-height/zero-width Table border geometry
+without converting it into guessed rectangles.
+
+The merged body and R2C-K static zones form a `consumable` thirteen-page Core
+measured-draw contract with 1,771 commands, 978 glyph runs, five image assets,
+two registered IBM Plex font assets, and `mayRelayout: false`. PDF bytes,
+visual acceptance, and the separate twelve-page calibration decision remain
+downstream.
+
+Primary Phase 08B-R2C-L evidence:
+
+- `docs/PDF_CANONICAL_REPORT_BODY_DISPLAY_LIST_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-body-display-list.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-body-display-list-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportBodyDisplayList.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -935,5 +962,5 @@ and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-L` measured body display list and full renderer
-contract merge.
+Next phase: `PDF-PILOT-08B-R2C-M` execute the full isolated renderer and verify
+PDF structure. Visual fidelity and twelve-page calibration remain separate.

@@ -94,6 +94,53 @@ describe("PDF measured draw contract v1", () => {
     expect(request.imageAssets).toEqual([expect.objectContaining({ assetId: image.artifactId, sha256: image.sha256 })])
   })
 
+  it("accepts axis-aligned measured stroke lines without inflating them into rectangles", () => {
+    const request = fixture()
+    const plan = clone(request.plan)
+    const paintCommands = clone(request.paintCommands) as any[]
+    plan.drawCommands.push({
+      id: "pdf:render:table-border",
+      sourceCommandId: "render:table-border",
+      fragmentId: "fragment:table-border",
+      pageIndex: 0,
+      pageNumber: 1,
+      operation: "draw-fragment-box",
+      nodeId: "table-border",
+      nodeType: "table",
+      bounds: { xPt: 48, yPt: 120, widthPt: 200, heightPt: 0 },
+      text: null,
+      table: null,
+    })
+    plan.summary.inputCommandCount += 1
+    plan.summary.drawCommandCount += 1
+    plan.summary.boxCommandCount += 1
+    paintCommands.push({
+      id: "paint:table-border",
+      sourceCommandId: "pdf:render:table-border",
+      pageIndex: 0,
+      paintOrder: 4,
+      bounds: { xPt: 48, yPt: 120, widthPt: 200, heightPt: 0 },
+      kind: "stroke-line",
+      color: "D9E1E8",
+      opacity: 1,
+      widthPt: 0.5,
+      style: "solid",
+    })
+
+    const result = createVNextPdfMeasuredDrawContractV1({ ...request, plan, paintCommands })
+
+    expect(result).toMatchObject({
+      status: "consumable",
+      summary: { sourceCommandCount: 4, paintCommandCount: 5, strokeLineCount: 1 },
+    })
+    if (result.status !== "consumable") throw new Error("stroke-line fixture must be consumable")
+    expect(result.pages[0].commands.at(-1)).toMatchObject({
+      kind: "stroke-line",
+      bounds: { widthPt: 200, heightPt: 0 },
+      widthPt: 0.5,
+    })
+  })
+
   it("blocks missing cluster coverage, geometry drift, and unknown image assets without partial pages", () => {
     const request = fixture()
     const paintCommands = clone(request.paintCommands) as any[]

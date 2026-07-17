@@ -22,6 +22,7 @@ export * from "./canonicalReportSectionReconciliation.js"
 export * from "./canonicalReportPaginationInputs.js"
 export * from "./canonicalReportPaginationExecution.js"
 export * from "./canonicalReportStaticZoneHandoff.js"
+export * from "./canonicalReportBodyDisplayList.js"
 
 export const FLOWDOC_PDF_RENDERER_PILOT_SOURCE = "flowdoc-pdf-renderer-pilot" as const
 export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as const
@@ -513,6 +514,17 @@ function rectangleOperands(
   ].join(" ")
 }
 
+function lineOperands(
+  command: Extract<VNextPdfPaintCommandV1, { kind: "stroke-line" }>,
+  pageHeight: number,
+): string {
+  const startX = command.bounds.xPt
+  const startY = pageHeight - command.bounds.yPt
+  const endX = startX + command.bounds.widthPt
+  const endY = startY - command.bounds.heightPt
+  return `${formatNumber(startX)} ${formatNumber(startY)} m ${formatNumber(endX)} ${formatNumber(endY)} l`
+}
+
 function toUnicodeCMap(usage: FontUsage): Buffer {
   const mappings = usage.glyphs.map((glyph) => (
     `<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}> <${utf16BeHex(glyph.unicode)}>`
@@ -634,6 +646,16 @@ function buildPageContent(
         `${formatNumber(command.widthPt)} w`,
         dash,
         `${rectangleOperands(command, page.heightPt)} re S`,
+        "Q",
+      )
+    } else if (command.kind === "stroke-line") {
+      const dash = command.style === "solid" ? "[] 0 d" : command.style === "dashed" ? "[4 2] 0 d" : "[1 2] 0 d"
+      content.push(
+        "q",
+        `${colorOperands(command.color)} RG`,
+        `${formatNumber(command.widthPt)} w`,
+        dash,
+        `${lineOperands(command, page.heightPt)} S`,
         "Q",
       )
     } else if (command.kind === "glyph-run") {

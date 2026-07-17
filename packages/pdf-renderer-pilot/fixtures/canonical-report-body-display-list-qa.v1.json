@@ -1,0 +1,669 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-l-canonical-report-body-display-list-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-L",
+  "status": "accepted-full-core-measured-draw-contract-pdf-rendering-pending",
+  "sourceFingerprints": {
+    "data": "ee9a5ad4b1f363f64afa37f9e23cb3e4a892bfe248be468ddd4d6487165abc4d",
+    "projection": "f1a756ec9d3028a0eba9cc455bec852eea16cbac9702cd825c4e29bc4113fc2c",
+    "nativeShaping": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+    "lineBreaking": "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
+    "measuredComposition": "d23b90b440286d7e9061859b60f3a68dc317ac25138b098c5381c63e97bed108",
+    "paginationInputs": "53b7625803925243bbb62ca9a7afcb12257f3fd47e82deebc7de3162ae63de00",
+    "sectionReconciliation": "4b538abb9c849abad3cee9a6bfd498f55c351e1adc31300dcae0f82c94def972",
+    "paginationExecution": "75390eb748762fff6a6f181c5da9503208a7632b5f63d14e1f29f1bad23888c6",
+    "pagePlan": "sha256:a8e66333fbbb7f1a7cffeafcee2379c62b64278cfc20595cd4148b8cc34146d6",
+    "staticZones": "11bd19f2e945b6e285678cd4a9cf07067ad07ee9f34b04c55ab09b107317dfb4",
+    "fontManifest": "ba811589b50375b3f70b66689c14645d7d0328f95802b9cfac7f31d096d79077"
+  },
+  "bundleFingerprint": "32d067a3b17e1c6598711445067877e29f0c609fe0c1d288d2d0e57871f95990",
+  "bodyDisplayListFingerprint": "sha256:74983f6c75fe19ab844fad974587ba90c92edc6a9cdf46676338d435df6cc7d3",
+  "measuredDrawContractFingerprint": "sha256:cbc4102ce70fe3cceaaad18618211839192177eb787adb75e4bb81224003ae42",
+  "tableRenderPolicy": {
+    "styleProfile": {
+      "contractVersion": 1,
+      "kind": "table-render-style-profile",
+      "profileId": "canonical-report-table-render-policy-v1",
+      "outerBorder": {
+        "style": "solid",
+        "widthPt": 0.6,
+        "color": "D9E1E8"
+      },
+      "internalRowBorder": {
+        "style": "solid",
+        "widthPt": 0.5,
+        "color": "D9E1E8"
+      },
+      "internalColumnBorder": {
+        "style": "solid",
+        "widthPt": 0.5,
+        "color": "D9E1E8"
+      },
+      "defaultCellBackground": null,
+      "rowBackgrounds": {
+        "header": "F3F6FA",
+        "body": null,
+        "footer": null,
+        "empty-state": null,
+        "repeated-header": "F3F6FA"
+      },
+      "textColorFallback": "111827",
+      "missingMediaPolicy": "block"
+    },
+    "styleSource": "canonical-report-renderer-policy",
+    "geometrySource": "core-table-pagination-and-renderer-projection",
+    "zebraStriping": "not-authored-not-applied"
+  },
+  "summary": {
+    "pageCount": 13,
+    "bodyEntryCount": 173,
+    "textEntryCount": 153,
+    "mediaEntryCount": 5,
+    "tableEntryCount": 15,
+    "sourceBodyPlacementCount": 178,
+    "bodyDrawCommandCount": 1745,
+    "bodyPaintCommandCount": 1745,
+    "bodyGlyphRunCount": 952,
+    "bodyImageCount": 5,
+    "bodyFillRectCount": 92,
+    "bodyStrokeLineCount": 696,
+    "structuralReceiptCount": 828,
+    "emptyTextReceiptCount": 1,
+    "fullDrawCommandCount": 1771,
+    "fullPaintCommandCount": 1771,
+    "fullGlyphRunCount": 978,
+    "fullImageCount": 5,
+    "fullFillRectCount": 92,
+    "fullStrokeLineCount": 696,
+    "fontAssetCount": 2,
+    "imageAssetCount": 5,
+    "missingGlyphCount": 0,
+    "tableReplayCount": 15,
+    "tableReplayPageCount": 20,
+    "fullRendererHandoffConsumable": true,
+    "pdfRendered": false
+  },
+  "tableReplays": [
+    {
+      "itemIndex": 43,
+      "tableId": "table-ocr-runs-ocr-run-context",
+      "projectionId": "ocr-run-context",
+      "firstDocumentPageIndex": 2,
+      "documentPageIndexes": [
+        2
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:c71bbadb3bb04da03c759ee9787ba0f97ef39482ab4843b87968cc74b9862648"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:27fd386c5a3aeecf04424685e0d4cacb4acb1044981fa1d35cbfe5966bdf2261"
+      ],
+      "v4PaginationFingerprint": "sha256:eb5fcccfda2e8709b936bcd9b3b467aeba5fb516956e937b3cf6114c09248cc8",
+      "v1PaginationFingerprint": "sha256:e98be73418b6417b3afade43d657eb013bdeb50e17947091839cbe74790394a6",
+      "rendererProjectionFingerprint": "sha256:25c06c9e9ac947c3ee631c968e86050bdca77ea7476b7e4c0215d76e8a870687",
+      "pageCount": 1,
+      "rendererCommandCount": 144,
+      "structuralCommandCount": 51,
+      "cellBackgroundCommandCount": 6,
+      "textLineCommandCount": 42,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 45,
+      "replayFingerprint": "sha256:5ed8b4e64ee382d9d24a750b0e4ada8138f49453199bf9f98e336a44e7ad7a4e"
+    },
+    {
+      "itemIndex": 45,
+      "tableId": "table-ocr-runs-ocr-confidence",
+      "projectionId": "ocr-confidence",
+      "firstDocumentPageIndex": 2,
+      "documentPageIndexes": [
+        2
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:f6c77ceb8048f9ebee525841b4dfd4087afb3b78d1ce7c46c9297550f09bdfa6"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:0d2dd4c1cdf9b4ee208e085e6d56e9882afe4b0597ea36894f1f53d65c628aea"
+      ],
+      "v4PaginationFingerprint": "sha256:622b98d790561d7f0528b5371251d82e67bb0dc47e141dd6ca3874d650521952",
+      "v1PaginationFingerprint": "sha256:f34af98e6f818c2e41c029e0e5c3286ecfe8ab6c309739a15ca14f4765eb5d4a",
+      "rendererProjectionFingerprint": "sha256:364cec7b1999c706207800f154c33673bb6e67ee047c453d30cd614197e81075",
+      "pageCount": 1,
+      "rendererCommandCount": 144,
+      "structuralCommandCount": 51,
+      "cellBackgroundCommandCount": 6,
+      "textLineCommandCount": 42,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 45,
+      "replayFingerprint": "sha256:e6c4ff106496ebf335ef936e74e16a5f0d84b35f0bbc81fb491cf4c6a83561af"
+    },
+    {
+      "itemIndex": 47,
+      "tableId": "table-ocr-runs-ocr-quality",
+      "projectionId": "ocr-quality",
+      "firstDocumentPageIndex": 2,
+      "documentPageIndexes": [
+        2,
+        3
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:38f620b7261237f66ac562b85cb1c27f25c61c4e77710a6a777c3883136106b3",
+        "sha256:d9890f71c56fcb7cdcb1a4ca2fd2e79341ac6109a20274403a72ed1092ae46ad"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:021ddf048cb0bc65fda73fadb4a910728cbce9118f7c29fae049a2a3f6b88a51",
+        "sha256:7d399476b80d5adfe7a571fcb83e70d7ee14fdeb461707164ee39922655c5db8"
+      ],
+      "v4PaginationFingerprint": "sha256:6bc93fbe16cecec11d30d55901e18a2581bc49dd3c24346acbbe8dcec7edbc23",
+      "v1PaginationFingerprint": "sha256:eb4c4ef23f16533957c29b46852000ba76cb505cc01063b6028ba139dd2a3cc7",
+      "rendererProjectionFingerprint": "sha256:3210f9dcef41fbe6bdf5ffba3d748cf30b7cc099cdea17336c866c11e2cd5068",
+      "pageCount": 2,
+      "rendererCommandCount": 148,
+      "structuralCommandCount": 52,
+      "cellBackgroundCommandCount": 10,
+      "textLineCommandCount": 40,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 46,
+      "replayFingerprint": "sha256:98b2866e0bb438513b0b1bdbc847401d44238e54b5c6fd6dcd96d61c2bf9ffc1"
+    },
+    {
+      "itemIndex": 49,
+      "tableId": "table-ocr-runs-ocr-runtime-cost",
+      "projectionId": "ocr-runtime-cost",
+      "firstDocumentPageIndex": 3,
+      "documentPageIndexes": [
+        3
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:b1421372422cfa8b778f8966ccb3b24517682df2f7e5ecf7b9aa805a460b4506"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:32fcff9a1115e0dde9b611640cde19d5f94f3048f73cb24641e540ae024e1b09"
+      ],
+      "v4PaginationFingerprint": "sha256:29969a2945385dbd53e2961cdfbfc0a898ac9f35855ecbaea646e50d3ec912ea",
+      "v1PaginationFingerprint": "sha256:830c0ec03be97984ffb490d21f0fcad9a9f2f1841cc0f65fab48a8aebad6d16a",
+      "rendererProjectionFingerprint": "sha256:e09087ee4bb99675122dcf88c6eafddd362b646928e664865c8863d927b66660",
+      "pageCount": 1,
+      "rendererCommandCount": 122,
+      "structuralCommandCount": 44,
+      "cellBackgroundCommandCount": 5,
+      "textLineCommandCount": 35,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 38,
+      "replayFingerprint": "sha256:6df00a1ca2c8be9f2c80d097399dc562c6d2d25ec37f11885599e1ed097bf88b"
+    },
+    {
+      "itemIndex": 92,
+      "tableId": "table-native-runs-native-run-context",
+      "projectionId": "native-run-context",
+      "firstDocumentPageIndex": 5,
+      "documentPageIndexes": [
+        5
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:c384dc0acda006cd068bf07391c1178e9e44f217e5c343b2d511e604cc6c03e3"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:b8982c3546f4a8347ea35348999927b09c8febb923506345853ca468a33e4dc0"
+      ],
+      "v4PaginationFingerprint": "sha256:660f395895c5d6875231b3c296c7f20febacdaea7a821d6be44d011b5fb79d75",
+      "v1PaginationFingerprint": "sha256:d85d2eee48ac3f529904c90bcdaddc01202301c39ee4eb935b8b87d6066bf49f",
+      "rendererProjectionFingerprint": "sha256:88be5dddccb8bf2218d2d3e0b0938b36fc6114b5e9593510851e044a5deb27d6",
+      "pageCount": 1,
+      "rendererCommandCount": 147,
+      "structuralCommandCount": 51,
+      "cellBackgroundCommandCount": 6,
+      "textLineCommandCount": 45,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 45,
+      "replayFingerprint": "sha256:a1a2e2de6ac3cb7ae7bd464101bfe5ffbf9ed46cb875ee31f64ccdacc9d789ee"
+    },
+    {
+      "itemIndex": 94,
+      "tableId": "table-native-runs-native-confidence",
+      "projectionId": "native-confidence",
+      "firstDocumentPageIndex": 5,
+      "documentPageIndexes": [
+        5
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:9b43752c436674b0147a418b1c6e0d035ead857dc46cb97a95b43d2cbf02c7ac"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:e626242c96e74c1ae1de546db326061fc45ab59ccf55e093c0aceb1715e1c72c"
+      ],
+      "v4PaginationFingerprint": "sha256:d024ee00cbf6fc5498638b2219d45b2bc8e3361d921f3c4164b44cf60c4fb7e5",
+      "v1PaginationFingerprint": "sha256:5b2fe3264020b12b4efe99c674e95c1ea11ba1f379ab77f3b8e377c5a71b3ca6",
+      "rendererProjectionFingerprint": "sha256:97302ed616d86bf651ce000d1e6631785c42fb87af225f9115dd0d78f8826b61",
+      "pageCount": 1,
+      "rendererCommandCount": 147,
+      "structuralCommandCount": 51,
+      "cellBackgroundCommandCount": 6,
+      "textLineCommandCount": 45,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 45,
+      "replayFingerprint": "sha256:3830b95572dbb8c4155c27df1093d5cb30cb285d97223fa64852488230de6914"
+    },
+    {
+      "itemIndex": 96,
+      "tableId": "table-native-runs-native-structure-inventory",
+      "projectionId": "native-structure-inventory",
+      "firstDocumentPageIndex": 5,
+      "documentPageIndexes": [
+        5
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:b419d3f5221e4280ca5605b5da3518d9849654f1fc3dd33d39d2e4ffa91778db"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:6b9af2be276d503cf6489ddaf1a875761fa9f30c6ed552641218004f2d7a5329"
+      ],
+      "v4PaginationFingerprint": "sha256:2610b6aa6b3764866e84bea441de127ad12fead993764af0f5cb1703003b4195",
+      "v1PaginationFingerprint": "sha256:a87c822c5cb3cb7929fac434637dc85e91570c6e27a1ccd17bfa991a38331af3",
+      "rendererProjectionFingerprint": "sha256:b065fe9a6bab356dbe8fc10aab5d5a2afd1ad5224114856de3d4d6e0dbb543cb",
+      "pageCount": 1,
+      "rendererCommandCount": 100,
+      "structuralCommandCount": 37,
+      "cellBackgroundCommandCount": 4,
+      "textLineCommandCount": 28,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 31,
+      "replayFingerprint": "sha256:9249f891eb10e41a8ce7dfcc89969ac320443ab357e9f876ae497b268b016edd"
+    },
+    {
+      "itemIndex": 98,
+      "tableId": "table-native-runs-native-structure-coverage",
+      "projectionId": "native-structure-coverage",
+      "firstDocumentPageIndex": 5,
+      "documentPageIndexes": [
+        5,
+        6
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:931cbab27ec85d18d831d28caf62f2b5cc47fcad497ec4efa9f817e1baea90a6",
+        "sha256:87b0d6c2700c0670456f70584e3079701d5e2fd60b023c650ef70f9d820820a4"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:d4c74bea6ed25f61ad188b15573654190e6e593bb82d704a0f790bd845d28022",
+        "sha256:73a8fe7d4447aced66248a32ca1729297a08345cddcb15a17095722965abc987"
+      ],
+      "v4PaginationFingerprint": "sha256:de26d0bfefbf56923346847224108edaba3452ac98f9a63015a4845c3d1c0896",
+      "v1PaginationFingerprint": "sha256:c4cef43611b6db36a341fdad0e23e70da867031f6055fb394274a545bc181512",
+      "rendererProjectionFingerprint": "sha256:667c757d89d9f627d0f969cf5934f127857f75222cc17afb4c288e221c617d08",
+      "pageCount": 2,
+      "rendererCommandCount": 122,
+      "structuralCommandCount": 44,
+      "cellBackgroundCommandCount": 8,
+      "textLineCommandCount": 32,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 38,
+      "replayFingerprint": "sha256:4ad2ddd4bf48c78aecdd44c1393b4cbad56df828d38a445f97ce85c419336e0d"
+    },
+    {
+      "itemIndex": 100,
+      "tableId": "table-native-runs-native-runtime-cost",
+      "projectionId": "native-runtime-cost",
+      "firstDocumentPageIndex": 6,
+      "documentPageIndexes": [
+        6
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:13dffbf4d18881743669ba96eefa490600bec65daed59196f1bebfdae190573c"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:8c1ec6a8b4dd5716e324ded1997cee594692b63a49bc22fa0132cd91acb9e2da"
+      ],
+      "v4PaginationFingerprint": "sha256:0a657c3e81cda735972b332d59ee136db5c4a870874e1c6bcca44ac778815ef3",
+      "v1PaginationFingerprint": "sha256:a8eb82b7ee40b39eac8249537d4f8b70a38dd79234c0503c0daf8924612b364f",
+      "rendererProjectionFingerprint": "sha256:852356b53a3288c88a08bebf93680e5950713f00cf71ea4121ec3145f65f8f58",
+      "pageCount": 1,
+      "rendererCommandCount": 122,
+      "structuralCommandCount": 44,
+      "cellBackgroundCommandCount": 5,
+      "textLineCommandCount": 35,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 38,
+      "replayFingerprint": "sha256:95972e0ea7d93184df7e1e543a96f168e29cb49c9c5dc8dc6035b7774890ac1e"
+    },
+    {
+      "itemIndex": 148,
+      "tableId": "table-mapping-fields-mapping-comparison",
+      "projectionId": "mapping-comparison",
+      "firstDocumentPageIndex": 8,
+      "documentPageIndexes": [
+        8
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:a172c86739c9cf1001b320b348b6e5e95dd065e88d528b2ea62e9e2c6951c9f1"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:c4748fed1c465b471b418f78471121484122f5dbc801949a7c11327376f37622"
+      ],
+      "v4PaginationFingerprint": "sha256:5e721efbd12a62b58dfd53e2eb8eff8094a64576fdeda28e8d4a07b9eac2211f",
+      "v1PaginationFingerprint": "sha256:808901976f84f429c949c6652b4cf135a32903922ce68783326705c06c399beb",
+      "rendererProjectionFingerprint": "sha256:44abeb8e043e4ec3e4ecb7039aff283f70d2b95a5d289bc0bc5f238435a57ced",
+      "pageCount": 1,
+      "rendererCommandCount": 199,
+      "structuralCommandCount": 68,
+      "cellBackgroundCommandCount": 5,
+      "textLineCommandCount": 68,
+      "emptyTextLineReceiptCount": 1,
+      "borderCommandCount": 58,
+      "replayFingerprint": "sha256:f2e8a8fb07c0dd6bb82bfaa5ca011b979e9e8b96897905b91eb683009b73f652"
+    },
+    {
+      "itemIndex": 150,
+      "tableId": "table-mapping-fields-mapping-evidence",
+      "projectionId": "mapping-evidence",
+      "firstDocumentPageIndex": 9,
+      "documentPageIndexes": [
+        9
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:5a048a97a5b0b9915dd3999c479140648a5f6ea868b32960e26676d95499cd4a"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:e1ed78a5ec3e8e2245f1d53435ec13de7c749d0f93028f4413b803da47366042"
+      ],
+      "v4PaginationFingerprint": "sha256:36ca665a396a488c467933e69ec80c566729007dc958401b55f0335a5fb1057c",
+      "v1PaginationFingerprint": "sha256:5c28ab5e686646680ab5972c1e2ef604ddd02f1e92900f8555d26364ea56a84c",
+      "rendererProjectionFingerprint": "sha256:84f29f2936f302332d0a71ec43a5789ae316e46b77a9f89359d4791fc20585cf",
+      "pageCount": 1,
+      "rendererCommandCount": 195,
+      "structuralCommandCount": 68,
+      "cellBackgroundCommandCount": 5,
+      "textLineCommandCount": 64,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 58,
+      "replayFingerprint": "sha256:b6a9341637a20c5233dfcd7da0e1d115ab68ae9775388d0934a78a69cd950b37"
+    },
+    {
+      "itemIndex": 161,
+      "tableId": "table-native-missing-concepts-native-missing-concepts",
+      "projectionId": "native-missing-concepts",
+      "firstDocumentPageIndex": 9,
+      "documentPageIndexes": [
+        9,
+        10
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:959eeb41ddb2952510f11c8da1e2ba760dd331d45254bab8ba37700ba189efcc",
+        "sha256:d2433387ae295d14ada5fa1d0d37724569138c7bd61bc185495517f08f9605ef"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:127c3d84896dbb1f8e5300a4c4988f88f8dcf72daedd478fe97ffc0f569e6f15",
+        "sha256:7444bcaf922d51579e424b0aec358710fcfef4cd977efbcf7ccfb581bbef4f85"
+      ],
+      "v4PaginationFingerprint": "sha256:36ddd19952e2a6965469951f5e92f60cb8502c1b20353f91b7f2ff9898cf7942",
+      "v1PaginationFingerprint": "sha256:982aad312ff27fe64f1f90d5c2eb338f861ccabf6dd26c7657bf2902f7378415",
+      "rendererProjectionFingerprint": "sha256:0a4b52119c1255fa2c36d17da92a5e313a36e9f3225822940bda42fd3aa60013",
+      "pageCount": 2,
+      "rendererCommandCount": 119,
+      "structuralCommandCount": 49,
+      "cellBackgroundCommandCount": 4,
+      "textLineCommandCount": 30,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 36,
+      "replayFingerprint": "sha256:3d69daf668e9dc64c36d6957396793ee7429720995b087bb877f26c86584000e"
+    },
+    {
+      "itemIndex": 166,
+      "tableId": "table-runs-run-status",
+      "projectionId": "run-status",
+      "firstDocumentPageIndex": 10,
+      "documentPageIndexes": [
+        10
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:c8aaee27a802564e150752f6b4f82ece2f096b4727bcd2f499ffff05660110bd"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:18824e3f5eee3dbe771d209b8ff9bd9795cb9cf6b975d7de0f48b08e1b0c7ba5"
+      ],
+      "v4PaginationFingerprint": "sha256:423ade667a008d86de251864ec3f71402ec8e43b0e6cec67c5d44f26f59f9ebc",
+      "v1PaginationFingerprint": "sha256:4a931794b7ce9e91e5d2bb43e291be0961fa2eb8a6b454f5bd1df3e23d8762ed",
+      "rendererProjectionFingerprint": "sha256:2a7be11c50aa54be28d19ef198ff9cca7a209dea484c9512aed39db32ec72c1b",
+      "pageCount": 1,
+      "rendererCommandCount": 144,
+      "structuralCommandCount": 51,
+      "cellBackgroundCommandCount": 6,
+      "textLineCommandCount": 42,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 45,
+      "replayFingerprint": "sha256:0445821cbcd138d8a471d646b4d4a0f1a0ff5860b37fb9c0884127a7232e328d"
+    },
+    {
+      "itemIndex": 168,
+      "tableId": "table-runs-run-engines-pages",
+      "projectionId": "run-engines-pages",
+      "firstDocumentPageIndex": 10,
+      "documentPageIndexes": [
+        10,
+        11
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:4e322efe7e3752eaccae3036a0db5e8de201e8cc0c16e180b8242452a3bf5fcc",
+        "sha256:db3c64c7098f31f1a033b95874d7997319d35cb546838ab7e2e8c60d6297c6b4"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:c7713cad4753e863330782a625b295dac6741032624177467a56289727edbea8",
+        "sha256:8aff5401d0adf38540150f68f47fcea6392b4a5020173ce7e038e7becc632e1c"
+      ],
+      "v4PaginationFingerprint": "sha256:6825c1561f591986c18b87a8e78c45ad988771f7cfa7524dee47dc3d23f9f83c",
+      "v1PaginationFingerprint": "sha256:31ff2729105b0270df1ab6c52a9d078f861ff055488f04d9d3481727221a45d8",
+      "rendererProjectionFingerprint": "sha256:5118829216daf6d22796e030e408ccc2f83cb758ad11ce43132ca775aa63ff0c",
+      "pageCount": 2,
+      "rendererCommandCount": 177,
+      "structuralCommandCount": 60,
+      "cellBackgroundCommandCount": 12,
+      "textLineCommandCount": 51,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 54,
+      "replayFingerprint": "sha256:24176adb1fbb5f4e06e84bea2811278114cf22d04ab5a7b66cf995a7c4102195"
+    },
+    {
+      "itemIndex": 172,
+      "tableId": "table-gdim-expected-fields-gdim-expected-fields",
+      "projectionId": "gdim-expected-fields",
+      "firstDocumentPageIndex": 11,
+      "documentPageIndexes": [
+        11,
+        12
+      ],
+      "sourcePlacementFingerprints": [
+        "sha256:ff0e0e4339d2fbcbcf80b0be89d21d48984c7f48fb0f1331eedb67a285f45714",
+        "sha256:5418f6b87ecb02c4f389cf7795714a938bb566747611991460f42f56d9df036d"
+      ],
+      "sourceFamilyEvidenceFingerprints": [
+        "sha256:2cbff0405adae6dacdf889770c07377665b1b5e7d17a712c8ee7cdd54bf7ba0f",
+        "sha256:74b83e613a014f4fe115ae8db5e2d1554306ac493c343e8aabb15cbad76092ff"
+      ],
+      "v4PaginationFingerprint": "sha256:74a48cf63bba4705efb2cda6a8fb984ea8ff514aaae04b7c0a945c41b09c82e7",
+      "v1PaginationFingerprint": "sha256:a57e2a06f42e61b222a247d63f57dd395c53eaf2f2099dd438009d889c8ea397",
+      "rendererProjectionFingerprint": "sha256:e3b60de1ee896f51469750011112c50177c476f1fa6f929b72d269637df148be",
+      "pageCount": 2,
+      "rendererCommandCount": 268,
+      "structuralCommandCount": 106,
+      "cellBackgroundCommandCount": 4,
+      "textLineCommandCount": 84,
+      "emptyTextLineReceiptCount": 0,
+      "borderCommandCount": 74,
+      "replayFingerprint": "sha256:0511c9375d6475d8d83e54097e10d46cdafffb1fb07981555808a1e297296e3b"
+    }
+  ],
+  "pages": [
+    {
+      "pageIndex": 0,
+      "pageNumber": 1,
+      "commandCount": 28,
+      "glyphRunCount": 27,
+      "imageCount": 1,
+      "fillRectCount": 0,
+      "strokeLineCount": 0
+    },
+    {
+      "pageIndex": 1,
+      "pageNumber": 2,
+      "commandCount": 51,
+      "glyphRunCount": 51,
+      "imageCount": 0,
+      "fillRectCount": 0,
+      "strokeLineCount": 0
+    },
+    {
+      "pageIndex": 2,
+      "pageNumber": 3,
+      "commandCount": 230,
+      "glyphRunCount": 104,
+      "imageCount": 1,
+      "fillRectCount": 17,
+      "strokeLineCount": 108
+    },
+    {
+      "pageIndex": 3,
+      "pageNumber": 4,
+      "commandCount": 175,
+      "glyphRunCount": 99,
+      "imageCount": 0,
+      "fillRectCount": 10,
+      "strokeLineCount": 66
+    },
+    {
+      "pageIndex": 4,
+      "pageNumber": 5,
+      "commandCount": 43,
+      "glyphRunCount": 42,
+      "imageCount": 1,
+      "fillRectCount": 0,
+      "strokeLineCount": 0
+    },
+    {
+      "pageIndex": 5,
+      "pageNumber": 6,
+      "commandCount": 292,
+      "glyphRunCount": 136,
+      "imageCount": 0,
+      "fillRectCount": 20,
+      "strokeLineCount": 136
+    },
+    {
+      "pageIndex": 6,
+      "pageNumber": 7,
+      "commandCount": 164,
+      "glyphRunCount": 94,
+      "imageCount": 0,
+      "fillRectCount": 9,
+      "strokeLineCount": 61
+    },
+    {
+      "pageIndex": 7,
+      "pageNumber": 8,
+      "commandCount": 43,
+      "glyphRunCount": 42,
+      "imageCount": 1,
+      "fillRectCount": 0,
+      "strokeLineCount": 0
+    },
+    {
+      "pageIndex": 8,
+      "pageNumber": 9,
+      "commandCount": 142,
+      "glyphRunCount": 78,
+      "imageCount": 1,
+      "fillRectCount": 5,
+      "strokeLineCount": 58
+    },
+    {
+      "pageIndex": 9,
+      "pageNumber": 10,
+      "commandCount": 167,
+      "glyphRunCount": 91,
+      "imageCount": 0,
+      "fillRectCount": 7,
+      "strokeLineCount": 69
+    },
+    {
+      "pageIndex": 10,
+      "pageNumber": 11,
+      "commandCount": 234,
+      "glyphRunCount": 111,
+      "imageCount": 0,
+      "fillRectCount": 14,
+      "strokeLineCount": 109
+    },
+    {
+      "pageIndex": 11,
+      "pageNumber": 12,
+      "commandCount": 138,
+      "glyphRunCount": 68,
+      "imageCount": 0,
+      "fillRectCount": 8,
+      "strokeLineCount": 62
+    },
+    {
+      "pageIndex": 12,
+      "pageNumber": 13,
+      "commandCount": 64,
+      "glyphRunCount": 35,
+      "imageCount": 0,
+      "fillRectCount": 2,
+      "strokeLineCount": 27
+    }
+  ],
+  "executionGate": {
+    "status": "full-measured-draw-contract-consumable-pdf-bytes-pending",
+    "sourceBodyPlacementsCovered": true,
+    "bodyEntriesCovered": true,
+    "tableReplaysCovered": true,
+    "tableReplayPagesCovered": true,
+    "imageAssetsCovered": true,
+    "emptyTextHandledWithoutFakeGlyphs": true,
+    "missingGlyphCount": 0,
+    "fullRendererHandoffConsumable": true,
+    "pdfRendered": false,
+    "blockers": [
+      {
+        "code": "pdf-rendering-not-run",
+        "blocks": "pdf-bytes",
+        "message": "The full measured draw contract is consumable, but no renderer execution has produced PDF bytes."
+      },
+      {
+        "code": "visual-fidelity-validation-pending",
+        "blocks": "report-acceptance",
+        "message": "The full document requires rendered structural and visual verification before report acceptance."
+      },
+      {
+        "code": "twelve-page-layout-calibration-open",
+        "blocks": "twelve-page-fidelity-target",
+        "message": "The authoritative Core plan remains thirteen pages; renderer handoff must retain that result."
+      }
+    ]
+  },
+  "ownership": {
+    "bodyDisplayListOwns": [
+      "measured-body-text-paint-commands",
+      "fixed-image-paint-commands",
+      "table-pagination-replay",
+      "table-renderer-projection",
+      "table-background-text-border-paint-commands",
+      "full-document-measured-draw-contract"
+    ],
+    "bodyDisplayListMustNotOwn": [
+      "pdf-bytes",
+      "visual-fidelity-acceptance",
+      "twelve-page-layout-calibration",
+      "authored-document-mutation"
+    ]
+  },
+  "boundary": {
+    "pageAssignment": "consumed-final",
+    "bodyTextProjection": "executed",
+    "mediaProjection": "executed",
+    "tablePaginationReplay": "executed",
+    "tableRendererProjection": "executed",
+    "bodyDisplayList": "executed",
+    "staticZoneMerge": "executed",
+    "fullDocumentMeasuredDrawContract": "consumable",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-M execute full renderer and verify PDF structure"
+}

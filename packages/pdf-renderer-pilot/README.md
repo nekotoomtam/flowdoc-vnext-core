@@ -87,6 +87,16 @@ pages, including five repeated table-header fragments. This is one page over
 the twelve-page fidelity target. Actual footer page-number expansion, static
 zone paint instances, renderer handoff, and PDF output remain blocked.
 
+## Full Renderer Handoff Evidence
+
+`PDF-PILOT-08B-R2C-L` replays the final bounded document execution to recover
+the exact Table windows, projects all measured body text, fixed images, Table
+backgrounds, text, and border lines, and merges them with page-specific static
+zones. Core accepts the resulting thirteen-page measured-draw contract with
+1,771 commands, two IBM Plex font assets, five backend-owned image assets,
+zero missing glyphs, and no renderer relayout. PDF bytes and visual acceptance
+remain downstream.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -106,6 +116,8 @@ npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
 npm --prefix packages/pdf-renderer-pilot run build:report-section-reconciliation
 npm --prefix packages/pdf-renderer-pilot run build:report-pagination-inputs
 npm --prefix packages/pdf-renderer-pilot run build:report-pagination-execution
+npm --prefix packages/pdf-renderer-pilot run build:report-static-zone-handoff
+npm --prefix packages/pdf-renderer-pilot run build:report-body-display-list
 ```
 
 Build the retained subset with Python FontTools:

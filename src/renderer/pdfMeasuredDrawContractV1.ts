@@ -25,6 +25,21 @@ export const VNextPdfPaintBoundsV1Schema = z.object({
   heightPt: PositiveFiniteNumberSchema,
 }).strict()
 
+export const VNextPdfStrokeLineBoundsV1Schema = z.object({
+  xPt: NonNegativeFiniteNumberSchema,
+  yPt: NonNegativeFiniteNumberSchema,
+  widthPt: NonNegativeFiniteNumberSchema,
+  heightPt: NonNegativeFiniteNumberSchema,
+}).strict().superRefine((value, ctx) => {
+  const horizontal = value.widthPt > 0 && value.heightPt === 0
+  const vertical = value.widthPt === 0 && value.heightPt > 0
+  if (!horizontal && !vertical) ctx.addIssue({
+    code: "custom",
+    path: ["widthPt"],
+    message: "stroke-line bounds must describe one horizontal or vertical segment",
+  })
+})
+
 export const VNextPdfPageBoxV1Schema = z.object({
   pageIndex: z.number().int().nonnegative(),
   pageNumber: z.number().int().positive(),
@@ -134,6 +149,19 @@ export const VNextPdfStrokeRectPaintCommandV1Schema = z.object({
   style: z.enum(["solid", "dashed", "dotted"]),
 }).strict()
 
+export const VNextPdfStrokeLinePaintCommandV1Schema = z.object({
+  id: NonBlankIdSchema,
+  sourceCommandId: NonBlankIdSchema,
+  pageIndex: z.number().int().nonnegative(),
+  paintOrder: z.number().int().nonnegative(),
+  bounds: VNextPdfStrokeLineBoundsV1Schema,
+  kind: z.literal("stroke-line"),
+  color: ColorSchema,
+  opacity: OpacitySchema,
+  widthPt: PositiveFiniteNumberSchema,
+  style: z.enum(["solid", "dashed", "dotted"]),
+}).strict()
+
 const NormalizedCropSchema = z.object({
   top: z.number().finite().min(0).max(1),
   right: z.number().finite().min(0).max(1),
@@ -161,6 +189,7 @@ export const VNextPdfPaintCommandV1Schema = z.discriminatedUnion("kind", [
   VNextPdfGlyphRunPaintCommandV1Schema,
   VNextPdfFillRectPaintCommandV1Schema,
   VNextPdfStrokeRectPaintCommandV1Schema,
+  VNextPdfStrokeLinePaintCommandV1Schema,
   VNextPdfImagePaintCommandV1Schema,
 ])
 
@@ -172,6 +201,7 @@ const DrawFactsSchema = z.object({
 }).strict()
 
 export type VNextPdfPaintBoundsV1 = z.infer<typeof VNextPdfPaintBoundsV1Schema>
+export type VNextPdfStrokeLineBoundsV1 = z.infer<typeof VNextPdfStrokeLineBoundsV1Schema>
 export type VNextPdfPageBoxV1 = z.infer<typeof VNextPdfPageBoxV1Schema>
 export type VNextPdfFontAssetV1 = z.infer<typeof VNextPdfFontAssetV1Schema>
 export type VNextPdfImageAssetV1 = z.infer<typeof VNextPdfImageAssetV1Schema>
@@ -179,6 +209,7 @@ export type VNextPdfGlyphFactV1 = z.infer<typeof VNextPdfGlyphFactV1Schema>
 export type VNextPdfGlyphRunPaintCommandV1 = z.infer<typeof VNextPdfGlyphRunPaintCommandV1Schema>
 export type VNextPdfFillRectPaintCommandV1 = z.infer<typeof VNextPdfFillRectPaintCommandV1Schema>
 export type VNextPdfStrokeRectPaintCommandV1 = z.infer<typeof VNextPdfStrokeRectPaintCommandV1Schema>
+export type VNextPdfStrokeLinePaintCommandV1 = z.infer<typeof VNextPdfStrokeLinePaintCommandV1Schema>
 export type VNextPdfImagePaintCommandV1 = z.infer<typeof VNextPdfImagePaintCommandV1Schema>
 export type VNextPdfPaintCommandV1 = z.infer<typeof VNextPdfPaintCommandV1Schema>
 
@@ -281,6 +312,7 @@ export type VNextPdfMeasuredDrawContractResultV1 =
         glyphRunCount: number
         fillRectCount: number
         strokeRectCount: number
+        strokeLineCount?: number
         imageCount: number
         fontAssetCount: number
         imageAssetCount: number
@@ -348,7 +380,7 @@ function duplicateValues<T>(values: readonly T[]): Set<T> {
   return duplicates
 }
 
-function sameBounds(left: VNextPdfPaintBoundsV1, right: VNextPdfDrawCommand["bounds"]): boolean {
+function sameBounds(left: VNextPdfPaintCommandV1["bounds"], right: VNextPdfDrawCommand["bounds"]): boolean {
   return (
     left.xPt === right.xPt
     && left.yPt === right.yPt
@@ -542,6 +574,7 @@ export function createVNextPdfMeasuredDrawContractV1(
     fontAssets,
     imageAssets,
   }))
+  const strokeLineCount = paintCommands.filter((command) => command.kind === "stroke-line").length
 
   return {
     source: VNEXT_PDF_MEASURED_DRAW_CONTRACT_SOURCE,
@@ -562,6 +595,7 @@ export function createVNextPdfMeasuredDrawContractV1(
       glyphRunCount: paintCommands.filter((command) => command.kind === "glyph-run").length,
       fillRectCount: paintCommands.filter((command) => command.kind === "fill-rect").length,
       strokeRectCount: paintCommands.filter((command) => command.kind === "stroke-rect").length,
+      ...(strokeLineCount > 0 ? { strokeLineCount } : {}),
       imageCount: paintCommands.filter((command) => command.kind === "image").length,
       fontAssetCount: fontAssets.length,
       imageAssetCount: imageAssets.length,
