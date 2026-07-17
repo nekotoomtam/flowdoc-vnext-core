@@ -916,6 +916,10 @@ The package must remain runnable without any parent editor checkout.
   to Core measured-line acceptance, prepares 165 document blocks, five image
   frames, 15 tables with 146 rows and 617 cells, and inventories 197 authored
   flow nodes while deferring twelve generated page-number footers.
+- PDF canonical report vertical capacity binds eight accepted-line-height
+  spacing rules across 161 root adjacencies, finalizes a Core composition
+  manifest for 173 body roots, and exposes a seventeen-page natural section
+  floor that blocks the current twelve-page fidelity target.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

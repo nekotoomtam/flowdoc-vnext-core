@@ -1,6 +1,6 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-F natural composition evidence accepted.
+Status: PDF-PILOT-08B-R2C-G capacity evidence accepted; twelve-page fidelity blocked.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
@@ -489,6 +489,34 @@ Primary Phase 08B-R2C-F evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-measured-composition-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportMeasuredComposition.test.ts`.
 
+## PDF-PILOT-08B-R2C-G Scope
+
+Phase 08B-R2C-G consumes the exact R2C-C and R2C-F fingerprints. It binds eight
+line-height-derived adjacency rules across all 161 non-initial body pairs,
+retaining `808pt` of preserved spacing without mutating Document v4. It derives
+the exact `641.952756pt` Letter body capacity and checks twelve measured headers
+plus twelve reserved, still-unmeasured generated footers.
+
+Core accepts a document-composition manifest containing all 173 authored body
+roots: 153 text flows, fifteen table flows, and five media flows. Every root has
+a fresh-page progress unit that fits the body. The only whole-root overflow is
+the `804pt` GDIM expected-fields table; its repeated-header plus maximum-row
+progress unit is `50pt` and remains splittable.
+
+The capacity result blocks the existing twelve-page target. Without spacing,
+global height occupies eleven capacity units, but Core closes pages at section
+boundaries, raising the natural floor to seventeen. Preserved spacing raises the
+section capacity count to eighteen. This phase does not execute the missing
+Core spacing bridge, page-number measurement, root placement, table pagination,
+page assignment, or PDF rendering.
+
+Primary Phase 08B-R2C-G evidence:
+
+- `docs/PDF_CANONICAL_REPORT_VERTICAL_CAPACITY_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-vertical-capacity.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-vertical-capacity-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportVerticalCapacity.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -648,6 +676,12 @@ Build and validate measured block/table composition evidence:
 npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
 ```
 
+Build and validate spacing and vertical-capacity evidence:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -708,15 +742,21 @@ npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
   consumers, prepares 165 document blocks, five image frames, 15 tables, 146
   rows, and 617 cells, and inventories 197 ordered flow nodes with twelve
   generated footer blocks explicitly deferred.
+- Vertical-capacity preparation binds all 161 body adjacencies, finalizes a
+  Core manifest for 173 roots, proves every root can make fresh-page progress,
+  and exposes a seventeen-page natural section floor against the twelve-page
+  fidelity target.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-F natural composition evidence.
+None for closing PDF-PILOT-08B-R2C-G spacing and capacity evidence.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
 thresholds, broader reader compatibility, source-profile promotion, native to
-WASM parity, inter-block spacing, page-capacity composition, vertical
-placement, pagination, and PDF rendering.
+WASM parity, section-capacity reconciliation, the Core spacing transition
+bridge, generated footer measurement, vertical placement, pagination, and PDF
+rendering. The natural section-capacity floor is seventeen pages against the
+twelve-page target.
 
 ## RISK
 
@@ -738,8 +778,8 @@ placement, pagination, and PDF rendering.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- automatic block spacing and page-capacity policy over accepted natural
-  block/table heights;
+- content-density or section-boundary reconciliation for the twelve-page target;
+- a Core transition representation for accepted inter-root spacing;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -757,5 +797,5 @@ placement, pagination, and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-G` vertical flow spacing and page-capacity
-composition.
+Next phase: `PDF-PILOT-08B-R2C-H` section-capacity reconciliation and Core
+spacing transition bridge.

@@ -51,6 +51,14 @@ prepares table cells and rows with the public Core pipeline, derives natural
 text/image/row heights, and inventories authored zone order. This evidence does
 not assign coordinates or pages and does not render PDF bytes.
 
+## Vertical Capacity Evidence
+
+`PDF-PILOT-08B-R2C-G` binds exact root-adjacency spacing, Letter page regions,
+static-zone reservations, and a Core document-composition manifest. Every body
+root can make fresh-page progress, but fresh section boundaries produce a
+seventeen-page natural floor against the twelve-page target. The spacing bridge,
+generated footer measurement, pagination, and PDF rendering remain blocked.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:
@@ -66,6 +74,7 @@ npm --prefix packages/pdf-renderer-pilot run build:typography-request
 npm --prefix packages/pdf-renderer-pilot run build:report-native-shaping
 npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
 npm --prefix packages/pdf-renderer-pilot run build:report-measured-composition
+npm --prefix packages/pdf-renderer-pilot run build:report-vertical-capacity
 ```
 
 Build the retained subset with Python FontTools:

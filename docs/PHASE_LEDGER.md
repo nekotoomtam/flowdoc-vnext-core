@@ -10401,3 +10401,42 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-G` vertical flow spacing and page-capacity
 composition.
+
+## PDF-PILOT-08B-R2C-G Vertical Capacity
+
+Status: capacity evidence accepted; twelve-page fidelity blocked.
+
+R2C-G consumes the exact R2C-C and R2C-F fingerprints. It derives eight
+inter-root spacing rules from accepted line heights and binds all 161
+non-initial body adjacencies. Twelve section starts retain zero leading gap;
+preserving all remaining gaps adds `808pt` without mutating Document v4.
+
+Every section retains portrait Letter geometry with a `641.952756pt` body,
+`24pt` header reservation, and `24pt` footer reservation. All twelve measured
+headers fit. Generated footers retain provisional single-line reservation but
+remain unmeasured.
+
+Core finalizes a document-composition manifest for twelve sections and 173 body
+roots: 153 text, fifteen table, and five media flows. Every root can make fresh
+page progress. The only whole-root overflow is the `804pt` GDIM expected-fields
+table; its header-plus-row progress requirement is `50pt`.
+
+Natural body height occupies eleven global capacity units, but Core fresh-page
+section boundaries produce a strict seventeen-page natural floor. Preserving
+all spacing produces eighteen section capacity units. The natural floor exceeds
+the twelve-page fidelity target by at least five pages before pagination
+overhead, so the fidelity gate is blocked.
+
+The spacing profile remains evidence-only because Core transition state has no
+inter-root gap representation. No generated page number, coordinates, row
+split, repeated header, page assignment, pagination, or PDF bytes are produced.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_VERTICAL_CAPACITY_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-vertical-capacity.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-vertical-capacity-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportVerticalCapacity.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-H` section-capacity reconciliation and Core
+spacing transition bridge.

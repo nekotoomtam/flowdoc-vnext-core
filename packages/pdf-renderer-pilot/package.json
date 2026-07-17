@@ -40,7 +40,8 @@
     "build:report-table-projection": "node scripts/build-canonical-report-table-projection.mjs",
     "build:report-native-shaping": "node scripts/build-canonical-report-native-shaping.mjs",
     "build:report-line-breaking": "node scripts/build-canonical-report-line-breaking.mjs",
-    "build:report-measured-composition": "node scripts/build-canonical-report-measured-composition.mjs"
+    "build:report-measured-composition": "node scripts/build-canonical-report-measured-composition.mjs",
+    "build:report-vertical-capacity": "node scripts/build-canonical-report-vertical-capacity.mjs"
   },
   "dependencies": {
     "@flowdoc/text-engine-rust-wasm": "file:../text-engine-rust-wasm",
