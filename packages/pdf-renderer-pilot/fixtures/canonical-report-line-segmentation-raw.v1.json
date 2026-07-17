@@ -1,0 +1,6272 @@
+{
+  "contractVersion": 1,
+  "kind": "canonical-report-native-line-segment-evidence",
+  "phaseId": "PDF-PILOT-08B-R2C-E",
+  "sourceNativeShapingFingerprint": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+  "sourcePlanFingerprint": "0aadd3a51d4aea8f961089631283ff00fed4befc69649af699d5430a2cabc827",
+  "segmenter": {
+    "source": "flowdoc-icu4x-native-line-segmenter",
+    "revision": "icu_segmenter-2.2.0",
+    "dataRevision": "icu_segmenter_data-2.2.0",
+    "runtime": "node-native",
+    "rawOffsetUnit": "utf8-byte"
+  },
+  "executions": [
+    {
+      "segmentRequestId": "report-segment:8880226c2df9773bb7dcda93c43c807b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "รายงานเปรียบเทียบ OCR และการจัดโครงสร้างเอกสาร",
+        "textByteLength": 128,
+        "textScalarCount": 46,
+        "breakByteOffsets": [
+          0,
+          18,
+          51,
+          52,
+          56,
+          65,
+          74,
+          83,
+          110,
+          128
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:85bc3f361edd43272683ed69180e6416",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Google Cloud Vision / Document AI เทียบกับ Azure Document Intelligence",
+        "textByteLength": 86,
+        "textScalarCount": 70,
+        "breakByteOffsets": [
+          0,
+          7,
+          13,
+          22,
+          31,
+          34,
+          49,
+          58,
+          59,
+          65,
+          74,
+          86
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:33ac97dc4f1abb9ace82d0e9ba992b40",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Benchmark ID: INV_9437125258-2026-07-16",
+        "textByteLength": 39,
+        "textScalarCount": 39,
+        "breakByteOffsets": [
+          0,
+          10,
+          14,
+          39
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:dd8f71e4f61b06b15d78e4dcfefc8cf0",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Report version: 1.0",
+        "textByteLength": 19,
+        "textScalarCount": 19,
+        "breakByteOffsets": [
+          0,
+          7,
+          16,
+          19
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a376278752a00b6bf85c3671d3b8a384",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Test date: 16 กรกฎาคม 2026",
+        "textByteLength": 40,
+        "textScalarCount": 26,
+        "breakByteOffsets": [
+          0,
+          5,
+          11,
+          14,
+          35,
+          36,
+          40
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:65f86aa45ca73741f5d44efa14577a9a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Source file name: INV_9437125258.pdf",
+        "textByteLength": 36,
+        "textScalarCount": 36,
+        "breakByteOffsets": [
+          0,
+          7,
+          12,
+          18,
+          36
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9eb4fd3dc1bc1cc116a0d7dbabfe6a54",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Source SHA-256: a8598f04d40445b911d4c17d86fe065e15e5d0166d990290ef97e7efa5ead173",
+        "textByteLength": 80,
+        "textScalarCount": 80,
+        "breakByteOffsets": [
+          0,
+          7,
+          16,
+          80
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:12506e0595bbcda512eb665aeecf2999",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Source page count: 2",
+        "textByteLength": 20,
+        "textScalarCount": 20,
+        "breakByteOffsets": [
+          0,
+          7,
+          12,
+          19,
+          20
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e14011a3ecdcc33ccb4c270b4203bed9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Source byte length: 4,053,388 bytes",
+        "textByteLength": 35,
+        "textScalarCount": 35,
+        "breakByteOffsets": [
+          0,
+          7,
+          12,
+          20,
+          30,
+          35
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:40b92015ab0d3893eaf2de4cd68ea47c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "OCR BENCHMARK | INV_9437125258",
+        "textByteLength": 30,
+        "textScalarCount": 30,
+        "breakByteOffsets": [
+          0,
+          4,
+          14,
+          16,
+          30
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0140feca75cad3ae1b2d5743500f736c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "สรุปสำหรับผู้ตัดสินใจ",
+        "textByteLength": 63,
+        "textScalarCount": 21,
+        "breakByteOffsets": [
+          0,
+          12,
+          30,
+          39,
+          63
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f733f18b5a5a3313310b7037276a774e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ไม่มี provider หนึ่งชนะทุกด้าน ผลทดสอบแสดง trade-off ที่แตกต่างกัน",
+        "textByteLength": 154,
+        "textScalarCount": 66,
+        "breakByteOffsets": [
+          0,
+          9,
+          15,
+          16,
+          25,
+          40,
+          49,
+          58,
+          70,
+          71,
+          77,
+          92,
+          104,
+          105,
+          111,
+          115,
+          124,
+          145,
+          154
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:380e63bf56dca9fa72659adc786e89ad",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Total estimated cost USD: 0.258 USD",
+        "textByteLength": 35,
+        "textScalarCount": 35,
+        "breakByteOffsets": [
+          0,
+          6,
+          16,
+          21,
+          26,
+          32,
+          35
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:5c1c59a07e1c7442c534846ad95bd975",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Total estimated cost THB: 8.64 บาท",
+        "textByteLength": 40,
+        "textScalarCount": 34,
+        "breakByteOffsets": [
+          0,
+          6,
+          16,
+          21,
+          26,
+          31,
+          40
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f3c08c9057658a4407e90827a44d032c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Faster OCR engine: Google Vision",
+        "textByteLength": 32,
+        "textScalarCount": 32,
+        "breakByteOffsets": [
+          0,
+          7,
+          11,
+          19,
+          26,
+          32
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:bbd126615815587da94cd77ea9bbc539",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "OCR latency delta ms: 2.85 วินาที",
+        "textByteLength": 45,
+        "textScalarCount": 33,
+        "breakByteOffsets": [
+          0,
+          4,
+          12,
+          18,
+          22,
+          27,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:68efaf6f4d87e2c1554cf6fec82d0145",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Higher native coverage engine: Google Document AI",
+        "textByteLength": 49,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          7,
+          14,
+          23,
+          31,
+          38,
+          47,
+          49
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b203be7cae419fefcd124ed9517eb8cc",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Lower native cost engine: Azure Native",
+        "textByteLength": 38,
+        "textScalarCount": 38,
+        "breakByteOffsets": [
+          0,
+          6,
+          13,
+          18,
+          26,
+          32,
+          38
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f708a05fe8885454b466c123de14a299",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Native cost ratio high to low: 3 เท่า",
+        "textByteLength": 45,
+        "textScalarCount": 37,
+        "breakByteOffsets": [
+          0,
+          7,
+          12,
+          18,
+          23,
+          26,
+          31,
+          33,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0201a1f00517b5591f2fcb1bd452ecfa",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "วิธีทดสอบที่ใช้",
+        "textByteLength": 45,
+        "textScalarCount": 15,
+        "breakByteOffsets": [
+          0,
+          12,
+          27,
+          36,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:189db8b6cba5f3dbeac9e3475e4b589b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ทั้งสองเจ้าได้รับข้อมูลเดียวกัน ลำดับถูกสลับในแต่ละรอบ และเก็บผลแยกตาม Run ID",
+        "textByteLength": 213,
+        "textScalarCount": 77,
+        "breakByteOffsets": [
+          0,
+          12,
+          21,
+          42,
+          51,
+          69,
+          84,
+          93,
+          94,
+          109,
+          118,
+          130,
+          136,
+          151,
+          160,
+          161,
+          170,
+          188,
+          197,
+          206,
+          207,
+          211,
+          213
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:31e20d1547942f28b770b42dadbaa14a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Ground-truth method: Human-reviewed reference transcribed from 240 DPI page renders. Whitespace and punctuation are normalized before CER/WER calculation.",
+        "textByteLength": 154,
+        "textScalarCount": 154,
+        "breakByteOffsets": [
+          0,
+          7,
+          13,
+          21,
+          27,
+          36,
+          46,
+          58,
+          63,
+          67,
+          71,
+          76,
+          85,
+          96,
+          100,
+          112,
+          116,
+          127,
+          134,
+          138,
+          142,
+          154
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a0db0d85e3ffaedf389d879099afd27f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Processing scope: Native Extraction",
+        "textByteLength": 35,
+        "textScalarCount": 35,
+        "breakByteOffsets": [
+          0,
+          11,
+          18,
+          25,
+          35
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:59548db3b6229da72b087b9a381f4389",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Submit mode: Page by page",
+        "textByteLength": 25,
+        "textScalarCount": 25,
+        "breakByteOffsets": [
+          0,
+          7,
+          13,
+          18,
+          21,
+          25
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:bb0c774745559e1e13458019306905c2",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Maximum pages: 50",
+        "textByteLength": 17,
+        "textScalarCount": 17,
+        "breakByteOffsets": [
+          0,
+          8,
+          15,
+          17
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:116a25cf2cf7c1f075706d1babe9a65e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Maximum estimated cost USD per run: 2 USD ต่อ run",
+        "textByteLength": 55,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          8,
+          18,
+          23,
+          27,
+          31,
+          36,
+          38,
+          42,
+          51,
+          52,
+          55
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3cd5425ccf8bba021fb422c912a765ac",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "USD to THB rate: 33.48 บาท/USD",
+        "textByteLength": 36,
+        "textScalarCount": 30,
+        "breakByteOffsets": [
+          0,
+          4,
+          7,
+          11,
+          17,
+          23,
+          32,
+          33,
+          36
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3e0208f75cea39d9ea82c82bed6b7fa6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Low-confidence threshold: 80.0%",
+        "textByteLength": 31,
+        "textScalarCount": 31,
+        "breakByteOffsets": [
+          0,
+          4,
+          15,
+          26,
+          31
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2819b921a97995458e0f4deb6b776852",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Critical value count: 29",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          9,
+          15,
+          22,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:704d2f828e97dadbc5fcd54bf1a04291",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Native concept count: 25",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          7,
+          15,
+          22,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6758e65ed5e984bb282c00c74b7aa1e7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Derivable GDIM field count: 32",
+        "textByteLength": 30,
+        "textScalarCount": 30,
+        "breakByteOffsets": [
+          0,
+          10,
+          15,
+          21,
+          28,
+          30
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c11020be3ae6343b77f84f2076043d1c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ช่วงที่ 1 อ่านข้อความได้ถูกต้องแค่ไหน",
+        "textByteLength": 105,
+        "textScalarCount": 37,
+        "breakByteOffsets": [
+          0,
+          12,
+          21,
+          22,
+          24,
+          36,
+          57,
+          66,
+          75,
+          87,
+          96,
+          105
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:55b226130b135a7536a718df4fd69115",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "คะแนนรวมข้อความและ reading order หลัง normalize ช่องว่างและวรรคตอน",
+        "textByteLength": 146,
+        "textScalarCount": 66,
+        "breakByteOffsets": [
+          0,
+          15,
+          24,
+          45,
+          54,
+          55,
+          63,
+          69,
+          81,
+          82,
+          92,
+          104,
+          116,
+          125,
+          137,
+          146
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:433904d917014f580a79b5e551931da1",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision character accuracy: 84.9%",
+        "textByteLength": 39,
+        "textScalarCount": 39,
+        "breakByteOffsets": [
+          0,
+          14,
+          24,
+          34,
+          39
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9dd5331d641803fc6d47ca5eb9505c6a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision word accuracy: 82.9%",
+        "textByteLength": 34,
+        "textScalarCount": 34,
+        "breakByteOffsets": [
+          0,
+          14,
+          19,
+          29,
+          34
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1f591eb983c4796ed82355342377dfa9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision critical values found: 29",
+        "textByteLength": 39,
+        "textScalarCount": 39,
+        "breakByteOffsets": [
+          0,
+          14,
+          23,
+          30,
+          37,
+          39
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:dfd61e929597a5c658efd19dad5f7e52",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision critical values total: 29",
+        "textByteLength": 39,
+        "textScalarCount": 39,
+        "breakByteOffsets": [
+          0,
+          14,
+          23,
+          30,
+          37,
+          39
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:469daa6fbf9dfe7f723febd2d49f668f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence character accuracy: 88.3%",
+        "textByteLength": 53,
+        "textScalarCount": 53,
+        "breakByteOffsets": [
+          0,
+          28,
+          38,
+          48,
+          53
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:dba0879e6329dc322259212656268e51",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence word accuracy: 85.7%",
+        "textByteLength": 48,
+        "textScalarCount": 48,
+        "breakByteOffsets": [
+          0,
+          28,
+          33,
+          43,
+          48
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8b306e6f4409343ed9fa0dc2f77a84a6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence critical values found: 29",
+        "textByteLength": 53,
+        "textScalarCount": 53,
+        "breakByteOffsets": [
+          0,
+          28,
+          37,
+          44,
+          51,
+          53
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:eebe2e0392a2791a9b9a46b4df9fc4bc",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence critical values total: 29",
+        "textByteLength": 53,
+        "textScalarCount": 53,
+        "breakByteOffsets": [
+          0,
+          28,
+          37,
+          44,
+          51,
+          53
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1c1a6deeb7d1fa15247fe069b7ac1f27",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ข้อมูลรอบ OCR",
+        "textByteLength": 31,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          18,
+          27,
+          28,
+          31
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1d42168fc9be6ce54216b5e95a9a8137",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ปริมาณข้อความและ Confidence",
+        "textByteLength": 59,
+        "textScalarCount": 27,
+        "breakByteOffsets": [
+          0,
+          18,
+          39,
+          48,
+          49,
+          59
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:673fadd3f8dba1b0c717d6bc722b9eec",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ความแม่นยำและข้อมูลสำคัญ",
+        "textByteLength": 72,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          12,
+          30,
+          39,
+          57,
+          72
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ffcf8a4e05bbc7628481dd40f6670cf8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "เวลา ขนาดผลลัพธ์ และต้นทุน OCR",
+        "textByteLength": 78,
+        "textScalarCount": 30,
+        "breakByteOffsets": [
+          0,
+          12,
+          13,
+          25,
+          46,
+          47,
+          56,
+          65,
+          74,
+          75,
+          78
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:299a2a2612c67af43e588634071a05f6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "หลักฐานจากข้อความจริง",
+        "textByteLength": 63,
+        "textScalarCount": 21,
+        "breakByteOffsets": [
+          0,
+          21,
+          30,
+          39,
+          51,
+          63
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a78d02c38aa5694419f12c61a52095a7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ข้อมูลสำคัญยังอยู่ครบ แม้ reading order และการแบ่งคำจะแตกต่างกัน",
+        "textByteLength": 160,
+        "textScalarCount": 64,
+        "breakByteOffsets": [
+          0,
+          18,
+          33,
+          42,
+          54,
+          63,
+          64,
+          73,
+          74,
+          82,
+          88,
+          97,
+          106,
+          118,
+          124,
+          130,
+          151,
+          160
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b0d137bc708bc5915d3619943793625f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Median word count: 750",
+        "textByteLength": 36,
+        "textScalarCount": 36,
+        "breakByteOffsets": [
+          0,
+          14,
+          21,
+          26,
+          33,
+          36
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:7a428d65011383c69754e27f77aa197c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Median low-confidence words: 30",
+        "textByteLength": 45,
+        "textScalarCount": 45,
+        "breakByteOffsets": [
+          0,
+          14,
+          21,
+          25,
+          36,
+          43,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f6140bd45f673d71d85b6729cced98e8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Median bounding-box coverage: 100%",
+        "textByteLength": 48,
+        "textScalarCount": 48,
+        "breakByteOffsets": [
+          0,
+          14,
+          21,
+          30,
+          34,
+          44,
+          48
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a6e6f793b9753562fa4f56c5cdd363b9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Exact text across runs: ตรงกัน",
+        "textByteLength": 56,
+        "textScalarCount": 44,
+        "breakByteOffsets": [
+          0,
+          14,
+          20,
+          25,
+          32,
+          38,
+          47,
+          56
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c1979ad3c5d08e346b803a06c0f7a99a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Exact key-values across runs: ตรงกัน",
+        "textByteLength": 62,
+        "textScalarCount": 50,
+        "breakByteOffsets": [
+          0,
+          14,
+          20,
+          24,
+          31,
+          38,
+          44,
+          53,
+          62
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2033ba5973265d269fd7be15bf54dc92",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Exact tables across runs: ตรงกัน",
+        "textByteLength": 58,
+        "textScalarCount": 46,
+        "breakByteOffsets": [
+          0,
+          14,
+          20,
+          27,
+          34,
+          40,
+          49,
+          58
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d646ed92081102704eef9ff9dbd3bd74",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Median word count: 593",
+        "textByteLength": 50,
+        "textScalarCount": 50,
+        "breakByteOffsets": [
+          0,
+          28,
+          35,
+          40,
+          47,
+          50
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b6c10e64ca4c962bad5324e7f0ec6636",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Median low-confidence words: 19",
+        "textByteLength": 59,
+        "textScalarCount": 59,
+        "breakByteOffsets": [
+          0,
+          28,
+          35,
+          39,
+          50,
+          57,
+          59
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8182542b54f9ce2d14cf59ebfada0de4",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Median bounding-box coverage: 100%",
+        "textByteLength": 62,
+        "textScalarCount": 62,
+        "breakByteOffsets": [
+          0,
+          28,
+          35,
+          44,
+          48,
+          58,
+          62
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:574e1ae856011759b5a967b68512ef51",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Exact text across runs: ตรงกัน",
+        "textByteLength": 70,
+        "textScalarCount": 58,
+        "breakByteOffsets": [
+          0,
+          28,
+          34,
+          39,
+          46,
+          52,
+          61,
+          70
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cdbe0de7e53674e934e71b36dbe5359f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Exact key-values across runs: ตรงกัน",
+        "textByteLength": 76,
+        "textScalarCount": 64,
+        "breakByteOffsets": [
+          0,
+          28,
+          34,
+          38,
+          45,
+          52,
+          58,
+          67,
+          76
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ea10a828d4559ad7800bc3704ed9c3fa",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Exact tables across runs: ตรงกัน",
+        "textByteLength": 72,
+        "textScalarCount": 60,
+        "breakByteOffsets": [
+          0,
+          28,
+          34,
+          41,
+          48,
+          54,
+          63,
+          72
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:21ecd5a6e3137706f8ef2fe759a38279",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Exact text across runs: ตรงกัน",
+        "textByteLength": 68,
+        "textScalarCount": 56,
+        "breakByteOffsets": [
+          0,
+          26,
+          32,
+          37,
+          44,
+          50,
+          59,
+          68
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:092df33b27c0381de15c23db2b73fe66",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Exact key-values across runs: ตรงกัน",
+        "textByteLength": 74,
+        "textScalarCount": 62,
+        "breakByteOffsets": [
+          0,
+          26,
+          32,
+          36,
+          43,
+          50,
+          56,
+          65,
+          74
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6e5dc6c1691df7ca809816718edfc31a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Exact tables across runs: ตรงกัน",
+        "textByteLength": 70,
+        "textScalarCount": 58,
+        "breakByteOffsets": [
+          0,
+          26,
+          32,
+          39,
+          46,
+          52,
+          61,
+          70
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:05bc7a97ef6ae08483ce618ff41656db",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Exact text across runs: ตรงกัน",
+        "textByteLength": 77,
+        "textScalarCount": 65,
+        "breakByteOffsets": [
+          0,
+          35,
+          41,
+          46,
+          53,
+          59,
+          68,
+          77
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:7adca38ba33ea2c821a9c9cf1aa85f5a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Exact key-values across runs: ตรงกัน",
+        "textByteLength": 83,
+        "textScalarCount": 71,
+        "breakByteOffsets": [
+          0,
+          35,
+          41,
+          45,
+          52,
+          59,
+          65,
+          74,
+          83
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8783220e9fb336eeffc0859ee0ec8296",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Exact tables across runs: ตรงกัน",
+        "textByteLength": 79,
+        "textScalarCount": 67,
+        "breakByteOffsets": [
+          0,
+          35,
+          41,
+          48,
+          55,
+          61,
+          70,
+          79
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:260c288e9512e2f6216fef46cc56070e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ช่วงที่ 2 เข้าใจและจัดข้อมูลได้แค่ไหน",
+        "textByteLength": 105,
+        "textScalarCount": 37,
+        "breakByteOffsets": [
+          0,
+          12,
+          21,
+          22,
+          24,
+          42,
+          51,
+          60,
+          78,
+          87,
+          96,
+          105
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c066d5755899af3af6f224a55408edac",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Coverage วัดจากข้อมูลสำคัญที่ควรจัดเป็นโครงสร้างได้",
+        "textByteLength": 135,
+        "textScalarCount": 51,
+        "breakByteOffsets": [
+          0,
+          9,
+          18,
+          27,
+          45,
+          60,
+          69,
+          78,
+          87,
+          99,
+          126,
+          135
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:142ce21c7dbc521daf30ee2061656352",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Median word count: 700",
+        "textByteLength": 48,
+        "textScalarCount": 48,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          38,
+          45,
+          48
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:863733761748a9a29115dbc980377a7f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Median low-confidence words: 53",
+        "textByteLength": 57,
+        "textScalarCount": 57,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          37,
+          48,
+          55,
+          57
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9bc1d628168bb5fd983a0fe609fb52b6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Median bounding-box coverage: 100%",
+        "textByteLength": 60,
+        "textScalarCount": 60,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          42,
+          46,
+          56,
+          60
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ffa36181b01b57eef78cb064f5aeef3a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Median word count: 594",
+        "textByteLength": 57,
+        "textScalarCount": 57,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          47,
+          54,
+          57
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b49a8eeb402bf7eaa14f9d3d712773f4",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Median low-confidence words: 24",
+        "textByteLength": 66,
+        "textScalarCount": 66,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          46,
+          57,
+          64,
+          66
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:eed223fdb0a23a1c702932fdbab8ac46",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Median bounding-box coverage: 100%",
+        "textByteLength": 69,
+        "textScalarCount": 69,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          51,
+          55,
+          65,
+          69
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:40b8837dba0ef2114819401eeb357535",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native non-empty key-values: 48",
+        "textByteLength": 50,
+        "textScalarCount": 50,
+        "breakByteOffsets": [
+          0,
+          26,
+          30,
+          36,
+          40,
+          48,
+          50
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:603f3947133dbac45a08f14aefea6010",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native table count: 7",
+        "textByteLength": 40,
+        "textScalarCount": 40,
+        "breakByteOffsets": [
+          0,
+          26,
+          32,
+          39,
+          40
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:db9101545bd68508b780beb38231645b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native table cell count: 51",
+        "textByteLength": 46,
+        "textScalarCount": 46,
+        "breakByteOffsets": [
+          0,
+          26,
+          32,
+          37,
+          44,
+          46
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ec787a0c42f4cddd93e20c1cef079388",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native structured concepts found: 23",
+        "textByteLength": 55,
+        "textScalarCount": 55,
+        "breakByteOffsets": [
+          0,
+          26,
+          37,
+          46,
+          53,
+          55
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:63038f031334e33375e86281b90e841d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native structured concepts total: 25",
+        "textByteLength": 55,
+        "textScalarCount": 55,
+        "breakByteOffsets": [
+          0,
+          26,
+          37,
+          46,
+          53,
+          55
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:7b0d4f63f37d427def43964a57920038",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native structured concept coverage: 92%",
+        "textByteLength": 58,
+        "textScalarCount": 58,
+        "breakByteOffsets": [
+          0,
+          26,
+          37,
+          45,
+          55,
+          58
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:607a24c6b42c98a72119a8fe6eb53a62",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native non-empty key-values: 40",
+        "textByteLength": 59,
+        "textScalarCount": 59,
+        "breakByteOffsets": [
+          0,
+          35,
+          39,
+          45,
+          49,
+          57,
+          59
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:dfdc5b5d7a7b145f3ae1e71a06b49bcf",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native table count: 1",
+        "textByteLength": 49,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          35,
+          41,
+          48,
+          49
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6510c8cbad66baad7ed749ef09f1207a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native table cell count: 15",
+        "textByteLength": 55,
+        "textScalarCount": 55,
+        "breakByteOffsets": [
+          0,
+          35,
+          41,
+          46,
+          53,
+          55
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6d8bb1010ad673ecbbfa05c282b3617c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native structured concepts found: 14",
+        "textByteLength": 64,
+        "textScalarCount": 64,
+        "breakByteOffsets": [
+          0,
+          35,
+          46,
+          55,
+          62,
+          64
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:99fef947b8ee00302cb4beefc7ce51b0",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native structured concepts total: 25",
+        "textByteLength": 64,
+        "textScalarCount": 64,
+        "breakByteOffsets": [
+          0,
+          35,
+          46,
+          55,
+          62,
+          64
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:840321595c64b2b6341c1ad44348767e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native structured concept coverage: 56%",
+        "textByteLength": 67,
+        "textScalarCount": 67,
+        "breakByteOffsets": [
+          0,
+          35,
+          46,
+          54,
+          64,
+          67
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f044dabacbfe677dd0357b9663be2e9c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ข้อมูลรอบ Native Extraction",
+        "textByteLength": 45,
+        "textScalarCount": 27,
+        "breakByteOffsets": [
+          0,
+          18,
+          27,
+          28,
+          35,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:30fa4a807604551e5c2f296b08b7f6b7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "โครงสร้างที่ตรวจพบ",
+        "textByteLength": 54,
+        "textScalarCount": 18,
+        "breakByteOffsets": [
+          0,
+          27,
+          36,
+          48,
+          54
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:66250656011256c5da9a5e7522075bd7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Coverage ของข้อมูลเชิงโครงสร้าง",
+        "textByteLength": 75,
+        "textScalarCount": 31,
+        "breakByteOffsets": [
+          0,
+          9,
+          18,
+          48,
+          75
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:5c7497b6533acbb1863a2107a08160ac",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "เวลา ขนาดผลลัพธ์ และต้นทุน Native",
+        "textByteLength": 81,
+        "textScalarCount": 33,
+        "breakByteOffsets": [
+          0,
+          12,
+          13,
+          25,
+          46,
+          47,
+          56,
+          65,
+          74,
+          75,
+          81
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a76b9815595828d6cc55eb0012b544cb",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "เวลา ราคา และขนาดผลลัพธ์",
+        "textByteLength": 68,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          12,
+          13,
+          25,
+          26,
+          35,
+          47,
+          68
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ef2f02cc4b0ae10db2d8a2dbef6dea30",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "รายงานใช้ค่ากลางพร้อมช่วงต่ำสุดและสูงสุดเพื่อไม่ให้ outlier บิดภาพ",
+        "textByteLength": 180,
+        "textScalarCount": 66,
+        "breakByteOffsets": [
+          0,
+          18,
+          27,
+          36,
+          48,
+          63,
+          75,
+          93,
+          102,
+          120,
+          135,
+          144,
+          153,
+          154,
+          162,
+          180
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6a0ca3c9af6489e135e7c725c7f7a162",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Minimum latency ms: 1.66 วินาที",
+        "textByteLength": 57,
+        "textScalarCount": 45,
+        "breakByteOffsets": [
+          0,
+          14,
+          22,
+          30,
+          34,
+          39,
+          57
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:832b33ea7204a78ef1a20cb30e81edd9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Median latency ms: 1.76 วินาที",
+        "textByteLength": 56,
+        "textScalarCount": 44,
+        "breakByteOffsets": [
+          0,
+          14,
+          21,
+          29,
+          33,
+          38,
+          56
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ec877bfcf4cc2e7ccbeab82a1064ac7e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Maximum latency ms: 2.09 วินาที",
+        "textByteLength": 57,
+        "textScalarCount": 45,
+        "breakByteOffsets": [
+          0,
+          14,
+          22,
+          30,
+          34,
+          39,
+          57
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e29355e32d1c84c250218f247c0b2e30",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Median response bytes: 1.00 MB",
+        "textByteLength": 44,
+        "textScalarCount": 44,
+        "breakByteOffsets": [
+          0,
+          14,
+          21,
+          30,
+          37,
+          42,
+          44
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1559e9376ac2a0e108599e1553b99065",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Median estimated cost USD: 0.003 USD",
+        "textByteLength": 50,
+        "textScalarCount": 50,
+        "breakByteOffsets": [
+          0,
+          14,
+          21,
+          31,
+          36,
+          41,
+          47,
+          50
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d67e9dd58bbea4e50d2c28d0f67b07f8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_vision Median estimated cost THB: 0.10 บาท",
+        "textByteLength": 55,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          14,
+          21,
+          31,
+          36,
+          41,
+          46,
+          55
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6b79e61c47c69b763d23960ea02df626",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Minimum latency ms: 4.55 วินาที",
+        "textByteLength": 71,
+        "textScalarCount": 59,
+        "breakByteOffsets": [
+          0,
+          28,
+          36,
+          44,
+          48,
+          53,
+          71
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cd76e0ce6e026b34cf4d53dd2de68f60",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Median latency ms: 4.62 วินาที",
+        "textByteLength": 70,
+        "textScalarCount": 58,
+        "breakByteOffsets": [
+          0,
+          28,
+          35,
+          43,
+          47,
+          52,
+          70
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e0f74e5a19efbc83b27ef45aacb438e8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Maximum latency ms: 6.50 วินาที",
+        "textByteLength": 71,
+        "textScalarCount": 59,
+        "breakByteOffsets": [
+          0,
+          28,
+          36,
+          44,
+          48,
+          53,
+          71
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2780f929082436f64e9d11bc189430db",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Median response bytes: 0.10 MB",
+        "textByteLength": 58,
+        "textScalarCount": 58,
+        "breakByteOffsets": [
+          0,
+          28,
+          35,
+          44,
+          51,
+          56,
+          58
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:196b7f1f0cede755a8d6cf49affadac1",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Median estimated cost USD: 0.003 USD",
+        "textByteLength": 64,
+        "textScalarCount": 64,
+        "breakByteOffsets": [
+          0,
+          28,
+          35,
+          45,
+          50,
+          55,
+          61,
+          64
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e61fa225c050b61f029b11e3d1ca1e62",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence Median estimated cost THB: 0.10 บาท",
+        "textByteLength": 69,
+        "textScalarCount": 63,
+        "breakByteOffsets": [
+          0,
+          28,
+          35,
+          45,
+          50,
+          55,
+          60,
+          69
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ebce6290206953e80cad817700cbe8fa",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Minimum latency ms: 9.53 วินาที",
+        "textByteLength": 69,
+        "textScalarCount": 57,
+        "breakByteOffsets": [
+          0,
+          26,
+          34,
+          42,
+          46,
+          51,
+          69
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:bdf31dafecf0465b9612418de10e2583",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Median latency ms: 9.56 วินาที",
+        "textByteLength": 68,
+        "textScalarCount": 56,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          41,
+          45,
+          50,
+          68
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e03e0a619ce5e13e69405efeddfc2f14",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Maximum latency ms: 9.75 วินาที",
+        "textByteLength": 69,
+        "textScalarCount": 57,
+        "breakByteOffsets": [
+          0,
+          26,
+          34,
+          42,
+          46,
+          51,
+          69
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:aab438ff69615418bc248bd32d50fa8d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Median response bytes: 1.93 MB",
+        "textByteLength": 56,
+        "textScalarCount": 56,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          42,
+          49,
+          54,
+          56
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:aeab44cc891c55b7b780135a8ccd5db6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Median estimated cost USD: 0.060 USD",
+        "textByteLength": 62,
+        "textScalarCount": 62,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          43,
+          48,
+          53,
+          59,
+          62
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ce980c54b89fa79af9a986c99c4633ca",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Median estimated cost THB: 2.01 บาท",
+        "textByteLength": 67,
+        "textScalarCount": 61,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          43,
+          48,
+          53,
+          58,
+          67
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:356a3c625947f6ed569d919a6d13651f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Minimum latency ms: 8.61 วินาที",
+        "textByteLength": 78,
+        "textScalarCount": 66,
+        "breakByteOffsets": [
+          0,
+          35,
+          43,
+          51,
+          55,
+          60,
+          78
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:82571ccccb70b89fed08b9f46d34e5c3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Median latency ms: 8.66 วินาที",
+        "textByteLength": 77,
+        "textScalarCount": 65,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          50,
+          54,
+          59,
+          77
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:63a84d5daa9f6b5240e49194f7fe6315",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Maximum latency ms: 43.66 วินาที",
+        "textByteLength": 79,
+        "textScalarCount": 67,
+        "breakByteOffsets": [
+          0,
+          35,
+          43,
+          51,
+          55,
+          61,
+          79
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4f063213cf357d040a6a5e531165511d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Median response bytes: 0.12 MB",
+        "textByteLength": 65,
+        "textScalarCount": 65,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          51,
+          58,
+          63,
+          65
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:db49b4501a5fa8a711fc348095f12de8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Median estimated cost USD: 0.020 USD",
+        "textByteLength": 71,
+        "textScalarCount": 71,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          52,
+          57,
+          62,
+          68,
+          71
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:999495c24c4c51ac3fc9086c428d5ee3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Median estimated cost THB: 0.67 บาท",
+        "textByteLength": 76,
+        "textScalarCount": 70,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          52,
+          57,
+          62,
+          67,
+          76
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3fa6cb78c398fbc37358d32e7786d56f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ช่วงที่ 3 นำข้อมูลมาใส่รูปแบบของเราได้แค่ไหน",
+        "textByteLength": 126,
+        "textScalarCount": 44,
+        "breakByteOffsets": [
+          0,
+          12,
+          21,
+          22,
+          24,
+          30,
+          48,
+          54,
+          63,
+          81,
+          90,
+          99,
+          108,
+          117,
+          126
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4fef785ddeecd776e879ce0a1977248d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ผล Mapping ต้องอ่านร่วมกับข้อจำกัดของตารางและ semantic aliases",
+        "textByteLength": 134,
+        "textScalarCount": 62,
+        "breakByteOffsets": [
+          0,
+          6,
+          7,
+          15,
+          27,
+          39,
+          51,
+          60,
+          69,
+          84,
+          93,
+          108,
+          117,
+          118,
+          127,
+          134
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d7457fee2840d631060d0dd3ab7c8084",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Total schema fields: 199",
+        "textByteLength": 50,
+        "textScalarCount": 50,
+        "breakByteOffsets": [
+          0,
+          26,
+          32,
+          39,
+          47,
+          50
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:66e35369dca42219c80f601f1b76a2f7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Required fields: 98",
+        "textByteLength": 45,
+        "textScalarCount": 45,
+        "breakByteOffsets": [
+          0,
+          26,
+          35,
+          43,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f4b37b7c49fbe2b0741f6d83257a513b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Mapped fields: 5",
+        "textByteLength": 42,
+        "textScalarCount": 42,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          41,
+          42
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ab78bc69d02f0f9473b95c07d231fe94",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Mapped required fields: 3",
+        "textByteLength": 51,
+        "textScalarCount": 51,
+        "breakByteOffsets": [
+          0,
+          26,
+          33,
+          42,
+          50,
+          51
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:de229a5ff287534f7c907b4b1fb4a27d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Expected derivable fields: 32",
+        "textByteLength": 55,
+        "textScalarCount": 55,
+        "breakByteOffsets": [
+          0,
+          26,
+          35,
+          45,
+          53,
+          55
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3c4e968c8f73c136cce7d01bdb5cb98e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Correct mapped fields: 5",
+        "textByteLength": 50,
+        "textScalarCount": 50,
+        "breakByteOffsets": [
+          0,
+          26,
+          34,
+          41,
+          49,
+          50
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6b76df8e5f0496fc681f6fff8bc67cdf",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Mapping precision: 100%",
+        "textByteLength": 49,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          26,
+          34,
+          45,
+          49
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:254fc89d681fe27d7a453e167e7d52b6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "google_document_ai_native Mapping recall: 15.6%",
+        "textByteLength": 47,
+        "textScalarCount": 47,
+        "breakByteOffsets": [
+          0,
+          26,
+          34,
+          42,
+          47
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:5b895f56045d862ac2698f8c70dd4451",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Total schema fields: 199",
+        "textByteLength": 59,
+        "textScalarCount": 59,
+        "breakByteOffsets": [
+          0,
+          35,
+          41,
+          48,
+          56,
+          59
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f1fb9e43633a2b77f23c8fe0cbfb56e6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Required fields: 98",
+        "textByteLength": 54,
+        "textScalarCount": 54,
+        "breakByteOffsets": [
+          0,
+          35,
+          44,
+          52,
+          54
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:5c720f9ab0ce479cb4a05cb0c0d427fd",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Mapped fields: 5",
+        "textByteLength": 51,
+        "textScalarCount": 51,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          50,
+          51
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4c7c06b2c32c8a3497d9fa3b74cd8d7e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Mapped required fields: 3",
+        "textByteLength": 60,
+        "textScalarCount": 60,
+        "breakByteOffsets": [
+          0,
+          35,
+          42,
+          51,
+          59,
+          60
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:04bafe9365715b3e6b0b25f4faffa3ad",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Expected derivable fields: 32",
+        "textByteLength": 64,
+        "textScalarCount": 64,
+        "breakByteOffsets": [
+          0,
+          35,
+          44,
+          54,
+          62,
+          64
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:26333e905183ee3df01a521a290efd5e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Correct mapped fields: 4",
+        "textByteLength": 59,
+        "textScalarCount": 59,
+        "breakByteOffsets": [
+          0,
+          35,
+          43,
+          50,
+          58,
+          59
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8eddc7d078c5512f43295339ff7adde6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Mapping precision: 80%",
+        "textByteLength": 57,
+        "textScalarCount": 57,
+        "breakByteOffsets": [
+          0,
+          35,
+          43,
+          54,
+          57
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:adf07d9619e9cb0acf976643c5190c5c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "azure_document_intelligence_native Mapping recall: 12.5%",
+        "textByteLength": 56,
+        "textScalarCount": 56,
+        "breakByteOffsets": [
+          0,
+          35,
+          43,
+          51,
+          56
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:48c82715737fcd1256d8210d9a67a0e6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ผล Mapping เทียบค่าที่คาดหวัง",
+        "textByteLength": 69,
+        "textScalarCount": 29,
+        "breakByteOffsets": [
+          0,
+          6,
+          7,
+          15,
+          30,
+          39,
+          48,
+          57,
+          69
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9d3f234b28fae99ad23f3e1b8bb132ea",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "หลักฐานที่ใช้ Mapping",
+        "textByteLength": 47,
+        "textScalarCount": 21,
+        "breakByteOffsets": [
+          0,
+          21,
+          30,
+          39,
+          40,
+          47
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:247b38c5bf0359df926e62d1160d38ad",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "มุมมองเพื่อการตัดสินใจ",
+        "textByteLength": 66,
+        "textScalarCount": 22,
+        "breakByteOffsets": [
+          0,
+          9,
+          18,
+          33,
+          42,
+          66
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c405b70b59be3599b99139ffbccfde14",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ควรปรับ Mapper แล้วรันทดสอบชุดเดิมอีกครั้งก่อนเลือก provider",
+        "textByteLength": 146,
+        "textScalarCount": 60,
+        "breakByteOffsets": [
+          0,
+          9,
+          21,
+          22,
+          29,
+          41,
+          50,
+          65,
+          74,
+          86,
+          95,
+          110,
+          122,
+          137,
+          138,
+          146
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8e75957b7fc675588d46e4cba744a42b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ข้อจำกัดของรายงาน",
+        "textByteLength": 51,
+        "textScalarCount": 17,
+        "breakByteOffsets": [
+          0,
+          9,
+          24,
+          33,
+          51
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8be5f0ec6017d7c7d94d7c7b71769a4e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ผลจากเอกสารหลักหนึ่งชุดและสามรอบยังไม่ใช่สถิติระดับ production",
+        "textByteLength": 164,
+        "textScalarCount": 62,
+        "breakByteOffsets": [
+          0,
+          6,
+          15,
+          33,
+          45,
+          60,
+          69,
+          78,
+          87,
+          96,
+          105,
+          114,
+          123,
+          138,
+          153,
+          154,
+          164
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cb073a2a80737215b44f228969fa9555",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Scope warning: The source is an invoice for a Thailand-to-Taiwan shipment, not a Thai import declaration. GDIM evaluation covers only values that can reasonably be derived from this invoice.",
+        "textByteLength": 190,
+        "textScalarCount": 190,
+        "breakByteOffsets": [
+          0,
+          6,
+          15,
+          19,
+          26,
+          29,
+          32,
+          40,
+          44,
+          46,
+          55,
+          58,
+          65,
+          75,
+          79,
+          81,
+          86,
+          93,
+          106,
+          111,
+          122,
+          129,
+          134,
+          141,
+          146,
+          150,
+          161,
+          164,
+          172,
+          177,
+          182,
+          190
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:439fb1428cc101f6011ea15bf06f6923",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "All runs completed: ผ่าน",
+        "textByteLength": 32,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          4,
+          9,
+          20,
+          32
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:45a01fc05eaf434d6ef8100d9b1c79a5",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "All source hashes match: ผ่าน",
+        "textByteLength": 37,
+        "textScalarCount": 29,
+        "breakByteOffsets": [
+          0,
+          4,
+          11,
+          18,
+          25,
+          37
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0718cc6bc583ccebc6ee5594b3f868ae",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "All runs have expected pages: ผ่าน",
+        "textByteLength": 42,
+        "textScalarCount": 34,
+        "breakByteOffsets": [
+          0,
+          4,
+          9,
+          14,
+          23,
+          30,
+          42
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4f7a14d8a1762efa988792bae5e33c18",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "No run errors: ผ่าน",
+        "textByteLength": 27,
+        "textScalarCount": 19,
+        "breakByteOffsets": [
+          0,
+          3,
+          7,
+          15,
+          27
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:810715ac6b37bb5727c534b839d3c46b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Concept ที่ Native Extraction ยังไม่พบ",
+        "textByteLength": 60,
+        "textScalarCount": 38,
+        "breakByteOffsets": [
+          0,
+          8,
+          17,
+          18,
+          25,
+          36,
+          45,
+          54,
+          60
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2f6f70c9735ed080bcdab29353bf61fc",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ภาคผนวก A Run ID และหลักฐาน",
+        "textByteLength": 61,
+        "textScalarCount": 27,
+        "breakByteOffsets": [
+          0,
+          9,
+          21,
+          22,
+          24,
+          28,
+          31,
+          40,
+          61
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:592653ed8f4338cfd28944ee25d05d10",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ทุก run ต้องใช้ source hash เดียวกัน ประมวลผลครบ และไม่มี error",
+        "textByteLength": 137,
+        "textScalarCount": 63,
+        "breakByteOffsets": [
+          0,
+          9,
+          10,
+          14,
+          26,
+          35,
+          36,
+          43,
+          48,
+          63,
+          72,
+          73,
+          106,
+          107,
+          116,
+          125,
+          131,
+          132,
+          137
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6eab15e0b6ac0863b011f648bb81ebe2",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Metrics generated at: 2026-07-16 12:55:06 UTC",
+        "textByteLength": 45,
+        "textScalarCount": 45,
+        "breakByteOffsets": [
+          0,
+          8,
+          18,
+          22,
+          33,
+          42,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2716e41ed8faa712843be16549008d1b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "สถานะและความถูกต้องของ Run",
+        "textByteLength": 70,
+        "textScalarCount": 26,
+        "breakByteOffsets": [
+          0,
+          15,
+          24,
+          36,
+          57,
+          66,
+          67,
+          70
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8e626baa189d46c691c4c79842a25a23",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Engine และจำนวนหน้าต่อ Run",
+        "textByteLength": 56,
+        "textScalarCount": 26,
+        "breakByteOffsets": [
+          0,
+          7,
+          16,
+          31,
+          43,
+          52,
+          53,
+          56
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e3ada64b52ea851c28dd96227c27d22c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ภาคผนวก B ข้อมูลอ้างอิง",
+        "textByteLength": 63,
+        "textScalarCount": 23,
+        "breakByteOffsets": [
+          0,
+          9,
+          21,
+          22,
+          24,
+          42,
+          54,
+          63
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d7397c8bcac03185b39faa43bf4259b8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ข้อมูลชุดนี้เก็บไว้ตรวจสอบย้อนกลับ ไม่ใช่การจัดอันดับผู้ชนะรายเดียว",
+        "textByteLength": 199,
+        "textScalarCount": 67,
+        "breakByteOffsets": [
+          0,
+          18,
+          27,
+          36,
+          48,
+          57,
+          78,
+          90,
+          102,
+          103,
+          112,
+          121,
+          130,
+          139,
+          157,
+          166,
+          175,
+          184,
+          199
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:22a586f7d0e1b7d639476cb4230f80b2",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ฟิลด์ GDIM ที่คาดหวัง",
+        "textByteLength": 51,
+        "textScalarCount": 21,
+        "breakByteOffsets": [
+          0,
+          15,
+          16,
+          21,
+          30,
+          39,
+          51
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0bfa0b4fcd7988fbbce8b1f34d30e82c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Engine",
+        "textByteLength": 6,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          6
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4684aa1453393c97c96f1d56640a228c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Provider",
+        "textByteLength": 8,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:fda8496973747f5754a94b6d39bf08b1",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Run ID",
+        "textByteLength": 6,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          4,
+          6
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:24cfc0528a2540a0e67007b2cf7d5f0f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "รอบ",
+        "textByteLength": 9,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1ab60b479d40e180081fe2c048056125",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ลำดับ",
+        "textByteLength": 15,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          15
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:efd2fee0d9109ada320eb2178e5d290e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "หน้า",
+        "textByteLength": 12,
+        "textScalarCount": 4,
+        "breakByteOffsets": [
+          0,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:eaeac3077fd1c8c8851bbadf07107a39",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Google Vision",
+        "textByteLength": 13,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          7,
+          13
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2607c2004bcddaa8fe0fac59da827720",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Google",
+        "textByteLength": 6,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          6
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2b661ff1692871ab9e748784fe13c59e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2026-07-16T11-52-22-028Z",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c54ce7f2ca61350609cdb323e7e0821d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1",
+        "textByteLength": 1,
+        "textScalarCount": 1,
+        "breakByteOffsets": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:83b7ece0b7e8ecca1f034fdd2d624c7e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2",
+        "textByteLength": 1,
+        "textScalarCount": 1,
+        "breakByteOffsets": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c386201b3969d4f200a8c66b9cd288ce",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2026-07-16T11-53-50-392Z",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1cb0c38c92d44352e54a4e12e8ff08fa",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2026-07-16T11-54-06-893Z",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f2d58df271d31315591d49ad98a0e16b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "3",
+        "textByteLength": 1,
+        "textScalarCount": 1,
+        "breakByteOffsets": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e8c085e526e34b82cbd368ee0f2fb3cc",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Azure OCR",
+        "textByteLength": 9,
+        "textScalarCount": 9,
+        "breakByteOffsets": [
+          0,
+          6,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4ae742323e426d3927d48f5e5c4878ba",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Azure",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:75f816dcb853c8b6305b0e7b8f1c414a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2026-07-16T11-52-39-170Z",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:28df5d8571d74d3befc9cee19a089589",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2026-07-16T11-52-57-651Z",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c21791b4c9cce894f17dd11efe05ed26",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2026-07-16T11-54-21-384Z",
+        "textByteLength": 24,
+        "textScalarCount": 24,
+        "breakByteOffsets": [
+          0,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d16818a766715d44162af20f23948f4d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "จำนวนคำ",
+        "textByteLength": 21,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          15,
+          21
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:dbfb6e3694be5f12fddba75c725f41c5",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Conf. เฉลี่ย",
+        "textByteLength": 24,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          6,
+          21,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0506c67cb643bdf6618c83bee6ccefee",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Conf. ต่ำสุด",
+        "textByteLength": 24,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          6,
+          15,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:43b3d7c54c2a8d23d47cd6fb509de047",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "คำ Conf. ต่ำ",
+        "textByteLength": 22,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          6,
+          7,
+          13,
+          22
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:771fcb9214083cdcf55d41ff5e52dac1",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "BBox coverage",
+        "textByteLength": 13,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          5,
+          13
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:42b6b4bbe3946f72f922c8c10febe5d3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "750",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:7804dc222f67f7820ba974fe5c79a813",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "95.6%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a8f7f15c582f5df688aa7977e33bf735",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "51.8%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f827a61b0bdc7e59cfd120ed49bd97c7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "30",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:83537c12c0d440623659a199697772ec",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "100.0%",
+        "textByteLength": 6,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          6
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:7cc0d55d3686151bf653f726dcbcb162",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "51.0%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:49b77b48f0dd6086e5c26ef06bd18a5f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "593",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a113d6dd619d047380d3f3ff0c9bba51",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "96.6%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:32f94aeefffe46d8e5c0f192fa154a06",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1.5%",
+        "textByteLength": 4,
+        "textScalarCount": 4,
+        "breakByteOffsets": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3fc193397a53b021ee1e3b635086d998",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "19",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2757c2b59e9d4b4664e513fe5b283598",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Character",
+        "textByteLength": 9,
+        "textScalarCount": 9,
+        "breakByteOffsets": [
+          0,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:aa6b3f858caf82c9344a56b4e936d2a5",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Word",
+        "textByteLength": 4,
+        "textScalarCount": 4,
+        "breakByteOffsets": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f7afb5197567f83177404feaea1b47c9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ค่าที่พบ",
+        "textByteLength": 24,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          9,
+          18,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:20a5f529df6ec1dbecc3236a79c9e83d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ค่าทั้งหมด",
+        "textByteLength": 30,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          9,
+          30
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ab82027499a3f531df3351ae554c6230",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "84.9%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6c11b46a9a9a37ff16a1099f25f8ce24",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "82.9%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c27cd00abb7e2466705e7f8f5288c7c3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "29",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f41a6e679b747bd10367a63115fc0310",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "88.3%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:dfd3616c16b49bb22a370e75f970865c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "85.7%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e3fa9246f51ddbc0ffe626c66254cd9d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "เวลา",
+        "textByteLength": 12,
+        "textScalarCount": 4,
+        "breakByteOffsets": [
+          0,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e4d0c11e2309e176df189f7058e4dd1d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ขนาดผลลัพธ์",
+        "textByteLength": 33,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          12,
+          33
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:38a611c7f6fa3312c8cfeda65663969e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "USD",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:74096cec5e0e7d6bfdaa85a542d5f402",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "บาท",
+        "textByteLength": 9,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1a084d87f0f9053e7642111666b44a78",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2.09 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:936f1e7fee006cb50c7c8b6037653b37",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1.00 MB",
+        "textByteLength": 7,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:fffe32af599b1443b60461fb3e04f2c1",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0.003 USD",
+        "textByteLength": 9,
+        "textScalarCount": 9,
+        "breakByteOffsets": [
+          0,
+          6,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:87ab34b21caf031824bb5c98cf7b2d43",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0.10 บาท",
+        "textByteLength": 14,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          5,
+          14
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e6e6a8072c01519b1d6d6dc151e90307",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1.76 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8a495e079313fe4a5bbfe7e48de3bdbc",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1.66 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e92db4e0343b7144eb9805e22051ab74",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "6.50 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a152fd5144ffc7d4a924d48d33b32526",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0.10 MB",
+        "textByteLength": 7,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:960f1e3b07be248db79abcbafcae6cf5",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "4.62 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cd162513ade9614346ae3630c0fccb57",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "4.55 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9bb77c4489dd94c9784f825d1344679c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Google Document AI",
+        "textByteLength": 18,
+        "textScalarCount": 18,
+        "breakByteOffsets": [
+          0,
+          7,
+          16,
+          18
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:5b3972a60620db64883c1d5e4b48d696",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Azure Native",
+        "textByteLength": 12,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          6,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c0f89df6d3419c73203730521c353a13",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "700",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:fe8d4167b87f85a395a8dfa9ee9367d3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "93.8%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:dcbfe3dc75748b1897b950d5d7cec8e6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "26.8%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1bb35cb0c8eea8e8a6158c3e9a2a3870",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "53",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f7b719ce22951b3bd2e4e514e61de046",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "594",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a214f0d1d798163cd8f0825edf7f5767",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "96.3%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:650b47c9c36457eca21ac0ad48854f83",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1.4%",
+        "textByteLength": 4,
+        "textScalarCount": 4,
+        "breakByteOffsets": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:fabdb28eff445fe390113d197eca7538",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "24",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c181e7d5208a9ce9aa558c66938dd8de",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Key-value",
+        "textByteLength": 9,
+        "textScalarCount": 9,
+        "breakByteOffsets": [
+          0,
+          4,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a9e1c0df17f7eca24a5ec95ad4bc4fe8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ตาราง",
+        "textByteLength": 15,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          15
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:16cc7b06321bf5ae984392ea08d316ec",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "เซลล์ตาราง",
+        "textByteLength": 30,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          15,
+          21,
+          30
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0a8aafa86e0e4934d68e3af0bc32fdc6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "48",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f551e3b16438795fe3d0d7bfbf957fc6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "7",
+        "textByteLength": 1,
+        "textScalarCount": 1,
+        "breakByteOffsets": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:13c1c426f2e4a2c56569f2ad2033219a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "51",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:aa8d2efc664529a137b1adaf2576754e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "40",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f14baf0984480cc59dd011b27aca876e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "15",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:15a09368b30ff352cb83a9d07311f616",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Concept ที่พบ",
+        "textByteLength": 23,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          8,
+          17,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9139841ec1efb504a1b3c3046df59da0",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Concept ทั้งหมด",
+        "textByteLength": 29,
+        "textScalarCount": 15,
+        "breakByteOffsets": [
+          0,
+          8,
+          29
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8ee1b9358b78dd489ddbe1988a79bbe8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Coverage",
+        "textByteLength": 8,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c7de35f828ed9ccc1779af2730e19196",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "23",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0baeddad46e2a8b82584f06526826ce9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "25",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a412edfc3e988e3b225ce4e230b75283",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "92.0%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ab2d5ff9fe3d09366e88a6e2aec8fa6b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "14",
+        "textByteLength": 2,
+        "textScalarCount": 2,
+        "breakByteOffsets": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:09a992e8d143d3a22be818a200f2fce4",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "56.0%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:05c76856389119b8df3a0c030cffa0ce",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "9.53 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:7d58d955c8781cc740caf44b6a8ae0da",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1.93 MB",
+        "textByteLength": 7,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6baf3cb7816c16aeaf63eed56b7d72cb",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0.060 USD",
+        "textByteLength": 9,
+        "textScalarCount": 9,
+        "breakByteOffsets": [
+          0,
+          6,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c9de0ff92d2053b1209b24763886f0d7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "2.01 บาท",
+        "textByteLength": 14,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          5,
+          14
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ca4f56fbb761113021402d91a0e3f076",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "9.75 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8563b1d2329b4bec6a96d68841444732",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "9.56 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3b0a822a7ef82618c4deb1e4084f94b2",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "8.61 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cb2f9f8c89e2be1df50483a88fd02a2f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0.12 MB",
+        "textByteLength": 7,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a15a00e178f07e020253d7312da0705c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0.020 USD",
+        "textByteLength": 9,
+        "textScalarCount": 9,
+        "breakByteOffsets": [
+          0,
+          6,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:be613f1ca2a621889639a08c274bec85",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0.67 บาท",
+        "textByteLength": 14,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          5,
+          14
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:da436d47c1b69463558083b54346b76c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "43.66 วินาที",
+        "textByteLength": 24,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          6,
+          24
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:660794aac158a986152d48a066f1664a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "8.66 วินาที",
+        "textByteLength": 23,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          5,
+          23
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e2953be902b28c4a198776741f0a9a53",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Schema path",
+        "textByteLength": 11,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          7,
+          11
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b749af36275a968f2a1caba90a850c76",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ค่าที่คาดหวัง",
+        "textByteLength": 39,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          9,
+          18,
+          27,
+          39
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d31f1a2db278d2332a6304de5a294317",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ค่าที่ Mapping",
+        "textByteLength": 26,
+        "textScalarCount": 14,
+        "breakByteOffsets": [
+          0,
+          9,
+          18,
+          19,
+          26
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0ed7686a1387ec0a978117b1c4658252",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ถูกต้อง",
+        "textByteLength": 21,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          9,
+          21
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a2f2f575ef25ca1fbd43b9a5ff240061",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.number",
+        "textByteLength": 29,
+        "textScalarCount": 29,
+        "breakByteOffsets": [
+          0,
+          29
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c52701c832886627978b528003492fea",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "9437125258",
+        "textByteLength": 10,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ea04c10e163f0426bda7de71859ec814",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ใช่",
+        "textByteLength": 9,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          9
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d3f3ec509013a0651635f5668c8f9f2b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.date",
+        "textByteLength": 27,
+        "textScalarCount": 27,
+        "breakByteOffsets": [
+          0,
+          27
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:eabed1ca5c7dcdc3c6946d083dd7a6f5",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "06/20/2024",
+        "textByteLength": 10,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:598d2eaddd3cbe8955817897eb9cc98c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.consignor_info.email",
+        "textByteLength": 43,
+        "textScalarCount": 43,
+        "breakByteOffsets": [
+          0,
+          43
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:00364e7807e74689d79108c60e72f25a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "support@tiffaedit.com",
+        "textByteLength": 21,
+        "textScalarCount": 21,
+        "breakByteOffsets": [
+          0,
+          21
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:bddfde9499e5100be7e260b628b0797e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.net_weight.weight",
+        "textByteLength": 52,
+        "textScalarCount": 52,
+        "breakByteOffsets": [
+          0,
+          52
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:203f7e22a9b0f1d1b0ba65577fe964e6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "43.20",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cddffe070576d3abbfc7af3722b59cc3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "43.2",
+        "textByteLength": 4,
+        "textScalarCount": 4,
+        "breakByteOffsets": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:634dfa939b39ca671ab9ede0d34e97e9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.gross_weight",
+        "textByteLength": 34,
+        "textScalarCount": 34,
+        "breakByteOffsets": [
+          0,
+          34
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:93a41a711d1a13d76dbf50900987084a",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "79.14",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:94087262781743df5345379810314538",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.boi",
+        "textByteLength": 25,
+        "textScalarCount": 25,
+        "breakByteOffsets": [
+          0,
+          25
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c54930e9be9044c7c91f3586f19be334",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "61-1505-1-00-1-0",
+        "textByteLength": 16,
+        "textScalarCount": 16,
+        "breakByteOffsets": [
+          0,
+          16
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:fc7c6d7461ae2776a64acd37d2590330",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ไม่ใช่",
+        "textByteLength": 18,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          9,
+          18
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a1ad492af9e2a497e6bae8776a10a5ac",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Source label",
+        "textByteLength": 12,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          7,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e2be6cf8c16f575a677305f52acc1d84",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Confidence",
+        "textByteLength": 10,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:80fc8bc12c998791e4bd7cc73b34caa2",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Invoice No.:",
+        "textByteLength": 12,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          8,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4af371302d6e087cb79b6b459dfb7992",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "79.1%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:422dff195596447cd5e6174d4beecfe8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Invoice Date:",
+        "textByteLength": 13,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          8,
+          13
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2e9782ff4927ff8d0b006b3e522f61fb",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "88.4%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:83d1f748441b2231b1f6c7a8aea82ee1",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "E-mail:",
+        "textByteLength": 7,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          2,
+          7
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:af4777391cd64cde7ff92cdf81ab6f90",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "59.5%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:418aa592e7950118f4ca8e11428428b3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "TAIWAN NET WEIGHT",
+        "textByteLength": 17,
+        "textScalarCount": 17,
+        "breakByteOffsets": [
+          0,
+          7,
+          11,
+          17
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:34199984dd98f5708cb1887fb43923b3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "78.6%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8b74e578a0d891748311cfa82f8f8393",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "TOTAL GROSS WEIGHT",
+        "textByteLength": 18,
+        "textScalarCount": 18,
+        "breakByteOffsets": [
+          0,
+          6,
+          12,
+          18
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cb0a93bb2f891f2bf7330e2130e33acb",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "81.2%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:be58a234123e88793dac3e853b7fa267",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Invoice No .:",
+        "textByteLength": 13,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          8,
+          13
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:532ecfb39d619e5222fae073956702a1",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "98.9%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b8404f53c0479958e826c2a1fa8f295d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "E-mail",
+        "textByteLength": 6,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          2,
+          6
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b350f4c3e5ef17e15ed53b98c9b8101d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "94.7%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:aeb9e999d0f806a059bb59962b1ab01b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "NET WEIGHT :",
+        "textByteLength": 12,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          4,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:fa2dfa0d64e028a4788f9d69cc12ae45",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "98.7%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:82391072cd1f0a3f963ef3fcc1a16aed",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "*BOI",
+        "textByteLength": 4,
+        "textScalarCount": 4,
+        "breakByteOffsets": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:53d0d9d0fc33ad4159b72f7a2c027d97",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "86.0%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:be18daa757f1b5169d33d0333b951fc8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "TOTAL GROSS WEIGHT :",
+        "textByteLength": 20,
+        "textScalarCount": 20,
+        "breakByteOffsets": [
+          0,
+          6,
+          12,
+          20
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0657e0bd9a39d3639d607b5e4a8c9d35",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "88.6%",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:bf6681ca79b968ca3650a60a1eac5bbb",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Concept",
+        "textByteLength": 7,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          7
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:be2309e89fc77e9c0ac2c0d4a7a632d2",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "origin_country",
+        "textByteLength": 14,
+        "textScalarCount": 14,
+        "breakByteOffsets": [
+          0,
+          14
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:b3e98cb7b3a6608e7f19b058f6e16f5e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "shipping_marks",
+        "textByteLength": 14,
+        "textScalarCount": 14,
+        "breakByteOffsets": [
+          0,
+          14
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a12f012e97a999902301af321e494718",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "invoice_date",
+        "textByteLength": 12,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d4eefe6a7c18178caf20290605f62225",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "package",
+        "textByteLength": 7,
+        "textScalarCount": 7,
+        "breakByteOffsets": [
+          0,
+          7
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8728ed16a78e40d7a9448302f926d464",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "product_group",
+        "textByteLength": 13,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          13
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3618beb56f5c4dc49e089b1d4f144e18",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "description",
+        "textByteLength": 11,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          11
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3c3e981087f70ef29ddc04d8b7d6d10c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "product_code",
+        "textByteLength": 12,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:bfea4bb03b8bab4b6f4003484bacafee",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "model",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c4b658c358ecd43472c88bcb815643e7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "boi",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9f64bdd931186eafc4f0e95af4ea92ef",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "gross_weight",
+        "textByteLength": 12,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          12
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4ae20512de6a1a04ec0d6a8ac64ecbb7",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "aeo_number",
+        "textByteLength": 10,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1190628a127d0b0d4296149eadd7396f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "สถานะ",
+        "textByteLength": 15,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          9,
+          15
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:65372b1e047d9f064a84b655c47e9c16",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Source hash",
+        "textByteLength": 11,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          7,
+          11
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8b156ba90437a30be963d27b1ece886c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Error",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:7a050731ca31d0c4a4f8a51160ffd754",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "เสร็จสมบูรณ์",
+        "textByteLength": 36,
+        "textScalarCount": 12,
+        "breakByteOffsets": [
+          0,
+          36
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:00b68fa32d8096984b8318f355ebee6b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "ตรงกัน",
+        "textByteLength": 18,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          9,
+          18
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f9db527d87ec63b23c2c55494f402e0d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "0",
+        "textByteLength": 1,
+        "textScalarCount": 1,
+        "breakByteOffsets": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:640d3cc9fb3549e2b983f3dd8d291cca",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "OCR engine",
+        "textByteLength": 10,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          4,
+          10
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cdafde0ccbffb19a6f03d50223569f38",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "Native engine",
+        "textByteLength": 13,
+        "textScalarCount": 13,
+        "breakByteOffsets": [
+          0,
+          7,
+          13
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ee09eedf6e92c67826ab6288d914344f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "หน้า OCR",
+        "textByteLength": 16,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          12,
+          13,
+          16
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:67b65a856325a15fb2fdd5755537f567",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "หน้า Native",
+        "textByteLength": 19,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          12,
+          13,
+          19
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:bc783e22672fb72b5ac0b08f62d58fa6",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.border_transport_means.mode_code",
+        "textByteLength": 49,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          49
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:f3a70d4b58c908ffaf713bbcffce0edb",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "AIR",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e51f6bcf32b17ff5425c22791808f841",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.origin_country_code",
+        "textByteLength": 36,
+        "textScalarCount": 36,
+        "breakByteOffsets": [
+          0,
+          36
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:2aadd465f84808056adb04d5d194b6ff",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "THAILAND",
+        "textByteLength": 8,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:258b2b28e59b5df779ef11b9a7ed0256",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.total_package.shipping_marks",
+        "textByteLength": 45,
+        "textScalarCount": 45,
+        "breakByteOffsets": [
+          0,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:391a93f97a49cf09b592a6786322218b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "INV#9437125258",
+        "textByteLength": 14,
+        "textScalarCount": 14,
+        "breakByteOffsets": [
+          0,
+          14
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:36a5719f5a99952cc39e678de78229ed",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.total_package.amount",
+        "textByteLength": 37,
+        "textScalarCount": 37,
+        "breakByteOffsets": [
+          0,
+          37
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9f11de417a07b93e62bc1d32c876e3dc",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.total_package.unit_code",
+        "textByteLength": 40,
+        "textScalarCount": 40,
+        "breakByteOffsets": [
+          0,
+          40
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:d45604f4dcb25a8a76a324c8ab0b8d4e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "PALLET",
+        "textByteLength": 6,
+        "textScalarCount": 6,
+        "breakByteOffsets": [
+          0,
+          6
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:6c794fcfed1e8bb336309a9c68669645",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.total_net_weight.weight",
+        "textByteLength": 40,
+        "textScalarCount": 40,
+        "breakByteOffsets": [
+          0,
+          40
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:4f1fed7a73d05854395e02bf7e23fe0c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.total_net_weight.unit_code",
+        "textByteLength": 43,
+        "textScalarCount": 43,
+        "breakByteOffsets": [
+          0,
+          43
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:70c70ee592489e49a0fe84e1864fba4d",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "KGS",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:cc30f7c904d85f3f604640b5716b4fb0",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.total_gross_weight.weight",
+        "textByteLength": 42,
+        "textScalarCount": 42,
+        "breakByteOffsets": [
+          0,
+          42
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:59d9c671c6d532879a113f486f5b9129",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.total_gross_weight.unit_code",
+        "textByteLength": 45,
+        "textScalarCount": 45,
+        "breakByteOffsets": [
+          0,
+          45
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:acc39ae6d4a9599e0d1e0c73fcd450f9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "document_control.currency_code",
+        "textByteLength": 30,
+        "textScalarCount": 30,
+        "breakByteOffsets": [
+          0,
+          30
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a66c31fd249804efbd82689b02ee1b00",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.term_of_payment_code",
+        "textByteLength": 43,
+        "textScalarCount": 43,
+        "breakByteOffsets": [
+          0,
+          43
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:66e89fdfe1d6540a3cfd3c2a597890cc",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "O/A 60 Days",
+        "textByteLength": 11,
+        "textScalarCount": 11,
+        "breakByteOffsets": [
+          0,
+          2,
+          4,
+          7,
+          11
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c2e5476f38660fd7ad3ddf4d11938086",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.trade_terms",
+        "textByteLength": 34,
+        "textScalarCount": 34,
+        "breakByteOffsets": [
+          0,
+          34
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:a86b7c78a221946f8ace262255e93a92",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "DAP",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:68489b642e1270bc541e7237e0de24b8",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.currency_code",
+        "textByteLength": 36,
+        "textScalarCount": 36,
+        "breakByteOffsets": [
+          0,
+          36
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:8db32d0528d9fc14d5194e56e8a37b3b",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.total_amount",
+        "textByteLength": 35,
+        "textScalarCount": 35,
+        "breakByteOffsets": [
+          0,
+          35
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:c755759e51141fabb61f8746039b3fc3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "15854.40",
+        "textByteLength": 8,
+        "textScalarCount": 8,
+        "breakByteOffsets": [
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:0755659494d1197df3e9d64c9a946f46",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.invoice.aeos_reference_number",
+        "textByteLength": 44,
+        "textScalarCount": 44,
+        "breakByteOffsets": [
+          0,
+          44
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:069eb838f6c3329779d15125952bb88c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "THIE570073",
+        "textByteLength": 10,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:25e74304972d02ef88eeb8ef0cb301fa",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_code",
+        "textByteLength": 34,
+        "textScalarCount": 34,
+        "breakByteOffsets": [
+          0,
+          34
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1be5042425b3225b5ab596d16ade7c64",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "1077309227",
+        "textByteLength": 10,
+        "textScalarCount": 10,
+        "breakByteOffsets": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:33dd6b6b909df20d2cac63d79e365570",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.goods_description.english",
+        "textByteLength": 47,
+        "textScalarCount": 47,
+        "breakByteOffsets": [
+          0,
+          47
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:fa6d10445e286f2de1b9bdde6cda5ba5",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "DC DC CONVERTER",
+        "textByteLength": 15,
+        "textScalarCount": 15,
+        "breakByteOffsets": [
+          0,
+          3,
+          6,
+          15
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:62d87988ef2ca85d0f9b6b7557c6dc7f",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.origin_country_code",
+        "textByteLength": 54,
+        "textScalarCount": 54,
+        "breakByteOffsets": [
+          0,
+          54
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:5f47cb0e93ee9e80109124d1c4054933",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.invoice_quantity.quantity",
+        "textByteLength": 60,
+        "textScalarCount": 60,
+        "breakByteOffsets": [
+          0,
+          60
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:9c74233ddaed2e6bb2ab8768c69f3c30",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "540",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:25cb19f2c37e29abc32442d19de10b12",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.invoice_quantity.unit_code",
+        "textByteLength": 61,
+        "textScalarCount": 61,
+        "breakByteOffsets": [
+          0,
+          61
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:64d170542e47e6101bd358d4d6d1b9a3",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "PCE",
+        "textByteLength": 3,
+        "textScalarCount": 3,
+        "breakByteOffsets": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:1d701cf2084b3a106563c0bf7b792e59",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.currency_code",
+        "textByteLength": 48,
+        "textScalarCount": 48,
+        "breakByteOffsets": [
+          0,
+          48
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:61c26540649f88ef397185b180726754",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.unit_price.foreign",
+        "textByteLength": 53,
+        "textScalarCount": 53,
+        "breakByteOffsets": [
+          0,
+          53
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ff31009b9aca3eac8b966302471f5b73",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "29.36",
+        "textByteLength": 5,
+        "textScalarCount": 5,
+        "breakByteOffsets": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3d40c5e3d6f2889cc8dece4d426f1bde",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.invoice_amount.foreign",
+        "textByteLength": 57,
+        "textScalarCount": 57,
+        "breakByteOffsets": [
+          0,
+          57
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:3995ec03f7f77757c9de69a84f555cc9",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.shipping_marks",
+        "textByteLength": 49,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          49
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:e45eb6c0b4ce279433c6b859621d202e",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.package.amount",
+        "textByteLength": 49,
+        "textScalarCount": 49,
+        "breakByteOffsets": [
+          0,
+          49
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:452e46d53c6239458ac68f497d5eea0c",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.product_info.package.unit_code",
+        "textByteLength": 52,
+        "textScalarCount": 52,
+        "breakByteOffsets": [
+          0,
+          52
+        ]
+      }
+    },
+    {
+      "segmentRequestId": "report-segment:ee31e9ef10fbd94de07eeeb4dd7b5954",
+      "rawOutput": {
+        "source": "flowdoc-icu4x-native-line-segmenter",
+        "segmenterRevision": "icu_segmenter-2.2.0",
+        "dataRevision": "icu_segmenter_data-2.2.0",
+        "text": "goods_shipment.detail.boi_license_number",
+        "textByteLength": 40,
+        "textScalarCount": 40,
+        "breakByteOffsets": [
+          0,
+          40
+        ]
+      }
+    }
+  ],
+  "rawEvidenceFingerprint": "8461dc9c9dfd1f8d7509ab9b9d8d180b235c9ae03febead5e1f34acaf0c66ea5"
+}

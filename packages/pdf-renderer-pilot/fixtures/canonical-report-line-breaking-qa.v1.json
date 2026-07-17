@@ -1,0 +1,200 @@
+{
+  "qaVersion": 1,
+  "qaId": "pdf-pilot-08b-r2c-e-canonical-report-line-breaking-qa-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-E",
+  "status": "accepted-native-line-box-evidence-only",
+  "sourceFingerprints": {
+    "nativeShaping": "cec16cbc479dc9964014418e5fd887d2093c74388b86239bfcfe4bd78634395f",
+    "typographyCalibration": "9f3568dd46a1ff9c6a0e40cf8aed66135a63ae74436c92788788ad00726ba04f",
+    "rawSegmentation": "8461dc9c9dfd1f8d7509ab9b9d8d180b235c9ae03febead5e1f34acaf0c66ea5"
+  },
+  "planFingerprint": "0aadd3a51d4aea8f961089631283ff00fed4befc69649af699d5430a2cabc827",
+  "bundleFingerprint": "10276a106ef11b275de4866d1597a1d6a6c19621f1fe6e41ff6bd1d9e9056c56",
+  "profileBinding": {
+    "status": "bound-native-line-breaking-only",
+    "sourceProfileSegmenterRevision": "icu4x-planned",
+    "sourceProfileSegmenterDataRevision": "icu4x-data-planned",
+    "nativeSegmenterRevision": "icu_segmenter-2.2.0",
+    "nativeSegmenterDataRevision": "icu_segmenter_data-2.2.0",
+    "pilotCompatibility": "concrete-pilot-binding-does-not-mutate-source-profile",
+    "lineBreakPolicy": "icu4x-auto-default-uax14-machine-identifier-delimiters-v1",
+    "outputShapeVersion": "glyph-line-box-v1",
+    "productionBinding": false
+  },
+  "lineHeightBindings": [
+    {
+      "styleKey": "report-title",
+      "fontSizePt": 24,
+      "lineHeightPt": 31,
+      "sourceCalibration": {
+        "manifestId": "pdf-pilot-08b-canonical-report-typography-calibration-v1",
+        "path": "stylePatches.coverTitle",
+        "sourceFontSizePt": 25,
+        "sourceLineHeightPt": 31,
+        "method": "accepted-role-line-height-reuse"
+      }
+    },
+    {
+      "styleKey": "section-heading",
+      "fontSizePt": 16,
+      "lineHeightPt": 22,
+      "sourceCalibration": {
+        "manifestId": "pdf-pilot-08b-canonical-report-typography-calibration-v1",
+        "path": "stylePatches.pageTitle",
+        "sourceFontSizePt": 16,
+        "sourceLineHeightPt": 22,
+        "method": "exact-font-size-role-match"
+      }
+    },
+    {
+      "styleKey": "report-body",
+      "fontSizePt": 10.5,
+      "lineHeightPt": 15,
+      "sourceCalibration": {
+        "manifestId": "pdf-pilot-08b-canonical-report-typography-calibration-v1",
+        "path": "stylePatches.body",
+        "sourceFontSizePt": 10.5,
+        "sourceLineHeightPt": 15,
+        "method": "exact-font-size-role-match"
+      }
+    },
+    {
+      "styleKey": "report-caption",
+      "fontSizePt": 9,
+      "lineHeightPt": 12,
+      "sourceCalibration": {
+        "manifestId": "pdf-pilot-08b-canonical-report-typography-calibration-v1",
+        "path": "stylePatches.caption",
+        "sourceFontSizePt": 9,
+        "sourceLineHeightPt": 12,
+        "method": "exact-font-size-role-match"
+      }
+    },
+    {
+      "styleKey": "table-header",
+      "fontSizePt": 9.3,
+      "lineHeightPt": 12,
+      "sourceCalibration": {
+        "manifestId": "pdf-pilot-08b-canonical-report-typography-calibration-v1",
+        "path": "pagePatches[*].operations[*].element.headerLineHeightPt",
+        "sourceFontSizePt": 9.3,
+        "sourceLineHeightPt": 12,
+        "method": "exact-font-size-role-match"
+      }
+    },
+    {
+      "styleKey": "table-body",
+      "fontSizePt": 9.1,
+      "lineHeightPt": 11,
+      "sourceCalibration": {
+        "manifestId": "pdf-pilot-08b-canonical-report-typography-calibration-v1",
+        "path": "pagePatches[*].operations[*].element.lineHeightPt",
+        "sourceFontSizePt": 9.1,
+        "sourceLineHeightPt": 11,
+        "method": "exact-font-size-role-match"
+      }
+    }
+  ],
+  "byStyle": [
+    {
+      "styleKey": "report-title",
+      "measurementCount": 1,
+      "lineCount": 2,
+      "multiLineMeasurementCount": 1,
+      "overflowLineCount": 0
+    },
+    {
+      "styleKey": "report-body",
+      "measurementCount": 126,
+      "lineCount": 128,
+      "multiLineMeasurementCount": 2,
+      "overflowLineCount": 0
+    },
+    {
+      "styleKey": "report-caption",
+      "measurementCount": 1,
+      "lineCount": 1,
+      "multiLineMeasurementCount": 0,
+      "overflowLineCount": 0
+    },
+    {
+      "styleKey": "section-heading",
+      "measurementCount": 11,
+      "lineCount": 11,
+      "multiLineMeasurementCount": 0,
+      "overflowLineCount": 0
+    },
+    {
+      "styleKey": "table-header",
+      "measurementCount": 66,
+      "lineCount": 66,
+      "multiLineMeasurementCount": 0,
+      "overflowLineCount": 0
+    },
+    {
+      "styleKey": "table-body",
+      "measurementCount": 207,
+      "lineCount": 233,
+      "multiLineMeasurementCount": 26,
+      "overflowLineCount": 0
+    }
+  ],
+  "overflowMeasurements": [],
+  "summary": {
+    "sourceConsumerCount": 782,
+    "measurementVariantCount": 412,
+    "emptyMeasurementVariantCount": 1,
+    "nativeSegmentExecutionCount": 352,
+    "deduplicatedSegmentExecutionCount": 59,
+    "lineHeightBindingCount": 6,
+    "measurementGlyphCount": 10998,
+    "coveredGlyphCount": 10998,
+    "breakOpportunityCount": 1642,
+    "tailoredBreakOpportunityCount": 226,
+    "lineCount": 441,
+    "multiLineMeasurementCount": 29,
+    "overflowLineCount": 0,
+    "maxLineCount": 2
+  },
+  "executionGate": {
+    "status": "native-line-box-evidence-accepted-vertical-layout-blocked",
+    "nativeShapingConsumed": true,
+    "nativeIcu4xSegmentationExecuted": true,
+    "lineHeightsBound": true,
+    "utf16BreakOffsetsMapped": true,
+    "everyMeasurementGlyphCoveredExactlyOnce": true,
+    "lineBoxesCreated": true,
+    "productionBinding": false,
+    "blockers": [
+      {
+        "code": "source-profile-still-planned",
+        "blocks": "production-measurement",
+        "message": "The accepted R2B profile still carries planned ICU4X identity; this concrete pilot binding does not mutate it."
+      },
+      {
+        "code": "wasm-segmentation-not-qualified",
+        "blocks": "browser-worker-line-breaking",
+        "message": "The native ICU4X result has not yet been compared with the browser-worker WASM artifact."
+      },
+      {
+        "code": "vertical-layout-not-executed",
+        "blocks": "pagination",
+        "message": "Line boxes are available, but block spacing, table row heights, and vertical page composition have not run."
+      }
+    ]
+  },
+  "boundary": {
+    "nativeShaping": "consumed",
+    "typographyCalibration": "consumed",
+    "nativeIcu4xSegmentation": "executed",
+    "lineHeightBinding": "bound",
+    "breakOffsetConversion": "utf8-byte-to-utf16-code-unit",
+    "lineBoxes": "created",
+    "wasmSegmentation": "not-run",
+    "productionMeasurementBinding": "not-run",
+    "verticalLayout": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-F line-box acceptance and vertical block/table composition readiness"
+}

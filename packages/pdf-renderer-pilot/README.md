@@ -55,6 +55,8 @@ npm --prefix packages/pdf-renderer-pilot run build:all-images-request
 npm --prefix packages/pdf-renderer-pilot run build:canonical-request
 npm --prefix packages/pdf-renderer-pilot run build:content-parity-request
 npm --prefix packages/pdf-renderer-pilot run build:typography-request
+npm --prefix packages/pdf-renderer-pilot run build:report-native-shaping
+npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
 ```
 
 Build the retained subset with Python FontTools:

@@ -435,6 +435,34 @@ Primary Phase 08B-R2C-D evidence:
 - `packages/pdf-renderer-pilot/fixtures/canonical-report-native-shaping-qa.v1.json`;
 - `tests/pdfRendererPilotCanonicalReportNativeShaping.test.ts`.
 
+## PDF-PILOT-08B-R2C-E Scope
+
+Phase 08B-R2C-E consumes the exact R2C-D fingerprint, binds all six report
+styles to retained typography line heights, and executes native
+`icu_segmenter 2.2.0` with compiled `icu_segmenter_data 2.2.0`. ICU4X UTF-8
+byte boundaries are converted to verified FlowDoc UTF-16 offsets before
+wrapping.
+
+The 412 measurement variants deduplicate into 352 non-empty segmentation
+executions plus one explicit empty-line policy. ICU4X supplies the base UAX #14
+breaks. A report-only policy adds breaks after machine-identifier delimiters;
+normal Thai and prose remain unchanged. This creates 441 line boxes, wraps 29
+measurements, covers all 10,998 measurement glyphs exactly once, and leaves
+zero width overflow.
+
+This closes node-native break and line-box evidence only. The source profile
+still retains planned ICU4X identity. WASM parity, production binding,
+vertical block/table composition, pagination, and PDF rendering remain blocked
+or `not-run`.
+
+Primary Phase 08B-R2C-E evidence:
+
+- `docs/PDF_CANONICAL_REPORT_LINE_BREAKING_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-line-breaking.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-line-segmentation-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-line-breaking-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportLineBreaking.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -582,6 +610,12 @@ Build and validate native report shaping evidence:
 npm --prefix packages/pdf-renderer-pilot run build:report-native-shaping
 ```
 
+Build and validate native report line-breaking evidence:
+
+```text
+npm --prefix packages/pdf-renderer-pilot run build:report-line-breaking
+```
+
 ## PASS
 
 - The work is recorded as one dedicated PDF pilot with explicit subphases.
@@ -634,14 +668,18 @@ npm --prefix packages/pdf-renderer-pilot run build:report-native-shaping
   deduplicates 895 non-empty runs into 434 real rustybuzz executions, maps
   10,032 IBM Plex glyphs with no missing glyphs, and retains no synthetic line
   boxes.
+- Native report line breaking binds six calibrated line heights, executes 352
+  unique ICU4X segmentations for 412 variants, creates 441 contiguous line
+  boxes, covers 10,998 measurement glyphs exactly once, and clears all width
+  overflow with explicit machine-identifier delimiter tailoring.
 
 ## FAIL / BLOCKER
 
-None for closing PDF-PILOT-08B-R2C-D node-native glyph shaping.
+None for closing PDF-PILOT-08B-R2C-E node-native line-box evidence.
 
 Report-level PDF fidelity remains blocked on calibrated region-aware visual-diff
-thresholds, broader reader compatibility, concrete ICU4X and line-height
-binding, line breaking, line boxes, layout, pagination, and PDF rendering.
+thresholds, broader reader compatibility, source-profile promotion, native to
+WASM parity, vertical layout, pagination, and PDF rendering.
 
 ## RISK
 
@@ -656,12 +694,14 @@ binding, line breaking, line boxes, layout, pagination, and PDF rendering.
   transparency remain open.
 - Phase 08B uses a real 700-weight Bold face. Phase 08C must decide through
   region-aware visual evidence whether any role needs a lighter weight.
+- R2C-E tailors machine identifiers after `.`, `_`, `/`, and `-`; later
+  multilingual and URL policy must remain separately qualified.
 
 ## UNKNOWN
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- automatic table-cell and heading wrap behavior after projection;
+- automatic block spacing and table-row height from accepted line boxes;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -679,5 +719,5 @@ binding, line breaking, line boxes, layout, pagination, and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-E` concrete ICU4X and line-height binding for
-line-break execution.
+Next phase: `PDF-PILOT-08B-R2C-F` line-box acceptance and vertical block/table
+composition readiness.

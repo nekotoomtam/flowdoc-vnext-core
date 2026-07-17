@@ -10326,3 +10326,42 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-E` concrete ICU4X and line-height binding for
 line-break execution.
+
+## PDF-PILOT-08B-R2C-E Native ICU4X Line Breaking
+
+Status: accepted for node-native line-box evidence only.
+
+R2C-E consumes the exact R2C-D fingerprint and retained Phase 08B typography
+calibration. It binds six report line heights, including an explicit 24pt title
+to accepted 31pt cover-role reuse, without mutating the accepted R2B style or
+measurement-profile identities.
+
+The package-local native adapter executes `icu_segmenter 2.2.0` with compiled
+`icu_segmenter_data 2.2.0`. It retains raw ICU4X UTF-8 byte boundaries and
+maps them to verified UTF-16 code-unit offsets. The 412 width-sensitive
+variants require 352 unique non-empty segmentations; 59 duplicate texts reuse
+those results and one empty table cell produces one zero-width line without an
+engine call.
+
+ICU4X UAX #14 remains the base policy. Machine identifiers receive explicit
+soft breaks after `.`, `_`, `/`, and `-`, adding 226 opportunities and clearing
+the 22 schema-path overflows exposed by the first native pass. Normal Thai and
+prose are not tailored. Accepted output contains 1,642 break opportunities,
+441 line boxes, 29 multi-line variants, and zero overflow lines. All 10,998
+measurement glyph references are covered exactly once by contiguous line-box
+ranges.
+
+The source profile still says `icu4x-planned`; concrete identity is pilot-only.
+WASM parity, production measurement binding, vertical block/table composition,
+pagination, and PDF rendering remain `not-run` or blocked.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_REPORT_LINE_BREAKING_PROOF.md`;
+- `fixtures/pdf-pilot-canonical-report-line-breaking.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-line-segmentation-raw.v1.json`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-report-line-breaking-qa.v1.json`;
+- `tests/pdfRendererPilotCanonicalReportLineBreaking.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-F` line-box acceptance and vertical block/table
+composition readiness.

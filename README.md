@@ -908,6 +908,10 @@ The package must remain runnable without any parent editor checkout.
   executions, preserves 114 mixed Bold overrides and one empty zero-glyph run,
   and maps 10,032 IBM Plex glyphs with zero missing glyphs while keeping line
   breaking and line boxes blocked.
+- PDF canonical report native line breaking binds six retained typography line
+  heights, executes 352 deduplicated ICU4X segmentations, converts byte breaks
+  to UTF-16 offsets, and creates 441 bounded line boxes covering all 10,998
+  measurement glyphs, with explicit machine-identifier delimiter tailoring.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.
