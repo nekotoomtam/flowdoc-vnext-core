@@ -113,6 +113,6 @@ Primary retained evidence:
 - `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-proof.py`;
 - `tests/pdfRendererPilotCanonicalFullDocument.test.ts`.
 
-Next phase: `PDF-PILOT-08B-R2C-N` compare rendered regions with the reference,
-classify layout differences, and decide whether an evidence-backed change can
-recover the twelve-page target without deleting content or bypassing policy.
+Downstream decision: `PDF-PILOT-08B-R2C-N` rejects visual fidelity and a
+geometry-only twelve-page claim. The exact source-backed thirteen-page result
+is authoritative; see `docs/PDF_CANONICAL_FULL_DOCUMENT_VISUAL_COMPARISON.md`.

@@ -107,6 +107,19 @@ same 1,194,703-byte thirteen-page PDF on repeated execution. Independent
 structure. The artifact remains local under `output/pdf/`; visual fidelity and
 the twelve-page decision are not accepted by this phase.
 
+## Visual Comparison and Page-Count Decision
+
+`PDF-PILOT-08B-R2C-N` compares the pinned reference and exact R2C-M artifact
+through PDF geometry/text facts and local 96-DPI raster occupancy. The
+candidate carries 30.58% more extracted non-whitespace text, materially more
+Bold text, non-uniform section movement, and a retained 328pt final Table
+continuation. A reference-envelope calculation leaves only 1.966928pt of
+theoretical twelve-page headroom and is not capacity proof.
+
+Visual fidelity remains rejected. The corrected source-backed profile now uses
+content-driven page count, with this exact thirteen-page result authoritative.
+No PDF or raster bytes are retained by the comparison fixture.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:

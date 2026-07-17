@@ -1,0 +1,1720 @@
+{
+  "comparisonVersion": 1,
+  "comparisonId": "pdf-pilot-08b-r2c-n-canonical-full-document-visual-comparison-v1",
+  "phaseId": "PDF-PILOT-08B-R2C-N",
+  "status": "accepted-comparison-visual-fidelity-rejected-thirteen-page-authoritative",
+  "inputs": {
+    "reference": {
+      "artifactId": "reference-final-pdf",
+      "pointer": "external-report://INV_9437125258/OCR_Benchmark_INV_9437125258_TH_final.pdf",
+      "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+      "bytes": 714952,
+      "pageCount": 12
+    },
+    "candidate": {
+      "artifactId": "pdf-pilot:pdf-pilot-08b-r2c-m-canonical-full-document",
+      "pointer": "local-output://pdf/flowdoc-pdf-pilot-canonical-full-document-13-page.pdf",
+      "sha256": "014b313690041ba312b10dc0bcbf65a3131580258d80e2f8b07465d8e107ed0f",
+      "bytes": 1194703,
+      "pageCount": 13,
+      "sourceBundleFingerprint": "32d067a3b17e1c6598711445067877e29f0c609fe0c1d288d2d0e57871f95990"
+    },
+    "externalPdfBytesRetained": false,
+    "rasterBytesRetained": false
+  },
+  "method": {
+    "geometryAndTextEngine": "pdfplumber",
+    "geometryAndTextEngineVersion": "0.11.9",
+    "rasterRenderer": "pdftoppm",
+    "rasterDpi": 96,
+    "nonWhiteThreshold": "grayscale < 250",
+    "headingDetection": {
+      "coverFontSizeMinimumPt": 23.5,
+      "sectionFontSizeRangePt": [
+        15.8,
+        16.2
+      ],
+      "nearBaselineClusterTolerancePt": 0.8,
+      "semanticBinding": "document-order-to-pinned-twelve-section-order"
+    },
+    "referenceBodyAnalysisWindowPt": [
+      45.0,
+      745.0
+    ],
+    "candidateBodyAnalysisWindowPt": [
+      75.023622,
+      716.976378
+    ],
+    "limitations": [
+      "Reference Thai extraction contains producer-specific glyph ordering artifacts.",
+      "Character counts are a normalized extracted-text density proxy, not semantic equality.",
+      "Raster occupancy is region evidence, not a pixel-parity score.",
+      "Observed reference content bounds are not a reusable pagination frame."
+    ]
+  },
+  "reference": {
+    "sha256": "56f17f2cc97bfe545d6f8dba9c4e2f45928c9398d0b8cad129c19b51ca3695a8",
+    "bytes": 714952,
+    "pageCount": 12,
+    "allLetter612x792Pt": true,
+    "extractedNonWhitespaceCharacterCount": 10619,
+    "bodyCharacterCount": 10028,
+    "fontCharacterCounts": {
+      "BCDGEE+Tahoma": 7156,
+      "BCDFEE+Tahoma": 1749,
+      "BCDHEE+Tahoma-Bold": 644,
+      "BCDIEE+BrowalliaNew-Bold": 525,
+      "BCDEEE+Tahoma-Bold": 481,
+      "BCDMEE+Calibri-Bold": 37,
+      "BCDKEE+SymbolMT": 27
+    },
+    "fontSizeCharacterCounts": {
+      "10.6": 4850,
+      "9.0": 3997,
+      "8.5": 624,
+      "11.0": 345,
+      "16.0": 282,
+      "13.0": 280,
+      "12.5": 61,
+      "9.5": 49,
+      "10.0": 48,
+      "25.0": 44,
+      "12.0": 39
+    },
+    "dominantFontSizePt": 10.6,
+    "boldCharacterCount": 1687,
+    "boldCharacterShare": 0.158866,
+    "bodyAnalysisWindow": {
+      "topPt": 45.0,
+      "bottomPt": 745.0
+    },
+    "observedBodyBounds": {
+      "x0Pt": 72.02,
+      "topPt": 60.73,
+      "x1Pt": 539.45,
+      "bottomPt": 730.18,
+      "widthPt": 467.43,
+      "heightPt": 669.45
+    },
+    "observedStaticEnvelope": {
+      "topPt": 26.96,
+      "bottomPt": 766.98
+    },
+    "imagePageNumbers": [
+      1,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "headings": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 95.7,
+        "documentTopPt": 95.7
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 2,
+        "topPt": 60.7,
+        "documentTopPt": 852.7
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 3,
+        "topPt": 60.7,
+        "documentTopPt": 1644.7
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 4,
+        "topPt": 62.3,
+        "documentTopPt": 2438.3
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 5,
+        "topPt": 60.7,
+        "documentTopPt": 3228.7
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 6,
+        "topPt": 158.9,
+        "documentTopPt": 4118.9
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 61.1,
+        "documentTopPt": 4813.1
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 62.3,
+        "documentTopPt": 5606.3
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 9,
+        "topPt": 104.8,
+        "documentTopPt": 6440.8
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 61.1,
+        "documentTopPt": 7189.1
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 62.3,
+        "documentTopPt": 7982.3
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 12,
+        "topPt": 62.3,
+        "documentTopPt": 8774.3
+      }
+    ],
+    "sections": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 95.7,
+        "documentTopPt": 95.7,
+        "nonWhitespaceCharacterCount": 274
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 2,
+        "topPt": 60.7,
+        "documentTopPt": 852.7,
+        "nonWhitespaceCharacterCount": 1143
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 3,
+        "topPt": 60.7,
+        "documentTopPt": 1644.7,
+        "nonWhitespaceCharacterCount": 836
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 4,
+        "topPt": 62.3,
+        "documentTopPt": 2438.3,
+        "nonWhitespaceCharacterCount": 640
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 5,
+        "topPt": 60.7,
+        "documentTopPt": 3228.7,
+        "nonWhitespaceCharacterCount": 748
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 6,
+        "topPt": 158.9,
+        "documentTopPt": 4118.9,
+        "nonWhitespaceCharacterCount": 740
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 61.1,
+        "documentTopPt": 4813.1,
+        "nonWhitespaceCharacterCount": 566
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 62.3,
+        "documentTopPt": 5606.3,
+        "nonWhitespaceCharacterCount": 1039
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 9,
+        "topPt": 104.8,
+        "documentTopPt": 6440.8,
+        "nonWhitespaceCharacterCount": 1202
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 61.1,
+        "documentTopPt": 7189.1,
+        "nonWhitespaceCharacterCount": 984
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 62.3,
+        "documentTopPt": 7982.3,
+        "nonWhitespaceCharacterCount": 755
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 12,
+        "topPt": 62.3,
+        "documentTopPt": 8774.3,
+        "nonWhitespaceCharacterCount": 1063
+      }
+    ],
+    "pages": [
+      {
+        "pageNumber": 1,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 361,
+        "bodyCharacterCount": 312,
+        "bodyBounds": {
+          "x0Pt": 103.58,
+          "topPt": 61.22,
+          "x1Pt": 508.26,
+          "bottomPt": 670.74
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 0,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 2,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1192,
+        "bodyCharacterCount": 1143,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 527.99,
+          "bottomPt": 496.9
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 151,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 3,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 885,
+        "bodyCharacterCount": 836,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 531.47,
+          "bottomPt": 480.58
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 90,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 4,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 689,
+        "bodyCharacterCount": 640,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 522.13,
+          "bottomPt": 597.37
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 153,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 5,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 543,
+        "bodyCharacterCount": 494,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.73,
+          "x1Pt": 475.41,
+          "bottomPt": 697.72
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 74,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 6,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1021,
+        "bodyCharacterCount": 972,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.8,
+          "x1Pt": 536.74,
+          "bottomPt": 722.76
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 119,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 7,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 637,
+        "bodyCharacterCount": 588,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 61.09,
+          "x1Pt": 531.98,
+          "bottomPt": 549.22
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 142,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 8,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 957,
+        "bodyCharacterCount": 908,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 538.44,
+          "bottomPt": 730.18
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 131,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 9,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1365,
+        "bodyCharacterCount": 1316,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 60.75,
+          "x1Pt": 539.45,
+          "bottomPt": 536.38
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 109,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 10,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1051,
+        "bodyCharacterCount": 1001,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 61.09,
+          "x1Pt": 533.25,
+          "bottomPt": 357.68
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 17,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 11,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 805,
+        "bodyCharacterCount": 755,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 521.43,
+          "bottomPt": 424.54
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 158,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 12,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1113,
+        "bodyCharacterCount": 1063,
+        "bodyBounds": {
+          "x0Pt": 72.02,
+          "topPt": 62.31,
+          "x1Pt": 531.0,
+          "bottomPt": 445.3
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 142,
+        "imageObjectCount": 0
+      }
+    ],
+    "raster": {
+      "renderer": "pdftoppm",
+      "dpi": 96,
+      "pageCount": 12,
+      "allPages816x1056Px": true,
+      "meanNonWhitePixelRatio": 0.108246,
+      "meanBandNonWhitePixelRatios": {
+        "top-static": 0.026137,
+        "top-transition": 0.038218,
+        "body-core": 0.131445,
+        "bottom-transition": 0.013636,
+        "bottom-static": 0.012239
+      },
+      "pages": [
+        {
+          "pageNumber": 1,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.050556,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 26.25,
+            "x1Pt": 539.25,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.032424,
+            "body-core": 0.059369,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.011929
+          }
+        },
+        {
+          "pageNumber": 2,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.157724,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.026757,
+            "body-core": 0.195706,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012063
+          }
+        },
+        {
+          "pageNumber": 3,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.065932,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 71.25,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.01851,
+            "body-core": 0.079669,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012159
+          }
+        },
+        {
+          "pageNumber": 4,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.154017,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.042024,
+            "body-core": 0.190122,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012044
+          }
+        },
+        {
+          "pageNumber": 5,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.072614,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.026093,
+            "body-core": 0.087711,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012178
+          }
+        },
+        {
+          "pageNumber": 6,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.132469,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.015395,
+            "body-core": 0.163372,
+            "bottom-transition": 0.015931,
+            "bottom-static": 0.012274
+          }
+        },
+        {
+          "pageNumber": 7,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.111756,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.027293,
+            "body-core": 0.137337,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.011987
+          }
+        },
+        {
+          "pageNumber": 8,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.162318,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.053692,
+            "body-core": 0.191437,
+            "bottom-transition": 0.147697,
+            "bottom-static": 0.012389
+          }
+        },
+        {
+          "pageNumber": 9,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.12978,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.118464,
+            "body-core": 0.15493,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012293
+          }
+        },
+        {
+          "pageNumber": 10,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.083411,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.0,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.021165,
+            "body-core": 0.101658,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012714
+          }
+        },
+        {
+          "pageNumber": 11,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.059931,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 72.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.038475,
+            "body-core": 0.070885,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012351
+          }
+        },
+        {
+          "pageNumber": 12,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.118442,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 69.0,
+            "topPt": 26.25,
+            "x1Pt": 540.75,
+            "bottomPt": 765.75
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.026137,
+            "top-transition": 0.038322,
+            "body-core": 0.145148,
+            "bottom-transition": 0.0,
+            "bottom-static": 0.012485
+          }
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "sha256": "014b313690041ba312b10dc0bcbf65a3131580258d80e2f8b07465d8e107ed0f",
+    "bytes": 1194703,
+    "pageCount": 13,
+    "allLetter612x792Pt": true,
+    "extractedNonWhitespaceCharacterCount": 13866,
+    "bodyCharacterCount": 13197,
+    "fontCharacterCounts": {
+      "FDFDRG+FlowDocThaiCanonicalFullDocument-Regular": 8077,
+      "FDFDBD+FlowDocThaiCanonicalFullDocument-Bold": 5789
+    },
+    "fontSizeCharacterCounts": {
+      "10.5": 6097,
+      "9.1": 5735,
+      "9.3": 1075,
+      "9.0": 641,
+      "16.0": 274,
+      "24.0": 44
+    },
+    "dominantFontSizePt": 10.5,
+    "boldCharacterCount": 5789,
+    "boldCharacterShare": 0.417496,
+    "bodyAnalysisWindow": {
+      "topPt": 75.023622,
+      "bottomPt": 716.976378
+    },
+    "observedBodyBounds": {
+      "x0Pt": 56.69,
+      "topPt": 81.34,
+      "x1Pt": 544.66,
+      "bottomPt": 716.04,
+      "widthPt": 487.97,
+      "heightPt": 634.7
+    },
+    "observedStaticEnvelope": {
+      "topPt": 57.33,
+      "bottomPt": 732.28
+    },
+    "imagePageNumbers": [
+      1,
+      3,
+      5,
+      8,
+      9
+    ],
+    "headings": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 91.3,
+        "documentTopPt": 91.3
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 1,
+        "topPt": 625.2,
+        "documentTopPt": 625.2
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 2,
+        "topPt": 166.6,
+        "documentTopPt": 958.6
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 2,
+        "topPt": 420.6,
+        "documentTopPt": 1212.6
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 4,
+        "topPt": 357.6,
+        "documentTopPt": 2733.6
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 5,
+        "topPt": 112.6,
+        "documentTopPt": 3280.6
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 357.6,
+        "documentTopPt": 5109.6
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 453.7,
+        "documentTopPt": 5997.7
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 10,
+        "topPt": 402.6,
+        "documentTopPt": 7530.6
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 461.6,
+        "documentTopPt": 7589.6
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 307.6,
+        "documentTopPt": 8227.6
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 12,
+        "topPt": 136.6,
+        "documentTopPt": 8848.6
+      }
+    ],
+    "sections": [
+      {
+        "sectionId": "cover",
+        "pageNumber": 1,
+        "topPt": 91.3,
+        "documentTopPt": 91.3,
+        "nonWhitespaceCharacterCount": 340
+      },
+      {
+        "sectionId": "executive-summary",
+        "pageNumber": 1,
+        "topPt": 625.2,
+        "documentTopPt": 625.2,
+        "nonWhitespaceCharacterCount": 290
+      },
+      {
+        "sectionId": "method",
+        "pageNumber": 2,
+        "topPt": 166.6,
+        "documentTopPt": 958.6,
+        "nonWhitespaceCharacterCount": 475
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "pageNumber": 2,
+        "topPt": 420.6,
+        "documentTopPt": 1212.6,
+        "nonWhitespaceCharacterCount": 1518
+      },
+      {
+        "sectionId": "source-evidence",
+        "pageNumber": 4,
+        "topPt": 357.6,
+        "documentTopPt": 2733.6,
+        "nonWhitespaceCharacterCount": 1012
+      },
+      {
+        "sectionId": "native-extraction",
+        "pageNumber": 5,
+        "topPt": 112.6,
+        "documentTopPt": 3280.6,
+        "nonWhitespaceCharacterCount": 2371
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "pageNumber": 7,
+        "topPt": 357.6,
+        "documentTopPt": 5109.6,
+        "nonWhitespaceCharacterCount": 1369
+      },
+      {
+        "sectionId": "mapping",
+        "pageNumber": 8,
+        "topPt": 453.7,
+        "documentTopPt": 5997.7,
+        "nonWhitespaceCharacterCount": 2416
+      },
+      {
+        "sectionId": "decision-view",
+        "pageNumber": 10,
+        "topPt": 402.6,
+        "documentTopPt": 7530.6,
+        "nonWhitespaceCharacterCount": 74
+      },
+      {
+        "sectionId": "limitations",
+        "pageNumber": 10,
+        "topPt": 461.6,
+        "documentTopPt": 7589.6,
+        "nonWhitespaceCharacterCount": 691
+      },
+      {
+        "sectionId": "appendix-runs",
+        "pageNumber": 11,
+        "topPt": 307.6,
+        "documentTopPt": 8227.6,
+        "nonWhitespaceCharacterCount": 897
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "pageNumber": 12,
+        "topPt": 136.6,
+        "documentTopPt": 8848.6,
+        "nonWhitespaceCharacterCount": 1744
+      }
+    ],
+    "pages": [
+      {
+        "pageNumber": 1,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 558,
+        "bodyCharacterCount": 481,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 91.34,
+          "x1Pt": 527.36,
+          "bottomPt": 701.02
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 1,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 2,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1064,
+        "bodyCharacterCount": 1015,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 82.88,
+          "x1Pt": 544.66,
+          "bottomPt": 604.38
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 1,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 3,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 726,
+        "bodyCharacterCount": 677,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 314.44,
+          "x1Pt": 541.6,
+          "bottomPt": 712.04
+        },
+        "lineObjectCount": 108,
+        "rectangleObjectCount": 18,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 4,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1414,
+        "bodyCharacterCount": 1365,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 85.34,
+          "x1Pt": 498.93,
+          "bottomPt": 703.38
+        },
+        "lineObjectCount": 66,
+        "rectangleObjectCount": 11,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 5,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1147,
+        "bodyCharacterCount": 1098,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 82.88,
+          "x1Pt": 429.23,
+          "bottomPt": 476.38
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 1,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 6,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 947,
+        "bodyCharacterCount": 898,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 81.34,
+          "x1Pt": 541.6,
+          "bottomPt": 708.93
+        },
+        "lineObjectCount": 136,
+        "rectangleObjectCount": 21,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 7,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1421,
+        "bodyCharacterCount": 1372,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 85.34,
+          "x1Pt": 498.93,
+          "bottomPt": 703.38
+        },
+        "lineObjectCount": 61,
+        "rectangleObjectCount": 10,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 8,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1147,
+        "bodyCharacterCount": 1098,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 82.88,
+          "x1Pt": 432.36,
+          "bottomPt": 709.48
+        },
+        "lineObjectCount": 0,
+        "rectangleObjectCount": 1,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 9,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1081,
+        "bodyCharacterCount": 1032,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 82.88,
+          "x1Pt": 516.17,
+          "bottomPt": 716.04
+        },
+        "lineObjectCount": 58,
+        "rectangleObjectCount": 6,
+        "imageObjectCount": 1
+      },
+      {
+        "pageNumber": 10,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1323,
+        "bodyCharacterCount": 1273,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 81.34,
+          "x1Pt": 523.4,
+          "bottomPt": 709.93
+        },
+        "lineObjectCount": 69,
+        "rectangleObjectCount": 8,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 11,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1079,
+        "bodyCharacterCount": 1029,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 85.34,
+          "x1Pt": 544.02,
+          "bottomPt": 703.93
+        },
+        "lineObjectCount": 109,
+        "rectangleObjectCount": 15,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 12,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 1262,
+        "bodyCharacterCount": 1212,
+        "bodyBounds": {
+          "x0Pt": 56.69,
+          "topPt": 85.34,
+          "x1Pt": 544.02,
+          "bottomPt": 698.93
+        },
+        "lineObjectCount": 62,
+        "rectangleObjectCount": 9,
+        "imageObjectCount": 0
+      },
+      {
+        "pageNumber": 13,
+        "widthPt": 612.0,
+        "heightPt": 792.0,
+        "extractedNonWhitespaceCharacterCount": 697,
+        "bodyCharacterCount": 647,
+        "bodyBounds": {
+          "x0Pt": 60.69,
+          "topPt": 85.34,
+          "x1Pt": 337.33,
+          "bottomPt": 402.93
+        },
+        "lineObjectCount": 27,
+        "rectangleObjectCount": 3,
+        "imageObjectCount": 0
+      }
+    ],
+    "raster": {
+      "renderer": "pdftoppm",
+      "dpi": 96,
+      "pageCount": 13,
+      "allPages816x1056Px": true,
+      "meanNonWhitePixelRatio": 0.101188,
+      "meanBandNonWhitePixelRatios": {
+        "top-static": 0.0,
+        "top-transition": 0.113975,
+        "body-core": 0.12047,
+        "bottom-transition": 0.024017,
+        "bottom-static": 0.0
+      },
+      "pages": [
+        {
+          "pageNumber": 1,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.054079,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.029105,
+            "body-core": 0.064486,
+            "bottom-transition": 0.042892,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 2,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.05608,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.03965,
+            "body-core": 0.067978,
+            "bottom-transition": 0.015829,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 3,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.156019,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 554.25,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.02548,
+            "body-core": 0.194604,
+            "bottom-transition": 0.033803,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 4,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.118151,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.228605,
+            "body-core": 0.135847,
+            "bottom-transition": 0.016033,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 5,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.094324,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.054049,
+            "body-core": 0.115676,
+            "bottom-transition": 0.016033,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 6,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.134874,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 55.5,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.042024,
+            "body-core": 0.166857,
+            "bottom-transition": 0.033012,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 7,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.117915,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.228605,
+            "body-core": 0.135558,
+            "bottom-transition": 0.015855,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 8,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.078741,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.053105,
+            "body-core": 0.095942,
+            "bottom-transition": 0.016212,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 9,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.121922,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.055224,
+            "body-core": 0.149407,
+            "bottom-transition": 0.037352,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 10,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.105465,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.040007,
+            "body-core": 0.129575,
+            "bottom-transition": 0.034263,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 11,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.121422,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.228605,
+            "body-core": 0.139949,
+            "bottom-transition": 0.016902,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 12,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.103637,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 555.0,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.228605,
+            "body-core": 0.117373,
+            "bottom-transition": 0.016953,
+            "bottom-static": 0.0
+          }
+        },
+        {
+          "pageNumber": 13,
+          "widthPx": 816,
+          "heightPx": 1056,
+          "nonWhitePixelRatio": 0.052812,
+          "nonWhiteBoundsPt": {
+            "x0Pt": 56.25,
+            "topPt": 54.0,
+            "x1Pt": 554.25,
+            "bottomPt": 728.25
+          },
+          "bandNonWhitePixelRatios": {
+            "top-static": 0.0,
+            "top-transition": 0.228605,
+            "body-core": 0.052857,
+            "bottom-transition": 0.01708,
+            "bottom-static": 0.0
+          }
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "pageCountDelta": 1,
+    "extractedNonWhitespaceCharacterDelta": 3247,
+    "candidateToReferenceExtractedCharacterRatio": 1.3058,
+    "dominantFontSizeDeltaPt": -0.1,
+    "boldCharacterShareDelta": 0.25863,
+    "observedBodyWidthDeltaPt": 20.54,
+    "meanRasterInkRatioDelta": -0.007058,
+    "anchors": [
+      {
+        "sectionId": "cover",
+        "reference": {
+          "pageNumber": 1,
+          "topPt": 95.7
+        },
+        "candidate": {
+          "pageNumber": 1,
+          "topPt": 91.3
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": -4.4
+      },
+      {
+        "sectionId": "executive-summary",
+        "reference": {
+          "pageNumber": 2,
+          "topPt": 60.7
+        },
+        "candidate": {
+          "pageNumber": 1,
+          "topPt": 625.2
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -227.5
+      },
+      {
+        "sectionId": "method",
+        "reference": {
+          "pageNumber": 3,
+          "topPt": 60.7
+        },
+        "candidate": {
+          "pageNumber": 2,
+          "topPt": 166.6
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -686.1
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "reference": {
+          "pageNumber": 4,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 2,
+          "topPt": 420.6
+        },
+        "pageDelta": -2,
+        "documentTopDeltaPt": -1225.7
+      },
+      {
+        "sectionId": "source-evidence",
+        "reference": {
+          "pageNumber": 5,
+          "topPt": 60.7
+        },
+        "candidate": {
+          "pageNumber": 4,
+          "topPt": 357.6
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -495.1
+      },
+      {
+        "sectionId": "native-extraction",
+        "reference": {
+          "pageNumber": 6,
+          "topPt": 158.9
+        },
+        "candidate": {
+          "pageNumber": 5,
+          "topPt": 112.6
+        },
+        "pageDelta": -1,
+        "documentTopDeltaPt": -838.3
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "reference": {
+          "pageNumber": 7,
+          "topPt": 61.1
+        },
+        "candidate": {
+          "pageNumber": 7,
+          "topPt": 357.6
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 296.5
+      },
+      {
+        "sectionId": "mapping",
+        "reference": {
+          "pageNumber": 8,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 8,
+          "topPt": 453.7
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 391.4
+      },
+      {
+        "sectionId": "decision-view",
+        "reference": {
+          "pageNumber": 9,
+          "topPt": 104.8
+        },
+        "candidate": {
+          "pageNumber": 10,
+          "topPt": 402.6
+        },
+        "pageDelta": 1,
+        "documentTopDeltaPt": 1089.8
+      },
+      {
+        "sectionId": "limitations",
+        "reference": {
+          "pageNumber": 10,
+          "topPt": 61.1
+        },
+        "candidate": {
+          "pageNumber": 10,
+          "topPt": 461.6
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 400.5
+      },
+      {
+        "sectionId": "appendix-runs",
+        "reference": {
+          "pageNumber": 11,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 11,
+          "topPt": 307.6
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 245.3
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "reference": {
+          "pageNumber": 12,
+          "topPt": 62.3
+        },
+        "candidate": {
+          "pageNumber": 12,
+          "topPt": 136.6
+        },
+        "pageDelta": 0,
+        "documentTopDeltaPt": 74.3
+      }
+    ],
+    "sections": [
+      {
+        "sectionId": "cover",
+        "referenceCharacterCount": 274,
+        "candidateCharacterCount": 340,
+        "characterCountDelta": 66,
+        "candidateToReferenceRatio": 1.2409
+      },
+      {
+        "sectionId": "executive-summary",
+        "referenceCharacterCount": 1143,
+        "candidateCharacterCount": 290,
+        "characterCountDelta": -853,
+        "candidateToReferenceRatio": 0.2537
+      },
+      {
+        "sectionId": "method",
+        "referenceCharacterCount": 836,
+        "candidateCharacterCount": 475,
+        "characterCountDelta": -361,
+        "candidateToReferenceRatio": 0.5682
+      },
+      {
+        "sectionId": "ocr-accuracy",
+        "referenceCharacterCount": 640,
+        "candidateCharacterCount": 1518,
+        "characterCountDelta": 878,
+        "candidateToReferenceRatio": 2.3719
+      },
+      {
+        "sectionId": "source-evidence",
+        "referenceCharacterCount": 748,
+        "candidateCharacterCount": 1012,
+        "characterCountDelta": 264,
+        "candidateToReferenceRatio": 1.3529
+      },
+      {
+        "sectionId": "native-extraction",
+        "referenceCharacterCount": 740,
+        "candidateCharacterCount": 2371,
+        "characterCountDelta": 1631,
+        "candidateToReferenceRatio": 3.2041
+      },
+      {
+        "sectionId": "latency-cost-size",
+        "referenceCharacterCount": 566,
+        "candidateCharacterCount": 1369,
+        "characterCountDelta": 803,
+        "candidateToReferenceRatio": 2.4187
+      },
+      {
+        "sectionId": "mapping",
+        "referenceCharacterCount": 1039,
+        "candidateCharacterCount": 2416,
+        "characterCountDelta": 1377,
+        "candidateToReferenceRatio": 2.3253
+      },
+      {
+        "sectionId": "decision-view",
+        "referenceCharacterCount": 1202,
+        "candidateCharacterCount": 74,
+        "characterCountDelta": -1128,
+        "candidateToReferenceRatio": 0.0616
+      },
+      {
+        "sectionId": "limitations",
+        "referenceCharacterCount": 984,
+        "candidateCharacterCount": 691,
+        "characterCountDelta": -293,
+        "candidateToReferenceRatio": 0.7022
+      },
+      {
+        "sectionId": "appendix-runs",
+        "referenceCharacterCount": 755,
+        "candidateCharacterCount": 897,
+        "characterCountDelta": 142,
+        "candidateToReferenceRatio": 1.1881
+      },
+      {
+        "sectionId": "appendix-evidence",
+        "referenceCharacterCount": 1063,
+        "candidateCharacterCount": 1744,
+        "characterCountDelta": 681,
+        "candidateToReferenceRatio": 1.6406
+      }
+    ],
+    "anchorPageDeltasAreNonUniform": true,
+    "terminalContinuation": {
+      "pageNumber": 13,
+      "bodyCommandCount": 62,
+      "topPt": 75.023622,
+      "bottomPt": 403.023622,
+      "spanPt": 328.0
+    },
+    "verticalReclamationHypothesis": {
+      "referenceObservedBodyEnvelopeHeightPt": 669.45,
+      "candidateContractBodyFrameHeightPt": 641.952756,
+      "theoreticalGainPerPagePt": 27.497244,
+      "theoreticalGainAcrossTwelvePagesPt": 329.966928,
+      "terminalContinuationSpanPt": 328.0,
+      "theoreticalHeadroomPt": 1.966928,
+      "capacityProof": false,
+      "classification": "numerically-close-but-fragmentation-and-content-policy-unproven"
+    },
+    "regionClassifications": [
+      {
+        "region": "page-box",
+        "classification": "matched",
+        "evidence": "Both artifacts use 612x792pt Letter pages."
+      },
+      {
+        "region": "typography-scale",
+        "classification": "near-reference",
+        "evidence": "Section headings are 16pt in both artifacts and dominant text differs by 0.1pt."
+      },
+      {
+        "region": "typography-weight",
+        "classification": "materially-diverged",
+        "evidence": "Candidate bold-character share exceeds the reference by more than 25 percentage points."
+      },
+      {
+        "region": "static-zones",
+        "classification": "materially-diverged",
+        "evidence": "Candidate header/footer ink is inset relative to the reference envelope."
+      },
+      {
+        "region": "semantic-composition",
+        "classification": "materially-diverged",
+        "evidence": "Section density and anchors move non-uniformly because the candidate carries source-backed detail."
+      },
+      {
+        "region": "pagination",
+        "classification": "content-driven-extra-page",
+        "evidence": "The final 328pt table continuation is retained on page 13."
+      }
+    ]
+  },
+  "decision": {
+    "comparisonEvidenceAccepted": true,
+    "visualFidelityAccepted": false,
+    "pixelParityApplicable": false,
+    "twelvePageHardGateAccepted": false,
+    "sourceBackedPageCountAccepted": true,
+    "authoritativeCandidatePageCount": 13,
+    "pageCountPolicy": "content-driven-not-reference-fixed",
+    "reasonCodes": [
+      "source-backed-content-exceeds-reference",
+      "semantic-section-balance-differs",
+      "anchor-drift-is-non-uniform",
+      "margin-reclamation-is-not-capacity-proof",
+      "terminal-table-content-must-be-retained"
+    ],
+    "allowedNextChanges": [
+      "calibrate role-level font weight and static-zone geometry",
+      "restore source-backed decision narrative without removing audit evidence",
+      "repaginate through the existing measured Core boundary"
+    ],
+    "prohibitedShortcuts": [
+      "delete source-backed rows to force twelve pages",
+      "bypass measured wrapping or pagination",
+      "hard-code a twelve-page renderer layout"
+    ],
+    "productionBinding": false
+  },
+  "nextPhase": "PDF-PILOT-08B-R2C-O source-backed information hierarchy and role-level visual calibration"
+}

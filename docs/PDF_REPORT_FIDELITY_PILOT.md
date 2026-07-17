@@ -1,15 +1,17 @@
 # PDF Report Fidelity Pilot
 
-Status: PDF-PILOT-08B-R2C-M deterministic thirteen-page PDF execution and structural verification accepted; visual fidelity remains pending.
+Status: PDF-PILOT-08B-R2C-N comparison evidence accepted; visual fidelity is
+not accepted, and the source-backed thirteen-page result is authoritative.
 
 Umbrella work item: `PDF-PILOT-INV-9437125258`.
 
 ## Objective
 
 Produce a searchable Thai PDF from FlowDoc-owned document and measured-layout
-facts, without using Word or DOCX as a runtime renderer. The target is the
-12-page OCR benchmark report identified by the pinned external reference
-artifact in `fixtures/pdf-report-font-bakeoff-corpus.v1.json`.
+facts, without using Word or DOCX as a runtime renderer. The 12-page OCR
+benchmark artifact in `fixtures/pdf-report-font-bakeoff-corpus.v1.json` is the
+visual reference; the corrected source-backed profile uses content-driven page
+count.
 
 This is a bounded fidelity pilot. It does not claim a production PDF renderer.
 
@@ -17,7 +19,9 @@ This is a bounded fidelity pilot. It does not claim a production PDF renderer.
 
 - input is a canonical FlowDoc fixture rather than imported DOCX;
 - target page size is US Letter, `612 x 792 pt`;
-- target page count is 12, with deviations treated as explicit QA failures;
+- the legacy reference profile targets 12 pages, while the corrected
+  source-backed profile must retain all accepted evidence and treat page count
+  as a measured output;
 - Thai text remains searchable, selectable, and copyable;
 - font bytes embedded in output come only from registered redistributable
   assets;
@@ -686,6 +690,34 @@ Primary Phase 08B-R2C-M evidence:
 - `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-proof.py`;
 - `tests/pdfRendererPilotCanonicalFullDocument.test.ts`.
 
+## PDF-PILOT-08B-R2C-N Scope
+
+Phase 08B-R2C-N compares the pinned 12-page Word PDF with the exact 13-page
+R2C-M artifact through `pdfplumber` geometry/text facts and 96-DPI Poppler
+region occupancy. It retains no PDF or raster bytes.
+
+Both artifacts use Letter pages and 16pt section headings. The candidate's
+dominant text is only 0.1pt smaller, but it carries 13,866 extracted
+non-whitespace characters versus 10,619 in the reference, uses 41.75% Bold
+characters versus 15.89%, and moves semantic anchors non-uniformly from `-2`
+to `+1` pages. OCR, Native, cost, and mapping evidence grows by roughly 2.3 to
+3.2 times while executive and decision narrative shrinks materially.
+
+The reference content envelope suggests only 329.966928pt of theoretical
+vertical reclamation over twelve pages against a retained 328pt terminal Table
+continuation. The 1.966928pt remainder is not capacity proof because row,
+header, image, spacing, and boundary fragmentation cannot pool that space.
+R2C-N therefore rejects visual fidelity and a geometry-only twelve-page claim,
+retires twelve pages as a hard gate for the source-backed profile, and accepts
+the exact thirteen-page result as authoritative.
+
+Primary Phase 08B-R2C-N evidence:
+
+- `docs/PDF_CANONICAL_FULL_DOCUMENT_VISUAL_COMPARISON.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-visual-comparison.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
+- `tests/pdfRendererPilotCanonicalVisualComparison.test.ts`.
+
 ## Reproduction
 
 On a licensed Windows machine with Tahoma installed:
@@ -961,8 +993,9 @@ and PDF rendering.
   covers only one page.
 - Phase 04/06 qualify opaque RGB PNG only; alpha, palette, JPEG, and
   transparency remain open.
-- Phase 08B uses a real 700-weight Bold face. Phase 08C must decide through
-  region-aware visual evidence whether any role needs a lighter weight.
+- Phase 08B uses a real 700-weight Bold face. R2C-N measures 41.75% Bold
+  characters versus 15.89% in the reference, so role-level weight remains an
+  explicit calibration risk.
 - R2C-E tailors machine identifiers after `.`, `_`, `/`, and `-`; later
   multilingual and URL policy must remain separately qualified.
 
@@ -970,8 +1003,8 @@ and PDF rendering.
 
 - final production embedded-font subset strategy;
 - renderer-backed line-box deltas;
-- exact evidence-backed layout calibration, if any, that can recover the final
-  table continuation page without content loss or policy bypass;
+- source-backed information hierarchy that restores decision narrative without
+  removing the expanded audit evidence;
 - cross-language rounding parity for future exact half-way decimal values;
 - concrete PDF package and dependency budget;
 - report-wide visual-diff thresholds and reader compatibility beyond Poppler
@@ -989,5 +1022,6 @@ and PDF rendering.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next phase: `PDF-PILOT-08B-R2C-N` compare rendered regions with the reference
-and make an evidence-backed visual-fidelity and twelve-page layout decision.
+Next phase: `PDF-PILOT-08B-R2C-O` define source-backed information hierarchy,
+calibrate role-level weight/static zones, and repaginate through the measured
+Core boundary without imposing a fixed page count.

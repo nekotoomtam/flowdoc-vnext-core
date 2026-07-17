@@ -944,8 +944,13 @@ The package must remain runnable without any parent editor checkout.
   and five digest-verified images to that exact contract, emits deterministic
   13-page PDF 1.7 bytes, and independently verifies the page tree, embedded
   Type0 fonts, image objects, all 978 extracted text runs, 696 Table line
-  paths, and nonblank Poppler rasters. Visual fidelity and twelve-page
-  calibration remain pending.
+  paths, and nonblank Poppler rasters. That execution phase leaves visual
+  comparison and page-count policy to the next boundary.
+- PDF canonical visual comparison pins the 12-page reference and exact
+  source-backed 13-page artifact, measures 30.58% more extracted text and
+  non-uniform section drift, rejects visual fidelity and a margin-only
+  twelve-page claim, and makes page count content-driven without deleting the
+  retained 328pt final Table continuation.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

@@ -10656,3 +10656,37 @@ Primary evidence:
 
 Next phase: `PDF-PILOT-08B-R2C-N` visual comparison and evidence-backed
 twelve-page layout decision.
+
+## PDF-PILOT-08B-R2C-N Visual Comparison and Page-Count Decision
+
+Status: comparison evidence accepted; visual fidelity rejected and the exact
+source-backed thirteen-page result is authoritative.
+
+R2C-N pins the 714,952-byte 12-page Word reference and the exact 1,194,703-byte
+13-page R2C-M artifact. `pdfplumber` records page, text, font, image, vector,
+body-bound, and semantic-heading facts. Poppler supplies local 96-DPI region
+occupancy without retaining either PDF or raster bytes.
+
+Both documents use Letter pages and 16pt section headings, but the candidate
+contains 13,866 extracted non-whitespace characters versus 10,619, raises Bold
+share from 15.89% to 41.75%, and moves semantic anchors non-uniformly from `-2`
+through `+1` pages. Source-backed OCR, Native, cost, and mapping evidence grows
+materially while executive and decision narrative becomes shorter.
+
+The reference content envelope offers 329.966928pt of theoretical vertical
+reclamation across twelve pages against a 328pt terminal Table continuation.
+The 1.966928pt remainder cannot prove capacity across indivisible rows,
+repeated headers, images, preserved spacing, and section boundaries. R2C-N
+rejects a geometry-only twelve-page claim, retires fixed page count for the
+source-backed profile, keeps all measured content, and makes thirteen pages
+authoritative for this bundle.
+
+Primary evidence:
+
+- `docs/PDF_CANONICAL_FULL_DOCUMENT_VISUAL_COMPARISON.md`;
+- `packages/pdf-renderer-pilot/fixtures/canonical-full-document-visual-comparison.v1.json`;
+- `packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py`;
+- `tests/pdfRendererPilotCanonicalVisualComparison.test.ts`.
+
+Next phase: `PDF-PILOT-08B-R2C-O` source-backed information hierarchy and
+role-level visual calibration through the existing measured Core boundary.
