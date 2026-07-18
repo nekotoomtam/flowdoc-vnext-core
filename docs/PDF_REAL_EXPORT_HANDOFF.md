@@ -62,3 +62,16 @@ control, resource limits, production renderer binding, or production
 fidelity. Those concerns begin with Phase U production-hardening baseline.
 Phase U records them in `docs/PDF_EXPORT_PRODUCTION_BASELINE.md` without
 claiming that any runtime binding is complete.
+
+## Local Runtime Follow-Up
+
+`PDF-EXPORT-LOCAL-E` reuses this exact Phase T source identity, measured
+contract/content identity, and artifact byte identity inside the separate
+loopback-only Backend composition. Startup verifies a SHA-256-pinned copy of
+this handoff plus every canonical font/image resource before admitting the
+document revision. Independent local HTTP and worker connections retain the
+same 13-page, 1,212,656-byte artifact through physically verified download.
+
+This follow-up does not change the Phase T boundary: the default Backend
+server, Editor integration, production renderer/provider selection, and
+production activation remain blocked.

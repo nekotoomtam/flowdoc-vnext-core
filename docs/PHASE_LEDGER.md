@@ -10930,3 +10930,472 @@ Primary evidence:
 
 Next decision: pause for a cross-repo production-binding review before naming
 or implementing `PDF-EXPORT-V`.
+
+## PDF-EXPORT-V-A Architecture Lock And Validation Split
+
+Status: cross-repo binding order and pure Core pre/post-render validation split
+accepted; all ten production runtime bindings remain blocked.
+
+V-A resolves the Phase U ordering gap without executing runtime work. Core can
+now create deterministic production admission from the exact source, request,
+measured-contract content, bounded policy, and measurable resource facts before
+a renderer receipt exists. The admission derives the same idempotency payload
+fingerprint retained by the Phase U baseline and explicitly defers output-byte
+enforcement.
+
+After render, Core rebuilds and compares the exact admission, revalidates the
+Phase T receipt, and applies the output-byte limit. A successful result is only
+`ready-for-persistence`: it carries no PDF bytes, verifies no stored content,
+and performs no worker, timer, cancellation, storage, manifest/job, event,
+auth, route, or editor action.
+
+The architecture lock assigns the durable PDF operation, caller-key binding,
+tenant/principal scope, attempts, deadline, cancellation, storage, projection,
+observability, and routes to Backend. Existing backend artifact execution,
+byte-store, and composition-worker evidence may be adapted behind explicit PDF
+contracts and tests; none is accepted as a production binding from shape alone.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_V_ARCHITECTURE_LOCK.md`;
+- `src/generation/pdfExportProductionBaselineV1.ts`;
+- `tests/pdfExportProductionLifecycleV1.test.ts`;
+- `tests/pdfExportProductionBaselineV1.test.ts`.
+
+Next phase: `PDF-EXPORT-V-B` backend durable PDF operation repository and
+caller-key idempotency binding, with route and worker execution still closed.
+
+## PDF-EXPORT-V-B Durable Operation And Caller-Key Binding
+
+Status: backend immutable admission operation, scoped caller-key binding, and
+SQLite restart/fault evidence accepted; lifecycle, terminal receipt replay,
+auth execution, and production activation remain blocked.
+
+V-B wraps the exact Core admission in a backend-owned immutable operation. The
+record binds one operation id, tenant, principal, caller idempotency key, Core
+payload fingerprint, complete admission, admission fingerprint, and exact
+acceptance time. Operation and admission drift fail closed.
+
+Repository uniqueness is `(tenantId, principalId, callerIdempotencyKey)`. The
+first valid payload creates one operation, an exact duplicate returns that
+original operation even when a retry proposes another operation id, and a
+different payload conflicts. Different tenant or principal scopes can reuse a
+caller key independently.
+
+The backend adds provider-neutral repository behavior plus in-memory and Node
+SQLite adapters. SQLite uses a strict table, WAL, full synchronization, one
+immediate admission transaction, exact JSON/column projection checks, and
+before/after-commit fault injection. Tests retain exact replay after reopen,
+place faults on one side of commit, and admit one owner across independent
+handles.
+
+V-B retains scope facts but performs no authentication or permission decision.
+It also creates no lifecycle head, worker, timer, cancellation, renderer,
+artifact storage, manifest/job projection, event sink, route, editor behavior,
+deployment, or production flag. Full terminal idempotency remains pending the
+retained production receipt in a later phase.
+
+Primary backend evidence:
+
+- `docs/PDF_EXPORT_DURABLE_OPERATION_IDEMPOTENCY.md`;
+- `src/pdfExport/pdfExportOperation.ts`;
+- `src/pdfExport/pdfExportOperationRepository.ts`;
+- `src/pdfExport/pdfExportOperationSqliteRepository.ts`;
+- `src/tests/pdfExportOperation.test.ts`;
+- `src/tests/pdfExportOperationRepository.test.ts`.
+
+Follow-up: `PDF-EXPORT-V-C` implements the PDF lifecycle head/journal described
+below with bounded claim/replay, attempts, deadline, cancellation checkpoints,
+and shutdown drain.
+
+## PDF-EXPORT-V-C Lifecycle Head, Transition Replay, And Drain
+
+Status: backend revisioned lifecycle head, atomic transition journal, bounded
+claim/reclaim and attempts, deadline and three checkpoint-cancellation
+decisions, SQLite restart/fault/concurrency evidence, and process-local drain
+accepted; renderer, terminal receipt, bytes, auth, routes, and production
+activation remain blocked.
+
+V-C keeps the V-B admission operation immutable and binds a separate lifecycle
+head to its operation, admission, and payload fingerprints. Every successful
+transition advances one compare-and-swap revision and retains an immutable
+receipt with the normalized request fingerprint and exact post-transition head
+snapshot. Exact redelivery returns that original snapshot even after the live
+head advances; altered transition reuse conflicts and new work on an old
+revision is stale.
+
+Claims have bounded worker/token identity and expiry, increment the admitted
+attempt budget exactly once, reject live competing owners, and allow expiry
+reclaim. Retry release and expiry reclaim reset to `before-handoff`, so a new
+owner cannot resume unpersisted render progress. Cancellation is immediate for
+pending work and retained for claimed
+work until the owning worker checks `before-handoff`, `before-render`, or
+`before-persist`. Deadline and forced-shutdown transitions stop pending or
+claimed work explicitly.
+
+The SQLite adapter commits head and transition receipt atomically under
+`BEGIN IMMEDIATE`, validates exact JSON/column projections, survives reopen,
+places injected faults on one side of commit, and retains one winner across
+independent handles. The drain gate rejects new process-local claim
+reservations, waits for active reservations, and reports forced abandonment;
+it does not provide durable multi-process coordination.
+
+Primary backend evidence:
+
+- `docs/PDF_EXPORT_LIFECYCLE_WORKER_CONTROL.md`;
+- `src/pdfExport/pdfExportLifecycle.ts`;
+- `src/pdfExport/pdfExportLifecycleRepository.ts`;
+- `src/pdfExport/pdfExportLifecycleSqliteRepository.ts`;
+- `src/pdfExport/pdfExportShutdownDrain.ts`;
+- `src/tests/pdfExportLifecycleRepository.test.ts`;
+- `src/tests/pdfExportShutdownDrain.test.ts`.
+
+Follow-up: `PDF-EXPORT-V-D` implements the exact renderer adapter, cooperative
+mid-render cancellation protocol, and runtime candidate qualification below.
+Concrete renderer selection, routes, and production activation remain closed.
+
+## PDF-EXPORT-V-D Exact Renderer Adapter And Cooperative Control
+
+Status: backend exact Core handoff/receipt/completion adapter, V-C lifecycle
+binding, cooperative async cancellation protocol, runtime candidate
+qualification, replay/failure evidence, and validated in-memory bytes accepted;
+concrete production renderer selection, persistence, routes, auth, and
+activation remain blocked.
+
+V-D recreates the Phase T handoff and requires every admitted request,
+handoff, source-contract, content, renderer-profile, and measurement-profile
+identity before advancing `before-render`. The renderer receives only the exact
+Core input and must call an asynchronous control at bounded monotonic paint-
+command checkpoints.
+
+Each control call reloads durable V-C state and stops on cancellation,
+deadline, claim expiry/ownership loss, lifecycle unavailability, or invalid
+checkpoint coverage. Candidate output is discarded unless PDF bytes match
+length, SHA-256, page, profile, and contract evidence; Core then creates the
+exact receipt and production render completion before a durable
+`before-persist` check.
+
+Tests prove successful in-memory bytes only at `ready-for-persistence`, durable
+before-render transition replay, stale source/profile/runtime rejection,
+checkpoint and byte drift, output limit enforcement, renderer exception
+containment, mid-render cancellation, and deadline stop.
+
+The qualification record is `qualified-candidate` and explicitly retains
+`concreteProductionRendererSelected = false`. The synchronous pilot is not
+promoted, so production renderer profile promotion remains a carried activation
+blocker.
+
+Primary backend evidence:
+
+- `docs/PDF_EXPORT_RENDERER_ADAPTER_QUALIFICATION.md`;
+- `src/pdfExport/pdfExportRendererQualification.ts`;
+- `src/pdfExport/pdfExportRendererAttempt.ts`;
+- `src/tests/pdfExportRendererQualification.test.ts`;
+- `src/tests/pdfExportRendererAttempt.test.ts`.
+
+Next phase: `PDF-EXPORT-V-E` durable content-addressed bytes, read-after-write
+verification, artifact manifest/job CAS projection, and bounded orphan
+recovery. Route and production activation remain closed.
+
+## PDF-EXPORT-V-E Durable Bytes And Atomic Artifact Projection
+
+Status: backend content-addressed byte publication, physical readback,
+transactional manifest/job CAS, terminal receipt replay, restart/fault
+evidence, and bounded orphan recovery accepted as a persistence candidate;
+production provider/deployment, observability, routes, auth, concrete renderer,
+and activation remain blocked.
+
+V-E accepts only an exact V-D `ready-for-persistence` result while its live V-C
+head still owns the checked `before-persist` claim. Bytes are validated against
+the Core receipt/completion, written and synced under a SHA-256-only PDF key,
+atomically published, then read and hashed again before rendered metadata is
+created.
+
+The SQLite adapter performs revision-zero manifest CAS before job CAS inside
+one `BEGIN IMMEDIATE` transaction and retains a fingerprinted terminal receipt.
+Tests prove exact replay after reopen, one owner across independent handles,
+rollback after manifest CAS, job CAS, and before commit, after-commit recovery,
+identity conflict, physical corruption rejection, and no metadata on readback
+failure.
+
+Grace-based orphan reconciliation caps scan and delete work, checks references
+twice, deletes only old unreferenced content, and returns no PDF bytes. V-E does
+not mutate the V-C lifecycle after projection; end-to-end worker finalization
+and privacy-safe events remain V-F work.
+
+Primary backend evidence:
+
+- `docs/PDF_EXPORT_DURABLE_ARTIFACT_PERSISTENCE.md`;
+- `src/pdfExport/pdfExportContentAddressedStore.ts`;
+- `src/pdfExport/pdfExportArtifactPersistence.ts`;
+- `src/pdfExport/pdfExportArtifactPersistenceSqliteRepository.ts`;
+- `src/tests/pdfExportContentAddressedStore.test.ts`;
+- `src/tests/pdfExportArtifactPersistence.test.ts`;
+- `src/tests/pdfExportArtifactPersistenceSqlite.test.ts`.
+
+Follow-up V-F is recorded below. Route and production activation remain
+closed.
+
+## PDF-EXPORT-V-F Privacy-Safe Observability And Workflow Qualification
+
+Status: backend closed-schema privacy-safe event journal, atomic terminal
+workflow completion, end-to-end V-B through V-E composition, and full SQLite
+restart/fault evidence accepted as candidates; production event/storage
+providers, worker hosting, auth, routes, concrete renderer, deployment, and
+activation remain blocked.
+
+V-F checks terminal workflow completion and retained physical V-E bytes before
+renderer execution. When work is incomplete it exactly replays V-B admission,
+resumes the retained V-C lifecycle, invokes V-D only while verified bytes are
+absent, and atomically commits the terminal event chain and workflow completion
+after V-E persistence.
+
+The event schema accepts only the Core lifecycle vocabulary and dimensions. It
+cannot represent source text, PDF bytes, raw tenant/principal values, free-form
+messages, or arbitrary payloads. Each record fingerprints the previous event;
+SQLite commits the whole chain and completion together, rolls both back on
+pre-commit faults, and reopens an after-commit fault as exact terminal replay.
+
+Full-stack qualification closes and reopens independent V-B, V-C, V-E, and
+V-F SQLite repositories after operation admission, lifecycle readiness,
+renderer completion, and persistence. A render-stage interruption rerenders
+because bytes are absent; a post-persistence interruption verifies and reuses
+retained bytes; a later terminal restart executes neither renderer nor
+persistence.
+
+Primary backend evidence:
+
+- `docs/PDF_EXPORT_PRIVACY_OBSERVABILITY_QUALIFICATION.md`;
+- `src/pdfExport/pdfExportObservability.ts`;
+- `src/pdfExport/pdfExportObservabilitySqliteRepository.ts`;
+- `src/pdfExport/pdfExportWorkflow.ts`;
+- `src/tests/pdfExportObservability.test.ts`;
+- `src/tests/pdfExportObservabilitySqlite.test.ts`;
+- `src/tests/pdfExportWorkflow.test.ts`;
+- `src/tests/pdfExportWorkflowSqliteQualification.test.ts`.
+
+Follow-up V-G and its carried activation blockers are recorded below.
+
+## PDF-EXPORT-V-G Authenticated Routes And Activation Review
+
+Status: unmounted authenticated request/status/cancel/download HTTP candidate,
+credential-derived tenant/principal scope, per-action authorization, redacted
+status, cancellation replay, verified terminal download, and SQLite restart
+evidence accepted; production activation decision NO-GO.
+
+Backend accepts only a closed document pin plus caller `Idempotency-Key` for a
+new request. Identity comes from the authenticator, while a trusted injected
+resolver owns source, measured contract, policy, and generated identities.
+Exact request replay repairs lifecycle if operation admission survived alone.
+Scoped operation reads return not-found across principals before authorization,
+and public status omits scope, storage, credentials, and internal fingerprints.
+
+Cancellation executes authorization, checks terminal and persisted evidence,
+then applies one fingerprinted V-C cancellation transition. V-F now reads
+verified V-E persistence before interpreting stopped lifecycle evidence, so a
+late cancellation cannot relabel committed bytes. Download requires exact
+V-F completion, V-E receipt, immutable operation identity, and physical byte
+length/SHA-256; every failure returns no bytes.
+
+Focused tests cover authentication/authorization failure, body identity
+spoofing, scope concealment, request/cancel replay and conflict, admission-only
+repair, status redaction, late-cancellation precedence, corruption, HTTP body
+limits and headers. SQLite qualification reopens cancellation replay and
+completed status/download across all durable repositories.
+
+Activation remains NO-GO. No production authentication/authorization policy,
+source resolver, renderer, worker host, byte/metadata storage, telemetry and
+retention provider, default server mount, rate limit, TLS/secrets policy,
+deployment, or rollout/rollback plan is selected.
+
+Primary backend evidence:
+
+- `docs/PDF_EXPORT_AUTHENTICATED_ROUTE_ACTIVATION_REVIEW.md`;
+- `src/pdfExport/pdfExportRoute.ts`;
+- `src/pdfExport/pdfExportHttpHandler.ts`;
+- `src/tests/pdfExportRoute.test.ts`;
+- `src/tests/pdfExportHttpHandler.test.ts`;
+- `src/tests/pdfExportRouteSqliteQualification.test.ts`;
+- `src/tests/pdfExportWorkflow.test.ts`.
+
+`PDF-EXPORT-V` is closed at candidate level. Editor workflow, provider
+promotion, application-server wiring, deployment, and production activation
+remain intentionally unchanged.
+
+## PDF-EXPORT-LOCAL-A Local-First Runtime Architecture Lock
+
+Status: local-only runtime topology, profile isolation, cross-repo ownership,
+eligibility lanes, implementation order, readiness exit gate, and production
+promotion prohibition accepted; runtime implementation remains pending.
+
+LOCAL-A retains all V-A through V-G contracts and the production activation
+NO-GO. The accepted local-integration profile uses dedicated loopback-only HTTP
+and worker entry points, PostgreSQL metadata, S3-compatible local byte storage,
+the V-D generic renderer SPI, credential-derived local identity, trusted
+admission/resource resolution, and Editor access through a same-origin
+development proxy. Unit evidence remains on in-memory/SQLite/filesystem
+adapters; local integration may not silently fall back to them.
+
+The first renderer lane exports only the exact canonical evidence workload.
+Arbitrary product documents remain ineligible until trusted measurement and
+resource resolvers can produce their complete exact handoff. LOCAL-B through
+LOCAL-G then qualify renderer checkpoints, local durable providers, due-work
+worker lifecycle, the opt-in local server, Editor integration, and end-to-end
+readiness in that order.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`;
+- `docs/PDF_EXPORT_V_ARCHITECTURE_LOCK.md`;
+- `docs/PDF_EXPORT_PRODUCTION_BASELINE.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_AUTHENTICATED_ROUTE_ACTIVATION_REVIEW.md`.
+
+Next phase: `PDF-EXPORT-LOCAL-B` generic renderer SPI audit and canonical local
+adapter with bounded cooperative paint-command checkpoints. Storage, worker,
+route mounting, Editor integration, and production remain closed.
+
+## PDF-EXPORT-LOCAL-B Controlled Local Renderer Adapter
+
+Status: V-D generic SPI reuse, renderer-only pilot package surface, controlled
+one-page/canonical execution, Backend local adapter, trusted resource resolver,
+and exact byte/cancellation evidence accepted; persistence and activation
+remain blocked.
+
+LOCAL-B keeps the synchronous pilot API and PDF serialization semantics intact.
+The controlled path uses the same paint-command writer, checks initial, bounded
+interval, and terminal command indexes, and returns no bytes on cancellation.
+The Backend adapter binds profile and interval into its implementation
+fingerprint and passes the existing V-D lifecycle, qualification, Core receipt,
+and render-completion gates.
+
+The canonical local run retains 13 pages, 1,814 commands, 1,212,656 bytes, and
+SHA-256
+`c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b`
+across 30 checkpoints with a maximum gap of 64. External image evidence remains
+outside the repositories.
+
+Primary evidence:
+
+- `packages/pdf-renderer-pilot/src/index.ts`;
+- `packages/pdf-renderer-pilot/src/full.ts`;
+- `tests/pdfRendererPilotControlledExecution.test.ts`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalRenderer.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalRenderer.test.ts`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_RENDERER_ADAPTER.md`.
+
+Next phase: `PDF-EXPORT-LOCAL-C` local PostgreSQL metadata and S3-compatible
+byte-provider adapters. Worker hosting, route mounting, Editor integration, and
+production remain closed.
+
+## PDF-EXPORT-LOCAL-C Local PostgreSQL And S3-Compatible Adapters
+
+Status: loopback-only PostgreSQL metadata adapters, S3-compatible
+content-addressed byte storage, explicit schema/bucket setup, pinned local
+tooling, and real-provider restart/fault evidence accepted. Worker hosting,
+route mounting, Editor integration, readiness, and production remain blocked.
+
+LOCAL-C keeps the existing V-B through V-F repository and content-store
+interfaces. PostgreSQL retains scoped operation admission, revisioned lifecycle
+state, ordered artifact projections, and atomic terminal evidence. The object
+store conditionally publishes SHA-256-addressed bytes, verifies physical
+readback, and exposes bounded identity-bound cursors for orphan traversal.
+Neither provider can target a remote host or fall back to SQLite/filesystem in
+the local-integration profile.
+
+Actual PostgreSQL 17.10 and MinIO evidence proves exact terminal replay after
+provider restart, one caller-key and lifecycle-claim winner across independent
+pools, recovery around all accepted commit boundaries, and multi-page orphan
+enumeration without first-prefix starvation. Import remains inert and
+production binding remains false.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_POSTGRES_S3_ADAPTERS.md`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalPostgresRepositories.ts`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportS3ContentAddressedStore.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalProviderContracts.test.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalProviders.integration.test.ts`.
+
+Next phase: `PDF-EXPORT-LOCAL-D` durable due-work discovery and a dedicated
+local worker lifecycle. Route mounting, Editor integration, readiness, and
+production remain closed.
+
+## PDF-EXPORT-LOCAL-D Durable Due Work And Worker Lifecycle
+
+Status: bounded PostgreSQL due-work discovery, one-owner execution, expiry
+reclaim, stopped terminal finalization, explicit-start concurrency-one host,
+shutdown drain, and orphan-maintenance cadence accepted. Concrete local
+composition/HTTP, Editor, readiness, and production remain blocked.
+
+Due discovery is read-only and keyset-bounded across pending, expired-claim,
+and stopped-without-terminal lanes. Completed workflows are excluded even when
+their retained lifecycle claim later expires. Duplicate page observation is
+allowed; lifecycle revision/fingerprint CAS admits one execution owner.
+
+The runner checks terminal and immutable operation evidence before claim,
+reconciles uncertain claim/release responses by readback, never releases when
+terminal state is unknown, and finishes stopped evidence without rendering.
+The host performs fresh bounded scans at concurrency one, wakes into graceful
+drain, applies durable force shutdown, and schedules one resumable orphan page
+after due work. Import starts no loop or timer.
+
+Actual PostgreSQL/MinIO evidence proves one owner after two pools observe the
+same page, attempt-two expiry reclaim after provider restart, and stopped
+terminal finalization after restart. The dedicated command remains fail-closed
+until an explicit concrete trusted composition factory is selected. LOCAL-E
+now supplies that in-checkout local factory without changing LOCAL-D worker
+behavior.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_DURABLE_WORKER.md`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportDueWork.ts`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalWorker.ts`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalWorkerHost.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalWorker.test.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalProviders.integration.test.ts`.
+
+Next phase: `PDF-EXPORT-LOCAL-E` concrete local composition factory and
+loopback-only PDF HTTP process. Editor, readiness, and production remain
+closed.
+
+## PDF-EXPORT-LOCAL-E Loopback HTTP And Concrete Local Composition
+
+Status: digest-pinned canonical resolver, concrete local provider/renderer
+composition, separate loopback-only PDF HTTP process, and dedicated worker
+factory accepted. Editor integration, readiness, and production remain
+blocked.
+
+The resolver accepts only the retained canonical document revision and checks
+the exact Core bundle, two font manifests, font source/subset bytes, and five
+image digests before use. It cannot substitute the one-page fixture or admit
+an arbitrary product document. Local bearer authentication derives one scope
+from the credential, while request/read/cancel/download authorization remains
+action-specific.
+
+The HTTP listener starts only explicitly on `127.0.0.1`, adds no CORS, mounts
+outside the default Backend server, and never starts a worker. The existing
+dedicated worker command selects the in-checkout LOCAL-E factory and retains
+concurrency one, bounded claims, restart replay, drain, and orphan maintenance.
+
+Separate HTTP and worker PostgreSQL pools/S3 clients pass the actual canonical
+POST-to-download lane against PostgreSQL 17.10 and pinned MinIO. The output is
+13 pages, `1212656` bytes, and the retained SHA-256; caller-key replay returns
+the same terminal operation and a later worker cycle invokes no work. The
+portable provider suite passes `20/20`.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_HTTP_COMPOSITION.md`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalCanonicalEvidence.ts`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalComposition.ts`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalHttpServer.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalComposition.test.ts`; and
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalProviders.integration.test.ts`.
+
+Next phase: `PDF-EXPORT-LOCAL-F` Editor eligibility/request/status/cancel/
+download integration through a development-only same-origin proxy. Readiness
+and production remain closed.

@@ -9,7 +9,7 @@ import {
   type FlowDocCanonicalReportBodyDisplayListBundleV1,
   type FlowDocPdfRendererPilotFontResource,
   type FlowDocPdfRendererPilotImageResource,
-} from "../src/index.js"
+} from "../src/full.js"
 
 const IMAGE_FILES = [
   ["source-evidence-image", "source_evidence.png"],

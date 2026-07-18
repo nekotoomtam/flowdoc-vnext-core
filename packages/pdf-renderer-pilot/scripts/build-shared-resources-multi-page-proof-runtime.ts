@@ -4,7 +4,7 @@ import {
   createVNextPdfMeasuredDrawContractV1,
   type VNextPdfMeasuredDrawContractRequestV1,
 } from "../../../src/index.js"
-import { renderFlowDocSharedResourcesMultiPagePdfPilot } from "../src/index.js"
+import { renderFlowDocSharedResourcesMultiPagePdfPilot } from "../src/full.js"
 
 interface SubsetManifest {
   subsetId: string

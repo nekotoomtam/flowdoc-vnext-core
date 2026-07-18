@@ -12,7 +12,7 @@ import {
   renderFlowDocCanonicalTwelvePageReportPdfPilot,
   type FlowDocPdfRendererPilotFontResource,
   type FlowDocPdfRendererPilotImageResource,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 
 const IMAGE_IDS = [
   "source-evidence-image",

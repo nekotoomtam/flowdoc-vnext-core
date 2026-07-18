@@ -10,7 +10,7 @@ import {
 import {
   validateFlowDocCanonicalReportTemplateResolutionBundleV1,
   type FlowDocCanonicalReportTemplateResolutionBundleV1,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 import type { FlowDocCanonicalReportDataBundleV1 } from "../packages/pdf-renderer-pilot/src/canonicalReportDataAdapter.js"
 
 function readJson<T>(path: string): T {

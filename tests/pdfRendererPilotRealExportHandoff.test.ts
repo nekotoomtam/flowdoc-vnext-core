@@ -11,7 +11,7 @@ import {
 import {
   executeFlowDocPdfExportHandoffV1,
   type FlowDocPdfRendererPilotFontResource,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 
 interface SubsetManifest {
   subsetId: string

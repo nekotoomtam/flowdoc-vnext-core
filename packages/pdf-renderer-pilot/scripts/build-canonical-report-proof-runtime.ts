@@ -4,7 +4,7 @@ import {
   createVNextPdfMeasuredDrawContractV1,
   type VNextPdfMeasuredDrawContractRequestV1,
 } from "../../../src/index.js"
-import { renderFlowDocCanonicalTwelvePageReportPdfPilot } from "../src/index.js"
+import { renderFlowDocCanonicalTwelvePageReportPdfPilot } from "../src/full.js"
 
 const IMAGE_FILES = [
   ["source-evidence-image", "source_evidence.png"],

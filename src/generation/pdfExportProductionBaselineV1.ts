@@ -5,6 +5,7 @@ import {
   createVNextPdfExportReceiptV1,
   type VNextPdfExportReceiptV1,
   type VNextPdfExportRequestV1,
+  type VNextPdfExportSourceIdentityV1,
 } from "./pdfExportHandoffV1.js"
 
 export const VNEXT_PDF_EXPORT_PRODUCTION_BASELINE_V1_SOURCE = "vnext-pdf-export-production-baseline" as const
@@ -166,6 +167,130 @@ export type VNextPdfExportProductionBaselineResultV1 =
   | { status: "accepted"; baseline: VNextPdfExportProductionBaselineV1; issues: [] }
   | { status: "blocked"; baseline: null; issues: VNextPdfExportProductionBaselineIssueV1[] }
 
+export const VNEXT_PDF_EXPORT_PRODUCTION_ADMISSION_V1_SOURCE =
+  "vnext-pdf-export-production-admission" as const
+export const VNEXT_PDF_EXPORT_PRODUCTION_ADMISSION_V1_VERSION = 1 as const
+export const VNEXT_PDF_EXPORT_PRODUCTION_RENDER_COMPLETION_V1_SOURCE =
+  "vnext-pdf-export-production-render-completion" as const
+export const VNEXT_PDF_EXPORT_PRODUCTION_RENDER_COMPLETION_V1_VERSION = 1 as const
+
+export type VNextPdfExportProductionMeasuredResourceFactsV1 = Omit<
+  VNextPdfExportProductionBaselineV1["resources"]["actual"],
+  "outputByteLength"
+>
+
+export interface VNextPdfExportProductionAdmissionV1 {
+  source: typeof VNEXT_PDF_EXPORT_PRODUCTION_ADMISSION_V1_SOURCE
+  contractVersion: typeof VNEXT_PDF_EXPORT_PRODUCTION_ADMISSION_V1_VERSION
+  kind: "pdf-export-production-admission"
+  admissionId: string
+  policy: VNextPdfExportProductionPolicyV1
+  exportIdentity: {
+    exportRequestId: string
+    artifactId: string
+    requestFingerprint: string
+    handoffFingerprint: string
+    sourceIdentity: VNextPdfExportSourceIdentityV1
+    sourceContractFingerprint: string
+    sourceContractContentFingerprint: string
+    rendererProfileId: string
+    measurementProfileId: string
+  }
+  idempotency: VNextPdfExportProductionBaselineV1["idempotency"]
+  lifecycle: VNextPdfExportProductionBaselineV1["lifecycle"]
+  resources: {
+    measured: VNextPdfExportProductionMeasuredResourceFactsV1
+    limits: VNextPdfExportProductionPolicyV1["resources"]
+    measuredWithinLimits: true
+    outputByteLength: "pending-render"
+    postRenderByteLimitRequired: true
+  }
+  activation: VNextPdfExportProductionBaselineV1["activation"]
+  contracts: {
+    preRenderAdmission: true
+    exactSourceRevalidated: true
+    exactMeasuredContractRevalidated: true
+    idempotencyPayloadDerived: true
+    outputByteLimitDeferred: true
+    rendererExecution: false
+    deadlineExecution: false
+    cancellationExecution: false
+    storageWrites: false
+    manifestOrJobMutation: false
+    observabilityWrites: false
+    backendRoute: false
+    productionBinding: false
+  }
+  admissionFingerprint: string
+}
+
+export type VNextPdfExportProductionAdmissionResultV1 =
+  | { status: "admitted"; admission: VNextPdfExportProductionAdmissionV1; issues: [] }
+  | { status: "blocked"; admission: null; issues: VNextPdfExportProductionBaselineIssueV1[] }
+
+export interface VNextPdfExportProductionRenderCompletionV1 {
+  source: typeof VNEXT_PDF_EXPORT_PRODUCTION_RENDER_COMPLETION_V1_SOURCE
+  contractVersion: typeof VNEXT_PDF_EXPORT_PRODUCTION_RENDER_COMPLETION_V1_VERSION
+  kind: "pdf-export-production-render-completion"
+  completionId: string
+  admissionId: string
+  admissionFingerprint: string
+  idempotencyPayloadFingerprint: string
+  exportIdentity: {
+    exportRequestId: string
+    artifactId: string
+    requestFingerprint: string
+    handoffFingerprint: string
+    receiptFingerprint: string
+    sourceContractFingerprint: string
+    sourceContractContentFingerprint: string
+    rendererProfileId: string
+    measurementProfileId: string
+  }
+  artifact: {
+    artifactId: string
+    format: "pdf"
+    mediaType: "application/pdf"
+    pageCount: number
+    byteLength: number
+    sha256: string
+    storageStatus: "not-stored"
+    storageKey: null
+  }
+  resources: {
+    actual: VNextPdfExportProductionBaselineV1["resources"]["actual"]
+    limits: VNextPdfExportProductionPolicyV1["resources"]
+    allWithinLimits: true
+  }
+  storage: VNextPdfExportProductionBaselineV1["storage"] & {
+    nextAction: "persist-content-addressed-bytes"
+  }
+  activation: VNextPdfExportProductionBaselineV1["activation"]
+  contracts: {
+    postRenderValidation: true
+    exactAdmissionRevalidated: true
+    exactReceiptRevalidated: true
+    readyForPersistence: true
+    carriesBytes: false
+    byteContentVerified: false
+    workerExecution: false
+    storageWrites: false
+    manifestOrJobMutation: false
+    observabilityWrites: false
+    backendRoute: false
+    productionBinding: false
+  }
+  completionFingerprint: string
+}
+
+export type VNextPdfExportProductionRenderCompletionResultV1 =
+  | {
+      status: "ready-for-persistence"
+      completion: VNextPdfExportProductionRenderCompletionV1
+      issues: []
+    }
+  | { status: "blocked"; completion: null; issues: VNextPdfExportProductionBaselineIssueV1[] }
+
 const CANCELLATION_CHECKPOINTS = ["before-handoff", "before-render", "before-persist"] as const
 const STORAGE_TARGETS = ["artifact-manifest", "artifact-job"] as const
 const STORAGE_COMMIT_ORDER = [
@@ -269,6 +394,72 @@ function validatePolicy(
   boundedInteger(policy.resources.maxOutputByteLength, 1, VNEXT_PDF_EXPORT_PRODUCTION_ABSOLUTE_LIMITS_V1.outputByteLength, "policy.resources.maxOutputByteLength", issues)
 }
 
+function idempotencyPayloadFingerprint(
+  request: VNextPdfExportRequestV1,
+  policy: VNextPdfExportProductionPolicyV1,
+): string {
+  return createVNextCompactFingerprint(JSON.stringify({
+    source: VNEXT_PDF_EXPORT_PRODUCTION_BASELINE_V1_SOURCE,
+    scope: "source-revision-request-contract-and-policy",
+    exportRequestId: request.exportRequestId,
+    artifactId: request.artifactId,
+    requestFingerprint: request.requestFingerprint,
+    sourceIdentity: request.expectedSource,
+    sourceContractFingerprint: request.measuredDrawContract.fingerprint,
+    sourceContractContentFingerprint: request.measuredDrawContract.contentFingerprint,
+    policy,
+  }))
+}
+
+function idempotencyFacts(
+  request: VNextPdfExportRequestV1,
+  policy: VNextPdfExportProductionPolicyV1,
+): VNextPdfExportProductionBaselineV1["idempotency"] {
+  return {
+    payloadFingerprint: idempotencyPayloadFingerprint(request, policy),
+    backendKeyRequired: true,
+    scope: "source-revision-request-contract-and-policy",
+    duplicateInFlight: "return-existing-operation",
+    duplicateTerminal: "return-existing-receipt",
+    conflictingPayload: "reject",
+    stageKeysDerivedByBackend: true,
+  }
+}
+
+function lifecycleFacts(
+  policy: VNextPdfExportProductionPolicyV1,
+): VNextPdfExportProductionBaselineV1["lifecycle"] {
+  return {
+    maxAttempts: policy.maxAttempts,
+    executionDeadlineMs: policy.executionDeadlineMs,
+    cancellationCheckpoints: [...CANCELLATION_CHECKPOINTS],
+    midRenderCancellationRequired: true,
+    drainPolicy: "reject-new-then-finish-or-cancel-in-flight",
+    automaticLoop: false,
+    stopReasons: [...STOP_REASONS],
+  }
+}
+
+function activationFacts(): VNextPdfExportProductionBaselineV1["activation"] {
+  return {
+    status: "blocked",
+    requiredBindings: [...REQUIRED_BINDINGS],
+    satisfiedBindings: [],
+    productionBinding: false,
+  }
+}
+
+function storageFacts(): VNextPdfExportProductionBaselineV1["storage"] {
+  return {
+    projectionTargets: [...STORAGE_TARGETS],
+    commitOrder: [...STORAGE_COMMIT_ORDER],
+    metadataBeforeBytes: false,
+    readAfterWriteIntegrityRequired: true,
+    orphanCleanupPolicyRequired: true,
+    writesExecuted: false,
+  }
+}
+
 function sameReceipt(left: VNextPdfExportReceiptV1, right: VNextPdfExportReceiptV1): boolean {
   return left.source === right.source
     && left.contractVersion === right.contractVersion
@@ -304,12 +495,13 @@ function sameReceipt(left: VNextPdfExportReceiptV1, right: VNextPdfExportReceipt
 
 function revalidateReceipt(input: {
   request: VNextPdfExportRequestV1
+  currentSource?: VNextPdfExportSourceIdentityV1
   measuredDrawContract: VNextPdfMeasuredDrawContractResultV1
   receipt: VNextPdfExportReceiptV1
 }, issues: VNextPdfExportProductionBaselineIssueV1[]) {
   const handoff = createVNextPdfExportHandoffV1({
     request: input.request,
-    currentSource: input.request.expectedSource,
+    currentSource: input.currentSource ?? input.request.expectedSource,
     measuredDrawContract: input.measuredDrawContract,
   })
   if (handoff.status !== "ready") {
@@ -368,8 +560,22 @@ function resourceFacts(contract: Extract<VNextPdfMeasuredDrawContractResultV1, {
   }
 }
 
-function validateResourceFacts(
-  actual: ReturnType<typeof resourceFacts> & { outputByteLength: number },
+function validateResourceComparison(
+  name: string,
+  path: string,
+  value: number,
+  limit: number,
+  issues: VNextPdfExportProductionBaselineIssueV1[],
+): void {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    issues.push(issue("production-resource-fact-invalid", path, `${name} must be a nonnegative safe integer`))
+  } else if (value > limit) {
+    issues.push(issue("production-resource-limit-exceeded", path, `${name} ${value} exceeds limit ${limit}`))
+  }
+}
+
+function validateMeasuredResourceFacts(
+  actual: ReturnType<typeof resourceFacts>,
   limits: VNextPdfExportProductionPolicyV1["resources"],
   issues: VNextPdfExportProductionBaselineIssueV1[],
 ): void {
@@ -381,15 +587,248 @@ function validateResourceFacts(
     ["image-asset-count", "resources.actual.imageAssetCount", actual.imageAssetCount, limits.maxImageAssetCount],
     ["single-image-pixel-count", "resources.actual.maxSingleImagePixelCount", actual.maxSingleImagePixelCount, limits.maxSingleImagePixelCount],
     ["total-image-pixel-count", "resources.actual.totalImagePixelCount", actual.totalImagePixelCount, limits.maxTotalImagePixelCount],
-    ["output-byte-length", "resources.actual.outputByteLength", actual.outputByteLength, limits.maxOutputByteLength],
   ] as const
   comparisons.forEach(([name, path, value, limit]) => {
-    if (!Number.isSafeInteger(value) || value < 0) {
-      issues.push(issue("production-resource-fact-invalid", path, `${name} must be a nonnegative safe integer`))
-    } else if (value > limit) {
-      issues.push(issue("production-resource-limit-exceeded", path, `${name} ${value} exceeds limit ${limit}`))
-    }
+    validateResourceComparison(name, path, value, limit, issues)
   })
+}
+
+function validateResourceFacts(
+  actual: ReturnType<typeof resourceFacts> & { outputByteLength: number },
+  limits: VNextPdfExportProductionPolicyV1["resources"],
+  issues: VNextPdfExportProductionBaselineIssueV1[],
+): void {
+  validateMeasuredResourceFacts(actual, limits, issues)
+  validateResourceComparison(
+    "output-byte-length",
+    "resources.actual.outputByteLength",
+    actual.outputByteLength,
+    limits.maxOutputByteLength,
+    issues,
+  )
+}
+
+export function createVNextPdfExportProductionAdmissionV1(input: {
+  admissionId: string
+  request: VNextPdfExportRequestV1
+  currentSource: VNextPdfExportSourceIdentityV1
+  measuredDrawContract: VNextPdfMeasuredDrawContractResultV1
+  policy: VNextPdfExportProductionPolicyV1
+}): VNextPdfExportProductionAdmissionResultV1 {
+  const issues: VNextPdfExportProductionBaselineIssueV1[] = []
+  if (typeof input.admissionId !== "string"
+    || input.admissionId.trim().length === 0
+    || input.admissionId.length > 512) {
+    issues.push(issue(
+      "production-admission-id-invalid",
+      "admissionId",
+      "admissionId must be nonblank and at most 512 characters",
+    ))
+  }
+  validatePolicy(input.policy, issues)
+  const handoff = createVNextPdfExportHandoffV1({
+    request: input.request,
+    currentSource: input.currentSource,
+    measuredDrawContract: input.measuredDrawContract,
+  })
+  if (handoff.status !== "ready") {
+    handoff.issues.forEach((item, index) => issues.push(issue(
+      "phase-t-handoff-invalid",
+      `handoff.issues[${index}].${item.path}`,
+      `${item.code}: ${item.message}`,
+    )))
+  }
+  if (input.measuredDrawContract.status !== "consumable") {
+    issues.push(issue(
+      "measured-contract-blocked",
+      "measuredDrawContract",
+      "production admission requires a consumable measured contract",
+    ))
+  }
+  const measured = input.measuredDrawContract.status === "consumable"
+    ? resourceFacts(input.measuredDrawContract)
+    : null
+  if (measured != null) validateMeasuredResourceFacts(measured, input.policy.resources, issues)
+  if (issues.length > 0 || handoff.status !== "ready" || measured == null) {
+    return { status: "blocked", admission: null, issues }
+  }
+
+  const facts = {
+    source: VNEXT_PDF_EXPORT_PRODUCTION_ADMISSION_V1_SOURCE,
+    contractVersion: VNEXT_PDF_EXPORT_PRODUCTION_ADMISSION_V1_VERSION,
+    kind: "pdf-export-production-admission" as const,
+    admissionId: input.admissionId,
+    policy: structuredClone(input.policy),
+    exportIdentity: {
+      exportRequestId: input.request.exportRequestId,
+      artifactId: input.request.artifactId,
+      requestFingerprint: input.request.requestFingerprint,
+      handoffFingerprint: handoff.handoffFingerprint,
+      sourceIdentity: structuredClone(input.currentSource),
+      sourceContractFingerprint: input.request.measuredDrawContract.fingerprint,
+      sourceContractContentFingerprint: input.request.measuredDrawContract.contentFingerprint,
+      rendererProfileId: input.request.measuredDrawContract.rendererProfileId,
+      measurementProfileId: input.request.measuredDrawContract.measurementProfileId,
+    },
+    idempotency: idempotencyFacts(input.request, input.policy),
+    lifecycle: lifecycleFacts(input.policy),
+    resources: {
+      measured: structuredClone(measured),
+      limits: structuredClone(input.policy.resources),
+      measuredWithinLimits: true as const,
+      outputByteLength: "pending-render" as const,
+      postRenderByteLimitRequired: true as const,
+    },
+    activation: activationFacts(),
+    contracts: {
+      preRenderAdmission: true as const,
+      exactSourceRevalidated: true as const,
+      exactMeasuredContractRevalidated: true as const,
+      idempotencyPayloadDerived: true as const,
+      outputByteLimitDeferred: true as const,
+      rendererExecution: false as const,
+      deadlineExecution: false as const,
+      cancellationExecution: false as const,
+      storageWrites: false as const,
+      manifestOrJobMutation: false as const,
+      observabilityWrites: false as const,
+      backendRoute: false as const,
+      productionBinding: false as const,
+    },
+  }
+  return {
+    status: "admitted",
+    admission: {
+      ...facts,
+      admissionFingerprint: createVNextCompactFingerprint(JSON.stringify(facts)),
+    },
+    issues: [],
+  }
+}
+
+export function createVNextPdfExportProductionRenderCompletionV1(input: {
+  completionId: string
+  admission: VNextPdfExportProductionAdmissionV1
+  request: VNextPdfExportRequestV1
+  measuredDrawContract: VNextPdfMeasuredDrawContractResultV1
+  receipt: VNextPdfExportReceiptV1
+}): VNextPdfExportProductionRenderCompletionResultV1 {
+  const issues: VNextPdfExportProductionBaselineIssueV1[] = []
+  if (typeof input.completionId !== "string"
+    || input.completionId.trim().length === 0
+    || input.completionId.length > 512) {
+    issues.push(issue(
+      "production-completion-id-invalid",
+      "completionId",
+      "completionId must be nonblank and at most 512 characters",
+    ))
+  }
+  const rebuiltAdmission = createVNextPdfExportProductionAdmissionV1({
+    admissionId: input.admission.admissionId,
+    request: input.request,
+    currentSource: input.admission.exportIdentity.sourceIdentity,
+    measuredDrawContract: input.measuredDrawContract,
+    policy: input.admission.policy,
+  })
+  if (rebuiltAdmission.status !== "admitted") {
+    rebuiltAdmission.issues.forEach((item, index) => issues.push(issue(
+      "production-admission-revalidation-blocked",
+      `admission.issues[${index}].${item.path}`,
+      `${item.code}: ${item.message}`,
+    )))
+    return { status: "blocked", completion: null, issues }
+  }
+  if (JSON.stringify(rebuiltAdmission.admission) !== JSON.stringify(input.admission)) {
+    issues.push(issue(
+      "production-admission-content-mismatch",
+      "admission",
+      "production admission content drifted after pre-render acceptance",
+    ))
+  }
+  if (issues.length > 0) return { status: "blocked", completion: null, issues }
+
+  const phaseT = revalidateReceipt({
+    request: input.request,
+    currentSource: input.admission.exportIdentity.sourceIdentity,
+    measuredDrawContract: input.measuredDrawContract,
+    receipt: input.receipt,
+  }, issues)
+  if (phaseT == null) return { status: "blocked", completion: null, issues }
+  if (phaseT.handoff.handoffFingerprint !== input.admission.exportIdentity.handoffFingerprint) {
+    issues.push(issue(
+      "production-admission-handoff-mismatch",
+      "admission.exportIdentity.handoffFingerprint",
+      "render receipt belongs to a different production admission handoff",
+    ))
+  }
+  if (input.measuredDrawContract.status !== "consumable") {
+    issues.push(issue(
+      "measured-contract-blocked",
+      "measuredDrawContract",
+      "production render completion requires a consumable measured contract",
+    ))
+    return { status: "blocked", completion: null, issues }
+  }
+  const actual = {
+    ...resourceFacts(input.measuredDrawContract),
+    outputByteLength: phaseT.receipt.artifact.byteLength,
+  }
+  validateResourceFacts(actual, input.admission.policy.resources, issues)
+  if (issues.length > 0) return { status: "blocked", completion: null, issues }
+
+  const facts = {
+    source: VNEXT_PDF_EXPORT_PRODUCTION_RENDER_COMPLETION_V1_SOURCE,
+    contractVersion: VNEXT_PDF_EXPORT_PRODUCTION_RENDER_COMPLETION_V1_VERSION,
+    kind: "pdf-export-production-render-completion" as const,
+    completionId: input.completionId,
+    admissionId: input.admission.admissionId,
+    admissionFingerprint: input.admission.admissionFingerprint,
+    idempotencyPayloadFingerprint: input.admission.idempotency.payloadFingerprint,
+    exportIdentity: {
+      exportRequestId: input.request.exportRequestId,
+      artifactId: input.request.artifactId,
+      requestFingerprint: input.request.requestFingerprint,
+      handoffFingerprint: phaseT.handoff.handoffFingerprint,
+      receiptFingerprint: phaseT.receipt.receiptFingerprint,
+      sourceContractFingerprint: input.request.measuredDrawContract.fingerprint,
+      sourceContractContentFingerprint: input.request.measuredDrawContract.contentFingerprint,
+      rendererProfileId: input.request.measuredDrawContract.rendererProfileId,
+      measurementProfileId: input.request.measuredDrawContract.measurementProfileId,
+    },
+    artifact: structuredClone(phaseT.receipt.artifact),
+    resources: {
+      actual,
+      limits: structuredClone(input.admission.policy.resources),
+      allWithinLimits: true as const,
+    },
+    storage: {
+      ...storageFacts(),
+      nextAction: "persist-content-addressed-bytes" as const,
+    },
+    activation: activationFacts(),
+    contracts: {
+      postRenderValidation: true as const,
+      exactAdmissionRevalidated: true as const,
+      exactReceiptRevalidated: true as const,
+      readyForPersistence: true as const,
+      carriesBytes: false as const,
+      byteContentVerified: false as const,
+      workerExecution: false as const,
+      storageWrites: false as const,
+      manifestOrJobMutation: false as const,
+      observabilityWrites: false as const,
+      backendRoute: false as const,
+      productionBinding: false as const,
+    },
+  }
+  return {
+    status: "ready-for-persistence",
+    completion: {
+      ...facts,
+      completionFingerprint: createVNextCompactFingerprint(JSON.stringify(facts)),
+    },
+    issues: [],
+  }
 }
 
 export function createVNextPdfExportProductionBaselineV1(input: {

@@ -758,11 +758,19 @@ For broad work or cross-repo handoff, include:
 
 ## Near-Term Work Queue
 
-1. Keep this map and each repo's `AGENTS.md` aligned.
-2. Add measured v4 layout/render consumption without treating placeholder
+1. Build and qualify a local provider-neutral PDF export runtime harness after
+   the accepted V-A through V-G candidates. Keep production provider selection,
+   default route mounting, deployment, and activation blocked until local
+   renderer, durability, Editor integration, and readiness evidence is accepted.
+2. Keep this map and each repo's `AGENTS.md` aligned.
+3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
-3. Keep package v3/document v4 out of active editor/runtime activation until the
+4. Keep package v3/document v4 out of active editor/runtime activation until the
    remaining capability gates are explicitly closed.
-4. Retire old core package lanes such as `packages/storage-file-json` and
+5. Retire old core package lanes such as `packages/storage-file-json` and
    `packages/internal-alpha-runner` only after historical-test replacement and
    backend parity are proven.
+
+The PDF runtime order, local profiles, cross-repo ownership, eligibility lanes,
+and production-promotion prohibition are authoritative in
+`docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`.

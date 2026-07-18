@@ -5,7 +5,7 @@ import {
   FLOWDOC_PDF_FULL_DOCUMENT_PILOT_MODE,
   renderFlowDocCanonicalFullDocumentPdfPilot,
   type FlowDocCanonicalReportBodyDisplayListBundleV1,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 
 interface SubsetManifest {
   subsetId: string

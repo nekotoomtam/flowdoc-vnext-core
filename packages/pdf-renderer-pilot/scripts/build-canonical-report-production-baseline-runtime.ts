@@ -6,7 +6,7 @@ import {
   type VNextPdfExportReceiptV1,
   type VNextPdfExportRequestV1,
 } from "@flowdoc/vnext-core"
-import type { FlowDocCanonicalReportBodyDisplayListBundleV1 } from "../src/index.js"
+import type { FlowDocCanonicalReportBodyDisplayListBundleV1 } from "../src/full.js"
 
 interface PhaseTExportEvidence {
   phaseId: "PDF-EXPORT-T"

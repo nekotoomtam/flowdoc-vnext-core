@@ -228,6 +228,20 @@ projection, and metadata-only observability requirements. Production
 activation remains blocked on ten backend/renderer/runtime bindings. No PDF is
 rendered and no worker, storage, route, or production behavior runs in Phase U.
 
+## Local Controlled Renderer Surface
+
+`PDF-EXPORT-LOCAL-B` adds controlled one-page and canonical full-document
+execution over the same paint-command writer and PDF object assembly as the
+synchronous pilot. Control checks the initial command boundary, each configured
+bounded interval, and the exact terminal count. Cancellation returns no bytes
+or artifact.
+
+The package root retains the combined historical surface through `src/full.ts`.
+Backend local execution imports only `@flowdoc/pdf-renderer-pilot/renderer`, so
+renderer loading does not import canonical preparation or text-engine modules.
+`@flowdoc/pdf-renderer-pilot/canonical` exposes preparation tools separately.
+None of these entries selects a production renderer or writes storage.
+
 ## Reproduction
 
 Build actual Rustybuzz glyph facts:

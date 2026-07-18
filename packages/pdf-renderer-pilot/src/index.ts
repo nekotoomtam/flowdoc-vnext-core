@@ -1,13 +1,5 @@
 import { createHash } from "node:crypto"
-import {
-  createVNextPdfExportHandoffV1,
-  createVNextPdfExportReceiptV1,
-} from "@flowdoc/vnext-core"
 import type {
-  VNextPdfExportHandoffResultV1,
-  VNextPdfExportReceiptV1,
-  VNextPdfExportRequestV1,
-  VNextPdfExportSourceIdentityV1,
   VNextPdfFontAssetV1,
   VNextPdfGlyphRunPaintCommandV1,
   VNextPdfImageAssetV1,
@@ -16,21 +8,6 @@ import type {
   VNextPdfMeasuredDrawContractResultV1,
   VNextPdfPaintCommandV1,
 } from "@flowdoc/vnext-core"
-
-export * from "./canonicalReportDataAdapter.js"
-export * from "./canonicalReportTemplateResolution.js"
-export * from "./canonicalReportDisplayFormatting.js"
-export * from "./canonicalReportMeasurementRequestHandoff.js"
-export * from "./canonicalReportTableProjection.js"
-export * from "./canonicalReportNativeShaping.js"
-export * from "./canonicalReportLineBreaking.js"
-export * from "./canonicalReportMeasuredComposition.js"
-export * from "./canonicalReportVerticalCapacity.js"
-export * from "./canonicalReportSectionReconciliation.js"
-export * from "./canonicalReportPaginationInputs.js"
-export * from "./canonicalReportPaginationExecution.js"
-export * from "./canonicalReportStaticZoneHandoff.js"
-export * from "./canonicalReportBodyDisplayList.js"
 
 export const FLOWDOC_PDF_RENDERER_PILOT_SOURCE = "flowdoc-pdf-renderer-pilot" as const
 export const FLOWDOC_PDF_RENDERER_PILOT_MODE = "thai-type0-one-page-proof" as const
@@ -122,6 +99,7 @@ export type FlowDocPdfRendererPilotIssueCode =
   | "subset-glyph-missing"
   | "unmappable-text-cluster"
   | "glyph-run-overflow"
+  | "checkpoint-interval-invalid"
 
 export interface FlowDocPdfRendererPilotIssue {
   severity: "blocking"
@@ -153,6 +131,45 @@ export interface FlowDocPdfRendererPilotInput {
   imageResources?: FlowDocPdfRendererPilotImageResource[]
   bindProductionRenderer?: boolean
 }
+
+export interface FlowDocPdfRendererPilotCheckpointInput {
+  paintCommandIndex: number
+  totalPaintCommandCount: number
+}
+
+export type FlowDocPdfRendererPilotCheckpointDecision =
+  | { status: "continue" }
+  | { status: "cancel" }
+
+export interface FlowDocPdfRendererPilotControl {
+  checkpoint(
+    input: FlowDocPdfRendererPilotCheckpointInput,
+  ): Promise<FlowDocPdfRendererPilotCheckpointDecision>
+}
+
+export interface FlowDocPdfRendererPilotCancelledResult {
+  source: typeof FLOWDOC_PDF_RENDERER_PILOT_SOURCE
+  mode: FlowDocPdfRendererPilotMode
+  status: "cancelled"
+  proofId: string
+  artifact: null
+  bytes: null
+  issues: []
+  checkpoint: {
+    paintCommandIndex: number
+    totalPaintCommandCount: number
+  }
+  contracts: {
+    cooperativeCancellation: true
+    fileWrites: false
+    storageWrites: false
+    productionBinding: false
+  }
+}
+
+export type FlowDocPdfRendererPilotControlledResult =
+  | FlowDocPdfRendererPilotResult
+  | FlowDocPdfRendererPilotCancelledResult
 
 export interface FlowDocPdfRendererPilotArtifactManifest {
   artifactId: string
@@ -658,132 +675,144 @@ function imagePaintOperators(
   ]
 }
 
+function createPageContent(page: VNextPdfMeasuredDrawPageV1): string[] {
+  return [
+    "q",
+    `${colorOperands(page.backgroundColor)} rg`,
+    `0 0 ${formatNumber(page.widthPt)} ${formatNumber(page.heightPt)} re f`,
+    "Q",
+  ]
+}
+
+function appendPageContentCommand(
+  content: string[],
+  page: VNextPdfMeasuredDrawPageV1,
+  command: VNextPdfPaintCommandV1,
+  usages: FontUsage[],
+  resolvedRuns: Map<string, ResolvedGlyph[]>,
+  imageUsages: ImageUsage[],
+): void {
+  if (command.kind === "fill-rect") {
+    content.push(
+      "q",
+      `${colorOperands(command.color)} rg`,
+      `${rectangleOperands(command, page.heightPt)} re f`,
+      "Q",
+    )
+  } else if (command.kind === "stroke-rect") {
+    const dash = command.style === "solid" ? "[] 0 d" : command.style === "dashed" ? "[4 2] 0 d" : "[1 2] 0 d"
+    content.push(
+      "q",
+      `${colorOperands(command.color)} RG`,
+      `${formatNumber(command.widthPt)} w`,
+      dash,
+      `${rectangleOperands(command, page.heightPt)} re S`,
+      "Q",
+    )
+  } else if (command.kind === "stroke-line") {
+    const dash = command.style === "solid" ? "[] 0 d" : command.style === "dashed" ? "[4 2] 0 d" : "[1 2] 0 d"
+    content.push(
+      "q",
+      `${colorOperands(command.color)} RG`,
+      `${formatNumber(command.widthPt)} w`,
+      dash,
+      `${lineOperands(command, page.heightPt)} S`,
+      "Q",
+    )
+  } else if (command.kind === "glyph-run") {
+    const usage = usages.find((candidate) => candidate.asset.fontId === command.fontId)
+    const glyphs = resolvedRuns.get(command.id)
+    if (usage == null || glyphs == null) throw new Error(`unresolved glyph run: ${command.id}`)
+    if (glyphs.some((glyph) => glyph.unicode.length === 0)) {
+      const textArray: string[] = []
+      let currentOffset = 0
+      glyphs.forEach((glyph, glyphIndex) => {
+        const measured = command.glyphs[glyphIndex]
+        if (measured.offsetYPt !== 0) return
+        const adjustment = -(glyph.offsetX - currentOffset)
+        if (adjustment !== 0) textArray.push(formatNumber(adjustment))
+        textArray.push(`<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}>`)
+        currentOffset = glyph.offsetX
+      })
+      content.push(
+        `/Span << /ActualText <${actualTextHex(command.text)}> >> BDC`,
+        "BT",
+        `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
+        `${colorOperands(command.color)} rg`,
+        `1 0 0 1 ${formatNumber(command.bounds.xPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt)} Tm`,
+        `[${textArray.join(" ")}] TJ`,
+        "ET",
+        "EMC",
+      )
+      const overlayOperators: string[] = []
+      let cursorXPt = 0
+      glyphs.forEach((glyph, glyphIndex) => {
+        const measured = command.glyphs[glyphIndex]
+        if (measured.offsetYPt !== 0) {
+          overlayOperators.push(
+            `1 0 0 1 ${formatNumber(command.bounds.xPt + cursorXPt + measured.offsetXPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt + measured.offsetYPt)} Tm`,
+            `<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}> Tj`,
+          )
+        }
+        cursorXPt += measured.advancePt
+      })
+      if (overlayOperators.length > 0) {
+        content.push(
+          "/Artifact BMC",
+          "BT",
+          `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
+          `${colorOperands(command.color)} rg`,
+          ...overlayOperators,
+          "ET",
+          "EMC",
+        )
+      }
+    } else {
+      const textArray: string[] = []
+      let currentOffset = 0
+      glyphs.forEach((glyph) => {
+        const adjustment = -(glyph.offsetX - currentOffset)
+        if (adjustment !== 0) textArray.push(formatNumber(adjustment))
+        textArray.push(`<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}>`)
+        currentOffset = glyph.offsetX
+      })
+      content.push(
+        `/Span << /ActualText <${actualTextHex(command.text)}> >> BDC`,
+        "BT",
+        `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
+        `${colorOperands(command.color)} rg`,
+        `1 0 0 1 ${formatNumber(command.bounds.xPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt)} Tm`,
+        `[${textArray.join(" ")}] TJ`,
+        "ET",
+        "EMC",
+      )
+    }
+  } else if (command.kind === "image") {
+    const usage = imageUsages.find((candidate) => candidate.asset.assetId === command.assetId)
+    if (usage == null) throw new Error(`unresolved image command: ${command.id}`)
+    content.push(...imagePaintOperators(command, usage, page.heightPt))
+  }
+}
+
 function buildPageContent(
   page: VNextPdfMeasuredDrawPageV1,
   usages: FontUsage[],
   resolvedRuns: Map<string, ResolvedGlyph[]>,
   imageUsages: ImageUsage[],
 ): Buffer {
-  const content: string[] = [
-    "q",
-    `${colorOperands(page.backgroundColor)} rg`,
-    `0 0 ${formatNumber(page.widthPt)} ${formatNumber(page.heightPt)} re f`,
-    "Q",
-  ]
-
+  const content = createPageContent(page)
   page.commands.forEach((command) => {
-    if (command.kind === "fill-rect") {
-      content.push(
-        "q",
-        `${colorOperands(command.color)} rg`,
-        `${rectangleOperands(command, page.heightPt)} re f`,
-        "Q",
-      )
-    } else if (command.kind === "stroke-rect") {
-      const dash = command.style === "solid" ? "[] 0 d" : command.style === "dashed" ? "[4 2] 0 d" : "[1 2] 0 d"
-      content.push(
-        "q",
-        `${colorOperands(command.color)} RG`,
-        `${formatNumber(command.widthPt)} w`,
-        dash,
-        `${rectangleOperands(command, page.heightPt)} re S`,
-        "Q",
-      )
-    } else if (command.kind === "stroke-line") {
-      const dash = command.style === "solid" ? "[] 0 d" : command.style === "dashed" ? "[4 2] 0 d" : "[1 2] 0 d"
-      content.push(
-        "q",
-        `${colorOperands(command.color)} RG`,
-        `${formatNumber(command.widthPt)} w`,
-        dash,
-        `${lineOperands(command, page.heightPt)} S`,
-        "Q",
-      )
-    } else if (command.kind === "glyph-run") {
-      const usage = usages.find((candidate) => candidate.asset.fontId === command.fontId)
-      const glyphs = resolvedRuns.get(command.id)
-      if (usage == null || glyphs == null) throw new Error(`unresolved glyph run: ${command.id}`)
-      if (glyphs.some((glyph) => glyph.unicode.length === 0)) {
-        const textArray: string[] = []
-        let currentOffset = 0
-        glyphs.forEach((glyph, glyphIndex) => {
-          const measured = command.glyphs[glyphIndex]
-          if (measured.offsetYPt !== 0) return
-          const adjustment = -(glyph.offsetX - currentOffset)
-          if (adjustment !== 0) textArray.push(formatNumber(adjustment))
-          textArray.push(`<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}>`)
-          currentOffset = glyph.offsetX
-        })
-        content.push(
-          `/Span << /ActualText <${actualTextHex(command.text)}> >> BDC`,
-          "BT",
-          `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
-          `${colorOperands(command.color)} rg`,
-          `1 0 0 1 ${formatNumber(command.bounds.xPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt)} Tm`,
-          `[${textArray.join(" ")}] TJ`,
-          "ET",
-          "EMC",
-        )
-        const overlayOperators: string[] = []
-        let cursorXPt = 0
-        glyphs.forEach((glyph, glyphIndex) => {
-          const measured = command.glyphs[glyphIndex]
-          if (measured.offsetYPt !== 0) {
-            overlayOperators.push(
-              `1 0 0 1 ${formatNumber(command.bounds.xPt + cursorXPt + measured.offsetXPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt + measured.offsetYPt)} Tm`,
-              `<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}> Tj`,
-            )
-          }
-          cursorXPt += measured.advancePt
-        })
-        if (overlayOperators.length > 0) {
-          content.push(
-            "/Artifact BMC",
-            "BT",
-            `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
-            `${colorOperands(command.color)} rg`,
-            ...overlayOperators,
-            "ET",
-            "EMC",
-          )
-        }
-      } else {
-        const textArray: string[] = []
-        let currentOffset = 0
-        glyphs.forEach((glyph) => {
-          const adjustment = -(glyph.offsetX - currentOffset)
-          if (adjustment !== 0) textArray.push(formatNumber(adjustment))
-          textArray.push(`<${glyph.cid.toString(16).padStart(4, "0").toUpperCase()}>`)
-          currentOffset = glyph.offsetX
-        })
-        content.push(
-          `/Span << /ActualText <${actualTextHex(command.text)}> >> BDC`,
-          "BT",
-          `/${usage.pdfResourceName} ${formatNumber(command.fontSizePt)} Tf`,
-          `${colorOperands(command.color)} rg`,
-          `1 0 0 1 ${formatNumber(command.bounds.xPt)} ${formatNumber(page.heightPt - command.bounds.yPt - command.baselineOffsetPt)} Tm`,
-          `[${textArray.join(" ")}] TJ`,
-          "ET",
-          "EMC",
-        )
-      }
-    } else if (command.kind === "image") {
-      const usage = imageUsages.find((candidate) => candidate.asset.assetId === command.assetId)
-      if (usage == null) throw new Error(`unresolved image command: ${command.id}`)
-      content.push(...imagePaintOperators(command, usage, page.heightPt))
-    }
+    appendPageContentCommand(content, page, command, usages, resolvedRuns, imageUsages)
   })
   return Buffer.from(`${content.join("\n")}\n`, "ascii")
 }
 
-function buildPdf(
+function assemblePdf(
   contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>,
   usages: FontUsage[],
-  resolvedRuns: Map<string, ResolvedGlyph[]>,
   imageUsages: ImageUsage[],
+  pageContents: Buffer[],
 ): Uint8Array {
-  const pageContents = contract.pages.map((page) => buildPageContent(page, usages, resolvedRuns, imageUsages))
-
   const objects = new Map<number, Buffer>()
   const catalogId = 1
   const pagesId = 2
@@ -927,6 +956,78 @@ function buildPdf(
   return Buffer.concat(parts)
 }
 
+function buildPdf(
+  contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>,
+  usages: FontUsage[],
+  resolvedRuns: Map<string, ResolvedGlyph[]>,
+  imageUsages: ImageUsage[],
+): Uint8Array {
+  const pageContents = contract.pages.map((page) => (
+    buildPageContent(page, usages, resolvedRuns, imageUsages)
+  ))
+  return assemblePdf(contract, usages, imageUsages, pageContents)
+}
+
+type ControlledPdfBuildResult =
+  | { status: "rendered"; bytes: Uint8Array; paintCommandIndex: number }
+  | { status: "cancelled"; bytes: null; paintCommandIndex: number }
+
+async function buildPdfWithCheckpoints(
+  contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>,
+  usages: FontUsage[],
+  resolvedRuns: Map<string, ResolvedGlyph[]>,
+  imageUsages: ImageUsage[],
+  input: {
+    checkpointEveryPaintCommands: number
+    control: FlowDocPdfRendererPilotControl
+  },
+): Promise<ControlledPdfBuildResult> {
+  const totalPaintCommandCount = contract.pages.reduce(
+    (total, page) => total + page.commands.length,
+    0,
+  )
+  let paintCommandIndex = 0
+  let lastCheckpointIndex = 0
+  const initial = await input.control.checkpoint({
+    paintCommandIndex,
+    totalPaintCommandCount,
+  })
+  if (initial.status === "cancel") return {
+    status: "cancelled",
+    bytes: null,
+    paintCommandIndex,
+  }
+
+  const pageContents: Buffer[] = []
+  for (const page of contract.pages) {
+    const content = createPageContent(page)
+    for (const command of page.commands) {
+      appendPageContentCommand(content, page, command, usages, resolvedRuns, imageUsages)
+      paintCommandIndex += 1
+      const checkpointDue = paintCommandIndex === totalPaintCommandCount
+        || paintCommandIndex - lastCheckpointIndex >= input.checkpointEveryPaintCommands
+      if (!checkpointDue) continue
+      const decision = await input.control.checkpoint({
+        paintCommandIndex,
+        totalPaintCommandCount,
+      })
+      lastCheckpointIndex = paintCommandIndex
+      if (decision.status === "cancel") return {
+        status: "cancelled",
+        bytes: null,
+        paintCommandIndex,
+      }
+    }
+    pageContents.push(Buffer.from(`${content.join("\n")}\n`, "ascii"))
+  }
+
+  return {
+    status: "rendered",
+    bytes: assemblePdf(contract, usages, imageUsages, pageContents),
+    paintCommandIndex,
+  }
+}
+
 function blockedResult(
   input: FlowDocPdfRendererPilotInput,
   issues: FlowDocPdfRendererPilotIssue[],
@@ -985,7 +1086,27 @@ function blockedResult(
   }
 }
 
-function renderFlowDocPdfPilot(
+interface PreparedFlowDocPdfPilotRender {
+  input: FlowDocPdfRendererPilotInput
+  mode: FlowDocPdfRendererPilotMode
+  imagesSupported: boolean
+  sharedResourceObjects: boolean
+  requiredImageAssetCount?: number
+  canonicalPageComposition: boolean
+  fullDocumentHandoff: boolean
+  contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>
+  usages: FontUsage[]
+  resolvedRuns: Map<string, ResolvedGlyph[]>
+  imageUsages: ImageUsage[]
+  fontResourceReferenceCount: number
+  imageResourceReferenceCount: number
+}
+
+type FlowDocPdfPilotPreparation =
+  | { status: "ready"; prepared: PreparedFlowDocPdfPilotRender }
+  | { status: "blocked"; result: FlowDocPdfRendererPilotResult }
+
+function prepareFlowDocPdfPilot(
   input: FlowDocPdfRendererPilotInput,
   mode: FlowDocPdfRendererPilotMode,
   phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07" | "PDF-PILOT-08B-R2C-M",
@@ -994,7 +1115,7 @@ function renderFlowDocPdfPilot(
   requiredImageAssetCount?: number,
   canonicalPageComposition = false,
   fullDocumentHandoff = false,
-): FlowDocPdfRendererPilotResult {
+): FlowDocPdfPilotPreparation {
   const issues: FlowDocPdfRendererPilotIssue[] = []
   if (input.proofId.trim().length === 0) {
     issues.push(issue("missing-proof-id", "proofId", `${phaseId} requires a non-blank proof id.`))
@@ -1007,16 +1128,19 @@ function renderFlowDocPdfPilot(
   }
   if (input.contract.status !== "consumable") {
     issues.push(issue("contract-blocked", "contract", "The PDF pilot requires a consumable measured draw contract."))
-    return blockedResult(
-      input,
-      issues,
-      mode,
-      imagesSupported,
-      sharedResourceObjects,
-      requiredImageAssetCount,
-      canonicalPageComposition,
-      fullDocumentHandoff,
-    )
+    return {
+      status: "blocked",
+      result: blockedResult(
+        input,
+        issues,
+        mode,
+        imagesSupported,
+        sharedResourceObjects,
+        requiredImageAssetCount,
+        canonicalPageComposition,
+        fullDocumentHandoff,
+      ),
+    }
   }
   const contract = input.contract
   if (fullDocumentHandoff) {
@@ -1170,16 +1294,19 @@ function renderFlowDocPdfPilot(
     }
   }
   if ((canonicalPageComposition || fullDocumentHandoff) && issues.length > 0) {
-    return blockedResult(
-      input,
-      issues,
-      mode,
-      imagesSupported,
-      sharedResourceObjects,
-      requiredImageAssetCount,
-      canonicalPageComposition,
-      fullDocumentHandoff,
-    )
+    return {
+      status: "blocked",
+      result: blockedResult(
+        input,
+        issues,
+        mode,
+        imagesSupported,
+        sharedResourceObjects,
+        requiredImageAssetCount,
+        canonicalPageComposition,
+        fullDocumentHandoff,
+      ),
+    }
   }
 
   const duplicateResources = new Set<string>()
@@ -1315,16 +1442,19 @@ function renderFlowDocPdfPilot(
   })
 
   if (issues.length > 0) {
-    return blockedResult(
-      input,
-      issues,
-      mode,
-      imagesSupported,
-      sharedResourceObjects,
-      requiredImageAssetCount,
-      canonicalPageComposition,
-      fullDocumentHandoff,
-    )
+    return {
+      status: "blocked",
+      result: blockedResult(
+        input,
+        issues,
+        mode,
+        imagesSupported,
+        sharedResourceObjects,
+        requiredImageAssetCount,
+        canonicalPageComposition,
+        fullDocumentHandoff,
+      ),
+    }
   }
 
   const fontResourceReferenceCount = contract.pages.reduce((total, page) => (
@@ -1338,7 +1468,44 @@ function renderFlowDocPdfPilot(
       .map((command) => command.assetId)).size
   ), 0)
 
-  const bytes = buildPdf(contract, usages, resolvedRuns, imageUsages)
+  return {
+    status: "ready",
+    prepared: {
+      input,
+      mode,
+      imagesSupported,
+      sharedResourceObjects,
+      requiredImageAssetCount,
+      canonicalPageComposition,
+      fullDocumentHandoff,
+      contract,
+      usages,
+      resolvedRuns,
+      imageUsages,
+      fontResourceReferenceCount,
+      imageResourceReferenceCount,
+    },
+  }
+}
+
+function completeFlowDocPdfPilotRender(
+  prepared: PreparedFlowDocPdfPilotRender,
+  bytes: Uint8Array,
+): FlowDocPdfRendererPilotResult {
+  const {
+    input,
+    mode,
+    imagesSupported,
+    sharedResourceObjects,
+    requiredImageAssetCount,
+    canonicalPageComposition,
+    fullDocumentHandoff,
+    contract,
+    usages,
+    imageUsages,
+    fontResourceReferenceCount,
+    imageResourceReferenceCount,
+  } = prepared
   const artifact: FlowDocPdfRendererPilotArtifactManifest = {
     artifactId: input.artifactId ?? `pdf-pilot:${input.proofId}`,
     format: "pdf",
@@ -1462,6 +1629,146 @@ function renderFlowDocPdfPilot(
   }
 }
 
+function renderFlowDocPdfPilot(
+  input: FlowDocPdfRendererPilotInput,
+  mode: FlowDocPdfRendererPilotMode,
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07" | "PDF-PILOT-08B-R2C-M",
+  imagesSupported: boolean,
+  sharedResourceObjects: boolean,
+  requiredImageAssetCount?: number,
+  canonicalPageComposition = false,
+  fullDocumentHandoff = false,
+): FlowDocPdfRendererPilotResult {
+  const preparation = prepareFlowDocPdfPilot(
+    input,
+    mode,
+    phaseId,
+    imagesSupported,
+    sharedResourceObjects,
+    requiredImageAssetCount,
+    canonicalPageComposition,
+    fullDocumentHandoff,
+  )
+  if (preparation.status === "blocked") return preparation.result
+  const prepared = preparation.prepared
+  const bytes = buildPdf(
+    prepared.contract,
+    prepared.usages,
+    prepared.resolvedRuns,
+    prepared.imageUsages,
+  )
+  return completeFlowDocPdfPilotRender(prepared, bytes)
+}
+
+async function renderFlowDocPdfPilotControlled(
+  input: FlowDocPdfRendererPilotInput,
+  options: {
+    checkpointEveryPaintCommands: number
+    control: FlowDocPdfRendererPilotControl
+  },
+  renderer: {
+    mode: FlowDocPdfRendererPilotMode
+    phaseId: "PDF-PILOT-03" | "PDF-PILOT-08B-R2C-M"
+    imagesSupported: boolean
+    sharedResourceObjects: boolean
+    fullDocumentHandoff: boolean
+  },
+): Promise<FlowDocPdfRendererPilotControlledResult> {
+  if (
+    !Number.isSafeInteger(options.checkpointEveryPaintCommands)
+    || options.checkpointEveryPaintCommands <= 0
+    || options.checkpointEveryPaintCommands > 10_000
+  ) return blockedResult(
+    input,
+    [issue(
+      "checkpoint-interval-invalid",
+      "checkpointEveryPaintCommands",
+      "controlled rendering requires a checkpoint interval from 1 through 10000 paint commands.",
+    )],
+    renderer.mode,
+    renderer.imagesSupported,
+    renderer.sharedResourceObjects,
+    undefined,
+    false,
+    renderer.fullDocumentHandoff,
+  )
+
+  const preparation = prepareFlowDocPdfPilot(
+    input,
+    renderer.mode,
+    renderer.phaseId,
+    renderer.imagesSupported,
+    renderer.sharedResourceObjects,
+    undefined,
+    false,
+    renderer.fullDocumentHandoff,
+  )
+  if (preparation.status === "blocked") return preparation.result
+  const prepared = preparation.prepared
+  const built = await buildPdfWithCheckpoints(
+    prepared.contract,
+    prepared.usages,
+    prepared.resolvedRuns,
+    prepared.imageUsages,
+    options,
+  )
+  if (built.status === "cancelled") return {
+    source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
+    mode: renderer.mode,
+    status: "cancelled",
+    proofId: input.proofId,
+    artifact: null,
+    bytes: null,
+    issues: [],
+    checkpoint: {
+      paintCommandIndex: built.paintCommandIndex,
+      totalPaintCommandCount: prepared.contract.pages.reduce(
+        (total, page) => total + page.commands.length,
+        0,
+      ),
+    },
+    contracts: {
+      cooperativeCancellation: true,
+      fileWrites: false,
+      storageWrites: false,
+      productionBinding: false,
+    },
+  }
+  return completeFlowDocPdfPilotRender(prepared, built.bytes)
+}
+
+export function renderFlowDocThaiOnePagePdfPilotControlled(
+  input: FlowDocPdfRendererPilotInput,
+  options: {
+    checkpointEveryPaintCommands: number
+    control: FlowDocPdfRendererPilotControl
+  },
+): Promise<FlowDocPdfRendererPilotControlledResult> {
+  return renderFlowDocPdfPilotControlled(input, options, {
+    mode: FLOWDOC_PDF_RENDERER_PILOT_MODE,
+    phaseId: "PDF-PILOT-03",
+    imagesSupported: false,
+    sharedResourceObjects: false,
+    fullDocumentHandoff: false,
+  })
+}
+
+export function renderFlowDocCanonicalFullDocumentPdfPilotControlled(
+  input: FlowDocPdfRendererPilotInput,
+  options: {
+    checkpointEveryPaintCommands: number
+    control: FlowDocPdfRendererPilotControl
+  },
+): Promise<FlowDocPdfRendererPilotControlledResult> {
+  return renderFlowDocPdfPilotControlled(input, options, {
+    mode: FLOWDOC_PDF_FULL_DOCUMENT_PILOT_MODE,
+    phaseId: "PDF-PILOT-08B-R2C-M",
+    imagesSupported: true,
+    sharedResourceObjects: true,
+    fullDocumentHandoff: true,
+  })
+}
+
 export function renderFlowDocThaiOnePagePdfPilot(
   input: FlowDocPdfRendererPilotInput,
 ): FlowDocPdfRendererPilotResult {
@@ -1538,181 +1845,4 @@ export function renderFlowDocCanonicalFullDocumentPdfPilot(
     false,
     true,
   )
-}
-
-export type FlowDocPdfExportRendererModeV1 = "thai-one-page" | "canonical-full-document"
-
-export interface FlowDocPdfExportExecutionInputV1 {
-  request: VNextPdfExportRequestV1
-  currentSource: VNextPdfExportSourceIdentityV1
-  measuredDrawContract: VNextPdfMeasuredDrawContractResultV1
-  fontResources: FlowDocPdfRendererPilotFontResource[]
-  imageResources?: FlowDocPdfRendererPilotImageResource[]
-  rendererMode: FlowDocPdfExportRendererModeV1
-}
-
-interface FlowDocPdfExportExecutionContractsV1 {
-  consumesCoreHandoff: true
-  returnsCoreReceipt: true
-  mayRemeasure: false
-  mayRepaginate: false
-  mayRelayout: false
-  mayRegroupSemantics: false
-  fileWrites: false
-  storageWrites: false
-  backendRoute: false
-  workerOrQueue: false
-  productionBinding: false
-}
-
-interface FlowDocPdfExportRendererEvidenceV1 {
-  mode: FlowDocPdfRendererPilotMode | null
-  status: "not-run" | "rendered" | "blocked"
-  artifact: FlowDocPdfRendererPilotArtifactManifest | null
-  summary: FlowDocPdfRendererPilotResult["summary"] | null
-  issues: FlowDocPdfRendererPilotIssue[]
-}
-
-export type FlowDocPdfExportExecutionResultV1 = {
-  source: "flowdoc-pdf-export-execution"
-  contractVersion: 1
-  rendererMode: FlowDocPdfExportRendererModeV1
-  handoff: VNextPdfExportHandoffResultV1
-  renderer: FlowDocPdfExportRendererEvidenceV1
-  contracts: FlowDocPdfExportExecutionContractsV1
-  rendererExecuted: boolean
-} & (
-  | {
-      status: "rendered"
-      receipt: VNextPdfExportReceiptV1
-      bytes: Uint8Array
-      issues: []
-    }
-  | {
-      status: "blocked"
-      receipt: null
-      bytes: null
-      issues: Array<{ code: string; path: string; message: string }>
-    }
-)
-
-function exportExecutionContracts(): FlowDocPdfExportExecutionContractsV1 {
-  return {
-    consumesCoreHandoff: true,
-    returnsCoreReceipt: true,
-    mayRemeasure: false,
-    mayRepaginate: false,
-    mayRelayout: false,
-    mayRegroupSemantics: false,
-    fileWrites: false,
-    storageWrites: false,
-    backendRoute: false,
-    workerOrQueue: false,
-    productionBinding: false,
-  }
-}
-
-export function executeFlowDocPdfExportHandoffV1(
-  input: FlowDocPdfExportExecutionInputV1,
-): FlowDocPdfExportExecutionResultV1 {
-  const handoff = createVNextPdfExportHandoffV1({
-    request: input.request,
-    currentSource: input.currentSource,
-    measuredDrawContract: input.measuredDrawContract,
-  })
-  const contracts = exportExecutionContracts()
-  if (handoff.status !== "ready") {
-    return {
-      source: "flowdoc-pdf-export-execution",
-      contractVersion: 1,
-      rendererMode: input.rendererMode,
-      status: "blocked",
-      handoff,
-      renderer: { mode: null, status: "not-run", artifact: null, summary: null, issues: [] },
-      receipt: null,
-      bytes: null,
-      contracts,
-      rendererExecuted: false,
-      issues: handoff.issues,
-    }
-  }
-
-  const rendererInput: FlowDocPdfRendererPilotInput = {
-    proofId: handoff.rendererInput.exportRequestId,
-    artifactId: handoff.rendererInput.artifactId,
-    contract: handoff.rendererInput.measuredDrawContract,
-    fontResources: input.fontResources,
-    imageResources: input.imageResources,
-  }
-  const rendered = input.rendererMode === "canonical-full-document"
-    ? renderFlowDocCanonicalFullDocumentPdfPilot(rendererInput)
-    : renderFlowDocThaiOnePagePdfPilot(rendererInput)
-  const byteEvidenceIssues = rendered.status === "rendered"
-    && (rendered.bytes.byteLength !== rendered.artifact.byteLength
-      || sha256(rendered.bytes) !== rendered.artifact.sha256)
-    ? [{
-        code: "renderer-byte-evidence-mismatch",
-        path: "renderer.bytes",
-        message: "renderer bytes must match the artifact byte length and SHA-256 evidence",
-      }]
-    : []
-  const receiptResult = createVNextPdfExportReceiptV1({
-    handoff,
-    renderEvidence: rendered.status === "rendered" && byteEvidenceIssues.length === 0
-      ? {
-          status: "rendered",
-          artifactId: rendered.artifact.artifactId,
-          format: rendered.artifact.format,
-          mediaType: rendered.artifact.mediaType,
-          byteLength: rendered.artifact.byteLength,
-          sha256: rendered.artifact.sha256,
-          pageCount: rendered.summary.pageCount,
-          rendererProfileId: rendered.artifact.rendererProfileId,
-          measurementProfileId: rendered.artifact.measurementProfileId,
-          sourceContractFingerprint: handoff.rendererInput.sourceContractFingerprint,
-          sourceContractContentFingerprint: handoff.rendererInput.sourceContractContentFingerprint,
-        }
-      : {
-          status: "blocked",
-          issues: [
-            ...rendered.issues.map(({ code, path, message }) => ({ code, path, message })),
-            ...byteEvidenceIssues,
-          ],
-        },
-  })
-  const rendererEvidence: FlowDocPdfExportRendererEvidenceV1 = {
-    mode: rendered.mode,
-    status: rendered.status,
-    artifact: rendered.artifact,
-    summary: rendered.summary,
-    issues: rendered.issues,
-  }
-  if (rendered.status !== "rendered" || receiptResult.status !== "accepted") {
-    return {
-      source: "flowdoc-pdf-export-execution",
-      contractVersion: 1,
-      rendererMode: input.rendererMode,
-      status: "blocked",
-      handoff,
-      renderer: rendererEvidence,
-      receipt: null,
-      bytes: null,
-      contracts,
-      rendererExecuted: true,
-      issues: receiptResult.issues,
-    }
-  }
-  return {
-    source: "flowdoc-pdf-export-execution",
-    contractVersion: 1,
-    rendererMode: input.rendererMode,
-    status: "rendered",
-    handoff,
-    renderer: rendererEvidence,
-    receipt: receiptResult.receipt,
-    bytes: rendered.bytes,
-    contracts,
-    rendererExecuted: true,
-    issues: [],
-  }
 }

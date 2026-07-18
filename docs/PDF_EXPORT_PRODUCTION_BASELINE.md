@@ -93,6 +93,51 @@ Rebuild with:
 npm --prefix packages/pdf-renderer-pilot run build:report-production-baseline
 ```
 
-The next step should be a cross-repo review that orders these bindings before
-starting `PDF-EXPORT-V`. No backend route, worker, storage, or production flag
-should be added from this baseline alone.
+The cross-repo review and binding order are now retained in
+`docs/PDF_EXPORT_V_ARCHITECTURE_LOCK.md`. Phase `PDF-EXPORT-V-A` adds pure Core
+pre-render admission and post-render validation. Phase `PDF-EXPORT-V-B` adds a
+backend immutable operation and durable caller-key mapping. Phase
+`PDF-EXPORT-V-C` adds a separate revisioned lifecycle head, atomic transition
+replay, bounded claims/attempts, deadline and checkpoint-cancellation decisions,
+and a process-local shutdown-drain gate.
+
+V-C does not run an automatic worker or renderer. Phase `PDF-EXPORT-V-D` adds
+the exact Core handoff/receipt/completion adapter, bounded cooperative
+cancellation checkpoints, and runtime candidate qualification. Validated PDF
+bytes cross into `PDF-EXPORT-V-E`, which atomically publishes a SHA-256 content
+identity, verifies physical bytes by readback, then projects the rendered Core
+manifest and job with transactional CAS. A retained terminal receipt supplies
+restart replay, and bounded grace-based reconciliation handles bytes left
+before a failed metadata commit.
+
+V-E accepts only the persistence candidate gate. Follow-up `PDF-EXPORT-V-F`
+now composes V-B through V-E, atomically retains a closed privacy-safe Core
+event chain plus terminal workflow completion, and proves full SQLite restart/
+fault recovery. The event batch is terminal evidence rather than a selected
+production telemetry delivery and retention provider.
+
+Production storage/event-provider selection, automatic worker hosting,
+authorization and tenancy execution, routes, concrete renderer promotion,
+deployment, and activation remain blocked. Follow-up V-G carries those
+blockers explicitly into its route and activation review.
+
+V-G now accepts an unmounted authenticated request/status/cancel/download
+candidate with credential-derived scope, per-action authorization, redacted
+status, durable cancellation replay, and terminal plus physical-byte download
+verification. Its activation review is **NO-GO**. Injected test providers do
+not select production identity policy, source/admission resolution, renderer,
+worker hosting, storage, telemetry, server mount, or deployment. No production
+binding or flag is activated.
+
+The post-V implementation order is now locked in
+`docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`. It qualifies a loopback-only
+runtime with local providers before production provider selection and does not
+change this baseline's NO-GO activation decision.
+
+LOCAL-B through LOCAL-E now accept the controlled renderer adapter, local
+PostgreSQL/S3-compatible providers, bounded due-work discovery, the
+explicit-start local worker lifecycle, and a separate loopback-only canonical
+HTTP composition. The default application server remains unmounted. Editor
+workflow, readiness audit, hosted providers, and production activation remain
+blocked. None of these local follow-ups changes this baseline's production
+NO-GO decision.

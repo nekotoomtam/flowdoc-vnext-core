@@ -12,7 +12,7 @@ import {
   FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
   renderFlowDocThaiOnePagePdfPilot,
   type FlowDocPdfRendererPilotFontResource,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 
 interface SubsetManifest {
   subsetId: string

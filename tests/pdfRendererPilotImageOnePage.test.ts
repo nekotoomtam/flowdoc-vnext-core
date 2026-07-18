@@ -11,7 +11,7 @@ import {
   FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
   renderFlowDocDigestBoundImageOnePagePdfPilot,
   type FlowDocPdfRendererPilotFontResource,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 
 const SYNTHETIC_RGB_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAIAAAB7QOjdAAAAD0lEQVR42mP4z8DA0PAfAAgAAn8lPvwJAAAAAElFTkSuQmCC",

@@ -1214,5 +1214,10 @@ native-to-WASM parity.
 - active package v2/document v3 behavior did not change; target Document v4
   gained additive `Letter` support while retaining `A4`.
 
-Next decision: review cross-repo binding order before naming or implementing
-`PDF-EXPORT-V`. Phase U does not authorize production activation.
+Follow-up: `PDF-EXPORT-V-A` now retains the cross-repo binding order and pure
+Core admission/render-completion split in
+`docs/PDF_EXPORT_V_ARCHITECTURE_LOCK.md`. Follow-ups V-B through V-G close the
+candidate operation, lifecycle, renderer-attempt, persistence, observability,
+and authenticated-route layers. Production activation remains NO-GO; current
+work moves to a local provider-neutral runtime harness before production
+provider selection.

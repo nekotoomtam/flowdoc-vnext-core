@@ -11,7 +11,7 @@ import {
   renderFlowDocCanonicalTwelvePageReportPdfPilot,
   type FlowDocPdfRendererPilotFontResource,
   type FlowDocPdfRendererPilotImageResource,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 import { materializeCanonicalReportContentParity } from "../packages/pdf-renderer-pilot/scripts/canonical-report-content-parity.mjs"
 import { materializeCanonicalReportSourceData } from "../packages/pdf-renderer-pilot/scripts/canonical-report-source-data.mjs"
 import { materializeCanonicalReportTypographyCalibration } from "../packages/pdf-renderer-pilot/scripts/canonical-report-typography-calibration.mjs"

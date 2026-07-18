@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import {
   validateFlowDocCanonicalReportDataBundleV1,
   type FlowDocCanonicalReportDataBundleV1,
-} from "../packages/pdf-renderer-pilot/src/index.js"
+} from "../packages/pdf-renderer-pilot/src/full.js"
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(resolve(process.cwd(), path), "utf8")) as T

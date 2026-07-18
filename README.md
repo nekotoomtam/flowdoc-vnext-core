@@ -979,6 +979,62 @@ The package must remain runnable without any parent editor checkout.
   idempotency and resource facts, fixes cancellation/storage/observability
   requirements, and keeps activation blocked until ten cross-repo runtime
   bindings are proven.
+- PDF export V-A splits that baseline into deterministic pre-render admission
+  and post-render validation. Admission derives the Phase U idempotency payload
+  before a receipt exists; render completion revalidates the exact admission
+  and receipt and stops at `ready-for-persistence` without bytes or writes.
+- PDF export V-B retains that admission in a backend-owned immutable operation
+  and durably binds caller keys by tenant/principal scope through in-memory and
+  SQLite adapters. That immutable layer performs no lifecycle, terminal receipt
+  replay, auth execution, route, or production activation.
+- PDF export V-C adds a separate backend revisioned lifecycle head and atomic
+  transition replay with bounded claim/reclaim, attempts, deadline and all
+  three checkpoint-cancellation decisions, plus a process-local shutdown-drain
+  gate. Renderer execution, PDF bytes, terminal receipt replay, auth, routes,
+  and production activation remain pending.
+- PDF export V-D binds the exact Core handoff, receipt, and render completion to
+  a backend qualified-candidate renderer SPI with bounded asynchronous
+  cancellation checkpoints and V-C lifecycle checks. Validated bytes remain
+  in memory; concrete production renderer selection, persistence, auth, routes,
+  and activation remain pending.
+- PDF export V-E atomically publishes backend SHA-256-addressed PDF bytes,
+  verifies physical readback before rendered metadata, then transactionally
+  CAS-projects the Core manifest/job with terminal restart replay and bounded
+  orphan recovery. Production provider selection, observability, auth, routes,
+  concrete renderer promotion, and activation remain pending.
+- PDF export V-F composes V-B through V-E behind a restart-safe backend
+  candidate, atomically retains a closed privacy-safe Core event chain and
+  terminal workflow completion, and proves full SQLite recovery around every
+  durable stage. Production event/storage providers, worker hosting, concrete
+  renderer promotion, auth, routes, deployment, and activation remain pending.
+- PDF export V-G adds an unmounted authenticated backend HTTP candidate for
+  request/status/cancel/download, credential-derived scope, per-action
+  authorization, redacted status, cancellation replay, and physically verified
+  terminal downloads. The production activation review is NO-GO while concrete
+  identity, renderer, worker, storage, telemetry, and deployment remain open.
+- PDF export LOCAL-A locks the post-V path to a loopback-only runtime with a
+  canonical-evidence renderer lane, local PostgreSQL/S3-compatible durability,
+  a dedicated worker and HTTP entry point, and Editor access through a
+  development proxy. It activates no runtime or production binding.
+- PDF export LOCAL-B keeps the V-D generic SPI, adds controlled paint-command
+  execution and a renderer-only pilot package surface, and binds a Backend
+  local adapter to trusted resources. Canonical 13-page bytes remain exact;
+  persistence, worker/server mounting, Editor, and production stay closed.
+- PDF export LOCAL-C adds loopback-only PostgreSQL metadata and S3-compatible
+  byte adapters behind the existing Backend interfaces. Explicit migration,
+  restart/fault recovery, competing-connection winners, physical readback, and
+  resumable orphan traversal pass against actual local providers; worker,
+  route, Editor, and production bindings stay closed.
+- PDF export LOCAL-D adds bounded PostgreSQL due-work lanes, one-owner execution
+  and expiry reclaim, stopped terminal finalization, an explicit-start
+  concurrency-one worker host, graceful/forced drain, and bounded orphan
+  maintenance. LOCAL-E now supplies the concrete composition; Editor and
+  production stay closed.
+- PDF export LOCAL-E binds the digest-pinned canonical 13-page evidence to a
+  concrete local credential/resolver/provider composition, a separate
+  loopback-only HTTP process, and the dedicated worker factory. Independent
+  HTTP/worker connections pass request-to-verified-download and no-render
+  replay; Editor, readiness, and production stay closed.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.
