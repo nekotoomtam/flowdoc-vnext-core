@@ -758,10 +758,11 @@ For broad work or cross-repo handoff, include:
 
 ## Near-Term Work Queue
 
-1. Build and qualify a local provider-neutral PDF export runtime harness after
-   the accepted V-A through V-G candidates. Keep production provider selection,
-   default route mounting, deployment, and activation blocked until local
-   renderer, durability, Editor integration, and readiness evidence is accepted.
+1. Extend the accepted LOCAL-A through LOCAL-G PDF runtime to one trusted
+   product-readable document revision with a complete measured draw contract,
+   digest-bound resources, and eligible Editor lifecycle. Keep production
+   provider selection, default route mounting, deployment, and activation
+   blocked behind a separate later review.
 2. Keep this map and each repo's `AGENTS.md` aligned.
 3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.

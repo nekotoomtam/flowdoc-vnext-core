@@ -11440,3 +11440,46 @@ Primary evidence:
 
 Next phase: `PDF-EXPORT-LOCAL-G` end-to-end restart, cancellation, corruption,
 fidelity, and bounded-load readiness audit. Production remains NO-GO.
+
+## PDF-EXPORT-LOCAL-G Canonical Local Readiness Audit
+
+Status: accepted for the bounded canonical local-integration workload.
+Production remains NO-GO.
+
+The actual-provider gate runs the canonical request/render/download in one
+operating-system process and exact caller-key replay/status/download in a fresh
+process over the same temporary PostgreSQL 17.10 and pinned MinIO state. Both
+downloads retain 13 pages, `1212656` bytes, and SHA-256
+`c4d09f0dfd66e1e3983bc679602fdc7d397de30edcb4f93fac3a0fa0c422960b`.
+The replay worker lists and invokes no work.
+
+Actual HTTP cancellation before handoff retains no rendered or persisted
+output. Existing focused gates retain cancellation before render, during
+cooperative rendering, and before persistence. A copied resource digest drift
+blocks composition before admission. Actual MinIO deletion and corruption
+between write and readback commit no artifact receipt/manifest/job or terminal
+workflow. Competing PostgreSQL connections and bounded continuation scans
+retain one owner and no orphan-prefix starvation.
+
+The recorded local workload measured 3315 ms wall time, 3110 ms CPU,
+370290688 peak RSS bytes, 227958784 RSS growth, 16 metadata rows, 655360
+relation bytes, one 1212656-byte object, and seven HTTP requests. The versioned
+qualification rejects values above the accepted local envelope. The portable
+provider suite passes `24/24`.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`;
+- `docs/PDF_EXPORT_PRODUCTION_BASELINE.md`;
+- `docs/PDF_REAL_EXPORT_HANDOFF.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_READINESS_AUDIT.md`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalReadiness.ts`;
+- `../flowdoc-vnext-backend/src/tests/helpers/pdfExportLocalProcessEvidence.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalProviders.integration.test.ts`; and
+- `../flowdoc-vnext-editor/docs/PDF_EXPORT_LOCAL_EDITOR_INTEGRATION.md`.
+
+LOCAL-A through LOCAL-G are now complete for the canonical local lane. Next
+local work is a trusted measured/resource resolver for one product-readable
+document revision and an eligible Editor lifecycle without canonical fixture
+substitution. Production provider selection remains a separate deferred
+review.

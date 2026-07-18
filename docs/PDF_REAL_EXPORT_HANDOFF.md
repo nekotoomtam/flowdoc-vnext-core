@@ -78,3 +78,10 @@ normal product Editor document remains ineligible and cannot substitute this
 canonical source. This follow-up does not change the Phase T boundary: the
 default Backend server, production renderer/provider selection, readiness,
 and production activation remain blocked.
+
+`PDF-EXPORT-LOCAL-G` retains the same artifact across a complete first-process
+request/render/download and second-process terminal replay over actual local
+PostgreSQL and MinIO. Both downloads retain the exact byte identity and the
+second worker invokes no work. The bounded local readiness audit is accepted;
+product-document eligibility, hosted providers, and production activation
+remain blocked.

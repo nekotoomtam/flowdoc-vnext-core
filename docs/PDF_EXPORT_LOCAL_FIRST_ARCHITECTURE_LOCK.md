@@ -1,11 +1,11 @@
 # PDF Export Local-First Runtime Architecture Lock
 
-Status: `PDF-EXPORT-LOCAL-A` architecture, `PDF-EXPORT-LOCAL-B` controlled
-renderer adapter, `PDF-EXPORT-LOCAL-C` local PostgreSQL/S3-compatible provider
-adapters, `PDF-EXPORT-LOCAL-D` durable worker lifecycle, and
-`PDF-EXPORT-LOCAL-E` separate loopback HTTP composition accepted. No default
-application-server mount, Editor control, deployment, or production binding is
-activated.
+Status: `PDF-EXPORT-LOCAL-A` through `PDF-EXPORT-LOCAL-G` accepted for the
+bounded canonical local-integration lane. This includes the controlled
+renderer, PostgreSQL/S3-compatible providers, durable worker, separate
+loopback HTTP process, development-only Editor workflow, and readiness audit.
+No default application-server mount, product-document lane, deployment, or
+production binding is activated.
 
 ## Decision
 
@@ -337,17 +337,42 @@ the local environment values exist.
 
 The normal Editor product document remains ineligible because LOCAL-E still
 accepts only the Phase T canonical evidence source. Editor does not override
-the working-set pin or substitute that fixture. An eligible browser lifecycle
-over a product-readable canonical working set and all readiness/fault/load
-evidence remain for LOCAL-G or a later trusted product-document lane.
+the working-set pin or substitute that fixture. LOCAL-G accepts the canonical
+readiness/fault/load evidence; an eligible browser lifecycle over a trusted
+product-readable working set remains for a later product-document lane.
 
 Primary follow-up evidence is retained in
 `../flowdoc-vnext-editor/docs/PDF_EXPORT_LOCAL_EDITOR_INTEGRATION.md` and
 `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_HTTP_COMPOSITION.md`.
 
-## Local Readiness Exit Gate
+## LOCAL-G Follow-Up
 
-`LOCAL-G` may close only when evidence proves:
+The portable actual-provider gate now executes the exact canonical request and
+download in one Node process, exits it, and performs caller-key replay, status,
+worker, and byte-identity checks in a fresh process over the same PostgreSQL and
+MinIO state. The replay invokes no renderer or persistence work. Actual HTTP
+cancellation before handoff produces no object; retained focused tests cover
+before-render, mid-render, and before-persistence cancellation.
+
+Actual MinIO deletion and corruption between write and readback both block
+artifact metadata and terminal workflow completion. Canonical resource digest
+drift blocks composition before admission or renderer creation. Existing
+competing-connection and bounded continuation evidence retains one claim/
+persistence owner and orphan traversal without prefix starvation.
+
+The accepted 2026-07-19 workload measured 3315 ms wall time, 3110 ms CPU,
+370290688 peak RSS bytes, 227958784 RSS-growth bytes, 16 PDF metadata rows,
+655360 relation bytes, one 1212656-byte object, and seven HTTP requests. Every
+value is below the versioned LOCAL-G guardrail. These are local qualification
+facts, not production SLO, scale, cost, or availability claims. The actual
+provider suite passes `24/24`.
+
+Primary follow-up evidence is retained in
+`../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_READINESS_AUDIT.md`.
+
+## Local Readiness Exit Gate (Accepted)
+
+`LOCAL-G` closes because retained evidence proves:
 
 - exact canonical request-to-download byte identity across process restart;
 - no render on exact terminal replay;

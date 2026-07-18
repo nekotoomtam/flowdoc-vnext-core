@@ -1035,6 +1035,14 @@ The package must remain runnable without any parent editor checkout.
   loopback-only HTTP process, and the dedicated worker factory. Independent
   HTTP/worker connections pass request-to-verified-download and no-render
   replay; Editor, readiness, and production stay closed.
+- PDF export LOCAL-F adds authenticated exact-pin eligibility and the complete
+  request/status/cancel/download Editor workflow through a development-only
+  same-origin proxy. Browser code receives no local credential and the normal
+  product document remains ineligible without fixture substitution.
+- PDF export LOCAL-G accepts the bounded canonical local-readiness audit across
+  two operating-system processes, actual PostgreSQL/MinIO restart replay,
+  cancellation and corruption gates, exact bytes, and a measured resource
+  envelope. Product-document eligibility and production remain closed.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.
