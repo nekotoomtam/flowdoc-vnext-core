@@ -11399,3 +11399,44 @@ Primary evidence:
 Next phase: `PDF-EXPORT-LOCAL-F` Editor eligibility/request/status/cancel/
 download integration through a development-only same-origin proxy. Readiness
 and production remain closed.
+
+## PDF-EXPORT-LOCAL-F Editor Same-Origin Workflow
+
+Status: authenticated exact-pin eligibility plus Editor request, redacted
+status polling, cancellation, verified download, retry, and stale-revision
+handling accepted through a development-only same-origin proxy. Readiness and
+production remain blocked.
+
+Backend adds the eligibility route only to the separate loopback PDF listener.
+It requires the local credential, uses the trusted canonical inspector,
+authorizes accepted/stale canonical pins, returns a no-store redacted result,
+adds no CORS, and creates no operation. Actual-provider evidence checks
+eligibility before the retained canonical request-to-download lane.
+
+Editor parses exact eligibility and public operation contracts, binds every
+async result to the current fresh document/revision, retains one idempotency
+key per request or cancellation intent, continues bounded polling through
+repeated states and transport failures, and exposes compact Export, Cancel,
+Download, or Retry commands. Browser requests contain no credential or caller
+identity. Vite injects the bearer only for an exact local serve profile; build
+mode receives no proxy.
+
+The current product document remains explicitly ineligible because the
+trusted Backend lane accepts only the Phase T canonical source. Fixture or pin
+substitution is forbidden. Eligible browser lifecycle evidence for a
+product-readable canonical working set, complete restart/cancellation/
+corruption/fidelity/load evidence, and production selection remain closed.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`;
+- `../flowdoc-vnext-editor/docs/PDF_EXPORT_LOCAL_EDITOR_INTEGRATION.md`;
+- `../flowdoc-vnext-editor/src/app/useLocalPdfExport.ts`;
+- `../flowdoc-vnext-editor/src/editor/pdfExport/localPdfExportTransport.ts`;
+- `../flowdoc-vnext-editor/src/tests/localPdfExport.test.ts`;
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalEligibilityHttpHandler.ts`;
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalEligibilityHttpHandler.test.ts`; and
+- `../flowdoc-vnext-backend/src/tests/pdfExportLocalProviders.integration.test.ts`.
+
+Next phase: `PDF-EXPORT-LOCAL-G` end-to-end restart, cancellation, corruption,
+fidelity, and bounded-load readiness audit. Production remains NO-GO.

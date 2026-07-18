@@ -72,6 +72,9 @@ this handoff plus every canonical font/image resource before admitting the
 document revision. Independent local HTTP and worker connections retain the
 same 13-page, 1,212,656-byte artifact through physically verified download.
 
-This follow-up does not change the Phase T boundary: the default Backend
-server, Editor integration, production renderer/provider selection, and
-production activation remain blocked.
+`PDF-EXPORT-LOCAL-F` adds exact-pin eligibility and the development-only Editor
+request/status/cancel/download workflow without changing this artifact. The
+normal product Editor document remains ineligible and cannot substitute this
+canonical source. This follow-up does not change the Phase T boundary: the
+default Backend server, production renderer/provider selection, readiness,
+and production activation remain blocked.

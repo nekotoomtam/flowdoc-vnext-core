@@ -134,10 +134,12 @@ The post-V implementation order is now locked in
 runtime with local providers before production provider selection and does not
 change this baseline's NO-GO activation decision.
 
-LOCAL-B through LOCAL-E now accept the controlled renderer adapter, local
+LOCAL-B through LOCAL-F now accept the controlled renderer adapter, local
 PostgreSQL/S3-compatible providers, bounded due-work discovery, the
 explicit-start local worker lifecycle, and a separate loopback-only canonical
-HTTP composition. The default application server remains unmounted. Editor
-workflow, readiness audit, hosted providers, and production activation remain
-blocked. None of these local follow-ups changes this baseline's production
-NO-GO decision.
+HTTP composition plus the development-only same-origin Editor workflow. The
+default application server remains unmounted, browser code receives no local
+credential, and the normal product document remains ineligible without fixture
+substitution. Readiness audit, hosted providers, and production activation
+remain blocked. None of these local follow-ups changes this baseline's
+production NO-GO decision.

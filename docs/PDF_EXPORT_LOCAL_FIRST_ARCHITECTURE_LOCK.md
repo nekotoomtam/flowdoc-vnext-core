@@ -314,6 +314,37 @@ provider lane passes `20/20`.
 Primary follow-up evidence is retained in
 `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_HTTP_COMPOSITION.md`.
 
+## LOCAL-F Follow-Up
+
+Backend now exposes an authenticated, no-store exact-pin eligibility contract
+only on the separate local PDF listener. It classifies the retained canonical
+revision as eligible, another revision as stale, and all other documents as
+ineligible without admitting an operation. The response remains redacted and
+adds no CORS.
+
+Editor now checks that contract against the exact current fresh working-set
+pin, submits only the two-field document pin with a retained caller
+idempotency key, polls redacted operation status, exposes independent
+cancellation intent, accepts only verified terminal PDF downloads, and resets
+all intent when the document revision changes. Invalid or expanded public
+responses fail closed.
+
+The Vite proxy exists only for an exact local `serve` profile, injects the
+uncommitted bearer inside the Node proxy process, and strips the proxy prefix
+before forwarding to the loopback PDF listener. Browser code receives no
+credential. Build and preview configurations receive no PDF proxy even when
+the local environment values exist.
+
+The normal Editor product document remains ineligible because LOCAL-E still
+accepts only the Phase T canonical evidence source. Editor does not override
+the working-set pin or substitute that fixture. An eligible browser lifecycle
+over a product-readable canonical working set and all readiness/fault/load
+evidence remain for LOCAL-G or a later trusted product-document lane.
+
+Primary follow-up evidence is retained in
+`../flowdoc-vnext-editor/docs/PDF_EXPORT_LOCAL_EDITOR_INTEGRATION.md` and
+`../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_HTTP_COMPOSITION.md`.
+
 ## Local Readiness Exit Gate
 
 `LOCAL-G` may close only when evidence proves:
