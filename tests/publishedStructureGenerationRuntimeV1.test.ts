@@ -675,7 +675,7 @@ describe("Published Structure generation runtime v1", () => {
     expect(exports).toContain('export * from "./generation/publishedStructureGenerationRuntimeV1.js"')
     expect(uatExports).toContain('export * from "./uatGenerationMapper.js"')
     expect(runtimeDoc).toContain("## Backend E.3 Handoff Evidence")
-    expect(runtimeDoc).toContain("`PDF-EXPORT-REALDOC-E.4` binds one Backend-admitted 69C canonical record")
+    expect(runtimeDoc).toContain("`PDF-EXPORT-REALDOC-E.4` now binds one Backend-admitted 69C canonical record")
     expect(roadmap).toContain("### REALDOC-E.3 Bounded Local Backend DocGen Admission (Accepted)")
 
     for (const claim of ["backend route activated", "materialization executed", "production ready"]) {

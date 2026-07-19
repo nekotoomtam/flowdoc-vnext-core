@@ -35,7 +35,7 @@ import {
   type VNextTextEngineAdapterGlyphFact,
   type VNextTextEngineAdapterLineBoxFact,
 } from "@flowdoc/vnext-core"
-import type { FlowDocUatSectionResolutionBundleV1 } from "./uatSectionResolution.js"
+import type { FlowDocUatMeasuredResolutionBundleV1 } from "./uatSectionResolution.js"
 import { createFlowDocUatStructureDefinitionV1 } from "./uatStructureDefinition.js"
 
 export const FLOWDOC_UAT_MEASURED_EXPORT_VERSION = 1 as const
@@ -115,7 +115,7 @@ export interface FlowDocUatMeasuredExportPlanV1 {
     requirements: FlowDocUatMeasuredTablePlanV1
     screenshots: FlowDocUatMeasuredTablePlanV1
   }
-  resolution: FlowDocUatSectionResolutionBundleV1
+  resolution: FlowDocUatMeasuredResolutionBundleV1
   planFingerprint: string
 }
 
@@ -334,8 +334,8 @@ function createConsumer(input: {
 function tablePlan(input: {
   tableId: FlowDocUatMeasuredTablePlanV1["tableId"]
   definition: ReturnType<typeof createFlowDocUatStructureDefinitionV1>["tables"]["requirements"]["definition"]
-  materialization: FlowDocUatSectionResolutionBundleV1["tables"]["requirements"]["materializedContent"]
-  resolvedDocument: FlowDocUatSectionResolutionBundleV1["scopedResolution"]["resolvedDocument"]
+  materialization: FlowDocUatMeasuredResolutionBundleV1["tables"]["requirements"]["materializedContent"]
+  resolvedDocument: FlowDocUatMeasuredResolutionBundleV1["scopedResolution"]["resolvedDocument"]
   styleCatalog: ReturnType<typeof createFlowDocUatStructureDefinitionV1>["styleCatalog"]
   insetPt: number
 }): FlowDocUatMeasuredTablePlanV1 {
@@ -385,7 +385,7 @@ function tablePlan(input: {
 }
 
 export function createFlowDocUatMeasuredExportPlanV1(input: {
-  resolution: FlowDocUatSectionResolutionBundleV1
+  resolution: FlowDocUatMeasuredResolutionBundleV1
 }): FlowDocUatMeasuredExportPlanResultV1 {
   try {
     const resolution = input.resolution

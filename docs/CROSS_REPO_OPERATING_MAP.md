@@ -130,7 +130,12 @@ editor intent
   Backend admission. Backend owns bounded strict requests, exact Structure
   authorization, deterministic instance identity, allowlisted mapping,
   verified asset bytes, protected canonical records, and content-free replay
-  receipts. E.4 still owns materialization and artifact-lifecycle binding:
+  receipts.
+- PDF export REALDOC-E.4 binds the protected canonical record to source-neutral
+  Core resolution and the existing Backend PDF operation/worker/artifact
+  lifecycle. Exact replay, persistence, status, cancellation, and verified
+  download pass for the 10-page 69C slice without rereading raw payloads.
+  Editor pre-test remains E.5:
   `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DOCGEN_HANDOFF.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It

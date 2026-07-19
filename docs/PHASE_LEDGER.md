@@ -11810,3 +11810,30 @@ Primary evidence:
 Next phase: `PDF-EXPORT-REALDOC-E.4` admitted 69C materialization, resolution,
 and existing local worker/artifact lifecycle binding. Production remains
 NO-GO.
+
+## PDF-EXPORT-REALDOC-E.4 Admitted Artifact Lifecycle
+
+Status: accepted local-only protected-record materialization and artifact
+lifecycle binding. Production remains NO-GO.
+
+Core now resolves Backend-retained canonical snapshots without reconstructing
+source-adapter metadata, then creates the existing UAT measured export plan,
+native text evidence, pagination, and measured draw contract. Backend
+revalidates protected record and asset identities, derives a downstream source
+fingerprint, and reuses the existing PDF route, worker, cancellation,
+persistence, status, terminal replay, integrity check, and download flow.
+
+The retained 69C evidence admits 10 requirements and 7 screenshots and creates
+a verified 10-page, 1,417,544-byte PDF with SHA-256
+`61f84cbd503260faf9ff60e303d7053fb09b5ef1b24cb720fc54e0bb24262d0a`.
+Cancellation before worker persists no bytes. Raw payloads are not retained or
+reread, public lifecycle records contain no canonical business values, and
+changed canonical data changes downstream source/request identity.
+
+Default route mounting, durable generation storage, Editor UI, hosted
+providers, and production remain inactive. Visual review retains one known
+renderer-pilot issue from REALDOC-D: some continuation pages can hide the
+header and leading `Pa` of the footer label.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5` Editor pre-test over the same admission and
+artifact identities.

@@ -209,6 +209,7 @@ PDF bytes, storage, status, or download. That binding remains E.4.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.4` binds one Backend-admitted 69C canonical record to
-materialization, resolution, and the existing local artifact lifecycle.
-Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.4` now binds one Backend-admitted 69C canonical record to
+source-neutral materialization/resolution and the existing local artifact
+lifecycle. See `docs/PDF_EXPORT_REALDOC_ADMITTED_ARTIFACT_LIFECYCLE.md`.
+Next: `PDF-EXPORT-REALDOC-E.5` Editor pre-test. Production remains NO-GO.

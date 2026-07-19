@@ -438,8 +438,14 @@ authorization, deterministic revision-0 instance identity, trusted mapper
 selection, actual asset-byte verification, protected canonical records, and
 idempotent content-free receipts. The existing PDF routes, local command,
 default application server, worker, artifact lifecycle, Editor UI, hosted
-providers, and production binding remain unchanged. E.4 must connect an
-admitted 69C record to materialization and the local artifact lifecycle.
+providers, and production binding remain unchanged at E.3.
+
+REALDOC-E.4 now accepts the optional protected-record binding. Core performs
+source-neutral canonical resolution and measured materialization; Backend pins
+the materializer and artifact input, then reuses the existing local route,
+worker, cancellation, persistence, status, integrity, and download lifecycle.
+The default server and Editor remain unchanged, durable generation persistence
+is still absent, and production remains NO-GO. E.5 owns the Editor pre-test.
 
 ## Local Readiness Exit Gate (Accepted)
 

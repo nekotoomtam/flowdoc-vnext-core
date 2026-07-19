@@ -185,3 +185,10 @@ in-memory, its current local command does not mount the route, and it performs
 no materialization, worker, renderer, persistence, or artifact action. It
 selects no hosted provider or production identity/deployment policy and changes
 no production blocker or NO-GO decision.
+
+`PDF-EXPORT-REALDOC-E.4` adds an optional local binding from the protected E.3
+canonical record to source-neutral resolution and the existing PDF operation,
+worker, cancellation, persistence, status, and verified-download lifecycle.
+The 69C evidence completes as a 10-page local artifact. Default routes,
+durable generation storage, Editor UI, hosted providers, and production remain
+inactive.

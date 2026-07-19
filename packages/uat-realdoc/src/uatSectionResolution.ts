@@ -5,6 +5,7 @@ import {
   VNextDocumentInstanceIdentityV1Schema,
   VNextInstanceDataSnapshotV1Schema,
   VNextInstanceMediaSnapshotV1Schema,
+  VNextPublishedStructureCanonicalSnapshotInputV1Schema,
   VNextTableCollectionSnapshotV1Schema,
   createVNextDerivedIdentityProvenanceV1,
   createVNextTableContentSourcePlanV1,
@@ -18,6 +19,7 @@ import {
   type VNextDocumentInstanceIdentityV1,
   type VNextDocumentInstanceMaterializationPlanV1,
   type VNextPublishedTableContentBindingContractV1,
+  type VNextPublishedStructureCanonicalSnapshotInputV1,
   type VNextResolvedTableRowsReadyV1,
   type VNextScopedResolvedDocumentResultV1,
   type VNextTableCollectionIdentityAssignmentV1,
@@ -43,6 +45,15 @@ const InputSchema = z.object({
   contractVersion: z.literal(FLOWDOC_UAT_SECTION_RESOLUTION_VERSION),
   kind: z.literal("uat-section-resolution-request"),
   adapterBundle: z.unknown(),
+  screenshotPlacementPolicy: z.literal(FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY),
+}).strict()
+
+const CanonicalGenerationInputSchema = z.object({
+  contractVersion: z.literal(FLOWDOC_UAT_SECTION_RESOLUTION_VERSION),
+  kind: z.literal("uat-canonical-generation-resolution-request"),
+  canonicalInput: VNextPublishedStructureCanonicalSnapshotInputV1Schema,
+  canonicalInputFingerprint: z.string().regex(/^sha256:[a-f0-9]{64}$/u),
+  publishedStructureFingerprint: z.string().regex(/^sha256:[a-f0-9]{64}$/u),
   screenshotPlacementPolicy: z.literal(FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY),
 }).strict()
 
@@ -90,6 +101,15 @@ export interface FlowDocUatSectionResolutionRequestV1 {
   screenshotPlacementPolicy: typeof FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY
 }
 
+export interface FlowDocUatCanonicalGenerationResolutionRequestV1 {
+  contractVersion: typeof FLOWDOC_UAT_SECTION_RESOLUTION_VERSION
+  kind: "uat-canonical-generation-resolution-request"
+  canonicalInput: VNextPublishedStructureCanonicalSnapshotInputV1
+  canonicalInputFingerprint: string
+  publishedStructureFingerprint: string
+  screenshotPlacementPolicy: typeof FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY
+}
+
 type ScopedResolutionReadyV1 = Extract<VNextScopedResolvedDocumentResultV1, { status: "resolved" }>
 type TableMaterializationReadyV1 = Extract<VNextTableContentMaterializationResultV1, { status: "materialized" }>
 
@@ -109,18 +129,7 @@ export interface FlowDocUatSourceToInstanceRowV1 {
   rowInstanceId: string
 }
 
-export interface FlowDocUatSectionResolutionBundleV1 {
-  contractVersion: typeof FLOWDOC_UAT_SECTION_RESOLUTION_VERSION
-  kind: "uat-section-resolution-bundle"
-  resolutionId: typeof FLOWDOC_UAT_SECTION_RESOLUTION_ID
-  adapter: {
-    adapterId: typeof FLOWDOC_UAT_SEMANTIC_NO_PAGES_ADAPTER_ID
-    bundleFingerprint: string
-    sourceSetId: string
-    selectedSectionNumber: string
-    textNormalizationProfileId: typeof FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID
-    textNormalizationFingerprint: string
-  }
+export interface FlowDocUatResolvedSectionContentV1 {
   structureFingerprint: string
   resolutionInputFingerprint: string
   instance: VNextDocumentInstanceIdentityV1
@@ -167,11 +176,41 @@ export interface FlowDocUatSectionResolutionBundleV1 {
     imageBindingCount: number
     sourceToInstanceRowCount: number
   }
+}
+
+export interface FlowDocUatSectionResolutionBundleV1 extends FlowDocUatResolvedSectionContentV1 {
+  contractVersion: typeof FLOWDOC_UAT_SECTION_RESOLUTION_VERSION
+  kind: "uat-section-resolution-bundle"
+  resolutionId: typeof FLOWDOC_UAT_SECTION_RESOLUTION_ID
+  adapter: {
+    adapterId: typeof FLOWDOC_UAT_SEMANTIC_NO_PAGES_ADAPTER_ID
+    bundleFingerprint: string
+    sourceSetId: string
+    selectedSectionNumber: string
+    textNormalizationProfileId: typeof FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID
+    textNormalizationFingerprint: string
+  }
   bundleFingerprint: string
 }
 
+export interface FlowDocUatCanonicalGenerationResolutionBundleV1 extends FlowDocUatResolvedSectionContentV1 {
+  contractVersion: typeof FLOWDOC_UAT_SECTION_RESOLUTION_VERSION
+  kind: "uat-canonical-generation-resolution-bundle"
+  resolutionId: "flowdoc-uat-canonical-generation-resolution-v1"
+  generation: {
+    canonicalInputFingerprint: string
+    publishedStructureFingerprint: string
+    source: "backend-protected-canonical-record"
+  }
+  bundleFingerprint: string
+}
+
+export type FlowDocUatMeasuredResolutionBundleV1 =
+  | FlowDocUatSectionResolutionBundleV1
+  | FlowDocUatCanonicalGenerationResolutionBundleV1
+
 export interface FlowDocUatSectionResolutionIssueV1 {
-  source: "schema" | "adapter-bundle" | "placement" | "instance" | "resolution" | "table"
+  source: "schema" | "adapter-bundle" | "canonical-generation" | "placement" | "instance" | "resolution" | "table"
   code: string
   path: string
   message: string
@@ -182,6 +221,18 @@ export type FlowDocUatSectionResolutionResultV1 =
   | {
       status: "resolved"
       bundle: FlowDocUatSectionResolutionBundleV1
+      issues: []
+    }
+  | {
+      status: "blocked"
+      bundle: null
+      issues: FlowDocUatSectionResolutionIssueV1[]
+    }
+
+export type FlowDocUatCanonicalGenerationResolutionResultV1 =
+  | {
+      status: "resolved"
+      bundle: FlowDocUatCanonicalGenerationResolutionBundleV1
       issues: []
     }
   | {
@@ -567,6 +618,281 @@ function validateAdapterBundle(
     "imported text normalization evidence does not match its pinned fingerprint",
   ))
   return issues
+}
+
+function canonicalValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalValue)
+  if (value == null || typeof value !== "object") return value
+  return Object.fromEntries(Object.keys(value as Record<string, unknown>).sort().map((key) => [
+    key,
+    canonicalValue((value as Record<string, unknown>)[key]),
+  ]))
+}
+
+function canonicalFingerprint(value: unknown): string {
+  return fingerprint(canonicalValue(value))
+}
+
+type CanonicalContentResolutionV1 =
+  | { status: "resolved"; content: FlowDocUatResolvedSectionContentV1; issues: [] }
+  | { status: "blocked"; content: null; issues: FlowDocUatSectionResolutionIssueV1[] }
+
+function resolveCanonicalSectionContent(input: {
+  instance: VNextDocumentInstanceIdentityV1
+  dataSnapshot: FlowDocUatSectionDataBundleV1["dataSnapshot"]
+  collectionSnapshot: FlowDocUatSectionDataBundleV1["collectionSnapshot"]
+  mediaSnapshot: FlowDocUatSectionDataBundleV1["mediaSnapshot"]
+  resolutionInputFingerprint: string
+  screenshotOrder: string[]
+}): CanonicalContentResolutionV1 {
+  const structure = createFlowDocUatStructureDefinitionV1()
+  if (input.instance.revision !== 0) return {
+    status: "blocked",
+    content: null,
+    issues: [issue(
+      "instance", "instance-revision-not-zero", "canonicalInput.dataSnapshot.instance.revision",
+      "UAT canonical generation materializes only an initial revision-zero instance",
+    )],
+  }
+
+  const title = input.dataSnapshot.data.values["uat.document.title"]
+  if (typeof title !== "string" || title.trim().length === 0) return {
+    status: "blocked",
+    content: null,
+    issues: [issue(
+      "instance", "instance-title-missing", "canonicalInput.dataSnapshot.data.values.uat.document.title",
+      "revision-zero materialization requires a non-blank UAT document title",
+    )],
+  }
+  const bodyZone = structure.starterDocument.document.sections[0].nodes["uat-body-zone"]
+  const expectedBodyOrder = [
+    "uat-requirements-table", "uat-screenshots-heading", "uat-screenshots-table",
+  ] as const
+  if (bodyZone.type !== "zone" || expectedBodyOrder.some((nodeId, index) => (
+    bodyZone.childIds.indexOf(nodeId) !== bodyZone.childIds.indexOf(expectedBodyOrder[0]) + index
+  ))) return {
+    status: "blocked",
+    content: null,
+    issues: [issue(
+      "placement", "screenshot-body-order-mismatch", "structure.starterDocument.uat-body-zone",
+      "screenshot placement policy requires the screenshot heading and table immediately after requirements",
+    )],
+  }
+
+  const instanceMaterialization = planVNextDocumentInstanceMaterializationV1({
+    contractVersion: 1,
+    kind: "document-instance-materialization-request",
+    publishedStructure: structure.structure,
+    instance: input.instance,
+    starterDocument: structure.starterDocument,
+    policySet: structure.policySet,
+    instanceMeta: { title },
+  })
+  if (instanceMaterialization.status !== "planned") return {
+    status: "blocked",
+    content: null,
+    issues: instanceMaterialization.issues.map((item) => issue(
+      "instance", item.code, item.path, item.message,
+    )),
+  }
+
+  const scopedResolution = resolveVNextScopedDocumentV1({
+    contractVersion: 1,
+    kind: "scoped-resolved-projection-input",
+    projection: {
+      contractVersion: 1,
+      kind: "resolved-projection-input",
+      instance: input.instance,
+      document: instanceMaterialization.document,
+      published: {
+        contractVersion: 1,
+        kind: "published-resolution-bundle",
+        publishedStructure: structure.structure,
+        fieldContract: structure.fieldContract,
+        styleCatalog: structure.styleCatalog,
+        staticMedia: structure.staticMedia,
+      },
+      dataSnapshot: input.dataSnapshot,
+      instanceMedia: input.mediaSnapshot,
+    },
+    tables: [
+      {
+        definition: structure.tables.requirements.definition,
+        itemContract: structure.collectionItemContract,
+        bindingContract: structure.tables.requirements.bindingContract,
+      },
+      {
+        definition: structure.tables.screenshots.definition,
+        itemContract: structure.collectionItemContract,
+        bindingContract: structure.tables.screenshots.bindingContract,
+      },
+    ],
+  })
+  if (scopedResolution.status !== "resolved") return {
+    status: "blocked",
+    content: null,
+    issues: scopedResolution.issues.map((item) => issue(
+      "resolution", item.code, item.path, item.message,
+    )),
+  }
+
+  const sharedTableInput = {
+    instance: input.instance,
+    resolutionInputFingerprint: input.resolutionInputFingerprint,
+    document: instanceMaterialization.document,
+    fieldContract: structure.fieldContract,
+    itemContract: structure.collectionItemContract,
+    collectionSnapshot: input.collectionSnapshot,
+    scopedResolution,
+  }
+  const requirements = resolveTable({
+    ...sharedTableInput,
+    definition: structure.tables.requirements.definition,
+    bindingContract: structure.tables.requirements.bindingContract,
+  })
+  const screenshots = resolveTable({
+    ...sharedTableInput,
+    definition: structure.tables.screenshots.definition,
+    bindingContract: structure.tables.screenshots.bindingContract,
+  })
+  const tableIssues = [requirements, screenshots].flatMap((table) => Array.isArray(table) ? table : [])
+  if (tableIssues.length > 0 || Array.isArray(requirements) || Array.isArray(screenshots)) {
+    return { status: "blocked", content: null, issues: tableIssues }
+  }
+
+  const materializations = [requirements, screenshots].map((table) => table.materializedContent)
+  return {
+    status: "resolved",
+    content: {
+      structureFingerprint: structure.structureFingerprint,
+      resolutionInputFingerprint: input.resolutionInputFingerprint,
+      instance: clone(input.instance),
+      instanceMaterialization,
+      scopedResolution,
+      tables: { requirements, screenshots },
+      screenshotPlacement: {
+        status: "resolved",
+        policy: FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY,
+        bodyOrder: [...expectedBodyOrder],
+        screenshotOrder: clone(input.screenshotOrder),
+        requirementLevelPlacement: false,
+        basis: "page-geometry-and-granular-links-unavailable",
+      },
+      provenance: {
+        starterGraph: clone(instanceMaterialization.provenance),
+        sourceToInstanceRows: [],
+        generated: materializations.flatMap((materialization) => clone(materialization.provenance)),
+      },
+      execution: {
+        persistence: "not-run",
+        revisionAdvance: false,
+        documentMaterialization: "planned",
+        documentResolution: "resolved",
+        collectionRowResolution: "resolved",
+        collectionContentMaterialization: "materialized",
+        measurement: "not-run",
+        pagination: "not-run",
+        rendering: "not-run",
+      },
+      summary: {
+        documentFieldBindingCount: scopedResolution.resolvedDocument.bindings.fields.length,
+        styleBindingCount: scopedResolution.resolvedDocument.bindings.styles.length,
+        tableCount: 2,
+        resolvedRowCount: materializations.reduce((sum, table) => sum + table.work.rowCount, 0),
+        materializedRowCount: materializations.reduce((sum, table) => sum + table.work.materializedRowCount, 0),
+        authoredReferenceRowCount: materializations.reduce((sum, table) => sum + table.work.authoredReferenceRowCount, 0),
+        clonedNodeCount: materializations.reduce((sum, table) => sum + table.work.clonedNodeCount, 0),
+        clonedInlineCount: materializations.reduce((sum, table) => sum + table.work.clonedInlineCount, 0),
+        textBindingCount: materializations.reduce((sum, table) => sum + table.work.textBindingCount, 0),
+        imageBindingCount: materializations.reduce((sum, table) => sum + table.work.imageBindingCount, 0),
+        sourceToInstanceRowCount: 0,
+      },
+    },
+    issues: [],
+  }
+}
+
+export function resolveFlowDocUatCanonicalGenerationV1(
+  value: unknown,
+): FlowDocUatCanonicalGenerationResolutionResultV1 {
+  const parsed = CanonicalGenerationInputSchema.safeParse(value)
+  if (!parsed.success) return {
+    status: "blocked",
+    bundle: null,
+    issues: parsed.error.issues.map((item) => issue(
+      "schema", item.code, formatPath(item.path), item.message,
+    )),
+  }
+  const request = parsed.data
+  if (canonicalFingerprint(request.canonicalInput) !== request.canonicalInputFingerprint) return {
+    status: "blocked",
+    bundle: null,
+    issues: [issue(
+      "canonical-generation", "canonical-input-fingerprint-mismatch", "canonicalInputFingerprint",
+      "canonical generation input does not match its accepted runtime fingerprint",
+    )],
+  }
+  const structure = createFlowDocUatStructureDefinitionV1()
+  if (request.publishedStructureFingerprint !== structure.structureFingerprint) return {
+    status: "blocked",
+    bundle: null,
+    issues: [issue(
+      "canonical-generation", "structure-fingerprint-mismatch", "publishedStructureFingerprint",
+      "canonical generation must pin the exact accepted UAT Published Structure",
+    )],
+  }
+  if (request.canonicalInput.collectionSnapshots.length !== 1) return {
+    status: "blocked",
+    bundle: null,
+    issues: [issue(
+      "canonical-generation", "collection-snapshot-count-invalid", "canonicalInput.collectionSnapshots",
+      "UAT canonical generation requires exactly one collection snapshot",
+    )],
+  }
+  const collectionSnapshot = request.canonicalInput.collectionSnapshots[0]!
+  if (
+    collectionSnapshot.collections["uat.requirements"] == null
+    || collectionSnapshot.collections["uat.screenshots"] == null
+  ) return {
+    status: "blocked",
+    bundle: null,
+    issues: [issue(
+      "canonical-generation", "uat-collections-missing", "canonicalInput.collectionSnapshots[0].collections",
+      "UAT canonical generation requires requirements and screenshots collections",
+    )],
+  }
+  const resolutionInputFingerprint = canonicalFingerprint({
+    contractVersion: FLOWDOC_UAT_SECTION_RESOLUTION_VERSION,
+    kind: "uat-canonical-generation-resolution-input",
+    canonicalInputFingerprint: request.canonicalInputFingerprint,
+    publishedStructureFingerprint: request.publishedStructureFingerprint,
+    screenshotPlacementPolicy: request.screenshotPlacementPolicy,
+  })
+  const content = resolveCanonicalSectionContent({
+    instance: request.canonicalInput.dataSnapshot.instance,
+    dataSnapshot: request.canonicalInput.dataSnapshot,
+    collectionSnapshot,
+    mediaSnapshot: request.canonicalInput.mediaSnapshot,
+    resolutionInputFingerprint,
+    screenshotOrder: collectionSnapshot.collections["uat.screenshots"]!.items.map((item) => item.itemKey),
+  })
+  if (content.status === "blocked") return { status: "blocked", bundle: null, issues: content.issues }
+  const unsigned: Omit<FlowDocUatCanonicalGenerationResolutionBundleV1, "bundleFingerprint"> = {
+    contractVersion: FLOWDOC_UAT_SECTION_RESOLUTION_VERSION,
+    kind: "uat-canonical-generation-resolution-bundle",
+    resolutionId: "flowdoc-uat-canonical-generation-resolution-v1",
+    generation: {
+      canonicalInputFingerprint: request.canonicalInputFingerprint,
+      publishedStructureFingerprint: request.publishedStructureFingerprint,
+      source: "backend-protected-canonical-record",
+    },
+    ...content.content,
+  }
+  return {
+    status: "resolved",
+    bundle: { ...unsigned, bundleFingerprint: fingerprint(unsigned) },
+    issues: [],
+  }
 }
 
 export function resolveFlowDocUatSectionV1(value: unknown): FlowDocUatSectionResolutionResultV1 {

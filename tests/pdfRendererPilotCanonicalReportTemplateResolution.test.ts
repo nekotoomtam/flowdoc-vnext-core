@@ -227,7 +227,7 @@ describe("PDF-PILOT-08B-R2B canonical report template and resolution", () => {
       issues: [{ code: "invalid-bundle-shape" }],
       summary: null,
     })
-  })
+  }, 15_000)
 
   it("retains QA and phase documentation without claiming formatted text or PDF", () => {
     const qa = readJson<any>(

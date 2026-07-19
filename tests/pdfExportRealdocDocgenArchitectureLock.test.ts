@@ -54,7 +54,7 @@ describe("PDF-EXPORT-REALDOC-E.0 DocGen architecture lock", () => {
     expect(doc).toMatch(/No fixed global UAT, invoice, or form field list enters Core/)
   })
 
-  it("updates the retained roadmap and phase trail without activating runtime", () => {
+  it("updates the retained roadmap and phase trail without activating production", () => {
     const roadmap = readText("../docs/PDF_EXPORT_REAL_DOCUMENT_ROADMAP.md")
     const localLock = readText("../docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md")
     const handoff = readText("../docs/PDF_REAL_EXPORT_HANDOFF.md")
@@ -66,7 +66,8 @@ describe("PDF-EXPORT-REALDOC-E.0 DocGen architecture lock", () => {
 
     expect(roadmap).toContain("### REALDOC-E.0 DocGen Architecture Realignment (Accepted)")
     expect(roadmap).toContain("### REALDOC-E.3 Bounded Local Backend DocGen Admission (Accepted)")
-    expect(roadmap).toContain("### REALDOC-E DocGen Pre-Test And Local API Workflow")
+    expect(roadmap).toContain("### REALDOC-E.4 Admitted Local Artifact Lifecycle (Accepted)")
+    expect(roadmap).toContain("### REALDOC-E.5 Editor Pre-Test And E.6 Cross-Repo Acceptance")
     expect(localLock).toContain("REALDOC-E.0 now realigns")
     expect(handoff).toContain("`PDF-EXPORT-REALDOC-E.0` realigns")
     expect(measured).toContain("`PDF-EXPORT-REALDOC-E.1` Published Structure generation input")
@@ -84,6 +85,6 @@ describe("PDF-EXPORT-REALDOC-E.0 DocGen architecture lock", () => {
 
 function docRuntimeClaims(roadmap: string): string[] {
   const e0 = roadmap.split("### REALDOC-E.0 DocGen Architecture Realignment (Accepted)")[1]
-    ?.split("### REALDOC-E DocGen Pre-Test And Local API Workflow")[0] ?? ""
+    ?.split("### REALDOC-E.1 Published Structure Generation Input (Accepted)")[0] ?? ""
   return ["route activated", "renderer promoted", "production ready"].filter((claim) => e0.includes(claim))
 }

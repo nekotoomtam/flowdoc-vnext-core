@@ -6,6 +6,7 @@ import {
   FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY,
   adaptFlowDocUatSemanticNoPagesSectionV1,
   flowDocUatPublishedStructureRefV1,
+  resolveFlowDocUatCanonicalGenerationV1,
   resolveFlowDocUatSectionV1,
   type FlowDocUatSemanticNoPagesAdapterInputV1,
   type FlowDocUatSectionDataBundleV1,
@@ -118,7 +119,73 @@ function repinAdapterBundle(bundle: FlowDocUatSectionDataBundleV1): void {
     .digest("hex")}`
 }
 
+function canonicalValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalValue)
+  if (value == null || typeof value !== "object") return value
+  return Object.fromEntries(Object.keys(value as Record<string, unknown>).sort().map((key) => [
+    key,
+    canonicalValue((value as Record<string, unknown>)[key]),
+  ]))
+}
+
+function canonicalFingerprint(value: unknown): string {
+  return `sha256:${createHash("sha256")
+    .update(JSON.stringify(canonicalValue(value)), "utf8")
+    .digest("hex")}`
+}
+
 describe("PDF-EXPORT-REALDOC-C UAT section resolution", () => {
+  it("resolves a Backend-retained canonical generation without adapter provenance", () => {
+    const adapted = adapterBundle()
+    const canonicalInput = {
+      kind: "canonical-snapshot-input" as const,
+      dataSnapshot: adapted.dataSnapshot,
+      collectionSnapshots: [adapted.collectionSnapshot],
+      mediaSnapshot: adapted.mediaSnapshot,
+    }
+    const result = resolveFlowDocUatCanonicalGenerationV1({
+      contractVersion: 1,
+      kind: "uat-canonical-generation-resolution-request",
+      canonicalInput,
+      canonicalInputFingerprint: canonicalFingerprint(canonicalInput),
+      publishedStructureFingerprint: adapted.structureFingerprint,
+      screenshotPlacementPolicy: FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY,
+    })
+
+    expect(result.status).toBe("resolved")
+    if (result.status !== "resolved") throw new Error(JSON.stringify(result.issues))
+    expect(result.bundle).toMatchObject({
+      kind: "uat-canonical-generation-resolution-bundle",
+      resolutionId: "flowdoc-uat-canonical-generation-resolution-v1",
+      generation: {
+        source: "backend-protected-canonical-record",
+        publishedStructureFingerprint: adapted.structureFingerprint,
+      },
+      instance: { instanceId: "instance-uat-synthetic-c-local", revision: 0 },
+      screenshotPlacement: { screenshotOrder: ["synthetic_c_img_001"] },
+      summary: {
+        materializedRowCount: 2,
+        imageBindingCount: 1,
+        sourceToInstanceRowCount: 0,
+      },
+    })
+    expect("adapter" in result.bundle).toBe(false)
+
+    const drifted = structuredClone(canonicalInput)
+    drifted.dataSnapshot.data.values["uat.document.title"] = "drifted"
+    expect(resolveFlowDocUatCanonicalGenerationV1({
+      contractVersion: 1,
+      kind: "uat-canonical-generation-resolution-request",
+      canonicalInput: drifted,
+      canonicalInputFingerprint: canonicalFingerprint(canonicalInput),
+      publishedStructureFingerprint: adapted.structureFingerprint,
+      screenshotPlacementPolicy: FLOWDOC_UAT_SCREENSHOT_PLACEMENT_POLICY,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "canonical-input-fingerprint-mismatch" }],
+    })
+  })
+
   it("materializes revision zero and resolves document fields plus both collection tables", () => {
     const source = resolutionRequest()
     const before = JSON.stringify(source)

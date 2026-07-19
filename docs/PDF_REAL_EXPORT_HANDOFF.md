@@ -144,3 +144,10 @@ instance, trusted Structure/data contract and mapper lookup, idempotency, exact
 asset-byte checks, protected canonical record, and content-free public receipt.
 No 69C request is connected to this measured handoff, renderer, bytes,
 operation, or artifact lifecycle until E.4.
+
+`PDF-EXPORT-REALDOC-E.4` now resolves that protected canonical record without
+reconstructing adapter provenance, creates the measured 69C handoff, and reuses
+the existing local PDF operation, worker, cancellation, persistence, status,
+and verified-download lifecycle. The retained 10-page evidence remains
+local-only; default mounting, Editor pre-test, durable generation storage,
+hosted providers, and production are still inactive.
