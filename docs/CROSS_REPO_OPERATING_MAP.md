@@ -758,7 +758,7 @@ For broad work or cross-repo handoff, include:
 
 ## Near-Term Work Queue
 
-1. Continue the accepted REALDOC-D section 2.1 deterministic 11-page local
+1. Continue the accepted REALDOC-D.1 section 2.1 deterministic 10-page local
    artifact through the development-only Editor workflow, editable instance
    values, save/reopen, exact eligibility, cancellation, retry, and verified
    local download. Keep production provider selection, default route mounting,

@@ -109,8 +109,10 @@ contract, page plan, renderer input, artifact, or product eligibility changes.
 
 `PDF-EXPORT-REALDOC-D` consumes that exact resolution through native Thai
 measurement, Core table preparation/pagination/projection, and a separate
-bounded `local-measured-document` renderer profile. The exact section exports
-as an 11-page deterministic local PDF with repeated requirement headers, whole
+bounded `local-measured-document` renderer profile. `PDF-EXPORT-REALDOC-D.1`
+then folds source-PDF layout wraps before resolution while retaining semantic
+paragraph/list breaks and normalization fingerprints. The exact section exports
+as a 10-page deterministic local PDF with repeated requirement headers, whole
 aspect-preserved screenshots, cooperative cancellation, and fresh-process
 restart equality. The canonical renderer profile remains unchanged. Durable
 artifact lifecycle, Editor eligibility, hosted providers, and production

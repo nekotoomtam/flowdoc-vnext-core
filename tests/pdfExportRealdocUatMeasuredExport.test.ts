@@ -11,7 +11,7 @@ function readText(path: string): string {
   return readFileSync(resolve(process.cwd(), path), "utf8")
 }
 
-describe("PDF-EXPORT-REALDOC-D measured UAT export", () => {
+describe("PDF-EXPORT-REALDOC-D.1 normalized measured UAT export", () => {
   it("retains content-free exact 69C acceptance evidence for native measurement, pagination, rendering, cancellation, and restart", () => {
     const evidence = JSON.parse(readText(
       "packages/uat-realdoc/fixtures/69c-section-2-1-measured-export-evidence.v1.json",
@@ -19,7 +19,7 @@ describe("PDF-EXPORT-REALDOC-D measured UAT export", () => {
 
     expect(evidence).toMatchObject({
       evidenceVersion: 1,
-      phaseId: "PDF-EXPORT-REALDOC-D",
+      phaseId: "PDF-EXPORT-REALDOC-D.1",
       status: "accepted",
       nativeMeasurement: {
         consumerCount: 97,
@@ -28,22 +28,30 @@ describe("PDF-EXPORT-REALDOC-D measured UAT export", () => {
         shaperRevision: "rustybuzz-0.20.1",
         segmenterRevision: "icu_segmenter-2.2.0",
       },
+      importedTextNormalization: {
+        profileId: "flowdoc-imported-soft-wrap-list-v1",
+        fieldCount: 36,
+        changedFieldCount: 16,
+        listItemBlockCount: 58,
+        softWrapJoinCount: 82,
+        preservedBreakCount: 58,
+      },
       composition: {
-        pageCount: 11,
+        pageCount: 10,
         imagePaintCount: 7,
-        repeatedRequirementHeaderCount: 3,
-        splitRequirementRowCount: 3,
+        repeatedRequirementHeaderCount: 2,
+        splitRequirementRowCount: 2,
         screenshotRowCount: 7,
         resourceEnvelope: {
-          pageCount: 11,
+          pageCount: 10,
           fontAssetCount: 2,
           imageAssetCount: 7,
           accepted: true,
         },
         requirementsTable: {
-          pageCount: 4,
-          splitRowCount: 3,
-          repeatedHeaderFragmentCount: 3,
+          pageCount: 3,
+          splitRowCount: 2,
+          repeatedHeaderFragmentCount: 2,
         },
         screenshotsTable: {
           pageCount: 7,
@@ -62,9 +70,10 @@ describe("PDF-EXPORT-REALDOC-D measured UAT export", () => {
       },
       determinism: { sameProcessByteEqual: true, sameProcessReceiptEqual: true },
       cancellation: { status: "cancelled", bytesReturned: false, artifactReturned: false },
-      restart: { freshProcessRenderEqual: true, pageCount: 11 },
+      restart: { freshProcessRenderEqual: true, pageCount: 10 },
       executionBoundary: {
         sourceContentRetainedInEvidence: false,
+        importedLayoutWrapsRemovedBeforeMeasurement: true,
         coreTablePaginationExecuted: true,
         coreRendererProjectionExecuted: true,
         localRendererExecuted: true,

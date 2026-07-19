@@ -11631,5 +11631,50 @@ Primary evidence:
 - `tests/pdfExportRealdocUatMeasuredExport.test.ts`; and
 - `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalRenderer.ts`.
 
+Follow-up before Editor integration: `PDF-EXPORT-REALDOC-D.1` imported
+soft-wrap normalization. Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-D.1 Imported Soft-Wrap Normalization
+
+Status: accepted before REALDOC-E. The isolated page-free source adapter now
+classifies source-PDF layout newlines separately from semantic paragraph/list
+boundaries. Shared Core hard-break semantics, table widths, renderer limits,
+Backend behavior, and production status remain unchanged.
+
+The versioned `flowdoc-imported-soft-wrap-list-v1` profile folds nonblank
+continuation lines, joins adjacent Thai text without invented spaces, retains
+Latin boundaries, and preserves `-`, common bullet, ordered-list, and blank
+paragraph boundaries. Content-free evidence records source/rendered
+fingerprints, source-line ranges, block kinds, list markers, and transformation
+counts. Changed requirement-row provenance is marked
+`normalized-imported-text` before deterministic REALDOC-C resolution.
+
+The exact section 2.1 slice processes 36 fields, changes 16, folds 82 PDF
+layout wraps, and retains 58 semantic breaks across 83 blocks. Native
+measurement returns 6,456 glyph facts and 204 lines with no missing glyphs or
+emergency break opportunities. The exact document now uses 10 A4 pages, 278
+paint commands, three requirement pages, two repeated headers, two split rows,
+and seven whole screenshots.
+
+The exact artifact is 1,417,536 bytes with SHA-256
+`d4baa97c3e54b62bf3a775f8704a90ee088856bc6974b7c504552a6c13a086fd`.
+Same-process and fresh-process bytes/receipts remain identical;
+first-checkpoint cancellation returns no bytes or artifact. Visual review of
+all 10 pages confirms that requirement text reaches the measured cell width
+without overlap, clipping, missing Thai glyphs, or image-ratio drift.
+
+The final Core gate passes 379 test files and 1,824 tests with two bounded
+workers. The unchanged Backend adapter passes type-check and its focused local
+renderer suite with 7 tests.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_IMPORTED_SOFT_WRAP_NORMALIZATION.md`;
+- `packages/uat-realdoc/src/importedTextNormalization.ts`;
+- `packages/uat-realdoc/src/uatSemanticNoPagesAdapter.ts`;
+- `packages/uat-realdoc/fixtures/69c-section-2-1-measured-export-evidence.v1.json`;
+- `tests/pdfExportRealdocImportedTextNormalization.test.ts`; and
+- `tests/pdfExportRealdocUatMeasuredExport.test.ts`.
+
 Next phase: `PDF-EXPORT-REALDOC-E` Editor workflow and local artifact
 lifecycle. Production remains NO-GO.

@@ -30,6 +30,7 @@ import {
   type FlowDocUatSectionDataBundleV1,
   type FlowDocUatSourcePointerV1,
 } from "./uatSemanticNoPagesAdapter.js"
+import { FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID } from "./importedTextNormalization.js"
 import { createFlowDocUatStructureDefinitionV1 } from "./uatStructureDefinition.js"
 
 export const FLOWDOC_UAT_SECTION_RESOLUTION_VERSION = 1 as const
@@ -48,7 +49,9 @@ const InputSchema = z.object({
 const FingerprintSchema = z.string().regex(/^sha256:[a-f0-9]{64}$/u)
 const SourcePointerSchema = z.object({
   sourcePointer: z.string().nullable(),
-  derivation: z.enum(["copy", "normalized-list", "media-identity", "default-empty"]),
+  derivation: z.enum([
+    "copy", "normalized-list", "normalized-imported-text", "media-identity", "default-empty",
+  ]),
 }).passthrough()
 const AdapterBundlePinsSchema = z.object({
   adapterId: z.literal(FLOWDOC_UAT_SEMANTIC_NO_PAGES_ADAPTER_ID),
@@ -69,6 +72,10 @@ const AdapterBundlePinsSchema = z.object({
     collections: z.record(z.string().min(1), z.object({
       items: z.record(z.string().min(1), SourcePointerSchema),
     }).passthrough()),
+  }).passthrough(),
+  textNormalization: z.object({
+    profileId: z.literal(FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID),
+    normalizationFingerprint: FingerprintSchema,
   }).passthrough(),
   summary: z.object({
     requirementCount: z.number().int().nonnegative(),
@@ -111,6 +118,8 @@ export interface FlowDocUatSectionResolutionBundleV1 {
     bundleFingerprint: string
     sourceSetId: string
     selectedSectionNumber: string
+    textNormalizationProfileId: typeof FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID
+    textNormalizationFingerprint: string
   }
   structureFingerprint: string
   resolutionInputFingerprint: string
@@ -551,6 +560,12 @@ function validateAdapterBundle(
     "adapter-bundle", "adapter-bundle-fingerprint-mismatch", "adapterBundle.bundleFingerprint",
     "adapter bundle content does not match its pinned fingerprint",
   ))
+  const { normalizationFingerprint: _normalizationFingerprint, ...normalizationUnsigned } = bundle.textNormalization
+  if (fingerprint(normalizationUnsigned) !== bundle.textNormalization.normalizationFingerprint) issues.push(issue(
+    "adapter-bundle", "text-normalization-fingerprint-mismatch",
+    "adapterBundle.textNormalization.normalizationFingerprint",
+    "imported text normalization evidence does not match its pinned fingerprint",
+  ))
   return issues
 }
 
@@ -694,6 +709,8 @@ export function resolveFlowDocUatSectionV1(value: unknown): FlowDocUatSectionRes
       bundleFingerprint: adapterBundle.bundleFingerprint,
       sourceSetId: adapterBundle.sourceSet.sourceSetId,
       selectedSectionNumber: adapterBundle.sourceSet.selectedSectionNumber,
+      textNormalizationProfileId: adapterBundle.textNormalization.profileId,
+      textNormalizationFingerprint: adapterBundle.textNormalization.normalizationFingerprint,
     },
     structureFingerprint: structure.structureFingerprint,
     resolutionInputFingerprint,

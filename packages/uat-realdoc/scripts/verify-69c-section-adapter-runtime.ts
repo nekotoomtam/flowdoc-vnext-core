@@ -224,6 +224,11 @@ export async function verify69cUatSectionAdapter(input: {
       bundleFingerprint: bundle.bundleFingerprint,
       selectedSectionNumber: bundle.sourceSet.selectedSectionNumber,
       summary: bundle.summary,
+      textNormalization: {
+        profileId: bundle.textNormalization.profileId,
+        normalizationFingerprint: bundle.textNormalization.normalizationFingerprint,
+        summary: bundle.textNormalization.summary,
+      },
       warningCodes: bundle.warnings.map((warning) => warning.code),
       linkGranularity: bundle.semantic.relations.linkGranularity,
       screenshotPlacement: bundle.semantic.relations.screenshotPlacement,
@@ -233,6 +238,7 @@ export async function verify69cUatSectionAdapter(input: {
     contracts: {
       sourceContentRetainedInEvidence: false,
       sourceSpecificSchemaAddedToCore: false,
+      importedLayoutWrapsRemovedBeforeResolution: true,
       canonicalCoreNodeTypesOnly: structure.contracts.canonicalCoreNodeTypesOnly,
       instanceIdentityProvidedByVerifier: true,
       instanceAllocatedByAdapter: false,

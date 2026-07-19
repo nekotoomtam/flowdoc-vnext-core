@@ -153,7 +153,8 @@ policy, activate a product document, execute rendering, select hosted
 providers, or change this baseline's production NO-GO decision.
 
 `PDF-EXPORT-REALDOC-D` later accepts a separate bounded local measured-document
-profile and an exact 11-page section 2.1 artifact. Its limits are narrower than
+profile. `PDF-EXPORT-REALDOC-D.1` removes source-PDF layout wraps before
+measurement and accepts an exact 10-page section 2.1 artifact. Its limits are narrower than
 this production baseline, its Backend adapter writes no storage, and its
 renderer remains explicitly non-production. This evidence does not select a
 hosted provider, mount a default route, activate product eligibility, or

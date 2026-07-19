@@ -69,6 +69,19 @@ fresh-process byte determinism, cooperative cancellation, and visual review
 all pass. The reusable composition and renderer profiles contain no 69C
 content or paths.
 
+### REALDOC-D.1 Imported Soft-Wrap Normalization (Accepted)
+
+Classify source-PDF line endings before resolution. Fold layout-only
+continuations, preserve paragraph and list-item boundaries, retain
+content-free before/after fingerprints and source-line provenance, and leave
+authored hard breaks plus shared renderer behavior unchanged.
+
+Exit: requirement text reaches the measured table-cell edge instead of
+retaining the source PDF line width. Exact section 2.1 now exports as 10 A4
+pages with three requirement pages, two repeated headers, two split rows, and
+seven whole screenshot rows. Determinism, cancellation, restart, resource,
+and visual checks remain accepted.
+
 ### REALDOC-E Editor Workflow
 
 Expose source selection/import, outline and page preview, instance edits for

@@ -18,6 +18,13 @@ import {
   createFlowDocUatStructureDefinitionV1,
   flowDocUatPublishedStructureRefV1,
 } from "./uatStructureDefinition.js"
+import {
+  FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID,
+  createFlowDocImportedTextNormalizationEvidenceV1,
+  normalizeFlowDocImportedTextV1,
+  type FlowDocImportedTextNormalizationEvidenceV1,
+  type FlowDocImportedTextNormalizationResultV1,
+} from "./importedTextNormalization.js"
 
 export const FLOWDOC_UAT_SEMANTIC_NO_PAGES_ADAPTER_VERSION = 1 as const
 export const FLOWDOC_UAT_SEMANTIC_NO_PAGES_ADAPTER_ID = "flowdoc-uat-semantic-no-pages-adapter-v1" as const
@@ -125,7 +132,31 @@ export type FlowDocUatSemanticNoPagesAdapterInputV1 = z.infer<
 
 export interface FlowDocUatSourcePointerV1 {
   sourcePointer: string | null
-  derivation: "copy" | "normalized-list" | "media-identity" | "default-empty"
+  derivation: "copy" | "normalized-list" | "normalized-imported-text" | "media-identity" | "default-empty"
+}
+
+export interface FlowDocUatImportedTextNormalizationSummaryV1 {
+  fieldCount: number
+  changedFieldCount: number
+  sourceCharacterCount: number
+  renderedCharacterCount: number
+  sourceLineCount: number
+  blockCount: number
+  paragraphBlockCount: number
+  listItemBlockCount: number
+  softWrapJoinCount: number
+  preservedBreakCount: number
+  blankLineBoundaryCount: number
+}
+
+export interface FlowDocUatImportedTextNormalizationV1 {
+  profileId: typeof FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID
+  scalars: Record<string, FlowDocImportedTextNormalizationEvidenceV1>
+  collections: Record<string, {
+    items: Record<string, { fields: Record<string, FlowDocImportedTextNormalizationEvidenceV1> }>
+  }>
+  summary: FlowDocUatImportedTextNormalizationSummaryV1
+  normalizationFingerprint: string
 }
 
 export interface FlowDocUatSectionDataBundleV1 {
@@ -173,8 +204,9 @@ export interface FlowDocUatSectionDataBundleV1 {
     collections: Record<string, { items: Record<string, FlowDocUatSourcePointerV1> }>
     media: Record<string, FlowDocUatSourcePointerV1 & { screenshotId: string; sourcePath: string }>
   }
+  textNormalization: FlowDocUatImportedTextNormalizationV1
   ownership: {
-    adapterOwns: ["source-shape-validation", "data-projection", "source-provenance"]
+    adapterOwns: ["source-shape-validation", "data-projection", "source-provenance", "imported-text-normalization"]
     adapterMustNotOwn: [
       "instance-allocation",
       "structure-layout",
@@ -198,6 +230,7 @@ export interface FlowDocUatSectionDataBundleV1 {
     collectionItemCount: number
     mediaAssetCount: number
     featureTextCharacterCount: number
+    renderedFeatureTextCharacterCount: number
     sourceImageByteLength: number
     sourceImagePixelCount: number
   }
@@ -259,6 +292,36 @@ function warning(
 
 function fingerprint(value: unknown): string {
   return `sha256:${createHash("sha256").update(JSON.stringify(value), "utf8").digest("hex")}`
+}
+
+function summarizeTextNormalizations(
+  results: readonly FlowDocImportedTextNormalizationResultV1[],
+): FlowDocUatImportedTextNormalizationSummaryV1 {
+  return results.reduce<FlowDocUatImportedTextNormalizationSummaryV1>((summary, result) => ({
+    fieldCount: summary.fieldCount + 1,
+    changedFieldCount: summary.changedFieldCount + (result.summary.changed ? 1 : 0),
+    sourceCharacterCount: summary.sourceCharacterCount + result.summary.sourceCharacterCount,
+    renderedCharacterCount: summary.renderedCharacterCount + result.summary.renderedCharacterCount,
+    sourceLineCount: summary.sourceLineCount + result.summary.sourceLineCount,
+    blockCount: summary.blockCount + result.summary.blockCount,
+    paragraphBlockCount: summary.paragraphBlockCount + result.summary.paragraphBlockCount,
+    listItemBlockCount: summary.listItemBlockCount + result.summary.listItemBlockCount,
+    softWrapJoinCount: summary.softWrapJoinCount + result.summary.softWrapJoinCount,
+    preservedBreakCount: summary.preservedBreakCount + result.summary.preservedBreakCount,
+    blankLineBoundaryCount: summary.blankLineBoundaryCount + result.summary.blankLineBoundaryCount,
+  }), {
+    fieldCount: 0,
+    changedFieldCount: 0,
+    sourceCharacterCount: 0,
+    renderedCharacterCount: 0,
+    sourceLineCount: 0,
+    blockCount: 0,
+    paragraphBlockCount: 0,
+    listItemBlockCount: 0,
+    softWrapJoinCount: 0,
+    preservedBreakCount: 0,
+    blankLineBoundaryCount: 0,
+  })
 }
 
 function duplicateValues(values: readonly string[]): string[] {
@@ -419,6 +482,60 @@ function createBundle(
   const semanticFileName = input.source.semanticMap.fileName
   const moduleIndex = input.semanticDocument.modules.indexOf(module)
   const sectionIndex = module.sections.indexOf(section)
+  const moduleDescriptionNormalization = normalizeFlowDocImportedTextV1(module.description)
+  const sectionDescriptionNormalization = normalizeFlowDocImportedTextV1(section.description)
+  const requirementNormalizations = new Map(section.requirements.map((requirement) => [
+    requirement.requirement_id,
+    {
+      featureText: normalizeFlowDocImportedTextV1(requirement.feature_text),
+      remark: normalizeFlowDocImportedTextV1(requirement.remark),
+    },
+  ]))
+  const screenshotNormalizations = new Map(section.screenshots.map((screenshot) => [
+    screenshot.screenshot_id,
+    {
+      caption: normalizeFlowDocImportedTextV1(screenshot.caption),
+      description: normalizeFlowDocImportedTextV1(screenshot.description),
+    },
+  ]))
+  const textNormalizationResults = [
+    moduleDescriptionNormalization,
+    sectionDescriptionNormalization,
+    ...[...requirementNormalizations.values()].flatMap((item) => [item.featureText, item.remark]),
+    ...[...screenshotNormalizations.values()].flatMap((item) => [item.caption, item.description]),
+  ]
+  const textNormalizationUnsigned = {
+    profileId: FLOWDOC_IMPORTED_TEXT_NORMALIZATION_PROFILE_ID,
+    scalars: {
+      "uat.module.description": createFlowDocImportedTextNormalizationEvidenceV1(moduleDescriptionNormalization),
+      "uat.section.description": createFlowDocImportedTextNormalizationEvidenceV1(sectionDescriptionNormalization),
+    },
+    collections: {
+      "uat.requirements": {
+        items: Object.fromEntries(section.requirements.map((requirement) => {
+          const normalized = requirementNormalizations.get(requirement.requirement_id)!
+          return [requirement.requirement_id, { fields: {
+            feature_text: createFlowDocImportedTextNormalizationEvidenceV1(normalized.featureText),
+            remark: createFlowDocImportedTextNormalizationEvidenceV1(normalized.remark),
+          } }]
+        })),
+      },
+      "uat.screenshots": {
+        items: Object.fromEntries(section.screenshots.map((screenshot) => {
+          const normalized = screenshotNormalizations.get(screenshot.screenshot_id)!
+          return [screenshot.screenshot_id, { fields: {
+            caption: createFlowDocImportedTextNormalizationEvidenceV1(normalized.caption),
+            description: createFlowDocImportedTextNormalizationEvidenceV1(normalized.description),
+          } }]
+        })),
+      },
+    },
+    summary: summarizeTextNormalizations(textNormalizationResults),
+  }
+  const textNormalization: FlowDocUatImportedTextNormalizationV1 = {
+    ...textNormalizationUnsigned,
+    normalizationFingerprint: fingerprint(textNormalizationUnsigned),
+  }
   const scalarValues: Record<string, DataSnapshotV2Value> = {
     "uat.document.title": input.semanticDocument.document.title,
     "uat.document.project": input.semanticDocument.document.project,
@@ -429,10 +546,10 @@ function createBundle(
     "uat.document.total_pages": input.semanticDocument.document.total_pages,
     "uat.module.number": module.module_number,
     "uat.module.title": module.title,
-    "uat.module.description": module.description,
+    "uat.module.description": moduleDescriptionNormalization.renderedText,
     "uat.section.number": section.section_number,
     "uat.section.title": section.title,
-    "uat.section.description": section.description,
+    "uat.section.description": sectionDescriptionNormalization.renderedText,
     "uat.approval.name": "",
     "uat.approval.date": "",
   }
@@ -446,30 +563,40 @@ function createBundle(
     "uat.document.total_pages": { sourcePointer: `${semanticFileName}#/document/total_pages`, derivation: "copy" },
     "uat.module.number": { sourcePointer: `${semanticFileName}#/modules/${moduleIndex}/module_number`, derivation: "copy" },
     "uat.module.title": { sourcePointer: `${semanticFileName}#/modules/${moduleIndex}/title`, derivation: "copy" },
-    "uat.module.description": { sourcePointer: `${semanticFileName}#/modules/${moduleIndex}/description`, derivation: "copy" },
+    "uat.module.description": {
+      sourcePointer: `${semanticFileName}#/modules/${moduleIndex}/description`,
+      derivation: moduleDescriptionNormalization.summary.changed ? "normalized-imported-text" : "copy",
+    },
     "uat.section.number": { sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, "section_number"), derivation: "copy" },
     "uat.section.title": { sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, "title"), derivation: "copy" },
-    "uat.section.description": { sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, "description"), derivation: "copy" },
+    "uat.section.description": {
+      sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, "description"),
+      derivation: sectionDescriptionNormalization.summary.changed ? "normalized-imported-text" : "copy",
+    },
     "uat.approval.name": { sourcePointer: null, derivation: "default-empty" },
     "uat.approval.date": { sourcePointer: null, derivation: "default-empty" },
   }
 
-  const requirementItems: VNextTableCollectionItemV1[] = section.requirements.map((requirement) => ({
-    itemKey: requirement.requirement_id,
-    values: {
-      requirement_id: requirement.requirement_id,
-      feature_text: requirement.feature_text,
-      element_types: requirement.element_types.join(", "),
-      accept_status: requirement.accept_status,
-      remark: requirement.remark,
-      linked_screenshot_ids: requirement.linked_screenshot_ids.join(", "),
-    },
-  }))
+  const requirementItems: VNextTableCollectionItemV1[] = section.requirements.map((requirement) => {
+    const normalized = requirementNormalizations.get(requirement.requirement_id)!
+    return {
+      itemKey: requirement.requirement_id,
+      values: {
+        requirement_id: requirement.requirement_id,
+        feature_text: normalized.featureText.renderedText,
+        element_types: requirement.element_types.join(", "),
+        accept_status: requirement.accept_status,
+        remark: normalized.remark.renderedText,
+        linked_screenshot_ids: requirement.linked_screenshot_ids.join(", "),
+      },
+    }
+  })
   const images: Record<string, ImageAssetDefinition> = {}
   const screenshotItems: VNextTableCollectionItemV1[] = section.screenshots.map((screenshot) => {
     const resource = resources.get(screenshot.file)
     if (resource == null) throw new Error("validated resource missing")
     const assetId = `uat-image-${screenshot.screenshot_id}`
+    const normalized = screenshotNormalizations.get(screenshot.screenshot_id)!
     images[assetId] = {
       id: assetId,
       kind: "image",
@@ -482,8 +609,8 @@ function createBundle(
       itemKey: screenshot.screenshot_id,
       values: {
         screenshot_id: screenshot.screenshot_id,
-        caption: screenshot.caption,
-        description: screenshot.description,
+        caption: normalized.caption.renderedText,
+        description: normalized.description.renderedText,
         image: { kind: "image-asset-ref", assetId },
         linked_requirement_ids: screenshot.linked_requirement_ids.join(", "),
         match_basis: screenshot.match_basis,
@@ -524,11 +651,23 @@ function createBundle(
 
   const requirementProvenance = Object.fromEntries(section.requirements.map((requirement, index) => [
     requirement.requirement_id,
-    { sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, `requirements/${index}`), derivation: "copy" as const },
+    {
+      sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, `requirements/${index}`),
+      derivation: (
+        requirementNormalizations.get(requirement.requirement_id)!.featureText.summary.changed
+        || requirementNormalizations.get(requirement.requirement_id)!.remark.summary.changed
+      ) ? "normalized-imported-text" as const : "copy" as const,
+    },
   ]))
   const screenshotProvenance = Object.fromEntries(section.screenshots.map((screenshot, index) => [
     screenshot.screenshot_id,
-    { sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, `screenshots/${index}`), derivation: "copy" as const },
+    {
+      sourcePointer: sourcePointer(semanticFileName, moduleIndex, sectionIndex, `screenshots/${index}`),
+      derivation: (
+        screenshotNormalizations.get(screenshot.screenshot_id)!.caption.summary.changed
+        || screenshotNormalizations.get(screenshot.screenshot_id)!.description.summary.changed
+      ) ? "normalized-imported-text" as const : "copy" as const,
+    },
   ]))
   const mediaProvenance = Object.fromEntries(section.screenshots.map((screenshot, index) => {
     const assetId = `uat-image-${screenshot.screenshot_id}`
@@ -611,8 +750,11 @@ function createBundle(
       },
       media: mediaProvenance,
     },
+    textNormalization,
     ownership: {
-      adapterOwns: ["source-shape-validation", "data-projection", "source-provenance"],
+      adapterOwns: [
+        "source-shape-validation", "data-projection", "source-provenance", "imported-text-normalization",
+      ],
       adapterMustNotOwn: [
         "instance-allocation", "structure-layout", "screenshot-placement",
         "text-measurement", "pagination", "pdf-bytes",
@@ -632,6 +774,9 @@ function createBundle(
       collectionItemCount: requirementItems.length + screenshotItems.length,
       mediaAssetCount: Object.keys(images).length,
       featureTextCharacterCount: section.requirements.reduce((sum, requirement) => sum + requirement.feature_text.length, 0),
+      renderedFeatureTextCharacterCount: requirementItems.reduce((sum, requirement) => (
+        sum + String(requirement.values.feature_text).length
+      ), 0),
       sourceImageByteLength: section.screenshots.reduce((sum, screenshot) => sum + resources.get(screenshot.file)!.byteLength, 0),
       sourceImagePixelCount: section.screenshots.reduce((sum, screenshot) => {
         const resource = resources.get(screenshot.file)!

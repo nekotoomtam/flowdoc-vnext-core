@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto"
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
@@ -110,6 +111,13 @@ function resolutionRequest(bundle = adapterBundle()) {
   }
 }
 
+function repinAdapterBundle(bundle: FlowDocUatSectionDataBundleV1): void {
+  const { bundleFingerprint: _bundleFingerprint, ...unsigned } = bundle
+  bundle.bundleFingerprint = `sha256:${createHash("sha256")
+    .update(JSON.stringify(unsigned), "utf8")
+    .digest("hex")}`
+}
+
 describe("PDF-EXPORT-REALDOC-C UAT section resolution", () => {
   it("materializes revision zero and resolves document fields plus both collection tables", () => {
     const source = resolutionRequest()
@@ -181,7 +189,7 @@ describe("PDF-EXPORT-REALDOC-C UAT section resolution", () => {
       expect.objectContaining({
         sourcePlacementId: "uat-req-feature-placement",
         itemKey: "REQ-SYNTH-C-001",
-        value: "รองรับข้อความภาษาไทย\nและบรรทัดถัดไป",
+        value: "รองรับข้อความภาษาไทยและบรรทัดถัดไป",
         valueSource: "item-snapshot",
       }),
       expect.objectContaining({
@@ -204,7 +212,7 @@ describe("PDF-EXPORT-REALDOC-C UAT section resolution", () => {
       expect.objectContaining({
         collectionFieldKey: "uat.requirements",
         itemKey: "REQ-SYNTH-C-001",
-        source: { sourcePointer: expect.stringContaining("requirements/0"), derivation: "copy" },
+        source: { sourcePointer: expect.stringContaining("requirements/0"), derivation: "normalized-imported-text" },
         rowInstanceId: expect.stringMatching(/^rowi_[a-f0-9]{24}$/u),
       }),
       expect.objectContaining({
@@ -246,6 +254,15 @@ describe("PDF-EXPORT-REALDOC-C UAT section resolution", () => {
     const driftResult = resolveFlowDocUatSectionV1(drift)
     expect(driftResult).toMatchObject({ status: "blocked", bundle: null })
     expect(driftResult.issues.map((item) => item.code)).toContain("adapter-bundle-fingerprint-mismatch")
+
+    const normalizationDrift = resolutionRequest()
+    normalizationDrift.adapterBundle.textNormalization.summary.softWrapJoinCount += 1
+    repinAdapterBundle(normalizationDrift.adapterBundle)
+    const normalizationDriftResult = resolveFlowDocUatSectionV1(normalizationDrift)
+    expect(normalizationDriftResult).toMatchObject({ status: "blocked", bundle: null })
+    expect(normalizationDriftResult.issues.map((item) => item.code)).toContain(
+      "text-normalization-fingerprint-mismatch",
+    )
 
     const revisionAdapterInput = adapterInput()
     revisionAdapterInput.instance.revision = 1

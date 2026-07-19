@@ -1063,6 +1063,11 @@ The package must remain runnable without any parent editor checkout.
   splits, seven aspect-preserved screenshots, byte-identical fresh-process
   restart, and byte-free cancellation; Editor workflow, persistence, product
   eligibility, and production remain closed.
+- PDF export REALDOC-D.1 adds fingerprinted imported-text normalization before
+  resolution. It folds source-PDF layout newlines, preserves paragraph/list
+  boundaries, and lets the same measured table width reflow exact section 2.1
+  into 10 A4 pages; shared hard-break, renderer, Backend, and production
+  behavior remain unchanged.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

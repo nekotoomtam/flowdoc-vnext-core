@@ -7,20 +7,22 @@
     "sourceBundleFingerprint": "sha256:46fac437de79e9b5b044345ca97433535245bf53b1764d5df4b01e25279096eb"
   },
   "adapter": {
-    "bundleFingerprint": "sha256:d348842d94f31a60240ee668c77f3d9775c5d2bb6eb4b38fed5dc2eea91e7fe9",
+    "bundleFingerprint": "sha256:c4a552188ef80f6d55e9856266f271f445c354740c383ba03bc6dedf9aa021b7",
     "warningCodes": [
       "page-geometry-unavailable",
       "screenshot-placement-unresolved",
       "section-all-to-all-links"
-    ]
+    ],
+    "textNormalizationProfileId": "flowdoc-imported-soft-wrap-list-v1",
+    "textNormalizationFingerprint": "sha256:ede729d8658a435aa8f827fc714735cd5c5e88335685e2a72dd0d1479d1b8579"
   },
   "resolution": {
     "structureFingerprint": "sha256:3c7a6f62837994db864f4d91a4b4cb746825ec4cff7529b84ff28166192345f4",
-    "resolutionInputFingerprint": "sha256:2ee0191b7c2d3f26d0203e6888834bc2965a5ac81998ec797d78e03fba409c83",
-    "bundleFingerprint": "sha256:416024780d89cfaba65faa83cfe35c4f2792b899f237dbd14491fdd6bc870902",
-    "generatedProvenanceFingerprint": "sha256:844a4ef812ec1426e4034daa06e3ae4f4c3e8e2a6289e1edd87dec04780a9076",
-    "requirementMaterializationFingerprint": "sha256:e8f29e67561922ef206102f29e61376795095cb9d07af298b9e5ef86af084e9a",
-    "screenshotMaterializationFingerprint": "sha256:97e262f41af5ab91691394dbdbebe47445d63650bc29384d4977a02caf072821"
+    "resolutionInputFingerprint": "sha256:066ad4ca5bb61db55cd438067beadcceac53d10b324d07606badb32bfc6ec4b3",
+    "bundleFingerprint": "sha256:974f82e21abbe49fd3e4e552536d46e553c070a6c2c95dc5874ea627d124b4de",
+    "generatedProvenanceFingerprint": "sha256:d7021572399dfbfe7eea2f6864f2950243ee5081d6e91a9ff718035da576c3cb",
+    "requirementMaterializationFingerprint": "sha256:e62de8e04b664ea39b936e11c3a455b472641673d96e5610d5e5f46186c9391a",
+    "screenshotMaterializationFingerprint": "sha256:5b729d32481b8cc2a40983582eb0e143f09d7ac85e7bb68fd6543e3d53dba1ce"
   },
   "placement": {
     "status": "resolved",
@@ -59,6 +61,7 @@
   },
   "contracts": {
     "sourceContentRetainedInEvidence": false,
+    "importedLayoutWrapsRemovedBeforeResolution": true,
     "instanceRevision": 0,
     "identityAllocationOwner": "resolution-orchestrator",
     "screenshotPlacementResolved": true,

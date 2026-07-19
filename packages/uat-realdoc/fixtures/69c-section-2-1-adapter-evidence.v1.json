@@ -34,7 +34,7 @@
   },
   "adapter": {
     "adapterId": "flowdoc-uat-semantic-no-pages-adapter-v1",
-    "bundleFingerprint": "sha256:d348842d94f31a60240ee668c77f3d9775c5d2bb6eb4b38fed5dc2eea91e7fe9",
+    "bundleFingerprint": "sha256:c4a552188ef80f6d55e9856266f271f445c354740c383ba03bc6dedf9aa021b7",
     "selectedSectionNumber": "2.1",
     "summary": {
       "scalarValueCount": 15,
@@ -43,8 +43,26 @@
       "collectionItemCount": 17,
       "mediaAssetCount": 7,
       "featureTextCharacterCount": 4833,
+      "renderedFeatureTextCharacterCount": 4764,
       "sourceImageByteLength": 1117389,
       "sourceImagePixelCount": 3494022
+    },
+    "textNormalization": {
+      "profileId": "flowdoc-imported-soft-wrap-list-v1",
+      "normalizationFingerprint": "sha256:ede729d8658a435aa8f827fc714735cd5c5e88335685e2a72dd0d1479d1b8579",
+      "summary": {
+        "fieldCount": 36,
+        "changedFieldCount": 16,
+        "sourceCharacterCount": 6059,
+        "renderedCharacterCount": 5985,
+        "sourceLineCount": 176,
+        "blockCount": 83,
+        "paragraphBlockCount": 25,
+        "listItemBlockCount": 58,
+        "softWrapJoinCount": 82,
+        "preservedBreakCount": 58,
+        "blankLineBoundaryCount": 0
+      }
     },
     "warningCodes": [
       "page-geometry-unavailable",
@@ -69,6 +87,7 @@
   "contracts": {
     "sourceContentRetainedInEvidence": false,
     "sourceSpecificSchemaAddedToCore": false,
+    "importedLayoutWrapsRemovedBeforeResolution": true,
     "canonicalCoreNodeTypesOnly": true,
     "instanceIdentityProvidedByVerifier": true,
     "instanceAllocatedByAdapter": false,

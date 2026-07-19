@@ -26,14 +26,18 @@ REALDOC-B adapter bundle
 The resolution input fingerprint is:
 
 ```text
-sha256:2ee0191b7c2d3f26d0203e6888834bc2965a5ac81998ec797d78e03fba409c83
+sha256:066ad4ca5bb61db55cd438067beadcceac53d10b324d07606badb32bfc6ec4b3
 ```
 
 The exact section 2.1 resolution bundle fingerprint is:
 
 ```text
-sha256:416024780d89cfaba65faa83cfe35c4f2792b899f237dbd14491fdd6bc870902
+sha256:974f82e21abbe49fd3e4e552536d46e553c070a6c2c95dc5874ea627d124b4de
 ```
+
+The refreshed resolution consumes the D.1 imported-text normalization
+fingerprint before allocating generated rows. Raw source identity remains
+pinned by the unchanged REALDOC-A baseline.
 
 ## Identity And Provenance
 

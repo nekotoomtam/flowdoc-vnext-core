@@ -167,7 +167,7 @@ export async function verify69cUatSectionMeasuredExport(input: {
   })
   requireFact(measured.status === "measured", `69C measured composition blocked: ${JSON.stringify(measured.issues)}`)
 
-  const tempDirectory = resolve(repoRoot, "tmp/pdfs/realdoc-d")
+  const tempDirectory = resolve(repoRoot, "tmp/pdfs/realdoc-d1")
   mkdirSync(tempDirectory, { recursive: true })
   const contractPath = resolve(tempDirectory, "69c-section-2-1-measured-contract.v1.json")
   writeFileSync(contractPath, `${JSON.stringify(measured.bundle.measuredDrawContract, null, 2)}\n`, "utf8")
@@ -204,8 +204,8 @@ export async function verify69cUatSectionMeasuredExport(input: {
     sessionId: null,
   }
   const requestResult = createVNextPdfExportRequestV1({
-    exportRequestId: "export:uat-69c-section-2-1:realdoc-d",
-    artifactId: "pdf:uat-69c-section-2-1:realdoc-d",
+    exportRequestId: "export:uat-69c-section-2-1:realdoc-d1",
+    artifactId: "pdf:uat-69c-section-2-1:realdoc-d1",
     requestedAt: "2026-07-19T12:00:00.000Z",
     source: sourceIdentity,
     measuredDrawContract: measured.bundle.measuredDrawContract,
@@ -228,8 +228,8 @@ export async function verify69cUatSectionMeasuredExport(input: {
   "69C local PDF rendering is not deterministic")
 
   const cancelled = await renderFlowDocLocalMeasuredDocumentPdfControlled({
-    proofId: "cancel:uat-69c-section-2-1:realdoc-d",
-    artifactId: "cancelled:uat-69c-section-2-1:realdoc-d",
+    proofId: "cancel:uat-69c-section-2-1:realdoc-d1",
+    artifactId: "cancelled:uat-69c-section-2-1:realdoc-d1",
     contract: measured.bundle.measuredDrawContract,
     fontResources,
     imageResources: images.resources,
@@ -254,7 +254,7 @@ export async function verify69cUatSectionMeasuredExport(input: {
   return {
     evidence: {
       evidenceVersion: 1,
-      phaseId: "PDF-EXPORT-REALDOC-D",
+      phaseId: "PDF-EXPORT-REALDOC-D.1",
       status: "accepted",
       sourceBaseline: {
         baselineId: loaded.baseline.baselineId,
@@ -263,11 +263,16 @@ export async function verify69cUatSectionMeasuredExport(input: {
       },
       sources: {
         adapterBundleFingerprint: loaded.bundle.bundleFingerprint,
+        importedTextNormalizationFingerprint: loaded.bundle.textNormalization.normalizationFingerprint,
         resolutionBundleFingerprint: resolution.bundle.bundleFingerprint,
         measuredPlanFingerprint: planResult.plan.planFingerprint,
         measuredBundleFingerprint: measured.bundle.bundleFingerprint,
       },
       nativeMeasurement: native.summary,
+      importedTextNormalization: {
+        profileId: loaded.bundle.textNormalization.profileId,
+        ...loaded.bundle.textNormalization.summary,
+      },
       composition: {
         ...measured.bundle.summary,
         resourceEnvelope: measured.bundle.resourceEnvelope,
@@ -302,6 +307,7 @@ export async function verify69cUatSectionMeasuredExport(input: {
         actualPdfBytesReturned: true,
         pdfBytesRetainedInEvidence: false,
         sourceContentRetainedInEvidence: false,
+        importedLayoutWrapsRemovedBeforeMeasurement: true,
         nativeThaiShapingExecuted: true,
         nativeThaiSegmentationExecuted: true,
         coreTablePaginationExecuted: true,

@@ -227,7 +227,9 @@ describe("PDF-EXPORT-REALDOC-B UAT semantic no-pages adapter", () => {
           },
         },
         ownership: {
-          adapterOwns: ["source-shape-validation", "data-projection", "source-provenance"],
+          adapterOwns: [
+            "source-shape-validation", "data-projection", "source-provenance", "imported-text-normalization",
+          ],
           adapterMustNotOwn: expect.arrayContaining(["instance-allocation", "structure-layout", "pagination", "pdf-bytes"]),
         },
         execution: {
@@ -265,11 +267,26 @@ describe("PDF-EXPORT-REALDOC-B UAT semantic no-pages adapter", () => {
     )
     expect(result.bundle.collectionSnapshot.collections["uat.requirements"].items[0].values).toMatchObject({
       requirement_id: "REQ-SYNTH-001",
-      feature_text: "ข้อความภาษาไทย\nบรรทัดที่สอง",
+      feature_text: "ข้อความภาษาไทยบรรทัดที่สอง",
       element_types: "Functional, Security",
       accept_status: "blank",
       remark: "",
     })
+    expect(result.bundle.textNormalization).toMatchObject({
+      profileId: "flowdoc-imported-soft-wrap-list-v1",
+      summary: {
+        fieldCount: 10,
+        softWrapJoinCount: 1,
+        changedFieldCount: 1,
+      },
+    })
+    expect(result.bundle.textNormalization.collections["uat.requirements"].items["REQ-SYNTH-001"]
+      .fields.feature_text.summary).toMatchObject({
+        sourceLineCount: 2,
+        blockCount: 1,
+        softWrapJoinCount: 1,
+        preservedBreakCount: 0,
+      })
     expect(result.bundle.collectionSnapshot.collections["uat.screenshots"].items[0].values.image).toEqual({
       kind: "image-asset-ref",
       assetId: "uat-image-synthetic_section_2_1_img_001",
@@ -299,7 +316,7 @@ describe("PDF-EXPORT-REALDOC-B UAT semantic no-pages adapter", () => {
     source.semanticDocument.modules[0].sections[0].requirements[0].feature_text = "changed after adaptation"
     first.bundle.semantic.requirements[0].featureBullets.push("mutated output")
     expect(second.bundle.collectionSnapshot.collections["uat.requirements"].items[0].values.feature_text).toBe(
-      "ข้อความภาษาไทย\nบรรทัดที่สอง",
+      "ข้อความภาษาไทยบรรทัดที่สอง",
     )
     expect(second.bundle.semantic.requirements[0].featureBullets).toEqual(["หัวข้อหนึ่ง", "หัวข้อสอง"])
   })
@@ -371,7 +388,7 @@ describe("PDF-EXPORT-REALDOC-B UAT semantic no-pages adapter", () => {
       },
       adapter: {
         adapterId: "flowdoc-uat-semantic-no-pages-adapter-v1",
-        bundleFingerprint: "sha256:d348842d94f31a60240ee668c77f3d9775c5d2bb6eb4b38fed5dc2eea91e7fe9",
+        bundleFingerprint: "sha256:c4a552188ef80f6d55e9856266f271f445c354740c383ba03bc6dedf9aa021b7",
         selectedSectionNumber: "2.1",
         summary: {
           scalarValueCount: 15,
@@ -380,16 +397,28 @@ describe("PDF-EXPORT-REALDOC-B UAT semantic no-pages adapter", () => {
           collectionItemCount: 17,
           mediaAssetCount: 7,
           featureTextCharacterCount: 4833,
+          renderedFeatureTextCharacterCount: 4764,
           sourceImageByteLength: 1117389,
           sourceImagePixelCount: 3494022,
         },
         linkGranularity: "section-all-to-all",
         screenshotPlacement: "unresolved-source-order-only",
+        textNormalization: {
+          profileId: "flowdoc-imported-soft-wrap-list-v1",
+          summary: {
+            fieldCount: 36,
+            changedFieldCount: 16,
+            listItemBlockCount: 58,
+            softWrapJoinCount: 82,
+            preservedBreakCount: 58,
+          },
+        },
       },
       canonicalInputs: { dataSnapshot: true, collectionSnapshot: true, mediaSnapshot: true },
       contracts: {
         sourceContentRetainedInEvidence: false,
         sourceSpecificSchemaAddedToCore: false,
+        importedLayoutWrapsRemovedBeforeResolution: true,
         instanceAllocatedByAdapter: false,
         materializationExecuted: false,
         productionBinding: false,

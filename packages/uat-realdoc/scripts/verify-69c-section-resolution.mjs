@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises"
+import { readFile, writeFile } from "node:fs/promises"
 import { resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { createServer } from "vite"
@@ -28,7 +28,10 @@ try {
     "/packages/uat-realdoc/scripts/verify-69c-section-resolution-runtime.ts",
   )
   const evidence = await runtime.verify69cUatSectionResolution({ semanticDirectory })
-  if (!process.argv.includes("--print-only")) {
+  const fixturePath = resolve(packageRoot, "fixtures/69c-section-2-1-resolution-evidence.v1.json")
+  if (process.argv.includes("--update-fixture")) {
+    await writeFile(fixturePath, `${JSON.stringify(evidence, null, 2)}\n`, "utf8")
+  } else if (!process.argv.includes("--print-only")) {
     const retained = JSON.parse(await readFile(resolve(
       packageRoot,
       "fixtures/69c-section-2-1-resolution-evidence.v1.json",

@@ -8,7 +8,9 @@ It deliberately does not add UAT schemas or node types to canonical Core. The
 Structure Definition is composed from existing document v4, lifecycle, field,
 style, media, collection, and table contracts. The adapter validates external
 source shape and projects caller-pinned instance data, collection, media, and
-provenance inputs. It does not allocate an instance, decide screenshot
+provenance inputs. REALDOC-D.1 folds source-PDF layout wraps through the
+versioned `flowdoc-imported-soft-wrap-list-v1` profile while retaining list
+boundaries and content-free before/after evidence. It does not allocate an instance, decide screenshot
 placement, measure text, paginate, render, retain source bytes, or activate a
 production path.
 

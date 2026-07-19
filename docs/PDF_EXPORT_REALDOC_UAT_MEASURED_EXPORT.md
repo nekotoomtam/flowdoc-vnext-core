@@ -1,7 +1,8 @@
 # PDF Export REALDOC UAT Measured Export
 
 Status: `PDF-EXPORT-REALDOC-D` accepted for the bounded local measured export
-of UAT section 2.1. Production remains NO-GO.
+of UAT section 2.1 and refined by accepted `PDF-EXPORT-REALDOC-D.1` imported
+soft-wrap normalization. Production remains NO-GO.
 
 ## Accepted Boundary
 
@@ -25,6 +26,11 @@ The accepted composition:
 The shared line-wrap evidence boundary now stops at internal mandatory breaks.
 Newline/control characters are not sent to rustybuzz as visible glyphs, while
 their source offsets remain part of the accepted measured-line evidence.
+
+REALDOC-D.1 removes source-PDF layout newlines before this boundary while
+preserving paragraph/list boundaries. The shared text engine still honors
+authored hard breaks. See
+`docs/PDF_EXPORT_REALDOC_IMPORTED_SOFT_WRAP_NORMALIZATION.md`.
 
 ## Local Renderer Profile
 
@@ -52,31 +58,31 @@ remain deferred to REALDOC-E.
 The accepted external 69C slice produces:
 
 - 97 measurement consumers;
-- 6,448 native glyph facts with no missing glyphs;
-- 237 measured lines;
-- 11 A4 pages and 332 paint commands;
-- 4 requirement-table pages;
-- 3 split requirement rows and 3 repeated header fragments;
+- 6,456 native glyph facts with no missing glyphs;
+- 204 measured lines;
+- 10 A4 pages and 278 paint commands;
+- 3 requirement-table pages;
+- 2 split requirement rows and 2 repeated header fragments;
 - 7 screenshot pages with 7 whole screenshot rows;
 - 2 embedded Thai font subsets; and
 - 7 distinct embedded PNG images covering 3,494,022 source pixels.
 
-The exact PDF is 1,425,789 bytes with SHA-256
-`1d0de80af9eb94f2bf05b465f8d002dc1a4b8e2ea3850864bda5e76b21a1dd9f`.
+The exact PDF is 1,417,536 bytes with SHA-256
+`d4baa97c3e54b62bf3a775f8704a90ee088856bc6974b7c504552a6c13a086fd`.
 Two same-process renders and one fresh-process render return identical bytes
 and receipt fingerprints. Cancellation at the first paint checkpoint returns
 no bytes and no artifact.
 
-Visual review covers all 11 rendered pages and representative full-size table,
+Visual review covers all 10 rendered pages and representative full-size table,
 transition, screenshot, and approval pages. Requirement ids remain on one
 line, Thai glyphs are legible, table borders and repeated headers align, no
 content overlaps or clips, every screenshot preserves its source ratio, and
 the Screenshots heading is not orphaned.
 
-The final Core gate passes 378 test files and 1,821 tests with two bounded
-workers. The Backend gate passes type-check, build, and 70 test files with 267
-tests; 24 provider-dependent integration tests retain their existing dynamic
-skip. Focused Core and Backend renderer suites also pass.
+The final D.1 Core gate passes 379 test files and 1,824 tests with two bounded
+workers. The unchanged Backend adapter passes type-check and its focused local
+renderer suite with 7 tests. The earlier REALDOC-D full Backend build and 267
+test gate remains accepted.
 
 ## Evidence And Verification
 
@@ -100,7 +106,7 @@ npm run verify:uat-69c-section-2-1-measured-export -- --semantic-dir <semantic-d
 The local proof PDF is written to:
 
 ```text
-output/pdf/flowdoc-69c-uat-section-2-1-realdoc-d.pdf
+output/pdf/flowdoc-69c-uat-section-2-1-realdoc-d1.pdf
 ```
 
 Retained evidence contains identities, counts, resource metadata, and receipts

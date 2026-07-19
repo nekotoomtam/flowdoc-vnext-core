@@ -80,14 +80,20 @@ The external REALDOC-A baseline reproduces:
 - 17 collection items total;
 - 7 digest-bound media assets;
 - 4,833 feature-text characters;
+- 4,764 rendered feature-text characters after D.1 normalization;
 - 1,117,389 source image bytes; and
 - 3,494,022 source image pixels.
 
 The content-sensitive adapter bundle fingerprint is:
 
 ```text
-sha256:d348842d94f31a60240ee668c77f3d9775c5d2bb6eb4b38fed5dc2eea91e7fe9
+sha256:c4a552188ef80f6d55e9856266f271f445c354740c383ba03bc6dedf9aa021b7
 ```
+
+REALDOC-D.1 adds the versioned `flowdoc-imported-soft-wrap-list-v1`
+projection inside this isolated adapter. The exact slice folds 82 source-PDF
+layout wraps while retaining 58 paragraph/list boundaries and pins the
+content-free normalization fingerprint beside the canonical snapshots.
 
 Repository evidence retains only identities, counts, warnings, and
 fingerprints. It does not retain Requirement text, semantic source content,

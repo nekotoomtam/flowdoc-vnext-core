@@ -46,6 +46,8 @@ export async function verify69cUatSectionResolution(input: {
     adapter: {
       bundleFingerprint: loaded.bundle.bundleFingerprint,
       warningCodes: loaded.bundle.warnings.map((warning) => warning.code),
+      textNormalizationProfileId: loaded.bundle.textNormalization.profileId,
+      textNormalizationFingerprint: loaded.bundle.textNormalization.normalizationFingerprint,
     },
     resolution: {
       structureFingerprint: bundle.structureFingerprint,
@@ -76,6 +78,7 @@ export async function verify69cUatSectionResolution(input: {
     execution: bundle.execution,
     contracts: {
       sourceContentRetainedInEvidence: false,
+      importedLayoutWrapsRemovedBeforeResolution: true,
       instanceRevision: bundle.instance.revision,
       identityAllocationOwner: "resolution-orchestrator",
       screenshotPlacementResolved: true,
