@@ -11906,3 +11906,42 @@ Primary evidence:
 Next phase: `PDF-EXPORT-REALDOC-E.5.2` shared workspace header and URL-backed
 Design/Preview tabs. Preview execution remains deferred and production remains
 NO-GO.
+
+## PDF-EXPORT-REALDOC-E.5.2 Shared Workspace Tabs
+
+Status: accepted local-only shared workspace header, URL-backed Design/Preview
+tabs, and document-keyed Design state retention. Production remains NO-GO.
+
+Editor now resolves `design` and `preview` as view state under one
+`/documents/:documentId/:view` route. `EditorApp` is keyed only by document
+identity; switching views hides the Design surface without unmounting its
+working set, selection, history, mutation, and migration state. Changing the
+document remounts that state so authoring projects cannot leak into each other.
+
+The shared header owns Back to Library, document identity, selected URL tab,
+and current readiness facts. Preview uses the loaded authoring summary to
+report `Migration required` or unavailable state. It creates no Form/JSON
+input, mapping request, canonical snapshot, generation instance, operation,
+artifact, or PDF.
+
+Desktop and mobile browser review pass without header overflow. One selected
+Design node remains selected after Preview and Return to Design, direct URLs
+and browser navigation preserve view identity, and the browser console is
+error-free.
+
+No Backend or Core runtime contract changes. No publish workflow,
+authentication, authorization, tenancy, provider, deployment, cost, or
+production activation is added.
+
+Primary evidence:
+
+- `../flowdoc-vnext-editor/src/app/FlowDocApp.tsx`;
+- `../flowdoc-vnext-editor/src/app/EditorShell.tsx`;
+- `../flowdoc-vnext-editor/src/components/shell/AppHeader.tsx`;
+- `../flowdoc-vnext-editor/src/components/preview/PreviewUnavailableView.tsx`;
+- `../flowdoc-vnext-editor/src/tests/documentWorkspaceRoute.test.ts`; and
+- `../flowdoc-vnext-editor/docs/REALDOC_DOCUMENT_WORKSPACE_TABS.md`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.3` Core UI-neutral test-input projection
+and explicit missing scalar generation constraints. Preview execution remains
+deferred and production remains NO-GO.

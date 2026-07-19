@@ -187,19 +187,29 @@ Exit: ordering, pagination, invalid cursor/limit, content exclusion, strict
 Editor transport, desktop/mobile layout, and Library-to-Design navigation pass.
 Preview and Published state remain explicitly unavailable.
 
-### REALDOC-E.5.2-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+### REALDOC-E.5.2 Shared Workspace Tabs (Accepted)
 
-Add the bounded local Library read model, workspace shell, Core UI-neutral test
-input projection, generated Form state, mapped JSON diagnostics, Published
-Preview, distinct Draft Preview, complete stale/lifecycle UX, and Form/API
-parity evidence. Imported business values remain separate from the authored
-Structure Definition and the browser does not become a second resolver.
+Add one document-keyed Editor runtime with a shared header and URL-backed
+Design/Preview tabs. Design remains mounted across view changes. Preview reports
+an honest migration-required or unavailable state and performs no execution.
+
+Exit: direct routes, invalid-view fallback, browser history, desktop/mobile
+layout, console state, and Design selection retention pass without Backend or
+Core runtime changes.
+
+### REALDOC-E.5.3-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+
+Add the Core UI-neutral test-input projection, generated Form state, mapped
+JSON diagnostics, Published Preview, distinct Draft Preview, complete
+stale/lifecycle UX, and Form/API parity evidence. Imported business values
+remain separate from the authored Structure Definition and the browser does
+not become a second resolver.
 
 E.1 generation input/mapping identity, E.2 runtime mapping/validation parity,
 E.3 bounded Backend local admission, E.4 local artifact lifecycle, and E.5.0
-product contract and E.5.1 local Library are accepted. Remaining subphases are
-E.5.2 through E.5.9 Editor pre-test implementation and E.6 cross-repo
-acceptance.
+product contract, E.5.1 local Library, and E.5.2 workspace tabs are accepted.
+Remaining subphases are E.5.3 through E.5.9 Editor pre-test implementation and
+E.6 cross-repo acceptance.
 
 E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

@@ -91,7 +91,8 @@ correctness task rather than concealed as an E.4 lifecycle failure.
 
 `PDF-EXPORT-REALDOC-E.5.0` locks the Editor Library and shared Design/Preview
 workspace without runtime activation. E.5.1 now accepts the bounded local
-Library read model and first Library-to-Design view. E.5.2 next adds the shared
-workspace header and URL-backed tabs. Imported values remain
+Library read model and first Library-to-Design view. E.5.2 now accepts the
+shared workspace header and URL-backed tabs without Preview execution. E.5.3
+next adds the Core UI-neutral test-input projection. Imported values remain
 separate from authored Structure content and browser preview is not artifact
 truth. Production remains NO-GO.

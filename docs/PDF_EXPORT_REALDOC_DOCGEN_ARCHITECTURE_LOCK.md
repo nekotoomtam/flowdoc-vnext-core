@@ -184,11 +184,12 @@ The accepted REALDOC evidence already follows this boundary:
    UI-neutral generated-Form boundary, distinct Draft/Published targets, and
    explicit stale state. Accepted without runtime activation.
 7. `REALDOC-E.5.1` implements the bounded local Library. Accepted.
-8. `REALDOC-E.5.2` through `E.5.9` implement the workspace, input projection,
-   Form/JSON state, Preview targets, lifecycle UX, and parity evidence without
-   making imported values authored Structure content or browser preview
-   artifact truth.
-9. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
+8. `REALDOC-E.5.2` implements the shared URL-backed workspace tabs while
+   retaining Design state. Accepted without Preview execution.
+9. `REALDOC-E.5.3` through `E.5.9` implement the input projection, Form/JSON
+   state, Preview targets, lifecycle UX, and parity evidence without making
+   imported values authored Structure content or browser preview artifact truth.
+10. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
    restart/fault evidence across Editor, Backend, Core, and renderer.
 
 REALDOC-F then scales the same Structure and generation contracts to all Module
@@ -259,5 +260,6 @@ instance, protected canonical record, and content-free replay receipt. E.4 now
 accepts the local artifact lifecycle binding. `PDF-EXPORT-REALDOC-E.5.0` locks
 the Document Library and Design/Preview workspace product contract. E.5.1 now
 accepts the bounded local Library read model and first Library-to-Design view.
-Next phase: `PDF-EXPORT-REALDOC-E.5.2` shared workspace header and URL-backed
-Design/Preview tabs. Production remains NO-GO.
+E.5.2 now accepts the shared URL-backed workspace tabs and Design state
+retention without Preview execution. Next phase: `PDF-EXPORT-REALDOC-E.5.3`
+Core UI-neutral test-input projection. Production remains NO-GO.

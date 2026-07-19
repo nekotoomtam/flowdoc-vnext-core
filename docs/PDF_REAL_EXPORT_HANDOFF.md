@@ -158,5 +158,7 @@ Design/Preview workspace product contract without runtime activation.
 list route plus the first responsive Editor Library and URL-backed Design
 handoff. The response excludes raw packages and generated content, declares
 authorization as not configured, and leaves Preview, DocGen/PDF behavior,
-hosted providers, and production inactive. E.5.2 next adds the shared
-Design/Preview workspace header and tabs.
+hosted providers, and production inactive. `PDF-EXPORT-REALDOC-E.5.2` now adds
+the shared Design/Preview workspace header and URL state while retaining one
+document-keyed Design runtime. Preview reports unavailable and calls no DocGen
+or artifact route. E.5.3 next adds the pure Core UI-neutral input projection.

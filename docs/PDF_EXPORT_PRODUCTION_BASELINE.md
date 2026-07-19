@@ -204,3 +204,9 @@ provider, deployment, or production activation.
 declares authorization as not configured, returns no raw package or generated
 content, and does not add Preview, publish, DocGen/PDF execution, hosted
 providers, tenancy, deployment, or production activation.
+
+`PDF-EXPORT-REALDOC-E.5.2` adds only a document-keyed shared Editor header and
+URL-backed Design/Preview view state. Design remains mounted across tab changes;
+Preview reports unavailable and creates no test input, canonical snapshot,
+generation instance, operation, artifact, or PDF. Backend/Core runtime,
+providers, tenancy, deployment, and production activation remain unchanged.
