@@ -221,3 +221,8 @@ tenancy, deployment, cost, and production activation remain unchanged.
 generated controls over the E.5.3 projection. It performs no Core runtime or
 Backend call, persists no business values, and leaves normal Preview fail-closed
 without a trusted projection transport. Production activation remains unchanged.
+
+`PDF-EXPORT-REALDOC-E.5.5` adds only Editor-owned memory-only JSON preparation,
+exact mapping-profile selection, and content-free local diagnostics. Browser
+mapping, canonical snapshots, Backend admission, exact Preview, providers,
+tenancy, deployment, cost, and production activation remain unchanged.

@@ -12026,3 +12026,41 @@ Primary evidence:
 Next phase: `PDF-EXPORT-REALDOC-E.5.5` temporary JSON selection,
 mapping-profile selection, and content-free diagnostics. Preview execution and
 production remain deferred.
+
+## PDF-EXPORT-REALDOC-E.5.5 Temporary JSON And Mapping Preparation
+
+Status: accepted Editor-owned memory-only JSON input, exact mapping-profile
+selection, and content-free local preparation diagnostics. Preview execution
+and production remain NO-GO.
+
+Editor now retains typed or selected UTF-8 JSON text beside the accepted Form
+state. It permits only a supplied fingerprinted Core mapping profile whose
+owner and generation data-contract target match the exact E.5.3 projection.
+Form and JSON retain independent state across mode switches.
+
+Local checks cover input presence, the existing 1 MiB adapted-payload limit,
+JSON syntax, exact profile availability, and owner/target compatibility.
+Diagnostics contain generated codes, paths, messages, counts, and byte length;
+they exclude supplied values and parser exception text. A passing state is only
+`ready-for-admission`.
+
+Projection pin changes clear JSON and profile state. Profile-catalog changes
+clear stale exact selections. Normal documents still lack trusted projection
+and profile-discovery transport and remain Preview unavailable. Development QA
+fixtures are source-neutral and absent from the production build.
+
+No Core or Backend runtime contract changes in E.5.5. Browser mapping,
+canonical snapshot creation, validation, materialization, resolution, exact
+pages, operations, and artifacts all remain `not-run`.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_TEMPORARY_JSON_MAPPING_HANDOFF.md`;
+- `../flowdoc-vnext-editor/src/editor/preview/testInputJsonState.ts`;
+- `../flowdoc-vnext-editor/src/app/usePreviewTestInput.ts`;
+- `../flowdoc-vnext-editor/src/components/preview/PreviewTestInputView.tsx`; and
+- `../flowdoc-vnext-editor/docs/REALDOC_TEMPORARY_JSON_MAPPING_STATE.md`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.6` Published Preview binding through the
+accepted E.3 admission and E.4 artifact lifecycle. Draft Preview, complete
+lifecycle UX, parity evidence, and production remain deferred.

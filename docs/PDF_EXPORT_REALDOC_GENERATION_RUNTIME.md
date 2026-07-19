@@ -218,6 +218,7 @@ first Library-to-Design view. E.5.2 now accepts the shared workspace tabs and
 Design state retention without Preview execution. Next:
 `PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral test-input
 projection documented in `docs/PDF_EXPORT_REALDOC_TEST_INPUT_PROJECTION.md`.
-E.5.4 now accepts temporary Editor Form state without Preview execution. Next
-is E.5.5 temporary JSON and mapping-profile state.
+E.5.4 accepts temporary Editor Form state without Preview execution. E.5.5 now
+accepts temporary JSON and exact mapping-profile preparation while this Core
+runtime remains unchanged. Next is E.5.6 Published Preview binding.
 Production remains NO-GO.

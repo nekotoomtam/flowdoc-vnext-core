@@ -191,10 +191,13 @@ The accepted REALDOC evidence already follows this boundary:
    scalar constraints. Accepted without test values or Preview execution.
 10. `REALDOC-E.5.4` implements temporary generated Form state without Preview
    execution. Accepted without Core or Backend runtime changes.
-11. `REALDOC-E.5.5` through `E.5.9` implement JSON state, Preview targets,
-   lifecycle UX, and parity evidence without making imported values authored
-   Structure content or browser preview artifact truth.
-12. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
+11. `REALDOC-E.5.5` implements temporary JSON state, exact mapping-profile
+   selection, and content-free local preparation diagnostics. Accepted without
+   Core/Backend runtime changes or Preview execution.
+12. `REALDOC-E.5.6` through `E.5.9` implement Preview targets, lifecycle UX, and
+   parity evidence without making imported values authored Structure content
+   or browser preview artifact truth.
+13. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
    restart/fault evidence across Editor, Backend, Core, and renderer.
 
 REALDOC-F then scales the same Structure and generation contracts to all Module
@@ -268,6 +271,7 @@ accepts the bounded local Library read model and first Library-to-Design view.
 E.5.2 now accepts the shared URL-backed workspace tabs and Design state
 retention without Preview execution. E.5.3 now accepts the pure Core test-input
 projection documented in `docs/PDF_EXPORT_REALDOC_TEST_INPUT_PROJECTION.md`.
-E.5.4 now accepts Editor-owned temporary Form state over that projection with
-no Core/Backend runtime activation. Next phase: `PDF-EXPORT-REALDOC-E.5.5`
-temporary JSON and mapping-profile state. Production remains NO-GO.
+E.5.4 accepts Editor-owned temporary Form state over that projection. E.5.5 now
+accepts temporary JSON and exact mapping-profile preparation with content-free
+local diagnostics and no Core/Backend runtime activation. Next phase:
+`PDF-EXPORT-REALDOC-E.5.6` Published Preview binding. Production remains NO-GO.

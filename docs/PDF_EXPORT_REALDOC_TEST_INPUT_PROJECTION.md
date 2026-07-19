@@ -172,8 +172,8 @@ field increases placement count while retaining one field/value identity.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.4` now accepts Editor-owned temporary Form state and maps
+`PDF-EXPORT-REALDOC-E.5.4` accepts Editor-owned temporary Form state and maps
 this projection into scalar, collection, and image inputs while preserving exact
-missing-metadata states. `PDF-EXPORT-REALDOC-E.5.5` next adds temporary JSON and
-mapping-profile state and still stops before Preview execution. Production
-remains NO-GO.
+missing-metadata states. `PDF-EXPORT-REALDOC-E.5.5` now accepts temporary JSON
+and exact mapping-profile preparation and still stops before Preview execution.
+E.5.6 next binds Published Preview. Production remains NO-GO.

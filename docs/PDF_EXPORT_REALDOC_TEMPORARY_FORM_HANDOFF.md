@@ -47,8 +47,7 @@ generated controls but is not canonical generation evidence.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.5` adds Editor JSON selection, exact mapping-profile
-selection, and content-free diagnostics. It must preserve the E.1/E.2 direct
-and adapted convergence boundary, must not execute caller-provided mapper code
-in the browser, and must not activate Preview execution. Production remains
-NO-GO.
+`PDF-EXPORT-REALDOC-E.5.5` now accepts Editor JSON selection, exact
+mapping-profile selection, and content-free local preparation diagnostics. It
+preserves the E.1/E.2 convergence boundary without browser mapping or Preview
+execution. E.5.6 next binds Published Preview. Production remains NO-GO.
