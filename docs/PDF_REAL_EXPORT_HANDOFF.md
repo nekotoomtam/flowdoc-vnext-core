@@ -151,3 +151,12 @@ the existing local PDF operation, worker, cancellation, persistence, status,
 and verified-download lifecycle. The retained 10-page evidence remains
 local-only; default mounting, Editor pre-test, durable generation storage,
 hosted providers, and production are still inactive.
+
+`PDF-EXPORT-REALDOC-E.5.0` locks the local Document Library and shared
+Design/Preview workspace product contract without runtime activation.
+`PDF-EXPORT-REALDOC-E.5.1` now accepts a bounded metadata-only local Backend
+list route plus the first responsive Editor Library and URL-backed Design
+handoff. The response excludes raw packages and generated content, declares
+authorization as not configured, and leaves Preview, DocGen/PDF behavior,
+hosted providers, and production inactive. E.5.2 next adds the shared
+Design/Preview workspace header and tabs.

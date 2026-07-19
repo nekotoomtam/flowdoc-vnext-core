@@ -183,11 +183,12 @@ The accepted REALDOC evidence already follows this boundary:
 6. `REALDOC-E.5.0` locks the local Library and shared Design/Preview workspace,
    UI-neutral generated-Form boundary, distinct Draft/Published targets, and
    explicit stale state. Accepted without runtime activation.
-7. `REALDOC-E.5.1` through `E.5.9` implement the Library, workspace, input
-   projection, Form/JSON state, Preview targets, lifecycle UX, and parity
-   evidence without making imported values authored Structure content or
-   browser preview artifact truth.
-8. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
+7. `REALDOC-E.5.1` implements the bounded local Library. Accepted.
+8. `REALDOC-E.5.2` through `E.5.9` implement the workspace, input projection,
+   Form/JSON state, Preview targets, lifecycle UX, and parity evidence without
+   making imported values authored Structure content or browser preview
+   artifact truth.
+9. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
    restart/fault evidence across Editor, Backend, Core, and renderer.
 
 REALDOC-F then scales the same Structure and generation contracts to all Module
@@ -255,7 +256,8 @@ identity contract. E.2 now accepts exact payload/mapper execution and shared run
 validation in `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. E.3 now accepts
 the optional bounded local Backend route, trusted registries, Backend-owned
 instance, protected canonical record, and content-free replay receipt. E.4 now
-accepts the local artifact lifecycle binding. `PDF-EXPORT-REALDOC-E.5.0` now
-locks the Document Library and Design/Preview workspace product contract. Next
-phase: `PDF-EXPORT-REALDOC-E.5.1` bounded local Library read model and first
-Library view. Production remains NO-GO.
+accepts the local artifact lifecycle binding. `PDF-EXPORT-REALDOC-E.5.0` locks
+the Document Library and Design/Preview workspace product contract. E.5.1 now
+accepts the bounded local Library read model and first Library-to-Design view.
+Next phase: `PDF-EXPORT-REALDOC-E.5.2` shared workspace header and URL-backed
+Design/Preview tabs. Production remains NO-GO.

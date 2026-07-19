@@ -11871,3 +11871,38 @@ Primary contract:
 Next phase: `PDF-EXPORT-REALDOC-E.5.1` bounded local Document Library read
 model, Backend list boundary, and first Library view without a multi-user
 authorization claim.
+
+## PDF-EXPORT-REALDOC-E.5.1 Local Document Library
+
+Status: accepted local-only bounded Library repository query, metadata route,
+Editor view, and Library-to-Design navigation. Production remains NO-GO.
+
+Backend now orders package metadata by newest `updatedAt` with deterministic
+`documentId` tie breaking and exposes `GET /documents` with a default limit of
+24, maximum 100, and opaque validated cursor. The version-1 response contains
+only Library identity and capability facts. It excludes raw package graphs,
+test values, canonical snapshots, generation instances, measured contracts,
+artifact records, and PDF bytes.
+
+Editor now starts at `/documents`, strictly validates the response, and opens
+the existing Design runtime at `/documents/:documentId/design`. Existing local
+fixtures report `migration-required`; Design is available while Preview and
+Published state remain unavailable. Desktop and mobile Library layouts plus
+Design/back navigation pass visual review.
+
+The route declares `local-workspace`, `local-development`, and authorization
+not configured. No generated Form/JSON state, Preview execution, publish
+workflow, DocGen/PDF operation, provider, tenancy, deployment, or production
+activation is added.
+
+Primary evidence:
+
+- `../flowdoc-vnext-backend/src/service/documentLibraryService.ts`;
+- `../flowdoc-vnext-backend/src/tests/documentLibrary.test.ts`;
+- `../flowdoc-vnext-editor/src/components/library/DocumentLibraryPage.tsx`;
+- `../flowdoc-vnext-editor/src/tests/documentLibrary.test.ts`; and
+- `../flowdoc-vnext-editor/docs/REALDOC_DOCUMENT_LIBRARY.md`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.2` shared workspace header and URL-backed
+Design/Preview tabs. Preview execution remains deferred and production remains
+NO-GO.

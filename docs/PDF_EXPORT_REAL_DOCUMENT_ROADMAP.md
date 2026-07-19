@@ -176,7 +176,18 @@ staleness contracts are retained in
 `../flowdoc-vnext-editor/docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md`
 without activating Editor, Backend, or Core runtime behavior.
 
-### REALDOC-E.5.1-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+### REALDOC-E.5.1 Local Document Library (Accepted)
+
+Add a bounded newest-first Backend repository query and metadata-only
+`GET /documents` response, then route the Editor through `/documents` into the
+existing `/documents/:documentId/design` runtime. The local response declares
+authorization as not configured and excludes raw packages and generated data.
+
+Exit: ordering, pagination, invalid cursor/limit, content exclusion, strict
+Editor transport, desktop/mobile layout, and Library-to-Design navigation pass.
+Preview and Published state remain explicitly unavailable.
+
+### REALDOC-E.5.2-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
 
 Add the bounded local Library read model, workspace shell, Core UI-neutral test
 input projection, generated Form state, mapped JSON diagnostics, Published
@@ -186,8 +197,9 @@ Structure Definition and the browser does not become a second resolver.
 
 E.1 generation input/mapping identity, E.2 runtime mapping/validation parity,
 E.3 bounded Backend local admission, E.4 local artifact lifecycle, and E.5.0
-product contract are accepted. Remaining subphases are E.5.1 through E.5.9
-Editor pre-test implementation and E.6 cross-repo acceptance.
+product contract and E.5.1 local Library are accepted. Remaining subphases are
+E.5.2 through E.5.9 Editor pre-test implementation and E.6 cross-repo
+acceptance.
 
 E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

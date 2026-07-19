@@ -212,6 +212,7 @@ PDF bytes, storage, status, or download. That binding remains E.4.
 `PDF-EXPORT-REALDOC-E.4` now binds one Backend-admitted 69C canonical record to
 source-neutral materialization/resolution and the existing local artifact
 lifecycle. See `docs/PDF_EXPORT_REALDOC_ADMITTED_ARTIFACT_LIFECYCLE.md`.
-`PDF-EXPORT-REALDOC-E.5.0` now locks the Editor workspace product contract.
-Next: `PDF-EXPORT-REALDOC-E.5.1` bounded local Document Library read model and
-first Library view. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.0` locks the Editor workspace product contract.
+REALDOC-E.5.1 now accepts the bounded local Document Library read model and
+first Library-to-Design view. Next: `PDF-EXPORT-REALDOC-E.5.2` shared workspace
+header and URL-backed Design/Preview tabs. Production remains NO-GO.

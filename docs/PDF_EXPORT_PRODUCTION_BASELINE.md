@@ -198,3 +198,9 @@ Library and shared Design/Preview workspace, generated-Form and mapped-JSON
 input separation, distinct Draft/Published Preview targets, and explicit stale
 state. It adds no route, repository query, Editor runtime, authentication,
 provider, deployment, or production activation.
+
+`PDF-EXPORT-REALDOC-E.5.1` adds a bounded metadata-only local repository query,
+`GET /documents`, and the first Editor Library-to-Design navigation. The route
+declares authorization as not configured, returns no raw package or generated
+content, and does not add Preview, publish, DocGen/PDF execution, hosted
+providers, tenancy, deployment, or production activation.
