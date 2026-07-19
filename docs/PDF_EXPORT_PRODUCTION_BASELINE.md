@@ -216,3 +216,8 @@ Published Structure and generation data-contract pins. It accepts no test
 values, creates no snapshots or instances, calls no Backend route, and executes
 no Preview or artifact. Missing scalar constraints remain explicit; provider,
 tenancy, deployment, cost, and production activation remain unchanged.
+
+`PDF-EXPORT-REALDOC-E.5.4` adds only Editor-owned memory-only Form state and
+generated controls over the E.5.3 projection. It performs no Core runtime or
+Backend call, persists no business values, and leaves normal Preview fail-closed
+without a trusted projection transport. Production activation remains unchanged.

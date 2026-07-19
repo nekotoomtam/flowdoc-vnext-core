@@ -210,7 +210,18 @@ item fields deterministically. Missing scalar requiredness, enum choices, date
 format, and collection limits remain explicit metadata-unavailable facts. No
 test values, Editor state, Preview execution, Backend route, or artifact runs.
 
-### REALDOC-E.5.4-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+### REALDOC-E.5.4 Temporary Generated Form (Accepted)
+
+Add Editor-owned memory-only Form state over the exact E.5.3 projection. Generate
+scalar, boolean, image, collection, collection-item, and unplaced controls while
+preserving explicit unavailable metadata. Reset all values when projection pins
+change and keep selected file bytes outside pure state.
+
+Exit: type guards, collection absence versus included-empty, item-key uniqueness,
+100-row and 10 MiB local bounds, desktop/mobile layout, normal Preview fail-closed
+behavior, and empty browser console pass. No Backend or Core runtime change.
+
+### REALDOC-E.5.5-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
 
 Add generated Form state, mapped JSON diagnostics, Published Preview, distinct
 Draft Preview, complete stale/lifecycle UX, and Form/API parity evidence.
@@ -219,9 +230,10 @@ Definition and the browser does not become a second resolver.
 
 E.1 generation input/mapping identity, E.2 runtime mapping/validation parity,
 E.3 bounded Backend local admission, E.4 local artifact lifecycle, and E.5.0
-product contract, E.5.1 local Library, E.5.2 workspace tabs, and E.5.3 Core
-test-input projection are accepted. Remaining subphases are E.5.4 through
-E.5.9 Editor pre-test implementation and E.6 cross-repo acceptance.
+product contract, E.5.1 local Library, E.5.2 workspace tabs, E.5.3 Core
+test-input projection, and E.5.4 temporary generated Form are accepted.
+Remaining subphases are E.5.5 through E.5.9 Editor pre-test implementation and
+E.6 cross-repo acceptance.
 
 E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

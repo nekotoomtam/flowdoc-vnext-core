@@ -289,13 +289,17 @@ describe("Published Structure test-input projection v1", () => {
     }
   })
 
-  it("retains the E.5.3 boundary and next phase without claiming Preview execution", () => {
+  it("retains the E.5.3 boundary and E.5.4 handoff without claiming Preview execution", () => {
     const doc = readFileSync(
       new URL("../docs/PDF_EXPORT_REALDOC_TEST_INPUT_PROJECTION.md", import.meta.url),
       "utf8",
     )
     const publicExports = readFileSync(new URL("../src/index.ts", import.meta.url), "utf8")
     const ledger = readFileSync(new URL("../docs/PHASE_LEDGER.md", import.meta.url), "utf8")
+    const formHandoff = readFileSync(
+      new URL("../docs/PDF_EXPORT_REALDOC_TEMPORARY_FORM_HANDOFF.md", import.meta.url),
+      "utf8",
+    )
 
     for (const section of [
       "## Exact Pins",
@@ -313,6 +317,9 @@ describe("Published Structure test-input projection v1", () => {
       'export * from "./generation/publishedStructureTestInputProjectionV1.js"',
     )
     expect(ledger).toContain("## PDF-EXPORT-REALDOC-E.5.3 Core Test-Input Projection")
+    expect(ledger).toContain("## PDF-EXPORT-REALDOC-E.5.4 Temporary Generated Form")
+    expect(formHandoff).toContain("Status: `PDF-EXPORT-REALDOC-E.5.4` accepted")
+    expect(formHandoff).toContain("`PDF-EXPORT-REALDOC-E.5.5`")
     expect(doc).not.toContain("Preview execution is active")
     expect(doc).not.toContain("production is ready")
   })

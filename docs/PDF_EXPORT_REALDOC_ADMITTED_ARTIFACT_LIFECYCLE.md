@@ -93,7 +93,8 @@ correctness task rather than concealed as an E.4 lifecycle failure.
 workspace without runtime activation. E.5.1 now accepts the bounded local
 Library read model and first Library-to-Design view. E.5.2 now accepts the
 shared workspace header and URL-backed tabs without Preview execution. E.5.3
-now accepts the Core UI-neutral test-input projection. E.5.4 next adds
-temporary Editor Form state without Preview execution. Imported values remain
+accepts the Core UI-neutral test-input projection, and E.5.4 now accepts
+temporary Editor Form state without Preview execution. E.5.5 next adds
+JSON/mapping state. Imported values remain
 separate from authored Structure content and browser preview is not artifact
 truth. Production remains NO-GO.

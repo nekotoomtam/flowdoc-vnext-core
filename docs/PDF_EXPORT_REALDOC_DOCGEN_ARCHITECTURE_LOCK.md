@@ -189,10 +189,12 @@ The accepted REALDOC evidence already follows this boundary:
 9. `REALDOC-E.5.3` implements the Core UI-neutral test-input projection,
    first-placement order, collection/image requirements, and explicit missing
    scalar constraints. Accepted without test values or Preview execution.
-10. `REALDOC-E.5.4` through `E.5.9` implement Form/JSON state, Preview targets,
+10. `REALDOC-E.5.4` implements temporary generated Form state without Preview
+   execution. Accepted without Core or Backend runtime changes.
+11. `REALDOC-E.5.5` through `E.5.9` implement JSON state, Preview targets,
    lifecycle UX, and parity evidence without making imported values authored
    Structure content or browser preview artifact truth.
-11. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
+12. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
    restart/fault evidence across Editor, Backend, Core, and renderer.
 
 REALDOC-F then scales the same Structure and generation contracts to all Module
@@ -266,5 +268,6 @@ accepts the bounded local Library read model and first Library-to-Design view.
 E.5.2 now accepts the shared URL-backed workspace tabs and Design state
 retention without Preview execution. E.5.3 now accepts the pure Core test-input
 projection documented in `docs/PDF_EXPORT_REALDOC_TEST_INPUT_PROJECTION.md`.
-Next phase: `PDF-EXPORT-REALDOC-E.5.4` Editor-owned temporary Form state over
-that projection. Production remains NO-GO.
+E.5.4 now accepts Editor-owned temporary Form state over that projection with
+no Core/Backend runtime activation. Next phase: `PDF-EXPORT-REALDOC-E.5.5`
+temporary JSON and mapping-profile state. Production remains NO-GO.

@@ -163,5 +163,6 @@ the shared Design/Preview workspace header and URL state while retaining one
 document-keyed Design runtime. Preview reports unavailable and calls no DocGen
 or artifact route. `PDF-EXPORT-REALDOC-E.5.3` now adds the pure Core UI-neutral
 input projection with first-placement order, exact collection/image facts, and
-explicit unavailable scalar constraints. E.5.4 next adds temporary Editor Form
-state without Preview execution.
+explicit unavailable scalar constraints. `PDF-EXPORT-REALDOC-E.5.4` now accepts
+temporary Editor Form state without Preview execution or Core/Backend runtime
+changes. E.5.5 next adds JSON and mapping-profile state.

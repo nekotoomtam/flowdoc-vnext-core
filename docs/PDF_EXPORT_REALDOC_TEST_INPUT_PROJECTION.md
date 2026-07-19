@@ -166,12 +166,14 @@ field increases placement count while retaining one field/value identity.
 
 - Final source-neutral scalar constraint vocabulary beyond requiredness,
   allowed values, and value format.
-- The local operational item limit used by the first Editor collection editor.
+- Whether later UX needs a configurable local item limit beyond E.5.4's
+  operational 100-row bound.
 - Published Structure lookup transport consumed by the Editor workspace.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.4` adds Editor-owned temporary Form state and maps this
-projection into scalar, collection, and image inputs. It must preserve exact
-missing-metadata states and still stop before JSON mapping and Preview
-execution. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.4` now accepts Editor-owned temporary Form state and maps
+this projection into scalar, collection, and image inputs while preserving exact
+missing-metadata states. `PDF-EXPORT-REALDOC-E.5.5` next adds temporary JSON and
+mapping-profile state and still stops before Preview execution. Production
+remains NO-GO.

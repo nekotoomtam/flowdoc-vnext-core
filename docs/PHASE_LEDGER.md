@@ -11988,3 +11988,41 @@ Next phase: `PDF-EXPORT-REALDOC-E.5.4` Editor-owned temporary Form state and
 generated scalar, collection, and image inputs over this projection. JSON
 mapping, Preview execution, Backend lifecycle calls, and production remain
 deferred.
+
+## PDF-EXPORT-REALDOC-E.5.4 Temporary Generated Form
+
+Status: accepted Editor-owned memory-only Form state and generated controls.
+Preview execution and production remain NO-GO.
+
+Editor now initializes one unset value per non-collection document field key
+and one separate collection state from a ready E.5.3 projection. It generates
+text, number draft, date, enum, unset/yes/no boolean, PNG/JPEG image, collection,
+collection-item, and unplaced controls without guessing unavailable Core facts.
+
+Collection absence remains distinct from included-empty. Item keys are required
+and unique within each collection. The local Editor bounds temporary collections
+at 100 rows and image selections at 10 MiB; these are operational memory limits,
+not Structure or generation semantics. Selected files remain in an in-memory
+registry and pure state contains no image bytes or invented asset identity.
+
+The Form state pins Published Structure owner, Structure fingerprint,
+data-contract fingerprint, and projection fingerprint. Any pin change resets all
+temporary values. Normal documents still have no trusted projection transport
+and remain Preview unavailable. A development-only source-neutral route provides
+visual evidence without becoming canonical input or a production route.
+
+No Core or Backend runtime contract changes in E.5.4. Snapshot creation,
+validation, mapping, materialization, resolution, exact pages, operations, and
+artifacts all remain `not-run`.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_TEMPORARY_FORM_HANDOFF.md`;
+- `../flowdoc-vnext-editor/src/editor/preview/testInputFormState.ts`;
+- `../flowdoc-vnext-editor/src/app/usePreviewTestInputForm.ts`;
+- `../flowdoc-vnext-editor/src/components/preview/PreviewTestInputView.tsx`; and
+- `../flowdoc-vnext-editor/docs/REALDOC_TEMPORARY_FORM_STATE.md`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.5` temporary JSON selection,
+mapping-profile selection, and content-free diagnostics. Preview execution and
+production remain deferred.
