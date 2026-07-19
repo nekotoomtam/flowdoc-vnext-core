@@ -8,6 +8,8 @@ import {
 import {
   renderFlowDocThaiOnePagePdfPilot,
   renderFlowDocThaiOnePagePdfPilotControlled,
+  renderFlowDocLocalMeasuredDocumentPdf,
+  renderFlowDocLocalMeasuredDocumentPdfControlled,
   type FlowDocPdfRendererPilotFontResource,
 } from "../packages/pdf-renderer-pilot/src/full.js"
 
@@ -48,6 +50,23 @@ function input() {
         "fixtures/pdf-pilot-thai-one-page-request.v1.json",
       ),
     ),
+    fontResources: [fontResource()],
+  }
+}
+
+function localMeasuredInput() {
+  const request = readJson<VNextPdfMeasuredDrawContractRequestV1>(
+    "fixtures/pdf-pilot-thai-one-page-request.v1.json",
+  )
+  const contract = createVNextPdfMeasuredDrawContractV1({
+    ...request,
+    pilotId: "pdf-export-realdoc-d-generic-profile",
+    rendererProfileId: "flowdoc-local-measured-document-v1",
+  })
+  return {
+    proofId: "pdf-export-realdoc-d-generic-profile",
+    artifactId: "artifact:pdf-export-realdoc-d-generic-profile",
+    contract,
     fontResources: [fontResource()],
   }
 }
@@ -125,5 +144,30 @@ describe("PDF-EXPORT-LOCAL-B controlled renderer execution", () => {
       bytes: null,
       issues: [expect.objectContaining({ code: "checkpoint-interval-invalid" })],
     })
+  })
+
+  it("renders and cancels the bounded local measured-document profile without canonical fingerprint locks", async () => {
+    const renderInput = localMeasuredInput()
+    const first = renderFlowDocLocalMeasuredDocumentPdf(renderInput)
+    const second = renderFlowDocLocalMeasuredDocumentPdf(renderInput)
+    const cancelled = await renderFlowDocLocalMeasuredDocumentPdfControlled(renderInput, {
+      checkpointEveryPaintCommands: 1,
+      control: { async checkpoint() { return { status: "cancel" } } },
+    })
+
+    expect(first.status).toBe("rendered")
+    expect(second.status).toBe("rendered")
+    if (first.status !== "rendered" || second.status !== "rendered") throw new Error("local measured profile must render")
+    expect(first.mode).toBe("local-measured-document")
+    expect(second.bytes).toEqual(first.bytes)
+    expect(first.artifact.rendererProfileId).toBe("flowdoc-local-measured-document-v1")
+    expect(first.renderContract).toMatchObject({
+      usesProvidedGlyphFacts: true,
+      measuredVerticalGlyphOffsets: true,
+      clusterActualTextFallback: true,
+      productionFidelity: false,
+      storageWrites: false,
+    })
+    expect(cancelled).toMatchObject({ status: "cancelled", bytes: null, artifact: null })
   })
 })

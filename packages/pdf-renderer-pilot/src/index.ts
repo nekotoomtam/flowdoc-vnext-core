@@ -16,6 +16,7 @@ export const FLOWDOC_PDF_SHARED_RESOURCES_PILOT_MODE = "shared-resources-multi-p
 export const FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE = "all-five-image-resource-matrix" as const
 export const FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE = "canonical-twelve-page-report-proof" as const
 export const FLOWDOC_PDF_FULL_DOCUMENT_PILOT_MODE = "canonical-full-document-handoff-proof" as const
+export const FLOWDOC_PDF_LOCAL_MEASURED_DOCUMENT_MODE = "local-measured-document" as const
 
 export type FlowDocPdfRendererPilotMode =
   | typeof FLOWDOC_PDF_RENDERER_PILOT_MODE
@@ -24,6 +25,7 @@ export type FlowDocPdfRendererPilotMode =
   | typeof FLOWDOC_PDF_ALL_IMAGES_PILOT_MODE
   | typeof FLOWDOC_PDF_CANONICAL_REPORT_PILOT_MODE
   | typeof FLOWDOC_PDF_FULL_DOCUMENT_PILOT_MODE
+  | typeof FLOWDOC_PDF_LOCAL_MEASURED_DOCUMENT_MODE
 
 const FULL_DOCUMENT_HANDOFF = {
   rendererProfileId: "pdf-pilot-08b-r2c-l-full-document-v1",
@@ -81,6 +83,8 @@ export type FlowDocPdfRendererPilotIssueCode =
   | "full-document-page-count"
   | "full-document-font-count"
   | "full-document-image-count"
+  | "measured-document-profile"
+  | "measured-document-resource-envelope"
   | "duplicate-image-resource"
   | "missing-image-resource"
   | "image-hash-mismatch"
@@ -1037,6 +1041,7 @@ function blockedResult(
   requiredImageAssetCount?: number,
   canonicalPageComposition = false,
   fullDocumentHandoff = false,
+  genericMeasuredDocument = false,
 ): FlowDocPdfRendererPilotResult {
   return {
     source: FLOWDOC_PDF_RENDERER_PILOT_SOURCE,
@@ -1067,6 +1072,10 @@ function blockedResult(
         measuredVerticalGlyphOffsets: true as const,
         clusterActualTextFallback: true as const,
       } : {}),
+      ...(genericMeasuredDocument ? {
+        measuredVerticalGlyphOffsets: true as const,
+        clusterActualTextFallback: true as const,
+      } : {}),
       productionFidelity: false,
       storageWrites: false,
     },
@@ -1094,6 +1103,7 @@ interface PreparedFlowDocPdfPilotRender {
   requiredImageAssetCount?: number
   canonicalPageComposition: boolean
   fullDocumentHandoff: boolean
+  genericMeasuredDocument: boolean
   contract: Extract<VNextPdfMeasuredDrawContractResultV1, { status: "consumable" }>
   usages: FontUsage[]
   resolvedRuns: Map<string, ResolvedGlyph[]>
@@ -1109,12 +1119,13 @@ type FlowDocPdfPilotPreparation =
 function prepareFlowDocPdfPilot(
   input: FlowDocPdfRendererPilotInput,
   mode: FlowDocPdfRendererPilotMode,
-  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07" | "PDF-PILOT-08B-R2C-M",
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07" | "PDF-PILOT-08B-R2C-M" | "PDF-EXPORT-REALDOC-D",
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
   requiredImageAssetCount?: number,
   canonicalPageComposition = false,
   fullDocumentHandoff = false,
+  genericMeasuredDocument = false,
 ): FlowDocPdfPilotPreparation {
   const issues: FlowDocPdfRendererPilotIssue[] = []
   if (input.proofId.trim().length === 0) {
@@ -1139,11 +1150,43 @@ function prepareFlowDocPdfPilot(
         requiredImageAssetCount,
         canonicalPageComposition,
         fullDocumentHandoff,
+        genericMeasuredDocument,
       ),
     }
   }
   const contract = input.contract
-  if (fullDocumentHandoff) {
+  if (genericMeasuredDocument) {
+    if (contract.rendererProfileId !== "flowdoc-local-measured-document-v1") {
+      issues.push(issue(
+        "measured-document-profile",
+        "contract.rendererProfileId",
+        `${phaseId} requires the bounded local measured-document renderer profile.`,
+      ))
+    }
+    if (contract.pages.length < 1 || contract.pages.length > 64) {
+      issues.push(issue("page-count", "contract.pages", `${phaseId} accepts 1 through 64 measured pages.`))
+    }
+    const paintCommandCount = contract.pages.reduce((total, page) => total + page.commands.length, 0)
+    const glyphCount = contract.pages.reduce((total, page) => total + page.commands.reduce(
+      (pageTotal, command) => pageTotal + (command.kind === "glyph-run" ? command.glyphs.length : 0),
+      0,
+    ), 0)
+    const sourcePixelCount = contract.imageAssets.reduce(
+      (total, asset) => total + asset.pixelWidth * asset.pixelHeight,
+      0,
+    )
+    if (
+      contract.fontAssets.length > 8
+      || contract.imageAssets.length > 64
+      || paintCommandCount > 50_000
+      || glyphCount > 250_000
+      || sourcePixelCount > 50_000_000
+    ) issues.push(issue(
+      "measured-document-resource-envelope",
+      "contract",
+      `${phaseId} exceeds the local measured-document font, image, pixel, paint-command, or glyph envelope.`,
+    ))
+  } else if (fullDocumentHandoff) {
     if (contract.pages.length !== FULL_DOCUMENT_HANDOFF.pageCount) {
       issues.push(issue(
         "full-document-page-count",
@@ -1293,7 +1336,7 @@ function prepareFlowDocPdfPilot(
       ))
     }
   }
-  if ((canonicalPageComposition || fullDocumentHandoff) && issues.length > 0) {
+  if ((canonicalPageComposition || fullDocumentHandoff || genericMeasuredDocument) && issues.length > 0) {
     return {
       status: "blocked",
       result: blockedResult(
@@ -1305,6 +1348,7 @@ function prepareFlowDocPdfPilot(
         requiredImageAssetCount,
         canonicalPageComposition,
         fullDocumentHandoff,
+        genericMeasuredDocument,
       ),
     }
   }
@@ -1409,12 +1453,16 @@ function prepareFlowDocPdfPilot(
         issues.push(issue("unsupported-opacity", `${path}.opacity`, `${phaseId} accepts opaque paint only.`))
       }
       if (command.kind !== "glyph-run") return
-      if (!canonicalPageComposition && !fullDocumentHandoff && command.glyphs.some((glyph) => glyph.offsetYPt !== 0)) {
+      if (!canonicalPageComposition && !fullDocumentHandoff && !genericMeasuredDocument
+        && command.glyphs.some((glyph) => glyph.offsetYPt !== 0)) {
         issues.push(issue("unsupported-vertical-glyph-offset", `${path}.glyphs`, `${phaseId} has not qualified vertical glyph offsets.`))
       }
       const usage = usages.find((candidate) => candidate.asset.fontId === command.fontId)
       if (usage == null) return
-      const assignments = unicodeAssignments(command, canonicalPageComposition || fullDocumentHandoff)
+      const assignments = unicodeAssignments(
+        command,
+        canonicalPageComposition || fullDocumentHandoff || genericMeasuredDocument,
+      )
       if (assignments == null) {
         issues.push(issue("unmappable-text-cluster", `${path}.glyphs`, "Glyph clusters cannot be mapped losslessly into ToUnicode entries."))
         return
@@ -1453,6 +1501,7 @@ function prepareFlowDocPdfPilot(
         requiredImageAssetCount,
         canonicalPageComposition,
         fullDocumentHandoff,
+        genericMeasuredDocument,
       ),
     }
   }
@@ -1478,6 +1527,7 @@ function prepareFlowDocPdfPilot(
       requiredImageAssetCount,
       canonicalPageComposition,
       fullDocumentHandoff,
+      genericMeasuredDocument,
       contract,
       usages,
       resolvedRuns,
@@ -1500,6 +1550,7 @@ function completeFlowDocPdfPilotRender(
     requiredImageAssetCount,
     canonicalPageComposition,
     fullDocumentHandoff,
+    genericMeasuredDocument,
     contract,
     usages,
     imageUsages,
@@ -1609,6 +1660,10 @@ function completeFlowDocPdfPilotRender(
         measuredVerticalGlyphOffsets: true as const,
         clusterActualTextFallback: true as const,
       } : {}),
+      ...(genericMeasuredDocument ? {
+        measuredVerticalGlyphOffsets: true as const,
+        clusterActualTextFallback: true as const,
+      } : {}),
       productionFidelity: false,
       storageWrites: false,
     },
@@ -1632,12 +1687,13 @@ function completeFlowDocPdfPilotRender(
 function renderFlowDocPdfPilot(
   input: FlowDocPdfRendererPilotInput,
   mode: FlowDocPdfRendererPilotMode,
-  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07" | "PDF-PILOT-08B-R2C-M",
+  phaseId: "PDF-PILOT-03" | "PDF-PILOT-04" | "PDF-PILOT-05" | "PDF-PILOT-06" | "PDF-PILOT-07" | "PDF-PILOT-08B-R2C-M" | "PDF-EXPORT-REALDOC-D",
   imagesSupported: boolean,
   sharedResourceObjects: boolean,
   requiredImageAssetCount?: number,
   canonicalPageComposition = false,
   fullDocumentHandoff = false,
+  genericMeasuredDocument = false,
 ): FlowDocPdfRendererPilotResult {
   const preparation = prepareFlowDocPdfPilot(
     input,
@@ -1648,6 +1704,7 @@ function renderFlowDocPdfPilot(
     requiredImageAssetCount,
     canonicalPageComposition,
     fullDocumentHandoff,
+    genericMeasuredDocument,
   )
   if (preparation.status === "blocked") return preparation.result
   const prepared = preparation.prepared
@@ -1668,10 +1725,11 @@ async function renderFlowDocPdfPilotControlled(
   },
   renderer: {
     mode: FlowDocPdfRendererPilotMode
-    phaseId: "PDF-PILOT-03" | "PDF-PILOT-08B-R2C-M"
+    phaseId: "PDF-PILOT-03" | "PDF-PILOT-08B-R2C-M" | "PDF-EXPORT-REALDOC-D"
     imagesSupported: boolean
     sharedResourceObjects: boolean
     fullDocumentHandoff: boolean
+    genericMeasuredDocument: boolean
   },
 ): Promise<FlowDocPdfRendererPilotControlledResult> {
   if (
@@ -1691,6 +1749,7 @@ async function renderFlowDocPdfPilotControlled(
     undefined,
     false,
     renderer.fullDocumentHandoff,
+    renderer.genericMeasuredDocument,
   )
 
   const preparation = prepareFlowDocPdfPilot(
@@ -1702,6 +1761,7 @@ async function renderFlowDocPdfPilotControlled(
     undefined,
     false,
     renderer.fullDocumentHandoff,
+    renderer.genericMeasuredDocument,
   )
   if (preparation.status === "blocked") return preparation.result
   const prepared = preparation.prepared
@@ -1750,6 +1810,7 @@ export function renderFlowDocThaiOnePagePdfPilotControlled(
     imagesSupported: false,
     sharedResourceObjects: false,
     fullDocumentHandoff: false,
+    genericMeasuredDocument: false,
   })
 }
 
@@ -1766,6 +1827,24 @@ export function renderFlowDocCanonicalFullDocumentPdfPilotControlled(
     imagesSupported: true,
     sharedResourceObjects: true,
     fullDocumentHandoff: true,
+    genericMeasuredDocument: false,
+  })
+}
+
+export function renderFlowDocLocalMeasuredDocumentPdfControlled(
+  input: FlowDocPdfRendererPilotInput,
+  options: {
+    checkpointEveryPaintCommands: number
+    control: FlowDocPdfRendererPilotControl
+  },
+): Promise<FlowDocPdfRendererPilotControlledResult> {
+  return renderFlowDocPdfPilotControlled(input, options, {
+    mode: FLOWDOC_PDF_LOCAL_MEASURED_DOCUMENT_MODE,
+    phaseId: "PDF-EXPORT-REALDOC-D",
+    imagesSupported: true,
+    sharedResourceObjects: true,
+    fullDocumentHandoff: false,
+    genericMeasuredDocument: true,
   })
 }
 
@@ -1842,6 +1921,22 @@ export function renderFlowDocCanonicalFullDocumentPdfPilot(
     true,
     true,
     undefined,
+    false,
+    true,
+  )
+}
+
+export function renderFlowDocLocalMeasuredDocumentPdf(
+  input: FlowDocPdfRendererPilotInput,
+): FlowDocPdfRendererPilotResult {
+  return renderFlowDocPdfPilot(
+    input,
+    FLOWDOC_PDF_LOCAL_MEASURED_DOCUMENT_MODE,
+    "PDF-EXPORT-REALDOC-D",
+    true,
+    true,
+    undefined,
+    false,
     false,
     true,
   )

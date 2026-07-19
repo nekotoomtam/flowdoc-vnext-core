@@ -29,5 +29,15 @@ npm run verify:uat-69c-section-2-1-resolution -- --semantic-dir <semantic-direct
 
 Screenshot placement is explicitly section-level: after the complete
 requirement table and in semantic source order. Measurement, pagination,
-rendering, persistence, Editor/Backend integration, and production remain out
-of scope.
+and rendering are now implemented by REALDOC-D through a separate reusable UAT
+measured profile. Recheck the exact local artifact with:
+
+```text
+npm run verify:uat-69c-section-2-1-measured-export -- --semantic-dir <semantic-directory>
+```
+
+The verifier executes native Thai shaping and segmentation, Core table
+preparation/pagination/projection, dynamic font subsetting, deterministic PDF
+rendering, cancellation, and a fresh-process restart check. Its retained
+evidence is content-free. Persistence, Editor workflow, product eligibility,
+and production remain out of scope.

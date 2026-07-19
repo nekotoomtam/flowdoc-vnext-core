@@ -4,3 +4,4 @@ node_modules/
 target/
 *.tsbuildinfo
 /output/pdf/
+/tmp/pdfs/

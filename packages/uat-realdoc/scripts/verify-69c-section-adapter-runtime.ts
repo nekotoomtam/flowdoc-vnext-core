@@ -38,7 +38,7 @@ export interface SourceBaseline {
   }
 }
 
-interface CollectedImage extends FlowDocUatImageResourceInputV1 {
+export interface CollectedImage extends FlowDocUatImageResourceInputV1 {
   absolutePath: string
 }
 
@@ -92,6 +92,7 @@ function requireEqual(label: string, actual: unknown, expected: unknown): void {
 export interface Loaded69cUatSectionAdapter {
   baseline: SourceBaseline
   semanticFile: { path: string; byteLength: number; sha256: string }
+  selectedImages: CollectedImage[]
   structure: FlowDocUatStructureDefinitionV1
   bundle: FlowDocUatSectionDataBundleV1
   canonicalInputs: {
@@ -191,7 +192,7 @@ export async function load69cUatSectionAdapter(input: {
   }
   if (!Object.values(canonicalInputs).every(Boolean)) throw new Error("adapter output failed canonical snapshot schemas")
 
-  return { baseline, semanticFile, structure, bundle, canonicalInputs }
+  return { baseline, semanticFile, selectedImages, structure, bundle, canonicalInputs }
 }
 
 export async function verify69cUatSectionAdapter(input: {

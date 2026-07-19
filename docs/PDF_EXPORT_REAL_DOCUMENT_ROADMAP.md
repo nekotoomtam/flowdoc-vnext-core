@@ -53,7 +53,7 @@ screenshots, accept/remark fields, and signature regions.
 Exit: one deterministic resolved document survives parse/serialize and
 re-resolution without source mutation or identity drift.
 
-### REALDOC-D Section 2.1 Measured Export
+### REALDOC-D Section 2.1 Measured Export (Accepted)
 
 Measure Thai text, compose the four-column UAT table, repeat table headers,
 split rows conservatively, fit images with preserved aspect ratio, paginate,
@@ -61,6 +61,13 @@ and execute the existing LOCAL export workflow.
 
 Exit: the section remains inside the accepted local envelope and passes
 content, visual, deterministic-byte, cancellation, and restart checks.
+
+Accepted evidence is an 11-page A4 artifact with four requirement-table
+pages, three repeated headers, three conservatively split rows, and seven
+whole screenshot rows. Native Thai shaping/segmentation, same-process and
+fresh-process byte determinism, cooperative cancellation, and visual review
+all pass. The reusable composition and renderer profiles contain no 69C
+content or paths.
 
 ### REALDOC-E Editor Workflow
 

@@ -395,6 +395,16 @@ Screenshot rows follow the complete requirement table in source order, and all
 measure those rows and images before any page or artifact claim can enter the
 local runtime.
 
+REALDOC-D now accepts that measured local boundary. Native rustybuzz and ICU4X
+evidence feeds Core table preparation, four-page requirement pagination,
+repeated headers, seven whole screenshot rows, and an 11-page A4 measured draw
+contract. A separate bounded `local-measured-document` profile returns exact
+bytes through both Core and Backend adapters, cancels without partial bytes,
+and reproduces the same receipt in a fresh process. It does not weaken the
+canonical LOCAL-G profile or activate persistence, Editor eligibility, hosted
+providers, or production. REALDOC-E owns the development-only Editor workflow
+and local artifact lifecycle for this resolved document.
+
 ## Local Readiness Exit Gate (Accepted)
 
 `LOCAL-G` closes because retained evidence proves:

@@ -1,0 +1,302 @@
+{
+  "evidenceVersion": 1,
+  "phaseId": "PDF-EXPORT-REALDOC-D",
+  "status": "accepted",
+  "sourceBaseline": {
+    "baselineId": "pdf-export-realdoc-69c-source-baseline-v1",
+    "sourceBundleFingerprint": "sha256:46fac437de79e9b5b044345ca97433535245bf53b1764d5df4b01e25279096eb",
+    "selectedImageCanonicalDigest": "dd7f125503a7002c184ae74c9fe517ac5d563e294eb0f99e1df7676d328db443"
+  },
+  "sources": {
+    "adapterBundleFingerprint": "sha256:d348842d94f31a60240ee668c77f3d9775c5d2bb6eb4b38fed5dc2eea91e7fe9",
+    "resolutionBundleFingerprint": "sha256:416024780d89cfaba65faa83cfe35c4f2792b899f237dbd14491fdd6bc870902",
+    "measuredPlanFingerprint": "sha256:9dea89104878c01e1340de0715df6fee71be208cc18f9466db6d5f20f52f13bb",
+    "measuredBundleFingerprint": "sha256:3519a7927cb1265c5f1fd2441f0fcc37dbce77aa69d5d113e4bf996668bfd669"
+  },
+  "nativeMeasurement": {
+    "consumerCount": 97,
+    "uniqueShapeExecutionCount": 206,
+    "uniqueSegmentExecutionCount": 75,
+    "glyphCount": 6448,
+    "lineCount": 237,
+    "missingGlyphCount": 0,
+    "emergencyBreakOpportunityCount": 0,
+    "shaperRevision": "rustybuzz-0.20.1",
+    "segmenterRevision": "icu_segmenter-2.2.0",
+    "segmenterDataRevision": "icu_segmenter_data-2.2.0",
+    "lineBreakPolicy": "icu4x-auto-default-uax14-cluster-safe-overflow-v1"
+  },
+  "composition": {
+    "measurementConsumerCount": 97,
+    "measuredLineCount": 237,
+    "pageCount": 11,
+    "glyphRunCount": 228,
+    "imagePaintCount": 7,
+    "repeatedRequirementHeaderCount": 3,
+    "splitRequirementRowCount": 3,
+    "screenshotRowCount": 7,
+    "resourceEnvelope": {
+      "pageCount": 11,
+      "paintCommandCount": 332,
+      "glyphCount": 6617,
+      "fontAssetCount": 2,
+      "imageAssetCount": 7,
+      "sourcePixelCount": 3494022,
+      "accepted": true
+    },
+    "requirementsTable": {
+      "tableId": "uat-requirements-table",
+      "paginationFingerprint": "sha256:9eda2c24b98c1848182d97c556f5681b0f965da018fbb438aae5024417d3fa9d",
+      "rendererProjectionFingerprint": "sha256:868f37c36bc97f5a3817c6a6cc645f3f2e9d9f831e870d759ada2c4dddd3114f",
+      "pageCount": 4,
+      "rowFragmentCount": 17,
+      "splitRowCount": 3,
+      "repeatedHeaderFragmentCount": 3,
+      "imagePaintCount": 0
+    },
+    "screenshotsTable": {
+      "tableId": "uat-screenshots-table",
+      "paginationFingerprint": "sha256:981b152f9004a752631caad83ce9c3d58f95a021882fa338639bdf83fe46c129",
+      "rendererProjectionFingerprint": "sha256:57bbad749bebf096162691ba2522e18adb94e7739f29d9a90ed88e520f2e0fb8",
+      "pageCount": 7,
+      "rowFragmentCount": 7,
+      "splitRowCount": 0,
+      "repeatedHeaderFragmentCount": 0,
+      "imagePaintCount": 7
+    }
+  },
+  "renderer": {
+    "mode": "local-measured-document",
+    "artifact": {
+      "artifactId": "pdf:uat-69c-section-2-1:realdoc-d",
+      "format": "pdf",
+      "mediaType": "application/pdf",
+      "byteLength": 1425789,
+      "sha256": "1d0de80af9eb94f2bf05b465f8d002dc1a4b8e2ea3850864bda5e76b21a1dd9f",
+      "storageStatus": "not-stored",
+      "localOnly": true,
+      "sourceContractFingerprint": "sha256:40a79bc494f920e498d5bf73c3e16d4224cf8320ef10f2b51fa633a9147aa471",
+      "rendererProfileId": "flowdoc-local-measured-document-v1",
+      "measurementProfileId": "flowdoc-uat-local-measured-v1",
+      "embeddedFonts": [
+        {
+          "fontId": "ibm-plex-sans-thai-regular",
+          "subsetId": "flowdoc-local-measured-regular-40a79bc494f920e4",
+          "subsetSha256": "5cbdc759785f5753e33cdf09baf02e575f37bbc73a12ad98bb381efcc53aa7f8",
+          "subsetByteLength": 32496,
+          "sourceByteLength": 113464,
+          "pdfBaseFontName": "FDLMRG+FlowDocLocalMeasuredDocument-Regular",
+          "fontFormat": "Type0/CIDFontType2",
+          "toUnicode": true
+        },
+        {
+          "fontId": "ibm-plex-sans-thai-bold",
+          "subsetId": "flowdoc-local-measured-bold-40a79bc494f920e4",
+          "subsetSha256": "c1d922197c829e5301d6de80c331f744b1296963e25fa0d5a408893be12932f0",
+          "subsetByteLength": 16292,
+          "sourceByteLength": 113996,
+          "pdfBaseFontName": "FDLMBD+FlowDocLocalMeasuredDocument-Bold",
+          "fontFormat": "Type0/CIDFontType2",
+          "toUnicode": true
+        }
+      ],
+      "embeddedImages": [
+        {
+          "assetId": "uat-image-section_2_1_img_001",
+          "sha256": "578d83be856071ed8097c79ecd4640a26c355825068767adc6eb26f466e6b074",
+          "byteLength": 94426,
+          "pixelWidth": 945,
+          "pixelHeight": 532,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "UAT screenshot evidence"
+          }
+        },
+        {
+          "assetId": "uat-image-section_2_1_img_002",
+          "sha256": "185e846f5f5be8d2bbcfe6ab015d884168203ad369956a9185e9f9ffc18f5847",
+          "byteLength": 164817,
+          "pixelWidth": 938,
+          "pixelHeight": 531,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "UAT screenshot evidence"
+          }
+        },
+        {
+          "assetId": "uat-image-section_2_1_img_003",
+          "sha256": "450c503659a91cbf662e545b1cbe69e18e4e5bd926ba5e5964257f544cd1758c",
+          "byteLength": 171870,
+          "pixelWidth": 938,
+          "pixelHeight": 532,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "UAT screenshot evidence"
+          }
+        },
+        {
+          "assetId": "uat-image-section_2_1_img_004",
+          "sha256": "d7e28de6acd6599d663581bf8c54740fdf6f03c3cfe7bb5e4edcf9d94b749083",
+          "byteLength": 180007,
+          "pixelWidth": 938,
+          "pixelHeight": 532,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "UAT screenshot evidence"
+          }
+        },
+        {
+          "assetId": "uat-image-section_2_1_img_005",
+          "sha256": "31daf753cc064f231017096229933d9bdbb560f6fdab8dd22b646243282b361a",
+          "byteLength": 182216,
+          "pixelWidth": 938,
+          "pixelHeight": 531,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "UAT screenshot evidence"
+          }
+        },
+        {
+          "assetId": "uat-image-section_2_1_img_006",
+          "sha256": "e50b631149c22fa4cb95b365270b89174b5465a96e3580723840e16e9940928d",
+          "byteLength": 162773,
+          "pixelWidth": 938,
+          "pixelHeight": 531,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "UAT screenshot evidence"
+          }
+        },
+        {
+          "assetId": "uat-image-section_2_1_img_007",
+          "sha256": "4cf3c7e8bc4b73760277b3e937a9ddd46b5a4a82ec1648dbcfd3fe0e6a907ce2",
+          "byteLength": 161280,
+          "pixelWidth": 938,
+          "pixelHeight": 532,
+          "colorSpace": "DeviceRGB",
+          "bitsPerComponent": 8,
+          "sourceFormat": "png",
+          "accessibility": {
+            "decorative": false,
+            "altText": "UAT screenshot evidence"
+          }
+        }
+      ],
+      "resourceReuse": {
+        "pageCount": 11,
+        "uniqueFontObjectCount": 2,
+        "uniqueImageObjectCount": 7,
+        "fontResourceReferenceCount": 22,
+        "imageResourceReferenceCount": 7
+      }
+    },
+    "receipt": {
+      "source": "vnext-pdf-export-handoff",
+      "contractVersion": 1,
+      "kind": "pdf-export-receipt",
+      "status": "rendered",
+      "exportRequestId": "export:uat-69c-section-2-1:realdoc-d",
+      "requestFingerprint": "sha256:2d5b159594bb8318321a498f114bab065c20b934b8c20057a4c19c0f8f6f2929",
+      "handoffFingerprint": "sha256:83f9ecec92a26eb5711c6d0c198c0da616c5ff380d7b3a5904d84299789c5e89",
+      "sourceIdentity": {
+        "documentId": "instance-uat-69c-section-2-1-local",
+        "documentRevision": 0,
+        "documentFingerprint": "sha256:3519a7927cb1265c5f1fd2441f0fcc37dbce77aa69d5d113e4bf996668bfd669",
+        "sourcePackageId": "uat-section:2.1",
+        "sessionId": null
+      },
+      "artifact": {
+        "artifactId": "pdf:uat-69c-section-2-1:realdoc-d",
+        "format": "pdf",
+        "mediaType": "application/pdf",
+        "byteLength": 1425789,
+        "sha256": "1d0de80af9eb94f2bf05b465f8d002dc1a4b8e2ea3850864bda5e76b21a1dd9f",
+        "pageCount": 11,
+        "storageStatus": "not-stored",
+        "storageKey": null
+      },
+      "rendererProfileId": "flowdoc-local-measured-document-v1",
+      "measurementProfileId": "flowdoc-uat-local-measured-v1",
+      "sourceContractFingerprint": "sha256:40a79bc494f920e498d5bf73c3e16d4224cf8320ef10f2b51fa633a9147aa471",
+      "sourceContractContentFingerprint": "sha256:13e692e684bfc7db0717ac1457eaf083814f210a0c59562f7a5d0c1d496b3b7c",
+      "contracts": {
+        "mayRelayout": false,
+        "carriesBytes": false,
+        "storageWrites": false,
+        "artifactManifestProjection": "pending-storage-binding",
+        "productionBinding": false
+      },
+      "receiptFingerprint": "sha256:2456b50770539e99c9b2cfab966e9b6329d42aa9bddaa9a4da5cd11ac0e99fe3"
+    },
+    "fontSubsets": [
+      {
+        "fontId": "ibm-plex-sans-thai-regular",
+        "subsetId": "flowdoc-local-measured-regular-40a79bc494f920e4",
+        "sourceByteLength": 113464,
+        "subsetByteLength": 32496,
+        "subsetSha256": "5cbdc759785f5753e33cdf09baf02e575f37bbc73a12ad98bb381efcc53aa7f8",
+        "retainedGlyphCount": 115
+      },
+      {
+        "fontId": "ibm-plex-sans-thai-bold",
+        "subsetId": "flowdoc-local-measured-bold-40a79bc494f920e4",
+        "sourceByteLength": 113996,
+        "subsetByteLength": 16292,
+        "subsetSha256": "c1d922197c829e5301d6de80c331f744b1296963e25fa0d5a408893be12932f0",
+        "retainedGlyphCount": 55
+      }
+    ]
+  },
+  "determinism": {
+    "sameProcessByteEqual": true,
+    "sameProcessReceiptEqual": true,
+    "sha256": "1d0de80af9eb94f2bf05b465f8d002dc1a4b8e2ea3850864bda5e76b21a1dd9f"
+  },
+  "cancellation": {
+    "status": "cancelled",
+    "checkpoint": {
+      "paintCommandIndex": 0,
+      "totalPaintCommandCount": 332
+    },
+    "bytesReturned": false,
+    "artifactReturned": false
+  },
+  "executionBoundary": {
+    "actualPdfBytesReturned": true,
+    "pdfBytesRetainedInEvidence": false,
+    "sourceContentRetainedInEvidence": false,
+    "nativeThaiShapingExecuted": true,
+    "nativeThaiSegmentationExecuted": true,
+    "coreTablePaginationExecuted": true,
+    "coreRendererProjectionExecuted": true,
+    "localRendererExecuted": true,
+    "backendStorageWrites": false,
+    "productionBinding": false
+  },
+  "nextPhase": "PDF-EXPORT-REALDOC-E Editor workflow and local artifact lifecycle",
+  "restart": {
+    "freshProcessRenderEqual": true,
+    "sha256": "1d0de80af9eb94f2bf05b465f8d002dc1a4b8e2ea3850864bda5e76b21a1dd9f",
+    "byteLength": 1425789,
+    "pageCount": 11,
+    "receiptFingerprint": "sha256:2456b50770539e99c9b2cfab966e9b6329d42aa9bddaa9a4da5cd11ac0e99fe3"
+  }
+}

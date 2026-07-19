@@ -12,6 +12,7 @@ import type {
 } from "@flowdoc/vnext-core"
 import {
   renderFlowDocCanonicalFullDocumentPdfPilot,
+  renderFlowDocLocalMeasuredDocumentPdf,
   renderFlowDocThaiOnePagePdfPilot,
   type FlowDocPdfRendererPilotArtifactManifest,
   type FlowDocPdfRendererPilotFontResource,
@@ -22,7 +23,7 @@ import {
   type FlowDocPdfRendererPilotResult,
 } from "./index.js"
 
-export type FlowDocPdfExportRendererModeV1 = "thai-one-page" | "canonical-full-document"
+export type FlowDocPdfExportRendererModeV1 = "thai-one-page" | "canonical-full-document" | "local-measured-document"
 
 export interface FlowDocPdfExportExecutionInputV1 {
   request: VNextPdfExportRequestV1
@@ -128,7 +129,9 @@ export function executeFlowDocPdfExportHandoffV1(
   }
   const rendered = input.rendererMode === "canonical-full-document"
     ? renderFlowDocCanonicalFullDocumentPdfPilot(rendererInput)
-    : renderFlowDocThaiOnePagePdfPilot(rendererInput)
+    : input.rendererMode === "local-measured-document"
+      ? renderFlowDocLocalMeasuredDocumentPdf(rendererInput)
+      : renderFlowDocThaiOnePagePdfPilot(rendererInput)
   const byteEvidenceIssues = rendered.status === "rendered"
     && (rendered.bytes.byteLength !== rendered.artifact.byteLength
       || createHash("sha256").update(rendered.bytes).digest("hex") !== rendered.artifact.sha256)

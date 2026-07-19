@@ -7,6 +7,7 @@ import {
   type VNextTextEngineAdapterEngineRef,
   type VNextTextEngineAdapterEvidence,
   type VNextTextEngineAdapterRequiredFact,
+  type VNextTextEngineAdapterRequest,
   type VNextThaiLineBreakEvidenceEntry,
   type VNextThaiLineBreakEvidenceManifest,
 } from "../src/index.js"
@@ -256,6 +257,77 @@ describe("vNext text engine line wrap evidence boundary", () => {
       breakReason: "mandatory-break",
       overflowsAvailableWidth: false,
     })
+  })
+
+  it("stops at an internal mandatory break even when later text fits the same width", () => {
+    const request: VNextTextEngineAdapterRequest = {
+      requestId: "mandatory-break-request",
+      smokeCaseId: "mandatory-break-case",
+      sampleId: "mandatory-break-sample",
+      measurementProfileId: "mandatory-break-profile",
+      text: "ab\ncd",
+      locale: "th",
+      fontId: "font-test",
+      styleKey: "body",
+      availableWidthPt: 100,
+      outputShapeVersion: "glyph-line-box-v1",
+      requestedFacts: REQUIRED_FACTS,
+    }
+    const engine: VNextTextEngineAdapterEngineRef = {
+      shaper: "rustybuzz",
+      shaperRevision: "test",
+      segmenter: "icu4x",
+      segmenterRevision: "test",
+      segmenterDataRevision: "test",
+      deterministic: true,
+    }
+    const glyphEvidence: VNextTextEngineAdapterEvidence = {
+      requestId: request.requestId,
+      measurementProfileId: request.measurementProfileId,
+      outputShapeVersion: request.outputShapeVersion,
+      engine,
+      glyphs: [
+        { glyphIndex: 0, glyphId: 1, fontId: request.fontId, advancePt: 5, offsetXPt: 0, offsetYPt: 0, clusterStartOffset: 0, clusterEndOffset: 1 },
+        { glyphIndex: 1, glyphId: 2, fontId: request.fontId, advancePt: 5, offsetXPt: 0, offsetYPt: 0, clusterStartOffset: 1, clusterEndOffset: 2 },
+        { glyphIndex: 2, glyphId: 3, fontId: request.fontId, advancePt: 5, offsetXPt: 0, offsetYPt: 0, clusterStartOffset: 3, clusterEndOffset: 4 },
+        { glyphIndex: 3, glyphId: 4, fontId: request.fontId, advancePt: 5, offsetXPt: 0, offsetYPt: 0, clusterStartOffset: 4, clusterEndOffset: 5 },
+      ],
+      lineBoxes: [],
+      totalAdvancePt: 20,
+      lineHeightPt: 12,
+    }
+    const wrapped = createFlowDocTextEngineLineWrapEvidencePlan({
+      request,
+      glyphEvidence,
+      breakEvidence: {
+        evidenceId: "mandatory-break-evidence",
+        sampleId: request.sampleId,
+        locale: "th",
+        candidate: {
+          candidateId: "mandatory-break-candidate",
+          engine: "icu4x",
+          role: "primary-deterministic",
+          runtimeDependent: false,
+          engineRevision: "test",
+          dataRevision: "test",
+          lineBreakPolicy: "test",
+        },
+        breaks: [
+          { offset: 3, kind: "mandatory" },
+          { offset: 5, kind: "mandatory" },
+        ],
+      },
+    })
+
+    expect(wrapped.status).toBe("ready")
+    expect(wrapped.evidence?.lineBoxes).toEqual([
+      expect.objectContaining({ lineIndex: 0, startOffset: 0, endOffset: 3, glyphStartIndex: 0, glyphEndIndex: 2 }),
+      expect.objectContaining({ lineIndex: 1, startOffset: 3, endOffset: 5, glyphStartIndex: 2, glyphEndIndex: 4 }),
+    ])
+    expect(wrapped.lineSummaries.map((line) => line.breakReason)).toEqual([
+      "mandatory-break",
+      "mandatory-break",
+    ])
   })
 
   it("blocks cluster-splitting break evidence and production binding", () => {

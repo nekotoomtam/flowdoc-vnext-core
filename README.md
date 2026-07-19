@@ -1057,6 +1057,12 @@ The package must remain runnable without any parent editor checkout.
   It resolves 17 collection rows with deterministic source-to-instance
   provenance and places screenshots after the section requirement table in
   source order; measurement, rendering, and production remain closed.
+- PDF export REALDOC-D adds a source-neutral UAT measured-composition profile
+  and a bounded generic local measured-document renderer. Exact section 2.1
+  exports as 11 A4 pages with repeated requirement headers, conservative row
+  splits, seven aspect-preserved screenshots, byte-identical fresh-process
+  restart, and byte-free cancellation; Editor workflow, persistence, product
+  eligibility, and production remain closed.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

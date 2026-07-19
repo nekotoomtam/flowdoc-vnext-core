@@ -11589,3 +11589,47 @@ Primary evidence:
 
 Next phase: `PDF-EXPORT-REALDOC-D` section 2.1 measured local export.
 Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-D Section 2.1 Measured Local Export
+
+Status: accepted for native Thai measurement, Core table composition and
+pagination, bounded local renderer execution, exact PDF bytes, cooperative
+cancellation, and fresh-process restart equality. Editor workflow, persisted
+artifact lifecycle, product eligibility, hosted providers, and production
+remain closed.
+
+The reusable UAT measured profile consumes the exact REALDOC-C resolution and
+contains no 69C content, semantic path, or image name. Native rustybuzz
+`0.20.1` and ICU4X `2.2.0` produce 6,448 glyph facts and 237 measured lines
+without missing glyphs. Internal mandatory breaks now stop line wrapping, and
+newline controls remain measured source offsets without becoming visible
+glyphs.
+
+Core prepares and projects the four-column requirement and screenshot tables.
+The exact section produces 11 A4 pages, 332 paint commands, four requirement
+pages, three split rows, three repeated header fragments, and seven whole
+aspect-preserved screenshot rows. Requirement ids remain on one line and the
+Screenshots heading stays with the first image.
+
+The separate `flowdoc-local-measured-document-v1` renderer keeps the canonical
+profile unchanged and enforces a local 64-page, 8-font, 64-image, 50,000-paint,
+250,000-glyph ceiling. The exact artifact is 1,425,789 bytes with SHA-256
+`1d0de80af9eb94f2bf05b465f8d002dc1a4b8e2ea3850864bda5e76b21a1dd9f`.
+Two in-process renders and one fresh-process render are byte- and
+receipt-identical. First-checkpoint cancellation returns no artifact or bytes.
+The final Core gate passes 378 test files and 1,821 tests. The Backend gate
+passes type-check, build, and 70 test files with 267 tests; 24
+provider-dependent integration tests retain their existing dynamic skip.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_UAT_MEASURED_EXPORT.md`;
+- `packages/uat-realdoc/src/uatMeasuredExport.ts`;
+- `packages/uat-realdoc/fixtures/69c-section-2-1-measured-export-evidence.v1.json`;
+- `packages/uat-realdoc/scripts/verify-69c-section-measured-export.mjs`;
+- `packages/pdf-renderer-pilot/src/index.ts`;
+- `tests/pdfExportRealdocUatMeasuredExport.test.ts`; and
+- `../flowdoc-vnext-backend/src/pdfExport/pdfExportLocalRenderer.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-E` Editor workflow and local artifact
+lifecycle. Production remains NO-GO.

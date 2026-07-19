@@ -758,11 +758,11 @@ For broad work or cross-repo handoff, include:
 
 ## Near-Term Work Queue
 
-1. Continue the accepted REALDOC-C section 2.1 resolved instance and
-   materialized requirement/screenshot rows through Thai text measurement,
-   table composition, pagination, deterministic local artifact evidence, and
-   eligible Editor lifecycle. Keep production provider selection, default
-   route mounting, deployment, and activation blocked behind a later review.
+1. Continue the accepted REALDOC-D section 2.1 deterministic 11-page local
+   artifact through the development-only Editor workflow, editable instance
+   values, save/reopen, exact eligibility, cancellation, retry, and verified
+   local download. Keep production provider selection, default route mounting,
+   deployment, and activation blocked behind a later review.
 2. Keep this map and each repo's `AGENTS.md` aligned.
 3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.

@@ -229,6 +229,7 @@ function chooseLineCandidate(
 
     if (measured.widthPt <= availableWidthPt) {
       chosen = measured
+      if (candidate.kind === "mandatory") break
       continue
     }
 
