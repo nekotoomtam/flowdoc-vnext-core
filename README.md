@@ -1073,6 +1073,11 @@ The package must remain runnable without any parent editor checkout.
   remain separate from caller-owned data; Editor test import must use the same
   mapping and generation path as an external API caller and does not become
   primary Document Instance authoring. Runtime and production remain unchanged.
+- PDF export REALDOC-E.1 adds a pure Published Structure generation input
+  contract. Direct canonical snapshots stop at runtime validation; adapted JSON
+  payload descriptors stop at a fingerprinted named-adapter or declarative
+  mapping profile. Plans retain no business values and execute no mapping,
+  resolution, renderer, artifact, route, or production behavior.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

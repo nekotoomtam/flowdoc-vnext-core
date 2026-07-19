@@ -420,6 +420,12 @@ Field definitions, presentation placements, caller-owned data, resolved facts,
 and artifact truth remain separate. The accepted order is retained in
 `docs/PDF_EXPORT_REALDOC_DOCGEN_ARCHITECTURE_LOCK.md`.
 
+REALDOC-E.1 now accepts a pure Core planning envelope for one exact Published
+Structure generation data contract and Backend-owned instance. Direct canonical
+snapshots stop at runtime validation; adapted JSON payload descriptors stop at
+mapping. Raw payload values, layout facts, renderer facts, and browser-owned
+mapping do not enter the plan. Runtime mapping and validation remain E.2.
+
 ## Local Readiness Exit Gate (Accepted)
 
 `LOCAL-G` closes because retained evidence proves:

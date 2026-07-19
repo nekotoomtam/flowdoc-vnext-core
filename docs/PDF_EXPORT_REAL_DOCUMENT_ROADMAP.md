@@ -98,6 +98,23 @@ pre-test parity, Document Instance role, and REALDOC-E implementation order are
 locked in `docs/PDF_EXPORT_REALDOC_DOCGEN_ARCHITECTURE_LOCK.md` without runtime
 changes.
 
+### REALDOC-E.1 Published Structure Generation Input (Accepted)
+
+Add one pure Core planning contract for the exact Published Structure Version,
+generation data contract, Backend-owned instance, and caller input identity.
+Direct canonical snapshots stop at `runtime-validation-required`; adapted JSON
+payload descriptors plus a named-adapter or declarative mapping profile stop at
+`mapping-required`.
+
+Raw external JSON remains Backend-owned and is not retained in the Core plan.
+Strict ownership, fingerprint, snapshot, field, collection, and mapping-target
+drift blocks before materialization or resolution.
+
+Exit: the UAT Structure and both generic input families produce deterministic,
+content-free plans through
+`docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`. No runtime
+mapping, value validation, route, preview, renderer, or artifact executes.
+
 ### REALDOC-E DocGen Pre-Test And Local API Workflow
 
 Define the published-Structure generation input and mapping-profile contract.
@@ -111,9 +128,9 @@ preview, export, cancel, retry, and verified download as an Editor pre-test
 surface. Imported business values remain separate from the authored Structure
 Definition and the browser does not become a second resolver.
 
-Subphases are E.1 generation input/mapping contract, E.2 runtime mapping and
-pre-test/API parity, E.3 Backend local admission, E.4 artifact lifecycle, E.5
-Editor pre-test, and E.6 cross-repo acceptance.
+E.1 generation input/mapping identity is accepted. Remaining subphases are E.2
+runtime mapping and pre-test/API parity, E.3 Backend local admission, E.4
+artifact lifecycle, E.5 Editor pre-test, and E.6 cross-repo acceptance.
 
 Exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

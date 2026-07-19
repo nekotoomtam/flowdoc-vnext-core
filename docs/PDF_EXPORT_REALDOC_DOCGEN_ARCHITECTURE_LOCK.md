@@ -242,5 +242,8 @@ deferred. Production remains NO-GO.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.1` Published Structure generation input and mapping
-contract. Production remains NO-GO.
+E.1 now accepts the pure Published Structure generation input and mapping
+identity contract in
+`docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`. Next phase:
+`PDF-EXPORT-REALDOC-E.2` runtime mapping, validation, content-free diagnostics,
+and direct/adapted parity. Production remains NO-GO.

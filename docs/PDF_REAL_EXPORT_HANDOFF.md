@@ -125,3 +125,10 @@ contracts used by external API clients. REALDOC-E must pin one Published
 Structure Version, mapping/input contract, accepted Data Snapshot, generation
 instance, and digest-bound asset set before the existing local artifact
 lifecycle can run. No runtime or artifact identity changes in E.0.
+
+`PDF-EXPORT-REALDOC-E.1` now adds the source-neutral generation input plan.
+Direct canonical snapshots and adapted payload descriptors share exact
+Published Structure, data-contract, instance, mapping, and snapshot identity
+pins. Direct input stops before runtime validation; adapted input stops before
+mapping. The handoff, measured contract, renderer, bytes, and artifact lifecycle
+remain unchanged.

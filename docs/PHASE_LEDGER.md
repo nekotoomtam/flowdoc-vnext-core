@@ -11706,3 +11706,33 @@ Primary evidence:
 
 Next phase: `PDF-EXPORT-REALDOC-E.1` Published Structure generation input and
 mapping contract. Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-E.1 Published Structure Generation Input
+
+Status: accepted pure Core contract without runtime or production activation.
+The phase adds one fingerprinted Published Structure generation data contract,
+mapping-profile identities for named adapters or declarative mappings, and one
+strict planner for direct canonical snapshots or adapted payload descriptors.
+
+Direct input pins exact instance data, Table collection, and instance-media
+snapshot identities and stops at `runtime-validation-required`. Adapted input
+retains only payload byte identity and an exact mapping profile, rejects raw
+JSON in the Core envelope, and stops at `mapping-required`. Both lanes reject
+unknown layout/renderer fields and execute no materialization, resolution,
+measurement, pagination, artifact, route, or storage behavior.
+
+The source-neutral test suite proves deterministic canonical fingerprints,
+content-free plans, no mutation, strict instance/snapshot/field/collection
+pins, mapping owner/target drift, raw JSON rejection, and compatibility with
+the exact UAT Structure and its two collection fields.
+
+Primary evidence:
+
+- `src/generation/publishedStructureGenerationInputV1.ts`;
+- `tests/publishedStructureGenerationInputV1.test.ts`;
+- `docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`;
+- `docs/PDF_EXPORT_REAL_DOCUMENT_ROADMAP.md`; and
+- `src/index.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.2` runtime mapping, validation, content-free
+diagnostics, and direct/adapted parity. Production remains NO-GO.

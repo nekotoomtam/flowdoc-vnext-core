@@ -115,6 +115,12 @@ editor intent
   import is a pre-test caller of the same Backend DocGen path. Field definition,
   presentation placement, resolved geometry, and artifact truth remain
   separate: `docs/PDF_EXPORT_REALDOC_DOCGEN_ARCHITECTURE_LOCK.md`.
+- PDF export REALDOC-E.1 adds the pure Core boundary consumed after trusted
+  Backend admission: one exact Published Structure generation data contract,
+  instance, and direct snapshots or adapted-payload mapping identity produce a
+  content-free plan. Mapping and runtime validation remain not run; Backend and
+  Editor runtime behavior is unchanged:
+  `docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

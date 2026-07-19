@@ -166,3 +166,9 @@ Snapshot resolution, and artifact execution as separate boundaries. Test-data
 import must converge with the external API path before resolution and cannot
 activate a browser-owned renderer or product Document Instance editing lane.
 No production binding or blocker changes.
+
+`PDF-EXPORT-REALDOC-E.1` adds only a pure content-free generation input plan.
+It explicitly reports mapping or runtime validation as not run and cannot
+materialize, resolve, measure, render, persist, or activate production. Direct
+and adapted input identities do not select production routes, providers,
+workers, authorization, tenancy, or deployment.
