@@ -154,3 +154,8 @@ strict section adapter against this exact baseline. The retained adapter
 evidence contains no source content or image bytes. Materialization,
 resolution, pagination, rendering, and product eligibility remain deferred to
 later REALDOC phases.
+
+REALDOC-C now accepts deterministic revision-zero resolution and materialized
+table rows against the same source fingerprint. Its retained evidence also
+contains counts and fingerprints only. Measurement, pagination, rendering, and
+product eligibility remain deferred.

@@ -758,9 +758,9 @@ For broad work or cross-repo handoff, include:
 
 ## Near-Term Work Queue
 
-1. Continue the accepted REALDOC-B UAT Structure Definition and section 2.1
-   canonical snapshot inputs through instance materialization, resolved rows
-   and screenshot placement, a measured contract, digest-bound resources, and
+1. Continue the accepted REALDOC-C section 2.1 resolved instance and
+   materialized requirement/screenshot rows through Thai text measurement,
+   table composition, pagination, deterministic local artifact evidence, and
    eligible Editor lifecycle. Keep production provider selection, default
    route mounting, deployment, and activation blocked behind a later review.
 2. Keep this map and each repo's `AGENTS.md` aligned.

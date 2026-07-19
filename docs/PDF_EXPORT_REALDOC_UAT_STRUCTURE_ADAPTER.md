@@ -165,3 +165,11 @@ existing Core runtime entrypoint, Backend route, or Editor behavior changed.
 
 Next phase: `PDF-EXPORT-REALDOC-C` section 2.1 materialization and resolved
 projection.
+
+## REALDOC-C Follow-Up
+
+REALDOC-C now plans the revision-zero instance, resolves document-level fields
+and styles, materializes the ten requirement and seven screenshot rows, and
+retains source-item to instance-row provenance. Screenshot placement is fixed
+after the complete requirement table in source order. Measurement, pagination,
+rendering, and artifact production remain deferred to REALDOC-D.

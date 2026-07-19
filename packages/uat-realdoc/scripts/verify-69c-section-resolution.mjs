@@ -10,7 +10,7 @@ function option(name) {
 
 const semanticDirectory = option("--semantic-dir")
 if (semanticDirectory == null) {
-  throw new Error("usage: node packages/uat-realdoc/scripts/verify-69c-section-adapter.mjs --semantic-dir <semantic-directory> [--print-only]")
+  throw new Error("usage: node packages/uat-realdoc/scripts/verify-69c-section-resolution.mjs --semantic-dir <semantic-directory> [--print-only]")
 }
 
 const packageRoot = resolve(fileURLToPath(new URL("..", import.meta.url)))
@@ -25,16 +25,16 @@ const server = await createServer({
 
 try {
   const runtime = await server.ssrLoadModule(
-    "/packages/uat-realdoc/scripts/verify-69c-section-adapter-runtime.ts",
+    "/packages/uat-realdoc/scripts/verify-69c-section-resolution-runtime.ts",
   )
-  const evidence = await runtime.verify69cUatSectionAdapter({ semanticDirectory })
+  const evidence = await runtime.verify69cUatSectionResolution({ semanticDirectory })
   if (!process.argv.includes("--print-only")) {
     const retained = JSON.parse(await readFile(resolve(
       packageRoot,
-      "fixtures/69c-section-2-1-adapter-evidence.v1.json",
+      "fixtures/69c-section-2-1-resolution-evidence.v1.json",
     ), "utf8"))
     if (JSON.stringify(evidence) !== JSON.stringify(retained)) {
-      throw new Error("69C section 2.1 adapter evidence drifted from the retained fixture")
+      throw new Error("69C section 2.1 resolution evidence drifted from the retained fixture")
     }
   }
   process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`)

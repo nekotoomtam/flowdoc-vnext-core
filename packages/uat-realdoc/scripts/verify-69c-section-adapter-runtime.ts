@@ -11,9 +11,11 @@ import {
   createFlowDocUatStructureDefinitionV1,
   flowDocUatPublishedStructureRefV1,
   type FlowDocUatImageResourceInputV1,
+  type FlowDocUatSectionDataBundleV1,
+  type FlowDocUatStructureDefinitionV1,
 } from "../src/index.js"
 
-interface SourceBaseline {
+export interface SourceBaseline {
   baselineId: string
   sourceBundleFingerprint: string
   semanticSource: {
@@ -87,9 +89,21 @@ function requireEqual(label: string, actual: unknown, expected: unknown): void {
   if (actual !== expected) throw new Error(`${label} mismatch: expected ${expected}, received ${actual}`)
 }
 
-export async function verify69cUatSectionAdapter(input: {
+export interface Loaded69cUatSectionAdapter {
+  baseline: SourceBaseline
+  semanticFile: { path: string; byteLength: number; sha256: string }
+  structure: FlowDocUatStructureDefinitionV1
+  bundle: FlowDocUatSectionDataBundleV1
+  canonicalInputs: {
+    dataSnapshot: boolean
+    collectionSnapshot: boolean
+    mediaSnapshot: boolean
+  }
+}
+
+export async function load69cUatSectionAdapter(input: {
   semanticDirectory: string
-}): Promise<Record<string, unknown>> {
+}): Promise<Loaded69cUatSectionAdapter> {
   const repoRoot = resolve(import.meta.dirname, "../../..")
   const baseline = JSON.parse(readFileSync(resolve(
     repoRoot,
@@ -176,6 +190,14 @@ export async function verify69cUatSectionAdapter(input: {
     mediaSnapshot: VNextInstanceMediaSnapshotV1Schema.safeParse(bundle.mediaSnapshot).success,
   }
   if (!Object.values(canonicalInputs).every(Boolean)) throw new Error("adapter output failed canonical snapshot schemas")
+
+  return { baseline, semanticFile, structure, bundle, canonicalInputs }
+}
+
+export async function verify69cUatSectionAdapter(input: {
+  semanticDirectory: string
+}): Promise<Record<string, unknown>> {
+  const { baseline, semanticFile, structure, bundle, canonicalInputs } = await load69cUatSectionAdapter(input)
 
   return {
     evidenceVersion: 1,

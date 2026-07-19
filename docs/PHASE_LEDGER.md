@@ -11547,3 +11547,45 @@ Primary evidence:
 
 Next phase: `PDF-EXPORT-REALDOC-C` section 2.1 materialization and resolved
 projection. Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-C Section 2.1 Resolution
+
+Status: accepted for revision-zero instance planning, scoped document
+resolution, collection-row resolution, and table-content materialization.
+Measurement, pagination, rendering, artifact production, product eligibility,
+and production remain closed.
+
+The isolated UAT orchestrator verifies the exact REALDOC-B adapter and
+Structure fingerprints, plans one source-immutable revision-zero Document
+Instance, resolves eight document fields and 18 text styles, then materializes
+the requirement and screenshot tables through existing Core contracts.
+Generated row, cell, node, and inline identities use deterministic
+`resolution-orchestrator` ownership and exact revision/fingerprint scope.
+
+Exact external section 2.1 produces 18 table rows, including one authored
+header and 17 materialized collection rows. The materialized content contains
+61 cloned nodes, 54 cloned inlines, 54 text bindings, and seven instance-media
+image bindings. All 17 adapter collection items retain source-to-instance row
+provenance. JSON parse/serialize and complete re-resolution reproduce every
+identity, binding, provenance record, and fingerprint.
+
+Screenshot placement is explicitly
+`section-after-requirements-source-order`: all seven screenshots follow the
+complete requirement table and retain semantic source order. Requirement-level
+placement remains false because the page-free source has no placement geometry
+and provides only section-wide all-to-all relations.
+
+Verification passes the exact external 69C resolver, focused four-test phase
+suite, TypeScript check, and the full bounded-concurrency repository gate of
+377 test files and 1,817 tests.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_UAT_SECTION_RESOLUTION.md`;
+- `packages/uat-realdoc/src/uatSectionResolution.ts`;
+- `packages/uat-realdoc/fixtures/69c-section-2-1-resolution-evidence.v1.json`;
+- `packages/uat-realdoc/scripts/verify-69c-section-resolution.mjs`; and
+- `tests/pdfExportRealdocUatSectionResolution.test.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-D` section 2.1 measured local export.
+Production remains NO-GO.

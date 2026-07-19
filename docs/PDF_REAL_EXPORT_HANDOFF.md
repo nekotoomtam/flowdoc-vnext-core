@@ -100,3 +100,9 @@ produce canonical instance-data, table-collection, and instance-media snapshot
 inputs with retained provenance and content-sensitive fingerprints. It does
 not materialize the starter graph, resolve generated rows, measure, paginate,
 or change this handoff's accepted renderer input.
+
+`PDF-EXPORT-REALDOC-C` accepts deterministic revision-zero instance planning,
+scoped document resolution, and materialized requirement/screenshot row
+streams. It resolves screenshot placement after the section requirement table
+in source order and retains source-item to instance-row provenance. No measured
+contract, page plan, renderer input, artifact, or product eligibility changes.

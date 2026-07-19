@@ -18,3 +18,16 @@ root:
 ```text
 npm run verify:uat-69c-section-2-1-adapter -- --semantic-dir <semantic-directory>
 ```
+
+REALDOC-C adds deterministic revision-zero instance and table-content
+resolution without changing canonical Core APIs. Its exact external evidence
+can be rechecked with:
+
+```text
+npm run verify:uat-69c-section-2-1-resolution -- --semantic-dir <semantic-directory>
+```
+
+Screenshot placement is explicitly section-level: after the complete
+requirement table and in semantic source order. Measurement, pagination,
+rendering, persistence, Editor/Backend integration, and production remain out
+of scope.

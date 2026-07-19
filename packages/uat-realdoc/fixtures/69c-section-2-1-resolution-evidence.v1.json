@@ -1,0 +1,74 @@
+{
+  "evidenceVersion": 1,
+  "phaseId": "PDF-EXPORT-REALDOC-C",
+  "status": "accepted",
+  "sourceBaseline": {
+    "baselineId": "pdf-export-realdoc-69c-source-baseline-v1",
+    "sourceBundleFingerprint": "sha256:46fac437de79e9b5b044345ca97433535245bf53b1764d5df4b01e25279096eb"
+  },
+  "adapter": {
+    "bundleFingerprint": "sha256:d348842d94f31a60240ee668c77f3d9775c5d2bb6eb4b38fed5dc2eea91e7fe9",
+    "warningCodes": [
+      "page-geometry-unavailable",
+      "screenshot-placement-unresolved",
+      "section-all-to-all-links"
+    ]
+  },
+  "resolution": {
+    "structureFingerprint": "sha256:3c7a6f62837994db864f4d91a4b4cb746825ec4cff7529b84ff28166192345f4",
+    "resolutionInputFingerprint": "sha256:2ee0191b7c2d3f26d0203e6888834bc2965a5ac81998ec797d78e03fba409c83",
+    "bundleFingerprint": "sha256:416024780d89cfaba65faa83cfe35c4f2792b899f237dbd14491fdd6bc870902",
+    "generatedProvenanceFingerprint": "sha256:844a4ef812ec1426e4034daa06e3ae4f4c3e8e2a6289e1edd87dec04780a9076",
+    "requirementMaterializationFingerprint": "sha256:e8f29e67561922ef206102f29e61376795095cb9d07af298b9e5ef86af084e9a",
+    "screenshotMaterializationFingerprint": "sha256:97e262f41af5ab91691394dbdbebe47445d63650bc29384d4977a02caf072821"
+  },
+  "placement": {
+    "status": "resolved",
+    "policy": "section-after-requirements-source-order",
+    "screenshotCount": 7,
+    "requirementLevelPlacement": false,
+    "basis": "page-geometry-and-granular-links-unavailable"
+  },
+  "summary": {
+    "documentFieldBindingCount": 8,
+    "styleBindingCount": 18,
+    "tableCount": 2,
+    "resolvedRowCount": 18,
+    "materializedRowCount": 17,
+    "authoredReferenceRowCount": 1,
+    "clonedNodeCount": 61,
+    "clonedInlineCount": 54,
+    "textBindingCount": 54,
+    "imageBindingCount": 7,
+    "sourceToInstanceRowCount": 17
+  },
+  "serialization": {
+    "parseSerializeEqual": true,
+    "deterministicReresolutionEqual": true
+  },
+  "execution": {
+    "persistence": "not-run",
+    "revisionAdvance": false,
+    "documentMaterialization": "planned",
+    "documentResolution": "resolved",
+    "collectionRowResolution": "resolved",
+    "collectionContentMaterialization": "materialized",
+    "measurement": "not-run",
+    "pagination": "not-run",
+    "rendering": "not-run"
+  },
+  "contracts": {
+    "sourceContentRetainedInEvidence": false,
+    "instanceRevision": 0,
+    "identityAllocationOwner": "resolution-orchestrator",
+    "screenshotPlacementResolved": true,
+    "authoredGraphMutation": false,
+    "persistenceExecuted": false,
+    "measurementExecuted": false,
+    "paginationExecuted": false,
+    "rendererExecuted": false,
+    "artifactProduced": false,
+    "productionBinding": false
+  },
+  "nextPhase": "PDF-EXPORT-REALDOC-D section 2.1 measured local export"
+}

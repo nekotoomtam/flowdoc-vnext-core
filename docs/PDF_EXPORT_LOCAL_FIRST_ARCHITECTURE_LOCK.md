@@ -389,6 +389,12 @@ resolve a document. REALDOC-C must perform the revision-zero materialization,
 generated collection-row resolution, and explicit screenshot-placement
 decision before any measured contract can be admitted.
 
+REALDOC-C now accepts that deterministic revision-zero resolution boundary.
+Screenshot rows follow the complete requirement table in source order, and all
+17 collection rows retain exact source-to-instance provenance. REALDOC-D must
+measure those rows and images before any page or artifact claim can enter the
+local runtime.
+
 ## Local Readiness Exit Gate (Accepted)
 
 `LOCAL-G` closes because retained evidence proves:

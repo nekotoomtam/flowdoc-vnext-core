@@ -1052,6 +1052,11 @@ The package must remain runnable without any parent editor checkout.
   lifecycle, field, collection, media, policy, and table contracts. Exact 69C
   section 2.1 data reproduces canonical snapshot fingerprints without retaining
   source content; materialization and rendering remain closed.
+- PDF export REALDOC-C composes existing instance, scoped-resolution, table-row,
+  identity, and content-materialization contracts for exact 69C section 2.1.
+  It resolves 17 collection rows with deterministic source-to-instance
+  provenance and places screenshots after the section requirement table in
+  source order; measurement, rendering, and production remain closed.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

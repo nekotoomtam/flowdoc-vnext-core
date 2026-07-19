@@ -44,7 +44,7 @@ instance-editable regions explicitly.
 Exit: the ten requirements and seven images project into canonical pinned
 inputs without content loss, invented pagination, or ambiguous asset identity.
 
-### REALDOC-C Section 2.1 Resolution
+### REALDOC-C Section 2.1 Resolution (Accepted)
 
 Create the revision-zero instance, bind the section data snapshot, retain
 source-to-instance provenance, and resolve headings, requirement rows,
