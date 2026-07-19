@@ -1090,6 +1090,18 @@ The package must remain runnable without any parent editor checkout.
   and content-free idempotent receipts. Materialization, worker/artifact
   execution, Editor UI, default route activation, and production remain
   inactive.
+- PDF export REALDOC-E.4 binds a protected admitted record to the existing
+  local worker and verified artifact lifecycle for the 10-page 69C slice.
+  Default mounting, durable generation storage, Editor UI, and production
+  remain inactive.
+- PDF export REALDOC-E.5.0 through E.5.2 accept the Document workspace product
+  contract, bounded local Library, and shared URL-backed Design/Preview shell.
+  Preview execution remains inactive.
+- PDF export REALDOC-E.5.3 adds a pure Core test-input projection over exact
+  Published Structure, generation data, collection, and table binding
+  contracts. It derives first-placement order and image/media requirements,
+  keeps unplaced fields, and reports missing scalar constraints without
+  accepting test values or executing Preview.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

@@ -197,19 +197,31 @@ Exit: direct routes, invalid-view fallback, browser history, desktop/mobile
 layout, console state, and Design selection retention pass without Backend or
 Core runtime changes.
 
-### REALDOC-E.5.3-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+### REALDOC-E.5.3 Core Test-Input Projection (Accepted)
 
-Add the Core UI-neutral test-input projection, generated Form state, mapped
-JSON diagnostics, Published Preview, distinct Draft Preview, complete
-stale/lifecycle UX, and Form/API parity evidence. Imported business values
-remain separate from the authored Structure Definition and the browser does
-not become a second resolver.
+Add one pure UI-neutral Core projection from an exact Published Structure,
+generation data contract, and table binding contracts. Keep one value identity
+per document field key, use first-placement document order and section groups,
+retain unplaced contract fields, and expose collection item and image/media
+requirements.
+
+Exit: the generic 69C Structure projects 17 document fields and 13 collection
+item fields deterministically. Missing scalar requiredness, enum choices, date
+format, and collection limits remain explicit metadata-unavailable facts. No
+test values, Editor state, Preview execution, Backend route, or artifact runs.
+
+### REALDOC-E.5.4-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+
+Add generated Form state, mapped JSON diagnostics, Published Preview, distinct
+Draft Preview, complete stale/lifecycle UX, and Form/API parity evidence.
+Imported business values remain separate from the authored Structure
+Definition and the browser does not become a second resolver.
 
 E.1 generation input/mapping identity, E.2 runtime mapping/validation parity,
 E.3 bounded Backend local admission, E.4 local artifact lifecycle, and E.5.0
-product contract, E.5.1 local Library, and E.5.2 workspace tabs are accepted.
-Remaining subphases are E.5.3 through E.5.9 Editor pre-test implementation and
-E.6 cross-repo acceptance.
+product contract, E.5.1 local Library, E.5.2 workspace tabs, and E.5.3 Core
+test-input projection are accepted. Remaining subphases are E.5.4 through
+E.5.9 Editor pre-test implementation and E.6 cross-repo acceptance.
 
 E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

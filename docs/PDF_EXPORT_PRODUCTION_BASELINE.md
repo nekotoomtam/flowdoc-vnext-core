@@ -210,3 +210,9 @@ URL-backed Design/Preview view state. Design remains mounted across tab changes;
 Preview reports unavailable and creates no test input, canonical snapshot,
 generation instance, operation, artifact, or PDF. Backend/Core runtime,
 providers, tenancy, deployment, and production activation remain unchanged.
+
+`PDF-EXPORT-REALDOC-E.5.3` adds one pure Core test-input projection over exact
+Published Structure and generation data-contract pins. It accepts no test
+values, creates no snapshots or instances, calls no Backend route, and executes
+no Preview or artifact. Missing scalar constraints remain explicit; provider,
+tenancy, deployment, cost, and production activation remain unchanged.

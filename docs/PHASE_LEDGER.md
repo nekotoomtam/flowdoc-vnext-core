@@ -11945,3 +11945,46 @@ Primary evidence:
 Next phase: `PDF-EXPORT-REALDOC-E.5.3` Core UI-neutral test-input projection
 and explicit missing scalar generation constraints. Preview execution remains
 deferred and production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-E.5.3 Core Test-Input Projection
+
+Status: accepted pure Core projection, exact missing-constraint facts, and
+generic 69C evidence. Preview execution and production remain NO-GO.
+
+Core now accepts one exact Published Structure owner/fingerprint, Document V4
+graph, E.1 generation data contract, and the relevant Published table
+definition/binding contracts. It validates all pins and table source plans,
+then projects one deterministic input description without accepting values or
+running mapping, snapshots, validation, materialization, resolution, rendering,
+operations, or artifacts.
+
+Document fields follow first-placement graph order and section grouping. One
+field key retains one value identity across repeated placements; fields present
+only in the data contract remain in an explicit stable `unplaced` group.
+Collection item scope comes from exact table placement bindings, retains both
+placed and unplaced item fields, and declares ordered repeat/item-key facts.
+Image inputs target exact instance media references.
+
+Scalar document requiredness/defaults, enum choices, date formats, and
+collection size limits remain explicit `metadata-unavailable` facts rather than
+guesses. Collection item requiredness and typed defaults are projected exactly;
+published-asset defaults remain explicitly unsupported until static-media
+ownership is bound. Authored document fallback text is not promoted to a
+generation default.
+
+The generic UAT evidence projects 17 document fields, including 7 unplaced
+contract fields, two collections, 13 item fields, seven placed item fields, and
+one image item. Record-order reversal preserves exact output and fingerprint;
+a second title placement retains one field identity with placement count two.
+
+Primary evidence:
+
+- `src/generation/publishedStructureTestInputProjectionV1.ts`;
+- `tests/publishedStructureTestInputProjectionV1.test.ts`;
+- `docs/PDF_EXPORT_REALDOC_TEST_INPUT_PROJECTION.md`; and
+- `src/index.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.4` Editor-owned temporary Form state and
+generated scalar, collection, and image inputs over this projection. JSON
+mapping, Preview execution, Backend lifecycle calls, and production remain
+deferred.

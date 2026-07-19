@@ -161,4 +161,7 @@ authorization as not configured, and leaves Preview, DocGen/PDF behavior,
 hosted providers, and production inactive. `PDF-EXPORT-REALDOC-E.5.2` now adds
 the shared Design/Preview workspace header and URL state while retaining one
 document-keyed Design runtime. Preview reports unavailable and calls no DocGen
-or artifact route. E.5.3 next adds the pure Core UI-neutral input projection.
+or artifact route. `PDF-EXPORT-REALDOC-E.5.3` now adds the pure Core UI-neutral
+input projection with first-placement order, exact collection/image facts, and
+explicit unavailable scalar constraints. E.5.4 next adds temporary Editor Form
+state without Preview execution.
