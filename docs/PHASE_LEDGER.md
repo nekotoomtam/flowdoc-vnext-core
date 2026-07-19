@@ -11514,3 +11514,36 @@ Primary evidence:
 
 Next phase: `PDF-EXPORT-REALDOC-B` UAT Structure Definition and section 2.1
 source adapter. Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-B UAT Structure Definition And Section Adapter
+
+Status: accepted for source-neutral Structure Definition and strict
+source-adapter scope. Materialization, resolution, measurement, pagination,
+rendering, product eligibility, and production remain closed.
+
+The isolated `@flowdoc/uat-realdoc` package creates one accepted UAT Published
+Structure Version using only existing Core v4 document, lifecycle, policy,
+field, style, collection, media, and table contracts. Its starter graph has 41
+nodes, 17 fields, two collection contracts, two Table Definitions, six named
+composition regions, and four instance-editable bindings. No UAT schema or node
+family enters canonical Core.
+
+The strict `uat_semantic_no_pages_v1` adapter accepts a caller-provided
+instance identity and trusted selected-section resource facts. It rejects
+unknown legacy fields, identity/link/resource/dimension drift, and Structure
+Version mismatch. Exact external 69C section 2.1 evidence reproduces 15 scalar
+values, 10 requirements, 7 screenshots, 17 total collection items, 7 media
+assets, 4,833 feature-text characters, and 3,494,022 image pixels. Retained
+evidence contains fingerprints and counts only, not source content or bytes.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_UAT_STRUCTURE_ADAPTER.md`;
+- `packages/uat-realdoc/src/uatStructureDefinition.ts`;
+- `packages/uat-realdoc/src/uatSemanticNoPagesAdapter.ts`;
+- `packages/uat-realdoc/fixtures/69c-section-2-1-adapter-evidence.v1.json`;
+- `packages/uat-realdoc/scripts/verify-69c-section-adapter.mjs`; and
+- `tests/pdfExportRealdocUatStructureAdapter.test.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-C` section 2.1 materialization and resolved
+projection. Production remains NO-GO.

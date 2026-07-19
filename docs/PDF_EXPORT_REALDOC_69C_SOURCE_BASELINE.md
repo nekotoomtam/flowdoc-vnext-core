@@ -146,3 +146,11 @@ behavior changed.
 
 Next phase: `PDF-EXPORT-REALDOC-B` UAT Structure Definition and section 2.1
 source adapter.
+
+## REALDOC-B Follow-Up
+
+REALDOC-B now accepts the source-neutral UAT Structure Definition and isolated
+strict section adapter against this exact baseline. The retained adapter
+evidence contains no source content or image bytes. Materialization,
+resolution, pagination, rendering, and product eligibility remain deferred to
+later REALDOC phases.

@@ -1,0 +1,82 @@
+{
+  "evidenceVersion": 1,
+  "phaseId": "PDF-EXPORT-REALDOC-B",
+  "status": "accepted",
+  "sourceBaseline": {
+    "baselineId": "pdf-export-realdoc-69c-source-baseline-v1",
+    "sourceBundleFingerprint": "sha256:46fac437de79e9b5b044345ca97433535245bf53b1764d5df4b01e25279096eb",
+    "semanticMapSha256": "90bc4798755f093ab2cfc912b225d74ddbf6a0e558c183ecaad15cad7bf4b846",
+    "fullImageSetCanonicalDigest": "66037877234f2e89b59839c82b656a04a6c69fb52afd6d943d5beed2b6b904a5",
+    "selectedImageCanonicalDigest": "dd7f125503a7002c184ae74c9fe517ac5d563e294eb0f99e1df7676d328db443"
+  },
+  "structure": {
+    "structureId": "structure-uat-record",
+    "structureVersionId": "structure-uat-record-v1",
+    "versionOrdinal": 1,
+    "structureFingerprint": "sha256:3c7a6f62837994db864f4d91a4b4cb746825ec4cff7529b84ff28166192345f4",
+    "summary": {
+      "sectionCount": 1,
+      "nodeCount": 41,
+      "fieldCount": 17,
+      "collectionCount": 2,
+      "tableDefinitionCount": 2,
+      "regionCount": 6,
+      "instanceEditableBindingCount": 4
+    },
+    "regionKinds": [
+      "fixed",
+      "data-bound",
+      "repeated",
+      "repeated",
+      "instance-editable",
+      "generated"
+    ]
+  },
+  "adapter": {
+    "adapterId": "flowdoc-uat-semantic-no-pages-adapter-v1",
+    "bundleFingerprint": "sha256:d348842d94f31a60240ee668c77f3d9775c5d2bb6eb4b38fed5dc2eea91e7fe9",
+    "selectedSectionNumber": "2.1",
+    "summary": {
+      "scalarValueCount": 15,
+      "requirementCount": 10,
+      "screenshotCount": 7,
+      "collectionItemCount": 17,
+      "mediaAssetCount": 7,
+      "featureTextCharacterCount": 4833,
+      "sourceImageByteLength": 1117389,
+      "sourceImagePixelCount": 3494022
+    },
+    "warningCodes": [
+      "page-geometry-unavailable",
+      "screenshot-placement-unresolved",
+      "section-all-to-all-links"
+    ],
+    "linkGranularity": "section-all-to-all",
+    "screenshotPlacement": "unresolved-source-order-only"
+  },
+  "canonicalInputs": {
+    "dataSnapshot": true,
+    "collectionSnapshot": true,
+    "mediaSnapshot": true
+  },
+  "execution": {
+    "materialization": "not-run",
+    "resolution": "not-run",
+    "measurement": "not-run",
+    "pagination": "not-run",
+    "pdfRendering": "not-run"
+  },
+  "contracts": {
+    "sourceContentRetainedInEvidence": false,
+    "sourceSpecificSchemaAddedToCore": false,
+    "canonicalCoreNodeTypesOnly": true,
+    "instanceIdentityProvidedByVerifier": true,
+    "instanceAllocatedByAdapter": false,
+    "materializationExecuted": false,
+    "paginationExecuted": false,
+    "rendererExecuted": false,
+    "artifactProduced": false,
+    "productionBinding": false
+  },
+  "nextPhase": "PDF-EXPORT-REALDOC-C section 2.1 materialization and resolved projection"
+}

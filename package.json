@@ -8,7 +8,8 @@
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --config vitest.config.ts",
     "check": "npm run type-check && npm run test",
-    "verify:uat-69c-source-baseline": "node scripts/verify-uat-69c-source-baseline.mjs"
+    "verify:uat-69c-source-baseline": "node scripts/verify-uat-69c-source-baseline.mjs",
+    "verify:uat-69c-section-2-1-adapter": "node packages/uat-realdoc/scripts/verify-69c-section-adapter.mjs"
   },
   "dependencies": {
     "zod": "^4.3.6"

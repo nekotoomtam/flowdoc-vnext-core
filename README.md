@@ -1047,6 +1047,11 @@ The package must remain runnable without any parent editor checkout.
   roots, and canonical 149-image set without retaining source bytes or local
   paths. Section 2.1 is the first bounded Structure Definition/adapter target;
   rendering, product eligibility, and production remain closed.
+- PDF export REALDOC-B adds an isolated strict UAT semantic adapter and a
+  source-neutral UAT Structure Definition composed only from existing v4,
+  lifecycle, field, collection, media, policy, and table contracts. Exact 69C
+  section 2.1 data reproduces canonical snapshot fingerprints without retaining
+  source content; materialization and rendering remain closed.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

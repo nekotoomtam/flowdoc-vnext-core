@@ -26,7 +26,7 @@ the semantic source deliberately removed page and placement geometry.
 
 ## Phase Order
 
-### REALDOC-A Source Baseline
+### REALDOC-A Source Baseline (Accepted)
 
 Pin the exact external PDF, semantic roots, aggregate image set, content facts,
 known limitations, and section 2.1 first slice without retaining source bytes
@@ -34,7 +34,7 @@ or user-specific paths in the repository.
 
 Exit: exact source bundle verifies against one retained fingerprint.
 
-### REALDOC-B UAT Structure And Source Adapter
+### REALDOC-B UAT Structure And Source Adapter (Accepted)
 
 Define the source-neutral UAT Structure Definition and a source-specific
 `uat_semantic_no_pages_v1` adapter for section 2.1. Keep the adapter outside

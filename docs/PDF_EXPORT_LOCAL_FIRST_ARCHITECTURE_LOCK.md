@@ -383,6 +383,12 @@ the LOCAL-G canonical resource envelope. REALDOC-B must first define a
 source-neutral UAT Structure Definition and source-specific adapter before a
 measured product-readable contract can enter the existing local runtime.
 
+REALDOC-B now accepts that Structure Definition and adapter boundary. The
+adapter returns canonical pinned snapshot inputs but does not materialize or
+resolve a document. REALDOC-C must perform the revision-zero materialization,
+generated collection-row resolution, and explicit screenshot-placement
+decision before any measured contract can be admitted.
+
 ## Local Readiness Exit Gate (Accepted)
 
 `LOCAL-G` closes because retained evidence proves:

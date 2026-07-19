@@ -93,3 +93,10 @@ fingerprint. Section 2.1 is selected as the first bounded Structure Definition
 and source-adapter slice. No measured contract, renderer execution, product
 eligibility, hosted provider, or production binding is claimed by the source
 baseline.
+
+`PDF-EXPORT-REALDOC-B` accepts a source-neutral UAT Structure Definition and an
+isolated strict page-free semantic adapter. Exact section 2.1 source facts now
+produce canonical instance-data, table-collection, and instance-media snapshot
+inputs with retained provenance and content-sensitive fingerprints. It does
+not materialize the starter graph, resolve generated rows, measure, paginate,
+or change this handoff's accepted renderer input.

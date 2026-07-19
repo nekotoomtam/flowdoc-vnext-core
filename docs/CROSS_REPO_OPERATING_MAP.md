@@ -758,11 +758,11 @@ For broad work or cross-repo handoff, include:
 
 ## Near-Term Work Queue
 
-1. Continue the accepted REALDOC-A 69C source baseline through a source-neutral
-   UAT Structure Definition, section 2.1 adapter, measured contract,
-   digest-bound resources, and eligible Editor lifecycle. Keep production
-   provider selection, default route mounting, deployment, and activation
-   blocked behind a separate later review.
+1. Continue the accepted REALDOC-B UAT Structure Definition and section 2.1
+   canonical snapshot inputs through instance materialization, resolved rows
+   and screenshot placement, a measured contract, digest-bound resources, and
+   eligible Editor lifecycle. Keep production provider selection, default
+   route mounting, deployment, and activation blocked behind a later review.
 2. Keep this map and each repo's `AGENTS.md` aligned.
 3. Add measured v4 layout/render consumption without treating placeholder
    pagination as export truth.
