@@ -82,14 +82,43 @@ pages with three requirement pages, two repeated headers, two split rows, and
 seven whole screenshot rows. Determinism, cancellation, restart, resource,
 and visual checks remain accepted.
 
-### REALDOC-E Editor Workflow
+### REALDOC-E.0 DocGen Architecture Realignment (Accepted)
 
-Expose source selection/import, outline and page preview, instance edits for
-Accept, Remark, approver, and date, save/reopen, eligibility, export, cancel,
-retry, and verified download through the existing development-only local path.
+Reconnect the REALDOC lane to the Phase 268 Structure Definition lifecycle.
+The Editor authors and publishes reusable book-form structures. Test-data
+import is a pre-test caller of the same mapping and generation contracts used
+by external API clients; it is not primary Document Instance authoring.
 
-Exit: Editor, Core, Backend, and the PDF artifact retain the same document
-revision and user-visible values.
+Separate FlowDoc-owned field definitions and presentation placements from
+caller-owned data JSON. Keep source adapters outside canonical Core semantics,
+and keep final page geometry downstream of resolution and measurement.
+
+Exit: the cross-repo ownership, two JSON families, field/presentation split,
+pre-test parity, Document Instance role, and REALDOC-E implementation order are
+locked in `docs/PDF_EXPORT_REALDOC_DOCGEN_ARCHITECTURE_LOCK.md` without runtime
+changes.
+
+### REALDOC-E DocGen Pre-Test And Local API Workflow
+
+Define the published-Structure generation input and mapping-profile contract.
+Accept direct canonical Data Snapshots or adapted external payloads, retain
+content-free mapping diagnostics, and pin Structure Version, input contract,
+payload/snapshot, instance, and asset identities before resolution.
+
+Connect the admitted request to the existing local worker and artifact
+lifecycle. Then expose test-data selection, mapping diagnostics, outline/page
+preview, export, cancel, retry, and verified download as an Editor pre-test
+surface. Imported business values remain separate from the authored Structure
+Definition and the browser does not become a second resolver.
+
+Subphases are E.1 generation input/mapping contract, E.2 runtime mapping and
+pre-test/API parity, E.3 Backend local admission, E.4 artifact lifecycle, E.5
+Editor pre-test, and E.6 cross-repo acceptance.
+
+Exit: Editor pre-test and an external API-shaped caller produce the same
+accepted Data Snapshot and resolved-document identity for one exact Published
+Structure Version, and the local artifact retains those pins through restart,
+cancellation, retry, and verified download.
 
 ### REALDOC-F Module 2 Scale
 
@@ -126,8 +155,9 @@ Production remains a separate decision.
   composition, pagination, handoff, and receipt semantics.
 - Backend: trusted source and resource resolution, digest verification, local
   operation lifecycle, persistence, cancellation, and artifact delivery.
-- Editor: import/selection experience, editable instance fields, preview,
-  revision eligibility, and local export commands.
+- Editor: Structure Definition authoring, binding/presentation UX, test-data
+  selection, mapping diagnostics, preview interaction, and local lifecycle
+  commands without owning durable data or artifact truth.
 
 ## Deferred Production Work
 

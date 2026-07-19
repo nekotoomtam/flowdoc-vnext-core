@@ -11676,5 +11676,33 @@ Primary evidence:
 - `tests/pdfExportRealdocImportedTextNormalization.test.ts`; and
 - `tests/pdfExportRealdocUatMeasuredExport.test.ts`.
 
-Next phase: `PDF-EXPORT-REALDOC-E` Editor workflow and local artifact
-lifecycle. Production remains NO-GO.
+Next phase before runtime integration: `PDF-EXPORT-REALDOC-E.0` DocGen
+architecture realignment. Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-E.0 DocGen Architecture Realignment
+
+Status: accepted after REALDOC-D.1 without runtime changes. The phase restores
+the Phase 268 Structure Definition lifecycle as the explicit REALDOC north
+star. Editor owns reusable Structure authoring and pre-test UX; external
+callers own business payloads; versioned adapters map those payloads into
+canonical pinned Data Snapshots; Core resolves and lays out; Backend owns the
+generation and artifact lifecycle.
+
+The lock separates the two JSON families, field definitions from presentation
+placements, test import from authored Structure truth, and generation instances
+from the primary Editor product. It records that current 69C evidence already
+uses a UAT Structure, isolated source adapter, deterministic materialization,
+resolved collection rows, native measurement, and a bounded local renderer
+without making UAT semantics canonical.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_DOCGEN_ARCHITECTURE_LOCK.md`;
+- `docs/PDF_EXPORT_REAL_DOCUMENT_ROADMAP.md`;
+- `docs/PDF_EXPORT_LOCAL_FIRST_ARCHITECTURE_LOCK.md`;
+- `docs/PDF_REAL_EXPORT_HANDOFF.md`;
+- `docs/CROSS_REPO_OPERATING_MAP.md`; and
+- `tests/pdfExportRealdocDocgenArchitectureLock.test.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.1` Published Structure generation input and
+mapping contract. Production remains NO-GO.

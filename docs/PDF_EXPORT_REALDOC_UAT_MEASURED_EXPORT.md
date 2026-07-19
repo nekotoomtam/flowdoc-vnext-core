@@ -120,5 +120,7 @@ product-document eligibility, durable operation or artifact persistence,
 default route mounting, automatic workers, remote providers, deployment,
 tenancy, or production activation.
 
-Next phase: `PDF-EXPORT-REALDOC-E` Editor workflow and local artifact
-lifecycle. Production remains NO-GO.
+REALDOC-D.1 later normalizes imported soft wraps. REALDOC-E.0 then realigns the
+next workflow with API-driven DocGen. Next runtime phase:
+`PDF-EXPORT-REALDOC-E.1` Published Structure generation input and mapping
+contract. Production remains NO-GO.

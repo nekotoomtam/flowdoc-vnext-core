@@ -109,6 +109,12 @@ editor intent
   lifecycle artifacts, and Resolved Document/Artifact as derived output. This
   decision does not activate publish, materialization, instance APIs, or policy
   execution: `docs/STRUCTURE_INSTANCE_ARCHITECTURE_LOCK.md`.
+- PDF export REALDOC-E.0 reconnects the real-document lane to that north star:
+  Editor authors reusable Structure Definitions, external callers own business
+  payloads, source adapters map into pinned Data Snapshots, and Editor test
+  import is a pre-test caller of the same Backend DocGen path. Field definition,
+  presentation placement, resolved geometry, and artifact truth remain
+  separate: `docs/PDF_EXPORT_REALDOC_DOCGEN_ARCHITECTURE_LOCK.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

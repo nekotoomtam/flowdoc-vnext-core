@@ -114,6 +114,14 @@ then folds source-PDF layout wraps before resolution while retaining semantic
 paragraph/list breaks and normalization fingerprints. The exact section exports
 as a 10-page deterministic local PDF with repeated requirement headers, whole
 aspect-preserved screenshots, cooperative cancellation, and fresh-process
-restart equality. The canonical renderer profile remains unchanged. Durable
-artifact lifecycle, Editor eligibility, hosted providers, and production
-binding remain deferred.
+restart equality. The canonical renderer profile remains unchanged. DocGen
+admission, durable artifact lifecycle, Editor pre-test, hosted providers, and
+production binding remain deferred.
+
+`PDF-EXPORT-REALDOC-E.0` realigns the deferred workflow with the existing
+Structure Definition architecture. The Editor remains the Structure authoring
+product; test-data import is a pre-test caller of the same mapping and DocGen
+contracts used by external API clients. REALDOC-E must pin one Published
+Structure Version, mapping/input contract, accepted Data Snapshot, generation
+instance, and digest-bound asset set before the existing local artifact
+lifecycle can run. No runtime or artifact identity changes in E.0.

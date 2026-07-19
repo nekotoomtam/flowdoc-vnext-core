@@ -95,6 +95,7 @@ output/pdf/flowdoc-69c-uat-section-2-1-realdoc-d1.pdf
 ```
 
 REALDOC-D.1 does not activate source import UI, Editor authoring, persistence,
-product eligibility, hosted providers, default routes, deployment, or
-production. Next phase: `PDF-EXPORT-REALDOC-E` Editor workflow and local
-artifact lifecycle.
+DocGen admission, hosted providers, default routes, deployment, or production.
+REALDOC-E.0 later locks the corrected DocGen boundary. Next runtime phase:
+`PDF-EXPORT-REALDOC-E.1` Published Structure generation input and mapping
+contract.

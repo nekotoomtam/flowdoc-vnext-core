@@ -401,9 +401,8 @@ headers, seven whole screenshot rows, and an A4 measured draw
 contract. A separate bounded `local-measured-document` profile returns exact
 bytes through both Core and Backend adapters, cancels without partial bytes,
 and reproduces the same receipt in a fresh process. It does not weaken the
-canonical LOCAL-G profile or activate persistence, Editor eligibility, hosted
-providers, or production. REALDOC-E owns the development-only Editor workflow
-and local artifact lifecycle for this resolved document.
+canonical LOCAL-G profile or activate persistence, DocGen admission, hosted
+providers, or production.
 
 REALDOC-D.1 now inserts a fingerprinted imported-text normalization step before
 resolution. It folds 82 source-PDF layout wraps while retaining 58 semantic
@@ -411,6 +410,15 @@ paragraph/list boundaries. The exact section contracts from four to three
 requirement pages and from 11 to 10 total pages without changing table widths,
 the shared line breaker, renderer limits, Backend behavior, or production
 status.
+
+REALDOC-E.0 now realigns the next lane with the Phase 268 Structure Definition
+north star. The Editor authors reusable Structure Definitions; imported test
+data is a pre-test caller of the same mapping and generation contracts used by
+external API clients. REALDOC-E must not turn the Editor into a primary
+Document Instance editor or map business values directly to page coordinates.
+Field definitions, presentation placements, caller-owned data, resolved facts,
+and artifact truth remain separate. The accepted order is retained in
+`docs/PDF_EXPORT_REALDOC_DOCGEN_ARCHITECTURE_LOCK.md`.
 
 ## Local Readiness Exit Gate (Accepted)
 

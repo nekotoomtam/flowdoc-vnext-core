@@ -159,3 +159,10 @@ this production baseline, its Backend adapter writes no storage, and its
 renderer remains explicitly non-production. This evidence does not select a
 hosted provider, mount a default route, activate product eligibility, or
 change the production NO-GO decision.
+
+`PDF-EXPORT-REALDOC-E.0` records the DocGen architecture realignment only. It
+keeps Structure authoring, external caller data, mapping, canonical Data
+Snapshot resolution, and artifact execution as separate boundaries. Test-data
+import must converge with the external API path before resolution and cannot
+activate a browser-owned renderer or product Document Instance editing lane.
+No production binding or blocker changes.
