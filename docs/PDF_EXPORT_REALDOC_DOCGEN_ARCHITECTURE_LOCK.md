@@ -180,9 +180,14 @@ The accepted REALDOC evidence already follows this boundary:
 5. `REALDOC-E.4` connects the admitted 69C generation to the existing local
    worker, cancellation, persistence, status, retry-capable lifecycle, and
    verified download. Accepted.
-6. `REALDOC-E.5` adds the Editor pre-test surface without making imported values
-   authored Structure content or browser preview artifact truth.
-7. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
+6. `REALDOC-E.5.0` locks the local Library and shared Design/Preview workspace,
+   UI-neutral generated-Form boundary, distinct Draft/Published targets, and
+   explicit stale state. Accepted without runtime activation.
+7. `REALDOC-E.5.1` through `E.5.9` implement the Library, workspace, input
+   projection, Form/JSON state, Preview targets, lifecycle UX, and parity
+   evidence without making imported values authored Structure content or
+   browser preview artifact truth.
+8. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
    restart/fault evidence across Editor, Backend, Core, and renderer.
 
 REALDOC-F then scales the same Structure and generation contracts to all Module
@@ -241,8 +246,7 @@ deferred. Production remains NO-GO.
 - Whether local pre-test uses a temporary or retained generation instance.
 - Exact published Structure storage and lookup API.
 - Final source of asset bytes for external API calls.
-- Which Editor preview levels use draft-local mock resolution versus Backend
-  exact preview artifacts.
+- Draft Preview retention and reopen policy after immutable local admission.
 
 ## Next Phase
 
@@ -250,6 +254,8 @@ E.1 now accepts the pure Published Structure generation input and mapping
 identity contract. E.2 now accepts exact payload/mapper execution and shared runtime
 validation in `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. E.3 now accepts
 the optional bounded local Backend route, trusted registries, Backend-owned
-instance, protected canonical record, and content-free replay receipt. Next
-phase: `PDF-EXPORT-REALDOC-E.5` Editor pre-test over the admitted local
-artifact lifecycle. Production remains NO-GO.
+instance, protected canonical record, and content-free replay receipt. E.4 now
+accepts the local artifact lifecycle binding. `PDF-EXPORT-REALDOC-E.5.0` now
+locks the Document Library and Design/Preview workspace product contract. Next
+phase: `PDF-EXPORT-REALDOC-E.5.1` bounded local Library read model and first
+Library view. Production remains NO-GO.

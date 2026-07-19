@@ -135,8 +135,14 @@ editor intent
   Core resolution and the existing Backend PDF operation/worker/artifact
   lifecycle. Exact replay, persistence, status, cancellation, and verified
   download pass for the 10-page 69C slice without rereading raw payloads.
-  Editor pre-test remains E.5:
+  Editor pre-test implementation remains E.5.1 through E.5.9:
   `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DOCGEN_HANDOFF.md`.
+- PDF export REALDOC-E.5.0 locks the Editor product surface without runtime
+  activation: a local Library of Structure projects opens one workspace with
+  URL-backed Design and Preview views; generated Form and mapped JSON input
+  remain temporary, Draft and Published Preview retain distinct identities,
+  and stale results cannot masquerade as current artifact truth:
+  `../flowdoc-vnext-editor/docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

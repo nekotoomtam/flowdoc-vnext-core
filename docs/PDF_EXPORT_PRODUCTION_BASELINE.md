@@ -192,3 +192,9 @@ worker, cancellation, persistence, status, and verified-download lifecycle.
 The 69C evidence completes as a 10-page local artifact. Default routes,
 durable generation storage, Editor UI, hosted providers, and production remain
 inactive.
+
+`PDF-EXPORT-REALDOC-E.5.0` adds documentation only. It locks a local Document
+Library and shared Design/Preview workspace, generated-Form and mapped-JSON
+input separation, distinct Draft/Published Preview targets, and explicit stale
+state. It adds no route, repository query, Editor runtime, authentication,
+provider, deployment, or production activation.

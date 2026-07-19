@@ -163,17 +163,31 @@ generation, route replay, worker completion, cancellation without stored bytes,
 persistence, status, integrity check, and verified download. Default route
 mounting, Editor UI, durable generation storage, and production stay inactive.
 
-### REALDOC-E.5 Editor Pre-Test And E.6 Cross-Repo Acceptance
+### REALDOC-E.5.0 Document Workspace Product Contract (Accepted)
 
-Expose test-data selection, mapping diagnostics, outline/page preview, export,
-cancel, retry, and verified download as an Editor pre-test surface. Imported
-business values remain separate from the authored Structure Definition and the
-browser does not become a second resolver.
+Lock the local Document Library as a list of Structure authoring projects and
+one shared workspace with URL-backed Design and Preview views. Preview owns
+temporary generated-Form or mapped-JSON test input while Design retains
+authored Structure truth. Draft and Published Preview remain distinct targets,
+and every result carries explicit stale pins.
+
+Exit: the product, route, state-ownership, generated-form, preview-target, and
+staleness contracts are retained in
+`../flowdoc-vnext-editor/docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md`
+without activating Editor, Backend, or Core runtime behavior.
+
+### REALDOC-E.5.1-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+
+Add the bounded local Library read model, workspace shell, Core UI-neutral test
+input projection, generated Form state, mapped JSON diagnostics, Published
+Preview, distinct Draft Preview, complete stale/lifecycle UX, and Form/API
+parity evidence. Imported business values remain separate from the authored
+Structure Definition and the browser does not become a second resolver.
 
 E.1 generation input/mapping identity, E.2 runtime mapping/validation parity,
-E.3 bounded Backend local admission, and E.4 local artifact lifecycle are
-accepted. Remaining subphases are E.5 Editor pre-test and E.6 cross-repo
-acceptance.
+E.3 bounded Backend local admission, E.4 local artifact lifecycle, and E.5.0
+product contract are accepted. Remaining subphases are E.5.1 through E.5.9
+Editor pre-test implementation and E.6 cross-repo acceptance.
 
 E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

@@ -11837,3 +11837,37 @@ header and leading `Pa` of the footer label.
 
 Next phase: `PDF-EXPORT-REALDOC-E.5` Editor pre-test over the same admission and
 artifact identities.
+
+## PDF-EXPORT-REALDOC-E.5.0 Document Workspace Product Contract
+
+Status: accepted documentation-only product, route, state-ownership,
+generated-form, preview-target, and staleness contract. Production remains
+NO-GO.
+
+The Editor now has one retained product direction before implementation: a
+local Document Library of Structure authoring projects opens one workspace with
+URL-backed Design and Preview views. Design retains authored Structure truth.
+Preview owns temporary generated-Form or mapped-JSON test input, diagnostics,
+exact generated pages, and the existing artifact lifecycle controls.
+
+The generated Form must consume a Core UI-neutral test-input projection. One
+field key produces one value regardless of placement count. Missing scalar
+requiredness, enum choices, date constraints, or input hints are not invented;
+the generation contract/projection must represent them before the UI claims
+them. Form and JSON modes converge through the same canonical validator.
+
+Published Preview reuses E.3/E.4 and is the external API parity target. Draft
+Preview requires its own immutable local draft snapshot and cannot masquerade
+as a Published Structure Version. Structure, target, test input, mapping, and
+asset changes explicitly stale every dependent Preview result.
+
+No route, repository query, Editor state/component, Core schema/runtime,
+Backend runtime, authentication, authorization, provider, deployment, or
+production activation changes in E.5.0.
+
+Primary contract:
+`../flowdoc-vnext-editor/docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.1` bounded local Document Library read
+model, Backend list boundary, and first Library view without a multi-user
+authorization claim.

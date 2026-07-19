@@ -89,7 +89,8 @@ correctness task rather than concealed as an E.4 lifecycle failure.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5` adds the Editor pre-test surface over the same Backend
-admission and artifact identities. It must not make imported values authored
-Structure content or treat browser preview as artifact truth. Production
-remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.0` now locks the Editor Library and shared
+Design/Preview workspace without runtime activation. E.5.1 next adds the
+bounded local Library read model and first Library view. Imported values remain
+separate from authored Structure content and browser preview is not artifact
+truth. Production remains NO-GO.
