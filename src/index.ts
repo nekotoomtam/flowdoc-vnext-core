@@ -72,6 +72,7 @@ export type {
 export * from "./authoring/durableHistory.js"
 export * from "./generation/runtime.js"
 export * from "./generation/publishedStructureGenerationInputV1.js"
+export * from "./generation/publishedStructureGenerationRuntimeV1.js"
 export * from "./generation/artifactManifest.js"
 export * from "./generation/artifactJob.js"
 export * from "./generation/pdfExportHandoffV1.js"

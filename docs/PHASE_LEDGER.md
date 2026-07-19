@@ -11736,3 +11736,41 @@ Primary evidence:
 
 Next phase: `PDF-EXPORT-REALDOC-E.2` runtime mapping, validation, content-free
 diagnostics, and direct/adapted parity. Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-E.2 Generation Mapping And Validation Runtime
+
+Status: accepted pure Core runtime without Backend route, downstream document
+execution, or production activation. Exact UTF-8 JSON byte identity and an
+injected mapper matching the admitted execution profile produce strict
+canonical snapshots. Direct and mapped snapshots then pass one shared runtime
+validator.
+
+Runtime validation covers scalar/image compatibility, exact instance media,
+collection item types, required item presence/non-null values, and typed
+optional collection defaults. Unsupported published-image defaults block until
+static-media ownership is explicit. Scalar Field Definition fallback remains
+presentation metadata because the retained contract does not represent a typed
+scalar default.
+
+Diagnostics retain generated codes, bounded structural paths, counts, and
+fingerprints without source values, item keys, asset ids, raw JSON, or mapper
+exception text. Generic and isolated UAT evidence proves direct/adapted
+canonical object equality and fingerprint parity. The ready output stops before
+materialization, resolution, measurement, pagination, renderer, or artifact
+work.
+
+The retained real-source 69C section 2.1 adapter verifier remains accepted
+without fixture drift at 15 scalar values, 17 collection items, and 7 media
+assets. Local source paths and values are not committed.
+
+Primary evidence:
+
+- `src/generation/publishedStructureGenerationRuntimeV1.ts`;
+- `packages/uat-realdoc/src/uatGenerationMapper.ts`;
+- `tests/publishedStructureGenerationRuntimeV1.test.ts`;
+- `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`; and
+- `src/index.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission with
+exact Structure, data-contract, instance, payload/snapshot, mapper, and asset
+pins. Production remains NO-GO.

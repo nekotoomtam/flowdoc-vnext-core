@@ -172,3 +172,9 @@ It explicitly reports mapping or runtime validation as not run and cannot
 materialize, resolve, measure, render, persist, or activate production. Direct
 and adapted input identities do not select production routes, providers,
 workers, authorization, tenancy, or deployment.
+
+`PDF-EXPORT-REALDOC-E.2` executes only in pure Core memory. It verifies exact
+payload/mapper identity and returns validated canonical snapshots plus
+content-free diagnostics. The result performs no Backend admission,
+materialization, resolution, renderer, persistence, artifact, provider, or
+production action and changes no production blocker.

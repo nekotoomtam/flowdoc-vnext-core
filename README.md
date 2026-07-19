@@ -1078,6 +1078,12 @@ The package must remain runnable without any parent editor checkout.
   payload descriptors stop at a fingerprinted named-adapter or declarative
   mapping profile. Plans retain no business values and execute no mapping,
   resolution, renderer, artifact, route, or production behavior.
+- PDF export REALDOC-E.2 adds pure runtime mapping and validation behind that
+  contract. Exact UTF-8 payload and mapper identities produce canonical
+  snapshots through the same validator as direct input; content-free
+  diagnostics, typed collection defaults, and UAT parity are accepted while
+  Backend routes, materialization, artifacts, Editor UI, and production remain
+  inactive.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

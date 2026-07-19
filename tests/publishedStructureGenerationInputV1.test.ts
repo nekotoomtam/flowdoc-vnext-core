@@ -451,7 +451,7 @@ describe("Published Structure generation input v1", () => {
     expect(contractDoc).toContain("runtime-validation-required")
     expect(contractDoc).toContain("mapping-required")
     expect(contractDoc).toMatch(/Raw JSON is deliberately not part of the Core request schema/)
-    expect(contractDoc).toMatch(/Production remains NO-GO/)
+    expect(contractDoc).toMatch(/Production\s+remains NO-GO/)
     expect(roadmap).toContain("### REALDOC-E.1 Published Structure Generation Input (Accepted)")
     expect(architectureLock).toMatch(/E\.1 now accepts the pure Published Structure generation input/)
     expect(readme).toContain("PDF export REALDOC-E.1 adds a pure Published Structure generation input")

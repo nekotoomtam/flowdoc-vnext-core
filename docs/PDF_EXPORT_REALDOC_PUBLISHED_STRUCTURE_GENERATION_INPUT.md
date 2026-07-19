@@ -194,5 +194,7 @@ Tests cover:
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.2` runtime mapping, validation, content-free diagnostics,
-and direct/adapted parity. Production remains NO-GO.
+E.2 now executes this input contract through the pure runtime documented in
+`docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. The next phase is
+`PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission. Production
+remains NO-GO.

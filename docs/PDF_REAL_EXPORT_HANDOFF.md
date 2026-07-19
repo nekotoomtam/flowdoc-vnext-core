@@ -132,3 +132,8 @@ Published Structure, data-contract, instance, mapping, and snapshot identity
 pins. Direct input stops before runtime validation; adapted input stops before
 mapping. The handoff, measured contract, renderer, bytes, and artifact lifecycle
 remain unchanged.
+
+`PDF-EXPORT-REALDOC-E.2` now proves both input lanes converge on one canonical
+snapshot object/fingerprint after exact payload/mapper verification and shared
+validation. The output stops at `materialization`; no measured handoff,
+renderer, bytes, operation, or artifact identity changes.

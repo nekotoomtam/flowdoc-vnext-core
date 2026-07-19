@@ -244,6 +244,9 @@ deferred. Production remains NO-GO.
 
 E.1 now accepts the pure Published Structure generation input and mapping
 identity contract in
-`docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`. Next phase:
-`PDF-EXPORT-REALDOC-E.2` runtime mapping, validation, content-free diagnostics,
-and direct/adapted parity. Production remains NO-GO.
+`docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`. E.2 now
+accepts exact payload/mapper execution, shared runtime validation,
+content-free diagnostics, and direct/adapted canonical parity in
+`docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. Next phase:
+`PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission. Production
+remains NO-GO.

@@ -426,6 +426,12 @@ snapshots stop at runtime validation; adapted JSON payload descriptors stop at
 mapping. Raw payload values, layout facts, renderer facts, and browser-owned
 mapping do not enter the plan. Runtime mapping and validation remain E.2.
 
+REALDOC-E.2 now accepts the pure Core runtime behind that plan. Exact UTF-8
+payload and mapper identities produce canonical snapshots through the same
+validator used by direct input, with content-free diagnostics. No Backend
+route, materialization, artifact, Editor UI, provider, or production binding is
+activated.
+
 ## Local Readiness Exit Gate (Accepted)
 
 `LOCAL-G` closes because retained evidence proves:

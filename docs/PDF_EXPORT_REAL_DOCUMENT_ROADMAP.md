@@ -115,6 +115,24 @@ content-free plans through
 `docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`. No runtime
 mapping, value validation, route, preview, renderer, or artifact executes.
 
+### REALDOC-E.2 Generation Mapping And Validation Runtime (Accepted)
+
+Execute the E.1 direct and adapted lanes through one pure Core runtime. Adapted
+UTF-8 JSON must match its admitted byte length and SHA-256, use an injected
+mapper whose execution identity exactly matches the profile, and return strict
+canonical snapshots before shared validation.
+
+Validate scalar/image values, exact instance media, collection item types, and
+required item fields. Apply only typed optional collection-item defaults;
+unsupported published-image defaults block until static-media ownership is
+bound. Diagnostics retain codes, structural paths, counts, and fingerprints,
+not source values or mapper exception messages.
+
+Exit: generic and isolated UAT named-adapter evidence proves direct/adapted
+canonical snapshot equality and fingerprint parity through
+`docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. Materialization, resolution,
+Backend routes, Editor UI, artifacts, and production remain inactive.
+
 ### REALDOC-E DocGen Pre-Test And Local API Workflow
 
 Define the published-Structure generation input and mapping-profile contract.
@@ -128,9 +146,9 @@ preview, export, cancel, retry, and verified download as an Editor pre-test
 surface. Imported business values remain separate from the authored Structure
 Definition and the browser does not become a second resolver.
 
-E.1 generation input/mapping identity is accepted. Remaining subphases are E.2
-runtime mapping and pre-test/API parity, E.3 Backend local admission, E.4
-artifact lifecycle, E.5 Editor pre-test, and E.6 cross-repo acceptance.
+E.1 generation input/mapping identity and E.2 runtime mapping/validation parity
+are accepted. Remaining subphases are E.3 Backend local admission, E.4 artifact
+lifecycle, E.5 Editor pre-test, and E.6 cross-repo acceptance.
 
 Exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

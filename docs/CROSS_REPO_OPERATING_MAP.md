@@ -121,6 +121,11 @@ editor intent
   content-free plan. Mapping and runtime validation remain not run; Backend and
   Editor runtime behavior is unchanged:
   `docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`.
+- PDF export REALDOC-E.2 executes that boundary in pure Core memory. Direct
+  snapshots and identity-pinned adapted JSON converge through one validator to
+  the same canonical fingerprint; diagnostics remain content-free. Backend
+  routes and Editor UI remain unchanged:
+  `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:
