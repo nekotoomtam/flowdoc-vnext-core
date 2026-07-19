@@ -144,3 +144,10 @@ remains unmounted, browser code receives no local credential, and the normal
 product document remains ineligible without fixture substitution. Hosted
 providers and production activation remain blocked. None of these local
 follow-ups changes this baseline's production NO-GO decision.
+
+`PDF-EXPORT-REALDOC-A` records the exact external 69C UAT source bundle and a
+bounded section 2.1 first slice in
+`docs/PDF_EXPORT_REALDOC_69C_SOURCE_BASELINE.md`. This is source identity and
+planning evidence only. It does not change the accepted production resource
+policy, activate a product document, execute rendering, select hosted
+providers, or change this baseline's production NO-GO decision.

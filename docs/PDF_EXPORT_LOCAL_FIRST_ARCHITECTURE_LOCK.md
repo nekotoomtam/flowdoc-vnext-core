@@ -370,6 +370,19 @@ provider suite passes `24/24`.
 Primary follow-up evidence is retained in
 `../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_READINESS_AUDIT.md`.
 
+## Real Document Follow-Up
+
+`PDF-EXPORT-REALDOC-A` pins the exact external 69C UAT PDF, semantic roots,
+and aggregate image set without copying source bytes into a repository. It
+selects section 2.1 as the first bounded product-readable slice and preserves
+the page-free source limitations explicitly. The roadmap is retained in
+`docs/PDF_EXPORT_REAL_DOCUMENT_ROADMAP.md`.
+
+REALDOC-A does not make the normal Editor document eligible and does not alter
+the LOCAL-G canonical resource envelope. REALDOC-B must first define a
+source-neutral UAT Structure Definition and source-specific adapter before a
+measured product-readable contract can enter the existing local runtime.
+
 ## Local Readiness Exit Gate (Accepted)
 
 `LOCAL-G` closes because retained evidence proves:

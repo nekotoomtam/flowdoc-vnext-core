@@ -85,3 +85,11 @@ PostgreSQL and MinIO. Both downloads retain the exact byte identity and the
 second worker invokes no work. The bounded local readiness audit is accepted;
 product-document eligibility, hosted providers, and production activation
 remain blocked.
+
+`PDF-EXPORT-REALDOC-A` opens the product-readable follow-up without changing
+this handoff. It pins the external 200-page 69C UAT PDF, three page-free
+semantic JSON roots, and the canonical 149-image set under one source bundle
+fingerprint. Section 2.1 is selected as the first bounded Structure Definition
+and source-adapter slice. No measured contract, renderer execution, product
+eligibility, hosted provider, or production binding is claimed by the source
+baseline.

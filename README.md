@@ -1043,6 +1043,10 @@ The package must remain runnable without any parent editor checkout.
   two operating-system processes, actual PostgreSQL/MinIO restart replay,
   cancellation and corruption gates, exact bytes, and a measured resource
   envelope. Product-document eligibility and production remain closed.
+- PDF export REALDOC-A pins the external 200-page 69C UAT PDF, three semantic
+  roots, and canonical 149-image set without retaining source bytes or local
+  paths. Section 2.1 is the first bounded Structure Definition/adapter target;
+  rendering, product eligibility, and production remain closed.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

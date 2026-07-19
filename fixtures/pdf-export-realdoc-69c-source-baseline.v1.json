@@ -1,0 +1,124 @@
+{
+  "schema": "flowdoc-pdf-export-real-document-source-baseline-v1",
+  "baselineId": "pdf-export-realdoc-69c-source-baseline-v1",
+  "phaseId": "PDF-EXPORT-REALDOC-A",
+  "status": "accepted-local-external-source-baseline",
+  "observedOn": "2026-07-19",
+  "document": {
+    "title": "User Acceptance Record",
+    "project": "69C-RAMA-HC_Scheduling",
+    "version": "1",
+    "author": "Kingkan Thiamson",
+    "updatedDate": "07/07/2569"
+  },
+  "pdf": {
+    "fileName": "69C_UAT_RC_26-07-17.pdf",
+    "mediaType": "application/pdf",
+    "byteLength": 73921912,
+    "sha256": "8dd3bbf0d562907be9874fd9c54be6ed5209501fed6940f30e6a67f514ab003a",
+    "pageCount": 200,
+    "pageSize": "A4",
+    "producer": "jsPDF 2.5.1",
+    "pdfVersion": "1.3",
+    "encrypted": false,
+    "tagged": false,
+    "outlinePresent": false
+  },
+  "semanticSource": {
+    "directoryName": "69C_UAT_RC_26-07-17_semantic_no_pages",
+    "schema": "uat_semantic_no_pages_v1",
+    "streamSchema": "uat_semantic_stream_no_pages_v1",
+    "pageFieldsRemoved": true,
+    "rootFiles": [
+      {
+        "path": "document_semantic_no_pages.json",
+        "byteLength": 935646,
+        "sha256": "90bc4798755f093ab2cfc912b225d74ddbf6a0e558c183ecaad15cad7bf4b846"
+      },
+      {
+        "path": "semantic_stream_no_pages.json",
+        "byteLength": 2376129,
+        "sha256": "e0b683955b5bd7a66d9686c3e1e3b51ea429b36ec3acb8b2f11a369ef385c7ca"
+      },
+      {
+        "path": "summary_no_pages.json",
+        "byteLength": 377,
+        "sha256": "b06c1b87a4ac70f8f27d28fd980fb723a153c1a085b5b8c664914ab76b747263"
+      }
+    ],
+    "images": {
+      "directory": "images",
+      "fileCount": 149,
+      "totalByteLength": 21033151,
+      "totalPixelCount": 65129970,
+      "canonicalization": "sorted-path-tab-byte-length-tab-width-x-height-tab-sha256-lf-v1",
+      "canonicalDigest": "66037877234f2e89b59839c82b656a04a6c69fb52afd6d943d5beed2b6b904a5"
+    },
+    "totalByteLength": 24345303
+  },
+  "contentFacts": {
+    "moduleCount": 3,
+    "sectionCount": 29,
+    "requirementCount": 240,
+    "screenshotCount": 149,
+    "streamRecordCount": 421,
+    "requirementIdFirst": "REQ0001",
+    "requirementIdLast": "REQ0240",
+    "requirementIdsContinuous": true,
+    "requirementIdsUnique": true,
+    "screenshotIdsUnique": true,
+    "streamOrderContinuous": true,
+    "imageReferencesComplete": true,
+    "imageMetadataMatchesFiles": true,
+    "orphanImageCount": 0,
+    "duplicateImageDigestGroupCount": 0,
+    "pdfRequirementIdCoverageCount": 240,
+    "pdfExactNormalizedFeatureTextMatchCount": 160,
+    "pdfNormalizedFeaturePrefixMatchCount": 186
+  },
+  "firstSlice": {
+    "sectionNumber": "2.1",
+    "title": "ทะเบียนข้อมูลหอผู้ป่วย",
+    "requirementIdFirst": "REQ0137",
+    "requirementIdLast": "REQ0146",
+    "requirementCount": 10,
+    "featureTextCharacterCount": 4833,
+    "screenshotCount": 7,
+    "screenshotByteLength": 1117389,
+    "screenshotPixelCount": 3494022,
+    "screenshotCanonicalDigest": "dd7f125503a7002c184ae74c9fe517ac5d563e294eb0f99e1df7676d328db443",
+    "sourcePdfPageStart": 121,
+    "sourcePdfPageEndInclusive": 129,
+    "pdfExactNormalizedFeatureTextMatchCount": 6,
+    "allRequirementsLinkEverySectionScreenshot": true
+  },
+  "knownLimitations": {
+    "pageGeometryAvailable": false,
+    "authoredPaginationAvailable": false,
+    "tableCellGeometryAvailable": false,
+    "screenshotPlacementAvailable": false,
+    "screenshotRequirementBindingGranularity": "section-all-to-all",
+    "screenshotConfidence": "medium",
+    "pdfRole": "read-only-content-and-visual-oracle",
+    "semanticSourceRole": "ordered-semantic-input-not-layout-source"
+  },
+  "retention": {
+    "pdfBytesRetainedInRepository": false,
+    "semanticBytesRetainedInRepository": false,
+    "imageBytesRetainedInRepository": false,
+    "sourcePathsRetainedInRepository": false,
+    "externalSourceVerificationRequiredBeforeImport": true
+  },
+  "contracts": {
+    "packageSchemaChanged": false,
+    "documentSchemaChanged": false,
+    "importAdapterImplemented": false,
+    "structureDefinitionImplemented": false,
+    "rendererExecuted": false,
+    "artifactProduced": false,
+    "backendRouteMounted": false,
+    "productionBinding": false
+  },
+  "sourceBundleFingerprint": "sha256:46fac437de79e9b5b044345ca97433535245bf53b1764d5df4b01e25279096eb",
+  "nextPhase": "PDF-EXPORT-REALDOC-B UAT Structure Definition and section 2.1 source adapter"
+}

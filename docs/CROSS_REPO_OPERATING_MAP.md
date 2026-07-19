@@ -758,8 +758,8 @@ For broad work or cross-repo handoff, include:
 
 ## Near-Term Work Queue
 
-1. Extend the accepted LOCAL-A through LOCAL-G PDF runtime to one trusted
-   product-readable document revision with a complete measured draw contract,
+1. Continue the accepted REALDOC-A 69C source baseline through a source-neutral
+   UAT Structure Definition, section 2.1 adapter, measured contract,
    digest-bound resources, and eligible Editor lifecycle. Keep production
    provider selection, default route mounting, deployment, and activation
    blocked behind a separate later review.

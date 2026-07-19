@@ -11483,3 +11483,34 @@ local work is a trusted measured/resource resolver for one product-readable
 document revision and an eligible Editor lifecycle without canonical fixture
 substitution. Production provider selection remains a separate deferred
 review.
+
+## PDF-EXPORT-REALDOC-A 69C External Source Baseline
+
+Status: accepted for source identity and first-slice planning only. Rendering,
+product eligibility, hosted providers, and production remain closed.
+
+The external 69C User Acceptance Record is retained as the first
+product-readable target after LOCAL-G. A small JSON-safe manifest pins the
+200-page PDF, three page-free semantic roots, and a canonical digest over all
+149 PNG files without committing source bytes or user-specific absolute paths.
+The combined source bundle fingerprint is
+`sha256:46fac437de79e9b5b044345ca97433535245bf53b1764d5df4b01e25279096eb`.
+
+The accepted semantic facts are 3 modules, 29 sections, 240 continuous unique
+requirement ids, 149 unique screenshot ids, and 421 ordered stream records.
+Section 2.1 is selected as the first bounded slice with 10 requirements, 7
+screenshots, 3,494,022 source pixels, and source PDF pages 121 through 129.
+Missing page geometry, table geometry, and exact screenshot placement remain
+explicit; the PDF is a read-only content/visual oracle rather than a layout
+source.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_69C_SOURCE_BASELINE.md`;
+- `docs/PDF_EXPORT_REAL_DOCUMENT_ROADMAP.md`;
+- `fixtures/pdf-export-realdoc-69c-source-baseline.v1.json`;
+- `scripts/verify-uat-69c-source-baseline.mjs`; and
+- `tests/pdfExportRealdoc69cSourceBaseline.test.ts`.
+
+Next phase: `PDF-EXPORT-REALDOC-B` UAT Structure Definition and section 2.1
+source adapter. Production remains NO-GO.
