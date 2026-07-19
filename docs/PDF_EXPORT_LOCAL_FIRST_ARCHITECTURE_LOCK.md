@@ -432,6 +432,15 @@ validator used by direct input, with content-free diagnostics. No Backend
 route, materialization, artifact, Editor UI, provider, or production binding is
 activated.
 
+REALDOC-E.3 now accepts a separate optional loopback-only Backend admission
+route. It owns strict request bounds, credential-derived scope, exact Structure
+authorization, deterministic revision-0 instance identity, trusted mapper
+selection, actual asset-byte verification, protected canonical records, and
+idempotent content-free receipts. The existing PDF routes, local command,
+default application server, worker, artifact lifecycle, Editor UI, hosted
+providers, and production binding remain unchanged. E.4 must connect an
+admitted 69C record to materialization and the local artifact lifecycle.
+
 ## Local Readiness Exit Gate (Accepted)
 
 `LOCAL-G` closes because retained evidence proves:

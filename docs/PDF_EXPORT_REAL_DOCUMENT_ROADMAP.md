@@ -133,6 +133,25 @@ canonical snapshot equality and fingerprint parity through
 `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. Materialization, resolution,
 Backend routes, Editor UI, artifacts, and production remain inactive.
 
+### REALDOC-E.3 Bounded Local Backend DocGen Admission (Accepted)
+
+Add one optional loopback-only Backend route for an exact Published Structure
+Version plus direct canonical data or adapted UTF-8 JSON. Require credential-
+derived scope, per-Structure authorization, a bounded idempotency key, a
+trusted generation data contract, and an allowlisted exact mapper identity.
+
+Backend creates the revision-0 instance and deterministic snapshot identities.
+The HTTP body is capped at 2 MiB and adapted payload text at 1 MiB of UTF-8.
+Trusted local asset bytes must match exact length and SHA-256 before Core E.2;
+mapped media must then equal the admitted asset registry.
+
+Exit: strict direct/adapted requests produce content-free public receipts and
+protected in-memory canonical records with exact idempotency replay. The route
+is absent unless explicitly mounted, existing local PDF routes stay unchanged,
+and no materialization, worker, artifact, Editor UI, or production activation
+occurs. Backend evidence is retained in
+`../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DOCGEN_HANDOFF.md`.
+
 ### REALDOC-E DocGen Pre-Test And Local API Workflow
 
 Define the published-Structure generation input and mapping-profile contract.
@@ -146,9 +165,9 @@ preview, export, cancel, retry, and verified download as an Editor pre-test
 surface. Imported business values remain separate from the authored Structure
 Definition and the browser does not become a second resolver.
 
-E.1 generation input/mapping identity and E.2 runtime mapping/validation parity
-are accepted. Remaining subphases are E.3 Backend local admission, E.4 artifact
-lifecycle, E.5 Editor pre-test, and E.6 cross-repo acceptance.
+E.1 generation input/mapping identity, E.2 runtime mapping/validation parity,
+and E.3 bounded Backend local admission are accepted. Remaining subphases are
+E.4 artifact lifecycle, E.5 Editor pre-test, and E.6 cross-repo acceptance.
 
 Exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

@@ -11774,3 +11774,39 @@ Primary evidence:
 Next phase: `PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission with
 exact Structure, data-contract, instance, payload/snapshot, mapper, and asset
 pins. Production remains NO-GO.
+
+## PDF-EXPORT-REALDOC-E.3 Bounded Local Backend DocGen Admission
+
+Status: accepted optional loopback local admission without downstream artifact
+execution or production activation. Backend exposes a strict
+`POST /docgen-local/admissions` handler only when explicitly configured on the
+existing local server. The default server and current local command do not
+mount it.
+
+The route requires authentication, exact-Structure authorization, JSON content
+type, and a bounded idempotency key. Its 2 MiB envelope accepts one exact
+Published Structure Version plus direct canonical data/collections or an
+allowlisted mapping-profile identity and at most 1 MiB of adapted UTF-8 JSON.
+Backend creates the deterministic revision-0 instance and snapshot ids; caller
+identity, mapper code, layout, renderer, provider, and artifact fields are
+strictly rejected.
+
+Trusted local asset bytes are verified by exact length and SHA-256 before Core
+E.2. Canonical mapped media must equal that admitted registry. Successful
+canonical data remains only in a protected in-memory record, while the public
+receipt carries content-free identities, fingerprints, counts, and diagnostics.
+Exact replay does not rerun mapping; a changed payload under the same scoped
+key conflicts.
+
+Primary evidence:
+
+- `../flowdoc-vnext-backend/src/docgen/docGenLocalAdmission.ts`;
+- `../flowdoc-vnext-backend/src/docgen/docGenLocalHttpHandler.ts`;
+- `../flowdoc-vnext-backend/src/tests/docGenLocalAdmission.test.ts`;
+- `../flowdoc-vnext-backend/src/tests/docGenLocalHttpHandler.test.ts`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DOCGEN_HANDOFF.md`; and
+- `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.4` admitted 69C materialization, resolution,
+and existing local worker/artifact lifecycle binding. Production remains
+NO-GO.

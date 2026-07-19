@@ -137,3 +137,10 @@ remain unchanged.
 snapshot object/fingerprint after exact payload/mapper verification and shared
 validation. The output stops at `materialization`; no measured handoff,
 renderer, bytes, operation, or artifact identity changes.
+
+`PDF-EXPORT-REALDOC-E.3` now places an optional bounded loopback Backend
+admission before that `materialization` boundary. Backend owns the revision-0
+instance, trusted Structure/data contract and mapper lookup, idempotency, exact
+asset-byte checks, protected canonical record, and content-free public receipt.
+No 69C request is connected to this measured handoff, renderer, bytes,
+operation, or artifact lifecycle until E.4.

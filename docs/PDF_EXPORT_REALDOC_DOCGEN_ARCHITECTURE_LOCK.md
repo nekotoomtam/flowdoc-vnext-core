@@ -1,7 +1,8 @@
 # PDF Export REALDOC DocGen Architecture Lock
 
-Status: `PDF-EXPORT-REALDOC-E.0` architecture realignment accepted after
-REALDOC-D.1. Production remains NO-GO.
+Status: `PDF-EXPORT-REALDOC-E.0` architecture realignment retained through the
+accepted E.1 generation input, E.2 Core runtime, and E.3 bounded local Backend
+admission. Production remains NO-GO.
 
 ## Decision
 
@@ -175,6 +176,7 @@ The accepted REALDOC evidence already follows this boundary:
    diagnostics and proves pre-test/API parity before rendering.
 4. `REALDOC-E.3` admits the bounded local DocGen request in Backend and pins
    Structure, payload, Data Snapshot, instance, mapping, and asset identities.
+   Accepted.
 5. `REALDOC-E.4` connects the admitted 69C generation to the existing local
    worker, cancellation, persistence, status, retry, and verified download.
 6. `REALDOC-E.5` adds the Editor pre-test surface without making imported values
@@ -233,7 +235,8 @@ deferred. Production remains NO-GO.
 
 ## UNKNOWN
 
-- Final mapping DSL versus adapter registry boundary.
+- Final mapping DSL versus additional adapters beyond the accepted trusted
+  registry boundary.
 - Whether local pre-test uses a temporary or retained generation instance.
 - Exact published Structure storage and lookup API.
 - Final source of asset bytes for external API calls.
@@ -243,10 +246,9 @@ deferred. Production remains NO-GO.
 ## Next Phase
 
 E.1 now accepts the pure Published Structure generation input and mapping
-identity contract in
-`docs/PDF_EXPORT_REALDOC_PUBLISHED_STRUCTURE_GENERATION_INPUT.md`. E.2 now
-accepts exact payload/mapper execution, shared runtime validation,
-content-free diagnostics, and direct/adapted canonical parity in
-`docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. Next phase:
-`PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission. Production
-remains NO-GO.
+identity contract. E.2 now accepts exact payload/mapper execution and shared runtime
+validation in `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`. E.3 now accepts
+the optional bounded local Backend route, trusted registries, Backend-owned
+instance, protected canonical record, and content-free replay receipt. Next
+phase: `PDF-EXPORT-REALDOC-E.4` admitted 69C materialization and local
+artifact-lifecycle binding. Production remains NO-GO.

@@ -178,3 +178,10 @@ payload/mapper identity and returns validated canonical snapshots plus
 content-free diagnostics. The result performs no Backend admission,
 materialization, resolution, renderer, persistence, artifact, provider, or
 production action and changes no production blocker.
+
+`PDF-EXPORT-REALDOC-E.3` adds only an optional loopback local Backend admission
+around that Core runtime. Its registries and protected canonical repository are
+in-memory, its current local command does not mount the route, and it performs
+no materialization, worker, renderer, persistence, or artifact action. It
+selects no hosted provider or production identity/deployment policy and changes
+no production blocker or NO-GO decision.

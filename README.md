@@ -1084,6 +1084,12 @@ The package must remain runnable without any parent editor checkout.
   diagnostics, typed collection defaults, and UAT parity are accepted while
   Backend routes, materialization, artifacts, Editor UI, and production remain
   inactive.
+- PDF export REALDOC-E.3 adds an optional bounded loopback Backend admission.
+  Backend owns exact Structure authorization, a deterministic revision-0
+  instance, trusted mapper/asset-byte admission, protected canonical records,
+  and content-free idempotent receipts. Materialization, worker/artifact
+  execution, Editor UI, default route activation, and production remain
+  inactive.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

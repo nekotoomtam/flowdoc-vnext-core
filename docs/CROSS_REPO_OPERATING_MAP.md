@@ -126,6 +126,12 @@ editor intent
   the same canonical fingerprint; diagnostics remain content-free. Backend
   routes and Editor UI remain unchanged:
   `docs/PDF_EXPORT_REALDOC_GENERATION_RUNTIME.md`.
+- PDF export REALDOC-E.3 wraps that boundary in an optional loopback-only
+  Backend admission. Backend owns bounded strict requests, exact Structure
+  authorization, deterministic instance identity, allowlisted mapping,
+  verified asset bytes, protected canonical records, and content-free replay
+  receipts. E.4 still owns materialization and artifact-lifecycle binding:
+  `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DOCGEN_HANDOFF.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

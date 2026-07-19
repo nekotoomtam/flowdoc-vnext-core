@@ -150,6 +150,25 @@ Tests cover:
 - unsupported published-image defaults; and
 - generic plus UAT direct/adapted canonical parity.
 
+## Backend E.3 Handoff Evidence
+
+Backend now wraps this runtime with an explicitly mounted loopback-only
+`POST /docgen-local/admissions` boundary. The strict request admits an exact
+Published Structure Version, direct data/collections or one allowlisted
+mapping-profile identity, and a digest-bound asset registry. Backend creates
+the revision-0 instance and snapshot identities; callers cannot provide mapper
+code, tenant/principal, layout, renderer, or artifact facts.
+
+The local HTTP body is bounded to 2 MiB and adapted JSON to 1 MiB of UTF-8.
+Trusted local asset bytes are checked for exact byte length and SHA-256 before
+this Core runtime executes. Ready canonical snapshots live only in a protected
+in-memory Backend record. Public receipts retain identities, fingerprints,
+counts, and these content-free diagnostics, not raw payload or business values.
+
+E.3 does not change this Core contract. It stops at the same `materialization`
+boundary and does not connect a 69C request to resolution, worker execution,
+PDF bytes, storage, status, or download. That binding remains E.4.
+
 ## Explicitly Not Changed
 
 - E.1 data-contract, mapping-profile, request, and planning semantics;
@@ -190,6 +209,6 @@ Tests cover:
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission with exact
-Structure, data-contract, instance, payload/snapshot, mapper, and asset pins.
+`PDF-EXPORT-REALDOC-E.4` binds one Backend-admitted 69C canonical record to
+materialization, resolution, and the existing local artifact lifecycle.
 Production remains NO-GO.

@@ -65,6 +65,7 @@ describe("PDF-EXPORT-REALDOC-E.0 DocGen architecture lock", () => {
     const map = readText("../docs/CROSS_REPO_OPERATING_MAP.md")
 
     expect(roadmap).toContain("### REALDOC-E.0 DocGen Architecture Realignment (Accepted)")
+    expect(roadmap).toContain("### REALDOC-E.3 Bounded Local Backend DocGen Admission (Accepted)")
     expect(roadmap).toContain("### REALDOC-E DocGen Pre-Test And Local API Workflow")
     expect(localLock).toContain("REALDOC-E.0 now realigns")
     expect(handoff).toContain("`PDF-EXPORT-REALDOC-E.0` realigns")
@@ -75,6 +76,8 @@ describe("PDF-EXPORT-REALDOC-E.0 DocGen architecture lock", () => {
     expect(readme).toContain("PDF export REALDOC-E.0 realigns")
     expect(ledger).toContain("## PDF-EXPORT-REALDOC-E.0 DocGen Architecture Realignment")
     expect(map).toContain("PDF export REALDOC-E.0 reconnects")
+    expect(map).toContain("PDF export REALDOC-E.3 wraps that boundary")
+    expect(ledger).toContain("## PDF-EXPORT-REALDOC-E.3 Bounded Local Backend DocGen Admission")
     expect(docRuntimeClaims(roadmap)).toEqual([])
   })
 })
