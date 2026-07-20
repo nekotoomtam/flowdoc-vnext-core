@@ -181,6 +181,10 @@ editor intent
   compatibility bridge reuses shared mapping/validation and artifact
   lifecycle. Draft receipts deny Published/API parity and the 10-page 69C
   slice passes: `docs/PDF_EXPORT_REALDOC_DRAFT_PREVIEW.md`.
+- PDF export REALDOC-E.5.8 accepts complete local Preview lifecycle recovery,
+  content-free diagnostic navigation, and bounded large-JSON interaction over
+  the existing Core identity and generation contracts. Form/API parity remains
+  E.5.9: `docs/PDF_EXPORT_REALDOC_PREVIEW_LIFECYCLE_UX.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

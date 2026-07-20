@@ -12127,3 +12127,37 @@ Primary evidence: `docs/PDF_EXPORT_REALDOC_DRAFT_PREVIEW.md` and
 `../flowdoc-vnext-backend/src/tests/fixtures/pdf-export-realdoc-e57-evidence.v1.json`.
 
 Next phase: `PDF-EXPORT-REALDOC-E.5.8` lifecycle and large-input UX hardening.
+
+## PDF-EXPORT-REALDOC-E.5.8 Preview Lifecycle UX
+
+Status: accepted for local development. Production remains NO-GO.
+
+Editor now projects loading, admission, operation, status, cancellation,
+terminal, retry, stale, and download states over the existing Backend
+lifecycle for both Draft and Published Preview. Uncertain stage retries retain
+their admission, export, or cancel idempotency key; terminal retry creates a
+new intent. Status is accepted only for the admitted instance id/revision.
+
+Payloads at or above 256 KiB default to a bounded summary instead of a live
+controlled textarea. Explicit large-payload editing applies one state update
+and diagnostic pass. The existing 1 MiB ceiling remains unchanged.
+
+The 749,929-byte 69C browser run accepted pending cancellation, retry after
+cancellation, Backend-unavailable failure and recovery, three-item diagnostic
+navigation, responsive desktop/mobile UI, and a verified 10-page,
+1,417,544-byte PDF response. The optional real-document Backend harness adds a
+10-second dispatch window before its same-process renderer starts; default and
+production schedulers are unchanged.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_PREVIEW_LIFECYCLE_UX.md`;
+- `../flowdoc-vnext-editor/docs/REALDOC_PREVIEW_LIFECYCLE_UX.md`; and
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_PREVIEW_LIFECYCLE_UX.md`.
+
+No Core runtime schema changed. Form/API parity remains E.5.9, cross-repo
+restart and lifecycle acceptance remains E.6, Module 2 remains REALDOC-F, and
+the complete 200-page run remains REALDOC-G. The pre-existing SQLite scale
+result was not changed or rerun for acceptance.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.9` Form/API canonical parity.

@@ -240,3 +240,10 @@ lifecycle. Draft receipts explicitly deny Published/API parity, mapped values
 remain protected, the registry remains process-local, and no arbitrary live
 draft compiler, default mount, provider, deployment, or production activation
 is added.
+
+`PDF-EXPORT-REALDOC-E.5.8` completes local Preview lifecycle and large-input UX
+over the existing Backend contracts. It adds no Core runtime schema or
+generation behavior. A local real-document dispatch window makes pending
+cancellation observable without changing the default or production scheduler.
+The 1 MiB input limit, protected value boundary, 200-page deferral, and
+production NO-GO decision remain unchanged.

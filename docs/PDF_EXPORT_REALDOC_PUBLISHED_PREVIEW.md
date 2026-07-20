@@ -94,6 +94,6 @@ run; that remains `PDF-EXPORT-REALDOC-G`.
 ## Next Phase
 
 `PDF-EXPORT-REALDOC-E.5.7` now accepts Draft Preview with an immutable local
-identity that cannot masquerade as a Published Structure Version. E.5.8 next
-completes lifecycle UX and performance hardening; E.5.9 owns Form/API parity.
+identity that cannot masquerade as a Published Structure Version. E.5.8 now
+accepts lifecycle UX and bounded large-input hardening; E.5.9 owns Form/API parity.
 Production remains NO-GO.

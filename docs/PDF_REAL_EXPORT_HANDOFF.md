@@ -172,4 +172,6 @@ in Backend, and accepts the exact 10-page 69C artifact.
 `PDF-EXPORT-REALDOC-E.5.7` now adds a separate immutable Draft snapshot and
 admission before reusing shared generation validation and artifact execution.
 Draft remains local-only, content-free, and explicitly not Published/API-parity
-evidence. E.5.8 next owns complete lifecycle and large-input UX.
+evidence. `PDF-EXPORT-REALDOC-E.5.8` now accepts complete local lifecycle,
+diagnostic-navigation, and bounded large-input UX without changing Core
+generation contracts. E.5.9 next owns Form/API canonical parity.

@@ -76,6 +76,6 @@ claim.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.8` completes loading, failure, cancellation, retry,
-diagnostic navigation, large-input performance, and download lifecycle UX.
-E.5.9 owns Form/API parity evidence. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.8` now accepts loading, failure, cancellation, retry,
+diagnostic navigation, bounded large-input interaction, and download lifecycle
+UX. E.5.9 next owns Form/API parity evidence. Production remains NO-GO.
