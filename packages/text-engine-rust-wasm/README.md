@@ -2,6 +2,9 @@
 
 Status: Measurement hardening close audit source package.
 
+Current addendum: the package also owns a QA-only LIVE-DRAFT-XR-1
+Node/Browser Worker runtime smoke in a separate crate and artifact path.
+
 This package is the future external text engine adapter boundary for
 rustybuzz/WASM and ICU4X work. Phase 113 added a package-local Rust smoke
 crate that executes rustybuzz against copied vNext font assets. Phase 114 adds
@@ -81,6 +84,14 @@ these package-local summaries as source evidence, decides the minimal subset is
 enough for a mini infrastructure checkpoint only, and keeps full measurement
 production readiness plus default-measurer replacement blocked.
 
+LIVE-DRAFT-XR-1 later audits those historical summaries and preserves their
+readiness-marker artifact unchanged. It adds a separately pinned executable
+artifact at `pkg-live-draft/flowdoc_text_engine_bg.wasm`, runtime-specific
+`./node` and `./worker` entry points, and real Rustybuzz plus ICU4X execution
+for two bounded smoke rows. The Browser Worker evidence is retained by
+`flowdoc-vnext-editor`; it does not revise the historical summary manifest and
+does not claim general measurement parity.
+
 The PDF canonical report R2C-D pilot reuses the package-local native smoke
 binary as a non-production run-level shaping executor. It validates IBM Plex
 font hashes, maps raw UTF-8 clusters through the public raw-evidence mapper,
@@ -136,17 +147,21 @@ Allowed:
   subset through package-local JSON-safe source summaries;
 - support the measurement hardening close audit as package-local source
   evidence without adding raw native/WASM/renderer output to root docs/tests;
+- expose QA-only runtime-specific Node and Browser Worker entry points;
+- execute Rustybuzz 0.20.1 and ICU4X Segmenter 2.2.0 in the separately pinned
+  `pkg-live-draft` Browser Worker artifact;
+- keep the historical `pkg` readiness-marker artifact and digest unchanged;
 - remain external to `src/**` core.
 
 Blocked:
 
 - production TypeScript adapter binding to rustybuzz output;
-- ICU4X dependency;
-- WASM artifact loading until its dedicated gate;
+- ICU4X dependency in the historical `rust-shaper` WASM target;
+- historical `pkg` WASM artifact loading as a shaping engine;
 - raw native evidence in root docs/tests;
 - raw WASM evidence in root docs/tests;
 - raw renderer evidence in root docs/tests;
 - production measurement binding until its dedicated gate;
 - core font-file reads;
-- production measurement binding;
+- Form-to-worker binding and production measurement binding;
 - pagination measurer replacement.

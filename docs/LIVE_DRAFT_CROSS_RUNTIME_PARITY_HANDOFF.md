@@ -473,6 +473,46 @@ and parity evidence, update the handoff with PASS/FAIL/RISK/UNKNOWN, then commit
 and push each changed repository to main.
 ```
 
+## LIVE-DRAFT-XR-0 / XR-1 Execution Result
+
+Status: accepted for the bounded two-row runtime smoke on 2026-07-20.
+
+The implementation audit corrected an important ambiguity in the earlier
+baseline. The historical pinned artifact at
+`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` is a real
+WASM file with the accepted digest, but it exports readiness and boundary
+identity only. The older native/WASM "parity" summaries are summary metadata;
+they are not retained raw Browser Worker execution.
+
+XR-1 therefore preserves that historical marker artifact and adds a separate
+QA-only executable artifact under
+`packages/text-engine-rust-wasm/pkg-live-draft/`. Its pinned sha256 is
+`60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85`.
+The package now separates `./node`, `./worker`, `./browser-assets`, and
+`./live-draft-smoke` entry points. Core still does not import the adapter.
+
+The Editor QA runner starts Chrome, opens a dedicated Browser Worker, transfers
+the pinned WASM and Sarabun bytes, verifies both digests before execution, and
+runs Rustybuzz 0.20.1 plus ICU4X Segmenter 2.2.0. It compares normalized output
+against Node-native execution for:
+
+- `thai-greeting-no-space` / `สวัสดีครับตูม`;
+- `product-report-vnext-minimal` / `Prepared summary`.
+
+Both rows match in glyph facts, advances, clusters, UTF-8 break offsets, and
+UTF-16 break offsets. Retained evidence lives at
+`flowdoc-vnext-editor/src/fixtures/live-draft-xr1-browser-worker-smoke.v1.json`.
+The evidence retains the older accepted manifest/profile pointer as source-row
+identity, but executes under a new QA profile that names the concrete
+Rustybuzz/ICU4X revisions. It does not mislabel the historical profile's
+`planned` engine ingredients as executed runtime facts.
+
+This accepts XR-0/XR-1 only. It does not bind Form state, produce Draft pages,
+replace the default measurer, activate production measurement, or establish
+general cross-runtime exactness. The next implementation slice is XR-2, one
+text block through the same injected Core layout/pagination boundary in Node
+and Worker.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -482,12 +522,21 @@ and push each changed repository to main.
 - An external text-engine package, runtime identity, renderer-backed provider,
   pinned WASM digest, and minimal evidence checkpoint exist.
 - Backend exact PDF generation and Editor PDF inspection exist for local QA.
+- The historical marker artifact and the executable XR-1 artifact have
+  separate, verified digest identities.
+- Node-native and real Browser Worker Rustybuzz/ICU4X execution matches for the
+  two bounded accepted smoke rows.
+- Editor retains the placeholder baseline, worker protocol, identity pins,
+  stale-result comparison, and Browser Worker smoke evidence without Form
+  binding.
 
 ### FAIL-BLOCKER
 
 - Editor has no real Live Draft text/layout execution yet.
 - Full cross-runtime measurement parity is not accepted.
 - Default pagination measurement replacement remains blocked.
+- No text block has passed the shared Core layout/pagination boundary in both
+  runtimes yet; XR-2 remains the next blocker.
 
 ### RISK
 
@@ -495,10 +544,11 @@ and push each changed repository to main.
 - A visually convincing DOM preview could be mistaken for exact pagination.
 - Large-document reflow can overwhelm the browser without worker chunking and
   invalidation.
+- The executable ICU4X/Rustybuzz WASM is about 1.06 MB before transport-level
+  compression; initialization and caching budgets need broader evidence.
 
 ### UNKNOWN
 
-- Browser Worker bundling compatibility of the current adapter entry point.
 - Measured Node/Browser parity beyond the two accepted rows.
 - Final performance budgets for small and 200-page documents.
 - Final drift reconciliation UX between Live Draft and Published output.
