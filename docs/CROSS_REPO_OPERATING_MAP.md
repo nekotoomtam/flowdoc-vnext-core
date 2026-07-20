@@ -193,14 +193,17 @@ editor intent
 - PDF export REALDOC-E.6.1 accepts optional durable protected admission. A
   second independent Backend process replays the same receipt and Document
   Instance from SQLite without mapping raw JSON again; rollback, uncertain
-  commit, corruption, and content-free Editor durability facts pass. Durable
-  operation/artifact restart remains E.6.2 and Editor reconnect remains E.6.3:
+  commit, corruption, and content-free Editor durability facts pass:
   `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`.
 - PDF export REALDOC-E.6.2 accepts the optional complete durable local Backend
   repository bundle and repairs after-render recovery at the retained
   `before-persist` checkpoint. Four-process generic evidence and the exact
-  10-page 69C reopen/recovery/download pass. Automatic startup discovery and
-  Editor reconnect remain E.6.3:
+  10-page 69C reopen/recovery/download pass:
+  `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`.
+- PDF export REALDOC-E.6.3 accepts explicit known-operation resume and strict
+  content-free Editor reconnect. Reload target restoration, scoped status,
+  uncertain cancel replay, stale-result rejection, diagnostics, and verified
+  download pass while automatic startup discovery remains inactive:
   `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It

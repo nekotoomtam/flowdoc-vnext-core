@@ -12253,8 +12253,40 @@ Primary evidence:
 - `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DURABLE_LIFECYCLE.md`; and
 - `../flowdoc-vnext-backend/src/tests/fixtures/pdf-export-realdoc-e62-durable-lifecycle-evidence.v1.json`.
 
-Automatic startup discovery, default mounting, and Editor reconnect remain
-closed. SQLite scale was not changed or rerun. REALDOC-F Module 2 and REALDOC-G
-200 pages remain deferred.
+At the E.6.2 checkpoint automatic startup discovery, default mounting, and
+Editor reconnect remained closed. SQLite scale was not changed or rerun.
+REALDOC-F Module 2 and REALDOC-G 200 pages remain deferred.
 
 Next phase: `PDF-EXPORT-REALDOC-E.6.3` durable runtime and Editor reconnect.
+
+## PDF-EXPORT-REALDOC-E.6.3 Editor Reconnect And Failure Acceptance
+
+Status: accepted for local development. Complete REALDOC-E.6 is accepted for
+the optional local profile. Production remains NO-GO.
+
+Backend now provides an optional loopback runtime over the durable composition.
+It schedules a known operation only when created or exactly replayed by its
+scoped caller key; startup discovery and default mounting remain false. Four
+durable opens prove pending restart, exact request replay, completion and
+verified download, scoped concealment, pending cancellation, and idempotent
+cancel reconciliation with zero dispatch failures.
+
+Editor retains only strict context pins, an exact Core-owned input content
+fingerprint, sanitized durable receipt, known operation id, and
+admission/export/cancel keys in session storage. It restores the latest Draft
+or Published target, displays reconnect activity, restores diagnostics, and
+withholds artifact/download when current memory-only Form/JSON content does not
+match. Browser QA passes with the 749,929-byte 69C JSON, a 10-page,
+1,417,544-byte download, reload stale rejection, desktop layout, and 390 x 844
+layout.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DURABLE_LIFECYCLE.md`;
+- `../flowdoc-vnext-backend/src/tests/fixtures/pdf-export-realdoc-e63-reconnect-evidence.v1.json`; and
+- `../flowdoc-vnext-editor/docs/REALDOC_CROSS_REPO_LIFECYCLE.md`.
+
+SQLite scheduler optimization and a new 240-page measurement were not added.
+REALDOC-F Module 2 and REALDOC-G 200 pages remain deferred. Production remains
+NO-GO.

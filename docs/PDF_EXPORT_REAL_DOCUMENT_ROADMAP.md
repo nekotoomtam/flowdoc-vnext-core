@@ -311,14 +311,16 @@ terminal verification. The 69C adapted lane reopens four times, recovers from
 `before-persist`, and returns an exact verified 10-page download. Startup work
 discovery remains explicit rather than automatic.
 
-#### REALDOC-E.6.3 Editor Reconnect And Failure Acceptance
+#### REALDOC-E.6.3 Editor Reconnect And Failure Acceptance (Accepted)
 
-Prove reload/reconnect, scoped status recovery, uncertain cancellation and
-retry reconciliation, stale-result rejection, diagnostics, and download
-through the durable Backend composition.
+The optional explicit-resume Backend runtime and strict content-free Editor
+session record now prove reload/reconnect, scoped status recovery, uncertain
+cancellation and retry reconciliation, stale-result rejection, diagnostics,
+target restoration, and verified download through the durable composition.
 
-Exit: E.6 is accepted only when E.6.3 passes. E.6.1/E.6.2 do not yet claim
-Editor reload/reconnect acceptance.
+Exit: complete E.6 is accepted for the optional local-development profile.
+Automatic startup discovery, default mounting, scale work, and production
+remain inactive.
 
 ### REALDOC-F Module 2 Scale
 

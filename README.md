@@ -1118,8 +1118,13 @@ The package must remain runnable without any parent editor checkout.
   reconnect, scale work, and production remain pending.
 - PDF export REALDOC-E.6.2 adds the optional complete durable local Backend
   bundle. Four-process generic recovery plus exact 10-page 69C recovery after
-  render pass with metadata-verified download; automatic startup discovery,
-  Editor reconnect, scale work, and production remain pending.
+  render pass with metadata-verified download. At that checkpoint, automatic
+  startup discovery, Editor reconnect, scale work, and production were pending.
+- PDF export REALDOC-E.6.3 adds explicit known-operation resume plus strict
+  content-free Editor reconnect. Reload target restoration, status and
+  diagnostics recovery, uncertain cancel replay, stale-result rejection, and
+  verified 10-page download pass. Complete E.6 is accepted locally while
+  automatic startup discovery, scale work, and production remain inactive.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

@@ -1,130 +1,118 @@
 # PDF Export REALDOC Cross-Repo Lifecycle Acceptance
 
-Status: `PDF-EXPORT-REALDOC-E.6.2` accepted for local development.
-`E.6.3` remains pending. Production remains NO-GO.
+Status: `PDF-EXPORT-REALDOC-E.6.3` accepted for local development. Complete
+REALDOC-E.6 is accepted for the optional local profile. Production remains
+NO-GO.
 
 ## Decision
 
-The first E.6 boundary makes the protected Backend DocGen admission durable
-without changing Core generation semantics or moving business data into
-Editor. An adapted request is mapped and validated once, then only its strict
-canonical record is persisted. A later Backend process can replay the same
-admission receipt and Document Instance identity without rerunning the mapper
-or retaining the raw JSON payload.
+The 69C pre-test can now survive Backend repository reopen and browser reload
+without changing the DocGen ownership model. Core remains the owner of exact
+generation identity and content fingerprint semantics, Backend remains the
+durable source of truth, and Editor retains only a strict content-free session
+record needed to reconnect a known attempt.
 
-E.6.2 composes that admission with durable operation, lifecycle, artifact
-projection, observability, and content-addressed PDF bytes. Editor reconnect
-remains the final E.6 subphase.
+No Form values, JSON payload text, canonical business data, or PDF bytes move
+into browser persistence.
 
 ## Identity Chain
 
-The retained identity chain is:
-
 ```text
-tenant + principal + caller idempotency key + strict request fingerprint
-  -> admission id
+authoring document + strict preview context + Published/Draft structure pins
+  + exact Form or JSON/profile content fingerprint
+  -> protected admission receipt
   -> backend-owned Document Instance id/revision
-  -> canonical input/content fingerprints
-  -> protected admission record fingerprint
+  + scoped export idempotency key
+  -> durable PDF operation/lifecycle
+  -> verified artifact metadata + content-addressed PDF bytes
 ```
 
-The SQLite repository does not allocate a second identity. It stores and
-verifies the identity produced by the existing admission service. A replay
-returns the original receipt fingerprint and instance id. A changed strict
-request under the same scoped caller key remains an idempotency conflict.
+Editor uses Core's compact SHA-256 fingerprint helper for exact input-content
+identity. The fingerprint detects content drift but does not replace the
+instance-bound canonical-input fingerprint, operation identity, or artifact
+identity.
 
-## Durable Admission
+## E.6.1 Durable Admission
 
-Backend now provides an optional Node SQLite repository for protected local
-admissions. It uses a strict table, unique scope/caller and instance keys, WAL,
-and `synchronous = FULL`. Reads validate the strict record schema, recompute
-record, receipt, diagnostics, canonical-input, and canonical-content
-fingerprints, and cross-check indexed columns against the protected record.
+The optional Backend SQLite repository persists the strict protected canonical
+admission. Independent-process replay returns the same sanitized receipt and
+Document Instance without mapping raw JSON again. Before-commit rollback,
+after-commit reconciliation, corruption rejection, and truthful durability
+projection pass.
 
-The receipt reports `durablePersistence: true` only when this repository owns
-the admission. The existing memory repository continues to report `false`.
-Both remain local-only and report `productionBinding: false`.
+## E.6.2 Durable Operation And Artifact
+
+The optional local composition combines durable admission, operation,
+lifecycle, observability, artifact metadata, and filesystem content-addressed
+bytes. Exact workflow replay recovers pending and retained `before-persist`
+states. Terminal reopen returns verified metadata and PDF bytes without
+rematerialization.
+
+## E.6.3 Explicit Runtime And Editor Reconnect
+
+The local runtime schedules a known operation when the caller creates or
+exactly replays it. It performs no automatic startup scan. After browser
+reload, Editor validates a strict `sessionStorage` record against the newly
+loaded context and replays the same scoped export request.
+
+The session record contains target/context pins, an input SHA-256 fingerprint,
+sanitized durable receipt, operation id, and admission/export/cancel
+idempotency keys only. A small target marker returns the workspace directly to
+the most recent Draft or Published attempt.
+
+If current Form/JSON content does not match the retained input fingerprint,
+Editor restores status, diagnostics, and page count but marks the result stale
+and withholds artifact embedding and download. Imported JSON therefore remains
+memory-only without making a recovered artifact look current.
+
+Editor persists a cancel key before sending cancellation. Replaying the exact
+request and cancel key after interruption returns the retained result instead
+of creating a second cancellation.
 
 ## Accepted Evidence
 
-- one independent Node process creates the adapted admission and maps once;
-- after that process exits, a second process opens the same SQLite file,
-  replays the same receipt and instance, and invokes the mapper zero times;
-- the protected record contains canonical values but not the raw-only payload
-  marker or raw payload text;
-- a fault before commit rolls back fully and a later retry creates once;
-- a fault after commit returns an uncertain unavailable result, then a later
-  retry safely replays the committed receipt; and
-- a modified record fails fingerprint verification and admission stops as
-  unavailable without remapping or overwriting it.
+- four durable Backend opens prove pending close, exact request replay,
+  completion, verified download, pending cancellation, and cancel replay;
+- another principal cannot observe the scoped operation;
+- all four dispatch attempts report zero failures and automatic startup
+  discovery remains false;
+- the 749,929-byte adapted 69C input validates 10 requirements and 7
+  screenshots with zero errors and three content-free warnings;
+- the artifact is exactly 10 pages and 1,417,544 bytes;
+- Editor downloads the completed artifact in the active session;
+- reload returns directly to Published, displays reconnect activity, restores
+  diagnostics/page count, and rejects the absent memory-only JSON as stale;
+  and
+- desktop and 390 x 844 Preview layouts remain coherent.
 
-Backend targeted acceptance passes 14 tests across admission, durable SQLite,
-and admitted PDF binding. Editor contract acceptance passes 13 tests and keeps
-the content-free receipt boundary while preserving the truthful durability
-fact.
-
-## Durable Lifecycle
-
-Backend now provides one optional local composition factory that opens five
-SQLite repositories plus the existing filesystem content-addressed byte store.
-It retains no in-memory repository as durable truth and deletes no durable root
-on close. Recovery uses exact workflow replay across the independent stores;
-it does not claim a cross-database atomic transaction.
-
-An after-render restart defect was found and repaired. Recovery may recognize
-that before-render already passed only when the durable lifecycle is exactly
-`claimed` at `before-persist`, the live claim token matches, and the retained
-checkpoint check matches. It then uses a revision-bound recovery check before
-persistence. Normal first-attempt behavior remains unchanged.
-
-## E.6.2 Accepted Evidence
-
-- generic create, after-render fault, completion, and terminal verification run
-  in four independent Node processes;
-- the final process reads completed status, exact idempotent replay, terminal
-  events, artifact metadata, and verified PDF bytes without materialization;
-- another principal cannot read operation, lifecycle, persistence, or terminal
-  records;
-- the 749,929-byte 69C adapted input maps once and replays after reopen with
-  zero mapper calls;
-- the 69C lifecycle reopens pending, reopens after an injected render fault at
-  `before-persist`, recovers to completion, and reopens terminal state; and
-- metadata and verified download agree on 10 pages, 1,417,544 bytes, and SHA-256
-  `5deed98f1d7b711dfba18e233b6b9d811ebeaf6e4474efd2f55f64ff08b60ac2`.
+Retained evidence contains fingerprints, counts, lifecycle facts, and artifact
+facts only. It contains no requirement text, raw JSON, screenshot captions, or
+local source paths.
 
 ## Repository Ownership
 
-- Core owns strict generation, canonical validation, content fingerprint, and
-  source-neutral identity semantics. E.6.1/E.6.2 change no Core runtime schema.
-- Backend owns the protected canonical record, SQLite transaction and
-  integrity policy, scoped operation/lifecycle/artifact replay, byte
-  verification, and the truthful durability receipt fact.
-- Editor may display or project that fact, but receives no canonical business
-  values and owns no durable admission record.
-
-## Remaining E.6
-
-`E.6.3` must prove Editor reload/reconnect, scoped status recovery, uncertain
-cancel/retry reconciliation, stale-result rejection, diagnostics, and download
-against the durable Backend composition.
-
-The local composition resumes a known exact operation identity; it does not
-automatically discover/start pending operations when a process opens. E.6.3
-must wire the local runtime and Editor to this explicit resume boundary. Only
-after E.6.3 passes may complete E.6 be marked accepted.
+- Core owns canonical validation, compact content fingerprinting, exact
+  Structure/Document Instance pins, resolution, measured composition,
+  pagination, and handoff semantics.
+- Backend owns trusted mapping/assets, protected admission, scoped durable
+  operation/lifecycle records, explicit resume, cancellation reconciliation,
+  rendering, byte verification, and artifact delivery.
+- Editor owns dynamic Form/JSON pre-test interaction, target selection,
+  content-free reconnect projection, diagnostics, stale-result UX, lifecycle
+  commands, and download initiation.
 
 ## Explicitly Not Changed
 
-- no default application-server mount or production worker activation;
-- no hosted database/object provider, tenancy policy, retention, deployment,
-  SLO, or cost decision;
+- no default application-server mount or automatic worker discovery;
+- no hosted database/object provider, production tenancy/auth policy,
+  deployment, retention, SLO, or cost decision;
+- no browser persistence of business content or artifact bytes;
 - no SQLite scheduler optimization or new 240-page measurement;
-- no REALDOC-F Module 2 expansion;
-- no REALDOC-G complete 200-page run; and
+- no REALDOC-F Module 2 expansion or REALDOC-G 200-page run; and
 - no production GO decision.
 
-## Next Phase
+## Next Decision
 
-`PDF-EXPORT-REALDOC-E.6.3` owns durable local runtime wiring and Editor
-reload/reconnect, cancel, retry, diagnostics, status, and verified-download
-acceptance. Production remains NO-GO.
+REALDOC-E.6 is complete for the optional local-development profile. SQLite
+scale optimization, REALDOC-F, and REALDOC-G remain deferred until explicitly
+resumed. Production remains NO-GO.

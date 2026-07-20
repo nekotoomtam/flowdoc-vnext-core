@@ -258,9 +258,10 @@ inactive, so the production NO-GO decision is unchanged.
 `PDF-EXPORT-REALDOC-E.6.1` adds an optional integrity-checked SQLite repository
 for protected DocGen admissions. Independent-process receipt/instance replay,
 before/after-commit fault handling, and corruption rejection pass locally.
-Operation/lifecycle/artifact reconstruction and Editor reconnect remain E.6.2
-and E.6.3. No default mount, hosted provider, scale rerun, or production
-activation is added, so the production NO-GO decision is unchanged.
+At that checkpoint operation/lifecycle/artifact reconstruction and Editor
+reconnect remained E.6.2 and E.6.3. No default mount, hosted provider, scale
+rerun, or production activation is added, so the production NO-GO decision is
+unchanged.
 
 `PDF-EXPORT-REALDOC-E.6.2` composes durable local admission, operation,
 lifecycle, artifact metadata, observability, and filesystem content-addressed
@@ -268,3 +269,10 @@ bytes. Generic four-process recovery and exact 10-page 69C after-render
 recovery pass. Automatic startup discovery, default mounting, Editor reconnect,
 hosted providers, scale work, and production activation remain inactive, so
 the production NO-GO decision is unchanged.
+
+`PDF-EXPORT-REALDOC-E.6.3` adds an optional loopback runtime that resumes only
+a known scoped operation through exact request replay. Editor retains a strict
+content-free session record, restores the latest Preview target, reconciles
+status and cancellation, rejects stale results, and verifies download. It adds
+no automatic startup discovery, default mount, hosted provider, scale claim,
+or production activation, so the production NO-GO decision is unchanged.
