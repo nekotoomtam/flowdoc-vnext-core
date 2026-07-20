@@ -264,6 +264,9 @@ Exit: one-block Node/Worker parity is accepted under one pinned profile.
 
 ### LIVE-DRAFT-XR-3: Form-To-Live-Draft Binding
 
+Status: accepted for one QA-only memory Form scalar on 2026-07-20. This is not
+a Canvas, whole-document, Published/API, or production binding claim.
+
 - Project the latest Form candidate into a revision-pinned worker request.
 - Debounce bursts without losing the final value.
 - Cancel or ignore obsolete work.
@@ -412,18 +415,19 @@ identity.
 
 ## First Task For The Next Thread
 
-Start with `LIVE-DRAFT-XR-3` only, using the retained XR-1 and XR-2 evidence as
-prerequisites.
+Start with `LIVE-DRAFT-XR-4` only, using the retained XR-1, XR-2, and XR-3
+evidence as prerequisites.
 
-1. Read the files under **Required Reading** plus the XR-2 Editor evidence doc.
-2. Project one latest memory-only Form candidate into a revision-pinned Worker
-   request without a Backend request per keystroke.
-3. Debounce bursts, cancel or stale-reject obsolete revisions, and preserve the
-   last valid Draft result while newer work runs.
-4. Keep Canvas, general Form coverage, default-measurer replacement, and
-   production activation out of this slice.
-5. Retain latency, stale-result, and final-revision evidence before widening
-   the UI claim.
+1. Read the files under **Required Reading** plus the XR-2 and XR-3 Editor
+   evidence docs.
+2. Define the smallest shared page/display-list subset needed to paint the
+   accepted XR-3 text block without browser text measurement.
+3. Paint that shared output to stable page canvases while preserving the XR-3
+   latest-revision and last-valid-result controller.
+4. Keep general Form coverage, whole-document invalidation, default-measurer
+   replacement, and production activation out of this slice.
+5. Retain nonblank-pixel, page-geometry, responsive-width, and lifecycle
+   evidence before widening the UI claim.
 
 ## Required Reading
 
@@ -463,15 +467,17 @@ Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
 Read the Required Reading section and inspect all three repositories before
-editing. Start with LIVE-DRAFT-XR-3 only. Use the accepted XR-1 Browser Worker
-engine smoke and XR-2 one-block Core layout evidence as prerequisites. Bind
-one memory-only Form candidate to the revision-pinned Worker path with
-debounce, cancellation or stale rejection, and last-valid-result preservation.
+editing. Start with LIVE-DRAFT-XR-4 only. Use the accepted XR-1 Browser Worker
+engine smoke, XR-2 one-block Core layout evidence, and XR-3 bounded Form
+binding as prerequisites. Paint the smallest accepted shared page/display-list
+subset to Canvas while preserving XR-3 debounce, latest-revision/stale guards,
+and last-valid-result behavior.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
-do not add a Backend request per keystroke, do not add Canvas or general Form
-coverage in the same slice, and do not claim general cross-runtime exactness.
-Add focused tests, retain identity and timing evidence, update the handoff with
+do not add a Backend request per keystroke, do not add general Form coverage or
+whole-document invalidation in the same slice, and do not claim general
+cross-runtime exactness. Add focused tests, retain identity, page geometry,
+pixel, lifecycle, and timing evidence, update the handoff with
 PASS/FAIL/RISK/UNKNOWN, then commit and push each changed repository to main.
 ```
 
@@ -543,7 +549,40 @@ and is explained by
 
 XR-2 still does not bind Form state, render Canvas pages, replace the default
 measurer, activate production, or prove whole-document incremental scale.
-XR-3 is next.
+XR-3 was implemented in the following slice.
+
+## LIVE-DRAFT-XR-3 Execution Result
+
+Status: accepted for one bounded QA-only Form scalar on 2026-07-20.
+
+Editor now projects the selected memory-only `documentTitle` value and its
+ready canonical Form candidate into revision- and fingerprint-pinned
+`live-draft.form-layout` Worker requests. A 75 ms controller coalesces rapid
+edits, cancels obsolete in-flight work when possible, rejects late results by
+request/revision/Draft/candidate identity, and preserves the previous valid
+Core result while the newest revision is updating.
+
+A real Chrome run dispatched 15 separate Form revisions inside one debounce
+window and observed one Worker/Core request. A second eight-edit burst retained
+the first valid page during `draft-updating`, then applied the latest revision
+23 as `draft-current`. Chrome observed zero cross-origin and zero
+API/preview/PDF/render/export transport requests. Deterministic controller
+tests also force and reject a late obsolete result.
+
+The first browser result took 128.9 ms end-to-end including initial WASM/font
+loading. The following warm result took 79.0 ms end-to-end and reported 1.9 ms
+inside the Worker. These remain one-machine observations without an accepted
+budget.
+
+Evidence lives at
+`flowdoc-vnext-editor/src/fixtures/live-draft-xr3-form-binding.v1.json` and is
+explained by
+`flowdoc-vnext-editor/docs/LIVE_DRAFT_XR3_FORM_BINDING.md`.
+
+XR-3 renders Core-accepted lines in a QA surface only. It does not paint
+Canvas, bind a whole document, execute JSON mapping, call Backend admission,
+replace the default measurer, activate production, or prove Published/API
+equivalence. XR-4 is next.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
@@ -563,18 +602,21 @@ XR-3 is next.
   pagination boundaries.
 - Cold/warm timing phases are retained without inventing a budget, and all
   warm samples avoid the engine provider.
-- Editor retains the placeholder baseline, worker protocol, identity pins,
-  stale-result comparison, and Browser Worker smoke evidence without Form
-  binding.
+- One memory-only Form scalar now reaches the real Browser Worker/Core path
+  through a 75 ms latest-value debounce without Backend transport.
+- Latest revision, stale-result rejection, cancellation, and preservation of
+  the previous valid Draft result have focused deterministic coverage.
+- A real Chrome rapid-edit run retained Form lifecycle, no-Backend, latest
+  revision, Core-line-source, and observational timing evidence.
 
 ### FAIL-BLOCKER
 
-- Editor has no Form-bound Live Draft execution yet; the real path remains
-  QA-only.
+- Canvas page rendering is not implemented; XR-3 still uses a QA-only Core-line
+  surface.
 - Full cross-runtime measurement parity is not accepted.
 - Default pagination measurement replacement remains blocked.
-- Debounce, cancellation, and latest-revision Form binding remain the XR-3
-  blocker.
+- Whole-document field/layout coverage and incremental invalidation remain
+  blocked for later slices.
 
 ### RISK
 
@@ -587,10 +629,13 @@ XR-3 is next.
   address affected-range invalidation rather than relying on engine cache only.
 - The executable ICU4X/Rustybuzz WASM is about 1.06 MB before transport-level
   compression; initialization and caching budgets need broader evidence.
+- XR-3's observed 79 ms warm end-to-end update includes its deliberate 75 ms
+  debounce; broader UI work and multi-block layout still need measurement.
 
 ### UNKNOWN
 
 - Measured Node/Browser parity beyond the two smoke rows and three derived
   one-block workloads.
 - Final performance budgets for small and 200-page documents.
+- Canvas paint cost, responsive stability, and nonblank pixel evidence.
 - Final drift reconciliation UX between Live Draft and Published output.
