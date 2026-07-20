@@ -154,7 +154,7 @@ export async function load69cUatSectionAdapter(input: {
   requireEqual("selected image digest", imageDigest(selectedImages), baseline.firstSlice.screenshotCanonicalDigest)
 
   const structure = createFlowDocUatStructureDefinitionV1()
-  const result = adaptFlowDocUatSemanticNoPagesSectionV1({
+  const adapterInput = {
     source: {
       sourceSetId: "uat-69c-2026-07-17",
       sourceBundleFingerprint: baseline.sourceBundleFingerprint,
@@ -174,7 +174,8 @@ export async function load69cUatSectionAdapter(input: {
       structureVersion: flowDocUatPublishedStructureRefV1(),
     },
     imageResources: selectedImages.map(({ absolutePath: _absolutePath, ...resource }) => resource),
-  })
+  }
+  const result = adaptFlowDocUatSemanticNoPagesSectionV1(adapterInput)
   if (result.status !== "ready-with-warnings") {
     throw new Error(`69C section adapter blocked: ${JSON.stringify(result.issues)}`)
   }
@@ -192,7 +193,7 @@ export async function load69cUatSectionAdapter(input: {
   }
   if (!Object.values(canonicalInputs).every(Boolean)) throw new Error("adapter output failed canonical snapshot schemas")
 
-  return { baseline, semanticFile, selectedImages, structure, bundle, canonicalInputs }
+  return { baseline, semanticFile, selectedImages, structure, bundle, canonicalInputs, adapterInput }
 }
 
 export async function verify69cUatSectionAdapter(input: {

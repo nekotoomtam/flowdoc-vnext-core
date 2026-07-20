@@ -1102,6 +1102,13 @@ The package must remain runnable without any parent editor checkout.
   contracts. It derives first-placement order and image/media requirements,
   keeps unplaced fields, and reports missing scalar constraints without
   accepting test values or executing Preview.
+- PDF export REALDOC-E.5.4 and E.5.5 add Editor-owned memory-only generated Form
+  state plus imported JSON/profile preparation without changing Core runtime or
+  running browser mapping.
+- PDF export REALDOC-E.5.6 adds an optional value-free Backend Published Preview
+  context and connects imported JSON through the accepted E.3 admission and E.4
+  exact artifact lifecycle. The 10-page 69C slice passes while mapped values,
+  the full 200-page export, Draft Preview, and production remain out of scope.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

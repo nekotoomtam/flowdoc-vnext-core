@@ -233,19 +233,28 @@ clear JSON/profile selection, diagnostics exclude values and parser exceptions,
 desktop/mobile QA passes, normal Preview remains fail-closed, and production
 builds exclude QA fixtures. No Core or Backend runtime changes.
 
-### REALDOC-E.5.6-E.5.9 Editor Pre-Test And E.6 Cross-Repo Acceptance
+### REALDOC-E.5.6 Published Preview Binding (Accepted)
 
-Add generated Form state, mapped JSON diagnostics, Published Preview, distinct
-Draft Preview, complete stale/lifecycle UX, and Form/API parity evidence.
-Imported business values remain separate from the authored Structure
-Definition and the browser does not become a second resolver.
+Add one value-free Backend context for exact Published Structure projection,
+profile, assets, and limits. Send imported JSON through E.3, reuse the resulting
+instance pin in E.4, and expose only content-free mapped-result facts plus the
+exact PDF lifecycle in Editor. Form data JSON remains a local unvalidated draft.
 
-E.1 generation input/mapping identity, E.2 runtime mapping/validation parity,
-E.3 bounded Backend local admission, E.4 local artifact lifecycle, and E.5.0
-product contract, E.5.1 local Library, E.5.2 workspace tabs, E.5.3 Core
-test-input projection, E.5.4 temporary generated Form, and E.5.5 temporary JSON
-and mapping preparation are accepted. Remaining subphases are E.5.6 through
-E.5.9 Editor pre-test implementation and E.6 cross-repo acceptance.
+Exit: the real 749,929-byte 69C adapted payload maps and validates in Backend,
+then completes the existing lifecycle as a 10-page, 1,417,544-byte exact PDF.
+The Editor receives no mapped canonical business values; edits mark the result
+stale and hide its PDF/download. Desktop/mobile local QA passes. Production and
+the full 200-page export remain untested.
+
+### REALDOC-E.5.7-E.5.9 Remaining Editor Pre-Test And E.6 Acceptance
+
+Add the distinct immutable Draft Preview identity, complete lifecycle and large
+input UX, and Form/API parity evidence. Imported business values remain separate
+from the authored Structure Definition and the browser does not become a second
+resolver.
+
+E.1 through E.5.6 are accepted. Remaining subphases are E.5.7 through E.5.9
+Editor pre-test implementation and E.6 cross-repo acceptance.
 
 E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

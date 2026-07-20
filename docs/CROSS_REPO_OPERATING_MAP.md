@@ -170,6 +170,12 @@ editor intent
   Mapping and all downstream execution remain `not-run`; normal Preview stays
   fail-closed and Core/Backend runtime behavior is unchanged:
   `docs/PDF_EXPORT_REALDOC_TEMPORARY_JSON_MAPPING_HANDOFF.md`.
+- PDF export REALDOC-E.5.6 accepts a value-free Backend Published Preview
+  context, imported JSON admission through E.3, and the same E.4 operation and
+  exact artifact lifecycle used by an API-shaped caller. Editor receives a
+  sanitized content-free receipt and exact PDF, while Core retains source-neutral
+  projection/runtime authority. The 10-page 69C slice passes; 200 pages remain
+  REALDOC-G: `docs/PDF_EXPORT_REALDOC_PUBLISHED_PREVIEW.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

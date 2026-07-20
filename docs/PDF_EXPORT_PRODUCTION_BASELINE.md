@@ -226,3 +226,9 @@ without a trusted projection transport. Production activation remains unchanged.
 exact mapping-profile selection, and content-free local diagnostics. Browser
 mapping, canonical snapshots, Backend admission, exact Preview, providers,
 tenancy, deployment, cost, and production activation remain unchanged.
+
+`PDF-EXPORT-REALDOC-E.5.6` adds an optional value-free Published Preview context
+and connects imported JSON to the accepted E.3 admission plus E.4 lifecycle.
+The Backend retains canonical values; Editor receives only a sanitized receipt,
+status, and exact PDF. Retained evidence is the 10-page 69C slice, not the full
+200-page document. Default mounting and production activation remain unchanged.

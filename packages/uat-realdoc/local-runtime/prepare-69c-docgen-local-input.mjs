@@ -19,9 +19,25 @@ try {
   const sourceRuntime = await server.ssrLoadModule(
     "/packages/uat-realdoc/scripts/verify-69c-section-adapter-runtime.ts",
   )
+  const core = await server.ssrLoadModule("/src/index.ts")
   const uat = await server.ssrLoadModule("/packages/uat-realdoc/src/index.ts")
   const loaded = await sourceRuntime.load69cUatSectionAdapter({ semanticDirectory })
   const dataContract = uat.createFlowDocUatGenerationDataContractV1()
+  const mappingProfile = uat.createFlowDocUatGenerationMappingProfileV1()
+  const projection = core.projectVNextPublishedStructureTestInputV1({
+    contractVersion: 1,
+    kind: "published-structure-test-input-projection-request",
+    structure: {
+      owner: uat.flowDocUatPublishedStructureRefV1(),
+      structureFingerprint: loaded.structure.structureFingerprint,
+      document: loaded.structure.starterDocument,
+    },
+    dataContract,
+    tables: [loaded.structure.tables.requirements, loaded.structure.tables.screenshots],
+  })
+  if (projection.status !== "ready") throw new Error("69C Published Preview projection blocked")
+  const { instance: _instance, ...adaptedPayload } = loaded.adapterInput
+  const adaptedPayloadText = JSON.stringify(adaptedPayload)
   const sourceByDigest = new Map(loaded.selectedImages.map((image) => [image.sha256, image]))
   const trustedAssets = Object.values(loaded.bundle.mediaSnapshot.registry.images).map((definition) => {
     const source = sourceByDigest.get(definition.digest.value)
@@ -33,6 +49,9 @@ try {
   })
   process.stdout.write(JSON.stringify({
     dataContract,
+    mappingProfile,
+    projection,
+    adaptedPayloadText,
     request: {
       contractVersion: 1,
       kind: "docgen-local-admission-request",
@@ -51,6 +70,9 @@ try {
       selectedImageCanonicalDigest: loaded.baseline.firstSlice.screenshotCanonicalDigest,
       requirementCount: loaded.bundle.summary.requirementCount,
       screenshotCount: loaded.bundle.summary.screenshotCount,
+      adaptedPayloadByteLength: Buffer.byteLength(adaptedPayloadText, "utf8"),
+      projectionFingerprint: projection.projectionFingerprint,
+      mappingProfileFingerprint: mappingProfile.profileFingerprint,
     },
   }))
 } finally {

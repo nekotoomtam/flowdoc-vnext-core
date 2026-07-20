@@ -12064,3 +12064,35 @@ Primary evidence:
 Next phase: `PDF-EXPORT-REALDOC-E.5.6` Published Preview binding through the
 accepted E.3 admission and E.4 artifact lifecycle. Draft Preview, complete
 lifecycle UX, parity evidence, and production remain deferred.
+
+## PDF-EXPORT-REALDOC-E.5.6 Published Preview Binding
+
+Status: accepted for local development. Production remains NO-GO.
+
+This phase adds one optional Backend value-free Published Preview context over
+an exact authoring document/revision. The context carries the E.5.3 projection,
+canonical mapping profiles, trusted asset admission template, and existing
+adapted-payload limit without carrying business values, raw payload, executable
+mapper, or production binding.
+
+Editor imports JSON and an exact profile, submits them through the E.3 Backend
+admission, then submits the protected revision-zero instance pin through the E.4
+operation/status/download lifecycle. Backend executes the allowlisted mapper and
+retains canonical values. Editor stores only a sanitized content-free receipt,
+public lifecycle status, and exact artifact URL. Form data JSON remains a local
+`draft-not-validated` representation and is not canonical input.
+
+The real 69C adapted payload is 749,929 UTF-8 bytes. Mapping is `executed`,
+runtime validation is `run-valid`, diagnostics contain 0 errors and 3 warnings,
+and the verified exact PDF is 10 pages and 1,417,544 bytes with SHA-256
+`d8b3b45c4364639a8eb71fd13510fd1cbb8661d4a57ecc97d76aa23fb1688b61`.
+Desktop 1280 x 720 and mobile 390 x 844 Editor QA pass without horizontal page
+overflow or browser-console errors. Input changes mark results stale and remove
+the old PDF/download truth.
+
+The complete 200-page document is not tested and remains REALDOC-G. Default
+Backend mounting, Draft Preview, Form admission, mapped-value Form hydration,
+durable generation storage, hosted providers, and production are unchanged.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.7` separate immutable Draft Preview identity
+and admission path.
