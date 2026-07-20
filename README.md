@@ -107,6 +107,12 @@ The package must remain runnable without any parent editor checkout.
   accepted text-flow pagination to deterministic page boxes and text-line
   paint commands. It forbids renderer measurement/relayout and production
   binding while leaving glyph rasterization renderer-owned.
+- Live Draft XR-5 extends that bounded projection with validated inline/field
+  source segments and mandatory newline handling. Nine Node/real-Browser
+  Worker rows match in normalized engine facts, Core line/page geometry,
+  display-list commands, and fingerprints; the full release matrix remains
+  partial with multi-font inline, Table, explicit page-break, and
+  approximate-versus-renderer drift blockers retained.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

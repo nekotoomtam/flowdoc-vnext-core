@@ -52,3 +52,8 @@ That evidence remains QA-only and selected-scalar-only.
 XR-4 does not add a whole-document display list, styled runs, images, tables,
 Backend admission, artifact bytes, default measurement replacement, or
 production activation.
+
+XR-5 later adds optional validated inline/field `sourceSegments` to this same
+contract. Those segments preserve source identity only; they do not grant a
+renderer measurement or relayout authority. See
+`docs/LIVE_DRAFT_XR5_SOURCE_SEGMENTS_AND_FORCED_BREAKS.md`.

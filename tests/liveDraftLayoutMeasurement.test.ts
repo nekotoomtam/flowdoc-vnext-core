@@ -99,6 +99,35 @@ describe("LIVE-DRAFT-XR-2 measurement draft adapter", () => {
     expect(result.lineBoxes.map((line) => [line.startOffset, line.endOffset])).toEqual([[0, 1], [1, 2]])
   })
 
+  it("treats newline opportunities as mandatory even when following text fits", () => {
+    const forced = measurement({
+      text: "a\nb",
+      textByteLength: 3,
+      textScalarCount: 3,
+      glyphs: [0, 1, 2].map((cluster, index) => ({
+        index,
+        glyphId: index + 1,
+        cluster,
+        xAdvance: index === 1 ? 0 : 500,
+        yAdvance: 0,
+        xOffset: 0,
+        yOffset: 0,
+      })),
+      breakByteOffsets: [0, 2, 3],
+      breakUtf16Offsets: [0, 2, 3],
+      summary: { glyphCount: 3, missingGlyphCount: 0, totalAdvanceFontUnits: 1_000, breakCount: 3 },
+    })
+    const result = createFlowDocTextEngineLiveDraftMeasurementV1({
+      measurement: forced,
+      availableWidthPt: 100,
+      fontSizePt: 10,
+      lineHeightPt: 14,
+    })
+
+    expect(result.lines).toEqual(["a\n", "b"])
+    expect(result.lineBoxes.map((line) => [line.startOffset, line.endOffset])).toEqual([[0, 2], [2, 3]])
+  })
+
   it("builds UTF-16 break offsets in one pass across surrogate pairs", () => {
     const result = normalizeFlowDocTextEngineLiveDraftResultV1({
       shape: {

@@ -292,6 +292,10 @@ at desktop and mobile widths.
 
 ### LIVE-DRAFT-XR-5: Cross-Runtime Matrix
 
+Status: partial checkpoint accepted for nine bounded Node/real-Browser Worker
+rows on 2026-07-21. The full release-gating matrix remains
+`partial-not-accepted` because retained blockers still exist.
+
 Expand evidence to every release-gating row listed in
 `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`, including:
 
@@ -418,18 +422,20 @@ identity.
 
 ## First Task For The Next Thread
 
-Start with `LIVE-DRAFT-XR-5` only, using the retained XR-1 through XR-4
-evidence as prerequisites.
+Continue `LIVE-DRAFT-XR-5` only from the retained partial matrix checkpoint.
 
-1. Read the files under **Required Reading** plus the XR-2 through XR-4
+1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs.
-2. Expand the same canonical Node/Browser matrix to mixed Thai/Latin, width
-   pairs, forced breaks, long blocks, and the next accepted styled/field rows.
-3. Compare normalized measurement, line/page geometry, display-list commands,
-   and deterministic fingerprints under explicit drift policy.
-4. Keep default-measurer replacement, whole-document production activation,
-   and glyph-pixel exactness out of this slice.
-5. Retain every accepted and blocked row before widening exactness language.
+2. Bind constrained Table-cell and repeated-header rows through their accepted
+   Table preparation/pagination/display-list owners; do not impersonate them
+   with plain text-block rows.
+3. Evaluate the distinct default/approximate-versus-renderer drift fixture
+   under the already accepted numeric threshold policy. Do not relabel the
+   zero Node/Browser renderer-backed drift summary as that fixture.
+4. Define the next bounded multi-font inline shaping/paint-geometry contract
+   before claiming a font switch inside one measured line.
+5. Keep default-measurer replacement, whole-document production activation,
+   XR-6 scale work, and glyph-pixel exactness out of this slice.
 
 ## Required Reading
 
@@ -439,6 +445,7 @@ Core:
 - `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`
 - `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
 - `docs/MEASUREMENT_PROFILE_IDENTITY_CONTRACT.md`
+- `docs/LIVE_DRAFT_XR5_SOURCE_SEGMENTS_AND_FORCED_BREAKS.md`
 - `src/renderer/textMeasurementAdapter.ts`
 - `src/pagination/textMeasurement.ts`
 - `src/pagination/layoutPipeline.ts`
@@ -448,6 +455,9 @@ Core:
 
 Editor:
 
+- `docs/LIVE_DRAFT_XR5_CROSS_RUNTIME_MATRIX.md`
+- `src/qa/liveDraftXr5Matrix.ts`
+- `scripts/run-live-draft-xr5-evidence.mjs`
 - `src/core/coreAdapter.ts`
 - `src/editor/jobs/jobTypes.ts`
 - `src/editor/commands/commandExecutor.ts`
@@ -469,11 +479,12 @@ Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
 Read the Required Reading section and inspect all three repositories before
-editing. Start with LIVE-DRAFT-XR-5 only. Use the accepted XR-1 Browser Worker
-engine smoke, XR-2 one-block Core layout evidence, XR-3 bounded Form binding,
-and XR-4 Canvas display-list evidence as prerequisites. Expand the retained
-Node/Browser matrix and compare normalized measurement, Core line/page
-geometry, display-list commands, and fingerprints under explicit drift policy.
+editing. Continue LIVE-DRAFT-XR-5 only from the retained nine-row partial
+checkpoint. Use the accepted XR-1 Browser Worker engine smoke, XR-2 one-block
+Core layout evidence, XR-3 bounded Form binding, XR-4 Canvas display-list
+evidence, and XR-5 source-segment/matrix evidence as prerequisites. Close only
+the retained Table, approximate-versus-renderer drift, and guarded multi-font
+inline rows whose real owner contracts can be exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
@@ -626,7 +637,49 @@ XR-4 covers one selected scalar and plain text-line commands only. Canvas owns
 glyph rasterization, so no cross-runtime glyph-position or pixel-parity claim
 is made. Styled runs, fields, images, tables, whole-document composition,
 virtualization, Backend admission, and production remain out of scope. XR-5
-is next.
+was implemented as a partial matrix checkpoint in the following slice.
+
+## LIVE-DRAFT-XR-5 Partial Checkpoint Execution Result
+
+Status: accepted for nine bounded rows with five explicit retained blockers on
+2026-07-21. The full release-gating matrix is not accepted.
+
+The real Node/Chrome harness now loads pinned Sarabun Regular and Bold bytes
+and compares normalized Rustybuzz/ICU4X facts, Core accepted lines, page
+geometry, display-list commands, optional inline/field source segments, and
+deterministic fingerprints. An explicit fail-closed policy requires exact
+discrete facts and at most `0.000001 pt` numeric geometry drift.
+
+Nine rows passed: two mixed Thai/Latin rows, two separate style-to-font mapping
+rows, one resolved-field adjacency row, a 24 pt / 10,000 pt width pair, one
+forced-line-break row, and one 4,959-character long block. The long row
+produced 120 lines, nine pages, and 120 display-list commands. Maximum retained
+Node/Browser drift was zero for normalized engine facts, Core geometry, and
+display-list geometry.
+
+The width pair retained the same normalized-result hash while changing from
+five lines to one. The field row retained `customer.name` as a
+`resolved-field` source segment. The forced-break row exposed an adapter bug:
+newline opportunities were previously optional when later text still fit.
+The adapter now treats CR/LF boundaries as mandatory in linear time and the
+row deterministically produces three lines.
+
+The retained blocked rows are mixed-font switching inside one line,
+constrained Table cell composition, repeated Table headers, explicit
+page-break nodes in the one-block flow, and the distinct
+default/approximate-versus-renderer drift evaluation. Zero drift between two
+renderer-backed runtimes is not mislabeled as the last fixture.
+
+Observed real Browser Worker round trips were about 1.4-23.6 ms cold and
+0.7-3.4 ms warm for the short/medium rows. The long row was 76.1 ms cold and
+23.1 ms warm. These are one-machine observations without an accepted budget.
+
+Core documentation lives at
+`docs/LIVE_DRAFT_XR5_SOURCE_SEGMENTS_AND_FORCED_BREAKS.md`. Retained evidence
+lives at
+`flowdoc-vnext-editor/src/fixtures/live-draft-xr5-cross-runtime-matrix.v1.json`
+and is explained by
+`flowdoc-vnext-editor/docs/LIVE_DRAFT_XR5_CROSS_RUNTIME_MATRIX.md`.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
@@ -659,11 +712,24 @@ is next.
 - One-page and four-page Canvas paint timings, stable intrinsic geometry,
   mobile aspect ratio, last-valid Canvas retention, and zero Backend transport
   are retained.
+- Nine additional Node/real-Browser Worker rows match exactly in normalized
+  engine facts, Core line/page geometry, display-list commands, source facts,
+  and deterministic fingerprints under an explicit fail-closed drift policy.
+- Sarabun Regular and Bold style mappings, mixed Thai/Latin text, the 24 pt /
+  10,000 pt width pair, field adjacency, mandatory line breaks, and a
+  120-line/9-page long block have bounded retained evidence.
+- Core display-list projection can retain validated clipped source segments,
+  including resolved-field identity, without granting renderer relayout.
+- The expanded matrix exposed and fixed optional-newline behavior in the
+  external Live Draft adapter; focused tests retain mandatory CR/LF behavior.
 
 ### FAIL-BLOCKER
 
-- Styled runs, fields, images, tables, and whole-document Canvas composition
-  are not implemented.
+- Mixed-font switching inside one line, styled per-run paint geometry, field
+  chip-specific Canvas interaction, images, tables, and whole-document Canvas
+  composition are not implemented.
+- Constrained Table-cell, repeated-header, explicit page-break, and
+  default/approximate-versus-renderer drift rows remain explicitly blocked.
 - Full cross-runtime measurement parity is not accepted.
 - Default pagination measurement replacement remains blocked.
 - Whole-document field/layout coverage and incremental invalidation remain
@@ -686,11 +752,19 @@ is next.
   does not prove Canvas/PDF glyph-position or pixel parity.
 - Four bounded pages paint quickly, but unvirtualized large page stacks can
   consume substantial bitmap memory before XR-6.
+- Separate regular/bold rows prove style-to-font mapping but can be mistaken
+  for proof of a font-face switch inside one shaped line; that claim remains
+  blocked.
+- The 23.1 ms warm long-row observation still reflows and fingerprints the
+  complete 4,959-character block; XR-6 affected-range invalidation remains
+  necessary.
 
 ### UNKNOWN
 
-- Measured Node/Browser parity beyond the two smoke rows and three derived
-  one-block workloads.
+- Node/Browser parity for Table-cell and repeated-header owner pipelines and
+  for mixed-font shaping inside one line.
+- Default/approximate-versus-renderer drift values for the expanded rows under
+  the accepted threshold policy.
 - Final performance budgets for small and 200-page documents.
 - Canvas paint cost and memory for styled, image, table, and 200-page content.
 - Accepted glyph-position/outline reconciliation policy across Canvas and PDF.

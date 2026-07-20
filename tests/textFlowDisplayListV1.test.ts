@@ -135,6 +135,109 @@ describe("text-flow display-list v1", () => {
     ]))
   })
 
+  it("retains field and surrounding inline source segments without renderer relayout", () => {
+    const renderedText = "Hello Acme world"
+    const runs: VNextTextBlockV4MeasurementRequest["runs"] = [{
+      inlineId: "text-before",
+      kind: "text",
+      renderStartOffset: 0,
+      renderEndOffset: 6,
+      renderedText: "Hello ",
+      styleKey: "paragraph/body",
+    }, {
+      inlineId: "customer-field",
+      kind: "resolved-field",
+      fieldKey: "customer.name",
+      renderStartOffset: 6,
+      renderEndOffset: 10,
+      renderedText: "Acme",
+      styleKey: "paragraph/body",
+    }, {
+      inlineId: "text-after",
+      kind: "text",
+      renderStartOffset: 10,
+      renderEndOffset: 16,
+      renderedText: " world",
+      styleKey: "paragraph/body",
+    }]
+    const request: VNextTextBlockV4MeasurementRequest = {
+      documentId: "document-1",
+      instanceRevision: 1,
+      sectionId: "section-1",
+      textBlockId: "field-adjacency",
+      availableWidthPt: 180,
+      measurementProfileId: "profile-1",
+      styleKey: "paragraph/body",
+      renderedText,
+      runs,
+    }
+    const accepted = acceptVNextTextBlockV4MeasuredLines(request, [{
+      index: 0,
+      startOffset: 0,
+      endOffset: 10,
+      text: "Hello Acme",
+      widthPt: 64,
+      heightPt: 18,
+    }, {
+      index: 1,
+      startOffset: 10,
+      endOffset: 16,
+      text: " world",
+      widthPt: 36,
+      heightPt: 18,
+    }])
+    if (accepted.status !== "accepted") throw new Error("field measurement acceptance blocked")
+    const result = project({
+      pagination: paginateVNextTextFlowV4({ accepted, pageBodyHeightPt: 36, maximumPageCount: 10 }),
+      sourceRuns: runs,
+    })
+
+    expect(result.status).toBe("ready")
+    if (result.status !== "ready") throw new Error("field display-list projection blocked")
+    expect(result.commands[0].sourceSegments).toEqual([{
+      inlineId: "text-before",
+      kind: "text",
+      styleKey: "paragraph/body",
+      renderStartOffset: 0,
+      renderEndOffset: 6,
+      sourceStartOffset: 0,
+      sourceEndOffset: 6,
+      renderedText: "Hello ",
+    }, {
+      inlineId: "customer-field",
+      kind: "resolved-field",
+      fieldKey: "customer.name",
+      styleKey: "paragraph/body",
+      renderStartOffset: 6,
+      renderEndOffset: 10,
+      sourceStartOffset: 0,
+      sourceEndOffset: 4,
+      renderedText: "Acme",
+    }])
+    expect(result.commands[1].sourceSegments?.[0]).toMatchObject({
+      inlineId: "text-after",
+      kind: "text",
+      renderStartOffset: 10,
+      renderEndOffset: 16,
+      renderedText: " world",
+    })
+  })
+
+  it("blocks incomplete or text-drifting source runs", () => {
+    const result = project({
+      sourceRuns: [{
+        inlineId: "drifting-run",
+        kind: "text",
+        renderStartOffset: 1,
+        renderEndOffset: 2,
+        renderedText: "wrong",
+        styleKey: "paragraph/body",
+      }],
+    })
+    expect(result.status).toBe("blocked")
+    expect(result.issues.map((candidate) => candidate.code)).toContain("invalid-source-runs")
+  })
+
   it("keeps the Core projector independent from browser and concrete renderer APIs", () => {
     const source = readFileSync(new URL("../src/renderer/textFlowDisplayListV1.ts", import.meta.url), "utf8")
     const doc = readFileSync(new URL("../docs/LIVE_DRAFT_XR4_TEXT_FLOW_DISPLAY_LIST.md", import.meta.url), "utf8")

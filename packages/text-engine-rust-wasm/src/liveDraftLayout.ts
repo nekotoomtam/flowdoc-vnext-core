@@ -79,6 +79,10 @@ export function createFlowDocTextEngineLiveDraftMeasurementV1(
     index === 0 || offset > offsets[index - 1]!
   ))
   requireFact(breaks.length === measurement.breakUtf16Offsets.length, "line breaks must be strictly ascending")
+  const mandatoryBreaks = new Set(breaks.filter((offset) => {
+    const precedingCodeUnit = measurement.text.charCodeAt(offset - 1)
+    return precedingCodeUnit === 0x0a || precedingCodeUnit === 0x0d
+  }))
 
   let clusterIndex = 0
   let cumulativeAdvancePt = 0
@@ -102,6 +106,8 @@ export function createFlowDocTextEngineLiveDraftMeasurementV1(
       if (candidateWidthPt <= input.availableWidthPt) {
         endBreakIndex = candidateIndex
         widthPt = candidateWidthPt
+        const candidateOffset = breaks[candidateIndex]!
+        if (mandatoryBreaks.has(candidateOffset)) break
         continue
       }
       if (endBreakIndex === candidateIndex) widthPt = candidateWidthPt

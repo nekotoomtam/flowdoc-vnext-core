@@ -9,6 +9,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./browser-assets": "./src/browserAssets.ts",
+    "./browser-assets-xr5": "./src/browserAssetsXr5.ts",
     "./live-draft-smoke": "./src/liveDraftSmokeRows.ts",
     "./node": "./src/node.ts",
     "./worker": "./src/worker.ts"

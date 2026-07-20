@@ -1,5 +1,6 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import type {
+  VNextTextBlockV4MeasurementRun,
   VNextTextBlockV4MeasurementSourcePoint,
 } from "../pagination/textBlockV4Measurement.js"
 import type {
@@ -16,6 +17,7 @@ export type VNextTextFlowDisplayListIssueCodeV1 =
   | "invalid-page-box"
   | "invalid-body-box"
   | "invalid-text-style"
+  | "invalid-source-runs"
   | "page-body-height-mismatch"
   | "line-outside-body"
   | "baseline-outside-line"
@@ -41,6 +43,19 @@ export interface VNextTextFlowDisplayListStyleV1 {
   color: string
 }
 
+export interface VNextTextFlowSourceSegmentV1 {
+  inlineId: string
+  kind: VNextTextBlockV4MeasurementRun["kind"]
+  fieldKey?: string
+  styleKey?: string
+  localStyle?: VNextTextBlockV4MeasurementRun["localStyle"]
+  renderStartOffset: number
+  renderEndOffset: number
+  sourceStartOffset: number
+  sourceEndOffset: number
+  renderedText: string
+}
+
 export interface VNextTextFlowLinePaintCommandV1 {
   id: string
   kind: "text-line"
@@ -57,6 +72,7 @@ export interface VNextTextFlowLinePaintCommandV1 {
   bounds: { xPt: number; yPt: number; widthPt: number; heightPt: number }
   baselineYPt: number
   style: VNextTextFlowDisplayListStyleV1
+  sourceSegments?: VNextTextFlowSourceSegmentV1[]
 }
 
 export interface VNextTextFlowDisplayListPageV1 {
@@ -109,6 +125,7 @@ export interface VNextTextFlowDisplayListRequestV1 {
   pagination: VNextTextFlowV4PaginationResult
   pageBox: VNextTextFlowDisplayListPageBoxV1
   style: VNextTextFlowDisplayListStyleV1
+  sourceRuns?: readonly VNextTextBlockV4MeasurementRun[]
   bindProductionRenderer?: boolean
 }
 
@@ -151,6 +168,68 @@ function baseFacts(input: VNextTextFlowDisplayListRequestV1): VNextTextFlowDispl
   }
 }
 
+function validateSourceRuns(
+  runs: readonly VNextTextBlockV4MeasurementRun[],
+  renderedText: string,
+): VNextTextFlowDisplayListIssueV1[] {
+  const issues: VNextTextFlowDisplayListIssueV1[] = []
+  let expectedStartOffset = 0
+  runs.forEach((run, index) => {
+    const path = `sourceRuns[${index}]`
+    if (
+      run.inlineId.trim().length === 0
+      || !Number.isSafeInteger(run.renderStartOffset)
+      || !Number.isSafeInteger(run.renderEndOffset)
+      || run.renderStartOffset !== expectedStartOffset
+      || run.renderEndOffset < run.renderStartOffset
+      || run.renderEndOffset > renderedText.length
+      || run.renderedText !== renderedText.slice(run.renderStartOffset, run.renderEndOffset)
+    ) issues.push(issue(
+      "invalid-source-runs",
+      path,
+      "Source runs must retain ordered, gap-free rendered ranges and exact rendered text.",
+    ))
+    if (run.kind === "resolved-field" && (run.fieldKey == null || run.fieldKey.trim().length === 0)) issues.push(issue(
+      "invalid-source-runs",
+      `${path}.fieldKey`,
+      "Resolved-field source runs must retain a non-blank field key.",
+    ))
+    expectedStartOffset = run.renderEndOffset
+  })
+  if (runs.length === 0 || expectedStartOffset !== renderedText.length) issues.push(issue(
+    "invalid-source-runs",
+    "sourceRuns",
+    "Source runs must cover the complete rendered text.",
+  ))
+  return issues
+}
+
+function sourceSegmentsForLine(
+  runs: readonly VNextTextBlockV4MeasurementRun[],
+  lineStartOffset: number,
+  lineEndOffset: number,
+): VNextTextFlowSourceSegmentV1[] {
+  return runs.flatMap((run) => {
+    const renderStartOffset = Math.max(lineStartOffset, run.renderStartOffset)
+    const renderEndOffset = Math.min(lineEndOffset, run.renderEndOffset)
+    if (renderEndOffset <= renderStartOffset) return []
+    const sourceStartOffset = renderStartOffset - run.renderStartOffset
+    const sourceEndOffset = renderEndOffset - run.renderStartOffset
+    return [{
+      inlineId: run.inlineId,
+      kind: run.kind,
+      ...(run.fieldKey == null ? {} : { fieldKey: run.fieldKey }),
+      ...(run.styleKey == null ? {} : { styleKey: run.styleKey }),
+      ...(run.localStyle == null ? {} : { localStyle: clone(run.localStyle) }),
+      renderStartOffset,
+      renderEndOffset,
+      sourceStartOffset,
+      sourceEndOffset,
+      renderedText: run.renderedText.slice(sourceStartOffset, sourceEndOffset),
+    }]
+  })
+}
+
 export function projectVNextTextFlowDisplayListV1(
   input: VNextTextFlowDisplayListRequestV1,
 ): VNextTextFlowDisplayListResultV1 {
@@ -180,6 +259,14 @@ export function projectVNextTextFlowDisplayListV1(
   ) issues.push(issue(
     "invalid-body-box", "pageBox.body", "Body bounds must be positive, finite, and remain inside the page box.",
   ))
+
+  if (input.pagination.status === "complete" && input.sourceRuns != null) {
+    const renderedText = input.pagination.pages
+      .flatMap((candidate) => candidate.fragment.lines)
+      .map((line) => line.text)
+      .join("")
+    issues.push(...validateSourceRuns(input.sourceRuns, renderedText))
+  }
   if (
     style.styleKey.trim().length === 0
     || style.fontId.trim().length === 0
@@ -243,6 +330,9 @@ export function projectVNextTextFlowDisplayListV1(
         bounds: { xPt: body.xPt, yPt, widthPt: line.widthPt, heightPt: line.heightPt },
         baselineYPt: yPt + style.baselineOffsetPt,
         style: clone(style),
+        ...(input.sourceRuns == null ? {} : {
+          sourceSegments: sourceSegmentsForLine(input.sourceRuns, line.startOffset, line.endOffset),
+        }),
       }
       return command
     })
