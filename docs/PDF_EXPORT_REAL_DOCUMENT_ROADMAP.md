@@ -302,12 +302,14 @@ Document Instance without mapping raw JSON again. Before-commit rollback,
 after-commit reconciliation, corruption rejection, and truthful Editor
 durability projection pass. Default and production binding remain inactive.
 
-#### REALDOC-E.6.2 Durable Operation And Artifact Restart
+#### REALDOC-E.6.2 Durable Operation And Artifact Restart (Accepted)
 
-Compose durable admission with durable operation, lifecycle, observability,
-artifact metadata, and artifact bytes. Prove restart before claim, before
-render, after render, and after terminal commit with exact status and verified
-download.
+The optional local composition now combines durable admission, operation,
+lifecycle, observability, artifact metadata, and content-addressed bytes. Four
+independent generic processes prove create, post-render fault, recovery, and
+terminal verification. The 69C adapted lane reopens four times, recovers from
+`before-persist`, and returns an exact verified 10-page download. Startup work
+discovery remains explicit rather than automatic.
 
 #### REALDOC-E.6.3 Editor Reconnect And Failure Acceptance
 
@@ -315,8 +317,8 @@ Prove reload/reconnect, scoped status recovery, uncertain cancellation and
 retry reconciliation, stale-result rejection, diagnostics, and download
 through the durable Backend composition.
 
-Exit: E.6 is accepted only when E.6.2 and E.6.3 pass. E.6.1 alone does not
-claim complete durable export reconstruction.
+Exit: E.6 is accepted only when E.6.3 passes. E.6.1/E.6.2 do not yet claim
+Editor reload/reconnect acceptance.
 
 ### REALDOC-F Module 2 Scale
 

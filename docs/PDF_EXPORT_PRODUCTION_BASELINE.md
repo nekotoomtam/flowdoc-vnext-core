@@ -261,3 +261,10 @@ before/after-commit fault handling, and corruption rejection pass locally.
 Operation/lifecycle/artifact reconstruction and Editor reconnect remain E.6.2
 and E.6.3. No default mount, hosted provider, scale rerun, or production
 activation is added, so the production NO-GO decision is unchanged.
+
+`PDF-EXPORT-REALDOC-E.6.2` composes durable local admission, operation,
+lifecycle, artifact metadata, observability, and filesystem content-addressed
+bytes. Generic four-process recovery and exact 10-page 69C after-render
+recovery pass. Automatic startup discovery, default mounting, Editor reconnect,
+hosted providers, scale work, and production activation remain inactive, so
+the production NO-GO decision is unchanged.

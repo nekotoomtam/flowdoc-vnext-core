@@ -196,6 +196,12 @@ editor intent
   commit, corruption, and content-free Editor durability facts pass. Durable
   operation/artifact restart remains E.6.2 and Editor reconnect remains E.6.3:
   `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`.
+- PDF export REALDOC-E.6.2 accepts the optional complete durable local Backend
+  repository bundle and repairs after-render recovery at the retained
+  `before-persist` checkpoint. Four-process generic evidence and the exact
+  10-page 69C reopen/recovery/download pass. Automatic startup discovery and
+  Editor reconnect remain E.6.3:
+  `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

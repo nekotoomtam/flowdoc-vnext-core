@@ -1,7 +1,7 @@
 # PDF Export REALDOC Cross-Repo Lifecycle Acceptance
 
-Status: `PDF-EXPORT-REALDOC-E.6.1` accepted for local development.
-`E.6.2` and `E.6.3` remain pending. Production remains NO-GO.
+Status: `PDF-EXPORT-REALDOC-E.6.2` accepted for local development.
+`E.6.3` remains pending. Production remains NO-GO.
 
 ## Decision
 
@@ -12,9 +12,9 @@ canonical record is persisted. A later Backend process can replay the same
 admission receipt and Document Instance identity without rerunning the mapper
 or retaining the raw JSON payload.
 
-This is durable admission acceptance, not complete durable export acceptance.
-Operation, lifecycle, artifact projection, and Editor reconnect remain the
-next two E.6 subphases.
+E.6.2 composes that admission with durable operation, lifecycle, artifact
+projection, observability, and content-addressed PDF bytes. Editor reconnect
+remains the final E.6 subphase.
 
 ## Identity Chain
 
@@ -63,27 +63,55 @@ and admitted PDF binding. Editor contract acceptance passes 13 tests and keeps
 the content-free receipt boundary while preserving the truthful durability
 fact.
 
+## Durable Lifecycle
+
+Backend now provides one optional local composition factory that opens five
+SQLite repositories plus the existing filesystem content-addressed byte store.
+It retains no in-memory repository as durable truth and deletes no durable root
+on close. Recovery uses exact workflow replay across the independent stores;
+it does not claim a cross-database atomic transaction.
+
+An after-render restart defect was found and repaired. Recovery may recognize
+that before-render already passed only when the durable lifecycle is exactly
+`claimed` at `before-persist`, the live claim token matches, and the retained
+checkpoint check matches. It then uses a revision-bound recovery check before
+persistence. Normal first-attempt behavior remains unchanged.
+
+## E.6.2 Accepted Evidence
+
+- generic create, after-render fault, completion, and terminal verification run
+  in four independent Node processes;
+- the final process reads completed status, exact idempotent replay, terminal
+  events, artifact metadata, and verified PDF bytes without materialization;
+- another principal cannot read operation, lifecycle, persistence, or terminal
+  records;
+- the 749,929-byte 69C adapted input maps once and replays after reopen with
+  zero mapper calls;
+- the 69C lifecycle reopens pending, reopens after an injected render fault at
+  `before-persist`, recovers to completion, and reopens terminal state; and
+- metadata and verified download agree on 10 pages, 1,417,544 bytes, and SHA-256
+  `5deed98f1d7b711dfba18e233b6b9d811ebeaf6e4474efd2f55f64ff08b60ac2`.
+
 ## Repository Ownership
 
 - Core owns strict generation, canonical validation, content fingerprint, and
-  source-neutral identity semantics. E.6.1 changes no Core runtime schema.
+  source-neutral identity semantics. E.6.1/E.6.2 change no Core runtime schema.
 - Backend owns the protected canonical record, SQLite transaction and
-  integrity policy, scoped replay, and the truthful durability receipt fact.
+  integrity policy, scoped operation/lifecycle/artifact replay, byte
+  verification, and the truthful durability receipt fact.
 - Editor may display or project that fact, but receives no canonical business
   values and owns no durable admission record.
 
 ## Remaining E.6
 
-`E.6.2` must compose durable admission with durable operation, lifecycle,
-observability, artifact metadata, and artifact bytes, then prove restart at
-each meaningful lifecycle point with exact status and verified download.
-
 `E.6.3` must prove Editor reload/reconnect, scoped status recovery, uncertain
 cancel/retry reconciliation, stale-result rejection, diagnostics, and download
 against the durable Backend composition.
 
-Only after E.6.2 and E.6.3 pass may the complete E.6 cross-repository lifecycle
-be marked accepted.
+The local composition resumes a known exact operation identity; it does not
+automatically discover/start pending operations when a process opens. E.6.3
+must wire the local runtime and Editor to this explicit resume boundary. Only
+after E.6.3 passes may complete E.6 be marked accepted.
 
 ## Explicitly Not Changed
 
@@ -97,5 +125,6 @@ be marked accepted.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.6.2` owns durable operation, lifecycle, artifact, and
-verified-download reconstruction after restart. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.6.3` owns durable local runtime wiring and Editor
+reload/reconnect, cancel, retry, diagnostics, status, and verified-download
+acceptance. Production remains NO-GO.

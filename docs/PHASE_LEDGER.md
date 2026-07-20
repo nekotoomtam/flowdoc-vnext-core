@@ -12228,3 +12228,33 @@ still owns Editor reconnect/failure acceptance. SQLite scale was not changed
 or rerun. REALDOC-F Module 2 and REALDOC-G 200 pages remain deferred.
 
 Next phase: `PDF-EXPORT-REALDOC-E.6.2` durable operation and artifact restart.
+
+## PDF-EXPORT-REALDOC-E.6.2 Durable Operation And Artifact Restart
+
+Status: accepted for local development. Production remains NO-GO.
+
+Backend now opens one optional local durable composition containing protected
+admission, operation, lifecycle, artifact projection, observability, and
+filesystem content-addressed bytes. A post-render restart defect was repaired:
+recovery may reuse an already-passed before-render checkpoint only under the
+exact retained before-persist head and live claim, then applies a
+revision-bound recovery check before persistence.
+
+Generic acceptance runs create, injected after-render fault, completion, and
+terminal verification in four independent Node processes. The exact 69C
+adapted input maps once, replays without mapping, reopens pending, reopens at
+before-persist, recovers, and reopens completed status/download. The retained
+artifact is 10 pages and 1,417,544 bytes; SQLite metadata and downloaded bytes
+share the same SHA-256 and six terminal events remain readable.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DURABLE_LIFECYCLE.md`; and
+- `../flowdoc-vnext-backend/src/tests/fixtures/pdf-export-realdoc-e62-durable-lifecycle-evidence.v1.json`.
+
+Automatic startup discovery, default mounting, and Editor reconnect remain
+closed. SQLite scale was not changed or rerun. REALDOC-F Module 2 and REALDOC-G
+200 pages remain deferred.
+
+Next phase: `PDF-EXPORT-REALDOC-E.6.3` durable runtime and Editor reconnect.

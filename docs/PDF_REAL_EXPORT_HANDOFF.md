@@ -177,5 +177,6 @@ diagnostic-navigation, and bounded large-input UX. E.5.9 now accepts direct
 Form/adapted API canonical-content parity while preserving distinct generation
 instance identities. E.6.1 now accepts protected admission replay across
 independent Backend processes, rollback, uncertain commit reconciliation, and
-corruption rejection. E.6.2 next owns durable operation/lifecycle/artifact
-restart, followed by Editor reconnect acceptance in E.6.3.
+corruption rejection. E.6.2 now accepts durable operation/lifecycle/artifact
+restart and verified 10-page recovery after a post-render fault. Editor
+reconnect acceptance remains E.6.3.
