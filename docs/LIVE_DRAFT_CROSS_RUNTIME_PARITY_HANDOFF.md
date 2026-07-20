@@ -278,6 +278,9 @@ keystroke.
 
 ### LIVE-DRAFT-XR-4: Canvas Page Renderer
 
+Status: accepted for bounded QA-only plain text-line Canvas pages on
+2026-07-21. This is not a whole-document or glyph-pixel parity claim.
+
 - Paint shared display-list output to stable A4 page canvases.
 - Support text, styled runs, field values, images, tables, and repeated headers
   only as each contract becomes accepted.
@@ -415,19 +418,18 @@ identity.
 
 ## First Task For The Next Thread
 
-Start with `LIVE-DRAFT-XR-4` only, using the retained XR-1, XR-2, and XR-3
+Start with `LIVE-DRAFT-XR-5` only, using the retained XR-1 through XR-4
 evidence as prerequisites.
 
-1. Read the files under **Required Reading** plus the XR-2 and XR-3 Editor
+1. Read the files under **Required Reading** plus the XR-2 through XR-4
    evidence docs.
-2. Define the smallest shared page/display-list subset needed to paint the
-   accepted XR-3 text block without browser text measurement.
-3. Paint that shared output to stable page canvases while preserving the XR-3
-   latest-revision and last-valid-result controller.
-4. Keep general Form coverage, whole-document invalidation, default-measurer
-   replacement, and production activation out of this slice.
-5. Retain nonblank-pixel, page-geometry, responsive-width, and lifecycle
-   evidence before widening the UI claim.
+2. Expand the same canonical Node/Browser matrix to mixed Thai/Latin, width
+   pairs, forced breaks, long blocks, and the next accepted styled/field rows.
+3. Compare normalized measurement, line/page geometry, display-list commands,
+   and deterministic fingerprints under explicit drift policy.
+4. Keep default-measurer replacement, whole-document production activation,
+   and glyph-pixel exactness out of this slice.
+5. Retain every accepted and blocked row before widening exactness language.
 
 ## Required Reading
 
@@ -467,17 +469,17 @@ Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
 Read the Required Reading section and inspect all three repositories before
-editing. Start with LIVE-DRAFT-XR-4 only. Use the accepted XR-1 Browser Worker
-engine smoke, XR-2 one-block Core layout evidence, and XR-3 bounded Form
-binding as prerequisites. Paint the smallest accepted shared page/display-list
-subset to Canvas while preserving XR-3 debounce, latest-revision/stale guards,
-and last-valid-result behavior.
+editing. Start with LIVE-DRAFT-XR-5 only. Use the accepted XR-1 Browser Worker
+engine smoke, XR-2 one-block Core layout evidence, XR-3 bounded Form binding,
+and XR-4 Canvas display-list evidence as prerequisites. Expand the retained
+Node/Browser matrix and compare normalized measurement, Core line/page
+geometry, display-list commands, and fingerprints under explicit drift policy.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
-do not add a Backend request per keystroke, do not add general Form coverage or
-whole-document invalidation in the same slice, and do not claim general
-cross-runtime exactness. Add focused tests, retain identity, page geometry,
-pixel, lifecycle, and timing evidence, update the handoff with
+do not add a Backend request per keystroke, do not add whole-document
+production activation in the same slice, and do not claim general
+cross-runtime or glyph-pixel exactness. Add focused tests, retain accepted and
+blocked matrix evidence, update the handoff with
 PASS/FAIL/RISK/UNKNOWN, then commit and push each changed repository to main.
 ```
 
@@ -582,7 +584,49 @@ explained by
 XR-3 renders Core-accepted lines in a QA surface only. It does not paint
 Canvas, bind a whole document, execute JSON mapping, call Backend admission,
 replace the default measurer, activate production, or prove Published/API
-equivalence. XR-4 is next.
+equivalence. XR-4 was implemented in the following slice.
+
+## LIVE-DRAFT-XR-4 Execution Result
+
+Status: accepted for bounded QA-only plain text-line Canvas pages on
+2026-07-21.
+
+Core now exposes a pure `projectVNextTextFlowDisplayListV1(...)` projection
+from complete accepted text-flow pagination into page boxes and ordered
+text-line paint commands. It fails closed on incomplete pagination,
+production binding, geometry/style drift, line overflow, and invalid baseline
+placement. The contract explicitly forbids renderer text measurement and
+relayout while leaving glyph rasterization renderer-owned.
+
+Editor retains the detailed Core projection in the Worker result, loads the
+pinned Sarabun browser font, and paints responsive A4 Canvas pages without
+calling `measureText`. The XR-3 latest-revision and last-valid-result
+controller remains unchanged.
+
+A real Chrome run painted 3,035 non-white pixels on the first page and retained
+a PNG SHA-256. A 44-line bounded workload produced four A4 canvases from 44
+Core commands. Intrinsic pages remained 794 x 1123 pixels; at a 390-pixel
+viewport they scaled to 358 x 506.3 CSS pixels with no horizontal overflow.
+The previous Canvas fingerprint stayed visible during the next Form revision,
+and Chrome observed zero cross-origin or Backend-like requests.
+
+Observed Canvas paint time was 2.6 ms for one page and 4.9 ms total for four
+pages. The warm short Worker/Core path reported 3.2 ms; the four-page path
+reported 18.8 ms. End-to-end values including the deliberate 75 ms debounce
+were 81.0 ms and 100.0 ms. These remain one-machine observations without an
+accepted budget.
+
+Core contract documentation lives at
+`docs/LIVE_DRAFT_XR4_TEXT_FLOW_DISPLAY_LIST.md`. Editor evidence lives at
+`flowdoc-vnext-editor/src/fixtures/live-draft-xr4-canvas-page-renderer.v1.json`
+and is explained by
+`flowdoc-vnext-editor/docs/LIVE_DRAFT_XR4_CANVAS_RENDERER.md`.
+
+XR-4 covers one selected scalar and plain text-line commands only. Canvas owns
+glyph rasterization, so no cross-runtime glyph-position or pixel-parity claim
+is made. Styled runs, fields, images, tables, whole-document composition,
+virtualization, Backend admission, and production remain out of scope. XR-5
+is next.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
@@ -608,11 +652,18 @@ equivalence. XR-4 is next.
   the previous valid Draft result have focused deterministic coverage.
 - A real Chrome rapid-edit run retained Form lifecycle, no-Backend, latest
   revision, Core-line-source, and observational timing evidence.
+- Core projects complete text-flow pagination into deterministic page boxes and
+  ordered text-line paint commands without concrete renderer dependencies.
+- Real responsive A4 Canvas pages consume that display list without browser
+  measurement or relayout and retain nonblank-pixel and PNG-hash evidence.
+- One-page and four-page Canvas paint timings, stable intrinsic geometry,
+  mobile aspect ratio, last-valid Canvas retention, and zero Backend transport
+  are retained.
 
 ### FAIL-BLOCKER
 
-- Canvas page rendering is not implemented; XR-3 still uses a QA-only Core-line
-  surface.
+- Styled runs, fields, images, tables, and whole-document Canvas composition
+  are not implemented.
 - Full cross-runtime measurement parity is not accepted.
 - Default pagination measurement replacement remains blocked.
 - Whole-document field/layout coverage and incremental invalidation remain
@@ -631,11 +682,16 @@ equivalence. XR-4 is next.
   compression; initialization and caching budgets need broader evidence.
 - XR-3's observed 79 ms warm end-to-end update includes its deliberate 75 ms
   debounce; broader UI work and multi-block layout still need measurement.
+- Canvas `fillText` owns glyph rasterization; XR-4 locks line/page geometry but
+  does not prove Canvas/PDF glyph-position or pixel parity.
+- Four bounded pages paint quickly, but unvirtualized large page stacks can
+  consume substantial bitmap memory before XR-6.
 
 ### UNKNOWN
 
 - Measured Node/Browser parity beyond the two smoke rows and three derived
   one-block workloads.
 - Final performance budgets for small and 200-page documents.
-- Canvas paint cost, responsive stability, and nonblank pixel evidence.
+- Canvas paint cost and memory for styled, image, table, and 200-page content.
+- Accepted glyph-position/outline reconciliation policy across Canvas and PDF.
 - Final drift reconciliation UX between Live Draft and Published output.

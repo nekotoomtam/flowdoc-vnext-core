@@ -103,6 +103,10 @@ The package must remain runnable without any parent editor checkout.
 - Phase 280 close-audits text-block v4: retained core contracts now unblock
   columns/table split planning and transport integration, while editor input,
   backend execution, mixed layout, generated content, and rendering stay open.
+- Live Draft XR-4 adds a separate QA-only pure projection from complete
+  accepted text-flow pagination to deterministic page boxes and text-line
+  paint commands. It forbids renderer measurement/relayout and production
+  binding while leaving glyph rasterization renderer-owned.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,
