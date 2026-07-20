@@ -76,7 +76,7 @@ run; that remains `PDF-EXPORT-REALDOC-G`.
 - no production route, provider, deployment, credential, or activation;
 - no default Backend application-server mount;
 - no durable Published Structure or protected generation repository;
-- no Draft Preview identity or admission path;
+- no durable Draft Preview repository or arbitrary live-draft compiler;
 - no Form-draft-to-canonical admission contract;
 - no mapped-value hydration back into generated Form controls; and
 - no claim that the complete 200-page document is accepted.
@@ -93,7 +93,7 @@ run; that remains `PDF-EXPORT-REALDOC-G`.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.7` owns Draft Preview with an immutable local draft
-identity that cannot masquerade as a Published Structure Version. E.5.8 then
+`PDF-EXPORT-REALDOC-E.5.7` now accepts Draft Preview with an immutable local
+identity that cannot masquerade as a Published Structure Version. E.5.8 next
 completes lifecycle UX and performance hardening; E.5.9 owns Form/API parity.
 Production remains NO-GO.

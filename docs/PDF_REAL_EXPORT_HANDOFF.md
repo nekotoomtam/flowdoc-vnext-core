@@ -168,5 +168,8 @@ temporary Editor Form state without Preview execution or Core/Backend runtime
 changes. `PDF-EXPORT-REALDOC-E.5.5` accepts JSON and exact mapping-profile
 preparation with content-free local diagnostics. `PDF-EXPORT-REALDOC-E.5.6` now
 binds Published Preview through the existing E.3/E.4 path, keeps mapped values
-in Backend, and accepts the exact 10-page 69C artifact. E.5.7 next owns the
-separate Draft Preview identity.
+in Backend, and accepts the exact 10-page 69C artifact.
+`PDF-EXPORT-REALDOC-E.5.7` now adds a separate immutable Draft snapshot and
+admission before reusing shared generation validation and artifact execution.
+Draft remains local-only, content-free, and explicitly not Published/API-parity
+evidence. E.5.8 next owns complete lifecycle and large-input UX.

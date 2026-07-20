@@ -246,15 +246,27 @@ The Editor receives no mapped canonical business values; edits mark the result
 stale and hide its PDF/download. Desktop/mobile local QA passes. Production and
 the full 200-page export remain untested.
 
-### REALDOC-E.5.7-E.5.9 Remaining Editor Pre-Test And E.6 Acceptance
+### REALDOC-E.5.7 Draft Preview Binding (Accepted)
 
-Add the distinct immutable Draft Preview identity, complete lifecycle and large
-input UX, and Form/API parity evidence. Imported business values remain separate
-from the authored Structure Definition and the browser does not become a second
-resolver.
+Add a distinct immutable local Draft snapshot, separate Draft context and
+admission, and explicit Editor Draft/Published target selection. Backend
+validates the trusted snapshot before reusing shared generation validation and
+the existing artifact lifecycle. Draft receipts remain content-free and
+explicitly not Published/API-parity evidence.
 
-E.1 through E.5.6 are accepted. Remaining subphases are E.5.7 through E.5.9
-Editor pre-test implementation and E.6 cross-repo acceptance.
+Exit: the real 69C adapted payload completes a verified 10-page Draft PDF.
+Target changes clear prior artifact truth, desktop/mobile QA passes, and the
+caller supplies no Published Structure identity to the Draft route. The local
+registry does not yet compile arbitrary live Editor draft packages.
+
+### REALDOC-E.5.8-E.5.9 Remaining Editor Pre-Test And E.6 Acceptance
+
+Complete lifecycle and large-input UX, then add Form/API parity evidence.
+Imported business values remain separate from the authored Structure
+Definition and the browser does not become a second resolver.
+
+E.1 through E.5.7 are accepted. Remaining subphases are E.5.8 and E.5.9 Editor
+pre-test implementation plus E.6 cross-repo acceptance.
 
 E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
 accepted Data Snapshot and resolved-document identity for one exact Published

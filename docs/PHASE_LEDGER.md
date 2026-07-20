@@ -12096,3 +12096,34 @@ durable generation storage, hosted providers, and production are unchanged.
 
 Next phase: `PDF-EXPORT-REALDOC-E.5.7` separate immutable Draft Preview identity
 and admission path.
+
+## PDF-EXPORT-REALDOC-E.5.7 Draft Preview Binding
+
+Status: accepted for local development. Production remains NO-GO.
+
+Core now owns a deterministic immutable Draft Preview snapshot that pins the
+exact draft revision, authoring document/revision, source package, and snapshot
+fingerprint. Its contract is local-only and explicitly denies Published
+Structure, API-parity, business-value, and production claims.
+
+Backend mounts separate optional Draft context and admission routes in the
+isolated E.5.7 runtime. It authorizes and validates the trusted snapshot and
+mapping profile before an internal compatibility bridge reuses E.2
+mapping/validation and E.4 operation/artifact lifecycle. Editor parses the
+complete boundary strictly, defaults to Draft when available, and clears the
+old result whenever Draft/Published target identity changes.
+
+The real 749,929-byte 69C adapted payload maps as `executed`, validates as
+`run-valid` with 0 errors and 3 warnings, and completes a verified 10-page,
+1,417,544-byte PDF. Desktop 1280 x 720 and mobile 390 x 844 have no horizontal
+overflow. Draft receipts expose no mapped canonical values and retain
+`publishedApiParity: false`.
+
+The trusted registry remains process-local and does not compile arbitrary live
+Editor draft packages. Durable snapshots, Form admission, complete lifecycle
+UX, the 200-page document, default mounting, and production remain deferred.
+
+Primary evidence: `docs/PDF_EXPORT_REALDOC_DRAFT_PREVIEW.md` and
+`../flowdoc-vnext-backend/src/tests/fixtures/pdf-export-realdoc-e57-evidence.v1.json`.
+
+Next phase: `PDF-EXPORT-REALDOC-E.5.8` lifecycle and large-input UX hardening.

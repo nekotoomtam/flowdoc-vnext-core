@@ -232,3 +232,11 @@ and connects imported JSON to the accepted E.3 admission plus E.4 lifecycle.
 The Backend retains canonical values; Editor receives only a sanitized receipt,
 status, and exact PDF. Retained evidence is the 10-page 69C slice, not the full
 200-page document. Default mounting and production activation remain unchanged.
+
+`PDF-EXPORT-REALDOC-E.5.7` adds an immutable local Draft snapshot plus separate
+Draft context and admission. Backend validates that identity before a trusted
+compatibility bridge reuses shared generation validation and the E.4 artifact
+lifecycle. Draft receipts explicitly deny Published/API parity, mapped values
+remain protected, the registry remains process-local, and no arbitrary live
+draft compiler, default mount, provider, deployment, or production activation
+is added.

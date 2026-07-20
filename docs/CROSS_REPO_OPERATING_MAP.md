@@ -176,6 +176,11 @@ editor intent
   sanitized content-free receipt and exact PDF, while Core retains source-neutral
   projection/runtime authority. The 10-page 69C slice passes; 200 pages remain
   REALDOC-G: `docs/PDF_EXPORT_REALDOC_PUBLISHED_PREVIEW.md`.
+- PDF export REALDOC-E.5.7 accepts a separate immutable Draft snapshot and
+  Draft admission. Backend validates the trusted local snapshot before a
+  compatibility bridge reuses shared mapping/validation and artifact
+  lifecycle. Draft receipts deny Published/API parity and the 10-page 69C
+  slice passes: `docs/PDF_EXPORT_REALDOC_DRAFT_PREVIEW.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:
