@@ -190,6 +190,12 @@ editor intent
   input and artifact identities. Backend remains the admission/validation
   owner and Editor remains a dynamic projection client:
   `docs/PDF_EXPORT_REALDOC_FORM_API_PARITY.md`.
+- PDF export REALDOC-E.6.1 accepts optional durable protected admission. A
+  second independent Backend process replays the same receipt and Document
+  Instance from SQLite without mapping raw JSON again; rollback, uncertain
+  commit, corruption, and content-free Editor durability facts pass. Durable
+  operation/artifact restart remains E.6.2 and Editor reconnect remains E.6.3:
+  `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

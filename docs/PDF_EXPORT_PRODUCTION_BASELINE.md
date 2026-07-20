@@ -254,3 +254,10 @@ projection for the optional local runtime. The content fingerprint does not
 replace instance-bound replay or artifact identity. Default mounting, durable
 restart reconstruction, hosted providers, deployment, and production remain
 inactive, so the production NO-GO decision is unchanged.
+
+`PDF-EXPORT-REALDOC-E.6.1` adds an optional integrity-checked SQLite repository
+for protected DocGen admissions. Independent-process receipt/instance replay,
+before/after-commit fault handling, and corruption rejection pass locally.
+Operation/lifecycle/artifact reconstruction and Editor reconnect remain E.6.2
+and E.6.3. No default mount, hosted provider, scale rerun, or production
+activation is added, so the production NO-GO decision is unchanged.

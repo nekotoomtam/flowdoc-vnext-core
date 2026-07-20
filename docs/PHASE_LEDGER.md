@@ -12199,3 +12199,32 @@ acceptance remains E.6, Module 2 remains REALDOC-F, and 200 pages remains
 REALDOC-G.
 
 Next phase: `PDF-EXPORT-REALDOC-E.6` cross-repo lifecycle acceptance.
+
+## PDF-EXPORT-REALDOC-E.6.1 Durable Protected Admission
+
+Status: accepted for local development. Production remains NO-GO.
+
+Backend now provides an optional integrity-checked Node SQLite repository for
+protected DocGen admissions. It persists the strict canonical record but not
+raw adapted JSON, reports truthful durable persistence in the receipt, and
+keeps default/production binding false. The in-memory repository remains
+available and continues to report non-durable persistence.
+
+An independent process creates and maps one admission. After it exits, a
+second process opens the same database and replays the exact receipt and
+Document Instance with zero mapper calls. Before-commit rollback permits one
+clean retry, after-commit uncertainty reconciles to replay, and record
+corruption fails closed without remapping or overwrite. Editor accepts and
+preserves the durability fact without receiving canonical business values.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_CROSS_REPO_LIFECYCLE.md`;
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_DURABLE_ADMISSION.md`; and
+- `../flowdoc-vnext-editor/docs/REALDOC_CROSS_REPO_LIFECYCLE.md`.
+
+E.6.2 still owns durable operation/lifecycle/artifact reconstruction and E.6.3
+still owns Editor reconnect/failure acceptance. SQLite scale was not changed
+or rerun. REALDOC-F Module 2 and REALDOC-G 200 pages remain deferred.
+
+Next phase: `PDF-EXPORT-REALDOC-E.6.2` durable operation and artifact restart.

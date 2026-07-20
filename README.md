@@ -1109,6 +1109,13 @@ The package must remain runnable without any parent editor checkout.
   context and connects imported JSON through the accepted E.3 admission and E.4
   exact artifact lifecycle. The 10-page 69C slice passes while mapped values,
   the full 200-page export, Draft Preview, and production remain out of scope.
+- PDF export REALDOC-E.5.7 through E.5.9 accept separate Draft Preview,
+  lifecycle/large-input UX, and direct Form/adapted API canonical-content
+  parity while preserving distinct generation identities.
+- PDF export REALDOC-E.6.1 adds optional integrity-checked SQLite protected
+  admission. Independent-process replay, transaction fault recovery, and
+  corruption rejection pass; durable operation/artifact restart, Editor
+  reconnect, scale work, and production remain pending.
 - Measurement profile identity contract derives stable `measurementProfileId`
   strings from copied font hashes, style mappings, rustybuzz/ICU4X revisions,
   line-break policy, fallback policy, and output shape.

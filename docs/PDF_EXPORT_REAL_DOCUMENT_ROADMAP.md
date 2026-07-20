@@ -289,10 +289,34 @@ generation instances and are not a parity failure.
 
 ### REALDOC-E.6 Cross-Repo Lifecycle Acceptance
 
-E.1 through E.5.9 are accepted. E.6 remains responsible for proving exact
-identity, restart, reconstruction, failure, cancellation, retry, and verified
-download across Editor, Backend, Core, and renderer without weakening the
-content/instance identity split.
+E.1 through E.5.9 are accepted. E.6 proves exact identity, restart,
+reconstruction, failure, cancellation, retry, and verified download across
+Editor, Backend, Core, and renderer without weakening the content/instance
+identity split.
+
+#### REALDOC-E.6.1 Durable Protected Admission (Accepted)
+
+The optional Backend SQLite repository persists only the strict protected
+canonical admission. Independent-process replay returns the same receipt and
+Document Instance without mapping raw JSON again. Before-commit rollback,
+after-commit reconciliation, corruption rejection, and truthful Editor
+durability projection pass. Default and production binding remain inactive.
+
+#### REALDOC-E.6.2 Durable Operation And Artifact Restart
+
+Compose durable admission with durable operation, lifecycle, observability,
+artifact metadata, and artifact bytes. Prove restart before claim, before
+render, after render, and after terminal commit with exact status and verified
+download.
+
+#### REALDOC-E.6.3 Editor Reconnect And Failure Acceptance
+
+Prove reload/reconnect, scoped status recovery, uncertain cancellation and
+retry reconciliation, stale-result rejection, diagnostics, and download
+through the durable Backend composition.
+
+Exit: E.6 is accepted only when E.6.2 and E.6.3 pass. E.6.1 alone does not
+claim complete durable export reconstruction.
 
 ### REALDOC-F Module 2 Scale
 

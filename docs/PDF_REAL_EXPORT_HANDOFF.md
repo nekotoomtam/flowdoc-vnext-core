@@ -175,5 +175,7 @@ Draft remains local-only, content-free, and explicitly not Published/API-parity
 evidence. `PDF-EXPORT-REALDOC-E.5.8` now accepts complete local lifecycle,
 diagnostic-navigation, and bounded large-input UX. E.5.9 now accepts direct
 Form/adapted API canonical-content parity while preserving distinct generation
-instance identities. E.6 next owns cross-repo restart, failure, and lifecycle
-acceptance.
+instance identities. E.6.1 now accepts protected admission replay across
+independent Backend processes, rollback, uncertain commit reconciliation, and
+corruption rejection. E.6.2 next owns durable operation/lifecycle/artifact
+restart, followed by Editor reconnect acceptance in E.6.3.
