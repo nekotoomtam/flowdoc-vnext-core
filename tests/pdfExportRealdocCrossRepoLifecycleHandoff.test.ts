@@ -23,6 +23,8 @@ describe("PDF-EXPORT-REALDOC-E.6 cross-repo lifecycle handoff", () => {
     expect(doc).toContain("strict `sessionStorage` record")
     expect(doc).toContain("automatic startup scan")
     expect(doc).toContain("cancel key before sending cancellation")
+    expect(doc).toContain("read-only inspection surface")
+    expect(doc).toContain("Download remains unavailable")
     expect(doc).toContain("749,929-byte adapted 69C input")
     expect(doc).toContain("1,417,544 bytes")
     expect(doc).toContain("no SQLite scheduler optimization or new 240-page measurement")

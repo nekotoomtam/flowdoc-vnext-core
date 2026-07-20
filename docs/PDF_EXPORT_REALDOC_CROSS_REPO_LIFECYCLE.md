@@ -62,8 +62,9 @@ the most recent Draft or Published attempt.
 
 If current Form/JSON content does not match the retained input fingerprint,
 Editor restores status, diagnostics, and page count but marks the result stale
-and withholds artifact embedding and download. Imported JSON therefore remains
-memory-only without making a recovered artifact look current.
+and exposes the retained artifact only as a read-only inspection surface.
+Download remains unavailable. Imported JSON therefore remains memory-only
+without making a recovered artifact look current.
 
 Editor persists a cancel key before sending cancellation. Replaying the exact
 request and cancel key after interruption returns the retained result instead
@@ -83,6 +84,8 @@ of creating a second cancellation.
 - reload returns directly to Published, displays reconnect activity, restores
   diagnostics/page count, and rejects the absent memory-only JSON as stale;
   and
+- the stale result still renders retained PDF pages for visual inspection while
+  Download remains unavailable; and
 - desktop and 390 x 844 Preview layouts remain coherent.
 
 Retained evidence contains fingerprints, counts, lifecycle facts, and artifact
