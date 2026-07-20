@@ -250,6 +250,9 @@ Exit: worker results match accepted Node summaries for the two current rows.
 
 ### LIVE-DRAFT-XR-2: One-Block Layout Parity
 
+Status: accepted for three bounded QA workloads on 2026-07-20. This is not a
+general parity or production-performance claim.
+
 - Inject the worker-backed measurer into Core without replacing the default.
 - Run one text block through the same Core pagination boundary in Worker and
   Node.
@@ -409,19 +412,18 @@ identity.
 
 ## First Task For The Next Thread
 
-Start with `LIVE-DRAFT-XR-0` and `LIVE-DRAFT-XR-1` only.
+Start with `LIVE-DRAFT-XR-3` only, using the retained XR-1 and XR-2 evidence as
+prerequisites.
 
-1. Read the files under **Required Reading**.
-2. Prove with a focused Editor test that `layout.live` is still placeholder
-   behavior and that Form typing does not currently produce page output.
-3. Audit the text-engine package dependency graph for a browser Worker import.
-4. Add or refine runtime-specific entry points without importing WASM into
-   Core.
-5. Run the two accepted measurement rows in a real Browser Worker.
-6. Compare their normalized results with Node evidence under the same pinned
-   profile/font/WASM identities.
-7. Stop after retained smoke evidence. Do not bind Editor Form state or replace
-   the default measurer in the same slice.
+1. Read the files under **Required Reading** plus the XR-2 Editor evidence doc.
+2. Project one latest memory-only Form candidate into a revision-pinned Worker
+   request without a Backend request per keystroke.
+3. Debounce bursts, cancel or stale-reject obsolete revisions, and preserve the
+   last valid Draft result while newer work runs.
+4. Keep Canvas, general Form coverage, default-measurer replacement, and
+   production activation out of this slice.
+5. Retain latency, stale-result, and final-revision evidence before widening
+   the UI claim.
 
 ## Required Reading
 
@@ -461,16 +463,16 @@ Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
 Read the Required Reading section and inspect all three repositories before
-editing. Start with LIVE-DRAFT-XR-0 and LIVE-DRAFT-XR-1 only. Establish the
-current Editor placeholder baseline, audit browser Worker compatibility of
-@flowdoc/text-engine-rust-wasm, and prove the two currently accepted Thai and
-Latin measurement rows in a real Browser Worker against Node evidence.
+editing. Start with LIVE-DRAFT-XR-3 only. Use the accepted XR-1 Browser Worker
+engine smoke and XR-2 one-block Core layout evidence as prerequisites. Bind
+one memory-only Form candidate to the revision-pinned Worker path with
+debounce, cancellation or stale rejection, and last-valid-result preservation.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
-do not bind Form state yet, do not add a Backend request per keystroke, and do
-not claim general cross-runtime exactness. Add focused tests, retain identity
-and parity evidence, update the handoff with PASS/FAIL/RISK/UNKNOWN, then commit
-and push each changed repository to main.
+do not add a Backend request per keystroke, do not add Canvas or general Form
+coverage in the same slice, and do not claim general cross-runtime exactness.
+Add focused tests, retain identity and timing evidence, update the handoff with
+PASS/FAIL/RISK/UNKNOWN, then commit and push each changed repository to main.
 ```
 
 ## LIVE-DRAFT-XR-0 / XR-1 Execution Result
@@ -509,9 +511,39 @@ Rustybuzz/ICU4X revisions. It does not mislabel the historical profile's
 
 This accepts XR-0/XR-1 only. It does not bind Form state, produce Draft pages,
 replace the default measurer, activate production measurement, or establish
-general cross-runtime exactness. The next implementation slice is XR-2, one
-text block through the same injected Core layout/pagination boundary in Node
-and Worker.
+general cross-runtime exactness. XR-2 was implemented in the following slice.
+
+## LIVE-DRAFT-XR-2 Execution Result
+
+Status: accepted for three bounded one-block QA workloads on 2026-07-20.
+
+The external adapter now converts pinned Rustybuzz glyph advances and ICU4X
+break opportunities into a synchronous measurement draft. Editor injects that
+draft through `createVNextRendererBackedTextMeasurer(...)` only via
+`src/core/coreAdapter.ts`, then calls Core measured-line acceptance and bounded
+text-flow pagination. Core does not import the adapter, WASM, Worker, or DOM.
+
+The retained short Thai (13 characters), medium mixed (743), and long mixed
+(4,959) workloads produce 1, 24, and 120 lines across 1, 2, and 9 pages. All
+Node-native and real Chrome Worker samples match for normalized engine output,
+line and page geometry, page count, measurement/fragment/final fingerprints,
+and repeated-sample stability. Each row retains 5 cold and 25 warm samples;
+warm samples call the engine provider zero times.
+
+The run exposed and removed two external-adapter super-linear paths: repeated
+glyph rescans during wrapping and repeated whole-string scans while mapping
+UTF-8 offsets to Core UTF-16 offsets. Observed Worker round-trip p50 was 3.1
+ms, 17.7 ms, and 62.0 ms cold; warm p50/p95 was 0.7/1.7 ms, 6.2/8.4 ms, and
+17.3/22.9 ms. These are one-machine observations, not accepted budgets.
+
+Evidence lives at
+`flowdoc-vnext-editor/src/fixtures/live-draft-xr2-one-block-performance-parity.v1.json`
+and is explained by
+`flowdoc-vnext-editor/docs/LIVE_DRAFT_XR2_ONE_BLOCK_EVIDENCE.md`.
+
+XR-2 still does not bind Form state, render Canvas pages, replace the default
+measurer, activate production, or prove whole-document incremental scale.
+XR-3 is next.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
@@ -526,17 +558,23 @@ and Worker.
   separate, verified digest identities.
 - Node-native and real Browser Worker Rustybuzz/ICU4X execution matches for the
   two bounded accepted smoke rows.
+- Three bounded one-block workloads match across Node-native and real Browser
+  Worker execution through the injected Core measurement, acceptance, and
+  pagination boundaries.
+- Cold/warm timing phases are retained without inventing a budget, and all
+  warm samples avoid the engine provider.
 - Editor retains the placeholder baseline, worker protocol, identity pins,
   stale-result comparison, and Browser Worker smoke evidence without Form
   binding.
 
 ### FAIL-BLOCKER
 
-- Editor has no real Live Draft text/layout execution yet.
+- Editor has no Form-bound Live Draft execution yet; the real path remains
+  QA-only.
 - Full cross-runtime measurement parity is not accepted.
 - Default pagination measurement replacement remains blocked.
-- No text block has passed the shared Core layout/pagination boundary in both
-  runtimes yet; XR-2 remains the next blocker.
+- Debounce, cancellation, and latest-revision Form binding remain the XR-3
+  blocker.
 
 ### RISK
 
@@ -544,11 +582,15 @@ and Worker.
 - A visually convincing DOM preview could be mistaken for exact pagination.
 - Large-document reflow can overwhelm the browser without worker chunking and
   invalidation.
+- Even with a cache hit, long blocks still spend measurable time in Core
+  acceptance, pagination, fingerprinting, and Worker round-trip; XR-6 must
+  address affected-range invalidation rather than relying on engine cache only.
 - The executable ICU4X/Rustybuzz WASM is about 1.06 MB before transport-level
   compression; initialization and caching budgets need broader evidence.
 
 ### UNKNOWN
 
-- Measured Node/Browser parity beyond the two accepted rows.
+- Measured Node/Browser parity beyond the two smoke rows and three derived
+  one-block workloads.
 - Final performance budgets for small and 200-page documents.
 - Final drift reconciliation UX between Live Draft and Published output.

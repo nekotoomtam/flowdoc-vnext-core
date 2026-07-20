@@ -63,19 +63,17 @@ function requireFact(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message)
 }
 
-function utf8ByteOffsetToUtf16Offset(text: string, targetByteOffset: number): number {
-  requireFact(Number.isSafeInteger(targetByteOffset) && targetByteOffset >= 0, "invalid UTF-8 byte offset")
-  if (targetByteOffset === 0) return 0
+function createUtf8ByteToUtf16OffsetMap(text: string): Map<number, number> {
+  const offsets = new Map<number, number>([[0, 0]])
   let byteOffset = 0
   let utf16Offset = 0
-  const encoder = new TextEncoder()
   for (const scalar of text) {
-    byteOffset += encoder.encode(scalar).byteLength
+    const codePoint = scalar.codePointAt(0)!
+    byteOffset += codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4
     utf16Offset += scalar.length
-    if (byteOffset === targetByteOffset) return utf16Offset
-    requireFact(byteOffset < targetByteOffset, "line break is not on a UTF-8 scalar boundary")
+    offsets.set(byteOffset, utf16Offset)
   }
-  throw new Error("line break exceeds the text byte length")
+  return offsets
 }
 
 export function normalizeFlowDocTextEngineLiveDraftResultV1(input: {
@@ -106,6 +104,7 @@ export function normalizeFlowDocTextEngineLiveDraftResultV1(input: {
     segmentation.breakByteOffsets.every((offset, index, offsets) => index === 0 || offset > offsets[index - 1]!),
     "segmentation offsets must be strictly increasing",
   )
+  const utf16OffsetByUtf8Byte = createUtf8ByteToUtf16OffsetMap(shape.text)
   return {
     contractVersion: 1,
     outputShapeVersion: "glyph-break-smoke-v1",
@@ -116,9 +115,11 @@ export function normalizeFlowDocTextEngineLiveDraftResultV1(input: {
     unitsPerEm: shape.unitsPerEm,
     glyphs: structuredClone(shape.glyphs),
     breakByteOffsets: [...segmentation.breakByteOffsets],
-    breakUtf16Offsets: segmentation.breakByteOffsets.map((offset) => (
-      utf8ByteOffsetToUtf16Offset(shape.text, offset)
-    )),
+    breakUtf16Offsets: segmentation.breakByteOffsets.map((offset) => {
+      const utf16Offset = utf16OffsetByUtf8Byte.get(offset)
+      requireFact(utf16Offset != null, "line break is not on a UTF-8 scalar boundary or exceeds the text")
+      return utf16Offset
+    }),
     summary: {
       glyphCount: shape.glyphCount,
       missingGlyphCount: shape.glyphs.filter((glyph) => glyph.glyphId === 0).length,

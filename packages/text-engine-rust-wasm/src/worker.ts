@@ -13,6 +13,7 @@ import {
 } from "./runtimeCommon.js"
 
 export type { FlowDocTextEngineLiveDraftNormalizedResultV1 } from "./runtimeCommon.js"
+export { createFlowDocTextEngineLiveDraftMeasurementV1 } from "./liveDraftLayout.js"
 
 export interface FlowDocTextEngineWorkerFontV1 {
   fontId: string

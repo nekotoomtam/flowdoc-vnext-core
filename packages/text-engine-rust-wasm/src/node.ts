@@ -11,6 +11,8 @@ import {
   type FlowDocTextEngineLiveDraftRawShapeV1,
 } from "./runtimeCommon.js"
 
+export { createFlowDocTextEngineLiveDraftMeasurementV1 } from "./liveDraftLayout.js"
+
 let nativeExecutorsBuilt = false
 
 function requireFact(condition: unknown, message: string): asserts condition {
@@ -72,17 +74,45 @@ export function runFlowDocTextEngineNodeSmokeRowV1(input: {
   }
   result: FlowDocTextEngineLiveDraftNormalizedResultV1
 } {
+  return runFlowDocTextEngineNodeTextV1({
+    text: input.row.text,
+    fontId: input.row.fontId,
+    fontAssetPath: input.row.fontAssetPath,
+    fontSha256: input.row.fontSha256,
+    measurementProfileId: input.measurementProfileId,
+    wasmSha256: input.wasmSha256,
+  })
+}
+
+export function runFlowDocTextEngineNodeTextV1(input: {
+  text: string
+  fontId: string
+  fontAssetPath: string
+  fontSha256: string
+  measurementProfileId: string
+  wasmSha256: string
+}): {
+  identity: {
+    runtime: "node-native"
+    measurementProfileId: string
+    wasmSha256: string
+    wasmExecution: false
+    executesRustybuzz: true
+    executesIcu4x: true
+  }
+  result: FlowDocTextEngineLiveDraftNormalizedResultV1
+} {
   const paths = buildNativeExecutors()
-  const fontPath = resolve(paths.coreRoot, input.row.fontAssetPath)
-  requireFact(sha256File(fontPath) === input.row.fontSha256, `font digest mismatch: ${input.row.fontId}`)
+  const fontPath = resolve(paths.coreRoot, input.fontAssetPath)
+  requireFact(sha256File(fontPath) === input.fontSha256, `font digest mismatch: ${input.fontId}`)
   const shape = JSON.parse(run(
     paths.shaper,
-    [fontPath, input.row.text, input.row.fontId],
+    [fontPath, input.text, input.fontId],
     paths.coreRoot,
   )) as FlowDocTextEngineLiveDraftRawShapeV1
   const segmentation = JSON.parse(run(
     paths.segmenter,
-    [input.row.text],
+    [input.text],
     paths.coreRoot,
   )) as FlowDocTextEngineLiveDraftRawSegmentationV1
   return {
