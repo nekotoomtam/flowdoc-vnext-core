@@ -12161,3 +12161,41 @@ the complete 200-page run remains REALDOC-G. The pre-existing SQLite scale
 result was not changed or rerun for acceptance.
 
 Next phase: `PDF-EXPORT-REALDOC-E.5.9` Form/API canonical parity.
+
+## PDF-EXPORT-REALDOC-E.5.9 Form/API Parity
+
+Status: accepted for local development. Production remains NO-GO.
+
+Core now publishes `canonicalContentFingerprint` for ready generation runtime
+results. It covers canonical data, normalized field-key-ordered collections,
+and admitted media, but excludes lane and instance/snapshot identities.
+`canonicalInputFingerprint` remains instance-bound and continues to own replay
+and stale truth.
+
+Backend accepts generated Form candidates through direct canonical admission
+and external JSON through the trusted adapted lane. Both use the same Core
+validation and protected canonical repository. Editor derives fields from the
+exact projection, imports canonical Form JSON with or without a UTF-8 BOM, and
+drives the same Draft/Published lifecycle without becoming mapper, validator,
+resolver, renderer, or artifact owner.
+
+The retained 69C evidence has 10 requirements, 7 screenshots, and a
+749,929-byte adapted payload. Direct Form is `not-required`/`run-valid` with 0
+warnings; adapted API is `executed`/`run-valid` with 3 warnings. Both produce
+canonical content fingerprint
+`sha256:f21638952df9a5405196b2b797c882858fad79c8ee1e8d9d2179ef8bc868e1ad`
+and separate 10-page, 1,417,544-byte artifacts. Their PDF hashes differ because
+their generation identities are intentionally distinct; no byte-parity claim
+is made.
+
+Primary evidence:
+
+- `docs/PDF_EXPORT_REALDOC_FORM_API_PARITY.md`;
+- `../flowdoc-vnext-editor/docs/REALDOC_FORM_API_PARITY.md`; and
+- `../flowdoc-vnext-backend/docs/PDF_EXPORT_REALDOC_FORM_API_PARITY.md`.
+
+SQLite scale was not changed or rerun. Durable cross-repo restart/failure
+acceptance remains E.6, Module 2 remains REALDOC-F, and 200 pages remains
+REALDOC-G.
+
+Next phase: `PDF-EXPORT-REALDOC-E.6` cross-repo lifecycle acceptance.

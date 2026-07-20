@@ -183,8 +183,13 @@ editor intent
   slice passes: `docs/PDF_EXPORT_REALDOC_DRAFT_PREVIEW.md`.
 - PDF export REALDOC-E.5.8 accepts complete local Preview lifecycle recovery,
   content-free diagnostic navigation, and bounded large-JSON interaction over
-  the existing Core identity and generation contracts. Form/API parity remains
-  E.5.9: `docs/PDF_EXPORT_REALDOC_PREVIEW_LIFECYCLE_UX.md`.
+  the existing Core identity and generation contracts:
+  `docs/PDF_EXPORT_REALDOC_PREVIEW_LIFECYCLE_UX.md`.
+- PDF export REALDOC-E.5.9 accepts direct Form and adapted API convergence on
+  one canonical-content fingerprint while preserving distinct instance-bound
+  input and artifact identities. Backend remains the admission/validation
+  owner and Editor remains a dynamic projection client:
+  `docs/PDF_EXPORT_REALDOC_FORM_API_PARITY.md`.
 - Core Phase 269 classifies current core, backend, and editor contracts as
   reusable, change-required, deferred, or rejected against that lifecycle. It
   does not change schema, persistence, API, editor, policy, or runtime behavior:

@@ -71,7 +71,7 @@ production scheduler are unchanged.
 
 ## Explicitly Not Changed
 
-- no Form admission or Form/API canonical parity evidence;
+- no Form admission or Form/API canonical parity evidence in E.5.8 itself;
 - no durable Draft snapshot or protected generation reconstruction;
 - no arbitrary live Editor draft compiler;
 - no widening of the 1 MiB adapted-payload limit;
@@ -95,7 +95,8 @@ REALDOC-G still owns complete 200-page load evidence.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.9` proves that generated Form input and an external
-API-shaped caller converge on the same canonical result. E.6 then owns
-cross-repo identity, restart, failure, and lifecycle acceptance. Production
-remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.9` is now accepted in
+`docs/PDF_EXPORT_REALDOC_FORM_API_PARITY.md`: generated Form input and an
+external API-shaped caller converge on one canonical content fingerprint while
+retaining separate instance identities. E.6 now owns cross-repo identity,
+restart, failure, and lifecycle acceptance. Production remains NO-GO.

@@ -273,19 +273,26 @@ verified as 10 pages and 1,417,544 bytes. Desktop/mobile QA passes. The local
 same-process real-document harness uses a bounded dispatch window; production
 scheduling remains unchanged.
 
-### REALDOC-E.5.9 Form/API Parity And E.6 Acceptance
+### REALDOC-E.5.9 Form/API Parity (Accepted)
 
-Add Form/API parity evidence. Imported business values remain separate from
-the authored Structure Definition and the browser does not become a second
-resolver.
+Generated Form input uses direct canonical admission while external JSON uses
+the trusted adapted lane. Both pass the same Backend/Core validation boundary
+and converge on one canonical content fingerprint. Their instance-bound input,
+operation, and artifact identities remain distinct. Imported business values
+remain separate from the authored Structure Definition and the browser does
+not become a second resolver.
 
-E.1 through E.5.8 are accepted. Remaining subphase is E.5.9 Editor pre-test
-parity plus E.6 cross-repo acceptance.
+Exit: the retained 69C direct and adapted lanes validate successfully, produce
+the same canonical content fingerprint, and each complete a 10-page,
+1,417,544-byte local artifact. Different PDF hashes are expected for the two
+generation instances and are not a parity failure.
 
-E.5/E.6 exit: Editor pre-test and an external API-shaped caller produce the same
-accepted Data Snapshot and resolved-document identity for one exact Published
-Structure Version, and the local artifact retains those pins through restart,
-cancellation, retry, and verified download.
+### REALDOC-E.6 Cross-Repo Lifecycle Acceptance
+
+E.1 through E.5.9 are accepted. E.6 remains responsible for proving exact
+identity, restart, reconstruction, failure, cancellation, retry, and verified
+download across Editor, Backend, Core, and renderer without weakening the
+content/instance identity split.
 
 ### REALDOC-F Module 2 Scale
 

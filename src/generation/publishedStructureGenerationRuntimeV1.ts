@@ -54,6 +54,24 @@ function canonicalClone<T>(value: T): T {
   return clone(canonicalValue(value)) as T
 }
 
+export function createVNextPublishedStructureCanonicalContentFingerprintV1(
+  input: VNextPublishedStructureCanonicalSnapshotInputV1,
+): string {
+  const collections = input.collectionSnapshots
+    .flatMap((snapshot) => Object.entries(snapshot.collections).map(([fieldKey, value]) => ({
+      fieldKey,
+      value,
+    })))
+    .sort((left, right) => left.fieldKey.localeCompare(right.fieldKey))
+  return fingerprint({
+    contractVersion: 1,
+    kind: "published-structure-canonical-content",
+    data: input.dataSnapshot.data,
+    collections,
+    media: input.mediaSnapshot.registry,
+  })
+}
+
 export type VNextPublishedStructureJsonPayloadDescriptorV1 = (
   VNextPublishedStructureAdaptedPayloadInputV1["payload"]
 )
@@ -207,6 +225,7 @@ export interface VNextPublishedStructureGenerationRuntimeReadyV1 {
   planFingerprint: string
   canonicalInput: VNextPublishedStructureCanonicalSnapshotInputV1
   canonicalInputFingerprint: string
+  canonicalContentFingerprint: string
   mappingProfile: {
     mappingProfileId: string
     mappingProfileVersion: number
@@ -233,6 +252,7 @@ export interface VNextPublishedStructureGenerationRuntimeBlockedV1 {
   planFingerprint: string | null
   canonicalInput: null
   canonicalInputFingerprint: null
+  canonicalContentFingerprint: null
   mappingProfile: {
     mappingProfileId: string
     mappingProfileVersion: number
@@ -334,6 +354,7 @@ function blocked(
     planFingerprint,
     canonicalInput: null,
     canonicalInputFingerprint: null,
+    canonicalContentFingerprint: null,
     mappingProfile,
     diagnostics: runtimeDiagnostics,
     nextStep: null,
@@ -614,6 +635,7 @@ function ready(
     planFingerprint: plan.planFingerprint,
     canonicalInput: canonicalClone(canonicalInput),
     canonicalInputFingerprint: fingerprint(canonicalInput),
+    canonicalContentFingerprint: createVNextPublishedStructureCanonicalContentFingerprintV1(canonicalInput),
     mappingProfile: mappingProfileSummary(request),
     diagnostics: runtimeDiagnostics,
     nextStep: "materialization" as const,

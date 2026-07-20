@@ -196,7 +196,8 @@ The accepted REALDOC evidence already follows this boundary:
    Core/Backend runtime changes or Preview execution.
 12. `REALDOC-E.5.6` accepts Published Preview and `E.5.7` accepts a separate
    immutable Draft Preview identity and admission. `E.5.8` accepts lifecycle
-   and large-input UX; `E.5.9` retains Form/API parity evidence. Imported
+   and large-input UX; `E.5.9` accepts Form/API canonical-content parity while
+   preserving distinct instance identities. Imported
    values do not become authored Structure content or browser artifact truth.
 13. `REALDOC-E.6` accepts the complete local request-to-artifact identity and
    restart/fault evidence across Editor, Backend, Core, and renderer.

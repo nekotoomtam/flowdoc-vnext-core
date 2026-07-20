@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   createVNextPublishedStructureGenerationDataContractV1,
+  createVNextPublishedStructureCanonicalContentFingerprintV1,
   createVNextPublishedStructureJsonPayloadDescriptorV1,
   createVNextPublishedStructureMappingProfileV1,
   runVNextPublishedStructureGenerationRuntimeV1,
@@ -343,6 +344,22 @@ describe("Published Structure generation runtime v1", () => {
     expect(JSON.stringify(request)).toBe(before)
   })
 
+  it("keeps canonical content identity independent from generated instance and snapshot ids", () => {
+    const left = canonicalInput()
+    const rightInstance = {
+      ...instance(),
+      instanceId: "runtime-report-instance-002",
+    }
+    const right = canonicalInput(rightInstance)
+    right.dataSnapshot.dataSnapshotId = "runtime-report-data-other"
+    right.collectionSnapshots[0]!.collectionSnapshotId = "runtime-report-collections-other"
+    right.mediaSnapshot.mediaSnapshotId = "runtime-report-media-other"
+
+    expect(right).not.toEqual(left)
+    expect(createVNextPublishedStructureCanonicalContentFingerprintV1(right))
+      .toBe(createVNextPublishedStructureCanonicalContentFingerprintV1(left))
+  })
+
   it("converges adapted and direct inputs on the exact canonical snapshot fingerprint", () => {
     const payloadText = JSON.stringify({
       title: "Confidential runtime report",
@@ -359,6 +376,7 @@ describe("Published Structure generation runtime v1", () => {
     if (direct.status === "blocked" || adapted.status === "blocked") throw new Error("parity runtime blocked")
     expect(adapted.execution).toMatchObject({ mapping: "executed", runtimeValidation: "run-valid" })
     expect(adapted.canonicalInputFingerprint).toBe(direct.canonicalInputFingerprint)
+    expect(adapted.canonicalContentFingerprint).toBe(direct.canonicalContentFingerprint)
     expect(adapted.canonicalInput).toEqual(direct.canonicalInput)
     expect(JSON.stringify(adapted.diagnostics)).not.toContain("Confidential runtime report")
     expect(JSON.stringify(adapted.diagnostics)).not.toContain("Private item")
@@ -631,6 +649,7 @@ describe("Published Structure generation runtime v1", () => {
     expect(adapted.status).not.toBe("blocked")
     if (direct.status === "blocked" || adapted.status === "blocked") throw new Error("UAT parity blocked")
     expect(adapted.canonicalInputFingerprint).toBe(direct.canonicalInputFingerprint)
+    expect(adapted.canonicalContentFingerprint).toBe(direct.canonicalContentFingerprint)
     expect(adapted.canonicalInput).toEqual(direct.canonicalInput)
     expect(adapted.diagnostics.summary).toMatchObject({ collectionItemCount: 2, mediaAssetCount: 1 })
     expect(JSON.stringify(adapted.diagnostics)).not.toContain("Secret requirement text")

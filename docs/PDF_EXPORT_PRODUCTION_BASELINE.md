@@ -247,3 +247,10 @@ generation behavior. A local real-document dispatch window makes pending
 cancellation observable without changing the default or production scheduler.
 The 1 MiB input limit, protected value boundary, 200-page deferral, and
 production NO-GO decision remain unchanged.
+
+`PDF-EXPORT-REALDOC-E.5.9` adds a source-neutral canonical-content fingerprint,
+direct Form admission, adapted API parity evidence, and Editor lifecycle
+projection for the optional local runtime. The content fingerprint does not
+replace instance-bound replay or artifact identity. Default mounting, durable
+restart reconstruction, hosted providers, deployment, and production remain
+inactive, so the production NO-GO decision is unchanged.
