@@ -119,6 +119,13 @@ The package must remain runnable without any parent editor checkout.
   and new Browser/Node canonical layout facts compare exact integers. Authored
   units, existing float geometry, pagination, renderers, and production
   measurement remain unchanged.
+- Live Draft MR1 now also defines a Core-only multi-run acceptance boundary.
+  External shaping evidence supplies pinned font metrics, cluster advances,
+  break opportunities, and line ranges; Core validates them and derives exact
+  positioned fragments, mixed-size shared baselines, line heights, source
+  segments, and fingerprints. External Text Run style/font resolution,
+  Browser/Node evidence, display-list binding, and production use remain
+  blocked.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

@@ -12290,3 +12290,37 @@ Primary evidence:
 SQLite scheduler optimization and a new 240-page measurement were not added.
 REALDOC-F Module 2 and REALDOC-G 200 pages remain deferred. Production remains
 NO-GO.
+
+## LIVE-DRAFT-MR1-A Core Multi-Run Layout Contract
+
+Status: accepted as a Core-only contract and acceptance slice on 2026-07-21.
+Cross-runtime integration and production remain NO-GO.
+
+Core now publishes a versioned JSON-safe multi-run layout contract over the
+accepted fixed-point policy and existing TextBlock v4 measurement source. An
+external adapter supplies pinned font metrics, resolved shaping runs, ordered
+clusters, break opportunities, and selected line ranges. Core validates safe
+UTF-16 and coverage boundaries and derives exact fragment positions,
+mixed-size shared baselines, leading, line stacking, source segments, and
+fingerprints without loading font bytes or importing a renderer.
+
+The bounded fixture accepts 10 pt Regular, 24 pt Bold, and a 12 pt resolved
+field on one line, plus run coalescing/splitting and mandatory hard-break
+cases. It also retains fail-closed policy, coverage, cluster, width,
+inline-image, and production-binding blockers.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`;
+- `src/layout/textBlockMultiRunLayoutContractV1.ts`;
+- `src/layout/textBlockMultiRunLayoutV1.ts`; and
+- `tests/textBlockMultiRunLayoutV1.test.ts`.
+
+Authored TextBlock/Text Run schemas, existing measurement and pagination,
+display lists, Editor, Backend, and production bindings were not changed.
+Effective Text Run style/font resolution, external Rust/WASM and Node shaping
+facts, real Browser Worker parity, and per-fragment display-list commands
+remain blocked.
+
+Next phase: `LIVE-DRAFT-MR1-B` external effective-style, font-metric, shaping-
+run, and cluster evidence for Node and Browser Worker consumption.

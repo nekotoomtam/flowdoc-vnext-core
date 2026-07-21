@@ -423,13 +423,14 @@ identity.
 ## First Task For The Next Thread
 
 Continue MR1 mixed-style/mixed-size inline layout from the retained XR-5
-partial matrix checkpoint and the accepted MR1 fixed-point foundation.
+partial matrix checkpoint, accepted MR1 fixed-point foundation, and accepted
+Core multi-run layout contract.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
-   evidence docs.
-2. Define versioned resolved shaping-run, positioned-line, and line-fragment
-   contracts using `LayoutUnitPolicyV1`; do not mutate authored TextBlock
-   geometry.
+   evidence docs plus `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`.
+2. Extend external Node and Browser/WASM engine facts with effective Text Run
+   style/font resolution, pinned raw font metrics, shaping runs, and cluster
+   advances; feed both runtimes into the accepted Core contract.
 3. Execute the first bounded Sarabun Regular/Bold and mixed-size line through
    Node and real Browser runtimes before claiming a font switch inside one
    measured line.
@@ -487,9 +488,11 @@ Read the Required Reading section and inspect all three repositories before
 editing. Continue LIVE-DRAFT-XR-5 only from the retained nine-row partial
 checkpoint. Use the accepted XR-1 Browser Worker engine smoke, XR-2 one-block
 Core layout evidence, XR-3 bounded Form binding, XR-4 Canvas display-list
-evidence, and XR-5 source-segment/matrix evidence as prerequisites. Close only
-the retained Table, approximate-versus-renderer drift, and guarded multi-font
-inline rows whose real owner contracts can be exercised.
+evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, and MR1
+Core multi-run layout contract as prerequisites. Extend the external Node and
+Browser/WASM facts with effective Text Run style/font resolution, raw font
+metrics, shaping runs, and cluster advances before claiming mixed-font inline
+parity. Close only retained rows whose real owner contracts can be exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
@@ -688,8 +691,9 @@ and is explained by
 
 ## LIVE-DRAFT-MR1 Fixed-Point Foundation
 
-Status: accepted as a Core-only numeric foundation on 2026-07-21. Multi-run
-shaping and paint geometry remain blocked.
+Status: accepted as a Core-only numeric foundation on 2026-07-21. A subsequent
+Core-only multi-run layout acceptance contract is also accepted; external
+shaping and runtime paint integration remain blocked.
 
 Core now publishes `LayoutUnitPolicyV1` for new versioned text-layout
 contracts. One point equals 1,000,000 signed safe integer layout units. Point
@@ -703,6 +707,25 @@ renderer or production path. The historical approximate-versus-renderer drift
 threshold remains a distinct policy. Documentation lives at
 `docs/LIVE_DRAFT_MR1_LAYOUT_UNIT_POLICY.md`; focused evidence lives in
 `tests/layoutUnitPolicyV1.test.ts`.
+
+## LIVE-DRAFT-MR1 Core Multi-Run Layout Contract
+
+Status: accepted as a Core-only contract and acceptance slice on 2026-07-21.
+Browser/Node runtime parity and production remain NO-GO.
+
+Core now accepts versioned external shaping evidence containing pinned font
+metrics, resolved shaping runs, clusters, break opportunities, and line
+ranges. It validates coverage and safe boundaries, then derives exact integer
+fragment x positions, mixed-size shared baselines, line height/leading, line
+stacking, retained source segments, and deterministic fingerprints. The
+bounded fixture covers 10 pt Regular, 24 pt Bold, and a 12 pt resolved field
+on one line.
+
+This slice does not load font bytes, execute shaping, validate Text Run
+style-to-font resolution, change pagination/display-list behavior, or bind a
+renderer. Documentation lives at
+`docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`; focused evidence lives in
+`tests/textBlockMultiRunLayoutV1.test.ts`.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
@@ -747,6 +770,9 @@ threshold remains a distinct policy. Documentation lives at
   external Live Draft adapter; focused tests retain mandatory CR/LF behavior.
 - New MR1 layout contracts can bind canonical geometry to a fingerprinted
   signed fixed-point policy and compare Browser/Node facts as exact integers.
+- Core can validate already-resolved multi-run cluster evidence and derive
+  exact mixed-size line baselines, positioned fragments, source segments, and
+  fingerprints without importing an engine or renderer.
 
 ### FAIL-BLOCKER
 
@@ -756,8 +782,10 @@ threshold remains a distinct policy. Documentation lives at
 - Constrained Table-cell, repeated-header, explicit page-break, and
   default/approximate-versus-renderer drift rows remain explicitly blocked.
 - Full cross-runtime measurement parity is not accepted.
-- MR1 shaping runs, mixed-size line metrics, positioned fragments, and
-  per-fragment display-list commands are not implemented yet.
+- External MR1 Text Run style/font resolution, Rust/WASM and Node shaping-run
+  facts, Browser Worker parity, and per-fragment display-list commands are not
+  implemented yet. The accepted Core contract currently consumes manually
+  bounded evidence only.
 - Default pagination measurement replacement remains blocked.
 - Whole-document field/layout coverage and incremental invalidation remain
   blocked for later slices.
@@ -782,6 +810,10 @@ threshold remains a distinct policy. Documentation lives at
 - Separate regular/bold rows prove style-to-font mapping but can be mistaken
   for proof of a font-face switch inside one shaped line; that claim remains
   blocked.
+- The Core multi-run fixture proves integer acceptance/derivation, not that an
+  external adapter chose the correct effective Text Run style or font face.
+  Cross-runtime claims remain blocked until the engine fact slice proves that
+  mapping in Node and a real Browser Worker.
 - The 23.1 ms warm long-row observation still reflows and fingerprints the
   complete 4,959-character block; XR-6 affected-range invalidation remains
   necessary.
@@ -789,7 +821,7 @@ threshold remains a distinct policy. Documentation lives at
 ### UNKNOWN
 
 - Node/Browser parity for Table-cell and repeated-header owner pipelines and
-  for mixed-font shaping inside one line.
+  for externally shaped mixed-font content inside one line.
 - Default/approximate-versus-renderer drift values for the expanded rows under
   the accepted threshold policy.
 - Final performance budgets for small and 200-page documents.

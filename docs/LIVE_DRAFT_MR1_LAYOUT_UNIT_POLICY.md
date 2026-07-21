@@ -1,8 +1,8 @@
 # Live Draft MR1 Layout Unit Policy
 
-Status: MR1 fixed-point foundation accepted on 2026-07-21. Multi-run shaping,
-positioned fragments, renderer binding, and production activation remain
-inactive.
+Status: MR1 fixed-point foundation accepted on 2026-07-21. The subsequent
+Core-only multi-run contract now consumes this policy; external shaping,
+renderer binding, and production activation remain inactive.
 
 ## Outcome
 
@@ -79,7 +79,8 @@ values after normalization.
 
 ## Next
 
-Define the versioned MR1 resolved-shaping-run, positioned-line, and
-line-fragment contracts using layout integers and this policy fingerprint.
-The existing XR-5 path remains unchanged until those facts pass Node and real
+The versioned resolved-shaping-run, positioned-line, and line-fragment
+contracts now live in `LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`. Extend the
+external engine facts and effective Text Run style resolution next. The
+existing XR-5 path remains unchanged until those facts pass Node and real
 Browser evidence.
