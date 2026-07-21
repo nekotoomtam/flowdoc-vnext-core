@@ -1,9 +1,9 @@
 # Live Draft MR1 Engine Facts And Itemization
 
-Status: external adapter, Node-native, and executable MR1 WASM test-host slice
-accepted on 2026-07-21. Real Chrome Worker evidence, Editor binding,
-per-fragment display-list/Canvas paint, Backend binding, and production remain
-NO-GO.
+Status: external adapter, Node-native, executable MR1 WASM test-host, and
+bounded real Chrome Worker parity slices accepted on 2026-07-21. Editor product
+binding, per-fragment display-list/Canvas paint, Backend binding, and production
+remain NO-GO.
 
 ## Outcome
 
@@ -108,9 +108,15 @@ line switches Sarabun Regular to Bold and back to Regular. Actual 24 pt
 Sarabun metrics produce a 25,632,000-unit ascent, 5,568,000-unit descent,
 31,200,000-unit natural height, and a shared baseline offset of 25,632,000.
 
-The WASM path is instantiated in the automated Node test host. This proves the
-artifact and runtime-normalization boundary, but it is not a real Chrome
-Worker claim.
+The WASM path is also instantiated by a separate Editor QA Worker in real
+Chrome. Its complete Core request and accepted layout are byte-for-byte JSON
+equal to Node-native execution with zero integer drift. The bounded result
+retains three shaping runs, three clusters, one line, three positioned
+fragments, the Regular/Bold/Regular face switch, and the resolved-field source
+segment. The retained 25 warm layouts observed about 1.9 ms p50 and 3.4 ms p95
+on one machine; these are observations, not accepted budgets. See the Editor
+repository's `docs/LIVE_DRAFT_MR1_REAL_BROWSER_WORKER.md` and
+`src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json`.
 
 `tests/textEngineMultiRunLayoutV1.test.ts` separately proves deterministic
 itemization, compatible source-run coalescing, cluster-safe wrapping,
@@ -126,12 +132,11 @@ boundaries.
   Editor, and Backend are unchanged.
 - No font or WASM bytes enter Core.
 - No production binding is enabled.
-- No real Browser, Canvas, PDF, or glyph-pixel parity claim is made.
+- No Canvas, PDF, product-binding, or glyph-pixel parity claim is made.
 
 ## Next
 
-Load the separate MR1 artifact and Sarabun faces in an Editor QA Worker, run
-the same mixed-size fixture in real Chrome, and retain exact Node/Worker engine
-request and Core-layout evidence. After that passes, project the accepted
-positioned fragments into per-fragment display-list commands without renderer
-measurement or relayout.
+Project the accepted positioned fragments into versioned per-fragment
+display-list commands without renderer measurement or relayout. Then consume
+those commands in a separate Editor QA Canvas path before considering product
+binding.

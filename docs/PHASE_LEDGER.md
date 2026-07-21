@@ -12357,3 +12357,35 @@ Chrome Worker acceptance and per-fragment paint commands remain blocked.
 
 Next phase: `LIVE-DRAFT-MR1-C` real Editor Chrome Worker parity over the
 separate MR1 artifact and bounded mixed-size line.
+
+## LIVE-DRAFT-MR1-C Real Chrome Worker Parity
+
+Status: accepted for one bounded mixed-size TextBlock in a real Chrome Worker
+on 2026-07-21. Product binding and production remain NO-GO.
+
+A separate Editor QA page and Worker load the isolated MR1 WASM artifact plus
+digest-pinned Sarabun Regular/Bold bytes. Node-native and Chrome Worker
+execution produce exactly equal complete Core requests and accepted Core
+layouts for 10 pt Regular, 24 pt Bold, and a 12 pt resolved field. Both maximum
+integer drifts are zero. The accepted layout contains three shaping runs, three
+clusters, one line, and three positioned fragments with the
+Regular/Bold/Regular face switch and retained field source identity.
+
+The run observed zero Backend-like requests. Twenty-five warm complete layouts
+were exactly consistent and observed about 1.9 ms p50 and 3.4 ms p95 on one
+machine; no performance budget is accepted from this tiny fixture.
+
+Primary evidence:
+
+- `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_REAL_BROWSER_WORKER.md`;
+- `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json`;
+- `../flowdoc-vnext-editor/src/qa/liveDraftMr1Evidence.worker.ts`; and
+- `../flowdoc-vnext-editor/src/tests/liveDraftMr1Evidence.test.ts`.
+
+The existing product Worker/controller, pagination, display list, Canvas,
+default measurer, Backend, and production paths were not changed. This evidence
+does not establish glyph/pixel parity or large-document performance.
+
+Next phase: `LIVE-DRAFT-MR1-D` Core per-fragment display-list projection over
+the accepted positioned layout, followed by a separate QA Canvas consumer that
+does not measure or relayout text.

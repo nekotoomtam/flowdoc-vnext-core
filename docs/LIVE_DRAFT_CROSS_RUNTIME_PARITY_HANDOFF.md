@@ -62,8 +62,8 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `3c55681` | canonical contracts, layout/pagination, measurement boundaries, text-engine evidence, measured draw contracts |
-| `flowdoc-vnext-editor` | `2053c27` | Design/Preview workspace, dynamic Form/JSON state, exact-preview lifecycle, PDF.js page inspection |
+| `flowdoc-vnext-core` | `d3062f4` | canonical contracts, layout/pagination, fixed-point multi-run acceptance, external MR1 engine facts |
+| `flowdoc-vnext-editor` | `d5c8b10` | Design/Preview workspace plus bounded real-Chrome MR1 Worker parity evidence |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
 ### Core Truth
@@ -423,17 +423,17 @@ identity.
 ## First Task For The Next Thread
 
 Continue MR1 mixed-style/mixed-size inline layout from the retained XR-5
-partial matrix checkpoint, accepted MR1 fixed-point foundation, and accepted
-Core multi-run layout contract.
+partial matrix checkpoint and accepted real-Chrome MR1 Worker parity evidence.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs, `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`, and
    `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`.
-2. Load the separate MR1 artifact and pinned Sarabun faces through an Editor QA
-   Worker without changing the historical XR Worker path.
-3. Execute the bounded Sarabun Regular/Bold and mixed-size line through Node
-   and real Chrome Worker runtimes and retain exact Core request/layout facts
-   before claiming real-Browser mixed-font parity.
+2. Project the accepted positioned fragments into a versioned per-fragment
+   display list. Carry Core-owned x/baseline/style/source geometry without
+   measuring, wrapping, or recomputing line height in the renderer.
+3. Let a separate Editor QA Canvas path consume those commands without
+   `measureText`, then retain command parity and bounded visual evidence before
+   considering product binding.
 4. Bind constrained Table-cell and repeated-header rows through their accepted
    Table preparation/pagination/display-list owners; do not impersonate them
    with plain text-block rows.
@@ -466,6 +466,9 @@ Core:
 Editor:
 
 - `docs/LIVE_DRAFT_XR5_CROSS_RUNTIME_MATRIX.md`
+- `docs/LIVE_DRAFT_MR1_REAL_BROWSER_WORKER.md`
+- `src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json`
+- `src/qa/liveDraftMr1Evidence.worker.ts`
 - `src/qa/liveDraftXr5Matrix.ts`
 - `scripts/run-live-draft-xr5-evidence.mjs`
 - `src/core/coreAdapter.ts`
@@ -492,12 +495,12 @@ Read the Required Reading section and inspect all three repositories before
 editing. Continue LIVE-DRAFT-XR-5 only from the retained nine-row partial
 checkpoint. Use the accepted XR-1 Browser Worker engine smoke, XR-2 one-block
 Core layout evidence, XR-3 bounded Form binding, XR-4 Canvas display-list
-evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, and MR1
-Core multi-run layout contract as prerequisites. The external Node-native and
-executable-WASM test-host facts are accepted; load the separate MR1 artifact
-through an Editor QA Worker and retain a real Chrome comparison before claiming
-Browser mixed-font inline parity. Close only retained rows whose real owner
-contracts can be exercised.
+evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, Core
+multi-run layout contract, external engine facts, and exact Node/real-Chrome
+Worker MR1 evidence as prerequisites. Project accepted positioned fragments
+into versioned per-fragment display-list commands, then consume them through a
+separate QA Canvas path without renderer measurement or line relayout. Close
+only retained rows whose real owner contracts can be exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
@@ -696,9 +699,10 @@ and is explained by
 
 ## LIVE-DRAFT-MR1 Fixed-Point Foundation
 
-Status: accepted as a Core-only numeric foundation on 2026-07-21. A subsequent
-Core-only multi-run layout acceptance contract is also accepted; external
-shaping and runtime paint integration remain blocked.
+Status: accepted as a Core-only numeric foundation on 2026-07-21. The
+subsequent Core multi-run contract, external shaping, and bounded real-Chrome
+Worker parity slices are also accepted; runtime paint integration remains
+blocked.
 
 Core now publishes `LayoutUnitPolicyV1` for new versioned text-layout
 contracts. One point equals 1,000,000 signed safe integer layout units. Point
@@ -716,7 +720,8 @@ threshold remains a distinct policy. Documentation lives at
 ## LIVE-DRAFT-MR1 Core Multi-Run Layout Contract
 
 Status: accepted as a Core-only contract and acceptance slice on 2026-07-21.
-Browser/Node runtime parity and production remain NO-GO.
+Bounded Browser/Node runtime parity was accepted later; display-list binding
+and production remain NO-GO.
 
 Core now accepts versioned external shaping evidence containing pinned font
 metrics, resolved shaping runs, clusters, break opportunities, and line
@@ -734,8 +739,9 @@ renderer. Documentation lives at
 
 ## LIVE-DRAFT-MR1 External Engine Facts And Itemization
 
-Status: accepted for Node-native and executable WASM test-host evidence on
-2026-07-21. Real Chrome Worker and production remain NO-GO.
+Status: accepted for Node-native, executable WASM test-host, and bounded real
+Chrome Worker evidence on 2026-07-21. Display-list/Canvas and production remain
+NO-GO.
 
 The external package now merges complete paragraph style with Text Run local
 overrides, resolves hash-pinned Sarabun Regular/Bold faces, reports actual raw
@@ -746,11 +752,34 @@ Core request and layout objects under native Rust and the separate executable
 MR1 WASM artifact.
 
 The historical XR artifact remains byte-identical. MR1 has a separate WASM
-boundary and digest. Its WASM execution is currently retained in the automated
-Node test host, so no real Browser claim is made. Documentation lives at
+boundary and digest. Its WASM execution is retained in both the automated Node
+test host and a separate Editor QA Chrome Worker path. Documentation lives at
 `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`; focused evidence lives in
 `tests/textEngineMultiRunLayoutV1.test.ts` and
 `tests/textEngineMultiRunNodeWasmV1.test.ts`.
+
+## LIVE-DRAFT-MR1 Real Browser Worker Parity
+
+Status: accepted for one bounded mixed-size TextBlock in a real Chrome Worker
+on 2026-07-21. Editor product binding, per-fragment display-list/Canvas paint,
+Backend binding, whole-document layout, and production remain NO-GO.
+
+The Editor QA Worker loads the separate MR1 WASM artifact and digest-pinned
+Sarabun Regular/Bold bytes. The 10 pt Regular / 24 pt Bold / 12 pt resolved
+field fixture produces exactly equal complete Core requests and accepted Core
+layouts under Node-native and Chrome Worker execution. Both maximum integer
+drifts are zero. The result contains three shaping runs, three clusters, one
+line, and three positioned fragments with a Regular/Bold/Regular face switch;
+the resolved-field source segment is retained.
+
+The retained warm observations over 25 layouts were about 1.9 ms p50 and
+3.4 ms p95 on one machine, with exact repeated results. These are observations,
+not accepted budgets. The run made zero Backend-like requests and did not
+change the existing product Worker, controller, Canvas, pagination, or default
+measurement paths. Editor evidence lives in
+`docs/LIVE_DRAFT_MR1_REAL_BROWSER_WORKER.md` and
+`src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json` in the Editor
+repository.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
@@ -802,18 +831,22 @@ Node test host, so no real Browser claim is made. Documentation lives at
   runs resolve Regular/Bold Text Run overrides, report matching real font
   metrics, and produce exactly equal Core requests and accepted layouts for
   one bounded mixed-size line.
+- A separate real Chrome QA Worker produces the exact same complete Core
+  request and layout for that line with zero integer drift, retains the field
+  source segment, switches Regular/Bold/Regular faces, and performs no Backend
+  request.
 
 ### FAIL-BLOCKER
 
-- Real-Browser mixed-font switching inside one line, styled per-run paint
-  geometry, field chip-specific Canvas interaction, images, tables, and
-  whole-document Canvas composition are not implemented.
+- Styled per-run display-list/Canvas paint, field chip-specific Canvas
+  interaction, images, tables, and whole-document Canvas composition are not
+  implemented.
 - Constrained Table-cell, repeated-header, explicit page-break, and
   default/approximate-versus-renderer drift rows remain explicitly blocked.
 - Full cross-runtime measurement parity is not accepted.
-- Real Chrome Worker parity and per-fragment display-list commands are not
-  implemented yet. Current MR1 evidence covers Node-native and executable WASM
-  in the automated Node test host only.
+- Per-fragment display-list commands and QA Canvas consumption are not
+  implemented yet. Current MR1 real-Chrome evidence stops at the accepted Core
+  positioned layout.
 - Default pagination measurement replacement remains blocked.
 - Whole-document field/layout coverage and incremental invalidation remain
   blocked for later slices.
@@ -835,21 +868,21 @@ Node test host, so no real Browser claim is made. Documentation lives at
   does not prove Canvas/PDF glyph-position or pixel parity.
 - Four bounded pages paint quickly, but unvirtualized large page stacks can
   consume substantial bitmap memory before XR-6.
-- The new bounded Node/WASM test-host row proves a font-face switch inside one
-  shaped line, but can be mistaken for real Chrome Worker or per-fragment paint
-  proof; those claims remain blocked.
-- The external adapter now proves bounded effective Text Run style/font mapping
-  in native Rust and executable WASM, but real Browser loading, Worker transfer,
-  Canvas consumption, and broader style fallback remain unproved.
+- The bounded Node/real-Chrome row proves a font-face switch inside one shaped
+  line, but can be mistaken for per-fragment paint or general document proof;
+  those claims remain blocked.
+- The external adapter now proves bounded effective Text Run style/font mapping,
+  Browser loading, and Worker transfer, but Canvas consumption and broader
+  style fallback remain unproved.
+- The 25 warm samples cover one tiny initialized fixture. They do not establish
+  a typing budget for long blocks, many Text Runs, or whole documents.
 - The 23.1 ms warm long-row observation still reflows and fingerprints the
   complete 4,959-character block; XR-6 affected-range invalidation remains
   necessary.
 
 ### UNKNOWN
 
-- Node/Browser parity for Table-cell and repeated-header owner pipelines and
-  real Chrome Worker parity for externally shaped mixed-font content inside
-  one line.
+- Node/Browser parity for Table-cell and repeated-header owner pipelines.
 - Default/approximate-versus-renderer drift values for the expanded rows under
   the accepted threshold policy.
 - Final performance budgets for small and 200-page documents.

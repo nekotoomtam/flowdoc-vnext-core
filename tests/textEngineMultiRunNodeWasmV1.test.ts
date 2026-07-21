@@ -164,7 +164,7 @@ describe("MR1 real Node/WASM multi-run facts", () => {
     ])
   }, 30_000)
 
-  it("keeps the MR1 runtime split external to Core and documents the real-Browser blocker", () => {
+  it("keeps the MR1 runtime split external to Core and documents the paint blocker", () => {
     const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8")
     const coreIndex = read("src/index.ts")
     const sharedAdapter = read("packages/text-engine-rust-wasm/src/multiRunLayout.ts")
@@ -189,8 +189,10 @@ describe("MR1 real Node/WASM multi-run facts", () => {
     expect(packageJson.scripts["wasm:build:live-draft"]).toBeUndefined()
     expect(packageJson.scripts["wasm:build:live-draft-mr1"]).toContain("pkg-live-draft-mr1")
     expect(packageJson.scripts["wasm:verify:live-draft-artifacts"]).toContain("verify-live-draft-artifacts")
-    expect(doc).toContain("it is not a real Chrome")
+    expect(doc).toContain("bounded real Chrome Worker parity slices accepted")
+    expect(doc).toContain("per-fragment display-list/Canvas paint")
     expect(handoff).toContain("External Engine Facts And Itemization")
-    expect(handoff).toMatch(/Real Chrome Worker parity[\s\S]{0,160}not\s+implemented/u)
+    expect(handoff).toContain("LIVE-DRAFT-MR1 Real Browser Worker Parity")
+    expect(handoff).toMatch(/Per-fragment display-list commands[\s\S]{0,160}not\s+implemented/u)
   })
 })

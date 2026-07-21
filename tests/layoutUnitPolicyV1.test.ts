@@ -132,7 +132,7 @@ describe("layout unit policy v1", () => {
     expect(source).not.toMatch(/writeFile|readFile|localStorage|indexedDB/)
   })
 
-  it("documents the MR1 boundary without claiming external shaping or production activation", () => {
+  it("documents the MR1 numeric boundary without claiming runtime paint or production activation", () => {
     const doc = readFileSync(resolve(process.cwd(), "docs/LIVE_DRAFT_MR1_LAYOUT_UNIT_POLICY.md"), "utf8")
     const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
     const handoff = readFileSync(
@@ -145,7 +145,8 @@ describe("layout unit policy v1", () => {
     expect(doc).toContain("change `measureVNextText(...)`")
     expect(readme).toContain("Live Draft MR1 begins")
     expect(handoff).toContain("LIVE-DRAFT-MR1 Fixed-Point Foundation")
-    expect(handoff).toContain("Core-only multi-run layout acceptance contract")
-    expect(handoff).toMatch(/external\s+shaping and runtime paint integration remain blocked/u)
+    expect(handoff).toContain("bounded real-Chrome")
+    expect(handoff).toContain("runtime paint integration remains")
+    expect(handoff).toMatch(/production remain(?:s)? NO-GO/u)
   })
 })
