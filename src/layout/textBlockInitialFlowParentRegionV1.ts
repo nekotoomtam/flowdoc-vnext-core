@@ -36,7 +36,13 @@ export interface VNextTextBlockInitialFlowParentRegionIssueV1 {
 }
 
 export type VNextTextBlockInitialFlowParentRegionResultV1 =
-  | { status: "accepted"; region: VNextTextBlockInitialFlowParentRegionV1; issues: [] }
+  | {
+      status: "accepted"
+      mayPublishLayout: false
+      productionBinding: false
+      region: VNextTextBlockInitialFlowParentRegionV1
+      issues: []
+    }
   | { status: "blocked"; region: null; issues: VNextTextBlockInitialFlowParentRegionIssueV1[] }
 
 export type VNextTextBlockInitialFlowParentRegionInspectionV1 =
@@ -58,6 +64,13 @@ const InputSchema = z.object({
   yLayoutUnit: VNextNonNegativeLayoutUnitV1Schema,
   widthLayoutUnit: VNextPositiveLayoutUnitV1Schema,
   availableHeightLayoutUnit: VNextPositiveLayoutUnitV1Schema.nullable(),
+}).strict()
+
+const RetainedRegionSchema = InputSchema.extend({
+  source: z.literal(VNEXT_TEXT_BLOCK_INITIAL_FLOW_PARENT_REGION_SOURCE),
+  contractVersion: z.literal(VNEXT_TEXT_BLOCK_INITIAL_FLOW_PARENT_REGION_VERSION),
+  kind: z.literal("text-block-parent-region"),
+  fingerprint: z.string(),
 }).strict()
 
 function issue(path: string, message: string): VNextTextBlockInitialFlowParentRegionIssueV1 {
@@ -88,6 +101,8 @@ export function createVNextTextBlockInitialFlowParentRegionV1(
   }
   return {
     status: "accepted",
+    mayPublishLayout: false,
+    productionBinding: false,
     region: freeze({
       ...facts,
       fingerprint: createVNextCompactFingerprint(JSON.stringify(facts)),
@@ -97,31 +112,28 @@ export function createVNextTextBlockInitialFlowParentRegionV1(
 }
 
 export function inspectVNextTextBlockInitialFlowParentRegionV1(
-  region: VNextTextBlockInitialFlowParentRegionV1,
+  region: unknown,
 ): VNextTextBlockInitialFlowParentRegionInspectionV1 {
-  if (
-    region.source !== VNEXT_TEXT_BLOCK_INITIAL_FLOW_PARENT_REGION_SOURCE
-    || region.contractVersion !== VNEXT_TEXT_BLOCK_INITIAL_FLOW_PARENT_REGION_VERSION
-    || region.kind !== "text-block-parent-region"
-  ) return {
+  const parsed = RetainedRegionSchema.safeParse(region)
+  if (!parsed.success) return {
     status: "invalid",
     code: "invalid-parent-region",
-    message: "parent region source, version, or kind is invalid",
+    message: parsed.error.issues.map((item) => item.message).join("; "),
   }
   const recreated = createVNextTextBlockInitialFlowParentRegionV1({
-    ownerKind: region.ownerKind,
-    ownerId: region.ownerId,
-    xLayoutUnit: region.xLayoutUnit,
-    yLayoutUnit: region.yLayoutUnit,
-    widthLayoutUnit: region.widthLayoutUnit,
-    availableHeightLayoutUnit: region.availableHeightLayoutUnit,
+    ownerKind: parsed.data.ownerKind,
+    ownerId: parsed.data.ownerId,
+    xLayoutUnit: parsed.data.xLayoutUnit,
+    yLayoutUnit: parsed.data.yLayoutUnit,
+    widthLayoutUnit: parsed.data.widthLayoutUnit,
+    availableHeightLayoutUnit: parsed.data.availableHeightLayoutUnit,
   })
   if (recreated.status !== "accepted") return {
     status: "invalid",
     code: "invalid-parent-region",
     message: recreated.issues.map((item) => item.message).join("; "),
   }
-  return recreated.region.fingerprint === region.fingerprint
+  return recreated.region.fingerprint === parsed.data.fingerprint
     ? { status: "valid" }
     : {
         status: "invalid",
