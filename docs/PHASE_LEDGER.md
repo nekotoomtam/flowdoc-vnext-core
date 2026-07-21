@@ -12677,13 +12677,38 @@ be published.
 
 ## LIVE-DRAFT-MR1-P Complete Geometry Boundary
 
-Status: done.
+Status: accepted as a bounded Core contract checkpoint. Persistent flow-tree
+execution, spatial wrapping, product binding, publication, and production
+remain NO-GO.
 
-- Added exact body/column/table-cell parent-region ownership.
+Reviewed Core runtime baseline: `109675f`.
+
+- Added exact body/column/table-cell parent-region ownership through
+  `textBlockInitialFlowParentRegionV1`.
 - Added Initial TextBlock Flow classification with complete current geometry
-  dependencies and capability-honest list/image/empty rows.
-- Added an explicit text-subset adapter that preserves existing MR1 layout and
-  rejects unsupported, stale, cloned, or production-bound inputs.
-- Retained `mayPublishLayout: false`; canonical schema and product bindings are
-  unchanged.
-- Next: Phase 2 Persistent Flow Tree Foundation.
+  dependencies and capability-honest list/image/empty rows. The pinned
+  `declaredLineHeightLayoutUnit` and each text-bearing atom's
+  `resolvedGeometryStyle` retain the exact geometry-affecting typography.
+- The supported local style subset resolves font size, color, weight, and style
+  exactly. `fontFamilyKey` has no authoritative current mapping and fails closed
+  as `resolved-run-typography` rather than being guessed.
+- Added strict canonical validation for retained root and nested facts,
+  lowercase font digests, property-order-independent fingerprints/context, and
+  non-throwing structured rejection of invalid runtime input.
+- Bound process-local classifier provenance to the exact recursively frozen
+  flow object. This is not cross-process serialization authority.
+- Added an explicit text-subset adapter that preserves exact existing MR1
+  layout parity and rejects unsupported, stale, cloned, context-drifted, or
+  production-bound inputs.
+- The Initial Flow handoff remains non-production and non-publishable:
+  publication and production activation remain NO-GO, and every accepted result
+  reports `mayPublishLayout: false`.
+- Evidence: `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`,
+  `tests/textBlockInitialFlowParentRegionV1.test.ts`,
+  `tests/textBlockInitialFlowInputV1.test.ts`, and
+  `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`. The final focused slice
+  passed 5 test files / 44 tests; the full gate passed 408 test files / 1960
+  tests.
+- Next: Phase 2 Persistent Flow Tree Foundation. Do not start spatial wrapping,
+  list decoration, inline-image geometry, empty-block geometry, Editor, Backend,
+  table auto-fit, publication, or production activation in this checkpoint.

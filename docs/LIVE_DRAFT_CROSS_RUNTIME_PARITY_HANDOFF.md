@@ -1,9 +1,9 @@
-# Live Draft Cross-Runtime Parity Handoff
+# Live Draft Cross-Runtime Parity Handoff (MR1-P)
 
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20. Updated through the bounded MR1-O checkpoint on 2026-07-21.
+Date: 2026-07-20; updated through the bounded MR1-P checkpoint on 2026-07-22.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -62,7 +62,7 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `59e89ad` | Core-owned compositional semantic checkpoints, process-local proof binding, optional full-layout QA, and stage diagnostics |
+| `flowdoc-vnext-core` | `109675f` | Core-owned Initial TextBlock Flow classification, process-local provenance, pinned geometry dependencies, and adapter-gated legacy MR1 parity |
 | `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
@@ -447,6 +447,9 @@ Initial TextBlock Flow boundary.
 
 Core:
 
+- `docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md`
+- `docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md`
+- `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
 - `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`
 - `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
@@ -485,6 +488,12 @@ Core:
 - `src/renderer/textBlockMultiRunDisplayListV1.ts`
 - `src/composition/textBlockMultiRunDocumentCompositionV1.ts`
 - `src/renderer/textBlockMultiRunDocumentDisplayListV1.ts`
+- `src/layout/textBlockInitialFlowParentRegionV1.ts`
+- `src/layout/textBlockInitialFlowInputV1.ts`
+- `src/layout/textBlockInitialFlowTextOnlyAdapterV1.ts`
+- `tests/textBlockInitialFlowParentRegionV1.test.ts`
+- `tests/textBlockInitialFlowInputV1.test.ts`
+- `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`
 
 Editor:
 
@@ -532,32 +541,30 @@ Backend:
 Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
-Read the Required Reading section and inspect all three repositories before
-editing. Continue LIVE-DRAFT-XR-5 only from the retained nine-row partial
-checkpoint. Use the accepted XR-1 Browser Worker engine smoke, XR-2 one-block
-Core layout evidence, XR-3 bounded Form binding, XR-4 Canvas display-list
-evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, Core
-multi-run layout contract, external engine facts, exact Node/real-Chrome Worker
-MR1 evidence, Core per-fragment display-list projection, and separate QA Canvas
-paint, multi-line/multi-glyph parity, rapid-edit stale/last-valid lifecycle,
-and bounded 12-TextBlock scheduling/frame evidence as prerequisites. Continue
-from the immutable retained snapshot/checkpoint, fail-closed edit-range plan,
-actual contextual WASM execution, exact cluster/break splice, and affected
-line-range reconvergence proof. Continue from the MR1-O Core-owned
-compositional semantic checkpoints and process-local exact request binding.
-Remove the remaining complete next semantic-line pass by composing
-Core-owned retained-prefix, affected, and shifted-suffix facts without trusting
-adapter-supplied digests. Preserve offset-derived physical-id regeneration and
-semantic/exact distinctions. Keep renderer measurement, whole-block runtime
-relayout, and product publication forbidden, and close only rows whose real
-owner contracts can be exercised.
+Read the Required Reading section and inspect the reviewed Core runtime baseline
+at 109675f before editing. Proceed only to Phase 2 Persistent Flow Tree
+Foundation over the accepted MR1-P Initial TextBlock Flow boundary.
 
-Preserve the Core dependency boundary, do not replace measureVNextText(...),
-do not add a Backend request per keystroke, do not add whole-document
-production activation in the same slice, and do not claim general
-cross-runtime or glyph-pixel exactness. Keep Table/column/image work deferred.
-Add focused tests, retain accepted and blocked matrix evidence, update the handoff with
-PASS/FAIL/RISK/UNKNOWN, then commit and push each changed repository to main.
+Implement the versioned persistent B+ rope policy and remove
+completeNextSemanticPassCount: 1 for the accepted text subset without trusting
+an adapter-supplied semantic digest or weakening process-local provenance.
+Preserve exact source, generated-owner, text, Text Run style, advance, line,
+UTF-16, and revision-specific physical-id regeneration guarantees. Preserve
+the no-complete-layout-input path and optional full-oracle QA parity for every
+currently accepted and fallback row. Remeasure retained-memory and
+request-composition work without inventing a product-scale or interaction
+budget.
+
+Keep the work Core-only and retain strict fail-closed capability checks. Keep
+every accepted Initial Flow layout result non-production and non-publishable.
+Do not start
+spatial wrapping, list decoration, inline-image geometry, empty-block geometry,
+Editor, Backend, table auto-fit, publication, or production activation in this
+checkpoint.
+
+Add focused tests before implementation, preserve accepted and blocked evidence,
+run the focused and full Core gates, and update the handoff with
+PASS/FAIL/RISK/UNKNOWN plus exact evidence.
 ```
 
 ## LIVE-DRAFT-XR-0 / XR-1 Execution Result
@@ -1212,9 +1219,17 @@ remain NO-GO.
 
 MR1-P adds a versioned Initial TextBlock Flow boundary that pins parent region,
 authored box, role/list identity, measurement, paragraph style, fonts,
-layout-unit policy, and complete current inline facts. The new Initial Flow
-handoff path invokes legacy MR1 only through the explicit adapter. For accepted
-text-subset-ready rows, the adapter reproduces exact legacy MR1 layout parity.
+layout-unit policy, declared line height, resolved text-run typography, and
+complete current inline facts. Strict nested schemas and canonical JSON make
+semantically identical retained input order-independent while rejecting unknown
+or malformed facts. The classifier and inspector preserve process-local
+provenance; they do not grant cross-process serialization authority. The
+supported local style subset resolves font size, color, weight, and style;
+`fontFamilyKey` fails closed as `resolved-run-typography` because no authoritative
+mapping exists. The new
+Initial Flow handoff path invokes legacy MR1 only through the explicit adapter.
+For accepted text-subset-ready rows, the adapter reproduces exact legacy MR1
+layout parity.
 
 Inline images retain frame, asset, and `verticalAlign` but report
 `blocked-line-box-contract`; list items retain authored identity but report
@@ -1231,7 +1246,8 @@ spatial wrapping, Editor, Backend, table auto-fit, and publication remain
 unimplemented.
 
 Evidence lives at `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`. The next
-bounded checkpoint is Phase 2 Persistent Flow Tree Foundation.
+bounded checkpoint is Phase 2 Persistent Flow Tree Foundation. The reviewed
+Core runtime baseline is `109675f`.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
