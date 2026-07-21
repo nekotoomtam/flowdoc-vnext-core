@@ -12681,7 +12681,7 @@ Status: accepted as a bounded Core contract checkpoint. Persistent flow-tree
 execution, spatial wrapping, product binding, publication, and production
 remain NO-GO.
 
-Reviewed Core runtime baseline: `b686c99`.
+Reviewed Core runtime baseline: `c9a3e09`.
 
 - Added exact body/column/table-cell parent-region ownership through
   `textBlockInitialFlowParentRegionV1`.
@@ -12705,12 +12705,19 @@ Reviewed Core runtime baseline: `b686c99`.
   lowercase font digests, and property-order-independent canonical Initial Flow
   fingerprints/context. The adapter preserves the original valid request's own
   enumerable key insertion order in a data-only contained request, snapshots
-  own data descriptors without reading accessors, and preserves sparse array
-  shape so holes cannot collapse before strict validation. It passes that
-  strictly validated snapshot rather than Zod-reconstructed data to unchanged
-  MR1. Unknown fields and malformed runtime input remain blocked. Both blank and
-  whitespace-only `layoutId` values stop before legacy invocation with
-  `layoutId: "unavailable"`; valid nonblank ids remain unchanged.
+  own data descriptors without reading accessors, and accepts only ordinary
+  dense data arrays with the standard `Array.prototype`, standard own
+  length/index descriptors, and canonical indices. Custom prototypes, holes,
+  custom string or symbol properties, accessors, cycles, and malformed lengths
+  block before output allocation or declared-length iteration. The strict
+  data-only adapter envelope accepts only plain/null-prototype roots with
+  exactly the own data fields `initialFlow` and `legacyRequest`; symbols,
+  hidden/custom extras, and accessors block with zero reads. Complete Zod
+  validation and canonical semantic equality still precede unchanged MR1,
+  which receives the representation-preserving snapshot. Unknown fields and
+  malformed runtime input remain blocked. Both blank and whitespace-only
+  `layoutId` values stop before legacy invocation with `layoutId: "unavailable"`;
+  valid nonblank ids remain unchanged.
 - An effectively rendered-empty field and hard-break-only content require the
   empty-layout contract. Independent list-only and inline-image-only classifier
   and adapter proofs block before legacy MR1.
@@ -12728,8 +12735,8 @@ Reviewed Core runtime baseline: `b686c99`.
   `tests/textBlockInitialFlowParentRegionV1.test.ts`,
   `tests/textBlockInitialFlowInputV1.test.ts`, and
   `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`. The final focused slice
-  passed 5 test files / 95 tests; the section-bounded documentation guard passed
-  1 test file / 5 tests; the full gate passed 408 test files / 2008 tests.
+  passed 5 test files / 115 tests; the section-bounded documentation guard passed
+  1 test file / 5 tests; the full gate passed 408 test files / 2028 tests.
 - Next: Phase 2 Persistent Flow Tree Foundation. Do not start spatial wrapping,
   list decoration, inline-image geometry, empty-block geometry, Editor, Backend,
   table auto-fit, publication, or production activation in this checkpoint.

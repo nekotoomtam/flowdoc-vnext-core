@@ -62,7 +62,7 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `b686c99` | Core-owned Initial TextBlock Flow classification, shared producer shaping identity, representation-preserving strict adapter boundary, capability-honest geometry gates, and exact legacy MR1 parity |
+| `flowdoc-vnext-core` | `c9a3e09` | Core-owned Initial TextBlock Flow classification, shared producer shaping identity, descriptor-first ordinary dense-array containment, a strict data-only adapter envelope, capability-honest geometry gates, and exact legacy MR1 parity |
 | `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
@@ -543,7 +543,7 @@ Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
 Read the Required Reading section and inspect the reviewed Core runtime baseline
-at b686c99 before editing. Proceed only to Phase 2 Persistent Flow Tree
+at c9a3e09 before editing. Proceed only to Phase 2 Persistent Flow Tree
 Foundation over the accepted MR1-P Initial TextBlock Flow boundary.
 
 Implement the versioned persistent B+ rope policy and remove
@@ -1239,16 +1239,22 @@ bounded subset requires that authored local `fontFamilyKey` overrides remain
 blocked as `resolved-run-typography`.
 
 The adapter preserves the original valid request's own enumerable key insertion
-order in a data-only contained request. It snapshots own data descriptors
-without reading accessors and preserves sparse array shape so holes cannot
-collapse before strict validation. It checks canonical semantic equality and
-passes that validated snapshot rather than Zod-reconstructed data to unchanged
-MR1. Unknown nested fields and malformed runtime input remain blocked. Both
-blank and whitespace-only `layoutId` values stop before legacy invocation with
+order in a data-only contained request. Descriptor-first containment accepts
+only ordinary dense data arrays with the standard `Array.prototype`, standard
+own length/index descriptors, and canonical indices. Custom prototypes, holes,
+custom string or symbol properties, accessors, cycles, and malformed lengths
+block before output allocation or declared-length iteration and without reading
+accessors. The strict data-only adapter envelope accepts only
+plain/null-prototype roots with exactly the own data fields `initialFlow` and
+`legacyRequest`; symbols, hidden/custom extras, and accessors block with zero
+reads. Complete Zod validation and canonical semantic equality still precede
+unchanged MR1, which receives the validated representation-preserving snapshot.
+Unknown nested fields and malformed runtime input remain blocked. Both blank
+and whitespace-only `layoutId` values stop before legacy invocation with
 `layoutId: "unavailable"`; valid nonblank ids remain unchanged. The new Initial
-Flow handoff path invokes legacy MR1 only through the explicit adapter.
-For accepted text-subset-ready rows, the adapter reproduces exact legacy MR1
-layout parity.
+Flow handoff path invokes legacy MR1 only through the explicit adapter. For
+accepted text-subset-ready rows, the adapter reproduces exact legacy MR1 layout
+parity.
 
 Inline images retain frame, asset, and `verticalAlign` but report
 `blocked-line-box-contract`; list items retain authored identity but report
@@ -1267,10 +1273,10 @@ spatial wrapping, Editor, Backend, table auto-fit, and publication remain
 unimplemented.
 
 Evidence lives at `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`; the final
-runtime-focused slice passed 5 files / 95 tests, the section-bounded
+runtime-focused slice passed 5 files / 115 tests, the section-bounded
 documentation guard passed 1 file / 5 tests, and the full Core gate passed 408
-files / 2008 tests. The next bounded checkpoint is Phase 2 Persistent Flow Tree
-Foundation. The reviewed Core runtime baseline is `b686c99`.
+files / 2028 tests. The next bounded checkpoint is Phase 2 Persistent Flow Tree
+Foundation. Reviewed Core runtime baseline: `c9a3e09`.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 

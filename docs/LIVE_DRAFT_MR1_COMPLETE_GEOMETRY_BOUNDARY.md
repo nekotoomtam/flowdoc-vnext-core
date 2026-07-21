@@ -35,13 +35,19 @@ use. Canonical Initial Flow fingerprints and semantic legacy-context equality
 remain independent of property insertion order, while exact direct-MR1 parity
 retains the valid legacy request's original representation. The adapter
 preserves that request's own enumerable key insertion order in a data-only
-contained request. It snapshots own data descriptors without reading accessors
-and preserves sparse array shape so holes cannot collapse before validation.
-The strict canonical validation applies complete Zod and semantic equality
-checks to that snapshot, then passes the snapshot rather than Zod-reconstructed
-data to unchanged MR1. Unknown fields, lowercase font digests, safe integer
-layout units, and exact discriminated measurement-run variants remain
-mandatory.
+contained request. Descriptor-first containment accepts only ordinary dense
+data arrays with the standard `Array.prototype`, a standard own `length`
+descriptor, and canonical own data indices. It rejects custom prototypes,
+holes, custom string or symbol properties, accessor or nonstandard descriptors,
+cycles, and malformed lengths before output allocation or declared-length
+iteration and without reading accessors. The strict data-only adapter envelope
+accepts only plain/null-prototype roots with exactly the own data fields
+`initialFlow` and `legacyRequest`; symbols, hidden or custom extras, and
+accessors block deterministically with zero accessor reads. The strict canonical
+validation applies complete Zod and semantic equality checks to the contained
+snapshot, then passes that snapshot rather than Zod-reconstructed data to
+unchanged MR1. Unknown fields, lowercase font digests, safe integer layout
+units, and exact discriminated measurement-run variants remain mandatory.
 
 The adapter accepts malformed runtime input as `unknown` and returns
 deterministic structured blockers. Both blank and whitespace-only `layoutId`
@@ -108,9 +114,15 @@ reports `mayPublishLayout: false`.
 - A valid actual-producer request whose `localStyle` owns `fontStyle`,
   `fontWeight`, `textColor`, and `fontSize` in non-schema insertion order retains
   the exact direct MR1 layout and fingerprint chain.
-- The data-only contained request preserves own enumerable key insertion order,
-  preserves sparse array shape, rejects unknown fields, and contains readable or
-  throwing accessors without reading accessors before strict validation.
+- The data-only contained request preserves own enumerable key insertion order
+  for valid producer calls. Ordinary dense data arrays require the standard
+  `Array.prototype`, standard length/index data descriptors, and exact canonical
+  indices before output allocation or declared-length iteration; custom
+  prototypes, holes, custom keys or symbols, accessors, cycles, and malformed
+  shapes block without reading accessors.
+- The adapter root accepts only plain/null-prototype roots with exactly the own
+  data fields `initialFlow` and `legacyRequest`; symbols, hidden/custom extras,
+  and accessors block before either field is read.
 - Both blank and whitespace-only `layoutId` values block before legacy MR1 with
   `layoutId: "unavailable"`; valid nonblank layout identities are preserved.
 - An effectively rendered-empty field and hard-break-only content require the
@@ -152,7 +164,7 @@ reports `mayPublishLayout: false`.
 
 ## Verification
 
-Reviewed Core runtime baseline: `b686c99`.
+Reviewed Core runtime baseline: `c9a3e09`.
 
 - Focused evidence is pinned to
   `packages/text-engine-rust-wasm/src/multiRunLayout.ts`,
@@ -162,10 +174,10 @@ Reviewed Core runtime baseline: `b686c99`.
   `tests/textBlockInitialFlowInputV1.test.ts`,
   `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`, and
   `tests/textBlockMultiRunLayoutV1.test.ts`.
-- Runtime-focused result: 5 test files passed; 95 tests passed.
+- Runtime-focused result: 5 test files passed; 115 tests passed.
 - Section-bounded documentation guard result: 1 test file passed; 5 tests passed.
 - `npm run type-check` passes.
-- Full `npm run check` passes: 408 test files passed; 2008 tests passed.
+- Full `npm run check` passes: 408 test files passed; 2028 tests passed.
 - Working-tree and runtime-baseline diff whitespace validation pass.
 
 ## Next Checkpoint

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 
 const read = (relativePath: string): string => readFileSync(new URL(relativePath, import.meta.url), "utf8")
 const normalize = (value: string): string => value.replace(/\s+/g, " ").trim()
+const occurrences = (document: string, value: string): number => document.split(value).length - 1
 const sectionBetween = (document: string, start: string, end: string): string => {
   const startIndex = document.indexOf(start)
   const endIndex = document.indexOf(end, startIndex + start.length)
@@ -19,7 +20,7 @@ const sectionAtPeerHeading = (document: string, start: string): string => {
   return document.slice(startIndex, nextHeadingIndex < 0 ? document.length : nextHeadingIndex)
 }
 
-const runtimeBaseline = "b686c99"
+const runtimeBaseline = "c9a3e09"
 const phase2Exclusions =
   "Do not start spatial wrapping, list decoration, inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit, publication, or production activation in this checkpoint."
 
@@ -42,8 +43,10 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     const handoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("../docs/PHASE_LEDGER.md")
     const handoffHeader = sectionBetween(handoff, "# ", "## Objective")
+    const handoffBaseline = sectionBetween(handoff, "## Current Baseline", "### Core Truth")
     const handoffMr1p = sectionAtPeerHeading(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
     const ledgerMr1p = sectionAtPeerHeading(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
+    const coreBaselineRow = `| \`flowdoc-vnext-core\` | \`${runtimeBaseline}\` |`
 
     for (const section of [
       "## Outcome",
@@ -67,15 +70,23 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(handoff.split(/\r?\n/, 1)[0]).toContain("MR1-P")
     expect(handoffHeader).toContain("updated through the bounded MR1-P checkpoint")
     expect(handoffHeader).not.toContain("MR1-O")
-    expect(handoff).toContain("LIVE-DRAFT-MR1-P Complete Geometry Boundary")
-    expect(handoff).toContain(`| \`flowdoc-vnext-core\` | \`${runtimeBaseline}\` |`)
-    expect(ledger).toContain("## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
-    for (const document of [boundary, ledgerMr1p]) {
+    expect(occurrences(handoff, "## Current Baseline")).toBe(1)
+    expect(occurrences(handoff, "## Handoff Prompt")).toBe(1)
+    expect(occurrences(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")).toBe(1)
+    expect(occurrences(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")).toBe(1)
+    expect(handoffBaseline).toContain(coreBaselineRow)
+    expect(occurrences(handoffBaseline, "| `flowdoc-vnext-core` |")).toBe(1)
+    expect(occurrences(handoff, coreBaselineRow)).toBe(1)
+    for (const document of [boundary, handoffMr1p, ledgerMr1p]) {
       expect(document).toContain(`Reviewed Core runtime baseline: \`${runtimeBaseline}\``)
+      expect(document).not.toContain("8ae96e8")
+      expect(document).not.toContain("b686c99")
       expect(document).not.toContain("109675f")
       expect(document).not.toContain("59e89ad")
     }
 
+    expect(handoffBaseline).not.toContain("8ae96e8")
+    expect(handoffBaseline).not.toContain("b686c99")
     expect(handoff).not.toContain("| `flowdoc-vnext-core` | `109675f` |")
     expect(handoff).not.toContain("| `flowdoc-vnext-core` | `59e89ad` |")
 
@@ -85,8 +96,12 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
         "actual `createFlowDocTextEngineMultiRunLayoutV1(...)` producer",
         "own enumerable key insertion order",
         "data-only contained request",
-        "sparse array shape",
+        "ordinary dense data arrays",
+        "standard `Array.prototype`",
+        "before output allocation or declared-length iteration",
         "without reading accessors",
+        "own data fields `initialFlow` and `legacyRequest`",
+        "plain/null-prototype roots",
         "blank and whitespace-only `layoutId` values",
         "`layoutId: \"unavailable\"`",
         "malformed runtime input",
@@ -139,7 +154,11 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(prompt).toContain("Phase 2 Persistent Flow Tree Foundation")
     expect(prompt).toContain("persistent B+ rope")
     expect(prompt).toContain("completeNextSemanticPassCount: 1")
+    expect(prompt).toContain(`reviewed Core runtime baseline at ${runtimeBaseline}`)
     expect(prompt).toContain(phase2Exclusions)
+    expect(prompt).not.toContain("8ae96e8")
+    expect(prompt).not.toContain("b686c99")
+    expect(occurrences(rawHandoff, "## Handoff Prompt")).toBe(1)
     for (const stalePromptText of [
       "LIVE-DRAFT-XR-5",
       "nine-row",
@@ -159,6 +178,8 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     )
     const requiredReading = sectionBetween(handoff, "## Required Reading", "## Handoff Prompt")
     const normalizedBoundary = normalize(boundary)
+    const handoffMr1p = sectionAtPeerHeading(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
+    const normalizedHandoffMr1p = normalize(handoffMr1p)
     const normalizedLedger = normalize(ledger)
 
     expect(index).toContain('export * from "./layout/textBlockInitialFlowParentRegionV1.js"')
@@ -225,11 +246,23 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(normalizedBoundary).toContain("`resolved-run-typography`")
     expect(normalizedLedger).toContain("`fontFamilyKey`")
     expect(normalizedLedger).toContain("`resolved-run-typography`")
-    expect(boundary).toContain("5 test files passed; 95 tests passed")
+    expect(boundary).toContain("5 test files passed; 115 tests passed")
     expect(boundary).toContain("1 test file passed; 5 tests passed")
-    expect(boundary).toContain("408 test files passed; 2008 tests passed")
-    expect(normalizedLedger).toContain("passed 5 test files / 95 tests")
+    expect(boundary).toContain("408 test files passed; 2028 tests passed")
+    expect(normalizedHandoffMr1p).toContain("5 files / 115 tests")
+    expect(normalizedHandoffMr1p).toContain("1 file / 5 tests")
+    expect(normalizedHandoffMr1p).toContain("408 files / 2028 tests")
+    expect(normalizedLedger).toContain("passed 5 test files / 115 tests")
     expect(normalizedLedger).toContain("documentation guard passed 1 test file / 5 tests")
-    expect(normalizedLedger).toContain("full gate passed 408 test files / 2008 tests")
+    expect(normalizedLedger).toContain("full gate passed 408 test files / 2028 tests")
+    for (const evidence of [
+      `Reviewed Core runtime baseline: \`${runtimeBaseline}\`.`,
+      "passed 5 test files / 115 tests",
+      "documentation guard passed 1 test file / 5 tests",
+      "full gate passed 408 test files / 2028 tests",
+    ]) {
+      expect(normalizedLedger).toContain(evidence)
+      expect(occurrences(normalize(read("../docs/PHASE_LEDGER.md")), evidence)).toBe(1)
+    }
   })
 })
