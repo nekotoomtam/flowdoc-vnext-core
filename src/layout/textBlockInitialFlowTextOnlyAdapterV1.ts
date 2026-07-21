@@ -136,7 +136,9 @@ const LineSchema = z.object({
 }).strict()
 
 const LegacyRequestSchema = z.object({
-  layoutId: z.string(),
+  layoutId: z.string().refine((value) => value.trim().length > 0, {
+    message: "layout id must not be blank",
+  }),
   measurement: MeasurementSchema,
   layoutUnitPolicyFingerprint: z.string(),
   availableWidthLayoutUnit: z.number().finite(),
@@ -307,6 +309,14 @@ interface AdapterEnvelope {
   legacyRequest: unknown
 }
 
+function dataProperty(
+  value: object,
+  key: PropertyKey,
+): PropertyDescriptor | null {
+  const descriptor = Object.getOwnPropertyDescriptor(value, key)
+  return descriptor != null && Object.hasOwn(descriptor, "value") ? descriptor : null
+}
+
 function safeEnvelope(input: unknown): AdapterEnvelope | null {
   try {
     if (input == null || typeof input !== "object" || Array.isArray(input)) return null
@@ -316,6 +326,7 @@ function safeEnvelope(input: unknown): AdapterEnvelope | null {
       || !Object.hasOwn(input, "initialFlow")
       || !Object.hasOwn(input, "legacyRequest")
     ) return null
+    if (dataProperty(input, "initialFlow") == null || dataProperty(input, "legacyRequest") == null) return null
     const parsed = AdapterEnvelopeSchema.safeParse(input)
     return parsed.success ? parsed.data as AdapterEnvelope : null
   } catch {
@@ -331,10 +342,75 @@ function safeInspection(initialFlow: unknown): VNextTextBlockInitialFlowInspecti
   }
 }
 
+const INVALID_CONTAINED_DATA = Symbol("invalid-contained-data")
+
+function arrayIndexKey(key: string, length: number): boolean {
+  if (!/^(?:0|[1-9][0-9]*)$/u.test(key)) return false
+  const index = Number(key)
+  return Number.isSafeInteger(index) && index >= 0 && index < length && String(index) === key
+}
+
+function cloneContainedData(
+  value: unknown,
+  ancestors: Set<object> = new Set<object>(),
+): unknown | typeof INVALID_CONTAINED_DATA {
+  if (
+    value == null
+    || typeof value === "string"
+    || typeof value === "boolean"
+    || typeof value === "undefined"
+  ) return value
+  if (typeof value === "number") return Number.isFinite(value) ? value : INVALID_CONTAINED_DATA
+  if (typeof value !== "object" || ancestors.has(value)) return INVALID_CONTAINED_DATA
+
+  const isArray = Array.isArray(value)
+  const prototype = Object.getPrototypeOf(value)
+  if (!isArray && prototype !== Object.prototype && prototype !== null) return INVALID_CONTAINED_DATA
+
+  ancestors.add(value)
+  const output: unknown[] | Record<string, unknown> = isArray ? [] : {}
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = dataProperty(value, key)
+    if (descriptor == null) {
+      ancestors.delete(value)
+      return INVALID_CONTAINED_DATA
+    }
+    if (typeof key === "symbol") {
+      ancestors.delete(value)
+      return INVALID_CONTAINED_DATA
+    }
+    if (isArray && key === "length") continue
+    if (!descriptor.enumerable) continue
+    if (isArray && !arrayIndexKey(key, value.length)) {
+      ancestors.delete(value)
+      return INVALID_CONTAINED_DATA
+    }
+    const cloned = cloneContainedData(descriptor.value, ancestors)
+    if (cloned === INVALID_CONTAINED_DATA) {
+      ancestors.delete(value)
+      return INVALID_CONTAINED_DATA
+    }
+    Object.defineProperty(output, key, {
+      value: cloned,
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    })
+  }
+  ancestors.delete(value)
+  return output
+}
+
 function safeLegacyRequest(request: unknown): VNextTextBlockMultiRunLayoutRequestV1 | null {
   try {
-    const parsed = LegacyRequestSchema.safeParse(request)
-    return parsed.success ? parsed.data as VNextTextBlockMultiRunLayoutRequestV1 : null
+    const contained = cloneContainedData(request)
+    if (contained === INVALID_CONTAINED_DATA) return null
+    const parsed = LegacyRequestSchema.safeParse(contained)
+    if (
+      !parsed.success
+      || !sameVNextCanonicalJson(contained, parsed.data)
+    ) return null
+    return contained as VNextTextBlockMultiRunLayoutRequestV1
   } catch {
     return null
   }

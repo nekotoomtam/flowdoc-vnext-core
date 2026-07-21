@@ -172,6 +172,24 @@ function supportedStyledProducerBuildInput() {
   return input
 }
 
+function reorderedLocalStyleProducerBuildInput() {
+  const input = supportedStyledProducerBuildInput()
+  const localStyle = {
+    fontStyle: "italic" as const,
+    fontWeight: "bold" as const,
+    textColor: "303030",
+    fontSize: { value: 18, unit: "pt" as const },
+  }
+  const inline = input.textBlock.children[0]
+  const run = input.measurement.runs[0]
+  if (inline?.type !== "text" || run?.kind !== "text") {
+    throw new Error("reordered styled producer run missing")
+  }
+  inline.style = localStyle
+  run.localStyle = localStyle
+  return input
+}
+
 function plainProducerBuildInputWithUnusedFace() {
   const input = legacyTextOnlyBuildInputFixture()
   const regular = input.fontFaces[0]!
@@ -249,6 +267,67 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
     expect(adapted.layout).toEqual(produced.layout)
   })
 
+  it("preserves actual producer parity when valid local style properties use non-schema insertion order", () => {
+    const buildInput = withParagraphFontFamilyKey(reorderedLocalStyleProducerBuildInput())
+    const produced = createFlowDocTextEngineMultiRunLayoutV1(producerInput(buildInput), producerRuntime())
+    expect(produced).toMatchObject({ status: "accepted", issues: [] })
+    if (produced.status !== "accepted") throw new Error("reordered producer fixture blocked")
+    const sourceRun = produced.request.measurement.runs[0]
+    if (sourceRun?.kind !== "text" || sourceRun.localStyle == null) {
+      throw new Error("reordered producer local style missing")
+    }
+    expect(Object.keys(sourceRun.localStyle)).toEqual([
+      "fontStyle",
+      "fontWeight",
+      "textColor",
+      "fontSize",
+    ])
+
+    const classified = createVNextTextBlockInitialFlowV1(buildInput)
+    expect(classified).toMatchObject({ status: "classified", issues: [] })
+    if (classified.status !== "classified") throw new Error("reordered initial flow fixture blocked")
+
+    const adapted = adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
+      initialFlow: classified.flow,
+      legacyRequest: produced.request,
+    })
+    expect(adapted).toMatchObject({ status: "accepted-text-subset", issues: [] })
+    if (adapted.status !== "accepted-text-subset") throw new Error("reordered producer adapter blocked")
+    expect(adapted.layout).toEqual(produced.layout)
+  })
+
+  it.each([
+    ["empty", ""],
+    ["whitespace-only", " \t\r\n"],
+  ])("blocks an %s legacy layout id before MR1 with unavailable metadata", (_name, layoutId) => {
+    const flow = classifiedTextFlow()
+    const request = legacyTextOnlyLayoutRequestFixture()
+    request.layoutId = layoutId
+    request.bindProductionLayout = true
+
+    expect(acceptVNextTextBlockMultiRunLayoutV1(request)).toMatchObject({
+      status: "blocked",
+      issues: expect.arrayContaining([
+        expect.objectContaining({ code: "production-binding-forbidden" }),
+        expect.objectContaining({ code: "invalid-layout-id" }),
+      ]),
+    })
+    expect(adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
+      initialFlow: flow,
+      legacyRequest: request,
+    })).toMatchObject({
+      status: "blocked",
+      initialFlowFingerprint: flow.fingerprint,
+      layoutId: "unavailable",
+      layout: null,
+      fingerprint: null,
+      issues: [expect.objectContaining({
+        code: "legacy-context-mismatch",
+        path: "legacyRequest",
+      })],
+    })
+  })
+
   it.each([
     ["null", null],
     ["undefined", undefined],
@@ -302,6 +381,29 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
       layout: null,
       fingerprint: null,
     })
+  })
+
+  it("rejects a readable legacy-request accessor instead of passing reconstructed data to MR1", () => {
+    const initialFlow = classifiedTextFlow()
+    const legacyRequest = legacyTextOnlyLayoutRequestFixture()
+    let accessorReadCount = 0
+    Object.defineProperty(legacyRequest, "layoutId", {
+      enumerable: true,
+      get: () => {
+        accessorReadCount += 1
+        return "layout-legacy-1"
+      },
+    })
+
+    expect(adaptUnknown({ initialFlow, legacyRequest })).toMatchObject({
+      status: "blocked",
+      initialFlowFingerprint: initialFlow.fingerprint,
+      layoutId: "unavailable",
+      layout: null,
+      fingerprint: null,
+      issues: [expect.objectContaining({ code: "legacy-context-mismatch" })],
+    })
+    expect(accessorReadCount).toBe(0)
   })
 
   it.each([
