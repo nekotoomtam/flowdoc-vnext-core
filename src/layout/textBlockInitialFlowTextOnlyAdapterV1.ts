@@ -366,9 +366,15 @@ function cloneContainedData(
   const isArray = Array.isArray(value)
   const prototype = Object.getPrototypeOf(value)
   if (!isArray && prototype !== Object.prototype && prototype !== null) return INVALID_CONTAINED_DATA
+  const arrayLength = isArray ? dataProperty(value, "length")?.value : null
+  if (isArray && (typeof arrayLength !== "number" || !Number.isSafeInteger(arrayLength))) {
+    return INVALID_CONTAINED_DATA
+  }
 
   ancestors.add(value)
-  const output: unknown[] | Record<string, unknown> = isArray ? [] : {}
+  const output: unknown[] | Record<string, unknown> = isArray
+    ? new Array<unknown>(arrayLength as number)
+    : {}
   for (const key of Reflect.ownKeys(value)) {
     const descriptor = dataProperty(value, key)
     if (descriptor == null) {
@@ -381,7 +387,7 @@ function cloneContainedData(
     }
     if (isArray && key === "length") continue
     if (!descriptor.enumerable) continue
-    if (isArray && !arrayIndexKey(key, value.length)) {
+    if (isArray && !arrayIndexKey(key, arrayLength as number)) {
       ancestors.delete(value)
       return INVALID_CONTAINED_DATA
     }

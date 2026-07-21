@@ -406,6 +406,25 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
     expect(accessorReadCount).toBe(0)
   })
 
+  it("preserves sparse array shape so strict validation blocks before MR1", () => {
+    const initialFlow = classifiedTextFlow()
+    const legacyRequest = legacyTextOnlyLayoutRequestFixture()
+    legacyRequest.shapingRuns[0]!.features = new Array<string>(1)
+    legacyRequest.bindProductionLayout = true
+
+    expect(adaptUnknown({ initialFlow, legacyRequest })).toMatchObject({
+      status: "blocked",
+      initialFlowFingerprint: initialFlow.fingerprint,
+      layoutId: "unavailable",
+      layout: null,
+      fingerprint: null,
+      issues: [expect.objectContaining({
+        code: "legacy-context-mismatch",
+        path: "legacyRequest",
+      })],
+    })
+  })
+
   it.each([
     ["missing", { legacyRequest: legacyTextOnlyLayoutRequestFixture() }, "unavailable"],
     ["null", { initialFlow: null, legacyRequest: legacyTextOnlyLayoutRequestFixture() }, "layout-legacy-1"],
