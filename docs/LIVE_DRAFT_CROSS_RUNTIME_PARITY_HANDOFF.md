@@ -3,7 +3,7 @@
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20.
+Date: 2026-07-20. Updated through the bounded MR1-H checkpoint on 2026-07-21.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -62,8 +62,8 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `5954d4c` | canonical fixed-point multi-run acceptance, display-list projection, and MR1 handoff truth |
-| `flowdoc-vnext-editor` | `abefb50` | multi-line/multi-glyph parity plus rapid-edit stale/last-valid QA evidence |
+| `flowdoc-vnext-core` | `c75a613` | fixed-point multi-run acceptance plus bounded incremental TextBlock document composition/projection |
+| `flowdoc-vnext-editor` | `3a9ca8e` | 12-TextBlock priority scheduling, page create/remove, stale/last-valid, atomic Canvas, and frame evidence |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
 ### Core Truth
