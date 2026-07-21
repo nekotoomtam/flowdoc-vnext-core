@@ -479,6 +479,66 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
     expect(propertyReadCount).toBe(0)
   })
 
+  it("rejects a maximum-length sparse array before output allocation or declared-length reads", () => {
+    const initialFlow = classifiedTextFlow()
+    const legacyRequest = legacyTextOnlyLayoutRequestFixture()
+    const maximumArrayLength = 0xFFFF_FFFF
+    const sparseTarget = new Array<string>(maximumArrayLength)
+    sparseTarget[0] = "liga"
+    let propertyReadCount = 0
+    let numericDescriptorReadCount = 0
+    const features = new Proxy(sparseTarget, {
+      get(target, key, receiver) {
+        propertyReadCount += 1
+        return Reflect.get(target, key, receiver) as unknown
+      },
+      getOwnPropertyDescriptor(target, key) {
+        if (typeof key === "string" && /^(?:0|[1-9][0-9]*)$/u.test(key)) {
+          numericDescriptorReadCount += 1
+        }
+        return Reflect.getOwnPropertyDescriptor(target, key)
+      },
+    })
+    legacyRequest.shapingRuns[0]!.features = features
+    legacyRequest.bindProductionLayout = true
+
+    const nativeArray = Array
+    const nativeArrayDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Array")
+    if (nativeArrayDescriptor == null) throw new Error("global Array descriptor missing")
+    let declaredLengthAllocationCount = 0
+    const trackingArray = new Proxy(nativeArray, {
+      construct(target, args, newTarget) {
+        if (args.length === 1 && args[0] === maximumArrayLength) {
+          declaredLengthAllocationCount += 1
+          throw new Error("declared-length output allocation attempted")
+        }
+        return Reflect.construct(target, args, newTarget) as unknown[]
+      },
+    })
+    let result: ReturnType<typeof adaptUnknown> | undefined
+    try {
+      Object.defineProperty(globalThis, "Array", {
+        ...nativeArrayDescriptor,
+        value: trackingArray,
+      })
+      result = adaptUnknown({ initialFlow, legacyRequest })
+    } finally {
+      Object.defineProperty(globalThis, "Array", nativeArrayDescriptor)
+    }
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      initialFlowFingerprint: initialFlow.fingerprint,
+      layoutId: "unavailable",
+      layout: null,
+      fingerprint: null,
+      issues: [expect.objectContaining({ code: "legacy-context-mismatch" })],
+    })
+    expect(declaredLengthAllocationCount).toBe(0)
+    expect(propertyReadCount).toBe(0)
+    expect(numericDescriptorReadCount).toBe(0)
+  })
+
   it.each([
     ["custom prototype", (initialFlow: ReturnType<typeof classifiedTextFlow>) => {
       const envelope = Object.create(Object.create(Object.prototype)) as Record<PropertyKey, unknown>
@@ -540,6 +600,34 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
     })
     expect(accessorReadCount).toBe(0)
   })
+
+  it.each(["initialFlow", "legacyRequest"] as const)(
+    "rejects a required adapter-root %s accessor without reading it",
+    (accessorKey) => {
+      const envelope: Record<PropertyKey, unknown> = {
+        initialFlow: classifiedTextFlow(),
+        legacyRequest: legacyTextOnlyLayoutRequestFixture(),
+      }
+      let accessorReadCount = 0
+      Object.defineProperty(envelope, accessorKey, {
+        enumerable: true,
+        configurable: true,
+        get: () => {
+          accessorReadCount += 1
+          return envelope
+        },
+      })
+
+      expect(adaptUnknown(envelope)).toMatchObject({
+        status: "blocked",
+        initialFlowFingerprint: "unavailable",
+        layoutId: "unavailable",
+        layout: null,
+        fingerprint: null,
+      })
+      expect(accessorReadCount).toBe(0)
+    },
+  )
 
   it("accepts an exact data-only adapter root with a null prototype", () => {
     const initialFlow = classifiedTextFlow()
