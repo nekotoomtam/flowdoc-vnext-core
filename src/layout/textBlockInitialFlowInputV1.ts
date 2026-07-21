@@ -16,6 +16,7 @@ import type {
 import {
   convertVNextPointToLayoutUnitV1,
   createVNextLayoutUnitPolicyV1,
+  scaleVNextFontMetricToLayoutUnitV1,
   VNextPositiveLayoutUnitV1Schema,
 } from "./layoutUnitPolicyV1.js"
 import type {
@@ -186,6 +187,30 @@ function validMeasurementRanges(measurement: VNextTextBlockV4MeasurementRequest)
   return cursor === measurement.renderedText.length
 }
 
+function validScaledMetrics(
+  face: VNextTextBlockMultiRunFontFaceV1,
+  fontSizeLayoutUnit: number,
+): boolean {
+  const ascent = scaleVNextFontMetricToLayoutUnitV1({
+    fontMetric: face.ascentFontUnit,
+    fontSizeLayoutUnit,
+    unitsPerEm: face.unitsPerEm,
+  })
+  const descent = scaleVNextFontMetricToLayoutUnitV1({
+    fontMetric: face.descentFontUnit,
+    fontSizeLayoutUnit,
+    unitsPerEm: face.unitsPerEm,
+  })
+  const lineGap = scaleVNextFontMetricToLayoutUnitV1({
+    fontMetric: face.lineGapFontUnit,
+    fontSizeLayoutUnit,
+    unitsPerEm: face.unitsPerEm,
+  })
+  return ascent.status === "accepted"
+    && descent.status === "accepted"
+    && lineGap.status === "accepted"
+}
+
 function validateFonts(input: VNextTextBlockInitialFlowBuildInputV1): boolean {
   if (
     !nonBlank(input.paragraphStyle.styleKey)
@@ -216,7 +241,9 @@ function validateFonts(input: VNextTextBlockInitialFlowBuildInputV1): boolean {
     ) return false
     ids.add(face.fontFaceId)
   }
-  return ids.has(input.paragraphStyle.fontFaceId)
+  const selectedFace = input.fontFaces.find((face) => face.fontFaceId === input.paragraphStyle.fontFaceId)
+  return selectedFace != null
+    && validScaledMetrics(selectedFace, input.paragraphStyle.fontSizeLayoutUnit)
 }
 
 function projectAtoms(
@@ -268,8 +295,15 @@ function projectAtoms(
       return
     }
     if (inline.type === "page-number") {
-      if (!compactFingerprint(run.generatedOwnerFingerprint)) {
-        issues.push(issue("inline-projection-mismatch", path, "page number owner fingerprint is required", inline.id))
+      if (
+        run.renderedText.length === 0
+        || run.renderEndOffset <= run.renderStartOffset
+        || !compactFingerprint(run.generatedOwnerFingerprint)
+      ) {
+        issues.push(issue(
+          "inline-projection-mismatch", path,
+          "page number requires a non-empty generated value and compact owner fingerprint", inline.id,
+        ))
         return
       }
       atoms.push({ ...base, kind: "generated-page-number",

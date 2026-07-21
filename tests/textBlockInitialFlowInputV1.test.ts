@@ -194,6 +194,27 @@ describe("TextBlock Initial Flow input v1", () => {
     })
   })
 
+  it("requires generated page-number runs to retain a non-empty positive range", () => {
+    const input = completeTextGeometryBuildInputFixture()
+    input.measurement = clone(input.measurement)
+    input.measurement.renderedText = "AB\n"
+    const generated = input.measurement.runs[2]
+    const hardBreak = input.measurement.runs[3]
+    if (generated?.kind !== "generated-page-number" || hardBreak?.kind !== "hard-break") {
+      throw new Error("generated value fixture missing")
+    }
+    generated.renderedText = ""
+    generated.renderEndOffset = generated.renderStartOffset
+    hardBreak.renderStartOffset = generated.renderEndOffset
+    hardBreak.renderEndOffset = hardBreak.renderStartOffset + 1
+
+    expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+      status: "blocked",
+      flow: null,
+      issues: expect.arrayContaining([expect.objectContaining({ code: "inline-projection-mismatch" })]),
+    })
+  })
+
   it("enforces the accepted font style, weight, and metric invariants", () => {
     const mutations: Array<(face: ReturnType<typeof completeTextGeometryBuildInputFixture>["fontFaces"][number]) => void> = [
       (face) => { (face as unknown as { style: string }).style = "oblique" },
@@ -214,6 +235,20 @@ describe("TextBlock Initial Flow input v1", () => {
         status: "blocked",
         issues: expect.arrayContaining([expect.objectContaining({ code: "invalid-font-context" })]),
       })
+    })
+  })
+
+  it("blocks selected paragraph font metrics whose scaling multiplication is unsafe", () => {
+    const input = completeTextGeometryBuildInputFixture()
+    input.paragraphStyle = {
+      ...input.paragraphStyle,
+      fontSizeLayoutUnit: Number.MAX_SAFE_INTEGER,
+    }
+
+    expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+      status: "blocked",
+      flow: null,
+      issues: expect.arrayContaining([expect.objectContaining({ code: "invalid-font-context" })]),
     })
   })
 
