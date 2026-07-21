@@ -71,13 +71,18 @@ not product budgets.
 
 ## Remaining gate
 
-This slice does not splice retained prefix/suffix clusters, rebuild affected
-lines, perform incremental Core acceptance, or publish an assembled layout.
-The next bounded slice should implement an affected-window line builder plus
-retained checkpoint fingerprints and a dedicated incremental Core acceptance
-contract. Its QA result must remain exactly equal to a full oracle, and any
+The subsequent MR1-K retained-planner slice now retains immutable
+prefix/suffix clusters and precomputed line-checkpoint chains, then produces a
+fail-closed initial range plan for one stable Text Run edit. See
+`docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`.
+
+It still does not splice new range facts, rebuild affected lines, perform
+incremental Core acceptance, or publish an assembled layout. The next bounded
+slice should execute the range plan and implement an affected-window line
+builder. Its QA result must remain exactly equal to a full oracle, and any
 unsafe boundary, context limit, hard break, window limit, or reconvergence
-failure must select full fallback.
+failure must select full fallback. Incremental Core acceptance remains a later
+checkpoint after the assembler is proved.
 
 Tables, columns, images, repeated headers, auto-fit column width, Backend/API,
 React input, IME/caret/selection, product binding, and production remain out of
@@ -90,5 +95,6 @@ scope.
 - `packages/text-engine-rust-wasm/src/node.ts`
 - `packages/text-engine-rust-wasm/src/workerMr1Range.ts`
 - `tests/textEngineMr1RangeFactsV1.test.ts`
+- `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`
 - `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`
 - `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-contextual-range-facts.v1.json`

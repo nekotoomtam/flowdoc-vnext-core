@@ -3,6 +3,7 @@ import {
   isVNextSafeUtf16TextOffset,
   type VNextTextBlockPositionedLineV1,
 } from "@flowdoc/vnext-core"
+import { createFlowDocTextEngineSemanticLineFingerprintV1 } from "./incrementalLineCheckpoint.js"
 import type { FlowDocTextEngineMultiRunLayoutResultV1 } from "./multiRunLayoutContract.js"
 
 export const FLOWDOC_TEXT_ENGINE_INCREMENTAL_REFLOW_ANALYSIS_SOURCE =
@@ -122,62 +123,6 @@ function lineForOffset(lines: readonly VNextTextBlockPositionedLineV1[], offset:
   return following >= 0 ? following : Math.max(0, lines.length - 1)
 }
 
-function normalizedSourceSegments(
-  lineStart: number,
-  segments: VNextTextBlockPositionedLineV1["sourceSegments"],
-) {
-  return segments.map((segment) => ({
-    inlineId: segment.inlineId,
-    kind: segment.kind,
-    ...(segment.fieldKey == null ? {} : { fieldKey: segment.fieldKey }),
-    ...(segment.styleKey == null ? {} : { styleKey: segment.styleKey }),
-    ...(segment.localStyle == null ? {} : { localStyle: clone(segment.localStyle) }),
-    renderStartOffset: segment.renderStartOffset - lineStart,
-    renderEndOffset: segment.renderEndOffset - lineStart,
-    renderedText: segment.renderedText,
-  }))
-}
-
-function semanticLineFacts(line: VNextTextBlockPositionedLineV1) {
-  return {
-    text: line.text,
-    renderLength: line.renderEndOffset - line.renderStartOffset,
-    widthLayoutUnit: line.widthLayoutUnit,
-    naturalAscentLayoutUnit: line.naturalAscentLayoutUnit,
-    naturalDescentLayoutUnit: line.naturalDescentLayoutUnit,
-    naturalHeightLayoutUnit: line.naturalHeightLayoutUnit,
-    leadingBeforeLayoutUnit: line.leadingBeforeLayoutUnit,
-    leadingAfterLayoutUnit: line.leadingAfterLayoutUnit,
-    heightLayoutUnit: line.heightLayoutUnit,
-    baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
-    fragments: line.fragments.map((fragment) => ({
-      renderStartOffset: fragment.renderStartOffset - line.renderStartOffset,
-      renderEndOffset: fragment.renderEndOffset - line.renderStartOffset,
-      text: fragment.text,
-      xLayoutUnit: fragment.xLayoutUnit,
-      advanceLayoutUnit: fragment.advanceLayoutUnit,
-      baselineShiftLayoutUnit: fragment.baselineShiftLayoutUnit,
-      styleKey: fragment.styleKey,
-      fontFaceId: fragment.fontFaceId,
-      fontFamily: fragment.fontFamily,
-      fontSha256: fragment.fontSha256,
-      fontWeight: fragment.fontWeight,
-      fontStyle: fragment.fontStyle,
-      fontSizeLayoutUnit: fragment.fontSizeLayoutUnit,
-      textColor: fragment.textColor,
-      ascentLayoutUnit: fragment.ascentLayoutUnit,
-      descentLayoutUnit: fragment.descentLayoutUnit,
-      lineGapLayoutUnit: fragment.lineGapLayoutUnit,
-      sourceSegments: normalizedSourceSegments(line.renderStartOffset, fragment.sourceSegments),
-    })),
-    sourceSegments: normalizedSourceSegments(line.renderStartOffset, line.sourceSegments),
-  }
-}
-
-function semanticLineFingerprint(line: VNextTextBlockPositionedLineV1): string {
-  return createVNextCompactFingerprint(JSON.stringify(semanticLineFacts(line)))
-}
-
 function compatibleContext(previous: AcceptedLayout, next: AcceptedLayout): boolean {
   return previous.textBlockId === next.textBlockId
     && previous.measurementProfileId === next.measurementProfileId
@@ -289,7 +234,8 @@ export function analyzeFlowDocTextEngineIncrementalReflowV1(input: {
       previousLine.renderStartOffset !== nextLine.renderStartOffset
       || previousLine.renderEndOffset !== nextLine.renderEndOffset
       || previousLine.yOffsetLayoutUnit !== nextLine.yOffsetLayoutUnit
-      || semanticLineFingerprint(previousLine) !== semanticLineFingerprint(nextLine)
+      || createFlowDocTextEngineSemanticLineFingerprintV1(previousLine)
+        !== createFlowDocTextEngineSemanticLineFingerprintV1(nextLine)
     ) return fallback("prefix-mismatch", "a line before the proposed restart checkpoint changed")
   }
 
@@ -318,7 +264,8 @@ export function analyzeFlowDocTextEngineIncrementalReflowV1(input: {
         if (
           candidateLine.renderStartOffset !== previousLine.renderStartOffset + offsetDelta
           || candidateLine.renderEndOffset !== previousLine.renderEndOffset + offsetDelta
-          || semanticLineFingerprint(previousLine) !== semanticLineFingerprint(candidateLine)
+          || createFlowDocTextEngineSemanticLineFingerprintV1(previousLine)
+            !== createFlowDocTextEngineSemanticLineFingerprintV1(candidateLine)
         ) {
           stable = false
           break
@@ -335,7 +282,8 @@ export function analyzeFlowDocTextEngineIncrementalReflowV1(input: {
         if (
           candidateLine.renderStartOffset !== previousLine.renderStartOffset + offsetDelta
           || candidateLine.renderEndOffset !== previousLine.renderEndOffset + offsetDelta
-          || semanticLineFingerprint(previousLine) !== semanticLineFingerprint(candidateLine)
+          || createFlowDocTextEngineSemanticLineFingerprintV1(previousLine)
+            !== createFlowDocTextEngineSemanticLineFingerprintV1(candidateLine)
         ) {
           stable = false
           break
