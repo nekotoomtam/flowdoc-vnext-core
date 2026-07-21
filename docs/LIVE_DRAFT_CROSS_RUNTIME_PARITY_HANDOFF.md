@@ -3,7 +3,7 @@
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20. Updated through the bounded MR1-J checkpoint on 2026-07-21.
+Date: 2026-07-20. Updated through the bounded MR1-K checkpoint on 2026-07-21.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -62,9 +62,13 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `48b6102` | contextual Rustybuzz range shaping, bounded ICU4X segmentation, pinned native/WASM facts, and full-oracle proof |
+| `flowdoc-vnext-core` | `77178d3` | immutable retained layout/checkpoint facts and a fail-closed single-Text-Run edit-range planner |
 | `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
+
+The immediately preceding MR1-I implementation evidence remains pinned at
+Core `78810c5` and Editor `0a5c816`; later MR1-J/MR1-K commits build on those
+accepted oracle-analysis facts.
 
 ### Core Truth
 
@@ -422,27 +426,32 @@ identity.
 
 ## First Task For The Next Thread
 
-Design the next bounded MR1 intra-TextBlock affected-line assembly checkpoint
-from the accepted contextual range-shaping and bounded-segmentation facts. Do
-not bind the product path yet and keep Table work deferred.
+Build the next bounded MR1 contextual range execution, retained-cluster splice,
+and affected-line assembly checkpoint from the accepted MR1-K planner. Do not
+bind the product path yet, do not add incremental Core publication yet, and
+keep Table work deferred.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs, `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`, and
    `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`.
-2. Retain unchanged prefix/suffix cluster facts and precomputed line-checkpoint
-   fingerprints around the accepted contextual engine range.
-3. Build and assemble only the affected line window; fail closed to
-   complete-block layout whenever cluster boundaries, context, line
-   reconvergence, or fingerprint proof is ambiguous.
-4. Exercise long Thai/Latin mixed Text Runs, style changes, fields, hard breaks,
-   insertion/deletion near line/page edges, IME-shaped text, and rapid typing.
-5. Evaluate the distinct default/approximate-versus-renderer drift fixture
+2. Execute the already planned shaping range and bounded segmentation against
+   the exact runtime identity; do not widen the planner's authority.
+3. Splice retained prefix clusters, newly accepted affected clusters, and
+   shifted suffix clusters only when scalar, cluster, run, break, and offset
+   boundaries are exact. Fail closed on any ambiguity.
+4. Assemble only from the retained restart checkpoint through an exact line
+   reconvergence proof. Keep the complete layout as a QA oracle, not the
+   per-edit execution path.
+5. Exercise long Thai/Latin mixed Text Runs, Regular/Bold and mixed font sizes,
+   field adjacency, insertion/deletion near line/page edges, and fail-closed
+   style, field, hard-break, surrogate, and oversized cases.
+6. Evaluate the distinct default/approximate-versus-renderer drift fixture
    under the already accepted numeric threshold policy. Do not relabel the
    zero Node/Browser renderer-backed drift summary as that fixture.
-6. Add a dedicated incremental Core acceptance/fingerprint boundary and record
-   Worker/main-thread p50/p95 plus changed cluster/line/page counts. Keep
-   tables, columns, images, default-measurer replacement, whole-document
-   production activation, and glyph-pixel exactness out of this slice.
+7. Record range execution/splice/affected-line diagnostics without inventing a
+   budget. Defer incremental Core acceptance/fingerprinting to its own later
+   checkpoint. Keep tables, columns, images, default-measurer replacement,
+   whole-document production activation, and glyph-pixel exactness out.
 
 ## Required Reading
 
@@ -457,6 +466,7 @@ Core:
 - `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`
 - `docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md`
 - `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`
+- `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`
 - `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md`
 - `src/renderer/textMeasurementAdapter.ts`
@@ -468,6 +478,9 @@ Core:
 - `packages/text-engine-rust-wasm/src/multiRunLayout.ts`
 - `packages/text-engine-rust-wasm/src/runtimeMr1.ts`
 - `packages/text-engine-rust-wasm/src/runtimeMr1Range.ts`
+- `packages/text-engine-rust-wasm/src/incrementalLineCheckpoint.ts`
+- `packages/text-engine-rust-wasm/src/incrementalRetainedSnapshot.ts`
+- `packages/text-engine-rust-wasm/src/incrementalEditRangePlanner.ts`
 - `src/renderer/textBlockMultiRunDisplayListV1.ts`
 - `src/composition/textBlockMultiRunDocumentCompositionV1.ts`
 - `src/renderer/textBlockMultiRunDocumentDisplayListV1.ts`
@@ -526,10 +539,12 @@ evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, Core
 multi-run layout contract, external engine facts, exact Node/real-Chrome Worker
 MR1 evidence, Core per-fragment display-list projection, and separate QA Canvas
 paint, multi-line/multi-glyph parity, rapid-edit stale/last-valid lifecycle,
-and bounded 12-TextBlock scheduling/frame evidence as prerequisites. Select a
-bounded intra-TextBlock affected-range shaping/reflow fixture before considering
-product binding. Keep renderer measurement and line relayout forbidden, and
-close only rows whose real owner contracts can be exercised.
+and bounded 12-TextBlock scheduling/frame evidence as prerequisites. Continue
+from the immutable retained snapshot/checkpoint and fail-closed edit-range plan.
+Execute and splice only the planned contextual cluster range, then assemble
+only the affected line window. Keep renderer measurement, whole-block runtime
+relayout, and product publication forbidden, and close only rows whose real
+owner contracts can be exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
@@ -1010,6 +1025,45 @@ not budgets. Evidence lives at
 `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md` plus
 `src/fixtures/live-draft-mr1-contextual-range-facts.v1.json`.
 
+## LIVE-DRAFT-MR1 Retained Snapshot And Edit-Range Planner
+
+Status: accepted as a deterministic external-adapter contract with focused
+Core-repository tests on 2026-07-21. Range engine execution, affected-line
+assembly, incremental Core acceptance, product binding, and production remain
+NO-GO.
+
+The external text-engine adapter can now retain one accepted complete MR1
+TextBlock as a deeply frozen, process-local snapshot. It preserves accepted
+measurement/source runs, font faces, break offsets, shaping runs/clusters,
+positioned lines/fragments/source segments, and the accepted adapter, Core, and
+layout-context fingerprints. Every line receives an exact Core fingerprint, a
+normalized semantic fingerprint, cluster cursors, a prefix exact-layout chain,
+and a suffix normalized-semantic chain.
+
+Snapshot reuse requires the exact measurement profile, MR1-range WASM digest
+and boundary, Rustybuzz and ICU4X revisions, Unicode policy, runtime kind, and
+all used font digests. The first contract deliberately accepts only the same
+immutable object created in the current process. A cloned, transferred,
+hydrated, mutated, or identity-drifted snapshot fails closed. Snapshot hashing
+occurs once at creation; the edit planner does not rehash the complete retained
+layout on every edit.
+
+The deterministic planner accepts one scalar-safe insertion, deletion, or
+replacement inside exactly one stable `text` source run. It covers Regular and
+Bold effective runs, mixed font sizes, and text immediately adjacent to a
+retained resolved field. It derives the prior and projected shaping range,
+bounded shaping/segmentation contexts, retained prefix/suffix cluster counts,
+and a one-line-lookbehind restart checkpoint from accepted break/run-edge
+facts. Runtime drift, invalid reconstruction, style/source topology changes,
+multiple affected runs, direct field or hard-break editing, ambiguous shaping
+ownership, unsafe boundaries, surrogate splits, and oversized initial ranges
+all return `fallback-required`.
+
+This checkpoint is a plan only. It runs no shaper or segmenter, splices no
+clusters, assembles no lines, invokes no Core acceptance, and may not publish a
+layout. No performance budget is claimed. The exact contract and evidence live
+at `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -1098,6 +1152,13 @@ not budgets. Evidence lives at
 - Six real-Chrome Regular/Bold ranges across a 4,959-unit block match complete
   shaping and ICU4X segmentation oracles exactly; bounded segmentation
   stabilizes in three context windows and makes zero Backend-like requests.
+- An accepted MR1 layout can be retained once as an immutable process-local
+  snapshot with exact runtime/font identity and per-line prefix/suffix
+  checkpoint chains, without full-snapshot hashing in each edit plan.
+- One stable Text Run insertion, deletion, or replacement can produce a
+  deterministic contextual engine/segmentation range and restart checkpoint;
+  incompatible runtime, topology, field, hard-break, UTF-16, and range cases
+  fail closed without executing the engine or granting publication authority.
 
 ### FAIL-BLOCKER
 
@@ -1109,8 +1170,9 @@ not budgets. Evidence lives at
 - Product-bound multi-block scheduling, IME/caret/selection integration, and
   long-document page virtualization are not implemented.
 - Default pagination measurement replacement remains blocked.
-- Whole-document field/layout coverage, affected-line assembly, and
-  incremental Core acceptance remain blocked for later slices.
+- Contextual range execution, retained/new cluster splicing, affected-line
+  assembly, whole-document field/layout coverage, and incremental Core
+  acceptance remain blocked for later slices.
 
 ### RISK
 
@@ -1161,6 +1223,12 @@ not budgets. Evidence lives at
   are not included; the engine observation is not a typing budget.
 - The 12-block frame gate excludes product React work, IME, caret/selection,
   viewport bitmap memory, background contention, tables, columns, and images.
+- The first retained snapshot duplicates accepted TextBlock layout facts in
+  memory for each active snapshot; product-scale retention limits are unknown.
+- Process-local provenance intentionally rejects cloned/transferred snapshots,
+  so Worker transfer or persisted hydration needs a separately proved contract.
+- The planner's retained safe boundary is only the initial range. New shaping
+  and segmentation facts still require an exact range oracle before splicing.
 
 ### UNKNOWN
 
@@ -1171,6 +1239,9 @@ not budgets. Evidence lives at
   documents.
 - Incremental Core acceptance and compositional fingerprinting that can publish
   the proved line window without executing a full oracle.
+- Product-scale retained-snapshot memory and per-edit planner timing.
+- Exact cluster splice and affected-line assembly/reconvergence behavior after
+  contextual range execution.
 - Product scheduler fairness under continuous active typing plus background
   visible/offscreen invalidations.
 - Canvas paint cost and memory for styled, image, table, and 200-page content.
