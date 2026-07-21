@@ -439,9 +439,9 @@ Initial TextBlock Flow boundary.
    for insertion, Bold, field-adjacent, deletion, and all current fallback rows.
 4. Remeasure retained-memory and request-composition work without inventing a
    product-scale or interaction budget.
-5. Do not start spatial wrapping, list-decoration geometry, inline-image
-   line-box geometry, empty-block layout, Editor or Backend product binding,
-   table auto-fit, publication, or production in this checkpoint.
+5. Do not start spatial wrapping, list decoration, inline-image geometry,
+   empty-block geometry, Editor, Backend, table auto-fit, publication, or
+   production activation in this checkpoint.
 
 ## Required Reading
 
@@ -1212,14 +1212,19 @@ remain NO-GO.
 
 MR1-P adds a versioned Initial TextBlock Flow boundary that pins parent region,
 authored box, role/list identity, measurement, paragraph style, fonts,
-layout-unit policy, and complete current inline facts. The existing MR1 layout
-is now reachable only through an explicit `text-subset-ready` adapter.
+layout-unit policy, and complete current inline facts. The new Initial Flow
+handoff path invokes legacy MR1 only through the explicit adapter. For accepted
+text-subset-ready rows, the adapter reproduces exact legacy MR1 layout parity.
 
 Inline images retain frame, asset, and `verticalAlign` but report
 `blocked-line-box-contract`; list items retain authored identity but report
 `blocked-decoration-contract`; empty blocks report
-`blocked-empty-layout-contract`. These rows cannot enter legacy MR1 layout.
-All results retain `mayPublishLayout: false`.
+`blocked-empty-layout-contract`. Unsupported capability rows fail closed before
+the adapter invokes legacy layout.
+
+The Initial Flow handoff remains non-production and non-publishable:
+publication and production activation remain NO-GO, and every accepted result
+reports `mayPublishLayout: false`.
 
 List decoration, image line-box geometry, empty-block layout, persistent trees,
 spatial wrapping, Editor, Backend, table auto-fit, and publication remain

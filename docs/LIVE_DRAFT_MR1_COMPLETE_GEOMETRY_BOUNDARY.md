@@ -11,10 +11,15 @@ front of the existing MR1 layout. It pins parent containing-region, authored
 box, role/list identity, measurement, paragraph style, fonts, layout-unit
 policy, and complete known inline facts without changing canonical Document v4.
 
-The existing MR1 layout remains a text-run subset. Only a classified
-`text-subset-ready` input may enter it through the explicit adapter. List,
-inline-image, and empty-block geometry report
-`geometry-contract-required` and fail closed before legacy layout.
+The new Initial Flow handoff path invokes legacy MR1 only through the explicit
+adapter. For accepted text-subset-ready rows, the adapter reproduces exact
+legacy MR1 layout parity. List, inline-image, and empty-block geometry report
+`geometry-contract-required`. Unsupported capability rows fail closed before
+the adapter invokes legacy layout.
+
+The Initial Flow handoff remains non-production and non-publishable:
+publication and production activation remain NO-GO, and every accepted result
+reports `mayPublishLayout: false`.
 
 ## Capability Matrix
 
@@ -34,7 +39,8 @@ inline-image, and empty-block geometry report
   and deterministic Core fingerprints.
 - Initial TextBlock Flow retains role, box, measurement, typography, policy,
   and full inline-image vertical alignment.
-- The text-only adapter reproduces the exact existing accepted MR1 layout.
+- For accepted text-subset-ready rows, the adapter reproduces exact legacy MR1
+  layout parity.
 - Cloned flow objects, stale parent facts, width drift, style/font drift,
   frame drift, unsupported capabilities, and production binding fail closed.
 - Every accepted result reports `mayPublishLayout: false`.
@@ -74,5 +80,6 @@ inline-image, and empty-block geometry report
 
 Proceed to Phase 2 Persistent Flow Tree Foundation. Implement the versioned
 persistent B+ rope policy and remove `completeNextSemanticPassCount: 1` for the
-accepted text subset. Do not start spatial wrapping, list/image geometry,
-Editor binding, Backend activation, or publication in that checkpoint.
+accepted text subset. Do not start spatial wrapping, list decoration,
+inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit,
+publication, or production activation in this checkpoint.
