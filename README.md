@@ -141,6 +141,13 @@ The package must remain runnable without any parent editor checkout.
   binding. A separate real Chrome QA Canvas now consumes the three bounded
   commands, matches Node's complete display list with zero integer drift, and
   paints nonblank Regular/Bold/Regular output; product binding remains blocked.
+- Live Draft MR1 now profiles the complete 4,959-unit mixed-run TextBlock by
+  stage and defines an oracle-only intra-block restart/reconvergence analysis.
+  Six start/middle/line/page/style/field-adjacent edits prove exact integer
+  suffix reconvergence inside a 32-line/2,048-unit window; end, hard-break, and
+  oversized cases fail closed. The analysis cannot publish layout, and actual
+  partial shaping, segmentation, Core acceptance, product binding, and
+  production remain blocked.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

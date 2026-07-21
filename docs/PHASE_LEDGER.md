@@ -12569,3 +12569,42 @@ column width, and production remain outside this gate.
 Next phase: keep scope on TextBlock and measure/define safe intra-block affected-
 range shaping/reflow plus long-block fallback before any product binding or
 table work.
+
+## LIVE-DRAFT-MR1-I Intra-TextBlock Incremental Reflow Analysis
+
+Status: accepted as a bounded full-layout-oracle Core/Editor QA slice on
+2026-07-21. Actual incremental execution, product binding, and production
+remain NO-GO.
+
+The external text-engine adapter now exposes diagnostic-only stage timing that
+does not enter deterministic output. A separate deterministic analysis accepts
+two complete MR1 layouts plus one exact edit, restarts one line before the
+change, requires two matching lines and an oracle-identical remaining suffix,
+and limits a proposed window to 32 lines / 2,048 UTF-16 units. Missing or
+incompatible evidence returns an explicit full-layout fallback.
+
+A real Chrome Worker fixture exercises a 4,959-unit, 124-line, mixed-size,
+mixed-weight, resolved-field TextBlock. Six start/middle/line/page/style/field
+cases reconverge with exact integer geometry. End-of-block, hard-break, and
+oversized cases fall back. Complete MR1 work observed 192.7/323.9 ms p50/p95;
+Core acceptance/fingerprinting and whole-block segmentation are the two largest
+measured stages. These are diagnostic observations, not product budgets.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md`;
+- `packages/text-engine-rust-wasm/src/incrementalReflowAnalysis.ts`;
+- `packages/text-engine-rust-wasm/src/multiRunLayout.ts`;
+- `tests/textEngineMultiRunLayoutV1.test.ts`;
+- `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md`; and
+- `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-incremental-reflow-analysis.v1.json`.
+
+The analysis always executes a full oracle and may not publish layout. Partial
+Rustybuzz shaping with context, bounded ICU4X segmentation, incremental Core
+acceptance/fingerprinting, product Editor input binding, Backend/API, tables,
+columns, images, repeated headers, auto-fit width, and production remain
+outside this gate.
+
+Next phase: implement a separately versioned contextual range-shaping and
+segmentation evidence boundary, then prove assembled output exactly against the
+retained full-layout oracle before any product binding.

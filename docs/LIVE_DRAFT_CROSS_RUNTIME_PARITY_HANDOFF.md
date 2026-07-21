@@ -62,8 +62,8 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `c75a613` | fixed-point multi-run acceptance plus bounded incremental TextBlock document composition/projection |
-| `flowdoc-vnext-editor` | `3a9ca8e` | 12-TextBlock priority scheduling, page create/remove, stale/last-valid, atomic Canvas, and frame evidence |
+| `flowdoc-vnext-core` | `78810c5` | diagnostic multi-run stage profiling plus oracle-only intra-TextBlock restart/reconvergence analysis |
+| `flowdoc-vnext-editor` | `0a5c816` | real-Chrome 4,959-unit edit matrix, full-layout timing, exact window proof, and fallback evidence |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
 ### Core Truth
@@ -930,6 +930,44 @@ Evidence lives at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md` and in the
 Editor repository at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md` plus
 `src/fixtures/live-draft-mr1-multi-block-scheduling.v1.json`.
 
+## LIVE-DRAFT-MR1 Intra-TextBlock Incremental Reflow Analysis
+
+Status: accepted as a bounded full-layout-oracle Core/Editor QA slice on
+2026-07-21. Actual incremental execution, product binding, and production
+remain NO-GO.
+
+The external adapter now separates diagnostic timing for input/style
+resolution, Rustybuzz shaping, ICU4X segmentation, line breaking, Core
+acceptance/fingerprinting, and adapter fingerprinting. Timing stays outside all
+deterministic layout facts. A separate deterministic analysis accepts previous
+and next complete MR1 oracle layouts plus one exact edit, restarts one line
+before the change, requires two stable lines and an oracle-identical remaining
+suffix, and caps a proposed window at 32 lines / 2,048 UTF-16 units.
+
+The real Chrome Worker fixture uses 4,959 UTF-16 units, five source runs, three
+effective shaping runs, mixed 12/18 pt Regular/Bold styles, one resolved field,
+4,319 clusters, 1,121 breaks, and 124 lines. Start, middle, line-edge,
+page-edge, style-boundary, and field-adjacent edits reconverge with zero integer
+geometry drift. The style edit is widest at ten lines / 280 UTF-16 units. An
+end edit lacks two stable suffix lines and falls back; hard-break and oversized
+edits also fall back.
+
+Ninety complete long-block layouts observed 192.7/323.9 ms p50/p95. Stage p50
+values were 17.3 ms shaping, 43.8 ms segmentation, 12.3 ms line breaking,
+90.2 ms Core acceptance/fingerprinting, and 23.3 ms adapter fingerprinting.
+The token advisory observed 1.4/3.3 ms p50/p95. These values are diagnostic,
+not budgets. The earlier XR5 23.1 ms warm row was a provider cache hit; this
+fixture intentionally repeats every MR1 stage.
+
+The analysis says `full-layout-oracle-analysis-only` and
+`mayPublishLayout: false`. It proves the checkpoint policy but does not perform
+partial shaping,
+partial segmentation, incremental Core acceptance, or suffix publication.
+Evidence lives at `docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md` and in
+the Editor repository at
+`docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md` plus
+`src/fixtures/live-draft-mr1-incremental-reflow-analysis.v1.json`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -1007,6 +1045,11 @@ Editor repository at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md` plus
   contracts 3 -> 2, and retains last-valid while pending or blocked.
 - Ten warm multi-block edits pass the bounded 16.7 ms main-thread gate at
   6.8 ms p95 for composition + projection + atomic Canvas paint.
+- A 4,959-unit real-Chrome MR1 fixture now separates complete-layout cost by
+  stage and proves exact oracle-only restart/reconvergence windows for six
+  start/middle/line/page/style/field-adjacent edits.
+- End-of-block, hard-break, and oversized intra-block edits fail closed instead
+  of weakening the two-stable-line and bounded-window rules.
 
 ### FAIL-BLOCKER
 
@@ -1018,8 +1061,8 @@ Editor repository at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md` plus
 - Product-bound multi-block scheduling, IME/caret/selection integration, and
   long-document page virtualization are not implemented.
 - Default pagination measurement replacement remains blocked.
-- Whole-document field/layout coverage and intra-TextBlock incremental shaping
-  remain blocked for later slices.
+- Whole-document field/layout coverage and executable intra-TextBlock partial
+  shaping/segmentation/Core acceptance remain blocked for later slices.
 
 ### RISK
 
@@ -1053,9 +1096,15 @@ Editor repository at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md` plus
 - The rapid-edit response reordering is deliberately instrumented; it proves
   the revision gate, not real scheduler fairness, queue pressure, or input
   responsiveness under concurrent multi-block work.
-- The 23.1 ms warm long-row observation still reflows and fingerprints the
-  complete 4,959-character block; XR-6 affected-range invalidation remains
-  necessary.
+- The earlier 23.1 ms XR5 warm long-row was a provider cache hit. Repeating all
+  MR1 stages over the mixed-run 4,959-unit block observed 192.7/323.9 ms
+  p50/p95, so cache-hit and full-work timing must not be conflated.
+- Core acceptance/fingerprinting observed 90.2 ms p50 and whole-block ICU4X
+  segmentation 43.8 ms p50 in the retained run; shaping-only optimization
+  cannot meet an interaction budget by itself.
+- The oracle analysis compares and hashes the complete suffix and observed
+  27.4 ms p50. Runtime reconvergence needs retained checkpoint fingerprints,
+  not this QA-only whole-suffix proof loop.
 - The accepted token dirty range is advisory: each dirty TextBlock still runs
   complete shaping and Core acceptance, so one very long active block can still
   exceed an interaction budget.
@@ -1069,7 +1118,10 @@ Editor repository at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md` plus
   the accepted threshold policy.
 - Final performance and bitmap-memory budgets for product-sized and 200-page
   documents.
-- Safe intra-block affected-range shaping/reflow and fallback policy.
+- Safe contextual range shaping and bounded range segmentation that reproduce
+  full Rustybuzz/ICU4X facts exactly.
+- Incremental Core acceptance and compositional fingerprinting that can publish
+  the proved line window without executing a full oracle.
 - Product scheduler fairness under continuous active typing plus background
   visible/offscreen invalidations.
 - Canvas paint cost and memory for styled, image, table, and 200-page content.
