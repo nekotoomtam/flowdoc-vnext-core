@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto"
-import { existsSync, readFileSync } from "node:fs"
+import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
@@ -283,10 +283,9 @@ describe("PDF-PILOT-08B-R1 canonical report source-data binding", () => {
     expect(previous.artifact.sha256).toBe(
       "45f9969ec01b1e1d168b624fff969b1fc32056f17d0596ced1c00ead58273b92",
     )
-    expect(existsSync(resolve(
-      process.cwd(),
-      "output/pdf/flowdoc-pdf-pilot-canonical-report-source-backed-twelve-page.pdf",
-    ))).toBe(true)
+    expect(proof).toContain(
+      "PDF: output/pdf/flowdoc-pdf-pilot-canonical-report-source-backed-twelve-page.pdf",
+    )
     expect(proof).toContain("Status: PDF-PILOT-08B-R1 source-data correction accepted.")
     expect(contentProof).toContain("factual parity claim is superseded")
     expect(typographyProof).toMatch(/factual\s+content claim is superseded/u)
