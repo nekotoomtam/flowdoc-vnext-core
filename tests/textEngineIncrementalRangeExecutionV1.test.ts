@@ -1,7 +1,12 @@
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { beforeAll, describe, expect, it } from "vitest"
-import type { VNextTextBlockV4MeasurementRequest } from "../src/index.js"
+import {
+  acceptVNextTextBlockMultiRunIncrementalWindowV1,
+  createVNextTextBlockMultiRunIncrementalSnapshotV1,
+  materializeVNextTextBlockMultiRunIncrementalLayoutForQaV1,
+  type VNextTextBlockV4MeasurementRequest,
+} from "../src/index.js"
 import {
   planFlowDocTextEngineIncrementalEditRangeV1,
 } from "../packages/text-engine-rust-wasm/src/incrementalEditRangePlanner.js"
@@ -161,6 +166,7 @@ function replaceInsideRun(input: {
 }
 
 let wasm: FlowDocTextEngineMr1RangeWorkerRuntimeV1
+let retainedCoreSnapshot: ReturnType<typeof createVNextTextBlockMultiRunIncrementalSnapshotV1> | null = null
 
 function fullRuntime(): FlowDocTextEngineMultiRunRuntimeV1 {
   return {
@@ -218,6 +224,41 @@ function prepareEdit(input: {
   })
   if (plan.status !== "range-planned") throw new Error(plan.fallback.message)
   return { previousInput, previous, identity, snapshot, changed, nextInput, nextOracle, plan }
+}
+
+function proveCoreComposition(
+  fixture: ReturnType<typeof prepareEdit>,
+  result: Extract<ReturnType<typeof executeFlowDocTextEngineIncrementalRangePlanV1>, { status: "qa-window-proved" }>,
+) {
+  retainedCoreSnapshot ??= createVNextTextBlockMultiRunIncrementalSnapshotV1({
+    request: fixture.previous.request,
+    acceptedLayout: fixture.previous.layout,
+  })
+  const coreSnapshot = retainedCoreSnapshot
+  const coreAcceptance = acceptVNextTextBlockMultiRunIncrementalWindowV1({
+    snapshot: coreSnapshot,
+    nextRequest: fixture.nextOracle.request,
+    edit: fixture.changed.edit,
+    window: result.affectedWindow.checkpoint,
+  })
+  expect(
+    coreAcceptance.status,
+    coreAcceptance.status === "fallback-required"
+      ? `${coreAcceptance.fallback.code}: ${coreAcceptance.fallback.message}`
+      : "",
+  ).toBe("window-accepted")
+  const materialized = materializeVNextTextBlockMultiRunIncrementalLayoutForQaV1({
+    snapshot: coreSnapshot,
+    nextRequest: fixture.nextOracle.request,
+    acceptance: coreAcceptance,
+  })
+  expect(
+    materialized.status,
+    materialized.status === "blocked" ? materialized.message : "",
+  ).toBe("materialized-for-qa")
+  if (materialized.status !== "materialized-for-qa") throw new Error(materialized.message)
+  expect(materialized.layout).toEqual(fixture.nextOracle.layout)
+  return { coreSnapshot, coreAcceptance, materialized }
 }
 
 describe("MR1-L contextual execution, retained splice, and affected-line window", () => {
@@ -301,6 +342,17 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
     expect(result.affectedWindow.checkpoint.previousSuffixSemanticFingerprint).toBe(
       result.affectedWindow.checkpoint.nextSuffixSemanticFingerprint,
     )
+    const { coreAcceptance } = proveCoreComposition(fixture, result)
+    expect(coreAcceptance).toMatchObject({
+      status: "window-accepted",
+      contracts: {
+        coreAcceptsAffectedLineWindow: true,
+        semanticIdentitySeparateFromPhysicalIds: true,
+        physicalIdsAreRevisionSpecific: true,
+        mayPublishLayout: false,
+        productionBinding: false,
+      },
+    })
     const nextSnapshot = createFlowDocTextEngineIncrementalRetainedSnapshotV1({
       accepted: fixture.nextOracle,
       rangeRuntimeIdentity: fixture.identity,
@@ -345,6 +397,7 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       if (result.status !== "qa-window-proved") throw new Error(result.fallback.message)
       expect(result.splice.shapingRuns).toEqual(fixture.nextOracle.request.shapingRuns)
       expect(result.affectedWindow.lines).toEqual(fixture.nextOracle.request.lines)
+      proveCoreComposition(fixture, result)
     }
   }, 30_000)
 
@@ -409,5 +462,51 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
         },
       },
     })).toMatchObject({ status: "fallback-required", fallback: { code: "line-window-exceeded" } })
+
+    const result = executeFlowDocTextEngineIncrementalRangePlanV1({
+      snapshot: fixture.snapshot,
+      plan: fixture.plan,
+      rangeRuntimeIdentity: fixture.identity,
+      runtime: wasm,
+      nextOracle: fixture.nextOracle,
+    })
+    if (result.status !== "qa-window-proved") throw new Error(result.fallback.message)
+    retainedCoreSnapshot ??= createVNextTextBlockMultiRunIncrementalSnapshotV1({
+      request: fixture.previous.request,
+      acceptedLayout: fixture.previous.layout,
+    })
+    const coreSnapshot = retainedCoreSnapshot
+    expect(acceptVNextTextBlockMultiRunIncrementalWindowV1({
+      snapshot: clone(coreSnapshot),
+      nextRequest: fixture.nextOracle.request,
+      edit: fixture.changed.edit,
+      window: result.affectedWindow.checkpoint,
+    })).toMatchObject({
+      status: "fallback-required",
+      fallback: { code: "snapshot-provenance-mismatch" },
+    })
+    expect(acceptVNextTextBlockMultiRunIncrementalWindowV1({
+      snapshot: coreSnapshot,
+      nextRequest: { ...fixture.nextOracle.request, bindProductionLayout: true },
+      edit: fixture.changed.edit,
+      window: result.affectedWindow.checkpoint,
+    })).toMatchObject({
+      status: "fallback-required",
+      fallback: { code: "production-binding-forbidden" },
+    })
+    const changedSuffix = clone(fixture.nextOracle.request)
+    const suffixOffset = result.affectedWindow.checkpoint.nextReconvergenceOffset
+    const suffixRun = changedSuffix.shapingRuns.find((run) => run.renderEndOffset > suffixOffset)!
+    const suffixCluster = suffixRun.clusters.find((cluster) => cluster.renderStartOffset >= suffixOffset)!
+    suffixCluster.advanceLayoutUnit += 1
+    expect(acceptVNextTextBlockMultiRunIncrementalWindowV1({
+      snapshot: coreSnapshot,
+      nextRequest: changedSuffix,
+      edit: fixture.changed.edit,
+      window: result.affectedWindow.checkpoint,
+    })).toMatchObject({
+      status: "fallback-required",
+      fallback: { code: "suffix-semantic-mismatch" },
+    })
   }, 30_000)
 })

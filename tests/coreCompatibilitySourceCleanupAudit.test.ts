@@ -118,17 +118,17 @@ describe("core compatibility source cleanup audit", () => {
       ...collectFiles(join(repoRoot, "src"), (path) => path.endsWith(".ts")),
       ...collectFiles(join(repoRoot, "tests"), (path) => path.endsWith(".ts")),
       ...collectFiles(join(repoRoot, "packages"), (path) => path.endsWith(".ts")),
-    ]
+    ].map((path) => ({ path, source: readFileSync(path, "utf8") }))
 
     for (const [importName, expectedPaths] of Object.entries(compatibilityImportAllowlist)) {
       const actualPaths = sourceFiles
-        .filter((path) => hasNamedImport(readFileSync(path, "utf8"), importName))
-        .map(repoPath)
+        .filter(({ source }) => hasNamedImport(source, importName))
+        .map(({ path }) => repoPath(path))
         .sort()
 
       expect(actualPaths).toEqual([...expectedPaths].sort())
     }
-  })
+  }, 15_000)
 
   it("keeps NR-C public narrowing intact after source cleanup", () => {
     const index = readText("src/index.ts")

@@ -3,7 +3,7 @@
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20. Updated through the bounded MR1-L checkpoint on 2026-07-21.
+Date: 2026-07-20. Updated through the bounded MR1-M checkpoint on 2026-07-21.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -426,34 +426,29 @@ identity.
 
 ## First Task For The Next Thread
 
-Design and prove the next bounded MR1 incremental Core acceptance and
-compositional-fingerprint checkpoint over the accepted MR1-L line window. Do
-not bind or publish the product path yet and keep Table work deferred.
+Design and prove the next bounded MR1 oracle-independent adapter execution
+checkpoint over the accepted MR1-M Core composition boundary. Do not bind or
+publish the product path yet and keep Table work deferred.
 
-1. Read the files under **Required Reading** plus the XR-5 Core and Editor
-   evidence docs, `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`, and
-   `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`.
-2. Resolve the current offset-derived `shapingRunId`/fragment identity issue
-   explicitly. Keep stable semantic identity separate from revision-specific
-   physical ranges; do not relabel semantic equality as an exact Core
-   fingerprint match.
-3. Add a dedicated Core-owned incremental acceptance boundary that consumes
-   only the proved retained prefix, affected cluster/break/line window, and
-   reconverged semantic suffix. Core must remain free of WASM/runtime imports.
-4. Position and fingerprint only the affected Core lines/fragments, then
-   compose prefix/affected/shifted-suffix facts under an exact deterministic
-   policy. Fail closed whenever identity, source segments, geometry, or
-   fingerprint composition is ambiguous.
-5. Compare the complete assembled Core result with the full Core oracle for
-   Thai insertion, Bold replacement, mixed sizes, field adjacency, deletion,
-   line/page edges, and explicit fallback cases.
-6. Evaluate the distinct default/approximate-versus-renderer drift fixture
-   under the already accepted numeric threshold policy. Do not relabel the
-   zero Node/Browser renderer-backed drift summary as that fixture.
-7. Record incremental Core acceptance/composition diagnostics without
-   inventing a budget. Keep tables, columns, images, default-measurer
-   replacement, whole-document production activation, product publication,
-   and glyph-pixel exactness out.
+1. Read the files under **Required Reading**, including the MR1-M composition
+   evidence.
+2. Make the external adapter construct the complete next Core request from the
+   retained snapshot, contextual range facts, cluster/break splice, and
+   affected-line builder without requiring a complete next Core layout as an
+   execution input.
+3. Call `acceptVNextTextBlockMultiRunIncrementalWindowV1(...)` directly with
+   those independently assembled facts. Preserve all runtime/font/profile,
+   source, UTF-16, topology, and bounded-window fail-closed gates.
+4. Keep complete Core acceptance/materialization as an optional QA oracle and
+   prove exact parity for the accepted insertion, Bold, field-adjacent, and
+   deletion rows plus boundary/fallback cases.
+5. Separate runtime-path work from oracle-only work and record stage timings
+   without inventing a budget.
+6. Do not remove complete shape/segmentation oracles in the same slice unless a
+   separately bounded proof replaces each one.
+7. Keep tables, columns, images, default-measurer replacement, Editor product
+   binding, whole-document production activation, publication, and glyph-pixel
+   exactness out.
 
 ## Required Reading
 
@@ -470,6 +465,7 @@ Core:
 - `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`
 - `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`
 - `docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`
+- `docs/LIVE_DRAFT_MR1_INCREMENTAL_CORE_COMPOSITION.md`
 - `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md`
 - `src/renderer/textMeasurementAdapter.ts`
@@ -1115,6 +1111,38 @@ and complete-array comparisons for QA. It is evidence of exact partial fact
 construction, not a typing budget or publishable fast path. Evidence lives at
 `docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`.
 
+## LIVE-DRAFT-MR1 Incremental Core Composition
+
+Status: accepted as a bounded Core/WASM QA checkpoint on 2026-07-21.
+Oracle-independent adapter execution, product binding, publication, and
+production remain NO-GO.
+
+MR1-M adds a Core-owned process-local snapshot, semantic-line contract,
+affected-window acceptance boundary, and deterministic prefix/affected/suffix
+composition. Core validates the complete next measurement and engine facts,
+the exact edit and fixed layout context, unchanged prefix semantics, shifted
+suffix semantics, and the MR1-L checkpoint proof. It positions and fingerprints
+only the affected lines and reports exact line-index, UTF-16 offset, and y-offset
+transforms for the retained regions.
+
+The existing range-derived `shapingRunId` contract is unchanged. Semantic line
+identity is now explicitly separate from revision-specific run, fragment, line,
+and complete-layout fingerprints. The external adapter aliases the Core-owned
+semantic helper instead of maintaining a second definition.
+
+A QA-only materializer rebinds retained semantic fragments to the next
+revision's physical ids, regenerates source segments and fingerprints, inserts
+the affected lines, and builds the legacy complete Core result without calling
+complete Core acceptance internally. The complete assembled object equals the
+independent WASM/Core oracle for Thai insertion, 18 pt Bold replacement,
+field-adjacent insertion, and deletion. Cloned snapshots, production binding,
+and altered suffix geometry fail closed.
+
+This checkpoint still scans complete next fact arrays, MR1-L still supplies
+complete engine/layout oracles, and QA materialization is complete-layout work.
+It is not a latency budget or publishable runtime path. Evidence lives at
+`docs/LIVE_DRAFT_MR1_INCREMENTAL_CORE_COMPOSITION.md`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -1219,6 +1247,12 @@ construction, not a typing budget or publishable fast path. Evidence lives at
   normalized suffix-semantic reconvergence proof.
 - Altered plans, divergent glyph facts, segmentation-context exhaustion, and
   undersized affected-line windows fail closed before any layout publication.
+- Core now accepts a proved incremental line window, positions only affected
+  lines, and composes retained prefix/shifted suffix references under an exact
+  semantic-versus-physical identity policy without runtime imports.
+- QA materialization regenerates revision-specific physical ids and produces a
+  complete Core object exactly equal to the independent oracle for insertion,
+  Bold replacement, field adjacency, and deletion.
 
 ### FAIL-BLOCKER
 
@@ -1230,9 +1264,9 @@ construction, not a typing budget or publishable fast path. Evidence lives at
 - Product-bound multi-block scheduling, IME/caret/selection integration, and
   long-document page virtualization are not implemented.
 - Default pagination measurement replacement remains blocked.
-- Incremental Core acceptance, affected positioned-fragment assembly,
-  compositional fingerprints, whole-document field/layout coverage, and
-  publication remain blocked for later slices.
+- Oracle-independent external-adapter execution, product-bound incremental
+  composition, whole-document field/layout coverage, and publication remain
+  blocked for later slices.
 
 ### RISK
 
@@ -1292,10 +1326,10 @@ construction, not a typing budget or publishable fast path. Evidence lives at
 - MR1-L deliberately executes complete shape/segmentation and Core layout
   oracles, creates a complete next snapshot, and compares complete spliced
   arrays. Its passing result is not a per-keystroke performance result.
-- Current offset-derived `shapingRunId` values make exact Core fragment/line
-  fingerprints revision-specific beyond the actual semantic change. Reusing a
-  semantic prefix or suffix requires an explicit Core identity/composition
-  policy, not direct exact-fingerprint substitution.
+- MR1-M resolves offset-derived ids by separating semantic reuse from physical
+  identity, but its complete-array validation and QA materialization can still
+  hide the latency benefit until the adapter no longer requires a full layout
+  oracle as an execution input.
 
 ### UNKNOWN
 
@@ -1304,13 +1338,13 @@ construction, not a typing budget or publishable fast path. Evidence lives at
   the accepted threshold policy.
 - Final performance and bitmap-memory budgets for product-sized and 200-page
   documents.
-- Incremental Core acceptance and compositional fingerprinting that can publish
-  the proved line window without executing a full oracle.
+- Product-safe incremental composition that can publish the proved line window
+  without executing a full layout oracle.
 - Product-scale retained-snapshot memory and per-edit planner timing.
 - Exact performance after complete QA oracle calls and full-array comparisons
   are removed from the runtime path.
-- The final Core-owned stable-semantic versus revision-specific physical
-  shaping-run/fragment identity and compositional-fingerprint policy.
+- Cross-process or persisted incremental snapshot hydration with equally strong
+  provenance and immutability guarantees.
 - Product scheduler fairness under continuous active typing plus background
   visible/offscreen invalidations.
 - Canvas paint cost and memory for styled, image, table, and 200-page content.
