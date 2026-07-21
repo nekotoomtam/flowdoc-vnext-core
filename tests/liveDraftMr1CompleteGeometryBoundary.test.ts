@@ -11,24 +11,38 @@ const sectionBetween = (document: string, start: string, end: string): string =>
   expect(endIndex).toBeGreaterThan(startIndex)
   return document.slice(startIndex, endIndex)
 }
-const sectionFrom = (document: string, start: string): string => {
+const sectionAtPeerHeading = (document: string, start: string): string => {
   const startIndex = document.indexOf(start)
 
   expect(startIndex).toBeGreaterThanOrEqual(0)
-  return document.slice(startIndex)
+  const nextHeadingIndex = document.indexOf("\n## ", startIndex + start.length)
+  return document.slice(startIndex, nextHeadingIndex < 0 ? document.length : nextHeadingIndex)
 }
 
-const runtimeBaseline = "109675f"
+const runtimeBaseline = "2f60fba"
 const phase2Exclusions =
   "Do not start spatial wrapping, list decoration, inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit, publication, or production activation in this checkpoint."
 
 describe("Live Draft MR1-P complete geometry boundary", () => {
+  it("bounds an MR1-P ledger section at the next peer heading", () => {
+    const ledger = [
+      "## LIVE-DRAFT-MR1-P Complete Geometry Boundary",
+      "MR1-P evidence",
+      "## LIVE-DRAFT-LATER",
+      "later evidence must not leak",
+    ].join("\n")
+
+    const mr1p = sectionAtPeerHeading(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
+    expect(mr1p).toContain("MR1-P evidence")
+    expect(mr1p).not.toContain("later evidence must not leak")
+  })
+
   it("records capability truth, retained dependencies, and the reviewed baseline", () => {
     const boundary = read("../docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md")
     const handoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("../docs/PHASE_LEDGER.md")
     const handoffHeader = sectionBetween(handoff, "# ", "## Objective")
-    const ledgerMr1p = sectionFrom(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
+    const ledgerMr1p = sectionAtPeerHeading(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
 
     for (const section of [
       "## Outcome",
@@ -57,10 +71,24 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(ledger).toContain("## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
     for (const document of [boundary, ledgerMr1p]) {
       expect(document).toContain(`Reviewed Core runtime baseline: \`${runtimeBaseline}\``)
+      expect(document).not.toContain("109675f")
       expect(document).not.toContain("59e89ad")
     }
 
+    expect(handoff).not.toContain("| `flowdoc-vnext-core` | `109675f` |")
     expect(handoff).not.toContain("| `flowdoc-vnext-core` | `59e89ad` |")
+
+    for (const document of [normalize(boundary), normalize(handoff), normalize(ledgerMr1p)]) {
+      for (const evidence of [
+        "shared effective shaping-style identity",
+        "actual `createFlowDocTextEngineMultiRunLayoutV1(...)` producer",
+        "malformed runtime input",
+        "effectively rendered-empty field",
+        "list-only",
+        "inline-image-only",
+        "authored local `fontFamilyKey` overrides remain blocked",
+      ]) expect(document).toContain(evidence)
+    }
   })
 
   it("limits adapter exclusivity to the new Initial Flow handoff path", () => {
@@ -88,7 +116,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     const rawHandoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const handoff = normalize(rawHandoff)
     const ledger = normalize(
-      sectionFrom(read("../docs/PHASE_LEDGER.md"), "## LIVE-DRAFT-MR1-P Complete Geometry Boundary"),
+      sectionAtPeerHeading(read("../docs/PHASE_LEDGER.md"), "## LIVE-DRAFT-MR1-P Complete Geometry Boundary"),
     )
     const prompt = normalize(sectionBetween(rawHandoff, "## Handoff Prompt", "## LIVE-DRAFT-XR-0"))
 
@@ -118,7 +146,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     const index = read("../src/index.ts")
     const boundary = read("../docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md")
     const handoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
-    const ledger = sectionFrom(
+    const ledger = sectionAtPeerHeading(
       read("../docs/PHASE_LEDGER.md"),
       "## LIVE-DRAFT-MR1-P Complete Geometry Boundary",
     )
@@ -127,6 +155,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     const normalizedLedger = normalize(ledger)
 
     expect(index).toContain('export * from "./layout/textBlockInitialFlowParentRegionV1.js"')
+    expect(index).toContain('export * from "./layout/textBlockEffectiveShapingStyleIdentityV1.js"')
     expect(index).toContain('export * from "./layout/textBlockInitialFlowInputV1.js"')
     expect(index).toContain('export * from "./layout/textBlockInitialFlowTextOnlyAdapterV1.js"')
 
@@ -134,6 +163,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md",
       "docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md",
       "docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md",
+      "src/layout/textBlockEffectiveShapingStyleIdentityV1.ts",
       "src/layout/textBlockInitialFlowParentRegionV1.ts",
       "src/layout/textBlockInitialFlowInputV1.ts",
       "src/layout/textBlockInitialFlowTextOnlyAdapterV1.ts",
@@ -143,6 +173,8 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     ]) expect(requiredReading).toContain(`\`${path}\``)
 
     for (const path of [
+      "packages/text-engine-rust-wasm/src/multiRunLayout.ts",
+      "src/layout/textBlockEffectiveShapingStyleIdentityV1.ts",
       "tests/liveDraftMr1CompleteGeometryBoundary.test.ts",
       "tests/textBlockInitialFlowParentRegionV1.test.ts",
       "tests/textBlockInitialFlowInputV1.test.ts",
@@ -152,6 +184,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
 
     for (const path of [
       "docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md",
+      "src/layout/textBlockEffectiveShapingStyleIdentityV1.ts",
       "tests/textBlockInitialFlowParentRegionV1.test.ts",
       "tests/textBlockInitialFlowInputV1.test.ts",
       "tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts",
@@ -160,6 +193,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     for (const publicFunction of [
       "createVNextTextBlockInitialFlowParentRegionV1(...)\n",
       "inspectVNextTextBlockInitialFlowParentRegionV1(...)\n",
+      "createVNextTextBlockEffectiveShapingStyleIdentityV1(...)\n",
       "createVNextTextBlockInitialFlowV1(...)\n",
       "inspectVNextTextBlockInitialFlowV1(...)\n",
       "adaptVNextTextBlockInitialFlowToLegacyLayoutV1(...)\n",
@@ -169,6 +203,9 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "process-local classifier provenance",
       "`declaredLineHeightLayoutUnit`",
       "`resolvedGeometryStyle`",
+      "`measurementStyleKey`",
+      "`effectiveShapingStyleKey`",
+      "`paragraphFontFamilyKey`",
       "strict canonical validation",
     ]) {
       expect(normalizedBoundary).toContain(evidence)
@@ -181,9 +218,11 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(normalizedBoundary).toContain("`resolved-run-typography`")
     expect(normalizedLedger).toContain("`fontFamilyKey`")
     expect(normalizedLedger).toContain("`resolved-run-typography`")
-    expect(boundary).toContain("5 test files passed; 44 tests passed")
-    expect(boundary).toContain("408 test files passed; 1960 tests passed")
-    expect(normalizedLedger).toContain("passed 5 test files / 44 tests")
-    expect(normalizedLedger).toContain("full gate passed 408 test files / 1960 tests")
+    expect(boundary).toContain("5 test files passed; 90 tests passed")
+    expect(boundary).toContain("1 test file passed; 5 tests passed")
+    expect(boundary).toContain("408 test files passed; 2003 tests passed")
+    expect(normalizedLedger).toContain("passed 5 test files / 90 tests")
+    expect(normalizedLedger).toContain("documentation guard passed 1 test file / 5 tests")
+    expect(normalizedLedger).toContain("full gate passed 408 test files / 2003 tests")
   })
 })

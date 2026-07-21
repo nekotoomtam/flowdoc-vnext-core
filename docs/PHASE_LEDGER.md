@@ -12681,20 +12681,31 @@ Status: accepted as a bounded Core contract checkpoint. Persistent flow-tree
 execution, spatial wrapping, product binding, publication, and production
 remain NO-GO.
 
-Reviewed Core runtime baseline: `109675f`.
+Reviewed Core runtime baseline: `2f60fba`.
 
 - Added exact body/column/table-cell parent-region ownership through
   `textBlockInitialFlowParentRegionV1`.
 - Added Initial TextBlock Flow classification with complete current geometry
   dependencies and capability-honest list/image/empty rows. The pinned
   `declaredLineHeightLayoutUnit` and each text-bearing atom's
-  `resolvedGeometryStyle` retain the exact geometry-affecting typography.
+  `resolvedGeometryStyle` retain the exact geometry-affecting typography,
+  including separate `measurementStyleKey` and `effectiveShapingStyleKey`.
+- Added one shared effective shaping-style identity through
+  `createVNextTextBlockEffectiveShapingStyleIdentityV1(...)`. Initial Flow binds
+  `paragraphFontFamilyKey` and authoritative per-face keys, while the actual
+  `createFlowDocTextEngineMultiRunLayoutV1(...)` producer calls the same helper.
+  Plain, supported styled, misleading-display-label, and unused-face requests
+  retain exact direct-MR1/adapter parity.
 - The supported local style subset resolves font size, color, weight, and style
-  exactly. `fontFamilyKey` has no authoritative current mapping and fails closed
-  as `resolved-run-typography` rather than being guessed.
+  exactly by authoritative family key rather than display family; authored local
+  `fontFamilyKey` overrides remain blocked as `resolved-run-typography`.
 - Added strict canonical validation for retained root and nested facts,
   lowercase font digests, property-order-independent fingerprints/context, and
-  non-throwing structured rejection of invalid runtime input.
+  non-throwing structured rejection of malformed runtime input, including
+  accessor-shaped roots and nested layout ids with explicit metadata fallbacks.
+- An effectively rendered-empty field and hard-break-only content require the
+  empty-layout contract. Independent list-only and inline-image-only classifier
+  and adapter proofs block before legacy MR1.
 - Bound process-local classifier provenance to the exact recursively frozen
   flow object. This is not cross-process serialization authority.
 - Added an explicit text-subset adapter that preserves exact existing MR1
@@ -12704,11 +12715,13 @@ Reviewed Core runtime baseline: `109675f`.
   publication and production activation remain NO-GO, and every accepted result
   reports `mayPublishLayout: false`.
 - Evidence: `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`,
+  `packages/text-engine-rust-wasm/src/multiRunLayout.ts`,
+  `src/layout/textBlockEffectiveShapingStyleIdentityV1.ts`,
   `tests/textBlockInitialFlowParentRegionV1.test.ts`,
   `tests/textBlockInitialFlowInputV1.test.ts`, and
   `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`. The final focused slice
-  passed 5 test files / 44 tests; the full gate passed 408 test files / 1960
-  tests.
+  passed 5 test files / 90 tests; the section-bounded documentation guard passed
+  1 test file / 5 tests; the full gate passed 408 test files / 2003 tests.
 - Next: Phase 2 Persistent Flow Tree Foundation. Do not start spatial wrapping,
   list decoration, inline-image geometry, empty-block geometry, Editor, Backend,
   table auto-fit, publication, or production activation in this checkpoint.

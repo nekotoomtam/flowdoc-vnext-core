@@ -9,8 +9,18 @@ remain NO-GO.
 MR1-P introduces Initial TextBlock Flow as the capability-honest boundary in
 front of the existing MR1 layout. It pins parent containing-region, authored
 box, role/list identity, measurement, paragraph style, fonts, layout-unit
-policy, declared line height, resolved text-run typography, and complete known
-inline facts without changing canonical Document v4.
+policy, declared line height, authoritative paragraph and per-face font-family
+keys, resolved text-run typography, and complete known inline facts without
+changing canonical Document v4.
+
+Core now owns one shared effective shaping-style identity through
+`createVNextTextBlockEffectiveShapingStyleIdentityV1(...)`. Initial Flow retains
+the measurement/source key as `measurementStyleKey`, retains the producer key as
+`effectiveShapingStyleKey`, and binds `paragraphFontFamilyKey` plus each pinned
+face's authoritative `fontFamilyKey` into the frozen flow and fingerprint. The
+actual `createFlowDocTextEngineMultiRunLayoutV1(...)` producer calls the same
+helper, so plain text, supported local typography, misleading display labels,
+and unused pinned faces preserve exact direct-MR1/adapter parity.
 
 The new Initial Flow handoff path invokes legacy MR1 only through the explicit
 adapter. For accepted text-subset-ready rows, the adapter reproduces exact
@@ -25,11 +35,21 @@ fingerprints and legacy-context equality independent of property insertion
 order. Lowercase font digests, safe integer layout units, and exact
 discriminated measurement-run variants remain mandatory.
 
+The adapter accepts malformed runtime input as `unknown`, validates the strict
+envelope and complete legacy request before use, contains throwing accessors,
+and returns deterministic blocked metadata with explicit `unavailable`
+fallbacks. A field resolving to `""` (an effectively rendered-empty field), a
+hard-break-only row, and other zero-text cases require the empty-layout contract
+before legacy MR1. Independent list-only and inline-image-only rows prove that
+each unsupported geometry capability blocks on its own.
+
 The public MR1-P surface is:
 
 - `createVNextTextBlockInitialFlowParentRegionV1(...)` and
   `inspectVNextTextBlockInitialFlowParentRegionV1(...)` for parent-region
   ownership;
+- `createVNextTextBlockEffectiveShapingStyleIdentityV1(...)` for the shared
+  effective shaping-style identity used by Core and the external producer;
 - `createVNextTextBlockInitialFlowV1(...)` and
   `inspectVNextTextBlockInitialFlowV1(...)` for classification and
   process-local provenance inspection; and
@@ -44,11 +64,11 @@ reports `mayPublishLayout: false`.
 
 | Capability | MR1-P status | Reason |
 | --- | --- | --- |
-| supported styled text and resolved fields | ready | complete measurement and resolved typography retained; `fontFamilyKey` is excluded |
-| generated page number and hard break | ready | owner and mandatory-break facts retained |
+| supported styled text and resolved fields | ready | complete measurement, authoritative paragraph/per-face family keys, and resolved typography retained; authored local `fontFamilyKey` overrides remain blocked |
+| generated page number and hard break | ready | non-empty generated owner and mandatory-break facts retained; hard-break-only zero-text layout remains blocked |
 | inline image | blocked-line-box-contract | frame, asset, and vertical alignment retained; baseline math not yet accepted |
 | list item | blocked-decoration-contract | authored list identity retained; marker/indent owner not yet accepted |
-| empty block | blocked-empty-layout-contract | canonical state retained; MR1 empty-line layout remains unsupported |
+| empty/effectively empty block | blocked-empty-layout-contract | canonical state retained, including empty resolved fields and hard-break-only rows; MR1 empty-line layout remains unsupported |
 | authored box | ready | complete Core-derived box plan and owner fingerprint pinned |
 | positioned objects | not-present | no canonical positioned-object contract is introduced |
 
@@ -60,17 +80,25 @@ reports `mayPublishLayout: false`.
   and full inline-image vertical alignment.
 - The pinned `declaredLineHeightLayoutUnit` and every text-bearing atom's
   `resolvedGeometryStyle` bind the exact line-height, face, size, color, weight,
-  style, and retained measurement style used by legacy MR1.
+  style, `measurementStyleKey`, `effectiveShapingStyleKey`, decoration,
+  strikethrough, and authoritative family key used by legacy MR1.
+- The `paragraphFontFamilyKey` and each retained face `fontFamilyKey` are strict,
+  fingerprinted inputs. Variant selection uses those keys, never the display
+  `fontFamily`; duplicate mappings and paragraph/face key drift fail closed.
 - Strict canonical validation rejects missing, null, malformed, uppercase-digest,
-  or nested unknown facts without throwing; equivalent property order produces
-  the same fingerprint and context.
+  nested unknown, or accessor-shaped facts without throwing; equivalent
+  property order produces the same fingerprint and context.
 - Supported local font size, color, weight, and style overrides are resolved
   exactly; decoration and strikethrough remain retained geometry-neutral facts.
 - A recursively frozen classified object carries process-local classifier
   provenance, and the adapter verifies that authority before any capability or
   legacy-context check.
 - For accepted text-subset-ready rows, the adapter reproduces exact legacy MR1
-  layout parity.
+  layout parity, including requests emitted by the actual producer and requests
+  whose retained input contains unused faces.
+- An effectively rendered-empty field and hard-break-only content require the
+  empty-layout contract; independent list-only and inline-image-only proofs stop
+  before legacy MR1.
 - Cloned flow objects, stale parent facts, width drift, style/font drift,
   frame drift, unsupported capabilities, and production binding fail closed.
 - Every accepted result reports `mayPublishLayout: false`.
@@ -80,8 +108,9 @@ reports `mayPublishLayout: false`.
 - Inline-image baseline/ascent/descent integration is not implemented.
 - List marker, numbering, gap, and continuation-indent ownership is not defined.
 - Empty TextBlock line geometry is not accepted by MR1.
-- `fontFamilyKey` has no authoritative mapping in the current input contract,
-  so its presence fails closed as `resolved-run-typography`; it is never guessed.
+- Authored local `fontFamilyKey` overrides remain blocked as
+  `resolved-run-typography`; MR1-P accepts only the authoritative paragraph
+  family and per-face mappings pinned by the build context.
 - Persistent structural sharing and spatial wrapping are not implemented.
 - List decoration, image line-box geometry, empty-block layout, persistent
   trees, spatial wrapping, Editor, Backend, table auto-fit, and publication
@@ -106,17 +135,20 @@ reports `mayPublishLayout: false`.
 
 ## Verification
 
-Reviewed Core runtime baseline: `109675f`.
+Reviewed Core runtime baseline: `2f60fba`.
 
 - Focused evidence is pinned to
+  `packages/text-engine-rust-wasm/src/multiRunLayout.ts`,
+  `src/layout/textBlockEffectiveShapingStyleIdentityV1.ts`,
   `tests/liveDraftMr1CompleteGeometryBoundary.test.ts`,
   `tests/textBlockInitialFlowParentRegionV1.test.ts`,
   `tests/textBlockInitialFlowInputV1.test.ts`,
   `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`, and
   `tests/textBlockMultiRunLayoutV1.test.ts`.
-- Focused result: 5 test files passed; 44 tests passed.
+- Runtime-focused result: 5 test files passed; 90 tests passed.
+- Section-bounded documentation guard result: 1 test file passed; 5 tests passed.
 - `npm run type-check` passes.
-- Full `npm run check` passes: 408 test files passed; 1960 tests passed.
+- Full `npm run check` passes: 408 test files passed; 2003 tests passed.
 - Working-tree and runtime-baseline diff whitespace validation pass.
 
 ## Next Checkpoint

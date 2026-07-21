@@ -62,7 +62,7 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `109675f` | Core-owned Initial TextBlock Flow classification, process-local provenance, pinned geometry dependencies, and adapter-gated legacy MR1 parity |
+| `flowdoc-vnext-core` | `2f60fba` | Core-owned Initial TextBlock Flow classification, shared producer shaping identity, strict unknown adapter boundary, capability-honest geometry gates, and exact legacy MR1 parity |
 | `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
@@ -488,6 +488,7 @@ Core:
 - `src/renderer/textBlockMultiRunDisplayListV1.ts`
 - `src/composition/textBlockMultiRunDocumentCompositionV1.ts`
 - `src/renderer/textBlockMultiRunDocumentDisplayListV1.ts`
+- `src/layout/textBlockEffectiveShapingStyleIdentityV1.ts`
 - `src/layout/textBlockInitialFlowParentRegionV1.ts`
 - `src/layout/textBlockInitialFlowInputV1.ts`
 - `src/layout/textBlockInitialFlowTextOnlyAdapterV1.ts`
@@ -542,7 +543,7 @@ Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
 Read the Required Reading section and inspect the reviewed Core runtime baseline
-at 109675f before editing. Proceed only to Phase 2 Persistent Flow Tree
+at 2f60fba before editing. Proceed only to Phase 2 Persistent Flow Tree
 Foundation over the accepted MR1-P Initial TextBlock Flow boundary.
 
 Implement the versioned persistent B+ rope policy and remove
@@ -1219,23 +1220,36 @@ remain NO-GO.
 
 MR1-P adds a versioned Initial TextBlock Flow boundary that pins parent region,
 authored box, role/list identity, measurement, paragraph style, fonts,
-layout-unit policy, declared line height, resolved text-run typography, and
-complete current inline facts. Strict nested schemas and canonical JSON make
-semantically identical retained input order-independent while rejecting unknown
-or malformed facts. The classifier and inspector preserve process-local
-provenance; they do not grant cross-process serialization authority. The
-supported local style subset resolves font size, color, weight, and style;
-`fontFamilyKey` fails closed as `resolved-run-typography` because no authoritative
-mapping exists. The new
-Initial Flow handoff path invokes legacy MR1 only through the explicit adapter.
+layout-unit policy, declared line height, `paragraphFontFamilyKey`, authoritative
+per-face family mappings, resolved text-run typography, and complete current
+inline facts. Strict nested schemas and canonical JSON make semantically
+identical retained input order-independent while rejecting unknown or malformed
+facts. The classifier and inspector preserve process-local provenance; they do
+not grant cross-process serialization authority.
+
+One shared effective shaping-style identity retains `measurementStyleKey`
+separately from `effectiveShapingStyleKey`. Both Initial Flow and the actual
+`createFlowDocTextEngineMultiRunLayoutV1(...)` producer call the Core helper;
+plain, supported styled, misleading-display-label, and unused-face rows retain
+exact parity. The supported local style subset resolves font size, color,
+weight, and style by authoritative family key rather than display family.
+The bounded subset requires that authored local `fontFamilyKey` overrides remain
+blocked as `resolved-run-typography`.
+
+The adapter validates malformed runtime input as `unknown` before use, contains
+throwing accessors, and returns structured blocked metadata with explicit
+fallbacks. The new Initial Flow handoff path invokes legacy MR1 only through the
+explicit adapter.
 For accepted text-subset-ready rows, the adapter reproduces exact legacy MR1
 layout parity.
 
 Inline images retain frame, asset, and `verticalAlign` but report
 `blocked-line-box-contract`; list items retain authored identity but report
 `blocked-decoration-contract`; empty blocks report
-`blocked-empty-layout-contract`. Unsupported capability rows fail closed before
-the adapter invokes legacy layout.
+`blocked-empty-layout-contract`. An effectively rendered-empty field and a
+hard-break-only row also require that contract. Independent list-only and
+inline-image-only proofs block separately. Unsupported capability rows fail
+closed before the adapter invokes legacy layout.
 
 The Initial Flow handoff remains non-production and non-publishable:
 publication and production activation remain NO-GO, and every accepted result
@@ -1245,9 +1259,11 @@ List decoration, image line-box geometry, empty-block layout, persistent trees,
 spatial wrapping, Editor, Backend, table auto-fit, and publication remain
 unimplemented.
 
-Evidence lives at `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`. The next
-bounded checkpoint is Phase 2 Persistent Flow Tree Foundation. The reviewed
-Core runtime baseline is `109675f`.
+Evidence lives at `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`; the final
+runtime-focused slice passed 5 files / 90 tests, the section-bounded
+documentation guard passed 1 file / 5 tests, and the full Core gate passed 408
+files / 2003 tests. The next bounded checkpoint is Phase 2 Persistent Flow Tree
+Foundation. The reviewed Core runtime baseline is `2f60fba`.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
