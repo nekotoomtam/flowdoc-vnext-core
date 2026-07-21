@@ -1,13 +1,25 @@
 import { describe, expect, it } from "vitest"
-import { createVNextTextBlockInitialFlowV1 } from "../src/index.js"
+import * as core from "../src/index.js"
 import {
   completeTextGeometryBuildInputFixture,
   emptyGeometryBuildInputFixture,
   listImageGeometryBuildInputFixture,
+  mixedTypographyBuildInputFixture,
 } from "./helpers/textBlockInitialFlowV1.js"
+
+const { createVNextTextBlockInitialFlowV1 } = core
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
+}
+
+function reverseObjectKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map((item) => reverseObjectKeys(item))
+  if (value == null || typeof value !== "object") return value
+  return Object.fromEntries(Object.entries(value).reverse().map(([key, item]) => [
+    key,
+    reverseObjectKeys(item),
+  ]))
 }
 
 describe("TextBlock Initial Flow input v1", () => {
@@ -51,6 +63,14 @@ describe("TextBlock Initial Flow input v1", () => {
       "text", "resolved-field", "generated-page-number", "hard-break",
     ])
     expect(first.flow.authoredBoxPlan.contentWidthPt).toBe(90)
+    expect(first.flow.declaredLineHeightLayoutUnit).toBe(14_000_000)
+    const inspectInitialFlow = (core as unknown as Record<string, unknown>)[
+      "inspectVNextTextBlockInitialFlowV1"
+    ]
+    expect(inspectInitialFlow).toBeTypeOf("function")
+    if (typeof inspectInitialFlow === "function") {
+      expect(inspectInitialFlow(first.flow)).toMatchObject({ status: "valid" })
+    }
     expect(Object.isFrozen(first.flow)).toBe(true)
     expect(JSON.stringify(input)).toBe(before)
   })
@@ -309,6 +329,222 @@ describe("TextBlock Initial Flow input v1", () => {
           { fontFaceId: "sarabun-regular" },
         ],
       },
+      issues: [],
+    })
+  })
+
+  it("resolves font size, color, weight, and style for every text-bearing atom", () => {
+    const result = createVNextTextBlockInitialFlowV1(mixedTypographyBuildInputFixture())
+
+    expect(result).toMatchObject({ status: "classified", issues: [] })
+    if (result.status !== "classified") throw new Error("mixed typography fixture blocked")
+    expect(result.flow.atoms.map((atom) => (
+      atom.kind === "hard-break" || atom.kind === "inline-image"
+        ? null
+        : atom.resolvedGeometryStyle
+    ))).toEqual([
+      {
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-regular",
+        fontSizeLayoutUnit: 10_000_000,
+        textColor: "101010",
+        fontWeight: 400,
+        fontStyle: "normal",
+      },
+      {
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-bold",
+        fontSizeLayoutUnit: 24_000_000,
+        textColor: "303030",
+        fontWeight: 700,
+        fontStyle: "normal",
+      },
+      {
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-italic",
+        fontSizeLayoutUnit: 12_000_000,
+        textColor: "202020",
+        fontWeight: 400,
+        fontStyle: "italic",
+      },
+      {
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-regular",
+        fontSizeLayoutUnit: 12_000_000,
+        textColor: "202020",
+        fontWeight: 400,
+        fontStyle: "normal",
+      },
+    ])
+  })
+
+  it("blocks unmappable font family keys and missing or ambiguous static faces", () => {
+    const familyKey = mixedTypographyBuildInputFixture()
+    familyKey.textBlock = clone(familyKey.textBlock)
+    familyKey.measurement = clone(familyKey.measurement)
+    const familyInline = familyKey.textBlock.children[0]
+    const familyRun = familyKey.measurement.runs[0]
+    if (familyInline?.type !== "text" || familyRun?.kind !== "text") {
+      throw new Error("font family fixture missing")
+    }
+    familyInline.style = { ...familyInline.style, fontFamilyKey: "sarabun" }
+    familyRun.localStyle = { ...familyRun.localStyle, fontFamilyKey: "sarabun" }
+
+    const missing = mixedTypographyBuildInputFixture()
+    missing.fontFaces = missing.fontFaces.filter((face) => face.fontFaceId !== "sarabun-bold")
+
+    const ambiguous = mixedTypographyBuildInputFixture()
+    const bold = ambiguous.fontFaces.find((face) => face.fontFaceId === "sarabun-bold")
+    if (bold == null) throw new Error("bold face fixture missing")
+    ambiguous.fontFaces = [
+      ...ambiguous.fontFaces,
+      { ...bold, fontFaceId: "sarabun-bold-alternate", fontSha256: "d".repeat(64) },
+    ]
+
+    for (const input of [familyKey, missing, ambiguous]) {
+      expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+        status: "blocked",
+        flow: null,
+        issues: expect.arrayContaining([expect.objectContaining({ code: "resolved-run-typography" })]),
+      })
+    }
+  })
+
+  it("blocks malformed and missing runtime inputs without throwing", () => {
+    const omittedMeasurement = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    delete omittedMeasurement.measurement
+    const nullMeasurement = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    nullMeasurement.measurement = null
+    const omittedStyle = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    delete omittedStyle.paragraphStyle
+    const omittedFaces = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    delete omittedFaces.fontFaces
+    const omittedLineHeight = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    delete omittedLineHeight.declaredLineHeightLayoutUnit
+    const omittedTextBlock = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    delete omittedTextBlock.textBlock
+    const nullBox = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    nullBox.authoredBoxPlan = null
+    const omittedParent = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    delete omittedParent.parentRegion
+    const nullPolicy = completeTextGeometryBuildInputFixture() as unknown as Record<string, unknown>
+    nullPolicy.layoutUnitPolicyFingerprint = null
+
+    for (const input of [
+      null,
+      7,
+      {},
+      omittedMeasurement,
+      nullMeasurement,
+      omittedStyle,
+      omittedFaces,
+      omittedLineHeight,
+      omittedTextBlock,
+      nullBox,
+      omittedParent,
+      nullPolicy,
+    ]) {
+      let result: ReturnType<typeof createVNextTextBlockInitialFlowV1> | undefined
+      expect(() => {
+        result = createVNextTextBlockInitialFlowV1(
+          input as Parameters<typeof createVNextTextBlockInitialFlowV1>[0],
+        )
+      }).not.toThrow()
+      expect(result).toMatchObject({ status: "blocked", flow: null })
+    }
+  })
+
+  it("blocks unknown nested measurement and typography fields", () => {
+    const measurement = completeTextGeometryBuildInputFixture() as unknown as {
+      measurement: Record<string, unknown>
+    }
+    measurement.measurement.untrustedGeometry = { width: 90 }
+
+    const run = completeTextGeometryBuildInputFixture()
+    run.measurement = clone(run.measurement)
+    ;(run.measurement.runs[0] as unknown as Record<string, unknown>).untrustedProvenance = "external"
+
+    const paragraph = completeTextGeometryBuildInputFixture()
+    ;(paragraph.paragraphStyle as unknown as Record<string, unknown>).untrustedTypography = true
+
+    const face = completeTextGeometryBuildInputFixture()
+    face.fontFaces = clone(face.fontFaces)
+    ;(face.fontFaces[0] as unknown as Record<string, unknown>).untrustedDigestOwner = "external"
+
+    for (const input of [measurement, run, paragraph, face]) {
+      expect(createVNextTextBlockInitialFlowV1(
+        input as Parameters<typeof createVNextTextBlockInitialFlowV1>[0],
+      )).toMatchObject({ status: "blocked", flow: null })
+    }
+  })
+
+  it("uses property-order-independent canonical fingerprints", () => {
+    const firstInput = completeTextGeometryBuildInputFixture()
+    const secondInput = completeTextGeometryBuildInputFixture()
+    secondInput.measurement = reverseObjectKeys(secondInput.measurement) as typeof secondInput.measurement
+
+    const first = createVNextTextBlockInitialFlowV1(firstInput)
+    const second = createVNextTextBlockInitialFlowV1(secondInput)
+    expect(first).toMatchObject({ status: "classified", issues: [] })
+    expect(second).toMatchObject({ status: "classified", issues: [] })
+    if (first.status !== "classified" || second.status !== "classified") {
+      throw new Error("canonical measurement fixture blocked")
+    }
+    expect(second.flow.fingerprint).toBe(first.flow.fingerprint)
+    expect(second.flow).toEqual(first.flow)
+  })
+
+  it("converts millimeter run font sizes through the point LayoutUnit policy", () => {
+    const input = mixedTypographyBuildInputFixture()
+    input.textBlock = clone(input.textBlock)
+    input.measurement = clone(input.measurement)
+    const inline = input.textBlock.children[0]
+    const run = input.measurement.runs[0]
+    if (inline?.type !== "text" || run?.kind !== "text") throw new Error("millimeter run fixture missing")
+    inline.style = { ...inline.style, fontSize: { value: 25.4, unit: "mm" } }
+    run.localStyle = { ...run.localStyle, fontSize: { value: 25.4, unit: "mm" } }
+
+    const result = createVNextTextBlockInitialFlowV1(input)
+    expect(result).toMatchObject({ status: "classified", issues: [] })
+    if (result.status !== "classified") throw new Error("millimeter run blocked")
+    expect(result.flow.atoms[0]).toMatchObject({
+      resolvedGeometryStyle: { fontSizeLayoutUnit: 72_000_000 },
+      localStyle: { textDecoration: "underline", strikethrough: true },
+    })
+  })
+
+  it("requires lowercase font digests and ordinal font ordering", () => {
+    const uppercase = completeTextGeometryBuildInputFixture()
+    uppercase.fontFaces = clone(uppercase.fontFaces)
+    uppercase.fontFaces[0]!.fontSha256 = "A".repeat(64)
+    expect(createVNextTextBlockInitialFlowV1(uppercase)).toMatchObject({
+      status: "blocked",
+      flow: null,
+      issues: expect.arrayContaining([expect.objectContaining({ code: "invalid-font-context" })]),
+    })
+
+    const first = completeTextGeometryBuildInputFixture()
+    const regular = clone(first.fontFaces[0]!)
+    regular.fontFaceId = "a-face"
+    first.paragraphStyle = { ...first.paragraphStyle, fontFaceId: regular.fontFaceId }
+    const upper = {
+      ...regular,
+      fontFaceId: "Z-face",
+      fontSha256: "e".repeat(64),
+      weight: 700,
+    }
+    first.fontFaces = [regular, upper]
+
+    const second = completeTextGeometryBuildInputFixture()
+    second.paragraphStyle = { ...second.paragraphStyle, fontFaceId: regular.fontFaceId }
+    second.fontFaces = [clone(upper), clone(regular)]
+
+    const firstResult = createVNextTextBlockInitialFlowV1(first)
+    const secondResult = createVNextTextBlockInitialFlowV1(second)
+    expect(firstResult).toEqual(secondResult)
+    expect(firstResult).toMatchObject({
+      status: "classified",
+      flow: { fontFaces: [{ fontFaceId: "Z-face" }, { fontFaceId: "a-face" }] },
       issues: [],
     })
   })

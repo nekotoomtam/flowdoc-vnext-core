@@ -51,8 +51,9 @@ function buildInput(
     measurement,
     ...boxAndParent(textBlock),
     layoutUnitPolicyFingerprint: createVNextLayoutUnitPolicyV1().fingerprint,
-    paragraphStyle,
-    fontFaces,
+    declaredLineHeightLayoutUnit: 14_000_000,
+    paragraphStyle: { ...paragraphStyle },
+    fontFaces: fontFaces.map((face) => ({ ...face })),
   }
 }
 
@@ -237,5 +238,175 @@ export function legacyTextOnlyLayoutRequestFixture(): VNextTextBlockMultiRunLayo
     }],
     breakOffsets: [0, 3],
     lines: [{ index: 0, renderStartOffset: 0, renderEndOffset: 3 }],
+  }
+}
+
+export function mixedTypographyBuildInputFixture(): VNextTextBlockInitialFlowBuildInputV1 {
+  const input = legacyTextOnlyBuildInputFixture()
+  input.textBlock = {
+    ...input.textBlock,
+    children: [
+      {
+        id: "text-small",
+        type: "text",
+        text: "A",
+        style: {
+          fontSize: { value: 10, unit: "pt" },
+          textColor: "101010",
+          textDecoration: "underline",
+          strikethrough: true,
+        },
+      },
+      {
+        id: "text-bold",
+        type: "text",
+        text: "B",
+        style: { fontSize: { value: 24, unit: "pt" }, fontWeight: "bold", textColor: "303030" },
+      },
+      {
+        id: "text-italic",
+        type: "text",
+        text: "C",
+        style: { fontStyle: "italic" },
+      },
+      { id: "field-base", type: "field-ref", key: "customer.initial" },
+    ],
+  }
+  input.measurement = {
+    ...input.measurement,
+    renderedText: "ABCD",
+    runs: [
+      {
+        inlineId: "text-small",
+        kind: "text",
+        renderStartOffset: 0,
+        renderEndOffset: 1,
+        renderedText: "A",
+        styleKey: "paragraph-body",
+        localStyle: {
+          fontSize: { value: 10, unit: "pt" },
+          textColor: "101010",
+          textDecoration: "underline",
+          strikethrough: true,
+        },
+      },
+      {
+        inlineId: "text-bold",
+        kind: "text",
+        renderStartOffset: 1,
+        renderEndOffset: 2,
+        renderedText: "B",
+        styleKey: "paragraph-body",
+        localStyle: { fontSize: { value: 24, unit: "pt" }, fontWeight: "bold", textColor: "303030" },
+      },
+      {
+        inlineId: "text-italic",
+        kind: "text",
+        renderStartOffset: 2,
+        renderEndOffset: 3,
+        renderedText: "C",
+        styleKey: "paragraph-body",
+        localStyle: { fontStyle: "italic" },
+      },
+      {
+        inlineId: "field-base",
+        kind: "resolved-field",
+        fieldKey: "customer.initial",
+        renderStartOffset: 3,
+        renderEndOffset: 4,
+        renderedText: "D",
+        styleKey: "paragraph-body",
+      },
+    ],
+  }
+  const regular = input.fontFaces[0]!
+  input.fontFaces = [
+    regular,
+    {
+      ...regular,
+      fontFaceId: "sarabun-bold",
+      fontSha256: "b".repeat(64),
+      weight: 700,
+    },
+    {
+      ...regular,
+      fontFaceId: "sarabun-italic",
+      fontSha256: "c".repeat(64),
+      style: "italic",
+    },
+  ]
+  return input
+}
+
+export function mixedTypographyLayoutRequestFixture(): VNextTextBlockMultiRunLayoutRequestV1 {
+  const input = mixedTypographyBuildInputFixture()
+  return {
+    layoutId: "layout-mixed-typography-1",
+    measurement: input.measurement,
+    layoutUnitPolicyFingerprint: input.layoutUnitPolicyFingerprint,
+    availableWidthLayoutUnit: 90_000_000,
+    declaredLineHeightLayoutUnit: input.declaredLineHeightLayoutUnit,
+    paragraphStyle: input.paragraphStyle,
+    fontFaces: input.fontFaces,
+    shapingRuns: [
+      {
+        shapingRunId: "shape-small",
+        renderStartOffset: 0,
+        renderEndOffset: 1,
+        text: "A",
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-regular",
+        fontSizeLayoutUnit: 10_000_000,
+        textColor: "101010",
+        direction: "ltr",
+        baselineShiftLayoutUnit: 0,
+        features: [],
+        clusters: [{ index: 0, renderStartOffset: 0, renderEndOffset: 1, advanceLayoutUnit: 5_000_000 }],
+      },
+      {
+        shapingRunId: "shape-bold",
+        renderStartOffset: 1,
+        renderEndOffset: 2,
+        text: "B",
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-bold",
+        fontSizeLayoutUnit: 24_000_000,
+        textColor: "303030",
+        direction: "ltr",
+        baselineShiftLayoutUnit: 0,
+        features: [],
+        clusters: [{ index: 0, renderStartOffset: 1, renderEndOffset: 2, advanceLayoutUnit: 14_000_000 }],
+      },
+      {
+        shapingRunId: "shape-italic",
+        renderStartOffset: 2,
+        renderEndOffset: 3,
+        text: "C",
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-italic",
+        fontSizeLayoutUnit: 12_000_000,
+        textColor: "202020",
+        direction: "ltr",
+        baselineShiftLayoutUnit: 0,
+        features: [],
+        clusters: [{ index: 0, renderStartOffset: 2, renderEndOffset: 3, advanceLayoutUnit: 6_000_000 }],
+      },
+      {
+        shapingRunId: "shape-field",
+        renderStartOffset: 3,
+        renderEndOffset: 4,
+        text: "D",
+        styleKey: "paragraph-body",
+        fontFaceId: "sarabun-regular",
+        fontSizeLayoutUnit: 12_000_000,
+        textColor: "202020",
+        direction: "ltr",
+        baselineShiftLayoutUnit: 0,
+        features: [],
+        clusters: [{ index: 0, renderStartOffset: 3, renderEndOffset: 4, advanceLayoutUnit: 6_000_000 }],
+      },
+    ],
+    breakOffsets: [0, 4],
+    lines: [{ index: 0, renderStartOffset: 0, renderEndOffset: 4 }],
   }
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
   adaptVNextTextBlockInitialFlowToLegacyLayoutV1,
+  createVNextCompactFingerprint,
   createVNextTextBlockInitialFlowV1,
 } from "../src/index.js"
 import {
@@ -9,6 +10,8 @@ import {
   legacyTextOnlyBuildInputFixture,
   legacyTextOnlyLayoutRequestFixture,
   listImageGeometryBuildInputFixture,
+  mixedTypographyBuildInputFixture,
+  mixedTypographyLayoutRequestFixture,
 } from "./helpers/textBlockInitialFlowV1.js"
 
 function clone<T>(value: T): T {
@@ -19,6 +22,26 @@ function deepFreeze<T>(value: T): T {
   if (value == null || typeof value !== "object" || Object.isFrozen(value)) return value
   Object.values(value).forEach((item) => deepFreeze(item))
   return Object.freeze(value)
+}
+
+function reverseObjectKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map((item) => reverseObjectKeys(item))
+  if (value == null || typeof value !== "object") return value
+  return Object.fromEntries(Object.entries(value).reverse().map(([key, item]) => [
+    key,
+    reverseObjectKeys(item),
+  ]))
+}
+
+function canonicalJson(value: unknown): string {
+  if (value == null || typeof value === "string" || typeof value === "boolean" || typeof value === "number") {
+    return JSON.stringify(value)
+  }
+  if (Array.isArray(value)) return `[${value.map((item) => canonicalJson(item)).join(",")}]`
+  const source = value as Record<string, unknown>
+  const entries = Object.keys(source).sort((left, right) => left < right ? -1 : left > right ? 1 : 0)
+    .map((key) => `${JSON.stringify(key)}:${canonicalJson(source[key])}`)
+  return `{${entries.join(",")}}`
 }
 
 function classifiedTextFlow() {
@@ -114,6 +137,79 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
     })).toMatchObject({
       status: "blocked",
       issues: [expect.objectContaining({ code: "invalid-initial-flow" })],
+    })
+  })
+
+  it("rejects a deep-frozen clone with a fully recomputed public fingerprint", () => {
+    const forgedFlow = clone(classifiedTextFlow())
+    const { fingerprint: genuineFingerprint, ...genuineFacts } = forgedFlow
+    expect(createVNextCompactFingerprint(canonicalJson(genuineFacts))).toBe(genuineFingerprint)
+    forgedFlow.role = { role: "heading", level: 2 }
+    const { fingerprint: _fingerprint, ...facts } = forgedFlow
+    forgedFlow.fingerprint = createVNextCompactFingerprint(canonicalJson(facts))
+    deepFreeze(forgedFlow)
+
+    expect(adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
+      initialFlow: forgedFlow,
+      legacyRequest: legacyTextOnlyLayoutRequestFixture(),
+    })).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "invalid-initial-flow" })],
+    })
+  })
+
+  it("binds the classified declared line height before legacy invocation", () => {
+    const flow = classifiedTextFlow()
+    const drift = legacyTextOnlyLayoutRequestFixture()
+    drift.declaredLineHeightLayoutUnit = 30_000_000
+
+    expect(adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
+      initialFlow: flow,
+      legacyRequest: drift,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "legacy-context-mismatch" })],
+    })
+  })
+
+  it("accepts mixed size, color, bold, and italic shaping facts that match classified typography", () => {
+    const classified = createVNextTextBlockInitialFlowV1(mixedTypographyBuildInputFixture())
+    if (classified.status !== "classified") throw new Error("mixed typography flow blocked")
+
+    expect(adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
+      initialFlow: classified.flow,
+      legacyRequest: mixedTypographyLayoutRequestFixture(),
+    })).toMatchObject({ status: "accepted-text-subset", issues: [] })
+  })
+
+  it("blocks stale regular 12pt shaping facts for an authored bold 24pt run", () => {
+    const classified = createVNextTextBlockInitialFlowV1(mixedTypographyBuildInputFixture())
+    if (classified.status !== "classified") throw new Error("mixed typography flow blocked")
+    const stale = mixedTypographyLayoutRequestFixture()
+    const staleBold = stale.shapingRuns[1]
+    if (staleBold == null) throw new Error("bold shaping fixture missing")
+    staleBold.fontFaceId = "sarabun-regular"
+    staleBold.fontSizeLayoutUnit = 12_000_000
+    staleBold.textColor = "202020"
+
+    expect(acceptVNextTextBlockMultiRunLayoutV1(stale)).toMatchObject({ status: "accepted" })
+    expect(adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
+      initialFlow: classified.flow,
+      legacyRequest: stale,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "legacy-context-mismatch" })],
+    })
+  })
+
+  it("accepts equivalent legacy measurement facts with reordered object properties", () => {
+    const flow = classifiedTextFlow()
+    const request = legacyTextOnlyLayoutRequestFixture()
+    request.measurement = reverseObjectKeys(request.measurement) as typeof request.measurement
+
+    expect(adaptVNextTextBlockInitialFlowToLegacyLayoutV1({ initialFlow: flow, legacyRequest: request })).toMatchObject({
+      status: "accepted-text-subset",
+      issues: [],
     })
   })
 

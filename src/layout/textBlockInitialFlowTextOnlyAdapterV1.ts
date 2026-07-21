@@ -1,7 +1,16 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
+import {
+  compareVNextOrdinalStrings,
+  sameVNextCanonicalJson,
+  stringifyVNextCanonicalJson,
+} from "../fingerprint/canonicalJson.js"
 import { convertVNextPointToLayoutUnitV1 } from "./layoutUnitPolicyV1.js"
 import type { VNextTextBlockAcceptedMultiRunLayoutV1 } from "./textBlockMultiRunIncrementalContractV1.js"
-import type { VNextTextBlockInitialFlowV1 } from "./textBlockInitialFlowInputV1.js"
+import {
+  inspectVNextTextBlockInitialFlowV1,
+  type VNextTextBlockInitialFlowAtomV1,
+  type VNextTextBlockInitialFlowV1,
+} from "./textBlockInitialFlowInputV1.js"
 import type {
   VNextTextBlockMultiRunFontFaceV1,
   VNextTextBlockMultiRunLayoutRequestV1,
@@ -55,27 +64,46 @@ export type VNextTextBlockInitialFlowTextOnlyAdapterResultV1 =
     })
 
 function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T
-}
-
-function sameJson(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right)
+  return JSON.parse(stringifyVNextCanonicalJson(value)) as T
 }
 
 function compact(value: unknown): string {
-  return createVNextCompactFingerprint(JSON.stringify(value))
-}
-
-function deeplyFrozen(value: unknown): boolean {
-  if (value == null || typeof value !== "object") return true
-  if (!Object.isFrozen(value)) return false
-  return Object.values(value).every((item) => deeplyFrozen(item))
+  return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
 }
 
 function canonicalFontFaces(
   fontFaces: readonly VNextTextBlockMultiRunFontFaceV1[],
 ): VNextTextBlockMultiRunFontFaceV1[] {
-  return [...clone(fontFaces)].sort((left, right) => left.fontFaceId.localeCompare(right.fontFaceId))
+  return [...clone(fontFaces)]
+    .sort((left, right) => compareVNextOrdinalStrings(left.fontFaceId, right.fontFaceId))
+}
+
+function textBearingAtom(
+  atom: VNextTextBlockInitialFlowAtomV1,
+): atom is Extract<
+  VNextTextBlockInitialFlowAtomV1,
+  { kind: "text" | "resolved-field" | "generated-page-number" }
+> {
+  return atom.kind === "text" || atom.kind === "resolved-field" || atom.kind === "generated-page-number"
+}
+
+function shapingTypographyMatchesFlow(
+  flow: VNextTextBlockInitialFlowV1,
+  request: VNextTextBlockMultiRunLayoutRequestV1,
+): boolean {
+  return request.shapingRuns.every((run) => {
+    const coveredAtoms = flow.atoms.filter(textBearingAtom).filter((atom) => (
+      atom.renderStartOffset < run.renderEndOffset
+      && atom.renderEndOffset > run.renderStartOffset
+    ))
+    return coveredAtoms.length > 0 && coveredAtoms.every((atom) => {
+      const style = atom.resolvedGeometryStyle
+      return run.styleKey === style.styleKey
+        && run.fontFaceId === style.fontFaceId
+        && run.fontSizeLayoutUnit === style.fontSizeLayoutUnit
+        && run.textColor === style.textColor
+    })
+  })
 }
 
 function base(initialFlow: VNextTextBlockInitialFlowV1, layoutId: string): AdapterBase {
@@ -117,10 +145,10 @@ export function adaptVNextTextBlockInitialFlowToLegacyLayoutV1(input: {
 }): VNextTextBlockInitialFlowTextOnlyAdapterResultV1 {
   const flow = input.initialFlow
   const request = input.legacyRequest
-  const { fingerprint, ...flowFacts } = flow
-  if (!deeplyFrozen(flow) || fingerprint !== compact(flowFacts)) return blocked(
+  const inspection = inspectVNextTextBlockInitialFlowV1(flow)
+  if (inspection.status !== "valid") return blocked(
     flow, request.layoutId, "invalid-initial-flow", "initialFlow",
-    "Initial Flow must be deeply immutable with an exact Core fingerprint",
+    `Initial Flow must be the exact immutable process-local Core capability object: ${inspection.message}`,
   )
   if (flow.layoutDisposition !== "text-subset-ready" || !flow.contracts.textOnlyAdapterEligible) {
     return blocked(
@@ -131,15 +159,17 @@ export function adaptVNextTextBlockInitialFlowToLegacyLayoutV1(input: {
 
   const contentWidth = convertVNextPointToLayoutUnitV1(flow.authoredBoxPlan.contentWidthPt)
   if (
-    !sameJson(flow.measurement, request.measurement)
+    !sameVNextCanonicalJson(flow.measurement, request.measurement)
     || flow.layoutUnitPolicyFingerprint !== request.layoutUnitPolicyFingerprint
-    || !sameJson(flow.paragraphStyle, request.paragraphStyle)
-    || !sameJson(flow.fontFaces, canonicalFontFaces(request.fontFaces))
+    || flow.declaredLineHeightLayoutUnit !== request.declaredLineHeightLayoutUnit
+    || !sameVNextCanonicalJson(flow.paragraphStyle, request.paragraphStyle)
+    || !sameVNextCanonicalJson(flow.fontFaces, canonicalFontFaces(request.fontFaces))
+    || !shapingTypographyMatchesFlow(flow, request)
     || contentWidth.status !== "accepted"
     || contentWidth.layoutUnit !== request.availableWidthLayoutUnit
   ) return blocked(
     flow, request.layoutId, "legacy-context-mismatch", "legacyRequest",
-    "legacy request measurement, width, typography, and layout policy must equal Initial Flow",
+    "legacy request measurement, width, line height, resolved run typography, and layout policy must equal Initial Flow",
   )
 
   const layout = acceptVNextTextBlockMultiRunLayoutV1(request)
