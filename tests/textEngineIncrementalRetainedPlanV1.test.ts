@@ -255,6 +255,8 @@ describe("MR1-K retained snapshot and edit-range planner", () => {
     expect(Object.isFrozen(snapshot.shapingRuns[0]!.clusters)).toBe(true)
     expect(new Set(snapshot.lineCheckpoints.map((checkpoint) => checkpoint.prefixLayoutFingerprint)).size)
       .toBe(snapshot.lines.length)
+    expect(new Set(snapshot.lineCheckpoints.map((checkpoint) => checkpoint.prefixSemanticFingerprint)).size)
+      .toBe(snapshot.lines.length)
     expect(snapshot.lineCheckpoints.every((checkpoint) => (
       checkpoint.clusterStartIndex <= checkpoint.clusterEndIndex
         && checkpoint.semanticLineFingerprint.startsWith("sha256:")

@@ -33,10 +33,12 @@ identity. It retains:
 
 Each line checkpoint contains its cluster cursor range, the exact Core line
 fingerprint, a normalized semantic-line fingerprint, an exact prefix-layout
-hash chain, and a normalized suffix-semantic hash chain. The prefix chain is
-for unchanged-prefix proof. The suffix chain is independent of absolute line
-index, global text offset, and vertical translation, so a later line assembler
-can test semantic reconvergence after an edit offset/height delta.
+hash chain, a normalized prefix-semantic hash chain, and a normalized
+suffix-semantic hash chain. The subsequent MR1-L oracle proved that the exact
+Core prefix chain can change when an offset-derived shaping-run id changes,
+even if prefix semantics do not. The semantic chains are independent of those
+regenerated physical ids; MR1-L uses them without relabeling the result as an
+exact Core fingerprint match.
 
 The snapshot also pins the MR1-range artifact/boundary, Rustybuzz revision,
 ICU4X code/data revisions, measurement profile, font digests, and
@@ -112,11 +114,14 @@ No performance budget is claimed in this slice. In particular, the planner
 still validates one complete next measurement/edit relationship; the important
 lock here is that it does not hash the retained complete layout per edit.
 
-The next checkpoint should execute the planned contextual shaping and bounded
-segmentation ranges, splice retained prefix/new/suffix cluster facts, and build
-lines from the retained restart checkpoint until the suffix-semantic chain
-reconverges. It must remain QA-oracle-only and must not add incremental Core
-publication yet.
+The subsequent MR1-L checkpoint now executes the planned contextual shaping and
+bounded segmentation ranges, splices retained prefix/new/suffix cluster and
+break facts, and builds line ranges from the retained restart checkpoint until
+the suffix-semantic chain reconverges. See
+`docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`.
+
+Incremental Core acceptance, affected positioned-fragment assembly,
+compositional fingerprinting, and publication remain the next separate gate.
 
 ## Files
 
@@ -126,3 +131,4 @@ publication yet.
 - `packages/text-engine-rust-wasm/src/incrementalReflowAnalysis.ts`
 - `tests/textEngineIncrementalRetainedPlanV1.test.ts`
 - `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`
+- `docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`

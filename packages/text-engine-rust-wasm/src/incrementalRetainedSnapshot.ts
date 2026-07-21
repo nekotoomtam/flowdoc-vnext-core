@@ -52,6 +52,7 @@ export interface FlowDocTextEngineIncrementalLineCheckpointV1 {
   coreLineFingerprint: string
   semanticLineFingerprint: string
   prefixLayoutFingerprint: string
+  prefixSemanticFingerprint: string
   suffixSemanticFingerprint: string
   fingerprint: string
 }
@@ -68,6 +69,12 @@ export interface FlowDocTextEngineIncrementalRetainedSnapshotV1 {
   acceptedAdapterFingerprint: string
   acceptedCoreLayoutFingerprint: string
   layoutContextFingerprint: string
+  layoutContext: {
+    layoutUnitPolicyFingerprint: string
+    availableWidthLayoutUnit: number
+    declaredLineHeightLayoutUnit: number
+    paragraphStyle: AcceptedLayout["request"]["paragraphStyle"]
+  }
   measurement: VNextTextBlockV4MeasurementRequest
   fontFaces: VNextTextBlockMultiRunFontFaceV1[]
   breakOffsets: readonly number[]
@@ -212,6 +219,9 @@ function createLineCheckpoints(
   }
 
   let previousPrefixFingerprint = createVNextCompactFingerprint("incremental-line-prefix:start:v1")
+  let previousPrefixSemanticFingerprint = createVNextCompactFingerprint(
+    "incremental-line-prefix-semantic:start:v1",
+  )
   return lines.map((line, lineIndex) => {
     let clusterStartIndex = clusters.findIndex((cluster) => cluster.renderEndOffset > line.renderStartOffset)
     if (clusterStartIndex < 0) clusterStartIndex = clusters.length
@@ -225,6 +235,14 @@ function createLineCheckpoints(
       yOffsetLayoutUnit: line.yOffsetLayoutUnit,
       coreLineFingerprint: line.fingerprint,
     }))
+    previousPrefixSemanticFingerprint = createVNextCompactFingerprint(JSON.stringify({
+      previousPrefixSemanticFingerprint,
+      lineIndex,
+      renderStartOffset: line.renderStartOffset,
+      renderEndOffset: line.renderEndOffset,
+      yOffsetLayoutUnit: line.yOffsetLayoutUnit,
+      semanticLineFingerprint: semanticLineFingerprints[lineIndex],
+    }))
     const facts = {
       lineIndex,
       renderStartOffset: line.renderStartOffset,
@@ -236,6 +254,7 @@ function createLineCheckpoints(
       coreLineFingerprint: line.fingerprint,
       semanticLineFingerprint: semanticLineFingerprints[lineIndex]!,
       prefixLayoutFingerprint: previousPrefixFingerprint,
+      prefixSemanticFingerprint: previousPrefixSemanticFingerprint,
       suffixSemanticFingerprint: suffixSemanticFingerprints[lineIndex]!,
     }
     return { ...facts, fingerprint: createVNextCompactFingerprint(JSON.stringify(facts)) }
@@ -276,6 +295,12 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
     acceptedAdapterFingerprint: accepted.fingerprint,
     acceptedCoreLayoutFingerprint: accepted.layout.fingerprint,
     layoutContextFingerprint: layoutContextFingerprint(accepted),
+    layoutContext: {
+      layoutUnitPolicyFingerprint: accepted.request.layoutUnitPolicyFingerprint,
+      availableWidthLayoutUnit: accepted.request.availableWidthLayoutUnit,
+      declaredLineHeightLayoutUnit: accepted.request.declaredLineHeightLayoutUnit,
+      paragraphStyle: clone(accepted.request.paragraphStyle),
+    },
     measurement: clone(accepted.request.measurement),
     fontFaces: clone(accepted.layout.fontFaces),
     breakOffsets: [...accepted.request.breakOffsets],

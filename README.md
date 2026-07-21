@@ -148,6 +148,15 @@ The package must remain runnable without any parent editor checkout.
   oversized cases fail closed. The analysis cannot publish layout, and actual
   partial shaping, segmentation, Core acceptance, product binding, and
   production remain blocked.
+- Live Draft MR1 now also executes one immutable retained edit-range plan with
+  the pinned MR1-range WASM, proves contextual shaping and bounded segmentation
+  against complete QA oracles, splices exact cluster/break facts, and rebuilds
+  bounded line ranges until normalized semantic checkpoint reconvergence. The
+  4,959-unit Regular/Bold/field fixture matches complete WASM/Core shaping-run,
+  break, and line-range facts for insertion, replacement, field adjacency, and
+  deletion. Offset-derived shaping-run ids make exact Core prefix fingerprints
+  revision-specific, so incremental Core acceptance, positioned fragments,
+  compositional fingerprints, product binding, and publication remain blocked.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

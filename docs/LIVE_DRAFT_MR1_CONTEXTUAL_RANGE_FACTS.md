@@ -76,13 +76,16 @@ prefix/suffix clusters and precomputed line-checkpoint chains, then produces a
 fail-closed initial range plan for one stable Text Run edit. See
 `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`.
 
-It still does not splice new range facts, rebuild affected lines, perform
-incremental Core acceptance, or publish an assembled layout. The next bounded
-slice should execute the range plan and implement an affected-window line
-builder. Its QA result must remain exactly equal to a full oracle, and any
-unsafe boundary, context limit, hard break, window limit, or reconvergence
-failure must select full fallback. Incremental Core acceptance remains a later
-checkpoint after the assembler is proved.
+The subsequent MR1-L slice now executes the range plan, splices retained/new
+cluster and break facts, and assembles the affected line ranges. Its QA result
+is exactly equal to a full WASM/Core oracle and any unsafe boundary, context
+limit, window limit, plan drift, glyph mismatch, or reconvergence failure
+selects full fallback. See
+`docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`.
+
+It still does not perform incremental Core acceptance, position affected
+fragments, publish an assembled layout, or bind the product. Those remain the
+next checkpoint after the external line-range assembler proof.
 
 Tables, columns, images, repeated headers, auto-fit column width, Backend/API,
 React input, IME/caret/selection, product binding, and production remain out of
@@ -96,5 +99,6 @@ scope.
 - `packages/text-engine-rust-wasm/src/workerMr1Range.ts`
 - `tests/textEngineMr1RangeFactsV1.test.ts`
 - `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`
+- `docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`
 - `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`
 - `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-contextual-range-facts.v1.json`

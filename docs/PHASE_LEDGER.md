@@ -12608,3 +12608,69 @@ outside this gate.
 Next phase: implement a separately versioned contextual range-shaping and
 segmentation evidence boundary, then prove assembled output exactly against the
 retained full-layout oracle before any product binding.
+
+## LIVE-DRAFT-MR1-J Contextual Range Facts
+
+Status: accepted as a bounded native/WASM and real-Chrome Worker QA slice on
+2026-07-21. A separately pinned MR1-range artifact executes contextual
+Rustybuzz shaping with global cluster offsets and adaptive bounded ICU4X
+segmentation. Six real-Chrome Regular/Bold ranges match complete shaping and
+segmentation oracles exactly. Affected-line assembly, incremental Core
+acceptance, product binding, and production remain NO-GO.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`;
+- `packages/text-engine-rust-wasm/src/runtimeMr1Range.ts`;
+- `tests/textEngineMr1RangeFactsV1.test.ts`; and
+- `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`.
+
+## LIVE-DRAFT-MR1-K Retained Snapshot And Edit-Range Planner
+
+Status: accepted as a deterministic external-adapter contract and focused Core
+test slice on 2026-07-21. One accepted complete layout can be retained as an
+immutable process-local snapshot with per-line prefix/suffix checkpoints. One
+stable Text Run insertion, deletion, or replacement produces a bounded
+fail-closed contextual shaping/segmentation plan without executing the engine,
+assembling lines, calling incremental Core acceptance, or publishing layout.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`;
+- `packages/text-engine-rust-wasm/src/incrementalRetainedSnapshot.ts`;
+- `packages/text-engine-rust-wasm/src/incrementalEditRangePlanner.ts`; and
+- `tests/textEngineIncrementalRetainedPlanV1.test.ts`.
+
+## LIVE-DRAFT-MR1-L Range Execution And Affected Lines
+
+Status: accepted as a bounded actual-WASM/Core QA checkpoint on 2026-07-21.
+The MR1-K plan now executes contextual range shaping and bounded segmentation,
+splices retained/new/shifted cluster and break facts, and independently builds
+line ranges from the retained restart checkpoint to a two-line plus normalized
+suffix-semantic reconvergence proof.
+
+The 4,959-unit fixture retains five source runs, three shaping runs, 4,319
+clusters, 1,121 breaks, and 124 lines. Thai insertion, Bold replacement,
+field-adjacent insertion, and deletion match complete WASM/Core shaping-run,
+break, and line-range oracle facts exactly. Altered plans, glyph drift, bounded
+segmentation exhaustion, and undersized line windows fail closed.
+
+The real oracle also proves that current offset-derived `shapingRunId` values
+can change exact Core prefix fingerprints across revisions even when line
+semantics are unchanged. A normalized prefix-semantic chain is retained beside
+the exact within-snapshot layout chain. Incremental Core acceptance must
+resolve physical id/fingerprint composition explicitly; positioned fragments,
+publication, product binding, and production remain NO-GO.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`;
+- `packages/text-engine-rust-wasm/src/incrementalRangeFactSplice.ts`;
+- `packages/text-engine-rust-wasm/src/incrementalAffectedLineWindow.ts`;
+- `packages/text-engine-rust-wasm/src/incrementalRangeExecution.ts`; and
+- `tests/textEngineIncrementalRangeExecutionV1.test.ts`.
+
+Next phase: design a dedicated incremental Core acceptance and compositional
+fingerprint boundary over the proved line window, including explicit
+revision-specific shaping-run/fragment identity handling, before any layout may
+be published.
