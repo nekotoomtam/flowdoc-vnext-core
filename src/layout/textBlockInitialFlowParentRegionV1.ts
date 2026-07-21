@@ -43,12 +43,20 @@ export type VNextTextBlockInitialFlowParentRegionResultV1 =
       region: VNextTextBlockInitialFlowParentRegionV1
       issues: []
     }
-  | { status: "blocked"; region: null; issues: VNextTextBlockInitialFlowParentRegionIssueV1[] }
+  | {
+      status: "blocked"
+      mayPublishLayout: false
+      productionBinding: false
+      region: null
+      issues: VNextTextBlockInitialFlowParentRegionIssueV1[]
+    }
 
 export type VNextTextBlockInitialFlowParentRegionInspectionV1 =
-  | { status: "valid" }
+  | { status: "valid"; mayPublishLayout: false; productionBinding: false }
   | {
       status: "invalid"
+      mayPublishLayout: false
+      productionBinding: false
       code: "invalid-parent-region" | "parent-region-fingerprint-mismatch"
       message: string
     }
@@ -87,6 +95,8 @@ export function createVNextTextBlockInitialFlowParentRegionV1(
   const parsed = InputSchema.safeParse(input)
   if (!parsed.success) return {
     status: "blocked",
+    mayPublishLayout: false,
+    productionBinding: false,
     region: null,
     issues: parsed.error.issues.map((item) => issue(
       item.path.map(String).join(".") || "parentRegion",
@@ -117,6 +127,8 @@ export function inspectVNextTextBlockInitialFlowParentRegionV1(
   const parsed = RetainedRegionSchema.safeParse(region)
   if (!parsed.success) return {
     status: "invalid",
+    mayPublishLayout: false,
+    productionBinding: false,
     code: "invalid-parent-region",
     message: parsed.error.issues.map((item) => item.message).join("; "),
   }
@@ -130,13 +142,17 @@ export function inspectVNextTextBlockInitialFlowParentRegionV1(
   })
   if (recreated.status !== "accepted") return {
     status: "invalid",
+    mayPublishLayout: false,
+    productionBinding: false,
     code: "invalid-parent-region",
     message: recreated.issues.map((item) => item.message).join("; "),
   }
   return recreated.region.fingerprint === parsed.data.fingerprint
-    ? { status: "valid" }
+    ? { status: "valid", mayPublishLayout: false, productionBinding: false }
     : {
         status: "invalid",
+        mayPublishLayout: false,
+        productionBinding: false,
         code: "parent-region-fingerprint-mismatch",
         message: "parent region facts do not match the retained fingerprint",
       }

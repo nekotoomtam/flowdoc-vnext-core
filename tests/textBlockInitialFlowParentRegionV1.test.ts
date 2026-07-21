@@ -34,7 +34,11 @@ describe("TextBlock Initial Flow parent region v1", () => {
         issues: [],
       })
       if (first.status !== "accepted") throw new Error("parent region blocked")
-      expect(inspectVNextTextBlockInitialFlowParentRegionV1(first.region)).toEqual({ status: "valid" })
+      expect(inspectVNextTextBlockInitialFlowParentRegionV1(first.region)).toEqual({
+        status: "valid",
+        mayPublishLayout: false,
+        productionBinding: false,
+      })
       expect(Object.isFrozen(first.region)).toBe(true)
     }
   })
@@ -49,6 +53,8 @@ describe("TextBlock Initial Flow parent region v1", () => {
       availableHeightLayoutUnit: -1,
     })).toMatchObject({
       status: "blocked",
+      mayPublishLayout: false,
+      productionBinding: false,
       issues: expect.arrayContaining([
         expect.objectContaining({ code: "invalid-parent-region" }),
       ]),
@@ -67,6 +73,8 @@ describe("TextBlock Initial Flow parent region v1", () => {
     tampered.widthLayoutUnit += 1
     expect(inspectVNextTextBlockInitialFlowParentRegionV1(tampered)).toMatchObject({
       status: "invalid",
+      mayPublishLayout: false,
+      productionBinding: false,
       code: "parent-region-fingerprint-mismatch",
     })
   })
@@ -86,6 +94,8 @@ describe("TextBlock Initial Flow parent region v1", () => {
 
     expect(inspectVNextTextBlockInitialFlowParentRegionV1(unknownField)).toMatchObject({
       status: "invalid",
+      mayPublishLayout: false,
+      productionBinding: false,
       code: "invalid-parent-region",
     })
   })
@@ -95,6 +105,8 @@ describe("TextBlock Initial Flow parent region v1", () => {
       expect(() => inspectVNextTextBlockInitialFlowParentRegionV1(region)).not.toThrow()
       expect(inspectVNextTextBlockInitialFlowParentRegionV1(region)).toMatchObject({
         status: "invalid",
+        mayPublishLayout: false,
+        productionBinding: false,
         code: "invalid-parent-region",
       })
     }
