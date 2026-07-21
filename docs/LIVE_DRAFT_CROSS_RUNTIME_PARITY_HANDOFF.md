@@ -3,7 +3,7 @@
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20. Updated through the bounded MR1-N checkpoint on 2026-07-21.
+Date: 2026-07-20. Updated through the bounded MR1-O checkpoint on 2026-07-21.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -62,12 +62,12 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `42516af` | oracle-independent next Core request assembly, incremental acceptance, optional full-layout QA, and stage diagnostics |
+| `flowdoc-vnext-core` | `1b8d5c4` | Core-owned compositional semantic checkpoints, process-local proof binding, optional full-layout QA, and stage diagnostics |
 | `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
 The immediately preceding MR1-I implementation evidence remains pinned at
-Core `78810c5` and Editor `0a5c816`; later MR1-J/MR1-K/MR1-L/MR1-M/MR1-N
+Core `78810c5` and Editor `0a5c816`; later MR1-J/MR1-K/MR1-L/MR1-M/MR1-N/MR1-O
 commits build on those accepted oracle-analysis facts.
 
 ### Core Truth
@@ -426,26 +426,26 @@ identity.
 
 ## First Task For The Next Thread
 
-Design and prove the next bounded MR1 compositional semantic-checkpoint
-checkpoint over the accepted MR1-N adapter/Core path. Do not bind or publish
-the product path yet and keep Table work deferred.
+Design and prove the next bounded MR1 Core-owned request-composition checkpoint
+over the accepted MR1-O path. Do not bind or publish the product path yet and
+keep Table work deferred.
 
-1. Read the files under **Required Reading**, including the MR1-M and MR1-N
+1. Read the files under **Required Reading**, including the MR1-N and MR1-O
    evidence.
-2. Replace repeated complete prefix/suffix semantic-range hashing with
-   Core-owned compositional checkpoints derived once from retained line/source/
-   cluster chains and the affected boundary.
-3. Ensure the adapter and Core do not independently scan and hash the same
-   complete suffix while preserving exact source, text, style, advance, line,
-   UTF-16, and physical-id regeneration guarantees.
-4. Preserve the no-complete-layout-input path and optional full-oracle QA parity
-   for insertion, Bold, field-adjacent, deletion, and fallback rows.
-5. Remeasure all seven MR1-N diagnostic stages with no invented budget and
-   report whether line assembly/Core acceptance actually improve.
-6. Keep complete shape/segmentation oracle removal as a later, separately
-   proved gate unless the semantic-checkpoint work leaves those as the next
-   dominant measured stages.
-7. Keep tables, columns, images, default-measurer replacement, Editor product
+2. Remove the remaining `completeNextSemanticPassCount: 1` without trusting an
+   adapter-supplied semantic digest or weakening process-local provenance.
+3. Compose the next semantic proof from Core-owned immutable retained-prefix
+   facts, newly affected facts, and shifted-suffix facts at the affected
+   boundary.
+4. Preserve exact source, generated-owner, text, Text Run style, advance, line,
+   UTF-16, and revision-specific physical-id regeneration guarantees.
+5. Preserve the no-complete-layout-input path and optional full-oracle QA parity
+   for insertion, Bold, field-adjacent, deletion, and all current fallback rows.
+6. Remeasure all seven diagnostic stages plus semantic-proof and post-proof Core
+   subphases with no invented budget.
+7. Promote complete shape/segmentation oracle removal only after the complete
+   next semantic pass no longer dominates the measured path.
+8. Keep tables, columns, images, default-measurer replacement, Editor product
    binding, whole-document production activation, publication, and glyph-pixel
    exactness out.
 
@@ -466,6 +466,7 @@ Core:
 - `docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`
 - `docs/LIVE_DRAFT_MR1_INCREMENTAL_CORE_COMPOSITION.md`
 - `docs/LIVE_DRAFT_MR1_ORACLE_INDEPENDENT_CORE_EXECUTION.md`
+- `docs/LIVE_DRAFT_MR1_COMPOSITIONAL_SEMANTIC_CHECKPOINTS.md`
 - `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md`
 - `src/renderer/textMeasurementAdapter.ts`
@@ -483,6 +484,10 @@ Core:
 - `packages/text-engine-rust-wasm/src/incrementalRangeFactSplice.ts`
 - `packages/text-engine-rust-wasm/src/incrementalAffectedLineWindow.ts`
 - `packages/text-engine-rust-wasm/src/incrementalRangeExecution.ts`
+- `packages/text-engine-rust-wasm/src/incrementalCoreExecution.ts`
+- `src/layout/textBlockMultiRunIncrementalSnapshotV1.ts`
+- `src/layout/textBlockMultiRunIncrementalSemanticCheckpointV1.ts`
+- `src/layout/textBlockMultiRunIncrementalAcceptanceV1.ts`
 - `src/renderer/textBlockMultiRunDisplayListV1.ts`
 - `src/composition/textBlockMultiRunDocumentCompositionV1.ts`
 - `src/renderer/textBlockMultiRunDocumentDisplayListV1.ts`
@@ -544,11 +549,14 @@ paint, multi-line/multi-glyph parity, rapid-edit stale/last-valid lifecycle,
 and bounded 12-TextBlock scheduling/frame evidence as prerequisites. Continue
 from the immutable retained snapshot/checkpoint, fail-closed edit-range plan,
 actual contextual WASM execution, exact cluster/break splice, and affected
-line-range reconvergence proof. Design a Core-owned incremental acceptance and
-compositional-fingerprint boundary next. Resolve offset-derived physical ids
-without weakening semantic/exact distinctions. Keep renderer measurement,
-whole-block runtime relayout, and product publication forbidden, and close only
-rows whose real owner contracts can be exercised.
+line-range reconvergence proof. Continue from the MR1-O Core-owned
+compositional semantic checkpoints and process-local exact request binding.
+Remove the remaining complete next semantic-line pass by composing
+Core-owned retained-prefix, affected, and shifted-suffix facts without trusting
+adapter-supplied digests. Preserve offset-derived physical-id regeneration and
+semantic/exact distinctions. Keep renderer measurement, whole-block runtime
+relayout, and product publication forbidden, and close only rows whose real
+owner contracts can be exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
@@ -1172,6 +1180,36 @@ not a budget, but it makes compositional semantic checkpoints the next measured
 priority. Evidence lives at
 `docs/LIVE_DRAFT_MR1_ORACLE_INDEPENDENT_CORE_EXECUTION.md`.
 
+## LIVE-DRAFT-MR1 Compositional Semantic Checkpoints
+
+Status: accepted as a bounded actual-WASM/Core QA checkpoint on 2026-07-21.
+Complete next-request semantic-pass removal, shape/segmentation oracle removal,
+product binding, publication, and production remain NO-GO.
+
+MR1-O adds Core-owned semantic-range fingerprints per retained line and folds
+them into compositional prefix/suffix chains. Affected-line assembly no longer
+performs complete semantic-range comparisons, and Core acceptance no longer
+rehashes complete previous/next prefix and suffix ranges independently.
+
+Core derives a process-local semantic checkpoint proof bound through a
+`WeakMap` to the exact retained snapshot and exact recursively frozen next
+request. Cloned proofs or snapshots, changed request identity, measurement
+style drift, generated-owner drift, source/style/advance drift, and invalid
+window facts fail closed. The no-complete-layout-input path and optional
+full-oracle QA remain exact for Thai insertion, 18 pt Bold replacement,
+field-adjacent insertion, and deletion.
+
+Twenty-five warm 4,959-unit Windows/Vitest samples with optional QA observed
+280.76/312.32 ms total p50/p95 and 158.17/173.85 ms excluding optional QA.
+Affected-line assembly observed 0.70/1.62 ms. The Core stage observed
+83.03/97.34 ms; its semantic checkpoint proof alone observed 59.44/70.24 ms
+because it still performs one complete pass over the next request. These are
+host diagnostics, not an accepted budget or interaction-ready claim.
+
+Evidence lives at
+`docs/LIVE_DRAFT_MR1_COMPOSITIONAL_SEMANTIC_CHECKPOINTS.md`; implementation is
+pinned at Core `1b8d5c4`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -1288,6 +1326,16 @@ priority. Evidence lives at
 - Seven diagnostic stages expose range, splice, line assembly, Core acceptance,
   optional QA, and fingerprint costs without changing deterministic output or
   inventing a numeric budget.
+- Core-owned line-aligned semantic-range fingerprints and compositional
+  prefix/suffix chains remove complete semantic-range hashing from both
+  affected-line assembly and incremental acceptance.
+- A process-local semantic proof is bound to the exact retained snapshot and
+  recursively frozen next request; cloned proof/snapshot and changed source,
+  generated-owner, Text Run style, cluster advance, or layout context fail
+  closed.
+- Twenty-five warm MR1-O samples retain seven-stage p50/p95 diagnostics. The
+  subtotal excluding optional QA is 158.17/173.85 ms and affected-line assembly
+  is 0.70/1.62 ms, without inventing an interaction budget.
 
 ### FAIL-BLOCKER
 
@@ -1362,12 +1410,15 @@ priority. Evidence lives at
   oracles, creates a complete next snapshot, and compares complete spliced
   arrays. Its passing result is not a per-keystroke performance result.
 - MR1-M resolves offset-derived ids by separating semantic reuse from physical
-  identity. MR1-N removes the full layout input, but repeated complete-suffix
-  semantic hashing in both adapter assembly and Core acceptance remains far
-  above an interaction-ready cost in the first diagnostic host sample.
+  identity. MR1-N removes the full layout input, and MR1-O removes repeated
+  complete prefix/suffix semantic-range hashing. MR1-O still makes one complete
+  next semantic-line pass; its proof observed 59.44/70.24 ms p50/p95 and remains
+  far above an interaction-ready claim.
 - Pairing external and Core snapshots in process-local weak maps preserves
   provenance but duplicates active retained facts in memory; product-scale
   retention is still unmeasured.
+- Retained semantic-range line/prefix/suffix chains add active snapshot memory;
+  snapshot rotation and long-document memory costs remain unmeasured.
 
 ### UNKNOWN
 
@@ -1377,12 +1428,12 @@ priority. Evidence lives at
 - Final performance and bitmap-memory budgets for product-sized and 200-page
   documents.
 - Product-safe incremental composition that can publish the proved line window
-  after repeated complete-suffix hashing and complete engine oracles are
+  after the complete next semantic pass and complete engine oracles are
   replaced by equally strong bounded proofs.
 - Product-scale retained-snapshot memory and per-edit planner timing.
-- Exact performance after repeated suffix scans, complete shape/segmentation
-  oracle calls, optional QA work, and full-array comparisons are removed from
-  the runtime path.
+- Exact performance after the complete next semantic pass, complete
+  shape/segmentation oracle calls, optional QA work, and full-array comparisons
+  are removed from the runtime path.
 - Cross-process or persisted incremental snapshot hydration with equally strong
   provenance and immutability guarantees.
 - Product scheduler fairness under continuous active typing plus background
