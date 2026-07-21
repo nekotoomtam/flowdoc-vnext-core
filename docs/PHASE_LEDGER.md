@@ -12324,3 +12324,36 @@ remain blocked.
 
 Next phase: `LIVE-DRAFT-MR1-B` external effective-style, font-metric, shaping-
 run, and cluster evidence for Node and Browser Worker consumption.
+
+## LIVE-DRAFT-MR1-B External Engine Facts And Itemization
+
+Status: accepted for Node-native and executable WASM test-host evidence on
+2026-07-21. Real Browser Worker and production remain NO-GO.
+
+The external text-engine package now merges a complete paragraph run style
+with Text Run local overrides, resolves SHA-256-pinned Sarabun Regular/Bold
+faces, shapes compatible effective runs with Rustybuzz, segments the complete
+resolved block with ICU4X, maps UTF-8 clusters into global UTF-16 ranges,
+scales advances through LayoutUnitPolicyV1, and feeds the accepted Core
+multi-run boundary.
+
+The historical XR-1/XR-5 artifact remains byte-identical. A separate MR1 WASM
+artifact reports actual UPEM/ascender/descender/line-gap facts and has its own
+boundary version and digest. Native and executable-WASM test-host runs produce
+exactly equal Core requests and accepted layouts for 10 pt Regular, 24 pt
+Bold, and a 12 pt resolved field on one line.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`;
+- `packages/text-engine-rust-wasm/src/multiRunLayout.ts`;
+- `packages/text-engine-rust-wasm/src/runtimeMr1.ts`;
+- `tests/textEngineMultiRunLayoutV1.test.ts`; and
+- `tests/textEngineMultiRunNodeWasmV1.test.ts`.
+
+Authored schemas, the old WASM artifact, default measurement/pagination,
+display lists, Editor, Backend, and production bindings were not changed. Real
+Chrome Worker acceptance and per-fragment paint commands remain blocked.
+
+Next phase: `LIVE-DRAFT-MR1-C` real Editor Chrome Worker parity over the
+separate MR1 artifact and bounded mixed-size line.

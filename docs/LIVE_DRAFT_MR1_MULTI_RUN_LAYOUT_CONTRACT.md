@@ -1,9 +1,9 @@
 # Live Draft MR1 Multi-Run Layout Contract
 
-Status: Core contract and acceptance slice accepted on 2026-07-21. External
-font/style resolution, Rust/WASM and Node shaping integration, display-list
-binding, renderer binding, Browser/Node evidence, and production activation
-remain inactive.
+Status: Core contract and acceptance slice accepted on 2026-07-21. A
+subsequent external Node-native and executable-WASM test-host slice now feeds
+this contract. Real Browser Worker evidence, display-list binding, renderer
+binding, and production activation remain inactive.
 
 ## Outcome
 
@@ -142,7 +142,7 @@ style data and do not yet have per-fragment paint commands.
 
 ## Next
 
-Extend the external Rust/WASM and Node text-engine fact contract with pinned
-font metrics, effective Text Run style resolution, shaping runs, and cluster
-advances. Then feed identical facts into this Core acceptance boundary in Node
-and a real Browser Worker before adding per-fragment display-list commands.
+The external Node-native and executable-WASM test-host facts now live in
+`LIVE_DRAFT_MR1_ENGINE_FACTS.md`. Feed the same facts into this Core acceptance
+boundary from a real Browser Worker next, then add per-fragment display-list
+commands.

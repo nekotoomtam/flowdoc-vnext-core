@@ -4,12 +4,23 @@ import { existsSync, readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { resolve } from "node:path"
 import type { FlowDocTextEngineLiveDraftSmokeRowV1 } from "./liveDraftSmokeRows.js"
+import { createFlowDocTextEngineMultiRunLayoutV1 } from "./multiRunLayout.js"
+import type {
+  FlowDocTextEngineMultiRunLayoutInputV1,
+  FlowDocTextEngineMultiRunLayoutResultV1,
+} from "./multiRunLayoutContract.js"
 import {
   normalizeFlowDocTextEngineLiveDraftResultV1,
   type FlowDocTextEngineLiveDraftNormalizedResultV1,
   type FlowDocTextEngineLiveDraftRawSegmentationV1,
   type FlowDocTextEngineLiveDraftRawShapeV1,
 } from "./runtimeCommon.js"
+import {
+  FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+  normalizeFlowDocTextEngineMr1SegmentationV1,
+  normalizeFlowDocTextEngineMr1ShapeV1,
+  type FlowDocTextEngineMr1RawShapeV1,
+} from "./runtimeMr1.js"
 
 export { createFlowDocTextEngineLiveDraftMeasurementV1 } from "./liveDraftLayout.js"
 
@@ -125,5 +136,62 @@ export function runFlowDocTextEngineNodeTextV1(input: {
       executesIcu4x: true,
     },
     result: normalizeFlowDocTextEngineLiveDraftResultV1({ shape, segmentation }),
+  }
+}
+
+export function runFlowDocTextEngineNodeMultiRunLayoutV1(input: {
+  layout: FlowDocTextEngineMultiRunLayoutInputV1
+  wasmSha256: string
+}): {
+  identity: {
+    runtime: "node-native-mr1"
+    measurementProfileId: string
+    wasmSha256: typeof FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256
+    wasmExecution: false
+    executesRustybuzz: true
+    executesIcu4x: true
+    productionBinding: false
+  }
+  result: FlowDocTextEngineMultiRunLayoutResultV1
+} {
+  requireFact(input.wasmSha256 === FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256, "MR1 WASM digest pin mismatch")
+  const paths = buildNativeExecutors()
+  const verifiedFontPaths = new Map<string, string>()
+  const result = createFlowDocTextEngineMultiRunLayoutV1(input.layout, {
+    runtimeKind: "node-native-mr1",
+    shape({ text, fontFace }) {
+      let fontPath = verifiedFontPaths.get(fontFace.fontFaceId)
+      if (fontPath == null) {
+        fontPath = resolve(paths.coreRoot, fontFace.fontAssetPath)
+        requireFact(sha256File(fontPath) === fontFace.fontSha256, `font digest mismatch: ${fontFace.fontFaceId}`)
+        verifiedFontPaths.set(fontFace.fontFaceId, fontPath)
+      }
+      const raw = JSON.parse(run(
+        paths.shaper,
+        [fontPath, text, fontFace.fontFaceId],
+        paths.coreRoot,
+      )) as FlowDocTextEngineMr1RawShapeV1
+      return normalizeFlowDocTextEngineMr1ShapeV1(raw)
+    },
+    segment(text) {
+      const raw = JSON.parse(run(
+        paths.segmenter,
+        [text],
+        paths.coreRoot,
+      )) as FlowDocTextEngineLiveDraftRawSegmentationV1
+      return normalizeFlowDocTextEngineMr1SegmentationV1(raw)
+    },
+  })
+  return {
+    identity: {
+      runtime: "node-native-mr1",
+      measurementProfileId: input.layout.measurement.measurementProfileId,
+      wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+      wasmExecution: false,
+      executesRustybuzz: true,
+      executesIcu4x: true,
+      productionBinding: false,
+    },
+    result,
   }
 }

@@ -1,0 +1,7 @@
+*
+!.gitignore
+!flowdoc_text_engine_mr1.d.ts
+!flowdoc_text_engine_mr1.js
+!flowdoc_text_engine_mr1_bg.wasm
+!flowdoc_text_engine_mr1_bg.wasm.d.ts
+!package.json

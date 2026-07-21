@@ -126,6 +126,12 @@ The package must remain runnable without any parent editor checkout.
   segments, and fingerprints. External Text Run style/font resolution,
   Browser/Node evidence, display-list binding, and production use remain
   blocked.
+- Live Draft MR1 external engine facts now resolve bounded Text Run
+  size/weight/color overrides to digest-pinned Sarabun Regular/Bold faces,
+  report actual font metrics, shape global UTF-16 clusters, and feed the Core
+  multi-run boundary. Node-native and the separate executable MR1 WASM artifact
+  produce identical Core request/layout facts for one mixed-size line; real
+  Chrome Worker, display-list/Canvas binding, and production remain blocked.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

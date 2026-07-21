@@ -92,6 +92,21 @@ for two bounded smoke rows. The Browser Worker evidence is retained by
 `flowdoc-vnext-editor`; it does not revise the historical summary manifest and
 does not claim general measurement parity.
 
+LIVE-DRAFT-MR1 preserves that XR artifact byte-for-byte and adds a separate
+`pkg-live-draft-mr1` artifact. The MR1 Rust output reports raw UPEM, ascender,
+descender, and line-gap metrics. Shared QA-only itemization merges the complete
+paragraph style with Text Run overrides, resolves digest-pinned Sarabun
+Regular/Bold faces, shapes compatible effective runs, segments the complete
+block, converts clusters to exact layout integers, and calls Core's versioned
+multi-run acceptance boundary. Node-native and executable WASM test-host facts
+match for the bounded mixed-size line. Real Chrome Worker and production
+binding remain blocked.
+
+The historical XR artifact is verification-only. Run
+`npm run wasm:verify:live-draft-artifacts` to verify both retained hashes and
+`npm run wasm:build:live-draft-mr1` to rebuild only the MR1 artifact. No current
+script writes the advanced Rust source over `pkg-live-draft`.
+
 The PDF canonical report R2C-D pilot reuses the package-local native smoke
 binary as a non-production run-level shaping executor. It validates IBM Plex
 font hashes, maps raw UTF-8 clusters through the public raw-evidence mapper,
@@ -150,12 +165,17 @@ Allowed:
 - expose QA-only runtime-specific Node and Browser Worker entry points;
 - execute Rustybuzz 0.20.1 and ICU4X Segmenter 2.2.0 in the separately pinned
   `pkg-live-draft` Browser Worker artifact;
+- retain the historical `pkg-live-draft` bytes while exposing a separate
+  digest-pinned `pkg-live-draft-mr1` artifact and `./worker-mr1` entry point;
+- report actual font metrics from the MR1 Rust shaping boundary;
+- resolve bounded Text Run size/weight/color overrides and produce exact Core
+  MR1 shaping-run, cluster, line, and positioned-fragment facts;
 - keep the historical `pkg` readiness-marker artifact and digest unchanged;
 - remain external to `src/**` core.
 
 Blocked:
 
-- production TypeScript adapter binding to rustybuzz output;
+- production binding of the QA-only TypeScript/Rustybuzz adapter;
 - ICU4X dependency in the historical `rust-shaper` WASM target;
 - historical `pkg` WASM artifact loading as a shaping engine;
 - raw native evidence in root docs/tests;
@@ -164,4 +184,6 @@ Blocked:
 - production measurement binding until its dedicated gate;
 - core font-file reads;
 - Form-to-worker binding and production measurement binding;
+- real Chrome Worker acceptance for the MR1 mixed-size artifact;
+- per-fragment display-list and Canvas/PDF paint binding;
 - pagination measurer replacement.

@@ -3,6 +3,8 @@ use wasm_bindgen::prelude::{wasm_bindgen, JsValue};
 
 pub const FLOWDOC_TEXT_ENGINE_WASM_BOUNDARY_VERSION: &str =
     "flowdoc-text-engine-wasm-live-draft-xr1-v1";
+pub const FLOWDOC_TEXT_ENGINE_MR1_WASM_BOUNDARY_VERSION: &str =
+    "flowdoc-text-engine-wasm-live-draft-mr1-v1";
 pub const FLOWDOC_RUSTYBUZZ_NATIVE_SOURCE: &str = "flowdoc-rustybuzz-native-smoke";
 pub const FLOWDOC_RUSTYBUZZ_WASM_SOURCE: &str = "flowdoc-rustybuzz-wasm-live-draft-smoke";
 pub const FLOWDOC_RUSTYBUZZ_REVISION: &str = "rustybuzz-0.20.1";
@@ -66,7 +68,7 @@ pub fn flowdoc_text_engine_shape_json(
         .join(",");
 
     Ok(format!(
-        "{{\"source\":\"{}\",\"shaperRevision\":\"{}\",\"fontId\":\"{}\",\"fontPath\":\"{}\",\"text\":\"{}\",\"textByteLength\":{},\"textScalarCount\":{},\"unitsPerEm\":{},\"glyphCount\":{},\"glyphs\":[{}]}}",
+        "{{\"source\":\"{}\",\"shaperRevision\":\"{}\",\"fontId\":\"{}\",\"fontPath\":\"{}\",\"text\":\"{}\",\"textByteLength\":{},\"textScalarCount\":{},\"unitsPerEm\":{},\"ascentFontUnit\":{},\"descentFontUnit\":{},\"lineGapFontUnit\":{},\"glyphCount\":{},\"glyphs\":[{}]}}",
         source,
         FLOWDOC_RUSTYBUZZ_REVISION,
         escape_json(font_id),
@@ -75,6 +77,9 @@ pub fn flowdoc_text_engine_shape_json(
         text.len(),
         text.chars().count(),
         face.units_per_em(),
+        face.ascender(),
+        face.descender(),
+        face.line_gap(),
         infos.len(),
         glyphs,
     ))
@@ -110,6 +115,11 @@ pub fn flowdoc_text_engine_wasm_readiness_marker() -> u32 {
 #[wasm_bindgen]
 pub fn flowdoc_text_engine_wasm_boundary_version() -> String {
     FLOWDOC_TEXT_ENGINE_WASM_BOUNDARY_VERSION.to_string()
+}
+
+#[wasm_bindgen]
+pub fn flowdoc_text_engine_mr1_wasm_boundary_version() -> String {
+    FLOWDOC_TEXT_ENGINE_MR1_WASM_BOUNDARY_VERSION.to_string()
 }
 
 #[wasm_bindgen]
