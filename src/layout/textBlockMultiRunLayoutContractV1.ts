@@ -90,6 +90,7 @@ export interface VNextTextBlockMultiRunSourceSegmentV1 {
   inlineId: string
   kind: VNextTextBlockV4MeasurementRun["kind"]
   fieldKey?: string
+  generatedOwnerFingerprint?: string
   styleKey?: string
   localStyle?: VNextTextBlockV4MeasurementRun["localStyle"]
   renderStartOffset: number

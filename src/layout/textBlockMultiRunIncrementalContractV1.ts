@@ -23,6 +23,9 @@ export interface VNextTextBlockMultiRunIncrementalSnapshotV1 {
   semanticLineFingerprints: readonly string[]
   prefixSemanticFingerprints: readonly string[]
   suffixSemanticFingerprints: readonly string[]
+  semanticRangeLineFingerprints: readonly string[]
+  prefixSemanticRangeFingerprints: readonly string[]
+  suffixSemanticRangeFingerprints: readonly string[]
   contracts: {
     acceptedCompleteLayoutProvenance: true
     processLocalImmutableSnapshot: true
@@ -50,6 +53,8 @@ export interface VNextTextBlockMultiRunIncrementalWindowProofV1 {
   stableLineCount: number
   previousSuffixSemanticFingerprint: string
   nextSuffixSemanticFingerprint: string
+  previousSuffixSemanticRangeFingerprint: string
+  nextSuffixSemanticRangeFingerprint: string
 }
 
 export type VNextTextBlockMultiRunIncrementalFallbackCodeV1 =
@@ -76,6 +81,8 @@ interface VNextTextBlockMultiRunIncrementalAcceptanceBaseV1 {
   snapshotFingerprint: string
   contracts: {
     coreAcceptsAffectedLineWindow: true
+    coreOwnedCompositionalSemanticCheckpoints: true
+    completeSemanticRangeHashing: false
     semanticIdentitySeparateFromPhysicalIds: true
     physicalIdsAreRevisionSpecific: true
     completeCoreLayoutOracleRequiredForQa: true
@@ -122,6 +129,8 @@ export type VNextTextBlockMultiRunIncrementalAcceptanceV1 =
         reusedPrefixLineCount: number
         positionedAffectedLineCount: number
         reusedSuffixLineCount: number
+        semanticCheckpointProofAccepted: true
+        completeSemanticRangeHashCount: 0
       }
       fingerprint: string
       fallback: null

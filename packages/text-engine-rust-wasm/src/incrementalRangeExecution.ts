@@ -134,6 +134,8 @@ export type FlowDocTextEngineIncrementalRangeExecutionV1 =
           stableLineCount: number
           previousSuffixSemanticFingerprint: string
           nextSuffixSemanticFingerprint: string
+          previousSuffixSemanticRangeFingerprint: string
+          nextSuffixSemanticRangeFingerprint: string
         }
         work: {
           reusedPrefixLineCount: number

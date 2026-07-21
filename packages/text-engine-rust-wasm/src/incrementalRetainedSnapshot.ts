@@ -7,7 +7,6 @@ import {
   type VNextTextBlockPositionedLineV1,
   type VNextTextBlockV4MeasurementRequest,
 } from "@flowdoc/vnext-core"
-import { createFlowDocTextEngineSemanticLineFingerprintV1 } from "./incrementalLineCheckpoint.js"
 import type { FlowDocTextEngineMultiRunLayoutResultV1 } from "./multiRunLayoutContract.js"
 import {
   FLOWDOC_TEXT_ENGINE_LIVE_DRAFT_SEGMENTER_DATA_REVISION,
@@ -56,6 +55,9 @@ export interface FlowDocTextEngineIncrementalLineCheckpointV1 {
   prefixLayoutFingerprint: string
   prefixSemanticFingerprint: string
   suffixSemanticFingerprint: string
+  semanticRangeLineFingerprint: string
+  prefixSemanticRangeFingerprint: string
+  suffixSemanticRangeFingerprint: string
   fingerprint: string
 }
 
@@ -94,6 +96,7 @@ export interface FlowDocTextEngineIncrementalRetainedSnapshotV1 {
   contracts: {
     retainedFromAcceptedCompleteLayout: true
     prefixAndSuffixCheckpointChains: true
+    coreOwnedSemanticRangeCheckpointChains: true
     processLocalImmutableSnapshot: true
     perPlanFullSnapshotHashing: false
     runtimeReuseRequiresExactIdentity: true
@@ -206,20 +209,13 @@ function layoutContextFingerprint(accepted: AcceptedLayout): string {
 function createLineCheckpoints(
   lines: readonly VNextTextBlockPositionedLineV1[],
   shapingRuns: readonly VNextTextBlockAcceptedShapingRunV1[],
+  coreSnapshot: VNextTextBlockMultiRunIncrementalSnapshotV1,
 ): FlowDocTextEngineIncrementalLineCheckpointV1[] {
   const clusters = shapingRuns.flatMap((run) => run.clusters).sort((left, right) => (
     left.renderStartOffset - right.renderStartOffset
   ))
-  const semanticLineFingerprints = lines.map(createFlowDocTextEngineSemanticLineFingerprintV1)
-  const suffixSemanticFingerprints = Array.from<string>({ length: lines.length })
-  let nextSuffixFingerprint = createVNextCompactFingerprint("incremental-line-suffix:end:v1")
-  for (let index = lines.length - 1; index >= 0; index -= 1) {
-    nextSuffixFingerprint = createVNextCompactFingerprint(JSON.stringify({
-      semanticLineFingerprint: semanticLineFingerprints[index],
-      nextSuffixFingerprint,
-    }))
-    suffixSemanticFingerprints[index] = nextSuffixFingerprint
-  }
+  const semanticLineFingerprints = coreSnapshot.semanticLineFingerprints
+  const suffixSemanticFingerprints = coreSnapshot.suffixSemanticFingerprints
 
   let previousPrefixFingerprint = createVNextCompactFingerprint("incremental-line-prefix:start:v1")
   let previousPrefixSemanticFingerprint = createVNextCompactFingerprint(
@@ -259,6 +255,9 @@ function createLineCheckpoints(
       prefixLayoutFingerprint: previousPrefixFingerprint,
       prefixSemanticFingerprint: previousPrefixSemanticFingerprint,
       suffixSemanticFingerprint: suffixSemanticFingerprints[lineIndex]!,
+      semanticRangeLineFingerprint: coreSnapshot.semanticRangeLineFingerprints[lineIndex]!,
+      prefixSemanticRangeFingerprint: coreSnapshot.prefixSemanticRangeFingerprints[lineIndex]!,
+      suffixSemanticRangeFingerprint: coreSnapshot.suffixSemanticRangeFingerprints[lineIndex]!,
     }
     return { ...facts, fingerprint: createVNextCompactFingerprint(JSON.stringify(facts)) }
   })
@@ -285,11 +284,11 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
   }
   const shapingRuns = clone(accepted.layout.shapingRuns)
   const lines = clone(accepted.layout.lines)
-  const lineCheckpoints = createLineCheckpoints(lines, shapingRuns)
   const incrementalCoreSnapshot = createVNextTextBlockMultiRunIncrementalSnapshotV1({
     request: accepted.request,
     acceptedLayout: accepted.layout,
   })
+  const lineCheckpoints = createLineCheckpoints(lines, shapingRuns, incrementalCoreSnapshot)
   const facts = {
     source: FLOWDOC_TEXT_ENGINE_INCREMENTAL_RETAINED_SNAPSHOT_SOURCE,
     contractVersion: FLOWDOC_TEXT_ENGINE_INCREMENTAL_RETAINED_SNAPSHOT_VERSION,
@@ -325,6 +324,7 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
     contracts: {
       retainedFromAcceptedCompleteLayout: true,
       prefixAndSuffixCheckpointChains: true,
+      coreOwnedSemanticRangeCheckpointChains: true,
       processLocalImmutableSnapshot: true,
       perPlanFullSnapshotHashing: false,
       runtimeReuseRequiresExactIdentity: true,

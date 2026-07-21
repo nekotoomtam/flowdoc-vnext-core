@@ -22,8 +22,11 @@ import type {
 } from "./textBlockMultiRunLayoutContractV1.js"
 import { inspectVNextTextBlockMultiRunIncrementalSnapshotV1 } from "./textBlockMultiRunIncrementalSnapshotV1.js"
 import {
+  inspectVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
+  type VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
+} from "./textBlockMultiRunIncrementalSemanticCheckpointV1.js"
+import {
   createVNextTextBlockMultiRunSemanticLineFingerprintV1,
-  createVNextTextBlockMultiRunSemanticRangeFingerprintV1,
 } from "./textBlockMultiRunSemanticV1.js"
 
 function sameJson(left: unknown, right: unknown): boolean {
@@ -166,29 +169,6 @@ function validBreaksAndLines(request: VNextTextBlockMultiRunLayoutRequestV1): bo
   return cursor === request.measurement.renderedText.length
 }
 
-function semanticRangeMatches(input: {
-  previous: VNextTextBlockMultiRunIncrementalSnapshotV1
-  next: VNextTextBlockMultiRunLayoutRequestV1
-  previousStart: number
-  previousEnd: number
-  nextStart: number
-  nextEnd: number
-}): boolean {
-  const previousFingerprint = createVNextTextBlockMultiRunSemanticRangeFingerprintV1({
-    measurement: input.previous.request.measurement,
-    shapingRuns: input.previous.request.shapingRuns,
-    renderStartOffset: input.previousStart,
-    renderEndOffset: input.previousEnd,
-  })
-  const nextFingerprint = createVNextTextBlockMultiRunSemanticRangeFingerprintV1({
-    measurement: input.next.measurement,
-    shapingRuns: input.next.shapingRuns,
-    renderStartOffset: input.nextStart,
-    renderEndOffset: input.nextEnd,
-  })
-  return previousFingerprint != null && previousFingerprint === nextFingerprint
-}
-
 function sameLineRange(
   left: { index: number; renderStartOffset: number; renderEndOffset: number },
   right: { index: number; renderStartOffset: number; renderEndOffset: number },
@@ -203,6 +183,10 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
   nextRequest: VNextTextBlockMultiRunLayoutRequestV1
   edit: VNextTextBlockMultiRunIncrementalEditV1
   window: VNextTextBlockMultiRunIncrementalWindowProofV1
+  semanticCheckpointProof: Extract<
+    VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
+    { status: "checkpoint-accepted" }
+  >
 }): VNextTextBlockMultiRunIncrementalAcceptanceV1 {
   const base = {
     source: VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_ACCEPTANCE_SOURCE,
@@ -214,6 +198,8 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
     snapshotFingerprint: input.snapshot.fingerprint,
     contracts: {
       coreAcceptsAffectedLineWindow: true,
+      coreOwnedCompositionalSemanticCheckpoints: true,
+      completeSemanticRangeHashing: false,
       semanticIdentitySeparateFromPhysicalIds: true,
       physicalIdsAreRevisionSpecific: true,
       completeCoreLayoutOracleRequiredForQa: true,
@@ -254,6 +240,7 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
     || input.nextRequest.measurement.sectionId !== previousRequest.measurement.sectionId
     || input.nextRequest.measurement.textBlockId !== previousRequest.measurement.textBlockId
     || input.nextRequest.measurement.measurementProfileId !== previousRequest.measurement.measurementProfileId
+    || input.nextRequest.measurement.styleKey !== previousRequest.measurement.styleKey
     || input.nextRequest.measurement.availableWidthPt !== previousRequest.measurement.availableWidthPt
     || input.nextRequest.layoutUnitPolicyFingerprint !== previousRequest.layoutUnitPolicyFingerprint
     || input.nextRequest.availableWidthLayoutUnit !== previousRequest.availableWidthLayoutUnit
@@ -326,7 +313,22 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
     || input.snapshot.suffixSemanticFingerprints[window.previousReconvergenceLineIndex]
       !== window.previousSuffixSemanticFingerprint
     || window.previousSuffixSemanticFingerprint !== window.nextSuffixSemanticFingerprint
+    || input.snapshot.suffixSemanticRangeFingerprints[window.previousReconvergenceLineIndex]
+      !== window.previousSuffixSemanticRangeFingerprint
+    || window.previousSuffixSemanticRangeFingerprint !== window.nextSuffixSemanticRangeFingerprint
   ) return fallback("invalid-window-proof", "the affected-line checkpoint proof is inconsistent")
+
+  const semanticProofInspection = inspectVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
+    proof: input.semanticCheckpointProof,
+    snapshot: input.snapshot,
+    nextRequest: input.nextRequest,
+    edit: input.edit,
+    window: input.window,
+  })
+  if (semanticProofInspection.status !== "valid") return fallback(
+    "invalid-window-proof",
+    semanticProofInspection.message,
+  )
 
   const previousRestartOffset = previousLines[window.previousRestartLineIndex]!.renderStartOffset
   const nextRestartOffset = nextLines[window.nextRestartLineIndex]!.renderStartOffset
@@ -336,17 +338,10 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
   const prefixMatches = previousLines.slice(0, window.previousRestartLineIndex).every((line, index) => (
     sameLineRange(line, nextLines[index]!)
   ))
-  if (
-    !prefixMatches
-    || !semanticRangeMatches({
-      previous: input.snapshot,
-      next: input.nextRequest,
-      previousStart: 0,
-      previousEnd: previousRestartOffset,
-      nextStart: 0,
-      nextEnd: nextRestartOffset,
-    })
-  ) return fallback("prefix-semantic-mismatch", "the retained prefix changed before the restart line")
+  if (!prefixMatches) return fallback(
+    "prefix-semantic-mismatch",
+    "the retained prefix changed before the restart line",
+  )
 
   const lineIndexDelta = window.nextReconvergenceLineIndex - window.previousReconvergenceLineIndex
   const suffixMatches = previousLines.slice(window.previousReconvergenceLineIndex).every((line, index) => {
@@ -356,17 +351,10 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
       && nextLine.renderStartOffset === line.renderStartOffset + offsetDelta
       && nextLine.renderEndOffset === line.renderEndOffset + offsetDelta
   })
-  if (
-    !suffixMatches
-    || !semanticRangeMatches({
-      previous: input.snapshot,
-      next: input.nextRequest,
-      previousStart: window.previousReconvergenceOffset,
-      previousEnd: previousText.length,
-      nextStart: window.nextReconvergenceOffset,
-      nextEnd: nextText.length,
-    })
-  ) return fallback("suffix-semantic-mismatch", "the shifted suffix is not semantically reusable")
+  if (!suffixMatches) return fallback(
+    "suffix-semantic-mismatch",
+    "the shifted suffix is not semantically reusable",
+  )
 
   const acceptedRuns = deriveVNextTextBlockMultiRunAcceptedRunsV1(input.nextRequest)
   if (acceptedRuns.status !== "accepted") return fallback(
@@ -435,6 +423,8 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
       positionedAffectedLineCount: references.affected.lines.length,
       reusedSuffixLineCount: references.suffix.previousEndLineIndexExclusive
         - references.suffix.previousStartLineIndex,
+      semanticCheckpointProofAccepted: true as const,
+      completeSemanticRangeHashCount: 0 as const,
     },
     fallback: null,
   }

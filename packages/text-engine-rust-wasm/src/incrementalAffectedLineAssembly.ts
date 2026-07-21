@@ -1,5 +1,4 @@
 import {
-  createVNextTextBlockMultiRunSemanticRangeFingerprintV1,
   type VNextTextBlockMultiRunLineInputV1,
   type VNextTextBlockResolvedShapingRunV1,
   type VNextTextBlockV4MeasurementRequest,
@@ -26,6 +25,8 @@ export type FlowDocTextEngineIncrementalAffectedLineAssemblyV1 =
         stableLineCount: number
         previousSuffixSemanticFingerprint: string
         nextSuffixSemanticFingerprint: string
+        previousSuffixSemanticRangeFingerprint: string
+        nextSuffixSemanticRangeFingerprint: string
       }
       work: {
         reusedPrefixLineCount: number
@@ -71,15 +72,6 @@ function validPolicy(policy: FlowDocTextEngineIncrementalAffectedLinePolicyV1): 
     && policy.maximumReflowUtf16Length >= 1
 }
 
-function semanticRangeFingerprint(input: {
-  measurement: VNextTextBlockV4MeasurementRequest
-  shapingRuns: readonly VNextTextBlockResolvedShapingRunV1[]
-  renderStartOffset: number
-  renderEndOffset: number
-}): string | null {
-  return createVNextTextBlockMultiRunSemanticRangeFingerprintV1(input)
-}
-
 export function assembleFlowDocTextEngineIncrementalAffectedLinesV1(input: {
   snapshot: FlowDocTextEngineIncrementalRetainedSnapshotV1
   plan: PlannedRange
@@ -108,24 +100,7 @@ export function assembleFlowDocTextEngineIncrementalAffectedLinesV1(input: {
     message: "retained restart checkpoint is not an exact unchanged next break boundary",
   }
 
-  let semanticRangeComparisonCount = 1
-  const previousPrefixSemantic = semanticRangeFingerprint({
-    measurement: input.snapshot.measurement,
-    shapingRuns: input.snapshot.shapingRuns,
-    renderStartOffset: 0,
-    renderEndOffset: input.plan.restart.previousRestartOffset,
-  })
-  const nextPrefixSemantic = semanticRangeFingerprint({
-    measurement: input.nextMeasurement,
-    shapingRuns: input.shapingRuns,
-    renderStartOffset: 0,
-    renderEndOffset: restartOffset,
-  })
-  if (previousPrefixSemantic == null || previousPrefixSemantic !== nextPrefixSemantic) return {
-    status: "fallback-required",
-    code: "line-prefix-mismatch",
-    message: "the normalized semantic prefix changed before the restart line",
-  }
+  const semanticRangeComparisonCount = 0
   const prefix = input.snapshot.lines.slice(0, restartIndex).map((line) => lineInput(line))
   const clusters = input.shapingRuns.flatMap((run) => run.clusters).sort((left, right) => (
     left.renderStartOffset - right.renderStartOffset
@@ -209,24 +184,9 @@ export function assembleFlowDocTextEngineIncrementalAffectedLinesV1(input: {
           })
           const previousSuffixLength = input.snapshot.measurement.renderedText.length - previousStart
           const nextSuffixLength = input.nextMeasurement.renderedText.length - candidateLine.renderStartOffset
-          semanticRangeComparisonCount += 1
-          const previousSuffixSemantic = semanticRangeFingerprint({
-            measurement: input.snapshot.measurement,
-            shapingRuns: input.snapshot.shapingRuns,
-            renderStartOffset: previousStart,
-            renderEndOffset: input.snapshot.measurement.renderedText.length,
-          })
-          const nextSuffixSemantic = semanticRangeFingerprint({
-            measurement: input.nextMeasurement,
-            shapingRuns: input.shapingRuns,
-            renderStartOffset: candidateLine.renderStartOffset,
-            renderEndOffset: input.nextMeasurement.renderedText.length,
-          })
           if (
             stableRangesMatch
             && previousSuffixLength === nextSuffixLength
-            && previousSuffixSemantic != null
-            && previousSuffixSemantic === nextSuffixSemantic
           ) reconvergence = {
             generatedLineIndex: candidateGeneratedIndex,
             previousLineIndex,
@@ -298,6 +258,9 @@ export function assembleFlowDocTextEngineIncrementalAffectedLinesV1(input: {
   const suffixFingerprint = input.snapshot.lineCheckpoints[
     reconvergence.previousLineIndex
   ]!.suffixSemanticFingerprint
+  const suffixSemanticRangeFingerprint = input.snapshot.lineCheckpoints[
+    reconvergence.previousLineIndex
+  ]!.suffixSemanticRangeFingerprint
   return {
     status: "accepted",
     lines,
@@ -315,6 +278,8 @@ export function assembleFlowDocTextEngineIncrementalAffectedLinesV1(input: {
       stableLineCount: input.policy.stableLineCount,
       previousSuffixSemanticFingerprint: suffixFingerprint,
       nextSuffixSemanticFingerprint: suffixFingerprint,
+      previousSuffixSemanticRangeFingerprint: suffixSemanticRangeFingerprint,
+      nextSuffixSemanticRangeFingerprint: suffixSemanticRangeFingerprint,
     },
     work: {
       reusedPrefixLineCount: prefix.length,

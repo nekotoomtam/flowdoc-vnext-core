@@ -30,6 +30,8 @@ export type FlowDocTextEngineIncrementalAffectedLineWindowV1 =
         stableLineCount: number
         previousSuffixSemanticFingerprint: string
         nextSuffixSemanticFingerprint: string
+        previousSuffixSemanticRangeFingerprint: string
+        nextSuffixSemanticRangeFingerprint: string
       }
       work: {
         reusedPrefixLineCount: number
@@ -294,6 +296,8 @@ export function buildFlowDocTextEngineIncrementalAffectedLineWindowV1(input: {
       stableLineCount: input.policy.stableLineCount,
       previousSuffixSemanticFingerprint: previousCheckpoint.suffixSemanticFingerprint,
       nextSuffixSemanticFingerprint: nextCheckpoint.suffixSemanticFingerprint,
+      previousSuffixSemanticRangeFingerprint: previousCheckpoint.suffixSemanticRangeFingerprint,
+      nextSuffixSemanticRangeFingerprint: nextCheckpoint.suffixSemanticRangeFingerprint,
     },
     work: {
       reusedPrefixLineCount: prefix.length,

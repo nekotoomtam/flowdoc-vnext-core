@@ -9,7 +9,10 @@ import type {
   VNextTextBlockMultiRunIncrementalSnapshotV1,
 } from "./textBlockMultiRunIncrementalContractV1.js"
 import type { VNextTextBlockMultiRunLayoutRequestV1 } from "./textBlockMultiRunLayoutContractV1.js"
-import { createVNextTextBlockMultiRunSemanticLineFingerprintV1 } from "./textBlockMultiRunSemanticV1.js"
+import {
+  createVNextTextBlockMultiRunSemanticLineFingerprintV1,
+  createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1,
+} from "./textBlockMultiRunSemanticV1.js"
 
 const processLocalSnapshots = new WeakSet<object>()
 
@@ -62,12 +65,23 @@ export function createVNextTextBlockMultiRunIncrementalSnapshotV1(input: {
   const request = clone(input.request)
   const layout = clone(input.acceptedLayout)
   const chains = semanticChains(layout.lines)
+  const rangeChains = createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1({
+    measurement: request.measurement,
+    shapingRuns: request.shapingRuns,
+    lines: request.lines,
+  })
+  if (rangeChains == null) {
+    throw new Error("incremental snapshot requires complete line-aligned semantic range checkpoints")
+  }
   const facts = {
     source: VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_SNAPSHOT_SOURCE,
     contractVersion: VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_VERSION,
     request,
     layout,
     ...chains,
+    semanticRangeLineFingerprints: rangeChains.lineFingerprints,
+    prefixSemanticRangeFingerprints: rangeChains.prefixFingerprints,
+    suffixSemanticRangeFingerprints: rangeChains.suffixFingerprints,
     contracts: {
       acceptedCompleteLayoutProvenance: true,
       processLocalImmutableSnapshot: true,

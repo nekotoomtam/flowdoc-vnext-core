@@ -38,6 +38,9 @@ export function createVNextTextBlockMultiRunSourceSegmentsV1(
       inlineId: run.inlineId,
       kind: run.kind,
       ...(run.fieldKey == null ? {} : { fieldKey: run.fieldKey }),
+      ...(run.generatedOwnerFingerprint == null ? {} : {
+        generatedOwnerFingerprint: run.generatedOwnerFingerprint,
+      }),
       ...(run.styleKey == null ? {} : { styleKey: run.styleKey }),
       ...(run.localStyle == null ? {} : { localStyle: clone(run.localStyle) }),
       renderStartOffset,

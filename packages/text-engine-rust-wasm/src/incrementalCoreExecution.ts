@@ -1,7 +1,9 @@
 import {
   acceptVNextTextBlockMultiRunIncrementalWindowV1,
   createVNextCompactFingerprint,
+  createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
   materializeVNextTextBlockMultiRunIncrementalLayoutForQaV1,
+  type VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
   type VNextTextBlockMultiRunIncrementalAcceptanceV1,
   type VNextTextBlockMultiRunLayoutRequestV1,
   type VNextTextBlockV4MeasurementRequest,
@@ -71,6 +73,10 @@ type AcceptedCoreComposition = Extract<
   VNextTextBlockMultiRunIncrementalAcceptanceV1,
   { status: "window-accepted" }
 >
+type AcceptedSemanticCheckpointProof = Extract<
+  VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
+  { status: "checkpoint-accepted" }
+>
 
 export type FlowDocTextEngineIncrementalCoreExecutionFallbackCodeV1 =
   | "invalid-range-plan"
@@ -87,6 +93,7 @@ export type FlowDocTextEngineIncrementalCoreExecutionFallbackCodeV1 =
   | "line-reconvergence-not-found"
   | "line-window-exceeded"
   | "suffix-semantic-mismatch"
+  | "semantic-checkpoint-proof-failed"
   | "incremental-core-acceptance-failed"
   | "invalid-optional-full-layout-oracle"
   | "qa-materialization-failed"
@@ -109,6 +116,8 @@ interface BaseFactsV1 {
     completeCoreLayoutOracleRequired: false
     completeCoreLayoutOracleOptionalForQa: true
     incrementalCoreAcceptance: true
+    coreOwnedCompositionalSemanticCheckpoints: true
+    completeSemanticRangeHashing: false
     affectedPositionedFragmentAssembly: true
     completeLayoutMaterialization: "optional-qa-only"
     mayPublishLayout: false
@@ -151,6 +160,7 @@ export type FlowDocTextEngineIncrementalCoreExecutionV1 =
         fingerprint: string
       }
       affectedWindow: Extract<FlowDocTextEngineIncrementalAffectedLineAssemblyV1, { status: "accepted" }>
+      semanticCheckpointProof: AcceptedSemanticCheckpointProof
       coreAcceptance: AcceptedCoreComposition
       optionalQaOracle: null | {
         requestExact: true
@@ -177,6 +187,7 @@ export type FlowDocTextEngineIncrementalCoreExecutionV1 =
       request: null
       splice: null
       affectedWindow: null
+      semanticCheckpointProof: null
       coreAcceptance: null
       optionalQaOracle: null
       work: null
@@ -231,6 +242,8 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
       completeCoreLayoutOracleRequired: false,
       completeCoreLayoutOracleOptionalForQa: true,
       incrementalCoreAcceptance: true,
+      coreOwnedCompositionalSemanticCheckpoints: true,
+      completeSemanticRangeHashing: false,
       affectedPositionedFragmentAssembly: true,
       completeLayoutMaterialization: "optional-qa-only",
       mayPublishLayout: false,
@@ -251,6 +264,7 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
       request: null,
       splice: null,
       affectedWindow: null,
+      semanticCheckpointProof: null,
       coreAcceptance: null,
       optionalQaOracle: null,
       work: null,
@@ -321,11 +335,22 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
     breakOffsets: [...spliceFacts.breakOffsets],
     lines: clone(affectedWindow.lines),
   }
+  const semanticCheckpointProof = createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
+    snapshot: incrementalCoreSnapshot,
+    nextRequest: request,
+    edit: input.plan.edit,
+    window: affectedWindow.checkpoint,
+  })
+  if (semanticCheckpointProof.status !== "checkpoint-accepted") return fallback(
+    "semantic-checkpoint-proof-failed",
+    `${semanticCheckpointProof.code}: ${semanticCheckpointProof.message}`,
+  )
   const coreAcceptance = acceptVNextTextBlockMultiRunIncrementalWindowV1({
     snapshot: incrementalCoreSnapshot,
     nextRequest: request,
     edit: input.plan.edit,
     window: affectedWindow.checkpoint,
+    semanticCheckpointProof,
   })
   if (coreAcceptance.status !== "window-accepted") return fallback(
     "incremental-core-acceptance-failed",
@@ -398,6 +423,7 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
     request,
     splice,
     affectedWindow: clone(affectedWindow),
+    semanticCheckpointProof,
     coreAcceptance,
     optionalQaOracle,
     work: {

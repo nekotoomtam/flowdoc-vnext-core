@@ -2,10 +2,22 @@ import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint
 import { isVNextSafeUtf16TextOffset } from "../authoring/utf16Offsets.js"
 import type { VNextTextBlockV4MeasurementRequest } from "../pagination/textBlockV4Measurement.js"
 import type {
+  VNextTextBlockMultiRunLineInputV1,
   VNextTextBlockMultiRunSourceSegmentV1,
   VNextTextBlockPositionedLineV1,
   VNextTextBlockResolvedShapingRunV1,
 } from "./textBlockMultiRunLayoutContractV1.js"
+
+export const VNEXT_TEXT_BLOCK_MULTI_RUN_SEMANTIC_RANGE_PREFIX_START_V1 =
+  createVNextCompactFingerprint("text-block-multi-run-range-prefix:start:v1")
+export const VNEXT_TEXT_BLOCK_MULTI_RUN_SEMANTIC_RANGE_SUFFIX_END_V1 =
+  createVNextCompactFingerprint("text-block-multi-run-range-suffix:end:v1")
+
+export interface VNextTextBlockMultiRunSemanticRangeLineCheckpointsV1 {
+  lineFingerprints: string[]
+  prefixFingerprints: string[]
+  suffixFingerprints: string[]
+}
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -19,6 +31,9 @@ function normalizedSourceSegments(
     inlineId: segment.inlineId,
     kind: segment.kind,
     ...(segment.fieldKey == null ? {} : { fieldKey: segment.fieldKey }),
+    ...(segment.generatedOwnerFingerprint == null ? {} : {
+      generatedOwnerFingerprint: segment.generatedOwnerFingerprint,
+    }),
     ...(segment.styleKey == null ? {} : { styleKey: segment.styleKey }),
     ...(segment.localStyle == null ? {} : { localStyle: clone(segment.localStyle) }),
     renderStartOffset: segment.renderStartOffset - lineStart,
@@ -137,6 +152,9 @@ export function createVNextTextBlockMultiRunSemanticRangeFactsV1(input: {
       inlineId: run.inlineId,
       kind: run.kind,
       ...(run.fieldKey == null ? {} : { fieldKey: run.fieldKey }),
+      ...(run.generatedOwnerFingerprint == null ? {} : {
+        generatedOwnerFingerprint: run.generatedOwnerFingerprint,
+      }),
       ...(run.styleKey == null ? {} : { styleKey: run.styleKey }),
       ...(run.localStyle == null ? {} : { localStyle: clone(run.localStyle) }),
       renderStartOffset: renderStartOffset - input.renderStartOffset,
@@ -160,4 +178,132 @@ export function createVNextTextBlockMultiRunSemanticRangeFingerprintV1(input: {
 }): string | null {
   const facts = createVNextTextBlockMultiRunSemanticRangeFactsV1(input)
   return facts == null ? null : createVNextCompactFingerprint(JSON.stringify(facts))
+}
+
+export function createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1(input: {
+  measurement: VNextTextBlockV4MeasurementRequest
+  shapingRuns: readonly VNextTextBlockResolvedShapingRunV1[]
+  lines: readonly VNextTextBlockMultiRunLineInputV1[]
+}): VNextTextBlockMultiRunSemanticRangeLineCheckpointsV1 | null {
+  if (input.lines.length === 0) return null
+  const clusters = input.shapingRuns.flatMap((run) => run.clusters.map((cluster) => ({
+    ...cluster,
+    styleKey: run.styleKey,
+    fontFaceId: run.fontFaceId,
+    fontSizeLayoutUnit: run.fontSizeLayoutUnit,
+    textColor: run.textColor,
+    direction: run.direction,
+    baselineShiftLayoutUnit: run.baselineShiftLayoutUnit,
+    features: [...run.features],
+  }))).sort((left, right) => left.renderStartOffset - right.renderStartOffset)
+  const lineFingerprints: string[] = []
+  let expectedLineStart = 0
+  let clusterCursor = 0
+  let sourceRunCursor = 0
+
+  for (let lineIndex = 0; lineIndex < input.lines.length; lineIndex += 1) {
+    const line = input.lines[lineIndex]!
+    if (
+      line.index !== lineIndex
+      || line.renderStartOffset !== expectedLineStart
+      || line.renderEndOffset <= line.renderStartOffset
+      || line.renderEndOffset > input.measurement.renderedText.length
+      || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, line.renderStartOffset)
+      || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, line.renderEndOffset)
+    ) return null
+
+    const lineClusters: Array<{
+      renderStartOffset: number
+      renderEndOffset: number
+      text: string
+      advanceLayoutUnit: number
+      styleKey: string
+      fontFaceId: string
+      fontSizeLayoutUnit: number
+      textColor: string
+      direction: "ltr"
+      baselineShiftLayoutUnit: 0
+      features: string[]
+    }> = []
+    while (clusterCursor < clusters.length && clusters[clusterCursor]!.renderStartOffset < line.renderEndOffset) {
+      const cluster = clusters[clusterCursor]!
+      if (
+        cluster.renderStartOffset < line.renderStartOffset
+        || cluster.renderEndOffset > line.renderEndOffset
+        || cluster.renderEndOffset <= cluster.renderStartOffset
+      ) return null
+      lineClusters.push({
+        renderStartOffset: cluster.renderStartOffset - line.renderStartOffset,
+        renderEndOffset: cluster.renderEndOffset - line.renderStartOffset,
+        text: input.measurement.renderedText.slice(cluster.renderStartOffset, cluster.renderEndOffset),
+        advanceLayoutUnit: cluster.advanceLayoutUnit,
+        styleKey: cluster.styleKey,
+        fontFaceId: cluster.fontFaceId,
+        fontSizeLayoutUnit: cluster.fontSizeLayoutUnit,
+        textColor: cluster.textColor,
+        direction: cluster.direction,
+        baselineShiftLayoutUnit: cluster.baselineShiftLayoutUnit,
+        features: [...cluster.features],
+      })
+      clusterCursor += 1
+    }
+
+    while (
+      sourceRunCursor < input.measurement.runs.length
+      && input.measurement.runs[sourceRunCursor]!.renderEndOffset <= line.renderStartOffset
+    ) sourceRunCursor += 1
+    const sourceSegments: ReturnType<typeof normalizedSourceSegments> = []
+    for (let runIndex = sourceRunCursor; runIndex < input.measurement.runs.length; runIndex += 1) {
+      const run = input.measurement.runs[runIndex]!
+      if (run.renderStartOffset >= line.renderEndOffset) break
+      const renderStartOffset = Math.max(line.renderStartOffset, run.renderStartOffset)
+      const renderEndOffset = Math.min(line.renderEndOffset, run.renderEndOffset)
+      if (renderEndOffset <= renderStartOffset) continue
+      const sourceStartOffset = renderStartOffset - run.renderStartOffset
+      const sourceEndOffset = renderEndOffset - run.renderStartOffset
+      sourceSegments.push({
+        inlineId: run.inlineId,
+        kind: run.kind,
+        ...(run.fieldKey == null ? {} : { fieldKey: run.fieldKey }),
+        ...(run.generatedOwnerFingerprint == null ? {} : {
+          generatedOwnerFingerprint: run.generatedOwnerFingerprint,
+        }),
+        ...(run.styleKey == null ? {} : { styleKey: run.styleKey }),
+        ...(run.localStyle == null ? {} : { localStyle: clone(run.localStyle) }),
+        renderStartOffset: renderStartOffset - line.renderStartOffset,
+        renderEndOffset: renderEndOffset - line.renderStartOffset,
+        renderedText: run.renderedText.slice(sourceStartOffset, sourceEndOffset),
+      })
+    }
+
+    const facts = {
+      text: input.measurement.renderedText.slice(line.renderStartOffset, line.renderEndOffset),
+      renderLength: line.renderEndOffset - line.renderStartOffset,
+      clusters: lineClusters,
+      sourceSegments,
+    }
+    lineFingerprints.push(createVNextCompactFingerprint(JSON.stringify(facts)))
+    expectedLineStart = line.renderEndOffset
+  }
+  if (
+    expectedLineStart !== input.measurement.renderedText.length
+    || clusterCursor !== clusters.length
+  ) return null
+
+  const prefixFingerprints: string[] = []
+  let prefix = VNEXT_TEXT_BLOCK_MULTI_RUN_SEMANTIC_RANGE_PREFIX_START_V1
+  lineFingerprints.forEach((lineFingerprint) => {
+    prefix = createVNextCompactFingerprint(JSON.stringify({ prefix, lineFingerprint }))
+    prefixFingerprints.push(prefix)
+  })
+  const suffixFingerprints = Array.from<string>({ length: lineFingerprints.length })
+  let suffix = VNEXT_TEXT_BLOCK_MULTI_RUN_SEMANTIC_RANGE_SUFFIX_END_V1
+  for (let index = lineFingerprints.length - 1; index >= 0; index -= 1) {
+    suffix = createVNextCompactFingerprint(JSON.stringify({
+      lineFingerprint: lineFingerprints[index],
+      suffix,
+    }))
+    suffixFingerprints[index] = suffix
+  }
+  return { lineFingerprints, prefixFingerprints, suffixFingerprints }
 }
