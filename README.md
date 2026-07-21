@@ -134,6 +134,11 @@ The package must remain runnable without any parent editor checkout.
   separate real Chrome QA Worker now matches both complete objects with zero
   integer drift and no Backend request; per-fragment display-list/Canvas
   binding and production remain blocked.
+- Live Draft MR1 now projects every Core-accepted positioned fragment into a
+  deterministic fixed-point paint command carrying the shared baseline,
+  fragment bounds, pinned font/style facts, fingerprints, and source segments.
+  The Core projector forbids renderer measurement, relayout, and production
+  binding; Editor QA Canvas consumption remains the next gate.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

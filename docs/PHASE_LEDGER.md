@@ -12389,3 +12389,34 @@ does not establish glyph/pixel parity or large-document performance.
 Next phase: `LIVE-DRAFT-MR1-D` Core per-fragment display-list projection over
 the accepted positioned layout, followed by a separate QA Canvas consumer that
 does not measure or relayout text.
+
+## LIVE-DRAFT-MR1-D Core Per-Fragment Display List
+
+Status: accepted as a Core-only projection on 2026-07-21. Editor Canvas and
+production remain NO-GO.
+
+Core now projects every accepted MR1 positioned fragment into one deterministic
+fixed-point `text-fragment` command. Each command retains absolute baseline
+coordinates, line and font-metric bounds, accepted advances/metrics, pinned
+font/style facts, layout/line/fragment fingerprints, paint order, and clipped
+source segments. Line records retain the complete line box, shared baseline,
+ordered command ids, and hard-break-capable line source facts.
+
+The projector validates accepted line/fragment fingerprints and relative
+geometry again, applies a signed safe-integer origin, and fails closed on unsafe
+absolute coordinates, blocked input, policy mismatch, production binding,
+source/style drift, or line/fragment mutation after acceptance. It does not
+import a renderer or convert units before the paint boundary.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`;
+- `src/renderer/textBlockMultiRunDisplayListV1.ts`; and
+- `tests/textBlockMultiRunDisplayListV1.test.ts`.
+
+Pagination, Editor Canvas, Backend, default measurement, and production paths
+were not changed. Fragment-origin and line-geometry authority is accepted;
+Canvas/PDF glyph or pixel parity is not.
+
+Next phase: `LIVE-DRAFT-MR1-E` separate Editor QA Canvas consumption of the
+per-fragment commands without `measureText` or relayout.

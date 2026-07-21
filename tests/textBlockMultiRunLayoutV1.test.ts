@@ -488,7 +488,7 @@ describe("text-block multi-run layout v1", () => {
     expect(source).not.toMatch(/document\.createElement|window\.|localStorage|indexedDB/u)
     expect(source).not.toMatch(/readFile|writeFile|fontBytes/u)
     expect(doc).toContain("10 pt Regular, 24 pt Bold, and a 12 pt")
-    expect(doc).toContain("does not yet prove")
+    expect(doc).toContain("Broader fallback/style coverage remains blocked")
     expect(handoff).toContain("LIVE-DRAFT-MR1 Core Multi-Run Layout Contract")
   })
 })

@@ -1,9 +1,9 @@
 # Live Draft MR1 Multi-Run Layout Contract
 
-Status: Core contract and acceptance slice accepted on 2026-07-21. A
-subsequent external Node-native and executable-WASM test-host slice now feeds
-this contract. Real Browser Worker evidence, display-list binding, renderer
-binding, and production activation remain inactive.
+Status: Core contract and acceptance slice accepted on 2026-07-21. Subsequent
+external Node-native, executable-WASM, real Chrome Worker, and Core per-fragment
+display-list slices now feed or consume this contract. Editor Canvas, product,
+Backend, and production bindings remain inactive.
 
 ## Outcome
 
@@ -95,13 +95,11 @@ more than one positioned line fragment. Core retains the intersecting Text,
 resolved-field, and generated source segments on each fragment. A line may
 split a shaping run only at a complete cluster boundary.
 
-This permits a future adapter to coalesce adjacent source runs only after it
-has proved that their effective shaping style is compatible. MR1's current
-Core slice accepts already-resolved style/font evidence; it does not yet prove
-that a Text Run's `localStyle` was merged into the paragraph style or mapped
-to the correct pinned font face. That validation belongs to the next external
-itemization/style-resolution slice and remains a blocker for cross-runtime
-acceptance.
+This permits the external adapter to coalesce adjacent source runs only after
+it proves that their effective shaping style is compatible. The subsequent
+external evidence slice now proves the bounded `localStyle` merge and pinned
+Sarabun Regular/Bold mapping in Node-native, executable WASM, and a real Chrome
+Worker. Broader fallback/style coverage remains blocked.
 
 Hard-break measurement runs are excluded from shaping and paint fragments.
 Their end offsets remain mandatory line boundaries, and their source identity
@@ -123,7 +121,7 @@ MR1 v1 blocks:
 
 Italic is retained as a font-face data value, but no italic runtime evidence
 is accepted by this slice. Decorations and strikethrough remain authored
-style data and do not yet have per-fragment paint commands.
+style data and do not yet have accepted per-fragment paint properties.
 
 ## Evidence
 
@@ -142,7 +140,7 @@ style data and do not yet have per-fragment paint commands.
 
 ## Next
 
-The external Node-native and executable-WASM test-host facts now live in
-`LIVE_DRAFT_MR1_ENGINE_FACTS.md`. Feed the same facts into this Core acceptance
-boundary from a real Browser Worker next, then add per-fragment display-list
-commands.
+External runtime facts live in `LIVE_DRAFT_MR1_ENGINE_FACTS.md`. The accepted
+per-fragment projector now lives in
+`LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`. Consume those commands in a separate
+Editor QA Canvas path next without measurement or relayout.

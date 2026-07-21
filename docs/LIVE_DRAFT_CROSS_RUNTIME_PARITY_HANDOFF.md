@@ -423,17 +423,18 @@ identity.
 ## First Task For The Next Thread
 
 Continue MR1 mixed-style/mixed-size inline layout from the retained XR-5
-partial matrix checkpoint and accepted real-Chrome MR1 Worker parity evidence.
+partial matrix checkpoint, accepted real-Chrome Worker parity, and accepted
+Core per-fragment display-list projection.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs, `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`, and
    `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`.
-2. Project the accepted positioned fragments into a versioned per-fragment
-   display list. Carry Core-owned x/baseline/style/source geometry without
-   measuring, wrapping, or recomputing line height in the renderer.
-3. Let a separate Editor QA Canvas path consume those commands without
-   `measureText`, then retain command parity and bounded visual evidence before
-   considering product binding.
+2. Let a separate Editor QA Canvas path consume the accepted per-fragment
+   commands without `measureText`, wrapping, or line-height/baseline
+   recomputation.
+3. Retain exact command facts, nonblank-pixel evidence, font readiness, and
+   observational paint timing before considering product binding. Keep the
+   glyph-rasterization limitation explicit.
 4. Bind constrained Table-cell and repeated-header rows through their accepted
    Table preparation/pagination/display-list owners; do not impersonate them
    with plain text-block rows.
@@ -454,6 +455,7 @@ Core:
 - `docs/LIVE_DRAFT_XR5_SOURCE_SEGMENTS_AND_FORCED_BREAKS.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`
 - `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`
+- `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`
 - `src/renderer/textMeasurementAdapter.ts`
 - `src/pagination/textMeasurement.ts`
 - `src/pagination/layoutPipeline.ts`
@@ -462,6 +464,7 @@ Core:
 - `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts`
 - `packages/text-engine-rust-wasm/src/multiRunLayout.ts`
 - `packages/text-engine-rust-wasm/src/runtimeMr1.ts`
+- `src/renderer/textBlockMultiRunDisplayListV1.ts`
 
 Editor:
 
@@ -496,11 +499,12 @@ editing. Continue LIVE-DRAFT-XR-5 only from the retained nine-row partial
 checkpoint. Use the accepted XR-1 Browser Worker engine smoke, XR-2 one-block
 Core layout evidence, XR-3 bounded Form binding, XR-4 Canvas display-list
 evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, Core
-multi-run layout contract, external engine facts, and exact Node/real-Chrome
-Worker MR1 evidence as prerequisites. Project accepted positioned fragments
-into versioned per-fragment display-list commands, then consume them through a
-separate QA Canvas path without renderer measurement or line relayout. Close
-only retained rows whose real owner contracts can be exercised.
+multi-run layout contract, external engine facts, exact Node/real-Chrome Worker
+MR1 evidence, and the Core per-fragment display-list projection as
+prerequisites. Consume accepted commands through a separate QA Canvas path
+without renderer measurement or line relayout. Retain command and bounded
+visual evidence, and close only rows whose real owner contracts can be
+exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
@@ -740,8 +744,8 @@ renderer. Documentation lives at
 ## LIVE-DRAFT-MR1 External Engine Facts And Itemization
 
 Status: accepted for Node-native, executable WASM test-host, and bounded real
-Chrome Worker evidence on 2026-07-21. Display-list/Canvas and production remain
-NO-GO.
+Chrome Worker evidence on 2026-07-21. Core display-list projection is accepted;
+Editor Canvas and production remain NO-GO.
 
 The external package now merges complete paragraph style with Text Run local
 overrides, resolves hash-pinned Sarabun Regular/Bold faces, reports actual raw
@@ -761,8 +765,9 @@ test host and a separate Editor QA Chrome Worker path. Documentation lives at
 ## LIVE-DRAFT-MR1 Real Browser Worker Parity
 
 Status: accepted for one bounded mixed-size TextBlock in a real Chrome Worker
-on 2026-07-21. Editor product binding, per-fragment display-list/Canvas paint,
-Backend binding, whole-document layout, and production remain NO-GO.
+on 2026-07-21. Core per-fragment display-list projection is accepted. Editor
+Canvas/product binding, Backend binding, whole-document layout, and production
+remain NO-GO.
 
 The Editor QA Worker loads the separate MR1 WASM artifact and digest-pinned
 Sarabun Regular/Bold bytes. The 10 pt Regular / 24 pt Bold / 12 pt resolved
@@ -780,6 +785,25 @@ measurement paths. Editor evidence lives in
 `docs/LIVE_DRAFT_MR1_REAL_BROWSER_WORKER.md` and
 `src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json` in the Editor
 repository.
+
+## LIVE-DRAFT-MR1 Core Per-Fragment Display List
+
+Status: accepted as a Core-only projection on 2026-07-21. Editor QA Canvas and
+production remain NO-GO.
+
+Core now converts each accepted positioned fragment into one deterministic
+fixed-point `text-fragment` command. Commands retain absolute shared-baseline
+coordinates, line and font-metric bounds, advances, pinned font/style facts,
+layout/line/fragment fingerprints, paint order, and source segments. Line
+records retain complete line boxes and source identity, including hard breaks
+that do not paint.
+
+The projector validates accepted geometry plus line/fragment fingerprints
+again, applies a signed safe-integer origin, and blocks arithmetic overflow,
+mutation, policy mismatch, and production binding. It performs no measurement,
+shaping, line breaking, relayout, unit conversion, or glyph rasterization. Documentation
+lives at `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`; focused evidence lives
+in `tests/textBlockMultiRunDisplayListV1.test.ts`.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
@@ -835,18 +859,19 @@ repository.
   request and layout for that line with zero integer drift, retains the field
   source segment, switches Regular/Bold/Regular faces, and performs no Backend
   request.
+- Core projects all three positioned fragments into deterministic fixed-point
+  commands with one shared baseline and distinct 10/24/12 pt pinned styles,
+  without renderer measurement or relayout.
 
 ### FAIL-BLOCKER
 
-- Styled per-run display-list/Canvas paint, field chip-specific Canvas
-  interaction, images, tables, and whole-document Canvas composition are not
-  implemented.
+- Styled per-run Canvas paint, field chip-specific Canvas interaction, images,
+  tables, and whole-document Canvas composition are not implemented.
 - Constrained Table-cell, repeated-header, explicit page-break, and
   default/approximate-versus-renderer drift rows remain explicitly blocked.
 - Full cross-runtime measurement parity is not accepted.
-- Per-fragment display-list commands and QA Canvas consumption are not
-  implemented yet. Current MR1 real-Chrome evidence stops at the accepted Core
-  positioned layout.
+- QA Canvas consumption of the per-fragment commands is not implemented yet.
+  Current visual evidence remains the older plain-line XR-4 path.
 - Default pagination measurement replacement remains blocked.
 - Whole-document field/layout coverage and incremental invalidation remain
   blocked for later slices.
