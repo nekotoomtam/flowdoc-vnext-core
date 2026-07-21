@@ -62,13 +62,13 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `b8dfcf5` | actual-WASM contextual range execution, exact retained/new fact splice, and affected line-range reconvergence proof |
+| `flowdoc-vnext-core` | `c0b5ea7` | Core-owned incremental window acceptance, affected-line positioning, and semantic/physical composition parity |
 | `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
 The immediately preceding MR1-I implementation evidence remains pinned at
-Core `78810c5` and Editor `0a5c816`; later MR1-J/MR1-K/MR1-L commits build on those
-accepted oracle-analysis facts.
+Core `78810c5` and Editor `0a5c816`; later MR1-J/MR1-K/MR1-L/MR1-M commits build
+on those accepted oracle-analysis facts.
 
 ### Core Truth
 
