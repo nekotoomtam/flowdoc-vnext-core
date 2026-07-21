@@ -5,3 +5,4 @@ target/
 *.tsbuildinfo
 /output/pdf/
 /tmp/pdfs/
+.worktrees/
