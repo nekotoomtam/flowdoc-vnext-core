@@ -151,11 +151,6 @@ const LegacyRequestSchema = z.object({
   bindProductionLayout: z.boolean().optional(),
 }).strict()
 
-const AdapterEnvelopeSchema = z.object({
-  initialFlow: z.unknown(),
-  legacyRequest: z.unknown(),
-}).strict()
-
 export const VNEXT_TEXT_BLOCK_INITIAL_FLOW_TEXT_ONLY_ADAPTER_SOURCE =
   "vnext-text-block-initial-flow-text-only-adapter-v1" as const
 export const VNEXT_TEXT_BLOCK_INITIAL_FLOW_TEXT_ONLY_ADAPTER_VERSION = 1 as const
@@ -320,15 +315,25 @@ function dataProperty(
 function safeEnvelope(input: unknown): AdapterEnvelope | null {
   try {
     if (input == null || typeof input !== "object" || Array.isArray(input)) return null
-    const keys = Object.keys(input)
+    const prototype = Object.getPrototypeOf(input)
+    if (prototype !== Object.prototype && prototype !== null) return null
+    const keys = Reflect.ownKeys(input)
     if (
       keys.length !== 2
-      || !Object.hasOwn(input, "initialFlow")
-      || !Object.hasOwn(input, "legacyRequest")
+      || keys.some((key) => key !== "initialFlow" && key !== "legacyRequest")
     ) return null
-    if (dataProperty(input, "initialFlow") == null || dataProperty(input, "legacyRequest") == null) return null
-    const parsed = AdapterEnvelopeSchema.safeParse(input)
-    return parsed.success ? parsed.data as AdapterEnvelope : null
+    const initialFlow = dataProperty(input, "initialFlow")
+    const legacyRequest = dataProperty(input, "legacyRequest")
+    if (
+      initialFlow == null
+      || legacyRequest == null
+      || initialFlow.enumerable !== true
+      || legacyRequest.enumerable !== true
+    ) return null
+    return {
+      initialFlow: initialFlow.value,
+      legacyRequest: legacyRequest.value,
+    }
   } catch {
     return null
   }
@@ -344,10 +349,44 @@ function safeInspection(initialFlow: unknown): VNextTextBlockInitialFlowInspecti
 
 const INVALID_CONTAINED_DATA = Symbol("invalid-contained-data")
 
-function arrayIndexKey(key: string, length: number): boolean {
-  if (!/^(?:0|[1-9][0-9]*)$/u.test(key)) return false
-  const index = Number(key)
-  return Number.isSafeInteger(index) && index >= 0 && index < length && String(index) === key
+interface ContainedArrayShape {
+  length: number
+  keys: string[]
+}
+
+function containedArrayShape(value: object): ContainedArrayShape | null {
+  if (Object.getPrototypeOf(value) !== Array.prototype) return null
+  const ownKeys = Reflect.ownKeys(value)
+  if (ownKeys.length === 0 || ownKeys[ownKeys.length - 1] !== "length") return null
+
+  const lengthDescriptor = dataProperty(value, "length")
+  if (
+    lengthDescriptor == null
+    || typeof lengthDescriptor.value !== "number"
+    || !Number.isSafeInteger(lengthDescriptor.value)
+    || lengthDescriptor.value < 0
+    || lengthDescriptor.value > 0xFFFF_FFFF
+    || lengthDescriptor.writable !== true
+    || lengthDescriptor.enumerable !== false
+    || lengthDescriptor.configurable !== false
+    || ownKeys.length !== lengthDescriptor.value + 1
+  ) return null
+
+  for (let index = 0; index < ownKeys.length - 1; index += 1) {
+    const key = ownKeys[index]
+    if (typeof key !== "string" || key !== String(index)) return null
+    const descriptor = dataProperty(value, key)
+    if (
+      descriptor == null
+      || descriptor.writable !== true
+      || descriptor.enumerable !== true
+      || descriptor.configurable !== true
+    ) return null
+  }
+  return {
+    length: lengthDescriptor.value,
+    keys: ownKeys.slice(0, -1) as string[],
+  }
 }
 
 function cloneContainedData(
@@ -366,16 +405,15 @@ function cloneContainedData(
   const isArray = Array.isArray(value)
   const prototype = Object.getPrototypeOf(value)
   if (!isArray && prototype !== Object.prototype && prototype !== null) return INVALID_CONTAINED_DATA
-  const arrayLength = isArray ? dataProperty(value, "length")?.value : null
-  if (isArray && (typeof arrayLength !== "number" || !Number.isSafeInteger(arrayLength))) {
-    return INVALID_CONTAINED_DATA
-  }
+  const arrayShape = isArray ? containedArrayShape(value) : null
+  if (isArray && arrayShape == null) return INVALID_CONTAINED_DATA
 
   ancestors.add(value)
   const output: unknown[] | Record<string, unknown> = isArray
-    ? new Array<unknown>(arrayLength as number)
+    ? new Array<unknown>((arrayShape as ContainedArrayShape).length)
     : {}
-  for (const key of Reflect.ownKeys(value)) {
+  const keys = isArray ? (arrayShape as ContainedArrayShape).keys : Reflect.ownKeys(value)
+  for (const key of keys) {
     const descriptor = dataProperty(value, key)
     if (descriptor == null) {
       ancestors.delete(value)
@@ -385,12 +423,7 @@ function cloneContainedData(
       ancestors.delete(value)
       return INVALID_CONTAINED_DATA
     }
-    if (isArray && key === "length") continue
     if (!descriptor.enumerable) continue
-    if (isArray && !arrayIndexKey(key, arrayLength as number)) {
-      ancestors.delete(value)
-      return INVALID_CONTAINED_DATA
-    }
     const cloned = cloneContainedData(descriptor.value, ancestors)
     if (cloned === INVALID_CONTAINED_DATA) {
       ancestors.delete(value)

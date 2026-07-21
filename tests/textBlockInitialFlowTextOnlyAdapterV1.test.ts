@@ -234,6 +234,23 @@ function adaptUnknown(input: unknown) {
   return adaptVNextTextBlockInitialFlowToLegacyLayoutV1(input)
 }
 
+function expectLegacyRequestBlockedBeforeMr1(
+  initialFlow: ReturnType<typeof classifiedTextFlow>,
+  legacyRequest: ReturnType<typeof legacyTextOnlyLayoutRequestFixture>,
+) {
+  expect(adaptUnknown({ initialFlow, legacyRequest })).toMatchObject({
+    status: "blocked",
+    initialFlowFingerprint: initialFlow.fingerprint,
+    layoutId: "unavailable",
+    layout: null,
+    fingerprint: null,
+    issues: [expect.objectContaining({
+      code: "legacy-context-mismatch",
+      path: "legacyRequest",
+    })],
+  })
+}
+
 describe("TextBlock Initial Flow text-only adapter v1", () => {
   it.each([
     ["plain text", legacyTextOnlyBuildInputFixture],
@@ -348,6 +365,193 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
         mayPublishLayout: false,
         productionBinding: false,
       },
+    })
+  })
+
+  it.each([
+    ["custom prototype", () => {
+      const features: string[] = []
+      Object.setPrototypeOf(features, Object.create(Array.prototype))
+      return features
+    }],
+    ["sparse indices", () => {
+      const features = new Array<string>(2)
+      features[1] = "liga"
+      return features
+    }],
+    ["large sparse declared length", () => {
+      const features = new Array<string>(100_000)
+      features[0] = "liga"
+      return features
+    }],
+    ["enumerable custom string property", () => Object.assign(["liga"], { custom: true })],
+    ["non-enumerable custom string property", () => {
+      const features = ["liga"]
+      Object.defineProperty(features, "custom", { value: true })
+      return features
+    }],
+    ["custom symbol property", () => {
+      const features = ["liga"]
+      Object.defineProperty(features, Symbol("custom"), { value: true, enumerable: true })
+      return features
+    }],
+    ["nonstandard length descriptor", () => {
+      const features = ["liga"]
+      Object.defineProperty(features, "length", { writable: false })
+      return features
+    }],
+    ["nonstandard index descriptor", () => {
+      const features = ["liga"]
+      Object.defineProperty(features, "0", {
+        value: "liga",
+        enumerable: true,
+        configurable: false,
+        writable: false,
+      })
+      return features
+    }],
+    ["cycle", () => {
+      const features: unknown[] = []
+      features.push(features)
+      return features as string[]
+    }],
+  ] as const)("rejects a legacy-request array with %s before MR1", (_name, makeFeatures) => {
+    const initialFlow = classifiedTextFlow()
+    const legacyRequest = legacyTextOnlyLayoutRequestFixture()
+    legacyRequest.shapingRuns[0]!.features = makeFeatures()
+    legacyRequest.bindProductionLayout = true
+
+    expectLegacyRequestBlockedBeforeMr1(initialFlow, legacyRequest)
+  })
+
+  it.each([
+    ["index", "0"],
+    ["length-adjacent custom key", "01"],
+  ] as const)("rejects an array %s accessor without reading it", (_name, key) => {
+    const initialFlow = classifiedTextFlow()
+    const legacyRequest = legacyTextOnlyLayoutRequestFixture()
+    const features = ["liga"]
+    let accessorReadCount = 0
+    Object.defineProperty(features, key, {
+      enumerable: true,
+      configurable: true,
+      get: () => {
+        accessorReadCount += 1
+        return "kern"
+      },
+    })
+    legacyRequest.shapingRuns[0]!.features = features
+    legacyRequest.bindProductionLayout = true
+
+    expectLegacyRequestBlockedBeforeMr1(initialFlow, legacyRequest)
+    expect(accessorReadCount).toBe(0)
+  })
+
+  it("inspects malformed array own keys before any declared-length allocation", () => {
+    const initialFlow = classifiedTextFlow()
+    const legacyRequest = legacyTextOnlyLayoutRequestFixture()
+    let ownKeysCallCount = 0
+    let propertyReadCount = 0
+    const malformedLength = new Proxy<string[]>([], {
+      get(target, key, receiver) {
+        propertyReadCount += 1
+        return Reflect.get(target, key, receiver) as unknown
+      },
+      getOwnPropertyDescriptor(target, key) {
+        if (key === "length") return {
+          value: 2 ** 32,
+          writable: true,
+          enumerable: false,
+          configurable: false,
+        }
+        return Reflect.getOwnPropertyDescriptor(target, key)
+      },
+      ownKeys(target) {
+        ownKeysCallCount += 1
+        return Reflect.ownKeys(target)
+      },
+    })
+    legacyRequest.shapingRuns[0]!.features = malformedLength
+    legacyRequest.bindProductionLayout = true
+
+    expectLegacyRequestBlockedBeforeMr1(initialFlow, legacyRequest)
+    expect(ownKeysCallCount).toBeGreaterThan(0)
+    expect(propertyReadCount).toBe(0)
+  })
+
+  it.each([
+    ["custom prototype", (initialFlow: ReturnType<typeof classifiedTextFlow>) => {
+      const envelope = Object.create(Object.create(Object.prototype)) as Record<PropertyKey, unknown>
+      envelope.initialFlow = initialFlow
+      envelope.legacyRequest = legacyTextOnlyLayoutRequestFixture()
+      return envelope
+    }],
+    ["symbol extra", (initialFlow: ReturnType<typeof classifiedTextFlow>) => {
+      const envelope: Record<PropertyKey, unknown> = {
+        initialFlow,
+        legacyRequest: legacyTextOnlyLayoutRequestFixture(),
+      }
+      envelope[Symbol("extra")] = true
+      return envelope
+    }],
+    ["non-enumerable extra", (initialFlow: ReturnType<typeof classifiedTextFlow>) => {
+      const envelope: Record<PropertyKey, unknown> = {
+        initialFlow,
+        legacyRequest: legacyTextOnlyLayoutRequestFixture(),
+      }
+      Object.defineProperty(envelope, "extra", { value: true })
+      return envelope
+    }],
+  ] as const)("rejects an adapter root with a %s", (_name, makeEnvelope) => {
+    const initialFlow = classifiedTextFlow()
+
+    expect(adaptUnknown(makeEnvelope(initialFlow))).toMatchObject({
+      status: "blocked",
+      initialFlowFingerprint: "unavailable",
+      layoutId: "unavailable",
+      layout: null,
+      fingerprint: null,
+      issues: [expect.objectContaining({
+        code: "invalid-initial-flow",
+        path: "input",
+      })],
+    })
+  })
+
+  it("rejects a hidden adapter-root accessor without reading it", () => {
+    const envelope: Record<PropertyKey, unknown> = {
+      initialFlow: classifiedTextFlow(),
+      legacyRequest: legacyTextOnlyLayoutRequestFixture(),
+    }
+    let accessorReadCount = 0
+    Object.defineProperty(envelope, "extra", {
+      get: () => {
+        accessorReadCount += 1
+        return true
+      },
+    })
+
+    expect(adaptUnknown(envelope)).toMatchObject({
+      status: "blocked",
+      initialFlowFingerprint: "unavailable",
+      layoutId: "unavailable",
+      layout: null,
+      fingerprint: null,
+    })
+    expect(accessorReadCount).toBe(0)
+  })
+
+  it("accepts an exact data-only adapter root with a null prototype", () => {
+    const initialFlow = classifiedTextFlow()
+    const envelope = Object.assign(Object.create(null) as Record<string, unknown>, {
+      initialFlow,
+      legacyRequest: legacyTextOnlyLayoutRequestFixture(),
+    })
+
+    expect(adaptUnknown(envelope)).toMatchObject({
+      status: "accepted-text-subset",
+      initialFlowFingerprint: initialFlow.fingerprint,
+      issues: [],
     })
   })
 
