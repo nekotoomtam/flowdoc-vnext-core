@@ -10,6 +10,11 @@ import {
 import {
   planFlowDocTextEngineIncrementalEditRangeV1,
 } from "../packages/text-engine-rust-wasm/src/incrementalEditRangePlanner.js"
+import {
+  executeFlowDocTextEngineIncrementalCorePlanV1,
+  FLOWDOC_TEXT_ENGINE_INCREMENTAL_CORE_EXECUTION_POLICY_V1,
+  profileFlowDocTextEngineIncrementalCorePlanV1,
+} from "../packages/text-engine-rust-wasm/src/incrementalCoreExecution.js"
 import { analyzeFlowDocTextEngineIncrementalReflowV1 } from
   "../packages/text-engine-rust-wasm/src/incrementalReflowAnalysis.js"
 import {
@@ -261,6 +266,28 @@ function proveCoreComposition(
   return { coreSnapshot, coreAcceptance, materialized }
 }
 
+function executeOracleIndependentCore(
+  fixture: ReturnType<typeof prepareEdit>,
+  optionalFullLayoutOracle = false,
+) {
+  const result = executeFlowDocTextEngineIncrementalCorePlanV1({
+    snapshot: fixture.snapshot,
+    plan: fixture.plan,
+    rangeRuntimeIdentity: fixture.identity,
+    runtime: wasm,
+    nextMeasurement: fixture.changed.measurement,
+    ...(optionalFullLayoutOracle ? { optionalFullLayoutOracle: fixture.nextOracle } : {}),
+  })
+  expect(
+    result.status,
+    result.status === "fallback-required" ? `${result.fallback.code}: ${result.fallback.message}` : "",
+  ).toBe("incremental-core-accepted")
+  if (result.status !== "incremental-core-accepted") throw new Error(result.fallback.message)
+  expect(result.request).toEqual(fixture.nextOracle.request)
+  expect(result.coreAcceptance.status).toBe("window-accepted")
+  return result
+}
+
 describe("MR1-L contextual execution, retained splice, and affected-line window", () => {
   beforeAll(async () => {
     const wasmPath = resolve(
@@ -375,6 +402,56 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
     })).toEqual(result)
   }, 30_000)
 
+  it("assembles and accepts the next Core request without a complete layout oracle input", () => {
+    const fixture = prepareEdit({
+      startOffset: 2_433,
+      insertedText: "ก",
+    })
+    const result = executeOracleIndependentCore(fixture)
+    expect(result).toMatchObject({
+      status: "incremental-core-accepted",
+      fullLayoutOracleFingerprint: null,
+      contracts: {
+        completeCoreLayoutOracleRequired: false,
+        completeCoreLayoutOracleOptionalForQa: true,
+        incrementalCoreAcceptance: true,
+        affectedPositionedFragmentAssembly: true,
+        completeLayoutMaterialization: "optional-qa-only",
+        mayPublishLayout: false,
+        productionBinding: false,
+      },
+      optionalQaOracle: null,
+      work: { completeCoreLayoutOracleUsed: false },
+    })
+    const profile = profileFlowDocTextEngineIncrementalCorePlanV1({
+      snapshot: fixture.snapshot,
+      plan: fixture.plan,
+      rangeRuntimeIdentity: fixture.identity,
+      runtime: wasm,
+      nextMeasurement: fixture.changed.measurement,
+      optionalFullLayoutOracle: fixture.nextOracle,
+    }, { now: () => performance.now() })
+    const qaResult = profile.result
+    if (qaResult.status !== "incremental-core-accepted") throw new Error(qaResult.fallback.message)
+    expect(qaResult.optionalQaOracle).toMatchObject({
+      requestExact: true,
+      layoutExact: true,
+      oracleCoreLayoutFingerprint: fixture.nextOracle.layout.fingerprint,
+      materializedCoreLayoutFingerprint: fixture.nextOracle.layout.fingerprint,
+    })
+    expect(qaResult.work.completeCoreLayoutOracleUsed).toBe(true)
+    expect(profile.completedPhases).toHaveLength(7)
+    expect(Object.values(profile.phaseDurationMs).every((value) => value != null && value >= 0)).toBe(true)
+    expect(profile.totalDurationMs).toBeGreaterThanOrEqual(0)
+    expect(profile).toMatchObject({
+      contracts: {
+        timingIsDiagnosticOnly: true,
+        timingAffectsDeterministicFingerprint: false,
+        numericBudgetAccepted: false,
+      },
+    })
+  }, 30_000)
+
   it("retains exact Bold replacement, field-adjacent insertion, and negative-offset deletion", () => {
     const cases = [
       { startOffset: 1_550, endOffset: 1_551, insertedText: "ก" },
@@ -383,21 +460,10 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
     ]
     for (const edit of cases) {
       const fixture = prepareEdit(edit)
-      const result = executeFlowDocTextEngineIncrementalRangePlanV1({
-        snapshot: fixture.snapshot,
-        plan: fixture.plan,
-        rangeRuntimeIdentity: fixture.identity,
-        runtime: wasm,
-        nextOracle: fixture.nextOracle,
-      })
-      expect(
-        result.status,
-        result.status === "fallback-required" ? `${result.fallback.code}: ${result.fallback.message}` : "",
-      ).toBe("qa-window-proved")
-      if (result.status !== "qa-window-proved") throw new Error(result.fallback.message)
-      expect(result.splice.shapingRuns).toEqual(fixture.nextOracle.request.shapingRuns)
-      expect(result.affectedWindow.lines).toEqual(fixture.nextOracle.request.lines)
-      proveCoreComposition(fixture, result)
+      const coreResult = executeOracleIndependentCore(fixture, true)
+      expect(coreResult.request.shapingRuns).toEqual(fixture.nextOracle.request.shapingRuns)
+      expect(coreResult.affectedWindow.lines).toEqual(fixture.nextOracle.request.lines)
+      expect(coreResult.optionalQaOracle?.layoutExact).toBe(true)
     }
   }, 30_000)
 
@@ -507,6 +573,37 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
     })).toMatchObject({
       status: "fallback-required",
       fallback: { code: "suffix-semantic-mismatch" },
+    })
+
+    const invalidOracle = clone(fixture.nextOracle)
+    invalidOracle.request.lines[0]!.renderEndOffset += 1
+    expect(executeFlowDocTextEngineIncrementalCorePlanV1({
+      snapshot: fixture.snapshot,
+      plan: fixture.plan,
+      rangeRuntimeIdentity: fixture.identity,
+      runtime: wasm,
+      nextMeasurement: fixture.changed.measurement,
+      optionalFullLayoutOracle: invalidOracle,
+    })).toMatchObject({
+      status: "fallback-required",
+      fallback: { code: "invalid-optional-full-layout-oracle" },
+    })
+    expect(executeFlowDocTextEngineIncrementalCorePlanV1({
+      snapshot: fixture.snapshot,
+      plan: fixture.plan,
+      rangeRuntimeIdentity: fixture.identity,
+      runtime: wasm,
+      nextMeasurement: fixture.changed.measurement,
+      policy: {
+        rangeFacts: { ...FLOWDOC_TEXT_ENGINE_INCREMENTAL_CORE_EXECUTION_POLICY_V1.rangeFacts },
+        affectedLines: {
+          ...FLOWDOC_TEXT_ENGINE_INCREMENTAL_CORE_EXECUTION_POLICY_V1.affectedLines,
+          maximumReflowUtf16Length: 1,
+        },
+      },
+    })).toMatchObject({
+      status: "fallback-required",
+      fallback: { code: "line-window-exceeded" },
     })
   }, 30_000)
 })

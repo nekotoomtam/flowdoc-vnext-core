@@ -157,6 +157,13 @@ The package must remain runnable without any parent editor checkout.
   deletion. Offset-derived shaping-run ids make exact Core prefix fingerprints
   revision-specific, so incremental Core acceptance, positioned fragments,
   compositional fingerprints, product binding, and publication remain blocked.
+- Live Draft MR1 now also assembles the complete next Core request from retained
+  and contextual range facts without receiving a complete next Core layout as
+  an execution input. Core incremental acceptance positions only the affected
+  lines; a complete layout is optional QA-only evidence. Four insertion,
+  Bold, field-adjacent, and deletion rows match the optional full oracle, while
+  diagnostic timing exposes repeated complete-suffix semantic hashing as the
+  next performance target. Product publication and production remain blocked.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

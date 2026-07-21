@@ -3,7 +3,7 @@
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20. Updated through the bounded MR1-M checkpoint on 2026-07-21.
+Date: 2026-07-20. Updated through the bounded MR1-N checkpoint on 2026-07-21.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -426,26 +426,25 @@ identity.
 
 ## First Task For The Next Thread
 
-Design and prove the next bounded MR1 oracle-independent adapter execution
-checkpoint over the accepted MR1-M Core composition boundary. Do not bind or
-publish the product path yet and keep Table work deferred.
+Design and prove the next bounded MR1 compositional semantic-checkpoint
+checkpoint over the accepted MR1-N adapter/Core path. Do not bind or publish
+the product path yet and keep Table work deferred.
 
-1. Read the files under **Required Reading**, including the MR1-M composition
+1. Read the files under **Required Reading**, including the MR1-M and MR1-N
    evidence.
-2. Make the external adapter construct the complete next Core request from the
-   retained snapshot, contextual range facts, cluster/break splice, and
-   affected-line builder without requiring a complete next Core layout as an
-   execution input.
-3. Call `acceptVNextTextBlockMultiRunIncrementalWindowV1(...)` directly with
-   those independently assembled facts. Preserve all runtime/font/profile,
-   source, UTF-16, topology, and bounded-window fail-closed gates.
-4. Keep complete Core acceptance/materialization as an optional QA oracle and
-   prove exact parity for the accepted insertion, Bold, field-adjacent, and
-   deletion rows plus boundary/fallback cases.
-5. Separate runtime-path work from oracle-only work and record stage timings
-   without inventing a budget.
-6. Do not remove complete shape/segmentation oracles in the same slice unless a
-   separately bounded proof replaces each one.
+2. Replace repeated complete prefix/suffix semantic-range hashing with
+   Core-owned compositional checkpoints derived once from retained line/source/
+   cluster chains and the affected boundary.
+3. Ensure the adapter and Core do not independently scan and hash the same
+   complete suffix while preserving exact source, text, style, advance, line,
+   UTF-16, and physical-id regeneration guarantees.
+4. Preserve the no-complete-layout-input path and optional full-oracle QA parity
+   for insertion, Bold, field-adjacent, deletion, and fallback rows.
+5. Remeasure all seven MR1-N diagnostic stages with no invented budget and
+   report whether line assembly/Core acceptance actually improve.
+6. Keep complete shape/segmentation oracle removal as a later, separately
+   proved gate unless the semantic-checkpoint work leaves those as the next
+   dominant measured stages.
 7. Keep tables, columns, images, default-measurer replacement, Editor product
    binding, whole-document production activation, publication, and glyph-pixel
    exactness out.
@@ -466,6 +465,7 @@ Core:
 - `docs/LIVE_DRAFT_MR1_RETAINED_RANGE_PLANNER.md`
 - `docs/LIVE_DRAFT_MR1_RANGE_EXECUTION_AND_AFFECTED_LINES.md`
 - `docs/LIVE_DRAFT_MR1_INCREMENTAL_CORE_COMPOSITION.md`
+- `docs/LIVE_DRAFT_MR1_ORACLE_INDEPENDENT_CORE_EXECUTION.md`
 - `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md`
 - `src/renderer/textMeasurementAdapter.ts`
@@ -1143,6 +1143,35 @@ complete engine/layout oracles, and QA materialization is complete-layout work.
 It is not a latency budget or publishable runtime path. Evidence lives at
 `docs/LIVE_DRAFT_MR1_INCREMENTAL_CORE_COMPOSITION.md`.
 
+## LIVE-DRAFT-MR1 Oracle-Independent Core Execution
+
+Status: accepted as a bounded actual-WASM/Core QA checkpoint on 2026-07-21.
+Complete shape/segmentation oracle removal, product binding, publication, and
+production remain NO-GO.
+
+MR1-N pairs each external retained snapshot with one process-local Core
+incremental snapshot without serializing the Core object into the external
+fingerprint. The adapter now reproduces the plan, executes contextual range
+facts, splices clusters and breaks, and independently rebuilds complete line
+ranges from the retained prefix, new affected window, and shifted semantic
+suffix. It constructs the complete next Core request and calls MR1-M acceptance
+without receiving a complete next Core layout.
+
+The complete layout is optional QA-only input after Core acceptance. When it is
+present, its request must exactly equal the independently assembled request and
+the incrementally materialized Core object must equal the oracle. Thai
+insertion, 18 pt Bold replacement, field adjacency, and deletion pass; a
+divergent optional oracle and undersized line window fail closed.
+
+A seven-stage diagnostic profiler excludes timing from deterministic output.
+One warm 4,959-unit Windows/Vitest sample with optional QA observed 705.6 ms;
+the phase subtotal excluding optional QA was about 492.7 ms. Affected-line
+assembly and Core acceptance spent 147.6 ms and 187.3 ms respectively because
+both still scan/hash complete semantic suffix facts. This single observation is
+not a budget, but it makes compositional semantic checkpoints the next measured
+priority. Evidence lives at
+`docs/LIVE_DRAFT_MR1_ORACLE_INDEPENDENT_CORE_EXECUTION.md`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -1253,6 +1282,12 @@ It is not a latency budget or publishable runtime path. Evidence lives at
 - QA materialization regenerates revision-specific physical ids and produces a
   complete Core object exactly equal to the independent oracle for insertion,
   Bold replacement, field adjacency, and deletion.
+- The external adapter now assembles the complete next Core request and reaches
+  incremental Core acceptance without a complete next layout input; the full
+  layout is optional and QA-only.
+- Seven diagnostic stages expose range, splice, line assembly, Core acceptance,
+  optional QA, and fingerprint costs without changing deterministic output or
+  inventing a numeric budget.
 
 ### FAIL-BLOCKER
 
@@ -1264,7 +1299,7 @@ It is not a latency budget or publishable runtime path. Evidence lives at
 - Product-bound multi-block scheduling, IME/caret/selection integration, and
   long-document page virtualization are not implemented.
 - Default pagination measurement replacement remains blocked.
-- Oracle-independent external-adapter execution, product-bound incremental
+- Complete shape/segmentation oracle removal, product-bound incremental
   composition, whole-document field/layout coverage, and publication remain
   blocked for later slices.
 
@@ -1327,9 +1362,12 @@ It is not a latency budget or publishable runtime path. Evidence lives at
   oracles, creates a complete next snapshot, and compares complete spliced
   arrays. Its passing result is not a per-keystroke performance result.
 - MR1-M resolves offset-derived ids by separating semantic reuse from physical
-  identity, but its complete-array validation and QA materialization can still
-  hide the latency benefit until the adapter no longer requires a full layout
-  oracle as an execution input.
+  identity. MR1-N removes the full layout input, but repeated complete-suffix
+  semantic hashing in both adapter assembly and Core acceptance remains far
+  above an interaction-ready cost in the first diagnostic host sample.
+- Pairing external and Core snapshots in process-local weak maps preserves
+  provenance but duplicates active retained facts in memory; product-scale
+  retention is still unmeasured.
 
 ### UNKNOWN
 
@@ -1339,10 +1377,12 @@ It is not a latency budget or publishable runtime path. Evidence lives at
 - Final performance and bitmap-memory budgets for product-sized and 200-page
   documents.
 - Product-safe incremental composition that can publish the proved line window
-  without executing a full layout oracle.
+  after repeated complete-suffix hashing and complete engine oracles are
+  replaced by equally strong bounded proofs.
 - Product-scale retained-snapshot memory and per-edit planner timing.
-- Exact performance after complete QA oracle calls and full-array comparisons
-  are removed from the runtime path.
+- Exact performance after repeated suffix scans, complete shape/segmentation
+  oracle calls, optional QA work, and full-array comparisons are removed from
+  the runtime path.
 - Cross-process or persisted incremental snapshot hydration with equally strong
   provenance and immutability guarantees.
 - Product scheduler fairness under continuous active typing plus background

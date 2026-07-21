@@ -1,6 +1,8 @@
 import {
   createVNextCompactFingerprint,
+  createVNextTextBlockMultiRunIncrementalSnapshotV1,
   type VNextTextBlockAcceptedShapingRunV1,
+  type VNextTextBlockMultiRunIncrementalSnapshotV1,
   type VNextTextBlockMultiRunFontFaceV1,
   type VNextTextBlockPositionedLineV1,
   type VNextTextBlockV4MeasurementRequest,
@@ -115,6 +117,7 @@ export type FlowDocTextEngineIncrementalRetainedSnapshotInspectionV1 =
 type AcceptedLayout = Extract<FlowDocTextEngineMultiRunLayoutResultV1, { status: "accepted" }>
 
 const processLocalSnapshots = new WeakSet<object>()
+const incrementalCoreSnapshots = new WeakMap<object, VNextTextBlockMultiRunIncrementalSnapshotV1>()
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -283,6 +286,10 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
   const shapingRuns = clone(accepted.layout.shapingRuns)
   const lines = clone(accepted.layout.lines)
   const lineCheckpoints = createLineCheckpoints(lines, shapingRuns)
+  const incrementalCoreSnapshot = createVNextTextBlockMultiRunIncrementalSnapshotV1({
+    request: accepted.request,
+    acceptedLayout: accepted.layout,
+  })
   const facts = {
     source: FLOWDOC_TEXT_ENGINE_INCREMENTAL_RETAINED_SNAPSHOT_SOURCE,
     contractVersion: FLOWDOC_TEXT_ENGINE_INCREMENTAL_RETAINED_SNAPSHOT_VERSION,
@@ -333,7 +340,15 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
     fingerprint: createVNextCompactFingerprint(JSON.stringify(facts)),
   })
   processLocalSnapshots.add(snapshot)
+  incrementalCoreSnapshots.set(snapshot, incrementalCoreSnapshot)
   return snapshot
+}
+
+export function getFlowDocTextEngineIncrementalCoreSnapshotV1(
+  snapshot: FlowDocTextEngineIncrementalRetainedSnapshotV1,
+): VNextTextBlockMultiRunIncrementalSnapshotV1 | null {
+  if (!processLocalSnapshots.has(snapshot)) return null
+  return incrementalCoreSnapshots.get(snapshot) ?? null
 }
 
 export function inspectFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {

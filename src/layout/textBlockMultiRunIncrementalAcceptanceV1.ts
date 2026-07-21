@@ -2,7 +2,6 @@ import { isVNextSafeUtf16TextOffset } from "../authoring/utf16Offsets.js"
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import type { VNextTextBlockV4MeasurementRequest } from "../pagination/textBlockV4Measurement.js"
 import {
-  createVNextTextBlockMultiRunSourceSegmentsV1,
   deriveVNextTextBlockMultiRunAcceptedRunsV1,
   positionVNextTextBlockMultiRunLineWindowV1,
   safeVNextTextBlockMultiRunSumV1,
@@ -20,10 +19,12 @@ import type {
 } from "./textBlockMultiRunIncrementalContractV1.js"
 import type {
   VNextTextBlockMultiRunLayoutRequestV1,
-  VNextTextBlockResolvedShapingRunV1,
 } from "./textBlockMultiRunLayoutContractV1.js"
 import { inspectVNextTextBlockMultiRunIncrementalSnapshotV1 } from "./textBlockMultiRunIncrementalSnapshotV1.js"
-import { createVNextTextBlockMultiRunSemanticLineFingerprintV1 } from "./textBlockMultiRunSemanticV1.js"
+import {
+  createVNextTextBlockMultiRunSemanticLineFingerprintV1,
+  createVNextTextBlockMultiRunSemanticRangeFingerprintV1,
+} from "./textBlockMultiRunSemanticV1.js"
 
 function sameJson(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right)
@@ -165,53 +166,6 @@ function validBreaksAndLines(request: VNextTextBlockMultiRunLayoutRequestV1): bo
   return cursor === request.measurement.renderedText.length
 }
 
-function normalizedClusterFacts(
-  text: string,
-  runs: readonly VNextTextBlockResolvedShapingRunV1[],
-  startOffset: number,
-  endOffset: number,
-): unknown[] | null {
-  const facts: unknown[] = []
-  for (const run of runs) {
-    for (const cluster of run.clusters) {
-      if (cluster.renderEndOffset <= startOffset || cluster.renderStartOffset >= endOffset) continue
-      if (cluster.renderStartOffset < startOffset || cluster.renderEndOffset > endOffset) return null
-      facts.push({
-        renderStartOffset: cluster.renderStartOffset - startOffset,
-        renderEndOffset: cluster.renderEndOffset - startOffset,
-        text: text.slice(cluster.renderStartOffset, cluster.renderEndOffset),
-        advanceLayoutUnit: cluster.advanceLayoutUnit,
-        styleKey: run.styleKey,
-        fontFaceId: run.fontFaceId,
-        fontSizeLayoutUnit: run.fontSizeLayoutUnit,
-        textColor: run.textColor,
-        direction: run.direction,
-        baselineShiftLayoutUnit: run.baselineShiftLayoutUnit,
-        features: run.features,
-      })
-    }
-  }
-  return facts
-}
-
-function normalizedSourceFacts(
-  measurement: VNextTextBlockV4MeasurementRequest,
-  startOffset: number,
-  endOffset: number,
-): unknown[] {
-  return createVNextTextBlockMultiRunSourceSegmentsV1(measurement.runs, startOffset, endOffset)
-    .map((segment) => ({
-      inlineId: segment.inlineId,
-      kind: segment.kind,
-      ...(segment.fieldKey == null ? {} : { fieldKey: segment.fieldKey }),
-      ...(segment.styleKey == null ? {} : { styleKey: segment.styleKey }),
-      ...(segment.localStyle == null ? {} : { localStyle: segment.localStyle }),
-      renderStartOffset: segment.renderStartOffset - startOffset,
-      renderEndOffset: segment.renderEndOffset - startOffset,
-      renderedText: segment.renderedText,
-    }))
-}
-
 function semanticRangeMatches(input: {
   previous: VNextTextBlockMultiRunIncrementalSnapshotV1
   next: VNextTextBlockMultiRunLayoutRequestV1
@@ -220,27 +174,19 @@ function semanticRangeMatches(input: {
   nextStart: number
   nextEnd: number
 }): boolean {
-  const previousClusters = normalizedClusterFacts(
-    input.previous.request.measurement.renderedText,
-    input.previous.request.shapingRuns,
-    input.previousStart,
-    input.previousEnd,
-  )
-  const nextClusters = normalizedClusterFacts(
-    input.next.measurement.renderedText,
-    input.next.shapingRuns,
-    input.nextStart,
-    input.nextEnd,
-  )
-  return previousClusters != null
-    && nextClusters != null
-    && input.previous.request.measurement.renderedText.slice(input.previousStart, input.previousEnd)
-      === input.next.measurement.renderedText.slice(input.nextStart, input.nextEnd)
-    && sameJson(previousClusters, nextClusters)
-    && sameJson(
-      normalizedSourceFacts(input.previous.request.measurement, input.previousStart, input.previousEnd),
-      normalizedSourceFacts(input.next.measurement, input.nextStart, input.nextEnd),
-    )
+  const previousFingerprint = createVNextTextBlockMultiRunSemanticRangeFingerprintV1({
+    measurement: input.previous.request.measurement,
+    shapingRuns: input.previous.request.shapingRuns,
+    renderStartOffset: input.previousStart,
+    renderEndOffset: input.previousEnd,
+  })
+  const nextFingerprint = createVNextTextBlockMultiRunSemanticRangeFingerprintV1({
+    measurement: input.next.measurement,
+    shapingRuns: input.next.shapingRuns,
+    renderStartOffset: input.nextStart,
+    renderEndOffset: input.nextEnd,
+  })
+  return previousFingerprint != null && previousFingerprint === nextFingerprint
 }
 
 function sameLineRange(
