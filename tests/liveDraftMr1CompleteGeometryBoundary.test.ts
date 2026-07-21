@@ -177,10 +177,13 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "## LIVE-DRAFT-MR1-P Complete Geometry Boundary",
     )
     const requiredReading = sectionBetween(handoff, "## Required Reading", "## Handoff Prompt")
+    const boundaryVerification = sectionBetween(boundary, "## Verification", "## Next Checkpoint")
     const normalizedBoundary = normalize(boundary)
+    const normalizedBoundaryVerification = normalize(boundaryVerification)
     const handoffMr1p = sectionAtPeerHeading(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
     const normalizedHandoffMr1p = normalize(handoffMr1p)
     const normalizedLedger = normalize(ledger)
+    const combinedFocusedResult = "Combined focused verification: 6 files / 120 tests."
 
     expect(index).toContain('export * from "./layout/textBlockInitialFlowParentRegionV1.js"')
     expect(index).toContain('export * from "./layout/textBlockEffectiveShapingStyleIdentityV1.js"')
@@ -255,6 +258,10 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(normalizedLedger).toContain("passed 5 test files / 115 tests")
     expect(normalizedLedger).toContain("documentation guard passed 1 test file / 5 tests")
     expect(normalizedLedger).toContain("full gate passed 408 test files / 2028 tests")
+    for (const section of [normalizedBoundaryVerification, normalizedHandoffMr1p, normalizedLedger]) {
+      expect(section).toContain(combinedFocusedResult)
+    }
+    expect(occurrences(normalizedLedger, combinedFocusedResult)).toBe(1)
     for (const evidence of [
       `Reviewed Core runtime baseline: \`${runtimeBaseline}\`.`,
       "passed 5 test files / 115 tests",

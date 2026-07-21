@@ -1276,7 +1276,8 @@ Evidence lives at `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`; the final
 runtime-focused slice passed 5 files / 115 tests, the section-bounded
 documentation guard passed 1 file / 5 tests, and the full Core gate passed 408
 files / 2028 tests. The next bounded checkpoint is Phase 2 Persistent Flow Tree
-Foundation. Reviewed Core runtime baseline: `c9a3e09`.
+Foundation. Combined focused verification: 6 files / 120 tests.
+Reviewed Core runtime baseline: `c9a3e09`.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 

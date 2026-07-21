@@ -176,6 +176,7 @@ Reviewed Core runtime baseline: `c9a3e09`.
   `tests/textBlockMultiRunLayoutV1.test.ts`.
 - Runtime-focused result: 5 test files passed; 115 tests passed.
 - Section-bounded documentation guard result: 1 test file passed; 5 tests passed.
+- Combined focused verification: 6 files / 120 tests.
 - `npm run type-check` passes.
 - Full `npm run check` passes: 408 test files passed; 2028 tests passed.
 - Working-tree and runtime-baseline diff whitespace validation pass.

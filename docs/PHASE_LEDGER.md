@@ -12737,6 +12737,7 @@ Reviewed Core runtime baseline: `c9a3e09`.
   `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`. The final focused slice
   passed 5 test files / 115 tests; the section-bounded documentation guard passed
   1 test file / 5 tests; the full gate passed 408 test files / 2028 tests.
+  Combined focused verification: 6 files / 120 tests.
 - Next: Phase 2 Persistent Flow Tree Foundation. Do not start spatial wrapping,
   list decoration, inline-image geometry, empty-block geometry, Editor, Backend,
   table auto-fit, publication, or production activation in this checkpoint.
