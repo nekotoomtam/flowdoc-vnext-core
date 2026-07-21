@@ -12524,3 +12524,48 @@ budget under multi-block load.
 Next phase: `LIVE-DRAFT-MR1-H` bounded multi-block scheduling, visible/off-screen
 priority, changed-range accounting, and frame-budget evidence before any
 product binding decision.
+
+## LIVE-DRAFT-MR1-H Multi-Block Scheduling And Frame Gate
+
+Status: accepted for a bounded TextBlock-only Core/Editor QA slice on
+2026-07-21. Product binding and production remain NO-GO.
+
+Core adds exact micro-point document composition over ordered accepted MR1
+TextBlock layouts. It records block-boundary cursors, splits accepted lines
+across pages, reuses the unchanged prefix, and stops at the first exact
+downstream cursor where all remaining layout fingerprints match. A separate
+document display-list projector retains Core page authority and forbids
+renderer measurement, relayout, or pagination.
+
+Editor adds advisory lexical dirty-token accounting, active/visible/near/
+offscreen priority, latest queued replacement per TextBlock, stale completion
+rejection, complete-snapshot publication, last-valid retention, and scratch-
+Canvas atomic swap. The real Chrome fixture contains 12 TextBlocks with the
+active mixed-size block near a page end. It grows 2 -> 3 pages, contracts 3 ->
+2, rejects delayed revision 4, coalesces queued revision 5, and makes zero
+Backend-like requests.
+
+A same-height active-block edit reuses five prefix blocks, recomposes one block
+and one line, reconverges at block index 6, and reuses six suffix blocks; its
+display list reuses 11 lines and validates/projects one. Ten warm edits
+observed 5.7/6.8 ms p50/p95 for main-thread composition + projection + atomic
+paint and 7.3/8.5 ms p50/p95 end-to-end. The bounded warm main-thread
+gate is 16.7 ms and passes; this is not a universal product budget.
+
+Primary evidence:
+
+- `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md`;
+- `src/composition/textBlockMultiRunDocumentCompositionV1.ts`;
+- `src/renderer/textBlockMultiRunDocumentDisplayListV1.ts`;
+- `tests/textBlockMultiRunDocumentCompositionV1.test.ts`;
+- `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md`; and
+- `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-multi-block-scheduling.v1.json`.
+
+The scheduler's token range remains advisory and the dirty TextBlock is still
+laid out completely. Product Editor binding, IME/caret/selection, long-document
+virtualization, Backend/API, tables, columns, images, repeated headers, auto-fit
+column width, and production remain outside this gate.
+
+Next phase: keep scope on TextBlock and measure/define safe intra-block affected-
+range shaping/reflow plus long-block fallback before any product binding or
+table work.

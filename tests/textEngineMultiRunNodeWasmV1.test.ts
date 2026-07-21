@@ -197,6 +197,7 @@ describe("MR1 real Node/WASM multi-run facts", () => {
     expect(handoff).toContain("LIVE-DRAFT-MR1 Editor QA Canvas Paint")
     expect(handoff).toContain("LIVE-DRAFT-MR1 Multi-Line Multi-Glyph Canvas")
     expect(handoff).toContain("LIVE-DRAFT-MR1 Rapid-Edit Lifecycle")
-    expect(handoff).toMatch(/Multi-block scheduling[\s\S]{0,180}not\s+implemented/u)
+    expect(handoff).toContain("LIVE-DRAFT-MR1 Multi-Block Scheduling And Frame Gate")
+    expect(handoff).toMatch(/Product-bound multi-block scheduling[\s\S]{0,180}not\s+implemented/u)
   })
 })

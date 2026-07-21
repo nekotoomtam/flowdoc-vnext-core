@@ -422,27 +422,26 @@ identity.
 
 ## First Task For The Next Thread
 
-Design the next bounded MR1 multi-block scheduling and frame-budget checkpoint
-from the accepted multi-line/multi-glyph and rapid-edit lifecycle evidence. Do
-not bind the product path yet.
+Design the next bounded MR1 intra-TextBlock affected-range checkpoint from the
+accepted multi-block scheduler and frame-gate evidence. Do not bind the product
+path yet and keep Table work deferred.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs, `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`, and
    `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`.
-2. Exercise multiple dirty TextBlocks with an initialized Worker. Separate
-   visible-block priority, off-screen work, coalescing, and per-block
-   last-valid state instead of reflowing one whole document per key.
-3. Record Worker queue time, Core projection time, Canvas paint time, main-thread
-   long tasks, changed-block/page count, and peak in-flight work before setting
-   a numeric frame budget.
-4. Bind constrained Table-cell and repeated-header rows through their accepted
-   Table preparation/pagination/display-list owners; do not impersonate them
-   with plain text-block rows.
+2. Use the accepted advisory token range to measure how much of one long dirty
+   TextBlock can be safely reshaped/rebroken without changing exact output.
+3. Define fallback and reconvergence rules for combining unchanged cluster/line
+   prefixes with newly shaped evidence; fail closed to complete-block layout
+   whenever the proof boundary is ambiguous.
+4. Exercise long Thai/Latin mixed Text Runs, style changes, fields, hard breaks,
+   insertion/deletion near line/page edges, IME-shaped text, and rapid typing.
 5. Evaluate the distinct default/approximate-versus-renderer drift fixture
    under the already accepted numeric threshold policy. Do not relabel the
    zero Node/Browser renderer-backed drift summary as that fixture.
-6. Keep default-measurer replacement, whole-document production activation,
-   XR-6 scale work, and glyph-pixel exactness out of this slice.
+6. Record Worker/main-thread p50/p95 plus changed cluster/line/page counts. Keep
+   tables, columns, images, default-measurer replacement, whole-document
+   production activation, and glyph-pixel exactness out of this slice.
 
 ## Required Reading
 
@@ -456,6 +455,7 @@ Core:
 - `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`
 - `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`
 - `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`
+- `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md`
 - `src/renderer/textMeasurementAdapter.ts`
 - `src/pagination/textMeasurement.ts`
 - `src/pagination/layoutPipeline.ts`
@@ -465,6 +465,8 @@ Core:
 - `packages/text-engine-rust-wasm/src/multiRunLayout.ts`
 - `packages/text-engine-rust-wasm/src/runtimeMr1.ts`
 - `src/renderer/textBlockMultiRunDisplayListV1.ts`
+- `src/composition/textBlockMultiRunDocumentCompositionV1.ts`
+- `src/renderer/textBlockMultiRunDocumentDisplayListV1.ts`
 
 Editor:
 
@@ -473,13 +475,19 @@ Editor:
 - `docs/LIVE_DRAFT_MR1_CANVAS_PAINT.md`
 - `docs/LIVE_DRAFT_MR1_MULTILINE_MULTI_GLYPH.md`
 - `docs/LIVE_DRAFT_MR1_RAPID_EDIT_LIFECYCLE.md`
+- `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md`
 - `src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json`
 - `src/fixtures/live-draft-mr1-multi-run-canvas-paint.v1.json`
 - `src/fixtures/live-draft-mr1-multiline-multi-glyph-canvas.v1.json`
 - `src/fixtures/live-draft-mr1-rapid-edit-lifecycle.v1.json`
+- `src/fixtures/live-draft-mr1-multi-block-scheduling.v1.json`
 - `src/qa/liveDraftMr1Evidence.worker.ts`
 - `src/editor/liveDraft/liveDraftMultiRunCanvasPainter.ts`
 - `src/editor/liveDraft/liveDraftMultiRunController.ts`
+- `src/editor/liveDraft/liveDraftMultiBlockImpact.ts`
+- `src/editor/liveDraft/liveDraftMultiBlockScheduler.ts`
+- `src/editor/liveDraft/liveDraftMultiBlockController.ts`
+- `src/editor/liveDraft/liveDraftMultiBlockCanvasPainter.ts`
 - `src/qa/liveDraftXr5Matrix.ts`
 - `scripts/run-live-draft-xr5-evidence.mjs`
 - `src/core/coreAdapter.ts`
@@ -509,17 +517,17 @@ Core layout evidence, XR-3 bounded Form binding, XR-4 Canvas display-list
 evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, Core
 multi-run layout contract, external engine facts, exact Node/real-Chrome Worker
 MR1 evidence, Core per-fragment display-list projection, and separate QA Canvas
-paint, multi-line/multi-glyph parity, and rapid-edit stale/last-valid lifecycle
-as prerequisites. Select a bounded multi-block scheduling and frame-budget
-fixture before considering product binding. Keep renderer measurement and line
-relayout forbidden, and close only rows whose real owner contracts can be
-exercised.
+paint, multi-line/multi-glyph parity, rapid-edit stale/last-valid lifecycle,
+and bounded 12-TextBlock scheduling/frame evidence as prerequisites. Select a
+bounded intra-TextBlock affected-range shaping/reflow fixture before considering
+product binding. Keep renderer measurement and line relayout forbidden, and
+close only rows whose real owner contracts can be exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
 production activation in the same slice, and do not claim general
-cross-runtime or glyph-pixel exactness. Add focused tests, retain accepted and
-blocked matrix evidence, update the handoff with
+cross-runtime or glyph-pixel exactness. Keep Table/column/image work deferred.
+Add focused tests, retain accepted and blocked matrix evidence, update the handoff with
 PASS/FAIL/RISK/UNKNOWN, then commit and push each changed repository to main.
 ```
 
@@ -889,6 +897,39 @@ zero Backend-like requests. Evidence lives in the Editor repository at
 `docs/LIVE_DRAFT_MR1_RAPID_EDIT_LIFECYCLE.md` and
 `src/fixtures/live-draft-mr1-rapid-edit-lifecycle.v1.json`.
 
+## LIVE-DRAFT-MR1 Multi-Block Scheduling And Frame Gate
+
+Status: accepted for a bounded 12-TextBlock Core/Editor QA path on 2026-07-21.
+Product binding and production remain NO-GO.
+
+Core now composes ordered accepted MR1 TextBlock lines into exact fixed-point
+pages. It retains a cursor before/after every block, reuses the unchanged
+prefix, recomposes from the first dirty/mismatched layout, and stops when the
+current page/y cursor and every remaining layout fingerprint exactly match the
+previous accepted snapshot. A separate document projector creates page-indexed
+commands without renderer measurement, relayout, or pagination.
+
+Editor adds advisory lexical dirty-token ranges, active/visible/near/offscreen
+priority, latest queued replacement per TextBlock, stale completion rejection,
+complete-snapshot publication, and an atomic scratch-Canvas swap. Tokens decide
+work timing and invalidation bounds only; the external engine still owns exact
+complete layout of the dirty TextBlock.
+
+The real Chrome fixture places the active mixed-size block at index 5 near page
+1's bottom. Typing grows 2 -> 3 pages and deletion contracts 3 -> 2. A delayed
+revision is rejected stale, one queued revision is replaced before dispatch,
+last-valid survives pending and blocked states, and zero Backend-like requests
+occur. A same-height edit reuses five prefix blocks, recomposes one block/line,
+reconverges at block index 6, reuses six suffix blocks, and reuses 11 display
+lines while validating/projecting only the changed line.
+
+Ten warm edits observed 5.7/6.8 ms p50/p95 for main-thread composition +
+projection + atomic paint and 7.3/8.5 ms p50/p95 end-to-end. The bounded warm
+main-thread gate is 16.7 ms and passes. It is not a universal product budget.
+Evidence lives at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md` and in the
+Editor repository at `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md` plus
+`src/fixtures/live-draft-mr1-multi-block-scheduling.v1.json`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -958,19 +999,27 @@ zero Backend-like requests. Evidence lives in the Editor repository at
 - A real Chrome MR1 rapid-edit sequence coalesces undispatched revisions,
   rejects a deliberately late completion, retains last-valid while pending or
   blocked, and paints only revisions 1, 5, and 7 with zero Backend requests.
+- Core can compose ordered accepted MR1 TextBlock lines into exact fixed-point
+  pages, reuse an unchanged prefix, and stop at an exact downstream block
+  boundary without granting pagination authority to Canvas.
+- A 12-TextBlock Chrome path prioritizes active/visible work, replaces one
+  queued obsolete revision, rejects one late completion, grows 2 -> 3 pages,
+  contracts 3 -> 2, and retains last-valid while pending or blocked.
+- Ten warm multi-block edits pass the bounded 16.7 ms main-thread gate at
+  6.8 ms p95 for composition + projection + atomic Canvas paint.
 
 ### FAIL-BLOCKER
 
 - Product-bound styled Canvas paint, field chip-specific interaction, images,
-  tables, and whole-document Canvas composition are not implemented.
+  tables, and production whole-document Canvas composition are not implemented.
 - Constrained Table-cell, repeated-header, explicit page-break, and
   default/approximate-versus-renderer drift rows remain explicitly blocked.
 - Full cross-runtime measurement parity is not accepted.
-- Multi-block scheduling, visible/off-screen priority, changed-range
-  invalidation, and an accepted frame budget are not implemented.
+- Product-bound multi-block scheduling, IME/caret/selection integration, and
+  long-document page virtualization are not implemented.
 - Default pagination measurement replacement remains blocked.
-- Whole-document field/layout coverage and incremental invalidation remain
-  blocked for later slices.
+- Whole-document field/layout coverage and intra-TextBlock incremental shaping
+  remain blocked for later slices.
 
 ### RISK
 
@@ -1007,14 +1056,22 @@ zero Backend-like requests. Evidence lives in the Editor repository at
 - The 23.1 ms warm long-row observation still reflows and fingerprints the
   complete 4,959-character block; XR-6 affected-range invalidation remains
   necessary.
+- The accepted token dirty range is advisory: each dirty TextBlock still runs
+  complete shaping and Core acceptance, so one very long active block can still
+  exceed an interaction budget.
+- The 12-block frame gate excludes product React work, IME, caret/selection,
+  viewport bitmap memory, background contention, tables, columns, and images.
 
 ### UNKNOWN
 
 - Node/Browser parity for Table-cell and repeated-header owner pipelines.
 - Default/approximate-versus-renderer drift values for the expanded rows under
   the accepted threshold policy.
-- Final performance budgets for small and 200-page documents.
-- Multi-block scheduling policy and the visible/off-screen frame budget.
+- Final performance and bitmap-memory budgets for product-sized and 200-page
+  documents.
+- Safe intra-block affected-range shaping/reflow and fallback policy.
+- Product scheduler fairness under continuous active typing plus background
+  visible/offscreen invalidations.
 - Canvas paint cost and memory for styled, image, table, and 200-page content.
 - Accepted glyph-position/outline reconciliation policy across Canvas and PDF.
 - Final drift reconciliation UX between Live Draft and Published output.
