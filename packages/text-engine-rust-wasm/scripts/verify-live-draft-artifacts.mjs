@@ -15,6 +15,11 @@ const artifacts = [
     path: "pkg-live-draft-mr1/flowdoc_text_engine_mr1_bg.wasm",
     sha256: "cc130a7f8cef2694f8518cecb93b518eac2496fa8f4141f62ca284e6f34b0857",
   },
+  {
+    id: "live-draft-mr1-range-v1",
+    path: "pkg-live-draft-mr1-range/flowdoc_text_engine_mr1_range_bg.wasm",
+    sha256: "90bbb751ad3d5613175d689a2b07f95320b856a5e9420118b259d5738b7dabe7",
+  },
 ]
 
 for (const artifact of artifacts) {

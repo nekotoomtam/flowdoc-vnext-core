@@ -80,25 +80,23 @@ profile and never enter deterministic layout or checkpoint fingerprints.
 
 ## Why this is not the fast path yet
 
-The current Rust/WASM boundary still receives the complete text of each
-effective run and the complete TextBlock for segmentation. Core still validates
-and fingerprints the complete request and accepted layout. Therefore this
-slice proves restart/reconvergence semantics but performs no partial shaping,
-partial segmentation, incremental Core acceptance, or suffix publication.
+The original boundary received the complete text of each effective run and the
+complete TextBlock for segmentation. The subsequent contextual-range slice now
+completes the first two items from this list: versioned range shaping retains
+explicit pre/post context and global UTF-16 mapping, while bounded ICU4X
+segmentation is oracle-proved in native, WASM, and real Chrome evidence. See
+`docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`.
 
-The next implementation slice should:
+Core still validates and fingerprints the complete request and accepted
+layout. The next implementation slice should:
 
-1. add a versioned range-shaping result with explicit pre/post context and
-   global UTF-16 mapping;
-2. define bounded segmentation context and prove its break facts against the
-   full ICU4X oracle;
-3. retain prefix/suffix clusters plus precomputed line-checkpoint fingerprints;
-4. rebuild only the affected line window, then feed a dedicated incremental
+1. retain prefix/suffix clusters plus precomputed line-checkpoint fingerprints;
+2. rebuild only the affected line window, then feed a dedicated incremental
    Core acceptance boundary;
-5. reuse retained Core fingerprints structurally instead of hashing the full
+3. reuse retained Core fingerprints structurally instead of hashing the full
    object twice; and
-6. keep full-layout fallback for end-of-block, hard-break, context, policy,
-   window, and reconvergence failures.
+4. keep full-layout fallback for end-of-block, hard-break, context, policy,
+   cluster-boundary, window, and reconvergence failures.
 
 No Table, column, image, repeated-header, auto-fit-width, Backend/API, or
 product Editor behavior changes in this slice.

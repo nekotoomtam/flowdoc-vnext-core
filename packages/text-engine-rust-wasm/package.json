@@ -11,10 +11,12 @@
     "./browser-assets": "./src/browserAssets.ts",
     "./browser-assets-xr5": "./src/browserAssetsXr5.ts",
     "./browser-assets-mr1": "./src/browserAssetsMr1.ts",
+    "./browser-assets-mr1-range": "./src/browserAssetsMr1Range.ts",
     "./live-draft-smoke": "./src/liveDraftSmokeRows.ts",
     "./node": "./src/node.ts",
     "./worker": "./src/worker.ts",
-    "./worker-mr1": "./src/workerMr1.ts"
+    "./worker-mr1": "./src/workerMr1.ts",
+    "./worker-mr1-range": "./src/workerMr1Range.ts"
   },
   "scripts": {
     "rustybuzz:smoke": "cargo run --manifest-path rust-shaper/Cargo.toml -- ../../assets/fonts/Sarabun/Sarabun-Regular.ttf \"สวัสดีครับตูม\" sarabun-regular",
@@ -22,6 +24,7 @@
     "pdf-font-bakeoff": "node scripts/build-pdf-font-bakeoff.mjs",
     "wasm:build": "wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine",
     "wasm:build:live-draft-mr1": "wasm-pack build rust-live-draft-engine --target web --out-dir ../pkg-live-draft-mr1 --out-name flowdoc_text_engine_mr1",
+    "wasm:build:live-draft-mr1-range": "wasm-pack build rust-live-draft-engine --target web --out-dir ../pkg-live-draft-mr1-range --out-name flowdoc_text_engine_mr1_range",
     "wasm:verify:live-draft-artifacts": "node scripts/verify-live-draft-artifacts.mjs",
     "wasm:check-toolchain": "node scripts/check-wasm-toolchain.mjs",
     "wasm:readiness-smoke": "npm run wasm:check-toolchain",

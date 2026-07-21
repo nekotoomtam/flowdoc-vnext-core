@@ -1,0 +1,15 @@
+{
+  "name": "flowdoc-live-draft-text-engine",
+  "type": "module",
+  "version": "0.0.0",
+  "files": [
+    "flowdoc_text_engine_mr1_range_bg.wasm",
+    "flowdoc_text_engine_mr1_range.js",
+    "flowdoc_text_engine_mr1_range.d.ts"
+  ],
+  "main": "flowdoc_text_engine_mr1_range.js",
+  "types": "flowdoc_text_engine_mr1_range.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

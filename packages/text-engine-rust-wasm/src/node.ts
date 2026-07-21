@@ -19,8 +19,19 @@ import {
   FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
   normalizeFlowDocTextEngineMr1SegmentationV1,
   normalizeFlowDocTextEngineMr1ShapeV1,
+  type FlowDocTextEngineMr1SegmentationFactsV1,
+  type FlowDocTextEngineMr1ShapeFactsV1,
   type FlowDocTextEngineMr1RawShapeV1,
 } from "./runtimeMr1.js"
+import {
+  flowDocUtf16RangeToUtf8BytesV1,
+  normalizeFlowDocTextEngineMr1RangeSegmentationV1,
+  normalizeFlowDocTextEngineMr1RangeShapeV1,
+  type FlowDocTextEngineMr1RangeSegmentationFactsV1,
+  type FlowDocTextEngineMr1RangeShapeFactsV1,
+  type FlowDocTextEngineMr1RawRangeSegmentationV1,
+  type FlowDocTextEngineMr1RawRangeShapeV1,
+} from "./runtimeMr1Range.js"
 
 export { createFlowDocTextEngineLiveDraftMeasurementV1 } from "./liveDraftLayout.js"
 
@@ -49,12 +60,20 @@ function resolveRuntimePaths() {
     packageRoot,
     shaper: resolve(targetRoot, process.platform === "win32" ? "flowdoc-live-draft-rustybuzz.exe" : "flowdoc-live-draft-rustybuzz"),
     segmenter: resolve(targetRoot, process.platform === "win32" ? "flowdoc-live-draft-icu4x.exe" : "flowdoc-live-draft-icu4x"),
+    rangeShaper: resolve(targetRoot, process.platform === "win32" ? "flowdoc-live-draft-rustybuzz-range.exe" : "flowdoc-live-draft-rustybuzz-range"),
+    rangeSegmenter: resolve(targetRoot, process.platform === "win32" ? "flowdoc-live-draft-icu4x-range.exe" : "flowdoc-live-draft-icu4x-range"),
   }
 }
 
 function buildNativeExecutors(): ReturnType<typeof resolveRuntimePaths> {
   const paths = resolveRuntimePaths()
-  if (!nativeExecutorsBuilt || !existsSync(paths.shaper) || !existsSync(paths.segmenter)) {
+  if (
+    !nativeExecutorsBuilt
+      || !existsSync(paths.shaper)
+      || !existsSync(paths.segmenter)
+      || !existsSync(paths.rangeShaper)
+      || !existsSync(paths.rangeSegmenter)
+  ) {
     run("cargo", [
       "build",
       "--quiet",
@@ -64,10 +83,25 @@ function buildNativeExecutors(): ReturnType<typeof resolveRuntimePaths> {
       "flowdoc-live-draft-rustybuzz",
       "--bin",
       "flowdoc-live-draft-icu4x",
+      "--bin",
+      "flowdoc-live-draft-rustybuzz-range",
+      "--bin",
+      "flowdoc-live-draft-icu4x-range",
     ], paths.packageRoot)
     nativeExecutorsBuilt = true
   }
   return paths
+}
+
+function resolveVerifiedFontPath(input: {
+  coreRoot: string
+  fontAssetPath: string
+  fontSha256: string
+  fontId: string
+}): string {
+  const fontPath = resolve(input.coreRoot, input.fontAssetPath)
+  requireFact(sha256File(fontPath) === input.fontSha256, `font digest mismatch: ${input.fontId}`)
+  return fontPath
 }
 
 export function runFlowDocTextEngineNodeSmokeRowV1(input: {
@@ -194,4 +228,101 @@ export function runFlowDocTextEngineNodeMultiRunLayoutV1(input: {
     },
     result,
   }
+}
+
+export function runFlowDocTextEngineNodeMr1FullFactsV1(input: {
+  text: string
+  fontId: string
+  fontAssetPath: string
+  fontSha256: string
+}): {
+  shape: FlowDocTextEngineMr1ShapeFactsV1
+  segmentation: FlowDocTextEngineMr1SegmentationFactsV1
+} {
+  const paths = buildNativeExecutors()
+  const fontPath = resolveVerifiedFontPath({ coreRoot: paths.coreRoot, ...input })
+  const shape = JSON.parse(run(
+    paths.shaper,
+    [fontPath, input.text, input.fontId],
+    paths.coreRoot,
+  )) as FlowDocTextEngineMr1RawShapeV1
+  const segmentation = JSON.parse(run(
+    paths.segmenter,
+    [input.text],
+    paths.coreRoot,
+  )) as FlowDocTextEngineLiveDraftRawSegmentationV1
+  return {
+    shape: normalizeFlowDocTextEngineMr1ShapeV1(shape),
+    segmentation: normalizeFlowDocTextEngineMr1SegmentationV1(segmentation),
+  }
+}
+
+export function runFlowDocTextEngineNodeMr1RangeShapeV1(input: {
+  text: string
+  fontId: string
+  fontAssetPath: string
+  fontSha256: string
+  rangeStartUtf16: number
+  rangeEndUtf16: number
+  contextStartUtf16: number
+  contextEndUtf16: number
+}): FlowDocTextEngineMr1RangeShapeFactsV1 {
+  const paths = buildNativeExecutors()
+  const fontPath = resolveVerifiedFontPath({ coreRoot: paths.coreRoot, ...input })
+  const range = flowDocUtf16RangeToUtf8BytesV1({
+    text: input.text,
+    startUtf16: input.rangeStartUtf16,
+    endUtf16: input.rangeEndUtf16,
+  })
+  const context = flowDocUtf16RangeToUtf8BytesV1({
+    text: input.text,
+    startUtf16: input.contextStartUtf16,
+    endUtf16: input.contextEndUtf16,
+  })
+  const raw = JSON.parse(run(
+    paths.rangeShaper,
+    [
+      fontPath,
+      input.text,
+      input.fontId,
+      String(range.startByte),
+      String(range.endByte),
+      String(context.startByte),
+      String(context.endByte),
+    ],
+    paths.coreRoot,
+  )) as FlowDocTextEngineMr1RawRangeShapeV1
+  return normalizeFlowDocTextEngineMr1RangeShapeV1({ raw, fullText: input.text })
+}
+
+export function runFlowDocTextEngineNodeMr1RangeSegmentationV1(input: {
+  text: string
+  targetStartUtf16: number
+  targetEndUtf16: number
+  contextStartUtf16: number
+  contextEndUtf16: number
+}): FlowDocTextEngineMr1RangeSegmentationFactsV1 {
+  const paths = buildNativeExecutors()
+  const target = flowDocUtf16RangeToUtf8BytesV1({
+    text: input.text,
+    startUtf16: input.targetStartUtf16,
+    endUtf16: input.targetEndUtf16,
+  })
+  const context = flowDocUtf16RangeToUtf8BytesV1({
+    text: input.text,
+    startUtf16: input.contextStartUtf16,
+    endUtf16: input.contextEndUtf16,
+  })
+  const raw = JSON.parse(run(
+    paths.rangeSegmenter,
+    [
+      input.text,
+      String(target.startByte),
+      String(target.endByte),
+      String(context.startByte),
+      String(context.endByte),
+    ],
+    paths.coreRoot,
+  )) as FlowDocTextEngineMr1RawRangeSegmentationV1
+  return normalizeFlowDocTextEngineMr1RangeSegmentationV1({ raw, fullText: input.text })
 }
