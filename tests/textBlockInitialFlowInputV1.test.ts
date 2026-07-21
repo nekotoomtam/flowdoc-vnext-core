@@ -3,8 +3,14 @@ import * as core from "../src/index.js"
 import {
   completeTextGeometryBuildInputFixture,
   emptyGeometryBuildInputFixture,
+  hardBreakOnlyGeometryBuildInputFixture,
+  imageOnlyGeometryBuildInputFixture,
+  legacyTextOnlyBuildInputFixture,
   listImageGeometryBuildInputFixture,
+  listOnlyGeometryBuildInputFixture,
   mixedTypographyBuildInputFixture,
+  mixedTypographyLayoutRequestFixture,
+  renderedEmptyFieldGeometryBuildInputFixture,
 } from "./helpers/textBlockInitialFlowV1.js"
 
 const { createVNextTextBlockInitialFlowV1 } = core
@@ -103,6 +109,36 @@ describe("TextBlock Initial Flow input v1", () => {
     })
   })
 
+  it("blocks a list-only TextBlock on the decoration contract independently", () => {
+    expect(createVNextTextBlockInitialFlowV1(listOnlyGeometryBuildInputFixture())).toMatchObject({
+      status: "classified",
+      flow: {
+        layoutDisposition: "geometry-contract-required",
+        capabilities: {
+          inlineImage: "not-present",
+          listDecoration: "blocked-decoration-contract",
+          emptyBlock: "not-present",
+        },
+        contracts: { textOnlyAdapterEligible: false },
+      },
+    })
+  })
+
+  it("blocks an inline-image-only TextBlock on the line-box contract independently", () => {
+    expect(createVNextTextBlockInitialFlowV1(imageOnlyGeometryBuildInputFixture())).toMatchObject({
+      status: "classified",
+      flow: {
+        layoutDisposition: "geometry-contract-required",
+        capabilities: {
+          inlineImage: "blocked-line-box-contract",
+          listDecoration: "not-present",
+          emptyBlock: "not-present",
+        },
+        contracts: { textOnlyAdapterEligible: false },
+      },
+    })
+  })
+
   it("retains a canonical empty block but reports the missing empty-layout contract", () => {
     expect(createVNextTextBlockInitialFlowV1(emptyGeometryBuildInputFixture())).toMatchObject({
       status: "classified",
@@ -110,6 +146,31 @@ describe("TextBlock Initial Flow input v1", () => {
         layoutDisposition: "geometry-contract-required",
         atoms: [],
         capabilities: { emptyBlock: "blocked-empty-layout-contract" },
+        contracts: { textOnlyAdapterEligible: false },
+      },
+    })
+  })
+
+  it("classifies an effectively rendered-empty field as requiring the empty-layout contract", () => {
+    expect(createVNextTextBlockInitialFlowV1(renderedEmptyFieldGeometryBuildInputFixture())).toMatchObject({
+      status: "classified",
+      flow: {
+        layoutDisposition: "geometry-contract-required",
+        capabilities: { emptyBlock: "blocked-empty-layout-contract" },
+        contracts: { textOnlyAdapterEligible: false },
+      },
+    })
+  })
+
+  it("keeps a hard-break-only row fail-closed at the empty-layout boundary", () => {
+    expect(createVNextTextBlockInitialFlowV1(hardBreakOnlyGeometryBuildInputFixture())).toMatchObject({
+      status: "classified",
+      flow: {
+        layoutDisposition: "geometry-contract-required",
+        capabilities: {
+          hardBreak: "ready",
+          emptyBlock: "blocked-empty-layout-contract",
+        },
         contracts: { textOnlyAdapterEligible: false },
       },
     })
@@ -335,6 +396,8 @@ describe("TextBlock Initial Flow input v1", () => {
 
   it("resolves font size, color, weight, and style for every text-bearing atom", () => {
     const result = createVNextTextBlockInitialFlowV1(mixedTypographyBuildInputFixture())
+    const [regularKey, boldKey, italicKey, paragraphKey] =
+      mixedTypographyLayoutRequestFixture().shapingRuns.map((run) => run.styleKey)
 
     expect(result).toMatchObject({ status: "classified", issues: [] })
     if (result.status !== "classified") throw new Error("mixed typography fixture blocked")
@@ -344,36 +407,52 @@ describe("TextBlock Initial Flow input v1", () => {
         : atom.resolvedGeometryStyle
     ))).toEqual([
       {
-        styleKey: "paragraph-body",
+        measurementStyleKey: "paragraph-body",
+        effectiveShapingStyleKey: regularKey,
+        fontFamilyKey: "sarabun",
         fontFaceId: "sarabun-regular",
         fontSizeLayoutUnit: 10_000_000,
         textColor: "101010",
         fontWeight: 400,
         fontStyle: "normal",
+        textDecoration: "underline",
+        strikethrough: true,
       },
       {
-        styleKey: "paragraph-body",
+        measurementStyleKey: "paragraph-body",
+        effectiveShapingStyleKey: boldKey,
+        fontFamilyKey: "sarabun",
         fontFaceId: "sarabun-bold",
         fontSizeLayoutUnit: 24_000_000,
         textColor: "303030",
         fontWeight: 700,
         fontStyle: "normal",
+        textDecoration: "none",
+        strikethrough: false,
       },
       {
-        styleKey: "paragraph-body",
+        measurementStyleKey: "paragraph-body",
+        effectiveShapingStyleKey: italicKey,
+        fontFamilyKey: "sarabun",
         fontFaceId: "sarabun-italic",
         fontSizeLayoutUnit: 12_000_000,
         textColor: "202020",
         fontWeight: 400,
         fontStyle: "italic",
+        textDecoration: "none",
+        strikethrough: false,
       },
       {
-        styleKey: "paragraph-body",
+        measurementStyleKey: "paragraph-body",
+        effectiveShapingStyleKey: paragraphKey,
+        fontFamilyKey: "sarabun",
         fontFaceId: "sarabun-regular",
         fontSizeLayoutUnit: 12_000_000,
         textColor: "202020",
         fontWeight: 400,
         fontStyle: "normal",
+        textDecoration: "none",
+        strikethrough: false,
       },
     ])
   })
@@ -406,6 +485,21 @@ describe("TextBlock Initial Flow input v1", () => {
         status: "blocked",
         flow: null,
         issues: expect.arrayContaining([expect.objectContaining({ code: "resolved-run-typography" })]),
+      })
+    }
+  })
+
+  it("requires the authoritative paragraph family key to be nonblank and match its face", () => {
+    const blank = legacyTextOnlyBuildInputFixture()
+    blank.paragraphFontFamilyKey = " "
+    const mismatched = legacyTextOnlyBuildInputFixture()
+    mismatched.paragraphFontFamilyKey = "different-family"
+
+    for (const input of [blank, mismatched]) {
+      expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+        status: "blocked",
+        flow: null,
+        issues: expect.arrayContaining([expect.objectContaining({ code: "invalid-font-context" })]),
       })
     }
   })

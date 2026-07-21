@@ -3,6 +3,7 @@ import {
   convertVNextPointToLayoutUnitV1,
   createVNextCompactFingerprint,
   createVNextLayoutUnitPolicyV1,
+  createVNextTextBlockEffectiveShapingStyleIdentityV1,
   isVNextSafeUtf16TextOffset,
   scaleVNextFontMetricToLayoutUnitV1,
   type VNextTextBlockMultiRunLayoutRequestV1,
@@ -404,7 +405,7 @@ function createFlowDocTextEngineMultiRunLayoutInternalV1(
       strikethrough,
     }
     const style: EffectiveStyle = {
-      styleKey: createVNextCompactFingerprint(JSON.stringify(styleFacts)),
+      styleKey: createVNextTextBlockEffectiveShapingStyleIdentityV1(styleFacts),
       fontFamilyKey,
       fontSizeLayoutUnit: fontSize.layoutUnit,
       textColor,

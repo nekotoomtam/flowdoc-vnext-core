@@ -45,6 +45,9 @@ import {
   VNEXT_TEXT_BLOCK_INITIAL_FLOW_PARENT_REGION_VERSION,
   type VNextTextBlockInitialFlowParentRegionV1,
 } from "./textBlockInitialFlowParentRegionV1.js"
+import {
+  createVNextTextBlockEffectiveShapingStyleIdentityV1,
+} from "./textBlockEffectiveShapingStyleIdentityV1.js"
 
 export const VNEXT_TEXT_BLOCK_INITIAL_FLOW_SOURCE = "vnext-text-block-initial-flow-v1" as const
 export const VNEXT_TEXT_BLOCK_INITIAL_FLOW_VERSION = 1 as const
@@ -57,12 +60,21 @@ interface AtomBase {
 }
 
 export interface VNextTextBlockInitialFlowResolvedGeometryStyleV1 {
-  styleKey: string
+  measurementStyleKey: string
+  effectiveShapingStyleKey: string
+  fontFamilyKey: string
   fontFaceId: string
   fontSizeLayoutUnit: number
   textColor: string
   fontWeight: number
   fontStyle: VNextTextBlockMultiRunFontFaceV1["style"]
+  textDecoration: "none" | "underline"
+  strikethrough: boolean
+}
+
+export interface VNextTextBlockInitialFlowFontFaceV1
+  extends VNextTextBlockMultiRunFontFaceV1 {
+  fontFamilyKey: string
 }
 
 export type VNextTextBlockInitialFlowAtomV1 =
@@ -111,8 +123,9 @@ export interface VNextTextBlockInitialFlowBuildInputV1 {
   parentRegion: VNextTextBlockInitialFlowParentRegionV1
   layoutUnitPolicyFingerprint: string
   declaredLineHeightLayoutUnit: number
+  paragraphFontFamilyKey: string
   paragraphStyle: VNextTextBlockMultiRunParagraphStyleV1
-  fontFaces: VNextTextBlockMultiRunFontFaceV1[]
+  fontFaces: VNextTextBlockInitialFlowFontFaceV1[]
 }
 
 export interface VNextTextBlockInitialFlowV1 {
@@ -130,8 +143,9 @@ export interface VNextTextBlockInitialFlowV1 {
   measurement: VNextTextBlockV4MeasurementRequest
   layoutUnitPolicyFingerprint: string
   declaredLineHeightLayoutUnit: number
+  paragraphFontFamilyKey: string
   paragraphStyle: VNextTextBlockMultiRunParagraphStyleV1
-  fontFaces: VNextTextBlockMultiRunFontFaceV1[]
+  fontFaces: VNextTextBlockInitialFlowFontFaceV1[]
   atoms: VNextTextBlockInitialFlowAtomV1[]
   capabilities: VNextTextBlockInitialFlowCapabilityReportV1
   contracts: {
@@ -279,9 +293,10 @@ const ParagraphStyleSchema = z.object({
 
 const FontFaceSchema = z.object({
   fontFaceId: z.string(),
+  fontFamilyKey: NonBlankStringSchema,
   fontFamily: z.string(),
   fontSha256: z.string().regex(/^[a-f0-9]{64}$/u),
-  weight: z.number().int().min(100).max(900),
+  weight: z.union([z.literal(400), z.literal(700)]),
   style: z.enum(["normal", "italic"]),
   unitsPerEm: VNextPositiveLayoutUnitV1Schema,
   ascentFontUnit: VNextPositiveLayoutUnitV1Schema,
@@ -349,17 +364,22 @@ const BuildInputSchema = z.object({
   parentRegion: ParentRegionSchema,
   layoutUnitPolicyFingerprint: z.string(),
   declaredLineHeightLayoutUnit: VNextPositiveLayoutUnitV1Schema,
+  paragraphFontFamilyKey: NonBlankStringSchema,
   paragraphStyle: ParagraphStyleSchema,
   fontFaces: z.array(FontFaceSchema).min(1),
 }).strict()
 
 const ResolvedGeometryStyleSchema = z.object({
-  styleKey: NonBlankStringSchema,
+  measurementStyleKey: NonBlankStringSchema,
+  effectiveShapingStyleKey: CompactFingerprintSchema,
+  fontFamilyKey: NonBlankStringSchema,
   fontFaceId: NonBlankStringSchema,
   fontSizeLayoutUnit: VNextPositiveLayoutUnitV1Schema,
   textColor: HexColorSchema,
   fontWeight: z.number().int().min(100).max(900),
   fontStyle: z.enum(["normal", "italic"]),
+  textDecoration: z.enum(["none", "underline"]),
+  strikethrough: z.boolean(),
 }).strict()
 
 const RetainedTextAtomSchema = z.object({
@@ -449,6 +469,7 @@ const RetainedInitialFlowSchema = z.object({
   measurement: MeasurementSchema,
   layoutUnitPolicyFingerprint: CompactFingerprintSchema,
   declaredLineHeightLayoutUnit: VNextPositiveLayoutUnitV1Schema,
+  paragraphFontFamilyKey: NonBlankStringSchema,
   paragraphStyle: ParagraphStyleSchema,
   fontFaces: z.array(FontFaceSchema).min(1),
   atoms: z.array(RetainedAtomSchema),
@@ -518,7 +539,11 @@ function inputIssueCode(path: readonly PropertyKey[]): VNextTextBlockInitialFlow
   if (root === "parentRegion") return "invalid-parent-region"
   if (root === "layoutUnitPolicyFingerprint") return "layout-unit-policy-mismatch"
   if (root === "declaredLineHeightLayoutUnit") return "invalid-declared-line-height"
-  if (root === "paragraphStyle" || root === "fontFaces") return "invalid-font-context"
+  if (
+    root === "paragraphFontFamilyKey"
+    || root === "paragraphStyle"
+    || root === "fontFaces"
+  ) return "invalid-font-context"
   return "invalid-build-input"
 }
 
@@ -572,7 +597,7 @@ function validScaledMetrics(
 function validateFonts(
   input: VNextTextBlockInitialFlowBuildInputV1,
   issues: VNextTextBlockInitialFlowIssueV1[],
-): VNextTextBlockMultiRunFontFaceV1 | null {
+): VNextTextBlockInitialFlowFontFaceV1 | null {
   if (
     !nonBlank(input.paragraphStyle.styleKey)
     || input.paragraphStyle.styleKey !== input.measurement.styleKey
@@ -585,19 +610,29 @@ function validateFonts(
     ))
   }
   const ids = new Set<string>()
+  const familyStyles = new Set<string>()
   input.fontFaces.forEach((face, index) => {
-    if (!nonBlank(face.fontFaceId) || !nonBlank(face.fontFamily) || ids.has(face.fontFaceId)) {
+    const familyStyle = `${face.fontFamilyKey}\u0000${face.weight}\u0000${face.style}`
+    if (
+      !nonBlank(face.fontFaceId)
+      || !nonBlank(face.fontFamilyKey)
+      || !nonBlank(face.fontFamily)
+      || ids.has(face.fontFaceId)
+      || familyStyles.has(familyStyle)
+    ) {
       issues.push(issue(
         "invalid-font-context",
         `fontFaces[${index}]`,
-        "font faces must have unique nonblank ids and families",
+        "font faces must have unique nonblank ids and authoritative family/weight/style mappings",
       ))
     }
     ids.add(face.fontFaceId)
+    familyStyles.add(familyStyle)
   })
   const selectedFace = input.fontFaces.find((face) => face.fontFaceId === input.paragraphStyle.fontFaceId)
   if (
     selectedFace == null
+    || selectedFace.fontFamilyKey !== input.paragraphFontFamilyKey
     || !validScaledMetrics(selectedFace, input.paragraphStyle.fontSizeLayoutUnit)
   ) {
     issues.push(issue(
@@ -621,8 +656,9 @@ function resolveGeometryStyle(input: {
   styleKey: string | undefined
   localStyle: TextRunStyleV4Target | undefined
   paragraphStyle: VNextTextBlockMultiRunParagraphStyleV1
-  paragraphFace: VNextTextBlockMultiRunFontFaceV1
-  fontFaces: readonly VNextTextBlockMultiRunFontFaceV1[]
+  paragraphFontFamilyKey: string
+  paragraphFace: VNextTextBlockInitialFlowFontFaceV1
+  fontFaces: readonly VNextTextBlockInitialFlowFontFaceV1[]
   path: string
   inlineId: string
   issues: VNextTextBlockInitialFlowIssueV1[]
@@ -632,7 +668,7 @@ function resolveGeometryStyle(input: {
     input.issues.push(issue(
       "resolved-run-typography",
       `${input.path}.localStyle.fontFamilyKey`,
-      "fontFamilyKey has no authoritative mapping in the Initial Flow font-face contract",
+      "authored local fontFamilyKey overrides are outside the bounded Initial Flow text subset",
       input.inlineId,
     ))
     return null
@@ -658,7 +694,7 @@ function resolveGeometryStyle(input: {
       : input.localStyle.fontWeight === "bold" ? 700 : 400
     const style = input.localStyle.fontStyle ?? input.paragraphFace.style
     const candidates = input.fontFaces.filter((candidate) => (
-      candidate.fontFamily === input.paragraphFace.fontFamily
+      candidate.fontFamilyKey === input.paragraphFontFamilyKey
       && candidate.weight === weight
       && candidate.style === style
     ))
@@ -683,13 +719,40 @@ function resolveGeometryStyle(input: {
     ))
     return null
   }
+  const fontWeight = face.weight === 400 ? "normal" : face.weight === 700 ? "bold" : null
+  if (fontWeight == null) {
+    input.issues.push(issue(
+      "resolved-run-typography",
+      input.path,
+      "effective Text Run face weight must map exactly to normal or bold",
+      input.inlineId,
+    ))
+    return null
+  }
+  const textDecoration = input.localStyle?.textDecoration ?? "none"
+  const strikethrough = input.localStyle?.strikethrough ?? false
+  const effectiveShapingStyleKey = createVNextTextBlockEffectiveShapingStyleIdentityV1({
+    paragraphStyleKey: input.paragraphStyle.styleKey,
+    fontFamilyKey: input.paragraphFontFamilyKey,
+    fontFaceId: face.fontFaceId,
+    fontSizeLayoutUnit,
+    textColor: input.localStyle?.textColor ?? input.paragraphStyle.textColor,
+    fontWeight,
+    fontStyle: face.style,
+    textDecoration,
+    strikethrough,
+  })
   return {
-    styleKey: input.styleKey,
+    measurementStyleKey: input.styleKey,
+    effectiveShapingStyleKey,
+    fontFamilyKey: input.paragraphFontFamilyKey,
     fontFaceId: face.fontFaceId,
     fontSizeLayoutUnit,
     textColor: input.localStyle?.textColor ?? input.paragraphStyle.textColor,
     fontWeight: face.weight,
     fontStyle: face.style,
+    textDecoration,
+    strikethrough,
   }
 }
 
@@ -697,8 +760,9 @@ function projectAtoms(
   textBlock: TextBlockNodeV4Target,
   measurement: VNextTextBlockV4MeasurementRequest,
   paragraphStyle: VNextTextBlockMultiRunParagraphStyleV1,
-  paragraphFace: VNextTextBlockMultiRunFontFaceV1,
-  fontFaces: readonly VNextTextBlockMultiRunFontFaceV1[],
+  paragraphFontFamilyKey: string,
+  paragraphFace: VNextTextBlockInitialFlowFontFaceV1,
+  fontFaces: readonly VNextTextBlockInitialFlowFontFaceV1[],
   issues: VNextTextBlockInitialFlowIssueV1[],
 ): VNextTextBlockInitialFlowAtomV1[] {
   if (textBlock.children.length !== measurement.runs.length) {
@@ -735,6 +799,7 @@ function projectAtoms(
         styleKey: run.styleKey,
         localStyle: inline.style,
         paragraphStyle,
+        paragraphFontFamilyKey,
         paragraphFace,
         fontFaces,
         path,
@@ -760,6 +825,7 @@ function projectAtoms(
         styleKey: run.styleKey,
         localStyle: undefined,
         paragraphStyle,
+        paragraphFontFamilyKey,
         paragraphFace,
         fontFaces,
         path,
@@ -792,6 +858,7 @@ function projectAtoms(
         styleKey: run.styleKey,
         localStyle: undefined,
         paragraphStyle,
+        paragraphFontFamilyKey,
         paragraphFace,
         fontFaces,
         path,
@@ -986,6 +1053,7 @@ export function createVNextTextBlockInitialFlowV1(input: unknown): VNextTextBloc
         textBlock,
         measurement,
         normalized.paragraphStyle,
+        normalized.paragraphFontFamilyKey,
         paragraphFace,
         normalized.fontFaces,
         issues,
@@ -994,6 +1062,13 @@ export function createVNextTextBlockInitialFlowV1(input: unknown): VNextTextBloc
 
   const has = (kind: VNextTextBlockInitialFlowAtomV1["kind"]): boolean =>
     atoms.some((atom) => atom.kind === kind)
+  const hasEffectivePaintableContent = atoms.some((atom) => (
+    atom.kind === "inline-image"
+    || (
+      (atom.kind === "text" || atom.kind === "resolved-field" || atom.kind === "generated-page-number")
+      && atom.renderedText.length > 0
+    )
+  ))
   const capabilities: VNextTextBlockInitialFlowCapabilityReportV1 = {
     styledText: has("text") ? "ready" : "not-present",
     resolvedField: has("resolved-field") ? "ready" : "not-present",
@@ -1001,7 +1076,7 @@ export function createVNextTextBlockInitialFlowV1(input: unknown): VNextTextBloc
     hardBreak: has("hard-break") ? "ready" : "not-present",
     inlineImage: has("inline-image") ? "blocked-line-box-contract" : "not-present",
     listDecoration: textBlock.role.role === "list-item" ? "blocked-decoration-contract" : "not-present",
-    emptyBlock: textBlock.children.length === 0 ? "blocked-empty-layout-contract" : "not-present",
+    emptyBlock: hasEffectivePaintableContent ? "not-present" : "blocked-empty-layout-contract",
     authoredBox: "ready",
     positionedObjects: "not-present",
   }
@@ -1025,6 +1100,7 @@ export function createVNextTextBlockInitialFlowV1(input: unknown): VNextTextBloc
     measurement: clone(measurement),
     layoutUnitPolicyFingerprint: normalized.layoutUnitPolicyFingerprint,
     declaredLineHeightLayoutUnit: normalized.declaredLineHeightLayoutUnit,
+    paragraphFontFamilyKey: normalized.paragraphFontFamilyKey,
     paragraphStyle: clone(normalized.paragraphStyle),
     fontFaces: canonicalFontFaces,
     atoms,

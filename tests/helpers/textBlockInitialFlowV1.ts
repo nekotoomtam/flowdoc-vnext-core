@@ -1,4 +1,5 @@
 import {
+  createVNextCompactFingerprint,
   createVNextAuthoredBoxPlanV1,
   createVNextLayoutUnitPolicyV1,
   createVNextTextBlockInitialFlowParentRegionV1,
@@ -8,8 +9,31 @@ import {
   type VNextTextBlockV4MeasurementRequest,
 } from "../../src/index.js"
 
+function effectiveShapingStyleKey(input: {
+  fontFaceId: string
+  fontSizeLayoutUnit: number
+  textColor: string
+  fontWeight: "normal" | "bold"
+  fontStyle: "normal" | "italic"
+  textDecoration?: "none" | "underline"
+  strikethrough?: boolean
+}): string {
+  return createVNextCompactFingerprint(JSON.stringify({
+    paragraphStyleKey: "paragraph-body",
+    fontFamilyKey: "sarabun",
+    fontFaceId: input.fontFaceId,
+    fontSizeLayoutUnit: input.fontSizeLayoutUnit,
+    textColor: input.textColor,
+    fontWeight: input.fontWeight,
+    fontStyle: input.fontStyle,
+    textDecoration: input.textDecoration ?? "none",
+    strikethrough: input.strikethrough ?? false,
+  }))
+}
+
 const fontFaces = [{
   fontFaceId: "sarabun-regular",
+  fontFamilyKey: "sarabun",
   fontFamily: "Sarabun",
   fontSha256: "a".repeat(64),
   weight: 400,
@@ -19,6 +43,12 @@ const fontFaces = [{
   descentFontUnit: -200,
   lineGapFontUnit: 100,
 }]
+
+function legacyFontFaces(
+  faces: VNextTextBlockInitialFlowBuildInputV1["fontFaces"],
+): VNextTextBlockMultiRunLayoutRequestV1["fontFaces"] {
+  return faces.map(({ fontFamilyKey: _fontFamilyKey, ...face }) => ({ ...face }))
+}
 
 const paragraphStyle = {
   styleKey: "paragraph-body",
@@ -52,6 +82,7 @@ function buildInput(
     ...boxAndParent(textBlock),
     layoutUnitPolicyFingerprint: createVNextLayoutUnitPolicyV1().fingerprint,
     declaredLineHeightLayoutUnit: 14_000_000,
+    paragraphFontFamilyKey: "sarabun",
     paragraphStyle: { ...paragraphStyle },
     fontFaces: fontFaces.map((face) => ({ ...face })),
   }
@@ -168,6 +199,42 @@ export function listImageGeometryBuildInputFixture(): VNextTextBlockInitialFlowB
   })
 }
 
+export function listOnlyGeometryBuildInputFixture(): VNextTextBlockInitialFlowBuildInputV1 {
+  const input = listImageGeometryBuildInputFixture()
+  const textInline = input.textBlock.children[0]
+  const textRun = input.measurement.runs[0]
+  if (textInline?.type !== "text" || textRun?.kind !== "text") {
+    throw new Error("list-only fixture source missing")
+  }
+  input.textBlock = { ...input.textBlock, children: [{ ...textInline }] }
+  input.measurement = {
+    ...input.measurement,
+    renderedText: "A",
+    runs: [{ ...textRun }],
+  }
+  return input
+}
+
+export function imageOnlyGeometryBuildInputFixture(): VNextTextBlockInitialFlowBuildInputV1 {
+  const input = listImageGeometryBuildInputFixture()
+  const imageInline = input.textBlock.children[1]
+  const imageRun = input.measurement.runs[1]
+  if (imageInline?.type !== "inline-image" || imageRun?.kind !== "inline-image") {
+    throw new Error("image-only fixture source missing")
+  }
+  input.textBlock = {
+    ...input.textBlock,
+    role: { role: "paragraph" },
+    children: [{ ...imageInline }],
+  }
+  input.measurement = {
+    ...input.measurement,
+    renderedText: "\uFFFC",
+    runs: [{ ...imageRun, renderStartOffset: 0, renderEndOffset: 1 }],
+  }
+  return input
+}
+
 export function legacyTextOnlyBuildInputFixture(): VNextTextBlockInitialFlowBuildInputV1 {
   const textBlock: TextBlockNodeV4Target = {
     id: "text-block-legacy",
@@ -208,6 +275,48 @@ export function emptyGeometryBuildInputFixture(): VNextTextBlockInitialFlowBuild
   return input
 }
 
+export function renderedEmptyFieldGeometryBuildInputFixture(): VNextTextBlockInitialFlowBuildInputV1 {
+  const input = legacyTextOnlyBuildInputFixture()
+  input.textBlock = {
+    ...input.textBlock,
+    children: [{ id: "field-empty", type: "field-ref", key: "customer.optional" }],
+  }
+  input.measurement = {
+    ...input.measurement,
+    renderedText: "",
+    runs: [{
+      inlineId: "field-empty",
+      kind: "resolved-field",
+      fieldKey: "customer.optional",
+      renderStartOffset: 0,
+      renderEndOffset: 0,
+      renderedText: "",
+      styleKey: "paragraph-body",
+    }],
+  }
+  return input
+}
+
+export function hardBreakOnlyGeometryBuildInputFixture(): VNextTextBlockInitialFlowBuildInputV1 {
+  const input = legacyTextOnlyBuildInputFixture()
+  input.textBlock = {
+    ...input.textBlock,
+    children: [{ id: "break-only", type: "line-break" }],
+  }
+  input.measurement = {
+    ...input.measurement,
+    renderedText: "\n",
+    runs: [{
+      inlineId: "break-only",
+      kind: "hard-break",
+      renderStartOffset: 0,
+      renderEndOffset: 1,
+      renderedText: "\n",
+    }],
+  }
+  return input
+}
+
 export function legacyTextOnlyLayoutRequestFixture(): VNextTextBlockMultiRunLayoutRequestV1 {
   const input = legacyTextOnlyBuildInputFixture()
   return {
@@ -217,13 +326,19 @@ export function legacyTextOnlyLayoutRequestFixture(): VNextTextBlockMultiRunLayo
     availableWidthLayoutUnit: 90_000_000,
     declaredLineHeightLayoutUnit: 14_000_000,
     paragraphStyle: input.paragraphStyle,
-    fontFaces: input.fontFaces,
+    fontFaces: legacyFontFaces(input.fontFaces),
     shapingRuns: [{
       shapingRunId: "shape-abc",
       renderStartOffset: 0,
       renderEndOffset: 3,
       text: "ABC",
-      styleKey: "paragraph-body",
+      styleKey: effectiveShapingStyleKey({
+        fontFaceId: "sarabun-regular",
+        fontSizeLayoutUnit: 12_000_000,
+        textColor: "202020",
+        fontWeight: "normal",
+        fontStyle: "normal",
+      }),
       fontFaceId: "sarabun-regular",
       fontSizeLayoutUnit: 12_000_000,
       textColor: "202020",
@@ -347,14 +462,22 @@ export function mixedTypographyLayoutRequestFixture(): VNextTextBlockMultiRunLay
     availableWidthLayoutUnit: 90_000_000,
     declaredLineHeightLayoutUnit: input.declaredLineHeightLayoutUnit,
     paragraphStyle: input.paragraphStyle,
-    fontFaces: input.fontFaces,
+    fontFaces: legacyFontFaces(input.fontFaces),
     shapingRuns: [
       {
         shapingRunId: "shape-small",
         renderStartOffset: 0,
         renderEndOffset: 1,
         text: "A",
-        styleKey: "paragraph-body",
+        styleKey: effectiveShapingStyleKey({
+          fontFaceId: "sarabun-regular",
+          fontSizeLayoutUnit: 10_000_000,
+          textColor: "101010",
+          fontWeight: "normal",
+          fontStyle: "normal",
+          textDecoration: "underline",
+          strikethrough: true,
+        }),
         fontFaceId: "sarabun-regular",
         fontSizeLayoutUnit: 10_000_000,
         textColor: "101010",
@@ -368,7 +491,13 @@ export function mixedTypographyLayoutRequestFixture(): VNextTextBlockMultiRunLay
         renderStartOffset: 1,
         renderEndOffset: 2,
         text: "B",
-        styleKey: "paragraph-body",
+        styleKey: effectiveShapingStyleKey({
+          fontFaceId: "sarabun-bold",
+          fontSizeLayoutUnit: 24_000_000,
+          textColor: "303030",
+          fontWeight: "bold",
+          fontStyle: "normal",
+        }),
         fontFaceId: "sarabun-bold",
         fontSizeLayoutUnit: 24_000_000,
         textColor: "303030",
@@ -382,7 +511,13 @@ export function mixedTypographyLayoutRequestFixture(): VNextTextBlockMultiRunLay
         renderStartOffset: 2,
         renderEndOffset: 3,
         text: "C",
-        styleKey: "paragraph-body",
+        styleKey: effectiveShapingStyleKey({
+          fontFaceId: "sarabun-italic",
+          fontSizeLayoutUnit: 12_000_000,
+          textColor: "202020",
+          fontWeight: "normal",
+          fontStyle: "italic",
+        }),
         fontFaceId: "sarabun-italic",
         fontSizeLayoutUnit: 12_000_000,
         textColor: "202020",
@@ -396,7 +531,13 @@ export function mixedTypographyLayoutRequestFixture(): VNextTextBlockMultiRunLay
         renderStartOffset: 3,
         renderEndOffset: 4,
         text: "D",
-        styleKey: "paragraph-body",
+        styleKey: effectiveShapingStyleKey({
+          fontFaceId: "sarabun-regular",
+          fontSizeLayoutUnit: 12_000_000,
+          textColor: "202020",
+          fontWeight: "normal",
+          fontStyle: "normal",
+        }),
         fontFaceId: "sarabun-regular",
         fontSizeLayoutUnit: 12_000_000,
         textColor: "202020",
