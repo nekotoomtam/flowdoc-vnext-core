@@ -3,7 +3,7 @@
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20. Updated through the bounded MR1-H checkpoint on 2026-07-21.
+Date: 2026-07-20. Updated through the bounded MR1-J checkpoint on 2026-07-21.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -62,8 +62,8 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `78810c5` | diagnostic multi-run stage profiling plus oracle-only intra-TextBlock restart/reconvergence analysis |
-| `flowdoc-vnext-editor` | `0a5c816` | real-Chrome 4,959-unit edit matrix, full-layout timing, exact window proof, and fallback evidence |
+| `flowdoc-vnext-core` | `48b6102` | contextual Rustybuzz range shaping, bounded ICU4X segmentation, pinned native/WASM facts, and full-oracle proof |
+| `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
 ### Core Truth
@@ -422,24 +422,25 @@ identity.
 
 ## First Task For The Next Thread
 
-Design the next bounded MR1 intra-TextBlock affected-range checkpoint from the
-accepted multi-block scheduler and frame-gate evidence. Do not bind the product
-path yet and keep Table work deferred.
+Design the next bounded MR1 intra-TextBlock affected-line assembly checkpoint
+from the accepted contextual range-shaping and bounded-segmentation facts. Do
+not bind the product path yet and keep Table work deferred.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs, `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`, and
    `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`.
-2. Use the accepted advisory token range to measure how much of one long dirty
-   TextBlock can be safely reshaped/rebroken without changing exact output.
-3. Define fallback and reconvergence rules for combining unchanged cluster/line
-   prefixes with newly shaped evidence; fail closed to complete-block layout
-   whenever the proof boundary is ambiguous.
+2. Retain unchanged prefix/suffix cluster facts and precomputed line-checkpoint
+   fingerprints around the accepted contextual engine range.
+3. Build and assemble only the affected line window; fail closed to
+   complete-block layout whenever cluster boundaries, context, line
+   reconvergence, or fingerprint proof is ambiguous.
 4. Exercise long Thai/Latin mixed Text Runs, style changes, fields, hard breaks,
    insertion/deletion near line/page edges, IME-shaped text, and rapid typing.
 5. Evaluate the distinct default/approximate-versus-renderer drift fixture
    under the already accepted numeric threshold policy. Do not relabel the
    zero Node/Browser renderer-backed drift summary as that fixture.
-6. Record Worker/main-thread p50/p95 plus changed cluster/line/page counts. Keep
+6. Add a dedicated incremental Core acceptance/fingerprint boundary and record
+   Worker/main-thread p50/p95 plus changed cluster/line/page counts. Keep
    tables, columns, images, default-measurer replacement, whole-document
    production activation, and glyph-pixel exactness out of this slice.
 
@@ -454,6 +455,8 @@ Core:
 - `docs/LIVE_DRAFT_XR5_SOURCE_SEGMENTS_AND_FORCED_BREAKS.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`
 - `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`
+- `docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md`
+- `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`
 - `docs/LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_COMPOSITION.md`
 - `src/renderer/textMeasurementAdapter.ts`
@@ -464,6 +467,7 @@ Core:
 - `packages/text-engine-rust-wasm/src/rendererBackedProvider.ts`
 - `packages/text-engine-rust-wasm/src/multiRunLayout.ts`
 - `packages/text-engine-rust-wasm/src/runtimeMr1.ts`
+- `packages/text-engine-rust-wasm/src/runtimeMr1Range.ts`
 - `src/renderer/textBlockMultiRunDisplayListV1.ts`
 - `src/composition/textBlockMultiRunDocumentCompositionV1.ts`
 - `src/renderer/textBlockMultiRunDocumentDisplayListV1.ts`
@@ -476,11 +480,15 @@ Editor:
 - `docs/LIVE_DRAFT_MR1_MULTILINE_MULTI_GLYPH.md`
 - `docs/LIVE_DRAFT_MR1_RAPID_EDIT_LIFECYCLE.md`
 - `docs/LIVE_DRAFT_MR1_MULTI_BLOCK_SCHEDULING.md`
+- `docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md`
+- `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`
 - `src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json`
 - `src/fixtures/live-draft-mr1-multi-run-canvas-paint.v1.json`
 - `src/fixtures/live-draft-mr1-multiline-multi-glyph-canvas.v1.json`
 - `src/fixtures/live-draft-mr1-rapid-edit-lifecycle.v1.json`
 - `src/fixtures/live-draft-mr1-multi-block-scheduling.v1.json`
+- `src/fixtures/live-draft-mr1-incremental-reflow-analysis.v1.json`
+- `src/fixtures/live-draft-mr1-contextual-range-facts.v1.json`
 - `src/qa/liveDraftMr1Evidence.worker.ts`
 - `src/editor/liveDraft/liveDraftMultiRunCanvasPainter.ts`
 - `src/editor/liveDraft/liveDraftMultiRunController.ts`
@@ -968,6 +976,40 @@ the Editor repository at
 `docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md` plus
 `src/fixtures/live-draft-mr1-incremental-reflow-analysis.v1.json`.
 
+## LIVE-DRAFT-MR1 Contextual Range Facts
+
+Status: accepted as a bounded native/WASM and real-Chrome Worker QA slice on
+2026-07-21. Affected-line assembly, incremental Core acceptance, product
+binding, and production remain NO-GO.
+
+The external text-engine package now exposes a separately versioned and
+digest-pinned MR1-range WASM artifact. Range shaping receives complete
+effective-run text plus explicit selected/context byte ranges, derives
+script/direction/language from the complete run, supplies pre/post context to
+Rustybuzz, and returns global clusters plus `unsafeToBreak`. Its oracle proof
+requires safe full-run cluster boundaries and exact glyph ids, clusters,
+advances, and offsets.
+
+Bounded ICU4X segmentation grows context 32 -> 64 -> 128 UTF-16 units, excludes
+artificial substring endpoint breaks, and needs two equal consecutive
+expansions. Stability alone remains non-authoritative. Requiring full context
+or reaching the configured limit returns `fallback-required`; QA separately
+compares the bounded facts with the complete ICU4X oracle.
+
+Focused native/WASM tests cover Thai, Latin ligature candidates, a Thai-leading
+mixed run, Regular/Bold faces, global offsets, artificial endpoints,
+full-context fallback, and surrogate rejection. In real Chrome, six 30-unit
+ranges distributed across a 4,959-unit Thai/Latin block match full shaping and
+segmentation oracles exactly and make zero Backend-like requests.
+
+Observed diagnostic p50/p95 values were 1.9/3.3 ms for contextual range
+shaping versus 9.7/14.8 ms full shaping, and 7.7/10.7 ms for bounded
+segmentation versus 26.8/36.0 ms full segmentation. These are observations,
+not budgets. Evidence lives at
+`docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md` and in the Editor repository at
+`docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md` plus
+`src/fixtures/live-draft-mr1-contextual-range-facts.v1.json`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -1050,6 +1092,12 @@ the Editor repository at
   start/middle/line/page/style/field-adjacent edits.
 - End-of-block, hard-break, and oversized intra-block edits fail closed instead
   of weakening the two-stable-line and bounded-window rules.
+- A separately pinned MR1-range artifact produces exact native/WASM contextual
+  range glyph facts for Thai, Latin ligature candidates, and mixed Thai/Latin
+  effective runs while retaining global cluster offsets.
+- Six real-Chrome Regular/Bold ranges across a 4,959-unit block match complete
+  shaping and ICU4X segmentation oracles exactly; bounded segmentation
+  stabilizes in three context windows and makes zero Backend-like requests.
 
 ### FAIL-BLOCKER
 
@@ -1061,8 +1109,8 @@ the Editor repository at
 - Product-bound multi-block scheduling, IME/caret/selection integration, and
   long-document page virtualization are not implemented.
 - Default pagination measurement replacement remains blocked.
-- Whole-document field/layout coverage and executable intra-TextBlock partial
-  shaping/segmentation/Core acceptance remain blocked for later slices.
+- Whole-document field/layout coverage, affected-line assembly, and
+  incremental Core acceptance remain blocked for later slices.
 
 ### RISK
 
@@ -1108,6 +1156,9 @@ the Editor repository at
 - The accepted token dirty range is advisory: each dirty TextBlock still runs
   complete shaping and Core acceptance, so one very long active block can still
   exceed an interaction budget.
+- Contextual range engine timings are lower in the bounded fixture, but Core
+  acceptance/fingerprinting, line assembly, scheduling, React work, and paint
+  are not included; the engine observation is not a typing budget.
 - The 12-block frame gate excludes product React work, IME, caret/selection,
   viewport bitmap memory, background contention, tables, columns, and images.
 
@@ -1118,8 +1169,6 @@ the Editor repository at
   the accepted threshold policy.
 - Final performance and bitmap-memory budgets for product-sized and 200-page
   documents.
-- Safe contextual range shaping and bounded range segmentation that reproduce
-  full Rustybuzz/ICU4X facts exactly.
 - Incremental Core acceptance and compositional fingerprinting that can publish
   the proved line window without executing a full oracle.
 - Product scheduler fairness under continuous active typing plus background
