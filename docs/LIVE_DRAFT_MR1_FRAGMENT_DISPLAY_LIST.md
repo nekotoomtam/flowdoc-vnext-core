@@ -1,8 +1,8 @@
 # Live Draft MR1 Per-Fragment Display List
 
-Status: Core-only display-list projection accepted on 2026-07-21. Editor QA
-Canvas consumption, product binding, Backend binding, whole-document
-composition, and production remain NO-GO.
+Status: Core-only display-list projection accepted on 2026-07-21. A subsequent
+separate Editor QA Canvas checkpoint is accepted. Product binding, Backend
+binding, whole-document composition, and production remain NO-GO.
 
 ## Outcome
 
@@ -94,9 +94,8 @@ arithmetic.
 
 ## Next
 
-Let a separate Editor QA Canvas path consume these commands. It must load the
-same digest-pinned Sarabun faces, convert units only at paint time, set Canvas
-font/style/color from each command, call `fillText` at the accepted baseline,
-and never call `measureText` or relayout the line. Retain command facts,
-nonblank-pixel evidence, and the limitation that Canvas owns glyph
+The separate Editor QA Canvas path now consumes these commands with the same
+digest-pinned Sarabun faces and retained nonblank-pixel evidence. Next, cover
+multiple lines and longer multi-glyph fragments plus rapid-edit/last-valid
+behavior before considering product binding. Canvas continues to own glyph
 rasterization.

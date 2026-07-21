@@ -12420,3 +12420,36 @@ Canvas/PDF glyph or pixel parity is not.
 
 Next phase: `LIVE-DRAFT-MR1-E` separate Editor QA Canvas consumption of the
 per-fragment commands without `measureText` or relayout.
+
+## LIVE-DRAFT-MR1-E Editor QA Canvas Paint
+
+Status: accepted for one bounded mixed-size line in a separate real Chrome QA
+Canvas on 2026-07-21. Product binding and production remain NO-GO.
+
+Editor loads the same pinned Sarabun Regular/Bold bytes, receives the accepted
+MR1 Worker layout, projects it through Core only via `src/core/coreAdapter.ts`,
+and paints one Canvas command per fragment without text measurement or relayout.
+Node-native and real Chrome produce exactly equal complete layout and
+display-list objects with zero integer drift. The commands retain the
+Regular/Bold/Regular face sequence, 10/24/12 pt sizes, one shared 97.632 pt
+baseline, and the resolved-field source identity.
+
+Chrome painted 2,589 non-white pixels on a 794 x 1,123 Canvas and retained a PNG
+digest. The run observed about 13.5 ms for cold Core projection and 7.5 ms for
+paint on one machine. These are observations, not budgets. Chrome made zero
+Backend-like requests.
+
+Primary evidence:
+
+- `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_CANVAS_PAINT.md`;
+- `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-multi-run-canvas-paint.v1.json`;
+- `../flowdoc-vnext-editor/src/editor/liveDraft/liveDraftMultiRunCanvasPainter.ts`; and
+- `../flowdoc-vnext-editor/src/tests/liveDraftMr1CanvasEvidence.test.ts`.
+
+Existing product Worker/controller/Canvas, pagination, default measurement,
+Backend, and production paths were not changed. The one-character fragment row
+does not establish longer-fragment glyph reconciliation or general pixel
+parity.
+
+Next phase: select a bounded multi-line/longer-fragment correctness fixture and
+rapid-edit/last-valid lifecycle evidence before any product binding decision.

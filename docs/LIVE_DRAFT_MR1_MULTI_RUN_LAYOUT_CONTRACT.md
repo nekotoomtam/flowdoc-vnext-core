@@ -1,9 +1,9 @@
 # Live Draft MR1 Multi-Run Layout Contract
 
 Status: Core contract and acceptance slice accepted on 2026-07-21. Subsequent
-external Node-native, executable-WASM, real Chrome Worker, and Core per-fragment
-display-list slices now feed or consume this contract. Editor Canvas, product,
-Backend, and production bindings remain inactive.
+external Node-native, executable-WASM, real Chrome Worker, Core per-fragment
+display-list, and separate Editor QA Canvas slices now feed or consume this
+contract. Editor product, Backend, and production bindings remain inactive.
 
 ## Outcome
 
@@ -142,5 +142,6 @@ style data and do not yet have accepted per-fragment paint properties.
 
 External runtime facts live in `LIVE_DRAFT_MR1_ENGINE_FACTS.md`. The accepted
 per-fragment projector now lives in
-`LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`. Consume those commands in a separate
-Editor QA Canvas path next without measurement or relayout.
+`LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`. The separate Editor QA Canvas
+checkpoint is also accepted. Cover broader multi-line and longer-fragment
+behavior next without measurement or relayout.

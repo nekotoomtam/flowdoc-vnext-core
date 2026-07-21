@@ -138,7 +138,9 @@ The package must remain runnable without any parent editor checkout.
   deterministic fixed-point paint command carrying the shared baseline,
   fragment bounds, pinned font/style facts, fingerprints, and source segments.
   The Core projector forbids renderer measurement, relayout, and production
-  binding; Editor QA Canvas consumption remains the next gate.
+  binding. A separate real Chrome QA Canvas now consumes the three bounded
+  commands, matches Node's complete display list with zero integer drift, and
+  paints nonblank Regular/Bold/Regular output; product binding remains blocked.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

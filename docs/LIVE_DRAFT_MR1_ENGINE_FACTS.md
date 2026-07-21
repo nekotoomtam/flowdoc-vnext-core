@@ -1,9 +1,9 @@
 # Live Draft MR1 Engine Facts And Itemization
 
 Status: external adapter, Node-native, executable MR1 WASM test-host, and
-bounded real Chrome Worker parity slices accepted on 2026-07-21. The subsequent
-Core per-fragment display list is accepted; Editor Canvas/product binding,
-Backend binding, and production remain NO-GO.
+bounded real Chrome Worker parity slices accepted on 2026-07-21. Subsequent Core
+per-fragment display-list and separate Editor QA Canvas slices are accepted;
+Editor product binding, Backend binding, and production remain NO-GO.
 
 ## Outcome
 
@@ -132,10 +132,13 @@ boundaries.
   Editor, and Backend are unchanged.
 - No font or WASM bytes enter Core.
 - No production binding is enabled.
-- No Canvas, PDF, product-binding, or glyph-pixel parity claim is made.
+- No product Canvas, PDF, production-binding, or glyph-pixel parity claim is
+  made. The separate bounded QA Canvas claim is documented independently.
 
 ## Next
 
-The Core per-fragment display-list projection is now accepted and documented in
-`LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`. Consume those commands in a separate
-Editor QA Canvas path before considering product binding.
+The Core per-fragment display-list projection and separate Editor QA Canvas
+checkpoint are accepted. See `LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md` and the
+Editor repository's `LIVE_DRAFT_MR1_CANVAS_PAINT.md`. Select a broader bounded
+multi-line/longer-fragment correctness fixture before considering product
+binding.
