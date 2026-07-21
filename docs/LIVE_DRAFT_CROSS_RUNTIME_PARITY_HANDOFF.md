@@ -422,19 +422,24 @@ identity.
 
 ## First Task For The Next Thread
 
-Continue `LIVE-DRAFT-XR-5` only from the retained partial matrix checkpoint.
+Continue MR1 mixed-style/mixed-size inline layout from the retained XR-5
+partial matrix checkpoint and the accepted MR1 fixed-point foundation.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs.
-2. Bind constrained Table-cell and repeated-header rows through their accepted
+2. Define versioned resolved shaping-run, positioned-line, and line-fragment
+   contracts using `LayoutUnitPolicyV1`; do not mutate authored TextBlock
+   geometry.
+3. Execute the first bounded Sarabun Regular/Bold and mixed-size line through
+   Node and real Browser runtimes before claiming a font switch inside one
+   measured line.
+4. Bind constrained Table-cell and repeated-header rows through their accepted
    Table preparation/pagination/display-list owners; do not impersonate them
    with plain text-block rows.
-3. Evaluate the distinct default/approximate-versus-renderer drift fixture
+5. Evaluate the distinct default/approximate-versus-renderer drift fixture
    under the already accepted numeric threshold policy. Do not relabel the
    zero Node/Browser renderer-backed drift summary as that fixture.
-4. Define the next bounded multi-font inline shaping/paint-geometry contract
-   before claiming a font switch inside one measured line.
-5. Keep default-measurer replacement, whole-document production activation,
+6. Keep default-measurer replacement, whole-document production activation,
    XR-6 scale work, and glyph-pixel exactness out of this slice.
 
 ## Required Reading
@@ -681,6 +686,24 @@ lives at
 and is explained by
 `flowdoc-vnext-editor/docs/LIVE_DRAFT_XR5_CROSS_RUNTIME_MATRIX.md`.
 
+## LIVE-DRAFT-MR1 Fixed-Point Foundation
+
+Status: accepted as a Core-only numeric foundation on 2026-07-21. Multi-run
+shaping and paint geometry remain blocked.
+
+Core now publishes `LayoutUnitPolicyV1` for new versioned text-layout
+contracts. One point equals 1,000,000 signed safe integer layout units. Point
+conversion and signed font-metric scaling fail closed, use deterministic
+half-away-from-zero rounding, retain a stable policy fingerprint, and require
+exact integer comparison after normalization.
+
+The foundation does not migrate authored units or existing float geometry,
+does not change pagination or `measureVNextText(...)`, and does not bind a
+renderer or production path. The historical approximate-versus-renderer drift
+threshold remains a distinct policy. Documentation lives at
+`docs/LIVE_DRAFT_MR1_LAYOUT_UNIT_POLICY.md`; focused evidence lives in
+`tests/layoutUnitPolicyV1.test.ts`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -722,6 +745,8 @@ and is explained by
   including resolved-field identity, without granting renderer relayout.
 - The expanded matrix exposed and fixed optional-newline behavior in the
   external Live Draft adapter; focused tests retain mandatory CR/LF behavior.
+- New MR1 layout contracts can bind canonical geometry to a fingerprinted
+  signed fixed-point policy and compare Browser/Node facts as exact integers.
 
 ### FAIL-BLOCKER
 
@@ -731,6 +756,8 @@ and is explained by
 - Constrained Table-cell, repeated-header, explicit page-break, and
   default/approximate-versus-renderer drift rows remain explicitly blocked.
 - Full cross-runtime measurement parity is not accepted.
+- MR1 shaping runs, mixed-size line metrics, positioned fragments, and
+  per-fragment display-list commands are not implemented yet.
 - Default pagination measurement replacement remains blocked.
 - Whole-document field/layout coverage and incremental invalidation remain
   blocked for later slices.

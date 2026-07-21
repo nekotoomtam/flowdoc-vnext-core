@@ -113,6 +113,12 @@ The package must remain runnable without any parent editor checkout.
   display-list commands, and fingerprints; the full release matrix remains
   partial with multi-font inline, Table, explicit page-break, and
   approximate-versus-renderer drift blockers retained.
+- Live Draft MR1 begins the retained mixed-style/mixed-size inline lane with a
+  versioned fixed-point policy: one point is one million signed safe integer
+  layout units, font metrics use deterministic half-away-from-zero scaling,
+  and new Browser/Node canonical layout facts compare exact integers. Authored
+  units, existing float geometry, pagination, renderers, and production
+  measurement remain unchanged.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,
