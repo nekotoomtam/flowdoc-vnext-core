@@ -130,4 +130,151 @@ describe("TextBlock Initial Flow input v1", () => {
       issues: expect.arrayContaining([expect.objectContaining({ code: "style-context-mismatch" })]),
     })
   })
+
+  it("compares content widths as canonical positive layout units", () => {
+    const equivalent = completeTextGeometryBuildInputFixture()
+    equivalent.measurement = clone(equivalent.measurement)
+    equivalent.measurement.availableWidthPt = 90.0000004
+
+    expect(createVNextTextBlockInitialFlowV1(equivalent)).toMatchObject({
+      status: "classified",
+      issues: [],
+    })
+
+    const drift = completeTextGeometryBuildInputFixture()
+    drift.measurement = clone(drift.measurement)
+    drift.measurement.availableWidthPt = 90.000001
+    expect(createVNextTextBlockInitialFlowV1(drift)).toMatchObject({
+      status: "blocked",
+      issues: expect.arrayContaining([expect.objectContaining({ code: "authored-box-width-mismatch" })]),
+    })
+  })
+
+  it("requires nonblank measurement provenance", () => {
+    const input = completeTextGeometryBuildInputFixture()
+    input.measurement = clone(input.measurement)
+    input.measurement.measurementProfileId = " "
+
+    expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+      status: "blocked",
+      issues: expect.arrayContaining([expect.objectContaining({ code: "measurement-identity-mismatch" })]),
+    })
+  })
+
+  it("requires every producer-styled run to pin the measurement style", () => {
+    const cases: Array<{ index: number; styleKey: string | undefined }> = [
+      { index: 0, styleKey: undefined },
+      { index: 1, styleKey: "other-style" },
+      { index: 2, styleKey: " " },
+    ]
+    cases.forEach(({ index, styleKey }) => {
+      const input = completeTextGeometryBuildInputFixture()
+      input.measurement = clone(input.measurement)
+      const run = input.measurement.runs[index]
+      if (run == null) throw new Error("styled run fixture missing")
+      run.styleKey = styleKey
+
+      expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+        status: "blocked",
+        issues: expect.arrayContaining([expect.objectContaining({ code: "style-context-mismatch" })]),
+      })
+    })
+  })
+
+  it("requires compact lowercase generated owner fingerprints", () => {
+    const input = completeTextGeometryBuildInputFixture()
+    input.measurement = clone(input.measurement)
+    const run = input.measurement.runs[2]
+    if (run?.kind !== "generated-page-number") throw new Error("page-number run fixture missing")
+    run.generatedOwnerFingerprint = `sha256:${"B".repeat(64)}`
+
+    expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+      status: "blocked",
+      issues: expect.arrayContaining([expect.objectContaining({ code: "inline-projection-mismatch" })]),
+    })
+  })
+
+  it("enforces the accepted font style, weight, and metric invariants", () => {
+    const mutations: Array<(face: ReturnType<typeof completeTextGeometryBuildInputFixture>["fontFaces"][number]) => void> = [
+      (face) => { (face as unknown as { style: string }).style = "oblique" },
+      (face) => { face.weight = 99 },
+      (face) => { face.weight = 901 },
+      (face) => { face.ascentFontUnit = 0 },
+      (face) => { face.descentFontUnit = 1 },
+      (face) => { face.lineGapFontUnit = -1 },
+    ]
+    mutations.forEach((mutate) => {
+      const input = completeTextGeometryBuildInputFixture()
+      input.fontFaces = clone(input.fontFaces)
+      const face = input.fontFaces[0]
+      if (face == null) throw new Error("font fixture missing")
+      mutate(face)
+
+      expect(createVNextTextBlockInitialFlowV1(input)).toMatchObject({
+        status: "blocked",
+        issues: expect.arrayContaining([expect.objectContaining({ code: "invalid-font-context" })]),
+      })
+    })
+  })
+
+  it("pins direct image assets while accepting resolved field-backed assets", () => {
+    const direct = listImageGeometryBuildInputFixture()
+    direct.measurement = clone(direct.measurement)
+    const directRun = direct.measurement.runs[1]
+    if (directRun?.kind !== "inline-image") throw new Error("direct image run fixture missing")
+    directRun.assetId = "asset-other"
+    expect(createVNextTextBlockInitialFlowV1(direct)).toMatchObject({
+      status: "blocked",
+      issues: expect.arrayContaining([expect.objectContaining({ code: "inline-projection-mismatch" })]),
+    })
+
+    const field = listImageGeometryBuildInputFixture()
+    field.textBlock = clone(field.textBlock)
+    const fieldInline = field.textBlock.children[1]
+    if (fieldInline?.type !== "inline-image") throw new Error("field image inline fixture missing")
+    fieldInline.source = { kind: "image-field-ref", fieldKey: "customer.logo" }
+    field.measurement = clone(field.measurement)
+    const fieldRun = field.measurement.runs[1]
+    if (fieldRun?.kind !== "inline-image") throw new Error("field image run fixture missing")
+    fieldRun.assetId = "asset-resolved"
+    expect(createVNextTextBlockInitialFlowV1(field)).toMatchObject({
+      status: "classified",
+      flow: {
+        atoms: expect.arrayContaining([
+          expect.objectContaining({ kind: "inline-image", assetId: "asset-resolved" }),
+        ]),
+      },
+      issues: [],
+    })
+  })
+
+  it("canonicalizes retained font faces by fontFaceId before fingerprinting", () => {
+    const first = completeTextGeometryBuildInputFixture()
+    const regular = clone(first.fontFaces[0])
+    if (regular == null) throw new Error("font fixture missing")
+    const bold = {
+      ...regular,
+      fontFaceId: "sarabun-bold",
+      fontSha256: "c".repeat(64),
+      weight: 700,
+    }
+    first.fontFaces = [bold, regular]
+
+    const second = completeTextGeometryBuildInputFixture()
+    second.fontFaces = [clone(regular), clone(bold)]
+
+    const firstResult = createVNextTextBlockInitialFlowV1(first)
+    const secondResult = createVNextTextBlockInitialFlowV1(second)
+    expect(firstResult).toEqual(secondResult)
+    expect(firstResult).toMatchObject({
+      status: "classified",
+      flow: {
+        fontFaces: [
+          { fontFaceId: "sarabun-bold" },
+          { fontFaceId: "sarabun-regular" },
+        ],
+      },
+      issues: [],
+    })
+  })
 })

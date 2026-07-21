@@ -16,7 +16,6 @@ import type {
 import {
   convertVNextPointToLayoutUnitV1,
   createVNextLayoutUnitPolicyV1,
-  VNextLayoutUnitV1Schema,
   VNextPositiveLayoutUnitV1Schema,
 } from "./layoutUnitPolicyV1.js"
 import type {
@@ -143,6 +142,18 @@ function nonBlank(value: string | undefined): value is string {
   return value != null && value.trim().length > 0
 }
 
+function compactFingerprint(value: string | undefined): value is string {
+  return value != null && /^sha256:[0-9a-f]{64}$/u.test(value)
+}
+
+function positiveLayoutUnitFromPoint(point: number): number | null {
+  const converted = convertVNextPointToLayoutUnitV1(point)
+  return converted.status === "accepted"
+    && VNextPositiveLayoutUnitV1Schema.safeParse(converted.layoutUnit).success
+    ? converted.layoutUnit
+    : null
+}
+
 function issue(
   code: VNextTextBlockInitialFlowIssueCodeV1,
   path: string,
@@ -191,12 +202,17 @@ function validateFonts(input: VNextTextBlockInitialFlowBuildInputV1): boolean {
       || !nonBlank(face.fontFamily)
       || !/^[0-9A-Fa-f]{64}$/u.test(face.fontSha256)
       || !Number.isSafeInteger(face.weight)
-      || face.weight <= 0
+      || face.weight < 100
+      || face.weight > 900
+      || (face.style !== "normal" && face.style !== "italic")
       || !Number.isSafeInteger(face.unitsPerEm)
       || face.unitsPerEm <= 0
-      || !VNextLayoutUnitV1Schema.safeParse(face.ascentFontUnit).success
-      || !VNextLayoutUnitV1Schema.safeParse(face.descentFontUnit).success
-      || !VNextLayoutUnitV1Schema.safeParse(face.lineGapFontUnit).success
+      || !Number.isSafeInteger(face.ascentFontUnit)
+      || face.ascentFontUnit <= 0
+      || !Number.isSafeInteger(face.descentFontUnit)
+      || face.descentFontUnit > 0
+      || !Number.isSafeInteger(face.lineGapFontUnit)
+      || face.lineGapFontUnit < 0
     ) return false
     ids.add(face.fontFaceId)
   }
@@ -252,7 +268,7 @@ function projectAtoms(
       return
     }
     if (inline.type === "page-number") {
-      if (!nonBlank(run.generatedOwnerFingerprint)) {
+      if (!compactFingerprint(run.generatedOwnerFingerprint)) {
         issues.push(issue("inline-projection-mismatch", path, "page number owner fingerprint is required", inline.id))
         return
       }
@@ -274,6 +290,7 @@ function projectAtoms(
       || !Object.hasOwn(run, "assetId")
       || run.frame == null
       || !sameJson(run.frame, inline.frame)
+      || (inline.source.kind === "asset-ref" && run.assetId !== inline.source.assetId)
     ) {
       issues.push(issue("inline-projection-mismatch", path, "inline image asset/frame must match measurement", inline.id))
       return
@@ -305,10 +322,11 @@ export function createVNextTextBlockInitialFlowV1(
     || !Number.isSafeInteger(input.measurement.instanceRevision)
     || input.measurement.instanceRevision < 0
     || !nonBlank(input.measurement.sectionId)
+    || !nonBlank(input.measurement.measurementProfileId)
     || input.measurement.textBlockId !== textBlock.id
   ) issues.push(issue(
     "measurement-identity-mismatch", "measurement",
-    "measurement identity and revision must match the authored TextBlock",
+    "measurement identity, revision, and profile must match the authored TextBlock",
   ))
   if (!validMeasurementRanges(input.measurement)) issues.push(issue(
     "invalid-measurement-ranges", "measurement.runs",
@@ -338,11 +356,17 @@ export function createVNextTextBlockInitialFlowV1(
     "authored-box-fingerprint-mismatch", "authoredBoxPlan",
     "authored box plan must equal the Core-derived plan for this TextBlock",
   ))
-  const outerWidth = convertVNextPointToLayoutUnitV1(input.authoredBoxPlan.outerWidthPt)
+  const outerWidthLayoutUnit = positiveLayoutUnitFromPoint(input.authoredBoxPlan.outerWidthPt)
+  const measuredContentWidthLayoutUnit = positiveLayoutUnitFromPoint(input.measurement.availableWidthPt)
+  const rebuiltContentWidthLayoutUnit = rebuiltBox.status === "ready"
+    ? positiveLayoutUnitFromPoint(rebuiltBox.plan.contentWidthPt)
+    : null
   if (
-    input.measurement.availableWidthPt !== input.authoredBoxPlan.contentWidthPt
-    || outerWidth.status !== "accepted"
-    || outerWidth.layoutUnit !== input.parentRegion.widthLayoutUnit
+    measuredContentWidthLayoutUnit == null
+    || rebuiltContentWidthLayoutUnit == null
+    || measuredContentWidthLayoutUnit !== rebuiltContentWidthLayoutUnit
+    || outerWidthLayoutUnit == null
+    || outerWidthLayoutUnit !== input.parentRegion.widthLayoutUnit
   ) issues.push(issue(
     "authored-box-width-mismatch", "measurement.availableWidthPt",
     "parent width, authored box outer width, and measurement content width must agree exactly",
@@ -352,6 +376,15 @@ export function createVNextTextBlockInitialFlowV1(
     "style-context-mismatch", "paragraphStyle.styleKey",
     "paragraph style key must match the measurement style key",
   ))
+  input.measurement.runs.forEach((run, index) => {
+    if (
+      (run.kind === "text" || run.kind === "resolved-field" || run.kind === "generated-page-number")
+      && (!nonBlank(run.styleKey) || run.styleKey !== input.measurement.styleKey)
+    ) issues.push(issue(
+      "style-context-mismatch", `measurement.runs[${index}].styleKey`,
+      "styled measurement runs must pin the measurement style key", run.inlineId,
+    ))
+  })
   if (!validateFonts(input)) issues.push(issue(
     "invalid-font-context", "fontFaces",
     "paragraph style and font faces must be complete, unique, and valid",
@@ -376,6 +409,8 @@ export function createVNextTextBlockInitialFlowV1(
   const geometryRequired = capabilities.inlineImage !== "not-present"
     || capabilities.listDecoration !== "not-present"
     || capabilities.emptyBlock !== "not-present"
+  const canonicalFontFaces = clone(input.fontFaces)
+    .sort((left, right) => left.fontFaceId.localeCompare(right.fontFaceId))
   const facts = {
     source: VNEXT_TEXT_BLOCK_INITIAL_FLOW_SOURCE,
     contractVersion: VNEXT_TEXT_BLOCK_INITIAL_FLOW_VERSION,
@@ -391,7 +426,7 @@ export function createVNextTextBlockInitialFlowV1(
     measurement: clone(input.measurement),
     layoutUnitPolicyFingerprint: input.layoutUnitPolicyFingerprint,
     paragraphStyle: clone(input.paragraphStyle),
-    fontFaces: clone(input.fontFaces),
+    fontFaces: canonicalFontFaces,
     atoms,
     capabilities,
     contracts: {
