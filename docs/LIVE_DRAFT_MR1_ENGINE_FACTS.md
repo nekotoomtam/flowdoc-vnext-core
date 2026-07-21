@@ -139,6 +139,7 @@ boundaries.
 
 The Core per-fragment display-list projection and separate Editor QA Canvas
 checkpoint are accepted. See `LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md` and the
-Editor repository's `LIVE_DRAFT_MR1_CANVAS_PAINT.md`. Select a broader bounded
-multi-line/longer-fragment correctness fixture before considering product
-binding.
+Editor repository's `LIVE_DRAFT_MR1_CANVAS_PAINT.md`. The Editor's subsequent
+multi-line/multi-glyph and rapid-edit lifecycle checkpoints are also accepted.
+Select a bounded multi-block scheduling and frame-budget fixture before
+considering product binding.

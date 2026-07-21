@@ -95,7 +95,8 @@ arithmetic.
 ## Next
 
 The separate Editor QA Canvas path now consumes these commands with the same
-digest-pinned Sarabun faces and retained nonblank-pixel evidence. Next, cover
-multiple lines and longer multi-glyph fragments plus rapid-edit/last-valid
+digest-pinned Sarabun faces and retained nonblank-pixel evidence. Multi-line,
+longer multi-glyph fragments, and rapid-edit/last-valid behavior now have
+bounded Editor QA evidence. Next, cover multi-block scheduling and frame-budget
 behavior before considering product binding. Canvas continues to own glyph
 rasterization.

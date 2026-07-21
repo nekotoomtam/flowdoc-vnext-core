@@ -12453,3 +12453,74 @@ parity.
 
 Next phase: select a bounded multi-line/longer-fragment correctness fixture and
 rapid-edit/last-valid lifecycle evidence before any product binding decision.
+
+## LIVE-DRAFT-MR1-F Multi-Line Multi-Glyph Canvas
+
+Status: accepted for one bounded mixed-style TextBlock in a separate real
+Chrome QA path on 2026-07-21. Product binding and production remain NO-GO.
+
+Editor extends the same MR1 request through Node-native layout, a real Chrome
+Worker, Core per-fragment projection, and real Canvas paint. The 74 UTF-16-unit
+fixture contains English/Thai text, Regular/Bold faces, 10/12/24 pt runs, and a
+resolved field. It produces four shaping runs, 65 clusters, five lines, and
+eight multi-glyph display-list commands. At least one shaping run crosses a
+line boundary and the field identity remains retained in command source facts.
+
+Complete Node/Chrome requests, Core layouts, and Core display lists are exactly
+equal with zero integer drift. Twenty-five warm samples at layout, projection,
+and paint produce identical results. Observed warm p50/p95 values were
+5.9/8.9 ms for Worker layout, 2.7/5.5 ms for Core projection, and 0/0.1 ms for
+Canvas paint. These are observations, not budgets. Chrome painted 10,094
+non-white pixels and made zero Backend-like requests.
+
+Primary evidence:
+
+- `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_MULTILINE_MULTI_GLYPH.md`;
+- `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-multiline-multi-glyph-canvas.v1.json`;
+- `../flowdoc-vnext-editor/src/qa/liveDraftMr1MultiLineEvidencePage.ts`; and
+- `../flowdoc-vnext-editor/src/tests/liveDraftMr1MultiLineEvidence.test.ts`.
+
+Existing product Worker/controller/Canvas, Backend, default measurement,
+pagination, and production paths were not changed. Canvas/PDF glyph-outline
+and pixel parity remain unproved.
+
+Next phase: `LIVE-DRAFT-MR1-G` rapid-edit stale-result and last-valid Canvas
+lifecycle evidence over the MR1 path.
+
+## LIVE-DRAFT-MR1-G Rapid-Edit Lifecycle
+
+Status: accepted for one bounded real Chrome MR1 QA sequence on 2026-07-21.
+Product binding and production remain NO-GO.
+
+Editor adds a separate multi-run controller that owns debounce, request and
+content identity, stale-result rejection, last-valid retention, and the Core
+projection publication gate. Revisions 2 and 3 are coalesced before dispatch.
+Revision 4 receives advisory cancellation, completes deliberately after
+revision 5, is counted stale, and cannot replace the Canvas. A locally blocked
+revision 6 preserves revision 5 until accepted revision 7 is ready.
+
+The initialized real Chrome Worker executes MR1 WASM layout for revisions 1,
+4, 5, and 7; Canvas paints only revisions 1, 5, and 7. Final counters are six
+scheduled updates, four Worker requests, three applies, one cancellation, one
+stale result, and one blocked input. The QA Worker delays delivery of the
+already-computed revision-4 result by 120 ms solely to make response ordering
+deterministic. Chrome ended with 10,360 non-white pixels and zero Backend-like
+requests.
+
+Primary evidence:
+
+- `../flowdoc-vnext-editor/docs/LIVE_DRAFT_MR1_RAPID_EDIT_LIFECYCLE.md`;
+- `../flowdoc-vnext-editor/src/fixtures/live-draft-mr1-rapid-edit-lifecycle.v1.json`;
+- `../flowdoc-vnext-editor/src/editor/liveDraft/liveDraftMultiRunController.ts`;
+- `../flowdoc-vnext-editor/src/qa/liveDraftMr1LifecycleEvidence.worker.ts`;
+- `../flowdoc-vnext-editor/src/tests/liveDraftMultiRunController.test.ts`; and
+- `../flowdoc-vnext-editor/src/tests/liveDraftMr1LifecycleEvidence.test.ts`.
+
+Existing product controller/Canvas, Backend/API, default measurement,
+whole-document composition, pagination, and production paths were not changed.
+This proves one-block revision correctness, not scheduling fairness or a frame
+budget under multi-block load.
+
+Next phase: `LIVE-DRAFT-MR1-H` bounded multi-block scheduling, visible/off-screen
+priority, changed-range accounting, and frame-budget evidence before any
+product binding decision.

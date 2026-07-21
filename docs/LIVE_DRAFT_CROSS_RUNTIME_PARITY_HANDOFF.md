@@ -62,8 +62,8 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `b18b1d5` | canonical fixed-point multi-run acceptance and per-fragment display-list projection |
-| `flowdoc-vnext-editor` | `fc35a32` | bounded real-Chrome MR1 Worker parity and separate per-fragment QA Canvas evidence |
+| `flowdoc-vnext-core` | `5954d4c` | canonical fixed-point multi-run acceptance, display-list projection, and MR1 handoff truth |
+| `flowdoc-vnext-editor` | `abefb50` | multi-line/multi-glyph parity plus rapid-edit stale/last-valid QA evidence |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
 ### Core Truth
@@ -422,17 +422,19 @@ identity.
 
 ## First Task For The Next Thread
 
-Select the next bounded MR1 correctness/performance fixture from the accepted
-mixed-size Worker, Core display-list, and QA Canvas checkpoints. Do not bind the
-product path yet.
+Design the next bounded MR1 multi-block scheduling and frame-budget checkpoint
+from the accepted multi-line/multi-glyph and rapid-edit lifecycle evidence. Do
+not bind the product path yet.
 
 1. Read the files under **Required Reading** plus the XR-5 Core and Editor
    evidence docs, `docs/LIVE_DRAFT_MR1_MULTI_RUN_LAYOUT_CONTRACT.md`, and
    `docs/LIVE_DRAFT_MR1_ENGINE_FACTS.md`.
-2. Cover multiple lines and longer multi-glyph fragments before treating the
-   three one-character commands as representative.
-3. Add rapid-edit, cancellation/stale-result, and last-valid Canvas retention
-   around the MR1 path before considering product binding.
+2. Exercise multiple dirty TextBlocks with an initialized Worker. Separate
+   visible-block priority, off-screen work, coalescing, and per-block
+   last-valid state instead of reflowing one whole document per key.
+3. Record Worker queue time, Core projection time, Canvas paint time, main-thread
+   long tasks, changed-block/page count, and peak in-flight work before setting
+   a numeric frame budget.
 4. Bind constrained Table-cell and repeated-header rows through their accepted
    Table preparation/pagination/display-list owners; do not impersonate them
    with plain text-block rows.
@@ -469,10 +471,15 @@ Editor:
 - `docs/LIVE_DRAFT_XR5_CROSS_RUNTIME_MATRIX.md`
 - `docs/LIVE_DRAFT_MR1_REAL_BROWSER_WORKER.md`
 - `docs/LIVE_DRAFT_MR1_CANVAS_PAINT.md`
+- `docs/LIVE_DRAFT_MR1_MULTILINE_MULTI_GLYPH.md`
+- `docs/LIVE_DRAFT_MR1_RAPID_EDIT_LIFECYCLE.md`
 - `src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json`
 - `src/fixtures/live-draft-mr1-multi-run-canvas-paint.v1.json`
+- `src/fixtures/live-draft-mr1-multiline-multi-glyph-canvas.v1.json`
+- `src/fixtures/live-draft-mr1-rapid-edit-lifecycle.v1.json`
 - `src/qa/liveDraftMr1Evidence.worker.ts`
 - `src/editor/liveDraft/liveDraftMultiRunCanvasPainter.ts`
+- `src/editor/liveDraft/liveDraftMultiRunController.ts`
 - `src/qa/liveDraftXr5Matrix.ts`
 - `scripts/run-live-draft-xr5-evidence.mjs`
 - `src/core/coreAdapter.ts`
@@ -502,10 +509,11 @@ Core layout evidence, XR-3 bounded Form binding, XR-4 Canvas display-list
 evidence, XR-5 source-segment/matrix evidence, MR1 fixed-point policy, Core
 multi-run layout contract, external engine facts, exact Node/real-Chrome Worker
 MR1 evidence, Core per-fragment display-list projection, and separate QA Canvas
-paint as prerequisites. Select a bounded multi-line/longer-fragment fixture and
-retain rapid-edit/last-valid behavior before considering product binding. Keep
-renderer measurement and line relayout forbidden, and close only rows whose
-real owner contracts can be exercised.
+paint, multi-line/multi-glyph parity, and rapid-edit stale/last-valid lifecycle
+as prerequisites. Select a bounded multi-block scheduling and frame-budget
+fixture before considering product binding. Keep renderer measurement and line
+relayout forbidden, and close only rows whose real owner contracts can be
+exercised.
 
 Preserve the Core dependency boundary, do not replace measureVNextText(...),
 do not add a Backend request per keystroke, do not add whole-document
@@ -826,6 +834,61 @@ not changed. Evidence lives in the Editor repository at
 `docs/LIVE_DRAFT_MR1_CANVAS_PAINT.md` and
 `src/fixtures/live-draft-mr1-multi-run-canvas-paint.v1.json`.
 
+## LIVE-DRAFT-MR1 Multi-Line Multi-Glyph Canvas
+
+Status: accepted for one bounded mixed-style TextBlock in a separate real
+Chrome QA path on 2026-07-21. Product binding, whole-document composition, and
+production remain NO-GO.
+
+The longer fixture contains 74 UTF-16 units across English and Thai text,
+Sarabun Regular/Bold, 10/12/24 pt runs, and one resolved field. The accepted
+result contains four shaping runs, 65 clusters, five lines, and eight
+display-list commands. Every command contains multiple glyphs, at least one
+shaping run is split across lines, and `customer.displayName` remains retained
+in clipped command source segments.
+
+Node-native and real Chrome Worker execution produce exactly equal complete
+requests, Core layouts, and Core display lists. All maximum integer drifts are
+zero. Twenty-five initialized repetitions at each stage retain identical
+facts. The observed warm Worker layout was 5.9 ms p50 / 8.9 ms p95, Core
+projection was 2.7 ms p50 / 5.5 ms p95, and Canvas paint was 0 ms p50 / 0.1 ms
+p95 on one machine. These are not accepted budgets.
+
+Chrome painted 10,094 non-white pixels on a 794 x 1,123 Canvas and made zero
+Backend-like requests. The pixel evidence proves that the accepted commands
+were painted; it does not prove Canvas/PDF glyph-outline or pixel parity.
+Evidence lives in the Editor repository at
+`docs/LIVE_DRAFT_MR1_MULTILINE_MULTI_GLYPH.md` and
+`src/fixtures/live-draft-mr1-multiline-multi-glyph-canvas.v1.json`.
+
+## LIVE-DRAFT-MR1 Rapid-Edit Lifecycle
+
+Status: accepted for one bounded real Chrome multi-run QA sequence on
+2026-07-21. Product binding and production remain NO-GO.
+
+The Editor multi-run controller separates debounce from correctness. Revisions
+2 and 3 are coalesced before dispatch. Revision 4 is dispatched, receives an
+advisory cancellation after revision 5 supersedes it, then deliberately
+completes late. Its request/revision/content identity is rejected as stale and
+never reaches Core projection or Canvas publication.
+
+The real Worker is initialized once and executes MR1 WASM Rustybuzz/ICU4X for
+revisions 1, 4, 5, and 7. Canvas paints only accepted current revisions 1, 5,
+and 7. Revision 1 stays visible while later work is pending; revision 5 stays
+visible after the late revision-4 completion and while revision 6 is locally
+blocked. Revision 7 replaces it only after its own accepted result and display
+list are ready. Final counters are six scheduled updates, four Worker
+requests, three applies, one advisory cancellation, one rejected stale result,
+and one blocked input.
+
+The QA Worker delays only delivery of the already-computed revision-4 result
+by 120 ms to make response reordering deterministic. This is lifecycle
+instrumentation, not a scheduler or performance simulation. Chrome painted
+only the three current revisions, ended with 10,360 non-white pixels, and made
+zero Backend-like requests. Evidence lives in the Editor repository at
+`docs/LIVE_DRAFT_MR1_RAPID_EDIT_LIFECYCLE.md` and
+`src/fixtures/live-draft-mr1-rapid-edit-lifecycle.v1.json`.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -886,6 +949,15 @@ not changed. Evidence lives in the Editor repository at
 - A separate real Chrome QA Canvas consumes those commands with ready
   Regular/Bold faces, paints 2,589 non-white pixels, retains the resolved field,
   and matches Node's complete display list exactly with zero integer drift.
+- A longer mixed Thai/Latin MR1 fixture produces five lines and eight
+  multi-glyph commands, retains a resolved field and a shaping run split across
+  lines, and matches complete Node/Chrome/Core objects with zero integer drift.
+- Twenty-five initialized multi-line layout, projection, and paint samples are
+  stable; their observational p50/p95 distributions are retained without
+  inventing a performance budget.
+- A real Chrome MR1 rapid-edit sequence coalesces undispatched revisions,
+  rejects a deliberately late completion, retains last-valid while pending or
+  blocked, and paints only revisions 1, 5, and 7 with zero Backend requests.
 
 ### FAIL-BLOCKER
 
@@ -894,8 +966,8 @@ not changed. Evidence lives in the Editor repository at
 - Constrained Table-cell, repeated-header, explicit page-break, and
   default/approximate-versus-renderer drift rows remain explicitly blocked.
 - Full cross-runtime measurement parity is not accepted.
-- Multi-line and longer multi-glyph MR1 Canvas fixtures, rapid-edit lifecycle,
-  and last-valid Canvas retention are not implemented yet.
+- Multi-block scheduling, visible/off-screen priority, changed-range
+  invalidation, and an accepted frame budget are not implemented.
 - Default pagination measurement replacement remains blocked.
 - Whole-document field/layout coverage and incremental invalidation remain
   blocked for later slices.
@@ -923,13 +995,15 @@ not changed. Evidence lives in the Editor repository at
 - The external adapter now proves bounded effective Text Run style/font mapping,
   Browser loading, and Worker transfer, but Canvas consumption and broader
   style fallback remain unproved.
-- The 25 warm samples cover one tiny initialized fixture. They do not establish
-  a typing budget for long blocks, many Text Runs, or whole documents.
-- The QA Canvas row uses three one-character fragments. Browser glyph shaping
-  inside a longer fragment can still diverge from the accepted engine advance
-  even when fragment origins and line geometry match exactly.
-- The observed 13.5 ms projection and 7.5 ms paint are cold values for one tiny
-  line, not budgets or evidence for sustained typing.
+- The 25 warm multi-line samples cover one 74-unit TextBlock. They do not
+  establish a typing budget for multiple dirty blocks, long documents, tables,
+  or whole-document pagination.
+- Longer fragments now have bounded Canvas evidence, but Canvas still owns
+  glyph rasterization inside each command and no Canvas/PDF outline or pixel
+  reconciliation policy is accepted.
+- The rapid-edit response reordering is deliberately instrumented; it proves
+  the revision gate, not real scheduler fairness, queue pressure, or input
+  responsiveness under concurrent multi-block work.
 - The 23.1 ms warm long-row observation still reflows and fingerprints the
   complete 4,959-character block; XR-6 affected-range invalidation remains
   necessary.
@@ -940,6 +1014,7 @@ not changed. Evidence lives in the Editor repository at
 - Default/approximate-versus-renderer drift values for the expanded rows under
   the accepted threshold policy.
 - Final performance budgets for small and 200-page documents.
+- Multi-block scheduling policy and the visible/off-screen frame budget.
 - Canvas paint cost and memory for styled, image, table, and 200-page content.
 - Accepted glyph-position/outline reconciliation policy across Canvas and PDF.
 - Final drift reconciliation UX between Live Draft and Published output.

@@ -143,5 +143,6 @@ style data and do not yet have accepted per-fragment paint properties.
 External runtime facts live in `LIVE_DRAFT_MR1_ENGINE_FACTS.md`. The accepted
 per-fragment projector now lives in
 `LIVE_DRAFT_MR1_FRAGMENT_DISPLAY_LIST.md`. The separate Editor QA Canvas
-checkpoint is also accepted. Cover broader multi-line and longer-fragment
-behavior next without measurement or relayout.
+checkpoint plus subsequent multi-line/multi-glyph and rapid-edit lifecycle
+evidence are accepted. Cover bounded multi-block scheduling and frame-budget
+behavior next without granting renderer measurement or relayout.
