@@ -11,15 +11,15 @@
       "licenseId": "OFL-1.1",
       "family": "Sarabun",
       "path": "assets/fonts/Sarabun/OFL.txt",
-      "bytes": 4481,
-      "sha256": "be28652aa304594809e7174cd0206f8b9381a719a581fc429955c04de0f3ad1a"
+      "bytes": 4388,
+      "sha256": "9f8ab1944680acbce79ca9abffa1be4ef3a89213ce84368971ae48706a88089d"
     },
     {
       "licenseId": "OFL-1.1",
       "family": "Noto Sans Thai",
       "path": "assets/fonts/Noto_Sans_Thai/OFL.txt",
-      "bytes": 4473,
-      "sha256": "917b77d971a644ae57343452c19642c48989dba27816350444dbda63b1323db2"
+      "bytes": 4380,
+      "sha256": "dad6e6abc2bf3fc37cc698af7607c3f4d4235039695713b222e5a034fb5b9b1c"
     },
     {
       "licenseId": "OFL-1.1",
