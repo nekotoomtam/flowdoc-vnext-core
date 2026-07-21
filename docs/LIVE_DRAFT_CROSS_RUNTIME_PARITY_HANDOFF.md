@@ -62,7 +62,7 @@ Baseline commits when this handoff was written:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
-| `flowdoc-vnext-core` | `1b8d5c4` | Core-owned compositional semantic checkpoints, process-local proof binding, optional full-layout QA, and stage diagnostics |
+| `flowdoc-vnext-core` | `59e89ad` | Core-owned compositional semantic checkpoints, process-local proof binding, optional full-layout QA, and stage diagnostics |
 | `flowdoc-vnext-editor` | `43dcebb` | real-Chrome six-range Regular/Bold oracle evidence, diagnostic timing, and fail-closed scope proof |
 | `flowdoc-vnext-backend` | `280c4ff` | trusted admission, mapping, generation lifecycle, durable local operation recovery, PDF rendering and delivery |
 
@@ -426,28 +426,22 @@ identity.
 
 ## First Task For The Next Thread
 
-Design and prove the next bounded MR1 Core-owned request-composition checkpoint
-over the accepted MR1-O path. Do not bind or publish the product path yet and
-keep Table work deferred.
+Proceed to Phase 2 Persistent Flow Tree Foundation over the accepted MR1-P
+Initial TextBlock Flow boundary.
 
-1. Read the files under **Required Reading**, including the MR1-N and MR1-O
-   evidence.
-2. Remove the remaining `completeNextSemanticPassCount: 1` without trusting an
-   adapter-supplied semantic digest or weakening process-local provenance.
-3. Compose the next semantic proof from Core-owned immutable retained-prefix
-   facts, newly affected facts, and shifted-suffix facts at the affected
-   boundary.
-4. Preserve exact source, generated-owner, text, Text Run style, advance, line,
+1. Implement the versioned persistent B+ rope policy and remove
+   `completeNextSemanticPassCount: 1` for the accepted text subset without
+   trusting an adapter-supplied semantic digest or weakening process-local
+   provenance.
+2. Preserve exact source, generated-owner, text, Text Run style, advance, line,
    UTF-16, and revision-specific physical-id regeneration guarantees.
-5. Preserve the no-complete-layout-input path and optional full-oracle QA parity
+3. Preserve the no-complete-layout-input path and optional full-oracle QA parity
    for insertion, Bold, field-adjacent, deletion, and all current fallback rows.
-6. Remeasure all seven diagnostic stages plus semantic-proof and post-proof Core
-   subphases with no invented budget.
-7. Promote complete shape/segmentation oracle removal only after the complete
-   next semantic pass no longer dominates the measured path.
-8. Keep tables, columns, images, default-measurer replacement, Editor product
-   binding, whole-document production activation, publication, and glyph-pixel
-   exactness out.
+4. Remeasure retained-memory and request-composition work without inventing a
+   product-scale or interaction budget.
+5. Do not start spatial wrapping, list-decoration geometry, inline-image
+   line-box geometry, empty-block layout, Editor or Backend product binding,
+   table auto-fit, publication, or production in this checkpoint.
 
 ## Required Reading
 
@@ -1209,6 +1203,30 @@ host diagnostics, not an accepted budget or interaction-ready claim.
 Evidence lives at
 `docs/LIVE_DRAFT_MR1_COMPOSITIONAL_SEMANTIC_CHECKPOINTS.md`; implementation is
 pinned at Core `1b8d5c4`.
+
+## LIVE-DRAFT-MR1-P Complete Geometry Boundary
+
+Status: accepted as a bounded Core contract checkpoint. Persistent flow-tree
+execution, spatial wrapping, product binding, publication, and production
+remain NO-GO.
+
+MR1-P adds a versioned Initial TextBlock Flow boundary that pins parent region,
+authored box, role/list identity, measurement, paragraph style, fonts,
+layout-unit policy, and complete current inline facts. The existing MR1 layout
+is now reachable only through an explicit `text-subset-ready` adapter.
+
+Inline images retain frame, asset, and `verticalAlign` but report
+`blocked-line-box-contract`; list items retain authored identity but report
+`blocked-decoration-contract`; empty blocks report
+`blocked-empty-layout-contract`. These rows cannot enter legacy MR1 layout.
+All results retain `mayPublishLayout: false`.
+
+List decoration, image line-box geometry, empty-block layout, persistent trees,
+spatial wrapping, Editor, Backend, table auto-fit, and publication remain
+unimplemented.
+
+Evidence lives at `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`. The next
+bounded checkpoint is Phase 2 Persistent Flow Tree Foundation.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 

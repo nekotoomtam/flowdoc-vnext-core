@@ -12674,3 +12674,16 @@ Next phase: design a dedicated incremental Core acceptance and compositional
 fingerprint boundary over the proved line window, including explicit
 revision-specific shaping-run/fragment identity handling, before any layout may
 be published.
+
+## LIVE-DRAFT-MR1-P Complete Geometry Boundary
+
+Status: done.
+
+- Added exact body/column/table-cell parent-region ownership.
+- Added Initial TextBlock Flow classification with complete current geometry
+  dependencies and capability-honest list/image/empty rows.
+- Added an explicit text-subset adapter that preserves existing MR1 layout and
+  rejects unsupported, stale, cloned, or production-bound inputs.
+- Retained `mayPublishLayout: false`; canonical schema and product bindings are
+  unchanged.
+- Next: Phase 2 Persistent Flow Tree Foundation.
