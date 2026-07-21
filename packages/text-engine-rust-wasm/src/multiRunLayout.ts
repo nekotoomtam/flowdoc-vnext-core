@@ -12,11 +12,16 @@ import {
 import {
   FLOWDOC_TEXT_ENGINE_MULTI_RUN_LAYOUT_SOURCE,
   FLOWDOC_TEXT_ENGINE_MULTI_RUN_LAYOUT_VERSION,
+  FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_SOURCE,
+  FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_VERSION,
   type FlowDocTextEngineMultiRunFontFaceV1,
   type FlowDocTextEngineMultiRunLayoutInputV1,
   type FlowDocTextEngineMultiRunLayoutIssueCodeV1,
   type FlowDocTextEngineMultiRunLayoutIssueV1,
+  type FlowDocTextEngineMultiRunLayoutProfileV1,
   type FlowDocTextEngineMultiRunLayoutResultV1,
+  type FlowDocTextEngineMultiRunProfileClockV1,
+  type FlowDocTextEngineMultiRunProfilePhaseV1,
   type FlowDocTextEngineMultiRunRuntimeV1,
 } from "./multiRunLayoutContract.js"
 import type { FlowDocTextEngineMr1ShapeFactsV1 } from "./runtimeMr1.js"
@@ -303,9 +308,14 @@ function validateInput(
   return { issues, faceById, faceByStyle }
 }
 
-export function createFlowDocTextEngineMultiRunLayoutV1(
+interface FlowDocTextEngineMultiRunProfileRecorderV1 {
+  complete(phase: FlowDocTextEngineMultiRunProfilePhaseV1): void
+}
+
+function createFlowDocTextEngineMultiRunLayoutInternalV1(
   input: FlowDocTextEngineMultiRunLayoutInputV1,
   runtime: FlowDocTextEngineMultiRunRuntimeV1,
+  profile: FlowDocTextEngineMultiRunProfileRecorderV1 | null,
 ): FlowDocTextEngineMultiRunLayoutResultV1 {
   const base = facts(input, runtime)
   const validation = validateInput(input)
@@ -420,6 +430,7 @@ export function createFlowDocTextEngineMultiRunLayoutV1(
     })
   })
   if (issues.length > 0) return blocked(base, issues)
+  profile?.complete("input-and-style-resolution")
 
   const shapingRuns: VNextTextBlockResolvedShapingRunV1[] = []
   effectiveRuns.forEach((run, index) => {
@@ -487,6 +498,7 @@ export function createFlowDocTextEngineMultiRunLayoutV1(
     })
   })
   if (issues.length > 0) return blocked(base, issues)
+  profile?.complete("shaping")
 
   let segmentation
   try {
@@ -526,6 +538,7 @@ export function createFlowDocTextEngineMultiRunLayoutV1(
     ))
   })
   if (issues.length > 0) return blocked(base, issues)
+  profile?.complete("segmentation")
 
   const breakOffsets = [...new Set([
     ...segmentation.breakUtf16Offsets.filter((offset) => (
@@ -590,6 +603,7 @@ export function createFlowDocTextEngineMultiRunLayoutV1(
     })
     startBreakIndex = endBreakIndex
   }
+  profile?.complete("line-breaking")
 
   const usedFaceIds = new Set<string>([
     paragraphFace.fontFaceId,
@@ -634,12 +648,14 @@ export function createFlowDocTextEngineMultiRunLayoutV1(
       ...(item.shapingRunId == null ? {} : { shapingRunId: item.shapingRunId }),
     },
   )))
+  profile?.complete("core-acceptance-and-fingerprint")
 
   const fingerprint = createVNextCompactFingerprint(JSON.stringify({
     ...base,
     request,
     coreLayoutFingerprint: layout.fingerprint,
   }))
+  profile?.complete("adapter-fingerprint")
   return {
     ...base,
     status: "accepted",
@@ -656,6 +672,66 @@ export function createFlowDocTextEngineMultiRunLayoutV1(
       fontFaceCount: request.fontFaces.length,
       runtimeShapeCallCount: effectiveRuns.length,
       runtimeSegmentationCallCount: 1,
+    },
+  }
+}
+
+export function createFlowDocTextEngineMultiRunLayoutV1(
+  input: FlowDocTextEngineMultiRunLayoutInputV1,
+  runtime: FlowDocTextEngineMultiRunRuntimeV1,
+): FlowDocTextEngineMultiRunLayoutResultV1 {
+  return createFlowDocTextEngineMultiRunLayoutInternalV1(input, runtime, null)
+}
+
+export function profileFlowDocTextEngineMultiRunLayoutV1(
+  input: FlowDocTextEngineMultiRunLayoutInputV1,
+  runtime: FlowDocTextEngineMultiRunRuntimeV1,
+  clock: FlowDocTextEngineMultiRunProfileClockV1,
+): FlowDocTextEngineMultiRunLayoutProfileV1 {
+  const phases: FlowDocTextEngineMultiRunProfilePhaseV1[] = [
+    "input-and-style-resolution",
+    "shaping",
+    "segmentation",
+    "line-breaking",
+    "core-acceptance-and-fingerprint",
+    "adapter-fingerprint",
+  ]
+  const phaseDurationMs = Object.fromEntries(phases.map((phase) => [phase, null])) as
+    Record<FlowDocTextEngineMultiRunProfilePhaseV1, number | null>
+  const completedPhases: FlowDocTextEngineMultiRunProfilePhaseV1[] = []
+  const startedAt = clock.now()
+  let phaseStartedAt = startedAt
+  const result = createFlowDocTextEngineMultiRunLayoutInternalV1(input, runtime, {
+    complete(phase) {
+      const completedAt = clock.now()
+      phaseDurationMs[phase] = Math.max(0, completedAt - phaseStartedAt)
+      completedPhases.push(phase)
+      phaseStartedAt = completedAt
+    },
+  })
+  const completedAt = clock.now()
+  return {
+    source: FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_SOURCE,
+    contractVersion: FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_VERSION,
+    productionBinding: false,
+    result,
+    completedPhases,
+    phaseDurationMs,
+    totalDurationMs: Math.max(0, completedAt - startedAt),
+    work: {
+      renderedUtf16Length: input.measurement.renderedText.length,
+      sourceRunCount: input.measurement.runs.length,
+      effectiveRunCount: result.summary?.effectiveRunCount ?? null,
+      shapingRunCount: result.summary?.shapingRunCount ?? null,
+      clusterCount: result.summary?.clusterCount ?? null,
+      breakOpportunityCount: result.request?.breakOffsets.length ?? null,
+      lineCount: result.summary?.lineCount ?? null,
+    },
+    contracts: {
+      timingIsDiagnosticOnly: true,
+      timingAffectsLayoutFingerprint: false,
+      fullLayoutOracle: true,
+      productionBinding: false,
     },
   }
 }

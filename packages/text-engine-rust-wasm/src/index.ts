@@ -16,6 +16,7 @@ export * from "./liveDraftLayout.js"
 export * from "./runtimeMr1.js"
 export * from "./multiRunLayoutContract.js"
 export * from "./multiRunLayout.js"
+export * from "./incrementalReflowAnalysis.js"
 export * from "./mr1FontFaces.js"
 
 export const FLOWDOC_TEXT_ENGINE_RUST_WASM_ADAPTER_SOURCE = "flowdoc-text-engine-rust-wasm-adapter"

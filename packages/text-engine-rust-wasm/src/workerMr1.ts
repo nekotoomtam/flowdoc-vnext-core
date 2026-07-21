@@ -4,11 +4,17 @@ import initFlowDocTextEngineMr1Wasm, {
   flowdoc_text_engine_wasm_segment_json as wasmSegmentJson,
   flowdoc_text_engine_wasm_shape_json as wasmShapeJson,
 } from "../pkg-live-draft-mr1/flowdoc_text_engine_mr1.js"
-import { createFlowDocTextEngineMultiRunLayoutV1 } from "./multiRunLayout.js"
+import {
+  createFlowDocTextEngineMultiRunLayoutV1,
+  profileFlowDocTextEngineMultiRunLayoutV1,
+} from "./multiRunLayout.js"
 import type {
   FlowDocTextEngineMultiRunFontFaceV1,
   FlowDocTextEngineMultiRunLayoutInputV1,
+  FlowDocTextEngineMultiRunLayoutProfileV1,
   FlowDocTextEngineMultiRunLayoutResultV1,
+  FlowDocTextEngineMultiRunProfileClockV1,
+  FlowDocTextEngineMultiRunRuntimeV1,
 } from "./multiRunLayoutContract.js"
 import type { FlowDocTextEngineLiveDraftRawSegmentationV1 } from "./runtimeCommon.js"
 import {
@@ -48,6 +54,10 @@ export interface FlowDocTextEngineMr1WorkerRuntimeV1 {
   layout(
     input: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
   ): FlowDocTextEngineMultiRunLayoutResultV1
+  profileLayout(
+    input: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
+    clock: FlowDocTextEngineMultiRunProfileClockV1,
+  ): FlowDocTextEngineMultiRunLayoutProfileV1
 }
 
 async function sha256(bytes: ArrayBuffer): Promise<string> {
@@ -84,6 +94,35 @@ export async function createFlowDocTextEngineMr1WorkerRuntimeV1(
     "MR1 WASM boundary version mismatch",
   )
 
+  const multiRunRuntime: FlowDocTextEngineMultiRunRuntimeV1 = {
+    runtimeKind: "browser-worker-wasm-mr1",
+    shape({ text, fontFace }) {
+      const fontBytes = fontBytesById.get(fontFace.fontFaceId)
+      const initializedFace = faceById.get(fontFace.fontFaceId)
+      requireFact(fontBytes != null && initializedFace != null, `MR1 font bytes unavailable: ${fontFace.fontFaceId}`)
+      requireFact(
+        initializedFace.fontSha256 === fontFace.fontSha256,
+        `MR1 font request digest mismatch: ${fontFace.fontFaceId}`,
+      )
+      const raw = JSON.parse(wasmShapeJson(fontBytes, text, fontFace.fontFaceId)) as FlowDocTextEngineMr1RawShapeV1
+      return normalizeFlowDocTextEngineMr1ShapeV1(raw)
+    },
+    segment(text) {
+      const raw = JSON.parse(wasmSegmentJson(text)) as FlowDocTextEngineLiveDraftRawSegmentationV1
+      return normalizeFlowDocTextEngineMr1SegmentationV1(raw)
+    },
+  }
+  const completeInput = (layoutInput: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">) => {
+    requireFact(
+      layoutInput.measurement.measurementProfileId === input.measurementProfileId,
+      "MR1 layout profile does not match the initialized Worker runtime",
+    )
+    return {
+      ...structuredClone(layoutInput),
+      fontFaces: [...faceById.values()].map((face) => structuredClone(face)),
+    }
+  }
+
   return {
     identity: {
       runtime: "browser-worker-wasm-mr1",
@@ -97,31 +136,10 @@ export async function createFlowDocTextEngineMr1WorkerRuntimeV1(
       productionBinding: false,
     },
     layout(layoutInput) {
-      requireFact(
-        layoutInput.measurement.measurementProfileId === input.measurementProfileId,
-        "MR1 layout profile does not match the initialized Worker runtime",
-      )
-      return createFlowDocTextEngineMultiRunLayoutV1({
-        ...structuredClone(layoutInput),
-        fontFaces: [...faceById.values()].map((face) => structuredClone(face)),
-      }, {
-        runtimeKind: "browser-worker-wasm-mr1",
-        shape({ text, fontFace }) {
-          const fontBytes = fontBytesById.get(fontFace.fontFaceId)
-          const initializedFace = faceById.get(fontFace.fontFaceId)
-          requireFact(fontBytes != null && initializedFace != null, `MR1 font bytes unavailable: ${fontFace.fontFaceId}`)
-          requireFact(
-            initializedFace.fontSha256 === fontFace.fontSha256,
-            `MR1 font request digest mismatch: ${fontFace.fontFaceId}`,
-          )
-          const raw = JSON.parse(wasmShapeJson(fontBytes, text, fontFace.fontFaceId)) as FlowDocTextEngineMr1RawShapeV1
-          return normalizeFlowDocTextEngineMr1ShapeV1(raw)
-        },
-        segment(text) {
-          const raw = JSON.parse(wasmSegmentJson(text)) as FlowDocTextEngineLiveDraftRawSegmentationV1
-          return normalizeFlowDocTextEngineMr1SegmentationV1(raw)
-        },
-      })
+      return createFlowDocTextEngineMultiRunLayoutV1(completeInput(layoutInput), multiRunRuntime)
+    },
+    profileLayout(layoutInput, clock) {
+      return profileFlowDocTextEngineMultiRunLayoutV1(completeInput(layoutInput), multiRunRuntime, clock)
     },
   }
 }

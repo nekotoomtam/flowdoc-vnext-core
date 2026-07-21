@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest"
 import type { VNextTextBlockV4MeasurementRequest } from "../src/index.js"
 import {
   createFlowDocTextEngineMultiRunLayoutV1,
+  profileFlowDocTextEngineMultiRunLayoutV1,
 } from "../packages/text-engine-rust-wasm/src/multiRunLayout.js"
+import { analyzeFlowDocTextEngineIncrementalReflowV1 } from
+  "../packages/text-engine-rust-wasm/src/incrementalReflowAnalysis.js"
 import type {
   FlowDocTextEngineMultiRunLayoutInputV1,
   FlowDocTextEngineMultiRunRuntimeV1,
@@ -136,6 +139,41 @@ function fakeRuntime(options: {
 }
 
 describe("MR1 external multi-run layout adapter", () => {
+  it("profiles diagnostic phases without changing deterministic layout output", () => {
+    const input = inputFixture()
+    let tick = 0
+    const profiled = profileFlowDocTextEngineMultiRunLayoutV1(
+      input,
+      fakeRuntime(),
+      { now: () => tick++ },
+    )
+
+    expect(profiled.result).toEqual(createFlowDocTextEngineMultiRunLayoutV1(input, fakeRuntime()))
+    expect(profiled.completedPhases).toEqual([
+      "input-and-style-resolution",
+      "shaping",
+      "segmentation",
+      "line-breaking",
+      "core-acceptance-and-fingerprint",
+      "adapter-fingerprint",
+    ])
+    expect(Object.values(profiled.phaseDurationMs)).toEqual([1, 1, 1, 1, 1, 1])
+    expect(profiled.totalDurationMs).toBe(7)
+    expect(profiled.work).toMatchObject({
+      renderedUtf16Length: 3,
+      sourceRunCount: 3,
+      shapingRunCount: 3,
+      clusterCount: 3,
+      lineCount: 1,
+    })
+    expect(profiled.contracts).toEqual({
+      timingIsDiagnosticOnly: true,
+      timingAffectsLayoutFingerprint: false,
+      fullLayoutOracle: true,
+      productionBinding: false,
+    })
+  })
+
   it("resolves Text Run overrides, shapes three runs, and lets Core derive the real-font shared baseline", () => {
     const input = inputFixture()
     const before = JSON.stringify(input)
@@ -302,5 +340,121 @@ describe("MR1 external multi-run layout adapter", () => {
       status: "blocked",
       issues: expect.arrayContaining([expect.objectContaining({ code: "runtime-missing-glyph" })]),
     })
+  })
+
+  it("proves a bounded restart and exact suffix reconvergence only against full-layout oracles", () => {
+    const previousInput = inputFixture()
+    const previousText = "ab".repeat(30)
+    previousInput.measurement.renderedText = previousText
+    previousInput.measurement.availableWidthPt = 12
+    previousInput.measurement.runs = [{
+      inlineId: "long-run",
+      kind: "text",
+      renderStartOffset: 0,
+      renderEndOffset: previousText.length,
+      renderedText: previousText,
+      styleKey: "paragraph-body",
+    }]
+    const nextInput = clone(previousInput)
+    const editOffset = 12
+    const insertedText = "ab"
+    const nextText = previousText.slice(0, editOffset) + insertedText + previousText.slice(editOffset)
+    nextInput.measurement.instanceRevision += 1
+    nextInput.measurement.renderedText = nextText
+    nextInput.measurement.runs[0]!.renderEndOffset = nextText.length
+    nextInput.measurement.runs[0]!.renderedText = nextText
+    const previous = createFlowDocTextEngineMultiRunLayoutV1(previousInput, fakeRuntime({ everyScalarBreak: true }))
+    const nextOracle = createFlowDocTextEngineMultiRunLayoutV1(nextInput, fakeRuntime({ everyScalarBreak: true }))
+    if (previous.status !== "accepted" || nextOracle.status !== "accepted") throw new Error("oracle fixture blocked")
+
+    const analysis = analyzeFlowDocTextEngineIncrementalReflowV1({
+      previous,
+      nextOracle,
+      edit: {
+        previousStartOffset: editOffset,
+        previousEndOffset: editOffset,
+        nextEndOffset: editOffset + insertedText.length,
+      },
+    })
+
+    expect(analysis).toMatchObject({
+      status: "window-proved",
+      contracts: {
+        execution: "full-layout-oracle-analysis-only",
+        fullLayoutOracleRequired: true,
+        mayPublishLayout: false,
+        productionBinding: false,
+      },
+      checkpoint: { offsetDelta: 2, stableLineCount: 2 },
+      work: {
+        exactIntegerGeometry: true,
+        reusedPrefixLineCount: expect.any(Number),
+        reflowedNextLineCount: expect.any(Number),
+        reusedSuffixLineCount: expect.any(Number),
+      },
+    })
+    if (analysis.status !== "window-proved") throw new Error(analysis.fallback.message)
+    expect(analysis.work.reusedPrefixLineCount).toBeGreaterThan(0)
+    expect(analysis.work.reusedSuffixLineCount).toBeGreaterThan(2)
+    expect(analysis.work.reflowedNextUtf16Length).toBeLessThanOrEqual(2_048)
+    expect(analyzeFlowDocTextEngineIncrementalReflowV1({
+      previous,
+      nextOracle,
+      edit: analysis.edit,
+    })).toEqual(analysis)
+  })
+
+  it("falls back for an edited hard break and for a window beyond policy", () => {
+    const previousInput = inputFixture()
+    previousInput.measurement.renderedText = "A\nB"
+    previousInput.measurement.runs = [
+      { inlineId: "a", kind: "text", renderStartOffset: 0, renderEndOffset: 1, renderedText: "A" },
+      { inlineId: "break", kind: "hard-break", renderStartOffset: 1, renderEndOffset: 2, renderedText: "\n" },
+      { inlineId: "b", kind: "text", renderStartOffset: 2, renderEndOffset: 3, renderedText: "B" },
+    ]
+    const nextInput = clone(previousInput)
+    nextInput.measurement.instanceRevision += 1
+    nextInput.measurement.renderedText = "A B"
+    nextInput.measurement.runs = [{
+      inlineId: "all",
+      kind: "text",
+      renderStartOffset: 0,
+      renderEndOffset: 3,
+      renderedText: "A B",
+    }]
+    const previous = createFlowDocTextEngineMultiRunLayoutV1(previousInput, fakeRuntime({ everyScalarBreak: true }))
+    const nextOracle = createFlowDocTextEngineMultiRunLayoutV1(nextInput, fakeRuntime({ everyScalarBreak: true }))
+    if (previous.status !== "accepted" || nextOracle.status !== "accepted") throw new Error("fallback fixture blocked")
+    expect(analyzeFlowDocTextEngineIncrementalReflowV1({
+      previous,
+      nextOracle,
+      edit: { previousStartOffset: 1, previousEndOffset: 2, nextEndOffset: 2 },
+    })).toMatchObject({ status: "fallback-required", fallback: { code: "hard-break-edited" } })
+
+    const longPreviousInput = inputFixture()
+    const longPreviousText = "ab".repeat(30)
+    longPreviousInput.measurement.renderedText = longPreviousText
+    longPreviousInput.measurement.availableWidthPt = 12
+    longPreviousInput.measurement.runs = [{
+      inlineId: "long-run",
+      kind: "text",
+      renderStartOffset: 0,
+      renderEndOffset: longPreviousText.length,
+      renderedText: longPreviousText,
+    }]
+    const longNextInput = clone(longPreviousInput)
+    longNextInput.measurement.instanceRevision += 1
+    longNextInput.measurement.renderedText = `ab${longPreviousText}`
+    longNextInput.measurement.runs[0]!.renderEndOffset += 2
+    longNextInput.measurement.runs[0]!.renderedText = longNextInput.measurement.renderedText
+    const longPrevious = createFlowDocTextEngineMultiRunLayoutV1(longPreviousInput, fakeRuntime({ everyScalarBreak: true }))
+    const longNext = createFlowDocTextEngineMultiRunLayoutV1(longNextInput, fakeRuntime({ everyScalarBreak: true }))
+    if (longPrevious.status !== "accepted" || longNext.status !== "accepted") throw new Error("bounded fixture blocked")
+    expect(analyzeFlowDocTextEngineIncrementalReflowV1({
+      previous: longPrevious,
+      nextOracle: longNext,
+      edit: { previousStartOffset: 0, previousEndOffset: 0, nextEndOffset: 2 },
+      policy: { stableLineCount: 2, maximumReflowLineCount: 32, maximumReflowUtf16Length: 1 },
+    })).toMatchObject({ status: "fallback-required", fallback: { code: "reflow-window-exceeded" } })
   })
 })

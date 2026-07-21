@@ -14,6 +14,9 @@ import type {
 export const FLOWDOC_TEXT_ENGINE_MULTI_RUN_LAYOUT_SOURCE =
   "flowdoc-text-engine-multi-run-layout-v1" as const
 export const FLOWDOC_TEXT_ENGINE_MULTI_RUN_LAYOUT_VERSION = 1 as const
+export const FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_SOURCE =
+  "flowdoc-text-engine-multi-run-profile-v1" as const
+export const FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_VERSION = 1 as const
 
 export type FlowDocTextEngineMultiRunRuntimeKindV1 =
   | "node-native-mr1"
@@ -54,6 +57,43 @@ export interface FlowDocTextEngineMultiRunLayoutInputV1 {
   paragraphStyle: FlowDocTextEngineMultiRunParagraphStyleV1
   fontFaces: FlowDocTextEngineMultiRunFontFaceV1[]
   bindProductionLayout?: boolean
+}
+
+export type FlowDocTextEngineMultiRunProfilePhaseV1 =
+  | "input-and-style-resolution"
+  | "shaping"
+  | "segmentation"
+  | "line-breaking"
+  | "core-acceptance-and-fingerprint"
+  | "adapter-fingerprint"
+
+export interface FlowDocTextEngineMultiRunProfileClockV1 {
+  now(): number
+}
+
+export interface FlowDocTextEngineMultiRunLayoutProfileV1 {
+  source: typeof FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_SOURCE
+  contractVersion: typeof FLOWDOC_TEXT_ENGINE_MULTI_RUN_PROFILE_VERSION
+  productionBinding: false
+  result: FlowDocTextEngineMultiRunLayoutResultV1
+  completedPhases: FlowDocTextEngineMultiRunProfilePhaseV1[]
+  phaseDurationMs: Record<FlowDocTextEngineMultiRunProfilePhaseV1, number | null>
+  totalDurationMs: number
+  work: {
+    renderedUtf16Length: number
+    sourceRunCount: number
+    effectiveRunCount: number | null
+    shapingRunCount: number | null
+    clusterCount: number | null
+    breakOpportunityCount: number | null
+    lineCount: number | null
+  }
+  contracts: {
+    timingIsDiagnosticOnly: true
+    timingAffectsLayoutFingerprint: false
+    fullLayoutOracle: true
+    productionBinding: false
+  }
 }
 
 export type FlowDocTextEngineMultiRunLayoutIssueCodeV1 =
