@@ -19,7 +19,7 @@ const sectionAtPeerHeading = (document: string, start: string): string => {
   return document.slice(startIndex, nextHeadingIndex < 0 ? document.length : nextHeadingIndex)
 }
 
-const runtimeBaseline = "2f60fba"
+const runtimeBaseline = "b686c99"
 const phase2Exclusions =
   "Do not start spatial wrapping, list decoration, inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit, publication, or production activation in this checkpoint."
 
@@ -42,6 +42,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     const handoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("../docs/PHASE_LEDGER.md")
     const handoffHeader = sectionBetween(handoff, "# ", "## Objective")
+    const handoffMr1p = sectionAtPeerHeading(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
     const ledgerMr1p = sectionAtPeerHeading(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
 
     for (const section of [
@@ -78,10 +79,16 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(handoff).not.toContain("| `flowdoc-vnext-core` | `109675f` |")
     expect(handoff).not.toContain("| `flowdoc-vnext-core` | `59e89ad` |")
 
-    for (const document of [normalize(boundary), normalize(handoff), normalize(ledgerMr1p)]) {
+    for (const document of [normalize(boundary), normalize(handoffMr1p), normalize(ledgerMr1p)]) {
       for (const evidence of [
         "shared effective shaping-style identity",
         "actual `createFlowDocTextEngineMultiRunLayoutV1(...)` producer",
+        "own enumerable key insertion order",
+        "data-only contained request",
+        "sparse array shape",
+        "without reading accessors",
+        "blank and whitespace-only `layoutId` values",
+        "`layoutId: \"unavailable\"`",
         "malformed runtime input",
         "effectively rendered-empty field",
         "list-only",
@@ -218,11 +225,11 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(normalizedBoundary).toContain("`resolved-run-typography`")
     expect(normalizedLedger).toContain("`fontFamilyKey`")
     expect(normalizedLedger).toContain("`resolved-run-typography`")
-    expect(boundary).toContain("5 test files passed; 90 tests passed")
+    expect(boundary).toContain("5 test files passed; 95 tests passed")
     expect(boundary).toContain("1 test file passed; 5 tests passed")
-    expect(boundary).toContain("408 test files passed; 2003 tests passed")
-    expect(normalizedLedger).toContain("passed 5 test files / 90 tests")
+    expect(boundary).toContain("408 test files passed; 2008 tests passed")
+    expect(normalizedLedger).toContain("passed 5 test files / 95 tests")
     expect(normalizedLedger).toContain("documentation guard passed 1 test file / 5 tests")
-    expect(normalizedLedger).toContain("full gate passed 408 test files / 2003 tests")
+    expect(normalizedLedger).toContain("full gate passed 408 test files / 2008 tests")
   })
 })

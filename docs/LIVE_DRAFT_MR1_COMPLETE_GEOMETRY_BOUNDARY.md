@@ -20,7 +20,8 @@ the measurement/source key as `measurementStyleKey`, retains the producer key as
 face's authoritative `fontFamilyKey` into the frozen flow and fingerprint. The
 actual `createFlowDocTextEngineMultiRunLayoutV1(...)` producer calls the same
 helper, so plain text, supported local typography, misleading display labels,
-and unused pinned faces preserve exact direct-MR1/adapter parity.
+unused pinned faces, and valid producer `localStyle` properties inserted outside
+schema order preserve exact direct-MR1/adapter layout and fingerprint parity.
 
 The new Initial Flow handoff path invokes legacy MR1 only through the explicit
 adapter. For accepted text-subset-ready rows, the adapter reproduces exact
@@ -30,18 +31,26 @@ the adapter invokes legacy layout.
 
 Strict runtime schemas validate the retained root and nested measurement,
 paragraph-style, font-face, authored-box, parent-region, and atom facts before
-they are dereferenced. The strict canonical validation and ordinal ordering make
-fingerprints and legacy-context equality independent of property insertion
-order. Lowercase font digests, safe integer layout units, and exact
-discriminated measurement-run variants remain mandatory.
+use. Canonical Initial Flow fingerprints and semantic legacy-context equality
+remain independent of property insertion order, while exact direct-MR1 parity
+retains the valid legacy request's original representation. The adapter
+preserves that request's own enumerable key insertion order in a data-only
+contained request. It snapshots own data descriptors without reading accessors
+and preserves sparse array shape so holes cannot collapse before validation.
+The strict canonical validation applies complete Zod and semantic equality
+checks to that snapshot, then passes the snapshot rather than Zod-reconstructed
+data to unchanged MR1. Unknown fields, lowercase font digests, safe integer
+layout units, and exact discriminated measurement-run variants remain
+mandatory.
 
-The adapter accepts malformed runtime input as `unknown`, validates the strict
-envelope and complete legacy request before use, contains throwing accessors,
-and returns deterministic blocked metadata with explicit `unavailable`
-fallbacks. A field resolving to `""` (an effectively rendered-empty field), a
-hard-break-only row, and other zero-text cases require the empty-layout contract
-before legacy MR1. Independent list-only and inline-image-only rows prove that
-each unsupported geometry capability blocks on its own.
+The adapter accepts malformed runtime input as `unknown` and returns
+deterministic structured blockers. Both blank and whitespace-only `layoutId`
+values stop before legacy invocation and return metadata with
+`layoutId: "unavailable"`; valid nonblank values remain unchanged. A field
+resolving to `""` (an effectively rendered-empty field), a hard-break-only row,
+and other zero-text cases require the empty-layout contract before legacy MR1.
+Independent list-only and inline-image-only rows prove that each unsupported
+geometry capability blocks on its own.
 
 The public MR1-P surface is:
 
@@ -96,6 +105,14 @@ reports `mayPublishLayout: false`.
 - For accepted text-subset-ready rows, the adapter reproduces exact legacy MR1
   layout parity, including requests emitted by the actual producer and requests
   whose retained input contains unused faces.
+- A valid actual-producer request whose `localStyle` owns `fontStyle`,
+  `fontWeight`, `textColor`, and `fontSize` in non-schema insertion order retains
+  the exact direct MR1 layout and fingerprint chain.
+- The data-only contained request preserves own enumerable key insertion order,
+  preserves sparse array shape, rejects unknown fields, and contains readable or
+  throwing accessors without reading accessors before strict validation.
+- Both blank and whitespace-only `layoutId` values block before legacy MR1 with
+  `layoutId: "unavailable"`; valid nonblank layout identities are preserved.
 - An effectively rendered-empty field and hard-break-only content require the
   empty-layout contract; independent list-only and inline-image-only proofs stop
   before legacy MR1.
@@ -135,7 +152,7 @@ reports `mayPublishLayout: false`.
 
 ## Verification
 
-Reviewed Core runtime baseline: `2f60fba`.
+Reviewed Core runtime baseline: `b686c99`.
 
 - Focused evidence is pinned to
   `packages/text-engine-rust-wasm/src/multiRunLayout.ts`,
@@ -145,10 +162,10 @@ Reviewed Core runtime baseline: `2f60fba`.
   `tests/textBlockInitialFlowInputV1.test.ts`,
   `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`, and
   `tests/textBlockMultiRunLayoutV1.test.ts`.
-- Runtime-focused result: 5 test files passed; 90 tests passed.
+- Runtime-focused result: 5 test files passed; 95 tests passed.
 - Section-bounded documentation guard result: 1 test file passed; 5 tests passed.
 - `npm run type-check` passes.
-- Full `npm run check` passes: 408 test files passed; 2003 tests passed.
+- Full `npm run check` passes: 408 test files passed; 2008 tests passed.
 - Working-tree and runtime-baseline diff whitespace validation pass.
 
 ## Next Checkpoint

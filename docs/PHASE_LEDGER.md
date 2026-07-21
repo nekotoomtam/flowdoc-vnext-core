@@ -12681,7 +12681,7 @@ Status: accepted as a bounded Core contract checkpoint. Persistent flow-tree
 execution, spatial wrapping, product binding, publication, and production
 remain NO-GO.
 
-Reviewed Core runtime baseline: `2f60fba`.
+Reviewed Core runtime baseline: `b686c99`.
 
 - Added exact body/column/table-cell parent-region ownership through
   `textBlockInitialFlowParentRegionV1`.
@@ -12695,14 +12695,22 @@ Reviewed Core runtime baseline: `2f60fba`.
   `paragraphFontFamilyKey` and authoritative per-face keys, while the actual
   `createFlowDocTextEngineMultiRunLayoutV1(...)` producer calls the same helper.
   Plain, supported styled, misleading-display-label, and unused-face requests
-  retain exact direct-MR1/adapter parity.
+  retain exact direct-MR1/adapter parity. Valid producer `localStyle` properties
+  inserted outside schema order retain the same exact layout and fingerprint
+  chain.
 - The supported local style subset resolves font size, color, weight, and style
   exactly by authoritative family key rather than display family; authored local
   `fontFamilyKey` overrides remain blocked as `resolved-run-typography`.
 - Added strict canonical validation for retained root and nested facts,
-  lowercase font digests, property-order-independent fingerprints/context, and
-  non-throwing structured rejection of malformed runtime input, including
-  accessor-shaped roots and nested layout ids with explicit metadata fallbacks.
+  lowercase font digests, and property-order-independent canonical Initial Flow
+  fingerprints/context. The adapter preserves the original valid request's own
+  enumerable key insertion order in a data-only contained request, snapshots
+  own data descriptors without reading accessors, and preserves sparse array
+  shape so holes cannot collapse before strict validation. It passes that
+  strictly validated snapshot rather than Zod-reconstructed data to unchanged
+  MR1. Unknown fields and malformed runtime input remain blocked. Both blank and
+  whitespace-only `layoutId` values stop before legacy invocation with
+  `layoutId: "unavailable"`; valid nonblank ids remain unchanged.
 - An effectively rendered-empty field and hard-break-only content require the
   empty-layout contract. Independent list-only and inline-image-only classifier
   and adapter proofs block before legacy MR1.
@@ -12720,8 +12728,8 @@ Reviewed Core runtime baseline: `2f60fba`.
   `tests/textBlockInitialFlowParentRegionV1.test.ts`,
   `tests/textBlockInitialFlowInputV1.test.ts`, and
   `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`. The final focused slice
-  passed 5 test files / 90 tests; the section-bounded documentation guard passed
-  1 test file / 5 tests; the full gate passed 408 test files / 2003 tests.
+  passed 5 test files / 95 tests; the section-bounded documentation guard passed
+  1 test file / 5 tests; the full gate passed 408 test files / 2008 tests.
 - Next: Phase 2 Persistent Flow Tree Foundation. Do not start spatial wrapping,
   list decoration, inline-image geometry, empty-block geometry, Editor, Backend,
   table auto-fit, publication, or production activation in this checkpoint.
