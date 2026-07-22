@@ -790,20 +790,43 @@ export function inspectVNextTextBlockPersistentFlowUpdateV1(input: {
     code: "update-provenance-mismatch",
     message: "update is not bound to these exact process-local proof inputs",
   }
-  if (
-    !deeplyFrozenPersistentFlowV1(input.update)
-    || !hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1(input.update.nextTree, input.nextRequest)
-    || binding.previousRequestFingerprint !== canonicalFingerprint(input.previousRequest)
-    || binding.nextRequestFingerprint !== canonicalFingerprint(input.nextRequest)
-    || binding.editFingerprint !== canonicalFingerprint(input.edit)
-    || binding.windowFingerprint !== canonicalFingerprint(input.window)
-  ) return {
+  if (!deeplyFrozenPersistentFlowV1(input.update)) return {
+    status: "invalid",
+    code: "update-provenance-mismatch",
+    message: "an exact update proof input was cloned or changed after creation",
+  }
+  let exactInputFingerprintsMatch: boolean
+  try {
+    exactInputFingerprintsMatch =
+      hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1(input.update.nextTree, input.nextRequest)
+      && binding.previousRequestFingerprint === canonicalFingerprint(input.previousRequest)
+      && binding.nextRequestFingerprint === canonicalFingerprint(input.nextRequest)
+      && binding.editFingerprint === canonicalFingerprint(input.edit)
+      && binding.windowFingerprint === canonicalFingerprint(input.window)
+  } catch {
+    return {
+      status: "invalid",
+      code: "update-provenance-mismatch",
+      message: "an exact update proof input is no longer canonically fingerprintable",
+    }
+  }
+  if (!exactInputFingerprintsMatch) return {
     status: "invalid",
     code: "update-provenance-mismatch",
     message: "an exact update proof input was cloned or changed after creation",
   }
   const { fingerprint, ...facts } = input.update
-  if (fingerprint !== fingerprintUpdate(facts)) return {
+  let expectedFingerprint: string
+  try {
+    expectedFingerprint = fingerprintUpdate(facts)
+  } catch {
+    return {
+      status: "invalid",
+      code: "update-fingerprint-mismatch",
+      message: "the registered update facts are no longer canonically fingerprintable",
+    }
+  }
+  if (fingerprint !== expectedFingerprint) return {
     status: "invalid",
     code: "update-fingerprint-mismatch",
     message: "the registered update fingerprint no longer matches its immutable facts",

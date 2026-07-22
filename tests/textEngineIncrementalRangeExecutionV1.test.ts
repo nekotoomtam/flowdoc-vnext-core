@@ -744,9 +744,14 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       code: "persistent-flow-update-mismatch",
     })
     const changedUnaffectedSourceStyle = clone(fixture.nextOracle.request)
+    const nextRestartOffset = changedUnaffectedSourceStyle.lines[
+      result.affectedWindow.checkpoint.nextRestartLineIndex
+    ]!.renderStartOffset
     const unaffectedSourceRun = changedUnaffectedSourceStyle.measurement.runs.find((run) => (
-      run.renderEndOffset > suffixOffset
+      run.renderEndOffset <= nextRestartOffset
     ))!
+    expect(unaffectedSourceRun).toBeDefined()
+    expect(unaffectedSourceRun.renderEndOffset).toBeLessThanOrEqual(nextRestartOffset)
     unaffectedSourceRun.styleKey = `${unaffectedSourceRun.styleKey}-drift`
     expect(createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
       snapshot: coreSnapshot,

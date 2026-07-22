@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import {
   collectVNextTextBlockPersistentFlowNodesForQaV1,
+  createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
+  createVNextTextBlockMultiRunIncrementalSnapshotV1,
   createVNextTextBlockPersistentFlowTreeV1,
   createVNextTextBlockPersistentFlowUpdateV1,
   inspectVNextTextBlockPersistentFlowUpdateV1,
@@ -138,6 +140,42 @@ describe("TextBlock persistent flow update v1", () => {
       edit: tamperedFixture.edit,
       window: tamperedFixture.window,
     })).toMatchObject({ status: "blocked", issues: [{ code: "tree-provenance-mismatch" }] })
+  }, 30_000)
+
+  it("returns a structured proof fallback when an exact bound edit becomes noncanonical", () => {
+    const fixture = persistentFlowEditFixture()
+    const snapshot = createVNextTextBlockMultiRunIncrementalSnapshotV1({
+      request: fixture.previousRequest,
+      acceptedLayout: fixture.previousLayout,
+    })
+    const edit = { ...fixture.edit }
+    const window = { ...fixture.window }
+    const update = createVNextTextBlockPersistentFlowUpdateV1({
+      previousTree: snapshot.persistentFlowTree,
+      previousRequest: snapshot.request,
+      nextRequest: fixture.nextRequest,
+      edit,
+      window,
+    })
+    if (update.status !== "accepted") throw new Error(update.issues[0]?.message)
+
+    edit.previousStartOffset = Number.NaN
+    let proof: ReturnType<
+      typeof createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1
+    > | undefined
+    expect(() => {
+      proof = createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
+        snapshot,
+        nextRequest: fixture.nextRequest,
+        edit,
+        window,
+        persistentFlowUpdate: update.update,
+      })
+    }).not.toThrow()
+    expect(proof).toMatchObject({
+      status: "fallback-required",
+      code: "persistent-flow-update-mismatch",
+    })
   }, 30_000)
 
   it("accepts a chained earlier reconvergence from the exact derived tree", () => {
