@@ -27,6 +27,8 @@ const processLocalPersistentFlowTreeRequestFingerprintsV1 = new WeakMap<
   string
 >()
 export type VNextTextBlockPersistentFlowSuffixProofInternalV1 = {
+  semanticLineFingerprints: readonly (string | undefined)[]
+  semanticRangeLineFingerprints: readonly (string | undefined)[]
   semanticSuffixFingerprints: readonly (string | undefined)[]
   semanticRangeSuffixFingerprints: readonly (string | undefined)[]
 }
@@ -89,6 +91,18 @@ export function getVNextTextBlockPersistentFlowSuffixProofInternalV1(
   const proof = processLocalPersistentFlowTreeSuffixProofsV1.get(tree)
   const semanticFingerprint = proof?.semanticSuffixFingerprints[lineIndex]
   const semanticRangeFingerprint = proof?.semanticRangeSuffixFingerprints[lineIndex]
+  return semanticFingerprint == null || semanticRangeFingerprint == null
+    ? null
+    : { semanticFingerprint, semanticRangeFingerprint }
+}
+
+export function getVNextTextBlockPersistentFlowLineProofInternalV1(
+  tree: VNextTextBlockPersistentFlowTreeV1,
+  lineIndex: number,
+): { semanticFingerprint: string; semanticRangeFingerprint: string } | null {
+  const proof = processLocalPersistentFlowTreeSuffixProofsV1.get(tree)
+  const semanticFingerprint = proof?.semanticLineFingerprints[lineIndex]
+  const semanticRangeFingerprint = proof?.semanticRangeLineFingerprints[lineIndex]
   return semanticFingerprint == null || semanticRangeFingerprint == null
     ? null
     : { semanticFingerprint, semanticRangeFingerprint }

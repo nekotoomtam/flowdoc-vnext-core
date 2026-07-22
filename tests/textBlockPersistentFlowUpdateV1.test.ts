@@ -5,7 +5,10 @@ import {
   createVNextTextBlockPersistentFlowUpdateV1,
   inspectVNextTextBlockPersistentFlowUpdateV1,
 } from "../src/index.js"
-import { persistentFlowEditFixture } from "./helpers/textBlockPersistentFlowV1.js"
+import {
+  persistentFlowChainedEditFixture,
+  persistentFlowEditFixture,
+} from "./helpers/textBlockPersistentFlowV1.js"
 
 describe("TextBlock persistent flow update v1", () => {
   it("path-copies the affected range and reuses untouched nodes", () => {
@@ -135,5 +138,58 @@ describe("TextBlock persistent flow update v1", () => {
       edit: tamperedFixture.edit,
       window: tamperedFixture.window,
     })).toMatchObject({ status: "blocked", issues: [{ code: "tree-provenance-mismatch" }] })
+  })
+
+  it("accepts a chained earlier reconvergence from the exact derived tree", () => {
+    const fixture = persistentFlowChainedEditFixture()
+    const initial = createVNextTextBlockPersistentFlowTreeV1({
+      request: fixture.first.previousRequest,
+      acceptedLayout: fixture.first.previousLayout,
+    })
+    if (initial.status !== "accepted") throw new Error("initial chained tree blocked")
+    const first = createVNextTextBlockPersistentFlowUpdateV1({
+      previousTree: initial.tree,
+      previousRequest: fixture.first.previousRequest,
+      nextRequest: fixture.first.nextRequest,
+      edit: fixture.first.edit,
+      window: fixture.first.window,
+    })
+    if (first.status !== "accepted") throw new Error(first.issues[0]?.message)
+
+    const second = createVNextTextBlockPersistentFlowUpdateV1({
+      previousTree: first.nextTree,
+      previousRequest: fixture.first.nextRequest,
+      nextRequest: fixture.nextRequest,
+      edit: fixture.edit,
+      window: fixture.window,
+    })
+    if (second.status !== "accepted") throw new Error(second.issues[0]?.message)
+    expect(second.work).toMatchObject({
+      completeTreeRebuildCount: 0,
+      completeSemanticPassCount: 0,
+      reusedNodeCount: expect.any(Number),
+    })
+    expect(second.work.reusedNodeCount).toBeGreaterThan(0)
+    expect(inspectVNextTextBlockPersistentFlowUpdateV1({
+      update: second.update,
+      previousTree: first.nextTree,
+      previousRequest: fixture.first.nextRequest,
+      nextRequest: fixture.nextRequest,
+      edit: fixture.edit,
+      window: fixture.window,
+    })).toEqual({ status: "valid" })
+
+    const tampered = `sha256:${"f".repeat(64)}`
+    expect(createVNextTextBlockPersistentFlowUpdateV1({
+      previousTree: first.nextTree,
+      previousRequest: fixture.first.nextRequest,
+      nextRequest: fixture.nextRequest,
+      edit: fixture.edit,
+      window: {
+        ...fixture.window,
+        previousSuffixSemanticFingerprint: tampered,
+        nextSuffixSemanticFingerprint: tampered,
+      },
+    })).toMatchObject({ status: "blocked", issues: [{ code: "invalid-window" }] })
   })
 })

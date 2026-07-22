@@ -1,10 +1,19 @@
 import { isVNextSafeUtf16TextOffset } from "../authoring/utf16Offsets.js"
 import { sameVNextCanonicalJson, stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
+import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
+import {
+  deriveVNextTextBlockMultiRunAcceptedRunsV1,
+  positionVNextTextBlockMultiRunLineWindowV1,
+} from "./textBlockMultiRunDerivationV1.js"
 import type {
   VNextTextBlockMultiRunIncrementalEditV1,
   VNextTextBlockMultiRunIncrementalWindowProofV1,
 } from "./textBlockMultiRunIncrementalContractV1.js"
 import type { VNextTextBlockMultiRunLayoutRequestV1 } from "./textBlockMultiRunLayoutContractV1.js"
+import {
+  createVNextTextBlockMultiRunSemanticLineFingerprintV1,
+  createVNextTextBlockMultiRunSemanticRangeFingerprintV1,
+} from "./textBlockMultiRunSemanticV1.js"
 import {
   VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1,
   type VNextTextBlockPersistentFlowItemKindV1,
@@ -24,12 +33,14 @@ import {
   createVNextTextBlockPersistentFlowTreeFromRootInternalV1,
   deepFreezePersistentFlowV1,
   deeplyFrozenPersistentFlowV1,
+  getVNextTextBlockPersistentFlowLineProofInternalV1,
   getVNextTextBlockPersistentFlowSuffixProofInternalV1,
   hasVNextTextBlockPersistentFlowTreeProvenanceInternalV1,
   hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1,
   partitionPersistentFlowValuesV1,
   projectVNextTextBlockPersistentFlowItemsForRangeV1,
   sliceVNextTextBlockPersistentFlowItemInternalV1,
+  type VNextTextBlockPersistentFlowSuffixProofInternalV1,
 } from "./textBlockPersistentFlowTreeInternalsV1.js"
 
 const UPDATE_SOURCE = "vnext-text-block-persistent-flow-update-v1" as const
@@ -416,6 +427,145 @@ function countsAfterReplacement(input: {
     : null
 }
 
+function deriveBoundedLineProofs(input: {
+  request: VNextTextBlockMultiRunLayoutRequestV1
+  startLineIndex: number
+  endLineIndexExclusive: number
+}): Array<{ semanticFingerprint: string; semanticRangeFingerprint: string }> | null {
+  const startOffset = input.request.lines[input.startLineIndex]?.renderStartOffset
+  const endOffset = input.request.lines[input.endLineIndexExclusive]?.renderStartOffset
+    ?? (input.endLineIndexExclusive === input.request.lines.length
+      ? input.request.measurement.renderedText.length
+      : undefined)
+  if (startOffset == null || endOffset == null || endOffset <= startOffset) return null
+  const shapingRuns = input.request.shapingRuns.flatMap((run) => {
+    const clusters = run.clusters.filter((cluster) => (
+      cluster.renderEndOffset > startOffset && cluster.renderStartOffset < endOffset
+    ))
+    if (clusters.length === 0) return []
+    if (
+      clusters[0]!.renderStartOffset < startOffset
+      || clusters.at(-1)!.renderEndOffset > endOffset
+    ) return []
+    const renderStartOffset = clusters[0]!.renderStartOffset
+    const renderEndOffset = clusters.at(-1)!.renderEndOffset
+    return [{
+      ...run,
+      renderStartOffset,
+      renderEndOffset,
+      text: input.request.measurement.renderedText.slice(renderStartOffset, renderEndOffset),
+      clusters: clusters.map((cluster, index) => ({ ...cluster, index })),
+    }]
+  })
+  const acceptedRuns = deriveVNextTextBlockMultiRunAcceptedRunsV1({
+    ...input.request,
+    shapingRuns,
+  })
+  if (acceptedRuns.status !== "accepted") return null
+  const positioned = positionVNextTextBlockMultiRunLineWindowV1({
+    request: input.request,
+    acceptedRuns: acceptedRuns.value,
+    lineStartIndex: input.startLineIndex,
+    lineEndIndexExclusive: input.endLineIndexExclusive,
+    yOffsetLayoutUnit: 0,
+  })
+  if (positioned.status !== "accepted") return null
+  const proofs: Array<{ semanticFingerprint: string; semanticRangeFingerprint: string }> = []
+  for (const line of positioned.value.lines) {
+    const semanticRangeFingerprint = createVNextTextBlockMultiRunSemanticRangeFingerprintV1({
+      measurement: input.request.measurement,
+      shapingRuns,
+      renderStartOffset: line.renderStartOffset,
+      renderEndOffset: line.renderEndOffset,
+    })
+    if (semanticRangeFingerprint == null) return null
+    proofs.push({
+      semanticFingerprint: createVNextTextBlockMultiRunSemanticLineFingerprintV1(line),
+      semanticRangeFingerprint,
+    })
+  }
+  return proofs.length === input.endLineIndexExclusive - input.startLineIndex ? proofs : null
+}
+
+function createNextSuffixProof(input: UpdateInputV1): VNextTextBlockPersistentFlowSuffixProofInternalV1 | null {
+  const lineCount = input.nextRequest.lines.length
+  const semanticLineFingerprints = Array.from<string | undefined>({ length: lineCount })
+  const semanticRangeLineFingerprints = Array.from<string | undefined>({ length: lineCount })
+  const semanticSuffixFingerprints = Array.from<string | undefined>({ length: lineCount })
+  const semanticRangeSuffixFingerprints = Array.from<string | undefined>({ length: lineCount })
+
+  for (let lineIndex = 0; lineIndex < input.window.nextRestartLineIndex; lineIndex += 1) {
+    const proof = getVNextTextBlockPersistentFlowLineProofInternalV1(input.previousTree, lineIndex)
+    if (proof == null) return null
+    semanticLineFingerprints[lineIndex] = proof.semanticFingerprint
+    semanticRangeLineFingerprints[lineIndex] = proof.semanticRangeFingerprint
+  }
+  const affected = deriveBoundedLineProofs({
+    request: input.nextRequest,
+    startLineIndex: input.window.nextRestartLineIndex,
+    endLineIndexExclusive: input.window.nextReconvergenceLineIndex,
+  })
+  if (affected == null) return null
+  affected.forEach((proof, offset) => {
+    const lineIndex = input.window.nextRestartLineIndex + offset
+    semanticLineFingerprints[lineIndex] = proof.semanticFingerprint
+    semanticRangeLineFingerprints[lineIndex] = proof.semanticRangeFingerprint
+  })
+
+  for (
+    let nextLineIndex = input.window.nextReconvergenceLineIndex;
+    nextLineIndex < lineCount;
+    nextLineIndex += 1
+  ) {
+    const previousLineIndex = input.window.previousReconvergenceLineIndex
+      + nextLineIndex - input.window.nextReconvergenceLineIndex
+    const lineProof = getVNextTextBlockPersistentFlowLineProofInternalV1(
+      input.previousTree,
+      previousLineIndex,
+    )
+    const suffixProof = getVNextTextBlockPersistentFlowSuffixProofInternalV1(
+      input.previousTree,
+      previousLineIndex,
+    )
+    if (lineProof == null || suffixProof == null) return null
+    semanticLineFingerprints[nextLineIndex] = lineProof.semanticFingerprint
+    semanticRangeLineFingerprints[nextLineIndex] = lineProof.semanticRangeFingerprint
+    semanticSuffixFingerprints[nextLineIndex] = suffixProof.semanticFingerprint
+    semanticRangeSuffixFingerprints[nextLineIndex] = suffixProof.semanticRangeFingerprint
+  }
+
+  for (
+    let lineIndex = input.window.nextReconvergenceLineIndex - 1;
+    lineIndex >= input.window.nextRestartLineIndex;
+    lineIndex -= 1
+  ) {
+    const semanticLineFingerprint = semanticLineFingerprints[lineIndex]
+    const semanticRangeLineFingerprint = semanticRangeLineFingerprints[lineIndex]
+    const nextSuffixFingerprint = semanticSuffixFingerprints[lineIndex + 1]
+    const nextRangeSuffixFingerprint = semanticRangeSuffixFingerprints[lineIndex + 1]
+    if (
+      semanticLineFingerprint == null
+      || semanticRangeLineFingerprint == null
+      || nextSuffixFingerprint == null
+      || nextRangeSuffixFingerprint == null
+    ) return null
+    semanticSuffixFingerprints[lineIndex] = createVNextCompactFingerprint(JSON.stringify({
+      semanticLineFingerprint,
+      nextSuffixFingerprint,
+    }))
+    semanticRangeSuffixFingerprints[lineIndex] = createVNextCompactFingerprint(JSON.stringify({
+      lineFingerprint: semanticRangeLineFingerprint,
+      suffix: nextRangeSuffixFingerprint,
+    }))
+  }
+  return {
+    semanticLineFingerprints,
+    semanticRangeLineFingerprints,
+    semanticSuffixFingerprints,
+    semanticRangeSuffixFingerprints,
+  }
+}
+
 function fingerprintUpdate(update: Omit<VNextTextBlockPersistentFlowUpdateV1, "fingerprint">): string {
   return canonicalFingerprint(update)
 }
@@ -544,35 +694,13 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
       replacementItems,
     })
     if (nextItemsByKind == null) return blocked("unsafe-tree-summary", "updated item counts are unsafe")
-    const nextSemanticSuffixFingerprints = Array.from<string | undefined>({
-      length: input.nextRequest.lines.length,
-    })
-    const nextSemanticRangeSuffixFingerprints = Array.from<string | undefined>({
-      length: input.nextRequest.lines.length,
-    })
-    for (
-      let nextLineIndex = input.window.nextReconvergenceLineIndex;
-      nextLineIndex < input.nextRequest.lines.length;
-      nextLineIndex += 1
-    ) {
-      const previousLineIndex = input.window.previousReconvergenceLineIndex
-        + nextLineIndex - input.window.nextReconvergenceLineIndex
-      const proof = getVNextTextBlockPersistentFlowSuffixProofInternalV1(
-        input.previousTree,
-        previousLineIndex,
-      )
-      if (proof == null) return blocked("invalid-window", "the retained suffix proof is incomplete")
-      nextSemanticSuffixFingerprints[nextLineIndex] = proof.semanticFingerprint
-      nextSemanticRangeSuffixFingerprints[nextLineIndex] = proof.semanticRangeFingerprint
-    }
+    const suffixProof = createNextSuffixProof(input)
+    if (suffixProof == null) return blocked("invalid-window", "the bounded retained suffix proof is incomplete")
     const nextTree = createVNextTextBlockPersistentFlowTreeFromRootInternalV1({
       request: input.nextRequest,
       root,
       itemsByKind: nextItemsByKind,
-      suffixProof: {
-        semanticSuffixFingerprints: nextSemanticSuffixFingerprints,
-        semanticRangeSuffixFingerprints: nextSemanticRangeSuffixFingerprints,
-      },
+      suffixProof,
     })
     const previousNodes = collectNodes(input.previousTree.root)
     const previousNodeSet = new Set(previousNodes)

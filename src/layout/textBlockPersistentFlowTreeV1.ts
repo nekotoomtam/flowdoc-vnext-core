@@ -50,6 +50,8 @@ function createSuffixProof(input: VNextTextBlockPersistentFlowBuildInputV1) {
   })
   if (rangeCheckpoints == null) throw new RangeError("persistent flow requires safe semantic line checkpoints")
   return {
+    semanticLineFingerprints,
+    semanticRangeLineFingerprints: rangeCheckpoints.lineFingerprints,
     semanticSuffixFingerprints,
     semanticRangeSuffixFingerprints: rangeCheckpoints.suffixFingerprints,
   }

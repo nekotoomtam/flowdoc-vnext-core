@@ -194,3 +194,67 @@ export function persistentFlowEditFixture() {
     },
   }
 }
+
+export function persistentFlowChainedEditFixture() {
+  const first = persistentFlowEditFixture()
+  const previousText = first.nextRequest.measurement.renderedText
+  const nextText = `${previousText.slice(0, 2_350)}Y${previousText.slice(2_350)}`
+  const nextRequest = structuredClone(first.nextRequest)
+  nextRequest.measurement.instanceRevision = 72
+  nextRequest.measurement.renderedText = nextText
+  const measurementRun = nextRequest.measurement.runs[0]!
+  measurementRun.renderEndOffset = nextText.length
+  measurementRun.renderedText = nextText
+  const shapingRun = nextRequest.shapingRuns[0]!
+  shapingRun.shapingRunId = "persistent-flow-shape-72"
+  shapingRun.renderEndOffset = nextText.length
+  shapingRun.text = nextText
+  shapingRun.clusters = Array.from(nextText, (_, index) => ({
+    index,
+    renderStartOffset: index,
+    renderEndOffset: index + 1,
+    advanceLayoutUnit: 1_000_000,
+  }))
+  nextRequest.breakOffsets = Array.from({ length: nextText.length + 1 }, (_, index) => index)
+  nextRequest.lines = first.nextRequest.lines.map((line) => {
+    if (line.index < 23) return { ...line }
+    if (line.index === 23) return { ...line, renderEndOffset: line.renderEndOffset + 1 }
+    return {
+      ...line,
+      renderStartOffset: line.renderStartOffset + 1,
+      renderEndOffset: line.renderEndOffset + 1,
+    }
+  })
+  const nextLayout = acceptVNextTextBlockMultiRunLayoutV1(nextRequest)
+  if (nextLayout.status !== "accepted") throw new Error("persistent flow chained fixture did not layout")
+  const snapshot = createVNextTextBlockMultiRunIncrementalSnapshotV1({
+    request: first.nextRequest,
+    acceptedLayout: first.nextLayout,
+  })
+  const previousSuffixSemanticFingerprint = snapshot.suffixSemanticFingerprints[25]!
+  const previousSuffixSemanticRangeFingerprint = snapshot.suffixSemanticRangeFingerprints[25]!
+  return {
+    first,
+    nextRequest,
+    nextLayout,
+    edit: {
+      previousStartOffset: 2_350,
+      previousEndOffset: 2_350,
+      nextEndOffset: 2_351,
+    },
+    window: {
+      previousRestartLineIndex: 22,
+      nextRestartLineIndex: 22,
+      previousReconvergenceLineIndex: 25,
+      nextReconvergenceLineIndex: 25,
+      previousReconvergenceOffset: 2_501,
+      nextReconvergenceOffset: 2_502,
+      offsetDelta: 1,
+      stableLineCount: 2,
+      previousSuffixSemanticFingerprint,
+      nextSuffixSemanticFingerprint: previousSuffixSemanticFingerprint,
+      previousSuffixSemanticRangeFingerprint,
+      nextSuffixSemanticRangeFingerprint: previousSuffixSemanticRangeFingerprint,
+    },
+  }
+}
