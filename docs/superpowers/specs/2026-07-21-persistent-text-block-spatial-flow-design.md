@@ -2,6 +2,8 @@
 
 Date: 2026-07-21
 
+Feedback-lane amendment: 2026-07-22
+
 Status: design agreed in conversation and recorded for written review. No
 runtime implementation, product binding, or production-readiness claim is
 authorized by this document.
@@ -414,6 +416,77 @@ preceding phase.
 - Define product budgets only from measured distributions on representative
   workloads.
 
+## Dependent Editor Feedback Lane
+
+The seven Core phases remain the authoritative spatial-flow sequence. Editor
+feedback work proceeds as a separate dependent lane so viewport scheduling and
+UI state do not become Core layout semantics, while the Core representation is
+still designed to support bounded interactive work.
+
+### B0: Existing Scheduling Foundation
+
+The Editor already has advisory token-impact analysis, active/visible/
+near-viewport/offscreen priority, queued-revision coalescing, and stale-result
+guards. These facts schedule exact layout work; they do not own line breaks or
+geometry. The current controller still waits for every required TextBlock
+result before composing a current whole-document revision.
+
+### B1: Staged Coverage Contract During Phase 2
+
+Phase 2 must not add product binding, but it must preserve enough immutable
+identity and structural sharing for a later staged result to state exactly:
+
+- the local Draft revision and complete layout/runtime identity;
+- the ordered block/page coverage proved for that revision;
+- the exact resolved frontier and the checkpoint from which continuation can
+  resume;
+- which visible geometry is current and which off-screen geometry remains from
+  the last valid snapshot; and
+- why a result is updating, blocked, stale, or complete.
+
+Visible current-revision coverage may be displayed while the Draft remains
+`draft-updating`. `draft-current` is reserved for a complete document result.
+Unresolved or previous-revision regions must never be presented as current,
+and independently completed regions may be applied only through an atomic,
+revision-pinned coverage result.
+
+### B2: Text-Subset Viewport Prototype After Phase 2
+
+Use the persistent text-subset snapshot in a QA-only Editor path. Execute the
+active TextBlock, visible pages, near-viewport pages, and off-screen work in
+that order. Preserve the last valid output while newer coverage runs, reject
+late revisions, and do not claim image, list, spatial, container, publication,
+or production readiness.
+
+### B3: Exact Spatial Staged Apply After Phase 5
+
+Bind staged coverage to Unified Incremental Reflow. A current-revision result
+may advance through TextBlocks, columns, and pages until semantic and spatial
+checkpoints reconverge. Page/column boundary changes propagate only through the
+affected continuation chain. Visible geometry is exact before application;
+off-screen continuation remains explicit background work.
+
+### B4: Container And Capability Completion After Phase 6
+
+Extend the same coverage and continuation rules to body, Columns, and Table
+cell adapters, including accepted list and inline-image geometry. Container
+ownership remains in its existing Core boundary and the Editor does not infer
+missing geometry.
+
+### B5: Product Feedback Gate With Phase 7
+
+Qualify rapid typing, IME/caret stability, scrolling during reflow,
+cancellation, stale completion, long TextBlocks, product-sized documents, and
+the 200-page workload. Record main-thread frame evidence, Worker p50/p95,
+changed-page counts, retained memory, and time to visible-current and
+whole-document-current states before selecting product budgets.
+
+Backend behavior remains a separate authority lane: no request is made per
+keystroke; Save persists and advances `instanceRevision`; Test PDF sends the
+current canonical Draft through the full Backend generation pipeline without
+persisting or advancing `instanceRevision`; Published/API generation remains
+authoritative.
+
 ### Later Product Feature: Authored Positioned Objects
 
 This is intentionally outside the above implementation sequence. It requires a
@@ -458,8 +531,11 @@ The design is successfully implemented only when:
 5. body, column, and table-cell adapters consume the same TextBlock engine;
 6. unsupported future atoms and spatial modes fail closed;
 7. Browser Worker and Backend/Node facts match exactly on the accepted matrix;
-   and
-8. the full Core gate remains green with no unrelated repository changes.
+8. staged Editor coverage cannot label stale, unresolved, or previous-revision
+   geometry as current;
+9. visible-current work is measured separately from whole-document-current
+   work; and
+10. the full Core gate remains green with no unrelated repository changes.
 
 ## Intentionally Deferred
 
