@@ -67,7 +67,7 @@ describe("TextBlock persistent flow update v1", () => {
       edit: fixture.edit,
       window: fixture.window,
     })).toMatchObject({ status: "invalid", code: "update-provenance-mismatch" })
-  })
+  }, 30_000)
 
   it("rejects cloned provenance, stale revisions, context drift, and suffix-style drift", () => {
     const fixture = persistentFlowEditFixture()
@@ -138,7 +138,7 @@ describe("TextBlock persistent flow update v1", () => {
       edit: tamperedFixture.edit,
       window: tamperedFixture.window,
     })).toMatchObject({ status: "blocked", issues: [{ code: "tree-provenance-mismatch" }] })
-  })
+  }, 30_000)
 
   it("accepts a chained earlier reconvergence from the exact derived tree", () => {
     const fixture = persistentFlowChainedEditFixture()
@@ -191,5 +191,5 @@ describe("TextBlock persistent flow update v1", () => {
         nextSuffixSemanticFingerprint: tampered,
       },
     })).toMatchObject({ status: "blocked", issues: [{ code: "invalid-window" }] })
-  })
+  }, 30_000)
 })

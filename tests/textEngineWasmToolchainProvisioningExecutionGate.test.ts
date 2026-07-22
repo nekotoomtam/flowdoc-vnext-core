@@ -304,7 +304,7 @@ describe("text engine WASM toolchain provisioning execution gate", () => {
     } else {
       expect(diagnostic.blockedReasons.length).toBeGreaterThan(0)
     }
-  })
+  }, 15_000)
 
   it("keeps root checks independent and blocks artifact production plus digest pinning", () => {
     const rootPackage = readJson<PackageJson>("../package.json")

@@ -3,7 +3,11 @@ import {
   createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1,
   createVNextTextBlockMultiRunSemanticRangeWindowCheckpointsV1,
 } from "../src/index.js"
-import { persistentFlowEditFixture } from "./helpers/textBlockPersistentFlowV1.js"
+import {
+  acceptedPersistentAtomicFlowFixture,
+  acceptedPersistentFlowFixture,
+  persistentFlowEditFixture,
+} from "./helpers/textBlockPersistentFlowV1.js"
 
 describe("TextBlock multi-run bounded semantic window v1", () => {
   it("matches the complete oracle for only the selected lines", () => {
@@ -94,5 +98,50 @@ describe("TextBlock multi-run bounded semantic window v1", () => {
       lineStartIndex: fixture.window.nextRestartLineIndex,
       lineEndIndexExclusive: fixture.window.nextReconvergenceLineIndex + 1,
     })).toMatchObject({ status: "blocked", code: "invalid-source-range" })
+  })
+
+  it("rejects an internal shaping-cluster gap inside the selected window", () => {
+    const fixture = persistentFlowEditFixture()
+    const request = fixture.nextRequest
+    const lineStartIndex = fixture.window.nextRestartLineIndex
+    const shapingRuns = structuredClone(request.shapingRuns)
+    const removedClusterOffset = request.lines[lineStartIndex]!.renderStartOffset + 10
+    shapingRuns[0]!.clusters.splice(removedClusterOffset, 1)
+
+    expect(createVNextTextBlockMultiRunSemanticRangeWindowCheckpointsV1({
+      measurement: request.measurement,
+      shapingRuns,
+      lines: request.lines,
+      lineStartIndex,
+      lineEndIndexExclusive: lineStartIndex + 1,
+    })).toMatchObject({ status: "blocked", code: "invalid-cluster-range" })
+  })
+
+  it("matches complete facts across style boundaries and hard-break-separated lines", () => {
+    const mixedStyleRequest = acceptedPersistentFlowFixture().request
+    const atomicRequest = acceptedPersistentAtomicFlowFixture().request
+    const cases = [
+      { request: mixedStyleRequest, start: 0, end: 1 },
+      { request: atomicRequest, start: 0, end: 1 },
+      { request: atomicRequest, start: 1, end: 2 },
+    ]
+
+    for (const { request, start, end } of cases) {
+      const complete = createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1({
+        measurement: request.measurement,
+        shapingRuns: request.shapingRuns,
+        lines: request.lines,
+      })
+      const bounded = createVNextTextBlockMultiRunSemanticRangeWindowCheckpointsV1({
+        measurement: request.measurement,
+        shapingRuns: request.shapingRuns,
+        lines: request.lines,
+        lineStartIndex: start,
+        lineEndIndexExclusive: end,
+      })
+      if (complete == null || bounded.status !== "accepted") throw new Error("semantic fixture blocked")
+      expect(bounded.lineFingerprints).toEqual(complete.lineFingerprints.slice(start, end))
+      expect(bounded.work.completeSemanticPassCount).toBe(0)
+    }
   })
 })

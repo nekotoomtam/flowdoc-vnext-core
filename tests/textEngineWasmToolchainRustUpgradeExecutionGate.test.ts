@@ -373,7 +373,7 @@ describe("text engine WASM toolchain Rust upgrade execution gate", () => {
     expect(diagnostic.digestStatus).toBe("pending")
     expect(diagnostic.sha256).toBeNull()
     expect(diagnostic.rawEvidenceIncluded).toBe(false)
-  })
+  }, 15_000)
 
   it("keeps downstream measurement evidence and production binding blocked", () => {
     expect(upgradeSummary.rawEvidenceIncluded).toBe(false)

@@ -140,13 +140,14 @@ function createSemanticRangeFactsFromBoundedInputs(input: {
   }
 
   const sourceSegments: ReturnType<typeof normalizedSemanticSourceSegment>[] = []
+  const paintableIntervals: Array<{ start: number; end: number }> = []
   let expectedSourceStart = input.renderStartOffset
   for (const run of input.sourceRuns) {
     if (
       !Number.isSafeInteger(run.renderStartOffset)
       || !Number.isSafeInteger(run.renderEndOffset)
       || run.renderStartOffset < 0
-      || run.renderEndOffset <= run.renderStartOffset
+      || run.renderEndOffset < run.renderStartOffset
       || run.renderEndOffset > input.measurement.renderedText.length
       || run.renderedText !== input.measurement.renderedText.slice(run.renderStartOffset, run.renderEndOffset)
       || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, run.renderStartOffset)
@@ -164,10 +165,37 @@ function createSemanticRangeFactsFromBoundedInputs(input: {
       renderStartOffset,
       renderEndOffset,
     ))
+    if (run.kind !== "hard-break" && run.kind !== "inline-image") {
+      const start = renderStartOffset - input.renderStartOffset
+      const end = renderEndOffset - input.renderStartOffset
+      const previous = paintableIntervals.at(-1)
+      if (previous != null && previous.end === start) previous.end = end
+      else paintableIntervals.push({ start, end })
+    }
     expectedSourceStart = renderEndOffset
   }
   if (expectedSourceStart !== input.renderEndOffset) {
     return { status: "blocked", code: "invalid-source-range" }
+  }
+
+  let clusterIndex = 0
+  for (const interval of paintableIntervals) {
+    let expectedClusterStart = interval.start
+    while (clusterIndex < clusters.length && clusters[clusterIndex]!.renderStartOffset < interval.end) {
+      const cluster = clusters[clusterIndex]!
+      if (
+        cluster.renderStartOffset !== expectedClusterStart
+        || cluster.renderEndOffset > interval.end
+      ) return { status: "blocked", code: "invalid-cluster-range" }
+      expectedClusterStart = cluster.renderEndOffset
+      clusterIndex += 1
+    }
+    if (expectedClusterStart !== interval.end) {
+      return { status: "blocked", code: "invalid-cluster-range" }
+    }
+  }
+  if (clusterIndex !== clusters.length) {
+    return { status: "blocked", code: "invalid-cluster-range" }
   }
 
   return {
@@ -325,16 +353,8 @@ export function createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1(input
   lines: readonly VNextTextBlockMultiRunLineInputV1[]
 }): VNextTextBlockMultiRunSemanticRangeLineCheckpointsV1 | null {
   if (input.lines.length === 0) return null
-  const clusters = input.shapingRuns.flatMap((run) => run.clusters.map((cluster) => ({
-    ...cluster,
-    styleKey: run.styleKey,
-    fontFaceId: run.fontFaceId,
-    fontSizeLayoutUnit: run.fontSizeLayoutUnit,
-    textColor: run.textColor,
-    direction: run.direction,
-    baselineShiftLayoutUnit: run.baselineShiftLayoutUnit,
-    features: [...run.features],
-  }))).sort((left, right) => left.renderStartOffset - right.renderStartOffset)
+  const clusters = input.shapingRuns.flatMap((run) => run.clusters.map((cluster) => ({ run, cluster })))
+    .sort((left, right) => left.cluster.renderStartOffset - right.cluster.renderStartOffset)
   const lineFingerprints: string[] = []
   let expectedLineStart = 0
   let clusterCursor = 0
@@ -364,26 +384,22 @@ export function createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1(input
       baselineShiftLayoutUnit: 0
       features: string[]
     }> = []
-    while (clusterCursor < clusters.length && clusters[clusterCursor]!.renderStartOffset < line.renderEndOffset) {
-      const cluster = clusters[clusterCursor]!
+    while (
+      clusterCursor < clusters.length
+      && clusters[clusterCursor]!.cluster.renderStartOffset < line.renderEndOffset
+    ) {
+      const { run, cluster } = clusters[clusterCursor]!
       if (
         cluster.renderStartOffset < line.renderStartOffset
         || cluster.renderEndOffset > line.renderEndOffset
         || cluster.renderEndOffset <= cluster.renderStartOffset
       ) return null
-      lineClusters.push({
-        renderStartOffset: cluster.renderStartOffset - line.renderStartOffset,
-        renderEndOffset: cluster.renderEndOffset - line.renderStartOffset,
-        text: input.measurement.renderedText.slice(cluster.renderStartOffset, cluster.renderEndOffset),
-        advanceLayoutUnit: cluster.advanceLayoutUnit,
-        styleKey: cluster.styleKey,
-        fontFaceId: cluster.fontFaceId,
-        fontSizeLayoutUnit: cluster.fontSizeLayoutUnit,
-        textColor: cluster.textColor,
-        direction: cluster.direction,
-        baselineShiftLayoutUnit: cluster.baselineShiftLayoutUnit,
-        features: [...cluster.features],
-      })
+      lineClusters.push(normalizedSemanticCluster(
+        input.measurement,
+        run,
+        cluster,
+        line.renderStartOffset,
+      ))
       clusterCursor += 1
     }
 
