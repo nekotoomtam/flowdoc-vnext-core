@@ -26,6 +26,7 @@ import {
 import {
   createFlowDocTextEngineIncrementalRangeRuntimeIdentityV1,
   createFlowDocTextEngineIncrementalRetainedSnapshotV1,
+  getFlowDocTextEngineIncrementalCoreSnapshotV1,
 } from "../packages/text-engine-rust-wasm/src/incrementalRetainedSnapshot.js"
 import { createFlowDocTextEngineMultiRunLayoutV1 } from
   "../packages/text-engine-rust-wasm/src/multiRunLayout.js"
@@ -437,6 +438,18 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       insertedText: "ก",
     })
     const result = executeOracleIndependentCore(fixture)
+    const incrementalCoreSnapshot = getFlowDocTextEngineIncrementalCoreSnapshotV1(fixture.snapshot)
+    if (incrementalCoreSnapshot == null) throw new Error("expected one process-local incremental Core snapshot")
+    expect(fixture.snapshot).toMatchObject({
+      persistentFlow: {
+        treeFingerprint: incrementalCoreSnapshot.persistentFlowTree.fingerprint,
+        policyFingerprint: incrementalCoreSnapshot.persistentFlowTree.policy.fingerprint,
+        itemCount: incrementalCoreSnapshot.persistentFlowTree.summary.itemCount,
+        leafCount: incrementalCoreSnapshot.persistentFlowTree.summary.leafCount,
+        nodeCount: incrementalCoreSnapshot.persistentFlowTree.summary.nodeCount,
+      },
+      contracts: { persistentFlowTreeRetained: true },
+    })
     expect(result.affectedWindow.work.semanticRangeComparisonCount).toBe(0)
     expect(result).toMatchObject({
       status: "incremental-core-accepted",
@@ -453,6 +466,15 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
         productionBinding: false,
       },
       optionalQaOracle: null,
+      persistentFlowUpdate: {
+        status: "accepted",
+        work: {
+          completeTreeRebuildCount: 0,
+          completeSemanticPassCount: 0,
+          reusedNodeCount: expect.any(Number),
+          createdNodeCount: expect.any(Number),
+        },
+      },
       semanticCheckpointProof: {
         status: "checkpoint-accepted",
         work: {
@@ -474,6 +496,7 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       },
       work: { completeCoreLayoutOracleUsed: false },
     })
+    expect(result.persistentFlowUpdate.work.reusedNodeCount).toBeGreaterThan(0)
     const profile = profileFlowDocTextEngineIncrementalCorePlanV1({
       snapshot: fixture.snapshot,
       plan: fixture.plan,
@@ -491,7 +514,16 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       materializedCoreLayoutFingerprint: fixture.nextOracle.layout.fingerprint,
     })
     expect(qaResult.work.completeCoreLayoutOracleUsed).toBe(true)
-    expect(profile.completedPhases).toHaveLength(7)
+    expect(profile.completedPhases).toEqual([
+      "plan-and-snapshot-validation",
+      "range-engine-facts",
+      "cluster-and-break-splice",
+      "affected-line-assembly",
+      "persistent-flow-update",
+      "core-incremental-acceptance",
+      "optional-full-oracle-qa",
+      "result-and-fingerprint",
+    ])
     expect(Object.values(profile.phaseDurationMs).every((value) => value != null && value >= 0)).toBe(true)
     expect(profile.totalDurationMs).toBeGreaterThanOrEqual(0)
     expect(profile).toMatchObject({
@@ -803,6 +835,7 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
     })).toMatchObject({
       status: "fallback-required",
       fallback: { code: "line-window-exceeded" },
+      persistentFlowUpdate: null,
     })
   }, 30_000)
 })

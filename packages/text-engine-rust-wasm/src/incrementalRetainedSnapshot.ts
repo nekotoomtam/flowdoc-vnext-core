@@ -85,6 +85,13 @@ export interface FlowDocTextEngineIncrementalRetainedSnapshotV1 {
   shapingRuns: VNextTextBlockAcceptedShapingRunV1[]
   lines: VNextTextBlockPositionedLineV1[]
   lineCheckpoints: FlowDocTextEngineIncrementalLineCheckpointV1[]
+  persistentFlow: {
+    treeFingerprint: string
+    policyFingerprint: string
+    itemCount: number
+    leafCount: number
+    nodeCount: number
+  }
   summary: {
     renderedUtf16Length: number
     sourceRunCount: number
@@ -95,6 +102,7 @@ export interface FlowDocTextEngineIncrementalRetainedSnapshotV1 {
   }
   contracts: {
     retainedFromAcceptedCompleteLayout: true
+    persistentFlowTreeRetained: true
     prefixAndSuffixCheckpointChains: true
     coreOwnedSemanticRangeCheckpointChains: true
     processLocalImmutableSnapshot: true
@@ -288,6 +296,13 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
     request: accepted.request,
     acceptedLayout: accepted.layout,
   })
+  const persistentFlow = {
+    treeFingerprint: incrementalCoreSnapshot.persistentFlowTree.fingerprint,
+    policyFingerprint: incrementalCoreSnapshot.persistentFlowTree.policy.fingerprint,
+    itemCount: incrementalCoreSnapshot.persistentFlowTree.summary.itemCount,
+    leafCount: incrementalCoreSnapshot.persistentFlowTree.summary.leafCount,
+    nodeCount: incrementalCoreSnapshot.persistentFlowTree.summary.nodeCount,
+  }
   const lineCheckpoints = createLineCheckpoints(lines, shapingRuns, incrementalCoreSnapshot)
   const facts = {
     source: FLOWDOC_TEXT_ENGINE_INCREMENTAL_RETAINED_SNAPSHOT_SOURCE,
@@ -313,6 +328,7 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
     shapingRuns,
     lines,
     lineCheckpoints,
+    persistentFlow,
     summary: {
       renderedUtf16Length: accepted.request.measurement.renderedText.length,
       sourceRunCount: accepted.request.measurement.runs.length,
@@ -323,6 +339,7 @@ export function createFlowDocTextEngineIncrementalRetainedSnapshotV1(input: {
     },
     contracts: {
       retainedFromAcceptedCompleteLayout: true,
+      persistentFlowTreeRetained: true,
       prefixAndSuffixCheckpointChains: true,
       coreOwnedSemanticRangeCheckpointChains: true,
       processLocalImmutableSnapshot: true,

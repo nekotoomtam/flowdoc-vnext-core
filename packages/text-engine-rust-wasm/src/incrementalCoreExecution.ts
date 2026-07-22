@@ -7,6 +7,7 @@ import {
   type VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
   type VNextTextBlockMultiRunIncrementalAcceptanceV1,
   type VNextTextBlockMultiRunLayoutRequestV1,
+  type VNextTextBlockPersistentFlowUpdateResultV1,
   type VNextTextBlockV4MeasurementRequest,
 } from "@flowdoc/vnext-core"
 import {
@@ -61,6 +62,7 @@ export type FlowDocTextEngineIncrementalCoreProfilePhaseV1 =
   | "range-engine-facts"
   | "cluster-and-break-splice"
   | "affected-line-assembly"
+  | "persistent-flow-update"
   | "core-incremental-acceptance"
   | "optional-full-oracle-qa"
   | "result-and-fingerprint"
@@ -78,6 +80,10 @@ type AcceptedSemanticCheckpointProof = Extract<
   VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
   { status: "checkpoint-accepted" }
 >
+type AcceptedPersistentFlowUpdate = Extract<
+  VNextTextBlockPersistentFlowUpdateResultV1,
+  { status: "accepted" }
+>
 
 export type FlowDocTextEngineIncrementalCoreExecutionFallbackCodeV1 =
   | "invalid-range-plan"
@@ -94,6 +100,7 @@ export type FlowDocTextEngineIncrementalCoreExecutionFallbackCodeV1 =
   | "line-reconvergence-not-found"
   | "line-window-exceeded"
   | "suffix-semantic-mismatch"
+  | "persistent-flow-update-failed"
   | "semantic-checkpoint-proof-failed"
   | "incremental-core-acceptance-failed"
   | "invalid-optional-full-layout-oracle"
@@ -161,6 +168,7 @@ export type FlowDocTextEngineIncrementalCoreExecutionV1 =
         fingerprint: string
       }
       affectedWindow: Extract<FlowDocTextEngineIncrementalAffectedLineAssemblyV1, { status: "accepted" }>
+      persistentFlowUpdate: AcceptedPersistentFlowUpdate
       semanticCheckpointProof: AcceptedSemanticCheckpointProof
       coreAcceptance: AcceptedCoreComposition
       optionalQaOracle: null | {
@@ -188,6 +196,7 @@ export type FlowDocTextEngineIncrementalCoreExecutionV1 =
       request: null
       splice: null
       affectedWindow: null
+      persistentFlowUpdate: null
       semanticCheckpointProof: null
       coreAcceptance: null
       optionalQaOracle: null
@@ -265,6 +274,7 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
       request: null,
       splice: null,
       affectedWindow: null,
+      persistentFlowUpdate: null,
       semanticCheckpointProof: null,
       coreAcceptance: null,
       optionalQaOracle: null,
@@ -344,9 +354,10 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
     window: affectedWindow.checkpoint,
   })
   if (persistentFlowUpdate.status !== "accepted") return fallback(
-    "semantic-checkpoint-proof-failed",
-    `persistent-flow-update-mismatch: ${persistentFlowUpdate.issues[0]?.message}`,
+    "persistent-flow-update-failed",
+    `${persistentFlowUpdate.issues[0]?.code}: ${persistentFlowUpdate.issues[0]?.message}`,
   )
+  profile?.complete("persistent-flow-update")
   const semanticCheckpointProof = createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
     snapshot: incrementalCoreSnapshot,
     nextRequest: request,
@@ -436,6 +447,7 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
     request,
     splice,
     affectedWindow: clone(affectedWindow),
+    persistentFlowUpdate,
     semanticCheckpointProof,
     coreAcceptance,
     optionalQaOracle,
@@ -482,6 +494,7 @@ export function profileFlowDocTextEngineIncrementalCorePlanV1(
     "range-engine-facts",
     "cluster-and-break-splice",
     "affected-line-assembly",
+    "persistent-flow-update",
     "core-incremental-acceptance",
     "optional-full-oracle-qa",
     "result-and-fingerprint",
