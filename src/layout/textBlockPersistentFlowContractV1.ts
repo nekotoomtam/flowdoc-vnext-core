@@ -22,10 +22,10 @@ const policyFacts = {
   maximumBranchChildren: 8 as const,
 }
 
-export const VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1: VNextTextBlockPersistentFlowPolicyV1 = {
+export const VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1: VNextTextBlockPersistentFlowPolicyV1 = Object.freeze({
   ...policyFacts,
   fingerprint: createVNextCompactFingerprint(stringifyVNextCanonicalJson(policyFacts)),
-}
+})
 
 export type VNextTextBlockPersistentFlowItemKindV1 = Exclude<
   VNextTextBlockV4MeasurementRun["kind"],

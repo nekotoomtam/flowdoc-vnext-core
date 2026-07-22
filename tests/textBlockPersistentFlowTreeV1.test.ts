@@ -11,6 +11,21 @@ import {
 } from "./helpers/textBlockPersistentFlowV1.js"
 
 describe("TextBlock persistent flow tree v1", () => {
+  it("exposes an immutable fixed persistent-flow policy", () => {
+    const policy = VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1
+    const maximumItemRenderedUtf16Length = policy.maximumItemRenderedUtf16Length
+    try {
+      expect(() => {
+        (policy as { maximumItemRenderedUtf16Length: number }).maximumItemRenderedUtf16Length = 257
+      }).toThrow(TypeError)
+    } finally {
+      if (!Object.isFrozen(policy)) {
+        (policy as { maximumItemRenderedUtf16Length: number }).maximumItemRenderedUtf16Length = maximumItemRenderedUtf16Length
+      }
+    }
+    expect(policy.maximumItemRenderedUtf16Length).toBe(256)
+  })
+
   it("pins policy and projects accepted mixed Text Run and field facts", () => {
     const fixture = acceptedPersistentFlowFixture()
     const first = createVNextTextBlockPersistentFlowTreeV1(fixture)
