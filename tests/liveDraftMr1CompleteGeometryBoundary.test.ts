@@ -21,7 +21,7 @@ const sectionAtPeerHeading = (document: string, start: string): string => {
 }
 
 const historicalRuntimeBaseline = "c9a3e09"
-const currentRuntimeBaseline = "3f1aff4"
+const currentRuntimeBaseline = "991a3bb"
 const phase2Exclusions =
   "Do not start spatial wrapping, list decoration, inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit, publication, or production activation in this checkpoint."
 const phase3Exclusions =
@@ -183,12 +183,14 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(historicalInstruction).not.toContain("Phase 3: Core Spatial Wrapping 3A")
 
     expect(activePrompt).toContain("MR1-Q Persistent Flow Tree Foundation")
+    expect(activePrompt).toContain(`current MR1-Q baseline at ${currentRuntimeBaseline}`)
     expect(activePrompt).toContain("Phase 3: Core Spatial Wrapping 3A")
     expect(activePrompt).toContain(phase3Exclusions)
     expect(activePrompt).not.toContain("Phase 2 Persistent Flow Tree Foundation")
     expect(activePrompt).not.toContain("persistent B+ rope")
     expect(activePrompt).not.toContain("completeNextSemanticPassCount: 1")
     expect(activePrompt).not.toContain(historicalRuntimeBaseline)
+    expect(activePrompt).not.toContain("3f1aff4")
     expect(activePrompt).not.toContain(phase2Exclusions)
     expect(activePrompt).not.toContain("8ae96e8")
     expect(activePrompt).not.toContain("b686c99")

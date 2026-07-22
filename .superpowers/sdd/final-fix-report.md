@@ -127,3 +127,22 @@ Every row retains `completeTreeRebuildCount: 0`,
   persisted or cross-process contract needs separate provenance evidence.
 - Product-scale retained memory, snapshot rotation, scheduling, rendering, and
   spatial reconvergence remain unmeasured or later-phase work.
+
+## Final Re-review Documentation Follow-up
+
+The final re-review identified one documentation-only Important issue: the two
+active MR1-Q baseline pointers in
+`docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md` still named `3f1aff4` instead
+of the reviewed implementation head `991a3bb`.
+
+- TDD RED: after changing the active baseline guard to require `991a3bb`,
+  `npx vitest run tests/liveDraftMr1CompleteGeometryBoundary.test.ts` failed
+  1 file / 2 tests failed / 3 tests passed. The two failures named the stale
+  Current Baseline section and active Handoff Prompt independently.
+- Minimal fix: updated only those two active handoff references and strengthened
+  `tests/liveDraftMr1CompleteGeometryBoundary.test.ts` to require `991a3bb` in
+  both sections and reject `3f1aff4` from the active prompt.
+- GREEN: the requested documentation pair passed 2 files / 8 tests.
+- `npm run type-check` passed, and `git diff --check` produced no errors.
+- Historical MR1-P baseline `c9a3e09` and the historical final-fix-wave base
+  `8306a7d` remain unchanged.

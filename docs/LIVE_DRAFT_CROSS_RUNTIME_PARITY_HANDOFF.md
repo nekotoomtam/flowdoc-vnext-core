@@ -59,7 +59,7 @@ The following rules are locked for this lane:
 
 ## Current Baseline
 
-Current MR1-Q Core implementation baseline: `3f1aff4`.
+Current MR1-Q Core implementation baseline: `991a3bb`.
 
 ### Historical MR1-P Baseline
 
@@ -567,7 +567,7 @@ active instruction.
 Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
-Read the Required Reading section and the current MR1-Q baseline at 3f1aff4.
+Read the Required Reading section and the current MR1-Q baseline at 991a3bb.
 Proceed only to Phase 3: Core Spatial Wrapping 3A over the accepted
 MR1-Q Persistent Flow Tree Foundation.
 
