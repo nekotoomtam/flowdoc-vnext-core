@@ -190,7 +190,7 @@ describe("active text-block island boundary", () => {
     expect(result.crossBlockDraftReason).toBe("cross-block-draft-update")
     expect(result.closedWithoutCommitReason).toBe("closed-without-commit")
     expect(result.closedAfterCommitReason).toBe("closed")
-  }, 15_000)
+  })
 
   it("keeps the module DOM-free and separate from command execution", () => {
     const source = readText("../examples/template-builder-sandbox/public/activeTextBlockIsland.js")

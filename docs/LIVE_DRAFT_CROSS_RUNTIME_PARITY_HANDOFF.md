@@ -1301,12 +1301,15 @@ Status: accepted as a bounded Core/MR1 QA checkpoint. Editor product binding,
 Backend binding, publication, and production remain NO-GO.
 
 MR1-Q adds the immutable Persistent B+ flow rope, balanced equal-depth leaves,
-offset-independent items, Core-owned Merkle fingerprints, path-copy updates,
-and retained item/leaf/node summaries. Four actual-WASM insertion, Bold,
-field-adjacent, and deletion rows reuse untouched nodes and reach bounded
-semantic reconvergence with `completeNextSemanticPassCount: 0`. Text, mixed
-Text Runs, resolved fields, generated page numbers, and hard breaks are
-tree-ready.
+offset-independent items, Core-owned Merkle fingerprints, summary-guided
+path-copy updates, in-path reused/created identity accounting, shallow local
+created-node byte evidence, and retained item/leaf/node summaries. Lazily
+composable Core-owned checkpoints support arbitrary later reconvergence
+positions. Semantic proof facts bind the exact accepted update and resulting
+tree fingerprints. Four actual-WASM insertion, Bold, field-adjacent, and
+deletion rows reuse untouched nodes and reach bounded semantic reconvergence
+with `completeNextSemanticPassCount: 0`. Text, mixed Text Runs, resolved fields,
+generated page numbers, and hard breaks are tree-ready.
 
 This removes the complete next semantic checkpoint pass only. Complete next
 request validation, complete shaping/break/line arrays, and optional complete
@@ -1316,11 +1319,12 @@ table auto-fit remain blocked or not present. `stagedCoverageCompatible: true`
 is B1 compatibility evidence for stable ordered identity and resumable
 references only; no Editor staged apply/state exists.
 
-Evidence lives at `docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md` and is
-pinned to reviewed implementation baseline `3f1aff4`. The next bounded
+Evidence lives at `docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md`; the final
+whole-branch fix wave was reviewed from base `8306a7d`. The next bounded
 checkpoint is `Phase 3: Core Spatial Wrapping 3A`; do not start list/image
 geometry or Editor binding inside Phase 3. The combined MR1-Q focused gate
-passed 7 files / 28 tests; the final full Core gate passed 412 files / 2,042
+passed 7 files / 33 tests; the reverted-timeout default gate passed 3 files /
+22 tests; the final full Core gate passed 412 files / 2,047
 tests.
 
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN

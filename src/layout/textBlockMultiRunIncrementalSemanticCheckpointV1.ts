@@ -25,6 +25,8 @@ export type VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1 =
       contractVersion: typeof VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_SEMANTIC_CHECKPOINT_VERSION
       status: "checkpoint-accepted"
       snapshotFingerprint: string
+      persistentFlowUpdateFingerprint: string
+      resultingPersistentFlowTreeFingerprint: string
       layoutId: string
       textBlockId: string
       nextInstanceRevision: number
@@ -198,6 +200,8 @@ export function createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1
     previousPrefixFingerprint,
     boundedAffectedLineFingerprints: bounded.lineFingerprints.slice(0, affectedCount),
     previousSuffixFingerprint,
+    persistentFlowUpdateFingerprint: input.persistentFlowUpdate.fingerprint,
+    resultingPersistentFlowTreeFingerprint: input.persistentFlowUpdate.nextTree.fingerprint,
   })
 
   const facts = {
@@ -205,6 +209,8 @@ export function createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1
     contractVersion: VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_SEMANTIC_CHECKPOINT_VERSION,
     status: "checkpoint-accepted" as const,
     snapshotFingerprint: input.snapshot.fingerprint,
+    persistentFlowUpdateFingerprint: input.persistentFlowUpdate.fingerprint,
+    resultingPersistentFlowTreeFingerprint: input.persistentFlowUpdate.nextTree.fingerprint,
     layoutId: input.nextRequest.layoutId,
     textBlockId: input.nextRequest.measurement.textBlockId,
     nextInstanceRevision: input.nextRequest.measurement.instanceRevision,
@@ -276,6 +282,8 @@ export function inspectVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV
   }
   if (
     input.proof.snapshotFingerprint !== input.snapshot.fingerprint
+    || input.proof.persistentFlowUpdateFingerprint !== binding.persistentFlowUpdate.fingerprint
+    || input.proof.resultingPersistentFlowTreeFingerprint !== binding.persistentFlowUpdate.nextTree.fingerprint
     || input.proof.layoutId !== input.nextRequest.layoutId
     || input.proof.textBlockId !== input.nextRequest.measurement.textBlockId
     || input.proof.nextInstanceRevision !== input.nextRequest.measurement.instanceRevision

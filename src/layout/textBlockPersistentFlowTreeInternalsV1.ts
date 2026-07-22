@@ -1,5 +1,6 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
+import { isVNextSafeUtf16TextOffset } from "../authoring/utf16Offsets.js"
 import type { VNextTextBlockV4MeasurementRun } from "../pagination/textBlockV4Measurement.js"
 import {
   VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1,
@@ -29,8 +30,9 @@ const processLocalPersistentFlowTreeRequestFingerprintsV1 = new WeakMap<
 export type VNextTextBlockPersistentFlowSuffixProofInternalV1 = {
   semanticLineFingerprints: readonly (string | undefined)[]
   semanticRangeLineFingerprints: readonly (string | undefined)[]
-  semanticSuffixFingerprints: readonly (string | undefined)[]
-  semanticRangeSuffixFingerprints: readonly (string | undefined)[]
+  semanticSuffixFingerprints: (string | undefined)[]
+  semanticRangeSuffixFingerprints: (string | undefined)[]
+  suffixCheckpointCompositionLineCounts?: (number | undefined)[]
 }
 const processLocalPersistentFlowTreeSuffixProofsV1 = new WeakMap<
   VNextTextBlockPersistentFlowTreeV1,
@@ -87,13 +89,62 @@ export function registerVNextTextBlockPersistentFlowTreeInternalV1(
 export function getVNextTextBlockPersistentFlowSuffixProofInternalV1(
   tree: VNextTextBlockPersistentFlowTreeV1,
   lineIndex: number,
-): { semanticFingerprint: string; semanticRangeFingerprint: string } | null {
+): {
+  semanticFingerprint: string
+  semanticRangeFingerprint: string
+  composedLineCount: number
+} | null {
   const proof = processLocalPersistentFlowTreeSuffixProofsV1.get(tree)
-  const semanticFingerprint = proof?.semanticSuffixFingerprints[lineIndex]
-  const semanticRangeFingerprint = proof?.semanticRangeSuffixFingerprints[lineIndex]
-  return semanticFingerprint == null || semanticRangeFingerprint == null
-    ? null
-    : { semanticFingerprint, semanticRangeFingerprint }
+  if (
+    proof == null
+    || !Number.isSafeInteger(lineIndex)
+    || lineIndex < 0
+    || lineIndex >= proof.semanticLineFingerprints.length
+  ) return null
+  const directSemantic = proof.semanticSuffixFingerprints[lineIndex]
+  const directRange = proof.semanticRangeSuffixFingerprints[lineIndex]
+  if (directSemantic != null && directRange != null) return {
+    semanticFingerprint: directSemantic,
+    semanticRangeFingerprint: directRange,
+    composedLineCount: proof.suffixCheckpointCompositionLineCounts?.[lineIndex] ?? 0,
+  }
+
+  let anchorIndex = lineIndex + 1
+  while (
+    anchorIndex < proof.semanticLineFingerprints.length
+    && (
+      proof.semanticSuffixFingerprints[anchorIndex] == null
+      || proof.semanticRangeSuffixFingerprints[anchorIndex] == null
+    )
+  ) anchorIndex += 1
+  if (anchorIndex >= proof.semanticLineFingerprints.length) return null
+  let semanticSuffix = proof.semanticSuffixFingerprints[anchorIndex]!
+  let semanticRangeSuffix = proof.semanticRangeSuffixFingerprints[anchorIndex]!
+  const anchorCompositionCount = proof.suffixCheckpointCompositionLineCounts?.[anchorIndex] ?? 0
+  const counts = proof.suffixCheckpointCompositionLineCounts
+    ?? Array.from<number | undefined>({ length: proof.semanticLineFingerprints.length })
+  proof.suffixCheckpointCompositionLineCounts = counts
+  for (let index = anchorIndex - 1; index >= lineIndex; index -= 1) {
+    const semanticLineFingerprint = proof.semanticLineFingerprints[index]
+    const semanticRangeLineFingerprint = proof.semanticRangeLineFingerprints[index]
+    if (semanticLineFingerprint == null || semanticRangeLineFingerprint == null) return null
+    semanticSuffix = createVNextCompactFingerprint(JSON.stringify({
+      semanticLineFingerprint,
+      nextSuffixFingerprint: semanticSuffix,
+    }))
+    semanticRangeSuffix = createVNextCompactFingerprint(JSON.stringify({
+      lineFingerprint: semanticRangeLineFingerprint,
+      suffix: semanticRangeSuffix,
+    }))
+    proof.semanticSuffixFingerprints[index] = semanticSuffix
+    proof.semanticRangeSuffixFingerprints[index] = semanticRangeSuffix
+    counts[index] = anchorCompositionCount + anchorIndex - index
+  }
+  return {
+    semanticFingerprint: semanticSuffix,
+    semanticRangeFingerprint: semanticRangeSuffix,
+    composedLineCount: counts[lineIndex]!,
+  }
 }
 
 export function getVNextTextBlockPersistentFlowLineProofInternalV1(
@@ -188,6 +239,208 @@ function itemsByKind(): Record<VNextTextBlockPersistentFlowItemKindV1, number> {
 
 function block(code: VNextTextBlockPersistentFlowIssueCodeV1, message: string) {
   return { status: "blocked" as const, code, message }
+}
+
+const compactFingerprintPattern = /^sha256:[a-f0-9]{64}$/u
+
+function nonBlank(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0
+}
+
+function canonicalLocalValue(value: unknown): boolean {
+  if (value === undefined) return true
+  try {
+    compactPersistentFlowFactsV1(value)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function validProjectedMeasurementTopology(
+  request: VNextTextBlockMultiRunLayoutRequestV1,
+): ReturnType<typeof block> | null {
+  const measurement = request.measurement
+  if (
+    measurement == null
+    || typeof measurement.renderedText !== "string"
+    || measurement.renderedText.length === 0
+    || !Array.isArray(measurement.runs)
+    || measurement.runs.length === 0
+  ) return block("invalid-source-ranges", "persistent flow projection requires non-empty measurement runs")
+  let expectedStart = 0
+  const inlineIds = new Set<string>()
+  for (const run of measurement.runs) {
+    if (
+      run == null
+      || !nonBlank(run.inlineId)
+      || inlineIds.has(run.inlineId)
+      || !Number.isSafeInteger(run.renderStartOffset)
+      || !Number.isSafeInteger(run.renderEndOffset)
+      || run.renderStartOffset !== expectedStart
+      || run.renderEndOffset <= run.renderStartOffset
+      || run.renderEndOffset > measurement.renderedText.length
+      || !isVNextSafeUtf16TextOffset(measurement.renderedText, run.renderStartOffset)
+      || !isVNextSafeUtf16TextOffset(measurement.renderedText, run.renderEndOffset)
+      || run.renderedText !== measurement.renderedText.slice(run.renderStartOffset, run.renderEndOffset)
+    ) return block(
+      "invalid-source-ranges",
+      "measurement runs must be unique, gap-free, ordered, and use exact safe UTF-16 ranges",
+    )
+    inlineIds.add(run.inlineId)
+    expectedStart = run.renderEndOffset
+    if (run.kind === "inline-image") return block(
+      "unsupported-flow-run",
+      "persistent flow foundation does not support inline images",
+    )
+    const hasFieldFacts = run.fieldKey != null
+    const hasGeneratedFacts = run.generatedOwnerFingerprint != null
+    const hasImageFacts = run.assetId != null || run.frame != null
+    const validStyle = nonBlank(run.styleKey) && canonicalLocalValue(run.localStyle)
+    if (
+      run.kind === "text"
+      && (!validStyle || hasFieldFacts || hasGeneratedFacts || hasImageFacts)
+    ) return block("invalid-source-ranges", "text flow runs contain malformed kind-specific facts")
+    if (
+      run.kind === "resolved-field"
+      && (
+        !nonBlank(run.fieldKey)
+        || !validStyle
+        || hasGeneratedFacts
+        || hasImageFacts
+        || run.renderedText.length === 0
+      )
+    ) return block("invalid-source-ranges", "resolved-field flow runs require exact atomic field facts")
+    if (
+      run.kind === "generated-page-number"
+      && (
+        !compactFingerprintPattern.test(run.generatedOwnerFingerprint ?? "")
+        || !validStyle
+        || hasFieldFacts
+        || hasImageFacts
+        || run.renderedText.length === 0
+      )
+    ) return block(
+      "invalid-source-ranges",
+      "generated-page-number flow runs require a value and compact generation owner",
+    )
+    if (
+      run.kind === "hard-break"
+      && (
+        !/^(?:\r\n|\r|\n)$/u.test(run.renderedText)
+        || run.styleKey != null
+        || run.localStyle != null
+        || hasFieldFacts
+        || hasGeneratedFacts
+        || hasImageFacts
+      )
+    ) return block("invalid-source-ranges", "hard-break flow runs require one unstyled CR, LF, or CRLF atom")
+    if (
+      run.kind !== "text"
+      && run.kind !== "resolved-field"
+      && run.kind !== "generated-page-number"
+      && run.kind !== "hard-break"
+    ) return block("unsupported-flow-run", "persistent flow projection received an unknown flow run kind")
+  }
+  return expectedStart === measurement.renderedText.length
+    ? null
+    : block("invalid-source-ranges", "measurement runs do not cover the complete rendered text")
+}
+
+function validProjectedShapingTopology(
+  request: VNextTextBlockMultiRunLayoutRequestV1,
+): ReturnType<typeof block> | null {
+  if (!Array.isArray(request.shapingRuns) || !Array.isArray(request.fontFaces)) {
+    return block("invalid-cluster-coverage", "persistent flow projection requires shaping and font arrays")
+  }
+  const text = request.measurement.renderedText
+  const fontFaceIds = new Set(request.fontFaces.map((face) => face.fontFaceId))
+  const shapingRunIds = new Set<string>()
+  for (const run of request.shapingRuns) {
+    if (
+      run == null
+      || !nonBlank(run.shapingRunId)
+      || shapingRunIds.has(run.shapingRunId)
+      || !Number.isSafeInteger(run.renderStartOffset)
+      || !Number.isSafeInteger(run.renderEndOffset)
+      || run.renderEndOffset <= run.renderStartOffset
+      || run.renderEndOffset > text.length
+      || !isVNextSafeUtf16TextOffset(text, run.renderStartOffset)
+      || !isVNextSafeUtf16TextOffset(text, run.renderEndOffset)
+      || run.text !== text.slice(run.renderStartOffset, run.renderEndOffset)
+      || /[\r\n]/u.test(run.text)
+      || !nonBlank(run.styleKey)
+      || !nonBlank(run.fontFaceId)
+      || !fontFaceIds.has(run.fontFaceId)
+      || !Number.isSafeInteger(run.fontSizeLayoutUnit)
+      || run.fontSizeLayoutUnit <= 0
+      || !nonBlank(run.textColor)
+      || run.direction !== "ltr"
+      || run.baselineShiftLayoutUnit !== 0
+      || !Array.isArray(run.features)
+      || run.features.some((feature) => !nonBlank(feature))
+      || run.features.some((feature, index) => index > 0 && feature <= run.features[index - 1]!)
+      || !Array.isArray(run.clusters)
+      || run.clusters.length === 0
+    ) return block("invalid-cluster-coverage", "shaping runs contain noncanonical range, style, or font facts")
+    shapingRunIds.add(run.shapingRunId)
+    let clusterCursor = run.renderStartOffset
+    for (let index = 0; index < run.clusters.length; index += 1) {
+      const cluster = run.clusters[index]!
+      if (
+        cluster == null
+        || cluster.index !== index
+        || !Number.isSafeInteger(cluster.renderStartOffset)
+        || !Number.isSafeInteger(cluster.renderEndOffset)
+        || cluster.renderStartOffset !== clusterCursor
+        || cluster.renderEndOffset <= cluster.renderStartOffset
+        || cluster.renderEndOffset > run.renderEndOffset
+        || !isVNextSafeUtf16TextOffset(text, cluster.renderStartOffset)
+        || !isVNextSafeUtf16TextOffset(text, cluster.renderEndOffset)
+        || !Number.isSafeInteger(cluster.advanceLayoutUnit)
+        || cluster.advanceLayoutUnit < 0
+      ) return block(
+        "invalid-cluster-coverage",
+        "shaping clusters must be canonically indexed with safe contiguous ranges and nonnegative integer advances",
+      )
+      clusterCursor = cluster.renderEndOffset
+    }
+    if (clusterCursor !== run.renderEndOffset) return block(
+      "invalid-cluster-coverage",
+      "shaping clusters do not cover their complete shaping run",
+    )
+  }
+
+  const paintableIntervals: Array<{ start: number; end: number }> = []
+  for (const run of request.measurement.runs) {
+    if (run.kind === "hard-break") continue
+    const previous = paintableIntervals.at(-1)
+    if (previous != null && previous.end === run.renderStartOffset) previous.end = run.renderEndOffset
+    else paintableIntervals.push({ start: run.renderStartOffset, end: run.renderEndOffset })
+  }
+  let shapingIndex = 0
+  for (const interval of paintableIntervals) {
+    let cursor = interval.start
+    while (
+      shapingIndex < request.shapingRuns.length
+      && request.shapingRuns[shapingIndex]!.renderStartOffset < interval.end
+    ) {
+      const run = request.shapingRuns[shapingIndex]!
+      if (run.renderStartOffset !== cursor || run.renderEndOffset > interval.end) return block(
+        "invalid-cluster-coverage",
+        "shaping runs must cover paintable source ranges without gaps, overlap, or hard-break crossing",
+      )
+      cursor = run.renderEndOffset
+      shapingIndex += 1
+    }
+    if (cursor !== interval.end) return block(
+      "invalid-cluster-coverage",
+      "shaping runs do not completely cover a paintable source range",
+    )
+  }
+  return shapingIndex === request.shapingRuns.length
+    ? null
+    : block("invalid-cluster-coverage", "shaping clusters extend outside paintable source ranges")
 }
 
 function cloneLocalStyle(run: VNextTextBlockV4MeasurementRun) {
@@ -304,7 +557,13 @@ export function projectVNextTextBlockPersistentFlowItemsForRangeV1(input: {
     || renderStartOffset < 0
     || renderEndOffset < renderStartOffset
     || renderEndOffset > renderedText.length
+    || !isVNextSafeUtf16TextOffset(renderedText, renderStartOffset)
+    || !isVNextSafeUtf16TextOffset(renderedText, renderEndOffset)
   ) return block("invalid-source-ranges", "persistent flow projection requires an ordered in-bounds range")
+  const measurementTopology = validProjectedMeasurementTopology(request)
+  if (measurementTopology != null) return measurementTopology
+  const shapingTopology = validProjectedShapingTopology(request)
+  if (shapingTopology != null) return shapingTopology
 
   const result: VNextTextBlockPersistentFlowItemV1[] = []
   const counts = itemsByKind()
@@ -508,6 +767,34 @@ export function createVNextTextBlockPersistentFlowBranchInternalV1(
   }
 }
 
+export function createVNextTextBlockPersistentFlowNodeLocalFactsInternalV1(
+  node: VNextTextBlockPersistentFlowNodeV1,
+): unknown {
+  return node.nodeKind === "leaf"
+    ? {
+        nodeKind: node.nodeKind,
+        height: node.height,
+        summary: node.summary,
+        fingerprint: node.fingerprint,
+        items: node.items,
+      }
+    : {
+        nodeKind: node.nodeKind,
+        height: node.height,
+        summary: node.summary,
+        fingerprint: node.fingerprint,
+        childFingerprints: node.children.map((child) => child.fingerprint),
+      }
+}
+
+export function countVNextTextBlockPersistentFlowNodeLocalCanonicalBytesInternalV1(
+  node: VNextTextBlockPersistentFlowNodeV1,
+): number {
+  return new TextEncoder().encode(
+    stringifyVNextCanonicalJson(createVNextTextBlockPersistentFlowNodeLocalFactsInternalV1(node)),
+  ).byteLength
+}
+
 export function buildVNextTextBlockPersistentFlowRootInternalV1(
   leaves: readonly VNextTextBlockPersistentFlowLeafV1[],
 ): VNextTextBlockPersistentFlowNodeV1 {
@@ -576,9 +863,23 @@ export function createVNextTextBlockPersistentFlowTreeFromRootInternalV1(input: 
       productionBinding: false as const,
     },
   }
+  const fingerprintFacts = {
+    source: facts.source,
+    contractVersion: facts.contractVersion,
+    documentId: facts.documentId,
+    sectionId: facts.sectionId,
+    textBlockId: facts.textBlockId,
+    instanceRevision: facts.instanceRevision,
+    layoutContextFingerprint: facts.layoutContextFingerprint,
+    policyFingerprint: facts.policy.fingerprint,
+    rootFingerprint: facts.root.fingerprint,
+    summary: facts.summary,
+    itemsByKind: facts.itemsByKind,
+    contracts: facts.contracts,
+  }
   const tree = deepFreezePersistentFlowV1({
     ...facts,
-    fingerprint: compactPersistentFlowFactsV1(facts),
+    fingerprint: compactPersistentFlowFactsV1(fingerprintFacts),
   })
   registerVNextTextBlockPersistentFlowTreeInternalV1(tree, input.request, input.suffixProof)
   return tree

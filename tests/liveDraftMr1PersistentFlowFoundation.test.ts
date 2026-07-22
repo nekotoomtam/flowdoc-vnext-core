@@ -51,6 +51,10 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
     expect(outcome).toContain("complete next Core request")
     expect(outcome).toContain("complete shaping-run, cluster, break-offset, and line arrays")
     expect(outcome).toContain("complete QA materialization")
+    expect(outcome).toContain("cumulative subtree summaries")
+    expect(outcome).toContain("shallow local facts")
+    expect(outcome).toContain("nearest known Core anchor")
+    expect(outcome).toContain("exact accepted update and resulting tree fingerprints")
 
     for (const row of [
       "| text | tree-ready | bounded offset-independent text items reproduce accepted facts |",
@@ -69,10 +73,10 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
     ]) expect(capabilities).toContain(row)
 
     for (const row of [
-      "| Thai insertion at 2,433 | 21 / 3 / 4 | 81 / 82 | 2 / 3 | 1,663,499 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,473; delta +1 |",
-      "| 18 pt Bold replacement at 1,550 | 21 / 3 / 4 | 54 / 54 | 2 / 3 | 1,690,457 | 2 / 2 | line 39 -> 39; offset 1,556 -> 1,556; delta 0 |",
-      "| field-adjacent insertion at 2,356 | 21 / 3 / 4 | 124 / 125 | 2 / 2 | 1,661,601 | 3 / 2 | line 62 -> 62; offset 2,432 -> 2,433; delta +1 |",
-      "| deletion at 2,433 | 21 / 3 / 4 | 81 / 80 | 2 / 3 | 1,662,343 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,471; delta -1 |",
+      "| Thai insertion at 2,433 | 21 / 3 / 4 | 81 / 82 | 2 / 3 | 396,752 | 4 / 4 / 0 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,473; delta +1 |",
+      "| 18 pt Bold replacement at 1,550 | 21 / 3 / 4 | 54 / 54 | 2 / 3 | 424,002 | 4 / 4 / 0 | 2 / 2 | line 39 -> 39; offset 1,556 -> 1,556; delta 0 |",
+      "| field-adjacent insertion at 2,356 | 21 / 3 / 4 | 124 / 125 | 2 / 2 | 395,730 | 4 / 4 / 0 | 3 / 2 | line 62 -> 62; offset 2,432 -> 2,433; delta +1 |",
+      "| deletion at 2,433 | 21 / 3 / 4 | 81 / 80 | 2 / 3 | 396,174 | 4 / 4 / 0 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,471; delta -1 |",
     ]) expect(structural).toContain(row)
 
     const stagedDefinition = feedback.match(/`stagedCoverageCompatible: true`[^.]+\./u)?.[0]
@@ -87,8 +91,9 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
     expect(blockers).toContain("Editor product binding is NO-GO.")
     expect(blockers).toContain("Complete next-request validation")
     expect(blockers).toContain("complete shaping-run, cluster, break-offset, and line arrays")
-    expect(verification).toContain("Combined focused result: 7 test files passed / 28 tests passed.")
-    expect(verification).toContain("Final full `npm run check`: 412 test files passed / 2,042 tests passed")
+    expect(verification).toContain("Combined focused result: 7 test files passed / 33 tests passed.")
+    expect(verification).toContain("Reverted-timeout focused result: 3 test files passed / 22 tests passed")
+    expect(verification).toContain("Final full `npm run check`: 412 test files passed / 2,047 tests passed")
     expect(next).toContain(phase3Pointer)
     expect(next).toContain(phase3NoGo)
     expect(next).not.toContain("Phase 2 Persistent Flow Tree Foundation")
@@ -120,9 +125,30 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
       expect(active).not.toContain("Proceed to Phase 2")
     }
     expect(activePrompt).toContain(phase3NoGo)
-    expect(currentTruth).toContain("passed 7 files / 28 tests")
-    expect(currentTruth).toContain("passed 412 files / 2,042 tests")
-    expect(ledgerMr1q).toContain("combined focused gate passed 7 files / 28 tests")
-    expect(ledgerMr1q).toContain("full `npm run check` passed 412 files / 2,042 tests")
+    expect(currentTruth).toContain("passed 7 files / 33 tests")
+    expect(currentTruth).toContain("passed 412 files / 2,047 tests")
+    expect(ledgerMr1q).toContain("combined focused gate passed 7 files / 33 tests")
+    expect(ledgerMr1q).toContain("full `npm run check` passed 412 files / 2,047 tests")
+  })
+
+  it("keeps timeout changes scoped to the Phase 2 persistent-flow stress tests", () => {
+    const handoff = read("docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md")
+    const phase2UpdateTests = read("tests/textBlockPersistentFlowUpdateV1.test.ts")
+    const unrelatedTests = [
+      "tests/activeTextBlockIsland.test.ts",
+      "tests/textEngineWasmToolchainProvisioningExecutionGate.test.ts",
+      "tests/textEngineWasmToolchainRustUpgradeExecutionGate.test.ts",
+    ]
+    for (const path of unrelatedTests) {
+      expect(read(path)).not.toMatch(/\},\s*15_000\)/u)
+    }
+    expect(phase2UpdateTests.match(/\},\s*30_000\)/gu)).toHaveLength(3)
+    expect(read("vitest.config.ts")).not.toContain("testTimeout")
+    expect(handoff).toContain(
+      "Task-local explicit timeout budgets remain only on the Phase 2 5,000-cluster persistent-flow update tests.",
+    )
+    expect(handoff).toContain(
+      "No global Vitest timeout configuration or unrelated test timeout remains changed.",
+    )
   })
 })

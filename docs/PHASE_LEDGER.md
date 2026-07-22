@@ -12747,18 +12747,21 @@ Reviewed Core runtime baseline: `c9a3e09`.
 Status: accepted as a bounded Core/MR1 QA checkpoint. Editor product binding,
 Backend binding, publication, and production remain NO-GO.
 
-Reviewed Core implementation baseline: `3f1aff4`.
+Final whole-branch fix-wave base: `8306a7d`.
 
 - Added a versioned immutable Persistent B+ flow rope with fixed 256-unit item,
   eight-item leaf, and eight-child branch bounds; offset-independent items,
   balanced equal leaf depth, and Core-owned Merkle fingerprints are retained.
-- Added process-local path-copy updates with prefix/suffix structural sharing,
-  exact revision/context/provenance gates, deterministic work counters, and no
+- Added process-local summary-guided path-copy updates with prefix/suffix
+  structural sharing, in-path reused/created identity accounting, shallow local
+  created-node byte evidence, exact revision/context/provenance gates, and no
   complete tree rebuild or complete semantic pass.
-- Added bounded semantic-window checkpoints and bound them to the exact retained
-  tree/update. Four accepted actual-WASM insertion, Bold, field-adjacent, and
-  deletion rows report `completeNextSemanticPassCount: 0`, reuse untouched
-  nodes, and preserve exact optional full-oracle QA parity.
+- Added bounded semantic-window checkpoints with lazy arbitrary-position
+  composition and bound semantic proof facts to the exact retained tree,
+  accepted update fingerprint, and resulting tree fingerprint. Four accepted
+  actual-WASM insertion, Bold, field-adjacent, and deletion rows report
+  `completeNextSemanticPassCount: 0`, reuse untouched nodes, and preserve exact
+  optional full-oracle QA parity.
 - Retained snapshots now expose deterministic persistent-tree item/leaf/node
   summaries. The accepted 4,959-unit fixture begins at 21 items / 3 leaves / 4
   nodes; accepted edits reuse 2 nodes, create 2 or 3 nodes, reposition 2 or 3
@@ -12779,10 +12782,10 @@ Reviewed Core implementation baseline: `3f1aff4`.
   `tests/textBlockPersistentFlowUpdateV1.test.ts`,
   `tests/textBlockMultiRunSemanticWindowV1.test.ts`, and
   `tests/textEngineIncrementalRangeExecutionV1.test.ts`.
-- Verification: the MR1-Q documentation guard passed 1 file / 2 tests; the
-  combined focused gate passed 7 files / 28 tests; `npm run type-check` and
-  `git diff --check` passed; the final full `npm run check` passed 412 files /
-  2,042 tests.
+- Verification: the MR1-Q documentation guard passed 1 file / 3 tests; the
+  combined focused gate passed 7 files / 33 tests; the reverted-timeout default
+  gate passed 3 files / 22 tests; `npm run type-check` and `git diff --check`
+  passed; the final full `npm run check` passed 412 files / 2,047 tests.
 - Next: `Phase 3: Core Spatial Wrapping 3A`. Do not start list/image geometry,
   empty-block geometry, Editor, Backend, Columns/Table integration, table
   auto-fit, publication, or production activation inside Phase 3.

@@ -1,5 +1,5 @@
 import { isVNextSafeUtf16TextOffset } from "../authoring/utf16Offsets.js"
-import { sameVNextCanonicalJson, stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
+import { sameVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import {
   deriveVNextTextBlockMultiRunAcceptedRunsV1,
@@ -27,12 +27,12 @@ import {
 } from "./textBlockPersistentFlowContractV1.js"
 import {
   compactPersistentFlowFactsV1,
+  countVNextTextBlockPersistentFlowNodeLocalCanonicalBytesInternalV1,
   createVNextTextBlockPersistentFlowBranchInternalV1,
   createVNextTextBlockPersistentFlowLayoutContextFingerprintInternalV1,
   createVNextTextBlockPersistentFlowLeafInternalV1,
   createVNextTextBlockPersistentFlowTreeFromRootInternalV1,
   deepFreezePersistentFlowV1,
-  deeplyFrozenPersistentFlowV1,
   getVNextTextBlockPersistentFlowLineProofInternalV1,
   getVNextTextBlockPersistentFlowSuffixProofInternalV1,
   hasVNextTextBlockPersistentFlowTreeProvenanceInternalV1,
@@ -194,8 +194,30 @@ function sameLineRange(
 }
 
 function validLineTopology(request: VNextTextBlockMultiRunLayoutRequestV1): boolean {
-  if (request.lines.length === 0) return false
-  const boundaries = new Set<number>([0, request.measurement.renderedText.length])
+  const text = request.measurement.renderedText
+  if (
+    !Array.isArray(request.breakOffsets)
+    || request.breakOffsets.length < 2
+    || request.breakOffsets[0] !== 0
+    || request.breakOffsets.at(-1) !== text.length
+    || !Array.isArray(request.lines)
+    || request.lines.length === 0
+  ) return false
+  let previousBreak = -1
+  const breakSet = new Set<number>()
+  for (const offset of request.breakOffsets) {
+    if (
+      !Number.isSafeInteger(offset)
+      || offset <= previousBreak
+      || !isVNextSafeUtf16TextOffset(text, offset)
+    ) return false
+    previousBreak = offset
+    breakSet.add(offset)
+  }
+  if (request.measurement.runs.some((run) => (
+    run.kind === "hard-break" && !breakSet.has(run.renderEndOffset)
+  ))) return false
+  const boundaries = new Set<number>([0, text.length])
   request.shapingRuns.forEach((run) => run.clusters.forEach((cluster) => {
     boundaries.add(cluster.renderStartOffset)
     boundaries.add(cluster.renderEndOffset)
@@ -208,12 +230,18 @@ function validLineTopology(request: VNextTextBlockMultiRunLayoutRequestV1): bool
   for (let index = 0; index < request.lines.length; index += 1) {
     const line = request.lines[index]!
     if (
-      line.index !== index
+      !Number.isSafeInteger(line.index)
+      || !Number.isSafeInteger(line.renderStartOffset)
+      || !Number.isSafeInteger(line.renderEndOffset)
+      || line.index !== index
       || line.renderStartOffset !== cursor
       || line.renderEndOffset <= line.renderStartOffset
-      || line.renderEndOffset > request.measurement.renderedText.length
+      || line.renderEndOffset > text.length
+      || !isVNextSafeUtf16TextOffset(text, line.renderStartOffset)
+      || !isVNextSafeUtf16TextOffset(text, line.renderEndOffset)
       || !boundaries.has(line.renderStartOffset)
       || !boundaries.has(line.renderEndOffset)
+      || !breakSet.has(line.renderEndOffset)
     ) return false
     cursor = line.renderEndOffset
   }
@@ -226,6 +254,7 @@ function validateWindow(input: UpdateInputV1): {
   previousEnd: number
   nextStart: number
   nextEnd: number
+  previousSuffixCheckpointFoldLineCount: number
 } | { status: "invalid" } {
   const { window } = input
   const previousLines = input.previousRequest.lines
@@ -294,7 +323,14 @@ function validateWindow(input: UpdateInputV1): {
       && nextLine.renderEndOffset === line.renderEndOffset + offsetDelta
   })
   return prefixMatches && suffixMatches
-    ? { status: "valid", previousStart, previousEnd, nextStart, nextEnd }
+    ? {
+        status: "valid",
+        previousStart,
+        previousEnd,
+        nextStart,
+        nextEnd,
+        previousSuffixCheckpointFoldLineCount: expectedSuffixProof.composedLineCount,
+      }
     : { status: "invalid" }
 }
 
@@ -305,20 +341,42 @@ type LeafRangeV1 = {
   endUtf16: number
 }
 
-function collectLeafRanges(root: VNextTextBlockPersistentFlowNodeV1): LeafRangeV1[] {
+function locateAffectedLeafRanges(input: {
+  root: VNextTextBlockPersistentFlowNodeV1
+  startUtf16: number
+  endUtf16: number
+}): { leaves: LeafRangeV1[]; visitedNodeCount: number } {
   const leaves: LeafRangeV1[] = []
-  let cursor = 0
-  const visit = (node: VNextTextBlockPersistentFlowNodeV1): void => {
+  let visitedNodeCount = 1
+  const visit = (
+    node: VNextTextBlockPersistentFlowNodeV1,
+    subtreeStartUtf16: number,
+    subtreeStartLeaf: number,
+  ): void => {
     if (node.nodeKind === "leaf") {
-      const startUtf16 = cursor
-      cursor += node.summary.renderedUtf16Length
-      leaves.push({ leaf: node, leafIndex: leaves.length, startUtf16, endUtf16: cursor })
+      leaves.push({
+        leaf: node,
+        leafIndex: subtreeStartLeaf,
+        startUtf16: subtreeStartUtf16,
+        endUtf16: subtreeStartUtf16 + node.summary.renderedUtf16Length,
+      })
       return
     }
-    node.children.forEach(visit)
+    let childStartUtf16 = subtreeStartUtf16
+    let childStartLeaf = subtreeStartLeaf
+    for (const child of node.children) {
+      visitedNodeCount += 1
+      const childEndUtf16 = childStartUtf16 + child.summary.renderedUtf16Length
+      if (!Number.isSafeInteger(childEndUtf16)) throw new RangeError("unsafe range lookup summary")
+      if (childEndUtf16 > input.startUtf16 && childStartUtf16 < input.endUtf16) {
+        visit(child, childStartUtf16, childStartLeaf)
+      }
+      childStartUtf16 = childEndUtf16
+      childStartLeaf += child.summary.leafCount
+    }
   }
-  visit(root)
-  return leaves
+  visit(input.root, 0, 0)
+  return { leaves, visitedNodeCount }
 }
 
 function replaceLeafRange(input: {
@@ -328,9 +386,13 @@ function replaceLeafRange(input: {
   replaceEndLeafExclusive: number
   replacementLeaves: readonly VNextTextBlockPersistentFlowLeafV1[]
   inserted: { value: boolean }
+  createdNodes: Set<VNextTextBlockPersistentFlowNodeV1>
+  accounting: { pathCopyVisitedNodeCount: number; reusedNodeCount: number }
 }): VNextTextBlockPersistentFlowNodeV1[] {
+  input.accounting.pathCopyVisitedNodeCount += 1
   const subtreeEndLeaf = input.subtreeStartLeaf + input.node.summary.leafCount
   if (subtreeEndLeaf <= input.replaceStartLeaf || input.subtreeStartLeaf >= input.replaceEndLeafExclusive) {
+    input.accounting.reusedNodeCount += input.node.summary.nodeCount
     return [input.node]
   }
   if (input.node.nodeKind === "leaf") {
@@ -351,67 +413,35 @@ function replaceLeafRange(input: {
   return partitionPersistentFlowValuesV1(
     children,
     VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumBranchChildren,
-  ).map(createVNextTextBlockPersistentFlowBranchInternalV1)
+  ).map((group) => {
+    const branch = createVNextTextBlockPersistentFlowBranchInternalV1(group)
+    input.createdNodes.add(branch)
+    return branch
+  })
 }
 
-function normalizeRoot(nodes: readonly VNextTextBlockPersistentFlowNodeV1[]): VNextTextBlockPersistentFlowNodeV1 {
+function normalizeRoot(
+  nodes: readonly VNextTextBlockPersistentFlowNodeV1[],
+  createdNodes: Set<VNextTextBlockPersistentFlowNodeV1>,
+): VNextTextBlockPersistentFlowNodeV1 {
   if (nodes.length === 0) throw new RangeError("persistent flow update cannot create an empty tree")
   let level = [...nodes]
   while (level.length > 1) {
     level = partitionPersistentFlowValuesV1(
       level,
       VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumBranchChildren,
-    ).map(createVNextTextBlockPersistentFlowBranchInternalV1)
+    ).map((group) => {
+      const branch = createVNextTextBlockPersistentFlowBranchInternalV1(group)
+      createdNodes.add(branch)
+      return branch
+    })
   }
   let root = level[0]!
-  while (root.nodeKind === "branch" && root.children.length === 1) root = root.children[0]!
+  while (root.nodeKind === "branch" && root.children.length === 1) {
+    createdNodes.delete(root)
+    root = root.children[0]!
+  }
   return root
-}
-
-function collectNodes(root: VNextTextBlockPersistentFlowNodeV1): VNextTextBlockPersistentFlowNodeV1[] {
-  const nodes: VNextTextBlockPersistentFlowNodeV1[] = []
-  const visit = (node: VNextTextBlockPersistentFlowNodeV1): void => {
-    nodes.push(node)
-    if (node.nodeKind === "branch") node.children.forEach(visit)
-  }
-  visit(root)
-  return nodes
-}
-
-function validTreeStructure(root: VNextTextBlockPersistentFlowNodeV1): boolean {
-  const visit = (node: VNextTextBlockPersistentFlowNodeV1): { valid: boolean; leafDepths: Set<number>; nodeCount: number } => {
-    const summaryValues = Object.entries(node.summary)
-      .filter(([key]) => key !== "semanticFingerprint")
-      .map(([, value]) => value)
-    if (summaryValues.some((value) => !Number.isSafeInteger(value) || (value as number) < 0)) {
-      return { valid: false, leafDepths: new Set(), nodeCount: 0 }
-    }
-    if (node.nodeKind === "leaf") return {
-      valid: node.height === 0
-        && node.items.length > 0
-        && node.items.length <= VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumLeafItems
-        && node.summary.leafCount === 1
-        && node.summary.nodeCount === 1,
-      leafDepths: new Set([0]),
-      nodeCount: 1,
-    }
-    if (
-      node.children.length === 0
-      || node.children.length > VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumBranchChildren
-      || node.children.some((child) => child.height !== node.height - 1)
-    ) return { valid: false, leafDepths: new Set(), nodeCount: 0 }
-    const children = node.children.map(visit)
-    const depths = new Set(children.flatMap((child) => [...child.leafDepths].map((depth) => depth + 1)))
-    const nodeCount = 1 + children.reduce((total, child) => total + child.nodeCount, 0)
-    return {
-      valid: children.every((child) => child.valid)
-        && depths.size === 1
-        && node.summary.nodeCount === nodeCount,
-      leafDepths: depths,
-      nodeCount,
-    }
-  }
-  return visit(root).valid
 }
 
 function countsAfterReplacement(input: {
@@ -493,6 +523,7 @@ function createNextSuffixProof(input: UpdateInputV1): VNextTextBlockPersistentFl
   const semanticRangeLineFingerprints = Array.from<string | undefined>({ length: lineCount })
   const semanticSuffixFingerprints = Array.from<string | undefined>({ length: lineCount })
   const semanticRangeSuffixFingerprints = Array.from<string | undefined>({ length: lineCount })
+  const suffixCheckpointCompositionLineCounts = Array.from<number | undefined>({ length: lineCount })
 
   for (let lineIndex = 0; lineIndex < input.window.nextRestartLineIndex; lineIndex += 1) {
     const proof = getVNextTextBlockPersistentFlowLineProofInternalV1(input.previousTree, lineIndex)
@@ -532,6 +563,7 @@ function createNextSuffixProof(input: UpdateInputV1): VNextTextBlockPersistentFl
     semanticRangeLineFingerprints[nextLineIndex] = lineProof.semanticRangeFingerprint
     semanticSuffixFingerprints[nextLineIndex] = suffixProof.semanticFingerprint
     semanticRangeSuffixFingerprints[nextLineIndex] = suffixProof.semanticRangeFingerprint
+    suffixCheckpointCompositionLineCounts[nextLineIndex] = 0
   }
 
   for (
@@ -557,26 +589,46 @@ function createNextSuffixProof(input: UpdateInputV1): VNextTextBlockPersistentFl
       lineFingerprint: semanticRangeLineFingerprint,
       suffix: nextRangeSuffixFingerprint,
     }))
+    suffixCheckpointCompositionLineCounts[lineIndex] = 0
   }
   return {
     semanticLineFingerprints,
     semanticRangeLineFingerprints,
     semanticSuffixFingerprints,
     semanticRangeSuffixFingerprints,
+    suffixCheckpointCompositionLineCounts,
   }
 }
 
 function fingerprintUpdate(update: Omit<VNextTextBlockPersistentFlowUpdateV1, "fingerprint">): string {
-  return canonicalFingerprint(update)
+  const { nextTree, ...facts } = update
+  return canonicalFingerprint({ ...facts, nextTreeFingerprint: nextTree.fingerprint })
 }
 
-export function createVNextTextBlockPersistentFlowUpdateV1(
+function updateBindingFingerprints(input: UpdateInputV1): Pick<
+  UpdateBindingV1,
+  "previousRequestFingerprint" | "nextRequestFingerprint" | "editFingerprint" | "windowFingerprint"
+> | null {
+  try {
+    return {
+      previousRequestFingerprint: canonicalFingerprint(input.previousRequest),
+      nextRequestFingerprint: canonicalFingerprint(input.nextRequest),
+      editFingerprint: canonicalFingerprint(input.edit),
+      windowFingerprint: canonicalFingerprint(input.window),
+    }
+  } catch {
+    return null
+  }
+}
+
+function createPersistentFlowUpdateInternalV1(
   input: UpdateInputV1,
 ): VNextTextBlockPersistentFlowUpdateResultV1 {
   if (
     !hasVNextTextBlockPersistentFlowTreeProvenanceInternalV1(input.previousTree)
     || !hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1(input.previousTree, input.previousRequest)
-    || !deeplyFrozenPersistentFlowV1(input.previousTree)
+    || !Object.isFrozen(input.previousTree)
+    || !Object.isFrozen(input.previousTree.root)
   ) return blocked(
     "tree-provenance-mismatch",
     "update requires the exact immutable previous tree and request objects created by Core",
@@ -632,13 +684,19 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
     renderEndOffset: validatedWindow.nextEnd,
   })
   if (projected.status === "blocked") return blocked("range-projection-failed", projected.message)
+  const bindingFingerprints = updateBindingFingerprints(input)
+  if (bindingFingerprints == null) return blocked(
+    "invalid-next-request",
+    "persistent flow update inputs must be finite, acyclic, and canonically fingerprintable",
+  )
 
   try {
-    const leaves = collectLeafRanges(input.previousTree.root)
-    const affectedLeaves = leaves.filter((leaf) => (
-      leaf.endUtf16 > validatedWindow.previousStart
-      && leaf.startUtf16 < validatedWindow.previousEnd
-    ))
+    const rangeLookup = locateAffectedLeafRanges({
+      root: input.previousTree.root,
+      startUtf16: validatedWindow.previousStart,
+      endUtf16: validatedWindow.previousEnd,
+    })
+    const affectedLeaves = rangeLookup.leaves
     if (affectedLeaves.length === 0) return blocked(
       "unsafe-tree-summary",
       "the previous rendered range does not intersect a retained leaf",
@@ -671,10 +729,16 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
       }
     }
     const replacementItems = [...prefixItems, ...projected.items, ...suffixItems]
+    const createdNodes = new Set<VNextTextBlockPersistentFlowNodeV1>()
     const replacementLeaves = partitionPersistentFlowValuesV1(
       replacementItems,
       VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumLeafItems,
-    ).map(createVNextTextBlockPersistentFlowLeafInternalV1)
+    ).map((items) => {
+      const leaf = createVNextTextBlockPersistentFlowLeafInternalV1(items)
+      createdNodes.add(leaf)
+      return leaf
+    })
+    const accounting = { pathCopyVisitedNodeCount: 0, reusedNodeCount: 0 }
     const roots = replaceLeafRange({
       node: input.previousTree.root,
       subtreeStartLeaf: 0,
@@ -682,11 +746,16 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
       replaceEndLeafExclusive: lastAffected.leafIndex + 1,
       replacementLeaves,
       inserted: { value: false },
+      createdNodes,
+      accounting,
     })
-    const root = normalizeRoot(roots)
-    if (!validTreeStructure(root) || root.summary.renderedUtf16Length !== nextText.length) return blocked(
+    const root = normalizeRoot(roots, createdNodes)
+    if (
+      root.summary.renderedUtf16Length !== nextText.length
+      || accounting.reusedNodeCount + createdNodes.size !== root.summary.nodeCount
+    ) return blocked(
       "unsafe-tree-summary",
-      "the path-copied tree is unbalanced, unsafe, or does not cover the next rendered text",
+      "the path-copied tree summary or identity accounting does not cover the next rendered text",
     )
     const nextItemsByKind = countsAfterReplacement({
       previous: input.previousTree.itemsByKind,
@@ -694,6 +763,14 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
       replacementItems,
     })
     if (nextItemsByKind == null) return blocked("unsafe-tree-summary", "updated item counts are unsafe")
+    let createdNodeCanonicalByteCount = 0
+    for (const node of createdNodes) {
+      createdNodeCanonicalByteCount += countVNextTextBlockPersistentFlowNodeLocalCanonicalBytesInternalV1(node)
+      if (!Number.isSafeInteger(createdNodeCanonicalByteCount)) return blocked(
+        "unsafe-tree-summary",
+        "created-node local canonical-byte accounting exceeded safe integer arithmetic",
+      )
+    }
     const suffixProof = createNextSuffixProof(input)
     if (suffixProof == null) return blocked("invalid-window", "the bounded retained suffix proof is incomplete")
     const nextTree = createVNextTextBlockPersistentFlowTreeFromRootInternalV1({
@@ -702,20 +779,15 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
       itemsByKind: nextItemsByKind,
       suffixProof,
     })
-    const previousNodes = collectNodes(input.previousTree.root)
-    const previousNodeSet = new Set(previousNodes)
-    const nextNodes = collectNodes(nextTree.root)
-    const reusedNodeCount = nextNodes.filter((node) => previousNodeSet.has(node)).length
-    const createdNodes = nextNodes.filter((node) => !previousNodeSet.has(node))
-    const createdNodeCanonicalByteCount = new TextEncoder().encode(
-      stringifyVNextCanonicalJson(createdNodes),
-    ).byteLength
     const work = {
-      previousNodeCount: previousNodes.length,
-      nextNodeCount: nextNodes.length,
-      reusedNodeCount,
-      createdNodeCount: createdNodes.length,
+      previousNodeCount: input.previousTree.summary.nodeCount,
+      nextNodeCount: nextTree.summary.nodeCount,
+      reusedNodeCount: accounting.reusedNodeCount,
+      createdNodeCount: createdNodes.size,
       createdNodeCanonicalByteCount,
+      rangeLookupVisitedNodeCount: rangeLookup.visitedNodeCount,
+      pathCopyVisitedNodeCount: accounting.pathCopyVisitedNodeCount,
+      previousSuffixCheckpointFoldLineCount: validatedWindow.previousSuffixCheckpointFoldLineCount,
       replacedLeafCount: affectedLeaves.length,
       replacedPreviousRenderedUtf16Length: validatedWindow.previousEnd - validatedWindow.previousStart,
       projectedNextRenderedUtf16Length: validatedWindow.nextEnd - validatedWindow.nextStart,
@@ -738,6 +810,9 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
       work,
       contracts: {
         pathCopyUpdate: true as const,
+        summaryGuidedRangeLookup: true as const,
+        inPathIdentityAccounting: true as const,
+        shallowCreatedNodeCanonicalBytes: true as const,
         prefixSuffixStructuralSharing: true as const,
         offsetIndependentSuffixReuse: true as const,
         processLocalProofBinding: true as const,
@@ -749,16 +824,26 @@ export function createVNextTextBlockPersistentFlowUpdateV1(
     processLocalPersistentFlowUpdatesV1.add(update)
     processLocalPersistentFlowUpdateBindingsV1.set(update, {
       ...input,
-      previousRequestFingerprint: canonicalFingerprint(input.previousRequest),
-      nextRequestFingerprint: canonicalFingerprint(input.nextRequest),
-      editFingerprint: canonicalFingerprint(input.edit),
-      windowFingerprint: canonicalFingerprint(input.window),
+      ...bindingFingerprints,
     })
     return { status: "accepted", update, nextTree, work, issues: [] }
   } catch {
     return blocked(
       "range-projection-failed",
       "the rendered range could not be split and path-copied at safe cluster boundaries",
+    )
+  }
+}
+
+export function createVNextTextBlockPersistentFlowUpdateV1(
+  input: UpdateInputV1,
+): VNextTextBlockPersistentFlowUpdateResultV1 {
+  try {
+    return createPersistentFlowUpdateInternalV1(input)
+  } catch {
+    return blocked(
+      "invalid-next-request",
+      "persistent flow update inputs must be finite, acyclic, and structurally readable",
     )
   }
 }
@@ -790,10 +875,15 @@ export function inspectVNextTextBlockPersistentFlowUpdateV1(input: {
     code: "update-provenance-mismatch",
     message: "update is not bound to these exact process-local proof inputs",
   }
-  if (!deeplyFrozenPersistentFlowV1(input.update)) return {
+  if (
+    !Object.isFrozen(input.update)
+    || !Object.isFrozen(input.update.nextTree)
+    || !Object.isFrozen(input.update.nextTree.root)
+    || !hasVNextTextBlockPersistentFlowTreeProvenanceInternalV1(input.update.nextTree)
+  ) return {
     status: "invalid",
     code: "update-provenance-mismatch",
-    message: "an exact update proof input was cloned or changed after creation",
+    message: "the registered update or resulting tree lost its immutable process-local binding",
   }
   let exactInputFingerprintsMatch: boolean
   try {

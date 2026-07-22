@@ -145,6 +145,7 @@ export type VNextTextBlockPersistentFlowBuildInputV1 = {
 
 export type VNextTextBlockPersistentFlowUpdateIssueCodeV1 =
   | "tree-provenance-mismatch"
+  | "invalid-next-request"
   | "layout-context-mismatch"
   | "invalid-revision"
   | "invalid-edit"
@@ -166,6 +167,9 @@ export interface VNextTextBlockPersistentFlowUpdateV1 {
     reusedNodeCount: number
     createdNodeCount: number
     createdNodeCanonicalByteCount: number
+    rangeLookupVisitedNodeCount: number
+    pathCopyVisitedNodeCount: number
+    previousSuffixCheckpointFoldLineCount: number
     replacedLeafCount: number
     replacedPreviousRenderedUtf16Length: number
     projectedNextRenderedUtf16Length: number
@@ -174,6 +178,9 @@ export interface VNextTextBlockPersistentFlowUpdateV1 {
   }
   contracts: {
     pathCopyUpdate: true
+    summaryGuidedRangeLookup: true
+    inPathIdentityAccounting: true
+    shallowCreatedNodeCanonicalBytes: true
     prefixSuffixStructuralSharing: true
     offsetIndependentSuffixReuse: true
     processLocalProofBinding: true

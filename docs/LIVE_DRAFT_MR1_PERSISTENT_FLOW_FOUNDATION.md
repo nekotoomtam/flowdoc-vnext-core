@@ -15,11 +15,17 @@ at most 256 rendered UTF-16 units per item, eight items per leaf, and eight
 children per branch. Flow items and subtree fingerprints are offset-independent,
 all leaves have equal depth, and Core owns the canonical Merkle fingerprint
 chain. Exact edit proofs path-copy the changed leaf range and structurally reuse
-untouched nodes rather than rebuilding the complete tree.
+untouched nodes rather than rebuilding the complete tree. Updates now descend
+by cumulative subtree summaries, account reused/created identities on the
+visited paths, and count each created node once from shallow local facts rather
+than recursively serializing reused descendants.
 
 The retained snapshot carries the persistent-tree fingerprint and deterministic
 item/leaf/node summary. A bounded line-aligned semantic window proves the stable
-suffix from Core-owned fingerprints. The accepted actual-WASM rows report
+suffix from Core-owned fingerprints. Derived trees retain per-line semantic
+facts and lazily fold any earlier valid checkpoint only to the nearest known
+Core anchor. Semantic proof fingerprints include the exact accepted update and
+resulting tree fingerprints. The accepted actual-WASM rows report
 `completeTreeRebuildCount: 0`, `completeSemanticPassCount: 0`, and
 `completeNextSemanticPassCount: 0` while preserving exact optional full-oracle
 parity.
@@ -58,12 +64,12 @@ The accepted 4,959-UTF-16-unit actual-WASM fixture begins with 21 flow items,
 the accepted test results; they are deterministic structural/canonical-byte
 counters, not heap samples or performance budgets.
 
-| Actual-WASM edit family | Initial items/leaves/nodes | Replaced previous / projected next UTF-16 | Reused / created nodes | Created canonical bytes | Positioned affected / stable lines | Reconvergence (previous -> next) |
-| --- | --- | --- | --- | --- | --- | --- |
-| Thai insertion at 2,433 | 21 / 3 / 4 | 81 / 82 | 2 / 3 | 1,663,499 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,473; delta +1 |
-| 18 pt Bold replacement at 1,550 | 21 / 3 / 4 | 54 / 54 | 2 / 3 | 1,690,457 | 2 / 2 | line 39 -> 39; offset 1,556 -> 1,556; delta 0 |
-| field-adjacent insertion at 2,356 | 21 / 3 / 4 | 124 / 125 | 2 / 2 | 1,661,601 | 3 / 2 | line 62 -> 62; offset 2,432 -> 2,433; delta +1 |
-| deletion at 2,433 | 21 / 3 / 4 | 81 / 80 | 2 / 3 | 1,662,343 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,471; delta -1 |
+| Actual-WASM edit family | Initial items/leaves/nodes | Replaced previous / projected next UTF-16 | Reused / created nodes | Shallow created canonical bytes | Lookup / path-copy visits / suffix folds | Positioned affected / stable lines | Reconvergence (previous -> next) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Thai insertion at 2,433 | 21 / 3 / 4 | 81 / 82 | 2 / 3 | 396,752 | 4 / 4 / 0 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,473; delta +1 |
+| 18 pt Bold replacement at 1,550 | 21 / 3 / 4 | 54 / 54 | 2 / 3 | 424,002 | 4 / 4 / 0 | 2 / 2 | line 39 -> 39; offset 1,556 -> 1,556; delta 0 |
+| field-adjacent insertion at 2,356 | 21 / 3 / 4 | 124 / 125 | 2 / 2 | 395,730 | 4 / 4 / 0 | 3 / 2 | line 62 -> 62; offset 2,432 -> 2,433; delta +1 |
+| deletion at 2,433 | 21 / 3 / 4 | 81 / 80 | 2 / 3 | 396,174 | 4 / 4 / 0 | 2 / 2 | line 63 -> 63; offset 2,472 -> 2,471; delta -1 |
 
 Each row records one reconvergence candidate, zero complete semantic-range
 comparisons, zero complete previous/next semantic passes, and an exact match
@@ -93,6 +99,15 @@ implementation.
   accepted.
 - Exact path-copy updates reuse untouched nodes and reject cloned provenance,
   stale revision, context drift, topology drift, and invalid reconvergence.
+- Multi-level boundary-split coverage proves summary-guided lookup, in-path
+  identity accounting, object-identity reuse, and shallow created-node bytes
+  without production-path QA traversal.
+- Arbitrary chained checkpoint positions accept before the prior restart or
+  after prior reconvergence; forged/cloned proofs still fail closed.
+- Range projection self-validates safe UTF-16, source/run topology, atomic kind
+  facts, cluster coverage, and canonical values. Public updates return a
+  structured block for cyclic or unsupported canonical input instead of
+  throwing.
 - Text, mixed Text Runs, resolved fields, generated page numbers, and hard
   breaks are represented in the tree without changing accepted MR1 facts.
 - Bounded semantic-window proof and incremental acceptance both report
@@ -121,6 +136,8 @@ implementation.
 - Process-local provenance deliberately rejects cloned, transferred, or
   persisted tree/proof objects; a future cross-process hydration contract must
   preserve equivalent authority.
+- Lazily composed checkpoint caches are intentionally process-local; persisted
+  or cross-process checkpoint authority remains undefined.
 - Complete request validation and complete shaping/break arrays can dominate
   work even though the complete next semantic checkpoint pass is gone.
 - Optional QA materialization can be mistaken for a runtime requirement or a
@@ -146,22 +163,24 @@ Focused commands:
 ```text
 npx vitest run tests/liveDraftMr1PersistentFlowFoundation.test.ts
 npx vitest run tests/liveDraftMr1PersistentFlowFoundation.test.ts tests/liveDraftMr1CompleteGeometryBoundary.test.ts tests/textBlockPersistentFlowTreeV1.test.ts tests/textBlockPersistentFlowUpdateV1.test.ts tests/textBlockMultiRunSemanticWindowV1.test.ts tests/textEngineIncrementalRetainedPlanV1.test.ts tests/textEngineIncrementalRangeExecutionV1.test.ts
+npx vitest run tests/activeTextBlockIsland.test.ts tests/textEngineWasmToolchainProvisioningExecutionGate.test.ts tests/textEngineWasmToolchainRustUpgradeExecutionGate.test.ts
 npm run type-check
 git diff --check
 ```
 
-- Documentation guard RED: 1 test file failed / 2 tests failed because the
-  handoff and aligned pointers did not exist.
-- Documentation guard GREEN: 1 test file passed / 2 tests passed.
-- Combined focused result: 7 test files passed / 28 tests passed.
+- Final-fix RED: 2 test files failed / 6 tests failed / 5 tests passed on the
+  unbounded traversal, non-arbitrary checkpoint, malformed projection/public
+  boundary, proof-fingerprint, and timeout-scope findings.
+- Documentation guard GREEN: 1 test file passed / 3 tests passed.
+- Combined focused result: 7 test files passed / 33 tests passed.
+- Reverted-timeout focused result: 3 test files passed / 22 tests passed under
+  their default timeout behavior.
 - `npm run type-check` passed with no TypeScript errors.
 - `git diff --check` passed with no whitespace errors.
-- Final full `npm run check`: 412 test files passed / 2,042 tests passed,
+- Final full `npm run check`: 412 test files passed / 2,047 tests passed,
   including its type-check.
-- The first full-suite attempt had two five-second test timeouts under parallel
-  host load. Both timed-out tests passed together immediately afterward, and the
-  exact full command then passed. No semantic assertion failed and no timeout or
-  implementation behavior was changed.
+- Task-local explicit timeout budgets remain only on the Phase 2 5,000-cluster persistent-flow update tests.
+- No global Vitest timeout configuration or unrelated test timeout remains changed.
 
 ## Next Checkpoint
 
