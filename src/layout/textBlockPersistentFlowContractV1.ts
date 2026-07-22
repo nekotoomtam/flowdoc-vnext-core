@@ -142,3 +142,47 @@ export type VNextTextBlockPersistentFlowBuildInputV1 = {
   acceptedLayout: import("./textBlockMultiRunIncrementalContractV1.js")
     .VNextTextBlockAcceptedMultiRunLayoutV1
 }
+
+export type VNextTextBlockPersistentFlowUpdateIssueCodeV1 =
+  | "tree-provenance-mismatch"
+  | "layout-context-mismatch"
+  | "invalid-revision"
+  | "invalid-edit"
+  | "invalid-window"
+  | "source-topology-mismatch"
+  | "range-projection-failed"
+  | "unsafe-tree-summary"
+
+export interface VNextTextBlockPersistentFlowUpdateV1 {
+  source: "vnext-text-block-persistent-flow-update-v1"
+  contractVersion: 1
+  previousTreeFingerprint: string
+  nextTree: VNextTextBlockPersistentFlowTreeV1
+  previousRange: { startUtf16: number; endUtf16: number }
+  nextRange: { startUtf16: number; endUtf16: number }
+  work: {
+    previousNodeCount: number
+    nextNodeCount: number
+    reusedNodeCount: number
+    createdNodeCount: number
+    createdNodeCanonicalByteCount: number
+    replacedLeafCount: number
+    replacedPreviousRenderedUtf16Length: number
+    projectedNextRenderedUtf16Length: number
+    completeTreeRebuildCount: 0
+    completeSemanticPassCount: 0
+  }
+  contracts: {
+    pathCopyUpdate: true
+    prefixSuffixStructuralSharing: true
+    offsetIndependentSuffixReuse: true
+    processLocalProofBinding: true
+    mayPublishLayout: false
+    productionBinding: false
+  }
+  fingerprint: string
+}
+
+export type VNextTextBlockPersistentFlowUpdateResultV1 =
+  | { status: "accepted"; update: VNextTextBlockPersistentFlowUpdateV1; nextTree: VNextTextBlockPersistentFlowTreeV1; work: VNextTextBlockPersistentFlowUpdateV1["work"]; issues: [] }
+  | { status: "blocked"; update: null; nextTree: null; work: null; issues: Array<{ code: VNextTextBlockPersistentFlowUpdateIssueCodeV1; message: string }> }

@@ -3,6 +3,7 @@ import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type { VNextTextBlockV4MeasurementRun } from "../pagination/textBlockV4Measurement.js"
 import {
   VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1,
+  VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_SOURCE,
   VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_VERSION,
   type VNextTextBlockPersistentFlowBranchV1,
   type VNextTextBlockPersistentFlowClusterV1,
@@ -17,6 +18,22 @@ import {
 import type { VNextTextBlockMultiRunLayoutRequestV1 } from "./textBlockMultiRunLayoutContractV1.js"
 
 const processLocalPersistentFlowTreesV1 = new WeakSet<object>()
+const processLocalPersistentFlowTreeRequestsV1 = new WeakMap<
+  VNextTextBlockPersistentFlowTreeV1,
+  VNextTextBlockMultiRunLayoutRequestV1
+>()
+const processLocalPersistentFlowTreeRequestFingerprintsV1 = new WeakMap<
+  VNextTextBlockPersistentFlowTreeV1,
+  string
+>()
+export type VNextTextBlockPersistentFlowSuffixProofInternalV1 = {
+  semanticSuffixFingerprints: readonly (string | undefined)[]
+  semanticRangeSuffixFingerprints: readonly (string | undefined)[]
+}
+const processLocalPersistentFlowTreeSuffixProofsV1 = new WeakMap<
+  VNextTextBlockPersistentFlowTreeV1,
+  VNextTextBlockPersistentFlowSuffixProofInternalV1
+>()
 
 export function compactPersistentFlowFactsV1(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
@@ -24,8 +41,9 @@ export function compactPersistentFlowFactsV1(value: unknown): string {
 
 export function deepFreezePersistentFlowV1<T>(value: T): T {
   if (value == null || typeof value !== "object") return value
+  if (Object.isFrozen(value)) return value
   Object.values(value).forEach((child) => deepFreezePersistentFlowV1(child))
-  return Object.isFrozen(value) ? value : Object.freeze(value)
+  return Object.freeze(value)
 }
 
 export function deeplyFrozenPersistentFlowV1(value: unknown): boolean {
@@ -55,14 +73,40 @@ export function partitionPersistentFlowValuesV1<T>(
 
 export function registerVNextTextBlockPersistentFlowTreeInternalV1(
   tree: VNextTextBlockPersistentFlowTreeV1,
+  request: VNextTextBlockMultiRunLayoutRequestV1,
+  suffixProof?: VNextTextBlockPersistentFlowSuffixProofInternalV1,
 ): void {
   processLocalPersistentFlowTreesV1.add(tree)
+  processLocalPersistentFlowTreeRequestsV1.set(tree, request)
+  processLocalPersistentFlowTreeRequestFingerprintsV1.set(tree, compactPersistentFlowFactsV1(request))
+  if (suffixProof != null) processLocalPersistentFlowTreeSuffixProofsV1.set(tree, suffixProof)
+}
+
+export function getVNextTextBlockPersistentFlowSuffixProofInternalV1(
+  tree: VNextTextBlockPersistentFlowTreeV1,
+  lineIndex: number,
+): { semanticFingerprint: string; semanticRangeFingerprint: string } | null {
+  const proof = processLocalPersistentFlowTreeSuffixProofsV1.get(tree)
+  const semanticFingerprint = proof?.semanticSuffixFingerprints[lineIndex]
+  const semanticRangeFingerprint = proof?.semanticRangeSuffixFingerprints[lineIndex]
+  return semanticFingerprint == null || semanticRangeFingerprint == null
+    ? null
+    : { semanticFingerprint, semanticRangeFingerprint }
 }
 
 export function hasVNextTextBlockPersistentFlowTreeProvenanceInternalV1(
   tree: object,
 ): boolean {
   return processLocalPersistentFlowTreesV1.has(tree)
+}
+
+export function hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1(
+  tree: VNextTextBlockPersistentFlowTreeV1,
+  request: VNextTextBlockMultiRunLayoutRequestV1,
+): boolean {
+  return processLocalPersistentFlowTreeRequestsV1.get(tree) === request
+    && processLocalPersistentFlowTreeRequestFingerprintsV1.get(tree)
+      === compactPersistentFlowFactsV1(request)
 }
 
 function safeSum(values: readonly number[]): number | null {
@@ -134,6 +178,101 @@ function block(code: VNextTextBlockPersistentFlowIssueCodeV1, message: string) {
 
 function cloneLocalStyle(run: VNextTextBlockV4MeasurementRun) {
   return run.localStyle == null ? undefined : JSON.parse(stringifyVNextCanonicalJson(run.localStyle))
+}
+
+export function sliceVNextTextBlockPersistentFlowItemInternalV1(input: {
+  item: VNextTextBlockPersistentFlowItemV1
+  startUtf16: number
+  endUtf16: number
+}): VNextTextBlockPersistentFlowItemV1 {
+  const { item, startUtf16, endUtf16 } = input
+  if (
+    !Number.isSafeInteger(startUtf16)
+    || !Number.isSafeInteger(endUtf16)
+    || startUtf16 < 0
+    || endUtf16 <= startUtf16
+    || endUtf16 > item.renderedText.length
+  ) throw new RangeError("persistent flow item slice requires an ordered in-bounds range")
+  if (startUtf16 === 0 && endUtf16 === item.renderedText.length) return item
+  if (item.kind === "hard-break") throw new RangeError("hard-break flow items cannot be split")
+  const boundaryOffsets = new Set<number>([0, item.renderedText.length])
+  item.clusters.forEach((cluster) => {
+    boundaryOffsets.add(cluster.startUtf16)
+    boundaryOffsets.add(cluster.endUtf16)
+  })
+  if (!boundaryOffsets.has(startUtf16) || !boundaryOffsets.has(endUtf16)) {
+    throw new RangeError("persistent flow item slice must use cluster-safe boundaries")
+  }
+  const clusters = item.clusters
+    .filter((cluster) => cluster.endUtf16 > startUtf16 && cluster.startUtf16 < endUtf16)
+    .map((cluster) => ({
+      ...cluster,
+      features: [...cluster.features],
+      startUtf16: cluster.startUtf16 - startUtf16,
+      endUtf16: cluster.endUtf16 - startUtf16,
+    }))
+  if (
+    clusters.length === 0
+    || clusters[0]!.startUtf16 !== 0
+    || clusters.at(-1)!.endUtf16 !== endUtf16 - startUtf16
+  ) throw new RangeError("persistent flow item slice requires complete cluster coverage")
+  const beginsSourceRun = startUtf16 === 0 && item.beginsSourceRun
+  const endsSourceRun = endUtf16 === item.renderedText.length && item.endsSourceRun
+  const atomicSourceContribution = item.kind === "text"
+    ? 0
+    : (beginsSourceRun ? item.atomicSourceContribution : 0)
+  const authoredUtf16Length = item.kind === "text"
+    ? endUtf16 - startUtf16
+    : atomicSourceContribution
+  const dependencyFingerprint = compactPersistentFlowFactsV1({
+    kind: item.kind,
+    inlineId: item.inlineId,
+    ...(item.fieldKey == null ? {} : { fieldKey: item.fieldKey }),
+    ...(item.generatedOwnerFingerprint == null ? {} : { generatedOwnerFingerprint: item.generatedOwnerFingerprint }),
+    ...(item.styleKey == null ? {} : { styleKey: item.styleKey }),
+    ...(item.localStyle == null ? {} : { localStyle: item.localStyle }),
+    clusters: clusters.map((cluster) => ({
+      styleKey: cluster.styleKey,
+      fontFaceId: cluster.fontFaceId,
+      fontSizeLayoutUnit: cluster.fontSizeLayoutUnit,
+      textColor: cluster.textColor,
+      direction: cluster.direction,
+      baselineShiftLayoutUnit: cluster.baselineShiftLayoutUnit,
+      features: cluster.features,
+    })),
+  })
+  const semanticFingerprint = compactPersistentFlowFactsV1({
+    kind: item.kind,
+    renderedText: item.renderedText.slice(startUtf16, endUtf16),
+    authoredUtf16Length,
+    atomicSourceContribution,
+    clusters: clusters.map(({ startUtf16: clusterStart, endUtf16: clusterEnd, advanceLayoutUnit }) => ({
+      startUtf16: clusterStart,
+      endUtf16: clusterEnd,
+      advanceLayoutUnit,
+    })),
+  })
+  const facts = {
+    kind: item.kind,
+    inlineId: item.inlineId,
+    ...(item.fieldKey == null ? {} : { fieldKey: item.fieldKey }),
+    ...(item.generatedOwnerFingerprint == null ? {} : { generatedOwnerFingerprint: item.generatedOwnerFingerprint }),
+    ...(item.styleKey == null ? {} : { styleKey: item.styleKey }),
+    ...(item.localStyle == null ? {} : { localStyle: item.localStyle }),
+    renderedText: item.renderedText.slice(startUtf16, endUtf16),
+    authoredUtf16Length,
+    beginsSourceRun,
+    endsSourceRun,
+    atomicSourceContribution: atomicSourceContribution as 0 | 1,
+    mandatoryBreakContribution: 0 as const,
+    clusters,
+    dependencyFingerprint,
+    semanticFingerprint,
+  }
+  return {
+    ...facts,
+    fingerprint: compactPersistentFlowFactsV1({ policyVersion: 1, ...facts }),
+  }
 }
 
 export function projectVNextTextBlockPersistentFlowItemsForRangeV1(input: {
@@ -375,4 +514,58 @@ export function countVNextTextBlockPersistentFlowNodesInternalV1(
   return root.nodeKind === "leaf"
     ? 1
     : requireSafe(safeSum([1, ...root.children.map(countVNextTextBlockPersistentFlowNodesInternalV1)]))
+}
+
+export function createVNextTextBlockPersistentFlowLayoutContextFingerprintInternalV1(
+  request: VNextTextBlockMultiRunLayoutRequestV1,
+): string {
+  return compactPersistentFlowFactsV1({
+    layoutId: request.layoutId,
+    documentId: request.measurement.documentId,
+    sectionId: request.measurement.sectionId,
+    textBlockId: request.measurement.textBlockId,
+    measurementProfileId: request.measurement.measurementProfileId,
+    layoutUnitPolicyFingerprint: request.layoutUnitPolicyFingerprint,
+    availableWidthLayoutUnit: request.availableWidthLayoutUnit,
+    declaredLineHeightLayoutUnit: request.declaredLineHeightLayoutUnit,
+    paragraphStyle: request.paragraphStyle,
+    fontFaces: request.fontFaces,
+  })
+}
+
+export function createVNextTextBlockPersistentFlowTreeFromRootInternalV1(input: {
+  request: VNextTextBlockMultiRunLayoutRequestV1
+  root: VNextTextBlockPersistentFlowNodeV1
+  itemsByKind: Readonly<Record<VNextTextBlockPersistentFlowItemKindV1, number>>
+  suffixProof?: VNextTextBlockPersistentFlowSuffixProofInternalV1
+}): VNextTextBlockPersistentFlowTreeV1 {
+  const facts = {
+    source: VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_SOURCE,
+    contractVersion: VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_VERSION,
+    documentId: input.request.measurement.documentId,
+    sectionId: input.request.measurement.sectionId,
+    textBlockId: input.request.measurement.textBlockId,
+    instanceRevision: input.request.measurement.instanceRevision,
+    layoutContextFingerprint: createVNextTextBlockPersistentFlowLayoutContextFingerprintInternalV1(input.request),
+    policy: VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1,
+    root: input.root,
+    summary: input.root.summary,
+    itemsByKind: { ...input.itemsByKind },
+    contracts: {
+      offsetIndependentItems: true as const,
+      balancedLeafDepth: true as const,
+      coreOwnedMerkleFingerprints: true as const,
+      processLocalImmutableTree: true as const,
+      stagedCoverageCompatible: true as const,
+      stagedEditorApply: false as const,
+      mayPublishLayout: false as const,
+      productionBinding: false as const,
+    },
+  }
+  const tree = deepFreezePersistentFlowV1({
+    ...facts,
+    fingerprint: compactPersistentFlowFactsV1(facts),
+  })
+  registerVNextTextBlockPersistentFlowTreeInternalV1(tree, input.request, input.suffixProof)
+  return tree
 }

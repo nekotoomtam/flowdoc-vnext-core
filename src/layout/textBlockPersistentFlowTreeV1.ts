@@ -1,9 +1,12 @@
 import { sameVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
+import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { acceptVNextTextBlockMultiRunLayoutV1 } from "./textBlockMultiRunLayoutV1.js"
 import {
+  createVNextTextBlockMultiRunSemanticLineFingerprintV1,
+  createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1,
+} from "./textBlockMultiRunSemanticV1.js"
+import {
   VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1,
-  VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_SOURCE,
-  VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_VERSION,
   type VNextTextBlockPersistentFlowBuildInputV1,
   type VNextTextBlockPersistentFlowBuildResultV1,
   type VNextTextBlockPersistentFlowIssueCodeV1,
@@ -12,14 +15,12 @@ import {
 } from "./textBlockPersistentFlowContractV1.js"
 import {
   buildVNextTextBlockPersistentFlowRootInternalV1,
-  compactPersistentFlowFactsV1,
   createVNextTextBlockPersistentFlowLeafInternalV1,
-  deepFreezePersistentFlowV1,
+  createVNextTextBlockPersistentFlowTreeFromRootInternalV1,
   deeplyFrozenPersistentFlowV1,
   hasVNextTextBlockPersistentFlowTreeProvenanceInternalV1,
   partitionPersistentFlowValuesV1,
   projectVNextTextBlockPersistentFlowItemsForRangeV1,
-  registerVNextTextBlockPersistentFlowTreeInternalV1,
 } from "./textBlockPersistentFlowTreeInternalsV1.js"
 
 function blocked(
@@ -27,6 +28,31 @@ function blocked(
   message: string,
 ): VNextTextBlockPersistentFlowBuildResultV1 {
   return { status: "blocked", tree: null, issues: [{ code, message }] }
+}
+
+function createSuffixProof(input: VNextTextBlockPersistentFlowBuildInputV1) {
+  const semanticLineFingerprints = input.acceptedLayout.lines.map(
+    createVNextTextBlockMultiRunSemanticLineFingerprintV1,
+  )
+  const semanticSuffixFingerprints = Array.from<string>({ length: semanticLineFingerprints.length })
+  let suffix = createVNextCompactFingerprint("incremental-line-suffix:end:v1")
+  for (let index = semanticLineFingerprints.length - 1; index >= 0; index -= 1) {
+    suffix = createVNextCompactFingerprint(JSON.stringify({
+      semanticLineFingerprint: semanticLineFingerprints[index],
+      nextSuffixFingerprint: suffix,
+    }))
+    semanticSuffixFingerprints[index] = suffix
+  }
+  const rangeCheckpoints = createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1({
+    measurement: input.request.measurement,
+    shapingRuns: input.request.shapingRuns,
+    lines: input.request.lines,
+  })
+  if (rangeCheckpoints == null) throw new RangeError("persistent flow requires safe semantic line checkpoints")
+  return {
+    semanticSuffixFingerprints,
+    semanticRangeSuffixFingerprints: rangeCheckpoints.suffixFingerprints,
+  }
 }
 
 export function createVNextTextBlockPersistentFlowTreeV1(
@@ -52,46 +78,12 @@ export function createVNextTextBlockPersistentFlowTreeV1(
       VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumLeafItems,
     ).map(createVNextTextBlockPersistentFlowLeafInternalV1)
     const root = buildVNextTextBlockPersistentFlowRootInternalV1(leaves)
-    const layoutContextFingerprint = compactPersistentFlowFactsV1({
-      layoutId: input.request.layoutId,
-      documentId: input.request.measurement.documentId,
-      sectionId: input.request.measurement.sectionId,
-      textBlockId: input.request.measurement.textBlockId,
-      measurementProfileId: input.request.measurement.measurementProfileId,
-      layoutUnitPolicyFingerprint: input.request.layoutUnitPolicyFingerprint,
-      availableWidthLayoutUnit: input.request.availableWidthLayoutUnit,
-      declaredLineHeightLayoutUnit: input.request.declaredLineHeightLayoutUnit,
-      paragraphStyle: input.request.paragraphStyle,
-      fontFaces: input.request.fontFaces,
-    })
-    const facts = {
-      source: VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_SOURCE,
-      contractVersion: VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_VERSION,
-      documentId: input.request.measurement.documentId,
-      sectionId: input.request.measurement.sectionId,
-      textBlockId: input.request.measurement.textBlockId,
-      instanceRevision: input.request.measurement.instanceRevision,
-      layoutContextFingerprint,
-      policy: VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1,
+    const tree = createVNextTextBlockPersistentFlowTreeFromRootInternalV1({
+      request: input.request,
       root,
-      summary: root.summary,
       itemsByKind: projected.itemsByKind,
-      contracts: {
-        offsetIndependentItems: true as const,
-        balancedLeafDepth: true as const,
-        coreOwnedMerkleFingerprints: true as const,
-        processLocalImmutableTree: true as const,
-        stagedCoverageCompatible: true as const,
-        stagedEditorApply: false as const,
-        mayPublishLayout: false as const,
-        productionBinding: false as const,
-      },
-    }
-    const tree = deepFreezePersistentFlowV1({
-      ...facts,
-      fingerprint: compactPersistentFlowFactsV1(facts),
+      suffixProof: createSuffixProof(input),
     })
-    registerVNextTextBlockPersistentFlowTreeInternalV1(tree)
     return { status: "accepted", tree, issues: [] }
   } catch {
     return blocked("unsafe-tree-summary", "persistent flow tree summary exceeded safe integer arithmetic")
