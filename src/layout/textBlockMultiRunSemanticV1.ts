@@ -1,6 +1,9 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { isVNextSafeUtf16TextOffset } from "../authoring/utf16Offsets.js"
-import type { VNextTextBlockV4MeasurementRequest } from "../pagination/textBlockV4Measurement.js"
+import type {
+  VNextTextBlockV4MeasurementRequest,
+  VNextTextBlockV4MeasurementRun,
+} from "../pagination/textBlockV4Measurement.js"
 import type {
   VNextTextBlockMultiRunLineInputV1,
   VNextTextBlockMultiRunSourceSegmentV1,
@@ -19,8 +22,163 @@ export interface VNextTextBlockMultiRunSemanticRangeLineCheckpointsV1 {
   suffixFingerprints: string[]
 }
 
+export type VNextTextBlockMultiRunSemanticRangeWindowCheckpointsV1 =
+  | {
+      status: "accepted"
+      lineStartIndex: number
+      lineEndIndexExclusive: number
+      lineFingerprints: string[]
+      work: {
+        lineFingerprintCount: number
+        visitedShapingRunCount: number
+        visitedClusterCount: number
+        visitedSourceRunCount: number
+        completeSemanticPassCount: 0
+      }
+    }
+  | {
+      status: "blocked"
+      code: "invalid-line-window" | "invalid-line-range" | "invalid-cluster-range" | "invalid-source-range"
+      message: string
+    }
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
+}
+
+function normalizedSemanticCluster(
+  measurement: VNextTextBlockV4MeasurementRequest,
+  run: VNextTextBlockResolvedShapingRunV1,
+  cluster: VNextTextBlockResolvedShapingRunV1["clusters"][number],
+  rangeStart: number,
+) {
+  return {
+    renderStartOffset: cluster.renderStartOffset - rangeStart,
+    renderEndOffset: cluster.renderEndOffset - rangeStart,
+    text: measurement.renderedText.slice(cluster.renderStartOffset, cluster.renderEndOffset),
+    advanceLayoutUnit: cluster.advanceLayoutUnit,
+    styleKey: run.styleKey,
+    fontFaceId: run.fontFaceId,
+    fontSizeLayoutUnit: run.fontSizeLayoutUnit,
+    textColor: run.textColor,
+    direction: run.direction,
+    baselineShiftLayoutUnit: run.baselineShiftLayoutUnit,
+    features: [...run.features],
+  }
+}
+
+function normalizedSemanticSourceSegment(
+  run: VNextTextBlockV4MeasurementRun,
+  rangeStart: number,
+  renderStartOffset: number,
+  renderEndOffset: number,
+) {
+  const sourceStartOffset = renderStartOffset - run.renderStartOffset
+  const sourceEndOffset = renderEndOffset - run.renderStartOffset
+  return {
+    inlineId: run.inlineId,
+    kind: run.kind,
+    ...(run.fieldKey == null ? {} : { fieldKey: run.fieldKey }),
+    ...(run.generatedOwnerFingerprint == null ? {} : {
+      generatedOwnerFingerprint: run.generatedOwnerFingerprint,
+    }),
+    ...(run.styleKey == null ? {} : { styleKey: run.styleKey }),
+    ...(run.localStyle == null ? {} : { localStyle: clone(run.localStyle) }),
+    renderStartOffset: renderStartOffset - rangeStart,
+    renderEndOffset: renderEndOffset - rangeStart,
+    renderedText: run.renderedText.slice(sourceStartOffset, sourceEndOffset),
+  }
+}
+
+function lowerBoundByEnd<T extends { renderEndOffset: number }>(
+  values: readonly T[],
+  offset: number,
+): number {
+  let low = 0
+  let high = values.length
+  while (low < high) {
+    const middle = low + Math.floor((high - low) / 2)
+    if (values[middle]!.renderEndOffset <= offset) low = middle + 1
+    else high = middle
+  }
+  return low
+}
+
+function createSemanticRangeFactsFromBoundedInputs(input: {
+  measurement: VNextTextBlockV4MeasurementRequest
+  shapingRuns: readonly VNextTextBlockResolvedShapingRunV1[]
+  sourceRuns: readonly VNextTextBlockV4MeasurementRun[]
+  renderStartOffset: number
+  renderEndOffset: number
+}):
+  | { status: "accepted"; facts: ReturnType<typeof createVNextTextBlockMultiRunSemanticRangeFactsV1> & {} }
+  | { status: "blocked"; code: "invalid-cluster-range" | "invalid-source-range" } {
+  const clusters: ReturnType<typeof normalizedSemanticCluster>[] = []
+  let previousClusterEnd = -1
+  for (const run of input.shapingRuns) {
+    for (const cluster of run.clusters) {
+      if (
+        !Number.isSafeInteger(cluster.renderStartOffset)
+        || !Number.isSafeInteger(cluster.renderEndOffset)
+        || cluster.renderStartOffset < input.renderStartOffset
+        || cluster.renderEndOffset > input.renderEndOffset
+        || cluster.renderEndOffset <= cluster.renderStartOffset
+        || cluster.renderStartOffset < run.renderStartOffset
+        || cluster.renderEndOffset > run.renderEndOffset
+        || cluster.renderStartOffset < previousClusterEnd
+        || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, cluster.renderStartOffset)
+        || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, cluster.renderEndOffset)
+      ) return { status: "blocked", code: "invalid-cluster-range" }
+      clusters.push(normalizedSemanticCluster(
+        input.measurement,
+        run,
+        cluster,
+        input.renderStartOffset,
+      ))
+      previousClusterEnd = cluster.renderEndOffset
+    }
+  }
+
+  const sourceSegments: ReturnType<typeof normalizedSemanticSourceSegment>[] = []
+  let expectedSourceStart = input.renderStartOffset
+  for (const run of input.sourceRuns) {
+    if (
+      !Number.isSafeInteger(run.renderStartOffset)
+      || !Number.isSafeInteger(run.renderEndOffset)
+      || run.renderStartOffset < 0
+      || run.renderEndOffset <= run.renderStartOffset
+      || run.renderEndOffset > input.measurement.renderedText.length
+      || run.renderedText !== input.measurement.renderedText.slice(run.renderStartOffset, run.renderEndOffset)
+      || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, run.renderStartOffset)
+      || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, run.renderEndOffset)
+    ) return { status: "blocked", code: "invalid-source-range" }
+    const renderStartOffset = Math.max(input.renderStartOffset, run.renderStartOffset)
+    const renderEndOffset = Math.min(input.renderEndOffset, run.renderEndOffset)
+    if (renderEndOffset <= renderStartOffset) continue
+    if (renderStartOffset !== expectedSourceStart) {
+      return { status: "blocked", code: "invalid-source-range" }
+    }
+    sourceSegments.push(normalizedSemanticSourceSegment(
+      run,
+      input.renderStartOffset,
+      renderStartOffset,
+      renderEndOffset,
+    ))
+    expectedSourceStart = renderEndOffset
+  }
+  if (expectedSourceStart !== input.renderEndOffset) {
+    return { status: "blocked", code: "invalid-source-range" }
+  }
+
+  return {
+    status: "accepted",
+    facts: {
+      text: input.measurement.renderedText.slice(input.renderStartOffset, input.renderEndOffset),
+      renderLength: input.renderEndOffset - input.renderStartOffset,
+      clusters,
+      sourceSegments,
+    },
+  }
 }
 
 function normalizedSourceSegments(
@@ -124,43 +282,24 @@ export function createVNextTextBlockMultiRunSemanticRangeFactsV1(input: {
         cluster.renderStartOffset < input.renderStartOffset
         || cluster.renderEndOffset > input.renderEndOffset
       ) return null
-      clusters.push({
-        renderStartOffset: cluster.renderStartOffset - input.renderStartOffset,
-        renderEndOffset: cluster.renderEndOffset - input.renderStartOffset,
-        text: input.measurement.renderedText.slice(
-          cluster.renderStartOffset,
-          cluster.renderEndOffset,
-        ),
-        advanceLayoutUnit: cluster.advanceLayoutUnit,
-        styleKey: run.styleKey,
-        fontFaceId: run.fontFaceId,
-        fontSizeLayoutUnit: run.fontSizeLayoutUnit,
-        textColor: run.textColor,
-        direction: run.direction,
-        baselineShiftLayoutUnit: run.baselineShiftLayoutUnit,
-        features: [...run.features],
-      })
+      clusters.push(normalizedSemanticCluster(
+        input.measurement,
+        run,
+        cluster,
+        input.renderStartOffset,
+      ))
     }
   }
   const sourceSegments = input.measurement.runs.flatMap((run) => {
     const renderStartOffset = Math.max(input.renderStartOffset, run.renderStartOffset)
     const renderEndOffset = Math.min(input.renderEndOffset, run.renderEndOffset)
     if (renderEndOffset <= renderStartOffset) return []
-    const sourceStartOffset = renderStartOffset - run.renderStartOffset
-    const sourceEndOffset = renderEndOffset - run.renderStartOffset
-    return [{
-      inlineId: run.inlineId,
-      kind: run.kind,
-      ...(run.fieldKey == null ? {} : { fieldKey: run.fieldKey }),
-      ...(run.generatedOwnerFingerprint == null ? {} : {
-        generatedOwnerFingerprint: run.generatedOwnerFingerprint,
-      }),
-      ...(run.styleKey == null ? {} : { styleKey: run.styleKey }),
-      ...(run.localStyle == null ? {} : { localStyle: clone(run.localStyle) }),
-      renderStartOffset: renderStartOffset - input.renderStartOffset,
-      renderEndOffset: renderEndOffset - input.renderStartOffset,
-      renderedText: run.renderedText.slice(sourceStartOffset, sourceEndOffset),
-    }]
+    return [normalizedSemanticSourceSegment(
+      run,
+      input.renderStartOffset,
+      renderStartOffset,
+      renderEndOffset,
+    )]
   })
   return {
     text: input.measurement.renderedText.slice(input.renderStartOffset, input.renderEndOffset),
@@ -259,21 +398,12 @@ export function createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1(input
       const renderStartOffset = Math.max(line.renderStartOffset, run.renderStartOffset)
       const renderEndOffset = Math.min(line.renderEndOffset, run.renderEndOffset)
       if (renderEndOffset <= renderStartOffset) continue
-      const sourceStartOffset = renderStartOffset - run.renderStartOffset
-      const sourceEndOffset = renderEndOffset - run.renderStartOffset
-      sourceSegments.push({
-        inlineId: run.inlineId,
-        kind: run.kind,
-        ...(run.fieldKey == null ? {} : { fieldKey: run.fieldKey }),
-        ...(run.generatedOwnerFingerprint == null ? {} : {
-          generatedOwnerFingerprint: run.generatedOwnerFingerprint,
-        }),
-        ...(run.styleKey == null ? {} : { styleKey: run.styleKey }),
-        ...(run.localStyle == null ? {} : { localStyle: clone(run.localStyle) }),
-        renderStartOffset: renderStartOffset - line.renderStartOffset,
-        renderEndOffset: renderEndOffset - line.renderStartOffset,
-        renderedText: run.renderedText.slice(sourceStartOffset, sourceEndOffset),
-      })
+      sourceSegments.push(normalizedSemanticSourceSegment(
+        run,
+        line.renderStartOffset,
+        renderStartOffset,
+        renderEndOffset,
+      ))
     }
 
     const facts = {
@@ -306,4 +436,153 @@ export function createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1(input
     suffixFingerprints[index] = suffix
   }
   return { lineFingerprints, prefixFingerprints, suffixFingerprints }
+}
+
+export function createVNextTextBlockMultiRunSemanticRangeWindowCheckpointsV1(input: {
+  measurement: VNextTextBlockV4MeasurementRequest
+  shapingRuns: readonly VNextTextBlockResolvedShapingRunV1[]
+  lines: readonly VNextTextBlockMultiRunLineInputV1[]
+  lineStartIndex: number
+  lineEndIndexExclusive: number
+}): VNextTextBlockMultiRunSemanticRangeWindowCheckpointsV1 {
+  if (
+    !Number.isSafeInteger(input.lineStartIndex)
+    || !Number.isSafeInteger(input.lineEndIndexExclusive)
+    || input.lineStartIndex < 0
+    || input.lineEndIndexExclusive <= input.lineStartIndex
+    || input.lineEndIndexExclusive > input.lines.length
+  ) return {
+    status: "blocked",
+    code: "invalid-line-window",
+    message: "line window is outside request lines",
+  }
+
+  const selected = input.lines.slice(input.lineStartIndex, input.lineEndIndexExclusive)
+  const first = selected[0]!
+  const last = selected.at(-1)!
+  let expectedStart = first.renderStartOffset
+  for (let offset = 0; offset < selected.length; offset += 1) {
+    const line = selected[offset]!
+    if (
+      line.index !== input.lineStartIndex + offset
+      || !Number.isSafeInteger(line.renderStartOffset)
+      || !Number.isSafeInteger(line.renderEndOffset)
+      || line.renderStartOffset !== expectedStart
+      || line.renderEndOffset <= line.renderStartOffset
+      || line.renderEndOffset > input.measurement.renderedText.length
+      || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, line.renderStartOffset)
+      || !isVNextSafeUtf16TextOffset(input.measurement.renderedText, line.renderEndOffset)
+    ) return {
+      status: "blocked",
+      code: "invalid-line-range",
+      message: "selected lines are not contiguous safe rendered ranges",
+    }
+    expectedStart = line.renderEndOffset
+  }
+  const previousLineEnd = input.lineStartIndex === 0
+    ? 0
+    : input.lines[input.lineStartIndex - 1]!.renderEndOffset
+  const nextLineStart = input.lineEndIndexExclusive === input.lines.length
+    ? input.measurement.renderedText.length
+    : input.lines[input.lineEndIndexExclusive]!.renderStartOffset
+  if (first.renderStartOffset !== previousLineEnd || last.renderEndOffset !== nextLineStart) return {
+    status: "blocked",
+    code: "invalid-line-range",
+    message: "selected lines do not join their request neighbors",
+  }
+
+  const shapingStart = lowerBoundByEnd(input.shapingRuns, first.renderStartOffset)
+  let shapingEnd = shapingStart
+  while (
+    shapingEnd < input.shapingRuns.length
+    && input.shapingRuns[shapingEnd]!.renderStartOffset < last.renderEndOffset
+  ) shapingEnd += 1
+  const shapingRuns = input.shapingRuns.slice(shapingStart, shapingEnd)
+
+  const sourceStart = lowerBoundByEnd(input.measurement.runs, first.renderStartOffset)
+  let sourceEnd = sourceStart
+  while (
+    sourceEnd < input.measurement.runs.length
+    && input.measurement.runs[sourceEnd]!.renderStartOffset < last.renderEndOffset
+  ) sourceEnd += 1
+  const sourceRuns = input.measurement.runs.slice(sourceStart, sourceEnd)
+
+  let shapingRunCursor = 0
+  let shapingClusterCursor = 0
+  let sourceRunCursor = 0
+  let visitedClusterCount = 0
+  const lineFingerprints: string[] = []
+  for (const line of selected) {
+    const lineShapingRuns: VNextTextBlockResolvedShapingRunV1[] = []
+    while (shapingRunCursor < shapingRuns.length) {
+      const run = shapingRuns[shapingRunCursor]!
+      while (
+        shapingClusterCursor < run.clusters.length
+        && run.clusters[shapingClusterCursor]!.renderEndOffset <= line.renderStartOffset
+      ) shapingClusterCursor += 1
+      if (shapingClusterCursor >= run.clusters.length) {
+        shapingRunCursor += 1
+        shapingClusterCursor = 0
+        continue
+      }
+      if (run.clusters[shapingClusterCursor]!.renderStartOffset >= line.renderEndOffset) break
+      const lineClusters: VNextTextBlockResolvedShapingRunV1["clusters"] = []
+      while (
+        shapingClusterCursor < run.clusters.length
+        && run.clusters[shapingClusterCursor]!.renderStartOffset < line.renderEndOffset
+      ) {
+        lineClusters.push(run.clusters[shapingClusterCursor]!)
+        shapingClusterCursor += 1
+      }
+      lineShapingRuns.push({ ...run, clusters: lineClusters })
+      visitedClusterCount += lineClusters.length
+      if (shapingClusterCursor >= run.clusters.length) {
+        shapingRunCursor += 1
+        shapingClusterCursor = 0
+        continue
+      }
+      break
+    }
+
+    while (
+      sourceRunCursor < sourceRuns.length
+      && sourceRuns[sourceRunCursor]!.renderEndOffset <= line.renderStartOffset
+    ) sourceRunCursor += 1
+    const lineSourceRuns: VNextTextBlockV4MeasurementRun[] = []
+    for (let runIndex = sourceRunCursor; runIndex < sourceRuns.length; runIndex += 1) {
+      const run = sourceRuns[runIndex]!
+      if (run.renderStartOffset >= line.renderEndOffset) break
+      lineSourceRuns.push(run)
+    }
+
+    const facts = createSemanticRangeFactsFromBoundedInputs({
+      measurement: input.measurement,
+      shapingRuns: lineShapingRuns,
+      sourceRuns: lineSourceRuns,
+      renderStartOffset: line.renderStartOffset,
+      renderEndOffset: line.renderEndOffset,
+    })
+    if (facts.status === "blocked") return {
+      status: "blocked",
+      code: facts.code,
+      message: facts.code === "invalid-cluster-range"
+        ? "selected line contains a crossing or malformed shaping cluster"
+        : "selected line does not retain exact ordered source coverage",
+    }
+    lineFingerprints.push(createVNextCompactFingerprint(JSON.stringify(facts.facts)))
+  }
+
+  return {
+    status: "accepted",
+    lineStartIndex: input.lineStartIndex,
+    lineEndIndexExclusive: input.lineEndIndexExclusive,
+    lineFingerprints,
+    work: {
+      lineFingerprintCount: lineFingerprints.length,
+      visitedShapingRunCount: shapingRuns.length,
+      visitedClusterCount,
+      visitedSourceRunCount: sourceRuns.length,
+      completeSemanticPassCount: 0,
+    },
+  }
 }
