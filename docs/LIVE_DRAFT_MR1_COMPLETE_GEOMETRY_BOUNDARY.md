@@ -183,8 +183,11 @@ Reviewed Core runtime baseline: `c9a3e09`.
 
 ## Next Checkpoint
 
-Proceed to Phase 2 Persistent Flow Tree Foundation. Implement the versioned
-persistent B+ rope policy and remove `completeNextSemanticPassCount: 1` for the
-accepted text subset. Do not start spatial wrapping, list decoration,
-inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit,
-publication, or production activation in this checkpoint.
+Phase 2 is accepted as `MR1-Q Persistent Flow Tree Foundation`; see
+`docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md`. The next authorized
+checkpoint is `Phase 3: Core Spatial Wrapping 3A`. Do not start list/image
+geometry, empty-block geometry, Editor, Backend, table auto-fit, publication,
+or production activation inside Phase 3. The historical MR1-P execution guard
+for the completed checkpoint was: Do not start spatial wrapping, list
+decoration, inline-image geometry, empty-block geometry, Editor, Backend, table
+auto-fit, publication, or production activation in this checkpoint.

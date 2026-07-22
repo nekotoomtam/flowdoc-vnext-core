@@ -1,9 +1,10 @@
-# Live Draft Cross-Runtime Parity Handoff (MR1-P)
+# Live Draft Cross-Runtime Parity Handoff (MR1-P foundation; current MR1-Q)
 
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20; updated through the bounded MR1-P checkpoint on 2026-07-22.
+Date: 2026-07-20; originally updated through the bounded MR1-P checkpoint and
+now updated through `MR1-Q Persistent Flow Tree Foundation` on 2026-07-22.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -68,7 +69,8 @@ Baseline commits when this handoff was written:
 
 The immediately preceding MR1-I implementation evidence remains pinned at
 Core `78810c5` and Editor `0a5c816`; later MR1-J/MR1-K/MR1-L/MR1-M/MR1-N/MR1-O
-commits build on those accepted oracle-analysis facts.
+and `MR1-Q Persistent Flow Tree Foundation` build on those accepted
+oracle-analysis facts.
 
 ### Core Truth
 
@@ -79,6 +81,14 @@ commits build on those accepted oracle-analysis facts.
 - `packages/text-engine-rust-wasm` now exists and records Node-native,
   browser-WASM, and worker-WASM runtime identities.
 - A pinned WASM digest and a minimal accepted evidence subset exist.
+- `MR1-Q Persistent Flow Tree Foundation` retains an immutable Persistent B+
+  flow rope, path-copy structural sharing, Core-owned Merkle fingerprints, a
+  bounded semantic proof with `completeNextSemanticPassCount: 0`, and exact
+  optional QA parity for four actual-WASM edit families. Complete request
+  validation and complete shaping/break arrays still remain.
+- `stagedCoverageCompatible: true` is B1 compatibility evidence for stable
+  ordered identity and resumable references only. Editor staged apply/state is
+  not implemented.
 - The current Measurement Hardening close audit accepts only a mini
   infrastructure checkpoint: Thai line-break core and one canonical Latin
   paragraph row.
@@ -426,22 +436,18 @@ identity.
 
 ## First Task For The Next Thread
 
-Proceed to Phase 2 Persistent Flow Tree Foundation over the accepted MR1-P
-Initial TextBlock Flow boundary.
+Proceed only to `Phase 3: Core Spatial Wrapping 3A` over the accepted
+`MR1-Q Persistent Flow Tree Foundation`.
 
-1. Implement the versioned persistent B+ rope policy and remove
-   `completeNextSemanticPassCount: 1` for the accepted text subset without
-   trusting an adapter-supplied semantic digest or weakening process-local
-   provenance.
-2. Preserve exact source, generated-owner, text, Text Run style, advance, line,
-   UTF-16, and revision-specific physical-id regeneration guarantees.
-3. Preserve the no-complete-layout-input path and optional full-oracle QA parity
-   for insertion, Bold, field-adjacent, deletion, and all current fallback rows.
-4. Remeasure retained-memory and request-composition work without inventing a
-   product-scale or interaction budget.
-5. Do not start spatial wrapping, list decoration, inline-image geometry,
-   empty-block geometry, Editor, Backend, table auto-fit, publication, or
-   production activation in this checkpoint.
+1. Implement the persistent y-interval spatial index and Flow Region Provider
+   from strict synthetic Core inputs.
+2. Preserve the no-exclusion single-interval fast path and all MR1-Q immutable
+   identity/provenance gates.
+3. Keep B1 staged coverage as compatibility evidence only; do not implement
+   Editor staged apply/state.
+4. Do not start list decoration, inline-image geometry, empty-block geometry,
+   Editor, Backend, Columns/Table integration, table auto-fit, publication, or
+   production activation inside Phase 3.
 
 ## Required Reading
 
@@ -450,6 +456,7 @@ Core:
 - `docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md`
 - `docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md`
 - `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`
+- `docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md`
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
 - `docs/RUST_WASM_TEXT_ENGINE_BOUNDARY.md`
 - `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
@@ -542,26 +549,25 @@ Backend:
 Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
-Read the Required Reading section and inspect the reviewed Core runtime baseline
-at c9a3e09 before editing. Proceed only to Phase 2 Persistent Flow Tree
-Foundation over the accepted MR1-P Initial TextBlock Flow boundary.
-
-Implement the versioned persistent B+ rope policy and remove
-completeNextSemanticPassCount: 1 for the accepted text subset without trusting
-an adapter-supplied semantic digest or weakening process-local provenance.
-Preserve exact source, generated-owner, text, Text Run style, advance, line,
-UTF-16, and revision-specific physical-id regeneration guarantees. Preserve
-the no-complete-layout-input path and optional full-oracle QA parity for every
-currently accepted and fallback row. Remeasure retained-memory and
-request-composition work without inventing a product-scale or interaction
-budget.
-
-Keep the work Core-only and retain strict fail-closed capability checks. Keep
-every accepted Initial Flow layout result non-production and non-publishable.
-Do not start
+Read the Required Reading section. The historical MR1-P handoff used the
+reviewed Core runtime baseline at c9a3e09 and instructed Phase 2 Persistent Flow
+Tree Foundation to implement the persistent B+ rope and replace
+completeNextSemanticPassCount: 1. Its execution exclusion was: Do not start
 spatial wrapping, list decoration, inline-image geometry, empty-block geometry,
 Editor, Backend, table auto-fit, publication, or production activation in this
-checkpoint.
+checkpoint. That work is now accepted as MR1-Q Persistent Flow Tree Foundation
+at 3f1aff4.
+
+Proceed only to Phase 3: Core Spatial Wrapping 3A over the accepted MR1-Q
+Persistent Flow Tree Foundation.
+
+Implement the persistent y-interval spatial index and Flow Region Provider from
+strict synthetic Core inputs. Preserve the no-exclusion single-interval fast
+path and MR1-Q immutable identity/provenance gates. B1 remains compatibility
+evidence only; do not implement Editor staged apply/state. Do not start list
+decoration, inline-image geometry, empty-block geometry, Editor, Backend,
+Columns/Table integration, table auto-fit, publication, or production
+activation inside Phase 3.
 
 Add focused tests before implementation, preserve accepted and blocked evidence,
 run the focused and full Core gates, and update the handoff with
@@ -1279,6 +1285,34 @@ files / 2028 tests. The next bounded checkpoint is Phase 2 Persistent Flow Tree
 Foundation. Combined focused verification: 6 files / 120 tests.
 Reviewed Core runtime baseline: `c9a3e09`.
 
+## MR1-Q Persistent Flow Tree Foundation
+
+Status: accepted as a bounded Core/MR1 QA checkpoint. Editor product binding,
+Backend binding, publication, and production remain NO-GO.
+
+MR1-Q adds the immutable Persistent B+ flow rope, balanced equal-depth leaves,
+offset-independent items, Core-owned Merkle fingerprints, path-copy updates,
+and retained item/leaf/node summaries. Four actual-WASM insertion, Bold,
+field-adjacent, and deletion rows reuse untouched nodes and reach bounded
+semantic reconvergence with `completeNextSemanticPassCount: 0`. Text, mixed
+Text Runs, resolved fields, generated page numbers, and hard breaks are
+tree-ready.
+
+This removes the complete next semantic checkpoint pass only. Complete next
+request validation, complete shaping/break/line arrays, and optional complete
+oracle QA materialization remain. Inline images, lists/list decoration, empty
+blocks, positioned objects, spatial wrapping, Columns/Table integration, and
+table auto-fit remain blocked or not present. `stagedCoverageCompatible: true`
+is B1 compatibility evidence for stable ordered identity and resumable
+references only; no Editor staged apply/state exists.
+
+Evidence lives at `docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md` and is
+pinned to reviewed implementation baseline `3f1aff4`. The next bounded
+checkpoint is `Phase 3: Core Spatial Wrapping 3A`; do not start list/image
+geometry or Editor binding inside Phase 3. The combined MR1-Q focused gate
+passed 7 files / 28 tests; the final full Core gate passed 412 files / 2,042
+tests.
+
 ## PASS / FAIL-BLOCKER / RISK / UNKNOWN
 
 ### PASS
@@ -1405,6 +1439,11 @@ Reviewed Core runtime baseline: `c9a3e09`.
 - Twenty-five warm MR1-O samples retain seven-stage p50/p95 diagnostics. The
   subtotal excluding optional QA is 158.17/173.85 ms and affected-line assembly
   is 0.70/1.62 ms, without inventing an interaction budget.
+- MR1-Q retains a balanced immutable persistent flow tree and path-copies four
+  accepted actual-WASM edit families with deterministic structural sharing.
+- MR1-Q bounded semantic proof and Core acceptance report
+  `completeNextSemanticPassCount: 0` without requiring a complete next layout
+  input; optional complete-oracle QA remains exact.
 
 ### FAIL-BLOCKER
 
@@ -1419,6 +1458,9 @@ Reviewed Core runtime baseline: `c9a3e09`.
 - Complete shape/segmentation oracle removal, product-bound incremental
   composition, whole-document field/layout coverage, and publication remain
   blocked for later slices.
+- Complete next-request validation and complete shaping/break/line arrays remain
+  in the external MR1-Q path. Inline-image/list/empty/spatial/container geometry
+  and Editor staged apply/state remain blocked or not present.
 
 ### RISK
 
@@ -1479,10 +1521,10 @@ Reviewed Core runtime baseline: `c9a3e09`.
   oracles, creates a complete next snapshot, and compares complete spliced
   arrays. Its passing result is not a per-keystroke performance result.
 - MR1-M resolves offset-derived ids by separating semantic reuse from physical
-  identity. MR1-N removes the full layout input, and MR1-O removes repeated
-  complete prefix/suffix semantic-range hashing. MR1-O still makes one complete
-  next semantic-line pass; its proof observed 59.44/70.24 ms p50/p95 and remains
-  far above an interaction-ready claim.
+  identity. MR1-N removes the full layout input, MR1-O removes repeated complete
+  prefix/suffix semantic-range hashing, and MR1-Q removes the complete next
+  semantic checkpoint pass. Complete next-request validation and complete
+  shaping/break/line arrays still prevent any interaction-ready claim.
 - Pairing external and Core snapshots in process-local weak maps preserves
   provenance but duplicates active retained facts in memory; product-scale
   retention is still unmeasured.
@@ -1496,13 +1538,13 @@ Reviewed Core runtime baseline: `c9a3e09`.
   the accepted threshold policy.
 - Final performance and bitmap-memory budgets for product-sized and 200-page
   documents.
-- Product-safe incremental composition that can publish the proved line window
-  after the complete next semantic pass and complete engine oracles are
-  replaced by equally strong bounded proofs.
+- Product-safe incremental composition after complete request validation and
+  complete shaping/break/line arrays are replaced by equally strong bounded
+  proofs.
 - Product-scale retained-snapshot memory and per-edit planner timing.
-- Exact performance after the complete next semantic pass, complete
-  shape/segmentation oracle calls, optional QA work, and full-array comparisons
-  are removed from the runtime path.
+- Exact performance after complete request validation, complete
+  shaping/break/line arrays, optional QA work, and full-array comparisons are
+  removed from the runtime path.
 - Cross-process or persisted incremental snapshot hydration with equally strong
   provenance and immutability guarantees.
 - Product scheduler fairness under continuous active typing plus background
