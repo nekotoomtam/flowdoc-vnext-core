@@ -3,6 +3,7 @@ import { resolve } from "node:path"
 import { beforeAll, describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunIncrementalWindowV1,
+  createVNextTextBlockPersistentFlowUpdateV1,
   createVNextTextBlockMultiRunIncrementalSnapshotV1,
   createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
   materializeVNextTextBlockMultiRunIncrementalLayoutForQaV1,
@@ -241,11 +242,22 @@ function proveCoreComposition(
     acceptedLayout: fixture.previous.layout,
   })
   const coreSnapshot = retainedCoreSnapshot
+  const persistentFlowUpdate = createVNextTextBlockPersistentFlowUpdateV1({
+    previousTree: coreSnapshot.persistentFlowTree,
+    previousRequest: coreSnapshot.request,
+    nextRequest: fixture.nextOracle.request,
+    edit: fixture.changed.edit,
+    window: result.affectedWindow.checkpoint,
+  })
+  if (persistentFlowUpdate.status !== "accepted") {
+    throw new Error(persistentFlowUpdate.issues[0]?.message)
+  }
   const semanticCheckpointProof = createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
     snapshot: coreSnapshot,
     nextRequest: fixture.nextOracle.request,
     edit: fixture.changed.edit,
     window: result.affectedWindow.checkpoint,
+    persistentFlowUpdate: persistentFlowUpdate.update,
   })
   if (semanticCheckpointProof.status !== "checkpoint-accepted") {
     throw new Error(semanticCheckpointProof.message)
@@ -274,7 +286,13 @@ function proveCoreComposition(
   ).toBe("materialized-for-qa")
   if (materialized.status !== "materialized-for-qa") throw new Error(materialized.message)
   expect(materialized.layout).toEqual(fixture.nextOracle.layout)
-  return { coreSnapshot, semanticCheckpointProof, coreAcceptance, materialized }
+  return {
+    coreSnapshot,
+    persistentFlowUpdate: persistentFlowUpdate.update,
+    semanticCheckpointProof,
+    coreAcceptance,
+    materialized,
+  }
 }
 
 function executeOracleIndependentCore(
@@ -439,14 +457,19 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
         status: "checkpoint-accepted",
         work: {
           completePreviousSemanticPassCount: 0,
-          completeNextSemanticPassCount: 1,
+          completeNextSemanticPassCount: 0,
+          boundedNextSemanticPassCount: 1,
           completeSemanticRangeHashCount: 0,
+          persistentFlowUpdateAccepted: true,
         },
       },
       coreAcceptance: {
         work: {
           semanticCheckpointProofAccepted: true,
+          completeNextSemanticPassCount: 0,
           completeSemanticRangeHashCount: 0,
+          reusedPersistentNodeCount: expect.any(Number),
+          createdPersistentNodeCount: expect.any(Number),
         },
       },
       work: { completeCoreLayoutOracleUsed: false },
@@ -570,11 +593,22 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       acceptedLayout: fixture.previous.layout,
     })
     const coreSnapshot = retainedCoreSnapshot
+    const persistentFlowUpdate = createVNextTextBlockPersistentFlowUpdateV1({
+      previousTree: coreSnapshot.persistentFlowTree,
+      previousRequest: coreSnapshot.request,
+      nextRequest: fixture.nextOracle.request,
+      edit: fixture.changed.edit,
+      window: result.affectedWindow.checkpoint,
+    })
+    if (persistentFlowUpdate.status !== "accepted") {
+      throw new Error(persistentFlowUpdate.issues[0]?.message)
+    }
     const semanticCheckpointProof = createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
       snapshot: coreSnapshot,
       nextRequest: fixture.nextOracle.request,
       edit: fixture.changed.edit,
       window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: persistentFlowUpdate.update,
     })
     if (semanticCheckpointProof.status !== "checkpoint-accepted") {
       throw new Error(semanticCheckpointProof.message)
@@ -585,9 +619,12 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       nextRequest: shallowFrozenRequest,
       edit: fixture.changed.edit,
       window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: persistentFlowUpdate.update,
     })
-    expect(shallowFrozenProof.status).toBe("checkpoint-accepted")
-    expect(Object.isFrozen(shallowFrozenRequest.shapingRuns[0]!.clusters[0])).toBe(true)
+    expect(shallowFrozenProof).toMatchObject({
+      status: "fallback-required",
+      code: "persistent-flow-update-mismatch",
+    })
     expect(acceptVNextTextBlockMultiRunIncrementalWindowV1({
       snapshot: coreSnapshot,
       nextRequest: fixture.nextOracle.request,
@@ -620,21 +657,12 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
     })
     const changedMeasurementStyleKey = clone(fixture.nextOracle.request)
     changedMeasurementStyleKey.measurement.styleKey = `${changedMeasurementStyleKey.measurement.styleKey}-drift`
-    const changedMeasurementStyleProof = createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
-      snapshot: coreSnapshot,
-      nextRequest: changedMeasurementStyleKey,
-      edit: fixture.changed.edit,
-      window: result.affectedWindow.checkpoint,
-    })
-    if (changedMeasurementStyleProof.status !== "checkpoint-accepted") {
-      throw new Error(changedMeasurementStyleProof.message)
-    }
     expect(acceptVNextTextBlockMultiRunIncrementalWindowV1({
       snapshot: coreSnapshot,
       nextRequest: changedMeasurementStyleKey,
       edit: fixture.changed.edit,
       window: result.affectedWindow.checkpoint,
-      semanticCheckpointProof: changedMeasurementStyleProof,
+      semanticCheckpointProof,
     })).toMatchObject({
       status: "fallback-required",
       fallback: { code: "layout-context-mismatch" },
@@ -649,9 +677,10 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       nextRequest: changedSuffix,
       edit: fixture.changed.edit,
       window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: persistentFlowUpdate.update,
     })).toMatchObject({
       status: "fallback-required",
-      code: "suffix-semantic-mismatch",
+      code: "persistent-flow-update-mismatch",
     })
     const changedSource = clone(fixture.nextOracle.request)
     const suffixSourceRun = changedSource.measurement.runs.find((run) => run.renderEndOffset > suffixOffset)!
@@ -661,9 +690,10 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       nextRequest: changedSource,
       edit: fixture.changed.edit,
       window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: persistentFlowUpdate.update,
     })).toMatchObject({
       status: "fallback-required",
-      code: "suffix-semantic-mismatch",
+      code: "persistent-flow-update-mismatch",
     })
     const changedGeneratedOwner = clone(fixture.nextOracle.request)
     const generatedOwnerRun = changedGeneratedOwner.measurement.runs.find((run) => (
@@ -675,9 +705,10 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       nextRequest: changedGeneratedOwner,
       edit: fixture.changed.edit,
       window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: persistentFlowUpdate.update,
     })).toMatchObject({
       status: "fallback-required",
-      code: "suffix-semantic-mismatch",
+      code: "persistent-flow-update-mismatch",
     })
     const changedStyle = clone(fixture.nextOracle.request)
     const suffixStyleRun = changedStyle.shapingRuns.find((run) => run.renderEndOffset > suffixOffset)!
@@ -687,9 +718,45 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       nextRequest: changedStyle,
       edit: fixture.changed.edit,
       window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: persistentFlowUpdate.update,
     })).toMatchObject({
       status: "fallback-required",
-      code: "prefix-semantic-mismatch",
+      code: "persistent-flow-update-mismatch",
+    })
+    expect(createVNextTextBlockPersistentFlowUpdateV1({
+      previousTree: structuredClone(coreSnapshot.persistentFlowTree),
+      previousRequest: coreSnapshot.request,
+      nextRequest: fixture.nextOracle.request,
+      edit: fixture.changed.edit,
+      window: result.affectedWindow.checkpoint,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "tree-provenance-mismatch" }],
+    })
+    expect(createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
+      snapshot: coreSnapshot,
+      nextRequest: fixture.nextOracle.request,
+      edit: fixture.changed.edit,
+      window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: structuredClone(persistentFlowUpdate.update),
+    })).toMatchObject({
+      status: "fallback-required",
+      code: "persistent-flow-update-mismatch",
+    })
+    const changedUnaffectedSourceStyle = clone(fixture.nextOracle.request)
+    const unaffectedSourceRun = changedUnaffectedSourceStyle.measurement.runs.find((run) => (
+      run.renderEndOffset > suffixOffset
+    ))!
+    unaffectedSourceRun.styleKey = `${unaffectedSourceRun.styleKey}-drift`
+    expect(createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
+      snapshot: coreSnapshot,
+      nextRequest: changedUnaffectedSourceStyle,
+      edit: fixture.changed.edit,
+      window: result.affectedWindow.checkpoint,
+      persistentFlowUpdate: persistentFlowUpdate.update,
+    })).toMatchObject({
+      status: "fallback-required",
+      code: "persistent-flow-update-mismatch",
     })
     expect(acceptVNextTextBlockMultiRunIncrementalWindowV1({
       snapshot: coreSnapshot,

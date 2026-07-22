@@ -200,6 +200,8 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
       coreAcceptsAffectedLineWindow: true,
       coreOwnedCompositionalSemanticCheckpoints: true,
       completeSemanticRangeHashing: false,
+      persistentFlowStructuralSharing: true,
+      completeNextSemanticPassCount: 0,
       semanticIdentitySeparateFromPhysicalIds: true,
       physicalIdsAreRevisionSpecific: true,
       completeCoreLayoutOracleRequiredForQa: true,
@@ -424,7 +426,10 @@ export function acceptVNextTextBlockMultiRunIncrementalWindowV1(input: {
       reusedSuffixLineCount: references.suffix.previousEndLineIndexExclusive
         - references.suffix.previousStartLineIndex,
       semanticCheckpointProofAccepted: true as const,
+      completeNextSemanticPassCount: 0 as const,
       completeSemanticRangeHashCount: 0 as const,
+      reusedPersistentNodeCount: input.semanticCheckpointProof.work.reusedPersistentNodeCount,
+      createdPersistentNodeCount: input.semanticCheckpointProof.work.createdPersistentNodeCount,
     },
     fallback: null,
   }

@@ -3,6 +3,7 @@ import type {
   VNextTextBlockMultiRunLayoutResultV1,
   VNextTextBlockPositionedLineV1,
 } from "./textBlockMultiRunLayoutContractV1.js"
+import type { VNextTextBlockPersistentFlowTreeV1 } from "./textBlockPersistentFlowContractV1.js"
 
 export const VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_SNAPSHOT_SOURCE =
   "vnext-text-block-multi-run-incremental-snapshot-v1" as const
@@ -20,6 +21,7 @@ export interface VNextTextBlockMultiRunIncrementalSnapshotV1 {
   contractVersion: typeof VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_VERSION
   request: VNextTextBlockMultiRunLayoutRequestV1
   layout: VNextTextBlockAcceptedMultiRunLayoutV1
+  persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
   semanticLineFingerprints: readonly string[]
   prefixSemanticFingerprints: readonly string[]
   suffixSemanticFingerprints: readonly string[]
@@ -29,6 +31,9 @@ export interface VNextTextBlockMultiRunIncrementalSnapshotV1 {
   contracts: {
     acceptedCompleteLayoutProvenance: true
     processLocalImmutableSnapshot: true
+    persistentFlowTreeRetained: true
+    offsetIndependentFlowItems: true
+    stagedCoverageCompatible: true
     semanticIdentitySeparateFromPhysicalIds: true
     perEditFullLayoutAcceptance: false
     mayPublishLayout: false
@@ -83,6 +88,8 @@ interface VNextTextBlockMultiRunIncrementalAcceptanceBaseV1 {
     coreAcceptsAffectedLineWindow: true
     coreOwnedCompositionalSemanticCheckpoints: true
     completeSemanticRangeHashing: false
+    persistentFlowStructuralSharing: true
+    completeNextSemanticPassCount: 0
     semanticIdentitySeparateFromPhysicalIds: true
     physicalIdsAreRevisionSpecific: true
     completeCoreLayoutOracleRequiredForQa: true
@@ -130,7 +137,10 @@ export type VNextTextBlockMultiRunIncrementalAcceptanceV1 =
         positionedAffectedLineCount: number
         reusedSuffixLineCount: number
         semanticCheckpointProofAccepted: true
+        completeNextSemanticPassCount: 0
         completeSemanticRangeHashCount: 0
+        reusedPersistentNodeCount: number
+        createdPersistentNodeCount: number
       }
       fingerprint: string
       fallback: null

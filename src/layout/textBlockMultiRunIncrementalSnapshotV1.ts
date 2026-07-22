@@ -1,5 +1,4 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
-import { acceptVNextTextBlockMultiRunLayoutV1 } from "./textBlockMultiRunLayoutV1.js"
 import {
   VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_SNAPSHOT_SOURCE,
   VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_VERSION,
@@ -9,6 +8,7 @@ import type {
   VNextTextBlockMultiRunIncrementalSnapshotV1,
 } from "./textBlockMultiRunIncrementalContractV1.js"
 import type { VNextTextBlockMultiRunLayoutRequestV1 } from "./textBlockMultiRunLayoutContractV1.js"
+import { createVNextTextBlockPersistentFlowTreeV1 } from "./textBlockPersistentFlowTreeV1.js"
 import {
   createVNextTextBlockMultiRunSemanticLineFingerprintV1,
   createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1,
@@ -18,10 +18,6 @@ const processLocalSnapshots = new WeakSet<object>()
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
-}
-
-function sameJson(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right)
 }
 
 function deepFreeze<T>(value: T): T {
@@ -58,12 +54,15 @@ export function createVNextTextBlockMultiRunIncrementalSnapshotV1(input: {
   request: VNextTextBlockMultiRunLayoutRequestV1
   acceptedLayout: VNextTextBlockAcceptedMultiRunLayoutV1
 }): VNextTextBlockMultiRunIncrementalSnapshotV1 {
-  const reproduced = acceptVNextTextBlockMultiRunLayoutV1(input.request)
-  if (reproduced.status !== "accepted" || !sameJson(reproduced, input.acceptedLayout)) {
-    throw new Error("incremental snapshot requires the exact accepted complete Core layout")
-  }
   const request = clone(input.request)
   const layout = clone(input.acceptedLayout)
+  const persistentFlow = createVNextTextBlockPersistentFlowTreeV1({
+    request,
+    acceptedLayout: layout,
+  })
+  if (persistentFlow.status !== "accepted") {
+    throw new Error(`incremental snapshot persistent flow blocked: ${persistentFlow.issues[0]?.message}`)
+  }
   const chains = semanticChains(layout.lines)
   const rangeChains = createVNextTextBlockMultiRunSemanticRangeLineCheckpointsV1({
     measurement: request.measurement,
@@ -78,6 +77,7 @@ export function createVNextTextBlockMultiRunIncrementalSnapshotV1(input: {
     contractVersion: VNEXT_TEXT_BLOCK_MULTI_RUN_INCREMENTAL_VERSION,
     request,
     layout,
+    persistentFlowTree: persistentFlow.tree,
     ...chains,
     semanticRangeLineFingerprints: rangeChains.lineFingerprints,
     prefixSemanticRangeFingerprints: rangeChains.prefixFingerprints,
@@ -85,6 +85,9 @@ export function createVNextTextBlockMultiRunIncrementalSnapshotV1(input: {
     contracts: {
       acceptedCompleteLayoutProvenance: true,
       processLocalImmutableSnapshot: true,
+      persistentFlowTreeRetained: true,
+      offsetIndependentFlowItems: true,
+      stagedCoverageCompatible: true,
       semanticIdentitySeparateFromPhysicalIds: true,
       perEditFullLayoutAcceptance: false,
       mayPublishLayout: false,

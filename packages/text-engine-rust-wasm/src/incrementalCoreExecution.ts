@@ -1,6 +1,7 @@
 import {
   acceptVNextTextBlockMultiRunIncrementalWindowV1,
   createVNextCompactFingerprint,
+  createVNextTextBlockPersistentFlowUpdateV1,
   createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
   materializeVNextTextBlockMultiRunIncrementalLayoutForQaV1,
   type VNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1,
@@ -335,11 +336,23 @@ function executeFlowDocTextEngineIncrementalCorePlanInternalV1(
     breakOffsets: [...spliceFacts.breakOffsets],
     lines: clone(affectedWindow.lines),
   }
+  const persistentFlowUpdate = createVNextTextBlockPersistentFlowUpdateV1({
+    previousTree: incrementalCoreSnapshot.persistentFlowTree,
+    previousRequest: incrementalCoreSnapshot.request,
+    nextRequest: request,
+    edit: input.plan.edit,
+    window: affectedWindow.checkpoint,
+  })
+  if (persistentFlowUpdate.status !== "accepted") return fallback(
+    "semantic-checkpoint-proof-failed",
+    `persistent-flow-update-mismatch: ${persistentFlowUpdate.issues[0]?.message}`,
+  )
   const semanticCheckpointProof = createVNextTextBlockMultiRunIncrementalSemanticCheckpointProofV1({
     snapshot: incrementalCoreSnapshot,
     nextRequest: request,
     edit: input.plan.edit,
     window: affectedWindow.checkpoint,
+    persistentFlowUpdate: persistentFlowUpdate.update,
   })
   if (semanticCheckpointProof.status !== "checkpoint-accepted") return fallback(
     "semantic-checkpoint-proof-failed",
