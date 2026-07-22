@@ -1,10 +1,10 @@
-# Live Draft Cross-Runtime Parity Handoff (MR1-P foundation; current MR1-Q)
+# Live Draft Cross-Runtime Parity Handoff (MR1-Q)
 
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20; originally updated through the bounded MR1-P checkpoint and
-now updated through `MR1-Q Persistent Flow Tree Foundation` on 2026-07-22.
+Date: 2026-07-20; updated through `MR1-Q Persistent Flow Tree Foundation` on
+2026-07-22.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -59,7 +59,12 @@ The following rules are locked for this lane:
 
 ## Current Baseline
 
-Baseline commits when this handoff was written:
+Current MR1-Q Core implementation baseline: `3f1aff4`.
+
+### Historical MR1-P Baseline
+
+The following table is the preserved historical MR1-P baseline from before
+MR1-Q implementation:
 
 | Repository | Commit | Current responsibility |
 | --- | --- | --- |
@@ -543,29 +548,34 @@ Backend:
 - `src/pdfExport/pdfExportLocalRenderer.ts`
 - `src/localPdfExport/pdfExportRealdocE63Runtime.ts`
 
+## Historical MR1-P Completed Phase 2 Instruction
+
+The preserved historical MR1-P instruction used the reviewed Core runtime
+baseline at c9a3e09 and instructed Phase 2 Persistent Flow Tree Foundation to
+implement the persistent B+ rope and replace
+`completeNextSemanticPassCount: 1`. Its exact execution exclusion was: Do not
+start spatial wrapping, list decoration, inline-image geometry, empty-block
+geometry, Editor, Backend, table auto-fit, publication, or production activation
+in this checkpoint.
+
+This section is historical evidence only. Phase 2 is complete; it is not an
+active instruction.
+
 ## Handoff Prompt
 
 ```text
 Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
-Read the Required Reading section. The historical MR1-P handoff used the
-reviewed Core runtime baseline at c9a3e09 and instructed Phase 2 Persistent Flow
-Tree Foundation to implement the persistent B+ rope and replace
-completeNextSemanticPassCount: 1. Its execution exclusion was: Do not start
-spatial wrapping, list decoration, inline-image geometry, empty-block geometry,
-Editor, Backend, table auto-fit, publication, or production activation in this
-checkpoint. That work is now accepted as MR1-Q Persistent Flow Tree Foundation
-at 3f1aff4.
-
-Proceed only to Phase 3: Core Spatial Wrapping 3A over the accepted MR1-Q
-Persistent Flow Tree Foundation.
+Read the Required Reading section and the current MR1-Q baseline at 3f1aff4.
+Proceed only to Phase 3: Core Spatial Wrapping 3A over the accepted
+MR1-Q Persistent Flow Tree Foundation.
 
 Implement the persistent y-interval spatial index and Flow Region Provider from
 strict synthetic Core inputs. Preserve the no-exclusion single-interval fast
 path and MR1-Q immutable identity/provenance gates. B1 remains compatibility
-evidence only; do not implement Editor staged apply/state. Do not start list
-decoration, inline-image geometry, empty-block geometry, Editor, Backend,
+evidence only; do not implement Editor staged apply/state. Do not start
+list/image geometry, empty-block geometry, Editor binding, Backend binding,
 Columns/Table integration, table auto-fit, publication, or production
 activation inside Phase 3.
 

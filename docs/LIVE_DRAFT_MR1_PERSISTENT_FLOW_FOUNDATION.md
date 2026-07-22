@@ -24,7 +24,7 @@ suffix from Core-owned fingerprints. The accepted actual-WASM rows report
 `completeNextSemanticPassCount: 0` while preserving exact optional full-oracle
 parity.
 
-That zero removes the complete **next semantic checkpoint pass** only. The
+That zero removes the complete next semantic checkpoint pass only. The
 current external execution still assembles and validates a complete next Core
 request, and it still carries complete shaping-run, cluster, break-offset, and
 line arrays. When a complete layout oracle is supplied, complete-oracle
@@ -77,12 +77,14 @@ canonical byte counts above must not be read as live heap usage.
 
 ## Feedback Lane Compatibility
 
-`stagedCoverageCompatible: true` means only that the immutable tree preserves
-stable ordered identity, structural sharing, and resumable range references
-that a later coverage contract can bind. It does not implement Editor staged
-apply/state, viewport scheduling, current/off-screen presentation, or a product
-coverage result. `stagedEditorApply: false` remains authoritative. Design B1 is
-compatibility evidence only, not Editor implementation.
+`stagedCoverageCompatible: true` means only stable ordered identity and
+resumable range references. Structural sharing is a separate implementation
+fact of the persistent tree. These facts let a later coverage contract bind
+ordered continuation without expanding the compatibility definition. No Editor
+staged apply/state, viewport scheduling, current/off-screen presentation, or
+product coverage result is implemented. `stagedEditorApply: false` remains
+authoritative. Design B1 is compatibility evidence only, not Editor
+implementation.
 
 ## PASS
 
@@ -163,8 +165,8 @@ git diff --check
 
 ## Next Checkpoint
 
-Proceed to `Phase 3: Core Spatial Wrapping 3A`. Implement only the persistent
-y-interval spatial index and Flow Region Provider over strict synthetic Core
-inputs. Do not start list/image geometry, empty-block geometry, Editor binding,
-Backend binding, Columns/Table integration, table auto-fit, publication, or
-production activation inside Phase 3.
+Proceed only to `Phase 3: Core Spatial Wrapping 3A`. Implement only the
+persistent y-interval spatial index and Flow Region Provider over strict
+synthetic Core inputs. Do not start list/image geometry, empty-block geometry,
+Editor binding, Backend binding, Columns/Table integration, table auto-fit,
+publication, or production activation inside Phase 3.

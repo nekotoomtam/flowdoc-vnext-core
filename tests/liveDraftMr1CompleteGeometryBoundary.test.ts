@@ -20,9 +20,12 @@ const sectionAtPeerHeading = (document: string, start: string): string => {
   return document.slice(startIndex, nextHeadingIndex < 0 ? document.length : nextHeadingIndex)
 }
 
-const runtimeBaseline = "c9a3e09"
+const historicalRuntimeBaseline = "c9a3e09"
+const currentRuntimeBaseline = "3f1aff4"
 const phase2Exclusions =
   "Do not start spatial wrapping, list decoration, inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit, publication, or production activation in this checkpoint."
+const phase3Exclusions =
+  "Do not start list/image geometry, empty-block geometry, Editor binding, Backend binding, Columns/Table integration, table auto-fit, publication, or production activation inside Phase 3."
 
 describe("Live Draft MR1-P complete geometry boundary", () => {
   it("bounds an MR1-P ledger section at the next peer heading", () => {
@@ -43,10 +46,19 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     const handoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("../docs/PHASE_LEDGER.md")
     const handoffHeader = sectionBetween(handoff, "# ", "## Objective")
-    const handoffBaseline = sectionBetween(handoff, "## Current Baseline", "### Core Truth")
+    const handoffCurrentBaseline = sectionBetween(
+      handoff,
+      "## Current Baseline",
+      "### Historical MR1-P Baseline",
+    )
+    const handoffHistoricalBaseline = sectionBetween(
+      handoff,
+      "### Historical MR1-P Baseline",
+      "### Core Truth",
+    )
     const handoffMr1p = sectionAtPeerHeading(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
     const ledgerMr1p = sectionAtPeerHeading(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")
-    const coreBaselineRow = `| \`flowdoc-vnext-core\` | \`${runtimeBaseline}\` |`
+    const coreBaselineRow = `| \`flowdoc-vnext-core\` | \`${historicalRuntimeBaseline}\` |`
 
     for (const section of [
       "## Outcome",
@@ -67,26 +79,31 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(boundary).toContain("blocked-empty-layout-contract")
     expect(boundary).toContain("mayPublishLayout: false")
     expect(boundary).toContain("Persistent Flow Tree Foundation")
-    expect(handoff.split(/\r?\n/, 1)[0]).toContain("MR1-P")
-    expect(handoffHeader).toContain("updated through the bounded MR1-P checkpoint")
+    expect(handoff.split(/\r?\n/, 1)[0]).toContain("MR1-Q")
+    expect(handoffHeader).toContain("updated through `MR1-Q Persistent Flow Tree Foundation`")
     expect(handoffHeader).not.toContain("MR1-O")
     expect(occurrences(handoff, "## Current Baseline")).toBe(1)
+    expect(occurrences(handoff, "### Historical MR1-P Baseline")).toBe(1)
     expect(occurrences(handoff, "## Handoff Prompt")).toBe(1)
     expect(occurrences(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")).toBe(1)
     expect(occurrences(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")).toBe(1)
-    expect(handoffBaseline).toContain(coreBaselineRow)
-    expect(occurrences(handoffBaseline, "| `flowdoc-vnext-core` |")).toBe(1)
+    expect(handoffCurrentBaseline).toContain(
+      `Current MR1-Q Core implementation baseline: \`${currentRuntimeBaseline}\`.`,
+    )
+    expect(handoffHistoricalBaseline).toContain("preserved historical MR1-P baseline")
+    expect(handoffHistoricalBaseline).toContain(coreBaselineRow)
+    expect(occurrences(handoffHistoricalBaseline, "| `flowdoc-vnext-core` |")).toBe(1)
     expect(occurrences(handoff, coreBaselineRow)).toBe(1)
     for (const document of [boundary, handoffMr1p, ledgerMr1p]) {
-      expect(document).toContain(`Reviewed Core runtime baseline: \`${runtimeBaseline}\``)
+      expect(document).toContain(`Reviewed Core runtime baseline: \`${historicalRuntimeBaseline}\``)
       expect(document).not.toContain("8ae96e8")
       expect(document).not.toContain("b686c99")
       expect(document).not.toContain("109675f")
       expect(document).not.toContain("59e89ad")
     }
 
-    expect(handoffBaseline).not.toContain("8ae96e8")
-    expect(handoffBaseline).not.toContain("b686c99")
+    expect(handoffHistoricalBaseline).not.toContain("8ae96e8")
+    expect(handoffHistoricalBaseline).not.toContain("b686c99")
     expect(handoff).not.toContain("| `flowdoc-vnext-core` | `109675f` |")
     expect(handoff).not.toContain("| `flowdoc-vnext-core` | `59e89ad` |")
 
@@ -133,31 +150,48 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(boundary).not.toContain("Only a classified `text-subset-ready` input may enter it")
   })
 
-  it("retains the non-production gate and every Phase 2 exclusion", () => {
+  it("separates the historical MR1-P instruction from the active MR1-Q Phase 3 prompt", () => {
     const boundary = normalize(read("../docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md"))
     const rawHandoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
-    const handoff = normalize(rawHandoff)
+    const handoffMr1p = normalize(
+      sectionAtPeerHeading(rawHandoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary"),
+    )
     const ledger = normalize(
       sectionAtPeerHeading(read("../docs/PHASE_LEDGER.md"), "## LIVE-DRAFT-MR1-P Complete Geometry Boundary"),
     )
-    const prompt = normalize(sectionBetween(rawHandoff, "## Handoff Prompt", "## LIVE-DRAFT-XR-0"))
+    const historicalInstruction = normalize(sectionAtPeerHeading(
+      rawHandoff,
+      "## Historical MR1-P Completed Phase 2 Instruction",
+    ))
+    const activePrompt = normalize(sectionBetween(rawHandoff, "## Handoff Prompt", "## LIVE-DRAFT-XR-0"))
 
-    for (const document of [boundary, handoff, ledger]) {
+    for (const document of [boundary, handoffMr1p, ledger]) {
       expect(document).toContain(
         "The Initial Flow handoff remains non-production and non-publishable",
       )
       expect(document).toContain("publication and production activation remain NO-GO")
       expect(document).toContain("mayPublishLayout: false")
-      expect(document).toContain(phase2Exclusions)
     }
 
-    expect(prompt).toContain("Phase 2 Persistent Flow Tree Foundation")
-    expect(prompt).toContain("persistent B+ rope")
-    expect(prompt).toContain("completeNextSemanticPassCount: 1")
-    expect(prompt).toContain(`reviewed Core runtime baseline at ${runtimeBaseline}`)
-    expect(prompt).toContain(phase2Exclusions)
-    expect(prompt).not.toContain("8ae96e8")
-    expect(prompt).not.toContain("b686c99")
+    expect(historicalInstruction).toContain("Phase 2 Persistent Flow Tree Foundation")
+    expect(historicalInstruction).toContain("persistent B+ rope")
+    expect(historicalInstruction).toContain("completeNextSemanticPassCount: 1")
+    expect(historicalInstruction).toContain(
+      `reviewed Core runtime baseline at ${historicalRuntimeBaseline}`,
+    )
+    expect(historicalInstruction).toContain(phase2Exclusions)
+    expect(historicalInstruction).not.toContain("Phase 3: Core Spatial Wrapping 3A")
+
+    expect(activePrompt).toContain("MR1-Q Persistent Flow Tree Foundation")
+    expect(activePrompt).toContain("Phase 3: Core Spatial Wrapping 3A")
+    expect(activePrompt).toContain(phase3Exclusions)
+    expect(activePrompt).not.toContain("Phase 2 Persistent Flow Tree Foundation")
+    expect(activePrompt).not.toContain("persistent B+ rope")
+    expect(activePrompt).not.toContain("completeNextSemanticPassCount: 1")
+    expect(activePrompt).not.toContain(historicalRuntimeBaseline)
+    expect(activePrompt).not.toContain(phase2Exclusions)
+    expect(activePrompt).not.toContain("8ae96e8")
+    expect(activePrompt).not.toContain("b686c99")
     expect(occurrences(rawHandoff, "## Handoff Prompt")).toBe(1)
     for (const stalePromptText of [
       "LIVE-DRAFT-XR-5",
@@ -165,7 +199,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "MR1-O",
       "all three repositories",
       "commit and push each changed repository",
-    ]) expect(prompt).not.toContain(stalePromptText)
+    ]) expect(activePrompt).not.toContain(stalePromptText)
   })
 
   it("guards the public Initial Flow exports", () => {
@@ -263,7 +297,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     }
     expect(occurrences(normalizedLedger, combinedFocusedResult)).toBe(1)
     for (const evidence of [
-      `Reviewed Core runtime baseline: \`${runtimeBaseline}\`.`,
+      `Reviewed Core runtime baseline: \`${historicalRuntimeBaseline}\`.`,
       "passed 5 test files / 115 tests",
       "documentation guard passed 1 test file / 5 tests",
       "full gate passed 408 test files / 2028 tests",

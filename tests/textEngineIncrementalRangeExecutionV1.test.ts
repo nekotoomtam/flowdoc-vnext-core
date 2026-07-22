@@ -444,9 +444,9 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
       persistentFlow: {
         treeFingerprint: incrementalCoreSnapshot.persistentFlowTree.fingerprint,
         policyFingerprint: incrementalCoreSnapshot.persistentFlowTree.policy.fingerprint,
-        itemCount: incrementalCoreSnapshot.persistentFlowTree.summary.itemCount,
-        leafCount: incrementalCoreSnapshot.persistentFlowTree.summary.leafCount,
-        nodeCount: incrementalCoreSnapshot.persistentFlowTree.summary.nodeCount,
+        itemCount: 21,
+        leafCount: 3,
+        nodeCount: 4,
       },
       contracts: { persistentFlowTreeRetained: true },
     })
@@ -471,8 +471,25 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
         work: {
           completeTreeRebuildCount: 0,
           completeSemanticPassCount: 0,
-          reusedNodeCount: expect.any(Number),
-          createdNodeCount: expect.any(Number),
+          replacedPreviousRenderedUtf16Length: 81,
+          projectedNextRenderedUtf16Length: 82,
+          reusedNodeCount: 2,
+          createdNodeCount: 3,
+          createdNodeCanonicalByteCount: 1_663_499,
+        },
+      },
+      affectedWindow: {
+        work: {
+          assembledAffectedLineCount: 2,
+          reconvergenceCandidateCount: 1,
+        },
+        checkpoint: {
+          previousReconvergenceLineIndex: 63,
+          nextReconvergenceLineIndex: 63,
+          previousReconvergenceOffset: 2_472,
+          nextReconvergenceOffset: 2_473,
+          offsetDelta: 1,
+          stableLineCount: 2,
         },
       },
       semanticCheckpointProof: {
@@ -490,8 +507,9 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
           semanticCheckpointProofAccepted: true,
           completeNextSemanticPassCount: 0,
           completeSemanticRangeHashCount: 0,
-          reusedPersistentNodeCount: expect.any(Number),
-          createdPersistentNodeCount: expect.any(Number),
+          positionedAffectedLineCount: 2,
+          reusedPersistentNodeCount: 2,
+          createdPersistentNodeCount: 3,
         },
       },
       work: { completeCoreLayoutOracleUsed: false },
@@ -537,13 +555,98 @@ describe("MR1-L contextual execution, retained splice, and affected-line window"
 
   it("retains exact Bold replacement, field-adjacent insertion, and negative-offset deletion", () => {
     const cases = [
-      { startOffset: 1_550, endOffset: 1_551, insertedText: "ก" },
-      { startOffset: 2_356, insertedText: "ก" },
-      { startOffset: 2_433, endOffset: 2_434, insertedText: "" },
+      {
+        edit: { startOffset: 1_550, endOffset: 1_551, insertedText: "ก" },
+        evidence: {
+          replacedPreviousRenderedUtf16Length: 54,
+          projectedNextRenderedUtf16Length: 54,
+          reusedNodeCount: 2,
+          createdNodeCount: 3,
+          createdNodeCanonicalByteCount: 1_690_457,
+          assembledAffectedLineCount: 2,
+          previousReconvergenceLineIndex: 39,
+          nextReconvergenceLineIndex: 39,
+          previousReconvergenceOffset: 1_556,
+          nextReconvergenceOffset: 1_556,
+          offsetDelta: 0,
+        },
+      },
+      {
+        edit: { startOffset: 2_356, insertedText: "ก" },
+        evidence: {
+          replacedPreviousRenderedUtf16Length: 124,
+          projectedNextRenderedUtf16Length: 125,
+          reusedNodeCount: 2,
+          createdNodeCount: 2,
+          createdNodeCanonicalByteCount: 1_661_601,
+          assembledAffectedLineCount: 3,
+          previousReconvergenceLineIndex: 62,
+          nextReconvergenceLineIndex: 62,
+          previousReconvergenceOffset: 2_432,
+          nextReconvergenceOffset: 2_433,
+          offsetDelta: 1,
+        },
+      },
+      {
+        edit: { startOffset: 2_433, endOffset: 2_434, insertedText: "" },
+        evidence: {
+          replacedPreviousRenderedUtf16Length: 81,
+          projectedNextRenderedUtf16Length: 80,
+          reusedNodeCount: 2,
+          createdNodeCount: 3,
+          createdNodeCanonicalByteCount: 1_662_343,
+          assembledAffectedLineCount: 2,
+          previousReconvergenceLineIndex: 63,
+          nextReconvergenceLineIndex: 63,
+          previousReconvergenceOffset: 2_472,
+          nextReconvergenceOffset: 2_471,
+          offsetDelta: -1,
+        },
+      },
     ]
-    for (const edit of cases) {
+    for (const { edit, evidence } of cases) {
       const fixture = prepareEdit(edit)
       const coreResult = executeOracleIndependentCore(fixture, true)
+      expect(fixture.snapshot.persistentFlow).toMatchObject({
+        itemCount: 21,
+        leafCount: 3,
+        nodeCount: 4,
+      })
+      expect(coreResult).toMatchObject({
+        persistentFlowUpdate: {
+          work: {
+            replacedPreviousRenderedUtf16Length: evidence.replacedPreviousRenderedUtf16Length,
+            projectedNextRenderedUtf16Length: evidence.projectedNextRenderedUtf16Length,
+            reusedNodeCount: evidence.reusedNodeCount,
+            createdNodeCount: evidence.createdNodeCount,
+            createdNodeCanonicalByteCount: evidence.createdNodeCanonicalByteCount,
+          },
+        },
+        affectedWindow: {
+          work: {
+            assembledAffectedLineCount: evidence.assembledAffectedLineCount,
+            reconvergenceCandidateCount: 1,
+          },
+          checkpoint: {
+            previousReconvergenceLineIndex: evidence.previousReconvergenceLineIndex,
+            nextReconvergenceLineIndex: evidence.nextReconvergenceLineIndex,
+            previousReconvergenceOffset: evidence.previousReconvergenceOffset,
+            nextReconvergenceOffset: evidence.nextReconvergenceOffset,
+            offsetDelta: evidence.offsetDelta,
+            stableLineCount: 2,
+          },
+        },
+        coreAcceptance: {
+          work: {
+            positionedAffectedLineCount: evidence.assembledAffectedLineCount,
+            reusedPersistentNodeCount: evidence.reusedNodeCount,
+            createdPersistentNodeCount: evidence.createdNodeCount,
+          },
+        },
+      })
+      expect(coreResult.affectedWindow.checkpoint.previousSuffixSemanticFingerprint).toBe(
+        coreResult.affectedWindow.checkpoint.nextSuffixSemanticFingerprint,
+      )
       expect(coreResult.request.shapingRuns).toEqual(fixture.nextOracle.request.shapingRuns)
       expect(coreResult.affectedWindow.lines).toEqual(fixture.nextOracle.request.lines)
       expect(coreResult.optionalQaOracle?.layoutExact).toBe(true)
