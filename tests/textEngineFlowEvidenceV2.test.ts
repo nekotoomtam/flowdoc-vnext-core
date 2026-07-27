@@ -317,6 +317,28 @@ describe("Flow Evidence V2 producer", () => {
     expect(accessorReadCount).toBe(0)
   })
 
+  it("rejects an own __proto__ data property without inheriting getters or calling runtime", () => {
+    const input = inputFixture()
+    let inheritedGetterReadCount = 0
+    const injectedPrototype = {}
+    Object.defineProperty(injectedPrototype, "bindProductionLayout", {
+      configurable: true,
+      get: () => {
+        inheritedGetterReadCount += 1
+        return undefined
+      },
+    })
+    Object.defineProperty(input, "__proto__", {
+      value: injectedPrototype,
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    })
+
+    expectBlockedBeforeRuntime(input)
+    expect(inheritedGetterReadCount).toBe(0)
+  })
+
   it.each([
     ["null", null],
     ["array", []],

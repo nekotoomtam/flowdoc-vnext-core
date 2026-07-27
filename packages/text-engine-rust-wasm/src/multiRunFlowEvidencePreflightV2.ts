@@ -40,7 +40,7 @@ function dataRecord(value: unknown): DataRecord | null {
     if (value == null || typeof value !== "object" || Array.isArray(value)) return null
     const prototype = Object.getPrototypeOf(value)
     if (prototype !== Object.prototype && prototype !== null) return null
-    const output: DataRecord = {}
+    const output = Object.create(null) as DataRecord
     for (const key of Reflect.ownKeys(value)) {
       if (typeof key !== "string") return null
       const descriptor = Object.getOwnPropertyDescriptor(value, key)

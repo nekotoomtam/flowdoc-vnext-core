@@ -124,6 +124,42 @@ function inputFixture(text: string): FlowDocTextEngineFlowEvidenceInputV2 {
 }
 
 describe("Flow Evidence V2 real Node/WASM parity", () => {
+  it("rejects an own __proto__ data property before constructing the Node runtime", () => {
+    const layout = inputFixture("A\uFFFCB")
+    layout.fontFaces[0]!.fontAssetPath =
+      "tests/fixtures/flow-evidence-runtime-construction-must-not-run.ttf"
+    let inheritedGetterReadCount = 0
+    const injectedPrototype = {}
+    Object.defineProperty(injectedPrototype, "bindProductionLayout", {
+      configurable: true,
+      get: () => {
+        inheritedGetterReadCount += 1
+        return undefined
+      },
+    })
+    Object.defineProperty(layout, "__proto__", {
+      value: injectedPrototype,
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    })
+
+    let node: ReturnType<typeof runFlowDocTextEngineNodeFlowEvidenceV2> | undefined
+    expect(() => {
+      node = runFlowDocTextEngineNodeFlowEvidenceV2({
+        layout,
+        wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+      })
+    }).not.toThrow()
+    expect(node?.result).toMatchObject({
+      status: "blocked",
+      evidenceInput: null,
+      fingerprint: null,
+      issues: [expect.objectContaining({ code: "invalid-layout-input" })],
+    })
+    expect(inheritedGetterReadCount).toBe(0)
+  })
+
   it("rejects invalid width before reading font runtime facts", () => {
     const layout = inputFixture("A\uFFFCB")
     layout.measurement.availableWidthPt = 0
