@@ -162,6 +162,11 @@ export function adaptVNextTextBlockInitialFlowToLegacyLayoutV1(
   })
   if (binding.status !== "accepted") {
     const bindingIssue = binding.issues[0]
+    const legacyMessage = bindingIssue?.code === "request-context-mismatch"
+      ? bindingIssue.message === "request must satisfy the strict runtime contract"
+        ? "legacy request must satisfy the strict runtime contract"
+        : "legacy request measurement, width, line height, resolved run typography, and layout policy must equal Initial Flow"
+      : bindingIssue?.message ?? "Initial Flow request binding was unavailable"
     return blocked(
       binding.initialFlowFingerprint,
       binding.layoutId,
@@ -171,7 +176,7 @@ export function adaptVNextTextBlockInitialFlowToLegacyLayoutV1(
           ? "initial-flow-capability-required"
           : "invalid-initial-flow",
       bindingIssue?.path === "request" ? "legacyRequest" : "initialFlow",
-      bindingIssue?.message ?? "Initial Flow request binding was unavailable",
+      legacyMessage,
     )
   }
 

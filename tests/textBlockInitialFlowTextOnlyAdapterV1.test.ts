@@ -1105,4 +1105,31 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
     expect(adapter.layout.fingerprint)
       .toBe(direct.fingerprint)
   })
+
+  it("preserves legacy blocked-request messages through the shared binding", () => {
+    const flow = classifiedTextFlow()
+    const malformed = legacyTextOnlyLayoutRequestFixture() as unknown as Record<string, unknown>
+    delete malformed.layoutId
+    const widthDrift = legacyTextOnlyLayoutRequestFixture()
+    widthDrift.availableWidthLayoutUnit -= 1
+
+    expect(adaptUnknown({ initialFlow: flow, legacyRequest: malformed }))
+      .toMatchObject({
+        status: "blocked",
+        issues: [{
+          code: "legacy-context-mismatch",
+          path: "legacyRequest",
+          message: "legacy request must satisfy the strict runtime contract",
+        }],
+      })
+    expect(adaptUnknown({ initialFlow: flow, legacyRequest: widthDrift }))
+      .toMatchObject({
+        status: "blocked",
+        issues: [{
+          code: "legacy-context-mismatch",
+          path: "legacyRequest",
+          message: "legacy request measurement, width, line height, resolved run typography, and layout policy must equal Initial Flow",
+        }],
+      })
+  })
 })
