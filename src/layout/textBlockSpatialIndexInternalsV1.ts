@@ -318,14 +318,14 @@ export function registerSpatialIndexV1(input: {
   index: VNextTextBlockSpatialIndexV1
   persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
   request: VNextTextBlockMultiRunLayoutRequestV1
-  entries: readonly VNextTextBlockSpatialIndexEntryV1[]
+  entriesByObjectId: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1>
 }): void {
   processLocalSpatialIndexesV1.add(input.index)
   processLocalSpatialIndexBindingsV1.set(input.index, {
     persistentFlowTree: input.persistentFlowTree,
     request: input.request,
     requestFingerprint: spatialFingerprintV1(input.request),
-    entriesByObjectId: new Map(input.entries.map((entry) => [entry.objectId, entry])),
+    entriesByObjectId: input.entriesByObjectId,
   })
 }
 
@@ -346,6 +346,108 @@ export function hasSpatialIndexBindingV1(input: {
       input.persistentFlowTree,
       input.request,
     )
+}
+
+export function getSpatialIndexEntryBindingV1(
+  index: VNextTextBlockSpatialIndexV1,
+  objectId: string,
+): VNextTextBlockSpatialIndexEntryV1 | null {
+  return processLocalSpatialIndexBindingsV1.get(index)?.entriesByObjectId.get(objectId) ?? null
+}
+
+export function getSpatialIndexEntriesBindingV1(
+  index: VNextTextBlockSpatialIndexV1,
+): ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1> | null {
+  return processLocalSpatialIndexBindingsV1.get(index)?.entriesByObjectId ?? null
+}
+
+export interface SpatialPathCopyWorkV1 {
+  visitedNodeCount: number
+  createdNodeCount: number
+}
+
+function createTrackedSpatialNodeV1(
+  input: Parameters<typeof createSpatialNodeV1>[0],
+  work: SpatialPathCopyWorkV1,
+): VNextTextBlockSpatialIndexNodeV1 {
+  work.createdNodeCount += 1
+  return createSpatialNodeV1(input)
+}
+
+function mergeSpatialNodesV1(
+  left: VNextTextBlockSpatialIndexNodeV1 | null,
+  right: VNextTextBlockSpatialIndexNodeV1 | null,
+  work: SpatialPathCopyWorkV1,
+): VNextTextBlockSpatialIndexNodeV1 | null {
+  if (left == null) return right
+  if (right == null) return left
+  if (comparePriority(left.entry, right.entry) < 0) {
+    return createTrackedSpatialNodeV1({
+      entry: left.entry,
+      left: left.left,
+      right: mergeSpatialNodesV1(left.right, right, work),
+    }, work)
+  }
+  return createTrackedSpatialNodeV1({
+    entry: right.entry,
+    left: mergeSpatialNodesV1(left, right.left, work),
+    right: right.right,
+  }, work)
+}
+
+export function deleteSpatialNodePathCopyV1(
+  root: VNextTextBlockSpatialIndexNodeV1 | null,
+  entry: VNextTextBlockSpatialIndexEntryV1,
+  work: SpatialPathCopyWorkV1,
+): VNextTextBlockSpatialIndexNodeV1 | null {
+  if (root == null) return null
+  work.visitedNodeCount += 1
+  const comparison = compareSpatialEntriesV1(entry, root.entry)
+  if (comparison < 0) return createTrackedSpatialNodeV1({
+    entry: root.entry,
+    left: deleteSpatialNodePathCopyV1(root.left, entry, work),
+    right: root.right,
+  }, work)
+  if (comparison > 0) return createTrackedSpatialNodeV1({
+    entry: root.entry,
+    left: root.left,
+    right: deleteSpatialNodePathCopyV1(root.right, entry, work),
+  }, work)
+  return mergeSpatialNodesV1(root.left, root.right, work)
+}
+
+export function insertSpatialNodePathCopyV1(
+  root: VNextTextBlockSpatialIndexNodeV1 | null,
+  entry: VNextTextBlockSpatialIndexEntryV1,
+  work: SpatialPathCopyWorkV1,
+): VNextTextBlockSpatialIndexNodeV1 {
+  if (root == null) {
+    return createTrackedSpatialNodeV1({ entry, left: null, right: null }, work)
+  }
+  work.visitedNodeCount += 1
+  const comparison = compareSpatialEntriesV1(entry, root.entry)
+  if (comparison < 0) {
+    let node = createTrackedSpatialNodeV1({
+      entry: root.entry,
+      left: insertSpatialNodePathCopyV1(root.left, entry, work),
+      right: root.right,
+    }, work)
+    if (node.left != null && comparePriority(node.left.entry, node.entry) < 0) {
+      work.createdNodeCount += 2
+      node = rotateRight(node)
+    }
+    return node
+  }
+  let node = createTrackedSpatialNodeV1({
+    entry: root.entry,
+    left: root.left,
+    right: insertSpatialNodePathCopyV1(root.right, entry, work),
+  }, work)
+  if (node.right != null && comparePriority(node.right.entry, node.entry) < 0) {
+    work.createdNodeCount += 2
+    node = rotateLeft(node)
+  }
+  return node
 }
 
 export function querySpatialNodesV1(input: {
@@ -386,6 +488,21 @@ export function createSpatialIndexFromEntriesV1(input: {
     (current, entry) => insertSpatialNodeV1(current, entry),
     null,
   )
+  return createSpatialIndexFromRootV1({
+    persistentFlowTree: input.persistentFlowTree,
+    request: input.request,
+    root,
+    entriesByObjectId: new Map(input.entries.map((entry) => [entry.objectId, entry])),
+  })
+}
+
+export function createSpatialIndexFromRootV1(input: {
+  persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
+  request: VNextTextBlockMultiRunLayoutRequestV1
+  root: VNextTextBlockSpatialIndexNodeV1 | null
+  entriesByObjectId: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1>
+}): VNextTextBlockSpatialIndexV1 {
+  const root = input.root
   const summary = spatialIndexSummaryForRootV1(root)
   const facts = {
     source: VNEXT_TEXT_BLOCK_SPATIAL_INDEX_SOURCE,
@@ -419,7 +536,7 @@ export function createSpatialIndexFromEntriesV1(input: {
     index,
     persistentFlowTree: input.persistentFlowTree,
     request: input.request,
-    entries: input.entries,
+    entriesByObjectId: input.entriesByObjectId,
   })
   return index
 }

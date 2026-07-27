@@ -165,3 +165,58 @@ export type VNextTextBlockSpatialIndexQueryResultV1 =
       work: null
       issues: VNextTextBlockSpatialIndexIssueV1[]
     }
+
+export const VNEXT_TEXT_BLOCK_SPATIAL_INDEX_UPDATE_SOURCE =
+  "vnext-text-block-spatial-index-update-v1" as const
+export const VNEXT_TEXT_BLOCK_SPATIAL_INDEX_UPDATE_VERSION = 1 as const
+
+export interface VNextTextBlockSpatialIndexUpdateWorkV1 {
+  deleteVisitedNodeCount: number
+  insertVisitedNodeCount: number
+  createdNodeCount: number
+  completeIndexRebuildCount: 0
+}
+
+export interface VNextTextBlockSpatialIndexUpdateV1 {
+  source: typeof VNEXT_TEXT_BLOCK_SPATIAL_INDEX_UPDATE_SOURCE
+  contractVersion: typeof VNEXT_TEXT_BLOCK_SPATIAL_INDEX_UPDATE_VERSION
+  previousIndexFingerprint: string
+  nextIndex: VNextTextBlockSpatialIndexV1
+  objectId: string
+  previousEntryFingerprint: string
+  nextEntryFingerprint: string
+  affectedBands: readonly VNextTextBlockSpatialBandV1[]
+  work: VNextTextBlockSpatialIndexUpdateWorkV1
+  contracts: {
+    pathCopyUpdate: true
+    oldNewBandUnion: true
+    processLocalProofBinding: true
+    mayPublishLayout: false
+    productionBinding: false
+  }
+  fingerprint: string
+}
+
+export type VNextTextBlockSpatialIndexUpdateResultV1 =
+  | {
+      status: "accepted"
+      update: VNextTextBlockSpatialIndexUpdateV1
+      nextIndex: VNextTextBlockSpatialIndexV1
+      work: VNextTextBlockSpatialIndexUpdateWorkV1
+      issues: []
+    }
+  | {
+      status: "blocked"
+      update: null
+      nextIndex: null
+      work: null
+      issues: VNextTextBlockSpatialIndexIssueV1[]
+    }
+
+export type VNextTextBlockSpatialIndexUpdateInspectionV1 =
+  | { status: "valid"; fingerprint: string }
+  | {
+      status: "invalid"
+      code: "spatial-update-provenance-mismatch" | "spatial-update-binding-mismatch"
+      message: string
+    }
