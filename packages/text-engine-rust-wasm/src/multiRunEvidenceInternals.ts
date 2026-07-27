@@ -42,6 +42,7 @@ export type FlowDocTextEnginePreparedEvidenceInternalResult =
       usedFontFaces: readonly VNextTextBlockMultiRunFontFaceV1[]
       shapingRuns: readonly VNextTextBlockResolvedShapingRunV1[]
       breakOffsets: readonly number[]
+      mandatoryBreakOffsets: readonly number[]
       sourceRunCount: number
       textBearingRunCount: number
       hardBreakCount: number
@@ -56,6 +57,7 @@ export type FlowDocTextEnginePreparedEvidenceInternalResult =
       usedFontFaces: null
       shapingRuns: null
       breakOffsets: null
+      mandatoryBreakOffsets: null
       sourceRunCount: number
       textBearingRunCount: number
       hardBreakCount: number
@@ -75,6 +77,14 @@ interface FlowDocTextEngineMultiRunEvidencePreparationProfileInternal {
   complete(
     phase: "input-and-style-resolution" | "shaping" | "segmentation",
   ): void
+}
+
+interface FlowDocTextEngineSourceRunFactsInternal {
+  sourceRunCount: number
+  textBearingRunCount: number
+  hardBreakCount: number
+  inlineImageCount: number
+  mandatoryBreakOffsets: number[]
 }
 
 export function cloneFlowDocTextEngineEvidenceValueInternal<T>(value: T): T {
@@ -229,21 +239,8 @@ function createClusters(
   return issues.some((item) => item.shapingRunId === shapingRunId) ? null : clusters
 }
 
-function sourceRunCounts(layout: FlowDocTextEngineMultiRunLayoutInputV1) {
-  return {
-    sourceRunCount: layout.measurement.runs.length,
-    textBearingRunCount: layout.measurement.runs.filter((run) => (
-      run.kind === "text"
-      || run.kind === "resolved-field"
-      || run.kind === "generated-page-number"
-    )).length,
-    hardBreakCount: layout.measurement.runs.filter((run) => run.kind === "hard-break").length,
-    inlineImageCount: layout.measurement.runs.filter((run) => run.kind === "inline-image").length,
-  }
-}
-
 function blocked(
-  layout: FlowDocTextEngineMultiRunLayoutInputV1,
+  sourceFacts: FlowDocTextEngineSourceRunFactsInternal,
   issues: FlowDocTextEngineMultiRunLayoutIssueV1[],
   runtimeShapeCallCount: number,
   runtimeSegmentationCallCount: 0 | 1,
@@ -254,7 +251,11 @@ function blocked(
     usedFontFaces: null,
     shapingRuns: null,
     breakOffsets: null,
-    ...sourceRunCounts(layout),
+    mandatoryBreakOffsets: null,
+    sourceRunCount: sourceFacts.sourceRunCount,
+    textBearingRunCount: sourceFacts.textBearingRunCount,
+    hardBreakCount: sourceFacts.hardBreakCount,
+    inlineImageCount: sourceFacts.inlineImageCount,
     runtimeShapeCallCount,
     runtimeSegmentationCallCount,
     issues,
@@ -280,6 +281,13 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
   const faceByStyle = new Map<string, FlowDocTextEngineMultiRunFontFaceV1>()
   let runtimeShapeCallCount = 0
   let runtimeSegmentationCallCount: 0 | 1 = 0
+  const sourceFacts: FlowDocTextEngineSourceRunFactsInternal = {
+    sourceRunCount: 0,
+    textBearingRunCount: 0,
+    hardBreakCount: 0,
+    inlineImageCount: 0,
+    mandatoryBreakOffsets: [],
+  }
 
   if (layout.bindProductionLayout === true) issues.push(
     createFlowDocTextEngineMultiRunIssueInternal(
@@ -363,7 +371,7 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
     faceByStyle.set(key, face)
   })
   if (issues.length > 0) return blocked(
-    layout,
+    sourceFacts,
     issues,
     runtimeShapeCallCount,
     runtimeSegmentationCallCount,
@@ -394,18 +402,108 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
     issues.length > 0
     || paragraphSize.status !== "accepted"
     || paragraphFace == null
-  ) return blocked(layout, issues, runtimeShapeCallCount, runtimeSegmentationCallCount)
+  ) return blocked(sourceFacts, issues, runtimeShapeCallCount, runtimeSegmentationCallCount)
 
   const effectiveRuns: EffectiveRun[] = []
   const atomBoundaries = new Set<number>([0, layout.measurement.renderedText.length])
+  let expectedRenderOffset = 0
   layout.measurement.runs.forEach((sourceRun, index) => {
     const path = `measurement.runs[${index}]`
+    sourceFacts.sourceRunCount += 1
+    if (
+      !nonBlank(sourceRun.inlineId)
+      || !Number.isSafeInteger(sourceRun.renderStartOffset)
+      || !Number.isSafeInteger(sourceRun.renderEndOffset)
+      || sourceRun.renderStartOffset !== expectedRenderOffset
+      || sourceRun.renderEndOffset <= sourceRun.renderStartOffset
+      || sourceRun.renderEndOffset > layout.measurement.renderedText.length
+      || !isVNextSafeUtf16TextOffset(
+        layout.measurement.renderedText,
+        sourceRun.renderStartOffset,
+      )
+      || !isVNextSafeUtf16TextOffset(
+        layout.measurement.renderedText,
+        sourceRun.renderEndOffset,
+      )
+      || sourceRun.renderedText !== layout.measurement.renderedText.slice(
+        sourceRun.renderStartOffset,
+        sourceRun.renderEndOffset,
+      )
+    ) {
+      issues.push(createFlowDocTextEngineMultiRunIssueInternal(
+        "invalid-layout-input",
+        path,
+        "measurement runs must retain ordered gap-free safe ranges and exact rendered slices",
+        { inlineId: sourceRun.inlineId },
+      ))
+      return
+    }
+    expectedRenderOffset = sourceRun.renderEndOffset
     switch (sourceRun.kind) {
-      case "hard-break":
+      case "text":
+        sourceFacts.textBearingRunCount += 1
+        if (/[\uFFFC\r\n]/u.test(sourceRun.renderedText)) issues.push(
+          createFlowDocTextEngineMultiRunIssueInternal(
+            "invalid-layout-input",
+            path,
+            "text source runs cannot contain inline-image placeholders or hard breaks",
+            { inlineId: sourceRun.inlineId },
+          ),
+        )
+        break
+      case "resolved-field":
+        sourceFacts.textBearingRunCount += 1
+        if (
+          !nonBlank(sourceRun.fieldKey ?? "")
+          || /[\uFFFC\r\n]/u.test(sourceRun.renderedText)
+        ) issues.push(createFlowDocTextEngineMultiRunIssueInternal(
+          "invalid-layout-input",
+          path,
+          "resolved-field runs require a field key and text-only rendered content",
+          { inlineId: sourceRun.inlineId },
+        ))
+        break
+      case "generated-page-number":
+        sourceFacts.textBearingRunCount += 1
+        if (
+          !/^sha256:[a-f0-9]{64}$/u.test(sourceRun.generatedOwnerFingerprint ?? "")
+          || /[\uFFFC\r\n]/u.test(sourceRun.renderedText)
+        ) issues.push(createFlowDocTextEngineMultiRunIssueInternal(
+          "invalid-layout-input",
+          path,
+          "generated page-number runs require a compact owner fingerprint and text-only content",
+          { inlineId: sourceRun.inlineId },
+        ))
+        break
+      case "hard-break": {
+        sourceFacts.hardBreakCount += 1
+        if (
+          sourceRun.renderedText !== "\n"
+          || sourceRun.renderEndOffset !== sourceRun.renderStartOffset + 1
+        ) issues.push(createFlowDocTextEngineMultiRunIssueInternal(
+          "invalid-layout-input",
+          path,
+          "hard-break runs must occupy exactly one newline UTF-16 slot",
+          { inlineId: sourceRun.inlineId },
+        ))
         atomBoundaries.add(sourceRun.renderStartOffset)
         atomBoundaries.add(sourceRun.renderEndOffset)
+        sourceFacts.mandatoryBreakOffsets.push(sourceRun.renderEndOffset)
         return
-      case "inline-image":
+      }
+      case "inline-image": {
+        sourceFacts.inlineImageCount += 1
+        if (
+          sourceRun.renderedText !== "\uFFFC"
+          || sourceRun.renderEndOffset !== sourceRun.renderStartOffset + 1
+          || sourceRun.frame == null
+          || (sourceRun.assetId !== null && !nonBlank(sourceRun.assetId ?? ""))
+        ) issues.push(createFlowDocTextEngineMultiRunIssueInternal(
+          "invalid-layout-input",
+          path,
+          "inline-image runs require one U+FFFC slot, resolved asset facts, and a frame",
+          { inlineId: sourceRun.inlineId },
+        ))
         atomBoundaries.add(sourceRun.renderStartOffset)
         atomBoundaries.add(sourceRun.renderEndOffset)
         if (input.capability === "text-only-v1") issues.push(
@@ -417,10 +515,15 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
           ),
         )
         return
-      case "text":
-      case "resolved-field":
-      case "generated-page-number":
-        break
+      }
+      default:
+        issues.push(createFlowDocTextEngineMultiRunIssueInternal(
+          "invalid-layout-input",
+          path,
+          "measurement source-run kind is not supported by the closed producer switch",
+          { inlineId: sourceRun.inlineId },
+        ))
+        return
     }
 
     const local = sourceRun.kind === "text" ? sourceRun.localStyle : undefined
@@ -505,8 +608,15 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
       sourceRuns: [cloneFlowDocTextEngineEvidenceValueInternal(sourceRun)],
     })
   })
+  if (expectedRenderOffset !== layout.measurement.renderedText.length) issues.push(
+    createFlowDocTextEngineMultiRunIssueInternal(
+      "invalid-layout-input",
+      "measurement.runs",
+      "measurement runs must cover the complete rendered TextBlock string",
+    ),
+  )
   if (issues.length > 0) return blocked(
-    layout,
+    sourceFacts,
     issues,
     runtimeShapeCallCount,
     runtimeSegmentationCallCount,
@@ -584,7 +694,7 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
     })
   })
   if (issues.length > 0) return blocked(
-    layout,
+    sourceFacts,
     issues,
     runtimeShapeCallCount,
     runtimeSegmentationCallCount,
@@ -601,7 +711,7 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
       "measurement.renderedText",
       error instanceof Error ? error.message : "runtime segmentation failed",
     ))
-    return blocked(layout, issues, runtimeShapeCallCount, runtimeSegmentationCallCount)
+    return blocked(sourceFacts, issues, runtimeShapeCallCount, runtimeSegmentationCallCount)
   }
   if (segmentation.text !== layout.measurement.renderedText) issues.push(
     createFlowDocTextEngineMultiRunIssueInternal(
@@ -616,9 +726,7 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
     clusterBoundaries.add(cluster.renderStartOffset)
     clusterBoundaries.add(cluster.renderEndOffset)
   }))
-  const mandatoryBreakOffsets = layout.measurement.runs
-    .filter((run) => run.kind === "hard-break")
-    .map((run) => run.renderEndOffset)
+  const mandatoryBreakOffsets = sourceFacts.mandatoryBreakOffsets
   const segmentedBreakSet = new Set(segmentation.breakUtf16Offsets)
   mandatoryBreakOffsets.forEach((offset) => {
     if (!segmentedBreakSet.has(offset)) issues.push(
@@ -630,7 +738,7 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
     )
   })
   if (issues.length > 0) return blocked(
-    layout,
+    sourceFacts,
     issues,
     runtimeShapeCallCount,
     runtimeSegmentationCallCount,
@@ -646,7 +754,7 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
     0,
     layout.measurement.renderedText.length,
   ])].sort((left, right) => left - right)
-  if (breakOffsets.length < 2) return blocked(layout, [
+  if (breakOffsets.length < 2) return blocked(sourceFacts, [
     createFlowDocTextEngineMultiRunIssueInternal(
       "break-opportunity-mismatch",
       "breakOffsets",
@@ -683,7 +791,11 @@ export function prepareFlowDocTextEngineMultiRunEvidenceInternal(
     usedFontFaces,
     shapingRuns,
     breakOffsets,
-    ...sourceRunCounts(layout),
+    mandatoryBreakOffsets: [...sourceFacts.mandatoryBreakOffsets],
+    sourceRunCount: sourceFacts.sourceRunCount,
+    textBearingRunCount: sourceFacts.textBearingRunCount,
+    hardBreakCount: sourceFacts.hardBreakCount,
+    inlineImageCount: sourceFacts.inlineImageCount,
     runtimeShapeCallCount,
     runtimeSegmentationCallCount,
     issues: [],

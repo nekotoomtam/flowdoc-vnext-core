@@ -149,6 +149,36 @@ function fakeRuntime(record?: {
   }
 }
 
+function createUnknownEvidence(
+  input: unknown,
+  runtime: FlowDocTextEngineMultiRunRuntimeV1,
+) {
+  return (
+    createFlowDocTextEngineFlowEvidenceV2 as (
+      input: unknown,
+      runtime: FlowDocTextEngineMultiRunRuntimeV1,
+    ) => ReturnType<typeof createFlowDocTextEngineFlowEvidenceV2>
+  )(input, runtime)
+}
+
+function expectBlockedBeforeRuntime(input: unknown) {
+  const calls = { shapedTexts: [] as string[], segmentedTexts: [] as string[] }
+  let result: ReturnType<typeof createFlowDocTextEngineFlowEvidenceV2> | undefined
+  expect(() => {
+    result = createUnknownEvidence(input, fakeRuntime(calls))
+  }).not.toThrow()
+  expect(result).toMatchObject({
+    status: "blocked",
+    evidenceInput: null,
+    summary: null,
+    fingerprint: null,
+  })
+  expect(result?.issues).toEqual(expect.arrayContaining([
+    expect.objectContaining({ code: "invalid-layout-input" }),
+  ]))
+  expect(calls).toEqual({ shapedTexts: [], segmentedTexts: [] })
+}
+
 describe("Flow Evidence V2 producer", () => {
   it("retains image slots while shaping only surrounding text", () => {
     const input = inputFixture()
@@ -223,5 +253,146 @@ describe("Flow Evidence V2 producer", () => {
       issues: [expect.objectContaining({ code: "production-binding-forbidden" })],
     })
     expect(calls).toEqual({ shapedTexts: [], segmentedTexts: [] })
+  })
+
+  it.each([
+    ["root", (input: FlowDocTextEngineFlowEvidenceInputV2) => Object.assign(input, {
+      lines: [{ index: 0, renderStartOffset: 0, renderEndOffset: 3 }],
+    })],
+    ["measurement", (input: FlowDocTextEngineFlowEvidenceInputV2) => Object.assign(
+      input.measurement,
+      { lines: [{ index: 0, renderStartOffset: 0, renderEndOffset: 3 }] },
+    )],
+    ["source run", (input: FlowDocTextEngineFlowEvidenceInputV2) => Object.assign(
+      input.measurement.runs[0]!,
+      { lines: [{ index: 0, renderStartOffset: 0, renderEndOffset: 1 }] },
+    )],
+    ["font face", (input: FlowDocTextEngineFlowEvidenceInputV2) => Object.assign(
+      input.fontFaces[0]!,
+      { lines: [] },
+    )],
+  ] as const)("rejects producer-selected lines on the %s exact-object boundary", (_name, mutate) => {
+    const input = inputFixture()
+    mutate(input)
+    expectBlockedBeforeRuntime(input)
+  })
+
+  it.each([
+    ["root measurement", (input: FlowDocTextEngineFlowEvidenceInputV2, read: () => void) => {
+      Object.defineProperty(input, "measurement", {
+        enumerable: true,
+        configurable: true,
+        get: () => {
+          read()
+          return measurementFixture()
+        },
+      })
+    }],
+    ["nested rendered text", (input: FlowDocTextEngineFlowEvidenceInputV2, read: () => void) => {
+      Object.defineProperty(input.measurement.runs[0]!, "renderedText", {
+        enumerable: true,
+        configurable: true,
+        get: () => {
+          read()
+          return "A"
+        },
+      })
+    }],
+    ["nested font path", (input: FlowDocTextEngineFlowEvidenceInputV2, read: () => void) => {
+      Object.defineProperty(input.fontFaces[0]!, "fontAssetPath", {
+        enumerable: true,
+        configurable: true,
+        get: () => {
+          read()
+          return "assets/fonts/Sarabun-Regular.ttf"
+        },
+      })
+    }],
+  ] as const)("rejects a %s accessor without reading it or calling runtime", (_name, mutate) => {
+    const input = inputFixture()
+    let accessorReadCount = 0
+    mutate(input, () => { accessorReadCount += 1 })
+
+    expectBlockedBeforeRuntime(input)
+    expect(accessorReadCount).toBe(0)
+  })
+
+  it.each([
+    ["null", null],
+    ["array", []],
+    ["empty object", {}],
+    ["custom prototype", Object.create({})],
+  ])("returns a closed blocked result for a malformed %s root", (_name, input) => {
+    expectBlockedBeforeRuntime(input)
+  })
+
+  it.each([
+    ["invalid Initial Flow fingerprint", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.initialFlowFingerprint = "not-a-fingerprint"
+    }],
+    ["non-positive width", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.availableWidthPt = 0
+    }],
+    ["unsafe width", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.availableWidthPt = Number.MAX_VALUE
+    }],
+  ] as const)("blocks %s before shaping or segmentation", (_name, mutate) => {
+    const input = inputFixture()
+    mutate(input)
+    expectBlockedBeforeRuntime(input)
+  })
+
+  it.each([
+    ["unknown kind", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.runs[1]!.kind = "future-inline" as "inline-image"
+    }],
+    ["coverage gap", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.runs[1]!.renderStartOffset = 2
+    }],
+    ["coverage overlap", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.runs[2]!.renderStartOffset = 1
+    }],
+    ["rendered slice mismatch", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.runs[0]!.renderedText = "Z"
+    }],
+    ["non-image U+FFFC", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.runs[1] = {
+        inlineId: "invalid-text-image",
+        kind: "text",
+        renderStartOffset: 1,
+        renderEndOffset: 2,
+        renderedText: "\uFFFC",
+        styleKey: "paragraph-body",
+      }
+    }],
+    ["invalid image slot text", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.renderedText = "AXB"
+      input.measurement.runs[1]!.renderedText = "X"
+    }],
+    ["missing image frame", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      delete input.measurement.runs[1]!.frame
+    }],
+    ["missing resolved-field key", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.runs[0]!.kind = "resolved-field"
+      delete input.measurement.runs[0]!.fieldKey
+    }],
+    ["invalid generated owner", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.runs[0]!.kind = "generated-page-number"
+      input.measurement.runs[0]!.generatedOwnerFingerprint = "invalid"
+    }],
+    ["invalid hard-break text", (input: FlowDocTextEngineFlowEvidenceInputV2) => {
+      input.measurement.renderedText = "A B"
+      input.measurement.runs[1] = {
+        inlineId: "invalid-break",
+        kind: "hard-break",
+        renderStartOffset: 1,
+        renderEndOffset: 2,
+        renderedText: " ",
+      }
+    }],
+  ] as const)("rejects malformed source-run evidence: %s", (_name, mutate) => {
+    const input = inputFixture()
+    mutate(input)
+    expectBlockedBeforeRuntime(input)
   })
 })

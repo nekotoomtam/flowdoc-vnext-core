@@ -1,25 +1,36 @@
 import {
-  convertVNextPointToLayoutUnitV1,
   createVNextCompactFingerprint,
   createVNextLayoutUnitPolicyV1,
   type VNextTextBlockFlowEvidenceInputV2,
 } from "@flowdoc/vnext-core"
 import {
   cloneFlowDocTextEngineEvidenceValueInternal as clone,
-  createFlowDocTextEngineMultiRunIssueInternal as issue,
   prepareFlowDocTextEngineMultiRunEvidenceInternal,
 } from "./multiRunEvidenceInternals.js"
+import { preflightFlowDocTextEngineFlowEvidenceV2 } from
+  "./multiRunFlowEvidencePreflightV2.js"
 import {
   FLOWDOC_TEXT_ENGINE_FLOW_EVIDENCE_SOURCE_V2,
   FLOWDOC_TEXT_ENGINE_FLOW_EVIDENCE_VERSION_V2,
   type FlowDocTextEngineFlowEvidenceInputV2,
   type FlowDocTextEngineFlowEvidenceResultV2,
 } from "./multiRunFlowEvidenceContractV2.js"
-import type { FlowDocTextEngineMultiRunRuntimeV1 } from
-  "./multiRunLayoutContract.js"
+import type {
+  FlowDocTextEngineMultiRunLayoutIssueV1,
+  FlowDocTextEngineMultiRunRuntimeKindV1,
+  FlowDocTextEngineMultiRunRuntimeV1,
+} from "./multiRunLayoutContract.js"
 
 export function createFlowDocTextEngineFlowEvidenceV2(
   input: FlowDocTextEngineFlowEvidenceInputV2,
+  runtime: FlowDocTextEngineMultiRunRuntimeV1,
+): FlowDocTextEngineFlowEvidenceResultV2
+export function createFlowDocTextEngineFlowEvidenceV2(
+  input: unknown,
+  runtime: FlowDocTextEngineMultiRunRuntimeV1,
+): FlowDocTextEngineFlowEvidenceResultV2
+export function createFlowDocTextEngineFlowEvidenceV2(
+  input: unknown,
   runtime: FlowDocTextEngineMultiRunRuntimeV1,
 ): FlowDocTextEngineFlowEvidenceResultV2 {
   const base = {
@@ -28,8 +39,18 @@ export function createFlowDocTextEngineFlowEvidenceV2(
     runtimeKind: runtime.runtimeKind,
     productionBinding: false as const,
   }
+  const preflight = preflightFlowDocTextEngineFlowEvidenceV2(input)
+  if (preflight.status !== "accepted") return {
+    ...base,
+    status: "blocked",
+    evidenceInput: null,
+    summary: null,
+    fingerprint: null,
+    issues: preflight.issues,
+  }
+  const safeInput = preflight.layout
   const prepared = prepareFlowDocTextEngineMultiRunEvidenceInternal({
-    layout: input,
+    layout: safeInput,
     runtime,
     capability: "inline-image-v2",
   })
@@ -42,30 +63,13 @@ export function createFlowDocTextEngineFlowEvidenceV2(
     issues: prepared.issues,
   }
 
-  const width = convertVNextPointToLayoutUnitV1(
-    input.measurement.availableWidthPt,
-    "measurement.availableWidthPt",
-  )
-  if (width.status !== "accepted" || width.layoutUnit <= 0) return {
-    ...base,
-    status: "blocked",
-    evidenceInput: null,
-    summary: null,
-    fingerprint: null,
-    issues: [issue(
-      "invalid-layout-input",
-      "measurement.availableWidthPt",
-      "measurement width cannot be represented by LayoutUnitPolicyV1",
-    )],
-  }
-
   const evidenceInput: VNextTextBlockFlowEvidenceInputV2 = {
-    initialFlowFingerprint: input.initialFlowFingerprint,
-    layoutId: input.layoutId,
-    measurement: clone(input.measurement),
+    initialFlowFingerprint: safeInput.initialFlowFingerprint,
+    layoutId: safeInput.layoutId,
+    measurement: clone(safeInput.measurement),
     layoutUnitPolicyFingerprint: createVNextLayoutUnitPolicyV1().fingerprint,
-    availableWidthLayoutUnit: width.layoutUnit,
-    declaredLineHeightLayoutUnit: input.declaredLineHeightLayoutUnit,
+    availableWidthLayoutUnit: preflight.availableWidthLayoutUnit,
+    declaredLineHeightLayoutUnit: safeInput.declaredLineHeightLayoutUnit,
     paragraphStyle: clone(prepared.paragraphStyle),
     fontFaces: prepared.usedFontFaces.map((face) => clone(face)),
     shapingRuns: prepared.shapingRuns.map((run) => clone(run)),
@@ -103,5 +107,22 @@ export function createFlowDocTextEngineFlowEvidenceV2(
     summary,
     fingerprint,
     issues: [],
+  }
+}
+
+export function createBlockedFlowDocTextEngineFlowEvidenceResultV2(
+  runtimeKind: FlowDocTextEngineMultiRunRuntimeKindV1,
+  issues: FlowDocTextEngineMultiRunLayoutIssueV1[],
+): FlowDocTextEngineFlowEvidenceResultV2 {
+  return {
+    source: FLOWDOC_TEXT_ENGINE_FLOW_EVIDENCE_SOURCE_V2,
+    contractVersion: FLOWDOC_TEXT_ENGINE_FLOW_EVIDENCE_VERSION_V2,
+    status: "blocked",
+    runtimeKind,
+    productionBinding: false,
+    evidenceInput: null,
+    summary: null,
+    fingerprint: null,
+    issues,
   }
 }

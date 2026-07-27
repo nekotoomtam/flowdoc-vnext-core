@@ -104,9 +104,7 @@ function createFlowDocTextEngineMultiRunLayoutInternalV1(
     ),
   ])
 
-  const mandatoryBreakSet = new Set(input.measurement.runs
-    .filter((run) => run.kind === "hard-break")
-    .map((run) => run.renderEndOffset))
+  const mandatoryBreakSet = new Set(prepared.mandatoryBreakOffsets)
   const lines: VNextTextBlockMultiRunLayoutRequestV1["lines"] = []
   let startBreakIndex = 0
   while (startBreakIndex < prepared.breakOffsets.length - 1) {

@@ -221,6 +221,60 @@ describe("MR1 external multi-run layout adapter", () => {
     expect(profiled.totalDurationMs).toBe(50)
   })
 
+  it("charges no post-segmentation source-run rescans to V1 line breaking", () => {
+    const input = inputFixture()
+    const sourceRuns = input.measurement.runs
+    let elapsed = 0
+    let filterCallCount = 0
+    input.measurement.runs = new Proxy(sourceRuns, {
+      get(target, key, receiver) {
+        if (key === "filter") return (
+          predicate: Parameters<typeof sourceRuns.filter>[0],
+        ) => {
+          filterCallCount += 1
+          elapsed += 5
+          return sourceRuns.filter(predicate)
+        }
+        return Reflect.get(target, key, receiver) as unknown
+      },
+    })
+
+    const profiled = profileFlowDocTextEngineMultiRunLayoutV1(
+      input,
+      fakeRuntime(),
+      { now: () => elapsed },
+    )
+
+    expect(profiled.result.status).toBe("accepted")
+    expect(filterCallCount).toBe(0)
+    expect(profiled.phaseDurationMs.segmentation).toBe(0)
+    expect(profiled.phaseDurationMs["line-breaking"]).toBe(0)
+  })
+
+  it("rejects an unknown V1 source-run kind before runtime work", () => {
+    const input = inputFixture()
+    input.measurement.runs[0]!.kind = "future-inline" as "text"
+    let runtimeCallCount = 0
+    const baseRuntime = fakeRuntime()
+    const runtime: FlowDocTextEngineMultiRunRuntimeV1 = {
+      ...baseRuntime,
+      shape(shapeInput) {
+        runtimeCallCount += 1
+        return baseRuntime.shape(shapeInput)
+      },
+      segment(text) {
+        runtimeCallCount += 1
+        return baseRuntime.segment(text)
+      },
+    }
+
+    expect(createFlowDocTextEngineMultiRunLayoutV1(input, runtime)).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "invalid-layout-input" })],
+    })
+    expect(runtimeCallCount).toBe(0)
+  })
+
   it("resolves Text Run overrides, shapes three runs, and lets Core derive the real-font shared baseline", () => {
     const input = inputFixture()
     const before = JSON.stringify(input)

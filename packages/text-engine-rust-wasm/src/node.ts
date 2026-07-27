@@ -4,7 +4,12 @@ import { existsSync, readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { resolve } from "node:path"
 import type { FlowDocTextEngineLiveDraftSmokeRowV1 } from "./liveDraftSmokeRows.js"
-import { createFlowDocTextEngineFlowEvidenceV2 } from "./multiRunFlowEvidenceV2.js"
+import {
+  createBlockedFlowDocTextEngineFlowEvidenceResultV2,
+  createFlowDocTextEngineFlowEvidenceV2,
+} from "./multiRunFlowEvidenceV2.js"
+import { preflightFlowDocTextEngineFlowEvidenceV2 } from
+  "./multiRunFlowEvidencePreflightV2.js"
 import type {
   FlowDocTextEngineFlowEvidenceInputV2,
   FlowDocTextEngineFlowEvidenceResultV2,
@@ -265,15 +270,31 @@ export function runFlowDocTextEngineNodeFlowEvidenceV2(input: {
     input.wasmSha256 === FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
     "MR1 WASM digest pin mismatch",
   )
+  const preflight = preflightFlowDocTextEngineFlowEvidenceV2(input.layout)
+  if (preflight.status !== "accepted") return {
+    identity: {
+      runtime: "node-native-mr1",
+      measurementProfileId: "unavailable",
+      wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+      wasmExecution: false,
+      executesRustybuzz: true,
+      executesIcu4x: true,
+      productionBinding: false,
+    },
+    result: createBlockedFlowDocTextEngineFlowEvidenceResultV2(
+      "node-native-mr1",
+      preflight.issues,
+    ),
+  }
   const paths = buildNativeExecutors()
   const result = createFlowDocTextEngineFlowEvidenceV2(
-    input.layout,
+    preflight.layout,
     createFlowDocTextEngineNodeMultiRunRuntimeInternal(paths, new Map()),
   )
   return {
     identity: {
       runtime: "node-native-mr1",
-      measurementProfileId: input.layout.measurement.measurementProfileId,
+      measurementProfileId: preflight.layout.measurement.measurementProfileId,
       wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
       wasmExecution: false,
       executesRustybuzz: true,

@@ -124,6 +124,35 @@ function inputFixture(text: string): FlowDocTextEngineFlowEvidenceInputV2 {
 }
 
 describe("Flow Evidence V2 real Node/WASM parity", () => {
+  it("rejects invalid width before reading font runtime facts", () => {
+    const layout = inputFixture("A\uFFFCB")
+    layout.measurement.availableWidthPt = 0
+    let fontPathReadCount = 0
+    Object.defineProperty(layout.fontFaces[0]!, "fontAssetPath", {
+      enumerable: true,
+      configurable: true,
+      get: () => {
+        fontPathReadCount += 1
+        throw new Error("font runtime construction reached")
+      },
+    })
+
+    let node: ReturnType<typeof runFlowDocTextEngineNodeFlowEvidenceV2> | undefined
+    expect(() => {
+      node = runFlowDocTextEngineNodeFlowEvidenceV2({
+        layout,
+        wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+      })
+    }).not.toThrow()
+    expect(node?.result).toMatchObject({
+      status: "blocked",
+      evidenceInput: null,
+      fingerprint: null,
+      issues: [expect.objectContaining({ code: "invalid-layout-input" })],
+    })
+    expect(fontPathReadCount).toBe(0)
+  })
+
   it("keeps U+FFFC and hard breaks outside shaping with identical Core evidence", async () => {
     const packageRoot = resolve(process.cwd(), "packages/text-engine-rust-wasm")
     const mr1WasmPath = resolve(
