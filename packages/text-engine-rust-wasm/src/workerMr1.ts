@@ -8,6 +8,11 @@ import {
   createFlowDocTextEngineMultiRunLayoutV1,
   profileFlowDocTextEngineMultiRunLayoutV1,
 } from "./multiRunLayout.js"
+import { createFlowDocTextEngineFlowEvidenceV2 } from "./multiRunFlowEvidenceV2.js"
+import type {
+  FlowDocTextEngineFlowEvidenceInputV2,
+  FlowDocTextEngineFlowEvidenceResultV2,
+} from "./multiRunFlowEvidenceContractV2.js"
 import type {
   FlowDocTextEngineMultiRunFontFaceV1,
   FlowDocTextEngineMultiRunLayoutInputV1,
@@ -54,6 +59,9 @@ export interface FlowDocTextEngineMr1WorkerRuntimeV1 {
   layout(
     input: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
   ): FlowDocTextEngineMultiRunLayoutResultV1
+  flowEvidence(
+    input: Omit<FlowDocTextEngineFlowEvidenceInputV2, "fontFaces">,
+  ): FlowDocTextEngineFlowEvidenceResultV2
   profileLayout(
     input: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
     clock: FlowDocTextEngineMultiRunProfileClockV1,
@@ -112,7 +120,9 @@ export async function createFlowDocTextEngineMr1WorkerRuntimeV1(
       return normalizeFlowDocTextEngineMr1SegmentationV1(raw)
     },
   }
-  const completeInput = (layoutInput: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">) => {
+  const completeInput = <
+    T extends Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
+  >(layoutInput: T) => {
     requireFact(
       layoutInput.measurement.measurementProfileId === input.measurementProfileId,
       "MR1 layout profile does not match the initialized Worker runtime",
@@ -137,6 +147,9 @@ export async function createFlowDocTextEngineMr1WorkerRuntimeV1(
     },
     layout(layoutInput) {
       return createFlowDocTextEngineMultiRunLayoutV1(completeInput(layoutInput), multiRunRuntime)
+    },
+    flowEvidence(layoutInput) {
+      return createFlowDocTextEngineFlowEvidenceV2(completeInput(layoutInput), multiRunRuntime)
     },
     profileLayout(layoutInput, clock) {
       return profileFlowDocTextEngineMultiRunLayoutV1(completeInput(layoutInput), multiRunRuntime, clock)

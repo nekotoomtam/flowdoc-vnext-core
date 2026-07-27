@@ -43,10 +43,12 @@ export interface FlowDocTextEngineMultiRunParagraphStyleV1 {
 
 export interface FlowDocTextEngineMultiRunRuntimeV1 {
   runtimeKind: FlowDocTextEngineMultiRunRuntimeKindV1
+  /** Shapes one coalesced text-bearing run; U+FFFC and hard breaks are excluded. */
   shape(input: {
     text: string
     fontFace: FlowDocTextEngineMultiRunFontFaceV1
   }): FlowDocTextEngineMr1ShapeFactsV1
+  /** Segments the complete rendered TextBlock string exactly once per accepted preparation. */
   segment(text: string): FlowDocTextEngineMr1SegmentationFactsV1
 }
 
