@@ -37,6 +37,43 @@ function classifyMixedParagraph() {
   return result.flow
 }
 
+function classifyAdjacentFiParagraph() {
+  const buildInput = listImageGeometryBuildInputFixture()
+  buildInput.textBlock = {
+    ...buildInput.textBlock,
+    role: { role: "paragraph" },
+    children: [
+      { id: "text-f", type: "text", text: "f" },
+      { id: "text-i", type: "text", text: "i" },
+    ],
+  }
+  buildInput.measurement = {
+    ...buildInput.measurement,
+    renderedText: "fi",
+    runs: [
+      {
+        inlineId: "text-f",
+        kind: "text",
+        renderStartOffset: 0,
+        renderEndOffset: 1,
+        renderedText: "f",
+        styleKey: "paragraph-body",
+      },
+      {
+        inlineId: "text-i",
+        kind: "text",
+        renderStartOffset: 1,
+        renderEndOffset: 2,
+        renderedText: "i",
+        styleKey: "paragraph-body",
+      },
+    ],
+  }
+  const result = createVNextTextBlockInitialFlowV1(buildInput)
+  if (result.status !== "classified") throw new Error("adjacent f/i fixture blocked")
+  return result.flow
+}
+
 function evidenceInputFor(initialFlow: VNextTextBlockInitialFlowV1): VNextTextBlockFlowEvidenceInputV2 {
   const textAtom = initialFlow.atoms.find((atom) => atom.kind === "text")
   if (textAtom?.kind !== "text") throw new Error("text atom fixture missing")
@@ -368,6 +405,35 @@ describe("VNext TextBlock Flow Evidence V2", () => {
           shapingRunId: "shape-a",
         }),
       ]),
+    })
+  })
+
+  it("blocks a break at a text-atom boundary inside one shaping cluster", () => {
+    const initialFlow = classifyAdjacentFiParagraph()
+    const evidenceInput = evidenceInputFor(initialFlow)
+    evidenceInput.shapingRuns = [{
+      ...evidenceInput.shapingRuns[0]!,
+      renderEndOffset: 2,
+      text: "fi",
+      clusters: [{
+        index: 0,
+        renderStartOffset: 0,
+        renderEndOffset: 2,
+        advanceLayoutUnit: 6_000_000,
+      }],
+    }]
+    evidenceInput.breakOffsets = [0, 1, 2]
+
+    expect(acceptVNextTextBlockFlowEvidenceV2({
+      initialFlow,
+      evidenceInput,
+    })).toMatchObject({
+      status: "blocked",
+      evidence: null,
+      issues: [{
+        code: "invalid-break-offsets",
+        path: "evidenceInput.breakOffsets[1]",
+      }],
     })
   })
 

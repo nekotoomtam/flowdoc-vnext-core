@@ -604,6 +604,7 @@ function breakIssues(input: {
   const renderedText = initialFlow.measurement.renderedText
   const boundarySet = new Set<number>([0, renderedText.length])
   initialFlow.atoms.forEach((atom) => {
+    if (atom.kind !== "inline-image" && atom.kind !== "hard-break") return
     boundarySet.add(atom.renderStartOffset)
     boundarySet.add(atom.renderEndOffset)
   })
