@@ -90,6 +90,7 @@ Phase 4B does not add:
 - empty-block geometry;
 - automatic image scaling to fit an interval;
 - image margin, padding, border, rotation, or effects;
+- fixed-height TextBlock overflow or clipping policy;
 - incremental edits, suffix reuse, reconvergence, or performance claims.
 
 `fit` and `crop` remain paint-inside-frame facts. They are retained and
@@ -469,8 +470,9 @@ The following remain rejected:
 
 ## 15. Authored-Box Projection
 
-Phase 4A box conversion, padding, border, fixed-height rejection, and
-auto-height behavior are reused internally.
+Phase 4A box conversion, padding, border, and auto-height behavior are reused
+internally. Phase 4B does not invent a fixed-height input or overflow policy;
+fixed height remains unsupported and deferred.
 
 V2 projection adds image fragments beside text fragments. All fragments are
 box-local and share the same line authority. Auto-height includes the final
@@ -526,7 +528,7 @@ Phase 4B must reject, at minimum:
 - evidence from another Initial Flow object;
 - tree, index, provider, or request authority mismatch;
 - image width too large for a full content interval;
-- fixed authored-box height exceeded by image-aware content;
+- any unsupported fixed-height authored-box input or overflow/clipping mode;
 - exclusion or geometry outside the accepted authored-box boundary;
 - unstable or non-terminating placement conditions caught by existing guards.
 
@@ -590,7 +592,7 @@ Stop if:
 Deliver:
 
 - V2 authored-box-local image projection;
-- image-aware auto-height and fixed-height rejection;
+- image-aware auto-height while preserving fixed-height as NO-GO;
 - full authority/fingerprint hardening;
 - regression, adversarial, property, and parity coverage;
 - Phase 4B handoff and phase-ledger update.
@@ -625,7 +627,7 @@ integration test.
 - image shorter than, equal to, and taller than the paragraph strut;
 - declared line height below, equal to, and above natural height;
 - image exactly fitting and exceeding an interval;
-- fixed and auto-height authored boxes.
+- auto-height authored boxes and rejection of unsupported fixed-height input.
 
 ### 19.3 Spatial Flow
 
@@ -686,6 +688,7 @@ and prove:
 - line reuse, suffix reuse, and reconvergence;
 - cross-runtime producer integration;
 - performance under realistic heavily used documents;
+- fixed-height overflow and clipping policy;
 - atomic Editor state and staged apply;
 - publication/activation policy.
 
