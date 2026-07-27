@@ -18,6 +18,7 @@ export type VNextLayoutUnitV1 = z.infer<typeof VNextLayoutUnitV1Schema>
 
 export type VNextLayoutUnitIssueCodeV1 =
   | "invalid-point-value"
+  | "invalid-positive-unit-value"
   | "unsafe-layout-unit"
   | "invalid-layout-unit"
   | "invalid-font-metric"
@@ -161,6 +162,51 @@ export function convertVNextPointToLayoutUnitV1(
     issue("unsafe-layout-unit", path, "converted layout value must be a safe integer"),
   ])
   return acceptedLayoutUnit(Object.is(layoutUnit, -0) ? 0 : layoutUnit)
+}
+
+export function convertVNextPositiveUnitValueToLayoutUnitV1(
+  value: unknown,
+  path = "unitValue",
+): VNextPointToLayoutUnitResultV1 {
+  if (value == null || typeof value !== "object") return blockedLayoutUnit([
+    issue("invalid-positive-unit-value", path, "unit value must be a strict positive pt/mm object"),
+  ])
+  const prototype = Object.getPrototypeOf(value)
+  const keys = Reflect.ownKeys(value)
+  const valueProperty = Object.getOwnPropertyDescriptor(value, "value")
+  const unitProperty = Object.getOwnPropertyDescriptor(value, "unit")
+  if (
+    (prototype !== Object.prototype && prototype !== null)
+    || keys.length !== 2
+    || !keys.includes("value")
+    || !keys.includes("unit")
+    || valueProperty == null
+    || unitProperty == null
+    || !Object.hasOwn(valueProperty, "value")
+    || !Object.hasOwn(unitProperty, "value")
+  ) return blockedLayoutUnit([
+    issue("invalid-positive-unit-value", path, "unit value must contain data-only value and unit fields"),
+  ])
+  const numeric = valueProperty.value
+  const unit = unitProperty.value
+  if (
+    !Number.isFinite(numeric)
+    || typeof numeric !== "number"
+    || numeric <= 0
+    || (unit !== "pt" && unit !== "mm")
+  ) return blockedLayoutUnit([
+    issue("invalid-positive-unit-value", path, "unit value must be finite, positive, and use pt or mm"),
+  ])
+  const point = unit === "pt"
+    ? numeric
+    : numeric * 72 / 25.4
+  const converted = convertVNextPointToLayoutUnitV1(point, path)
+  if (converted.status !== "accepted" || converted.layoutUnit <= 0) {
+    return blockedLayoutUnit([
+      issue("unsafe-layout-unit", path, "converted image dimension must be a positive safe layout integer"),
+    ])
+  }
+  return converted
 }
 
 export function convertVNextLayoutUnitToPointV1(
