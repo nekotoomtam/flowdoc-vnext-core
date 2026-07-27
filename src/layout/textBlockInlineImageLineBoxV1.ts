@@ -196,21 +196,6 @@ export function resolveVNextTextBlockInlineImageLineMetricsV1(
   }
 }
 
-function appendExtents(
-  target: VNextTextBlockBaselineExtentV1[],
-  extents: readonly VNextTextBlockBaselineExtentV1[],
-): boolean {
-  for (const extent of extents) {
-    if (
-      !Number.isSafeInteger(extent.topFromBaselineLayoutUnit)
-      || !Number.isSafeInteger(extent.bottomFromBaselineLayoutUnit)
-      || extent.topFromBaselineLayoutUnit > extent.bottomFromBaselineLayoutUnit
-    ) return false
-    target.push(extent)
-  }
-  return true
-}
-
 export function combineVNextTextBlockFlowLineMetricsV2(
   input: VNextTextBlockFlowLineMetricsInputV2,
 ): VNextTextBlockFlowLineMetricsResultV2 {
@@ -230,18 +215,22 @@ export function combineVNextTextBlockFlowLineMetricsV2(
     "paragraph extent exceeds safe layout arithmetic",
     "unsafe-layout-unit",
   ))
-  const extents: VNextTextBlockBaselineExtentV1[] = [{
-    topFromBaselineLayoutUnit: paragraphTop,
-    bottomFromBaselineLayoutUnit: input.paragraphDescentLayoutUnit,
-  }]
-  if (!appendExtents(extents, input.textExtents) || !appendExtents(extents, input.imageExtents)) {
-    return blockedFlowMetrics(issue(
-      "extents",
-      "line extents must be ordered safe layout integers",
-    ))
+  let contentTop = paragraphTop
+  let contentBottom = input.paragraphDescentLayoutUnit
+  for (const extents of [input.textExtents, input.imageExtents]) {
+    for (const extent of extents) {
+      if (
+        !Number.isSafeInteger(extent.topFromBaselineLayoutUnit)
+        || !Number.isSafeInteger(extent.bottomFromBaselineLayoutUnit)
+        || extent.topFromBaselineLayoutUnit > extent.bottomFromBaselineLayoutUnit
+      ) return blockedFlowMetrics(issue(
+        "extents",
+        "line extents must be ordered safe layout integers",
+      ))
+      contentTop = Math.min(contentTop, extent.topFromBaselineLayoutUnit)
+      contentBottom = Math.max(contentBottom, extent.bottomFromBaselineLayoutUnit)
+    }
   }
-  const contentTop = Math.min(...extents.map((extent) => extent.topFromBaselineLayoutUnit))
-  const contentBottom = Math.max(...extents.map((extent) => extent.bottomFromBaselineLayoutUnit))
   const naturalHeight = safeSubtract(contentBottom, contentTop)
   if (naturalHeight == null || naturalHeight < 0) return blockedFlowMetrics(issue(
     "extents",

@@ -53,14 +53,7 @@ describe("frozen V1 layout compatibility", () => {
           request: fixture.request,
           spatialIndex: structuredClone(fixture.spatialIndex),
         }),
-      ].map((result) => ({
-        code: result.issues[0]?.code,
-        geometry: result.geometry,
-        lines: result.lines,
-        summary: result.summary,
-        work: result.work,
-        fingerprint: result.fingerprint,
-      })),
+      ],
     }
     await expect(JSON.stringify(facts, null, 2)).toMatchFileSnapshot(
       "./fixtures/text-block-v1-layout-compatibility.v1.json",

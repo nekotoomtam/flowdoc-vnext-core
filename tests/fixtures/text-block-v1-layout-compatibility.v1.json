@@ -313,20 +313,40 @@
   },
   "rejectionRows": [
     {
-      "code": "flow-tree-request-binding-mismatch",
+      "status": "blocked",
       "geometry": null,
       "lines": null,
       "summary": null,
       "work": null,
-      "fingerprint": null
+      "mayPublishLayout": false,
+      "productionBinding": false,
+      "fingerprint": null,
+      "issues": [
+        {
+          "code": "flow-tree-request-binding-mismatch",
+          "severity": "error",
+          "path": "persistentFlowTree",
+          "message": "tree is not the exact process-local object created by Core"
+        }
+      ]
     },
     {
-      "code": "spatial-index-binding-mismatch",
+      "status": "blocked",
       "geometry": null,
       "lines": null,
       "summary": null,
       "work": null,
-      "fingerprint": null
+      "mayPublishLayout": false,
+      "productionBinding": false,
+      "fingerprint": null,
+      "issues": [
+        {
+          "code": "spatial-index-binding-mismatch",
+          "severity": "error",
+          "path": "spatialIndex",
+          "message": "spatial index is not the exact process-local object created by Core"
+        }
+      ]
     }
   ]
 }
