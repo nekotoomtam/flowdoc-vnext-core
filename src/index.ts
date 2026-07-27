@@ -36,6 +36,10 @@ export * from "./fingerprint/compactFingerprint.js"
 export * from "./layout/layoutUnitPolicyV1.js"
 export * from "./layout/textBlockInlineImageLineBoxV1.js"
 export * from "./layout/textBlockFlowEvidenceContractV2.js"
+export {
+  acceptVNextTextBlockFlowEvidenceV2,
+  inspectVNextTextBlockFlowEvidenceV2,
+} from "./layout/textBlockFlowEvidenceV2.js"
 export * from "./layout/textBlockInitialFlowParentRegionV1.js"
 export * from "./layout/textBlockEffectiveShapingStyleIdentityV1.js"
 export * from "./layout/textBlockInitialFlowInputV1.js"
