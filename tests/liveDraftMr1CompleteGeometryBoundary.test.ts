@@ -21,11 +21,11 @@ const sectionAtPeerHeading = (document: string, start: string): string => {
 }
 
 const historicalRuntimeBaseline = "c9a3e09"
-const currentRuntimeBaseline = "991a3bb"
+const currentRuntimeBaseline = "a249b30"
 const phase2Exclusions =
   "Do not start spatial wrapping, list decoration, inline-image geometry, empty-block geometry, Editor, Backend, table auto-fit, publication, or production activation in this checkpoint."
-const phase3Exclusions =
-  "Do not start list/image geometry, empty-block geometry, Editor binding, Backend binding, Columns/Table integration, table auto-fit, publication, or production activation inside Phase 3."
+const phase4Exclusions =
+  "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
 
 describe("Live Draft MR1-P complete geometry boundary", () => {
   it("bounds an MR1-P ledger section at the next peer heading", () => {
@@ -79,8 +79,8 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(boundary).toContain("blocked-empty-layout-contract")
     expect(boundary).toContain("mayPublishLayout: false")
     expect(boundary).toContain("Persistent Flow Tree Foundation")
-    expect(handoff.split(/\r?\n/, 1)[0]).toContain("MR1-Q")
-    expect(handoffHeader).toContain("updated through `MR1-Q Persistent Flow Tree Foundation`")
+    expect(handoff.split(/\r?\n/, 1)[0]).toContain("Phase 3A")
+    expect(handoffHeader).toContain("updated through `Phase 3: Core Spatial Wrapping 3A`")
     expect(handoffHeader).not.toContain("MR1-O")
     expect(occurrences(handoff, "## Current Baseline")).toBe(1)
     expect(occurrences(handoff, "### Historical MR1-P Baseline")).toBe(1)
@@ -88,7 +88,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(occurrences(handoff, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")).toBe(1)
     expect(occurrences(ledger, "## LIVE-DRAFT-MR1-P Complete Geometry Boundary")).toBe(1)
     expect(handoffCurrentBaseline).toContain(
-      `Current MR1-Q Core implementation baseline: \`${currentRuntimeBaseline}\`.`,
+      `Current Phase 3 Core implementation baseline: \`${currentRuntimeBaseline}\`.`,
     )
     expect(handoffHistoricalBaseline).toContain("preserved historical MR1-P baseline")
     expect(handoffHistoricalBaseline).toContain(coreBaselineRow)
@@ -150,7 +150,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(boundary).not.toContain("Only a classified `text-subset-ready` input may enter it")
   })
 
-  it("separates the historical MR1-P instruction from the active MR1-Q Phase 3 prompt", () => {
+  it("separates the historical MR1-P instruction from the active Phase 4 prompt", () => {
     const boundary = normalize(read("../docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md"))
     const rawHandoff = read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const handoffMr1p = normalize(
@@ -182,10 +182,12 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(historicalInstruction).toContain(phase2Exclusions)
     expect(historicalInstruction).not.toContain("Phase 3: Core Spatial Wrapping 3A")
 
-    expect(activePrompt).toContain("MR1-Q Persistent Flow Tree Foundation")
-    expect(activePrompt).toContain(`current MR1-Q baseline at ${currentRuntimeBaseline}`)
-    expect(activePrompt).toContain("Phase 3: Core Spatial Wrapping 3A")
-    expect(activePrompt).toContain(phase3Exclusions)
+    expect(activePrompt).toContain(
+      `accepted Phase 3 Core implementation baseline at ${currentRuntimeBaseline}`,
+    )
+    expect(activePrompt).toContain("Phase 4: Initial TextBlock Geometry")
+    expect(activePrompt).toContain("MR1-Q immutable identity/provenance gates")
+    expect(activePrompt).toContain(phase4Exclusions)
     expect(activePrompt).not.toContain("Phase 2 Persistent Flow Tree Foundation")
     expect(activePrompt).not.toContain("persistent B+ rope")
     expect(activePrompt).not.toContain("completeNextSemanticPassCount: 1")

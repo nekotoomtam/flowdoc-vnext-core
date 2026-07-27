@@ -12789,3 +12789,38 @@ Final whole-branch fix-wave base: `8306a7d`.
 - Next: `Phase 3: Core Spatial Wrapping 3A`. Do not start list/image geometry,
   empty-block geometry, Editor, Backend, Columns/Table integration, table
   auto-fit, publication, or production activation inside Phase 3.
+
+## Phase 3 Core Spatial Wrapping 3A
+
+`Phase 3: Core Spatial Wrapping 3A` is accepted as a bounded Core synthetic QA
+checkpoint at implementation baseline `a249b30`.
+
+- Added a strict `core-synthetic-qa-only` immutable persistent y-interval
+  treap, deterministic fingerprints, subtree maximum-bottom pruning, and exact
+  process-local tree/request/index provenance.
+- Added a deterministic Flow Region Provider for left/right/middle/multiple
+  rectangular exclusions, top/bottom barriers, overlay neutrality, and
+  full-width zero-space advancement.
+- Added break-safe multi-interval spatial line placement, mandatory hard-break
+  closure, Core-derived fragment geometry, and monotonic expanded-band
+  stabilization without trusting retained `request.lines` as new spatial
+  decisions.
+- Added path-copy move/resize updates with exact old/new affected-band unions,
+  `completeIndexRebuildCount: 0`, and bounded untouched-subtree identity reuse.
+  This does not claim spatial-line reuse or reconvergence.
+- Empty and overlay-only indexes retain the zero-query fast path. A 1,024-entry
+  narrow query proves pruning without a complete scan. The no-exclusion
+  fixture retains exact accepted MR1-Q line range/y/fragment parity.
+- Every accepted boundary retains `mayPublishLayout: false`,
+  `productionBinding: false`, and `stagedEditorApply: false`.
+- List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+- Evidence: `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`,
+  `tests/liveDraftMr1SpatialWrapping3a.test.ts`,
+  `tests/textBlockSpatialIndexV1.test.ts`,
+  `tests/textBlockSpatialIndexUpdateV1.test.ts`,
+  `tests/textBlockFlowRegionProviderV1.test.ts`, and
+  `tests/textBlockSpatialWrappingLayoutV1.test.ts`.
+- Verification: focused Phase 3 gate passed 8 files / 46 tests;
+  `npm run type-check` and `git diff --check` passed; final full
+  `npm run check` passed 417 files / 2,078 tests including type-check.
+- Next: `Phase 4: Initial TextBlock Geometry`.

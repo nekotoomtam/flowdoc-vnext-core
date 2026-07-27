@@ -14,6 +14,9 @@ const sectionAtPeerHeading = (document: string, heading: string): string => {
 const phase3Pointer = "Proceed only to `Phase 3: Core Spatial Wrapping 3A`."
 const phase3NoGo =
   "Do not start list/image geometry, empty-block geometry, Editor binding, Backend binding, Columns/Table integration, table auto-fit, publication, or production activation inside Phase 3."
+const phase4Pointer = "Proceed only to `Phase 4: Initial TextBlock Geometry`."
+const phase4NoGo =
+  "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
 
 describe("Live Draft MR1 persistent flow foundation handoff", () => {
   it("pins every MR1-Q section, capability row, counter row, gate total, and next boundary", () => {
@@ -116,15 +119,17 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
     ]) expect(publicIndexLines).toContain(statement)
 
     expect(requiredReading).toContain("`docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md`")
-    for (const active of [currentTask, activePrompt, currentTruth, ledgerMr1q]) {
+    expect(requiredReading).toContain("`docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`")
+    for (const active of [currentTruth, ledgerMr1q]) {
       expect(active).toContain("MR1-Q Persistent Flow Tree Foundation")
       expect(active).toContain("Phase 3: Core Spatial Wrapping 3A")
     }
     for (const active of [currentTask, activePrompt]) {
+      expect(active).toContain(phase4Pointer)
+      expect(active).toContain(phase4NoGo)
       expect(active).not.toContain("completeNextSemanticPassCount: 1")
       expect(active).not.toContain("Proceed to Phase 2")
     }
-    expect(activePrompt).toContain(phase3NoGo)
     expect(currentTruth).toContain("passed 7 files / 33 tests")
     expect(currentTruth).toContain("passed 412 files / 2,047 tests")
     expect(ledgerMr1q).toContain("combined focused gate passed 7 files / 33 tests")

@@ -1,10 +1,10 @@
-# Live Draft Cross-Runtime Parity Handoff (MR1-Q)
+# Live Draft Cross-Runtime Parity Handoff (Phase 3A)
 
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20; updated through `MR1-Q Persistent Flow Tree Foundation` on
-2026-07-22.
+Date: 2026-07-20; updated through `Phase 3: Core Spatial Wrapping 3A` on
+2026-07-27.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -59,7 +59,7 @@ The following rules are locked for this lane:
 
 ## Current Baseline
 
-Current MR1-Q Core implementation baseline: `991a3bb`.
+Current Phase 3 Core implementation baseline: `a249b30`.
 
 ### Historical MR1-P Baseline
 
@@ -91,6 +91,13 @@ oracle-analysis facts.
   bounded semantic proof with `completeNextSemanticPassCount: 0`, and exact
   optional QA parity for four actual-WASM edit families. Complete request
   validation and complete shaping/break arrays still remain.
+- `Phase 3: Core Spatial Wrapping 3A` adds the strict
+  `core-synthetic-qa-only` persistent y-interval index, max-bottom query
+  pruning, Flow Region Provider, multi-interval rectangular wrapping,
+  top/bottom barrier and full-width advancement, overlay neutrality,
+  move/resize path copying, and expanded-band stabilization. Every accepted
+  boundary remains `mayPublishLayout: false`, `productionBinding: false`, and
+  `stagedEditorApply: false`.
 - `stagedCoverageCompatible: true` is B1 compatibility evidence for stable
   ordered identity and resumable references only. Editor staged apply/state is
   not implemented.
@@ -441,23 +448,21 @@ identity.
 
 ## First Task For The Next Thread
 
-Proceed only to `Phase 3: Core Spatial Wrapping 3A` over the accepted
-`MR1-Q Persistent Flow Tree Foundation`.
+Proceed only to `Phase 4: Initial TextBlock Geometry`.
 
-1. Implement the persistent y-interval spatial index and Flow Region Provider
-   from strict synthetic Core inputs.
-2. Preserve the no-exclusion single-interval fast path and all MR1-Q immutable
-   identity/provenance gates.
-3. Keep B1 staged coverage as compatibility evidence only; do not implement
-   Editor staged apply/state.
-4. Do not start list decoration, inline-image geometry, empty-block geometry,
-   Editor, Backend, Columns/Table integration, table auto-fit, publication, or
-   production activation inside Phase 3.
+1. Start from the accepted Core-only Phase 3 synthetic spatial boundary and
+   preserve all MR1-Q tree/request/index identity and provenance gates.
+2. Keep Phase 3 spatial wrapping non-publishable and non-production; do not
+   convert strict synthetic positioned-object inputs into an authored schema.
+3. Define the next bounded Initial TextBlock Geometry scope before
+   implementation and retain explicit capability-honest blocked rows.
+4. List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
 ## Required Reading
 
 Core:
 
+- `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`
 - `docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md`
 - `docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md`
 - `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`
@@ -567,17 +572,15 @@ active instruction.
 Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
-Read the Required Reading section and the current MR1-Q baseline at 991a3bb.
-Proceed only to Phase 3: Core Spatial Wrapping 3A over the accepted
-MR1-Q Persistent Flow Tree Foundation.
+Read the Required Reading section and the accepted Phase 3 Core implementation
+baseline at a249b30. Proceed only to `Phase 4: Initial TextBlock Geometry`.
 
-Implement the persistent y-interval spatial index and Flow Region Provider from
-strict synthetic Core inputs. Preserve the no-exclusion single-interval fast
-path and MR1-Q immutable identity/provenance gates. B1 remains compatibility
-evidence only; do not implement Editor staged apply/state. Do not start
-list/image geometry, empty-block geometry, Editor binding, Backend binding,
-Columns/Table integration, table auto-fit, publication, or production
-activation inside Phase 3.
+Preserve the strict synthetic spatial boundary, no-flow-affecting fast path,
+multi-interval wrapping behavior, and MR1-Q immutable identity/provenance
+gates. Do not introduce an authored positioned-object schema or spatial-line
+reuse claim unless a later checkpoint explicitly authorizes it.
+
+List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
 Add focused tests before implementation, preserve accepted and blocked evidence,
 run the focused and full Core gates, and update the handoff with
@@ -1566,3 +1569,30 @@ tests.
 - Canvas paint cost and memory for styled, image, table, and 200-page content.
 - Accepted glyph-position/outline reconciliation policy across Canvas and PDF.
 - Final drift reconciliation UX between Live Draft and Published output.
+
+## Phase 3 Core Spatial Wrapping 3A
+
+`Phase 3: Core Spatial Wrapping 3A` is accepted as a bounded Core synthetic QA
+checkpoint at implementation baseline `a249b30`.
+
+Core now owns the strict `core-synthetic-qa-only` persistent y-interval treap,
+subtree max-bottom query pruning, Flow Region Provider, left/right/middle and
+multiple rectangular wrapping intervals, top/bottom barrier and full-width
+zero-space advancement, overlay neutrality, move/resize path copying, and
+expanded-band stabilization. The no-flow-affecting path performs zero spatial
+index queries, and the chosen no-exclusion fixture retains exact accepted
+MR1-Q line geometry and fragments.
+
+Move/resize results retain exact old/new affected-band unions and report
+`completeIndexRebuildCount: 0`; this is not a spatial-line reuse or
+reconvergence claim.
+
+All accepted Phase 3 boundaries retain `mayPublishLayout: false`,
+`productionBinding: false`, and `stagedEditorApply: false`.
+
+List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+
+Evidence lives at `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`. The focused
+Phase 3 gate passed 8 files / 46 tests, and the final full Core gate passed 417
+files / 2,078 tests including type-check. The next bounded checkpoint is
+`Phase 4: Initial TextBlock Geometry`.

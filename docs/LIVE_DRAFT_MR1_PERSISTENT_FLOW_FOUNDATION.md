@@ -189,3 +189,8 @@ persistent y-interval spatial index and Flow Region Provider over strict
 synthetic Core inputs. Do not start list/image geometry, empty-block geometry,
 Editor binding, Backend binding, Columns/Table integration, table auto-fit,
 publication, or production activation inside Phase 3.
+
+Historical pointer status on 2026-07-27: fulfilled by
+`docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`. The active cross-runtime pointer
+now proceeds only to `Phase 4: Initial TextBlock Geometry`; the MR1-Q evidence
+and verification counts above remain unchanged.
