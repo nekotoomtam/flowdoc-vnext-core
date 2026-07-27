@@ -12857,8 +12857,8 @@ implementation baseline
   `src/layout/textBlockAuthoredBoxGeometryContractV1.ts`,
   `src/layout/textBlockAuthoredBoxGeometryV1.ts`, and
   `tests/textBlockAuthoredBoxGeometryV1.test.ts`.
-- Verification: focused Phase 4A gate passed 8 files / 130 tests;
-  `git diff --check` passed; full `npm run check` passed 420 files / 2,113
+- Verification: focused Phase 4A gate passed 8 files / 131 tests;
+  `git diff --check` passed; full `npm run check` passed 420 files / 2,114
   tests including type-check.
 - Next: Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires
   a separately reviewed and explicitly approved design before implementation.

@@ -115,4 +115,29 @@ describe("inspectVNextTextBlockInitialFlowRequestBindingV1", () => {
       issues: [{ code: "invalid-initial-flow", path: "initialFlow" }],
     })
   })
+
+  it("rejects non-enumerable required root data properties", () => {
+    const flow = acceptedFlow()
+    const request = legacyTextOnlyLayoutRequestFixture()
+
+    for (const key of ["initialFlow", "request"] as const) {
+      const envelope = { initialFlow: flow, request }
+      Object.defineProperty(envelope, key, {
+        value: envelope[key],
+        enumerable: false,
+        configurable: true,
+        writable: true,
+      })
+
+      expect(inspectVNextTextBlockInitialFlowRequestBindingV1(envelope))
+        .toMatchObject({
+          status: "blocked",
+          initialFlow: null,
+          request: null,
+          initialFlowFingerprint: "unavailable",
+          layoutId: "unavailable",
+          issues: [{ code: "invalid-binding-input", path: "input" }],
+        })
+    }
+  })
 })

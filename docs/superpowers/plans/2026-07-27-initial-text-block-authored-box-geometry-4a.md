@@ -153,8 +153,8 @@ function acceptedFlow() {
   const built = createVNextTextBlockInitialFlowV1(
     legacyTextOnlyBuildInputFixture(),
   )
-  if (built.status !== "accepted") throw new Error("Initial Flow fixture blocked")
-  return built.initialFlow
+  if (built.status !== "classified") throw new Error("Initial Flow fixture blocked")
+  return built.flow
 }
 ```
 
@@ -214,9 +214,9 @@ it("blocks request context drift and unsupported geometry capability rows", () =
     renderedEmptyFieldGeometryBuildInputFixture(),
   ]) {
     const built = createVNextTextBlockInitialFlowV1(buildInput)
-    if (built.status !== "accepted") throw new Error("capability fixture blocked")
+    if (built.status !== "classified") throw new Error("capability fixture blocked")
     expect(inspectVNextTextBlockInitialFlowRequestBindingV1({
-      initialFlow: built.initialFlow,
+      initialFlow: built.flow,
       request: legacyTextOnlyLayoutRequestFixture(),
     })).toMatchObject({
       status: "blocked",
@@ -450,17 +450,19 @@ In `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`, add:
 
 ```ts
 it("uses the shared request binding without changing accepted adapter output", () => {
-  const flow = createVNextTextBlockInitialFlowV1(
+  const classified = createVNextTextBlockInitialFlowV1(
     legacyTextOnlyBuildInputFixture(),
   )
-  if (flow.status !== "accepted") throw new Error("Initial Flow fixture blocked")
+  if (classified.status !== "classified") {
+    throw new Error("Initial Flow fixture blocked")
+  }
   const request = legacyTextOnlyLayoutRequestFixture()
   const binding = inspectVNextTextBlockInitialFlowRequestBindingV1({
-    initialFlow: flow.initialFlow,
+    initialFlow: classified.flow,
     request,
   })
   const adapter = adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
-    initialFlow: flow.initialFlow,
+    initialFlow: classified.flow,
     legacyRequest: request,
   })
   const direct = binding.status === "accepted"
@@ -477,9 +479,9 @@ it("uses the shared request binding without changing accepted adapter output", (
   ) {
     throw new Error("shared binding parity fixture blocked")
   }
+  expect(adapter.layout).toEqual(direct)
   expect(adapter.layout.layoutId).toBe(binding.request.layoutId)
-  expect(adapter.layout.layoutContextFingerprint)
-    .toBe(direct.layoutContextFingerprint)
+  expect(adapter.layout.fingerprint).toBe(direct.fingerprint)
 })
 ```
 

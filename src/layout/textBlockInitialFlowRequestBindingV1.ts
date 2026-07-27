@@ -285,7 +285,10 @@ function safeEnvelope(input: unknown): BindingEnvelope | null {
     ) return null
     const initialFlow = dataProperty(input, "initialFlow")
     const request = dataProperty(input, "request")
-    return initialFlow.found && request.found
+    return initialFlow.found
+      && initialFlow.descriptor?.enumerable === true
+      && request.found
+      && request.descriptor?.enumerable === true
       ? { initialFlow: initialFlow.value, request: request.value }
       : null
   } catch {

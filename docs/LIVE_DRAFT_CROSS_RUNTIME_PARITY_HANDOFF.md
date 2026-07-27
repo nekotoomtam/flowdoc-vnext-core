@@ -1650,8 +1650,8 @@ object authority remains `core-synthetic-qa-only`.
 List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
 Evidence lives at `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`. The
-focused Phase 4A gate passed 8 files / 130 tests, and the full `npm run check`
-passed 420 files / 2,113 tests including type-check.
+focused Phase 4A gate passed 8 files / 131 tests, and the full `npm run check`
+passed 420 files / 2,114 tests including type-check.
 
 Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
 separately reviewed and explicitly approved design before implementation.

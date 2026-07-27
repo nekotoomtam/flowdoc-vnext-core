@@ -17,8 +17,8 @@ const deferredNoGo =
   "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
 const phase4bGate =
   "`Phase 4B: Inline Image Line-Box Geometry` requires a separately reviewed and explicitly approved design before implementation."
-const focusedTotals = "focused Phase 4A gate passed 8 files / 130 tests"
-const fullTotals = "full `npm run check` passed 420 files / 2,113 tests"
+const focusedTotals = "focused Phase 4A gate passed 8 files / 131 tests"
+const fullTotals = "full `npm run check` passed 420 files / 2,114 tests"
 
 describe("Live Draft MR1 authored box geometry 4A handoff", () => {
   it("pins the Phase 4A evidence sections, capability matrix, and authority limits", () => {

@@ -124,10 +124,11 @@ runtime activation.
   | --- | --- |
   | list, inline image, empty/effectively empty, or hard-break-only capability | `initial-flow-capability-required` |
   | Initial Flow/request mismatch | `initial-flow-request-binding-mismatch` |
-  | authored width or inset arithmetic mismatch | `authored-box-geometry-invalid` |
-  | tree or index provenance mismatch | `persistent-flow-binding-mismatch` or `spatial-index-binding-mismatch` |
+  | invalid authored point or inset geometry | `invalid-authored-box-geometry` |
+  | request or outer authored width mismatch | `authored-box-width-mismatch` |
+  | tree or index provenance mismatch | `flow-tree-request-binding-mismatch` or `spatial-index-binding-mismatch` |
   | blocked Phase 3 layout | `spatial-layout-blocked` with ordered Phase 3 issue-code evidence |
-  | unsafe projection or height | `box-local-projection-invalid` or `outer-height-invalid` |
+  | unsafe width, projection, or height arithmetic | `unsafe-layout-arithmetic` |
 
 - Blocked results expose no lines, fragments, geometry, summary, work, or
   fingerprint and remain non-publishable and non-production.
@@ -186,7 +187,7 @@ Focused command:
 npx vitest run tests/liveDraftMr1CompleteGeometryBoundary.test.ts tests/liveDraftMr1PersistentFlowFoundation.test.ts tests/liveDraftMr1SpatialWrapping3a.test.ts tests/liveDraftMr1AuthoredBoxGeometry4a.test.ts tests/textBlockInitialFlowRequestBindingV1.test.ts tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts tests/textBlockAuthoredBoxGeometryV1.test.ts tests/textBlockSpatialWrappingLayoutV1.test.ts
 ```
 
-The focused Phase 4A gate passed 8 files / 130 tests.
+The focused Phase 4A gate passed 8 files / 131 tests.
 
 Complete command:
 
@@ -194,7 +195,7 @@ Complete command:
 npm run check
 ```
 
-The full `npm run check` passed 420 files / 2,113 tests including type-check.
+The full `npm run check` passed 420 files / 2,114 tests including type-check.
 `git diff --check` passed with no whitespace errors.
 
 ## Next Checkpoint

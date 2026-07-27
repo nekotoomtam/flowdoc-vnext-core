@@ -9,6 +9,7 @@ import {
   createVNextTextBlockSpatialIndexUpdateV1,
   inspectVNextTextBlockAuthoredBoxGeometryV1,
   layoutVNextTextBlockAuthoredBoxGeometryV1,
+  layoutVNextTextBlockSpatialWrappingV1,
 } from "../src/index.js"
 import { stringifyVNextCanonicalJson } from
   "../src/fingerprint/canonicalJson.js"
@@ -141,12 +142,19 @@ describe("TextBlock authored box geometry v1", () => {
     const fixture = acceptedAuthoredBoxGeometryFixture({
       paddingPt: { top: 0, right: 0, bottom: 0, left: 0 },
     })
+    const phase3 = layoutVNextTextBlockSpatialWrappingV1({
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      spatialIndex: fixture.spatialIndex,
+      startYLayoutUnit: 0,
+    })
     const result = layoutVNextTextBlockAuthoredBoxGeometryV1({
       initialFlow: fixture.initialFlow,
       persistentFlowTree: fixture.tree,
       request: fixture.request,
       spatialIndex: fixture.spatialIndex,
     })
+    if (phase3.status !== "accepted") throw new Error("Phase 3 oracle blocked")
     if (result.status !== "accepted") throw new Error("zero inset blocked")
 
     expect(result.geometry).toMatchObject({
@@ -164,29 +172,93 @@ describe("TextBlock authored box geometry v1", () => {
       verticalAdvanceCount: 0,
       lineBandRequeryCount: 0,
     })
-    expect(result.lines.map((line) => ({
-      renderStartOffset: line.renderStartOffset,
-      renderEndOffset: line.renderEndOffset,
-      yOffsetLayoutUnit: line.yOffsetLayoutUnit,
-      fragments: line.fragments.map((fragment) => ({
-        renderStartOffset: fragment.renderStartOffset,
-        renderEndOffset: fragment.renderEndOffset,
-        xLayoutUnit: fragment.xLayoutUnit,
-        advanceLayoutUnit: fragment.advanceLayoutUnit,
-      })),
-      sourceSegments: line.sourceSegments,
-    }))).toEqual(fixture.acceptedLayout.lines.map((line) => ({
-      renderStartOffset: line.renderStartOffset,
-      renderEndOffset: line.renderEndOffset,
-      yOffsetLayoutUnit: line.yOffsetLayoutUnit,
-      fragments: line.fragments.map((fragment) => ({
-        renderStartOffset: fragment.renderStartOffset,
-        renderEndOffset: fragment.renderEndOffset,
-        xLayoutUnit: fragment.xLayoutUnit,
-        advanceLayoutUnit: fragment.advanceLayoutUnit,
-      })),
-      sourceSegments: line.sourceSegments,
-    })))
+    const retainedContentLocalLines = result.lines.map((line) => {
+      const {
+        contentYOffsetLayoutUnit,
+        yOffsetLayoutUnit: _boxYOffsetLayoutUnit,
+        availableIntervals,
+        intervalPlacements,
+        fragments,
+        contentRegionFingerprint,
+        contentLineFingerprint,
+        fingerprint: _boxLineFingerprint,
+        ...retainedLine
+      } = line
+      return {
+        ...retainedLine,
+        yOffsetLayoutUnit: contentYOffsetLayoutUnit,
+        availableIntervals: availableIntervals.map((interval) => ({
+          startLayoutUnit: interval.contentStartLayoutUnit,
+          endLayoutUnit: interval.contentEndLayoutUnit,
+        })),
+        intervalPlacements: intervalPlacements.map((placement) => {
+          const {
+            contentXStartLayoutUnit,
+            contentXEndLayoutUnit,
+            xStartLayoutUnit: _boxXStartLayoutUnit,
+            xEndLayoutUnit: _boxXEndLayoutUnit,
+            contentLineFingerprint: _contentLineFingerprint,
+            fingerprint: _boxPlacementFingerprint,
+            ...retainedPlacement
+          } = placement
+          return {
+            ...retainedPlacement,
+            xStartLayoutUnit: contentXStartLayoutUnit,
+            xEndLayoutUnit: contentXEndLayoutUnit,
+          }
+        }),
+        fragments: fragments.map((fragment) => {
+          const {
+            contentXLayoutUnit,
+            xLayoutUnit: _boxXLayoutUnit,
+            contentFragmentFingerprint,
+            fingerprint: _boxFragmentFingerprint,
+            ...retainedFragment
+          } = fragment
+          return {
+            ...retainedFragment,
+            xLayoutUnit: contentXLayoutUnit,
+            fingerprint: contentFragmentFingerprint,
+          }
+        }),
+        regionFingerprint: contentRegionFingerprint,
+        fingerprint: contentLineFingerprint,
+      }
+    })
+    expect({
+      documentId: result.documentId,
+      sectionId: result.sectionId,
+      textBlockId: result.textBlockId,
+      instanceRevision: result.instanceRevision,
+      layoutContextFingerprint: result.layoutContextFingerprint,
+      persistentFlowTreeFingerprint: result.persistentFlowTreeFingerprint,
+      spatialIndexFingerprint: result.spatialIndexFingerprint,
+      lines: retainedContentLocalLines,
+      summary: {
+        lineCount: result.summary.lineCount,
+        fragmentCount: result.summary.fragmentCount,
+        intervalPlacementCount: result.summary.intervalPlacementCount,
+        heightLayoutUnit: result.geometry.contentFlowHeightLayoutUnit,
+      },
+      work: result.work,
+      mayPublishLayout: result.mayPublishLayout,
+      productionBinding: result.productionBinding,
+      fingerprint: result.contentSpatialLayoutFingerprint,
+    }).toEqual({
+      documentId: phase3.documentId,
+      sectionId: phase3.sectionId,
+      textBlockId: phase3.textBlockId,
+      instanceRevision: phase3.instanceRevision,
+      layoutContextFingerprint: phase3.layoutContextFingerprint,
+      persistentFlowTreeFingerprint: phase3.persistentFlowTreeFingerprint,
+      spatialIndexFingerprint: phase3.spatialIndexFingerprint,
+      lines: phase3.lines,
+      summary: phase3.summary,
+      work: phase3.work,
+      mayPublishLayout: phase3.mayPublishLayout,
+      productionBinding: phase3.productionBinding,
+      fingerprint: phase3.fingerprint,
+    })
   })
 
   it("applies authored content origin and vertical insets exactly once", () => {
@@ -461,36 +533,53 @@ describe("TextBlock authored box geometry v1", () => {
     ])).toEqual([[0, 90_000_000]])
   })
 
-  it("increases auto-height by the exact spatial resize delta", () => {
+  it("recomputes auto-height to the second-deepest retained entry after shrink", () => {
     const fixture = acceptedAuthoredBoxGeometryFixture({
-      entries: [{
-        objectId: "resizable",
-        geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
-        xLayoutUnit: 60_000_000,
-        yLayoutUnit: 40_000_000,
-        widthLayoutUnit: 10_000_000,
-        heightLayoutUnit: 20_000_000,
-        clearance: {
-          topLayoutUnit: 0,
-          rightLayoutUnit: 0,
-          bottomLayoutUnit: 0,
-          leftLayoutUnit: 0,
+      entries: [
+        {
+          objectId: "resizable-deepest",
+          geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
+          xLayoutUnit: 60_000_000,
+          yLayoutUnit: 40_000_000,
+          widthLayoutUnit: 10_000_000,
+          heightLayoutUnit: 30_000_000,
+          clearance: {
+            topLayoutUnit: 0,
+            rightLayoutUnit: 0,
+            bottomLayoutUnit: 0,
+            leftLayoutUnit: 0,
+          },
+          wrapPolicy: "overlay",
         },
-        wrapPolicy: "overlay",
-      }],
+        {
+          objectId: "retained-second-deepest",
+          geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
+          xLayoutUnit: 60_000_000,
+          yLayoutUnit: 35_000_000,
+          widthLayoutUnit: 10_000_000,
+          heightLayoutUnit: 20_000_000,
+          clearance: {
+            topLayoutUnit: 0,
+            rightLayoutUnit: 0,
+            bottomLayoutUnit: 0,
+            leftLayoutUnit: 0,
+          },
+          wrapPolicy: "overlay",
+        },
+      ],
     })
     const update = createVNextTextBlockSpatialIndexUpdateV1({
       previousIndex: fixture.spatialIndex,
       expectedPreviousIndexFingerprint: fixture.spatialIndex.fingerprint,
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      objectId: "resizable",
+      objectId: "resizable-deepest",
       geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
       nextGeometry: {
         xLayoutUnit: 60_000_000,
         yLayoutUnit: 40_000_000,
         widthLayoutUnit: 10_000_000,
-        heightLayoutUnit: 30_000_000,
+        heightLayoutUnit: 5_000_000,
       },
     })
     expect(update.status).toBe("accepted")
@@ -511,10 +600,13 @@ describe("TextBlock authored box geometry v1", () => {
       throw new Error("resize composition blocked")
     }
 
-    expect(before.geometry.spatialMaximumBottomLayoutUnit).toBe(60_000_000)
-    expect(after.geometry.spatialMaximumBottomLayoutUnit).toBe(70_000_000)
-    expect(after.geometry.outerHeightLayoutUnit
-      - before.geometry.outerHeightLayoutUnit).toBe(10_000_000)
+    expect(fixture.spatialIndex.summary.maximumBottomLayoutUnit).toBe(70_000_000)
+    expect(update.nextIndex.summary.maximumBottomLayoutUnit).toBe(55_000_000)
+    expect(before.geometry.spatialMaximumBottomLayoutUnit).toBe(70_000_000)
+    expect(before.geometry.outerHeightLayoutUnit).toBe(74_000_000)
+    expect(after.geometry.spatialMaximumBottomLayoutUnit).toBe(55_000_000)
+    expect(after.geometry.contentExtentBottomLayoutUnit).toBe(55_000_000)
+    expect(after.geometry.outerHeightLayoutUnit).toBe(59_000_000)
     expect(update.work.completeIndexRebuildCount).toBe(0)
   })
 
