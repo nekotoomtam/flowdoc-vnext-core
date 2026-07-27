@@ -150,3 +150,6 @@ Proceed only to `Phase 4: Initial TextBlock Geometry`.
 
 Phase 4 may define the next bounded Core geometry boundary, but this handoff
 does not authorize downstream runtime work. List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+
+Historical pointer status on 2026-07-27: fulfilled by
+`docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`.

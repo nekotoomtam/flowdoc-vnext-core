@@ -1,10 +1,13 @@
-# Live Draft Cross-Runtime Parity Handoff (Phase 3A)
+# Live Draft Cross-Runtime Parity Handoff (Phase 4A; Phase 3A Historical)
 
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20; updated through `Phase 3: Core Spatial Wrapping 3A` on
+Date: 2026-07-20; updated through `Phase 4A: Authored Box Geometry` on
 2026-07-27.
+
+The historical header status was updated through `Phase 3: Core Spatial Wrapping 3A`;
+that phrase is retained only as prior handoff evidence.
 
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
@@ -59,6 +62,10 @@ The following rules are locked for this lane:
 
 ## Current Baseline
 
+Current Phase 4A Core implementation baseline:
+`d39d61f8c16b46b4fb709d045890ab9ee8677fbd`.
+
+Historical current-state text recorded:
 Current Phase 3 Core implementation baseline: `a249b30`.
 
 ### Historical MR1-P Baseline
@@ -98,6 +105,11 @@ oracle-analysis facts.
   move/resize path copying, and expanded-band stabilization. Every accepted
   boundary remains `mayPublishLayout: false`, `productionBinding: false`, and
   `stagedEditorApply: false`.
+- `Phase 4A: Authored Box Geometry` retains the exact Initial Flow/request
+  binding, runs unchanged Phase 3 wrapping at content-local y zero, projects
+  accepted line and fragment geometry into authored box-local coordinates,
+  owns exact vertical insets and auto-height through the retained spatial
+  maximum bottom, and preserves every nonpublication and nonproduction gate.
 - `stagedCoverageCompatible: true` is B1 compatibility evidence for stable
   ordered identity and resumable references only. Editor staged apply/state is
   not implemented.
@@ -448,20 +460,26 @@ identity.
 
 ## First Task For The Next Thread
 
-Proceed only to `Phase 4: Initial TextBlock Geometry`.
+Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
+separately reviewed and explicitly approved design before implementation.
 
-1. Start from the accepted Core-only Phase 3 synthetic spatial boundary and
-   preserve all MR1-Q tree/request/index identity and provenance gates.
-2. Keep Phase 3 spatial wrapping non-publishable and non-production; do not
-   convert strict synthetic positioned-object inputs into an authored schema.
-3. Define the next bounded Initial TextBlock Geometry scope before
-   implementation and retain explicit capability-honest blocked rows.
+The replaced historical instruction said:
+Proceed only to `Phase 4: Initial TextBlock Geometry`. It is retained as
+historical evidence and is not an active instruction.
+
+1. Review Phase 4A as the bounded Core-only authored-box checkpoint.
+2. Preserve the strict synthetic positioned-object boundary, exact
+   Initial Flow/request/tree/index provenance, and all false publication,
+   production, and staged-apply facts.
+3. Do not begin Phase 4B implementation until its design is separately
+   reviewed and explicitly approved.
 4. List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
 ## Required Reading
 
 Core:
 
+- `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`
 - `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`
 - `docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md`
 - `docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md`
@@ -573,12 +591,21 @@ Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
 Read the Required Reading section and the accepted Phase 3 Core implementation
-baseline at a249b30. Proceed only to `Phase 4: Initial TextBlock Geometry`.
+baseline at a249b30, plus the accepted Phase 4A Core implementation baseline at
+d39d61f8c16b46b4fb709d045890ab9ee8677fbd.
+
+Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
+separately reviewed and explicitly approved design before implementation.
+
+The replaced historical instruction said:
+Proceed only to `Phase 4: Initial TextBlock Geometry`. It is retained as
+historical evidence and is not an active instruction.
 
 Preserve the strict synthetic spatial boundary, no-flow-affecting fast path,
-multi-interval wrapping behavior, and MR1-Q immutable identity/provenance
-gates. Do not introduce an authored positioned-object schema or spatial-line
-reuse claim unless a later checkpoint explicitly authorizes it.
+content-local Phase 3 behavior, box-local Phase 4A projection, and immutable
+Initial Flow/request/tree/index identity and provenance gates, including the
+MR1-Q immutable identity/provenance gates. Do not introduce an authored
+positioned-object schema or spatial-line reuse/reconvergence claim.
 
 List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
@@ -1596,3 +1623,35 @@ Evidence lives at `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`. The focused
 Phase 3 gate passed 8 files / 46 tests, and the final full Core gate passed 417
 files / 2,078 tests including type-check. The next bounded checkpoint is
 `Phase 4: Initial TextBlock Geometry`.
+
+## Phase 4A Initial TextBlock Authored Box Geometry
+
+`Phase 4A: Authored Box Geometry` is accepted as a bounded Core-only checkpoint
+at implementation baseline
+`d39d61f8c16b46b4fb709d045890ab9ee8677fbd`.
+
+Core shares one exact Initial Flow/request binding inspector between the
+existing text-only adapter and the Phase 4A composition. The composition runs
+unchanged Phase 3 wrapping at content-local y zero, applies the exact converted
+authored content width, projects line/interval/placement/fragment geometry into
+box-local coordinates, regenerates translated fingerprints, and retains source
+mappings unchanged.
+
+Top and bottom content insets contribute exactly once. Auto-height uses the
+larger of Phase 3 flow height and the retained spatial-index
+`maximumBottomLayoutUnit`; overlay envelopes can extend height without
+excluding flow. The empty and overlay-only fast path performs zero spatial
+queries. This is no spatial-line reuse/reconvergence claim.
+
+Every accepted result retains `mayPublishLayout: false`,
+`productionBinding: false`, and `stagedEditorApply: false`. The positioned
+object authority remains `core-synthetic-qa-only`.
+
+List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+
+Evidence lives at `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`. The
+focused Phase 4A gate passed 8 files / 130 tests, and the full `npm run check`
+passed 420 files / 2,113 tests including type-check.
+
+Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
+separately reviewed and explicitly approved design before implementation.

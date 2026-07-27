@@ -1,7 +1,6 @@
 # Initial TextBlock Authored Box Geometry Design
 
-Status: approved conversational design, recorded for written review before
-implementation planning.
+Status: implemented and accepted as the bounded Phase 4A Core checkpoint.
 
 Date: 2026-07-27
 

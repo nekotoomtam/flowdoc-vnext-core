@@ -12824,3 +12824,41 @@ checkpoint at implementation baseline `a249b30`.
   `npm run type-check` and `git diff --check` passed; final full
   `npm run check` passed 417 files / 2,078 tests including type-check.
 - Next: `Phase 4: Initial TextBlock Geometry`.
+
+## Phase 4A Initial TextBlock Authored Box Geometry
+
+Status: accepted as a bounded Core-only authored-box geometry checkpoint at
+implementation baseline
+`d39d61f8c16b46b4fb709d045890ab9ee8677fbd`.
+
+- Added one shared exact Initial Flow/request binding inspector used by both
+  the existing text-only adapter and Phase 4A composition.
+- Added exact point-to-layout-unit authored outer-width, content-width, and
+  inset equations. Content width must equal the request width; independently
+  converted left/content/right edges must equal outer width.
+- Preserved content-local Phase 3 behavior unchanged at y zero and emitted a
+  separately fingerprinted box-local Phase 4A projection for lines, intervals,
+  placements, and fragments without changing source mappings.
+- Added exact top/bottom inset ownership and auto-height from the larger of
+  Phase 3 flow height and retained spatial-index `maximumBottomLayoutUnit`.
+  Overlay envelopes can extend height without excluding flow.
+- Retained the empty and overlay-only zero-query fast path and all Phase 3
+  algorithms/fingerprints. This is no spatial-line reuse/reconvergence claim.
+- Added fail-closed capability, production, provenance, stale, accessor,
+  unsafe-arithmetic, tamper, deterministic-fingerprint, and process-local
+  inspection evidence without partial blocked geometry.
+- Every accepted result retains `mayPublishLayout: false`,
+  `productionBinding: false`, and `stagedEditorApply: false`; positioned-object
+  authority remains `core-synthetic-qa-only`.
+- List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+- Evidence: `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`,
+  `tests/liveDraftMr1AuthoredBoxGeometry4a.test.ts`,
+  `src/layout/textBlockInitialFlowRequestBindingV1.ts`,
+  `src/layout/textBlockAuthoredBoxGeometryContractV1.ts`,
+  `src/layout/textBlockAuthoredBoxGeometryV1.ts`, and
+  `tests/textBlockAuthoredBoxGeometryV1.test.ts`.
+- Verification: focused Phase 4A gate passed 8 files / 130 tests;
+  `git diff --check` passed; full `npm run check` passed 420 files / 2,113
+  tests including type-check.
+- Next: Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires
+  a separately reviewed and explicitly approved design before implementation.
