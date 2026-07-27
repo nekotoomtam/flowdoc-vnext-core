@@ -4,6 +4,7 @@ import {
   adaptVNextTextBlockInitialFlowToLegacyLayoutV1,
   createVNextCompactFingerprint,
   createVNextTextBlockInitialFlowV1,
+  inspectVNextTextBlockInitialFlowRequestBindingV1,
 } from "../src/index.js"
 import {
   createFlowDocTextEngineMultiRunLayoutV1,
@@ -1070,5 +1071,38 @@ describe("TextBlock Initial Flow text-only adapter v1", () => {
       status: "blocked",
       issues: [expect.objectContaining({ code: "legacy-layout-rejected" })],
     })
+  })
+
+  it("uses the shared request binding without changing accepted adapter output", () => {
+    const flow = createVNextTextBlockInitialFlowV1(
+      legacyTextOnlyBuildInputFixture(),
+    )
+    if (flow.status !== "classified") throw new Error("Initial Flow fixture blocked")
+    const request = legacyTextOnlyLayoutRequestFixture()
+    const binding = inspectVNextTextBlockInitialFlowRequestBindingV1({
+      initialFlow: flow.flow,
+      request,
+    })
+    const adapter = adaptVNextTextBlockInitialFlowToLegacyLayoutV1({
+      initialFlow: flow.flow,
+      legacyRequest: request,
+    })
+    const direct = binding.status === "accepted"
+      ? acceptVNextTextBlockMultiRunLayoutV1(binding.request)
+      : null
+
+    expect(binding.status).toBe("accepted")
+    expect(adapter.status).toBe("accepted-text-subset")
+    expect(direct?.status).toBe("accepted")
+    if (
+      binding.status !== "accepted"
+      || adapter.status !== "accepted-text-subset"
+      || direct?.status !== "accepted"
+    ) {
+      throw new Error("shared binding parity fixture blocked")
+    }
+    expect(adapter.layout.layoutId).toBe(binding.request.layoutId)
+    expect(adapter.layout.fingerprint)
+      .toBe(direct.fingerprint)
   })
 })
