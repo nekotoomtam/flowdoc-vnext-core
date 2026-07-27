@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest"
 import {
   collectVNextTextBlockSpatialIndexNodesForQaV1,
+  createVNextCompactFingerprint,
   createVNextTextBlockSpatialIndexV1,
   inspectVNextTextBlockSpatialIndexV1,
   queryVNextTextBlockSpatialIndexV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../src/index.js"
+import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import { acceptedSpatialWrappingFixture } from "./helpers/textBlockSpatialWrappingV1.js"
 
 describe("TextBlock spatial index v1", () => {
@@ -139,6 +141,22 @@ describe("TextBlock spatial index v1", () => {
         code: "invalid-spatial-entry",
       },
       {
+        name: "zero height",
+        entries: replaceFirst({ heightLayoutUnit: 0 }),
+        code: "invalid-spatial-entry",
+      },
+      {
+        name: "left clearance overflow",
+        entries: replaceFirst({
+          xLayoutUnit: 0,
+          clearance: {
+            ...fixture.entries[0].clearance,
+            leftLayoutUnit: 1,
+          },
+        }),
+        code: "spatial-boundary-violation",
+      },
+      {
         name: "negative clearance-envelope top",
         entries: replaceFirst({
           yLayoutUnit: 0,
@@ -148,6 +166,14 @@ describe("TextBlock spatial index v1", () => {
           },
         }),
         code: "spatial-boundary-violation",
+      },
+      {
+        name: "safe integer addition overflow",
+        entries: replaceFirst({
+          xLayoutUnit: Number.MAX_SAFE_INTEGER,
+          widthLayoutUnit: 1,
+        }),
+        code: "unsafe-spatial-arithmetic",
       },
       {
         name: "horizontal overflow",
@@ -195,6 +221,16 @@ describe("TextBlock spatial index v1", () => {
       status: "blocked",
       index: null,
       issues: [{ code: "flow-tree-request-binding-mismatch" }],
+    })
+    expect(build(fixture.entries, {
+      request: {
+        ...structuredClone(fixture.request),
+        bindProductionLayout: true,
+      },
+    })).toMatchObject({
+      status: "blocked",
+      index: null,
+      issues: [{ code: "production-binding-forbidden" }],
     })
   })
 
@@ -289,6 +325,30 @@ describe("TextBlock spatial index v1", () => {
       entries: null,
       work: null,
       issues: [{ code: "spatial-index-stale" }],
+    })
+
+    const alteredIndex = structuredClone(built.index)
+    if (alteredIndex.root == null) throw new Error("large spatial index root missing")
+    alteredIndex.root.entry.xLayoutUnit += 1
+    alteredIndex.root.entry.envelope.leftLayoutUnit += 1
+    alteredIndex.root.entry.envelope.rightLayoutUnit += 1
+    const {
+      fingerprint: _discardedEntryFingerprint,
+      ...alteredEntryFacts
+    } = alteredIndex.root.entry
+    alteredIndex.root.entry.fingerprint = createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson(alteredEntryFacts),
+    )
+    const {
+      fingerprint: _discardedIndexFingerprint,
+      ...alteredIndexFacts
+    } = alteredIndex
+    alteredIndex.fingerprint = createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson(alteredIndexFacts),
+    )
+    expect(inspectVNextTextBlockSpatialIndexV1(alteredIndex)).toMatchObject({
+      status: "invalid",
+      code: "spatial-index-provenance-mismatch",
     })
   })
 })
