@@ -18,6 +18,8 @@ import {
   deepFreezeSpatialV1,
   spatialFingerprintV1,
 } from "./textBlockSpatialIndexInternalsV1.js"
+import { convertVNextPointToLayoutUnitV1 } from "./layoutUnitPolicyV1.js"
+import { safeVNextTextBlockMultiRunSumV1 } from "./textBlockMultiRunDerivationV1.js"
 import {
   inspectVNextTextBlockSpatialWrappingLayoutV1,
   layoutVNextTextBlockSpatialWrappingV1,
@@ -28,6 +30,9 @@ import {
   type VNextTextBlockAuthoredBoxGeometryInspectionV1,
   type VNextTextBlockAuthoredBoxGeometryIssueCodeV1,
   type VNextTextBlockAuthoredBoxGeometryIssueV1,
+  type VNextTextBlockAuthoredBoxFragmentV1,
+  type VNextTextBlockAuthoredBoxIntervalPlacementV1,
+  type VNextTextBlockAuthoredBoxIntervalV1,
   type VNextTextBlockAuthoredBoxGeometryResultV1,
   type VNextTextBlockAuthoredBoxLineV1,
 } from "./textBlockAuthoredBoxGeometryContractV1.js"
@@ -41,6 +46,19 @@ interface AuthoredBoxGeometryEnvelopeV1 {
 }
 
 const processLocalAuthoredBoxLayoutsV1 = new WeakSet<object>()
+
+interface ConvertedBoxGeometry {
+  outerWidthLayoutUnit: number
+  contentInsetsLayoutUnit: {
+    top: number
+    right: number
+    bottom: number
+    left: number
+  }
+  contentOriginXLayoutUnit: number
+  contentOriginYLayoutUnit: number
+  contentWidthLayoutUnit: number
+}
 
 function issue(
   code: VNextTextBlockAuthoredBoxGeometryIssueCodeV1,
@@ -111,65 +129,203 @@ function strictEnvelope(input: unknown): AuthoredBoxGeometryEnvelopeV1 | null {
   }
 }
 
-function projectZeroTranslationLines(input: {
+function convertBoxGeometry(
+  flow: VNextTextBlockInitialFlowV1,
+  request: VNextTextBlockMultiRunLayoutRequestV1,
+): ConvertedBoxGeometry | VNextTextBlockAuthoredBoxGeometryIssueV1[] {
+  const plan = flow.authoredBoxPlan
+  const outer = convertVNextPointToLayoutUnitV1(
+    plan.outerWidthPt,
+    "initialFlow.authoredBoxPlan.outerWidthPt",
+  )
+  const width = convertVNextPointToLayoutUnitV1(
+    plan.contentWidthPt,
+    "initialFlow.authoredBoxPlan.contentWidthPt",
+  )
+  const top = convertVNextPointToLayoutUnitV1(
+    plan.contentInsetPt.top,
+    "initialFlow.authoredBoxPlan.contentInsetPt.top",
+  )
+  const right = convertVNextPointToLayoutUnitV1(
+    plan.contentInsetPt.right,
+    "initialFlow.authoredBoxPlan.contentInsetPt.right",
+  )
+  const bottom = convertVNextPointToLayoutUnitV1(
+    plan.contentInsetPt.bottom,
+    "initialFlow.authoredBoxPlan.contentInsetPt.bottom",
+  )
+  const left = convertVNextPointToLayoutUnitV1(
+    plan.contentInsetPt.left,
+    "initialFlow.authoredBoxPlan.contentInsetPt.left",
+  )
+  if (
+    outer.status !== "accepted"
+    || width.status !== "accepted"
+    || top.status !== "accepted"
+    || right.status !== "accepted"
+    || bottom.status !== "accepted"
+    || left.status !== "accepted"
+    || outer.layoutUnit < 0
+    || width.layoutUnit < 0
+    || top.layoutUnit < 0
+    || right.layoutUnit < 0
+    || bottom.layoutUnit < 0
+    || left.layoutUnit < 0
+  ) return [issue(
+    "invalid-authored-box-geometry",
+    "initialFlow.authoredBoxPlan",
+    "authored box points must convert to non-negative safe layout units",
+  )]
+  const outerWidthLayoutUnit = outer.layoutUnit
+  const contentWidthLayoutUnit = width.layoutUnit
+  const contentInsetsLayoutUnit = {
+    top: top.layoutUnit,
+    right: right.layoutUnit,
+    bottom: bottom.layoutUnit,
+    left: left.layoutUnit,
+  }
+  const composedOuterWidth = safeVNextTextBlockMultiRunSumV1([
+    contentInsetsLayoutUnit.left,
+    contentWidthLayoutUnit,
+    contentInsetsLayoutUnit.right,
+  ])
+  if (composedOuterWidth == null) return [issue(
+    "unsafe-layout-arithmetic",
+    "initialFlow.authoredBoxPlan.outerWidthPt",
+    "authored box width exceeds safe layout arithmetic",
+  )]
+  if (
+    contentWidthLayoutUnit !== request.availableWidthLayoutUnit
+    || composedOuterWidth !== outerWidthLayoutUnit
+  ) return [issue(
+    "authored-box-width-mismatch",
+    "initialFlow.authoredBoxPlan",
+    "authored content width and horizontal insets must equal the request and outer width",
+  )]
+  return {
+    outerWidthLayoutUnit,
+    contentInsetsLayoutUnit,
+    contentOriginXLayoutUnit: contentInsetsLayoutUnit.left,
+    contentOriginYLayoutUnit: contentInsetsLayoutUnit.top,
+    contentWidthLayoutUnit,
+  }
+}
+
+function safeAdd(
+  left: number,
+  right: number,
+  path: string,
+): number | VNextTextBlockAuthoredBoxGeometryIssueV1 {
+  const value = left + right
+  return Number.isSafeInteger(value)
+    ? value
+    : issue(
+        "unsafe-layout-arithmetic",
+        path,
+        "authored box coordinate exceeds safe layout arithmetic",
+      )
+}
+
+function projectBoxLocalLines(input: {
   lines: Extract<
     ReturnType<typeof layoutVNextTextBlockSpatialWrappingV1>,
     { status: "accepted" }
   >["lines"]
-}): VNextTextBlockAuthoredBoxLineV1[] {
-  return input.lines.map((line) => {
-    const availableIntervals = line.availableIntervals.map((interval) => {
+  box: ConvertedBoxGeometry
+}): VNextTextBlockAuthoredBoxLineV1[] | VNextTextBlockAuthoredBoxGeometryIssueV1 {
+  const lines: VNextTextBlockAuthoredBoxLineV1[] = []
+  for (const line of input.lines) {
+    const availableIntervals: VNextTextBlockAuthoredBoxIntervalV1[] = []
+    for (const [intervalIndex, interval] of line.availableIntervals.entries()) {
+      const startLayoutUnit = safeAdd(
+        interval.startLayoutUnit,
+        input.box.contentOriginXLayoutUnit,
+        `lines[${line.index}].availableIntervals[${intervalIndex}].startLayoutUnit`,
+      )
+      if (typeof startLayoutUnit !== "number") return startLayoutUnit
+      const endLayoutUnit = safeAdd(
+        interval.endLayoutUnit,
+        input.box.contentOriginXLayoutUnit,
+        `lines[${line.index}].availableIntervals[${intervalIndex}].endLayoutUnit`,
+      )
+      if (typeof endLayoutUnit !== "number") return endLayoutUnit
       const facts = {
         contentStartLayoutUnit: interval.startLayoutUnit,
         contentEndLayoutUnit: interval.endLayoutUnit,
-        startLayoutUnit: interval.startLayoutUnit,
-        endLayoutUnit: interval.endLayoutUnit,
+        startLayoutUnit,
+        endLayoutUnit,
         contentLineFingerprint: line.fingerprint,
       }
-      return {
+      availableIntervals.push({
         ...facts,
         fingerprint: spatialFingerprintV1(facts),
-      }
-    })
-    const intervalPlacements = line.intervalPlacements.map((placement) => {
+      })
+    }
+    const intervalPlacements: VNextTextBlockAuthoredBoxIntervalPlacementV1[] = []
+    for (const [placementIndex, placement] of line.intervalPlacements.entries()) {
+      const xStartLayoutUnit = safeAdd(
+        placement.xStartLayoutUnit,
+        input.box.contentOriginXLayoutUnit,
+        `lines[${line.index}].intervalPlacements[${placementIndex}].xStartLayoutUnit`,
+      )
+      if (typeof xStartLayoutUnit !== "number") return xStartLayoutUnit
+      const xEndLayoutUnit = safeAdd(
+        placement.xEndLayoutUnit,
+        input.box.contentOriginXLayoutUnit,
+        `lines[${line.index}].intervalPlacements[${placementIndex}].xEndLayoutUnit`,
+      )
+      if (typeof xEndLayoutUnit !== "number") return xEndLayoutUnit
       const facts = {
         intervalIndex: placement.intervalIndex,
         renderStartOffset: placement.renderStartOffset,
         renderEndOffset: placement.renderEndOffset,
         contentXStartLayoutUnit: placement.xStartLayoutUnit,
         contentXEndLayoutUnit: placement.xEndLayoutUnit,
-        xStartLayoutUnit: placement.xStartLayoutUnit,
-        xEndLayoutUnit: placement.xEndLayoutUnit,
+        xStartLayoutUnit,
+        xEndLayoutUnit,
         contentLineFingerprint: line.fingerprint,
       }
-      return {
+      intervalPlacements.push({
         ...facts,
         fingerprint: spatialFingerprintV1(facts),
-      }
-    })
-    const fragments = line.fragments.map((fragment) => {
+      })
+    }
+    const fragments: VNextTextBlockAuthoredBoxFragmentV1[] = []
+    for (const [fragmentIndex, fragment] of line.fragments.entries()) {
       const {
         xLayoutUnit,
         fingerprint: contentFragmentFingerprint,
         ...retained
       } = fragment
+      const translatedX = safeAdd(
+        xLayoutUnit,
+        input.box.contentOriginXLayoutUnit,
+        `lines[${line.index}].fragments[${fragmentIndex}].xLayoutUnit`,
+      )
+      if (typeof translatedX !== "number") return translatedX
       const facts = {
         ...retained,
         contentXLayoutUnit: xLayoutUnit,
-        xLayoutUnit,
+        xLayoutUnit: translatedX,
         contentFragmentFingerprint,
       }
-      return {
+      fragments.push({
         ...facts,
         fingerprint: spatialFingerprintV1(facts),
-      }
-    })
+      })
+    }
+    const yOffsetLayoutUnit = safeAdd(
+      line.yOffsetLayoutUnit,
+      input.box.contentOriginYLayoutUnit,
+      `lines[${line.index}].yOffsetLayoutUnit`,
+    )
+    if (typeof yOffsetLayoutUnit !== "number") return yOffsetLayoutUnit
     const facts = {
       index: line.index,
       renderStartOffset: line.renderStartOffset,
       renderEndOffset: line.renderEndOffset,
       contentYOffsetLayoutUnit: line.yOffsetLayoutUnit,
-      yOffsetLayoutUnit: line.yOffsetLayoutUnit,
+      yOffsetLayoutUnit,
       heightLayoutUnit: line.heightLayoutUnit,
       baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
       availableIntervals,
@@ -179,11 +335,12 @@ function projectZeroTranslationLines(input: {
       contentRegionFingerprint: line.regionFingerprint,
       contentLineFingerprint: line.fingerprint,
     }
-    return {
+    lines.push({
       ...facts,
       fingerprint: spatialFingerprintV1(facts),
-    }
-  })
+    })
+  }
+  return lines
 }
 
 export function layoutVNextTextBlockAuthoredBoxGeometryV1(input: {
@@ -265,23 +422,35 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
     spatialInspection.message,
   ))
 
-  const lines = projectZeroTranslationLines({ lines: spatialLayout.lines })
+  const box = convertBoxGeometry(initialFlow, request)
+  if (Array.isArray(box)) return blocked(box[0]!)
+  const lines = projectBoxLocalLines({ lines: spatialLayout.lines, box })
+  if (!Array.isArray(lines)) return blocked(lines)
+  const contentExtentBottomLayoutUnit = Math.max(
+    spatialLayout.summary.heightLayoutUnit,
+    spatialIndex.summary.maximumBottomLayoutUnit,
+  )
+  const outerHeightLayoutUnit = safeVNextTextBlockMultiRunSumV1([
+    box.contentInsetsLayoutUnit.top,
+    contentExtentBottomLayoutUnit,
+    box.contentInsetsLayoutUnit.bottom,
+  ])
+  if (outerHeightLayoutUnit == null) return blocked(issue(
+    "unsafe-layout-arithmetic",
+    "geometry.outerHeightLayoutUnit",
+    "authored box height exceeds safe layout arithmetic",
+  ))
   const geometry = {
-    outerWidthLayoutUnit: binding.contentWidthLayoutUnit,
-    contentInsetsLayoutUnit: {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-    },
-    contentOriginXLayoutUnit: 0,
-    contentOriginYLayoutUnit: 0,
-    contentWidthLayoutUnit: binding.contentWidthLayoutUnit,
+    outerWidthLayoutUnit: box.outerWidthLayoutUnit,
+    contentInsetsLayoutUnit: box.contentInsetsLayoutUnit,
+    contentOriginXLayoutUnit: box.contentOriginXLayoutUnit,
+    contentOriginYLayoutUnit: box.contentOriginYLayoutUnit,
+    contentWidthLayoutUnit: box.contentWidthLayoutUnit,
     contentFlowHeightLayoutUnit: spatialLayout.summary.heightLayoutUnit,
     spatialMaximumBottomLayoutUnit:
       spatialIndex.summary.maximumBottomLayoutUnit,
-    contentExtentBottomLayoutUnit: spatialLayout.summary.heightLayoutUnit,
-    outerHeightLayoutUnit: spatialLayout.summary.heightLayoutUnit,
+    contentExtentBottomLayoutUnit,
+    outerHeightLayoutUnit,
   }
   const facts = {
     status: "accepted" as const,
