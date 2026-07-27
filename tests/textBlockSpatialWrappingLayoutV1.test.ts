@@ -538,18 +538,22 @@ describe("TextBlock spatial wrapping layout v1", () => {
       rightLayoutUnit: 60_000_000,
       bottomLayoutUnit: 100_000_000,
     })])
-    expect(layoutVNextTextBlockSpatialWrappingV1({
+    const advancedOverflow = layoutVNextTextBlockSpatialWrappingV1({
       persistentFlowTree: overflowFixture.tree,
       request: overflowFixture.request,
       spatialIndex: overflowFixture.spatialIndex,
       startYLayoutUnit: 0,
-    })).toMatchObject({
-      status: "blocked",
-      lines: null,
-      summary: null,
-      work: null,
-      fingerprint: null,
-      issues: [{ code: "unbreakable-flow-item-overflow" }],
+    })
+    expect(advancedOverflow).toMatchObject({
+      status: "accepted",
+      lines: [{
+        renderStartOffset: 0,
+        renderEndOffset: 3,
+        yOffsetLayoutUnit: 100_000_000,
+      }],
+      work: {
+        verticalAdvanceCount: 1,
+      },
     })
 
     const accepted = call()

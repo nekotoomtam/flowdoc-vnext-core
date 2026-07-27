@@ -418,11 +418,13 @@ function lineMetrics(input: {
   const metricSource = input.fragments.length === 0
     ? [input.paragraphMetrics]
     : input.fragments
-  const ascentLayoutUnit = Math.max(
-    ...metricSource.map((item) => item.ascentLayoutUnit),
+  const ascentLayoutUnit = metricSource.reduce(
+    (maximum, item) => Math.max(maximum, item.ascentLayoutUnit),
+    0,
   )
-  const descentLayoutUnit = Math.max(
-    ...metricSource.map((item) => item.descentLayoutUnit),
+  const descentLayoutUnit = metricSource.reduce(
+    (maximum, item) => Math.max(maximum, item.descentLayoutUnit),
+    0,
   )
   const naturalHeightLayoutUnit = safeVNextTextBlockMultiRunSumV1([
     ascentLayoutUnit,
@@ -619,14 +621,26 @@ export function layoutVNextTextBlockSpatialWrappingV1(input: {
         startGroupIndex: lineStartGroupIndex,
         intervals: region.intervals,
       })
-      if (placement.status === "overflow") return blocked([
-        issue(
-          "unbreakable-flow-item-overflow",
-          `groups[${lineStartGroupIndex}]`,
-          "unbreakable flow item cannot fit any available interval",
-          lineIndex,
-        ),
-      ])
+      if (placement.status === "overflow") {
+        if (
+          region.nextYLayoutUnit != null
+          && region.nextYLayoutUnit > yLayoutUnit
+        ) {
+          yLayoutUnit = region.nextYLayoutUnit
+          work.verticalAdvanceCount += 1
+          candidateHeight = baseBandHeight
+          stabilizationCount = 0
+          continue
+        }
+        return blocked([
+          issue(
+            "unbreakable-flow-item-overflow",
+            `groups[${lineStartGroupIndex}]`,
+            "unbreakable flow item cannot fit any available interval and no future exclusion event can make progress",
+            lineIndex,
+          ),
+        ])
+      }
       const fragments = createFragments({
         request: input.request,
         lineIndex,

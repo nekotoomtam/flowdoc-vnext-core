@@ -91,14 +91,14 @@ describe("TextBlock flow region provider v1", () => {
       name: "left exclusion",
       entries: [entry("left", 0, 20_000_000)],
       intervals: [{ startLayoutUnit: 20_000_000, endLayoutUnit: 100_000_000 }],
-      nextYLayoutUnit: null,
+      nextYLayoutUnit: 20_000_000,
       subtractionCount: 1,
     },
     {
       name: "right exclusion",
       entries: [entry("right", 80_000_000, 100_000_000)],
       intervals: [{ startLayoutUnit: 0, endLayoutUnit: 80_000_000 }],
-      nextYLayoutUnit: null,
+      nextYLayoutUnit: 20_000_000,
       subtractionCount: 1,
     },
     {
@@ -108,7 +108,7 @@ describe("TextBlock flow region provider v1", () => {
         { startLayoutUnit: 0, endLayoutUnit: 40_000_000 },
         { startLayoutUnit: 60_000_000, endLayoutUnit: 100_000_000 },
       ],
-      nextYLayoutUnit: null,
+      nextYLayoutUnit: 20_000_000,
       subtractionCount: 1,
     },
     {
@@ -122,7 +122,7 @@ describe("TextBlock flow region provider v1", () => {
         { startLayoutUnit: 30_000_000, endLayoutUnit: 60_000_000 },
         { startLayoutUnit: 70_000_000, endLayoutUnit: 100_000_000 },
       ],
-      nextYLayoutUnit: null,
+      nextYLayoutUnit: 20_000_000,
       subtractionCount: 2,
     },
     {

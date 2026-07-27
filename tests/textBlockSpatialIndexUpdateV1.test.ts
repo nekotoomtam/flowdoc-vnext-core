@@ -251,4 +251,121 @@ describe("TextBlock spatial index update v1", () => {
       code: "spatial-update-provenance-mismatch",
     })
   })
+
+  it("counts nodes inspected while merging both delete subtrees", () => {
+    const fixture = acceptedSpatialWrappingFixture()
+    const entries = Array.from({ length: 64 }, (_, index) => ({
+      ...fixture.entries[0],
+      objectId: `merge-${index.toString().padStart(2, "0")}`,
+      xLayoutUnit: 0,
+      yLayoutUnit: index * 3_000_000,
+      widthLayoutUnit: 1_000_000,
+      heightLayoutUnit: 1_000_000,
+    }))
+    const built = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      entries,
+    })
+    expect(built.status).toBe("accepted")
+    if (built.status !== "accepted") throw new Error("merge-count index blocked")
+    const stack = built.index.root == null
+      ? []
+      : [{ node: built.index.root, pathVisitedNodeCount: 1 }]
+    let target = stack[0]
+    while (stack.length > 0) {
+      const candidate = stack.pop()!
+      if (candidate.node.left != null && candidate.node.right != null) {
+        target = candidate
+        break
+      }
+      if (candidate.node.left != null) stack.push({
+        node: candidate.node.left,
+        pathVisitedNodeCount: candidate.pathVisitedNodeCount + 1,
+      })
+      if (candidate.node.right != null) stack.push({
+        node: candidate.node.right,
+        pathVisitedNodeCount: candidate.pathVisitedNodeCount + 1,
+      })
+    }
+    if (
+      target == null
+      || target.node.left == null
+      || target.node.right == null
+    ) throw new Error("merge-count fixture has no two-child node")
+    const result = createVNextTextBlockSpatialIndexUpdateV1({
+      previousIndex: built.index,
+      expectedPreviousIndexFingerprint: built.index.fingerprint,
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      objectId: target.node.entry.objectId,
+      geometryOwnerFingerprint: target.node.entry.geometryOwnerFingerprint,
+      nextGeometry: {
+        xLayoutUnit: target.node.entry.xLayoutUnit,
+        yLayoutUnit: target.node.entry.yLayoutUnit + 500_000,
+        widthLayoutUnit: target.node.entry.widthLayoutUnit,
+        heightLayoutUnit: target.node.entry.heightLayoutUnit,
+      },
+    })
+    expect(result.status).toBe("accepted")
+    if (result.status !== "accepted") throw new Error("merge-count update blocked")
+    expect(result.work.deleteVisitedNodeCount).toBeGreaterThan(
+      target.pathVisitedNodeCount,
+    )
+  })
+
+  it("updates only the ordinally distinct same-envelope object id", () => {
+    const fixture = acceptedSpatialWrappingFixture()
+    const entries = ["a-b", "ab"].map((objectId) => ({
+      ...fixture.entries[0],
+      objectId,
+      xLayoutUnit: 10_000_000,
+      yLayoutUnit: 10_000_000,
+      widthLayoutUnit: 10_000_000,
+      heightLayoutUnit: 10_000_000,
+    }))
+    const built = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      entries,
+    })
+    expect(built.status).toBe("accepted")
+    if (built.status !== "accepted") throw new Error("ordinal update index blocked")
+    const updated = createVNextTextBlockSpatialIndexUpdateV1({
+      previousIndex: built.index,
+      expectedPreviousIndexFingerprint: built.index.fingerprint,
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      objectId: "a-b",
+      geometryOwnerFingerprint: entries[0]!.geometryOwnerFingerprint,
+      nextGeometry: {
+        xLayoutUnit: 10_000_000,
+        yLayoutUnit: 30_000_000,
+        widthLayoutUnit: 10_000_000,
+        heightLayoutUnit: 10_000_000,
+      },
+    })
+    expect(updated.status).toBe("accepted")
+    if (updated.status !== "accepted") throw new Error("ordinal update blocked")
+    const previousBand = queryVNextTextBlockSpatialIndexV1({
+      index: updated.nextIndex,
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      band: { topLayoutUnit: 10_000_000, bottomLayoutUnit: 11_000_000 },
+    })
+    const nextBand = queryVNextTextBlockSpatialIndexV1({
+      index: updated.nextIndex,
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      band: { topLayoutUnit: 30_000_000, bottomLayoutUnit: 31_000_000 },
+    })
+    expect(previousBand.status === "accepted"
+      ? previousBand.entries.map((entry) => entry.objectId)
+      : null).toEqual(["ab"])
+    expect(nextBand.status === "accepted"
+      ? nextBand.entries.map((entry) => entry.objectId)
+      : null).toEqual(["a-b"])
+  })
 })

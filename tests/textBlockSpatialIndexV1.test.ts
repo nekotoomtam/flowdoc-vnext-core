@@ -351,4 +351,51 @@ describe("TextBlock spatial index v1", () => {
       code: "spatial-index-provenance-mismatch",
     })
   })
+
+  it("orders distinct same-envelope ids by stable ordinal code units", () => {
+    const fixture = acceptedSpatialWrappingFixture()
+    const ids = ["a-b", "ab", "é", "e\u0301"]
+    const entries = ids.map(
+      (objectId): VNextTextBlockSyntheticPositionedObjectInputV1 => ({
+        ...fixture.entries[0],
+        objectId,
+        xLayoutUnit: 10_000_000,
+        yLayoutUnit: 10_000_000,
+        widthLayoutUnit: 10_000_000,
+        heightLayoutUnit: 10_000_000,
+      }),
+    )
+    const forward = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      entries,
+    })
+    const reverse = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      entries: [...entries].reverse(),
+    })
+    expect(forward.status).toBe("accepted")
+    expect(reverse.status).toBe("accepted")
+    if (forward.status !== "accepted" || reverse.status !== "accepted") {
+      throw new Error("same-envelope id index blocked")
+    }
+    expect(forward.index).toEqual(reverse.index)
+    const queried = queryVNextTextBlockSpatialIndexV1({
+      index: forward.index,
+      persistentFlowTree: fixture.tree,
+      request: fixture.request,
+      band: { topLayoutUnit: 10_000_000, bottomLayoutUnit: 11_000_000 },
+    })
+    expect(queried.status).toBe("accepted")
+    if (queried.status !== "accepted") throw new Error("same-envelope query blocked")
+    expect(queried.entries.map((entry) => entry.objectId)).toEqual([
+      "a-b",
+      "ab",
+      "e\u0301",
+      "é",
+    ])
+  })
 })

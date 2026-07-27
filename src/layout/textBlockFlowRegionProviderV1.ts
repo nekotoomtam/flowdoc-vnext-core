@@ -336,13 +336,20 @@ export function provideVNextTextBlockFlowRegionsV1(input: {
   const flowAffectingEntries = queried.entries.filter(
     (entry) => entry.wrapPolicy !== "overlay",
   )
-  const hasBarrier = flowAffectingEntries.some(
+  const relevantFlowAffectingEntries = flowAffectingEntries.filter((entry) => (
+    entry.wrapPolicy === "top-bottom-barrier"
+    || (
+      entry.envelope.leftLayoutUnit < contentEndLayoutUnit
+      && entry.envelope.rightLayoutUnit > contentStartLayoutUnit
+    )
+  ))
+  const hasBarrier = relevantFlowAffectingEntries.some(
     (entry) => entry.wrapPolicy === "top-bottom-barrier",
   )
   const subtracted = hasBarrier
     ? { intervals: [], subtractionCount: 0 }
     : subtractRectangles({
-        entries: flowAffectingEntries,
+        entries: relevantFlowAffectingEntries,
         contentStartLayoutUnit,
         contentEndLayoutUnit,
       })
@@ -357,13 +364,16 @@ export function provideVNextTextBlockFlowRegionsV1(input: {
       "flow region intervals must be ordered, non-overlapping, in bounds, and positive width",
     ),
   ])
-  let nextYLayoutUnit: number | null = null
-  if (subtracted.intervals.length === 0) {
-    const nextEvents = flowAffectingEntries
-      .map((entry) => entry.envelope.bottomLayoutUnit)
-      .filter((bottom) => bottom > input.band.topLayoutUnit)
-    nextYLayoutUnit = nextEvents.length === 0 ? null : Math.min(...nextEvents)
-    if (nextYLayoutUnit == null) return blocked([
+  const nextYLayoutUnit = relevantFlowAffectingEntries.reduce<number | null>(
+    (minimum, entry) => {
+      const bottom = entry.envelope.bottomLayoutUnit
+      if (bottom <= input.band.topLayoutUnit) return minimum
+      return minimum == null || bottom < minimum ? bottom : minimum
+    },
+    null,
+  )
+  if (subtracted.intervals.length === 0 && nextYLayoutUnit == null) {
+    return blocked([
       issue(
         "no-vertical-progress",
         "nextYLayoutUnit",
@@ -376,7 +386,7 @@ export function provideVNextTextBlockFlowRegionsV1(input: {
     band: input.band,
     contentInsets: input.contentInsets,
     intervals: subtracted.intervals,
-    intersectingEntryFingerprints: flowAffectingEntries.map(
+    intersectingEntryFingerprints: relevantFlowAffectingEntries.map(
       (entry) => entry.fingerprint,
     ),
     nextYLayoutUnit,

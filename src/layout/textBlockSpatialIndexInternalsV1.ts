@@ -100,14 +100,20 @@ export function compareSpatialEntriesV1(
 ): number {
   return left.envelope.topLayoutUnit - right.envelope.topLayoutUnit
     || left.envelope.bottomLayoutUnit - right.envelope.bottomLayoutUnit
-    || left.objectId.localeCompare(right.objectId)
+    || compareOrdinalStringsV1(left.objectId, right.objectId)
+}
+
+function compareOrdinalStringsV1(left: string, right: string): number {
+  if (left < right) return -1
+  if (left > right) return 1
+  return 0
 }
 
 function comparePriority(
   left: VNextTextBlockSpatialIndexEntryV1,
   right: VNextTextBlockSpatialIndexEntryV1,
 ): number {
-  return left.fingerprint.localeCompare(right.fingerprint)
+  return compareOrdinalStringsV1(left.fingerprint, right.fingerprint)
     || compareSpatialEntriesV1(left, right)
 }
 
@@ -381,6 +387,7 @@ function mergeSpatialNodesV1(
 ): VNextTextBlockSpatialIndexNodeV1 | null {
   if (left == null) return right
   if (right == null) return left
+  work.visitedNodeCount += 1
   if (comparePriority(left.entry, right.entry) < 0) {
     return createTrackedSpatialNodeV1({
       entry: left.entry,
