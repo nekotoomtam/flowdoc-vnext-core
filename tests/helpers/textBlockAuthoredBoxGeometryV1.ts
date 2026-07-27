@@ -8,8 +8,13 @@ import {
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../../src/index.js"
 import {
+  emptyGeometryBuildInputFixture,
+  hardBreakOnlyGeometryBuildInputFixture,
+  imageOnlyGeometryBuildInputFixture,
   legacyTextOnlyBuildInputFixture,
   legacyTextOnlyLayoutRequestFixture,
+  listOnlyGeometryBuildInputFixture,
+  renderedEmptyFieldGeometryBuildInputFixture,
 } from "./textBlockInitialFlowV1.js"
 
 export interface AuthoredBoxGeometryFixtureOptions {
@@ -124,4 +129,20 @@ export function acceptedAuthoredBoxGeometryFixture(
     spatialIndex: spatial.index,
     authoredBoxPlan: box.plan,
   }
+}
+
+export function unsupportedAuthoredBoxGeometryInitialFlowsFixture() {
+  return [
+    listOnlyGeometryBuildInputFixture(),
+    imageOnlyGeometryBuildInputFixture(),
+    emptyGeometryBuildInputFixture(),
+    renderedEmptyFieldGeometryBuildInputFixture(),
+    hardBreakOnlyGeometryBuildInputFixture(),
+  ].map((buildInput) => {
+    const classified = createVNextTextBlockInitialFlowV1(buildInput)
+    if (classified.status !== "classified") {
+      throw new Error("unsupported Initial Flow fixture blocked")
+    }
+    return classified.flow
+  })
 }

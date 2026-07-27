@@ -10,14 +10,24 @@ import type {
 import type {
   VNextTextBlockPersistentFlowTreeV1,
 } from "./textBlockPersistentFlowContractV1.js"
+import {
+  inspectVNextTextBlockPersistentFlowTreeV1,
+} from "./textBlockPersistentFlowTreeV1.js"
+import {
+  hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1,
+} from "./textBlockPersistentFlowTreeInternalsV1.js"
 import type {
   VNextTextBlockSpatialIndexV1,
 } from "./textBlockSpatialIndexContractV1.js"
 import {
   deeplyFrozenSpatialV1,
   deepFreezeSpatialV1,
+  hasSpatialIndexBindingV1,
   spatialFingerprintV1,
 } from "./textBlockSpatialIndexInternalsV1.js"
+import {
+  inspectVNextTextBlockSpatialIndexV1,
+} from "./textBlockSpatialIndexV1.js"
 import { convertVNextPointToLayoutUnitV1 } from "./layoutUnitPolicyV1.js"
 import { safeVNextTextBlockMultiRunSumV1 } from "./textBlockMultiRunDerivationV1.js"
 import {
@@ -126,6 +136,21 @@ function strictEnvelope(input: unknown): AuthoredBoxGeometryEnvelopeV1 | null {
     return values as unknown as AuthoredBoxGeometryEnvelopeV1
   } catch {
     return null
+  }
+}
+
+function requestsProductionBinding(request: unknown): boolean {
+  try {
+    if (request == null || typeof request !== "object") return false
+    const descriptor = Object.getOwnPropertyDescriptor(
+      request,
+      "bindProductionLayout",
+    )
+    return descriptor != null
+      && Object.hasOwn(descriptor, "value")
+      && descriptor.value === true
+  } catch {
+    return false
   }
 }
 
@@ -367,31 +392,65 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
     "bindProductionLayout",
     "authored box geometry cannot bind production layout",
   ))
+  if (requestsProductionBinding(envelope.request)) return blocked(issue(
+    "production-binding-forbidden",
+    "request.bindProductionLayout",
+    "authored box geometry cannot bind production layout",
+  ))
   const binding = inspectVNextTextBlockInitialFlowRequestBindingV1({
     initialFlow: envelope.initialFlow,
     request: envelope.request,
   })
   if (binding.status !== "accepted") {
     const bindingIssue = binding.issues[0]
+    const code = binding.issues[0]?.code === "initial-flow-capability-required"
+      ? "initial-flow-capability-required"
+      : "initial-flow-request-binding-mismatch"
     return blocked(issue(
-      bindingIssue?.code === "initial-flow-capability-required"
-        ? "initial-flow-capability-required"
-        : "initial-flow-request-binding-mismatch",
+      code,
       bindingIssue?.path ?? "initialFlow",
       bindingIssue?.message ?? "Initial Flow request binding was unavailable",
     ))
   }
-  if (binding.request.bindProductionLayout === true) return blocked(issue(
-    "production-binding-forbidden",
-    "request.bindProductionLayout",
-    "authored box geometry cannot bind production layout",
-  ))
 
   const initialFlow = envelope.initialFlow as VNextTextBlockInitialFlowV1
   const persistentFlowTree =
     envelope.persistentFlowTree as VNextTextBlockPersistentFlowTreeV1
   const request = envelope.request as VNextTextBlockMultiRunLayoutRequestV1
   const spatialIndex = envelope.spatialIndex as VNextTextBlockSpatialIndexV1
+  const box = convertBoxGeometry(initialFlow, request)
+  if (Array.isArray(box)) return blocked(box[0]!)
+  const treeInspection = inspectVNextTextBlockPersistentFlowTreeV1(
+    persistentFlowTree,
+  )
+  if (
+    treeInspection.status !== "valid"
+    || !hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1(
+      persistentFlowTree,
+      request,
+    )
+  ) return blocked(issue(
+    "flow-tree-request-binding-mismatch",
+    treeInspection.status === "valid" ? "request" : "persistentFlowTree",
+    treeInspection.status === "valid"
+      ? "authored box geometry requires the exact unchanged request bound to the persistent flow tree"
+      : treeInspection.message,
+  ))
+  const indexInspection = inspectVNextTextBlockSpatialIndexV1(spatialIndex)
+  if (
+    indexInspection.status !== "valid"
+    || !hasSpatialIndexBindingV1({
+      index: spatialIndex,
+      persistentFlowTree,
+      request,
+    })
+  ) return blocked(issue(
+    "spatial-index-binding-mismatch",
+    "spatialIndex",
+    indexInspection.status === "valid"
+      ? "authored box geometry requires the exact spatial index bound to the persistent flow tree and request"
+      : indexInspection.message,
+  ))
   const spatialLayout = layoutVNextTextBlockSpatialWrappingV1({
     persistentFlowTree,
     request,
@@ -399,19 +458,13 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
     startYLayoutUnit: 0,
   })
   if (spatialLayout.status !== "accepted") {
-    const spatialIssue = spatialLayout.issues[0]
-    const code = spatialIssue?.code === "production-binding-forbidden"
-      ? "production-binding-forbidden"
-      : spatialIssue?.code === "flow-tree-provenance-mismatch"
-          || spatialIssue?.code === "flow-tree-request-binding-mismatch"
-        ? "flow-tree-request-binding-mismatch"
-        : spatialIssue?.code === "spatial-index-binding-mismatch"
-          ? "spatial-index-binding-mismatch"
-          : "spatial-layout-blocked"
+    const orderedCodes = spatialLayout.issues.map((item) => item.code)
     return blocked(issue(
-      code,
-      spatialIssue?.path ?? "spatialLayout",
-      spatialIssue?.message ?? "spatial wrapping layout was unavailable",
+      "spatial-layout-blocked",
+      "spatialLayout",
+      `Phase 3 spatial wrapping blocked with ordered issue codes: ${
+        orderedCodes.join(", ")
+      }`,
     ))
   }
   const spatialInspection =
@@ -422,8 +475,6 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
     spatialInspection.message,
   ))
 
-  const box = convertBoxGeometry(initialFlow, request)
-  if (Array.isArray(box)) return blocked(box[0]!)
   const lines = projectBoxLocalLines({ lines: spatialLayout.lines, box })
   if (!Array.isArray(lines)) return blocked(lines)
   const contentExtentBottomLayoutUnit = Math.max(
