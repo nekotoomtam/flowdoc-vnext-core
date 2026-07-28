@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
@@ -78,6 +79,15 @@ function spatialEntry(input: {
 }
 
 describe("TextBlock spatial wrapping layout v1", () => {
+  it("delegates break grouping and line stabilization to the shared internal kernel", () => {
+    const v1Source = readFileSync(new URL("../src/layout/textBlockSpatialWrappingLayoutV1.ts", import.meta.url), "utf8")
+    const kernelSource = readFileSync(new URL("../src/layout/textBlockSpatialWrappingKernelV1.ts", import.meta.url), "utf8")
+    expect(v1Source).toContain("runVNextTextBlockSpatialWrappingKernelV1")
+    expect(v1Source).toContain("createVNextTextBlockBreakGroupsKernelV1")
+    expect(kernelSource).toContain("placeVNextTextBlockBreakGroupsKernelV1")
+    expect(kernelSource).toContain("lineBandRequeryCount")
+    expect(v1Source).not.toContain("while (groupIndex < projection.groups.length)")
+  })
   it("preserves accepted one-line geometry and uses the no-exclusion fast path", () => {
     const fixture = layoutFixture(legacyTextOnlyLayoutRequestFixture(), [])
     const result = layoutVNextTextBlockSpatialWrappingV1({

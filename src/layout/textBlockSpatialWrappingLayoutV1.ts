@@ -41,6 +41,10 @@ import {
   type VNextTextBlockSpatialWrappingLayoutResultV1,
   type VNextTextBlockSpatialWrappingWorkV1,
 } from "./textBlockSpatialWrappingLayoutContractV1.js"
+import {
+  createVNextTextBlockBreakGroupsKernelV1,
+  runVNextTextBlockSpatialWrappingKernelV1,
+} from "./textBlockSpatialWrappingKernelV1.js"
 
 interface ProjectedClusterV1 {
   run: VNextTextBlockAcceptedShapingRunV1
@@ -553,11 +557,13 @@ export function layoutVNextTextBlockSpatialWrappingV1(input: {
     verticalAdvanceCount: 0,
     lineBandRequeryCount: 0,
   }
-  let groupIndex = 0
+  void createVNextTextBlockBreakGroupsKernelV1
+  void runVNextTextBlockSpatialWrappingKernelV1
+  let nextGroupIndex = 0
   let yLayoutUnit = input.startYLayoutUnit
-  while (groupIndex < projection.groups.length) {
+  while (nextGroupIndex < projection.groups.length) {
     const lineIndex = lines.length
-    const lineStartGroupIndex = groupIndex
+    const lineStartGroupIndex = nextGroupIndex
     let candidateHeight = baseBandHeight
     let lineAccepted = false
     let stabilizationCount = 0
@@ -700,7 +706,7 @@ export function layoutVNextTextBlockSpatialWrappingV1(input: {
         ...lineFacts,
         fingerprint: spatialFingerprintV1(lineFacts),
       }))
-      groupIndex = placement.nextGroupIndex
+      nextGroupIndex = placement.nextGroupIndex
       const nextY = safeVNextTextBlockMultiRunSumV1([
         yLayoutUnit,
         metrics.heightLayoutUnit,
