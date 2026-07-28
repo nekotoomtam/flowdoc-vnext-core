@@ -66,27 +66,27 @@ export function createVNextTextBlockSpatialIndexUpdateV2(input: unknown): VNextT
 export function createVNextTextBlockSpatialIndexUpdateV2(input: unknown): VNextTextBlockSpatialIndexUpdateResultV2 {
   const envelope = exactUpdateInput(input)
   if (envelope == null) return blocked([issue("invalid-input", "input", "spatial V2 update requires an exact accessor-free data envelope")])
-  input = envelope
-  if (inspectVNextTextBlockSpatialIndexV2(input.previousIndex).status !== "valid" || !hasSpatialIndexBindingV2({ ...input, index: input.previousIndex })) return blocked([issue("spatial-index-binding-mismatch", "previousIndex", "spatial V2 update requires the exact authority-bound prior index")])
-  if (input.expectedPreviousIndexFingerprint !== input.previousIndex.fingerprint) return blocked([issue("spatial-index-stale", "expectedPreviousIndexFingerprint", "expected previous spatial index fingerprint is stale")])
-  const entries = getSpatialIndexEntriesV2(input.previousIndex)
-  const previousEntry = entries?.get(input.objectId)
-  if (previousEntry == null) return blocked([issue("spatial-object-not-found", "objectId", `positioned object \"${input.objectId}\" was not found`, input.objectId)])
-  if (input.geometryOwnerFingerprint !== previousEntry.geometryOwnerFingerprint) return blocked([issue("spatial-owner-mismatch", "geometryOwnerFingerprint", "positioned object geometry owner fingerprint does not match", input.objectId)])
-  const created = createSpatialEntryV1({ value: { objectId: previousEntry.objectId, geometryOwnerFingerprint: previousEntry.geometryOwnerFingerprint, ...input.nextGeometry, clearance: previousEntry.clearance, wrapPolicy: previousEntry.wrapPolicy }, contentRightLayoutUnit: input.previousIndex.contentRightLayoutUnit, path: "nextGeometry" })
+  const acceptedInput = envelope
+  if (inspectVNextTextBlockSpatialIndexV2(acceptedInput.previousIndex).status !== "valid" || !hasSpatialIndexBindingV2({ ...acceptedInput, index: acceptedInput.previousIndex })) return blocked([issue("spatial-index-binding-mismatch", "previousIndex", "spatial V2 update requires the exact authority-bound prior index")])
+  if (acceptedInput.expectedPreviousIndexFingerprint !== acceptedInput.previousIndex.fingerprint) return blocked([issue("spatial-index-stale", "expectedPreviousIndexFingerprint", "expected previous spatial index fingerprint is stale")])
+  const entries = getSpatialIndexEntriesV2(acceptedInput.previousIndex)
+  const previousEntry = entries?.get(acceptedInput.objectId)
+  if (previousEntry == null) return blocked([issue("spatial-object-not-found", "objectId", `positioned object \"${acceptedInput.objectId}\" was not found`, acceptedInput.objectId)])
+  if (acceptedInput.geometryOwnerFingerprint !== previousEntry.geometryOwnerFingerprint) return blocked([issue("spatial-owner-mismatch", "geometryOwnerFingerprint", "positioned object geometry owner fingerprint does not match", acceptedInput.objectId)])
+  const created = createSpatialEntryV1({ value: { objectId: previousEntry.objectId, geometryOwnerFingerprint: previousEntry.geometryOwnerFingerprint, ...acceptedInput.nextGeometry, clearance: previousEntry.clearance, wrapPolicy: previousEntry.wrapPolicy }, contentRightLayoutUnit: acceptedInput.previousIndex.contentRightLayoutUnit, path: "nextGeometry" })
   if (created.status === "blocked") return blocked([issue(created.issue.code, created.issue.path, created.issue.message, created.issue.objectId)])
-  if (created.entry.fingerprint === previousEntry.fingerprint) return blocked([issue("no-spatial-change", "nextGeometry", "spatial update must change positioned-object geometry", input.objectId)])
-  const kernel = updateVNextTextBlockSpatialIndexRootKernelV1({ root: input.previousIndex.root, previousEntry, nextEntry: created.entry, materializeNode: materializeVNextTextBlockSpatialIndexNodeV2 })
-  const authority = getVNextTextBlockV2LayoutAuthorityInternalV1(input)
+  if (created.entry.fingerprint === previousEntry.fingerprint) return blocked([issue("no-spatial-change", "nextGeometry", "spatial update must change positioned-object geometry", acceptedInput.objectId)])
+  const kernel = updateVNextTextBlockSpatialIndexRootKernelV1({ root: acceptedInput.previousIndex.root, previousEntry, nextEntry: created.entry, materializeNode: materializeVNextTextBlockSpatialIndexNodeV2 })
+  const authority = getVNextTextBlockV2LayoutAuthorityInternalV1(acceptedInput)
   if (authority == null || entries == null) return blocked([issue("layout-authority-mismatch", "persistentFlowTree", "spatial V2 update requires the retained V2 layout authority")])
   const nextEntries = new Map(entries)
-  nextEntries.set(input.objectId, created.entry)
-  const nextIndex = createSpatialIndexFromRootV2({ initialFlow: input.initialFlow, evidence: input.evidence, persistentFlowTree: input.persistentFlowTree, root: kernel.root, authority, entries: nextEntries })
+  nextEntries.set(acceptedInput.objectId, created.entry)
+  const nextIndex = createSpatialIndexFromRootV2({ initialFlow: acceptedInput.initialFlow, evidence: acceptedInput.evidence, persistentFlowTree: acceptedInput.persistentFlowTree, root: kernel.root, authority, entries: nextEntries })
   const work = { deleteVisitedNodeCount: kernel.deleteVisitedNodeCount, insertVisitedNodeCount: kernel.insertVisitedNodeCount, createdNodeCount: kernel.createdNodeCount, completeIndexRebuildCount: 0 as const }
-  const facts = { source: "vnext-text-block-spatial-index-update-v2" as const, contractVersion: 2 as const, previousIndexFingerprint: input.previousIndex.fingerprint, nextIndexFingerprint: nextIndex.fingerprint, geometryOwnerFingerprint: input.geometryOwnerFingerprint, affectedBands: affectedBands({ topLayoutUnit: previousEntry.envelope.topLayoutUnit, bottomLayoutUnit: previousEntry.envelope.bottomLayoutUnit }, { topLayoutUnit: created.entry.envelope.topLayoutUnit, bottomLayoutUnit: created.entry.envelope.bottomLayoutUnit }), work, mayPublishLayout: false as const, productionBinding: false as const }
+  const facts = { source: "vnext-text-block-spatial-index-update-v2" as const, contractVersion: 2 as const, previousIndexFingerprint: acceptedInput.previousIndex.fingerprint, nextIndexFingerprint: nextIndex.fingerprint, geometryOwnerFingerprint: acceptedInput.geometryOwnerFingerprint, affectedBands: affectedBands({ topLayoutUnit: previousEntry.envelope.topLayoutUnit, bottomLayoutUnit: previousEntry.envelope.bottomLayoutUnit }, { topLayoutUnit: created.entry.envelope.topLayoutUnit, bottomLayoutUnit: created.entry.envelope.bottomLayoutUnit }), work, mayPublishLayout: false as const, productionBinding: false as const }
   const canonicalFacts = stringifyVNextCanonicalJson(facts)
   const update = deepFreezeSpatialV2({ ...facts, fingerprint: fingerprintV2(facts) })
-  updates.set(update, { previousIndex: input.previousIndex, nextIndex, canonicalFacts, fingerprint: update.fingerprint })
+  updates.set(update, { previousIndex: acceptedInput.previousIndex, nextIndex, canonicalFacts, fingerprint: update.fingerprint })
   return { status: "accepted", update, nextIndex, issues: [] }
 }
 
