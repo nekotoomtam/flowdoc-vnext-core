@@ -17,6 +17,9 @@ inline images. An image is unbreakable, uses its resolved authored frame as its
 advance, participates in line-box metrics and spatial wrapping, and projects
 into the authored box beside text.
 
+Every accepted Phase 4B output retains `mayPublishLayout: false`,
+`productionBinding: false`, and `stagedEditorApply: false`.
+
 Accepted task evidence is recorded by ranges rather than an invented task
 commit count: `93a34be..576f660` (plan and line metrics),
 `3e9c3d9..3a42cde` (producer evidence), `226c6d1..fd62f7d` (shared rope and
@@ -77,7 +80,10 @@ contract.
 The exact upstream Initial Flow/evidence provenance is required and no MR1-Q,
 reuse, or reconvergence claim is made. Stale, cloned, structurally equal
 replacement, accessor-shaped, proxy-shaped, mutable, re-fingerprinted, altered
-dependency, and production-bound inputs fail closed with no partial tree.
+dependency, and production-bound inputs fail closed with no partial persistent
+tree, root, summary, or fingerprint. Accepted persistent results retain
+`mayPublishLayout: false`, `productionBinding: false`, and
+`stagedEditorApply: false`.
 
 ## Spatial Wrapping Evidence
 
@@ -103,8 +109,8 @@ that update facts expose neither counter.
 The exact tree/index/update/provider/layout authorities are required. The same
 named stale, cloned, structurally equal replacement, accessor-shaped,
 proxy-shaped, mutable, re-fingerprinted, altered dependency, and
-production-bound attacks fail closed with no partial intervals, lines, or work.
-Accepted spatial results retain `mayPublishLayout: false`,
+production-bound attacks fail closed with no partial spatial intervals, lines,
+work, or fingerprint. Accepted spatial results retain `mayPublishLayout: false`,
 `productionBinding: false`, and `stagedEditorApply: false`.
 
 ## Authored Box Evidence
@@ -123,8 +129,8 @@ fabricating geometry.
 The exact spatial result, plan, and parent dependencies are required. The same
 named stale, cloned, structurally equal replacement, accessor-shaped,
 proxy-shaped, mutable, re-fingerprinted, altered dependency, and
-production-bound attacks fail closed with null geometry, lines, summary, and
-fingerprint; accepted box results retain `mayPublishLayout: false`,
+production-bound attacks fail closed with no partial authored geometry, lines,
+summary, or fingerprint; accepted box results retain `mayPublishLayout: false`,
 `productionBinding: false`, and `stagedEditorApply: false`.
 
 ## PASS
@@ -172,7 +178,7 @@ Focused command:
 npx vitest run tests/liveDraftMr1InlineImageGeometry4b.test.ts tests/textEngineFlowEvidenceNodeWasmV2.test.ts tests/textBlockFlowEvidenceV2.test.ts tests/textBlockPersistentFlowTreeV2.test.ts tests/textBlockSpatialIndexV2.test.ts tests/textBlockFlowRegionProviderV2.test.ts tests/textBlockSpatialWrappingLayoutV2.test.ts tests/textBlockAuthoredBoxGeometryV2.test.ts tests/textBlockInlineImageGeometry4bHardening.test.ts tests/textBlockV1LayoutCompatibility.test.ts
 ```
 
-Final focused output: 10 test files passed and 119 tests passed.
+Final focused output: 10 test files passed and 126 tests passed.
 
 ```text
 npm run type-check
@@ -180,7 +186,7 @@ git diff --check
 npm run check
 ```
 
-Final full `npm run check` output: 434 test files passed and 2,296 tests
+Final full `npm run check` output: 434 test files passed and 2,303 tests
 passed, including type-check. The final staged diff check and worktree status
 are also recorded in the Task 12 report.
 
