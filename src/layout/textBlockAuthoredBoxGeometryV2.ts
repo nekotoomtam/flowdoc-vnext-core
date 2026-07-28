@@ -37,6 +37,10 @@ import {
   inspectVNextTextBlockSpatialWrappingLayoutV2,
   layoutVNextTextBlockSpatialWrappingV2,
 } from "./textBlockSpatialWrappingLayoutV2.js"
+import type {
+  VNextTextBlockSpatialInlineImageFragmentV2,
+  VNextTextBlockSpatialTextFragmentV2,
+} from "./textBlockSpatialWrappingLayoutContractV2.js"
 import type { VNextTextBlockAuthoredBoxGeometryIssueV1 } from "./textBlockAuthoredBoxGeometryContractV1.js"
 
 interface AuthoredBoxGeometryEnvelopeV2 {
@@ -48,6 +52,15 @@ interface AuthoredBoxGeometryEnvelopeV2 {
 }
 
 const layouts = new WeakMap<object, { canonicalFacts: string; fingerprint: string }>()
+
+type V2TextRetainedFragment = Omit<
+  VNextTextBlockSpatialTextFragmentV2,
+  "xLayoutUnit" | "fingerprint"
+>
+type V2InlineImageRetainedFragment = Omit<
+  VNextTextBlockSpatialInlineImageFragmentV2,
+  "xLayoutUnit" | "yLayoutUnit" | "fingerprint"
+>
 
 function issue(
   code: VNextTextBlockAuthoredBoxGeometryIssueV1["code"],
@@ -151,7 +164,10 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNext
   if (spatialLayout.status !== "accepted") return blocked(issue("spatial-layout-blocked", "spatialLayout", `V2 spatial wrapping blocked with ordered issue codes: ${spatialLayout.issues.map((item) => item.code).join(", ")}`))
   const spatialInspection = inspectVNextTextBlockSpatialWrappingLayoutV2(spatialLayout)
   if (spatialInspection.status !== "valid") return blocked(issue("spatial-layout-provenance-mismatch", "spatialLayout", spatialInspection.message))
-  const projection = projectVNextTextBlockAuthoredBoxGeometryKernelV1({
+  const projection = projectVNextTextBlockAuthoredBoxGeometryKernelV1<
+    V2TextRetainedFragment,
+    V2InlineImageRetainedFragment
+  >({
     lines: projectVNextTextBlockAuthoredBoxLinesKernelV1({
       lines: spatialLayout.lines,
     contentOriginXLayoutUnit: box.contentOriginXLayoutUnit,
@@ -187,7 +203,7 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNext
     contentOriginYLayoutUnit: box.contentOriginYLayoutUnit,
   })
   if (projection.status !== "accepted") return blocked(projection.issues[0]!)
-  const lines = projection.lines as readonly VNextTextBlockAuthoredBoxLineV2[]
+  const lines: readonly VNextTextBlockAuthoredBoxLineV2[] = projection.lines
   const autoHeight = deriveVNextTextBlockAuthoredBoxAutoHeightKernelV1({
     topInsetLayoutUnit: box.contentInsetsLayoutUnit.top,
     bottomInsetLayoutUnit: box.contentInsetsLayoutUnit.bottom,

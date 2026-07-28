@@ -141,22 +141,47 @@ export function projectVNextTextBlockAuthoredBoxLinesKernelV1<TLine, TOutput>(in
   return input.lines.map((line) => input.projectLine(line, origin))
 }
 
-export type VNextTextBlockAuthoredBoxProjectionFragmentKernelInputV1 =
+export type VNextTextBlockAuthoredBoxProjectionFragmentKernelInputV1<
+  TTextRetained extends object,
+  TImageRetained extends object,
+> =
   | {
       kind: "text"
       contentXLayoutUnit: number
       contentFragmentFingerprint: string
-      retained: Record<string, unknown>
+      retained: TTextRetained
     }
   | {
       kind: "inline-image"
       contentXLayoutUnit: number
       contentYLayoutUnit: number
       contentFragmentFingerprint: string
-      retained: Record<string, unknown>
+      retained: TImageRetained
     }
 
-export interface VNextTextBlockAuthoredBoxProjectionLineKernelInputV1 {
+export type VNextTextBlockAuthoredBoxProjectionFragmentKernelOutputV1<
+  TTextRetained extends object,
+  TImageRetained extends object,
+> =
+  | (TTextRetained & {
+      contentXLayoutUnit: number
+      xLayoutUnit: number
+      contentFragmentFingerprint: string
+      fingerprint: string
+    })
+  | (TImageRetained & {
+      contentXLayoutUnit: number
+      contentYLayoutUnit: number
+      xLayoutUnit: number
+      yLayoutUnit: number
+      contentFragmentFingerprint: string
+      fingerprint: string
+    })
+
+export interface VNextTextBlockAuthoredBoxProjectionLineKernelInputV1<
+  TTextRetained extends object,
+  TImageRetained extends object,
+> {
   index: number
   renderStartOffset: number
   renderEndOffset: number
@@ -171,13 +196,19 @@ export interface VNextTextBlockAuthoredBoxProjectionLineKernelInputV1 {
     xStartLayoutUnit: number
     xEndLayoutUnit: number
   }[]
-  fragments: readonly VNextTextBlockAuthoredBoxProjectionFragmentKernelInputV1[]
+  fragments: readonly VNextTextBlockAuthoredBoxProjectionFragmentKernelInputV1<
+    TTextRetained,
+    TImageRetained
+  >[]
   sourceSegments: readonly VNextTextBlockMultiRunSourceSegmentV1[]
   contentRegionFingerprint: string
   contentLineFingerprint: string
 }
 
-export interface VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1 {
+export interface VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1<
+  TTextRetained extends object,
+  TImageRetained extends object,
+> {
   index: number
   renderStartOffset: number
   renderEndOffset: number
@@ -187,17 +218,26 @@ export interface VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1 {
   baselineOffsetLayoutUnit: number
   availableIntervals: readonly VNextTextBlockAuthoredBoxIntervalV1[]
   intervalPlacements: readonly VNextTextBlockAuthoredBoxIntervalPlacementV1[]
-  fragments: readonly Record<string, unknown>[]
+  fragments: readonly VNextTextBlockAuthoredBoxProjectionFragmentKernelOutputV1<
+    TTextRetained,
+    TImageRetained
+  >[]
   sourceSegments: readonly VNextTextBlockMultiRunSourceSegmentV1[]
   contentRegionFingerprint: string
   contentLineFingerprint: string
   fingerprint: string
 }
 
-export type VNextTextBlockAuthoredBoxProjectionKernelResultV1 =
+export type VNextTextBlockAuthoredBoxProjectionKernelResultV1<
+  TTextRetained extends object,
+  TImageRetained extends object,
+> =
   | {
       status: "accepted"
-      lines: readonly VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1[]
+      lines: readonly VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1<
+        TTextRetained,
+        TImageRetained
+      >[]
       issues: []
     }
   | {
@@ -217,12 +257,24 @@ function safeAdd(
     : issue("unsafe-layout-arithmetic", path, "authored box coordinate exceeds safe layout arithmetic")
 }
 
-export function projectVNextTextBlockAuthoredBoxGeometryKernelV1(input: {
-  lines: readonly VNextTextBlockAuthoredBoxProjectionLineKernelInputV1[]
+export function projectVNextTextBlockAuthoredBoxGeometryKernelV1<
+  TTextRetained extends object,
+  TImageRetained extends object,
+>(input: {
+  lines: readonly VNextTextBlockAuthoredBoxProjectionLineKernelInputV1<
+    TTextRetained,
+    TImageRetained
+  >[]
   contentOriginXLayoutUnit: number
   contentOriginYLayoutUnit: number
-}): VNextTextBlockAuthoredBoxProjectionKernelResultV1 {
-  const lines: VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1[] = []
+}): VNextTextBlockAuthoredBoxProjectionKernelResultV1<
+  TTextRetained,
+  TImageRetained
+> {
+  const lines: VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1<
+    TTextRetained,
+    TImageRetained
+  >[] = []
   for (const line of input.lines) {
     const availableIntervals: VNextTextBlockAuthoredBoxIntervalV1[] = []
     for (const [index, interval] of line.availableIntervals.entries()) {
@@ -257,7 +309,10 @@ export function projectVNextTextBlockAuthoredBoxGeometryKernelV1(input: {
       }
       intervalPlacements.push({ ...facts, fingerprint: spatialFingerprintV1(facts) })
     }
-    const fragments: Record<string, unknown>[] = []
+    const fragments: VNextTextBlockAuthoredBoxProjectionFragmentKernelOutputV1<
+      TTextRetained,
+      TImageRetained
+    >[] = []
     for (const [index, fragment] of line.fragments.entries()) {
       const xLayoutUnit = safeAdd(fragment.contentXLayoutUnit, input.contentOriginXLayoutUnit, `lines[${line.index}].fragments[${index}].xLayoutUnit`)
       if (typeof xLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [xLayoutUnit] }

@@ -6,6 +6,7 @@ import {
 } from "./textBlockInitialFlowRequestBindingV1.js"
 import type {
   VNextTextBlockMultiRunLayoutRequestV1,
+  VNextTextBlockPositionedFragmentV1,
 } from "./textBlockMultiRunLayoutContractV1.js"
 import type {
   VNextTextBlockPersistentFlowTreeV1,
@@ -62,6 +63,11 @@ const processLocalAuthoredBoxLayoutsV1 = new WeakSet<object>()
 type ConvertedBoxGeometry = Extract<
   VNextTextBlockAuthoredBoxKernelConversionResultV1,
   { status: "accepted" }
+>
+
+type V1TextRetainedFragment = Omit<
+  VNextTextBlockPositionedFragmentV1,
+  "xLayoutUnit" | "fingerprint"
 >
 
 function issue(
@@ -154,8 +160,11 @@ function projectBoxLocalLines(input: {
     { status: "accepted" }
   >["lines"]
   box: ConvertedBoxGeometry
-}): VNextTextBlockAuthoredBoxLineV1[] | VNextTextBlockAuthoredBoxGeometryIssueV1 {
-  const projection = projectVNextTextBlockAuthoredBoxGeometryKernelV1({
+}): readonly VNextTextBlockAuthoredBoxLineV1[] | VNextTextBlockAuthoredBoxGeometryIssueV1 {
+  const projection = projectVNextTextBlockAuthoredBoxGeometryKernelV1<
+    V1TextRetainedFragment,
+    never
+  >({
     lines: projectVNextTextBlockAuthoredBoxLinesKernelV1({
     lines: input.lines,
     contentOriginXLayoutUnit: input.box.contentOriginXLayoutUnit,
@@ -181,9 +190,7 @@ function projectBoxLocalLines(input: {
     contentOriginXLayoutUnit: input.box.contentOriginXLayoutUnit,
     contentOriginYLayoutUnit: input.box.contentOriginYLayoutUnit,
   })
-  return projection.status === "accepted"
-    ? projection.lines as VNextTextBlockAuthoredBoxLineV1[]
-    : projection.issues[0]!
+  return projection.status === "accepted" ? projection.lines : projection.issues[0]!
 }
 
 export function layoutVNextTextBlockAuthoredBoxGeometryV1(input: {
