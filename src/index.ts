@@ -81,6 +81,11 @@ export {
 } from "./layout/textBlockFlowRegionProviderV2.js"
 export * from "./layout/textBlockSpatialWrappingLayoutContractV1.js"
 export * from "./layout/textBlockSpatialWrappingLayoutV1.js"
+export * from "./layout/textBlockSpatialWrappingLayoutContractV2.js"
+export {
+  layoutVNextTextBlockSpatialWrappingV2,
+  inspectVNextTextBlockSpatialWrappingLayoutV2,
+} from "./layout/textBlockSpatialWrappingLayoutV2.js"
 export * from "./layout/textBlockAuthoredBoxGeometryContractV1.js"
 export * from "./layout/textBlockAuthoredBoxGeometryV1.js"
 export * from "./authoring/editableSession.js"

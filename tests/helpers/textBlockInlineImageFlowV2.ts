@@ -10,16 +10,28 @@ import {
   type VNextTextBlockSyntheticPositionedObjectInputV1,
   type VNextTextBlockV4MeasurementRun,
 } from "../../src/index.js"
-import { listImageGeometryBuildInputFixture } from "./textBlockInitialFlowV1.js"
+import {
+  completeTextGeometryBuildInputFixture,
+  listImageGeometryBuildInputFixture,
+} from "./textBlockInitialFlowV1.js"
 
 export interface InlineImageFlowFixtureOptions {
-  content?: "image-only" | "text-image-text" | "text-image-text-break" | "adjacent-images" | "adjacent-text" | "text-only"
+  content?:
+    | "image-only"
+    | "text-image-text"
+    | "text-image-text-break"
+    | "adjacent-images"
+    | "adjacent-text"
+    | "text-only"
+    | "thai-image-latin"
+    | "field-image-page-break"
   verticalAlign?: "baseline" | "middle" | "text-bottom"
   width?: UnitValueV4Target
   height?: UnitValueV4Target
   fit?: "contain" | "cover"
   crop?: { x: number; y: number; width: number; height: number }
   assetId?: string | null
+  mixedTextSizes?: boolean
   breakOffsets?: readonly number[]
   entries?: readonly VNextTextBlockSyntheticPositionedObjectInputV1[]
 }
@@ -112,6 +124,20 @@ export function acceptedInlineImageEvidenceFixture(
     ...image,
     id: "image-2",
   }
+  const thai = { ...sourceText, id: "text-thai", text: "ก" }
+  const latin = {
+    ...sourceText,
+    id: "text-latin",
+    text: "Z",
+    ...(options.mixedTextSizes
+      ? { style: { fontSize: { value: 24, unit: "pt" as const } } }
+      : {}),
+  }
+  const completeText = completeTextGeometryBuildInputFixture()
+  const field = completeText.textBlock.children[1]
+  const page = completeText.textBlock.children[2]
+  const fieldRun = completeText.measurement.runs[1]
+  const pageRun = completeText.measurement.runs[2]
 
   let children
   let runs: VNextTextBlockV4MeasurementRun[]
@@ -132,6 +158,42 @@ export function acceptedInlineImageEvidenceFixture(
     runs = [
       { ...textARun, inlineId: textF.id, renderStartOffset: 0, renderEndOffset: 1, renderedText: "f" },
       { ...textARun, inlineId: textI.id, renderStartOffset: 1, renderEndOffset: 2, renderedText: "i" },
+    ]
+  } else if (content === "thai-image-latin") {
+    children = [thai, image, latin]
+    runs = [
+      { ...textARun, inlineId: thai.id, renderStartOffset: 0, renderEndOffset: 1, renderedText: "ก" },
+      { ...imageRun, renderStartOffset: 1, renderEndOffset: 2 },
+      {
+        ...textARun,
+        inlineId: latin.id,
+        renderStartOffset: 2,
+        renderEndOffset: 3,
+        renderedText: "Z",
+        ...(options.mixedTextSizes
+          ? { localStyle: { fontSize: { value: 24, unit: "pt" as const } } }
+          : {}),
+      },
+    ]
+  } else if (
+    content === "field-image-page-break"
+    && field?.type === "field-ref"
+    && page?.type === "page-number"
+    && fieldRun?.kind === "resolved-field"
+    && pageRun?.kind === "generated-page-number"
+  ) {
+    children = [field, image, page, hardBreak]
+    runs = [
+      { ...fieldRun, renderStartOffset: 0, renderEndOffset: 1 },
+      { ...imageRun, renderStartOffset: 1, renderEndOffset: 2 },
+      { ...pageRun, renderStartOffset: 2, renderEndOffset: 3 },
+      {
+        inlineId: hardBreak.id,
+        kind: "hard-break",
+        renderStartOffset: 3,
+        renderEndOffset: 4,
+        renderedText: "\n",
+      },
     ]
   } else if (content === "text-image-text-break") {
     children = [textA, image, textB, hardBreak]
