@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs"
+import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
 import {
   collectVNextTextBlockSpatialIndexNodesForQaV1,
@@ -13,6 +14,72 @@ import {
   acceptedSpatialWrappingFixture,
   SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
 } from "./helpers/textBlockSpatialWrappingV1.js"
+
+function updateWrapperOwnershipViolations(source: string): readonly string[] {
+  const file = ts.createSourceFile("update-wrapper.ts", source, ts.ScriptTarget.Latest, true)
+  const violations: string[] = []
+  const calledNames = (node: ts.Node): readonly string[] => {
+    const names: string[] = []
+    const visit = (child: ts.Node): void => {
+      if (ts.isCallExpression(child) && ts.isIdentifier(child.expression)) {
+        names.push(child.expression.text)
+      }
+      ts.forEachChild(child, visit)
+    }
+    visit(node)
+    return names
+  }
+  const visit = (node: ts.Node): void => {
+    if (ts.isObjectLiteralExpression(node)) {
+      const names = new Set(node.properties.flatMap((property) => (
+        ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)
+          ? [property.name.getText()]
+          : []
+      )))
+      if (names.has("entry") && names.has("left") && names.has("right")) {
+        violations.push("node topology materialization")
+      }
+    }
+    if (ts.isBinaryExpression(node) && [
+      ts.SyntaxKind.PlusEqualsToken,
+      ts.SyntaxKind.MinusEqualsToken,
+    ].includes(node.operatorToken.kind)) {
+      const text = node.left.getText()
+      if (/createdNodeCount|visitedNodeCount/u.test(text)) violations.push("work accounting")
+    }
+    if (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) {
+      const text = node.operand.getText()
+      if (/createdNodeCount|visitedNodeCount/u.test(text)) violations.push("work accounting")
+    }
+    if (ts.isFunctionDeclaration(node) && node.name != null && node.body != null) {
+      const calls = calledNames(node.body)
+      const topology = ["left", "right"].every((name) => {
+        let found = false
+        const scan = (child: ts.Node): void => {
+          if (ts.isPropertyAccessExpression(child) && child.name.text === name) found = true
+          ts.forEachChild(child, scan)
+        }
+        scan(node.body!)
+        return found
+      })
+      if (calls.includes(node.name.text) && topology) violations.push("recursive path-copy")
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(file)
+  return violations
+}
+
+function calledNames(source: string): readonly string[] {
+  const file = ts.createSourceFile("update-calls.ts", source, ts.ScriptTarget.Latest, true)
+  const names: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) names.push(node.expression.text)
+    ts.forEachChild(node, visit)
+  }
+  visit(file)
+  return names
+}
 
 function movableSpatialIndexFixture() {
   const fixture = acceptedSpatialWrappingFixture()
@@ -52,11 +119,33 @@ describe("TextBlock spatial index update v1", () => {
     )
 
     expect(updateSource).toContain("updateVNextTextBlockSpatialIndexRootKernelV1")
+    expect(calledNames(updateSource)).toContain("updateVNextTextBlockSpatialIndexRootKernelV1")
+    expect(updateWrapperOwnershipViolations(updateSource)).toEqual([])
     expect(internalsSource).not.toContain("deleteSpatialNodePathCopyV1")
     expect(internalsSource).not.toContain("insertSpatialNodePathCopyV1")
     expect(internalsSource).not.toMatch(/function (?:rotate|merge|insert|delete)/u)
     expect(indexSource).not.toContain("maximumBottomLayoutUnit >")
     expect(updateSource).not.toContain("work.createdNodeCount")
+  })
+
+  it("rejects renamed local path-copy and work algorithms that lexical helper names miss", () => {
+    const renamedDuplicate = `
+      function spliceBranch(node: any, work: any): any {
+        work.createdNodeCount += 1
+        if (node.left != null) return spliceBranch(node.left, work)
+        return { entry: node.entry, left: node.left, right: node.right }
+      }
+    `
+    const originalLexicalGuardWouldAccept = !renamedDuplicate.includes(
+      "deleteSpatialNodePathCopyV1",
+    )
+
+    expect(originalLexicalGuardWouldAccept).toBe(true)
+    expect(updateWrapperOwnershipViolations(renamedDuplicate)).toEqual(expect.arrayContaining([
+      "node topology materialization",
+      "work accounting",
+      "recursive path-copy",
+    ]))
   })
 
   it("path-copies a move, reuses untouched nodes, and reports disjoint old/new bands", () => {

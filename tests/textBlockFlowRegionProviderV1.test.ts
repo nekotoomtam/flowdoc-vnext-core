@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs"
+import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
@@ -15,6 +16,52 @@ import {
   SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
 } from "./helpers/textBlockSpatialWrappingV1.js"
 import { mixedTypographyLayoutRequestFixture } from "./helpers/textBlockInitialFlowV1.js"
+
+function flowProviderOwnershipViolations(source: string): readonly string[] {
+  const file = ts.createSourceFile("flow-provider.ts", source, ts.ScriptTarget.Latest, true)
+  const violations: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (
+      ts.isCallExpression(node)
+      && ts.isPropertyAccessExpression(node.expression)
+      && node.expression.name.text === "sort"
+    ) violations.push("exclusion sorting")
+    if (
+      ts.isCallExpression(node)
+      && ts.isPropertyAccessExpression(node.expression)
+      && node.expression.name.text === "reduce"
+    ) violations.push("next-event reduction")
+    if (ts.isForOfStatement(node) || ts.isForStatement(node) || ts.isWhileStatement(node)) {
+      violations.push("interval coalescing or cursor subtraction")
+    }
+    if (
+      ts.isStringLiteral(node)
+      && ["rectangular-exclusion", "top-bottom-barrier"].includes(node.text)
+    ) violations.push("wrap-policy flow filtering")
+    if (
+      ts.isPropertyAccessExpression(node)
+      && node.name.text === "bottomLayoutUnit"
+      && ts.isPropertyAccessExpression(node.expression)
+      && node.expression.name.text === "envelope"
+    ) {
+      violations.push("next-bottom event calculation")
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(file)
+  return violations
+}
+
+function calledNames(source: string): readonly string[] {
+  const file = ts.createSourceFile("flow-calls.ts", source, ts.ScriptTarget.Latest, true)
+  const names: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) names.push(node.expression.text)
+    ts.forEachChild(node, visit)
+  }
+  visit(file)
+  return names
+}
 
 function entry(
   objectId: string,
@@ -100,6 +147,8 @@ describe("TextBlock flow region provider v1", () => {
     )
 
     expect(providerSource).toContain("computeVNextTextBlockFlowRegionKernelV1")
+    expect(calledNames(providerSource)).toContain("computeVNextTextBlockFlowRegionKernelV1")
+    expect(flowProviderOwnershipViolations(providerSource)).toEqual([])
     expect(providerSource).not.toContain("function subtractRectangles")
     expect(providerSource).not.toContain('wrapPolicy === "top-bottom-barrier"')
     expect(providerSource).not.toMatch(/reduce<number \| null>/u)
@@ -108,6 +157,30 @@ describe("TextBlock flow region provider v1", () => {
     expect(kernelSource).not.toContain("VNextTextBlockFlowRegionIssueV1")
     expect(kernelSource).not.toContain("severity: \"error\"")
     expect(providerSource).toContain("function issue")
+  })
+
+  it("rejects renamed interval, barrier, and event algorithms that lexical names miss", () => {
+    const renamedDuplicate = `
+      function carve(rows: any[]) {
+        const ordered = rows
+          .filter((row) => row.wrapPolicy === "top-bottom-barrier")
+          .sort((left, right) => left.start - right.start)
+        let cursor = 0
+        for (const row of ordered) cursor = Math.max(cursor, row.end)
+        return ordered.reduce((next, row) => Math.min(next, row.envelope.bottomLayoutUnit), 0)
+      }
+    `
+    const originalLexicalGuardWouldAccept = !renamedDuplicate.includes("subtractRectangles")
+      && !renamedDuplicate.includes("reduce<number | null>")
+
+    expect(originalLexicalGuardWouldAccept).toBe(true)
+    expect(flowProviderOwnershipViolations(renamedDuplicate)).toEqual(expect.arrayContaining([
+      "exclusion sorting",
+      "interval coalescing or cursor subtraction",
+      "wrap-policy flow filtering",
+      "next-event reduction",
+      "next-bottom event calculation",
+    ]))
   })
 
   it.each([
