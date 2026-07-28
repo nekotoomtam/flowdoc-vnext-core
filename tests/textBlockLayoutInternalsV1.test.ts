@@ -190,6 +190,24 @@ describe("TextBlock layout authority internals v1", () => {
       ...first,
       persistentFlowTree,
     })).toBe(firstAuthority)
+    const clonedPersistentFlowTree = structuredClone(persistentFlowTree)
+    expect(getVNextTextBlockV2LayoutAuthorityInternalV1({
+      ...first,
+      persistentFlowTree: clonedPersistentFlowTree,
+    })).toBeNull()
+    const clonedTreeAuthority = registerVNextTextBlockV2LayoutAuthorityInternalV1({
+      ...first,
+      persistentFlowTree: clonedPersistentFlowTree,
+    })
+    expect(clonedTreeAuthority).not.toBe(firstAuthority)
+    expect(getVNextTextBlockV2LayoutAuthorityInternalV1({
+      ...first,
+      persistentFlowTree,
+    })).toBe(firstAuthority)
+    expect(getVNextTextBlockV2LayoutAuthorityInternalV1({
+      ...first,
+      persistentFlowTree: clonedPersistentFlowTree,
+    })).toBe(clonedTreeAuthority)
     expect(getVNextTextBlockV2LayoutAuthorityInternalV1({
       initialFlow: structuredClone(first.initialFlow),
       evidence: first.evidence,
