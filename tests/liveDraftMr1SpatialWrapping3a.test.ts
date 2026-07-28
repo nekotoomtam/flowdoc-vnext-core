@@ -18,6 +18,7 @@ const phase4bNoGo =
   "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
 const phase5Gate =
   "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
+const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 3: Core Spatial Wrapping 3A`.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 
 describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
   it("pins the Phase 3 evidence sections, capability matrix, and authority limits", () => {
@@ -120,6 +121,7 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       expect(active).toContain(phase4bNoGo)
       expect(active).toContain(phase5Gate)
       expect(active).not.toContain("Proceed only to `Phase 3")
+      for (const directive of supersededActiveDirectives) expect(active).not.toContain(directive)
     }
   })
 })

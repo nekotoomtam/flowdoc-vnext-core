@@ -19,6 +19,7 @@ const phase4bNoGo =
   "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
 const phase5Gate =
   "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
+const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 3: Core Spatial Wrapping 3A`.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 
 describe("Live Draft MR1 persistent flow foundation handoff", () => {
   it("pins every MR1-Q section, capability row, counter row, gate total, and next boundary", () => {
@@ -133,6 +134,7 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
       expect(active).toContain(phase5Gate)
       expect(active).not.toContain("completeNextSemanticPassCount: 1")
       expect(active).not.toContain("Proceed to Phase 2")
+      for (const directive of supersededActiveDirectives) expect(active).not.toContain(directive)
     }
     expect(currentTruth).toContain("passed 7 files / 33 tests")
     expect(currentTruth).toContain("passed 412 files / 2,047 tests")

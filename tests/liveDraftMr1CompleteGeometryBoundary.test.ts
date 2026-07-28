@@ -28,6 +28,7 @@ const phase4bExclusions =
   "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
 const phase5Gate =
   "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
+const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 3: Core Spatial Wrapping 3A`.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 
 describe("Live Draft MR1-P complete geometry boundary", () => {
   it("bounds an MR1-P ledger section at the next peer heading", () => {
@@ -199,6 +200,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(activePrompt).not.toContain(phase2Exclusions)
     expect(activePrompt).not.toContain("8ae96e8")
     expect(activePrompt).not.toContain("b686c99")
+    for (const directive of supersededActiveDirectives) expect(activePrompt).not.toContain(directive)
     expect(occurrences(rawHandoff, "## Handoff Prompt")).toBe(1)
     for (const stalePromptText of [
       "LIVE-DRAFT-XR-5",

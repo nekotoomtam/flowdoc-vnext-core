@@ -19,6 +19,7 @@ const phase5Gate =
   "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
 const phase4bNoGo =
   "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
+const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 const focusedTotals = "focused Phase 4A gate passed 8 files / 131 tests"
 const fullTotals = "full `npm run check` passed 420 files / 2,114 tests"
 
@@ -119,6 +120,7 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
       expect(active).toContain(phase4bNoGo)
       expect(active).not.toContain("Stop after Phase 4A.")
       expect(active).not.toContain("Proceed only to `Phase 4: Initial TextBlock Geometry`.")
+      for (const directive of supersededActiveDirectives) expect(active).not.toContain(directive)
     }
     for (const record of [crossPhase4a, ledgerPhase4a]) {
       expect(record).toContain(implementationBaseline)
