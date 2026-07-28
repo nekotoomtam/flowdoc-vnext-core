@@ -66,14 +66,15 @@ function treeWrapperOwnershipViolations(source: string): readonly string[] {
     }
     if (ts.isFunctionDeclaration(node) && node.name != null) {
       const functionName = node.name.text
-      const recursive = calledNames(node.body?.getText() ?? "").includes(functionName)
-      const topology = node.body != null && ["left", "right"].every((name) => {
+      const body = node.body
+      const recursive = calledNames(body?.getText() ?? "").includes(functionName)
+      const topology = body != null && ["left", "right"].every((name) => {
         let found = false
         const scan = (child: ts.Node): void => {
           if (propertyName(child) === name) found = true
           ts.forEachChild(child, scan)
         }
-        scan(node.body)
+        scan(body)
         return found
       })
       if (
