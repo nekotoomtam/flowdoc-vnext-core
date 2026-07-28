@@ -74,6 +74,11 @@ proxies, mutable values, and production-bound envelopes block without partial
 results. This is an authority check, not a serialization or persisted identity
 contract.
 
+The exact upstream Initial Flow/evidence provenance is required and no MR1-Q,
+reuse, or reconvergence claim is made. Stale, cloned, structurally equal
+replacement, accessor-shaped, proxy-shaped, mutable, re-fingerprinted, altered
+dependency, and production-bound inputs fail closed with no partial tree.
+
 ## Spatial Wrapping Evidence
 
 `src/layout/textBlockSpatialIndexV2.ts`,
@@ -95,6 +100,13 @@ the relevant intervals. They do not claim line reuse or reconvergence:
 `tests/textBlockInlineImageGeometry4bHardening.test.ts` explicitly verifies
 that update facts expose neither counter.
 
+The exact tree/index/update/provider/layout authorities are required. The same
+named stale, cloned, structurally equal replacement, accessor-shaped,
+proxy-shaped, mutable, re-fingerprinted, altered dependency, and
+production-bound attacks fail closed with no partial intervals, lines, or work.
+Accepted spatial results retain `mayPublishLayout: false`,
+`productionBinding: false`, and `stagedEditorApply: false`.
+
 ## Authored Box Evidence
 
 `src/layout/textBlockAuthoredBoxGeometryV2.ts` reuses the shared authored-box
@@ -107,6 +119,13 @@ Auto-height is accepted; fixed-height input, overflow, and clipping have no
 Phase 4B policy. The V2 boundary rejects stale, cloned, accessor-shaped,
 mutable, re-fingerprinted, and production-bound authority rather than
 fabricating geometry.
+
+The exact spatial result, plan, and parent dependencies are required. The same
+named stale, cloned, structurally equal replacement, accessor-shaped,
+proxy-shaped, mutable, re-fingerprinted, altered dependency, and
+production-bound attacks fail closed with null geometry, lines, summary, and
+fingerprint; accepted box results retain `mayPublishLayout: false`,
+`productionBinding: false`, and `stagedEditorApply: false`.
 
 ## PASS
 

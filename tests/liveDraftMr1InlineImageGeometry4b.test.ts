@@ -22,15 +22,19 @@ const supersededActiveDirectives = [
   "Proceed only to `Phase 4: Initial TextBlock Geometry`.",
   "Stop after Phase 4A.",
 ] as const
-const exportMap = (index: string): Map<string, ReadonlySet<string>> => {
-  const exports = new Map<string, Set<string>>()
+const exportMap = (index: string): { symbols: Map<string, ReadonlySet<string>>; wildcards: ReadonlySet<string> } => {
+  const symbols = new Map<string, Set<string>>()
+  const wildcards = new Set<string>()
   for (const match of index.matchAll(/export\s+\*\s+from\s+"([^"]+)"/gu)) {
-    exports.set(match[1]!, new Set(["*"]))
+    wildcards.add(match[1]!)
   }
   for (const match of index.matchAll(/export\s*\{([\s\S]*?)\}\s*from\s*"([^"]+)"/gu)) {
-    exports.set(match[2]!, new Set(match[1]!.split(",").map((item) => item.trim()).filter(Boolean)))
+    const module = match[2]!
+    const values = symbols.get(module) ?? new Set<string>()
+    for (const value of match[1]!.split(",").map((item) => item.trim()).filter(Boolean)) values.add(value)
+    symbols.set(module, values)
   }
-  return exports
+  return { symbols, wildcards }
 }
 
 describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
@@ -76,10 +80,9 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
       "`tests/textBlockV1LayoutCompatibility.test.ts`", "V2 text-only path is normalized",
     ]) expect(architecture).toContain(evidence)
     for (const evidence of ["`node-native-mr1`", "`browser-worker-wasm-mr1`", "Node-native and Worker-WASM U+FFFC", "neither U+FFFC nor hard breaks"]) expect(runtime).toContain(evidence)
-    for (const evidence of ["`src/layout/textBlockPersistentFlowTreeV2.ts`", "text clusters, hard breaks, inline-image", "clones, structurally equal replacements", "without partial results"]) expect(persistent).toContain(evidence)
-    expect(persistent).not.toContain("MR1-Q")
-    for (const evidence of ["multi-interval", "barriers", "overlay-neutral", "zero-space", "expanded-band", "Move and horizontal-resize", "neither counter"]) expect(spatial).toContain(evidence)
-    for (const evidence of ["`src/layout/textBlockAuthoredBoxGeometryV2.ts`", "auto-height", "fixed-height", "rather than fabricating geometry"]) expect(authoredBox).toContain(evidence)
+    for (const evidence of ["`src/layout/textBlockPersistentFlowTreeV2.ts`", "exact upstream Initial Flow/evidence provenance", "no MR1-Q, reuse, or reconvergence claim", "Stale, cloned, structurally equal replacement, accessor-shaped, proxy-shaped, mutable, re-fingerprinted, altered dependency, and production-bound", "no partial tree"]) expect(persistent).toContain(evidence)
+    for (const evidence of ["multi-interval", "barriers", "overlay-neutral", "zero-space", "expanded-band", "Move and horizontal-resize", "exact tree/index/update/provider/layout authorities", "no partial intervals, lines, or work", "`stagedEditorApply: false`"]) expect(spatial).toContain(evidence)
+    for (const evidence of ["`src/layout/textBlockAuthoredBoxGeometryV2.ts`", "auto-height", "fixed-height", "exact spatial result, plan, and parent dependencies", "null geometry, lines, summary, and fingerprint", "`stagedEditorApply: false`"]) expect(authoredBox).toContain(evidence)
     expect(pass).toContain("V1 compatibility remains characterized")
     expect(blocker).toContain("fixed-height, overflow, or clipping")
     expect(blocker).toContain(deferredNoGo)
@@ -132,11 +135,11 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
       "./layout/textBlockAuthoredBoxGeometryContractV2.js": ["*"],
       "./layout/textBlockAuthoredBoxGeometryV2.js": ["*"],
     }
-    for (const [module, symbols] of Object.entries(expected)) expect([...exports.get(module) ?? []].sort()).toEqual([...symbols].sort())
-    for (const module of exports.keys()) {
-      if (module.includes("Kernel") || module.includes("Internals") || module.includes("authority")) {
-        expect(module).not.toMatch(/textBlock(?:PersistentFlowTree|FlowRegion|SpatialWrapping|AuthoredBox).*?(?:Kernel|Internals)|authority/iu)
-      }
+    for (const [module, expectedSymbols] of Object.entries(expected)) {
+      const actual = expectedSymbols.includes("*") ? exports.wildcards.has(module) ? ["*"] : [] : [...exports.symbols.get(module) ?? []]
+      expect(actual.sort()).toEqual([...expectedSymbols].sort())
     }
+    const privileged = /^\.\/layout\/.*(?:kernel|internals|authority|token|registry|private)/iu
+    for (const module of [...exports.symbols.keys(), ...exports.wildcards]) expect(module).not.toMatch(privileged)
   })
 })
