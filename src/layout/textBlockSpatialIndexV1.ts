@@ -10,15 +10,19 @@ import {
   type VNextTextBlockSpatialIndexV1,
 } from "./textBlockSpatialIndexContractV1.js"
 import {
-  createSpatialIndexFromEntriesV1,
+  createSpatialIndexFromRootV1,
   deepFreezeSpatialV1,
   deeplyFrozenSpatialV1,
   hasSpatialIndexBindingV1,
   hasSpatialIndexProvenanceV1,
   parseSpatialEntriesV1,
-  querySpatialNodesV1,
   spatialIssueV1,
 } from "./textBlockSpatialIndexInternalsV1.js"
+import {
+  buildVNextTextBlockSpatialIndexRootKernelV1,
+  queryVNextTextBlockSpatialIndexKernelV1,
+} from "./textBlockSpatialIndexKernelV1.js"
+import { getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1 } from "./textBlockLayoutAuthorityInternalsV1.js"
 import { hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1 } from "./textBlockPersistentFlowTreeInternalsV1.js"
 
 function blocked(
@@ -84,10 +88,23 @@ export function createVNextTextBlockSpatialIndexV1(
     contentRightLayoutUnit: input.request.availableWidthLayoutUnit,
   })
   if (parsed.issues.length > 0) return blocked(parsed.issues)
-  const index = createSpatialIndexFromEntriesV1({
+  const authority = getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1({
     persistentFlowTree: input.persistentFlowTree,
     request: input.request,
-    entries: parsed.entries,
+  })
+  if (authority == null) return blocked([
+    spatialIssueV1(
+      "flow-tree-request-binding-mismatch",
+      "request",
+      "spatial index requires the exact unchanged MR1 request bound to the persistent flow tree",
+    ),
+  ])
+  const index = createSpatialIndexFromRootV1({
+    persistentFlowTree: input.persistentFlowTree,
+    request: input.request,
+    root: buildVNextTextBlockSpatialIndexRootKernelV1(parsed.entries),
+    authority,
+    entriesByObjectId: new Map(parsed.entries.map((entry) => [entry.objectId, entry])),
   })
   return {
     status: "accepted",
@@ -168,7 +185,7 @@ export function queryVNextTextBlockSpatialIndexV1(input: {
       "spatial query requires the exact index, persistent flow tree, and unchanged request",
     ),
   ])
-  const query = querySpatialNodesV1({
+  const query = queryVNextTextBlockSpatialIndexKernelV1({
     root: input.index.root,
     topLayoutUnit: input.band.topLayoutUnit,
     bottomLayoutUnit: input.band.bottomLayoutUnit,

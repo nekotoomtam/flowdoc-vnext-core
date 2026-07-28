@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   collectVNextTextBlockSpatialIndexNodesForQaV1,
@@ -34,6 +35,23 @@ function movableSpatialIndexFixture() {
 }
 
 describe("TextBlock spatial index update v1", () => {
+  it("delegates persistent treap path-copy updates to the shared kernel", () => {
+    // Catches a future production split that reintroduces path-copy deletion or insertion
+    // outside the shared persistent-treap kernel.
+    const updateSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexUpdateV1.ts", import.meta.url),
+      "utf8",
+    )
+    const internalsSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexInternalsV1.ts", import.meta.url),
+      "utf8",
+    )
+
+    expect(updateSource).toContain("updateVNextTextBlockSpatialIndexRootKernelV1")
+    expect(internalsSource).not.toContain("deleteSpatialNodePathCopyV1")
+    expect(internalsSource).not.toContain("insertSpatialNodePathCopyV1")
+  })
+
   it("path-copies a move, reuses untouched nodes, and reports disjoint old/new bands", () => {
     const fixture = movableSpatialIndexFixture()
     const result = createVNextTextBlockSpatialIndexUpdateV1({

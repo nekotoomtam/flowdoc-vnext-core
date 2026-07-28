@@ -2,6 +2,10 @@ import { z } from "zod"
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
+  sortVNextTextBlockSpatialIndexEntriesKernelV1,
+  spatialIndexSummaryForRootKernelV1,
+} from "./textBlockSpatialIndexKernelV1.js"
+import {
   VNextNonNegativeLayoutUnitV1Schema,
   VNextPositiveLayoutUnitV1Schema,
 } from "./layoutUnitPolicyV1.js"
@@ -15,10 +19,14 @@ import {
   type VNextTextBlockSpatialIndexIssueCodeV1,
   type VNextTextBlockSpatialIndexIssueV1,
   type VNextTextBlockSpatialIndexNodeV1,
-  type VNextTextBlockSpatialIndexSummaryV1,
   type VNextTextBlockSpatialIndexV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "./textBlockSpatialIndexContractV1.js"
+import {
+  bindVNextTextBlockSpatialIndexAuthorityInternalV1,
+  getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1,
+  hasVNextTextBlockSpatialIndexAuthorityInternalV1,
+} from "./textBlockLayoutAuthorityInternalsV1.js"
 import { hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1 } from "./textBlockPersistentFlowTreeInternalsV1.js"
 
 const CompactFingerprintSchema = z.string().regex(/^sha256:[a-f0-9]{64}$/u)
@@ -47,6 +55,9 @@ const processLocalSpatialIndexBindingsV1 = new WeakMap<
     persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
     request: VNextTextBlockMultiRunLayoutRequestV1
     requestFingerprint: string
+    authority: NonNullable<ReturnType<
+      typeof getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1
+    >>
     entriesByObjectId: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1>
   }
 >()
@@ -92,29 +103,6 @@ function safeSum(...values: number[]): number | null {
     if (!Number.isSafeInteger(total)) return null
   }
   return total
-}
-
-export function compareSpatialEntriesV1(
-  left: VNextTextBlockSpatialIndexEntryV1,
-  right: VNextTextBlockSpatialIndexEntryV1,
-): number {
-  return left.envelope.topLayoutUnit - right.envelope.topLayoutUnit
-    || left.envelope.bottomLayoutUnit - right.envelope.bottomLayoutUnit
-    || compareOrdinalStringsV1(left.objectId, right.objectId)
-}
-
-function compareOrdinalStringsV1(left: string, right: string): number {
-  if (left < right) return -1
-  if (left > right) return 1
-  return 0
-}
-
-function comparePriority(
-  left: VNextTextBlockSpatialIndexEntryV1,
-  right: VNextTextBlockSpatialIndexEntryV1,
-): number {
-  return compareOrdinalStringsV1(left.fingerprint, right.fingerprint)
-    || compareSpatialEntriesV1(left, right)
 }
 
 export function createSpatialEntryV1(input: {
@@ -205,132 +193,22 @@ export function createSpatialEntryV1(input: {
   }
 }
 
-const EMPTY_SUMMARY: VNextTextBlockSpatialIndexSummaryV1 = Object.freeze({
-  entryCount: 0,
-  nodeCount: 0,
-  maximumBottomLayoutUnit: 0,
-  flowAffectingEntryCount: 0,
-  barrierEntryCount: 0,
-  overlayEntryCount: 0,
-})
-
-export function spatialIndexSummaryForRootV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-): VNextTextBlockSpatialIndexSummaryV1 {
-  return root?.summary ?? EMPTY_SUMMARY
-}
-
-export function createSpatialNodeV1(input: {
-  entry: VNextTextBlockSpatialIndexEntryV1
-  left: VNextTextBlockSpatialIndexNodeV1 | null
-  right: VNextTextBlockSpatialIndexNodeV1 | null
-}): VNextTextBlockSpatialIndexNodeV1 {
-  const children = [input.left, input.right].filter(
-    (item): item is VNextTextBlockSpatialIndexNodeV1 => item != null,
-  )
-  const summary = {
-    entryCount: 1 + children.reduce((sum, item) => sum + item.summary.entryCount, 0),
-    nodeCount: 1 + children.reduce((sum, item) => sum + item.summary.nodeCount, 0),
-    maximumBottomLayoutUnit: Math.max(
-      input.entry.envelope.bottomLayoutUnit,
-      ...children.map((item) => item.summary.maximumBottomLayoutUnit),
-    ),
-    flowAffectingEntryCount:
-      (input.entry.wrapPolicy === "overlay" ? 0 : 1)
-      + children.reduce((sum, item) => sum + item.summary.flowAffectingEntryCount, 0),
-    barrierEntryCount:
-      (input.entry.wrapPolicy === "top-bottom-barrier" ? 1 : 0)
-      + children.reduce((sum, item) => sum + item.summary.barrierEntryCount, 0),
-    overlayEntryCount:
-      (input.entry.wrapPolicy === "overlay" ? 1 : 0)
-      + children.reduce((sum, item) => sum + item.summary.overlayEntryCount, 0),
-  }
-  const facts = {
-    entry: input.entry,
-    priorityFingerprint: input.entry.fingerprint,
-    leftFingerprint: input.left?.fingerprint ?? null,
-    rightFingerprint: input.right?.fingerprint ?? null,
-    summary,
-  }
-  return deepFreezeSpatialV1({
-    entry: input.entry,
-    priorityFingerprint: input.entry.fingerprint,
-    left: input.left,
-    right: input.right,
-    summary,
-    fingerprint: spatialFingerprintV1(facts),
-  })
-}
-
-function rotateRight(node: VNextTextBlockSpatialIndexNodeV1): VNextTextBlockSpatialIndexNodeV1 {
-  const nextRoot = node.left
-  if (nextRoot == null) return node
-  const nextRight = createSpatialNodeV1({
-    entry: node.entry,
-    left: nextRoot.right,
-    right: node.right,
-  })
-  return createSpatialNodeV1({
-    entry: nextRoot.entry,
-    left: nextRoot.left,
-    right: nextRight,
-  })
-}
-
-function rotateLeft(node: VNextTextBlockSpatialIndexNodeV1): VNextTextBlockSpatialIndexNodeV1 {
-  const nextRoot = node.right
-  if (nextRoot == null) return node
-  const nextLeft = createSpatialNodeV1({
-    entry: node.entry,
-    left: node.left,
-    right: nextRoot.left,
-  })
-  return createSpatialNodeV1({
-    entry: nextRoot.entry,
-    left: nextLeft,
-    right: nextRoot.right,
-  })
-}
-
-export function insertSpatialNodeV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-  entry: VNextTextBlockSpatialIndexEntryV1,
-): VNextTextBlockSpatialIndexNodeV1 {
-  if (root == null) return createSpatialNodeV1({ entry, left: null, right: null })
-  const comparison = compareSpatialEntriesV1(entry, root.entry)
-  if (comparison < 0) {
-    let node = createSpatialNodeV1({
-      entry: root.entry,
-      left: insertSpatialNodeV1(root.left, entry),
-      right: root.right,
-    })
-    if (node.left != null && comparePriority(node.left.entry, node.entry) < 0) {
-      node = rotateRight(node)
-    }
-    return node
-  }
-  let node = createSpatialNodeV1({
-    entry: root.entry,
-    left: root.left,
-    right: insertSpatialNodeV1(root.right, entry),
-  })
-  if (node.right != null && comparePriority(node.right.entry, node.entry) < 0) {
-    node = rotateLeft(node)
-  }
-  return node
-}
-
 export function registerSpatialIndexV1(input: {
   index: VNextTextBlockSpatialIndexV1
   persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
   request: VNextTextBlockMultiRunLayoutRequestV1
+  authority: NonNullable<ReturnType<
+    typeof getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1
+  >>
   entriesByObjectId: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1>
 }): void {
   processLocalSpatialIndexesV1.add(input.index)
+  bindVNextTextBlockSpatialIndexAuthorityInternalV1(input.index, input.authority)
   processLocalSpatialIndexBindingsV1.set(input.index, {
     persistentFlowTree: input.persistentFlowTree,
     request: input.request,
     requestFingerprint: spatialFingerprintV1(input.request),
+    authority: input.authority,
     entriesByObjectId: input.entriesByObjectId,
   })
 }
@@ -345,13 +223,22 @@ export function hasSpatialIndexBindingV1(input: {
   request: VNextTextBlockMultiRunLayoutRequestV1
 }): boolean {
   const binding = processLocalSpatialIndexBindingsV1.get(input.index)
-  return binding?.persistentFlowTree === input.persistentFlowTree
-    && binding.request === input.request
-    && binding.requestFingerprint === spatialFingerprintV1(input.request)
-    && hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1(
+  if (
+    binding?.persistentFlowTree !== input.persistentFlowTree
+    || binding.request !== input.request
+    || binding.requestFingerprint !== spatialFingerprintV1(input.request)
+    || !hasVNextTextBlockPersistentFlowTreeRequestBindingInternalV1(
       input.persistentFlowTree,
       input.request,
     )
+  ) return false
+  const authority = getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1({
+    persistentFlowTree: input.persistentFlowTree,
+    request: input.request,
+  })
+  return authority != null
+    && binding.authority === authority
+    && hasVNextTextBlockSpatialIndexAuthorityInternalV1(input.index, authority)
 }
 
 export function getSpatialIndexEntryBindingV1(
@@ -367,150 +254,17 @@ export function getSpatialIndexEntriesBindingV1(
   return processLocalSpatialIndexBindingsV1.get(index)?.entriesByObjectId ?? null
 }
 
-export interface SpatialPathCopyWorkV1 {
-  visitedNodeCount: number
-  createdNodeCount: number
-}
-
-function createTrackedSpatialNodeV1(
-  input: Parameters<typeof createSpatialNodeV1>[0],
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 {
-  work.createdNodeCount += 1
-  return createSpatialNodeV1(input)
-}
-
-function mergeSpatialNodesV1(
-  left: VNextTextBlockSpatialIndexNodeV1 | null,
-  right: VNextTextBlockSpatialIndexNodeV1 | null,
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 | null {
-  if (left == null) return right
-  if (right == null) return left
-  work.visitedNodeCount += 1
-  if (comparePriority(left.entry, right.entry) < 0) {
-    return createTrackedSpatialNodeV1({
-      entry: left.entry,
-      left: left.left,
-      right: mergeSpatialNodesV1(left.right, right, work),
-    }, work)
-  }
-  return createTrackedSpatialNodeV1({
-    entry: right.entry,
-    left: mergeSpatialNodesV1(left, right.left, work),
-    right: right.right,
-  }, work)
-}
-
-export function deleteSpatialNodePathCopyV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-  entry: VNextTextBlockSpatialIndexEntryV1,
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 | null {
-  if (root == null) return null
-  work.visitedNodeCount += 1
-  const comparison = compareSpatialEntriesV1(entry, root.entry)
-  if (comparison < 0) return createTrackedSpatialNodeV1({
-    entry: root.entry,
-    left: deleteSpatialNodePathCopyV1(root.left, entry, work),
-    right: root.right,
-  }, work)
-  if (comparison > 0) return createTrackedSpatialNodeV1({
-    entry: root.entry,
-    left: root.left,
-    right: deleteSpatialNodePathCopyV1(root.right, entry, work),
-  }, work)
-  return mergeSpatialNodesV1(root.left, root.right, work)
-}
-
-export function insertSpatialNodePathCopyV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-  entry: VNextTextBlockSpatialIndexEntryV1,
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 {
-  if (root == null) {
-    return createTrackedSpatialNodeV1({ entry, left: null, right: null }, work)
-  }
-  work.visitedNodeCount += 1
-  const comparison = compareSpatialEntriesV1(entry, root.entry)
-  if (comparison < 0) {
-    let node = createTrackedSpatialNodeV1({
-      entry: root.entry,
-      left: insertSpatialNodePathCopyV1(root.left, entry, work),
-      right: root.right,
-    }, work)
-    if (node.left != null && comparePriority(node.left.entry, node.entry) < 0) {
-      work.createdNodeCount += 2
-      node = rotateRight(node)
-    }
-    return node
-  }
-  let node = createTrackedSpatialNodeV1({
-    entry: root.entry,
-    left: root.left,
-    right: insertSpatialNodePathCopyV1(root.right, entry, work),
-  }, work)
-  if (node.right != null && comparePriority(node.right.entry, node.entry) < 0) {
-    work.createdNodeCount += 2
-    node = rotateLeft(node)
-  }
-  return node
-}
-
-export function querySpatialNodesV1(input: {
-  root: VNextTextBlockSpatialIndexNodeV1 | null
-  topLayoutUnit: number
-  bottomLayoutUnit: number
-}): {
-  entries: VNextTextBlockSpatialIndexEntryV1[]
-  visitedNodeCount: number
-} {
-  const entries: VNextTextBlockSpatialIndexEntryV1[] = []
-  let visitedNodeCount = 0
-  const visit = (node: VNextTextBlockSpatialIndexNodeV1 | null): void => {
-    if (node == null) return
-    visitedNodeCount += 1
-    if (
-      node.left != null
-      && node.left.summary.maximumBottomLayoutUnit > input.topLayoutUnit
-    ) visit(node.left)
-    if (
-      node.entry.envelope.topLayoutUnit < input.bottomLayoutUnit
-      && node.entry.envelope.bottomLayoutUnit > input.topLayoutUnit
-    ) entries.push(node.entry)
-    if (node.entry.envelope.topLayoutUnit < input.bottomLayoutUnit) {
-      visit(node.right)
-    }
-  }
-  visit(input.root)
-  return { entries, visitedNodeCount }
-}
-
-export function createSpatialIndexFromEntriesV1(input: {
-  persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
-  request: VNextTextBlockMultiRunLayoutRequestV1
-  entries: readonly VNextTextBlockSpatialIndexEntryV1[]
-}): VNextTextBlockSpatialIndexV1 {
-  const root = input.entries.reduce<VNextTextBlockSpatialIndexNodeV1 | null>(
-    (current, entry) => insertSpatialNodeV1(current, entry),
-    null,
-  )
-  return createSpatialIndexFromRootV1({
-    persistentFlowTree: input.persistentFlowTree,
-    request: input.request,
-    root,
-    entriesByObjectId: new Map(input.entries.map((entry) => [entry.objectId, entry])),
-  })
-}
-
 export function createSpatialIndexFromRootV1(input: {
   persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
   request: VNextTextBlockMultiRunLayoutRequestV1
   root: VNextTextBlockSpatialIndexNodeV1 | null
+  authority: NonNullable<ReturnType<
+    typeof getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1
+  >>
   entriesByObjectId: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1>
 }): VNextTextBlockSpatialIndexV1 {
   const root = input.root
-  const summary = spatialIndexSummaryForRootV1(root)
+  const summary = spatialIndexSummaryForRootKernelV1(root)
   const facts = {
     source: VNEXT_TEXT_BLOCK_SPATIAL_INDEX_SOURCE,
     contractVersion: VNEXT_TEXT_BLOCK_SPATIAL_INDEX_VERSION,
@@ -543,6 +297,7 @@ export function createSpatialIndexFromRootV1(input: {
     index,
     persistentFlowTree: input.persistentFlowTree,
     request: input.request,
+    authority: input.authority,
     entriesByObjectId: input.entriesByObjectId,
   })
   return index
@@ -577,6 +332,6 @@ export function parseSpatialEntriesV1(input: {
     ids.add(result.entry.objectId)
     entries.push(result.entry)
   })
-  entries.sort(compareSpatialEntriesV1)
+  sortVNextTextBlockSpatialIndexEntriesKernelV1(entries)
   return { entries, issues }
 }

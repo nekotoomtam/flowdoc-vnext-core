@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   collectVNextTextBlockSpatialIndexNodesForQaV1,
@@ -11,6 +12,28 @@ import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js
 import { acceptedSpatialWrappingFixture } from "./helpers/textBlockSpatialWrappingV1.js"
 
 describe("TextBlock spatial index v1", () => {
+  it("delegates persistent treap build and query ownership to the shared kernel", () => {
+    // Catches a future production split that leaves build/query behavior or treap rotations
+    // duplicated outside the shared persistent-treap kernel.
+    const indexSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexV1.ts", import.meta.url),
+      "utf8",
+    )
+    const internalsSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexInternalsV1.ts", import.meta.url),
+      "utf8",
+    )
+    const kernelSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexKernelV1.ts", import.meta.url),
+      "utf8",
+    )
+
+    expect(indexSource).toContain("buildVNextTextBlockSpatialIndexRootKernelV1")
+    expect(indexSource).toContain("queryVNextTextBlockSpatialIndexKernelV1")
+    expect(internalsSource).not.toMatch(/function rotate(?:Left|Right)/u)
+    expect(kernelSource).toMatch(/function rotate(?:Left|Right)/u)
+  })
+
   it("creates one deterministic immutable synthetic y-interval index", () => {
     const fixture = acceptedSpatialWrappingFixture()
     const first = createVNextTextBlockSpatialIndexV1({

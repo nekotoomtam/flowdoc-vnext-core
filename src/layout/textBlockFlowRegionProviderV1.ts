@@ -2,9 +2,9 @@ import type { VNextTextBlockMultiRunLayoutRequestV1 } from "./textBlockMultiRunL
 import type { VNextTextBlockPersistentFlowTreeV1 } from "./textBlockPersistentFlowContractV1.js"
 import type {
   VNextTextBlockSpatialBandV1,
-  VNextTextBlockSpatialIndexEntryV1,
   VNextTextBlockSpatialIndexV1,
 } from "./textBlockSpatialIndexContractV1.js"
+import { computeVNextTextBlockFlowRegionKernelV1 } from "./textBlockFlowRegionKernelV1.js"
 import {
   deeplyFrozenSpatialV1,
   deepFreezeSpatialV1,
@@ -140,82 +140,6 @@ function accepted(input: {
   return result
 }
 
-function subtractRectangles(input: {
-  entries: readonly VNextTextBlockSpatialIndexEntryV1[]
-  contentStartLayoutUnit: number
-  contentEndLayoutUnit: number
-}): {
-  intervals: VNextTextBlockFlowIntervalV1[]
-  subtractionCount: number
-} {
-  const exclusions = input.entries
-    .filter((entry) => entry.wrapPolicy === "rectangular-exclusion")
-    .map((entry) => ({
-      startLayoutUnit: Math.max(
-        input.contentStartLayoutUnit,
-        entry.envelope.leftLayoutUnit,
-      ),
-      endLayoutUnit: Math.min(
-        input.contentEndLayoutUnit,
-        entry.envelope.rightLayoutUnit,
-      ),
-    }))
-    .filter((interval) => interval.startLayoutUnit < interval.endLayoutUnit)
-    .sort((
-      left,
-      right,
-    ) => left.startLayoutUnit - right.startLayoutUnit
-      || left.endLayoutUnit - right.endLayoutUnit)
-  const merged: VNextTextBlockFlowIntervalV1[] = []
-  for (const exclusion of exclusions) {
-    const previous = merged.at(-1)
-    if (previous == null || exclusion.startLayoutUnit > previous.endLayoutUnit) {
-      merged.push({ ...exclusion })
-    } else {
-      previous.endLayoutUnit = Math.max(
-        previous.endLayoutUnit,
-        exclusion.endLayoutUnit,
-      )
-    }
-  }
-  const intervals: VNextTextBlockFlowIntervalV1[] = []
-  let cursor = input.contentStartLayoutUnit
-  for (const exclusion of merged) {
-    if (cursor < exclusion.startLayoutUnit) {
-      intervals.push({
-        startLayoutUnit: cursor,
-        endLayoutUnit: exclusion.startLayoutUnit,
-      })
-    }
-    cursor = Math.max(cursor, exclusion.endLayoutUnit)
-  }
-  if (cursor < input.contentEndLayoutUnit) {
-    intervals.push({
-      startLayoutUnit: cursor,
-      endLayoutUnit: input.contentEndLayoutUnit,
-    })
-  }
-  return { intervals, subtractionCount: merged.length }
-}
-
-function validIntervals(input: {
-  intervals: readonly VNextTextBlockFlowIntervalV1[]
-  contentStartLayoutUnit: number
-  contentEndLayoutUnit: number
-}): boolean {
-  return input.intervals.every((interval, index) => (
-    Number.isSafeInteger(interval.startLayoutUnit)
-    && Number.isSafeInteger(interval.endLayoutUnit)
-    && interval.startLayoutUnit >= input.contentStartLayoutUnit
-    && interval.endLayoutUnit <= input.contentEndLayoutUnit
-    && interval.startLayoutUnit < interval.endLayoutUnit
-    && (
-      index === 0
-      || input.intervals[index - 1]!.endLayoutUnit <= interval.startLayoutUnit
-    )
-  ))
-}
-
 export function provideVNextTextBlockFlowRegionsV1(input: {
   spatialIndex: VNextTextBlockSpatialIndexV1
   persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
@@ -300,103 +224,46 @@ export function provideVNextTextBlockFlowRegionsV1(input: {
       "content insets must leave a positive-width content interval",
     ),
   ])
-  if (input.spatialIndex.summary.flowAffectingEntryCount === 0) {
-    return accepted({
-      spatialIndexFingerprint: input.spatialIndex.fingerprint,
-      band: input.band,
-      contentInsets: input.contentInsets,
-      intervals: [{
-        startLayoutUnit: contentStartLayoutUnit,
-        endLayoutUnit: contentEndLayoutUnit,
-      }],
-      intersectingEntryFingerprints: [],
-      nextYLayoutUnit: null,
-      work: {
-        fastPath: "no-flow-affecting-entry",
-        spatialIndexQueryCount: 0,
-        visitedSpatialNodeCount: 0,
-        matchedSpatialEntryCount: 0,
-        rectangularSubtractionCount: 0,
-      },
-    })
-  }
-  const queried = queryVNextTextBlockSpatialIndexV1({
-    index: input.spatialIndex,
-    persistentFlowTree: input.persistentFlowTree,
-    request: input.request,
-    band: input.band,
+  let queryRejected = false
+  const kernel = computeVNextTextBlockFlowRegionKernelV1({
+    contentStartLayoutUnit,
+    contentEndLayoutUnit,
+    bandTopLayoutUnit: input.band.topLayoutUnit,
+    bandBottomLayoutUnit: input.band.bottomLayoutUnit,
+    flowAffectingEntryCount: input.spatialIndex.summary.flowAffectingEntryCount,
+    query: () => {
+      const queried = queryVNextTextBlockSpatialIndexV1({
+        index: input.spatialIndex,
+        persistentFlowTree: input.persistentFlowTree,
+        request: input.request,
+        band: input.band,
+      })
+      if (queried.status !== "accepted") {
+        queryRejected = true
+        return { entries: [], visitedNodeCount: 0 }
+      }
+      return {
+        entries: queried.entries,
+        visitedNodeCount: queried.work.visitedNodeCount,
+      }
+    },
   })
-  if (queried.status !== "accepted") return blocked([
+  if (queryRejected) return blocked([
     issue(
       "spatial-index-binding-mismatch",
       "spatialIndex",
       "spatial index query rejected the provider binding",
     ),
   ])
-  const flowAffectingEntries = queried.entries.filter(
-    (entry) => entry.wrapPolicy !== "overlay",
-  )
-  const relevantFlowAffectingEntries = flowAffectingEntries.filter((entry) => (
-    entry.wrapPolicy === "top-bottom-barrier"
-    || (
-      entry.envelope.leftLayoutUnit < contentEndLayoutUnit
-      && entry.envelope.rightLayoutUnit > contentStartLayoutUnit
-    )
-  ))
-  const hasBarrier = relevantFlowAffectingEntries.some(
-    (entry) => entry.wrapPolicy === "top-bottom-barrier",
-  )
-  const subtracted = hasBarrier
-    ? { intervals: [], subtractionCount: 0 }
-    : subtractRectangles({
-        entries: relevantFlowAffectingEntries,
-        contentStartLayoutUnit,
-        contentEndLayoutUnit,
-      })
-  if (!validIntervals({
-    intervals: subtracted.intervals,
-    contentStartLayoutUnit,
-    contentEndLayoutUnit,
-  })) return blocked([
-    issue(
-      "invalid-returned-intervals",
-      "intervals",
-      "flow region intervals must be ordered, non-overlapping, in bounds, and positive width",
-    ),
-  ])
-  const nextYLayoutUnit = relevantFlowAffectingEntries.reduce<number | null>(
-    (minimum, entry) => {
-      const bottom = entry.envelope.bottomLayoutUnit
-      if (bottom <= input.band.topLayoutUnit) return minimum
-      return minimum == null || bottom < minimum ? bottom : minimum
-    },
-    null,
-  )
-  if (subtracted.intervals.length === 0 && nextYLayoutUnit == null) {
-    return blocked([
-      issue(
-        "no-vertical-progress",
-        "nextYLayoutUnit",
-        "blocked flow regions require a strictly advancing vertical event",
-      ),
-    ])
-  }
+  if (kernel.status === "blocked") return blocked(kernel.issues)
   return accepted({
     spatialIndexFingerprint: input.spatialIndex.fingerprint,
     band: input.band,
     contentInsets: input.contentInsets,
-    intervals: subtracted.intervals,
-    intersectingEntryFingerprints: relevantFlowAffectingEntries.map(
-      (entry) => entry.fingerprint,
-    ),
-    nextYLayoutUnit,
-    work: {
-      fastPath: "none",
-      spatialIndexQueryCount: 1,
-      visitedSpatialNodeCount: queried.work.visitedNodeCount,
-      matchedSpatialEntryCount: queried.work.matchedEntryCount,
-      rectangularSubtractionCount: subtracted.subtractionCount,
-    },
+    intervals: kernel.intervals,
+    intersectingEntryFingerprints: kernel.intersectingEntryFingerprints,
+    nextYLayoutUnit: kernel.nextYLayoutUnit,
+    work: kernel.work,
   })
 }
 

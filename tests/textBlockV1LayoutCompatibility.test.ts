@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   layoutVNextTextBlockAuthoredBoxGeometryV1,
@@ -19,6 +20,14 @@ function accepted(options: Parameters<typeof acceptedAuthoredBoxGeometryFixture>
 }
 
 describe("frozen V1 layout compatibility", () => {
+  it("keeps shared spatial kernels internal to the V1 implementation", () => {
+    // Catches a production surface break that exports refactoring-only kernels from Core.
+    const indexSource = readFileSync(new URL("../src/index.ts", import.meta.url), "utf8")
+
+    expect(indexSource).not.toContain("textBlockSpatialIndexKernelV1")
+    expect(indexSource).not.toContain("textBlockFlowRegionKernelV1")
+  })
+
   it("retains exact accepted geometry, fingerprints, and rejection order", async () => {
     const fixture = acceptedAuthoredBoxGeometryFixture()
     const facts = {

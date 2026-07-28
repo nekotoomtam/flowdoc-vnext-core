@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
@@ -86,6 +87,23 @@ function provide(
 }
 
 describe("TextBlock flow region provider v1", () => {
+  it("delegates flow-region interval, barrier, overlay, and event calculation to the shared kernel", () => {
+    // Catches a future production split that leaves interval subtraction outside the
+    // shared flow-region kernel, allowing V1 providers to diverge.
+    const providerSource = readFileSync(
+      new URL("../src/layout/textBlockFlowRegionProviderV1.ts", import.meta.url),
+      "utf8",
+    )
+    const kernelSource = readFileSync(
+      new URL("../src/layout/textBlockFlowRegionKernelV1.ts", import.meta.url),
+      "utf8",
+    )
+
+    expect(providerSource).toContain("computeVNextTextBlockFlowRegionKernelV1")
+    expect(providerSource).not.toContain("function subtractRectangles")
+    expect(kernelSource).toContain("function subtractRectangles")
+  })
+
   it.each([
     {
       name: "left exclusion",
