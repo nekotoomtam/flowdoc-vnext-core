@@ -70,6 +70,10 @@ type V1TextRetainedFragment = Omit<
   "xLayoutUnit" | "fingerprint"
 >
 
+type V1BoxLineProjectionResult =
+  | { status: "accepted"; lines: readonly VNextTextBlockAuthoredBoxLineV1[] }
+  | { status: "blocked"; issue: VNextTextBlockAuthoredBoxGeometryIssueV1 }
+
 function issue(
   code: VNextTextBlockAuthoredBoxGeometryIssueCodeV1,
   path: string,
@@ -160,7 +164,7 @@ function projectBoxLocalLines(input: {
     { status: "accepted" }
   >["lines"]
   box: ConvertedBoxGeometry
-}): readonly VNextTextBlockAuthoredBoxLineV1[] | VNextTextBlockAuthoredBoxGeometryIssueV1 {
+}): V1BoxLineProjectionResult {
   const projection = projectVNextTextBlockAuthoredBoxGeometryKernelV1<
     V1TextRetainedFragment,
     never
@@ -190,7 +194,9 @@ function projectBoxLocalLines(input: {
     contentOriginXLayoutUnit: input.box.contentOriginXLayoutUnit,
     contentOriginYLayoutUnit: input.box.contentOriginYLayoutUnit,
   })
-  return projection.status === "accepted" ? projection.lines : projection.issues[0]!
+  return projection.status === "accepted"
+    ? { status: "accepted", lines: projection.lines }
+    : { status: "blocked", issue: projection.issues[0]! }
 }
 
 export function layoutVNextTextBlockAuthoredBoxGeometryV1(input: {
@@ -303,8 +309,9 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
     spatialInspection.message,
   ))
 
-  const lines = projectBoxLocalLines({ lines: spatialLayout.lines, box })
-  if (!Array.isArray(lines)) return blocked(lines)
+  const lineProjection = projectBoxLocalLines({ lines: spatialLayout.lines, box })
+  if (lineProjection.status !== "accepted") return blocked(lineProjection.issue)
+  const lines = lineProjection.lines
   const autoHeight = deriveVNextTextBlockAuthoredBoxAutoHeightKernelV1({
     topInsetLayoutUnit: box.contentInsetsLayoutUnit.top,
     bottomInsetLayoutUnit: box.contentInsetsLayoutUnit.bottom,
