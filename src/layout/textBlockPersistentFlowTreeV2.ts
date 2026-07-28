@@ -381,6 +381,8 @@ function treeFingerprintFacts(tree: VNextTextBlockPersistentFlowTreeV2): unknown
     summary: tree.summary,
     itemsByKind: tree.itemsByKind,
     contracts: tree.contracts,
+    mayPublishLayout: tree.mayPublishLayout,
+    productionBinding: tree.productionBinding,
   }
 }
 

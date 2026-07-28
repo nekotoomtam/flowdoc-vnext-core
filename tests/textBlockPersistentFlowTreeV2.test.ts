@@ -216,4 +216,17 @@ describe("VNext TextBlock Persistent Flow Tree V2", () => {
       tree: { mayPublishLayout: false, productionBinding: false },
     })
   })
+
+  it("fingerprints root non-production capability facts as public tree dependencies", () => {
+    const fixture = acceptedInlineImageEvidenceFixture({ content: "image-only" })
+    const result = createVNextTextBlockPersistentFlowTreeV2(fixture)
+    expect(result).toMatchObject({
+      status: "accepted",
+      tree: {
+        mayPublishLayout: false,
+        productionBinding: false,
+        fingerprint: "sha256:6bd8a1056cd22f765f51f2eb9ca1f77305de13c42bcc2a2a8fab8d587d727879",
+      },
+    })
+  })
 })
