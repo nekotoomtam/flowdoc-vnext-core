@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   createVNextTextBlockSpatialIndexV2,
+  inspectVNextTextBlockFlowRegionResultV2,
   provideVNextTextBlockFlowRegionsV2,
 } from "../src/index.js"
 import { acceptedInlineImageFlowTreeFixture } from "./helpers/textBlockInlineImageFlowV2.js"
@@ -28,6 +29,7 @@ describe("VNext TextBlock Flow Region Provider V2", () => {
     })
     expect(result).toMatchObject({ status: "accepted", intervals, mayPublishLayout: false, productionBinding: false })
     if (_name === "barrier") expect(result).toMatchObject({ nextYLayoutUnit: 10_000_000 })
+    if (result.status === "accepted") expect(inspectVNextTextBlockFlowRegionResultV2(result)).toEqual({ status: "valid", fingerprint: result.fingerprint })
   })
 
   it("keeps overlays neutral and performs zero queries when flow-affecting count is zero", () => {

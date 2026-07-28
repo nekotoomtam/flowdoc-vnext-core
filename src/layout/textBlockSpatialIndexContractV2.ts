@@ -77,8 +77,11 @@ export type VNextTextBlockSpatialIndexUpdateResultV2 =
         contractVersion: 2
         previousIndexFingerprint: string
         nextIndexFingerprint: string
+        geometryOwnerFingerprint: string
         affectedBands: readonly VNextTextBlockSpatialBandV1[]
         work: VNextTextBlockSpatialIndexUpdateWorkV1
+        mayPublishLayout: false
+        productionBinding: false
         fingerprint: string
       }
       nextIndex: VNextTextBlockSpatialIndexV2

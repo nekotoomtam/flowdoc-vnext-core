@@ -1,8 +1,10 @@
 import { createSpatialEntryV1 } from "./textBlockSpatialIndexInternalsV1.js"
+import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import { updateVNextTextBlockSpatialIndexRootKernelV1 } from "./textBlockSpatialIndexKernelV1.js"
 import {
   createSpatialIndexFromRootV2,
   deepFreezeSpatialV2,
+  deeplyFrozenSpatialV2,
   fingerprintV2,
   getSpatialIndexEntriesV2,
   hasSpatialIndexBindingV2,
@@ -20,18 +22,20 @@ import type { VNextTextBlockInitialFlowV1 } from "./textBlockInitialFlowInputV1.
 import type { VNextTextBlockFlowEvidenceV2 } from "./textBlockFlowEvidenceContractV2.js"
 import type { VNextTextBlockPersistentFlowTreeV2 } from "./textBlockPersistentFlowContractV2.js"
 
-const updates = new WeakMap<object, { previousIndex: object; nextIndex: object }>()
+const updates = new WeakMap<object, { previousIndex: VNextTextBlockSpatialIndexV2; nextIndex: VNextTextBlockSpatialIndexV2; canonicalFacts: string; fingerprint: string }>()
 const issue = (code: VNextTextBlockSpatialIssueV2["code"], path: string, message: string, objectId?: string): VNextTextBlockSpatialIssueV2 => ({ code, severity: "error", path, message, ...(objectId == null ? {} : { objectId }) })
 const blocked = (issues: readonly VNextTextBlockSpatialIssueV2[]): VNextTextBlockSpatialIndexUpdateResultV2 => ({ status: "blocked", update: null, nextIndex: null, issues })
 
 type UpdateInput = {
   initialFlow: VNextTextBlockInitialFlowV1; evidence: VNextTextBlockFlowEvidenceV2; persistentFlowTree: VNextTextBlockPersistentFlowTreeV2
-  previousIndex: VNextTextBlockSpatialIndexV2; expectedPreviousIndexFingerprint: string; objectId: string
+  previousIndex: VNextTextBlockSpatialIndexV2; expectedPreviousIndexFingerprint: string; objectId: string; geometryOwnerFingerprint: string
   nextGeometry: { xLayoutUnit: number; yLayoutUnit: number; widthLayoutUnit: number; heightLayoutUnit: number }
 }
 function exactRecord(value: unknown, keys: readonly string[]): Record<string, unknown> | null {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return null
   try {
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return null
     const actual = Reflect.ownKeys(value)
     if (actual.length !== keys.length || actual.some((key) => typeof key !== "string" || !keys.includes(key))) return null
     const copy = Object.create(null) as Record<string, unknown>
@@ -44,7 +48,7 @@ function exactRecord(value: unknown, keys: readonly string[]): Record<string, un
   } catch { return null }
 }
 function exactUpdateInput(value: unknown): UpdateInput | null {
-  const outer = exactRecord(value, ["initialFlow", "evidence", "persistentFlowTree", "previousIndex", "expectedPreviousIndexFingerprint", "objectId", "nextGeometry"])
+  const outer = exactRecord(value, ["initialFlow", "evidence", "persistentFlowTree", "previousIndex", "expectedPreviousIndexFingerprint", "objectId", "geometryOwnerFingerprint", "nextGeometry"])
   if (outer == null) return null
   const geometry = exactRecord(outer.nextGeometry, ["xLayoutUnit", "yLayoutUnit", "widthLayoutUnit", "heightLayoutUnit"])
   return geometry == null ? null : { ...outer, nextGeometry: geometry } as unknown as UpdateInput
@@ -68,6 +72,7 @@ export function createVNextTextBlockSpatialIndexUpdateV2(input: unknown): VNextT
   const entries = getSpatialIndexEntriesV2(input.previousIndex)
   const previousEntry = entries?.get(input.objectId)
   if (previousEntry == null) return blocked([issue("spatial-object-not-found", "objectId", `positioned object \"${input.objectId}\" was not found`, input.objectId)])
+  if (input.geometryOwnerFingerprint !== previousEntry.geometryOwnerFingerprint) return blocked([issue("spatial-owner-mismatch", "geometryOwnerFingerprint", "positioned object geometry owner fingerprint does not match", input.objectId)])
   const created = createSpatialEntryV1({ value: { objectId: previousEntry.objectId, geometryOwnerFingerprint: previousEntry.geometryOwnerFingerprint, ...input.nextGeometry, clearance: previousEntry.clearance, wrapPolicy: previousEntry.wrapPolicy }, contentRightLayoutUnit: input.previousIndex.contentRightLayoutUnit, path: "nextGeometry" })
   if (created.status === "blocked") return blocked([issue(created.issue.code, created.issue.path, created.issue.message, created.issue.objectId)])
   if (created.entry.fingerprint === previousEntry.fingerprint) return blocked([issue("no-spatial-change", "nextGeometry", "spatial update must change positioned-object geometry", input.objectId)])
@@ -78,14 +83,23 @@ export function createVNextTextBlockSpatialIndexUpdateV2(input: unknown): VNextT
   nextEntries.set(input.objectId, created.entry)
   const nextIndex = createSpatialIndexFromRootV2({ initialFlow: input.initialFlow, evidence: input.evidence, persistentFlowTree: input.persistentFlowTree, root: kernel.root, authority, entries: nextEntries })
   const work = { deleteVisitedNodeCount: kernel.deleteVisitedNodeCount, insertVisitedNodeCount: kernel.insertVisitedNodeCount, createdNodeCount: kernel.createdNodeCount, completeIndexRebuildCount: 0 as const }
-  const facts = { source: "vnext-text-block-spatial-index-update-v2" as const, contractVersion: 2 as const, previousIndexFingerprint: input.previousIndex.fingerprint, nextIndexFingerprint: nextIndex.fingerprint, affectedBands: affectedBands({ topLayoutUnit: previousEntry.envelope.topLayoutUnit, bottomLayoutUnit: previousEntry.envelope.bottomLayoutUnit }, { topLayoutUnit: created.entry.envelope.topLayoutUnit, bottomLayoutUnit: created.entry.envelope.bottomLayoutUnit }), work }
+  const facts = { source: "vnext-text-block-spatial-index-update-v2" as const, contractVersion: 2 as const, previousIndexFingerprint: input.previousIndex.fingerprint, nextIndexFingerprint: nextIndex.fingerprint, geometryOwnerFingerprint: input.geometryOwnerFingerprint, affectedBands: affectedBands({ topLayoutUnit: previousEntry.envelope.topLayoutUnit, bottomLayoutUnit: previousEntry.envelope.bottomLayoutUnit }, { topLayoutUnit: created.entry.envelope.topLayoutUnit, bottomLayoutUnit: created.entry.envelope.bottomLayoutUnit }), work, mayPublishLayout: false as const, productionBinding: false as const }
+  const canonicalFacts = stringifyVNextCanonicalJson(facts)
   const update = deepFreezeSpatialV2({ ...facts, fingerprint: fingerprintV2(facts) })
-  updates.set(update, { previousIndex: input.previousIndex, nextIndex })
+  updates.set(update, { previousIndex: input.previousIndex, nextIndex, canonicalFacts, fingerprint: update.fingerprint })
   return { status: "accepted", update, nextIndex, issues: [] }
 }
 
-export function inspectVNextTextBlockSpatialIndexUpdateV2(value: unknown): { status: "valid"; fingerprint: string } | { status: "invalid"; code: "spatial-update-provenance-mismatch" | "spatial-update-binding-mismatch"; message: string } {
-  if (value == null || typeof value !== "object" || !updates.has(value)) return { status: "invalid", code: "spatial-update-provenance-mismatch", message: "spatial V2 update is not the exact process-local Core object" }
-  if (!Object.isFrozen(value)) return { status: "invalid", code: "spatial-update-binding-mismatch", message: "spatial V2 update must remain frozen" }
-  return { status: "valid", fingerprint: (value as { fingerprint: string }).fingerprint }
+export function inspectVNextTextBlockSpatialIndexUpdateV2(input: { update: unknown; previousIndex: VNextTextBlockSpatialIndexV2; nextIndex: VNextTextBlockSpatialIndexV2 }): { status: "valid"; fingerprint: string } | { status: "invalid"; code: "spatial-update-provenance-mismatch" | "spatial-update-binding-mismatch"; message: string } {
+  const update = input.update
+  if (update == null || typeof update !== "object" || !updates.has(update)) return { status: "invalid", code: "spatial-update-provenance-mismatch", message: "spatial V2 update is not the exact process-local Core object" }
+  if (!deeplyFrozenSpatialV2(update)) return { status: "invalid", code: "spatial-update-binding-mismatch", message: "spatial V2 update must remain recursively frozen" }
+  try {
+    const accepted = update as { fingerprint: string; previousIndexFingerprint: string; nextIndexFingerprint: string }
+    const stored = updates.get(update)!
+    const { fingerprint, ...facts } = accepted
+    const canonicalFacts = stringifyVNextCanonicalJson(facts)
+    if (stored.previousIndex !== input.previousIndex || stored.nextIndex !== input.nextIndex || accepted.previousIndexFingerprint !== input.previousIndex.fingerprint || accepted.nextIndexFingerprint !== input.nextIndex.fingerprint || stored.fingerprint !== fingerprint || stored.canonicalFacts !== canonicalFacts || fingerprint !== fingerprintV2(facts)) return { status: "invalid", code: "spatial-update-binding-mismatch", message: "spatial V2 update does not match its exact index pair and canonical facts" }
+    return { status: "valid", fingerprint }
+  } catch { return { status: "invalid", code: "spatial-update-provenance-mismatch", message: "spatial V2 update is not canonically fingerprintable" } }
 }

@@ -24,7 +24,7 @@ import {
 } from "./textBlockSpatialIndexContractV2.js"
 
 type Authority = NonNullable<ReturnType<typeof getVNextTextBlockV2LayoutAuthorityInternalV1>>
-type BoundIndex = { initialFlow: object; evidence: object; tree: object; authority: Authority; entries: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1> }
+type BoundIndex = { initialFlow: object; evidence: object; tree: object; authority: Authority; entries: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1>; canonicalFacts: string; fingerprint: string }
 
 const indexes = new WeakSet<object>()
 const bindings = new WeakMap<VNextTextBlockSpatialIndexV2, BoundIndex>()
@@ -55,6 +55,8 @@ export function blockedIndexV2(issues: readonly VNextTextBlockSpatialIssueV2[]):
 function exactBuildInput(value: unknown): VNextTextBlockSpatialIndexBuildInputV2 | null {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return null
   try {
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return null
     const keys = Reflect.ownKeys(value)
     const expected = ["inputAuthority", "initialFlow", "evidence", "persistentFlowTree", "entries"]
     if (keys.length !== expected.length || keys.some((key) => typeof key !== "string" || !expected.includes(key))) return null
@@ -64,7 +66,45 @@ function exactBuildInput(value: unknown): VNextTextBlockSpatialIndexBuildInputV2
       if (descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true) return null
       copy[key] = descriptor.value
     }
-    return copy as unknown as VNextTextBlockSpatialIndexBuildInputV2
+    const entries = snapshotEntries(copy.entries)
+    return entries == null ? null : { ...copy, entries } as unknown as VNextTextBlockSpatialIndexBuildInputV2
+  } catch { return null }
+}
+
+function exactDataRecord(value: unknown, keys: readonly string[]): Record<string, unknown> | null {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) return null
+  try {
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return null
+    const actual = Reflect.ownKeys(value)
+    if (actual.length !== keys.length || actual.some((key) => typeof key !== "string" || !keys.includes(key))) return null
+    const result = Object.create(null) as Record<string, unknown>
+    for (const key of keys) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
+      if (descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true) return null
+      result[key] = descriptor.value
+    }
+    return result
+  } catch { return null }
+}
+
+function snapshotEntries(value: unknown): VNextTextBlockSpatialIndexBuildInputV2["entries"] | null {
+  if (!Array.isArray(value)) return null
+  try {
+    if (Object.getPrototypeOf(value) !== Array.prototype) return null
+    const length = Object.getOwnPropertyDescriptor(value, "length")
+    if (length == null || !Object.hasOwn(length, "value") || !Number.isSafeInteger(length.value) || length.value < 0) return null
+    if (Reflect.ownKeys(value).length !== length.value + 1) return null
+    const entries: unknown[] = []
+    for (let index = 0; index < length.value; index += 1) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
+      if (descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true) return null
+      const entry = exactDataRecord(descriptor.value, ["objectId", "geometryOwnerFingerprint", "xLayoutUnit", "yLayoutUnit", "widthLayoutUnit", "heightLayoutUnit", "clearance", "wrapPolicy"])
+      const clearance = entry == null ? null : exactDataRecord(entry.clearance, ["topLayoutUnit", "rightLayoutUnit", "bottomLayoutUnit", "leftLayoutUnit"])
+      if (entry == null || clearance == null) return null
+      entries.push({ ...entry, clearance })
+    }
+    return entries as VNextTextBlockSpatialIndexBuildInputV2["entries"]
   } catch { return null }
 }
 
@@ -105,9 +145,10 @@ export function createSpatialIndexFromRootV2(input: Omit<VNextTextBlockSpatialIn
     root: input.root, summary,
     contracts: { canonicalPositionedObjectSchema: false as const, authoredPositionedObjectBinding: false as const, sharedPersistentTreap: true as const, processLocalImmutableIndex: true as const, mayPublishLayout: false as const, productionBinding: false as const },
   }
-  const index = deepFreezeSpatialV2({ ...facts, fingerprint: fingerprintV2(facts) })
+  const canonicalFacts = stringifyVNextCanonicalJson(facts)
+  const index = deepFreezeSpatialV2({ ...facts, fingerprint: createVNextCompactFingerprint(canonicalFacts) })
   indexes.add(index)
-  bindings.set(index, { initialFlow: input.initialFlow, evidence: input.evidence, tree: input.persistentFlowTree, authority: input.authority, entries: input.entries })
+  bindings.set(index, { initialFlow: input.initialFlow, evidence: input.evidence, tree: input.persistentFlowTree, authority: input.authority, entries: new Map(input.entries), canonicalFacts, fingerprint: index.fingerprint })
   return index
 }
 
@@ -127,16 +168,26 @@ export function createVNextTextBlockSpatialIndexV2(input: unknown): VNextTextBlo
 export function inspectVNextTextBlockSpatialIndexV2(index: unknown): VNextTextBlockSpatialIndexInspectionV2 {
   if (index == null || typeof index !== "object" || !indexes.has(index)) return { status: "invalid", code: "spatial-index-provenance-mismatch", message: "spatial V2 index is not the exact process-local Core object" }
   if (!deeplyFrozenSpatialV2(index)) return { status: "invalid", code: "spatial-index-not-deeply-frozen", message: "registered spatial V2 index must remain recursively frozen" }
-  return { status: "valid", fingerprint: (index as VNextTextBlockSpatialIndexV2).fingerprint }
+  try {
+    const accepted = index as VNextTextBlockSpatialIndexV2
+    const binding = bindings.get(accepted)
+    const { fingerprint, ...facts } = accepted
+    const canonicalFacts = stringifyVNextCanonicalJson(facts)
+    if (binding == null || fingerprint !== createVNextCompactFingerprint(canonicalFacts) || binding.fingerprint !== fingerprint || binding.canonicalFacts !== canonicalFacts) return { status: "invalid", code: "spatial-index-provenance-mismatch", message: "registered spatial V2 index no longer matches canonical Core facts" }
+    return { status: "valid", fingerprint }
+  } catch { return { status: "invalid", code: "spatial-index-provenance-mismatch", message: "registered spatial V2 index is not canonically fingerprintable" } }
 }
 
 export function hasSpatialIndexBindingV2(input: Omit<VNextTextBlockSpatialIndexBuildInputV2, "inputAuthority" | "entries"> & { index: VNextTextBlockSpatialIndexV2 }): boolean {
   const binding = bindings.get(input.index)
   const authority = resolveAuthority(input)
-  return binding != null && authority != null && binding.initialFlow === input.initialFlow && binding.evidence === input.evidence && binding.tree === input.persistentFlowTree && binding.authority === authority
+  return inspectVNextTextBlockSpatialIndexV2(input.index).status === "valid" && binding != null && authority != null && binding.initialFlow === input.initialFlow && binding.evidence === input.evidence && binding.tree === input.persistentFlowTree && binding.authority === authority
 }
 
-export function getSpatialIndexEntriesV2(index: VNextTextBlockSpatialIndexV2): ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1> | null { return bindings.get(index)?.entries ?? null }
+export function getSpatialIndexEntriesV2(index: VNextTextBlockSpatialIndexV2): ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1> | null {
+  const entries = bindings.get(index)?.entries
+  return entries == null ? null : new Map(entries)
+}
 
 export function queryVNextTextBlockSpatialIndexV2(index: VNextTextBlockSpatialIndexV2, band: { topLayoutUnit: number; bottomLayoutUnit: number }) {
   return queryVNextTextBlockSpatialIndexKernelV1({ root: index.root, topLayoutUnit: band.topLayoutUnit, bottomLayoutUnit: band.bottomLayoutUnit })

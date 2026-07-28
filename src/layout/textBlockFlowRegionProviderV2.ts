@@ -1,6 +1,8 @@
 import { computeVNextTextBlockFlowRegionKernelV1, type VNextTextBlockFlowRegionKernelFailureV1 } from "./textBlockFlowRegionKernelV1.js"
+import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
   deepFreezeSpatialV2,
+  deeplyFrozenSpatialV2,
   fingerprintV2,
   hasSpatialIndexBindingV2,
   inspectVNextTextBlockSpatialIndexV2,
@@ -11,7 +13,7 @@ import type { VNextTextBlockFlowEvidenceV2 } from "./textBlockFlowEvidenceContra
 import type { VNextTextBlockPersistentFlowTreeV2 } from "./textBlockPersistentFlowContractV2.js"
 import type { VNextTextBlockSpatialBandV1, VNextTextBlockFlowRegionResultV2, VNextTextBlockSpatialIndexV2, VNextTextBlockSpatialIssueV2 } from "./textBlockSpatialIndexContractV2.js"
 
-const results = new WeakSet<object>()
+const results = new WeakMap<object, { canonicalFacts: string; fingerprint: string }>()
 const issue = (code: VNextTextBlockSpatialIssueV2["code"], path: string, message: string): VNextTextBlockSpatialIssueV2 => ({ code, severity: "error", path, message })
 const blocked = (issues: readonly VNextTextBlockSpatialIssueV2[]): VNextTextBlockFlowRegionResultV2 => ({ status: "blocked", source: "vnext-text-block-flow-region-v2", contractVersion: 2, intervals: null, intersectingEntryFingerprints: null, nextYLayoutUnit: null, work: null, mayPublishLayout: false, productionBinding: false, fingerprint: null, issues })
 function failureIssue(failure: VNextTextBlockFlowRegionKernelFailureV1): VNextTextBlockSpatialIssueV2 { return failure === "no-vertical-progress" ? issue("no-vertical-progress", "nextYLayoutUnit", "blocked flow regions require a strictly advancing vertical event") : issue("invalid-returned-intervals", "intervals", "flow region intervals are invalid") }
@@ -19,6 +21,8 @@ type ProviderInput = { initialFlow: VNextTextBlockInitialFlowV1; evidence: VNext
 function exactRecord(value: unknown, keys: readonly string[]): Record<string, unknown> | null {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return null
   try {
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return null
     const actual = Reflect.ownKeys(value)
     if (actual.length !== keys.length || actual.some((key) => typeof key !== "string" || !keys.includes(key))) return null
     const copy = Object.create(null) as Record<string, unknown>
@@ -56,13 +60,21 @@ export function provideVNextTextBlockFlowRegionsV2(input: unknown): VNextTextBlo
   const kernel = computeVNextTextBlockFlowRegionKernelV1({ contentStartLayoutUnit: start, contentEndLayoutUnit: end, bandTopLayoutUnit: input.band.topLayoutUnit, bandBottomLayoutUnit: input.band.bottomLayoutUnit, flowAffectingEntryCount: input.spatialIndex.summary.flowAffectingEntryCount, query: () => queryVNextTextBlockSpatialIndexV2(input.spatialIndex, input.band) })
   if (kernel.status === "blocked") return blocked([failureIssue(kernel.failure)])
   const facts = { status: "accepted" as const, source: "vnext-text-block-flow-region-v2" as const, contractVersion: 2 as const, spatialIndexFingerprint: input.spatialIndex.fingerprint, band: { ...input.band }, contentInsets: { ...input.contentInsets }, intervals: kernel.intervals.map((item) => ({ ...item })), intersectingEntryFingerprints: [...kernel.intersectingEntryFingerprints], nextYLayoutUnit: kernel.nextYLayoutUnit, work: { ...kernel.work }, mayPublishLayout: false as const, productionBinding: false as const, issues: [] as [] }
+  const canonicalFacts = stringifyVNextCanonicalJson(facts)
   const result = deepFreezeSpatialV2({ ...facts, fingerprint: fingerprintV2(facts) })
-  results.add(result)
+  results.set(result, { canonicalFacts, fingerprint: result.fingerprint })
   return result
 }
 
 export function inspectVNextTextBlockFlowRegionResultV2(value: unknown): { status: "valid"; fingerprint: string } | { status: "invalid"; code: "flow-region-provenance-mismatch" | "flow-region-not-deeply-frozen"; message: string } {
   if (value == null || typeof value !== "object" || !results.has(value)) return { status: "invalid", code: "flow-region-provenance-mismatch", message: "flow region V2 result is not the exact process-local Core object" }
-  if (!Object.isFrozen(value)) return { status: "invalid", code: "flow-region-not-deeply-frozen", message: "flow region V2 result must remain frozen" }
-  return { status: "valid", fingerprint: (value as { fingerprint: string }).fingerprint }
+  if (!deeplyFrozenSpatialV2(value)) return { status: "invalid", code: "flow-region-not-deeply-frozen", message: "flow region V2 result must remain recursively frozen" }
+  try {
+    const accepted = value as { fingerprint: string }
+    const { fingerprint, ...facts } = accepted
+    const canonicalFacts = stringifyVNextCanonicalJson(facts)
+    const stored = results.get(value)!
+    if (stored.fingerprint !== fingerprint || stored.canonicalFacts !== canonicalFacts || fingerprint !== fingerprintV2(facts)) return { status: "invalid", code: "flow-region-provenance-mismatch", message: "flow region V2 result no longer matches canonical Core facts" }
+    return { status: "valid", fingerprint }
+  } catch { return { status: "invalid", code: "flow-region-provenance-mismatch", message: "flow region V2 result is not canonically fingerprintable" } }
 }

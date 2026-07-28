@@ -67,9 +67,18 @@ export * from "./layout/textBlockSpatialIndexContractV1.js"
 export * from "./layout/textBlockSpatialIndexV1.js"
 export * from "./layout/textBlockSpatialIndexUpdateV1.js"
 export * from "./layout/textBlockSpatialIndexContractV2.js"
-export * from "./layout/textBlockSpatialIndexV2.js"
-export * from "./layout/textBlockSpatialIndexUpdateV2.js"
-export * from "./layout/textBlockFlowRegionProviderV2.js"
+export {
+  createVNextTextBlockSpatialIndexV2,
+  inspectVNextTextBlockSpatialIndexV2,
+} from "./layout/textBlockSpatialIndexV2.js"
+export {
+  createVNextTextBlockSpatialIndexUpdateV2,
+  inspectVNextTextBlockSpatialIndexUpdateV2,
+} from "./layout/textBlockSpatialIndexUpdateV2.js"
+export {
+  provideVNextTextBlockFlowRegionsV2,
+  inspectVNextTextBlockFlowRegionResultV2,
+} from "./layout/textBlockFlowRegionProviderV2.js"
 export * from "./layout/textBlockSpatialWrappingLayoutContractV1.js"
 export * from "./layout/textBlockSpatialWrappingLayoutV1.js"
 export * from "./layout/textBlockAuthoredBoxGeometryContractV1.js"
