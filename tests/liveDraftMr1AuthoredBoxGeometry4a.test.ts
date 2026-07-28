@@ -15,8 +15,11 @@ const implementationBaseline = "d39d61f8c16b46b4fb709d045890ab9ee8677fbd"
 const evidencePath = "docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md"
 const deferredNoGo =
   "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
-const phase4bGate =
-  "`Phase 4B: Inline Image Line-Box Geometry` requires a separately reviewed and explicitly approved design before implementation."
+const phase5Gate =
+  "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
+const phase4bNoGo =
+  "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
+const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 const focusedTotals = "focused Phase 4A gate passed 8 files / 131 tests"
 const fullTotals = "full `npm run check` passed 420 files / 2,114 tests"
 
@@ -77,11 +80,11 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
     expect(autoHeight).toContain("`maximumBottomLayoutUnit`")
     expect(autoHeight).toContain("zero-query fast path")
     expect(identity).toContain("no spatial-line reuse/reconvergence claim")
-    expect(next).toContain("Stop after Phase 4A.")
-    expect(next).toContain(phase4bGate)
+    expect(next).toContain("Historical pointer status on 2026-07-28")
+    expect(next).toContain("The active Core handoff is Phase 4B")
   })
 
-  it("advances only active historical pointers to the Phase 4B design-review gate", () => {
+  it("retains Phase 4A history while advancing the active pointer through accepted Phase 4B", () => {
     const phase3 = read("docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md")
     const crossRuntime = read("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("docs/PHASE_LEDGER.md")
@@ -104,18 +107,20 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
     expect(phase3Next).toContain(
       "Historical pointer status on 2026-07-27: fulfilled by `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`.",
     )
-    expect(crossRuntime.split(/\r?\n/u, 1)[0]).toContain("Phase 4A")
-    expect(crossHeader).toContain("updated through `Phase 4A: Authored Box Geometry` on 2026-07-27")
-    expect(crossBaseline).toContain(`Current Phase 4A Core implementation baseline: \`${implementationBaseline}\`.`)
-    expect(requiredReading.match(/^- `[^`]+`/mu)?.[0]).toBe(`- \`${evidencePath}\``)
+    expect(crossRuntime.split(/\r?\n/u, 1)[0]).toContain("Phase 4B")
+    expect(crossHeader).toContain("updated through `Phase 4B: Inline Image Line-Box Geometry` on 2026-07-28")
+    expect(crossBaseline).toContain("Current Phase 4B Core implementation baseline: `f8eb3ba`.")
+    expect(requiredReading.match(/^- `[^`]+`/mu)?.[0]).toBe(
+      "- `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`",
+    )
 
     for (const active of [currentTask, activePrompt]) {
-      expect(active).toContain("Stop after Phase 4A.")
-      expect(active).toContain(phase4bGate)
-      expect(active).toContain("historical evidence and is not an active instruction")
-      expect(active.indexOf("Stop after Phase 4A.")).toBeLessThan(
-        active.indexOf("Proceed only to `Phase 4: Initial TextBlock Geometry`."),
-      )
+      expect(active).toContain("Phase 4B")
+      expect(active).toContain(phase5Gate)
+      expect(active).toContain(phase4bNoGo)
+      expect(active).not.toContain("Stop after Phase 4A.")
+      expect(active).not.toContain("Proceed only to `Phase 4: Initial TextBlock Geometry`.")
+      for (const directive of supersededActiveDirectives) expect(active).not.toContain(directive)
     }
     for (const record of [crossPhase4a, ledgerPhase4a]) {
       expect(record).toContain(implementationBaseline)
@@ -123,7 +128,7 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
       expect(record).toContain("`productionBinding: false`")
       expect(record).toContain("`stagedEditorApply: false`")
       expect(record).toContain(deferredNoGo)
-      expect(record).toContain(phase4bGate)
+      expect(record).toContain("Phase 4B")
     }
     expect(design).toContain(
       "Status: implemented and accepted as the bounded Phase 4A Core checkpoint.",

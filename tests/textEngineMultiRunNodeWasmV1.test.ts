@@ -108,6 +108,7 @@ describe("MR1 real Node/WASM multi-run facts", () => {
     })
     expect(node.result.status).toBe("accepted")
     if (node.result.status !== "accepted") throw new Error(node.result.issues.map((item) => item.message).join("\n"))
+    expect(node.result).not.toHaveProperty("evidenceInput")
 
     const worker = await createFlowDocTextEngineMr1WorkerRuntimeV1({
       measurementProfileId: layoutInput.measurement.measurementProfileId,
@@ -131,6 +132,7 @@ describe("MR1 real Node/WASM multi-run facts", () => {
     const wasm = worker.layout(workerLayoutInput)
     expect(wasm.status).toBe("accepted")
     if (wasm.status !== "accepted") throw new Error(wasm.issues.map((item) => item.message).join("\n"))
+    expect(wasm).not.toHaveProperty("evidenceInput")
 
     expect(wasm.request).toEqual(node.result.request)
     expect(wasm.layout).toEqual(node.result.layout)

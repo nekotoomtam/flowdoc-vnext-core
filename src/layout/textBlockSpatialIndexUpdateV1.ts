@@ -14,15 +14,16 @@ import {
   createSpatialEntryV1,
   createSpatialIndexFromRootV1,
   deepFreezeSpatialV1,
-  deleteSpatialNodePathCopyV1,
   getSpatialIndexEntriesBindingV1,
   getSpatialIndexEntryBindingV1,
   hasSpatialIndexBindingV1,
   hasSpatialIndexProvenanceV1,
-  insertSpatialNodePathCopyV1,
+  materializeVNextTextBlockSpatialIndexNodeV1,
   spatialFingerprintV1,
   spatialIssueV1,
 } from "./textBlockSpatialIndexInternalsV1.js"
+import { updateVNextTextBlockSpatialIndexRootKernelV1 } from "./textBlockSpatialIndexKernelV1.js"
+import { getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1 } from "./textBlockLayoutAuthorityInternalsV1.js"
 
 const processLocalSpatialUpdatesV1 = new WeakMap<
   VNextTextBlockSpatialIndexUpdateV1,
@@ -148,30 +149,36 @@ export function createVNextTextBlockSpatialIndexUpdateV1(input: {
       "spatial index entry binding is unavailable",
     ),
   ])
-  const deleteWork = { visitedNodeCount: 0, createdNodeCount: 0 }
-  const withoutPrevious = deleteSpatialNodePathCopyV1(
-    input.previousIndex.root,
+  const kernelUpdate = updateVNextTextBlockSpatialIndexRootKernelV1({
+    root: input.previousIndex.root,
     previousEntry,
-    deleteWork,
-  )
-  const insertWork = { visitedNodeCount: 0, createdNodeCount: 0 }
-  const nextRoot = insertSpatialNodePathCopyV1(
-    withoutPrevious,
-    createdEntry.entry,
-    insertWork,
-  )
+    nextEntry: createdEntry.entry,
+    materializeNode: materializeVNextTextBlockSpatialIndexNodeV1,
+  })
+  const authority = getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1({
+    persistentFlowTree: input.persistentFlowTree,
+    request: input.request,
+  })
+  if (authority == null) return blocked([
+    spatialIssueV1(
+      "spatial-index-stale",
+      "previousIndex",
+      "spatial update requires the exact index, persistent flow tree, and unchanged request",
+    ),
+  ])
   const nextEntriesByObjectId = new Map(entriesByObjectId)
   nextEntriesByObjectId.set(input.objectId, createdEntry.entry)
   const nextIndex = createSpatialIndexFromRootV1({
     persistentFlowTree: input.persistentFlowTree,
     request: input.request,
-    root: nextRoot,
+    root: kernelUpdate.root,
+    authority,
     entriesByObjectId: nextEntriesByObjectId,
   })
   const work = {
-    deleteVisitedNodeCount: deleteWork.visitedNodeCount,
-    insertVisitedNodeCount: insertWork.visitedNodeCount,
-    createdNodeCount: deleteWork.createdNodeCount + insertWork.createdNodeCount,
+    deleteVisitedNodeCount: kernelUpdate.deleteVisitedNodeCount,
+    insertVisitedNodeCount: kernelUpdate.insertVisitedNodeCount,
+    createdNodeCount: kernelUpdate.createdNodeCount,
     completeIndexRebuildCount: 0 as const,
   }
   const facts = {

@@ -17,6 +17,11 @@ import {
   type VNextTextBlockPersistentFlowTreeV1,
 } from "./textBlockPersistentFlowContractV1.js"
 import type { VNextTextBlockMultiRunLayoutRequestV1 } from "./textBlockMultiRunLayoutContractV1.js"
+import {
+  buildVNextTextBlockPersistentRopeRootKernelV1,
+  countVNextTextBlockPersistentRopeNodesKernelV1,
+  partitionVNextTextBlockPersistentValuesKernelV1,
+} from "./textBlockPersistentRopeKernelV1.js"
 
 const processLocalPersistentFlowTreesV1 = new WeakSet<object>()
 const processLocalPersistentFlowTreeRequestsV1 = new WeakMap<
@@ -62,17 +67,10 @@ export function partitionPersistentFlowValuesV1<T>(
   maximum: number,
 ): T[][] {
   if (values.length === 0 || !Number.isSafeInteger(maximum) || maximum < 2) return []
-  const groupCount = Math.ceil(values.length / maximum)
-  const base = Math.floor(values.length / groupCount)
-  const remainder = values.length % groupCount
-  const groups: T[][] = []
-  let cursor = 0
-  for (let index = 0; index < groupCount; index += 1) {
-    const size = base + (index < remainder ? 1 : 0)
-    groups.push(values.slice(cursor, cursor + size))
-    cursor += size
-  }
-  return groups
+  return partitionVNextTextBlockPersistentValuesKernelV1(
+    values,
+    maximum,
+  ).map((group) => [...group])
 }
 
 export function registerVNextTextBlockPersistentFlowTreeInternalV1(
@@ -798,23 +796,23 @@ export function countVNextTextBlockPersistentFlowNodeLocalCanonicalBytesInternal
 export function buildVNextTextBlockPersistentFlowRootInternalV1(
   leaves: readonly VNextTextBlockPersistentFlowLeafV1[],
 ): VNextTextBlockPersistentFlowNodeV1 {
-  if (leaves.length === 0) throw new RangeError("persistent flow requires at least one leaf")
-  let level: VNextTextBlockPersistentFlowNodeV1[] = [...leaves]
-  while (level.length > 1) {
-    level = partitionPersistentFlowValuesV1(
-      level,
+  return buildVNextTextBlockPersistentRopeRootKernelV1<
+    VNextTextBlockPersistentFlowNodeV1
+  >({
+    leaves,
+    maximumBranchChildren:
       VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumBranchChildren,
-    ).map(createVNextTextBlockPersistentFlowBranchInternalV1)
-  }
-  return level[0]!
+    createBranch: createVNextTextBlockPersistentFlowBranchInternalV1,
+  })
 }
 
 export function countVNextTextBlockPersistentFlowNodesInternalV1(
   root: VNextTextBlockPersistentFlowNodeV1,
 ): number {
-  return root.nodeKind === "leaf"
-    ? 1
-    : requireSafe(safeSum([1, ...root.children.map(countVNextTextBlockPersistentFlowNodesInternalV1)]))
+  return countVNextTextBlockPersistentRopeNodesKernelV1({
+    root,
+    children: (node) => node.nodeKind === "branch" ? node.children : [],
+  })
 }
 
 export function createVNextTextBlockPersistentFlowLayoutContextFingerprintInternalV1(

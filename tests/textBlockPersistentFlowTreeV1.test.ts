@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1,
@@ -11,6 +13,20 @@ import {
 } from "./helpers/textBlockPersistentFlowV1.js"
 
 describe("TextBlock persistent flow tree v1", () => {
+  it("delegates generic rope construction to the shared internal kernel", () => {
+    const kernel = readFileSync(
+      resolve("src/layout/textBlockPersistentRopeKernelV1.ts"),
+      "utf8",
+    )
+    const v1 = readFileSync(
+      resolve("src/layout/textBlockPersistentFlowTreeInternalsV1.ts"),
+      "utf8",
+    )
+    expect(kernel).toContain("buildVNextTextBlockPersistentRopeRootKernelV1")
+    expect(v1).toContain("buildVNextTextBlockPersistentRopeRootKernelV1")
+    expect(v1).not.toContain("while (current.length > 1)")
+  })
+
   it("exposes an immutable fixed persistent-flow policy", () => {
     const policy = VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1
     const maximumItemRenderedUtf16Length = policy.maximumItemRenderedUtf16Length

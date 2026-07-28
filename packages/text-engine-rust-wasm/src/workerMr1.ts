@@ -8,6 +8,16 @@ import {
   createFlowDocTextEngineMultiRunLayoutV1,
   profileFlowDocTextEngineMultiRunLayoutV1,
 } from "./multiRunLayout.js"
+import {
+  createBlockedFlowDocTextEngineFlowEvidenceResultV2,
+  createFlowDocTextEngineFlowEvidenceV2,
+} from "./multiRunFlowEvidenceV2.js"
+import { preflightFlowDocTextEngineFlowEvidenceV2 } from
+  "./multiRunFlowEvidencePreflightV2.js"
+import type {
+  FlowDocTextEngineFlowEvidenceInputV2,
+  FlowDocTextEngineFlowEvidenceResultV2,
+} from "./multiRunFlowEvidenceContractV2.js"
 import type {
   FlowDocTextEngineMultiRunFontFaceV1,
   FlowDocTextEngineMultiRunLayoutInputV1,
@@ -54,6 +64,9 @@ export interface FlowDocTextEngineMr1WorkerRuntimeV1 {
   layout(
     input: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
   ): FlowDocTextEngineMultiRunLayoutResultV1
+  flowEvidence(
+    input: Omit<FlowDocTextEngineFlowEvidenceInputV2, "fontFaces">,
+  ): FlowDocTextEngineFlowEvidenceResultV2
   profileLayout(
     input: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
     clock: FlowDocTextEngineMultiRunProfileClockV1,
@@ -67,6 +80,29 @@ async function sha256(bytes: ArrayBuffer): Promise<string> {
 
 function requireFact(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message)
+}
+
+function workerFlowEvidenceInput(
+  input: unknown,
+  fontFaces: readonly FlowDocTextEngineMultiRunFontFaceV1[],
+): unknown {
+  try {
+    if (input == null || typeof input !== "object" || Array.isArray(input)) return null
+    const prototype = Object.getPrototypeOf(input)
+    if (prototype !== Object.prototype && prototype !== null) return null
+    if (Reflect.ownKeys(input).includes("fontFaces")) return null
+    const output = Object.create(prototype) as Record<PropertyKey, unknown>
+    Object.defineProperties(output, Object.getOwnPropertyDescriptors(input))
+    Object.defineProperty(output, "fontFaces", {
+      value: fontFaces.map((face) => structuredClone(face)),
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    })
+    return output
+  } catch {
+    return null
+  }
 }
 
 export async function createFlowDocTextEngineMr1WorkerRuntimeV1(
@@ -112,7 +148,9 @@ export async function createFlowDocTextEngineMr1WorkerRuntimeV1(
       return normalizeFlowDocTextEngineMr1SegmentationV1(raw)
     },
   }
-  const completeInput = (layoutInput: Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">) => {
+  const completeInput = <
+    T extends Omit<FlowDocTextEngineMultiRunLayoutInputV1, "fontFaces">,
+  >(layoutInput: T) => {
     requireFact(
       layoutInput.measurement.measurementProfileId === input.measurementProfileId,
       "MR1 layout profile does not match the initialized Worker runtime",
@@ -137,6 +175,22 @@ export async function createFlowDocTextEngineMr1WorkerRuntimeV1(
     },
     layout(layoutInput) {
       return createFlowDocTextEngineMultiRunLayoutV1(completeInput(layoutInput), multiRunRuntime)
+    },
+    flowEvidence(layoutInput) {
+      const preflight = preflightFlowDocTextEngineFlowEvidenceV2(
+        workerFlowEvidenceInput(layoutInput, [...faceById.values()]),
+      )
+      if (preflight.status !== "accepted") {
+        return createBlockedFlowDocTextEngineFlowEvidenceResultV2(
+          "browser-worker-wasm-mr1",
+          preflight.issues,
+        )
+      }
+      requireFact(
+        preflight.layout.measurement.measurementProfileId === input.measurementProfileId,
+        "MR1 layout profile does not match the initialized Worker runtime",
+      )
+      return createFlowDocTextEngineFlowEvidenceV2(preflight.layout, multiRunRuntime)
     },
     profileLayout(layoutInput, clock) {
       return profileFlowDocTextEngineMultiRunLayoutV1(completeInput(layoutInput), multiRunRuntime, clock)

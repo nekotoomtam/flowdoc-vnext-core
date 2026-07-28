@@ -4,10 +4,21 @@ import { existsSync, readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { resolve } from "node:path"
 import type { FlowDocTextEngineLiveDraftSmokeRowV1 } from "./liveDraftSmokeRows.js"
+import {
+  createBlockedFlowDocTextEngineFlowEvidenceResultV2,
+  createFlowDocTextEngineFlowEvidenceV2,
+} from "./multiRunFlowEvidenceV2.js"
+import { preflightFlowDocTextEngineFlowEvidenceV2 } from
+  "./multiRunFlowEvidencePreflightV2.js"
+import type {
+  FlowDocTextEngineFlowEvidenceInputV2,
+  FlowDocTextEngineFlowEvidenceResultV2,
+} from "./multiRunFlowEvidenceContractV2.js"
 import { createFlowDocTextEngineMultiRunLayoutV1 } from "./multiRunLayout.js"
 import type {
   FlowDocTextEngineMultiRunLayoutInputV1,
   FlowDocTextEngineMultiRunLayoutResultV1,
+  FlowDocTextEngineMultiRunRuntimeV1,
 } from "./multiRunLayoutContract.js"
 import {
   normalizeFlowDocTextEngineLiveDraftResultV1,
@@ -191,7 +202,29 @@ export function runFlowDocTextEngineNodeMultiRunLayoutV1(input: {
   requireFact(input.wasmSha256 === FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256, "MR1 WASM digest pin mismatch")
   const paths = buildNativeExecutors()
   const verifiedFontPaths = new Map<string, string>()
-  const result = createFlowDocTextEngineMultiRunLayoutV1(input.layout, {
+  const result = createFlowDocTextEngineMultiRunLayoutV1(
+    input.layout,
+    createFlowDocTextEngineNodeMultiRunRuntimeInternal(paths, verifiedFontPaths),
+  )
+  return {
+    identity: {
+      runtime: "node-native-mr1",
+      measurementProfileId: input.layout.measurement.measurementProfileId,
+      wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+      wasmExecution: false,
+      executesRustybuzz: true,
+      executesIcu4x: true,
+      productionBinding: false,
+    },
+    result,
+  }
+}
+
+function createFlowDocTextEngineNodeMultiRunRuntimeInternal(
+  paths: ReturnType<typeof resolveRuntimePaths>,
+  verifiedFontPaths: Map<string, string>,
+): FlowDocTextEngineMultiRunRuntimeV1 {
+  return {
     runtimeKind: "node-native-mr1",
     shape({ text, fontFace }) {
       let fontPath = verifiedFontPaths.get(fontFace.fontFaceId)
@@ -215,11 +248,53 @@ export function runFlowDocTextEngineNodeMultiRunLayoutV1(input: {
       )) as FlowDocTextEngineLiveDraftRawSegmentationV1
       return normalizeFlowDocTextEngineMr1SegmentationV1(raw)
     },
-  })
+  }
+}
+
+export function runFlowDocTextEngineNodeFlowEvidenceV2(input: {
+  layout: FlowDocTextEngineFlowEvidenceInputV2
+  wasmSha256: string
+}): {
+  identity: {
+    runtime: "node-native-mr1"
+    measurementProfileId: string
+    wasmSha256: typeof FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256
+    wasmExecution: false
+    executesRustybuzz: true
+    executesIcu4x: true
+    productionBinding: false
+  }
+  result: FlowDocTextEngineFlowEvidenceResultV2
+} {
+  requireFact(
+    input.wasmSha256 === FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+    "MR1 WASM digest pin mismatch",
+  )
+  const preflight = preflightFlowDocTextEngineFlowEvidenceV2(input.layout)
+  if (preflight.status !== "accepted") return {
+    identity: {
+      runtime: "node-native-mr1",
+      measurementProfileId: "unavailable",
+      wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+      wasmExecution: false,
+      executesRustybuzz: true,
+      executesIcu4x: true,
+      productionBinding: false,
+    },
+    result: createBlockedFlowDocTextEngineFlowEvidenceResultV2(
+      "node-native-mr1",
+      preflight.issues,
+    ),
+  }
+  const paths = buildNativeExecutors()
+  const result = createFlowDocTextEngineFlowEvidenceV2(
+    preflight.layout,
+    createFlowDocTextEngineNodeMultiRunRuntimeInternal(paths, new Map()),
+  )
   return {
     identity: {
       runtime: "node-native-mr1",
-      measurementProfileId: input.layout.measurement.measurementProfileId,
+      measurementProfileId: preflight.layout.measurement.measurementProfileId,
       wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
       wasmExecution: false,
       executesRustybuzz: true,

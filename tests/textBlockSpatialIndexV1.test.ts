@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
 import {
   collectVNextTextBlockSpatialIndexNodesForQaV1,
@@ -10,7 +12,137 @@ import {
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import { acceptedSpatialWrappingFixture } from "./helpers/textBlockSpatialWrappingV1.js"
 
+function sourceFile(source: string): ts.SourceFile {
+  return ts.createSourceFile("wrapper.ts", source, ts.ScriptTarget.Latest, true)
+}
+
+function propertyName(node: ts.Node): string | null {
+  return ts.isPropertyAccessExpression(node) ? node.name.text : null
+}
+
+function calledNames(source: string): readonly string[] {
+  const names: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
+      names.push(node.expression.text)
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile(source))
+  return names
+}
+
+function variableOwnerName(node: ts.Node): string | null {
+  for (let current: ts.Node | undefined = node; current != null; current = current.parent) {
+    if (ts.isVariableDeclaration(current) && ts.isIdentifier(current.name)) return current.name.text
+  }
+  return null
+}
+
+function treeWrapperOwnershipViolations(source: string): readonly string[] {
+  const violations: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (
+      ts.isPropertyAccessExpression(node)
+      && propertyName(node) === "maximumBottomLayoutUnit"
+    ) violations.push("maximum-bottom pruning")
+    if (
+      ts.isCallExpression(node)
+      && ts.isPropertyAccessExpression(node.expression)
+      && node.expression.name.text === "sort"
+    ) violations.push("entry sorting")
+    if (ts.isObjectLiteralExpression(node)) {
+      const names = new Set(node.properties.flatMap((property) => (
+        ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)
+          ? [property.name.getText()]
+          : []
+      )))
+      if (
+        names.has("entry")
+        && names.has("left")
+        && names.has("right")
+        && variableOwnerName(node) !== "materializeVNextTextBlockSpatialIndexNodeV1"
+      ) violations.push("node topology materialization")
+    }
+    if (ts.isFunctionDeclaration(node) && node.name != null) {
+      const functionName = node.name.text
+      const body = node.body
+      const recursive = calledNames(body?.getText() ?? "").includes(functionName)
+      const topology = body != null && ["left", "right"].every((name) => {
+        let found = false
+        const scan = (child: ts.Node): void => {
+          if (propertyName(child) === name) found = true
+          ts.forEachChild(child, scan)
+        }
+        scan(body)
+        return found
+      })
+      if (
+        recursive
+        && topology
+        && functionName !== "collectVNextTextBlockSpatialIndexNodesForQaV1"
+      ) violations.push("recursive tree traversal")
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile(source))
+  return violations
+}
+
 describe("TextBlock spatial index v1", () => {
+  it("delegates persistent treap build and query ownership to the shared kernel", () => {
+    // Catches a future production split that leaves build/query behavior or treap rotations
+    // duplicated outside the shared persistent-treap kernel.
+    const indexSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexV1.ts", import.meta.url),
+      "utf8",
+    )
+    const internalsSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexInternalsV1.ts", import.meta.url),
+      "utf8",
+    )
+    const kernelSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexKernelV1.ts", import.meta.url),
+      "utf8",
+    )
+
+    expect(indexSource).toContain("buildVNextTextBlockSpatialIndexRootKernelV1")
+    expect(indexSource).toContain("queryVNextTextBlockSpatialIndexKernelV1")
+    expect(calledNames(indexSource)).toContain("buildVNextTextBlockSpatialIndexRootKernelV1")
+    expect(calledNames(indexSource)).toContain("queryVNextTextBlockSpatialIndexKernelV1")
+    expect(treeWrapperOwnershipViolations(indexSource)).toEqual([])
+    expect(treeWrapperOwnershipViolations(internalsSource)).toEqual([])
+    expect(internalsSource).not.toMatch(/function rotate(?:Left|Right)/u)
+    expect(kernelSource).toMatch(/function rotate(?:Left|Right)/u)
+    expect(kernelSource).not.toContain("compactFingerprint")
+    expect(kernelSource).not.toContain("canonicalJson")
+    expect(kernelSource).not.toContain("deepFreeze")
+    expect(kernelSource).not.toContain("Object.freeze")
+  })
+
+  it("rejects renamed duplicate tree algorithms that the original lexical guard accepted", () => {
+    const renamedDuplicate = `
+      function rebalance(node: any): any {
+        if (node.left != null) return rebalance(node.left)
+        return { entry: node.entry, left: node.left, right: node.right }
+      }
+      const reorder = (entries: any[]) => entries.sort(() => 0)
+      function probe(node: any): void {
+        if (node.left.summary.maximumBottomLayoutUnit > 0) probe(node.left)
+      }
+    `
+    const originalLexicalGuardWouldAccept = !renamedDuplicate.includes("rotateLeft")
+      && !renamedDuplicate.includes("insertSpatialNodePathCopyV1")
+
+    expect(originalLexicalGuardWouldAccept).toBe(true)
+    expect(treeWrapperOwnershipViolations(renamedDuplicate)).toEqual(expect.arrayContaining([
+      "node topology materialization",
+      "entry sorting",
+      "maximum-bottom pruning",
+      "recursive tree traversal",
+    ]))
+  })
+
   it("creates one deterministic immutable synthetic y-interval index", () => {
     const fixture = acceptedSpatialWrappingFixture()
     const first = createVNextTextBlockSpatialIndexV1({

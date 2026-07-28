@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-27
 
-**Status:** Approved direction; implementation plan not yet written
+**Status:** Implemented and accepted as the bounded Core-only Phase 4B checkpoint
 
 **Scope:** FlowDoc vNext Core, Phase 4B
 

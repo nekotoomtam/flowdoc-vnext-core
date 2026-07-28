@@ -34,6 +34,18 @@ export * from "./binding/keyHistory.js"
 export * from "./binding/repeatCollectionFormSlots.js"
 export * from "./fingerprint/compactFingerprint.js"
 export * from "./layout/layoutUnitPolicyV1.js"
+export * from "./layout/textBlockInlineImageLineBoxV1.js"
+export * from "./layout/textBlockFlowEvidenceContractV2.js"
+export {
+  acceptVNextTextBlockFlowEvidenceV2,
+  inspectVNextTextBlockFlowEvidenceV2,
+} from "./layout/textBlockFlowEvidenceV2.js"
+export * from "./layout/textBlockPersistentFlowContractV2.js"
+export {
+  createVNextTextBlockPersistentFlowTreeV2,
+  inspectVNextTextBlockPersistentFlowTreeV2,
+  collectVNextTextBlockPersistentFlowNodesForQaV2,
+} from "./layout/textBlockPersistentFlowTreeV2.js"
 export * from "./layout/textBlockInitialFlowParentRegionV1.js"
 export * from "./layout/textBlockEffectiveShapingStyleIdentityV1.js"
 export * from "./layout/textBlockInitialFlowInputV1.js"
@@ -54,10 +66,30 @@ export * from "./layout/textBlockFlowRegionProviderV1.js"
 export * from "./layout/textBlockSpatialIndexContractV1.js"
 export * from "./layout/textBlockSpatialIndexV1.js"
 export * from "./layout/textBlockSpatialIndexUpdateV1.js"
+export * from "./layout/textBlockSpatialIndexContractV2.js"
+export {
+  createVNextTextBlockSpatialIndexV2,
+  inspectVNextTextBlockSpatialIndexV2,
+} from "./layout/textBlockSpatialIndexV2.js"
+export {
+  createVNextTextBlockSpatialIndexUpdateV2,
+  inspectVNextTextBlockSpatialIndexUpdateV2,
+} from "./layout/textBlockSpatialIndexUpdateV2.js"
+export {
+  provideVNextTextBlockFlowRegionsV2,
+  inspectVNextTextBlockFlowRegionResultV2,
+} from "./layout/textBlockFlowRegionProviderV2.js"
 export * from "./layout/textBlockSpatialWrappingLayoutContractV1.js"
 export * from "./layout/textBlockSpatialWrappingLayoutV1.js"
+export * from "./layout/textBlockSpatialWrappingLayoutContractV2.js"
+export {
+  layoutVNextTextBlockSpatialWrappingV2,
+  inspectVNextTextBlockSpatialWrappingLayoutV2,
+} from "./layout/textBlockSpatialWrappingLayoutV2.js"
 export * from "./layout/textBlockAuthoredBoxGeometryContractV1.js"
 export * from "./layout/textBlockAuthoredBoxGeometryV1.js"
+export * from "./layout/textBlockAuthoredBoxGeometryContractV2.js"
+export * from "./layout/textBlockAuthoredBoxGeometryV2.js"
 export * from "./authoring/editableSession.js"
 export * from "./authoring/textTransactions.js"
 export * from "./authoring/textBlockV1Grammar.js"

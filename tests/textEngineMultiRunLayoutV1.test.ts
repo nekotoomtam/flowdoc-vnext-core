@@ -139,6 +139,22 @@ function fakeRuntime(options: {
 }
 
 describe("MR1 external multi-run layout adapter", () => {
+  it("retains the exact external V1 producer boundary", async () => {
+    const result = createFlowDocTextEngineMultiRunLayoutV1(
+      inputFixture(),
+      fakeRuntime(),
+    )
+    await expect(JSON.stringify(result, null, 2)).toMatchFileSnapshot(
+      "./fixtures/text-engine-multi-run-layout-v1-compatibility.v1.json",
+    )
+  })
+
+  it("keeps repeated V1 preparation exactly deterministic", () => {
+    const before = createFlowDocTextEngineMultiRunLayoutV1(inputFixture(), fakeRuntime())
+    const after = createFlowDocTextEngineMultiRunLayoutV1(inputFixture(), fakeRuntime())
+    expect(after).toEqual(before)
+  })
+
   it("profiles diagnostic phases without changing deterministic layout output", () => {
     const input = inputFixture()
     let tick = 0
@@ -172,6 +188,91 @@ describe("MR1 external multi-run layout adapter", () => {
       fullLayoutOracle: true,
       productionBinding: false,
     })
+  })
+
+  it("retains V1 shaping and segmentation timing phase attribution", () => {
+    const baseRuntime = fakeRuntime()
+    let elapsed = 0
+    const runtime: FlowDocTextEngineMultiRunRuntimeV1 = {
+      ...baseRuntime,
+      shape(input) {
+        elapsed += 10
+        return baseRuntime.shape(input)
+      },
+      segment(text) {
+        elapsed += 20
+        return baseRuntime.segment(text)
+      },
+    }
+    const profiled = profileFlowDocTextEngineMultiRunLayoutV1(
+      inputFixture(),
+      runtime,
+      { now: () => elapsed },
+    )
+
+    expect(profiled.phaseDurationMs).toEqual({
+      "input-and-style-resolution": 0,
+      shaping: 30,
+      segmentation: 20,
+      "line-breaking": 0,
+      "core-acceptance-and-fingerprint": 0,
+      "adapter-fingerprint": 0,
+    })
+    expect(profiled.totalDurationMs).toBe(50)
+  })
+
+  it("charges no post-segmentation source-run rescans to V1 line breaking", () => {
+    const input = inputFixture()
+    const sourceRuns = input.measurement.runs
+    let elapsed = 0
+    let filterCallCount = 0
+    input.measurement.runs = new Proxy(sourceRuns, {
+      get(target, key, receiver) {
+        if (key === "filter") return (
+          predicate: Parameters<typeof sourceRuns.filter>[0],
+        ) => {
+          filterCallCount += 1
+          elapsed += 5
+          return sourceRuns.filter(predicate)
+        }
+        return Reflect.get(target, key, receiver) as unknown
+      },
+    })
+
+    const profiled = profileFlowDocTextEngineMultiRunLayoutV1(
+      input,
+      fakeRuntime(),
+      { now: () => elapsed },
+    )
+
+    expect(profiled.result.status).toBe("accepted")
+    expect(filterCallCount).toBe(0)
+    expect(profiled.phaseDurationMs.segmentation).toBe(0)
+    expect(profiled.phaseDurationMs["line-breaking"]).toBe(0)
+  })
+
+  it("rejects an unknown V1 source-run kind before runtime work", () => {
+    const input = inputFixture()
+    input.measurement.runs[0]!.kind = "future-inline" as "text"
+    let runtimeCallCount = 0
+    const baseRuntime = fakeRuntime()
+    const runtime: FlowDocTextEngineMultiRunRuntimeV1 = {
+      ...baseRuntime,
+      shape(shapeInput) {
+        runtimeCallCount += 1
+        return baseRuntime.shape(shapeInput)
+      },
+      segment(text) {
+        runtimeCallCount += 1
+        return baseRuntime.segment(text)
+      },
+    }
+
+    expect(createFlowDocTextEngineMultiRunLayoutV1(input, runtime)).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "invalid-layout-input" })],
+    })
+    expect(runtimeCallCount).toBe(0)
   })
 
   it("resolves Text Run overrides, shapes three runs, and lets Core derive the real-font shared baseline", () => {

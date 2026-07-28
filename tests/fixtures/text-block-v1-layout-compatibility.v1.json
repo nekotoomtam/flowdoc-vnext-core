@@ -1,0 +1,352 @@
+{
+  "noExclusion": {
+    "status": "accepted",
+    "source": "vnext-text-block-authored-box-geometry-v1",
+    "contractVersion": 1,
+    "documentId": "document-1",
+    "sectionId": "section-1",
+    "textBlockId": "text-block-legacy",
+    "instanceRevision": 7,
+    "layoutId": "layout-legacy-1",
+    "layoutContextFingerprint": "sha256:4b36917d2a91c0c7bc718605ec06229deb142d37cb0fad784aa3cdb0815bd997",
+    "initialFlowFingerprint": "sha256:b4c3bb3ad7750d9059565e1b9338526c309896cc2ad3ef4b02d9311e58e4d686",
+    "parentRegionFingerprint": "sha256:be86fcd96d53a26c39e840e40e1057d48d5f968fde52e3f09f880577401474b9",
+    "authoredBoxOwnerNodeId": "text-block-legacy",
+    "authoredBoxStyleFingerprint": "sha256:b512318cdb7a763338b5aa5fde330d0ccc2653ca00918c113a235e5c6d0be812",
+    "authoredBoxPlanFingerprint": "sha256:8a06deba080f7a366daac40c42dbc46b1a8b4209b115270a85e16d833c7a3b54",
+    "persistentFlowTreeFingerprint": "sha256:6df2ffb60a33309c49ec92b27b8ef2b801c03f1811ac6087a3cacdc134a04684",
+    "spatialIndexFingerprint": "sha256:edc0b8ae07cf5ab9a9d8b5f15682ad24c6e1e9ad5fd7c8b345abe77c9f9af392",
+    "contentSpatialLayoutFingerprint": "sha256:392a7152d41a43ecbddefd53a6786af47d3ce1215b7d997e621387472d67cfcc",
+    "geometry": {
+      "outerWidthLayoutUnit": 100000000,
+      "contentInsetsLayoutUnit": {
+        "top": 2000000,
+        "right": 5000000,
+        "bottom": 2000000,
+        "left": 5000000
+      },
+      "contentOriginXLayoutUnit": 5000000,
+      "contentOriginYLayoutUnit": 2000000,
+      "contentWidthLayoutUnit": 90000000,
+      "contentFlowHeightLayoutUnit": 14000000,
+      "spatialMaximumBottomLayoutUnit": 0,
+      "contentExtentBottomLayoutUnit": 14000000,
+      "outerHeightLayoutUnit": 18000000
+    },
+    "lines": [
+      {
+        "index": 0,
+        "renderStartOffset": 0,
+        "renderEndOffset": 3,
+        "contentYOffsetLayoutUnit": 0,
+        "yOffsetLayoutUnit": 2000000,
+        "heightLayoutUnit": 14000000,
+        "baselineOffsetLayoutUnit": 10600000,
+        "availableIntervals": [
+          {
+            "contentStartLayoutUnit": 0,
+            "contentEndLayoutUnit": 90000000,
+            "startLayoutUnit": 5000000,
+            "endLayoutUnit": 95000000,
+            "contentLineFingerprint": "sha256:9be16a1f4683c99f40d27f17313240a740ba2527b71281f3947c990a89b2833a",
+            "fingerprint": "sha256:a27f89c6b58fe068c0b72a09db0426939c675e5393b2adcab37ed86867349a94"
+          }
+        ],
+        "intervalPlacements": [
+          {
+            "intervalIndex": 0,
+            "renderStartOffset": 0,
+            "renderEndOffset": 3,
+            "contentXStartLayoutUnit": 0,
+            "contentXEndLayoutUnit": 18000000,
+            "xStartLayoutUnit": 5000000,
+            "xEndLayoutUnit": 23000000,
+            "contentLineFingerprint": "sha256:9be16a1f4683c99f40d27f17313240a740ba2527b71281f3947c990a89b2833a",
+            "fingerprint": "sha256:62c2184e011b32b1b2c1af45bc768ebb526d30ba675422e91d1bd1f8076ae317"
+          }
+        ],
+        "fragments": [
+          {
+            "fragmentId": "layout-legacy-1:line-0:run-shape-abc:0-3",
+            "shapingRunId": "shape-abc",
+            "renderStartOffset": 0,
+            "renderEndOffset": 3,
+            "text": "ABC",
+            "advanceLayoutUnit": 18000000,
+            "baselineShiftLayoutUnit": 0,
+            "styleKey": "sha256:9f3ad18d211df43892ca6132447a45386899b0694e7255c65c753b0ddc771db2",
+            "fontFaceId": "sarabun-regular",
+            "fontFamily": "Sarabun",
+            "fontSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fontWeight": 400,
+            "fontStyle": "normal",
+            "fontSizeLayoutUnit": 12000000,
+            "textColor": "202020",
+            "ascentLayoutUnit": 9600000,
+            "descentLayoutUnit": 2400000,
+            "lineGapLayoutUnit": 1200000,
+            "sourceSegments": [
+              {
+                "inlineId": "text-abc",
+                "kind": "text",
+                "styleKey": "paragraph-body",
+                "renderStartOffset": 0,
+                "renderEndOffset": 3,
+                "sourceStartOffset": 0,
+                "sourceEndOffset": 3,
+                "renderedText": "ABC"
+              }
+            ],
+            "contentXLayoutUnit": 0,
+            "xLayoutUnit": 5000000,
+            "contentFragmentFingerprint": "sha256:6a7664137829bcab0ea9a1a0b391ff483f230be786fba91cf3c6c22703c915ff",
+            "fingerprint": "sha256:1a554e83d9a813d65652351d8c45ca1866b35b2cc1aaef90a7c7d46c1e0b7beb"
+          }
+        ],
+        "sourceSegments": [
+          {
+            "inlineId": "text-abc",
+            "kind": "text",
+            "styleKey": "paragraph-body",
+            "renderStartOffset": 0,
+            "renderEndOffset": 3,
+            "sourceStartOffset": 0,
+            "sourceEndOffset": 3,
+            "renderedText": "ABC"
+          }
+        ],
+        "contentRegionFingerprint": "sha256:0881512ce2ebdac862ab9948d09973a3c3686a70f272f8c62e0bbf8133a24dcb",
+        "contentLineFingerprint": "sha256:9be16a1f4683c99f40d27f17313240a740ba2527b71281f3947c990a89b2833a",
+        "fingerprint": "sha256:9082efe414a1256416ce56b6fc1b726fbef408c67193ce51d57a8883feee58b3"
+      }
+    ],
+    "summary": {
+      "lineCount": 1,
+      "fragmentCount": 1,
+      "intervalPlacementCount": 1,
+      "outerHeightLayoutUnit": 18000000
+    },
+    "work": {
+      "flowRegionFastPathCount": 1,
+      "spatialIndexQueryCount": 0,
+      "verticalAdvanceCount": 0,
+      "lineBandRequeryCount": 0
+    },
+    "contracts": {
+      "authoredBoxWidthApplied": true,
+      "verticalInsetsApplied": true,
+      "autoHeightIncludesSpatialExtent": true,
+      "contentLocalSpatialWrapping": true,
+      "boxLocalProjection": true,
+      "canonicalPositionedObjectSchema": false,
+      "authoredPositionedObjectBinding": false,
+      "rendererMayMeasureText": false,
+      "rendererMayRelayout": false,
+      "stagedEditorApply": false,
+      "mayPublishLayout": false,
+      "productionBinding": false
+    },
+    "mayPublishLayout": false,
+    "productionBinding": false,
+    "issues": [],
+    "fingerprint": "sha256:6dc83a8d7ba10317bacd02239e2d6e178123e664cd909a7d37c2567232282eb2"
+  },
+  "middleExclusion": {
+    "status": "accepted",
+    "source": "vnext-text-block-authored-box-geometry-v1",
+    "contractVersion": 1,
+    "documentId": "document-1",
+    "sectionId": "section-1",
+    "textBlockId": "text-block-legacy",
+    "instanceRevision": 7,
+    "layoutId": "layout-legacy-1",
+    "layoutContextFingerprint": "sha256:4b36917d2a91c0c7bc718605ec06229deb142d37cb0fad784aa3cdb0815bd997",
+    "initialFlowFingerprint": "sha256:b4c3bb3ad7750d9059565e1b9338526c309896cc2ad3ef4b02d9311e58e4d686",
+    "parentRegionFingerprint": "sha256:be86fcd96d53a26c39e840e40e1057d48d5f968fde52e3f09f880577401474b9",
+    "authoredBoxOwnerNodeId": "text-block-legacy",
+    "authoredBoxStyleFingerprint": "sha256:b512318cdb7a763338b5aa5fde330d0ccc2653ca00918c113a235e5c6d0be812",
+    "authoredBoxPlanFingerprint": "sha256:8a06deba080f7a366daac40c42dbc46b1a8b4209b115270a85e16d833c7a3b54",
+    "persistentFlowTreeFingerprint": "sha256:6df2ffb60a33309c49ec92b27b8ef2b801c03f1811ac6087a3cacdc134a04684",
+    "spatialIndexFingerprint": "sha256:74ed25f30ffd4a42ef5eede87055f8bf9eaa22a652577ff91661a51e2800cc97",
+    "contentSpatialLayoutFingerprint": "sha256:895620b8882b2c4be93c0ae065b0dcf743827e2783e7faf2e2752d364b30cb70",
+    "geometry": {
+      "outerWidthLayoutUnit": 100000000,
+      "contentInsetsLayoutUnit": {
+        "top": 2000000,
+        "right": 5000000,
+        "bottom": 2000000,
+        "left": 5000000
+      },
+      "contentOriginXLayoutUnit": 5000000,
+      "contentOriginYLayoutUnit": 2000000,
+      "contentWidthLayoutUnit": 90000000,
+      "contentFlowHeightLayoutUnit": 14000000,
+      "spatialMaximumBottomLayoutUnit": 20000000,
+      "contentExtentBottomLayoutUnit": 20000000,
+      "outerHeightLayoutUnit": 24000000
+    },
+    "lines": [
+      {
+        "index": 0,
+        "renderStartOffset": 0,
+        "renderEndOffset": 3,
+        "contentYOffsetLayoutUnit": 0,
+        "yOffsetLayoutUnit": 2000000,
+        "heightLayoutUnit": 14000000,
+        "baselineOffsetLayoutUnit": 10600000,
+        "availableIntervals": [
+          {
+            "contentStartLayoutUnit": 0,
+            "contentEndLayoutUnit": 35000000,
+            "startLayoutUnit": 5000000,
+            "endLayoutUnit": 40000000,
+            "contentLineFingerprint": "sha256:74144c5a7c56d81939900143716fd74de8a732f8e9f7fc85b3c602a9bfb586b2",
+            "fingerprint": "sha256:4e54868c9a14c8e5395b76f45a5cffe8e1037ab86c0e9a380a509b4bdd6069ed"
+          },
+          {
+            "contentStartLayoutUnit": 55000000,
+            "contentEndLayoutUnit": 90000000,
+            "startLayoutUnit": 60000000,
+            "endLayoutUnit": 95000000,
+            "contentLineFingerprint": "sha256:74144c5a7c56d81939900143716fd74de8a732f8e9f7fc85b3c602a9bfb586b2",
+            "fingerprint": "sha256:0dafa228a35de62cc1ffb9c34f431735d37859bdce28f31c9d02ef3697f5445d"
+          }
+        ],
+        "intervalPlacements": [
+          {
+            "intervalIndex": 0,
+            "renderStartOffset": 0,
+            "renderEndOffset": 3,
+            "contentXStartLayoutUnit": 0,
+            "contentXEndLayoutUnit": 18000000,
+            "xStartLayoutUnit": 5000000,
+            "xEndLayoutUnit": 23000000,
+            "contentLineFingerprint": "sha256:74144c5a7c56d81939900143716fd74de8a732f8e9f7fc85b3c602a9bfb586b2",
+            "fingerprint": "sha256:c53c2ce28d6514b31b612c8f58157f4a915c065d9def800558c1d5cd718a7feb"
+          }
+        ],
+        "fragments": [
+          {
+            "fragmentId": "layout-legacy-1:line-0:run-shape-abc:0-3",
+            "shapingRunId": "shape-abc",
+            "renderStartOffset": 0,
+            "renderEndOffset": 3,
+            "text": "ABC",
+            "advanceLayoutUnit": 18000000,
+            "baselineShiftLayoutUnit": 0,
+            "styleKey": "sha256:9f3ad18d211df43892ca6132447a45386899b0694e7255c65c753b0ddc771db2",
+            "fontFaceId": "sarabun-regular",
+            "fontFamily": "Sarabun",
+            "fontSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fontWeight": 400,
+            "fontStyle": "normal",
+            "fontSizeLayoutUnit": 12000000,
+            "textColor": "202020",
+            "ascentLayoutUnit": 9600000,
+            "descentLayoutUnit": 2400000,
+            "lineGapLayoutUnit": 1200000,
+            "sourceSegments": [
+              {
+                "inlineId": "text-abc",
+                "kind": "text",
+                "styleKey": "paragraph-body",
+                "renderStartOffset": 0,
+                "renderEndOffset": 3,
+                "sourceStartOffset": 0,
+                "sourceEndOffset": 3,
+                "renderedText": "ABC"
+              }
+            ],
+            "contentXLayoutUnit": 0,
+            "xLayoutUnit": 5000000,
+            "contentFragmentFingerprint": "sha256:6a7664137829bcab0ea9a1a0b391ff483f230be786fba91cf3c6c22703c915ff",
+            "fingerprint": "sha256:1a554e83d9a813d65652351d8c45ca1866b35b2cc1aaef90a7c7d46c1e0b7beb"
+          }
+        ],
+        "sourceSegments": [
+          {
+            "inlineId": "text-abc",
+            "kind": "text",
+            "styleKey": "paragraph-body",
+            "renderStartOffset": 0,
+            "renderEndOffset": 3,
+            "sourceStartOffset": 0,
+            "sourceEndOffset": 3,
+            "renderedText": "ABC"
+          }
+        ],
+        "contentRegionFingerprint": "sha256:2cc499247b1a71afa1c8465bd202085badd5d621206516045cfb2473f26b016b",
+        "contentLineFingerprint": "sha256:74144c5a7c56d81939900143716fd74de8a732f8e9f7fc85b3c602a9bfb586b2",
+        "fingerprint": "sha256:bf65f45c681243c20c15b0c9c08c819ba103aa9fb030ea9a1fe2a3c91d02f2d2"
+      }
+    ],
+    "summary": {
+      "lineCount": 1,
+      "fragmentCount": 1,
+      "intervalPlacementCount": 1,
+      "outerHeightLayoutUnit": 24000000
+    },
+    "work": {
+      "flowRegionFastPathCount": 0,
+      "spatialIndexQueryCount": 1,
+      "verticalAdvanceCount": 0,
+      "lineBandRequeryCount": 0
+    },
+    "contracts": {
+      "authoredBoxWidthApplied": true,
+      "verticalInsetsApplied": true,
+      "autoHeightIncludesSpatialExtent": true,
+      "contentLocalSpatialWrapping": true,
+      "boxLocalProjection": true,
+      "canonicalPositionedObjectSchema": false,
+      "authoredPositionedObjectBinding": false,
+      "rendererMayMeasureText": false,
+      "rendererMayRelayout": false,
+      "stagedEditorApply": false,
+      "mayPublishLayout": false,
+      "productionBinding": false
+    },
+    "mayPublishLayout": false,
+    "productionBinding": false,
+    "issues": [],
+    "fingerprint": "sha256:d1d6f7b33b6bd6eb2f81d252e7cf51872a50a278f99ef5fe737a19dbc329eda9"
+  },
+  "rejectionRows": [
+    {
+      "status": "blocked",
+      "geometry": null,
+      "lines": null,
+      "summary": null,
+      "work": null,
+      "mayPublishLayout": false,
+      "productionBinding": false,
+      "fingerprint": null,
+      "issues": [
+        {
+          "code": "flow-tree-request-binding-mismatch",
+          "severity": "error",
+          "path": "persistentFlowTree",
+          "message": "tree is not the exact process-local object created by Core"
+        }
+      ]
+    },
+    {
+      "status": "blocked",
+      "geometry": null,
+      "lines": null,
+      "summary": null,
+      "work": null,
+      "mayPublishLayout": false,
+      "productionBinding": false,
+      "fingerprint": null,
+      "issues": [
+        {
+          "code": "spatial-index-binding-mismatch",
+          "severity": "error",
+          "path": "spatialIndex",
+          "message": "spatial index is not the exact process-local object created by Core"
+        }
+      ]
+    }
+  ]
+}

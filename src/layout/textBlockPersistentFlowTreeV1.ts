@@ -19,9 +19,12 @@ import {
   createVNextTextBlockPersistentFlowTreeFromRootInternalV1,
   deeplyFrozenPersistentFlowV1,
   hasVNextTextBlockPersistentFlowTreeProvenanceInternalV1,
-  partitionPersistentFlowValuesV1,
   projectVNextTextBlockPersistentFlowItemsForRangeV1,
 } from "./textBlockPersistentFlowTreeInternalsV1.js"
+import {
+  collectVNextTextBlockPersistentRopeNodesKernelV1,
+  partitionVNextTextBlockPersistentValuesKernelV1,
+} from "./textBlockPersistentRopeKernelV1.js"
 
 function blocked(
   code: VNextTextBlockPersistentFlowIssueCodeV1,
@@ -75,7 +78,7 @@ export function createVNextTextBlockPersistentFlowTreeV1(
   })
   if (projected.status === "blocked") return blocked(projected.code, projected.message)
   try {
-    const leaves = partitionPersistentFlowValuesV1(
+    const leaves = partitionVNextTextBlockPersistentValuesKernelV1(
       projected.items,
       VNEXT_TEXT_BLOCK_PERSISTENT_FLOW_POLICY_V1.maximumLeafItems,
     ).map(createVNextTextBlockPersistentFlowLeafInternalV1)
@@ -119,11 +122,10 @@ export function inspectVNextTextBlockPersistentFlowTreeV1(
 export function collectVNextTextBlockPersistentFlowNodesForQaV1(
   tree: VNextTextBlockPersistentFlowTreeV1,
 ): VNextTextBlockPersistentFlowNodeV1[] {
-  const nodes: VNextTextBlockPersistentFlowNodeV1[] = []
-  const visit = (node: VNextTextBlockPersistentFlowNodeV1): void => {
-    nodes.push(node)
-    if (node.nodeKind === "branch") node.children.forEach(visit)
-  }
-  visit(tree.root)
-  return nodes
+  return [
+    ...collectVNextTextBlockPersistentRopeNodesKernelV1({
+      root: tree.root,
+      children: (node) => node.nodeKind === "branch" ? node.children : [],
+    }),
+  ]
 }

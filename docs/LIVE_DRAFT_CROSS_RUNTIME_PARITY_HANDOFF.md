@@ -1,9 +1,12 @@
-# Live Draft Cross-Runtime Parity Handoff (Phase 4A; Phase 3A Historical)
+# Live Draft Cross-Runtime Parity Handoff (Phase 4B; Phase 4A; Phase 3A Historical)
 
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20; updated through `Phase 4A: Authored Box Geometry` on
+Date: 2026-07-20; updated through `Phase 4B: Inline Image Line-Box Geometry`
+on 2026-07-28.
+
+Historical header status: updated through `Phase 4A: Authored Box Geometry` on
 2026-07-27.
 
 The historical header status was updated through `Phase 3: Core Spatial Wrapping 3A`;
@@ -62,8 +65,15 @@ The following rules are locked for this lane:
 
 ## Current Baseline
 
-Current Phase 4A Core implementation baseline:
+Current Phase 4B Core implementation baseline: `f8eb3ba`.
+
+Historical Phase 4A Core implementation baseline:
 `d39d61f8c16b46b4fb709d045890ab9ee8677fbd`.
+
+Phase 4B evidence is Core-only and retained at
+`docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`. Phase 5 remains separately
+authorized; this handoff does not authorize Phase 5 implementation or
+activation.
 
 Historical current-state text recorded:
 Current Phase 3 Core implementation baseline: `a249b30`.
@@ -460,25 +470,18 @@ identity.
 
 ## First Task For The Next Thread
 
-Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
-separately reviewed and explicitly approved design before implementation.
+Phase 4B is the accepted bounded Core-only inline-image line-box checkpoint at
+`f8eb3ba`; read `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md` before any
+follow-on design work.
 
-The replaced historical instruction said:
-Proceed only to `Phase 4: Initial TextBlock Geometry`. It is retained as
-historical evidence and is not an active instruction.
-
-1. Review Phase 4A as the bounded Core-only authored-box checkpoint.
-2. Preserve the strict synthetic positioned-object boundary, exact
-   Initial Flow/request/tree/index provenance, and all false publication,
-   production, and staged-apply facts.
-3. Do not begin Phase 4B implementation until its design is separately
-   reviewed and explicitly approved.
-4. List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation.
+List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
 ## Required Reading
 
 Core:
 
+- `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`
 - `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`
 - `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`
 - `docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md`
@@ -590,16 +593,12 @@ active instruction.
 Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
-Read the Required Reading section and the accepted Phase 3 Core implementation
-baseline at a249b30, plus the accepted Phase 4A Core implementation baseline at
-d39d61f8c16b46b4fb709d045890ab9ee8677fbd.
+Read the Required Reading section and the accepted Phase 4B Core implementation
+head f8eb3ba. Review the evidence handoff at
+docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md.
 
-Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
-separately reviewed and explicitly approved design before implementation.
-
-The replaced historical instruction said:
-Proceed only to `Phase 4: Initial TextBlock Geometry`. It is retained as
-historical evidence and is not an active instruction.
+Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation.
+List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
 Preserve the strict synthetic spatial boundary, no-flow-affecting fast path,
 content-local Phase 3 behavior, box-local Phase 4A projection, and immutable
@@ -607,7 +606,6 @@ Initial Flow/request/tree/index identity and provenance gates, including the
 MR1-Q immutable identity/provenance gates. Do not introduce an authored
 positioned-object schema or spatial-line reuse/reconvergence claim.
 
-List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
 
 Add focused tests before implementation, preserve accepted and blocked evidence,
 run the focused and full Core gates, and update the handoff with

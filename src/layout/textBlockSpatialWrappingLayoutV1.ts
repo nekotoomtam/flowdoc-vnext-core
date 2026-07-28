@@ -27,8 +27,6 @@ import {
 } from "./textBlockSpatialIndexInternalsV1.js"
 import {
   provideVNextTextBlockFlowRegionsV1,
-  type VNextTextBlockFlowIntervalV1,
-  type VNextTextBlockFlowRegionResultV1,
 } from "./textBlockFlowRegionProviderV1.js"
 import {
   VNEXT_TEXT_BLOCK_SPATIAL_WRAPPING_LAYOUT_SOURCE,
@@ -39,22 +37,19 @@ import {
   type VNextTextBlockSpatialWrappingIssueV1,
   type VNextTextBlockSpatialWrappingLayoutInspectionV1,
   type VNextTextBlockSpatialWrappingLayoutResultV1,
-  type VNextTextBlockSpatialWrappingWorkV1,
 } from "./textBlockSpatialWrappingLayoutContractV1.js"
+import {
+  createVNextTextBlockBreakGroupsKernelV1,
+  runVNextTextBlockSpatialWrappingKernelV1,
+  type VNextTextBlockBreakGroupKernelV1,
+  type VNextTextBlockCandidatePlacementKernelV1,
+} from "./textBlockSpatialWrappingKernelV1.js"
 
 interface ProjectedClusterV1 {
   run: VNextTextBlockAcceptedShapingRunV1
   renderStartOffset: number
   renderEndOffset: number
   advanceLayoutUnit: number
-}
-
-interface ProjectedGroupV1 {
-  renderStartOffset: number
-  renderEndOffset: number
-  clusters: readonly ProjectedClusterV1[]
-  advanceLayoutUnit: number
-  mandatoryBreak: boolean
 }
 
 interface ParagraphMetricsV1 {
@@ -65,13 +60,6 @@ interface ParagraphMetricsV1 {
 interface PlacedClusterV1 extends ProjectedClusterV1 {
   intervalIndex: number
   xLayoutUnit: number
-}
-
-interface TentativePlacementV1 {
-  status: "placed" | "overflow"
-  nextGroupIndex: number
-  placedClusters: PlacedClusterV1[]
-  intervalPlacements: VNextTextBlockSpatialIntervalPlacementV1[]
 }
 
 const processLocalSpatialLayoutsV1 = new WeakSet<object>()
@@ -112,7 +100,8 @@ function projectGroups(input: {
 }): {
   status: "accepted"
   acceptedRuns: VNextTextBlockAcceptedShapingRunV1[]
-  groups: ProjectedGroupV1[]
+  clusters: ProjectedClusterV1[]
+  groups: readonly VNextTextBlockBreakGroupKernelV1[]
   paragraphMetrics: ParagraphMetricsV1
 } | {
   status: "blocked"
@@ -178,160 +167,40 @@ function projectGroups(input: {
       renderStartOffset: run.renderStartOffset,
       renderEndOffset: run.renderEndOffset,
     }))
-  const coverage = [
-    ...clusters.map((cluster) => ({
-      start: cluster.renderStartOffset,
-      end: cluster.renderEndOffset,
+  const atoms = [
+    ...clusters.map((cluster, payloadIndex) => ({
+      kind: "text-cluster" as const,
+      renderStartOffset: cluster.renderStartOffset,
+      renderEndOffset: cluster.renderEndOffset,
+      advanceLayoutUnit: cluster.advanceLayoutUnit,
+      payloadIndex,
     })),
-    ...hardBreaks.map((hardBreak) => ({
-      start: hardBreak.renderStartOffset,
-      end: hardBreak.renderEndOffset,
+    ...hardBreaks.map((hardBreak, payloadIndex) => ({
+      kind: "hard-break" as const,
+      renderStartOffset: hardBreak.renderStartOffset,
+      renderEndOffset: hardBreak.renderEndOffset,
+      advanceLayoutUnit: 0 as const,
+      payloadIndex,
     })),
-  ].sort((left, right) => left.start - right.start || left.end - right.end)
-  let expectedOffset = 0
-  for (const item of coverage) {
-    if (item.start !== expectedOffset || item.end <= item.start) return {
-      status: "blocked",
-      message: "retained shaping clusters and hard breaks must cover text without gaps",
-    }
-    expectedOffset = item.end
-  }
-  if (expectedOffset !== textLength) return {
+  ].sort((left, right) => (
+    left.renderStartOffset - right.renderStartOffset
+    || left.renderEndOffset - right.renderEndOffset
+  ))
+  const groups = createVNextTextBlockBreakGroupsKernelV1({
+    atoms,
+    breakOffsets: input.request.breakOffsets,
+    renderedUtf16Length: textLength,
+  })
+  if (groups.status !== "accepted") return {
     status: "blocked",
-    message: "retained shaping clusters and hard breaks do not cover rendered text",
-  }
-  const groups: ProjectedGroupV1[] = []
-  for (let index = 0; index < input.request.breakOffsets.length - 1; index += 1) {
-    const renderStartOffset = input.request.breakOffsets[index]!
-    const renderEndOffset = input.request.breakOffsets[index + 1]!
-    if (
-      !Number.isSafeInteger(renderStartOffset)
-      || !Number.isSafeInteger(renderEndOffset)
-      || renderEndOffset <= renderStartOffset
-    ) return {
-      status: "blocked",
-      message: "retained break offsets must be strictly increasing safe integers",
-    }
-    const groupClusters = clusters.filter((cluster) => (
-      cluster.renderStartOffset >= renderStartOffset
-      && cluster.renderEndOffset <= renderEndOffset
-    ))
-    if (clusters.some((cluster) => (
-      cluster.renderStartOffset < renderEndOffset
-      && cluster.renderEndOffset > renderStartOffset
-      && (
-        cluster.renderStartOffset < renderStartOffset
-        || cluster.renderEndOffset > renderEndOffset
-      )
-    ))) return {
-      status: "blocked",
-      message: "retained break boundary splits a shaping cluster",
-    }
-    const advanceLayoutUnit = safeVNextTextBlockMultiRunSumV1(
-      groupClusters.map((cluster) => cluster.advanceLayoutUnit),
-    )
-    if (advanceLayoutUnit == null) return {
-      status: "blocked",
-      message: "break-safe group advance exceeds safe layout arithmetic",
-    }
-    groups.push({
-      renderStartOffset,
-      renderEndOffset,
-      clusters: groupClusters,
-      advanceLayoutUnit,
-      mandatoryBreak: hardBreaks.some(
-        (hardBreak) => hardBreak.renderEndOffset === renderEndOffset,
-      ),
-    })
+    message: groups.issues[0]?.message ?? "placement atom projection is invalid",
   }
   return {
     status: "accepted",
     acceptedRuns: derived.value,
-    groups,
+    clusters,
+    groups: groups.groups,
     paragraphMetrics,
-  }
-}
-
-function placeGroups(input: {
-  groups: readonly ProjectedGroupV1[]
-  startGroupIndex: number
-  intervals: readonly VNextTextBlockFlowIntervalV1[]
-}): TentativePlacementV1 {
-  const placedClusters: PlacedClusterV1[] = []
-  const intervalPlacements: VNextTextBlockSpatialIntervalPlacementV1[] = []
-  let intervalIndex = 0
-  let cursor = input.intervals[0]?.startLayoutUnit ?? 0
-  let groupIndex = input.startGroupIndex
-  while (groupIndex < input.groups.length) {
-    const group = input.groups[groupIndex]!
-    let selectedIntervalIndex: number | null = null
-    let selectedX = 0
-    for (
-      let candidateIndex = intervalIndex;
-      candidateIndex < input.intervals.length;
-      candidateIndex += 1
-    ) {
-      const interval = input.intervals[candidateIndex]!
-      const candidateX = candidateIndex === intervalIndex
-        ? Math.max(cursor, interval.startLayoutUnit)
-        : interval.startLayoutUnit
-      const groupEnd = safeVNextTextBlockMultiRunSumV1([
-        candidateX,
-        group.advanceLayoutUnit,
-      ])
-      if (groupEnd != null && groupEnd <= interval.endLayoutUnit) {
-        selectedIntervalIndex = candidateIndex
-        selectedX = candidateX
-        break
-      }
-    }
-    if (selectedIntervalIndex == null) {
-      return {
-        status: placedClusters.length > 0 || groupIndex > input.startGroupIndex
-          ? "placed"
-          : "overflow",
-        nextGroupIndex: groupIndex,
-        placedClusters,
-        intervalPlacements,
-      }
-    }
-    intervalIndex = selectedIntervalIndex
-    const groupEnd = selectedX + group.advanceLayoutUnit
-    let clusterX = selectedX
-    for (const cluster of group.clusters) {
-      placedClusters.push({
-        ...cluster,
-        intervalIndex,
-        xLayoutUnit: clusterX,
-      })
-      clusterX += cluster.advanceLayoutUnit
-    }
-    const previousPlacement = intervalPlacements.at(-1)
-    if (
-      previousPlacement?.intervalIndex === intervalIndex
-      && previousPlacement.renderEndOffset === group.renderStartOffset
-      && previousPlacement.xEndLayoutUnit === selectedX
-    ) {
-      previousPlacement.renderEndOffset = group.renderEndOffset
-      previousPlacement.xEndLayoutUnit = groupEnd
-    } else {
-      intervalPlacements.push({
-        intervalIndex,
-        renderStartOffset: group.renderStartOffset,
-        renderEndOffset: group.renderEndOffset,
-        xStartLayoutUnit: selectedX,
-        xEndLayoutUnit: groupEnd,
-      })
-    }
-    cursor = groupEnd
-    groupIndex += 1
-    if (group.mandatoryBreak) break
-  }
-  return {
-    status: "placed",
-    nextGroupIndex: groupIndex,
-    placedClusters,
-    intervalPlacements,
   }
 }
 
@@ -406,6 +275,67 @@ function createFragments(input: {
   })
 }
 
+interface V1LineMetricPayload {
+  renderStartOffset: number
+  renderEndOffset: number
+  fragments: readonly VNextTextBlockPositionedFragmentV1[]
+  intervalPlacements: readonly VNextTextBlockSpatialIntervalPlacementV1[]
+}
+
+function createV1LineMetricPayload(input: {
+  request: VNextTextBlockMultiRunLayoutRequestV1
+  projection: Extract<ReturnType<typeof projectGroups>, { status: "accepted" }>
+  candidate: VNextTextBlockCandidatePlacementKernelV1
+}): V1LineMetricPayload | null {
+  const firstAtom = input.candidate.placedAtoms[0]?.atom
+  const lastAtom = input.candidate.placedAtoms.at(-1)?.atom
+  if (firstAtom == null || lastAtom == null) return null
+  const placedClusters: PlacedClusterV1[] = []
+  const intervalPlacements: VNextTextBlockSpatialIntervalPlacementV1[] = []
+  for (const placedAtom of input.candidate.placedAtoms) {
+    const previousPlacement = intervalPlacements.at(-1)
+    if (
+      previousPlacement?.intervalIndex === placedAtom.intervalIndex
+      && previousPlacement.renderEndOffset === placedAtom.atom.renderStartOffset
+      && previousPlacement.xEndLayoutUnit === placedAtom.xStartLayoutUnit
+    ) {
+      previousPlacement.renderEndOffset = placedAtom.atom.renderEndOffset
+      previousPlacement.xEndLayoutUnit = placedAtom.xEndLayoutUnit
+    } else {
+      intervalPlacements.push({
+        intervalIndex: placedAtom.intervalIndex,
+        renderStartOffset: placedAtom.atom.renderStartOffset,
+        renderEndOffset: placedAtom.atom.renderEndOffset,
+        xStartLayoutUnit: placedAtom.xStartLayoutUnit,
+        xEndLayoutUnit: placedAtom.xEndLayoutUnit,
+      })
+    }
+    if (placedAtom.atom.kind !== "text-cluster") continue
+    const cluster = input.projection.clusters[placedAtom.atom.payloadIndex]
+    if (
+      cluster == null
+      || cluster.renderStartOffset !== placedAtom.atom.renderStartOffset
+      || cluster.renderEndOffset !== placedAtom.atom.renderEndOffset
+      || cluster.advanceLayoutUnit !== placedAtom.atom.advanceLayoutUnit
+    ) return null
+    placedClusters.push({
+      ...cluster,
+      intervalIndex: placedAtom.intervalIndex,
+      xLayoutUnit: placedAtom.xStartLayoutUnit,
+    })
+  }
+  return {
+    renderStartOffset: firstAtom.renderStartOffset,
+    renderEndOffset: lastAtom.renderEndOffset,
+    fragments: createFragments({
+      request: input.request,
+      lineIndex: input.candidate.lineIndex,
+      placedClusters,
+    }),
+    intervalPlacements,
+  }
+}
+
 function lineMetrics(input: {
   request: VNextTextBlockMultiRunLayoutRequestV1
   paragraphMetrics: ParagraphMetricsV1
@@ -446,16 +376,6 @@ function lineMetrics(input: {
   return baselineOffsetLayoutUnit == null
     ? null
     : { heightLayoutUnit, baselineOffsetLayoutUnit }
-}
-
-function accountRegionWork(
-  work: VNextTextBlockSpatialWrappingWorkV1,
-  region: Extract<VNextTextBlockFlowRegionResultV1, { status: "accepted" }>,
-): void {
-  if (region.work.fastPath === "no-flow-affecting-entry") {
-    work.flowRegionFastPathCount += 1
-  }
-  work.spatialIndexQueryCount += region.work.spatialIndexQueryCount
 }
 
 export function layoutVNextTextBlockSpatialWrappingV1(input: {
@@ -546,178 +466,141 @@ export function layoutVNextTextBlockSpatialWrappingV1(input: {
     input.request.declaredLineHeightLayoutUnit,
     paragraphNaturalHeightLayoutUnit,
   )
-  const lines: VNextTextBlockSpatialWrappedLineV1[] = []
-  const work: VNextTextBlockSpatialWrappingWorkV1 = {
-    flowRegionFastPathCount: 0,
-    spatialIndexQueryCount: 0,
-    verticalAdvanceCount: 0,
-    lineBandRequeryCount: 0,
-  }
-  let groupIndex = 0
-  let yLayoutUnit = input.startYLayoutUnit
-  while (groupIndex < projection.groups.length) {
-    const lineIndex = lines.length
-    const lineStartGroupIndex = groupIndex
-    let candidateHeight = baseBandHeight
-    let lineAccepted = false
-    let stabilizationCount = 0
-    while (!lineAccepted) {
-      const bandBottom = safeVNextTextBlockMultiRunSumV1([
-        yLayoutUnit,
-        candidateHeight,
-      ])
-      if (bandBottom == null) return blocked([
-        issue(
-          "unsafe-layout-arithmetic",
-          "band",
-          "line band exceeds safe layout arithmetic",
-          lineIndex,
-        ),
-      ])
+  const kernel = runVNextTextBlockSpatialWrappingKernelV1({
+    groups: projection.groups,
+    startYLayoutUnit: input.startYLayoutUnit,
+    baseBandHeightLayoutUnit: baseBandHeight,
+    maximumBandRequeryCount:
+      input.spatialIndex.summary.flowAffectingEntryCount + 1,
+    provideRegion: (band) => {
       const region = provideVNextTextBlockFlowRegionsV1({
         spatialIndex: input.spatialIndex,
         persistentFlowTree: input.persistentFlowTree,
         request: input.request,
-        band: {
-          topLayoutUnit: yLayoutUnit,
-          bottomLayoutUnit: bandBottom,
-        },
+        band,
         contentInsets: {
           leftLayoutUnit: 0,
           rightLayoutUnit: 0,
         },
       })
-      if (region.status !== "accepted") return blocked([
-        issue(
-          region.issues[0]?.code === "no-vertical-progress"
-            ? "no-vertical-progress"
-            : "spatial-index-binding-mismatch",
-          "flowRegion",
-          region.issues[0]?.message ?? "flow region provider blocked spatial wrapping",
-          lineIndex,
-        ),
-      ])
-      accountRegionWork(work, region)
-      if (region.intervals.length === 0) {
-        if (
-          region.nextYLayoutUnit == null
-          || region.nextYLayoutUnit <= yLayoutUnit
-        ) return blocked([
-          issue(
-            "no-vertical-progress",
-            "flowRegion.nextYLayoutUnit",
-            "zero-space flow region must provide a strictly advancing y event",
-            lineIndex,
-          ),
-        ])
-        yLayoutUnit = region.nextYLayoutUnit
-        work.verticalAdvanceCount += 1
-        candidateHeight = baseBandHeight
-        stabilizationCount = 0
-        continue
+      if (region.status !== "accepted") return {
+        status: "blocked" as const,
+        intervals: null,
+        nextYLayoutUnit: null,
+        regionFingerprint: null,
+        work: null,
+        issues: region.issues.map((item) => ({
+          code: item.code,
+          message: item.message,
+        })),
       }
-      const placement = placeGroups({
-        groups: projection.groups,
-        startGroupIndex: lineStartGroupIndex,
+      return {
+        status: "accepted" as const,
         intervals: region.intervals,
-      })
-      if (placement.status === "overflow") {
-        if (
-          region.nextYLayoutUnit != null
-          && region.nextYLayoutUnit > yLayoutUnit
-        ) {
-          yLayoutUnit = region.nextYLayoutUnit
-          work.verticalAdvanceCount += 1
-          candidateHeight = baseBandHeight
-          stabilizationCount = 0
-          continue
-        }
-        return blocked([
-          issue(
-            "unbreakable-flow-item-overflow",
-            `groups[${lineStartGroupIndex}]`,
-            "unbreakable flow item cannot fit any available interval and no future exclusion event can make progress",
-            lineIndex,
-          ),
-        ])
+        nextYLayoutUnit: region.nextYLayoutUnit,
+        regionFingerprint: region.fingerprint,
+        work: region.work,
+        issues: [] as [],
       }
-      const fragments = createFragments({
+    },
+    measureCandidate: (candidate) => {
+      const payload = createV1LineMetricPayload({
         request: input.request,
-        lineIndex,
-        placedClusters: placement.placedClusters,
+        projection,
+        candidate,
       })
+      if (payload == null) return {
+        status: "blocked" as const,
+        heightLayoutUnit: null,
+        baselineOffsetLayoutUnit: null,
+        payload: null,
+        issues: [{
+          code: "invalid-flow-tree-projection",
+          message: "kernel placement does not match retained V1 cluster payloads",
+        }],
+      }
       const metrics = lineMetrics({
         request: input.request,
         paragraphMetrics: projection.paragraphMetrics,
-        fragments,
-        minimumHeightLayoutUnit: candidateHeight,
+        fragments: payload.fragments,
+        minimumHeightLayoutUnit: candidate.candidateBandHeightLayoutUnit,
       })
-      if (metrics == null) return blocked([
-        issue(
-          "unsafe-layout-arithmetic",
-          `lines[${lineIndex}]`,
-          "line metrics exceed safe layout arithmetic",
-          lineIndex,
-        ),
-      ])
-      if (metrics.heightLayoutUnit > candidateHeight) {
-        candidateHeight = metrics.heightLayoutUnit
-        work.lineBandRequeryCount += 1
-        stabilizationCount += 1
-        if (
-          stabilizationCount
-          > input.spatialIndex.summary.flowAffectingEntryCount + 1
-        ) return blocked([
-          issue(
-            "line-band-did-not-stabilize",
-            `lines[${lineIndex}]`,
-            "line band exceeded its finite spatial stabilization proof",
-            lineIndex,
-          ),
-        ])
-        continue
+      if (metrics == null) return {
+        status: "blocked" as const,
+        heightLayoutUnit: null,
+        baselineOffsetLayoutUnit: null,
+        payload: null,
+        issues: [{
+          code: "unsafe-layout-arithmetic",
+          message: "line metrics exceed safe layout arithmetic",
+        }],
       }
-      const renderStartOffset = projection.groups[lineStartGroupIndex]!.renderStartOffset
-      const renderEndOffset = projection.groups[placement.nextGroupIndex - 1]!.renderEndOffset
-      const lineFacts = {
-        index: lineIndex,
-        renderStartOffset,
-        renderEndOffset,
-        yOffsetLayoutUnit: yLayoutUnit,
-        heightLayoutUnit: metrics.heightLayoutUnit,
-        baselineOffsetLayoutUnit: metrics.baselineOffsetLayoutUnit,
-        availableIntervals: region.intervals,
-        intervalPlacements: placement.intervalPlacements,
-        fragments,
-        sourceSegments: createVNextTextBlockMultiRunSourceSegmentsV1(
-          input.request.measurement.runs,
-          renderStartOffset,
-          renderEndOffset,
-        ),
-        regionFingerprint: region.fingerprint,
+      return {
+        status: "accepted" as const,
+        ...metrics,
+        payload,
+        issues: [] as [],
       }
-      lines.push(deepFreezeSpatialV1({
-        ...lineFacts,
-        fingerprint: spatialFingerprintV1(lineFacts),
-      }))
-      groupIndex = placement.nextGroupIndex
-      const nextY = safeVNextTextBlockMultiRunSumV1([
-        yLayoutUnit,
-        metrics.heightLayoutUnit,
-      ])
-      if (nextY == null) return blocked([
-        issue(
-          "unsafe-layout-arithmetic",
-          `lines[${lineIndex}].heightLayoutUnit`,
-          "line stack exceeds safe layout arithmetic",
-          lineIndex,
-        ),
-      ])
-      yLayoutUnit = nextY
-      lineAccepted = true
-    }
+    },
+  })
+  if (kernel.status !== "accepted") {
+    const kernelIssue = kernel.issues[0]
+    const code: VNextTextBlockSpatialWrappingIssueCodeV1 = (
+      kernelIssue?.code === "unbreakable-flow-item-overflow"
+      || kernelIssue?.code === "no-vertical-progress"
+      || kernelIssue?.code === "line-band-did-not-stabilize"
+      || kernelIssue?.code === "unsafe-layout-arithmetic"
+    )
+      ? kernelIssue.code
+      : kernelIssue?.code === "invalid-flow-tree-projection"
+        ? "invalid-flow-tree-projection"
+        : "spatial-index-binding-mismatch"
+    return blocked([issue(
+      code,
+      "spatialWrappingKernel",
+      kernelIssue?.message ?? "spatial wrapping kernel blocked",
+      kernelIssue?.lineIndex,
+    )])
   }
-  const heightLayoutUnit = yLayoutUnit - input.startYLayoutUnit
+  const lines: VNextTextBlockSpatialWrappedLineV1[] = kernel.lines.map((line) => {
+    const payload = line.metricPayload as V1LineMetricPayload
+    const lineFacts = {
+      index: line.lineIndex,
+      renderStartOffset: payload.renderStartOffset,
+      renderEndOffset: payload.renderEndOffset,
+      yOffsetLayoutUnit: line.lineYLayoutUnit,
+      heightLayoutUnit: line.heightLayoutUnit,
+      baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
+      availableIntervals: line.intervals,
+      intervalPlacements: payload.intervalPlacements,
+      fragments: payload.fragments,
+      sourceSegments: createVNextTextBlockMultiRunSourceSegmentsV1(
+        input.request.measurement.runs,
+        payload.renderStartOffset,
+        payload.renderEndOffset,
+      ),
+      regionFingerprint: line.regionFingerprint,
+    }
+    return deepFreezeSpatialV1({
+      ...lineFacts,
+      fingerprint: spatialFingerprintV1(lineFacts),
+    })
+  })
+  const lastLine = lines.at(-1)
+  const endYLayoutUnit = lastLine == null
+    ? input.startYLayoutUnit
+    : safeVNextTextBlockMultiRunSumV1([
+        lastLine.yOffsetLayoutUnit,
+        lastLine.heightLayoutUnit,
+      ])
+  if (endYLayoutUnit == null) return blocked([
+    issue(
+      "unsafe-layout-arithmetic",
+      "summary.heightLayoutUnit",
+      "spatial layout height exceeds safe arithmetic",
+    ),
+  ])
+  const heightLayoutUnit = endYLayoutUnit - input.startYLayoutUnit
   if (!Number.isSafeInteger(heightLayoutUnit)) return blocked([
     issue(
       "unsafe-layout-arithmetic",
@@ -746,7 +629,7 @@ export function layoutVNextTextBlockSpatialWrappingV1(input: {
       ),
       heightLayoutUnit,
     },
-    work,
+    work: kernel.work,
     contracts: {
       multiIntervalRectangularWrapping: true as const,
       topBottomBarrierAdvancement: true as const,

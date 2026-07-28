@@ -1,0 +1,516 @@
+{
+  "source": "flowdoc-text-engine-multi-run-layout-v1",
+  "contractVersion": 1,
+  "layoutId": "engine-layout-mixed-001",
+  "textBlockId": "text-block-engine-mixed",
+  "instanceRevision": 11,
+  "measurementProfileId": "measurement-profile-mr1-engine",
+  "runtimeKind": "test-mr1",
+  "productionBinding": false,
+  "status": "accepted",
+  "request": {
+    "layoutId": "engine-layout-mixed-001",
+    "measurement": {
+      "documentId": "document-mr1-engine",
+      "instanceRevision": 11,
+      "sectionId": "section-main",
+      "textBlockId": "text-block-engine-mixed",
+      "availableWidthPt": 100,
+      "measurementProfileId": "measurement-profile-mr1-engine",
+      "styleKey": "paragraph-body",
+      "renderedText": "ABC",
+      "runs": [
+        {
+          "inlineId": "regular-a",
+          "kind": "text",
+          "renderStartOffset": 0,
+          "renderEndOffset": 1,
+          "renderedText": "A",
+          "styleKey": "paragraph-body",
+          "localStyle": {
+            "fontSize": {
+              "value": 10,
+              "unit": "pt"
+            }
+          }
+        },
+        {
+          "inlineId": "bold-b",
+          "kind": "text",
+          "renderStartOffset": 1,
+          "renderEndOffset": 2,
+          "renderedText": "B",
+          "styleKey": "paragraph-body",
+          "localStyle": {
+            "fontSize": {
+              "value": 24,
+              "unit": "pt"
+            },
+            "fontWeight": "bold"
+          }
+        },
+        {
+          "inlineId": "field-c",
+          "kind": "resolved-field",
+          "fieldKey": "customer.initial",
+          "renderStartOffset": 2,
+          "renderEndOffset": 3,
+          "renderedText": "C",
+          "styleKey": "paragraph-body"
+        }
+      ]
+    },
+    "layoutUnitPolicyFingerprint": "sha256:e187738e8d5166278b0120fa397e5911ace62cdb8eb070c95710c490338545d7",
+    "availableWidthLayoutUnit": 100000000,
+    "declaredLineHeightLayoutUnit": 14000000,
+    "paragraphStyle": {
+      "styleKey": "paragraph-body",
+      "fontFaceId": "sarabun-regular",
+      "fontSizeLayoutUnit": 12000000,
+      "textColor": "202020"
+    },
+    "fontFaces": [
+      {
+        "fontFaceId": "sarabun-bold",
+        "fontFamily": "Sarabun",
+        "fontSha256": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18",
+        "weight": 700,
+        "style": "normal",
+        "unitsPerEm": 1000,
+        "ascentFontUnit": 1068,
+        "descentFontUnit": -232,
+        "lineGapFontUnit": 0
+      },
+      {
+        "fontFaceId": "sarabun-regular",
+        "fontFamily": "Sarabun",
+        "fontSha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+        "weight": 400,
+        "style": "normal",
+        "unitsPerEm": 1000,
+        "ascentFontUnit": 1068,
+        "descentFontUnit": -232,
+        "lineGapFontUnit": 0
+      }
+    ],
+    "shapingRuns": [
+      {
+        "shapingRunId": "engine-layout-mixed-001:shaping-run-0:0-1",
+        "renderStartOffset": 0,
+        "renderEndOffset": 1,
+        "text": "A",
+        "styleKey": "sha256:570508b74593d7e7e20db718ef4100c82c677bf446f1d37ba6f8dfbb569193c8",
+        "fontFaceId": "sarabun-regular",
+        "fontSizeLayoutUnit": 10000000,
+        "textColor": "202020",
+        "direction": "ltr",
+        "baselineShiftLayoutUnit": 0,
+        "features": [],
+        "clusters": [
+          {
+            "index": 0,
+            "renderStartOffset": 0,
+            "renderEndOffset": 1,
+            "advanceLayoutUnit": 5000000
+          }
+        ]
+      },
+      {
+        "shapingRunId": "engine-layout-mixed-001:shaping-run-1:1-2",
+        "renderStartOffset": 1,
+        "renderEndOffset": 2,
+        "text": "B",
+        "styleKey": "sha256:a70a084e5def31874d412031f0b2bfb51ad2f12f73bbf10e7aa53ae131626395",
+        "fontFaceId": "sarabun-bold",
+        "fontSizeLayoutUnit": 24000000,
+        "textColor": "202020",
+        "direction": "ltr",
+        "baselineShiftLayoutUnit": 0,
+        "features": [],
+        "clusters": [
+          {
+            "index": 0,
+            "renderStartOffset": 1,
+            "renderEndOffset": 2,
+            "advanceLayoutUnit": 14400000
+          }
+        ]
+      },
+      {
+        "shapingRunId": "engine-layout-mixed-001:shaping-run-2:2-3",
+        "renderStartOffset": 2,
+        "renderEndOffset": 3,
+        "text": "C",
+        "styleKey": "sha256:9f3ad18d211df43892ca6132447a45386899b0694e7255c65c753b0ddc771db2",
+        "fontFaceId": "sarabun-regular",
+        "fontSizeLayoutUnit": 12000000,
+        "textColor": "202020",
+        "direction": "ltr",
+        "baselineShiftLayoutUnit": 0,
+        "features": [],
+        "clusters": [
+          {
+            "index": 0,
+            "renderStartOffset": 2,
+            "renderEndOffset": 3,
+            "advanceLayoutUnit": 6000000
+          }
+        ]
+      }
+    ],
+    "breakOffsets": [
+      0,
+      3
+    ],
+    "lines": [
+      {
+        "index": 0,
+        "renderStartOffset": 0,
+        "renderEndOffset": 3
+      }
+    ]
+  },
+  "layout": {
+    "source": "vnext-text-block-multi-run-layout-v1",
+    "contractVersion": 1,
+    "layoutId": "engine-layout-mixed-001",
+    "textBlockId": "text-block-engine-mixed",
+    "instanceRevision": 11,
+    "measurementProfileId": "measurement-profile-mr1-engine",
+    "layoutUnitPolicyFingerprint": "sha256:e187738e8d5166278b0120fa397e5911ace62cdb8eb070c95710c490338545d7",
+    "contracts": {
+      "consumes": "vnext-text-block-v4-measurement",
+      "geometryUnit": "micro-point-integer",
+      "lineBreaks": "external-evidence-core-validated",
+      "fragmentPositioning": "core-derived-from-cluster-advances",
+      "rendererMayMeasureText": false,
+      "rendererMayRelayout": false,
+      "coreLoadsFontBytes": false,
+      "coreExecutesShaping": false,
+      "artifactBytes": false,
+      "productionBinding": false
+    },
+    "status": "accepted",
+    "fontFaces": [
+      {
+        "fontFaceId": "sarabun-bold",
+        "fontFamily": "Sarabun",
+        "fontSha256": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18",
+        "weight": 700,
+        "style": "normal",
+        "unitsPerEm": 1000,
+        "ascentFontUnit": 1068,
+        "descentFontUnit": -232,
+        "lineGapFontUnit": 0
+      },
+      {
+        "fontFaceId": "sarabun-regular",
+        "fontFamily": "Sarabun",
+        "fontSha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+        "weight": 400,
+        "style": "normal",
+        "unitsPerEm": 1000,
+        "ascentFontUnit": 1068,
+        "descentFontUnit": -232,
+        "lineGapFontUnit": 0
+      }
+    ],
+    "shapingRuns": [
+      {
+        "shapingRunId": "engine-layout-mixed-001:shaping-run-0:0-1",
+        "renderStartOffset": 0,
+        "renderEndOffset": 1,
+        "text": "A",
+        "styleKey": "sha256:570508b74593d7e7e20db718ef4100c82c677bf446f1d37ba6f8dfbb569193c8",
+        "fontFaceId": "sarabun-regular",
+        "fontSizeLayoutUnit": 10000000,
+        "textColor": "202020",
+        "direction": "ltr",
+        "baselineShiftLayoutUnit": 0,
+        "features": [],
+        "clusters": [
+          {
+            "index": 0,
+            "renderStartOffset": 0,
+            "renderEndOffset": 1,
+            "advanceLayoutUnit": 5000000
+          }
+        ],
+        "fontFamily": "Sarabun",
+        "fontSha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+        "fontWeight": 400,
+        "fontStyle": "normal",
+        "ascentLayoutUnit": 10680000,
+        "descentLayoutUnit": 2320000,
+        "lineGapLayoutUnit": 0,
+        "advanceLayoutUnit": 5000000,
+        "fingerprint": "sha256:480c92c24c76a34b5bcb2cf6238355e4986a2859d392f0ba9b7d938561ebc48d"
+      },
+      {
+        "shapingRunId": "engine-layout-mixed-001:shaping-run-1:1-2",
+        "renderStartOffset": 1,
+        "renderEndOffset": 2,
+        "text": "B",
+        "styleKey": "sha256:a70a084e5def31874d412031f0b2bfb51ad2f12f73bbf10e7aa53ae131626395",
+        "fontFaceId": "sarabun-bold",
+        "fontSizeLayoutUnit": 24000000,
+        "textColor": "202020",
+        "direction": "ltr",
+        "baselineShiftLayoutUnit": 0,
+        "features": [],
+        "clusters": [
+          {
+            "index": 0,
+            "renderStartOffset": 1,
+            "renderEndOffset": 2,
+            "advanceLayoutUnit": 14400000
+          }
+        ],
+        "fontFamily": "Sarabun",
+        "fontSha256": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18",
+        "fontWeight": 700,
+        "fontStyle": "normal",
+        "ascentLayoutUnit": 25632000,
+        "descentLayoutUnit": 5568000,
+        "lineGapLayoutUnit": 0,
+        "advanceLayoutUnit": 14400000,
+        "fingerprint": "sha256:333855bbb038b7d7c421b86305bef174a1ba9aa0341f1f987703bed3e59aea4b"
+      },
+      {
+        "shapingRunId": "engine-layout-mixed-001:shaping-run-2:2-3",
+        "renderStartOffset": 2,
+        "renderEndOffset": 3,
+        "text": "C",
+        "styleKey": "sha256:9f3ad18d211df43892ca6132447a45386899b0694e7255c65c753b0ddc771db2",
+        "fontFaceId": "sarabun-regular",
+        "fontSizeLayoutUnit": 12000000,
+        "textColor": "202020",
+        "direction": "ltr",
+        "baselineShiftLayoutUnit": 0,
+        "features": [],
+        "clusters": [
+          {
+            "index": 0,
+            "renderStartOffset": 2,
+            "renderEndOffset": 3,
+            "advanceLayoutUnit": 6000000
+          }
+        ],
+        "fontFamily": "Sarabun",
+        "fontSha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+        "fontWeight": 400,
+        "fontStyle": "normal",
+        "ascentLayoutUnit": 12816000,
+        "descentLayoutUnit": 2784000,
+        "lineGapLayoutUnit": 0,
+        "advanceLayoutUnit": 6000000,
+        "fingerprint": "sha256:ce64573b7b10791ac9050b97b30f87f355c4a2b4cbb71cf3a010b6a575ee1a97"
+      }
+    ],
+    "lines": [
+      {
+        "index": 0,
+        "renderStartOffset": 0,
+        "renderEndOffset": 3,
+        "text": "ABC",
+        "yOffsetLayoutUnit": 0,
+        "widthLayoutUnit": 25400000,
+        "naturalAscentLayoutUnit": 25632000,
+        "naturalDescentLayoutUnit": 5568000,
+        "naturalHeightLayoutUnit": 31200000,
+        "leadingBeforeLayoutUnit": 0,
+        "leadingAfterLayoutUnit": 0,
+        "heightLayoutUnit": 31200000,
+        "baselineOffsetLayoutUnit": 25632000,
+        "fragments": [
+          {
+            "fragmentId": "engine-layout-mixed-001:line-0:run-engine-layout-mixed-001:shaping-run-0:0-1:0-1",
+            "shapingRunId": "engine-layout-mixed-001:shaping-run-0:0-1",
+            "renderStartOffset": 0,
+            "renderEndOffset": 1,
+            "text": "A",
+            "xLayoutUnit": 0,
+            "advanceLayoutUnit": 5000000,
+            "baselineShiftLayoutUnit": 0,
+            "styleKey": "sha256:570508b74593d7e7e20db718ef4100c82c677bf446f1d37ba6f8dfbb569193c8",
+            "fontFaceId": "sarabun-regular",
+            "fontFamily": "Sarabun",
+            "fontSha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+            "fontWeight": 400,
+            "fontStyle": "normal",
+            "fontSizeLayoutUnit": 10000000,
+            "textColor": "202020",
+            "ascentLayoutUnit": 10680000,
+            "descentLayoutUnit": 2320000,
+            "lineGapLayoutUnit": 0,
+            "sourceSegments": [
+              {
+                "inlineId": "regular-a",
+                "kind": "text",
+                "styleKey": "paragraph-body",
+                "localStyle": {
+                  "fontSize": {
+                    "value": 10,
+                    "unit": "pt"
+                  }
+                },
+                "renderStartOffset": 0,
+                "renderEndOffset": 1,
+                "sourceStartOffset": 0,
+                "sourceEndOffset": 1,
+                "renderedText": "A"
+              }
+            ],
+            "fingerprint": "sha256:48c26367c2cbbc811e0243070cf2694b19d57d23cad723cf8e1b7eaf4e8ac2c7"
+          },
+          {
+            "fragmentId": "engine-layout-mixed-001:line-0:run-engine-layout-mixed-001:shaping-run-1:1-2:1-2",
+            "shapingRunId": "engine-layout-mixed-001:shaping-run-1:1-2",
+            "renderStartOffset": 1,
+            "renderEndOffset": 2,
+            "text": "B",
+            "xLayoutUnit": 5000000,
+            "advanceLayoutUnit": 14400000,
+            "baselineShiftLayoutUnit": 0,
+            "styleKey": "sha256:a70a084e5def31874d412031f0b2bfb51ad2f12f73bbf10e7aa53ae131626395",
+            "fontFaceId": "sarabun-bold",
+            "fontFamily": "Sarabun",
+            "fontSha256": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18",
+            "fontWeight": 700,
+            "fontStyle": "normal",
+            "fontSizeLayoutUnit": 24000000,
+            "textColor": "202020",
+            "ascentLayoutUnit": 25632000,
+            "descentLayoutUnit": 5568000,
+            "lineGapLayoutUnit": 0,
+            "sourceSegments": [
+              {
+                "inlineId": "bold-b",
+                "kind": "text",
+                "styleKey": "paragraph-body",
+                "localStyle": {
+                  "fontSize": {
+                    "value": 24,
+                    "unit": "pt"
+                  },
+                  "fontWeight": "bold"
+                },
+                "renderStartOffset": 1,
+                "renderEndOffset": 2,
+                "sourceStartOffset": 0,
+                "sourceEndOffset": 1,
+                "renderedText": "B"
+              }
+            ],
+            "fingerprint": "sha256:9b94c86bf93c33f936d809708cf3204df9813062c0cf4df67c62a9339af04daa"
+          },
+          {
+            "fragmentId": "engine-layout-mixed-001:line-0:run-engine-layout-mixed-001:shaping-run-2:2-3:2-3",
+            "shapingRunId": "engine-layout-mixed-001:shaping-run-2:2-3",
+            "renderStartOffset": 2,
+            "renderEndOffset": 3,
+            "text": "C",
+            "xLayoutUnit": 19400000,
+            "advanceLayoutUnit": 6000000,
+            "baselineShiftLayoutUnit": 0,
+            "styleKey": "sha256:9f3ad18d211df43892ca6132447a45386899b0694e7255c65c753b0ddc771db2",
+            "fontFaceId": "sarabun-regular",
+            "fontFamily": "Sarabun",
+            "fontSha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+            "fontWeight": 400,
+            "fontStyle": "normal",
+            "fontSizeLayoutUnit": 12000000,
+            "textColor": "202020",
+            "ascentLayoutUnit": 12816000,
+            "descentLayoutUnit": 2784000,
+            "lineGapLayoutUnit": 0,
+            "sourceSegments": [
+              {
+                "inlineId": "field-c",
+                "kind": "resolved-field",
+                "fieldKey": "customer.initial",
+                "styleKey": "paragraph-body",
+                "renderStartOffset": 2,
+                "renderEndOffset": 3,
+                "sourceStartOffset": 0,
+                "sourceEndOffset": 1,
+                "renderedText": "C"
+              }
+            ],
+            "fingerprint": "sha256:215ecbd2251920d2c1cdcb83b9b0879793ed57c7dfdd43317c3654928e918aa1"
+          }
+        ],
+        "sourceSegments": [
+          {
+            "inlineId": "regular-a",
+            "kind": "text",
+            "styleKey": "paragraph-body",
+            "localStyle": {
+              "fontSize": {
+                "value": 10,
+                "unit": "pt"
+              }
+            },
+            "renderStartOffset": 0,
+            "renderEndOffset": 1,
+            "sourceStartOffset": 0,
+            "sourceEndOffset": 1,
+            "renderedText": "A"
+          },
+          {
+            "inlineId": "bold-b",
+            "kind": "text",
+            "styleKey": "paragraph-body",
+            "localStyle": {
+              "fontSize": {
+                "value": 24,
+                "unit": "pt"
+              },
+              "fontWeight": "bold"
+            },
+            "renderStartOffset": 1,
+            "renderEndOffset": 2,
+            "sourceStartOffset": 0,
+            "sourceEndOffset": 1,
+            "renderedText": "B"
+          },
+          {
+            "inlineId": "field-c",
+            "kind": "resolved-field",
+            "fieldKey": "customer.initial",
+            "styleKey": "paragraph-body",
+            "renderStartOffset": 2,
+            "renderEndOffset": 3,
+            "sourceStartOffset": 0,
+            "sourceEndOffset": 1,
+            "renderedText": "C"
+          }
+        ],
+        "fingerprint": "sha256:43455fe13b304c00172d2467cc66440147dd31207fcd1622003277541fa4d76e"
+      }
+    ],
+    "fingerprint": "sha256:79379594f1cf7dac9549800269c8a4ff84f0e8836874ae2eb5eda3d0c22c29f8",
+    "issues": [],
+    "summary": {
+      "shapingRunCount": 3,
+      "clusterCount": 3,
+      "lineCount": 1,
+      "fragmentCount": 3,
+      "sourceSegmentCount": 3,
+      "widthLayoutUnit": 25400000,
+      "heightLayoutUnit": 31200000
+    }
+  },
+  "issues": [],
+  "fingerprint": "sha256:b921a552cb83f9884a034ed70457450eb918c4781f44a446e3aa62a1eeb05349",
+  "summary": {
+    "sourceRunCount": 3,
+    "effectiveRunCount": 3,
+    "shapingRunCount": 3,
+    "clusterCount": 3,
+    "lineCount": 1,
+    "fontFaceCount": 2,
+    "runtimeShapeCallCount": 3,
+    "runtimeSegmentationCallCount": 1
+  }
+}

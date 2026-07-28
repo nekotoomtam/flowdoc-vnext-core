@@ -200,5 +200,8 @@ The full `npm run check` passed 420 files / 2,114 tests including type-check.
 
 ## Next Checkpoint
 
-Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
-separately reviewed and explicitly approved design before implementation.
+Historical pointer status on 2026-07-28: fulfilled by
+`docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`.
+
+Phase 4A remains the accepted text-only authored-box predecessor. The active
+Core handoff is Phase 4B; Phase 5 remains separately authorized.
