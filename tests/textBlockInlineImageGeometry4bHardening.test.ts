@@ -15,6 +15,7 @@ import {
   acceptedInlineImageFlowTreeFixture,
   producerInlineImageEvidenceInput,
 } from "./helpers/textBlockInlineImageFlowV2.js"
+import { runVNextTextBlockSpatialWrappingKernelV1 } from "../src/layout/textBlockSpatialWrappingKernelV1.js"
 
 const owner = `sha256:${"c".repeat(64)}`
 
@@ -255,7 +256,10 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
     expect(frozenEvidence).toMatchObject({ status: "blocked", lines: null, summary: null, work: null })
     expect(changedLayout).toMatchObject({ status: "blocked", lines: null, summary: null, work: null })
     expect(boxClone).toMatchObject({ status: "blocked", geometry: null, lines: null, summary: null })
-    for (const result of production) expect(result).toMatchObject({ status: "blocked" })
+    expect(production[0]).toMatchObject({ status: "blocked", evidence: null, issues: [{ code: "production-binding-forbidden", path: "bindProductionLayout" }] })
+    expect(production[1]).toMatchObject({ status: "blocked", tree: null, issues: [{ code: "production-binding-forbidden" }] })
+    expect(production[2]).toMatchObject({ status: "blocked", lines: null, summary: null, work: null, fingerprint: null, issues: [{ code: "production-binding-forbidden", path: "bindProductionLayout" }] })
+    expect(production[3]).toMatchObject({ status: "blocked", geometry: null, lines: null, summary: null, fingerprint: null, issues: [{ code: "production-binding-forbidden", path: "bindProductionLayout" }] })
     expect(indexProduction).toMatchObject({ status: "blocked", index: null, issues: [{ code: "invalid-input" }] })
     expect(updateProduction).toMatchObject({ status: "blocked", update: null, nextIndex: null, issues: [{ code: "invalid-input" }] })
     expect(providerProduction).toMatchObject({ status: "blocked", intervals: null, work: null, fingerprint: null, issues: [{ code: "invalid-input" }] })
@@ -337,6 +341,8 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
 
   it.each([
     ["zero pt", { value: 0, unit: "pt" }, "blocked", null],
+    ["zero mm", { value: 0, unit: "mm" }, "blocked", null],
+    ["negative pt", { value: -1, unit: "pt" }, "blocked", null],
     ["negative mm", { value: -1, unit: "mm" }, "blocked", null],
     ["non-finite pt", { value: Number.POSITIVE_INFINITY, unit: "pt" }, "blocked", null],
     ["non-finite mm", { value: Number.NaN, unit: "mm" }, "blocked", null],
@@ -346,6 +352,21 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
     ["safe-edge mm", { value: 3_177_539_737.0891824, unit: "mm" }, "accepted", 9_007_199_254_740_990],
   ] as const)("converts %s through the public positive authored-unit boundary", (_name, value, status, layoutUnit) => {
     expect(convertVNextPositiveUnitValueToLayoutUnitV1(value, "frame.width")).toMatchObject({ status, layoutUnit })
+  })
+
+  it.each([
+    ["equal", 0],
+    ["decreasing", -1],
+  ] as const)("blocks a %s shared-kernel vertical event without partial lines", (_name, nextYLayoutUnit) => {
+    const result = runVNextTextBlockSpatialWrappingKernelV1({
+      groups: [{ renderStartOffset: 0, renderEndOffset: 1, atoms: [{ kind: "text-cluster", renderStartOffset: 0, renderEndOffset: 1, advanceLayoutUnit: 1, payloadIndex: 0 }], advanceLayoutUnit: 1, mandatoryBreak: false }],
+      startYLayoutUnit: 0,
+      baseBandHeightLayoutUnit: 1,
+      maximumBandRequeryCount: 1,
+      provideRegion: () => ({ status: "accepted", intervals: [], nextYLayoutUnit, regionFingerprint: "sha256:kernel-test", work: { fastPath: "none", spatialIndexQueryCount: 1, visitedSpatialNodeCount: 1, matchedSpatialEntryCount: 1, rectangularSubtractionCount: 1 }, issues: [] }),
+      measureCandidate: () => ({ status: "accepted", heightLayoutUnit: 1, baselineOffsetLayoutUnit: 1, payload: null, issues: [] }),
+    })
+    expect(result).toMatchObject({ status: "blocked", lines: null, work: null, issues: [{ code: "no-vertical-progress", lineIndex: 0 }] })
   })
 
   it("retains bounded spatial work and an overlay-only zero-query path", () => {
