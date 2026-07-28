@@ -31,6 +31,7 @@ import {
 import {
   convertVNextTextBlockAuthoredBoxKernelV1,
   deriveVNextTextBlockAuthoredBoxAutoHeightKernelV1,
+  projectVNextTextBlockAuthoredBoxGeometryKernelV1,
   projectVNextTextBlockAuthoredBoxLinesKernelV1,
   type VNextTextBlockAuthoredBoxKernelConversionResultV1,
 } from "./textBlockAuthoredBoxGeometryKernelV1.js"
@@ -44,9 +45,6 @@ import {
   type VNextTextBlockAuthoredBoxGeometryInspectionV1,
   type VNextTextBlockAuthoredBoxGeometryIssueCodeV1,
   type VNextTextBlockAuthoredBoxGeometryIssueV1,
-  type VNextTextBlockAuthoredBoxFragmentV1,
-  type VNextTextBlockAuthoredBoxIntervalPlacementV1,
-  type VNextTextBlockAuthoredBoxIntervalV1,
   type VNextTextBlockAuthoredBoxGeometryResultV1,
   type VNextTextBlockAuthoredBoxLineV1,
 } from "./textBlockAuthoredBoxGeometryContractV1.js"
@@ -150,21 +148,6 @@ function requestsProductionBinding(request: unknown): boolean {
   }
 }
 
-function safeAdd(
-  left: number,
-  right: number,
-  path: string,
-): number | VNextTextBlockAuthoredBoxGeometryIssueV1 {
-  const value = left + right
-  return Number.isSafeInteger(value)
-    ? value
-    : issue(
-        "unsafe-layout-arithmetic",
-        path,
-        "authored box coordinate exceeds safe layout arithmetic",
-      )
-}
-
 function projectBoxLocalLines(input: {
   lines: Extract<
     ReturnType<typeof layoutVNextTextBlockSpatialWrappingV1>,
@@ -172,119 +155,35 @@ function projectBoxLocalLines(input: {
   >["lines"]
   box: ConvertedBoxGeometry
 }): VNextTextBlockAuthoredBoxLineV1[] | VNextTextBlockAuthoredBoxGeometryIssueV1 {
-  const lines: VNextTextBlockAuthoredBoxLineV1[] = []
-  for (const line of projectVNextTextBlockAuthoredBoxLinesKernelV1({
+  const projection = projectVNextTextBlockAuthoredBoxGeometryKernelV1({
+    lines: projectVNextTextBlockAuthoredBoxLinesKernelV1({
     lines: input.lines,
     contentOriginXLayoutUnit: input.box.contentOriginXLayoutUnit,
     contentOriginYLayoutUnit: input.box.contentOriginYLayoutUnit,
-    projectLine: (line) => line,
-  })) {
-    const availableIntervals: VNextTextBlockAuthoredBoxIntervalV1[] = []
-    for (const [intervalIndex, interval] of line.availableIntervals.entries()) {
-      const startLayoutUnit = safeAdd(
-        interval.startLayoutUnit,
-        input.box.contentOriginXLayoutUnit,
-        `lines[${line.index}].availableIntervals[${intervalIndex}].startLayoutUnit`,
-      )
-      if (typeof startLayoutUnit !== "number") return startLayoutUnit
-      const endLayoutUnit = safeAdd(
-        interval.endLayoutUnit,
-        input.box.contentOriginXLayoutUnit,
-        `lines[${line.index}].availableIntervals[${intervalIndex}].endLayoutUnit`,
-      )
-      if (typeof endLayoutUnit !== "number") return endLayoutUnit
-      const facts = {
-        contentStartLayoutUnit: interval.startLayoutUnit,
-        contentEndLayoutUnit: interval.endLayoutUnit,
-        startLayoutUnit,
-        endLayoutUnit,
-        contentLineFingerprint: line.fingerprint,
-      }
-      availableIntervals.push({
-        ...facts,
-        fingerprint: spatialFingerprintV1(facts),
-      })
-    }
-    const intervalPlacements: VNextTextBlockAuthoredBoxIntervalPlacementV1[] = []
-    for (const [placementIndex, placement] of line.intervalPlacements.entries()) {
-      const xStartLayoutUnit = safeAdd(
-        placement.xStartLayoutUnit,
-        input.box.contentOriginXLayoutUnit,
-        `lines[${line.index}].intervalPlacements[${placementIndex}].xStartLayoutUnit`,
-      )
-      if (typeof xStartLayoutUnit !== "number") return xStartLayoutUnit
-      const xEndLayoutUnit = safeAdd(
-        placement.xEndLayoutUnit,
-        input.box.contentOriginXLayoutUnit,
-        `lines[${line.index}].intervalPlacements[${placementIndex}].xEndLayoutUnit`,
-      )
-      if (typeof xEndLayoutUnit !== "number") return xEndLayoutUnit
-      const facts = {
-        intervalIndex: placement.intervalIndex,
-        renderStartOffset: placement.renderStartOffset,
-        renderEndOffset: placement.renderEndOffset,
-        contentXStartLayoutUnit: placement.xStartLayoutUnit,
-        contentXEndLayoutUnit: placement.xEndLayoutUnit,
-        xStartLayoutUnit,
-        xEndLayoutUnit,
-        contentLineFingerprint: line.fingerprint,
-      }
-      intervalPlacements.push({
-        ...facts,
-        fingerprint: spatialFingerprintV1(facts),
-      })
-    }
-    const fragments: VNextTextBlockAuthoredBoxFragmentV1[] = []
-    for (const [fragmentIndex, fragment] of line.fragments.entries()) {
-      const {
-        xLayoutUnit,
-        fingerprint: contentFragmentFingerprint,
-        ...retained
-      } = fragment
-      const translatedX = safeAdd(
-        xLayoutUnit,
-        input.box.contentOriginXLayoutUnit,
-        `lines[${line.index}].fragments[${fragmentIndex}].xLayoutUnit`,
-      )
-      if (typeof translatedX !== "number") return translatedX
-      const facts = {
-        ...retained,
-        contentXLayoutUnit: xLayoutUnit,
-        xLayoutUnit: translatedX,
-        contentFragmentFingerprint,
-      }
-      fragments.push({
-        ...facts,
-        fingerprint: spatialFingerprintV1(facts),
-      })
-    }
-    const yOffsetLayoutUnit = safeAdd(
-      line.yOffsetLayoutUnit,
-      input.box.contentOriginYLayoutUnit,
-      `lines[${line.index}].yOffsetLayoutUnit`,
-    )
-    if (typeof yOffsetLayoutUnit !== "number") return yOffsetLayoutUnit
-    const facts = {
+    projectLine: (line) => ({
       index: line.index,
       renderStartOffset: line.renderStartOffset,
       renderEndOffset: line.renderEndOffset,
       contentYOffsetLayoutUnit: line.yOffsetLayoutUnit,
-      yOffsetLayoutUnit,
       heightLayoutUnit: line.heightLayoutUnit,
       baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
-      availableIntervals,
-      intervalPlacements,
-      fragments,
+      availableIntervals: line.availableIntervals,
+      intervalPlacements: line.intervalPlacements,
+      fragments: line.fragments.map((fragment) => {
+        const { xLayoutUnit, fingerprint: contentFragmentFingerprint, ...retained } = fragment
+        return { kind: "text" as const, contentXLayoutUnit: xLayoutUnit, contentFragmentFingerprint, retained }
+      }),
       sourceSegments: line.sourceSegments,
       contentRegionFingerprint: line.regionFingerprint,
       contentLineFingerprint: line.fingerprint,
-    }
-    lines.push({
-      ...facts,
-      fingerprint: spatialFingerprintV1(facts),
-    })
-  }
-  return lines
+    }),
+    }),
+    contentOriginXLayoutUnit: input.box.contentOriginXLayoutUnit,
+    contentOriginYLayoutUnit: input.box.contentOriginYLayoutUnit,
+  })
+  return projection.status === "accepted"
+    ? projection.lines as VNextTextBlockAuthoredBoxLineV1[]
+    : projection.issues[0]!
 }
 
 export function layoutVNextTextBlockAuthoredBoxGeometryV1(input: {

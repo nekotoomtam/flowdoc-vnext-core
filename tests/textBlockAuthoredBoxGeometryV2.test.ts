@@ -106,6 +106,58 @@ describe("TextBlock authored box geometry v2", () => {
     },
   )
 
+  it("fails closed for stale, cloned, accessor-shaped, mutable, and re-fingerprinted authorities", () => {
+    const fixture = acceptedFixture()
+    const foreign = acceptedFixture()
+    const accessorEnvelope = Object.create(null) as Record<string, unknown>
+    Object.defineProperties(accessorEnvelope, {
+      initialFlow: { enumerable: true, get: () => fixture.initialFlow },
+      evidence: { enumerable: true, value: fixture.evidence },
+      persistentFlowTree: { enumerable: true, value: fixture.tree },
+      spatialIndex: { enumerable: true, value: fixture.spatialIndex },
+    })
+    const mutableInitialFlow = { ...fixture.initialFlow }
+    const refingerprintedEvidence = structuredClone(fixture.evidence)
+    refingerprintedEvidence.fingerprint = fixture.evidence.fingerprint
+    const rejected = [
+      layoutVNextTextBlockAuthoredBoxGeometryV2({
+        initialFlow: fixture.initialFlow,
+        evidence: foreign.evidence,
+        persistentFlowTree: fixture.tree,
+        spatialIndex: fixture.spatialIndex,
+      }),
+      layoutVNextTextBlockAuthoredBoxGeometryV2({
+        initialFlow: structuredClone(fixture.initialFlow),
+        evidence: fixture.evidence,
+        persistentFlowTree: fixture.tree,
+        spatialIndex: fixture.spatialIndex,
+      }),
+      layoutVNextTextBlockAuthoredBoxGeometryV2(accessorEnvelope),
+      layoutVNextTextBlockAuthoredBoxGeometryV2({
+        initialFlow: mutableInitialFlow,
+        evidence: fixture.evidence,
+        persistentFlowTree: fixture.tree,
+        spatialIndex: fixture.spatialIndex,
+      }),
+      layoutVNextTextBlockAuthoredBoxGeometryV2({
+        initialFlow: fixture.initialFlow,
+        evidence: refingerprintedEvidence,
+        persistentFlowTree: fixture.tree,
+        spatialIndex: fixture.spatialIndex,
+      }),
+    ]
+    expect(rejected).toHaveLength(5)
+    for (const result of rejected) {
+      expect(result).toMatchObject({
+        status: "blocked",
+        geometry: null,
+        lines: null,
+        summary: null,
+        fingerprint: null,
+      })
+    }
+  })
+
   it("retains overlay extent in exact auto-height without removing text flow space", () => {
     const fixture = acceptedInlineImageSpatialFixture({
       content: "image-only",

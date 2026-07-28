@@ -4,7 +4,11 @@ import { safeVNextTextBlockMultiRunSumV1 } from "./textBlockMultiRunDerivationV1
 import type {
   VNextTextBlockAuthoredBoxGeometryIssueV1,
   VNextTextBlockAuthoredBoxInsetsLayoutUnitV1,
+  VNextTextBlockAuthoredBoxIntervalPlacementV1,
+  VNextTextBlockAuthoredBoxIntervalV1,
 } from "./textBlockAuthoredBoxGeometryContractV1.js"
+import type { VNextTextBlockMultiRunSourceSegmentV1 } from "./textBlockMultiRunLayoutContractV1.js"
+import { spatialFingerprintV1 } from "./textBlockSpatialIndexInternalsV1.js"
 
 export type VNextTextBlockAuthoredBoxKernelConversionResultV1 =
   | {
@@ -135,6 +139,170 @@ export function projectVNextTextBlockAuthoredBoxLinesKernelV1<TLine, TOutput>(in
     yLayoutUnit: input.contentOriginYLayoutUnit,
   }
   return input.lines.map((line) => input.projectLine(line, origin))
+}
+
+export type VNextTextBlockAuthoredBoxProjectionFragmentKernelInputV1 =
+  | {
+      kind: "text"
+      contentXLayoutUnit: number
+      contentFragmentFingerprint: string
+      retained: Record<string, unknown>
+    }
+  | {
+      kind: "inline-image"
+      contentXLayoutUnit: number
+      contentYLayoutUnit: number
+      contentFragmentFingerprint: string
+      retained: Record<string, unknown>
+    }
+
+export interface VNextTextBlockAuthoredBoxProjectionLineKernelInputV1 {
+  index: number
+  renderStartOffset: number
+  renderEndOffset: number
+  contentYOffsetLayoutUnit: number
+  heightLayoutUnit: number
+  baselineOffsetLayoutUnit: number
+  availableIntervals: readonly { startLayoutUnit: number; endLayoutUnit: number }[]
+  intervalPlacements: readonly {
+    intervalIndex: number
+    renderStartOffset: number
+    renderEndOffset: number
+    xStartLayoutUnit: number
+    xEndLayoutUnit: number
+  }[]
+  fragments: readonly VNextTextBlockAuthoredBoxProjectionFragmentKernelInputV1[]
+  sourceSegments: readonly VNextTextBlockMultiRunSourceSegmentV1[]
+  contentRegionFingerprint: string
+  contentLineFingerprint: string
+}
+
+export interface VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1 {
+  index: number
+  renderStartOffset: number
+  renderEndOffset: number
+  contentYOffsetLayoutUnit: number
+  yOffsetLayoutUnit: number
+  heightLayoutUnit: number
+  baselineOffsetLayoutUnit: number
+  availableIntervals: readonly VNextTextBlockAuthoredBoxIntervalV1[]
+  intervalPlacements: readonly VNextTextBlockAuthoredBoxIntervalPlacementV1[]
+  fragments: readonly Record<string, unknown>[]
+  sourceSegments: readonly VNextTextBlockMultiRunSourceSegmentV1[]
+  contentRegionFingerprint: string
+  contentLineFingerprint: string
+  fingerprint: string
+}
+
+export type VNextTextBlockAuthoredBoxProjectionKernelResultV1 =
+  | {
+      status: "accepted"
+      lines: readonly VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1[]
+      issues: []
+    }
+  | {
+      status: "blocked"
+      lines: null
+      issues: readonly VNextTextBlockAuthoredBoxGeometryIssueV1[]
+    }
+
+function safeAdd(
+  left: number,
+  right: number,
+  path: string,
+): number | VNextTextBlockAuthoredBoxGeometryIssueV1 {
+  const value = left + right
+  return Number.isSafeInteger(value)
+    ? value
+    : issue("unsafe-layout-arithmetic", path, "authored box coordinate exceeds safe layout arithmetic")
+}
+
+export function projectVNextTextBlockAuthoredBoxGeometryKernelV1(input: {
+  lines: readonly VNextTextBlockAuthoredBoxProjectionLineKernelInputV1[]
+  contentOriginXLayoutUnit: number
+  contentOriginYLayoutUnit: number
+}): VNextTextBlockAuthoredBoxProjectionKernelResultV1 {
+  const lines: VNextTextBlockAuthoredBoxProjectionLineKernelOutputV1[] = []
+  for (const line of input.lines) {
+    const availableIntervals: VNextTextBlockAuthoredBoxIntervalV1[] = []
+    for (const [index, interval] of line.availableIntervals.entries()) {
+      const startLayoutUnit = safeAdd(interval.startLayoutUnit, input.contentOriginXLayoutUnit, `lines[${line.index}].availableIntervals[${index}].startLayoutUnit`)
+      const endLayoutUnit = safeAdd(interval.endLayoutUnit, input.contentOriginXLayoutUnit, `lines[${line.index}].availableIntervals[${index}].endLayoutUnit`)
+      if (typeof startLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [startLayoutUnit] }
+      if (typeof endLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [endLayoutUnit] }
+      const facts = {
+        contentStartLayoutUnit: interval.startLayoutUnit,
+        contentEndLayoutUnit: interval.endLayoutUnit,
+        startLayoutUnit,
+        endLayoutUnit,
+        contentLineFingerprint: line.contentLineFingerprint,
+      }
+      availableIntervals.push({ ...facts, fingerprint: spatialFingerprintV1(facts) })
+    }
+    const intervalPlacements: VNextTextBlockAuthoredBoxIntervalPlacementV1[] = []
+    for (const [index, placement] of line.intervalPlacements.entries()) {
+      const xStartLayoutUnit = safeAdd(placement.xStartLayoutUnit, input.contentOriginXLayoutUnit, `lines[${line.index}].intervalPlacements[${index}].xStartLayoutUnit`)
+      const xEndLayoutUnit = safeAdd(placement.xEndLayoutUnit, input.contentOriginXLayoutUnit, `lines[${line.index}].intervalPlacements[${index}].xEndLayoutUnit`)
+      if (typeof xStartLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [xStartLayoutUnit] }
+      if (typeof xEndLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [xEndLayoutUnit] }
+      const facts = {
+        intervalIndex: placement.intervalIndex,
+        renderStartOffset: placement.renderStartOffset,
+        renderEndOffset: placement.renderEndOffset,
+        contentXStartLayoutUnit: placement.xStartLayoutUnit,
+        contentXEndLayoutUnit: placement.xEndLayoutUnit,
+        xStartLayoutUnit,
+        xEndLayoutUnit,
+        contentLineFingerprint: line.contentLineFingerprint,
+      }
+      intervalPlacements.push({ ...facts, fingerprint: spatialFingerprintV1(facts) })
+    }
+    const fragments: Record<string, unknown>[] = []
+    for (const [index, fragment] of line.fragments.entries()) {
+      const xLayoutUnit = safeAdd(fragment.contentXLayoutUnit, input.contentOriginXLayoutUnit, `lines[${line.index}].fragments[${index}].xLayoutUnit`)
+      if (typeof xLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [xLayoutUnit] }
+      if (fragment.kind === "text") {
+        const facts = {
+          ...fragment.retained,
+          contentXLayoutUnit: fragment.contentXLayoutUnit,
+          xLayoutUnit,
+          contentFragmentFingerprint: fragment.contentFragmentFingerprint,
+        }
+        fragments.push({ ...facts, fingerprint: spatialFingerprintV1(facts) })
+        continue
+      }
+      const yLayoutUnit = safeAdd(fragment.contentYLayoutUnit, input.contentOriginYLayoutUnit, `lines[${line.index}].fragments[${index}].yLayoutUnit`)
+      if (typeof yLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [yLayoutUnit] }
+      const facts = {
+        ...fragment.retained,
+        contentXLayoutUnit: fragment.contentXLayoutUnit,
+        contentYLayoutUnit: fragment.contentYLayoutUnit,
+        xLayoutUnit,
+        yLayoutUnit,
+        contentFragmentFingerprint: fragment.contentFragmentFingerprint,
+      }
+      fragments.push({ ...facts, fingerprint: spatialFingerprintV1(facts) })
+    }
+    const yOffsetLayoutUnit = safeAdd(line.contentYOffsetLayoutUnit, input.contentOriginYLayoutUnit, `lines[${line.index}].yOffsetLayoutUnit`)
+    if (typeof yOffsetLayoutUnit !== "number") return { status: "blocked", lines: null, issues: [yOffsetLayoutUnit] }
+    const facts = {
+      index: line.index,
+      renderStartOffset: line.renderStartOffset,
+      renderEndOffset: line.renderEndOffset,
+      contentYOffsetLayoutUnit: line.contentYOffsetLayoutUnit,
+      yOffsetLayoutUnit,
+      heightLayoutUnit: line.heightLayoutUnit,
+      baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
+      availableIntervals,
+      intervalPlacements,
+      fragments,
+      sourceSegments: line.sourceSegments,
+      contentRegionFingerprint: line.contentRegionFingerprint,
+      contentLineFingerprint: line.contentLineFingerprint,
+    }
+    lines.push({ ...facts, fingerprint: spatialFingerprintV1(facts) })
+  }
+  return { status: "accepted", lines, issues: [] }
 }
 
 export function deriveVNextTextBlockAuthoredBoxAutoHeightKernelV1(input: {
