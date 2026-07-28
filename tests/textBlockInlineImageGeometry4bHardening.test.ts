@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockFlowEvidenceV2,
+  convertVNextPositiveUnitValueToLayoutUnitV1,
   createVNextTextBlockPersistentFlowTreeV2,
   createVNextTextBlockSpatialIndexUpdateV2,
   createVNextTextBlockSpatialIndexV2,
@@ -12,6 +13,7 @@ import {
 import {
   acceptedInlineImageSpatialFixture,
   acceptedInlineImageFlowTreeFixture,
+  producerInlineImageEvidenceInput,
 } from "./helpers/textBlockInlineImageFlowV2.js"
 
 const owner = `sha256:${"c".repeat(64)}`
@@ -112,7 +114,7 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
     const fixture = acceptedInlineImageSpatialFixture({ content: "image-only" })
     const evidenceInput = {
       initialFlow: fixture.initialFlow,
-      evidenceInput: fixture.evidence.evidenceInput,
+      evidenceInput: producerInlineImageEvidenceInput(fixture.evidence),
       bindProductionLayout: undefined,
     }
     const treeInput = {
@@ -141,7 +143,7 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
     const layout = layoutVNextTextBlockSpatialWrappingV2(layoutInput)
     const box = layoutVNextTextBlockAuthoredBoxGeometryV2(boxInput)
 
-    expect(evidence).toMatchObject({ status: "blocked", evidence: null })
+    expect(evidence).toMatchObject({ status: "blocked", evidence: null, issues: [{ code: "invalid-input", path: "input" }] })
     expect(tree).toMatchObject({ status: "blocked", tree: null })
     expect(layout).toMatchObject({ status: "blocked", lines: null, summary: null })
     expect(box).toMatchObject({ status: "blocked", geometry: null, lines: null, summary: null })
@@ -240,6 +242,10 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
       layoutVNextTextBlockSpatialWrappingV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, spatialIndex: built.index, startYLayoutUnit: 0, bindProductionLayout: true }),
       layoutVNextTextBlockAuthoredBoxGeometryV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, spatialIndex: built.index, bindProductionLayout: true }),
     ]
+    const indexProduction = createVNextTextBlockSpatialIndexV2({ inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: [], bindProductionLayout: true } as never)
+    const updateProduction = createVNextTextBlockSpatialIndexUpdateV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, previousIndex: built.index, expectedPreviousIndexFingerprint: built.index.fingerprint, objectId: "move", geometryOwnerFingerprint: owner, nextGeometry: { xLayoutUnit: 20_000_000, yLayoutUnit: 0, widthLayoutUnit: 20_000_000, heightLayoutUnit: 10_000_000 }, bindProductionLayout: true } as never)
+    const providerProduction = provideVNextTextBlockFlowRegionsV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, spatialIndex: built.index, band: { topLayoutUnit: 0, bottomLayoutUnit: 10_000_000 }, contentInsets: { leftLayoutUnit: 0, rightLayoutUnit: 0 }, bindProductionLayout: true } as never)
+    const outsideExclusion = createVNextTextBlockSpatialIndexV2({ inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: [exclusion({ objectId: "outside", xLayoutUnit: 80_000_000 })] })
 
     expect(evidenceClone).toMatchObject({ status: "blocked", evidence: null })
     expect(treeClone).toMatchObject({ status: "blocked", tree: null })
@@ -250,11 +256,14 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
     expect(changedLayout).toMatchObject({ status: "blocked", lines: null, summary: null, work: null })
     expect(boxClone).toMatchObject({ status: "blocked", geometry: null, lines: null, summary: null })
     for (const result of production) expect(result).toMatchObject({ status: "blocked" })
+    expect(indexProduction).toMatchObject({ status: "blocked", index: null, issues: [{ code: "invalid-input" }] })
+    expect(updateProduction).toMatchObject({ status: "blocked", update: null, nextIndex: null, issues: [{ code: "invalid-input" }] })
+    expect(providerProduction).toMatchObject({ status: "blocked", intervals: null, work: null, fingerprint: null, issues: [{ code: "invalid-input" }] })
+    expect(outsideExclusion).toMatchObject({ status: "blocked", index: null, issues: [{ code: "spatial-boundary-violation" }] })
   })
 
   it.each([
-    ["initial-flow fingerprint", { width: { value: 11, unit: "pt" as const } }],
-    ["layout id", { content: "text-image-text" as const }],
+    ["initial-flow atom sequence", { content: "text-image-text" as const }],
     ["frame width", { width: { value: 11, unit: "pt" as const } }],
     ["frame height", { height: { value: 13, unit: "pt" as const } }],
     ["vertical alignment", { verticalAlign: "baseline" as const }],
@@ -324,6 +333,19 @@ describe("TextBlock inline-image geometry 4B hardening", () => {
     expect(layoutVNextTextBlockSpatialWrappingV2({ initialFlow: ordinary.initialFlow, evidence: ordinary.evidence, persistentFlowTree: ordinary.tree, spatialIndex: ordinary.spatialIndex, startYLayoutUnit: Number.MAX_SAFE_INTEGER - 10_000_000 })).toMatchObject({ status: "blocked", lines: null, summary: null, work: null, issues: [{ code: "unsafe-layout-arithmetic" }] })
     expect(provideVNextTextBlockFlowRegionsV2({ initialFlow: ordinary.initialFlow, evidence: ordinary.evidence, persistentFlowTree: ordinary.tree, spatialIndex: ordinary.spatialIndex, band: { topLayoutUnit: 10, bottomLayoutUnit: 10 }, contentInsets: { leftLayoutUnit: 0, rightLayoutUnit: 0 } })).toMatchObject({ status: "blocked", intervals: null, work: null, issues: [{ code: "invalid-line-band" }] })
     expect(provideVNextTextBlockFlowRegionsV2({ initialFlow: ordinary.initialFlow, evidence: ordinary.evidence, persistentFlowTree: ordinary.tree, spatialIndex: ordinary.spatialIndex, band: { topLayoutUnit: 11, bottomLayoutUnit: 10 }, contentInsets: { leftLayoutUnit: 0, rightLayoutUnit: 0 } })).toMatchObject({ status: "blocked", intervals: null, work: null, issues: [{ code: "invalid-line-band" }] })
+  })
+
+  it.each([
+    ["zero pt", { value: 0, unit: "pt" }, "blocked", null],
+    ["negative mm", { value: -1, unit: "mm" }, "blocked", null],
+    ["non-finite pt", { value: Number.POSITIVE_INFINITY, unit: "pt" }, "blocked", null],
+    ["non-finite mm", { value: Number.NaN, unit: "mm" }, "blocked", null],
+    ["unsafe pt", { value: Number.MAX_SAFE_INTEGER / 1_000_000, unit: "pt" }, "blocked", null],
+    ["unsafe mm", { value: 25.4 / 72 * (Number.MAX_SAFE_INTEGER / 1_000_000), unit: "mm" }, "blocked", null],
+    ["safe-edge pt", { value: 9_007_199_254.74099, unit: "pt" }, "accepted", 9_007_199_254_740_990],
+    ["safe-edge mm", { value: 3_177_539_737.0891824, unit: "mm" }, "accepted", 9_007_199_254_740_990],
+  ] as const)("converts %s through the public positive authored-unit boundary", (_name, value, status, layoutUnit) => {
+    expect(convertVNextPositiveUnitValueToLayoutUnitV1(value, "frame.width")).toMatchObject({ status, layoutUnit })
   })
 
   it("retains bounded spatial work and an overlay-only zero-query path", () => {

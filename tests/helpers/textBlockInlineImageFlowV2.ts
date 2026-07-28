@@ -37,6 +37,16 @@ export interface InlineImageFlowFixtureOptions {
   entries?: readonly VNextTextBlockSyntheticPositionedObjectInputV1[]
 }
 
+const producerEvidenceInputs = new WeakMap<VNextTextBlockFlowEvidenceV2, VNextTextBlockFlowEvidenceInputV2>()
+
+export function producerInlineImageEvidenceInput(
+  evidence: VNextTextBlockFlowEvidenceV2,
+): VNextTextBlockFlowEvidenceInputV2 {
+  const input = producerEvidenceInputs.get(evidence)
+  if (input == null) throw new Error("inline-image evidence fixture has no retained producer input")
+  return structuredClone(input)
+}
+
 function shapingRun(
   atom: Extract<VNextTextBlockInitialFlowV1["atoms"][number], {
     kind: "text" | "resolved-field" | "generated-page-number"
@@ -286,6 +296,7 @@ export function acceptedInlineImageEvidenceFixture(
     evidenceInput,
   })
   if (accepted.status !== "accepted") throw new Error("flow evidence fixture blocked")
+  producerEvidenceInputs.set(accepted.evidence, structuredClone(evidenceInput))
   return {
     initialFlow: initial.flow,
     evidence: accepted.evidence,
