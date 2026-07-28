@@ -12,10 +12,12 @@ import {
 import { listImageGeometryBuildInputFixture } from "./textBlockInitialFlowV1.js"
 
 export interface InlineImageFlowFixtureOptions {
-  content?: "image-only" | "text-image-text" | "adjacent-images" | "text-only"
+  content?: "image-only" | "text-image-text" | "text-image-text-break" | "adjacent-images" | "text-only"
   verticalAlign?: "baseline" | "middle" | "text-bottom"
   width?: UnitValueV4Target
   height?: UnitValueV4Target
+  fit?: "contain" | "cover"
+  crop?: { x: number; y: number; width: number; height: number }
   assetId?: string | null
   breakOffsets?: readonly number[]
   entries?: readonly VNextTextBlockSyntheticPositionedObjectInputV1[]
@@ -76,6 +78,8 @@ export function acceptedInlineImageEvidenceFixture(
     ...sourceImage.frame,
     width: options.width ?? sourceImage.frame.width,
     height: options.height ?? sourceImage.frame.height,
+    fit: options.fit ?? sourceImage.frame.fit,
+    ...(options.crop === undefined ? {} : { crop: options.crop }),
   }
   const imageSource = assetId == null
     ? { kind: "image-field-ref" as const, fieldKey: "customer.logo" }
@@ -100,6 +104,7 @@ export function acceptedInlineImageEvidenceFixture(
     renderedText: "A",
   }
   const textB = { ...sourceText, id: "text-b", text: "B" }
+  const hardBreak = { id: "break-1", type: "line-break" as const }
   const secondImage = {
     ...image,
     id: "image-2",
@@ -119,6 +124,26 @@ export function acceptedInlineImageEvidenceFixture(
   } else if (content === "text-only") {
     children = [textA]
     runs = [{ ...textARun, renderStartOffset: 0, renderEndOffset: 1 }]
+  } else if (content === "text-image-text-break") {
+    children = [textA, image, textB, hardBreak]
+    runs = [
+      { ...textARun, renderStartOffset: 0, renderEndOffset: 1 },
+      { ...imageRun, renderStartOffset: 1, renderEndOffset: 2 },
+      {
+        ...textARun,
+        inlineId: textB.id,
+        renderStartOffset: 2,
+        renderEndOffset: 3,
+        renderedText: "B",
+      },
+      {
+        inlineId: hardBreak.id,
+        kind: "hard-break",
+        renderStartOffset: 3,
+        renderEndOffset: 4,
+        renderedText: "\n",
+      },
+    ]
   } else {
     children = [textA, image, textB]
     runs = [

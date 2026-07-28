@@ -40,6 +40,12 @@ export {
   acceptVNextTextBlockFlowEvidenceV2,
   inspectVNextTextBlockFlowEvidenceV2,
 } from "./layout/textBlockFlowEvidenceV2.js"
+export * from "./layout/textBlockPersistentFlowContractV2.js"
+export {
+  createVNextTextBlockPersistentFlowTreeV2,
+  inspectVNextTextBlockPersistentFlowTreeV2,
+  collectVNextTextBlockPersistentFlowNodesForQaV2,
+} from "./layout/textBlockPersistentFlowTreeV2.js"
 export * from "./layout/textBlockInitialFlowParentRegionV1.js"
 export * from "./layout/textBlockEffectiveShapingStyleIdentityV1.js"
 export * from "./layout/textBlockInitialFlowInputV1.js"
