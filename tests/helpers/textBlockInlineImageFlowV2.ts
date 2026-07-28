@@ -1,5 +1,6 @@
 import {
   acceptVNextTextBlockFlowEvidenceV2,
+  createVNextTextBlockSpatialIndexV2,
   createVNextTextBlockPersistentFlowTreeV2,
   createVNextTextBlockInitialFlowV1,
   type UnitValueV4Target,
@@ -301,4 +302,19 @@ export function acceptedInlineImageFlowTreeFixture(
   })
   if (built.status !== "accepted") throw new Error("persistent V2 flow fixture blocked")
   return { ...fixture, tree: built.tree }
+}
+
+export function acceptedInlineImageSpatialFixture(
+  options: InlineImageFlowFixtureOptions = {},
+) {
+  const fixture = acceptedInlineImageFlowTreeFixture(options)
+  const built = createVNextTextBlockSpatialIndexV2({
+    inputAuthority: "core-synthetic-qa-only",
+    initialFlow: fixture.initialFlow,
+    evidence: fixture.evidence,
+    persistentFlowTree: fixture.tree,
+    entries: options.entries ?? [],
+  })
+  if (built.status !== "accepted") throw new Error("V2 spatial index fixture blocked")
+  return { ...fixture, spatialIndex: built.index }
 }

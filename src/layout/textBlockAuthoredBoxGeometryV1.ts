@@ -28,8 +28,12 @@ import {
 import {
   inspectVNextTextBlockSpatialIndexV1,
 } from "./textBlockSpatialIndexV1.js"
-import { convertVNextPointToLayoutUnitV1 } from "./layoutUnitPolicyV1.js"
-import { safeVNextTextBlockMultiRunSumV1 } from "./textBlockMultiRunDerivationV1.js"
+import {
+  convertVNextTextBlockAuthoredBoxKernelV1,
+  deriveVNextTextBlockAuthoredBoxAutoHeightKernelV1,
+  projectVNextTextBlockAuthoredBoxLinesKernelV1,
+  type VNextTextBlockAuthoredBoxKernelConversionResultV1,
+} from "./textBlockAuthoredBoxGeometryKernelV1.js"
 import {
   inspectVNextTextBlockSpatialWrappingLayoutV1,
   layoutVNextTextBlockSpatialWrappingV1,
@@ -57,18 +61,10 @@ interface AuthoredBoxGeometryEnvelopeV1 {
 
 const processLocalAuthoredBoxLayoutsV1 = new WeakSet<object>()
 
-interface ConvertedBoxGeometry {
-  outerWidthLayoutUnit: number
-  contentInsetsLayoutUnit: {
-    top: number
-    right: number
-    bottom: number
-    left: number
-  }
-  contentOriginXLayoutUnit: number
-  contentOriginYLayoutUnit: number
-  contentWidthLayoutUnit: number
-}
+type ConvertedBoxGeometry = Extract<
+  VNextTextBlockAuthoredBoxKernelConversionResultV1,
+  { status: "accepted" }
+>
 
 function issue(
   code: VNextTextBlockAuthoredBoxGeometryIssueCodeV1,
@@ -154,88 +150,6 @@ function requestsProductionBinding(request: unknown): boolean {
   }
 }
 
-function convertBoxGeometry(
-  flow: VNextTextBlockInitialFlowV1,
-  request: VNextTextBlockMultiRunLayoutRequestV1,
-): ConvertedBoxGeometry | VNextTextBlockAuthoredBoxGeometryIssueV1[] {
-  const plan = flow.authoredBoxPlan
-  const outer = convertVNextPointToLayoutUnitV1(
-    plan.outerWidthPt,
-    "initialFlow.authoredBoxPlan.outerWidthPt",
-  )
-  const width = convertVNextPointToLayoutUnitV1(
-    plan.contentWidthPt,
-    "initialFlow.authoredBoxPlan.contentWidthPt",
-  )
-  const top = convertVNextPointToLayoutUnitV1(
-    plan.contentInsetPt.top,
-    "initialFlow.authoredBoxPlan.contentInsetPt.top",
-  )
-  const right = convertVNextPointToLayoutUnitV1(
-    plan.contentInsetPt.right,
-    "initialFlow.authoredBoxPlan.contentInsetPt.right",
-  )
-  const bottom = convertVNextPointToLayoutUnitV1(
-    plan.contentInsetPt.bottom,
-    "initialFlow.authoredBoxPlan.contentInsetPt.bottom",
-  )
-  const left = convertVNextPointToLayoutUnitV1(
-    plan.contentInsetPt.left,
-    "initialFlow.authoredBoxPlan.contentInsetPt.left",
-  )
-  if (
-    outer.status !== "accepted"
-    || width.status !== "accepted"
-    || top.status !== "accepted"
-    || right.status !== "accepted"
-    || bottom.status !== "accepted"
-    || left.status !== "accepted"
-    || outer.layoutUnit < 0
-    || width.layoutUnit < 0
-    || top.layoutUnit < 0
-    || right.layoutUnit < 0
-    || bottom.layoutUnit < 0
-    || left.layoutUnit < 0
-  ) return [issue(
-    "invalid-authored-box-geometry",
-    "initialFlow.authoredBoxPlan",
-    "authored box points must convert to non-negative safe layout units",
-  )]
-  const outerWidthLayoutUnit = outer.layoutUnit
-  const contentWidthLayoutUnit = width.layoutUnit
-  const contentInsetsLayoutUnit = {
-    top: top.layoutUnit,
-    right: right.layoutUnit,
-    bottom: bottom.layoutUnit,
-    left: left.layoutUnit,
-  }
-  const composedOuterWidth = safeVNextTextBlockMultiRunSumV1([
-    contentInsetsLayoutUnit.left,
-    contentWidthLayoutUnit,
-    contentInsetsLayoutUnit.right,
-  ])
-  if (composedOuterWidth == null) return [issue(
-    "unsafe-layout-arithmetic",
-    "initialFlow.authoredBoxPlan.outerWidthPt",
-    "authored box width exceeds safe layout arithmetic",
-  )]
-  if (
-    contentWidthLayoutUnit !== request.availableWidthLayoutUnit
-    || composedOuterWidth !== outerWidthLayoutUnit
-  ) return [issue(
-    "authored-box-width-mismatch",
-    "initialFlow.authoredBoxPlan",
-    "authored content width and horizontal insets must equal the request and outer width",
-  )]
-  return {
-    outerWidthLayoutUnit,
-    contentInsetsLayoutUnit,
-    contentOriginXLayoutUnit: contentInsetsLayoutUnit.left,
-    contentOriginYLayoutUnit: contentInsetsLayoutUnit.top,
-    contentWidthLayoutUnit,
-  }
-}
-
 function safeAdd(
   left: number,
   right: number,
@@ -259,7 +173,12 @@ function projectBoxLocalLines(input: {
   box: ConvertedBoxGeometry
 }): VNextTextBlockAuthoredBoxLineV1[] | VNextTextBlockAuthoredBoxGeometryIssueV1 {
   const lines: VNextTextBlockAuthoredBoxLineV1[] = []
-  for (const line of input.lines) {
+  for (const line of projectVNextTextBlockAuthoredBoxLinesKernelV1({
+    lines: input.lines,
+    contentOriginXLayoutUnit: input.box.contentOriginXLayoutUnit,
+    contentOriginYLayoutUnit: input.box.contentOriginYLayoutUnit,
+    projectLine: (line) => line,
+  })) {
     const availableIntervals: VNextTextBlockAuthoredBoxIntervalV1[] = []
     for (const [intervalIndex, interval] of line.availableIntervals.entries()) {
       const startLayoutUnit = safeAdd(
@@ -418,8 +337,11 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
     envelope.persistentFlowTree as VNextTextBlockPersistentFlowTreeV1
   const request = envelope.request as VNextTextBlockMultiRunLayoutRequestV1
   const spatialIndex = envelope.spatialIndex as VNextTextBlockSpatialIndexV1
-  const box = convertBoxGeometry(initialFlow, request)
-  if (Array.isArray(box)) return blocked(box[0]!)
+  const box = convertVNextTextBlockAuthoredBoxKernelV1({
+    authoredBoxPlan: initialFlow.authoredBoxPlan,
+    contentWidthLayoutUnit: request.availableWidthLayoutUnit,
+  })
+  if (box.status !== "accepted") return blocked(box.issues[0]!)
   const treeInspection = inspectVNextTextBlockPersistentFlowTreeV1(
     persistentFlowTree,
   )
@@ -477,20 +399,13 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
 
   const lines = projectBoxLocalLines({ lines: spatialLayout.lines, box })
   if (!Array.isArray(lines)) return blocked(lines)
-  const contentExtentBottomLayoutUnit = Math.max(
-    spatialLayout.summary.heightLayoutUnit,
-    spatialIndex.summary.maximumBottomLayoutUnit,
-  )
-  const outerHeightLayoutUnit = safeVNextTextBlockMultiRunSumV1([
-    box.contentInsetsLayoutUnit.top,
-    contentExtentBottomLayoutUnit,
-    box.contentInsetsLayoutUnit.bottom,
-  ])
-  if (outerHeightLayoutUnit == null) return blocked(issue(
-    "unsafe-layout-arithmetic",
-    "geometry.outerHeightLayoutUnit",
-    "authored box height exceeds safe layout arithmetic",
-  ))
+  const autoHeight = deriveVNextTextBlockAuthoredBoxAutoHeightKernelV1({
+    topInsetLayoutUnit: box.contentInsetsLayoutUnit.top,
+    bottomInsetLayoutUnit: box.contentInsetsLayoutUnit.bottom,
+    contentFlowHeightLayoutUnit: spatialLayout.summary.heightLayoutUnit,
+    spatialMaximumBottomLayoutUnit: spatialIndex.summary.maximumBottomLayoutUnit,
+  })
+  if (autoHeight.status !== "accepted") return blocked(autoHeight.issues[0]!)
   const geometry = {
     outerWidthLayoutUnit: box.outerWidthLayoutUnit,
     contentInsetsLayoutUnit: box.contentInsetsLayoutUnit,
@@ -500,8 +415,8 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV1(
     contentFlowHeightLayoutUnit: spatialLayout.summary.heightLayoutUnit,
     spatialMaximumBottomLayoutUnit:
       spatialIndex.summary.maximumBottomLayoutUnit,
-    contentExtentBottomLayoutUnit,
-    outerHeightLayoutUnit,
+    contentExtentBottomLayoutUnit: autoHeight.contentExtentBottomLayoutUnit,
+    outerHeightLayoutUnit: autoHeight.outerHeightLayoutUnit,
   }
   const facts = {
     status: "accepted" as const,
