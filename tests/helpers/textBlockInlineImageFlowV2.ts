@@ -1,5 +1,6 @@
 import {
   acceptVNextTextBlockFlowEvidenceV2,
+  createVNextTextBlockPersistentFlowTreeV2,
   createVNextTextBlockInitialFlowV1,
   type UnitValueV4Target,
   type VNextTextBlockFlowEvidenceInputV2,
@@ -226,4 +227,16 @@ export function acceptedInlineImageEvidenceFixture(
     initialFlow: initial.flow,
     evidence: accepted.evidence,
   }
+}
+
+export function acceptedInlineImageFlowTreeFixture(
+  options: InlineImageFlowFixtureOptions = {},
+) {
+  const fixture = acceptedInlineImageEvidenceFixture(options)
+  const built = createVNextTextBlockPersistentFlowTreeV2({
+    initialFlow: fixture.initialFlow,
+    evidence: fixture.evidence,
+  })
+  if (built.status !== "accepted") throw new Error("persistent V2 flow fixture blocked")
+  return { ...fixture, tree: built.tree }
 }
