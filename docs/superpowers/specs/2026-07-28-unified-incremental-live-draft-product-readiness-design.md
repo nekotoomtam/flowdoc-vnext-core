@@ -128,6 +128,10 @@ Every Phase 5 subphase must preserve these invariants:
     `stagedEditorApply: true` only on its new unified response boundary, behind
     the reviewed Editor capability gate, without changing publication or
     production flags.
+15. Root assembly, inspection, and transition fingerprinting are compositional.
+    They may inspect the fixed root dependency set and child fingerprints but
+    may not recursively traverse, hash, or deep-freeze every accepted child
+    graph on each transition.
 
 ## 4. Repository Ownership
 
@@ -315,18 +319,53 @@ The root is:
 
 The root-level constructor may reuse existing Phase 4B functions internally.
 It must not weaken their individual validation in order to make assembly
-convenient.
+convenient. Already accepted child objects remain exact, frozen dependencies;
+the root wrapper binds their identities and fingerprints without recursing
+through their complete trees, indexes, lines, fragments, or scene chunks.
+
+Root build, inspection, and transition diagnostics report:
+
+- top-level dependency count inspected;
+- complete child-graph traversal count;
+- complete child re-hash count;
+- root-wrapper allocation count; and
+- root assembly and inspection duration outside deterministic output.
+
+Accepted incremental transitions require complete child-graph traversal and
+complete child re-hash counts of zero. A separately named complete-build path
+may perform the work required to create new children but must not attribute
+that work to root-wrapper assembly.
 
 ### 6.1 Renderer-Consumption Scene
 
 Core will define a separate versioned, data-only scene projection suitable for
-structured clone. It contains complete authored-box-local line, text fragment,
-inline-image fragment, interval, and source-mapping facts required by Editor
-painting. It contains no callbacks, maps, accessors, Core object references,
-asset bytes, or authority tokens.
+structured clone. The logical scene is complete but is divided into stable
+ordered chunks at a reviewed renderer-consumption boundary, initially by
+TextBlock line/fragment ownership. Each chunk has a deterministic fingerprint,
+and an ordered compositional chain produces the complete scene fingerprint.
 
-The scene is not a second layout authority. Its complete fingerprint is bound
-into the root and response envelope.
+The chunks contain authored-box-local line, text fragment, inline-image
+fragment, interval, and source-mapping facts required by Editor painting. They
+contain no callbacks, maps, accessors, Core object references, asset bytes, or
+authority tokens.
+
+A complete build produces the complete chunk sequence. An incremental
+transition may produce an exact scene-delivery plan containing retained chunk
+references plus replacement chunks. The plan is bound to the exact previous
+scene fingerprint and proves the ordered next complete scene fingerprint.
+
+The scene and its delivery plan are not a second layout authority. Editor may
+retain or replace Core-authored renderer chunks but may not derive geometry or
+invent chunk order. A missing previous chunk or fingerprint mismatch requires
+an explicit complete-scene fallback.
+
+Scene projection diagnostics report:
+
+- visited line and fragment counts;
+- retained and replacement chunk counts;
+- complete scene-projection count;
+- estimated data-only payload bytes; and
+- projection duration outside deterministic output.
 
 ## 7. Root Lifetime And Memory
 
@@ -384,7 +423,13 @@ V2 dependency chain and emits a bound renderer-consumption scene.
 - cloned, stale, mutated, accessor-shaped, authority-mismatched, unsafe, and
   production-bound rejection;
 - all-or-blocked construction with no partial root or scene; and
-- root/scene deterministic fingerprint parity.
+- root/scene deterministic fingerprint parity;
+- bounded root-wrapper build and inspection independent of line, fragment,
+  tree-node, and spatial-entry counts; and
+- factual root and retained-child byte estimates for small, long, text-only,
+  and image/spatial fixtures;
+- complete scene chunk/fingerprint parity; and
+- factual scene-projection work and payload-byte counts.
 
 ### 8.3 Stop-Gate
 
@@ -426,6 +471,9 @@ An accepted transition reports:
 - reused and created persistent-tree nodes;
 - reused and created spatial-index nodes;
 - reused, repositioned, and newly placed lines;
+- retained and replacement scene chunks;
+- visited scene line/fragment counts and emitted payload bytes;
+- complete scene-projection count;
 - reconvergence position and proof;
 - complete tree/index rebuild counts;
 - complete semantic/layout pass counts; and
@@ -467,6 +515,8 @@ A ready request contains strict data-only forms of:
 - source/content fingerprint;
 - expected previous root reference and generation, if incremental;
 - complete or transition operation kind;
+- interaction phase when the change is a high-frequency preview or final
+  committed interaction;
 - strict Initial Flow/change inputs;
 - producer inputs and pinned runtime identity; and
 - non-production capability request.
@@ -481,12 +531,17 @@ An accepted response contains:
 
 - the identities echoed and validated from the request;
 - accepted next root reference, generation, and fingerprint;
-- complete structured-clone-safe scene;
+- one structured-clone-safe `sceneDelivery` union:
+  - a complete ordered scene for initial build or explicit fallback; or
+  - an incremental delivery bound to the exact previous scene fingerprint,
+    containing retained chunk fingerprints, replacement chunks, next order,
+    next summary, and next complete scene fingerprint;
 - transition/reuse diagnostics;
 - capability and non-publication facts; and
 - non-deterministic timing observations kept outside fingerprints.
 
-A blocked response contains no partial root reference or partial scene.
+A blocked response contains no partial root reference, partial scene, or
+partially applicable scene delivery.
 
 ### 10.4 Session Rules
 
@@ -504,8 +559,12 @@ A blocked response contains no partial root reference or partial scene.
 ### 10.5 Stop-Gate
 
 5C proves a real Worker lifecycle, stale ordering, disposal, and bounded root
-retention. It does not activate product Canvas, Backend persistence, or
-publication.
+retention. It measures full and incremental scene projection, structured-clone
+payload bytes, clone/transfer duration, and main-thread receipt duration. A
+full-scene protocol that erases the measured incremental gain blocks entry to
+5D until a bounded incremental delivery passes exact next-scene parity.
+
+5C does not activate product Canvas, Backend persistence, or publication.
 
 ## 11. Phase 5D: Atomic Editor Staged Apply And Performance
 
@@ -544,11 +603,51 @@ It adds impact classification for inline images, authored frames, alignment,
 spatial exclusions, and unified-root dependencies. Scheduling hints never own
 line breaking, spatial geometry, or reconvergence acceptance.
 
+### 11.3.1 High-Frequency Resize And Move Policy
+
+Pointer-move frequency does not define Worker dispatch frequency. Image resize,
+image move, and exclusion move/resize use latest-wins frame coalescing:
+
+- Editor may record every accepted authored interaction transaction as a newer
+  local layout revision;
+- preview intents received before the next scheduling frame replace the earlier
+  preview for the same TextBlock;
+- the scheduler retains at most the bounded active work plus one latest queued
+  preview per TextBlock;
+- no more than one preview candidate per TextBlock is dispatched from one
+  animation-frame scheduling opportunity;
+- a final pointer-up/keyboard commit receives a distinct revision, supersedes
+  any queued preview, and receives commit priority;
+- advisory cancellation may request that active preview work stop, but stale
+  gates remain authoritative; and
+- the final committed intent must be laid out even when its geometry equals the
+  last preview, so that Editor state, root identity, and authored transaction
+  identity converge.
+
+This policy bounds work without granting Editor permission to approximate
+spatial wrapping or image line geometry during drag.
+
+High-frequency metrics include:
+
+- authored interaction intent count;
+- preview and final-commit intent counts;
+- frame-coalesced intent count;
+- Worker dispatch count;
+- advisory cancellation count;
+- stale completion count;
+- maximum queued previews per TextBlock; and
+- final-commit-to-visible latency.
+
 ### 11.4 Atomic Apply
 
-Editor applies a response only after the complete fresh-apply rule passes. All
-new scene facts enter runtime state in one state transition. Canvas paints the
-complete candidate scene to a scratch surface and swaps it once.
+Editor applies a response only after the complete fresh-apply rule passes. For
+incremental delivery, the adapter also requires the exact currently applied
+scene fingerprint, every retained chunk fingerprint, the Core-authored next
+order, and the proved next complete scene fingerprint. It builds no geometry;
+it only retains or replaces renderer-consumption chunks as directed by Core.
+
+All next scene facts enter runtime state in one state transition. Canvas paints
+the complete candidate scene to a scratch surface and swaps it once.
 
 Pending, stale, cancelled, and blocked responses preserve last-valid. A blocked
 latest intent changes status and diagnostics without making an older scene
@@ -569,9 +668,9 @@ The gate includes:
 - mixed-size and mixed-weight runs;
 - field- and hard-break-adjacent edits;
 - image insert/delete/move;
-- continuous image resize;
+- continuous image resize with 100- and 1,000-pointer-move bursts;
 - vertical-alignment and paint-fact changes;
-- exclusion insert/delete/move/resize;
+- exclusion insert/delete/move/resize, including continuous drag;
 - long active TextBlocks;
 - multiple dirty TextBlocks across visibility priorities;
 - delayed, reordered, blocked, cancelled, and stale responses;
@@ -709,6 +808,18 @@ Fixed-height TextBlock overflow/clipping and concrete image asset lifecycle are
 5E decisions, not assumed implementations in 5A through 5D.
 
 ## 16. Risks
+
+The three highest controls entering implementation are:
+
+| Priority | Risk | First control gate | Blocking evidence |
+| --- | --- | --- | --- |
+| P0 | Complete scene projection or structured clone erases incremental Core gain | 5A projection counters and 5C real Worker transfer | Full delivery dominates the measured path or removes the incremental advantage; 5D cannot start until exact incremental scene delivery is bounded |
+| P1 | Unified-root assembly recursively traverses or re-hashes its large child graph | 5A root construction and 5B transition | Any accepted incremental transition reports a nonzero complete child-graph traversal or complete child re-hash |
+| P1 | Resize/move pointer events create work proportional to raw event count or delay the final commit | 5C protocol and 5D scheduler/browser evidence | More than one queued preview per TextBlock, dispatch count grows linearly with a same-frame event burst, or the final committed revision is lost, stale-applied, or starved |
+
+These priorities concern end-to-end product risk. They do not replace the
+identity, provenance, correctness, and publication blockers required by every
+gate.
 
 - The Phase 4B process-local registry is not a persisted or cross-process
   identity design. Worker session references must not be mistaken for Core
