@@ -83,6 +83,37 @@ describe("VNext TextBlock Persistent Flow Tree V2", () => {
     expect(contain.tree.fingerprint).not.toBe(cover.tree.fingerprint)
   })
 
+  it("splits a valid adjacent-text shaping cluster into its owning source atoms", () => {
+    const result = createVNextTextBlockPersistentFlowTreeV2(
+      acceptedInlineImageEvidenceFixture({ content: "adjacent-text", breakOffsets: [0, 2] }),
+    )
+
+    expect(result.status).toBe("accepted")
+    if (result.status !== "accepted") throw new Error("adjacent text tree blocked")
+    const atoms = result.tree.root.nodeKind === "leaf" ? result.tree.root.atoms : []
+    expect(atoms.map((atom) => [atom.inlineId, atom.renderedText, atom.renderStartOffset, atom.renderEndOffset])).toEqual([
+      ["text-f", "f", 0, 1],
+      ["text-i", "i", 1, 2],
+    ])
+    expect(atoms.map((atom) => atom.kind === "text-cluster" ? atom.advanceLayoutUnit : null)).toEqual([
+      3_000_000,
+      3_000_000,
+    ])
+  })
+
+  it("blocks accessor and proxy builder envelopes without throwing or returning a tree", () => {
+    const callUnknown = createVNextTextBlockPersistentFlowTreeV2 as (input: unknown) => unknown
+    const accessor = {}
+    Object.defineProperty(accessor, "initialFlow", {
+      enumerable: true,
+      get: () => acceptedInlineImageEvidenceFixture().initialFlow,
+    })
+    const proxy = new Proxy({}, { getPrototypeOf: () => { throw new Error("hostile") } })
+
+    expect(callUnknown(accessor)).toMatchObject({ status: "blocked", tree: null })
+    expect(callUnknown(proxy)).toMatchObject({ status: "blocked", tree: null })
+  })
+
   it("rejects foreign authority and production binding without producing a partial tree", () => {
     const fixture = acceptedInlineImageEvidenceFixture({ content: "image-only" })
     const foreignEvidence = createVNextTextBlockPersistentFlowTreeV2({
@@ -118,6 +149,58 @@ describe("VNext TextBlock Persistent Flow Tree V2", () => {
     expect(inspectVNextTextBlockPersistentFlowTreeV2(result.tree)).toEqual({
       status: "valid",
       fingerprint: result.tree.fingerprint,
+    })
+    expect(inspectVNextTextBlockPersistentFlowTreeV2(structuredClone(result.tree))).toMatchObject({
+      status: "invalid",
+      code: "tree-provenance-mismatch",
+    })
+    expect(inspectVNextTextBlockPersistentFlowTreeV2(Object.freeze({
+      ...structuredClone(result.tree),
+      fingerprint: result.tree.fingerprint,
+    }))).toMatchObject({
+      status: "invalid",
+      code: "tree-provenance-mismatch",
+    })
+  })
+
+  it("returns tree:null for changed or malformed upstream evidence and source topology", () => {
+    const fixture = acceptedInlineImageEvidenceFixture({ content: "text-image-text" })
+    const changedEvidence = structuredClone(fixture.evidence)
+    changedEvidence.layoutId = "changed"
+    const nonContiguousClusters = structuredClone(fixture.evidence)
+    nonContiguousClusters.shapingRuns[0]!.clusters[0]!.renderEndOffset = 0
+    const imageCrossingShaping = structuredClone(fixture.evidence)
+    imageCrossingShaping.shapingRuns[0]!.renderEndOffset = 2
+    const nullMedia = structuredClone(fixture.initialFlow)
+    const image = nullMedia.atoms.find((atom) => atom.kind === "inline-image")
+    if (image?.kind !== "inline-image") throw new Error("image fixture missing")
+    image.assetId = null
+    const unknownAtom = structuredClone(fixture.initialFlow) as { atoms: unknown[] }
+    unknownAtom.atoms.push({ kind: "unknown" })
+
+    const results = [
+      createVNextTextBlockPersistentFlowTreeV2({ initialFlow: fixture.initialFlow, evidence: changedEvidence }),
+      createVNextTextBlockPersistentFlowTreeV2({ initialFlow: fixture.initialFlow, evidence: nonContiguousClusters }),
+      createVNextTextBlockPersistentFlowTreeV2({ initialFlow: fixture.initialFlow, evidence: imageCrossingShaping }),
+      createVNextTextBlockPersistentFlowTreeV2({ initialFlow: nullMedia, evidence: fixture.evidence }),
+      createVNextTextBlockPersistentFlowTreeV2({ initialFlow: unknownAtom, evidence: fixture.evidence }),
+    ]
+
+    for (const result of results) expect(result).toMatchObject({ status: "blocked", tree: null })
+  })
+
+  it("blocks unsafe image dimensions before allocating a partial tree", () => {
+    const unsafe = createVNextTextBlockPersistentFlowTreeV2(
+      acceptedInlineImageEvidenceFixture({
+        content: "image-only",
+        width: { value: Number.MAX_VALUE, unit: "pt" },
+      }),
+    )
+
+    expect(unsafe).toMatchObject({
+      status: "blocked",
+      tree: null,
+      issues: [{ code: "unsafe-layout-arithmetic" }],
     })
   })
 })

@@ -12,7 +12,7 @@ import {
 import { listImageGeometryBuildInputFixture } from "./textBlockInitialFlowV1.js"
 
 export interface InlineImageFlowFixtureOptions {
-  content?: "image-only" | "text-image-text" | "text-image-text-break" | "adjacent-images" | "text-only"
+  content?: "image-only" | "text-image-text" | "text-image-text-break" | "adjacent-images" | "adjacent-text" | "text-only"
   verticalAlign?: "baseline" | "middle" | "text-bottom"
   width?: UnitValueV4Target
   height?: UnitValueV4Target
@@ -104,6 +104,8 @@ export function acceptedInlineImageEvidenceFixture(
     renderedText: "A",
   }
   const textB = { ...sourceText, id: "text-b", text: "B" }
+  const textF = { ...sourceText, id: "text-f", text: "f" }
+  const textI = { ...sourceText, id: "text-i", text: "i" }
   const hardBreak = { id: "break-1", type: "line-break" as const }
   const secondImage = {
     ...image,
@@ -124,6 +126,12 @@ export function acceptedInlineImageEvidenceFixture(
   } else if (content === "text-only") {
     children = [textA]
     runs = [{ ...textARun, renderStartOffset: 0, renderEndOffset: 1 }]
+  } else if (content === "adjacent-text") {
+    children = [textF, textI]
+    runs = [
+      { ...textARun, inlineId: textF.id, renderStartOffset: 0, renderEndOffset: 1, renderedText: "f" },
+      { ...textARun, inlineId: textI.id, renderStartOffset: 1, renderEndOffset: 2, renderedText: "i" },
+    ]
   } else if (content === "text-image-text-break") {
     children = [textA, image, textB, hardBreak]
     runs = [
@@ -183,6 +191,16 @@ export function acceptedInlineImageEvidenceFixture(
       ? [shapingRun(atom, index)]
       : []
   ))
+  if (content === "adjacent-text") {
+    const first = initial.flow.atoms[0]
+    if (first?.kind !== "text") throw new Error("adjacent text flow fixture missing")
+    shapingRuns.splice(0, shapingRuns.length, {
+      ...shapingRun(first, 0),
+      renderEndOffset: 2,
+      text: "fi",
+      clusters: [{ index: 0, renderStartOffset: 0, renderEndOffset: 2, advanceLayoutUnit: 6_000_000 }],
+    })
+  }
   const evidenceInput: VNextTextBlockFlowEvidenceInputV2 = {
     initialFlowFingerprint: initial.flow.fingerprint,
     layoutId: "inline-image-flow-v2",

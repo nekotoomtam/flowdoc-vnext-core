@@ -33,6 +33,8 @@ import {
 const processLocalTrees = new WeakMap<VNextTextBlockPersistentFlowTreeV2, {
   initialFlow: VNextTextBlockInitialFlowV1
   evidence: VNextTextBlockFlowEvidenceV2
+  fingerprint: string
+  canonicalFacts: string
 }>()
 
 function fingerprint(value: unknown): string {
@@ -66,27 +68,31 @@ function exactInput(value: unknown): {
   evidence: unknown
   bindProductionLayout?: unknown
 } | null {
-  if (value == null || typeof value !== "object" || Array.isArray(value)) return null
-  const prototype = Object.getPrototypeOf(value)
-  if (prototype !== Object.prototype && prototype !== null) return null
-  const keys = Reflect.ownKeys(value)
-  if (keys.some((key) => typeof key !== "string") || keys.some((key) => (
-    key !== "initialFlow" && key !== "evidence" && key !== "bindProductionLayout"
-  ))) return null
-  const descriptors = Object.fromEntries(keys.map((key) => [key, Object.getOwnPropertyDescriptor(value, key)]))
-  if (
-    descriptors.initialFlow == null
-    || descriptors.evidence == null
-    || Object.values(descriptors).some((descriptor) => (
-      descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true
-    ))
-  ) return null
-  return {
-    initialFlow: descriptors.initialFlow.value,
-    evidence: descriptors.evidence.value,
-    ...(descriptors.bindProductionLayout == null
-      ? {}
-      : { bindProductionLayout: descriptors.bindProductionLayout.value }),
+  try {
+    if (value == null || typeof value !== "object" || Array.isArray(value)) return null
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return null
+    const keys = Reflect.ownKeys(value)
+    if (keys.some((key) => typeof key !== "string") || keys.some((key) => (
+      key !== "initialFlow" && key !== "evidence" && key !== "bindProductionLayout"
+    ))) return null
+    const descriptors = Object.fromEntries(keys.map((key) => [key, Object.getOwnPropertyDescriptor(value, key)]))
+    if (
+      descriptors.initialFlow == null
+      || descriptors.evidence == null
+      || Object.values(descriptors).some((descriptor) => (
+        descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true
+      ))
+    ) return null
+    return {
+      initialFlow: descriptors.initialFlow.value,
+      evidence: descriptors.evidence.value,
+      ...(descriptors.bindProductionLayout == null
+        ? {}
+        : { bindProductionLayout: descriptors.bindProductionLayout.value }),
+    }
+  } catch {
+    return null
   }
 }
 
@@ -250,6 +256,24 @@ function imageAtom(source: Extract<VNextTextBlockInitialFlowAtomV1, { kind: "inl
   return { ...facts, dependencyFingerprint, fingerprint: fingerprint({ contractVersion: 2, ...facts, dependencyFingerprint }) }
 }
 
+function splitClusterAdvance(input: {
+  advanceLayoutUnit: number
+  clusterStartOffset: number
+  clusterEndOffset: number
+  segmentStartOffset: number
+  segmentEndOffset: number
+}): number | null {
+  const totalLength = input.clusterEndOffset - input.clusterStartOffset
+  const segmentLength = input.segmentEndOffset - input.segmentStartOffset
+  const relativeStart = input.segmentStartOffset - input.clusterStartOffset
+  if (totalLength <= 0 || segmentLength <= 0 || relativeStart < 0) return null
+  const wholeUnitAdvance = Math.floor(input.advanceLayoutUnit / totalLength)
+  const remainder = input.advanceLayoutUnit % totalLength
+  const value = wholeUnitAdvance * segmentLength
+    + Math.max(0, Math.min(remainder - relativeStart, segmentLength))
+  return Number.isSafeInteger(value) ? value : null
+}
+
 function atomsFromEvidence(input: {
   initialFlow: VNextTextBlockInitialFlowV1
   evidence: VNextTextBlockFlowEvidenceV2
@@ -257,7 +281,6 @@ function atomsFromEvidence(input: {
   const atoms: VNextTextBlockPersistentFlowAtomV2[] = []
   const counts = { "text-cluster": 0, "hard-break": 0, "inline-image": 0 }
   const faces = new Map(input.evidence.fontFaces.map((face) => [face.fontFaceId, face]))
-  let shapingRunIndex = 0
   for (const source of input.initialFlow.atoms) {
     if (source.kind === "inline-image") {
       const atom = imageAtom(source)
@@ -275,49 +298,90 @@ function atomsFromEvidence(input: {
       if (source.renderedText !== "\n" && source.renderedText !== "\r" && source.renderedText !== "\r\n") {
         return blocked("invalid-source-topology", "hard-break atoms require a canonical newline source slot")
       }
+      const renderedText: "\n" | "\r" | "\r\n" = source.renderedText === "\n"
+        ? "\n"
+        : source.renderedText === "\r"
+          ? "\r"
+          : "\r\n"
       const facts = {
         kind: "hard-break" as const,
         inlineId: source.inlineId,
         renderStartOffset: source.renderStartOffset,
         renderEndOffset: source.renderEndOffset,
-        renderedText: source.renderedText,
+        renderedText,
       }
       atoms.push({ ...facts, fingerprint: fingerprint({ contractVersion: 2, ...facts }) })
       counts["hard-break"] += 1
       continue
     }
-    while (
-      shapingRunIndex < input.evidence.shapingRuns.length
-      && input.evidence.shapingRuns[shapingRunIndex]!.renderEndOffset <= source.renderStartOffset
-    ) shapingRunIndex += 1
-    while (
-      shapingRunIndex < input.evidence.shapingRuns.length
-      && input.evidence.shapingRuns[shapingRunIndex]!.renderStartOffset < source.renderEndOffset
-    ) {
-      const shapingRun = input.evidence.shapingRuns[shapingRunIndex]!
-      if (
-        shapingRun.renderStartOffset < source.renderStartOffset
-        || shapingRun.renderEndOffset > source.renderEndOffset
-      ) return blocked("invalid-source-topology", "shaping runs must not cross a text source atom boundary")
+    const shapingRuns = input.evidence.shapingRuns.filter((run) => (
+      run.renderStartOffset < source.renderEndOffset
+      && run.renderEndOffset > source.renderStartOffset
+    ))
+    let sourceCursor = source.renderStartOffset
+    for (const shapingRun of shapingRuns) {
+      if (shapingRun.renderStartOffset > sourceCursor) {
+        return blocked("invalid-source-topology", "shaping runs must cover each text source atom without gaps")
+      }
       const face = faces.get(shapingRun.fontFaceId)
       if (face == null) return blocked("invalid-source-topology", "shaping run font face is not retained by evidence")
       for (const cluster of shapingRun.clusters) {
-        if (
-          cluster.renderStartOffset < source.renderStartOffset
-          || cluster.renderEndOffset > source.renderEndOffset
-        ) return blocked("invalid-source-topology", "shaping clusters must remain within one text source atom")
-        const atom = textAtom({ source, shapingRun, cluster, face })
+        const segmentStartOffset = Math.max(cluster.renderStartOffset, source.renderStartOffset)
+        const segmentEndOffset = Math.min(cluster.renderEndOffset, source.renderEndOffset)
+        if (segmentEndOffset <= segmentStartOffset) continue
+        if (segmentStartOffset !== sourceCursor) {
+          return blocked("invalid-source-topology", "shaping clusters must cover each text source atom without gaps")
+        }
+        const advanceLayoutUnit = splitClusterAdvance({
+          advanceLayoutUnit: cluster.advanceLayoutUnit,
+          clusterStartOffset: cluster.renderStartOffset,
+          clusterEndOffset: cluster.renderEndOffset,
+          segmentStartOffset,
+          segmentEndOffset,
+        })
+        if (advanceLayoutUnit == null) return blocked("unsafe-layout-arithmetic", "cluster splitting exceeds safe layout arithmetic")
+        const atom = textAtom({
+          source,
+          shapingRun,
+          cluster: {
+            ...cluster,
+            renderStartOffset: segmentStartOffset,
+            renderEndOffset: segmentEndOffset,
+            advanceLayoutUnit,
+          },
+          face,
+        })
         if (atom == null) return blocked("unsafe-layout-arithmetic", "font metrics exceed safe layout-unit arithmetic")
         atoms.push(atom)
         counts["text-cluster"] += 1
+        sourceCursor = segmentEndOffset
       }
-      shapingRunIndex += 1
+    }
+    if (sourceCursor !== source.renderEndOffset) {
+      return blocked("invalid-source-topology", "shaping runs must completely cover each text source atom")
     }
   }
-  if (shapingRunIndex !== input.evidence.shapingRuns.length) {
-    return blocked("invalid-source-topology", "evidence shaping runs exceed the Initial Flow text source slots")
-  }
   return { atoms, counts }
+}
+
+function treeFingerprintFacts(tree: VNextTextBlockPersistentFlowTreeV2): unknown {
+  return {
+    source: tree.source,
+    contractVersion: tree.contractVersion,
+    documentId: tree.documentId,
+    sectionId: tree.sectionId,
+    textBlockId: tree.textBlockId,
+    instanceRevision: tree.instanceRevision,
+    layoutId: tree.layoutId,
+    layoutContextFingerprint: tree.layoutContextFingerprint,
+    initialFlowFingerprint: tree.initialFlowFingerprint,
+    flowEvidenceFingerprint: tree.flowEvidenceFingerprint,
+    policyFingerprint: tree.policy.fingerprint,
+    rootFingerprint: tree.root.fingerprint,
+    summary: tree.summary,
+    itemsByKind: tree.itemsByKind,
+    contracts: tree.contracts,
+  }
 }
 
 export function createVNextTextBlockPersistentFlowTreeV2(input: {
@@ -399,27 +463,16 @@ export function createVNextTextBlockPersistentFlowTreeV2(input: unknown): VNextT
     }
     const tree = deepFreeze({
       ...facts,
-      fingerprint: fingerprint({
-        source: facts.source,
-        contractVersion: facts.contractVersion,
-        documentId: facts.documentId,
-        sectionId: facts.sectionId,
-        textBlockId: facts.textBlockId,
-        instanceRevision: facts.instanceRevision,
-        layoutId: facts.layoutId,
-        layoutContextFingerprint: facts.layoutContextFingerprint,
-        initialFlowFingerprint: facts.initialFlowFingerprint,
-        flowEvidenceFingerprint: facts.flowEvidenceFingerprint,
-        policyFingerprint: facts.policy.fingerprint,
-        rootFingerprint: facts.root.fingerprint,
-        summary: facts.summary,
-        itemsByKind: facts.itemsByKind,
-        contracts: facts.contracts,
-      }),
+      fingerprint: "",
     })
-    registerVNextTextBlockV2LayoutAuthorityInternalV1({ initialFlow, evidence, persistentFlowTree: tree })
-    processLocalTrees.set(tree, { initialFlow, evidence })
-    return { status: "accepted", tree, issues: [] }
+    const canonicalFacts = stringifyVNextCanonicalJson(treeFingerprintFacts(tree))
+    const finalTree = Object.freeze({
+      ...tree,
+      fingerprint: createVNextCompactFingerprint(canonicalFacts),
+    })
+    registerVNextTextBlockV2LayoutAuthorityInternalV1({ initialFlow, evidence, persistentFlowTree: finalTree })
+    processLocalTrees.set(finalTree, { initialFlow, evidence, fingerprint: finalTree.fingerprint, canonicalFacts })
+    return { status: "accepted", tree: finalTree, issues: [] }
   } catch {
     return blocked("unsafe-layout-arithmetic", "persistent V2 flow tree exceeds safe layout arithmetic")
   }
@@ -432,7 +485,19 @@ export function inspectVNextTextBlockPersistentFlowTreeV2(tree: unknown):
     return { status: "invalid", code: "tree-provenance-mismatch", message: "tree is not the exact process-local V2 Core object" }
   }
   if (!deeplyFrozen(tree)) return { status: "invalid", code: "tree-not-deeply-frozen", message: "registered V2 persistent tree must remain recursively frozen" }
-  return { status: "valid", fingerprint: (tree as VNextTextBlockPersistentFlowTreeV2).fingerprint }
+  try {
+    const acceptedTree = tree as VNextTextBlockPersistentFlowTreeV2
+    const canonicalFacts = stringifyVNextCanonicalJson(treeFingerprintFacts(acceptedTree))
+    const stored = processLocalTrees.get(acceptedTree)!
+    if (
+      acceptedTree.fingerprint !== createVNextCompactFingerprint(canonicalFacts)
+      || stored.fingerprint !== acceptedTree.fingerprint
+      || stored.canonicalFacts !== canonicalFacts
+    ) return { status: "invalid", code: "tree-provenance-mismatch", message: "registered V2 persistent tree no longer matches its canonical Core fingerprint" }
+    return { status: "valid", fingerprint: acceptedTree.fingerprint }
+  } catch {
+    return { status: "invalid", code: "tree-provenance-mismatch", message: "registered V2 persistent tree is not canonically fingerprintable" }
+  }
 }
 
 export function collectVNextTextBlockPersistentFlowNodesForQaV2(
