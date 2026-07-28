@@ -12860,5 +12860,35 @@ implementation baseline
 - Verification: focused Phase 4A gate passed 8 files / 131 tests;
   `git diff --check` passed; full `npm run check` passed 420 files / 2,114
   tests including type-check.
-- Next: Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires
-  a separately reviewed and explicitly approved design before implementation.
+- Next: historical pointer fulfilled by the accepted Phase 4B handoff at
+  `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`.
+
+## Phase 4B Inline Image Line-Box Geometry
+
+Status: implemented and accepted as the bounded Core-only Phase 4B checkpoint
+at accepted Task 11 implementation head `f8eb3ba`.
+
+- Added the closed V2 flow-atom path for text clusters, hard breaks, and inline
+  images, with shared persistent-flow, spatial-region, wrapping, and
+  authored-box kernels beneath frozen V1 and V2 adapters.
+- Producer-shaped V2 evidence preserves U+FFFC image slots and hard breaks
+  outside shaping. The Node-native and Worker-WASM MR1 rows agree on exact Core
+  evidence and break offsets.
+- Image-only, mixed, adjacent, multiple, Thai/Latin, field/page-number,
+  hard-break, mixed-size, and alignment cases are retained. The spatial path
+  covers multi-interval placement, barriers, overlays, zero-space advancement,
+  expanded-band requery, and move/resize affected bands.
+- The authored-box V2 projection includes image fragments and auto-height;
+  fixed-height, overflow, and clipping remain rejected.
+- Exact Initial Flow/evidence/tree/index/provider/layout object binding,
+  capability checks, immutable registration, and fingerprint validation reject
+  cloned, changed, accessor-shaped, mutable, and production-bound inputs.
+- Evidence: `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`,
+  `tests/liveDraftMr1InlineImageGeometry4b.test.ts`,
+  `tests/textEngineFlowEvidenceNodeWasmV2.test.ts`, and the V2
+  flow/tree/index/provider/layout/authored-box focused tests.
+- Verification: the final focused Phase 4B gate passed 10 files / 119 tests.
+  The final full `npm run check` passed 434 files / 2,296 tests including
+  type-check.
+- Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation.
+- List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.

@@ -14,9 +14,11 @@ const sectionAtPeerHeading = (document: string, heading: string): string => {
 const phase3Pointer = "Proceed only to `Phase 3: Core Spatial Wrapping 3A`."
 const phase3NoGo =
   "Do not start list/image geometry, empty-block geometry, Editor binding, Backend binding, Columns/Table integration, table auto-fit, publication, or production activation inside Phase 3."
-const phase4Pointer = "Proceed only to `Phase 4: Initial TextBlock Geometry`."
-const phase4NoGo =
-  "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
+const phase4bPointer = "Phase 4B is the accepted bounded Core-only inline-image line-box checkpoint"
+const phase4bNoGo =
+  "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
+const phase5Gate =
+  "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
 
 describe("Live Draft MR1 persistent flow foundation handoff", () => {
   it("pins every MR1-Q section, capability row, counter row, gate total, and next boundary", () => {
@@ -124,9 +126,11 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
       expect(active).toContain("MR1-Q Persistent Flow Tree Foundation")
       expect(active).toContain("Phase 3: Core Spatial Wrapping 3A")
     }
+    expect(currentTask).toContain(phase4bPointer)
+    expect(activePrompt).toContain("accepted Phase 4B Core implementation head f8eb3ba")
     for (const active of [currentTask, activePrompt]) {
-      expect(active).toContain(phase4Pointer)
-      expect(active).toContain(phase4NoGo)
+      expect(active).toContain(phase4bNoGo)
+      expect(active).toContain(phase5Gate)
       expect(active).not.toContain("completeNextSemanticPassCount: 1")
       expect(active).not.toContain("Proceed to Phase 2")
     }

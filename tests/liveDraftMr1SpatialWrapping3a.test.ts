@@ -11,9 +11,13 @@ const sectionAtPeerHeading = (document: string, heading: string): string => {
   return document.slice(startIndex, nextHeadingIndex < 0 ? document.length : nextHeadingIndex)
 }
 
-const phase4Pointer = "Proceed only to `Phase 4: Initial TextBlock Geometry`."
-const deferredNoGo =
+const phase4bPointer = "Phase 4B is the accepted bounded Core-only inline-image line-box checkpoint"
+const historicalDeferredNoGo =
   "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
+const phase4bNoGo =
+  "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
+const phase5Gate =
+  "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
 
 describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
   it("pins the Phase 3 evidence sections, capability matrix, and authority limits", () => {
@@ -48,7 +52,7 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       "`productionBinding: false`",
       "`stagedEditorApply: false`",
       "Core synthetic 3A accepted",
-      deferredNoGo,
+      historicalDeferredNoGo,
     ]) expect(status).toContain(pin)
     for (const row of [
       "| spatial wrapping | Core synthetic 3A accepted |",
@@ -73,14 +77,14 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
     expect(updates).toContain("path-copy")
     expect(updates).toContain("exact old/new affected-band union")
     expect(updates).toContain("completeIndexRebuildCount: 0")
-    expect(blockers).toContain(deferredNoGo)
+    expect(blockers).toContain(historicalDeferredNoGo)
     expect(verification).toMatch(/Focused Phase 3 result: \d+ test files passed \/ \d+ tests passed\./u)
     expect(verification).toMatch(
       /Final full `npm run check`: [\d,]+ test files passed \/ [\d,]+ tests passed/u,
     )
     expect(verification).not.toMatch(/timing budget|heap budget|frame budget/iu)
-    expect(next).toContain(phase4Pointer)
-    expect(next).toContain(deferredNoGo)
+    expect(next).toContain("Proceed only to `Phase 4: Initial TextBlock Geometry`.")
+    expect(next).toContain(historicalDeferredNoGo)
   })
 
   it("pins public exports and advances only the active cross-runtime and ledger pointers", () => {
@@ -108,11 +112,13 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       expect(active).toContain("`mayPublishLayout: false`")
       expect(active).toContain("`productionBinding: false`")
       expect(active).toContain("`stagedEditorApply: false`")
-      expect(active).toContain(deferredNoGo)
+      expect(active).toContain(historicalDeferredNoGo)
     }
+    expect(currentTask).toContain(phase4bPointer)
+    expect(activePrompt).toContain("accepted Phase 4B Core implementation head f8eb3ba")
     for (const active of [currentTask, activePrompt]) {
-      expect(active).toContain(phase4Pointer)
-      expect(active).toContain(deferredNoGo)
+      expect(active).toContain(phase4bNoGo)
+      expect(active).toContain(phase5Gate)
       expect(active).not.toContain("Proceed only to `Phase 3")
     }
   })
