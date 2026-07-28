@@ -42,3 +42,38 @@ new kernel; this change establishes the closed internal vocabulary and guard
 without completing the requested single-algorithm-owner extraction. It must
 not be treated as a complete Task 8 implementation. No Task 9/V2 integration,
 Editor/Backend, public kernel export, or product scope was changed.
+
+## Fix Round 1/5
+
+The initial concern above is historical for `5b2f876`. Fix Round 1 replaces
+the reference-only scaffold with the actual single-owner extraction:
+
+- `projectGroups(...)` retains V1 shaping/font adapters but projects the
+  closed atom union through `createVNextTextBlockBreakGroupsKernelV1(...)`;
+- the shared kernel now owns atom-level interval placement, mandatory-break
+  consumption, empty-line event advancement, non-empty line closure,
+  candidate measurement stabilization, finite re-query bounds, and monotonic
+  source/y/height progress;
+- `layoutVNextTextBlockSpatialWrappingV1(...)` supplies private validated
+  provider/metric adapters and only materializes V1 fragments, line facts,
+  fingerprints, and registrations from accepted kernel output;
+- the owner test uses TypeScript ASTs to require direct calls, reject
+  void-only references and any wrapper-owned `while` loop, and includes
+  renamed-loop/unused-reference mutation fixtures that the original lexical
+  guard missed.
+
+Controller verification after the extraction:
+
+```sh
+npx vitest run tests/textBlockSpatialWrappingLayoutV1.test.ts tests/textBlockFlowRegionProviderV1.test.ts tests/textBlockAuthoredBoxGeometryV1.test.ts tests/textBlockV1LayoutCompatibility.test.ts
+# PASS: 4 files / 52 tests
+
+npm run type-check
+# PASS
+
+git diff --check
+# PASS
+```
+
+No Task 9/V2 integration, public kernel export, Editor/Backend binding, or
+production activation was added.

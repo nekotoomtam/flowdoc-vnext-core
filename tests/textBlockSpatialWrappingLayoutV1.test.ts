@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs"
+import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
@@ -17,6 +18,50 @@ import {
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import { legacyTextOnlyLayoutRequestFixture } from "./helpers/textBlockInitialFlowV1.js"
 import { SPATIAL_GEOMETRY_OWNER_FINGERPRINT } from "./helpers/textBlockSpatialWrappingV1.js"
+
+function parseSource(source: string): ts.SourceFile {
+  return ts.createSourceFile("spatial-wrapper.ts", source, ts.ScriptTarget.Latest, true)
+}
+
+function functionCalls(source: string, functionName: string): readonly string[] {
+  const names: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (
+      ts.isFunctionDeclaration(node)
+      && node.name?.text === functionName
+      && node.body != null
+    ) {
+      const collect = (child: ts.Node): void => {
+        if (ts.isCallExpression(child) && ts.isIdentifier(child.expression)) {
+          names.push(child.expression.text)
+        }
+        ts.forEachChild(child, collect)
+      }
+      collect(node.body)
+      return
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(parseSource(source))
+  return names
+}
+
+function wrappingOwnerViolations(source: string): readonly string[] {
+  const violations: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (ts.isWhileStatement(node)) violations.push("wrapper-owned while loop")
+    if (
+      ts.isVoidExpression(node)
+      && (
+        node.expression.getText().includes("createVNextTextBlockBreakGroupsKernelV1")
+        || node.expression.getText().includes("runVNextTextBlockSpatialWrappingKernelV1")
+      )
+    ) violations.push("void-only kernel reference")
+    ts.forEachChild(node, visit)
+  }
+  visit(parseSource(source))
+  return violations
+}
 
 function layoutFixture(
   request: VNextTextBlockMultiRunLayoutRequestV1,
@@ -82,11 +127,30 @@ describe("TextBlock spatial wrapping layout v1", () => {
   it("delegates break grouping and line stabilization to the shared internal kernel", () => {
     const v1Source = readFileSync(new URL("../src/layout/textBlockSpatialWrappingLayoutV1.ts", import.meta.url), "utf8")
     const kernelSource = readFileSync(new URL("../src/layout/textBlockSpatialWrappingKernelV1.ts", import.meta.url), "utf8")
-    expect(v1Source).toContain("runVNextTextBlockSpatialWrappingKernelV1")
-    expect(v1Source).toContain("createVNextTextBlockBreakGroupsKernelV1")
-    expect(kernelSource).toContain("placeVNextTextBlockBreakGroupsKernelV1")
+    const wrapperCalls = functionCalls(v1Source, "layoutVNextTextBlockSpatialWrappingV1")
+    expect(wrapperCalls).toContain("runVNextTextBlockSpatialWrappingKernelV1")
+    expect(functionCalls(v1Source, "projectGroups")).toContain("createVNextTextBlockBreakGroupsKernelV1")
+    expect(functionCalls(kernelSource, "runVNextTextBlockSpatialWrappingKernelV1")).toContain("placeVNextTextBlockBreakGroupsKernelV1")
     expect(kernelSource).toContain("lineBandRequeryCount")
-    expect(v1Source).not.toContain("while (groupIndex < projection.groups.length)")
+    expect(wrappingOwnerViolations(v1Source)).toEqual([])
+
+    const renamedDuplicate = `
+      function projectGroups() { return createVNextTextBlockBreakGroupsKernelV1({}) }
+      function layoutVNextTextBlockSpatialWrappingV1() {
+        runVNextTextBlockSpatialWrappingKernelV1({})
+        let cursor = 0
+        while (cursor < retainedGroups.length) cursor += 1
+      }
+    `
+    const voidOnly = `
+      function projectGroups() { void createVNextTextBlockBreakGroupsKernelV1 }
+      function layoutVNextTextBlockSpatialWrappingV1() {
+        void runVNextTextBlockSpatialWrappingKernelV1
+      }
+    `
+    expect(wrappingOwnerViolations(renamedDuplicate)).toContain("wrapper-owned while loop")
+    expect(functionCalls(voidOnly, "projectGroups")).not.toContain("createVNextTextBlockBreakGroupsKernelV1")
+    expect(wrappingOwnerViolations(voidOnly)).toContain("void-only kernel reference")
   })
   it("preserves accepted one-line geometry and uses the no-exclusion fast path", () => {
     const fixture = layoutFixture(legacyTextOnlyLayoutRequestFixture(), [])
