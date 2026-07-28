@@ -18,6 +18,7 @@ import {
   getSpatialIndexEntryBindingV1,
   hasSpatialIndexBindingV1,
   hasSpatialIndexProvenanceV1,
+  materializeVNextTextBlockSpatialIndexNodeV1,
   spatialFingerprintV1,
   spatialIssueV1,
 } from "./textBlockSpatialIndexInternalsV1.js"
@@ -152,6 +153,7 @@ export function createVNextTextBlockSpatialIndexUpdateV1(input: {
     root: input.previousIndex.root,
     previousEntry,
     nextEntry: createdEntry.entry,
+    materializeNode: materializeVNextTextBlockSpatialIndexNodeV1,
   })
   const authority = getOrCreateVNextTextBlockV1LayoutAuthorityInternalV1({
     persistentFlowTree: input.persistentFlowTree,

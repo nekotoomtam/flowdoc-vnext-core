@@ -1,21 +1,19 @@
-import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
-import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type {
   VNextTextBlockSpatialIndexEntryV1,
   VNextTextBlockSpatialIndexNodeV1,
   VNextTextBlockSpatialIndexSummaryV1,
 } from "./textBlockSpatialIndexContractV1.js"
 
-function spatialKernelFingerprintV1(value: unknown): string {
-  return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
-}
-
-function deepFreezeSpatialKernelV1<T>(value: T): T {
-  if (value == null || typeof value !== "object") return value
-  if (Object.isFrozen(value)) return value
-  Object.values(value).forEach((child) => deepFreezeSpatialKernelV1(child))
-  return Object.freeze(value)
-}
+// This factory is intentionally supplied by each wrapper: the kernel owns the
+// persistent-tree algorithm and summary calculation, while V1 owns node
+// fingerprinting and freezing policy. It is internal because this module is not
+// exported through the Core barrel.
+export type VNextTextBlockSpatialIndexNodeMaterializerKernelV1 = (input: {
+  entry: VNextTextBlockSpatialIndexEntryV1
+  left: VNextTextBlockSpatialIndexNodeV1 | null
+  right: VNextTextBlockSpatialIndexNodeV1 | null
+  summary: VNextTextBlockSpatialIndexSummaryV1
+}) => VNextTextBlockSpatialIndexNodeV1
 
 function compareOrdinalStringsV1(left: string, right: string): number {
   if (left < right) return -1
@@ -46,30 +44,15 @@ function comparePriorityV1(
     || compareSpatialEntriesV1(left, right)
 }
 
-const EMPTY_SUMMARY: VNextTextBlockSpatialIndexSummaryV1 = Object.freeze({
-  entryCount: 0,
-  nodeCount: 0,
-  maximumBottomLayoutUnit: 0,
-  flowAffectingEntryCount: 0,
-  barrierEntryCount: 0,
-  overlayEntryCount: 0,
-})
-
-export function spatialIndexSummaryForRootKernelV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-): VNextTextBlockSpatialIndexSummaryV1 {
-  return root?.summary ?? EMPTY_SUMMARY
-}
-
-function createSpatialNodeV1(input: {
+function summarizeSpatialNodeV1(input: {
   entry: VNextTextBlockSpatialIndexEntryV1
   left: VNextTextBlockSpatialIndexNodeV1 | null
   right: VNextTextBlockSpatialIndexNodeV1 | null
-}): VNextTextBlockSpatialIndexNodeV1 {
+}): VNextTextBlockSpatialIndexSummaryV1 {
   const children = [input.left, input.right].filter(
     (item): item is VNextTextBlockSpatialIndexNodeV1 => item != null,
   )
-  const summary = {
+  return {
     entryCount: 1 + children.reduce((sum, item) => sum + item.summary.entryCount, 0),
     nodeCount: 1 + children.reduce((sum, item) => sum + item.summary.nodeCount, 0),
     maximumBottomLayoutUnit: Math.max(
@@ -86,86 +69,112 @@ function createSpatialNodeV1(input: {
       (input.entry.wrapPolicy === "overlay" ? 1 : 0)
       + children.reduce((sum, item) => sum + item.summary.overlayEntryCount, 0),
   }
-  const facts = {
+}
+
+function createSpatialNodeV1(input: {
+  entry: VNextTextBlockSpatialIndexEntryV1
+  left: VNextTextBlockSpatialIndexNodeV1 | null
+  right: VNextTextBlockSpatialIndexNodeV1 | null
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+}): VNextTextBlockSpatialIndexNodeV1 {
+  return input.materializeNode({
     entry: input.entry,
-    priorityFingerprint: input.entry.fingerprint,
-    leftFingerprint: input.left?.fingerprint ?? null,
-    rightFingerprint: input.right?.fingerprint ?? null,
-    summary,
-  }
-  return deepFreezeSpatialKernelV1({
-    entry: input.entry,
-    priorityFingerprint: input.entry.fingerprint,
     left: input.left,
     right: input.right,
-    summary,
-    fingerprint: spatialKernelFingerprintV1(facts),
+    summary: summarizeSpatialNodeV1(input),
   })
 }
 
-function rotateRight(node: VNextTextBlockSpatialIndexNodeV1): VNextTextBlockSpatialIndexNodeV1 {
-  const nextRoot = node.left
-  if (nextRoot == null) return node
+function rotateRight(input: {
+  node: VNextTextBlockSpatialIndexNodeV1
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+}): VNextTextBlockSpatialIndexNodeV1 {
+  const nextRoot = input.node.left
+  if (nextRoot == null) return input.node
   const nextRight = createSpatialNodeV1({
-    entry: node.entry,
+    entry: input.node.entry,
     left: nextRoot.right,
-    right: node.right,
+    right: input.node.right,
+    materializeNode: input.materializeNode,
   })
   return createSpatialNodeV1({
     entry: nextRoot.entry,
     left: nextRoot.left,
     right: nextRight,
+    materializeNode: input.materializeNode,
   })
 }
 
-function rotateLeft(node: VNextTextBlockSpatialIndexNodeV1): VNextTextBlockSpatialIndexNodeV1 {
-  const nextRoot = node.right
-  if (nextRoot == null) return node
+function rotateLeft(input: {
+  node: VNextTextBlockSpatialIndexNodeV1
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+}): VNextTextBlockSpatialIndexNodeV1 {
+  const nextRoot = input.node.right
+  if (nextRoot == null) return input.node
   const nextLeft = createSpatialNodeV1({
-    entry: node.entry,
-    left: node.left,
+    entry: input.node.entry,
+    left: input.node.left,
     right: nextRoot.left,
+    materializeNode: input.materializeNode,
   })
   return createSpatialNodeV1({
     entry: nextRoot.entry,
     left: nextLeft,
     right: nextRoot.right,
+    materializeNode: input.materializeNode,
   })
 }
 
-function insertSpatialNodeV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-  entry: VNextTextBlockSpatialIndexEntryV1,
-): VNextTextBlockSpatialIndexNodeV1 {
-  if (root == null) return createSpatialNodeV1({ entry, left: null, right: null })
-  const comparison = compareSpatialEntriesV1(entry, root.entry)
+function insertSpatialNodeV1(input: {
+  root: VNextTextBlockSpatialIndexNodeV1 | null
+  entry: VNextTextBlockSpatialIndexEntryV1
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+}): VNextTextBlockSpatialIndexNodeV1 {
+  if (input.root == null) return createSpatialNodeV1({
+    entry: input.entry,
+    left: null,
+    right: null,
+    materializeNode: input.materializeNode,
+  })
+  const comparison = compareSpatialEntriesV1(input.entry, input.root.entry)
   if (comparison < 0) {
     let node = createSpatialNodeV1({
-      entry: root.entry,
-      left: insertSpatialNodeV1(root.left, entry),
-      right: root.right,
+      entry: input.root.entry,
+      left: insertSpatialNodeV1({
+        root: input.root.left,
+        entry: input.entry,
+        materializeNode: input.materializeNode,
+      }),
+      right: input.root.right,
+      materializeNode: input.materializeNode,
     })
     if (node.left != null && comparePriorityV1(node.left.entry, node.entry) < 0) {
-      node = rotateRight(node)
+      node = rotateRight({ node, materializeNode: input.materializeNode })
     }
     return node
   }
   let node = createSpatialNodeV1({
-    entry: root.entry,
-    left: root.left,
-    right: insertSpatialNodeV1(root.right, entry),
+    entry: input.root.entry,
+    left: input.root.left,
+    right: insertSpatialNodeV1({
+      root: input.root.right,
+      entry: input.entry,
+      materializeNode: input.materializeNode,
+    }),
+    materializeNode: input.materializeNode,
   })
   if (node.right != null && comparePriorityV1(node.right.entry, node.entry) < 0) {
-    node = rotateLeft(node)
+    node = rotateLeft({ node, materializeNode: input.materializeNode })
   }
   return node
 }
 
 export function buildVNextTextBlockSpatialIndexRootKernelV1(
   entries: readonly VNextTextBlockSpatialIndexEntryV1[],
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1,
 ): VNextTextBlockSpatialIndexNodeV1 | null {
   return entries.reduce<VNextTextBlockSpatialIndexNodeV1 | null>(
-    (current, entry) => insertSpatialNodeV1(current, entry),
+    (root, entry) => insertSpatialNodeV1({ root, entry, materializeNode }),
     null,
   )
 }
@@ -191,9 +200,7 @@ export function queryVNextTextBlockSpatialIndexKernelV1(input: {
       node.entry.envelope.topLayoutUnit < input.bottomLayoutUnit
       && node.entry.envelope.bottomLayoutUnit > input.topLayoutUnit
     ) entries.push(node.entry)
-    if (node.entry.envelope.topLayoutUnit < input.bottomLayoutUnit) {
-      visit(node.right)
-    }
+    if (node.entry.envelope.topLayoutUnit < input.bottomLayoutUnit) visit(node.right)
   }
   visit(input.root)
   return { entries, visitedNodeCount }
@@ -204,87 +211,144 @@ interface SpatialPathCopyWorkV1 {
   createdNodeCount: number
 }
 
-function createTrackedSpatialNodeV1(
-  input: Parameters<typeof createSpatialNodeV1>[0],
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 {
-  work.createdNodeCount += 1
+function createTrackedSpatialNodeV1(input: {
+  entry: VNextTextBlockSpatialIndexEntryV1
+  left: VNextTextBlockSpatialIndexNodeV1 | null
+  right: VNextTextBlockSpatialIndexNodeV1 | null
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+  work: SpatialPathCopyWorkV1
+}): VNextTextBlockSpatialIndexNodeV1 {
+  input.work.createdNodeCount += 1
   return createSpatialNodeV1(input)
 }
 
-function mergeSpatialNodesV1(
-  left: VNextTextBlockSpatialIndexNodeV1 | null,
-  right: VNextTextBlockSpatialIndexNodeV1 | null,
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 | null {
-  if (left == null) return right
-  if (right == null) return left
-  work.visitedNodeCount += 1
-  if (comparePriorityV1(left.entry, right.entry) < 0) {
+function mergeSpatialNodesV1(input: {
+  left: VNextTextBlockSpatialIndexNodeV1 | null
+  right: VNextTextBlockSpatialIndexNodeV1 | null
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+  work: SpatialPathCopyWorkV1
+}): VNextTextBlockSpatialIndexNodeV1 | null {
+  if (input.left == null) return input.right
+  if (input.right == null) return input.left
+  input.work.visitedNodeCount += 1
+  if (comparePriorityV1(input.left.entry, input.right.entry) < 0) {
     return createTrackedSpatialNodeV1({
-      entry: left.entry,
-      left: left.left,
-      right: mergeSpatialNodesV1(left.right, right, work),
-    }, work)
+      entry: input.left.entry,
+      left: input.left.left,
+      right: mergeSpatialNodesV1({
+        left: input.left.right,
+        right: input.right,
+        materializeNode: input.materializeNode,
+        work: input.work,
+      }),
+      materializeNode: input.materializeNode,
+      work: input.work,
+    })
   }
   return createTrackedSpatialNodeV1({
-    entry: right.entry,
-    left: mergeSpatialNodesV1(left, right.left, work),
-    right: right.right,
-  }, work)
+    entry: input.right.entry,
+    left: mergeSpatialNodesV1({
+      left: input.left,
+      right: input.right.left,
+      materializeNode: input.materializeNode,
+      work: input.work,
+    }),
+    right: input.right.right,
+    materializeNode: input.materializeNode,
+    work: input.work,
+  })
 }
 
-function deleteSpatialNodePathCopyV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-  entry: VNextTextBlockSpatialIndexEntryV1,
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 | null {
-  if (root == null) return null
-  work.visitedNodeCount += 1
-  const comparison = compareSpatialEntriesV1(entry, root.entry)
+function deleteSpatialNodePathCopyV1(input: {
+  root: VNextTextBlockSpatialIndexNodeV1 | null
+  entry: VNextTextBlockSpatialIndexEntryV1
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+  work: SpatialPathCopyWorkV1
+}): VNextTextBlockSpatialIndexNodeV1 | null {
+  if (input.root == null) return null
+  input.work.visitedNodeCount += 1
+  const comparison = compareSpatialEntriesV1(input.entry, input.root.entry)
   if (comparison < 0) return createTrackedSpatialNodeV1({
-    entry: root.entry,
-    left: deleteSpatialNodePathCopyV1(root.left, entry, work),
-    right: root.right,
-  }, work)
+    entry: input.root.entry,
+    left: deleteSpatialNodePathCopyV1({
+      root: input.root.left,
+      entry: input.entry,
+      materializeNode: input.materializeNode,
+      work: input.work,
+    }),
+    right: input.root.right,
+    materializeNode: input.materializeNode,
+    work: input.work,
+  })
   if (comparison > 0) return createTrackedSpatialNodeV1({
-    entry: root.entry,
-    left: root.left,
-    right: deleteSpatialNodePathCopyV1(root.right, entry, work),
-  }, work)
-  return mergeSpatialNodesV1(root.left, root.right, work)
+    entry: input.root.entry,
+    left: input.root.left,
+    right: deleteSpatialNodePathCopyV1({
+      root: input.root.right,
+      entry: input.entry,
+      materializeNode: input.materializeNode,
+      work: input.work,
+    }),
+    materializeNode: input.materializeNode,
+    work: input.work,
+  })
+  return mergeSpatialNodesV1({
+    left: input.root.left,
+    right: input.root.right,
+    materializeNode: input.materializeNode,
+    work: input.work,
+  })
 }
 
-function insertSpatialNodePathCopyV1(
-  root: VNextTextBlockSpatialIndexNodeV1 | null,
-  entry: VNextTextBlockSpatialIndexEntryV1,
-  work: SpatialPathCopyWorkV1,
-): VNextTextBlockSpatialIndexNodeV1 {
-  if (root == null) {
-    return createTrackedSpatialNodeV1({ entry, left: null, right: null }, work)
-  }
-  work.visitedNodeCount += 1
-  const comparison = compareSpatialEntriesV1(entry, root.entry)
+function insertSpatialNodePathCopyV1(input: {
+  root: VNextTextBlockSpatialIndexNodeV1 | null
+  entry: VNextTextBlockSpatialIndexEntryV1
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
+  work: SpatialPathCopyWorkV1
+}): VNextTextBlockSpatialIndexNodeV1 {
+  if (input.root == null) return createTrackedSpatialNodeV1({
+    entry: input.entry,
+    left: null,
+    right: null,
+    materializeNode: input.materializeNode,
+    work: input.work,
+  })
+  input.work.visitedNodeCount += 1
+  const comparison = compareSpatialEntriesV1(input.entry, input.root.entry)
   if (comparison < 0) {
     let node = createTrackedSpatialNodeV1({
-      entry: root.entry,
-      left: insertSpatialNodePathCopyV1(root.left, entry, work),
-      right: root.right,
-    }, work)
+      entry: input.root.entry,
+      left: insertSpatialNodePathCopyV1({
+        root: input.root.left,
+        entry: input.entry,
+        materializeNode: input.materializeNode,
+        work: input.work,
+      }),
+      right: input.root.right,
+      materializeNode: input.materializeNode,
+      work: input.work,
+    })
     if (node.left != null && comparePriorityV1(node.left.entry, node.entry) < 0) {
-      work.createdNodeCount += 2
-      node = rotateRight(node)
+      input.work.createdNodeCount += 2
+      node = rotateRight({ node, materializeNode: input.materializeNode })
     }
     return node
   }
   let node = createTrackedSpatialNodeV1({
-    entry: root.entry,
-    left: root.left,
-    right: insertSpatialNodePathCopyV1(root.right, entry, work),
-  }, work)
+    entry: input.root.entry,
+    left: input.root.left,
+    right: insertSpatialNodePathCopyV1({
+      root: input.root.right,
+      entry: input.entry,
+      materializeNode: input.materializeNode,
+      work: input.work,
+    }),
+    materializeNode: input.materializeNode,
+    work: input.work,
+  })
   if (node.right != null && comparePriorityV1(node.right.entry, node.entry) < 0) {
-    work.createdNodeCount += 2
-    node = rotateLeft(node)
+    input.work.createdNodeCount += 2
+    node = rotateLeft({ node, materializeNode: input.materializeNode })
   }
   return node
 }
@@ -293,6 +357,7 @@ export function updateVNextTextBlockSpatialIndexRootKernelV1(input: {
   root: VNextTextBlockSpatialIndexNodeV1 | null
   previousEntry: VNextTextBlockSpatialIndexEntryV1 | null
   nextEntry: VNextTextBlockSpatialIndexEntryV1 | null
+  materializeNode: VNextTextBlockSpatialIndexNodeMaterializerKernelV1
 }): {
   root: VNextTextBlockSpatialIndexNodeV1 | null
   visitedNodeCount: number
@@ -303,11 +368,21 @@ export function updateVNextTextBlockSpatialIndexRootKernelV1(input: {
   const deleteWork: SpatialPathCopyWorkV1 = { visitedNodeCount: 0, createdNodeCount: 0 }
   const withoutPrevious = input.previousEntry == null
     ? input.root
-    : deleteSpatialNodePathCopyV1(input.root, input.previousEntry, deleteWork)
+    : deleteSpatialNodePathCopyV1({
+        root: input.root,
+        entry: input.previousEntry,
+        materializeNode: input.materializeNode,
+        work: deleteWork,
+      })
   const insertWork: SpatialPathCopyWorkV1 = { visitedNodeCount: 0, createdNodeCount: 0 }
   const root = input.nextEntry == null
     ? withoutPrevious
-    : insertSpatialNodePathCopyV1(withoutPrevious, input.nextEntry, insertWork)
+    : insertSpatialNodePathCopyV1({
+        root: withoutPrevious,
+        entry: input.nextEntry,
+        materializeNode: input.materializeNode,
+        work: insertWork,
+      })
   return {
     root,
     visitedNodeCount: deleteWork.visitedNodeCount + insertWork.visitedNodeCount,

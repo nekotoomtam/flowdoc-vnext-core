@@ -4,7 +4,10 @@ import type {
   VNextTextBlockSpatialBandV1,
   VNextTextBlockSpatialIndexV1,
 } from "./textBlockSpatialIndexContractV1.js"
-import { computeVNextTextBlockFlowRegionKernelV1 } from "./textBlockFlowRegionKernelV1.js"
+import {
+  computeVNextTextBlockFlowRegionKernelV1,
+  type VNextTextBlockFlowRegionKernelFailureV1,
+} from "./textBlockFlowRegionKernelV1.js"
 import {
   deeplyFrozenSpatialV1,
   deepFreezeSpatialV1,
@@ -85,6 +88,21 @@ function issue(
   message: string,
 ): VNextTextBlockFlowRegionIssueV1 {
   return { code, severity: "error", path, message }
+}
+
+function issueForKernelFailure(
+  failure: VNextTextBlockFlowRegionKernelFailureV1,
+): VNextTextBlockFlowRegionIssueV1 {
+  if (failure === "invalid-returned-intervals") return issue(
+    "invalid-returned-intervals",
+    "intervals",
+    "flow region intervals must be ordered, non-overlapping, in bounds, and positive width",
+  )
+  return issue(
+    "no-vertical-progress",
+    "nextYLayoutUnit",
+    "blocked flow regions require a strictly advancing vertical event",
+  )
 }
 
 function blocked(
@@ -255,7 +273,7 @@ export function provideVNextTextBlockFlowRegionsV1(input: {
       "spatial index query rejected the provider binding",
     ),
   ])
-  if (kernel.status === "blocked") return blocked(kernel.issues)
+  if (kernel.status === "blocked") return blocked([issueForKernelFailure(kernel.failure)])
   return accepted({
     spatialIndexFingerprint: input.spatialIndex.fingerprint,
     band: input.band,

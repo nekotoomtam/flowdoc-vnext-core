@@ -1,18 +1,30 @@
 import type { VNextTextBlockSpatialIndexEntryV1 } from "./textBlockSpatialIndexContractV1.js"
-import type {
-  VNextTextBlockFlowIntervalV1,
-  VNextTextBlockFlowRegionIssueV1,
-  VNextTextBlockFlowRegionWorkV1,
-} from "./textBlockFlowRegionProviderV1.js"
+
+export interface VNextTextBlockFlowIntervalKernelV1 {
+  startLayoutUnit: number
+  endLayoutUnit: number
+}
+
+export interface VNextTextBlockFlowRegionWorkKernelV1 {
+  fastPath: "no-flow-affecting-entry" | "none"
+  spatialIndexQueryCount: 0 | 1
+  visitedSpatialNodeCount: number
+  matchedSpatialEntryCount: number
+  rectangularSubtractionCount: number
+}
+
+export type VNextTextBlockFlowRegionKernelFailureV1 =
+  | "invalid-returned-intervals"
+  | "no-vertical-progress"
 
 export type VNextTextBlockFlowRegionKernelResultV1 =
   | {
       status: "accepted"
-      intervals: readonly VNextTextBlockFlowIntervalV1[]
+      intervals: readonly VNextTextBlockFlowIntervalKernelV1[]
       intersectingEntryFingerprints: readonly string[]
       nextYLayoutUnit: number | null
-      work: VNextTextBlockFlowRegionWorkV1
-      issues: []
+      work: VNextTextBlockFlowRegionWorkKernelV1
+      failure: null
     }
   | {
       status: "blocked"
@@ -20,23 +32,15 @@ export type VNextTextBlockFlowRegionKernelResultV1 =
       intersectingEntryFingerprints: null
       nextYLayoutUnit: null
       work: null
-      issues: VNextTextBlockFlowRegionIssueV1[]
+      failure: VNextTextBlockFlowRegionKernelFailureV1
     }
-
-function issue(
-  code: VNextTextBlockFlowRegionIssueV1["code"],
-  path: string,
-  message: string,
-): VNextTextBlockFlowRegionIssueV1 {
-  return { code, severity: "error", path, message }
-}
 
 function subtractRectangles(input: {
   entries: readonly VNextTextBlockSpatialIndexEntryV1[]
   contentStartLayoutUnit: number
   contentEndLayoutUnit: number
 }): {
-  intervals: VNextTextBlockFlowIntervalV1[]
+  intervals: VNextTextBlockFlowIntervalKernelV1[]
   subtractionCount: number
 } {
   const exclusions = input.entries
@@ -48,7 +52,7 @@ function subtractRectangles(input: {
     .filter((interval) => interval.startLayoutUnit < interval.endLayoutUnit)
     .sort((left, right) => left.startLayoutUnit - right.startLayoutUnit
       || left.endLayoutUnit - right.endLayoutUnit)
-  const merged: VNextTextBlockFlowIntervalV1[] = []
+  const merged: VNextTextBlockFlowIntervalKernelV1[] = []
   for (const exclusion of exclusions) {
     const previous = merged.at(-1)
     if (previous == null || exclusion.startLayoutUnit > previous.endLayoutUnit) {
@@ -57,7 +61,7 @@ function subtractRectangles(input: {
       previous.endLayoutUnit = Math.max(previous.endLayoutUnit, exclusion.endLayoutUnit)
     }
   }
-  const intervals: VNextTextBlockFlowIntervalV1[] = []
+  const intervals: VNextTextBlockFlowIntervalKernelV1[] = []
   let cursor = input.contentStartLayoutUnit
   for (const exclusion of merged) {
     if (cursor < exclusion.startLayoutUnit) {
@@ -72,7 +76,7 @@ function subtractRectangles(input: {
 }
 
 function validIntervals(input: {
-  intervals: readonly VNextTextBlockFlowIntervalV1[]
+  intervals: readonly VNextTextBlockFlowIntervalKernelV1[]
   contentStartLayoutUnit: number
   contentEndLayoutUnit: number
 }): boolean {
@@ -112,7 +116,7 @@ export function computeVNextTextBlockFlowRegionKernelV1(input: {
       matchedSpatialEntryCount: 0,
       rectangularSubtractionCount: 0,
     },
-    issues: [],
+    failure: null,
   }
   const queried = input.query()
   const relevantFlowAffectingEntries = queried.entries
@@ -144,11 +148,7 @@ export function computeVNextTextBlockFlowRegionKernelV1(input: {
     intersectingEntryFingerprints: null,
     nextYLayoutUnit: null,
     work: null,
-    issues: [issue(
-      "invalid-returned-intervals",
-      "intervals",
-      "flow region intervals must be ordered, non-overlapping, in bounds, and positive width",
-    )],
+    failure: "invalid-returned-intervals",
   }
   const nextYLayoutUnit = relevantFlowAffectingEntries.reduce<number | null>(
     (minimum, entry) => {
@@ -164,11 +164,7 @@ export function computeVNextTextBlockFlowRegionKernelV1(input: {
     intersectingEntryFingerprints: null,
     nextYLayoutUnit: null,
     work: null,
-    issues: [issue(
-      "no-vertical-progress",
-      "nextYLayoutUnit",
-      "blocked flow regions require a strictly advancing vertical event",
-    )],
+    failure: "no-vertical-progress",
   }
   return {
     status: "accepted",
@@ -182,6 +178,6 @@ export function computeVNextTextBlockFlowRegionKernelV1(input: {
       matchedSpatialEntryCount: queried.entries.length,
       rectangularSubtractionCount: subtracted.subtractionCount,
     },
-    issues: [],
+    failure: null,
   }
 }

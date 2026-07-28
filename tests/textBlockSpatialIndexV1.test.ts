@@ -32,6 +32,10 @@ describe("TextBlock spatial index v1", () => {
     expect(indexSource).toContain("queryVNextTextBlockSpatialIndexKernelV1")
     expect(internalsSource).not.toMatch(/function rotate(?:Left|Right)/u)
     expect(kernelSource).toMatch(/function rotate(?:Left|Right)/u)
+    expect(kernelSource).not.toContain("compactFingerprint")
+    expect(kernelSource).not.toContain("canonicalJson")
+    expect(kernelSource).not.toContain("deepFreeze")
+    expect(kernelSource).not.toContain("Object.freeze")
   })
 
   it("creates one deterministic immutable synthetic y-interval index", () => {

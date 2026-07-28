@@ -3,7 +3,7 @@ import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
   sortVNextTextBlockSpatialIndexEntriesKernelV1,
-  spatialIndexSummaryForRootKernelV1,
+  type VNextTextBlockSpatialIndexNodeMaterializerKernelV1,
 } from "./textBlockSpatialIndexKernelV1.js"
 import {
   VNextNonNegativeLayoutUnitV1Schema,
@@ -19,6 +19,7 @@ import {
   type VNextTextBlockSpatialIndexIssueCodeV1,
   type VNextTextBlockSpatialIndexIssueV1,
   type VNextTextBlockSpatialIndexNodeV1,
+  type VNextTextBlockSpatialIndexSummaryV1,
   type VNextTextBlockSpatialIndexV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "./textBlockSpatialIndexContractV1.js"
@@ -193,6 +194,34 @@ export function createSpatialEntryV1(input: {
   }
 }
 
+const EMPTY_SUMMARY: VNextTextBlockSpatialIndexSummaryV1 = Object.freeze({
+  entryCount: 0,
+  nodeCount: 0,
+  maximumBottomLayoutUnit: 0,
+  flowAffectingEntryCount: 0,
+  barrierEntryCount: 0,
+  overlayEntryCount: 0,
+})
+
+export const materializeVNextTextBlockSpatialIndexNodeV1:
+  VNextTextBlockSpatialIndexNodeMaterializerKernelV1 = (input) => {
+  const facts = {
+    entry: input.entry,
+    priorityFingerprint: input.entry.fingerprint,
+    leftFingerprint: input.left?.fingerprint ?? null,
+    rightFingerprint: input.right?.fingerprint ?? null,
+    summary: input.summary,
+  }
+  return deepFreezeSpatialV1({
+    entry: input.entry,
+    priorityFingerprint: input.entry.fingerprint,
+    left: input.left,
+    right: input.right,
+    summary: input.summary,
+    fingerprint: spatialFingerprintV1(facts),
+  })
+}
+
 export function registerSpatialIndexV1(input: {
   index: VNextTextBlockSpatialIndexV1
   persistentFlowTree: VNextTextBlockPersistentFlowTreeV1
@@ -264,7 +293,7 @@ export function createSpatialIndexFromRootV1(input: {
   entriesByObjectId: ReadonlyMap<string, VNextTextBlockSpatialIndexEntryV1>
 }): VNextTextBlockSpatialIndexV1 {
   const root = input.root
-  const summary = spatialIndexSummaryForRootKernelV1(root)
+  const summary = root?.summary ?? EMPTY_SUMMARY
   const facts = {
     source: VNEXT_TEXT_BLOCK_SPATIAL_INDEX_SOURCE,
     contractVersion: VNEXT_TEXT_BLOCK_SPATIAL_INDEX_VERSION,

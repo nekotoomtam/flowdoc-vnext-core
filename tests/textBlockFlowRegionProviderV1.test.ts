@@ -101,7 +101,13 @@ describe("TextBlock flow region provider v1", () => {
 
     expect(providerSource).toContain("computeVNextTextBlockFlowRegionKernelV1")
     expect(providerSource).not.toContain("function subtractRectangles")
+    expect(providerSource).not.toContain('wrapPolicy === "top-bottom-barrier"')
+    expect(providerSource).not.toMatch(/reduce<number \| null>/u)
     expect(kernelSource).toContain("function subtractRectangles")
+    expect(kernelSource).toContain('wrapPolicy === "top-bottom-barrier"')
+    expect(kernelSource).not.toContain("VNextTextBlockFlowRegionIssueV1")
+    expect(kernelSource).not.toContain("severity: \"error\"")
+    expect(providerSource).toContain("function issue")
   })
 
   it.each([

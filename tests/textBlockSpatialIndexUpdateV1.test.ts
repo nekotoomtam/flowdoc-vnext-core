@@ -46,10 +46,17 @@ describe("TextBlock spatial index update v1", () => {
       new URL("../src/layout/textBlockSpatialIndexInternalsV1.ts", import.meta.url),
       "utf8",
     )
+    const indexSource = readFileSync(
+      new URL("../src/layout/textBlockSpatialIndexV1.ts", import.meta.url),
+      "utf8",
+    )
 
     expect(updateSource).toContain("updateVNextTextBlockSpatialIndexRootKernelV1")
     expect(internalsSource).not.toContain("deleteSpatialNodePathCopyV1")
     expect(internalsSource).not.toContain("insertSpatialNodePathCopyV1")
+    expect(internalsSource).not.toMatch(/function (?:rotate|merge|insert|delete)/u)
+    expect(indexSource).not.toContain("maximumBottomLayoutUnit >")
+    expect(updateSource).not.toContain("work.createdNodeCount")
   })
 
   it("path-copies a move, reuses untouched nodes, and reports disjoint old/new bands", () => {

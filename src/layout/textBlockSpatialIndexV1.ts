@@ -15,6 +15,7 @@ import {
   deeplyFrozenSpatialV1,
   hasSpatialIndexBindingV1,
   hasSpatialIndexProvenanceV1,
+  materializeVNextTextBlockSpatialIndexNodeV1,
   parseSpatialEntriesV1,
   spatialIssueV1,
 } from "./textBlockSpatialIndexInternalsV1.js"
@@ -102,7 +103,10 @@ export function createVNextTextBlockSpatialIndexV1(
   const index = createSpatialIndexFromRootV1({
     persistentFlowTree: input.persistentFlowTree,
     request: input.request,
-    root: buildVNextTextBlockSpatialIndexRootKernelV1(parsed.entries),
+    root: buildVNextTextBlockSpatialIndexRootKernelV1(
+      parsed.entries,
+      materializeVNextTextBlockSpatialIndexNodeV1,
+    ),
     authority,
     entriesByObjectId: new Map(parsed.entries.map((entry) => [entry.objectId, entry])),
   })
