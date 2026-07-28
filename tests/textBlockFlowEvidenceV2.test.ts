@@ -315,6 +315,8 @@ describe("VNext TextBlock Flow Evidence V2", () => {
     delete (unresolvedInput as Partial<typeof unresolvedInput>).source
     delete (unresolvedInput as Partial<typeof unresolvedInput>).contractVersion
     delete (unresolvedInput as Partial<typeof unresolvedInput>).contracts
+    delete (unresolvedInput as Partial<typeof unresolvedInput>).mayPublishLayout
+    delete (unresolvedInput as Partial<typeof unresolvedInput>).productionBinding
     delete (unresolvedInput as Partial<typeof unresolvedInput>).fingerprint
 
     const nullImageInput = imageOnlyGeometryBuildInputFixture()
@@ -532,6 +534,15 @@ describe("VNext TextBlock Flow Evidence V2", () => {
         code: "invalid-input",
         path: "evidenceInput",
       }],
+    })
+  })
+
+  it("exposes closed non-production capability facts on accepted evidence", () => {
+    const initialFlow = classifyMixedParagraph()
+    const result = acceptVNextTextBlockFlowEvidenceV2({ initialFlow, evidenceInput: evidenceInputFor(initialFlow) })
+    expect(result).toMatchObject({
+      status: "accepted",
+      evidence: { mayPublishLayout: false, productionBinding: false },
     })
   })
 })

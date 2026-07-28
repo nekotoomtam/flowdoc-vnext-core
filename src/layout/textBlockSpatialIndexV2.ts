@@ -144,6 +144,8 @@ export function createSpatialIndexFromRootV2(input: Omit<VNextTextBlockSpatialIn
     contentLeftLayoutUnit: 0 as const, contentRightLayoutUnit: input.evidence.availableWidthLayoutUnit,
     root: input.root, summary,
     contracts: { canonicalPositionedObjectSchema: false as const, authoredPositionedObjectBinding: false as const, sharedPersistentTreap: true as const, processLocalImmutableIndex: true as const, mayPublishLayout: false as const, productionBinding: false as const },
+    mayPublishLayout: false as const,
+    productionBinding: false as const,
   }
   const canonicalFacts = stringifyVNextCanonicalJson(facts)
   const index = deepFreezeSpatialV2({ ...facts, fingerprint: createVNextCompactFingerprint(canonicalFacts) })

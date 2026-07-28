@@ -40,6 +40,8 @@ export interface VNextTextBlockSpatialIndexV2 {
     mayPublishLayout: false
     productionBinding: false
   }
+  mayPublishLayout: false
+  productionBinding: false
   fingerprint: string
 }
 

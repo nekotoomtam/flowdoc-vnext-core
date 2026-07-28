@@ -203,4 +203,17 @@ describe("VNext TextBlock Persistent Flow Tree V2", () => {
       issues: [{ code: "unsafe-layout-arithmetic" }],
     })
   })
+
+  it("rejects a present undefined production-binding flag and exposes closed capability facts", () => {
+    const fixture = acceptedInlineImageEvidenceFixture({ content: "image-only" })
+    expect(createVNextTextBlockPersistentFlowTreeV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      bindProductionLayout: undefined,
+    })).toMatchObject({ status: "blocked", tree: null, issues: [{ code: "invalid-input" }] })
+    expect(createVNextTextBlockPersistentFlowTreeV2(fixture)).toMatchObject({
+      status: "accepted",
+      tree: { mayPublishLayout: false, productionBinding: false },
+    })
+  })
 })

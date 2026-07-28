@@ -392,7 +392,13 @@ export function createVNextTextBlockPersistentFlowTreeV2(input: {
 export function createVNextTextBlockPersistentFlowTreeV2(input: unknown): VNextTextBlockPersistentFlowBuildResultV2
 export function createVNextTextBlockPersistentFlowTreeV2(input: unknown): VNextTextBlockPersistentFlowBuildResultV2 {
   const envelope = exactInput(input)
-  if (envelope == null || (envelope.bindProductionLayout != null && typeof envelope.bindProductionLayout !== "boolean")) {
+  if (
+    envelope == null
+    || (
+      Object.hasOwn(envelope, "bindProductionLayout")
+      && typeof envelope.bindProductionLayout !== "boolean"
+    )
+  ) {
     return blocked("invalid-input", "persistent V2 flow requires an exact accessor-free data envelope")
   }
   if (envelope.bindProductionLayout === true) return blocked(
@@ -460,6 +466,8 @@ export function createVNextTextBlockPersistentFlowTreeV2(input: unknown): VNextT
         mayPublishLayout: false as const,
         productionBinding: false as const,
       },
+      mayPublishLayout: false as const,
+      productionBinding: false as const,
     }
     const tree = deepFreeze({
       ...facts,

@@ -192,4 +192,15 @@ describe("VNext TextBlock Spatial Index V2", () => {
       evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: entries as never,
     })).toMatchObject({ status: "blocked", index: null, issues: [{ code }] })
   })
+
+  it("exposes closed non-production capability facts on accepted indexes", () => {
+    const fixture = acceptedInlineImageFlowTreeFixture()
+    expect(createVNextTextBlockSpatialIndexV2({
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      entries: [],
+    })).toMatchObject({ status: "accepted", index: { mayPublishLayout: false, productionBinding: false } })
+  })
 })

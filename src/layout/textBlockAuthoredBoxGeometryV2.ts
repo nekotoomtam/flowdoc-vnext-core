@@ -110,7 +110,7 @@ function strictEnvelope(input: unknown): AuthoredBoxGeometryEnvelopeV2 | null {
       values[key] = descriptor.value
     }
     if (
-      values.bindProductionLayout !== undefined
+      Object.hasOwn(values, "bindProductionLayout")
       && typeof values.bindProductionLayout !== "boolean"
     ) return null
     return values as unknown as AuthoredBoxGeometryEnvelopeV2

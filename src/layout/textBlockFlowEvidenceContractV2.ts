@@ -33,6 +33,8 @@ export interface VNextTextBlockFlowEvidenceV2
     mayPublishLayout: false
     productionBinding: false
   }
+  mayPublishLayout: false
+  productionBinding: false
   fingerprint: string
 }
 

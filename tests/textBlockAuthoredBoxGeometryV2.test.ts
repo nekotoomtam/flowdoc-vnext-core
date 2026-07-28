@@ -180,7 +180,11 @@ describe("TextBlock authored box geometry v2", () => {
         contentExtentBottomLayoutUnit: 80_000_000,
         outerHeightLayoutUnit: 84_000_000,
       },
-      lines: [{ contentYOffsetLayoutUnit: 0 }],
+      lines: [{
+        contentYOffsetLayoutUnit: 0,
+        availableIntervals: [{ contentStartLayoutUnit: 0, contentEndLayoutUnit: 90_000_000 }],
+        intervalPlacements: [{ contentXStartLayoutUnit: 0, contentXEndLayoutUnit: 10_000_000 }],
+      }],
     })
   })
 

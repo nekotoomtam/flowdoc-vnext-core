@@ -62,6 +62,7 @@ describe("VNext TextBlock Flow Region Provider V2", () => {
     if (built.status !== "accepted") throw new Error("index blocked")
     const call = (band: { topLayoutUnit: number; bottomLayoutUnit: number }, contentInsets: { leftLayoutUnit: number; rightLayoutUnit: number }) => provideVNextTextBlockFlowRegionsV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, spatialIndex: built.index, band, contentInsets })
     expect(call({ topLayoutUnit: 10, bottomLayoutUnit: 10 }, { leftLayoutUnit: 0, rightLayoutUnit: 0 })).toMatchObject({ status: "blocked", intervals: null, work: null, fingerprint: null, issues: [{ code: "invalid-line-band" }] })
+    expect(call({ topLayoutUnit: Number.NaN, bottomLayoutUnit: 10 }, { leftLayoutUnit: 0, rightLayoutUnit: 0 })).toMatchObject({ status: "blocked", intervals: null, work: null, fingerprint: null, issues: [{ code: "invalid-line-band" }] })
     expect(call({ topLayoutUnit: 0, bottomLayoutUnit: 10 }, { leftLayoutUnit: 90_000_000, rightLayoutUnit: 0 })).toMatchObject({ status: "blocked", intervals: null, work: null, fingerprint: null, issues: [{ code: "invalid-content-insets" }] })
   })
 })

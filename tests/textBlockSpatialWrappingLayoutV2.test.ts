@@ -12,6 +12,7 @@ import {
 } from "../src/index.js"
 import {
   acceptedInlineImageFlowTreeFixture,
+  acceptedInlineImageSpatialFixture,
   type InlineImageFlowFixtureOptions,
 } from "./helpers/textBlockInlineImageFlowV2.js"
 
@@ -548,5 +549,17 @@ describe("TextBlock spatial wrapping layout V2", () => {
       status: "valid",
       fingerprint: result.fingerprint,
     })
+  })
+
+  it("rejects a present undefined production-binding flag without emitting lines", () => {
+    const fixture = acceptedInlineImageSpatialFixture({ content: "image-only" })
+    expect(layoutVNextTextBlockSpatialWrappingV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      spatialIndex: fixture.spatialIndex,
+      startYLayoutUnit: 0,
+      bindProductionLayout: undefined,
+    })).toMatchObject({ status: "blocked", lines: null, summary: null, work: null, issues: [{ code: "invalid-input" }] })
   })
 })

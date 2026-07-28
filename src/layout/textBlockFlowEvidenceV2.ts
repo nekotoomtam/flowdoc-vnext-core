@@ -828,6 +828,8 @@ export function acceptVNextTextBlockFlowEvidenceV2(
       mayPublishLayout: false as const,
       productionBinding: false as const,
     },
+    mayPublishLayout: false as const,
+    productionBinding: false as const,
   }
   const canonicalFacts = stringifyVNextCanonicalJson(facts)
   const evidence = deepFreeze({

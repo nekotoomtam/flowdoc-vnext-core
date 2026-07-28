@@ -491,7 +491,7 @@ export function layoutVNextTextBlockSpatialWrappingV2(
   if (
     envelope == null
     || (
-      envelope.bindProductionLayout !== undefined
+      Object.hasOwn(envelope, "bindProductionLayout")
       && typeof envelope.bindProductionLayout !== "boolean"
     )
   ) return blocked([issue(
