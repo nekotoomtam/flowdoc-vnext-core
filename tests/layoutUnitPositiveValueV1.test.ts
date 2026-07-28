@@ -41,4 +41,55 @@ describe("positive authored UnitValue conversion", () => {
       .toMatchObject({ status: "blocked", issues: [{ code: "invalid-positive-unit-value" }] })
     expect(getterCount).toBe(0)
   })
+
+  for (const [trapName, hostileReflectionTrap] of [
+    ["getPrototypeOf", {
+      getPrototypeOf() {
+        throw new Error("hostile getPrototypeOf trap")
+      },
+    }],
+    ["ownKeys", {
+      ownKeys() {
+        throw new Error("hostile ownKeys trap")
+      },
+    }],
+    ["getOwnPropertyDescriptor", {
+      getOwnPropertyDescriptor() {
+        throw new Error("hostile getOwnPropertyDescriptor trap")
+      },
+    }],
+  ] satisfies readonly (readonly [string, ProxyHandler<object>])[]) {
+    it(`blocks a Proxy whose ${trapName} reflection trap throws without invoking value access`, () => {
+      let getterCount = 0
+      const target = Object.create(null)
+      Object.defineProperty(target, "value", {
+        enumerable: true,
+        get() {
+          getterCount += 1
+          return 10
+        },
+      })
+      Object.defineProperty(target, "unit", {
+        enumerable: true,
+        value: "pt",
+      })
+      const value = new Proxy(target, {
+        ...hostileReflectionTrap,
+        get() {
+          throw new Error("direct value access")
+        },
+      })
+
+      expect(convertVNextPositiveUnitValueToLayoutUnitV1(value, "frame.width"))
+        .toMatchObject({
+          status: "blocked",
+          layoutUnit: null,
+          issues: [{
+            code: "invalid-positive-unit-value",
+            path: "frame.width",
+          }],
+        })
+      expect(getterCount).toBe(0)
+    })
+  }
 })

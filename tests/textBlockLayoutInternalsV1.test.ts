@@ -138,10 +138,18 @@ describe("TextBlock persistent rope kernel v1", () => {
       children: [left, right],
     }
 
-    expect(collectVNextTextBlockPersistentRopeNodesKernelV1({
+    const collected = collectVNextTextBlockPersistentRopeNodesKernelV1({
       root,
       children: testNodeChildren,
-    })).toEqual([root, left, leafA, leafB, right, leafC])
+    })
+    const expectedReferences = [root, left, leafA, leafB, right, leafC]
+    const structurallyEqualClones = structuredClone(expectedReferences)
+    expect(structurallyEqualClones).toEqual(expectedReferences)
+    expect(collected).toHaveLength(expectedReferences.length)
+    for (const [index, expectedReference] of expectedReferences.entries()) {
+      expect(collected[index]).toBe(expectedReference)
+      expect(structurallyEqualClones[index]).not.toBe(expectedReference)
+    }
     expect(countVNextTextBlockPersistentRopeNodesKernelV1({
       root,
       children: testNodeChildren,

@@ -171,10 +171,25 @@ export function convertVNextPositiveUnitValueToLayoutUnitV1(
   if (value == null || typeof value !== "object") return blockedLayoutUnit([
     issue("invalid-positive-unit-value", path, "unit value must be a strict positive pt/mm object"),
   ])
-  const prototype = Object.getPrototypeOf(value)
-  const keys = Reflect.ownKeys(value)
-  const valueProperty = Object.getOwnPropertyDescriptor(value, "value")
-  const unitProperty = Object.getOwnPropertyDescriptor(value, "unit")
+  let reflectedShape: {
+    prototype: object | null
+    keys: readonly PropertyKey[]
+    valueProperty: PropertyDescriptor | undefined
+    unitProperty: PropertyDescriptor | undefined
+  }
+  try {
+    reflectedShape = {
+      prototype: Object.getPrototypeOf(value),
+      keys: Reflect.ownKeys(value),
+      valueProperty: Object.getOwnPropertyDescriptor(value, "value"),
+      unitProperty: Object.getOwnPropertyDescriptor(value, "unit"),
+    }
+  } catch {
+    return blockedLayoutUnit([
+      issue("invalid-positive-unit-value", path, "unit value reflection must be data-only and non-throwing"),
+    ])
+  }
+  const { prototype, keys, valueProperty, unitProperty } = reflectedShape
   if (
     (prototype !== Object.prototype && prototype !== null)
     || keys.length !== 2

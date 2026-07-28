@@ -9,10 +9,57 @@ import {
 const read = (path: string): string => readFileSync(resolve(path), "utf8")
 const normalize = (value: string): string => value.replace(/\s+/gu, " ").trim()
 const sectionAtPeerHeading = (document: string, heading: string): string => {
-  const startIndex = document.indexOf(heading)
+  const lines: Array<{ text: string; startIndex: number }> = []
+  let lineStartIndex = 0
+  while (lineStartIndex <= document.length) {
+    const newlineIndex = document.indexOf("\n", lineStartIndex)
+    const rawEndIndex = newlineIndex < 0 ? document.length : newlineIndex
+    const textEndIndex = rawEndIndex > lineStartIndex && document[rawEndIndex - 1] === "\r"
+      ? rawEndIndex - 1
+      : rawEndIndex
+    lines.push({
+      text: document.slice(lineStartIndex, textEndIndex),
+      startIndex: lineStartIndex,
+    })
+    if (newlineIndex < 0) break
+    lineStartIndex = newlineIndex + 1
+  }
+
+  let activeFence: { marker: "`" | "~"; length: number } | null = null
+  let startIndex = -1
+  for (const line of lines) {
+    const trimmedStart = line.text.trimStart()
+    const indentation = line.text.length - trimmedStart.length
+    const markerRun = indentation <= 3 ? /^(`+|~+)/u.exec(trimmedStart)?.[1] : undefined
+    if (activeFence != null) {
+      if (
+        markerRun?.[0] === activeFence.marker
+        && markerRun.length >= activeFence.length
+        && trimmedStart.slice(markerRun.length).trim() === ""
+      ) activeFence = null
+      continue
+    }
+    if (markerRun != null && markerRun.length >= 3) {
+      activeFence = {
+        marker: markerRun[0] as "`" | "~",
+        length: markerRun.length,
+      }
+      continue
+    }
+    if (startIndex < 0) {
+      if (line.text === heading) startIndex = line.startIndex
+      continue
+    }
+    if (/^## .+$/u.test(line.text)) {
+      const precedingNewlineLength = line.startIndex >= 2
+        && document.slice(line.startIndex - 2, line.startIndex) === "\r\n"
+        ? 2
+        : 1
+      return document.slice(startIndex, line.startIndex - precedingNewlineLength)
+    }
+  }
   expect(startIndex).toBeGreaterThanOrEqual(0)
-  const nextHeadingIndex = document.indexOf("\n## ", startIndex + heading.length)
-  return document.slice(startIndex, nextHeadingIndex < 0 ? document.length : nextHeadingIndex)
+  return document.slice(startIndex)
 }
 const replaceInSection = (
   document: string,
@@ -42,11 +89,13 @@ const authorityAttackClasses = [
   "altered dependency",
   "production-bound",
 ] as const
-const falseCapabilityFlags = [
+const universalFalseCapabilityFlags = [
   "`mayPublishLayout: false`",
   "`productionBinding: false`",
-  "`stagedEditorApply: false`",
 ] as const
+const stagedEditorApplyFalse = "`stagedEditorApply: false`"
+const stagedEditorApplyApplicability =
+  "retained persistent-tree, spatial-wrapping-layout, and authored-box contracts"
 const supersededActiveDirectives = [
   "Proceed only to `Phase 3: Core Spatial Wrapping 3A`.",
   "Proceed only to `Phase 4: Initial TextBlock Geometry`.",
@@ -171,19 +220,22 @@ const assertPhase4BExports = (
   }
 }
 
-const assertFalseCapabilityFlags = (section: string): void => {
-  for (const flag of falseCapabilityFlags) expect(section).toContain(flag)
+const assertUniversalFalseCapabilityFlags = (section: string): void => {
+  for (const flag of universalFalseCapabilityFlags) expect(section).toContain(flag)
 }
 
 const assertBoundaryEvidence = (
   section: string,
   noPartialClaim: string,
+  stagedApplicabilityClaim: string,
 ): void => {
   const lowerCaseSection = section.toLocaleLowerCase("en-US")
   for (const attack of authorityAttackClasses) {
     expect(lowerCaseSection).toContain(attack)
   }
-  assertFalseCapabilityFlags(section)
+  assertUniversalFalseCapabilityFlags(section)
+  expect(section).toContain(stagedEditorApplyFalse)
+  expect(section).toContain(stagedApplicabilityClaim)
   expect(lowerCaseSection).toContain(noPartialClaim)
 }
 
@@ -221,8 +273,15 @@ const assertHandoffEvidence = (handoff: string): void => {
   const next = normalize(sectionAtPeerHeading(handoff, "## Next Checkpoint"))
 
   expect(status).toContain("Status: implemented and accepted as the bounded Core-only Phase 4B checkpoint.")
-  assertFalseCapabilityFlags(status)
-  assertFalseCapabilityFlags(outcome)
+  assertUniversalFalseCapabilityFlags(status)
+  assertUniversalFalseCapabilityFlags(outcome)
+  expect(status).toContain(stagedEditorApplyApplicability)
+  expect(outcome).toContain(stagedEditorApplyApplicability)
+  expect(status).toContain(stagedEditorApplyFalse)
+  expect(outcome).toContain(stagedEditorApplyFalse)
+  expect(outcome).toContain("the spatial index, update, and provider results do not add that field")
+  expect(status).not.toContain("All accepted values remain synthetic-QA-only and retain `mayPublishLayout: false`, `productionBinding: false`, and `stagedEditorApply: false`.")
+  expect(outcome).not.toContain("Every accepted Phase 4B output retains `mayPublishLayout: false`, `productionBinding: false`, and `stagedEditorApply: false`.")
   expect(status).toContain(`accepted Task 11 implementation head \`${implementationHead}\``)
   for (const evidence of [
     "`textBlockPersistentFlowTreeInternalsV1.ts`", "`textBlockFlowRegionKernelV1.ts`", "`textBlockSpatialWrappingKernelV1.ts`", "`textBlockAuthoredBoxGeometryKernelV1.ts`",
@@ -235,14 +294,17 @@ const assertHandoffEvidence = (handoff: string): void => {
   assertBoundaryEvidence(
     persistent,
     "no partial persistent tree, root, summary, or fingerprint",
+    "Accepted persistent-tree results",
   )
   assertBoundaryEvidence(
     spatial,
     "no partial spatial intervals, lines, work, or fingerprint",
+    "retained spatial-wrapping-layout contract",
   )
   assertBoundaryEvidence(
     authoredBox,
     "no partial authored geometry, lines, summary, or fingerprint",
+    "accepted authored-box results",
   )
   expect(pass).toContain("V1 compatibility remains characterized")
   expect(blocker).toContain("fixed-height, overflow, or clipping")
@@ -255,6 +317,30 @@ const assertHandoffEvidence = (handoff: string): void => {
 }
 
 describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
+  it("selects only an unfenced exact peer-heading line and stops at the next peer", () => {
+    const document = [
+      "# Root",
+      "Prose mentions ## Target but is not a heading.",
+      "```md",
+      "## Target",
+      "This is a code-block mention.",
+      "```",
+      "## Target",
+      "Selected body.",
+      "### Child",
+      "Child body.",
+      "## Next",
+      "Outside the selected section.",
+    ].join("\n")
+
+    expect(sectionAtPeerHeading(document, "## Target")).toBe([
+      "## Target",
+      "Selected body.",
+      "### Child",
+      "Child body.",
+    ].join("\n"))
+  })
+
   it("records the accepted Core-only evidence, scope limits, and next authorization gate", () => {
     assertHandoffEvidence(read(handoffPath))
   })
