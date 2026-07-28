@@ -142,3 +142,23 @@ covered by the existing rows.
 
 Final verification before committing: six-file Task 7 gate PASS (6 files / 41
 tests), `npm run type-check` completed PASS, `git diff --check` PASS.
+
+## Fix Round 4/5
+
+This is a test/report-only correction; no production source changed. The
+move/resize provider test now requires accepted provider results and compares
+their `intervals` directly: moving the exclusion out of the queried band
+produces the full-width interval, while resizing it changes the right remaining
+interval from `60_000_000..90_000_000` to `70_000_000..90_000_000`. The empty
+index now has its own successful full-width, zero-query fast-path row with the
+same complete work facts as the existing overlay-only row.
+
+`no-vertical-progress` is intentionally not manufactured through the public
+V2 provider. The strict public boundary admits only safe positive envelopes,
+and an entry returned by a half-open band query must satisfy
+`envelope.bottomLayoutUnit > band.topLayoutUnit`; a flow-affecting intersection
+therefore always supplies an advancing bottom event. The defensive Task 6
+kernel failure mapping remains in the wrapper for internal/kernel safety.
+
+Historical clarification: `855fccd` changed only the V1 **test** ownership
+guard; it did not change any V1 production or Task 6 kernel file.

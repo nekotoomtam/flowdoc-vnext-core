@@ -42,6 +42,20 @@ describe("VNext TextBlock Flow Region Provider V2", () => {
     })).toMatchObject({ status: "accepted", intervals: [{ startLayoutUnit: 0, endLayoutUnit: 90_000_000 }], work: { spatialIndexQueryCount: 0 } })
   })
 
+  it("uses the same zero-query full-width fast path for an empty index", () => {
+    const fixture = acceptedInlineImageFlowTreeFixture()
+    const index = createVNextTextBlockSpatialIndexV2({ inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: [] })
+    if (index.status !== "accepted") throw new Error("index blocked")
+    expect(provideVNextTextBlockFlowRegionsV2({
+      initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, spatialIndex: index.index,
+      band: { topLayoutUnit: 0, bottomLayoutUnit: 10_000_000 }, contentInsets: { leftLayoutUnit: 0, rightLayoutUnit: 0 },
+    })).toMatchObject({
+      status: "accepted", intervals: [{ startLayoutUnit: 0, endLayoutUnit: 90_000_000 }],
+      intersectingEntryFingerprints: [], nextYLayoutUnit: null,
+      work: { fastPath: "no-flow-affecting-entry", spatialIndexQueryCount: 0, visitedSpatialNodeCount: 0, matchedSpatialEntryCount: 0, rectangularSubtractionCount: 0 },
+    })
+  })
+
   it("blocks invalid public bands and insets without partial intervals", () => {
     const fixture = acceptedInlineImageFlowTreeFixture()
     const built = createVNextTextBlockSpatialIndexV2({ inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: [] })
