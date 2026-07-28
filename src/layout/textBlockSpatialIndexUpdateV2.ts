@@ -51,7 +51,14 @@ function exactUpdateInput(value: unknown): UpdateInput | null {
   const outer = exactRecord(value, ["initialFlow", "evidence", "persistentFlowTree", "previousIndex", "expectedPreviousIndexFingerprint", "objectId", "geometryOwnerFingerprint", "nextGeometry"])
   if (outer == null) return null
   const geometry = exactRecord(outer.nextGeometry, ["xLayoutUnit", "yLayoutUnit", "widthLayoutUnit", "heightLayoutUnit"])
-  return geometry == null ? null : { ...outer, nextGeometry: geometry } as unknown as UpdateInput
+  if (
+    geometry == null
+    || typeof outer.objectId !== "string"
+    || outer.objectId.trim().length === 0
+    || typeof outer.geometryOwnerFingerprint !== "string"
+    || outer.geometryOwnerFingerprint.trim().length === 0
+  ) return null
+  return { ...outer, nextGeometry: geometry } as unknown as UpdateInput
 }
 
 function affectedBands(first: VNextTextBlockSpatialBandV1, second: VNextTextBlockSpatialBandV1): readonly VNextTextBlockSpatialBandV1[] {

@@ -41,4 +41,13 @@ describe("VNext TextBlock Flow Region Provider V2", () => {
       band: { topLayoutUnit: 0, bottomLayoutUnit: 10_000_000 }, contentInsets: { leftLayoutUnit: 0, rightLayoutUnit: 0 },
     })).toMatchObject({ status: "accepted", intervals: [{ startLayoutUnit: 0, endLayoutUnit: 90_000_000 }], work: { spatialIndexQueryCount: 0 } })
   })
+
+  it("blocks invalid public bands and insets without partial intervals", () => {
+    const fixture = acceptedInlineImageFlowTreeFixture()
+    const built = createVNextTextBlockSpatialIndexV2({ inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: [] })
+    if (built.status !== "accepted") throw new Error("index blocked")
+    const call = (band: { topLayoutUnit: number; bottomLayoutUnit: number }, contentInsets: { leftLayoutUnit: number; rightLayoutUnit: number }) => provideVNextTextBlockFlowRegionsV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, spatialIndex: built.index, band, contentInsets })
+    expect(call({ topLayoutUnit: 10, bottomLayoutUnit: 10 }, { leftLayoutUnit: 0, rightLayoutUnit: 0 })).toMatchObject({ status: "blocked", intervals: null, work: null, fingerprint: null, issues: [{ code: "invalid-line-band" }] })
+    expect(call({ topLayoutUnit: 0, bottomLayoutUnit: 10 }, { leftLayoutUnit: 90_000_000, rightLayoutUnit: 0 })).toMatchObject({ status: "blocked", intervals: null, work: null, fingerprint: null, issues: [{ code: "invalid-content-insets" }] })
+  })
 })

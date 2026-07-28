@@ -4,6 +4,7 @@ import {
   createVNextTextBlockSpatialIndexV2,
   inspectVNextTextBlockSpatialIndexV2,
   inspectVNextTextBlockSpatialIndexUpdateV2,
+  provideVNextTextBlockFlowRegionsV2,
 } from "../src/index.js"
 import * as core from "../src/index.js"
 import { acceptedInlineImageFlowTreeFixture } from "./helpers/textBlockInlineImageFlowV2.js"
@@ -110,6 +111,42 @@ describe("VNext TextBlock Spatial Index V2", () => {
       objectId: "move", geometryOwnerFingerprint: `sha256:${"c".repeat(64)}`,
       nextGeometry: { xLayoutUnit: 20_000_000, yLayoutUnit: 0, widthLayoutUnit: 20_000_000, heightLayoutUnit: 10_000_000 },
     })).toMatchObject({ status: "blocked", update: null, nextIndex: null, issues: [{ code: "spatial-owner-mismatch" }] })
+  })
+
+  it.each([
+    ["symbol", Symbol("object-id")],
+    ["throwing coercion", { toString: () => { throw new Error("coercion") }, valueOf: () => { throw new Error("coercion") } }],
+  ])("blocks a %s object id without coercion or partial update", (_name, objectId) => {
+    const fixture = acceptedInlineImageFlowTreeFixture()
+    const built = createVNextTextBlockSpatialIndexV2({ inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: [entry("move", 0, 0)] })
+    if (built.status !== "accepted") throw new Error("index blocked")
+    expect(() => createVNextTextBlockSpatialIndexUpdateV2({
+      initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree,
+      previousIndex: built.index, expectedPreviousIndexFingerprint: built.index.fingerprint,
+      objectId: objectId as never, geometryOwnerFingerprint: owner,
+      nextGeometry: { xLayoutUnit: 20_000_000, yLayoutUnit: 0, widthLayoutUnit: 20_000_000, heightLayoutUnit: 10_000_000 },
+    })).not.toThrow()
+    expect(createVNextTextBlockSpatialIndexUpdateV2({
+      initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree,
+      previousIndex: built.index, expectedPreviousIndexFingerprint: built.index.fingerprint,
+      objectId: objectId as never, geometryOwnerFingerprint: owner,
+      nextGeometry: { xLayoutUnit: 20_000_000, yLayoutUnit: 0, widthLayoutUnit: 20_000_000, heightLayoutUnit: 10_000_000 },
+    })).toMatchObject({ status: "blocked", update: null, nextIndex: null, issues: [{ code: "invalid-input" }] })
+  })
+
+  it("rejects a cloned index and changes provider intervals after move and resize", () => {
+    const fixture = acceptedInlineImageFlowTreeFixture()
+    const built = createVNextTextBlockSpatialIndexV2({ inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, entries: [entry("object", 40_000_000, 0)] })
+    if (built.status !== "accepted") throw new Error("index blocked")
+    const region = (spatialIndex: typeof built.index) => provideVNextTextBlockFlowRegionsV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, spatialIndex, band: { topLayoutUnit: 0, bottomLayoutUnit: 10_000_000 }, contentInsets: { leftLayoutUnit: 0, rightLayoutUnit: 0 } })
+    expect(region(structuredClone(built.index) as typeof built.index)).toMatchObject({ status: "blocked", intervals: null, issues: [{ code: "spatial-index-provenance-mismatch" }] })
+    const moved = createVNextTextBlockSpatialIndexUpdateV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, previousIndex: built.index, expectedPreviousIndexFingerprint: built.index.fingerprint, objectId: "object", geometryOwnerFingerprint: owner, nextGeometry: { xLayoutUnit: 60_000_000, yLayoutUnit: 20_000_000, widthLayoutUnit: 20_000_000, heightLayoutUnit: 10_000_000 } })
+    if (moved.status !== "accepted") throw new Error("move blocked")
+    expect(region(built.index)).not.toEqual(region(moved.nextIndex))
+    const resized = createVNextTextBlockSpatialIndexUpdateV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, previousIndex: built.index, expectedPreviousIndexFingerprint: built.index.fingerprint, objectId: "object", geometryOwnerFingerprint: owner, nextGeometry: { xLayoutUnit: 40_000_000, yLayoutUnit: 0, widthLayoutUnit: 30_000_000, heightLayoutUnit: 10_000_000 } })
+    if (resized.status !== "accepted") throw new Error("resize blocked")
+    expect(region(built.index)).not.toEqual(region(resized.nextIndex))
+    expect(createVNextTextBlockSpatialIndexUpdateV2({ initialFlow: fixture.initialFlow, evidence: fixture.evidence, persistentFlowTree: fixture.tree, previousIndex: built.index, expectedPreviousIndexFingerprint: built.index.fingerprint, objectId: "object", geometryOwnerFingerprint: owner, nextGeometry: { xLayoutUnit: Number.MAX_SAFE_INTEGER, yLayoutUnit: 0, widthLayoutUnit: 20_000_000, heightLayoutUnit: 10_000_000 } })).toMatchObject({ status: "blocked", update: null, nextIndex: null, issues: [{ code: "unsafe-spatial-arithmetic" }] })
   })
 
   it("does not export privileged V2 construction or binding helpers", () => {
