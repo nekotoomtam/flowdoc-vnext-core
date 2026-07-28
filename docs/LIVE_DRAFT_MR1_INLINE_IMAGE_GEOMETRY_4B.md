@@ -178,7 +178,7 @@ Focused command:
 npx vitest run tests/liveDraftMr1InlineImageGeometry4b.test.ts tests/textEngineFlowEvidenceNodeWasmV2.test.ts tests/textBlockFlowEvidenceV2.test.ts tests/textBlockPersistentFlowTreeV2.test.ts tests/textBlockSpatialIndexV2.test.ts tests/textBlockFlowRegionProviderV2.test.ts tests/textBlockSpatialWrappingLayoutV2.test.ts tests/textBlockAuthoredBoxGeometryV2.test.ts tests/textBlockInlineImageGeometry4bHardening.test.ts tests/textBlockV1LayoutCompatibility.test.ts
 ```
 
-Final focused output: 10 test files passed and 126 tests passed.
+Final focused output: 10 test files passed and 129 tests passed.
 
 ```text
 npm run type-check
@@ -186,7 +186,7 @@ git diff --check
 npm run check
 ```
 
-Final full `npm run check` output: 434 test files passed and 2,303 tests
+Final full `npm run check` output: 434 test files passed and 2,306 tests
 passed, including type-check. The final staged diff check and worktree status
 are also recorded in the Task 12 report.
 

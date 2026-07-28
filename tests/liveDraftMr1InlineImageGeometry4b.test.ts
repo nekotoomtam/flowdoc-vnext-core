@@ -339,6 +339,77 @@ export { cycleName as CycleAgain } from "./b.js"
     expect([...resolution.traversedModulePaths].sort()).toEqual(["./a.js", "./b.js"])
   })
 
+  it("suppresses ambiguous names from competing wildcard exports", () => {
+    const sources: Readonly<Record<string, string>> = {
+      "./left.js": `
+export const leftOnly = 1
+export const sharedName = "left"
+`,
+      "./right.js": `
+export const rightOnly = 1
+export const sharedName = "right"
+`,
+    }
+    const loadFixture: TypeScriptModuleSourceLoader = (modulePath) => {
+      const source = sources[modulePath]
+      if (source == null) throw new Error(`Missing export fixture ${modulePath}`)
+      return source
+    }
+    const resolution = resolveTypeScriptRootExports(`
+export * from "./left.js"
+export * from "./right.js"
+`, loadFixture)
+
+    expect([...resolution.resolvedSymbolsByRootModule.get("./left.js") ?? []])
+      .toEqual(["leftOnly"])
+    expect([...resolution.resolvedSymbolsByRootModule.get("./right.js") ?? []])
+      .toEqual(["rightOnly"])
+  })
+
+  it("keeps only type exports from a type-only wildcard declaration", () => {
+    const loadFixture: TypeScriptModuleSourceLoader = (modulePath) => {
+      if (modulePath !== "./types.js") {
+        throw new Error(`Missing export fixture ${modulePath}`)
+      }
+      return `
+export interface PublicShape { readonly value: string }
+export const runtimeOnlyValue = 1
+`
+    }
+    const resolution = resolveTypeScriptRootExports(
+      'export type * from "./types.js"\n',
+      loadFixture,
+    )
+
+    expect([...resolution.resolvedSymbolsByRootModule.get("./types.js") ?? []])
+      .toEqual(["PublicShape"])
+  })
+
+  it("uses TypeScript resolution for extensionless and directory-index re-exports", () => {
+    const sources: Readonly<Record<string, string>> = {
+      "./barrel.js": `
+export * from "./extensionless"
+export * from "./directory"
+`,
+      "./extensionless.ts": "export interface ExtensionlessShape {}\n",
+      "./directory/index.ts": "export const directoryValue = 1\n",
+    }
+    const loadFixture: TypeScriptModuleSourceLoader = (modulePath) => {
+      const source = sources[modulePath]
+      if (source == null) throw new Error(`Missing export fixture ${modulePath}`)
+      return source
+    }
+    const resolution = resolveTypeScriptRootExports(
+      'export * from "./barrel.js"\n',
+      loadFixture,
+    )
+
+    expect([...resolution.resolvedSymbolsByRootModule.get("./barrel.js") ?? []].sort())
+      .toEqual(["ExtensionlessShape", "directoryValue"])
+    expect([...resolution.traversedModulePaths].sort())
+      .toEqual(["./barrel.js", "./directory/index.ts", "./extensionless.ts"])
+  })
+
   it("rejects an extra symbol hidden behind an allowed wildcard export", () => {
     const modulePath = "./layout/textBlockFlowEvidenceContractV2.js"
     const loader = withModuleSourceOverrides({

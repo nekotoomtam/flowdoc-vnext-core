@@ -12887,8 +12887,8 @@ at accepted Task 11 implementation head `f8eb3ba`.
   `tests/liveDraftMr1InlineImageGeometry4b.test.ts`,
   `tests/textEngineFlowEvidenceNodeWasmV2.test.ts`, and the V2
   flow/tree/index/provider/layout/authored-box focused tests.
-- Verification: the final focused Phase 4B gate passed 10 files / 119 tests.
-  The final full `npm run check` passed 434 files / 2,296 tests including
+- Verification: the final focused Phase 4B gate passed 10 files / 129 tests.
+  The final full `npm run check` passed 434 files / 2,306 tests including
   type-check.
 - Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation.
 - List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.

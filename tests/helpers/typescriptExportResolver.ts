@@ -1,7 +1,12 @@
-import { posix } from "node:path"
 import * as ts from "typescript"
+import {
+  createTypeScriptCompilerContext,
+  normalizeModulePath,
+  rootPublicPath,
+  type TypeScriptModuleSourceLoader,
+} from "./typescriptCompilerProgram.js"
 
-export type TypeScriptModuleSourceLoader = (modulePath: string) => string
+export type { TypeScriptModuleSourceLoader } from "./typescriptCompilerProgram.js"
 
 export interface TypeScriptRootExportResolution {
   rootModulePaths: ReadonlySet<string>
@@ -10,38 +15,12 @@ export interface TypeScriptRootExportResolution {
   traversedModulePaths: ReadonlySet<string>
 }
 
-interface NamedReExport {
-  modulePath: string
-  importedName: string
+interface RootContribution {
   exportedName: string
-}
-
-interface ModuleExports {
-  localExports: Set<string>
-  namedReExports: NamedReExport[]
-  wildcardReExports: string[]
-  dependencyPaths: Set<string>
-}
-
-interface ParsedExportDeclaration {
+  kind: "explicit" | "wildcard"
   modulePath: string
-  kind: "named" | "namespace" | "wildcard"
-  importedName?: string
-  exportedName?: string
-}
-
-const hasModifier = (node: ts.Node, kind: ts.SyntaxKind): boolean =>
-  ts.canHaveModifiers(node)
-  && (ts.getModifiers(node)?.some((modifier) => modifier.kind === kind) ?? false)
-
-const collectBindingNames = (name: ts.BindingName, output: Set<string>): void => {
-  if (ts.isIdentifier(name)) {
-    output.add(name.text)
-    return
-  }
-  for (const element of name.elements) {
-    if (!ts.isOmittedExpression(element)) collectBindingNames(element.name, output)
-  }
+  symbol: ts.Symbol
+  targetModule: ts.Symbol
 }
 
 const moduleSpecifierText = (
@@ -50,266 +29,337 @@ const moduleSpecifierText = (
   ? moduleSpecifier.text
   : null
 
-const canonicalModulePath = (fromModulePath: string | null, specifier: string): string => {
-  if (!specifier.startsWith(".")) return specifier
-  const baseDirectory = fromModulePath == null ? "." : posix.dirname(fromModulePath)
-  const joined = posix.normalize(posix.join(baseDirectory, specifier))
-  return joined.startsWith(".") ? joined : `./${joined}`
-}
+const moduleExportNameText = (name: ts.ModuleExportName): string => name.text
 
-const parseImportedBindings = (
-  sourceFile: ts.SourceFile,
-  fromModulePath: string,
-): Map<string, { modulePath: string; importedName: string | null }> => {
-  const bindings = new Map<string, { modulePath: string; importedName: string | null }>()
-  for (const statement of sourceFile.statements) {
-    if (!ts.isImportDeclaration(statement)) continue
-    const specifier = moduleSpecifierText(statement.moduleSpecifier)
-    if (specifier == null || statement.importClause == null) continue
-    const modulePath = canonicalModulePath(fromModulePath, specifier)
-    if (statement.importClause.name != null) {
-      bindings.set(statement.importClause.name.text, {
-        modulePath,
-        importedName: "default",
-      })
-    }
-    const namedBindings = statement.importClause.namedBindings
-    if (namedBindings == null) continue
-    if (ts.isNamespaceImport(namedBindings)) {
-      bindings.set(namedBindings.name.text, { modulePath, importedName: null })
-      continue
-    }
-    for (const element of namedBindings.elements) {
-      bindings.set(element.name.text, {
-        modulePath,
-        importedName: element.propertyName?.text ?? element.name.text,
-      })
-    }
-  }
-  return bindings
-}
-
-const collectDirectExportSymbols = (
-  statement: ts.Statement,
-  output: Set<string>,
-): void => {
-  if (ts.isExportAssignment(statement)) {
-    output.add(statement.isExportEquals ? "export=" : "default")
-    return
-  }
-  if (!hasModifier(statement, ts.SyntaxKind.ExportKeyword)) return
-  if (hasModifier(statement, ts.SyntaxKind.DefaultKeyword)) {
-    output.add("default")
-    return
-  }
-  if (ts.isVariableStatement(statement)) {
-    for (const declaration of statement.declarationList.declarations) {
-      collectBindingNames(declaration.name, output)
-    }
-    return
-  }
-  if (
-    ts.isFunctionDeclaration(statement)
-    || ts.isClassDeclaration(statement)
-    || ts.isInterfaceDeclaration(statement)
-    || ts.isTypeAliasDeclaration(statement)
-    || ts.isEnumDeclaration(statement)
-    || ts.isModuleDeclaration(statement)
+const resolveAlias = (
+  checker: ts.TypeChecker,
+  symbol: ts.Symbol,
+): ts.Symbol => {
+  let resolved = symbol
+  const visited = new Set<ts.Symbol>()
+  while (
+    (resolved.flags & ts.SymbolFlags.Alias) !== 0
+    && !visited.has(resolved)
   ) {
-    if (statement.name != null) output.add(statement.name.text)
+    visited.add(resolved)
+    const next = checker.getAliasedSymbol(resolved)
+    if (next === resolved) break
+    resolved = next
   }
+  return resolved
 }
 
-const parseRootExports = (
-  sourceFile: ts.SourceFile,
-): {
-  declarations: ParsedExportDeclaration[]
-  localExports: Set<string>
-} => {
-  const declarations: ParsedExportDeclaration[] = []
-  const localExports = new Set<string>()
-  const importedBindings = parseImportedBindings(sourceFile, "./index.ts")
-  for (const statement of sourceFile.statements) {
-    if (!ts.isExportDeclaration(statement)) {
-      collectDirectExportSymbols(statement, localExports)
-      continue
+const symbolsAreEquivalent = (
+  checker: ts.TypeChecker,
+  left: ts.Symbol,
+  right: ts.Symbol,
+): boolean => resolveAlias(checker, left) === resolveAlias(checker, right)
+
+const symbolHasTypeMeaning = (
+  checker: ts.TypeChecker,
+  symbol: ts.Symbol,
+): boolean => (
+  resolveAlias(checker, symbol).flags
+  & (ts.SymbolFlags.Type | ts.SymbolFlags.Namespace)
+) !== 0
+
+const sourceFileForModule = (
+  checker: ts.TypeChecker,
+  moduleSymbol: ts.Symbol,
+): ts.SourceFile | null => {
+  const resolved = resolveAlias(checker, moduleSymbol)
+  return resolved.declarations?.find(ts.isSourceFile) ?? null
+}
+
+const targetModuleAtSpecifier = (
+  checker: ts.TypeChecker,
+  moduleSpecifier: ts.Expression,
+): ts.Symbol => {
+  const symbol = checker.getSymbolAtLocation(moduleSpecifier)
+  const specifier = moduleSpecifierText(moduleSpecifier) ?? "<non-literal>"
+  if (symbol == null) throw new Error(`Cannot resolve module ${specifier}`)
+  return resolveAlias(checker, symbol)
+}
+
+const importedModuleForSymbol = (
+  checker: ts.TypeChecker,
+  symbol: ts.Symbol,
+): { modulePath: string; targetModule: ts.Symbol } | null => {
+  for (const declaration of symbol.declarations ?? []) {
+    const importDeclaration = ts.findAncestor(
+      declaration,
+      ts.isImportDeclaration,
+    )
+    if (importDeclaration == null) continue
+    const modulePath = moduleSpecifierText(importDeclaration.moduleSpecifier)
+    if (modulePath == null) continue
+    return {
+      modulePath,
+      targetModule: targetModuleAtSpecifier(
+        checker,
+        importDeclaration.moduleSpecifier,
+      ),
     }
-    const specifier = moduleSpecifierText(statement.moduleSpecifier)
-    const modulePath = specifier == null
-      ? null
-      : canonicalModulePath(null, specifier)
-    if (statement.exportClause == null) {
-      if (modulePath != null) declarations.push({ modulePath, kind: "wildcard" })
-      continue
+  }
+  return null
+}
+
+const createEffectiveExportResolver = (
+  checker: ts.TypeChecker,
+): ((moduleSymbol: ts.Symbol) => ReadonlyMap<string, ts.Symbol>) => {
+  // The public checker returns the first star collision while reporting TS2308,
+  // and returns value symbols behind `export type *`. Keep its resolved symbols
+  // and aliases, but omit precisely those two non-exportable cases.
+  const cache = new Map<ts.Symbol, ReadonlyMap<string, ts.Symbol>>()
+  const resolving = new Set<ts.Symbol>()
+
+  const rawExports = (moduleSymbol: ts.Symbol): Map<string, ts.Symbol> =>
+    new Map(
+      checker.getExportsOfModule(moduleSymbol)
+        .map((symbol) => [symbol.getName(), symbol]),
+    )
+
+  const resolveEffectiveExports = (
+    unresolvedModuleSymbol: ts.Symbol,
+  ): ReadonlyMap<string, ts.Symbol> => {
+    const moduleSymbol = resolveAlias(checker, unresolvedModuleSymbol)
+    const cached = cache.get(moduleSymbol)
+    if (cached != null) return cached
+    const raw = rawExports(moduleSymbol)
+    if (resolving.has(moduleSymbol)) return raw
+    const sourceFile = sourceFileForModule(checker, moduleSymbol)
+    if (sourceFile == null) {
+      cache.set(moduleSymbol, raw)
+      return raw
     }
-    if (ts.isNamespaceExport(statement.exportClause)) {
-      if (modulePath != null) {
-        declarations.push({
-          modulePath,
-          kind: "namespace",
-          exportedName: statement.exportClause.name.text,
-        })
+
+    const wildcardDeclarations = sourceFile.statements.filter(
+      (statement): statement is ts.ExportDeclaration =>
+        ts.isExportDeclaration(statement)
+        && statement.exportClause == null
+        && statement.moduleSpecifier != null,
+    )
+    if (wildcardDeclarations.length === 0) {
+      cache.set(moduleSymbol, raw)
+      return raw
+    }
+
+    resolving.add(moduleSymbol)
+    try {
+      const explicitNames = new Set<string>()
+      for (const symbol of moduleSymbol.exports?.values() ?? []) {
+        if (symbol.getName() !== "__export") explicitNames.add(symbol.getName())
       }
-      continue
-    }
-    for (const element of statement.exportClause.elements) {
-      const importedName = element.propertyName?.text ?? element.name.text
-      const exportedName = element.name.text
-      if (modulePath == null) {
-        const binding = importedBindings.get(importedName)
-        if (binding == null) {
-          localExports.add(exportedName)
-          continue
+      const wildcardSymbols = new Map<string, ts.Symbol[]>()
+      for (const declaration of wildcardDeclarations) {
+        const targetModule = targetModuleAtSpecifier(
+          checker,
+          declaration.moduleSpecifier!,
+        )
+        for (const [name, symbol] of resolveEffectiveExports(targetModule)) {
+          if (
+            name === "default"
+            || declaration.isTypeOnly && !symbolHasTypeMeaning(checker, symbol)
+          ) {
+            continue
+          }
+          const symbols = wildcardSymbols.get(name) ?? []
+          symbols.push(symbol)
+          wildcardSymbols.set(name, symbols)
         }
-        declarations.push(binding.importedName == null
-          ? {
-              modulePath: binding.modulePath,
-              kind: "namespace",
-              exportedName,
-            }
-          : {
-              modulePath: binding.modulePath,
-              kind: "named",
-              importedName: binding.importedName,
-              exportedName,
-            })
-        continue
       }
-      declarations.push({
-        modulePath,
-        kind: "named",
-        importedName,
-        exportedName,
-      })
+
+      const effective = new Map<string, ts.Symbol>()
+      for (const name of explicitNames) {
+        const symbol = raw.get(name)
+        if (symbol != null) effective.set(name, symbol)
+      }
+      for (const [name, symbols] of wildcardSymbols) {
+        if (explicitNames.has(name)) continue
+        const distinctSymbols: ts.Symbol[] = []
+        for (const symbol of symbols) {
+          if (
+            !distinctSymbols.some((candidate) =>
+              symbolsAreEquivalent(checker, candidate, symbol))
+          ) {
+            distinctSymbols.push(symbol)
+          }
+        }
+        if (distinctSymbols.length !== 1) continue
+        const rawSymbol = raw.get(name)
+        effective.set(name, rawSymbol ?? distinctSymbols[0]!)
+      }
+      cache.set(moduleSymbol, effective)
+      return effective
+    } finally {
+      resolving.delete(moduleSymbol)
     }
   }
-  return { declarations, localExports }
+
+  return resolveEffectiveExports
 }
 
-const parseModuleExports = (
-  modulePath: string,
-  source: string,
-): ModuleExports => {
-  const sourceFile = ts.createSourceFile(
-    modulePath,
-    source,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TS,
-  )
-  const importedBindings = parseImportedBindings(sourceFile, modulePath)
-  const localExports = new Set<string>()
-  const namedReExports: NamedReExport[] = []
-  const wildcardReExports: string[] = []
-  const dependencyPaths = new Set<string>()
+const collectRootContributions = (
+  rootFile: ts.SourceFile,
+  checker: ts.TypeChecker,
+  effectiveExports: (moduleSymbol: ts.Symbol) => ReadonlyMap<string, ts.Symbol>,
+): {
+  contributions: RootContribution[]
+  rootModulePaths: Set<string>
+  rootModuleTargets: Array<{ modulePath: string; targetModule: ts.Symbol }>
+} => {
+  const contributions: RootContribution[] = []
+  const rootModulePaths = new Set<string>()
+  const rootModuleTargets: Array<{ modulePath: string; targetModule: ts.Symbol }> = []
 
-  for (const statement of sourceFile.statements) {
-    if (ts.isExportDeclaration(statement)) {
-      const specifier = moduleSpecifierText(statement.moduleSpecifier)
-      const targetPath = specifier == null
-        ? null
-        : canonicalModulePath(modulePath, specifier)
+  for (const statement of rootFile.statements) {
+    if (
+      !ts.isExportDeclaration(statement)
+      || statement.exportClause == null && statement.moduleSpecifier == null
+    ) {
+      continue
+    }
+    const directModulePath = moduleSpecifierText(statement.moduleSpecifier)
+    if (directModulePath != null) {
+      rootModulePaths.add(directModulePath)
+      const targetModule = targetModuleAtSpecifier(
+        checker,
+        statement.moduleSpecifier!,
+      )
+      rootModuleTargets.push({ modulePath: directModulePath, targetModule })
       if (statement.exportClause == null) {
-        if (targetPath != null) {
-          wildcardReExports.push(targetPath)
-          dependencyPaths.add(targetPath)
+        for (const [exportedName, symbol] of effectiveExports(targetModule)) {
+          if (
+            exportedName === "default"
+            || statement.isTypeOnly && !symbolHasTypeMeaning(checker, symbol)
+          ) {
+            continue
+          }
+          contributions.push({
+            exportedName,
+            kind: "wildcard",
+            modulePath: directModulePath,
+            symbol,
+            targetModule,
+          })
         }
         continue
       }
       if (ts.isNamespaceExport(statement.exportClause)) {
-        localExports.add(statement.exportClause.name.text)
-        if (targetPath != null) dependencyPaths.add(targetPath)
+        contributions.push({
+          exportedName: statement.exportClause.name.text,
+          kind: "explicit",
+          modulePath: directModulePath,
+          symbol: targetModule,
+          targetModule,
+        })
         continue
       }
+      const targetExports = effectiveExports(targetModule)
       for (const element of statement.exportClause.elements) {
-        const importedName = element.propertyName?.text ?? element.name.text
-        const exportedName = element.name.text
-        if (targetPath != null) {
-          namedReExports.push({ modulePath: targetPath, importedName, exportedName })
-          dependencyPaths.add(targetPath)
+        const importedName = moduleExportNameText(
+          element.propertyName ?? element.name,
+        )
+        const symbol = targetExports.get(importedName)
+        if (symbol == null) {
+          throw new Error(
+            `Cannot resolve re-exported symbol ${importedName} from ${directModulePath}`,
+          )
+        }
+        if (
+          (statement.isTypeOnly || element.isTypeOnly)
+          && !symbolHasTypeMeaning(checker, symbol)
+        ) {
           continue
         }
-        const importedBinding = importedBindings.get(importedName)
-        if (importedBinding == null) {
-          localExports.add(exportedName)
-          continue
-        }
-        dependencyPaths.add(importedBinding.modulePath)
-        if (importedBinding.importedName == null) {
-          localExports.add(exportedName)
-          continue
-        }
-        namedReExports.push({
-          modulePath: importedBinding.modulePath,
-          importedName: importedBinding.importedName,
-          exportedName,
+        contributions.push({
+          exportedName: moduleExportNameText(element.name),
+          kind: "explicit",
+          modulePath: directModulePath,
+          symbol,
+          targetModule,
         })
       }
       continue
     }
-    collectDirectExportSymbols(statement, localExports)
-  }
-
-  return { localExports, namedReExports, wildcardReExports, dependencyPaths }
-}
-
-const loadExportGraph = (
-  rootModulePaths: readonly string[],
-  loadModuleSource: TypeScriptModuleSourceLoader,
-): Map<string, ModuleExports> => {
-  const graph = new Map<string, ModuleExports>()
-  const visit = (modulePath: string): void => {
-    if (graph.has(modulePath)) return
-    const parsed = parseModuleExports(modulePath, loadModuleSource(modulePath))
-    graph.set(modulePath, parsed)
-    for (const dependencyPath of parsed.dependencyPaths) visit(dependencyPath)
-  }
-  for (const modulePath of rootModulePaths) visit(modulePath)
-  return graph
-}
-
-const resolveModuleSymbolSets = (
-  graph: ReadonlyMap<string, ModuleExports>,
-): Map<string, Set<string>> => {
-  const resolved = new Map(
-    [...graph].map(([modulePath, exports]) => [
-      modulePath,
-      new Set(exports.localExports),
-    ]),
-  )
-  let changed = true
-  while (changed) {
-    changed = false
-    for (const [modulePath, exports] of graph) {
-      const moduleSymbols = resolved.get(modulePath)!
-      for (const reExport of exports.namedReExports) {
-        if (
-          resolved.get(reExport.modulePath)?.has(reExport.importedName) === true
-          && !moduleSymbols.has(reExport.exportedName)
-        ) {
-          moduleSymbols.add(reExport.exportedName)
-          changed = true
-        }
+    const exportClause = statement.exportClause
+    if (exportClause == null || !ts.isNamedExports(exportClause)) continue
+    for (const element of exportClause.elements) {
+      const localTarget = checker.getExportSpecifierLocalTargetSymbol(element)
+      if (localTarget == null) continue
+      const imported = importedModuleForSymbol(checker, localTarget)
+      if (imported == null) continue
+      rootModulePaths.add(imported.modulePath)
+      rootModuleTargets.push(imported)
+      const symbol = resolveAlias(checker, localTarget)
+      if (
+        (statement.isTypeOnly || element.isTypeOnly)
+        && !symbolHasTypeMeaning(checker, symbol)
+      ) {
+        continue
       }
-      for (const targetPath of exports.wildcardReExports) {
-        for (const symbol of resolved.get(targetPath) ?? []) {
-          if (symbol === "default" || moduleSymbols.has(symbol)) continue
-          moduleSymbols.add(symbol)
-          changed = true
-        }
-      }
+      contributions.push({
+        exportedName: moduleExportNameText(element.name),
+        kind: "explicit",
+        modulePath: imported.modulePath,
+        symbol,
+        targetModule: imported.targetModule,
+      })
     }
   }
-  for (const exports of graph.values()) {
-    for (const reExport of exports.namedReExports) {
-      if (resolved.get(reExport.modulePath)?.has(reExport.importedName) !== true) {
-        throw new Error(
-          `Cannot resolve re-exported symbol ${reExport.importedName} from ${reExport.modulePath}`,
+  return { contributions, rootModulePaths, rootModuleTargets }
+}
+
+const collectTraversedReExportModules = (
+  rootModules: readonly ts.Symbol[],
+  checker: ts.TypeChecker,
+  publicPathForSourceFile: (sourceFile: ts.SourceFile) => string | null,
+): Set<string> => {
+  const traversed = new Set<string>()
+  const visited = new Set<ts.Symbol>()
+
+  const visit = (unresolvedModule: ts.Symbol, fallbackPath?: string): void => {
+    const moduleSymbol = resolveAlias(checker, unresolvedModule)
+    const sourceFile = sourceFileForModule(checker, moduleSymbol)
+    const publicPath = sourceFile == null
+      ? fallbackPath ?? null
+      : publicPathForSourceFile(sourceFile) ?? fallbackPath ?? null
+    if (publicPath != null) traversed.add(publicPath)
+    if (visited.has(moduleSymbol) || sourceFile == null) return
+    visited.add(moduleSymbol)
+
+    for (const statement of sourceFile.statements) {
+      if (!ts.isExportDeclaration(statement)) continue
+      if (statement.moduleSpecifier != null) {
+        const modulePath = moduleSpecifierText(statement.moduleSpecifier)
+        visit(
+          targetModuleAtSpecifier(checker, statement.moduleSpecifier),
+          modulePath == null
+            ? undefined
+            : normalizeModulePath(publicPath ?? rootPublicPath, modulePath),
+        )
+        continue
+      }
+      const exportClause = statement.exportClause
+      if (exportClause == null || !ts.isNamedExports(exportClause)) continue
+      for (const element of exportClause.elements) {
+        const localTarget = checker.getExportSpecifierLocalTargetSymbol(element)
+        if (localTarget == null) continue
+        const imported = importedModuleForSymbol(checker, localTarget)
+        if (imported == null) continue
+        visit(
+          imported.targetModule,
+          normalizeModulePath(
+            publicPath ?? rootPublicPath,
+            imported.modulePath,
+          ),
         )
       }
     }
   }
-  return resolved
+
+  for (const moduleSymbol of rootModules) visit(moduleSymbol)
+  return traversed
 }
 
 export const resolveTypeScriptRootExports = (
@@ -317,54 +367,70 @@ export const resolveTypeScriptRootExports = (
   loadModuleSource: TypeScriptModuleSourceLoader,
   includeRootModule: (modulePath: string) => boolean = () => true,
 ): TypeScriptRootExportResolution => {
-  const rootFile = ts.createSourceFile(
-    "index.ts",
-    rootSource,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TS,
-  )
   const {
-    declarations: rootDeclarations,
-    localExports: rootLocalSymbols,
-  } = parseRootExports(rootFile)
-  const rootModulePaths = new Set(rootDeclarations.map(({ modulePath }) => modulePath))
-  const selectedDeclarations = rootDeclarations.filter(({ modulePath }) =>
+    checker,
+    program,
+    publicPathForSourceFile,
+  } = createTypeScriptCompilerContext(rootSource, loadModuleSource)
+  const rootFile = program.getSourceFiles().find((sourceFile) =>
+    publicPathForSourceFile(sourceFile) === rootPublicPath)
+  if (rootFile == null) throw new Error("Cannot load synthetic root module")
+  const rootSymbol = checker.getSymbolAtLocation(rootFile)
+  if (rootSymbol == null) throw new Error("Synthetic root is not a module")
+  const effectiveExports = createEffectiveExportResolver(checker)
+  const rootExports = effectiveExports(rootSymbol)
+  const {
+    contributions,
+    rootModulePaths,
+    rootModuleTargets,
+  } = collectRootContributions(
+    rootFile,
+    checker,
+    effectiveExports,
+  )
+  const selectedContributions = contributions.filter(({ modulePath }) =>
     includeRootModule(modulePath))
-  const selectedRootModulePaths = [...new Set(
-    selectedDeclarations.map(({ modulePath }) => modulePath),
-  )]
-  const graph = loadExportGraph(selectedRootModulePaths, loadModuleSource)
-  const resolvedModules = resolveModuleSymbolSets(graph)
+  const selectedRootModuleTargets = rootModuleTargets.filter(({ modulePath }) =>
+    includeRootModule(modulePath))
   const resolvedSymbolsByRootModule = new Map<string, Set<string>>()
-
-  for (const declaration of selectedDeclarations) {
-    const rootSymbols = resolvedSymbolsByRootModule.get(declaration.modulePath)
-      ?? new Set<string>()
-    resolvedSymbolsByRootModule.set(declaration.modulePath, rootSymbols)
-    if (declaration.kind === "namespace") {
-      rootSymbols.add(declaration.exportedName!)
-      continue
+  for (const { modulePath } of selectedRootModuleTargets) {
+    if (!resolvedSymbolsByRootModule.has(modulePath)) {
+      resolvedSymbolsByRootModule.set(modulePath, new Set())
     }
-    const targetSymbols = resolvedModules.get(declaration.modulePath)!
-    if (declaration.kind === "wildcard") {
-      for (const symbol of targetSymbols) {
-        if (symbol !== "default") rootSymbols.add(symbol)
-      }
-      continue
+  }
+  for (const contribution of selectedContributions) {
+    const rootExport = rootExports.get(contribution.exportedName)
+    if (
+      rootExport != null
+      && symbolsAreEquivalent(checker, rootExport, contribution.symbol)
+    ) {
+      resolvedSymbolsByRootModule.get(contribution.modulePath)!
+        .add(contribution.exportedName)
     }
-    if (!targetSymbols.has(declaration.importedName!)) {
-      throw new Error(
-        `Cannot resolve root re-export ${declaration.importedName} from ${declaration.modulePath}`,
-      )
-    }
-    rootSymbols.add(declaration.exportedName!)
   }
 
+  const rootLocalSymbols = new Set<string>()
+  for (const [name, symbol] of rootExports) {
+    const resolved = resolveAlias(checker, symbol)
+    if (
+      resolved.declarations?.some((declaration) =>
+        declaration.getSourceFile() === rootFile)
+    ) {
+      rootLocalSymbols.add(name)
+    }
+  }
+
+  const selectedRootModules = [...new Set(
+    selectedRootModuleTargets.map(({ targetModule }) => targetModule),
+  )]
   return {
     rootModulePaths,
     rootLocalSymbols,
     resolvedSymbolsByRootModule,
-    traversedModulePaths: new Set(graph.keys()),
+    traversedModulePaths: collectTraversedReExportModules(
+      selectedRootModules,
+      checker,
+      publicPathForSourceFile,
+    ),
   }
 }
