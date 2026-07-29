@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
 import {
+  createVNextTextBlockUnifiedLayoutRootV1,
+  inspectVNextTextBlockUnifiedLayoutRootV1,
+} from "../src/layout/textBlockUnifiedLayoutRootV1.js"
+import {
   inspectVNextTextBlockUnifiedLayoutRootBindingInternalV1,
   registerVNextTextBlockUnifiedLayoutRootInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV1.js"
@@ -13,7 +17,15 @@ import {
 import {
   layoutVNextTextBlockSpatialWrappingV2,
 } from "../src/layout/textBlockSpatialWrappingLayoutV2.js"
-import { acceptedInlineImageSpatialFixture } from "./helpers/textBlockInlineImageFlowV2.js"
+import {
+  acceptedInlineImageEvidenceFixture,
+  acceptedInlineImageSpatialFixture,
+  producerInlineImageEvidenceInput,
+} from "./helpers/textBlockInlineImageFlowV2.js"
+import { acceptedUnifiedLayoutRootFixtureV1 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import { acceptVNextTextBlockFlowEvidenceV2 } from "../src/layout/textBlockFlowEvidenceV2.js"
+import { createVNextTextBlockInitialFlowV1 } from "../src/layout/textBlockInitialFlowInputV1.js"
+import { listImageGeometryBuildInputFixture } from "./helpers/textBlockInitialFlowV1.js"
 
 function canonicalRootFacts(root: VNextTextBlockUnifiedLayoutRootV1): string {
   return stringifyVNextCanonicalJson({
@@ -117,6 +129,212 @@ function frozenCandidateRoot(): VNextTextBlockUnifiedLayoutRootV1 {
 }
 
 describe("unified TextBlock layout root authority v1", () => {
+  it("builds one exact mixed root whose retained dependencies form the authored scene chain", () => {
+    const fixture = acceptedInlineImageEvidenceFixture({ content: "text-image-text" })
+
+    const result = createVNextTextBlockUnifiedLayoutRootV1({
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      spatialEntries: [],
+    })
+    if (result.status !== "accepted") throw new Error("unified root blocked")
+
+    expect(result.root.persistentFlowTree.flowEvidenceFingerprint)
+      .toBe(result.root.evidence.fingerprint)
+    expect(result.root.spatialIndex.persistentFlowTreeFingerprint)
+      .toBe(result.root.persistentFlowTree.fingerprint)
+    expect(result.root.spatialLayout.spatialIndexFingerprint)
+      .toBe(result.root.spatialIndex.fingerprint)
+    expect(result.root.authoredBoxGeometry.contentSpatialLayoutFingerprint)
+      .toBe(result.root.spatialLayout.fingerprint)
+    expect(result.root.scene.authoredBoxGeometryFingerprint)
+      .toBe(result.root.authoredBoxGeometry.fingerprint)
+    expect(inspectVNextTextBlockUnifiedLayoutRootV1(result.root)).toEqual({
+      status: "valid",
+      fingerprint: result.root.fingerprint,
+      sceneFingerprint: result.root.scene.fingerprint,
+      work: result.root.work,
+    })
+  })
+
+  it("provides a reusable accepted root fixture without prebuilding children", () => {
+    const fixture = acceptedUnifiedLayoutRootFixtureV1({ content: "image-only" })
+    expect(fixture).toMatchObject({
+      status: "accepted",
+      root: {
+        inputAuthority: "core-synthetic-qa-only",
+        persistentFlowTree: { itemsByKind: { "inline-image": 1 } },
+        spatialIndex: { summary: { entryCount: 0 } },
+      },
+      issues: [],
+    })
+  })
+
+  it("blocks at the first ordered root stage without returning a partial root or scene", () => {
+    const fixture = acceptedInlineImageEvidenceFixture({ content: "text-image-text" })
+    const blockedCases: readonly [string, unknown, string][] = [
+      [
+        "wrong authority before a production request",
+        {
+          inputAuthority: "foreign-authority",
+          initialFlow: fixture.initialFlow,
+          evidence: fixture.evidence,
+          spatialEntries: [],
+          bindProductionLayout: true,
+        },
+        "input-authority-mismatch",
+      ],
+      [
+        "production binding after a valid authority",
+        {
+          inputAuthority: "core-synthetic-qa-only",
+          initialFlow: fixture.initialFlow,
+          evidence: fixture.evidence,
+          spatialEntries: [],
+          bindProductionLayout: true,
+        },
+        "production-binding-forbidden",
+      ],
+      [
+        "cloned Initial Flow before an invalid spatial entry",
+        {
+          inputAuthority: "core-synthetic-qa-only",
+          initialFlow: structuredClone(fixture.initialFlow),
+          evidence: fixture.evidence,
+          spatialEntries: [{}],
+        },
+        "initial-flow-provenance-mismatch",
+      ],
+      [
+        "invalid spatial entry after an accepted tree",
+        {
+          inputAuthority: "core-synthetic-qa-only",
+          initialFlow: fixture.initialFlow,
+          evidence: fixture.evidence,
+          spatialEntries: [{}],
+        },
+        "spatial-index-blocked",
+      ],
+      [
+        "oversized image before spatial construction",
+        (() => {
+          const oversized = acceptedInlineImageEvidenceFixture({
+            content: "image-only",
+            width: { value: 9_007_199_254, unit: "pt" },
+          })
+          return {
+            inputAuthority: "core-synthetic-qa-only",
+            initialFlow: oversized.initialFlow,
+            evidence: oversized.evidence,
+            spatialEntries: [],
+          }
+        })(),
+        "spatial-layout-blocked",
+      ],
+    ]
+
+    for (const [_name, input, code] of blockedCases) {
+      expect(createVNextTextBlockUnifiedLayoutRootV1(input)).toMatchObject({
+        status: "blocked",
+        root: null,
+        scene: null,
+        issues: [{ code }],
+      })
+    }
+  })
+
+  it("rejects undefined optionals, fixed-height-shaped extras, accessors, symbols, classes, and throwing proxies", () => {
+    const fixture = acceptedInlineImageEvidenceFixture()
+    let accessorReads = 0
+    const accessorInput = Object.create(null)
+    Object.defineProperties(accessorInput, {
+      inputAuthority: { enumerable: true, value: "core-synthetic-qa-only" },
+      initialFlow: { enumerable: true, get: () => { accessorReads += 1; return fixture.initialFlow } },
+      evidence: { enumerable: true, value: fixture.evidence },
+      spatialEntries: { enumerable: true, value: [] },
+    })
+    const symbolInput = {
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      spatialEntries: [],
+      [Symbol("extra")]: true,
+    }
+    const classInput = new (class RootInput {
+      inputAuthority = "core-synthetic-qa-only" as const
+      initialFlow = fixture.initialFlow
+      evidence = fixture.evidence
+      spatialEntries: readonly unknown[] = []
+    })()
+    const throwingProxy = new Proxy({}, { ownKeys: () => { throw new Error("must not enumerate proxy") } })
+    const rejected = [
+      { inputAuthority: "core-synthetic-qa-only", initialFlow: undefined, evidence: fixture.evidence, spatialEntries: [] },
+      { inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: undefined, spatialEntries: [] },
+      { inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, spatialEntries: [], bindProductionLayout: undefined },
+      { inputAuthority: "core-synthetic-qa-only", initialFlow: fixture.initialFlow, evidence: fixture.evidence, spatialEntries: [], fixedHeight: true },
+      accessorInput,
+      symbolInput,
+      classInput,
+      throwingProxy,
+    ]
+    for (const input of rejected) {
+      expect(createVNextTextBlockUnifiedLayoutRootV1(input)).toMatchObject({
+        status: "blocked",
+        root: null,
+        scene: null,
+        issues: [{ code: "invalid-input" }],
+      })
+    }
+    expect(accessorReads).toBe(0)
+  })
+
+  it("keeps unresolved inline-image evidence outside root authority without partial output", () => {
+    const unresolvedInput = listImageGeometryBuildInputFixture()
+    const image = unresolvedInput.textBlock.children[1]
+    const imageRun = unresolvedInput.measurement.runs[1]
+    if (image?.type !== "inline-image" || imageRun?.kind !== "inline-image") {
+      throw new Error("unresolved inline-image source missing")
+    }
+    unresolvedInput.textBlock = {
+      ...unresolvedInput.textBlock,
+      children: [
+        unresolvedInput.textBlock.children[0]!,
+        { ...image, source: { kind: "image-field-ref", fieldKey: "customer.logo" } },
+      ],
+    }
+    unresolvedInput.measurement = {
+      ...unresolvedInput.measurement,
+      runs: [
+        unresolvedInput.measurement.runs[0]!,
+        { ...imageRun, assetId: null },
+      ],
+    }
+    const initial = createVNextTextBlockInitialFlowV1(unresolvedInput)
+    if (initial.status !== "classified") throw new Error("unresolved Initial Flow should remain inspectable")
+    const acceptedEvidence = acceptedInlineImageEvidenceFixture({ content: "text-image-text" })
+    const evidenceAttempt = acceptVNextTextBlockFlowEvidenceV2({
+      initialFlow: initial.flow,
+      evidenceInput: {
+        ...producerInlineImageEvidenceInput(acceptedEvidence.evidence),
+        initialFlowFingerprint: initial.flow.fingerprint,
+      },
+    })
+    expect(evidenceAttempt.status).toBe("blocked")
+
+    expect(createVNextTextBlockUnifiedLayoutRootV1({
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: initial.flow,
+      evidence: evidenceAttempt as unknown,
+      spatialEntries: [],
+    })).toMatchObject({
+      status: "blocked",
+      root: null,
+      scene: null,
+      issues: [{ code: "flow-evidence-provenance-mismatch" }],
+    })
+  })
+
   it("rejects unregistered candidates, clones, and a frozen object with one foreign child", () => {
     const root = frozenCandidateRoot()
     const clone = structuredClone(root)
@@ -147,6 +365,7 @@ describe("unified TextBlock layout root authority v1", () => {
     expect(inspectVNextTextBlockUnifiedLayoutRootBindingInternalV1(root)).toEqual({
       status: "valid",
       fingerprint: root.fingerprint,
+      sceneFingerprint: root.scene.fingerprint,
       work: {
         topLevelDependencyCount: 8,
         completeChildGraphTraversalCount: 0,

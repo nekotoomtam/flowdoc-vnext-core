@@ -101,6 +101,7 @@ export type VNextTextBlockUnifiedLayoutRootInspectionV1 =
   | {
       status: "valid"
       fingerprint: string
+      sceneFingerprint: string
       work: VNextTextBlockUnifiedLayoutRootWorkV1
     }
   | {

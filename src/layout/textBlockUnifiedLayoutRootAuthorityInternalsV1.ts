@@ -293,5 +293,10 @@ export function inspectVNextTextBlockUnifiedLayoutRootBindingInternalV1(
       message: "registered unified layout root no longer matches its canonical root facts",
     }
   }
-  return { status: "valid", fingerprint: root.fingerprint, work: root.work }
+  return {
+    status: "valid",
+    fingerprint: root.fingerprint,
+    sceneFingerprint: root.scene.fingerprint,
+    work: root.work,
+  }
 }
