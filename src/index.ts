@@ -89,7 +89,10 @@ export {
 export * from "./layout/textBlockAuthoredBoxGeometryContractV1.js"
 export * from "./layout/textBlockAuthoredBoxGeometryV1.js"
 export * from "./layout/textBlockAuthoredBoxGeometryContractV2.js"
-export * from "./layout/textBlockAuthoredBoxGeometryV2.js"
+export {
+  layoutVNextTextBlockAuthoredBoxGeometryV2,
+  inspectVNextTextBlockAuthoredBoxGeometryV2,
+} from "./layout/textBlockAuthoredBoxGeometryV2.js"
 export * from "./authoring/editableSession.js"
 export * from "./authoring/textTransactions.js"
 export * from "./authoring/textBlockV1Grammar.js"

@@ -69,7 +69,14 @@ interface LinePayloadV2 {
   fragments: readonly VNextTextBlockSpatialFragmentV2[]
 }
 
-const layouts = new WeakMap<object, { canonicalFacts: string; fingerprint: string }>()
+const layouts = new WeakMap<object, {
+  canonicalFacts: string
+  fingerprint: string
+  initialFlow: VNextTextBlockInitialFlowV1
+  evidence: VNextTextBlockFlowEvidenceV2
+  persistentFlowTree: VNextTextBlockPersistentFlowTreeV2
+  spatialIndex: VNextTextBlockSpatialIndexV2
+}>()
 
 function issue(
   code: VNextTextBlockSpatialWrappingIssueCodeV2,
@@ -787,8 +794,31 @@ export function layoutVNextTextBlockSpatialWrappingV2(
     ...facts,
     fingerprint: createVNextCompactFingerprint(canonicalFacts),
   })
-  layouts.set(result, { canonicalFacts, fingerprint: result.fingerprint })
+  layouts.set(result, {
+    canonicalFacts,
+    fingerprint: result.fingerprint,
+    initialFlow: envelope.initialFlow,
+    evidence: envelope.evidence,
+    persistentFlowTree: envelope.persistentFlowTree,
+    spatialIndex: envelope.spatialIndex,
+  })
   return result
+}
+
+export function hasVNextTextBlockSpatialWrappingLayoutBindingInternalV2(input: {
+  initialFlow: VNextTextBlockInitialFlowV1
+  evidence: VNextTextBlockFlowEvidenceV2
+  persistentFlowTree: VNextTextBlockPersistentFlowTreeV2
+  spatialIndex: VNextTextBlockSpatialIndexV2
+  spatialLayout: Extract<VNextTextBlockSpatialWrappingLayoutResultV2, { status: "accepted" }>
+}): boolean {
+  const binding = layouts.get(input.spatialLayout)
+  return inspectVNextTextBlockSpatialWrappingLayoutV2(input.spatialLayout).status === "valid"
+    && binding != null
+    && binding.initialFlow === input.initialFlow
+    && binding.evidence === input.evidence
+    && binding.persistentFlowTree === input.persistentFlowTree
+    && binding.spatialIndex === input.spatialIndex
 }
 
 export function inspectVNextTextBlockSpatialWrappingLayoutV2(

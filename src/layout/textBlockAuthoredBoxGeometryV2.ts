@@ -34,12 +34,14 @@ import {
   inspectVNextTextBlockSpatialIndexV2,
 } from "./textBlockSpatialIndexV2.js"
 import {
+  hasVNextTextBlockSpatialWrappingLayoutBindingInternalV2,
   inspectVNextTextBlockSpatialWrappingLayoutV2,
   layoutVNextTextBlockSpatialWrappingV2,
 } from "./textBlockSpatialWrappingLayoutV2.js"
 import type {
   VNextTextBlockSpatialInlineImageFragmentV2,
   VNextTextBlockSpatialTextFragmentV2,
+  VNextTextBlockSpatialWrappingLayoutResultV2,
 } from "./textBlockSpatialWrappingLayoutContractV2.js"
 import type { VNextTextBlockAuthoredBoxGeometryIssueV1 } from "./textBlockAuthoredBoxGeometryContractV1.js"
 
@@ -119,51 +121,46 @@ function strictEnvelope(input: unknown): AuthoredBoxGeometryEnvelopeV2 | null {
   }
 }
 
-export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: {
+export function projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2(input: {
   initialFlow: VNextTextBlockInitialFlowV1
   evidence: VNextTextBlockFlowEvidenceV2
   persistentFlowTree: VNextTextBlockPersistentFlowTreeV2
   spatialIndex: VNextTextBlockSpatialIndexV2
+  spatialLayout: Extract<VNextTextBlockSpatialWrappingLayoutResultV2, { status: "accepted" }>
   bindProductionLayout?: boolean
-}): VNextTextBlockAuthoredBoxGeometryResultV2
-export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNextTextBlockAuthoredBoxGeometryResultV2
-export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNextTextBlockAuthoredBoxGeometryResultV2 {
-  const envelope = strictEnvelope(input)
-  if (envelope == null) return blocked(issue("invalid-input", "input", "V2 authored box geometry requires a strict accessor-free data envelope"))
-  if (envelope.bindProductionLayout === true) return blocked(issue("production-binding-forbidden", "bindProductionLayout", "V2 authored box geometry cannot bind production layout"))
+}): VNextTextBlockAuthoredBoxGeometryResultV2 {
+  if (input.bindProductionLayout === true) return blocked(issue("production-binding-forbidden", "bindProductionLayout", "V2 authored box geometry cannot bind production layout"))
   if (
-    inspectVNextTextBlockInitialFlowV1(envelope.initialFlow).status !== "valid"
-    || inspectVNextTextBlockFlowEvidenceV2(envelope.evidence).status !== "valid"
-    || inspectVNextTextBlockPersistentFlowTreeV2(envelope.persistentFlowTree).status !== "valid"
-    || !hasVNextTextBlockFlowEvidenceBindingInternalV2(envelope.evidence, envelope.initialFlow)
-    || envelope.evidence.initialFlowFingerprint !== envelope.initialFlow.fingerprint
-    || envelope.persistentFlowTree.initialFlowFingerprint !== envelope.initialFlow.fingerprint
-    || envelope.persistentFlowTree.flowEvidenceFingerprint !== envelope.evidence.fingerprint
+    inspectVNextTextBlockInitialFlowV1(input.initialFlow).status !== "valid"
+    || inspectVNextTextBlockFlowEvidenceV2(input.evidence).status !== "valid"
+    || inspectVNextTextBlockPersistentFlowTreeV2(input.persistentFlowTree).status !== "valid"
+    || !hasVNextTextBlockFlowEvidenceBindingInternalV2(input.evidence, input.initialFlow)
+    || input.evidence.initialFlowFingerprint !== input.initialFlow.fingerprint
+    || input.persistentFlowTree.initialFlowFingerprint !== input.initialFlow.fingerprint
+    || input.persistentFlowTree.flowEvidenceFingerprint !== input.evidence.fingerprint
   ) return blocked(issue("flow-tree-request-binding-mismatch", "initialFlow", "V2 authored box geometry requires the exact Initial Flow, evidence, and tree authority"))
   if (
-    inspectVNextTextBlockSpatialIndexV2(envelope.spatialIndex).status !== "valid"
+    inspectVNextTextBlockSpatialIndexV2(input.spatialIndex).status !== "valid"
     || !hasSpatialIndexBindingV2({
-      initialFlow: envelope.initialFlow,
-      evidence: envelope.evidence,
-      persistentFlowTree: envelope.persistentFlowTree,
-      index: envelope.spatialIndex,
+      initialFlow: input.initialFlow,
+      evidence: input.evidence,
+      persistentFlowTree: input.persistentFlowTree,
+      index: input.spatialIndex,
     })
   ) return blocked(issue("spatial-index-binding-mismatch", "spatialIndex", "V2 authored box geometry requires the exact authority-bound spatial index"))
+  const spatialInspection = inspectVNextTextBlockSpatialWrappingLayoutV2(input.spatialLayout)
+  if (
+    spatialInspection.status !== "valid"
+    || !hasVNextTextBlockSpatialWrappingLayoutBindingInternalV2(input)
+  ) return blocked(issue("spatial-layout-provenance-mismatch", "spatialLayout", spatialInspection.status === "valid"
+    ? "V2 spatial layout is not bound to the exact Initial Flow, evidence, tree, and index authority"
+    : spatialInspection.message))
   const box = convertVNextTextBlockAuthoredBoxKernelV1({
-    authoredBoxPlan: envelope.initialFlow.authoredBoxPlan,
-    contentWidthLayoutUnit: envelope.evidence.availableWidthLayoutUnit,
+    authoredBoxPlan: input.initialFlow.authoredBoxPlan,
+    contentWidthLayoutUnit: input.evidence.availableWidthLayoutUnit,
   })
   if (box.status !== "accepted") return blocked(box.issues[0]!)
-  const spatialLayout = layoutVNextTextBlockSpatialWrappingV2({
-    initialFlow: envelope.initialFlow,
-    evidence: envelope.evidence,
-    persistentFlowTree: envelope.persistentFlowTree,
-    spatialIndex: envelope.spatialIndex,
-    startYLayoutUnit: 0,
-  })
-  if (spatialLayout.status !== "accepted") return blocked(issue("spatial-layout-blocked", "spatialLayout", `V2 spatial wrapping blocked with ordered issue codes: ${spatialLayout.issues.map((item) => item.code).join(", ")}`))
-  const spatialInspection = inspectVNextTextBlockSpatialWrappingLayoutV2(spatialLayout)
-  if (spatialInspection.status !== "valid") return blocked(issue("spatial-layout-provenance-mismatch", "spatialLayout", spatialInspection.message))
+  const spatialLayout = input.spatialLayout
   const projection = projectVNextTextBlockAuthoredBoxGeometryKernelV1<
     V2TextRetainedFragment,
     V2InlineImageRetainedFragment
@@ -208,7 +205,7 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNext
     topInsetLayoutUnit: box.contentInsetsLayoutUnit.top,
     bottomInsetLayoutUnit: box.contentInsetsLayoutUnit.bottom,
     contentFlowHeightLayoutUnit: spatialLayout.summary.heightLayoutUnit,
-    spatialMaximumBottomLayoutUnit: envelope.spatialIndex.summary.maximumBottomLayoutUnit,
+    spatialMaximumBottomLayoutUnit: input.spatialIndex.summary.maximumBottomLayoutUnit,
   })
   if (autoHeight.status !== "accepted") return blocked(autoHeight.issues[0]!)
   const geometry = {
@@ -218,7 +215,7 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNext
     contentOriginYLayoutUnit: box.contentOriginYLayoutUnit,
     contentWidthLayoutUnit: box.contentWidthLayoutUnit,
     contentFlowHeightLayoutUnit: spatialLayout.summary.heightLayoutUnit,
-    spatialMaximumBottomLayoutUnit: envelope.spatialIndex.summary.maximumBottomLayoutUnit,
+    spatialMaximumBottomLayoutUnit: input.spatialIndex.summary.maximumBottomLayoutUnit,
     contentExtentBottomLayoutUnit: autoHeight.contentExtentBottomLayoutUnit,
     outerHeightLayoutUnit: autoHeight.outerHeightLayoutUnit,
   }
@@ -231,14 +228,14 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNext
     textBlockId: spatialLayout.textBlockId,
     instanceRevision: spatialLayout.instanceRevision,
     layoutId: spatialLayout.layoutId,
-    initialFlowFingerprint: envelope.initialFlow.fingerprint,
-    flowEvidenceFingerprint: envelope.evidence.fingerprint,
+    initialFlowFingerprint: input.initialFlow.fingerprint,
+    flowEvidenceFingerprint: input.evidence.fingerprint,
     persistentFlowTreeFingerprint: spatialLayout.persistentFlowTreeFingerprint,
     spatialIndexFingerprint: spatialLayout.spatialIndexFingerprint,
     contentSpatialLayoutFingerprint: spatialLayout.fingerprint,
     alignmentPolicyFingerprint: spatialLayout.alignmentPolicyFingerprint,
-    authoredBoxPlanFingerprint: envelope.initialFlow.authoredBoxPlan.fingerprint,
-    parentRegionFingerprint: envelope.initialFlow.parentRegion.fingerprint,
+    authoredBoxPlanFingerprint: input.initialFlow.authoredBoxPlan.fingerprint,
+    parentRegionFingerprint: input.initialFlow.parentRegion.fingerprint,
     geometry,
     lines,
     summary: {
@@ -263,6 +260,55 @@ export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNext
   const result = deepFreezeSpatialV1({ ...facts, fingerprint: spatialFingerprintV1(facts) })
   layouts.set(result, { canonicalFacts, fingerprint: result.fingerprint })
   return result
+}
+
+export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: {
+  initialFlow: VNextTextBlockInitialFlowV1
+  evidence: VNextTextBlockFlowEvidenceV2
+  persistentFlowTree: VNextTextBlockPersistentFlowTreeV2
+  spatialIndex: VNextTextBlockSpatialIndexV2
+  bindProductionLayout?: boolean
+}): VNextTextBlockAuthoredBoxGeometryResultV2
+export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNextTextBlockAuthoredBoxGeometryResultV2
+export function layoutVNextTextBlockAuthoredBoxGeometryV2(input: unknown): VNextTextBlockAuthoredBoxGeometryResultV2 {
+  const envelope = strictEnvelope(input)
+  if (envelope == null) return blocked(issue("invalid-input", "input", "V2 authored box geometry requires a strict accessor-free data envelope"))
+  if (envelope.bindProductionLayout === true) return blocked(issue("production-binding-forbidden", "bindProductionLayout", "V2 authored box geometry cannot bind production layout"))
+  if (
+    inspectVNextTextBlockInitialFlowV1(envelope.initialFlow).status !== "valid"
+    || inspectVNextTextBlockFlowEvidenceV2(envelope.evidence).status !== "valid"
+    || inspectVNextTextBlockPersistentFlowTreeV2(envelope.persistentFlowTree).status !== "valid"
+    || !hasVNextTextBlockFlowEvidenceBindingInternalV2(envelope.evidence, envelope.initialFlow)
+    || envelope.evidence.initialFlowFingerprint !== envelope.initialFlow.fingerprint
+    || envelope.persistentFlowTree.initialFlowFingerprint !== envelope.initialFlow.fingerprint
+    || envelope.persistentFlowTree.flowEvidenceFingerprint !== envelope.evidence.fingerprint
+  ) return blocked(issue("flow-tree-request-binding-mismatch", "initialFlow", "V2 authored box geometry requires the exact Initial Flow, evidence, and tree authority"))
+  if (
+    inspectVNextTextBlockSpatialIndexV2(envelope.spatialIndex).status !== "valid"
+    || !hasSpatialIndexBindingV2({
+      initialFlow: envelope.initialFlow,
+      evidence: envelope.evidence,
+      persistentFlowTree: envelope.persistentFlowTree,
+      index: envelope.spatialIndex,
+    })
+  ) return blocked(issue("spatial-index-binding-mismatch", "spatialIndex", "V2 authored box geometry requires the exact authority-bound spatial index"))
+  const box = convertVNextTextBlockAuthoredBoxKernelV1({
+    authoredBoxPlan: envelope.initialFlow.authoredBoxPlan,
+    contentWidthLayoutUnit: envelope.evidence.availableWidthLayoutUnit,
+  })
+  if (box.status !== "accepted") return blocked(box.issues[0]!)
+  const spatialLayout = layoutVNextTextBlockSpatialWrappingV2({
+    initialFlow: envelope.initialFlow,
+    evidence: envelope.evidence,
+    persistentFlowTree: envelope.persistentFlowTree,
+    spatialIndex: envelope.spatialIndex,
+    startYLayoutUnit: 0,
+  })
+  if (spatialLayout.status !== "accepted") return blocked(issue("spatial-layout-blocked", "spatialLayout", `V2 spatial wrapping blocked with ordered issue codes: ${spatialLayout.issues.map((item) => item.code).join(", ")}`))
+  return projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2({
+    ...envelope,
+    spatialLayout,
+  })
 }
 
 export function inspectVNextTextBlockAuthoredBoxGeometryV2(

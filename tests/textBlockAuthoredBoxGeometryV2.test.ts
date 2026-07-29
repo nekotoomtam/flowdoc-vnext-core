@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest"
+import * as corePublicApi from "../src/index.js"
 import {
   createVNextTextBlockSpatialIndexUpdateV2,
   inspectVNextTextBlockAuthoredBoxGeometryV2,
   layoutVNextTextBlockAuthoredBoxGeometryV2,
   layoutVNextTextBlockSpatialWrappingV2,
 } from "../src/index.js"
+import {
+  projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2,
+} from "../src/layout/textBlockAuthoredBoxGeometryV2.js"
 import {
   acceptedInlineImageSpatialFixture,
 } from "./helpers/textBlockInlineImageFlowV2.js"
@@ -37,6 +41,136 @@ function spatialEntry(input: {
 }
 
 describe("TextBlock authored box geometry v2", () => {
+  it("projects an exact precomputed spatial layout without changing authored-box facts", () => {
+    const fixture = acceptedFixture()
+    const spatialLayout = layoutVNextTextBlockSpatialWrappingV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      spatialIndex: fixture.spatialIndex,
+      startYLayoutUnit: 0,
+    })
+    if (spatialLayout.status !== "accepted") throw new Error("spatial layout blocked")
+
+    const projected = projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      spatialIndex: fixture.spatialIndex,
+      spatialLayout,
+    })
+    const legacyEntry = layoutVNextTextBlockAuthoredBoxGeometryV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      spatialIndex: fixture.spatialIndex,
+    })
+    if (projected.status !== "accepted") throw new Error("precomputed projection blocked")
+
+    const contentLine = spatialLayout.lines[0]
+    const projectedLine = projected.lines[0]
+    const contentImage = contentLine?.fragments.find((fragment) => fragment.kind === "inline-image")
+    const image = projectedLine?.fragments.find((fragment) => fragment.kind === "inline-image")
+    if (contentLine == null || projectedLine == null || contentImage == null || image == null) {
+      throw new Error("exact child fixture missing")
+    }
+
+    expect(projected.source).toBe("vnext-text-block-authored-box-geometry-v2")
+    expect(projected.contractVersion).toBe(2)
+    expect(projectedLine.contentLineFingerprint).toBe(contentLine.fingerprint)
+    expect(image.contentFragmentFingerprint).toBe(contentImage.fingerprint)
+    expect(projected.geometry.outerHeightLayoutUnit).toBe(
+      projected.geometry.contentInsetsLayoutUnit.top
+      + Math.max(
+        projected.geometry.contentFlowHeightLayoutUnit,
+        projected.geometry.spatialMaximumBottomLayoutUnit,
+      )
+      + projected.geometry.contentInsetsLayoutUnit.bottom,
+    )
+    expect(image).toMatchObject({
+      contentXLayoutUnit: contentImage.xLayoutUnit,
+      contentYLayoutUnit: contentImage.yLayoutUnit,
+      xLayoutUnit: contentImage.xLayoutUnit + projected.geometry.contentOriginXLayoutUnit,
+      yLayoutUnit: contentImage.yLayoutUnit + projected.geometry.contentOriginYLayoutUnit,
+    })
+    expect(projected.contracts).toMatchObject({
+      stagedEditorApply: false,
+      mayPublishLayout: false,
+      productionBinding: false,
+    })
+    expect(projected).toEqual(legacyEntry)
+  })
+
+  it("rejects a foreign precomputed spatial layout and production binding", () => {
+    const fixture = acceptedFixture()
+    const foreign = acceptedFixture()
+    const spatialLayout = layoutVNextTextBlockSpatialWrappingV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      spatialIndex: fixture.spatialIndex,
+      startYLayoutUnit: 0,
+    })
+    const foreignSpatialLayout = layoutVNextTextBlockSpatialWrappingV2({
+      initialFlow: foreign.initialFlow,
+      evidence: foreign.evidence,
+      persistentFlowTree: foreign.tree,
+      spatialIndex: foreign.spatialIndex,
+      startYLayoutUnit: 0,
+    })
+    if (spatialLayout.status !== "accepted" || foreignSpatialLayout.status !== "accepted") {
+      throw new Error("spatial fixture blocked")
+    }
+    expect(foreignSpatialLayout.fingerprint).toBe(spatialLayout.fingerprint)
+    const clonedSpatialLayout = structuredClone(spatialLayout)
+    const refingerprintedSpatialLayout = structuredClone(spatialLayout) as Record<string, unknown>
+    refingerprintedSpatialLayout.fingerprint = spatialLayout.fingerprint
+    const blockedSpatialLayout = layoutVNextTextBlockSpatialWrappingV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      spatialIndex: fixture.spatialIndex,
+      startYLayoutUnit: 0,
+      bindProductionLayout: true,
+    })
+
+    for (const rejectedSpatialLayout of [
+      foreignSpatialLayout,
+      clonedSpatialLayout,
+      refingerprintedSpatialLayout,
+      blockedSpatialLayout,
+    ]) {
+      expect(projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2({
+        initialFlow: fixture.initialFlow,
+        evidence: fixture.evidence,
+        persistentFlowTree: fixture.tree,
+        spatialIndex: fixture.spatialIndex,
+        spatialLayout: rejectedSpatialLayout as typeof spatialLayout,
+      })).toMatchObject({
+        status: "blocked",
+        geometry: null,
+        lines: null,
+        fingerprint: null,
+      })
+    }
+    expect(projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2({
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      persistentFlowTree: fixture.tree,
+      spatialIndex: fixture.spatialIndex,
+      spatialLayout,
+      bindProductionLayout: true,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "production-binding-forbidden" }],
+    })
+    expect(corePublicApi.layoutVNextTextBlockAuthoredBoxGeometryV2).toBeTypeOf("function")
+    expect(corePublicApi.inspectVNextTextBlockAuthoredBoxGeometryV2).toBeTypeOf("function")
+    expect(corePublicApi).not.toHaveProperty(
+      "projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2",
+    )
+  })
+
   it("projects mixed text and image fragments from content-local geometry into the authored box", () => {
     const fixture = acceptedFixture()
     const content = layoutVNextTextBlockSpatialWrappingV2({
