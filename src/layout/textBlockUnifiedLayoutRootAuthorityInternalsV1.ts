@@ -56,6 +56,42 @@ const ROOT_KEYS = [
   "fingerprint",
 ] as const
 
+const FLOW_REGION_PROVIDER_AUTHORITY_KEYS = [
+  "source",
+  "contractVersion",
+  "spatialIndexFingerprint",
+  "fingerprint",
+] as const
+
+const DEPENDENCY_FINGERPRINT_KEYS = [
+  "initialFlow",
+  "evidence",
+  "persistentFlowTree",
+  "spatialIndex",
+  "flowRegionProviderAuthority",
+  "spatialLayout",
+  "authoredBoxGeometry",
+  "scene",
+] as const
+
+const WORK_KEYS = [
+  "topLevelDependencyCount",
+  "completeChildGraphTraversalCount",
+  "completeChildRehashCount",
+  "rootWrapperAllocationCount",
+] as const
+
+const CONTRACT_KEYS = [
+  "unifiedTextBlockAuthority",
+  "textAndInlineImageV2",
+  "processLocalImmutableRoot",
+  "compositionalRootFingerprint",
+  "incrementalTransitionClaim",
+  "stagedEditorApply",
+  "mayPublishLayout",
+  "productionBinding",
+] as const
+
 function hasExactDataProperties(value: object, keys: readonly string[]): boolean {
   try {
     if (Object.getPrototypeOf(value) !== Object.prototype && Object.getPrototypeOf(value) !== null) {
@@ -75,12 +111,19 @@ function hasExactDataProperties(value: object, keys: readonly string[]): boolean
   }
 }
 
-function rootOwnedWrappersAreFrozen(root: VNextTextBlockUnifiedLayoutRootV1): boolean {
+function rootOwnedWrappersAreExactAndFrozen(root: VNextTextBlockUnifiedLayoutRootV1): boolean {
   return Object.isFrozen(root)
     && Object.isFrozen(root.flowRegionProviderAuthority)
     && Object.isFrozen(root.dependencyFingerprints)
     && Object.isFrozen(root.work)
     && Object.isFrozen(root.contracts)
+    && hasExactDataProperties(
+      root.flowRegionProviderAuthority,
+      FLOW_REGION_PROVIDER_AUTHORITY_KEYS,
+    )
+    && hasExactDataProperties(root.dependencyFingerprints, DEPENDENCY_FINGERPRINT_KEYS)
+    && hasExactDataProperties(root.work, WORK_KEYS)
+    && hasExactDataProperties(root.contracts, CONTRACT_KEYS)
 }
 
 function rootClaimsAreFixed(root: VNextTextBlockUnifiedLayoutRootV1): boolean {
@@ -183,7 +226,7 @@ export function registerVNextTextBlockUnifiedLayoutRootInternalV1(input: {
   const root = input.root
   if (
     !hasExactDataProperties(root, ROOT_KEYS)
-    || !rootOwnedWrappersAreFrozen(root)
+    || !rootOwnedWrappersAreExactAndFrozen(root)
     || !rootClaimsAreFixed(root)
   ) {
     throw new TypeError("unified layout root registration requires an exact frozen root shell")
@@ -219,7 +262,7 @@ export function inspectVNextTextBlockUnifiedLayoutRootBindingInternalV1(
   if (
     binding == null
     || !hasExactDataProperties(root, ROOT_KEYS)
-    || !rootOwnedWrappersAreFrozen(root)
+    || !rootOwnedWrappersAreExactAndFrozen(root)
     || !rootClaimsAreFixed(root)
   ) {
     return {

@@ -162,6 +162,42 @@ describe("unified TextBlock layout root authority v1", () => {
     })
   })
 
+  it("rejects a frozen nested wrapper accessor without reading it during registration", () => {
+    const root = frozenCandidateRoot()
+    let accessorReadCount = 0
+    const contracts = Object.create(null) as Record<string, unknown>
+    for (const [key, value] of Object.entries(root.contracts)) {
+      Object.defineProperty(contracts, key, {
+        enumerable: true,
+        ...(key === "unifiedTextBlockAuthority"
+          ? {
+              get: () => {
+                accessorReadCount += 1
+                return value
+              },
+            }
+          : { value }),
+      })
+    }
+    const malformedRoot = Object.freeze({
+      ...root,
+      contracts: Object.freeze(contracts),
+    }) as unknown as VNextTextBlockUnifiedLayoutRootV1
+
+    expect(() => registerVNextTextBlockUnifiedLayoutRootInternalV1({
+      root: malformedRoot,
+      initialFlow: root.initialFlow,
+      evidence: root.evidence,
+      persistentFlowTree: root.persistentFlowTree,
+      spatialIndex: root.spatialIndex,
+      spatialLayout: root.spatialLayout,
+      authoredBoxGeometry: root.authoredBoxGeometry,
+      scene: root.scene,
+      canonicalRootFacts: "must-not-be-read",
+    })).toThrow("exact frozen root shell")
+    expect(accessorReadCount).toBe(0)
+  })
+
   it("rejects an unregistered accessor-shaped proxy before reading it", () => {
     let accessorReadCount = 0
     const value = Object.create(null)
