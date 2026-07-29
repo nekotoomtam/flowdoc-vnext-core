@@ -156,14 +156,37 @@ describe("TextBlock unified layout scene v1", () => {
   })
 
   it("keeps clone, reordered chunks, and re-fingerprinted copies outside Core authority", () => {
-    const geometry = acceptedGeometry()
+    const geometry = acceptedTwoLineHardBreakGeometry()
     const projected = projectVNextTextBlockUnifiedLayoutSceneV1({ authoredBoxGeometry: geometry })
     if (projected.status !== "accepted") throw new Error("scene projection blocked")
     const clone = structuredClone(projected.scene)
     const reordered = structuredClone(projected.scene)
     ;(reordered.chunks as unknown as unknown[]).reverse()
-    const refingerprinted = structuredClone(projected.scene)
-    refingerprinted.fingerprint = projected.scene.fingerprint
+    expect(reordered.chunks.map((chunk) => chunk.fingerprint)).not.toEqual(
+      projected.scene.chunks.map((chunk) => chunk.fingerprint),
+    )
+    const refingerprinted = structuredClone(projected.scene) as typeof projected.scene & {
+      summary: { outerHeightLayoutUnit: number }
+      fingerprint: string
+    }
+    refingerprinted.summary.outerHeightLayoutUnit += 1
+    refingerprinted.fingerprint = createVNextCompactFingerprint(stringifyVNextCanonicalJson({
+      source: refingerprinted.source,
+      contractVersion: refingerprinted.contractVersion,
+      documentId: refingerprinted.documentId,
+      sectionId: refingerprinted.sectionId,
+      textBlockId: refingerprinted.textBlockId,
+      instanceRevision: refingerprinted.instanceRevision,
+      layoutId: refingerprinted.layoutId,
+      authoredBoxGeometryFingerprint: refingerprinted.authoredBoxGeometryFingerprint,
+      finalChunkFingerprintChain: refingerprinted.chunkFingerprintChain.at(-1) ?? null,
+      summary: refingerprinted.summary,
+      work: refingerprinted.work,
+      contracts: refingerprinted.contracts,
+      mayPublishLayout: refingerprinted.mayPublishLayout,
+      productionBinding: refingerprinted.productionBinding,
+    }))
+    expect(refingerprinted.fingerprint).not.toBe(projected.scene.fingerprint)
 
     for (const value of [clone, reordered, refingerprinted]) {
       expect(inspectVNextTextBlockUnifiedLayoutSceneV1(value)).toMatchObject({
