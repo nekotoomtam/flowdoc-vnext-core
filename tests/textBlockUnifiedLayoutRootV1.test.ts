@@ -7,6 +7,9 @@ import {
   inspectVNextTextBlockUnifiedLayoutRootBindingInternalV1,
   registerVNextTextBlockUnifiedLayoutRootInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV1.js"
+import {
+  inspectVNextTextBlockUnifiedLayoutSceneV1,
+} from "../src/layout/textBlockUnifiedLayoutSceneV1.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import type { VNextTextBlockUnifiedLayoutRootV1 } from "../src/layout/textBlockUnifiedLayoutRootContractV1.js"
 import { projectVNextTextBlockUnifiedLayoutSceneV1 } from "../src/layout/textBlockUnifiedLayoutSceneV1.js"
@@ -96,6 +99,12 @@ function assertClosedRootAndScene(root: VNextTextBlockUnifiedLayoutRootV1): void
     mayPublishLayout: false,
     productionBinding: false,
   })
+  expect(inspectVNextTextBlockUnifiedLayoutSceneV1(root.scene)).toEqual({
+    status: "valid",
+    fingerprint: root.scene.fingerprint,
+  })
+  expect(root.scene.mayPublishLayout).toBe(false)
+  expect(root.scene.productionBinding).toBe(false)
   expect(root.mayPublishLayout).toBe(false)
   expect(root.productionBinding).toBe(false)
   expect(inspectVNextTextBlockUnifiedLayoutRootV1(root)).toMatchObject({ status: "valid" })
@@ -668,6 +677,14 @@ describe("unified TextBlock layout root authority v1", () => {
     })
     if (directV2.status !== "accepted") throw new Error("direct V2 text-only layout blocked")
     expect(directV2).toEqual(root.spatialLayout)
+    const directAuthoredBox = layoutVNextTextBlockAuthoredBoxGeometryV2({
+      initialFlow: root.initialFlow,
+      evidence: root.evidence,
+      persistentFlowTree: root.persistentFlowTree,
+      spatialIndex: root.spatialIndex,
+    })
+    if (directAuthoredBox.status !== "accepted") throw new Error("direct V2 text-only authored box blocked")
+    expect(directAuthoredBox).toEqual(root.authoredBoxGeometry)
 
     const request = v1RequestFromRoot(root)
     const accepted = acceptVNextTextBlockMultiRunLayoutV1(request)

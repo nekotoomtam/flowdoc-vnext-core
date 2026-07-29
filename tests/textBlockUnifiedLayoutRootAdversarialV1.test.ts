@@ -11,10 +11,13 @@ import {
   registerVNextTextBlockUnifiedLayoutRootInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV1.js"
 import type { VNextTextBlockUnifiedLayoutRootV1 } from "../src/layout/textBlockUnifiedLayoutRootContractV1.js"
-import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineImageFlowV2.js"
+import {
+  acceptedInlineImageEvidenceFixture,
+  type InlineImageFlowFixtureOptions,
+} from "./helpers/textBlockInlineImageFlowV2.js"
 
-function acceptedRoot(content: "text-only" | "text-image-text" = "text-image-text") {
-  const fixture = acceptedInlineImageEvidenceFixture({ content })
+function acceptedRoot(options: InlineImageFlowFixtureOptions = { content: "text-image-text" }) {
+  const fixture = acceptedInlineImageEvidenceFixture(options)
   const result = createVNextTextBlockUnifiedLayoutRootV1({
     inputAuthority: "core-synthetic-qa-only",
     initialFlow: fixture.initialFlow,
@@ -34,7 +37,10 @@ function expectInvalidRoot(value: unknown): void {
 describe("unified TextBlock layout root adversarial authority v1", () => {
   it("rejects clone, structurally equal replacement, reordered scene, mutable wrapper, and re-fingerprinted clone", () => {
     // Catches any change that turns exact process-local authority into structural equality.
-    const { root } = acceptedRoot()
+    const { root } = acceptedRoot({
+      content: "text-image-text",
+      width: { value: 90, unit: "pt" },
+    })
     const clonedRoot = structuredClone(root)
     const equalReplacement = Object.freeze({ ...root })
     const reorderedSceneRoot = structuredClone(root)
@@ -44,8 +50,11 @@ describe("unified TextBlock layout root adversarial authority v1", () => {
     const refingerprintedRoot = structuredClone(root)
     refingerprintedRoot.fingerprint = `sha256:${"f".repeat(64)}`
 
+    expect(root.scene.chunks.length).toBeGreaterThan(1)
     expect(reorderedSceneRoot.scene.chunks.map((chunk) => chunk.chunkIndex))
-      .toEqual([...root.scene.chunks].reverse().map((chunk) => chunk.chunkIndex))
+      .not.toEqual(root.scene.chunks.map((chunk) => chunk.chunkIndex))
+    expect(reorderedSceneRoot.scene.chunks.map((chunk) => chunk.fingerprint))
+      .not.toEqual(root.scene.chunks.map((chunk) => chunk.fingerprint))
     expect(mutableWrapperRoot.work.rootWrapperAllocationCount).toBe(2)
     expect(refingerprintedRoot.fingerprint).not.toBe(root.fingerprint)
     for (const candidate of [clonedRoot, equalReplacement, reorderedSceneRoot, mutableWrapperRoot, refingerprintedRoot]) {
