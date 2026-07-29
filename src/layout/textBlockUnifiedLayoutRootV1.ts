@@ -117,6 +117,47 @@ function canonicalRootFacts(root: VNextTextBlockUnifiedLayoutRootV1): string {
   })
 }
 
+function rootFingerprintFacts(root: VNextTextBlockUnifiedLayoutRootV1): unknown {
+  return {
+    source: root.source,
+    contractVersion: root.contractVersion,
+    inputAuthority: root.inputAuthority,
+    documentId: root.documentId,
+    sectionId: root.sectionId,
+    textBlockId: root.textBlockId,
+    instanceRevision: root.instanceRevision,
+    layoutId: root.layoutId,
+    dependencyFingerprints: {
+      initialFlow: root.dependencyFingerprints.initialFlow,
+      evidence: root.dependencyFingerprints.evidence,
+      persistentFlowTree: root.dependencyFingerprints.persistentFlowTree,
+      spatialIndex: root.dependencyFingerprints.spatialIndex,
+      flowRegionProviderAuthority: root.dependencyFingerprints.flowRegionProviderAuthority,
+      spatialLayout: root.dependencyFingerprints.spatialLayout,
+      authoredBoxGeometry: root.dependencyFingerprints.authoredBoxGeometry,
+      scene: root.dependencyFingerprints.scene,
+    },
+    work: {
+      topLevelDependencyCount: root.work.topLevelDependencyCount,
+      completeChildGraphTraversalCount: root.work.completeChildGraphTraversalCount,
+      completeChildRehashCount: root.work.completeChildRehashCount,
+      rootWrapperAllocationCount: root.work.rootWrapperAllocationCount,
+    },
+    contracts: {
+      unifiedTextBlockAuthority: root.contracts.unifiedTextBlockAuthority,
+      textAndInlineImageV2: root.contracts.textAndInlineImageV2,
+      processLocalImmutableRoot: root.contracts.processLocalImmutableRoot,
+      compositionalRootFingerprint: root.contracts.compositionalRootFingerprint,
+      incrementalTransitionClaim: root.contracts.incrementalTransitionClaim,
+      stagedEditorApply: root.contracts.stagedEditorApply,
+      mayPublishLayout: root.contracts.mayPublishLayout,
+      productionBinding: root.contracts.productionBinding,
+    },
+    mayPublishLayout: root.mayPublishLayout,
+    productionBinding: root.productionBinding,
+  }
+}
+
 export function createVNextTextBlockUnifiedLayoutRootV1(
   input: VNextTextBlockUnifiedLayoutRootBuildInputV1,
 ): VNextTextBlockUnifiedLayoutRootResultV1
@@ -236,7 +277,7 @@ export function createVNextTextBlockUnifiedLayoutRootV1(
     mayPublishLayout: false as const,
     productionBinding: false as const,
   } satisfies Omit<VNextTextBlockUnifiedLayoutRootV1, "fingerprint">
-  const fingerprint = spatialFingerprintV1(canonicalRootFacts({ ...rootFacts, fingerprint: "pending" }))
+  const fingerprint = spatialFingerprintV1(rootFingerprintFacts({ ...rootFacts, fingerprint: "pending" }))
   const root = Object.freeze({ ...rootFacts, fingerprint })
   registerVNextTextBlockUnifiedLayoutRootInternalV1({
     root,

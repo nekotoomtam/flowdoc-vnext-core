@@ -156,6 +156,45 @@ describe("unified TextBlock layout root authority v1", () => {
       sceneFingerprint: result.root.scene.fingerprint,
       work: result.root.work,
     })
+    const allowedFingerprintFacts = {
+      source: result.root.source,
+      contractVersion: result.root.contractVersion,
+      inputAuthority: result.root.inputAuthority,
+      documentId: result.root.documentId,
+      sectionId: result.root.sectionId,
+      textBlockId: result.root.textBlockId,
+      instanceRevision: result.root.instanceRevision,
+      layoutId: result.root.layoutId,
+      dependencyFingerprints: {
+        initialFlow: result.root.dependencyFingerprints.initialFlow,
+        evidence: result.root.dependencyFingerprints.evidence,
+        persistentFlowTree: result.root.dependencyFingerprints.persistentFlowTree,
+        spatialIndex: result.root.dependencyFingerprints.spatialIndex,
+        flowRegionProviderAuthority: result.root.dependencyFingerprints.flowRegionProviderAuthority,
+        spatialLayout: result.root.dependencyFingerprints.spatialLayout,
+        authoredBoxGeometry: result.root.dependencyFingerprints.authoredBoxGeometry,
+        scene: result.root.dependencyFingerprints.scene,
+      },
+      work: {
+        topLevelDependencyCount: result.root.work.topLevelDependencyCount,
+        completeChildGraphTraversalCount: result.root.work.completeChildGraphTraversalCount,
+        completeChildRehashCount: result.root.work.completeChildRehashCount,
+        rootWrapperAllocationCount: result.root.work.rootWrapperAllocationCount,
+      },
+      contracts: {
+        unifiedTextBlockAuthority: result.root.contracts.unifiedTextBlockAuthority,
+        textAndInlineImageV2: result.root.contracts.textAndInlineImageV2,
+        processLocalImmutableRoot: result.root.contracts.processLocalImmutableRoot,
+        compositionalRootFingerprint: result.root.contracts.compositionalRootFingerprint,
+        incrementalTransitionClaim: result.root.contracts.incrementalTransitionClaim,
+        stagedEditorApply: result.root.contracts.stagedEditorApply,
+        mayPublishLayout: result.root.contracts.mayPublishLayout,
+        productionBinding: result.root.contracts.productionBinding,
+      },
+      mayPublishLayout: result.root.mayPublishLayout,
+      productionBinding: result.root.productionBinding,
+    }
+    expect(result.root.fingerprint).toBe(spatialFingerprintV1(allowedFingerprintFacts))
   })
 
   it("provides a reusable accepted root fixture without prebuilding children", () => {
