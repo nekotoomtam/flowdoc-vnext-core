@@ -18,6 +18,24 @@ import {
   layoutVNextTextBlockSpatialWrappingV2,
 } from "../src/layout/textBlockSpatialWrappingLayoutV2.js"
 import {
+  layoutVNextTextBlockSpatialWrappingV1,
+} from "../src/layout/textBlockSpatialWrappingLayoutV1.js"
+import {
+  acceptVNextTextBlockMultiRunLayoutV1,
+} from "../src/layout/textBlockMultiRunLayoutV1.js"
+import {
+  createVNextTextBlockPersistentFlowTreeV1,
+} from "../src/layout/textBlockPersistentFlowTreeV1.js"
+import {
+  createVNextTextBlockSpatialIndexV1,
+} from "../src/layout/textBlockSpatialIndexV1.js"
+import type {
+  VNextTextBlockMultiRunLayoutRequestV1,
+} from "../src/layout/textBlockMultiRunLayoutContractV1.js"
+import type {
+  VNextTextBlockSyntheticPositionedObjectInputV1,
+} from "../src/layout/textBlockSpatialIndexContractV1.js"
+import {
   acceptedInlineImageEvidenceFixture,
   acceptedInlineImageSpatialFixture,
   producerInlineImageEvidenceInput,
@@ -26,6 +44,112 @@ import { acceptedUnifiedLayoutRootFixtureV1 } from "./helpers/textBlockUnifiedLa
 import { acceptVNextTextBlockFlowEvidenceV2 } from "../src/layout/textBlockFlowEvidenceV2.js"
 import { createVNextTextBlockInitialFlowV1 } from "../src/layout/textBlockInitialFlowInputV1.js"
 import { listImageGeometryBuildInputFixture } from "./helpers/textBlockInitialFlowV1.js"
+
+const geometryOwnerFingerprint = `sha256:${"9".repeat(64)}`
+
+function spatialEntry(input: {
+  objectId: string
+  leftLayoutUnit: number
+  rightLayoutUnit: number
+  topLayoutUnit?: number
+  bottomLayoutUnit?: number
+  wrapPolicy?: "rectangular-exclusion" | "top-bottom-barrier" | "overlay"
+}): VNextTextBlockSyntheticPositionedObjectInputV1 {
+  const topLayoutUnit = input.topLayoutUnit ?? 0
+  const bottomLayoutUnit = input.bottomLayoutUnit ?? 20_000_000
+  return {
+    objectId: input.objectId,
+    geometryOwnerFingerprint,
+    xLayoutUnit: input.leftLayoutUnit,
+    yLayoutUnit: topLayoutUnit,
+    widthLayoutUnit: input.rightLayoutUnit - input.leftLayoutUnit,
+    heightLayoutUnit: bottomLayoutUnit - topLayoutUnit,
+    clearance: {
+      topLayoutUnit: 0,
+      rightLayoutUnit: 0,
+      bottomLayoutUnit: 0,
+      leftLayoutUnit: 0,
+    },
+    wrapPolicy: input.wrapPolicy ?? "rectangular-exclusion",
+  }
+}
+
+function assertClosedRootAndScene(root: VNextTextBlockUnifiedLayoutRootV1): void {
+  // Catches a root that reports acceptance while losing a retained child or opening a deferred capability.
+  expect(root.dependencyFingerprints.scene).toBe(root.scene.fingerprint)
+  expect(root.scene.authoredBoxGeometryFingerprint).toBe(root.authoredBoxGeometry.fingerprint)
+  expect(root.authoredBoxGeometry.contentSpatialLayoutFingerprint).toBe(root.spatialLayout.fingerprint)
+  expect(root.spatialLayout.spatialIndexFingerprint).toBe(root.spatialIndex.fingerprint)
+  expect(root.spatialIndex.persistentFlowTreeFingerprint).toBe(root.persistentFlowTree.fingerprint)
+  expect(root.persistentFlowTree.flowEvidenceFingerprint).toBe(root.evidence.fingerprint)
+  expect(root.contracts).toMatchObject({
+    incrementalTransitionClaim: false,
+    stagedEditorApply: false,
+    mayPublishLayout: false,
+    productionBinding: false,
+  })
+  expect(root.scene.contracts).toMatchObject({
+    rendererMayMeasureText: false,
+    rendererMayRelayout: false,
+    incrementalDeliveryClaim: false,
+    stagedEditorApply: false,
+    mayPublishLayout: false,
+    productionBinding: false,
+  })
+  expect(root.mayPublishLayout).toBe(false)
+  expect(root.productionBinding).toBe(false)
+  expect(inspectVNextTextBlockUnifiedLayoutRootV1(root)).toMatchObject({ status: "valid" })
+}
+
+function v1RequestFromRoot(root: VNextTextBlockUnifiedLayoutRootV1): VNextTextBlockMultiRunLayoutRequestV1 {
+  return {
+    layoutId: root.evidence.layoutId,
+    measurement: root.evidence.measurement,
+    layoutUnitPolicyFingerprint: root.evidence.layoutUnitPolicyFingerprint,
+    availableWidthLayoutUnit: root.evidence.availableWidthLayoutUnit,
+    declaredLineHeightLayoutUnit: root.evidence.declaredLineHeightLayoutUnit,
+    paragraphStyle: root.evidence.paragraphStyle,
+    fontFaces: root.evidence.fontFaces,
+    shapingRuns: root.evidence.shapingRuns,
+    breakOffsets: root.evidence.breakOffsets,
+    lines: root.evidence.breakOffsets.slice(0, -1).map((renderStartOffset, index) => ({
+      index,
+      renderStartOffset,
+      renderEndOffset: root.evidence.breakOffsets[index + 1]!,
+    })),
+  }
+}
+
+function normalizedTextOnlyGeometry(result: {
+  lines: readonly {
+    index: number
+    renderStartOffset: number
+    renderEndOffset: number
+    yOffsetLayoutUnit: number
+    heightLayoutUnit: number
+    baselineOffsetLayoutUnit: number
+    availableIntervals: readonly unknown[]
+    intervalPlacements: readonly unknown[]
+    sourceSegments: readonly unknown[]
+    fragments: readonly object[]
+  }[]
+}) {
+  return result.lines.map((line) => ({
+    index: line.index,
+    renderStartOffset: line.renderStartOffset,
+    renderEndOffset: line.renderEndOffset,
+    yOffsetLayoutUnit: line.yOffsetLayoutUnit,
+    heightLayoutUnit: line.heightLayoutUnit,
+    baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
+    availableIntervals: line.availableIntervals,
+    intervalPlacements: line.intervalPlacements,
+    sourceSegments: line.sourceSegments,
+    fragments: line.fragments.map((fragment) => {
+      const { kind: _kind, fingerprint: _fingerprint, ...facts } = fragment as Record<string, unknown>
+      return facts
+    }),
+  }))
+}
 
 function canonicalRootFacts(root: VNextTextBlockUnifiedLayoutRootV1): string {
   return stringifyVNextCanonicalJson({
@@ -471,5 +595,103 @@ describe("unified TextBlock layout root authority v1", () => {
       code: "invalid-input",
     })
     expect(accessorReadCount).toBe(0)
+  })
+
+  it.each([
+    ["text-only", { content: "text-only" }, []],
+    ["image-only", { content: "image-only" }, []],
+    ["text-image-text", { content: "text-image-text" }, []],
+    ["adjacent-images", { content: "adjacent-images" }, []],
+    ["text-image-text-break", { content: "text-image-text-break" }, []],
+    ["thai-image-latin", { content: "thai-image-latin" }, []],
+    ["field-image-page-break", { content: "field-image-page-break" }, []],
+    ["baseline image alignment", { content: "image-only", verticalAlign: "baseline" }, []],
+    ["middle image alignment", { content: "image-only", verticalAlign: "middle" }, []],
+    ["text-bottom image alignment", { content: "image-only", verticalAlign: "text-bottom" }, []],
+    ["mixed text sizes", { content: "thai-image-latin", mixedTextSizes: true }, []],
+    ["no exclusions", { content: "text-only" }, []],
+    ["left exclusion", { content: "image-only" }, [
+      spatialEntry({ objectId: "left", leftLayoutUnit: 0, rightLayoutUnit: 20_000_000 }),
+    ]],
+    ["right exclusion", { content: "image-only" }, [
+      spatialEntry({ objectId: "right", leftLayoutUnit: 70_000_000, rightLayoutUnit: 90_000_000 }),
+    ]],
+    ["central exclusion", { content: "image-only", width: { value: 40, unit: "pt" } }, [
+      spatialEntry({ objectId: "central", leftLayoutUnit: 30_000_000, rightLayoutUnit: 50_000_000 }),
+    ]],
+    ["multiple exclusions", { content: "image-only" }, [
+      spatialEntry({ objectId: "multi-left", leftLayoutUnit: 0, rightLayoutUnit: 20_000_000 }),
+      spatialEntry({ objectId: "multi-center", leftLayoutUnit: 40_000_000, rightLayoutUnit: 60_000_000 }),
+    ]],
+    ["top-bottom barrier", { content: "image-only" }, [
+      spatialEntry({ objectId: "barrier", leftLayoutUnit: 0, rightLayoutUnit: 90_000_000, wrapPolicy: "top-bottom-barrier" }),
+    ]],
+    ["overlay-only", { content: "image-only" }, [
+      spatialEntry({ objectId: "overlay", leftLayoutUnit: 0, rightLayoutUnit: 90_000_000, wrapPolicy: "overlay" }),
+    ]],
+    ["full-width zero-space advancement", { content: "image-only" }, [
+      spatialEntry({ objectId: "zero-space", leftLayoutUnit: 0, rightLayoutUnit: 90_000_000, bottomLayoutUnit: 1 }),
+    ]],
+    ["image-expanded-band requery", { content: "image-only", height: { value: 30, unit: "pt" } }, [
+      spatialEntry({ objectId: "late-band", leftLayoutUnit: 0, rightLayoutUnit: 90_000_000, topLayoutUnit: 20_000_000, bottomLayoutUnit: 25_000_000 }),
+    ]],
+  ] as const)("retains one exact closed root and scene for %s", (_name, options, spatialEntries) => {
+    const fixture = acceptedInlineImageEvidenceFixture(options)
+    const result = createVNextTextBlockUnifiedLayoutRootV1({
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      spatialEntries,
+    })
+    expect(result.status).toBe("accepted")
+    if (result.status !== "accepted") throw new Error(`${_name} root unexpectedly blocked`)
+    assertClosedRootAndScene(result.root)
+  })
+
+  it("retains direct Phase 4B and normalized V1 text-only geometry while using the no-exclusion fast path", () => {
+    // Catches a root builder that silently changes the Phase 4B no-exclusion geometry or starts querying an empty index.
+    const fixture = acceptedInlineImageEvidenceFixture({ content: "text-only" })
+    const built = createVNextTextBlockUnifiedLayoutRootV1({
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: fixture.initialFlow,
+      evidence: fixture.evidence,
+      spatialEntries: [],
+    })
+    if (built.status !== "accepted") throw new Error("text-only root blocked")
+    const root = built.root
+    const directV2 = layoutVNextTextBlockSpatialWrappingV2({
+      initialFlow: root.initialFlow,
+      evidence: root.evidence,
+      persistentFlowTree: root.persistentFlowTree,
+      spatialIndex: root.spatialIndex,
+      startYLayoutUnit: 0,
+    })
+    if (directV2.status !== "accepted") throw new Error("direct V2 text-only layout blocked")
+    expect(directV2).toEqual(root.spatialLayout)
+
+    const request = v1RequestFromRoot(root)
+    const accepted = acceptVNextTextBlockMultiRunLayoutV1(request)
+    if (accepted.status !== "accepted") throw new Error("text-only V1 acceptance blocked")
+    const tree = createVNextTextBlockPersistentFlowTreeV1({ request, acceptedLayout: accepted })
+    if (tree.status !== "accepted") throw new Error("text-only V1 tree blocked")
+    const index = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
+      persistentFlowTree: tree.tree,
+      request,
+      entries: [],
+    })
+    if (index.status !== "accepted") throw new Error("text-only V1 index blocked")
+    const v1 = layoutVNextTextBlockSpatialWrappingV1({
+      persistentFlowTree: tree.tree,
+      request,
+      spatialIndex: index.index,
+      startYLayoutUnit: 0,
+    })
+    if (v1.status !== "accepted") throw new Error("text-only V1 layout blocked")
+
+    expect(normalizedTextOnlyGeometry(root.spatialLayout)).toEqual(normalizedTextOnlyGeometry(v1))
+    expect(root.spatialLayout.work.spatialIndexQueryCount).toBe(0)
+    expect(root.spatialIndex.summary.flowAffectingEntryCount).toBe(0)
+    expect(root.scene.summary.inlineImageFragmentCount).toBe(0)
   })
 })
