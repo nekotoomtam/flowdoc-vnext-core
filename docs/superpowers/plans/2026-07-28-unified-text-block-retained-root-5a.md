@@ -39,6 +39,9 @@ compact SHA-256 fingerprint helpers.
   authority.
 - Follow `AGENTS.md`, `docs/CROSS_REPO_OPERATING_MAP.md`, and
   `docs/superpowers/specs/2026-07-28-unified-incremental-live-draft-product-readiness-design.md`.
+- Human-facing Markdown is verified by spec/self-review, not by automated
+  tests that grep exact headings or prose. Automated scope guards exercise
+  public exports, runtime results, capability flags, and blocked behavior.
 
 ---
 
@@ -71,8 +74,8 @@ compact SHA-256 fingerprint helpers.
   clone/mutation/proxy/accessor, mixed-root, and no-partial-output tests.
 - `tests/textBlockUnifiedLayoutRootScaleV1.test.ts` — root wrapper, scene work,
   payload bytes, and deterministic scale evidence.
-- `tests/liveDraftMr1UnifiedLayoutRoot5a.test.ts` — public-export,
-  documentation, handoff, and scope-guard test.
+- `tests/liveDraftMr1UnifiedLayoutRoot5a.test.ts` — public-export and runtime
+  scope/capability guard test.
 
 ### Modified production and documentation files
 
@@ -154,6 +157,12 @@ const legacyEntry = layoutVNextTextBlockAuthoredBoxGeometryV2({
 })
 expect(projected).toEqual(legacyEntry)
 ```
+
+- Before the equality assertion, add independently stated behavior assertions
+  for the accepted source/version, exact child fingerprints, outer-height
+  equation, projected image coordinates, and all three false capability flags.
+  The equality assertion is a delegation regression; it is not the sole
+  correctness oracle.
 
 - [ ] **Step 2: Run the focused test and verify the missing export failure**
 
@@ -1042,21 +1051,21 @@ Do not export:
 - canonical-root-fact helpers; or
 - any function that grants staged apply/publication/production.
 
-- [ ] **Step 1: Write a failing public-boundary and documentation guard**
+- [ ] **Step 1: Write a failing public-boundary and runtime scope guard**
 
 The test must:
 
 - resolve the transitive `src/index.ts` exports;
 - require only the reviewed scene/root contracts and four public functions;
 - reject internal authority/projection exports;
-- require the handoff headings `Status`, `Outcome`, `Architecture Evidence`,
-  `Producer And Runtime Evidence`, `PASS`, `FAIL / BLOCKER`, `RISK`, `UNKNOWN`,
-  `Verification`, `Intentionally Not Changed`, and `Next Checkpoint`;
-- require the exact flags `stagedEditorApply: false`,
-  `mayPublishLayout: false`, and `productionBinding: false`;
-- require Phase 5B to remain separately authorized; and
-- require list, empty-block, Editor/Backend, Columns/Table, Table auto-fit,
-  fixed-height, publication, and production to remain NO-GO.
+- build one real accepted root through the public entrypoint and assert
+  `stagedEditorApply: false`, `mayPublishLayout: false`, and
+  `productionBinding: false` on the root, scene, and retained child contracts;
+- submit production-bound and unsupported fixed-height-shaped input through
+  the public entrypoint and assert all-or-blocked output with no root/scene;
+  and
+- verify privileged authority/projection helpers remain unreachable through
+  the public module boundary without asserting human-document prose.
 
 - [ ] **Step 2: Run the guard and verify missing exports/docs**
 
@@ -1066,7 +1075,7 @@ Run:
 npx vitest run --config vitest.config.ts tests/liveDraftMr1UnifiedLayoutRoot5a.test.ts
 ```
 
-Expected: FAIL because exports and handoff do not exist.
+Expected: FAIL because the reviewed public exports do not exist.
 
 - [ ] **Step 3: Add the reviewed public exports**
 
@@ -1094,7 +1103,22 @@ The handoff must state:
 Update the cross-runtime handoff and phase ledger with the same scope and
 evidence without rewriting historical Phase 4B claims.
 
-- [ ] **Step 5: Run documentation guard, type-check, and focused Phase 5A gate**
+- [ ] **Step 5: Self-review human documentation**
+
+Read the complete new handoff plus the changed cross-runtime handoff and phase
+ledger. Check manually for:
+
+- required handoff sections: `Status`, `Outcome`, `Architecture Evidence`,
+  `Producer And Runtime Evidence`, `PASS`, `FAIL / BLOCKER`, `RISK`, `UNKNOWN`,
+  `Verification`, `Intentionally Not Changed`, and `Next Checkpoint`;
+- exact false capability facts;
+- explicit Phase 5B separate authorization;
+- retained NO-GO scope for list, empty-block, Editor/Backend, Columns/Table,
+  Table auto-fit, fixed-height, publication, and production;
+- no placeholders or contradictory status claims; and
+- evidence paths and test counts matching the actual repository.
+
+- [ ] **Step 6: Run public scope guard, type-check, and focused Phase 5A gate**
 
 Run:
 
@@ -1106,7 +1130,7 @@ git diff --check
 
 Expected: all PASS.
 
-- [ ] **Step 6: Run the full Core gate**
+- [ ] **Step 7: Run the full Core gate**
 
 Run:
 
@@ -1115,10 +1139,10 @@ npm run check
 ```
 
 Expected: type-check and all Vitest files PASS. Record exact file/test counts in
-the 5A handoff after the successful run, then rerun the documentation guard if
-the count edit changes guarded text.
+the 5A handoff after the successful run, then repeat the documentation
+self-review after the count edit.
 
-- [ ] **Step 7: Inspect staged scope**
+- [ ] **Step 8: Inspect staged scope**
 
 Run:
 
@@ -1131,7 +1155,7 @@ git diff --check
 Expected: only Phase 5A production, tests, and documentation files are changed;
 no Editor or Backend files and no unrelated user changes.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```powershell
 git add src/index.ts src/layout/textBlockAuthoredBoxGeometryV2.ts src/layout/textBlockUnifiedLayoutSceneContractV1.ts src/layout/textBlockUnifiedLayoutSceneV1.ts src/layout/textBlockUnifiedLayoutRootContractV1.ts src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutRootV1.ts tests/helpers/textBlockUnifiedLayoutRootV1.ts tests/textBlockAuthoredBoxGeometryV2.test.ts tests/textBlockUnifiedLayoutSceneV1.test.ts tests/textBlockUnifiedLayoutRootV1.test.ts tests/textBlockUnifiedLayoutRootAdversarialV1.test.ts tests/textBlockUnifiedLayoutRootScaleV1.test.ts tests/textEngineFlowEvidenceNodeWasmV2.test.ts tests/liveDraftMr1UnifiedLayoutRoot5a.test.ts docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md docs/PHASE_LEDGER.md
