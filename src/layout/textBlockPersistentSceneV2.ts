@@ -938,6 +938,14 @@ export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
   }
 }
 
+export function hasVNextTextBlockPersistentScenePreparedCandidateInternalV2(
+  value: unknown,
+): value is VNextTextBlockPersistentSceneV2 {
+  return value != null
+    && typeof value === "object"
+    && preparedScenes.has(value as VNextTextBlockPersistentSceneV2)
+}
+
 export function inspectVNextTextBlockPersistentSceneV2(
   value: unknown,
 ): VNextTextBlockPersistentSceneInspectionV2 {
