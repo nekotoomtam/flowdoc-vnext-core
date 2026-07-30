@@ -3,9 +3,20 @@ import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import type {
+  TextBlockNodeV4Target,
+  VNextTextBlockInitialFlowV1,
   VNextTextBlockV4MeasurementRequest,
   VNextTextBlockV4MeasurementRun,
 } from "../src/index.js"
+import {
+  acceptVNextTextBlockFlowEvidenceV2,
+  createVNextAuthoredBoxPlanV1,
+  createVNextLayoutUnitPolicyV1,
+  createVNextTextBlockInitialFlowV1,
+  createVNextTextBlockInitialFlowParentRegionV1,
+} from "../src/index.js"
+import { createVNextTextBlockUnifiedLayoutRootV1 } from
+  "../src/layout/textBlockUnifiedLayoutRootV1.js"
 import { FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1 } from
   "../packages/text-engine-rust-wasm/src/mr1FontFaces.js"
 import type { FlowDocTextEngineFlowEvidenceInputV2 } from
@@ -93,7 +104,7 @@ function measurementFixture(text: string): VNextTextBlockV4MeasurementRequest {
     instanceRevision: 22,
     sectionId: "section-main",
     textBlockId: `text-block-flow-${text.length}`,
-    availableWidthPt: 100,
+    availableWidthPt: 90,
     measurementProfileId: "measurement-profile-flow-evidence-real-v2",
     styleKey: "paragraph-body",
     renderedText: text,
@@ -101,9 +112,12 @@ function measurementFixture(text: string): VNextTextBlockV4MeasurementRequest {
   }
 }
 
-function inputFixture(text: string): FlowDocTextEngineFlowEvidenceInputV2 {
+function inputFixture(
+  text: string,
+  initialFlowFingerprint = `sha256:${"b".repeat(64)}`,
+): FlowDocTextEngineFlowEvidenceInputV2 {
   return {
-    initialFlowFingerprint: `sha256:${"b".repeat(64)}`,
+    initialFlowFingerprint,
     layoutId: `flow-evidence-real-${text.length}`,
     measurement: measurementFixture(text),
     declaredLineHeightLayoutUnit: 14_000_000,
@@ -121,6 +135,83 @@ function inputFixture(text: string): FlowDocTextEngineFlowEvidenceInputV2 {
     },
     fontFaces: FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1.map((face) => clone(face)),
   }
+}
+
+function initialFlowFixture(text: string): VNextTextBlockInitialFlowV1 {
+  const measurement = measurementFixture(text)
+  const children: TextBlockNodeV4Target["children"] = measurement.runs.map((run) => {
+    if (run.kind === "text") return {
+      id: run.inlineId,
+      type: "text" as const,
+      text: run.renderedText,
+    }
+    if (run.kind === "hard-break") return { id: run.inlineId, type: "line-break" as const }
+    if (run.kind === "inline-image") return {
+      id: run.inlineId,
+      type: "inline-image" as const,
+      source: run.assetId == null
+        ? { kind: "image-field-ref" as const, fieldKey: `field-${run.inlineId}` }
+        : { kind: "asset-ref" as const, assetId: run.assetId },
+      accessibility: { kind: "decorative" as const },
+      frame: run.frame!,
+      verticalAlign: "middle" as const,
+    }
+    throw new Error(`unsupported producer run: ${run.kind}`)
+  })
+  const textBlock: TextBlockNodeV4Target = {
+    id: measurement.textBlockId,
+    type: "text-block",
+    role: { role: "paragraph" },
+    props: {
+      box: {
+        padding: {
+          top: { value: 2, unit: "pt" },
+          right: { value: 5, unit: "pt" },
+          bottom: { value: 2, unit: "pt" },
+          left: { value: 5, unit: "pt" },
+        },
+      },
+    },
+    children,
+  }
+  const authoredBox = createVNextAuthoredBoxPlanV1({ ownerNode: textBlock, availableWidthPt: 100 })
+  if (authoredBox.status !== "ready") throw new Error("producer authored box blocked")
+  const parent = createVNextTextBlockInitialFlowParentRegionV1({
+    ownerKind: "body",
+    ownerId: "body-zone",
+    xLayoutUnit: 0,
+    yLayoutUnit: 0,
+    widthLayoutUnit: 100_000_000,
+    availableHeightLayoutUnit: null,
+  })
+  if (parent.status !== "accepted") throw new Error("producer parent region blocked")
+  const initial = createVNextTextBlockInitialFlowV1({
+    textBlock,
+    measurement,
+    authoredBoxPlan: authoredBox.plan,
+    parentRegion: parent.region,
+    layoutUnitPolicyFingerprint: createVNextLayoutUnitPolicyV1().fingerprint,
+    declaredLineHeightLayoutUnit: 14_000_000,
+    paragraphFontFamilyKey: "sarabun",
+    paragraphStyle: {
+      styleKey: "paragraph-body",
+      fontFaceId: "sarabun-regular",
+      fontSizeLayoutUnit: 12_000_000,
+      textColor: "202020",
+    },
+    fontFaces: FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1.map(({
+      fontAssetPath: _fontAssetPath,
+      ...face
+    }) => ({ ...face })),
+  })
+  if (initial.status !== "classified") throw new Error(`producer Initial Flow blocked: ${JSON.stringify(initial.issues)}`)
+  return initial.flow
+}
+
+function normalizeRoot(root: unknown): unknown {
+  // This producer parity test already compares source-neutral Core evidence.
+  // Keep every retained root fact, including semantic and provenance facts.
+  return root
 }
 
 describe("Flow Evidence V2 real Node/WASM parity", () => {
@@ -217,7 +308,8 @@ describe("Flow Evidence V2 real Node/WASM parity", () => {
     })
 
     for (const text of PARITY_ROWS) {
-      const layout = inputFixture(text)
+      const initialFlow = initialFlowFixture(text)
+      const layout = inputFixture(text, initialFlow.fingerprint)
       const node = runFlowDocTextEngineNodeFlowEvidenceV2({
         layout: clone(layout),
         wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
@@ -246,6 +338,36 @@ describe("Flow Evidence V2 real Node/WASM parity", () => {
       expect(wasm.evidenceInput.shapingRuns.every((run) => (
         !run.text.includes("\uFFFC") && !run.text.includes("\n")
       ))).toBe(true)
+
+      const nodeEvidence = acceptVNextTextBlockFlowEvidenceV2({
+        initialFlow,
+        evidenceInput: node.result.evidenceInput,
+      })
+      const wasmEvidence = acceptVNextTextBlockFlowEvidenceV2({
+        initialFlow,
+        evidenceInput: wasm.evidenceInput,
+      })
+      if (nodeEvidence.status !== "accepted" || wasmEvidence.status !== "accepted") {
+        throw new Error("real producer evidence did not enter the Core acceptance boundary")
+      }
+      const nodeRoot = createVNextTextBlockUnifiedLayoutRootV1({
+        inputAuthority: "core-synthetic-qa-only",
+        initialFlow,
+        evidence: nodeEvidence.evidence,
+        spatialEntries: [],
+      })
+      const wasmRoot = createVNextTextBlockUnifiedLayoutRootV1({
+        inputAuthority: "core-synthetic-qa-only",
+        initialFlow,
+        evidence: wasmEvidence.evidence,
+        spatialEntries: [],
+      })
+      if (nodeRoot.status !== "accepted" || wasmRoot.status !== "accepted") {
+        throw new Error("real producer evidence did not build the complete root")
+      }
+      expect(normalizeRoot(nodeRoot.root)).toEqual(normalizeRoot(wasmRoot.root))
+      expect(nodeRoot.root.scene.fingerprint).toBe(wasmRoot.root.scene.fingerprint)
+      expect(nodeRoot.root.fingerprint).toBe(wasmRoot.root.fingerprint)
     }
   }, 30_000)
 })
