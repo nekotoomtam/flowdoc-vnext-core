@@ -153,6 +153,24 @@ export type VNextTextBlockCompleteSceneDeliveryResultV2 =
       readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
     }
 
+export type VNextTextBlockCompleteSceneDeliveryInspectionV2 =
+  | {
+      readonly status: "valid"
+      readonly fingerprint: string
+      readonly rootFingerprint: string
+      readonly persistentSceneFingerprint: string
+      readonly emittedChunkCount: number
+      readonly estimatedCanonicalPayloadByteCount: number
+    }
+  | {
+      readonly status: "invalid"
+      readonly code:
+        | "complete-delivery-data-mismatch"
+        | "complete-delivery-fingerprint-mismatch"
+        | "complete-delivery-unsafe-count"
+      readonly message: string
+    }
+
 export interface VNextTextBlockSceneDeliveryPlanCandidateInputV2 {
   readonly previousScene: VNextTextBlockPersistentSceneV2
   readonly nextScene: VNextTextBlockPersistentSceneV2

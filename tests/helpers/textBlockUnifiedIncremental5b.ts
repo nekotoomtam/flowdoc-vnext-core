@@ -49,7 +49,10 @@ export function noOpUnifiedLayoutChange5b(
   })
 }
 
-function imageItem(root: VNextTextBlockUnifiedLayoutRootV2) {
+function imageItem(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  inlineId?: string,
+) {
   for (
     let offset = 0;
     offset < root.sourceState.summary.renderedUtf16Length;
@@ -59,7 +62,11 @@ function imageItem(root: VNextTextBlockUnifiedLayoutRootV2) {
       sourceState: root.sourceState,
       renderedUtf16Offset: offset,
     })
-    if (lookup.status === "found" && lookup.item.kind === "inline-image") {
+    if (
+      lookup.status === "found"
+      && lookup.item.kind === "inline-image"
+      && (inlineId == null || lookup.item.inlineId === inlineId)
+    ) {
       return lookup.item
     }
   }
@@ -73,9 +80,10 @@ export function imagePaintUnifiedLayoutChange5b(
     readonly crop:
       | { readonly x: number; readonly y: number; readonly width: number; readonly height: number }
       | null
+    readonly inlineId?: string
   },
 ): VNextTextBlockUnifiedLayoutChangeV1 {
-  const item = imageItem(root)
+  const item = imageItem(root, next.inlineId)
   return deepFreeze({
     ...changeBase(root),
     kind: "image-paint-fact-change" as const,

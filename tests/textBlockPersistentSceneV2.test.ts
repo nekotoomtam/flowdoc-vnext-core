@@ -399,9 +399,9 @@ describe("Phase 5B Persistent Scene V2", () => {
     ]) {
       expect(containScene.scene).not.toHaveProperty(capability)
     }
-    expect(Object.keys(publicCore).some(
+    expect(Object.keys(publicCore).filter(
       (name) => name.includes("PersistentScene"),
-    )).toBe(false)
+    )).toEqual(["inspectVNextTextBlockPersistentSceneV2"])
   })
 
   it("provides bounded incremental-fragment inspection without scene traversal", () => {

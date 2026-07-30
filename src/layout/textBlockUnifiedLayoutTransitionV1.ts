@@ -54,6 +54,10 @@ import {
 import type {
   VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
+  evaluateVNextTextBlockStageWorkLimitInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+} from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
@@ -68,6 +72,47 @@ function deepFreeze<T>(value: T): T {
     }
   }
   return Object.isFrozen(value) ? value : Object.freeze(value)
+}
+
+function exactPublicAttemptInput(value: unknown): {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly evidence?: VNextTextBlockTransitionEvidenceV1
+} | null {
+  try {
+    if (value == null || typeof value !== "object" || Array.isArray(value)) {
+      return null
+    }
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return null
+    if (Object.getOwnPropertySymbols(value).length !== 0) return null
+    const keys = Reflect.ownKeys(value)
+    if (
+      !keys.includes("previousRoot")
+      || !keys.includes("change")
+      || keys.some((key) =>
+        key !== "previousRoot" && key !== "change" && key !== "evidence"
+      )
+    ) return null
+    const output = Object.create(null) as Record<string, unknown>
+    for (const key of keys) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
+      if (
+        typeof key !== "string"
+        || descriptor == null
+        || !Object.hasOwn(descriptor, "value")
+        || descriptor.enumerable !== true
+      ) return null
+      output[key] = descriptor.value
+    }
+    return output as {
+      readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+      readonly change: VNextTextBlockUnifiedLayoutChangeV1
+      readonly evidence?: VNextTextBlockTransitionEvidenceV1
+    }
+  } catch {
+    return null
+  }
 }
 
 function issue(
@@ -292,6 +337,119 @@ function paintWork(
   })
 }
 
+type WorkLimitFailure =
+  | {
+      readonly kind: "limit-exceeded"
+      readonly stage:
+        VNextTextBlockUnifiedLayoutIssueV1["stage"]
+      readonly unit:
+        VNextTextBlockIncrementalCandidateWorkV1["stageWork"][number]["unit"]
+      readonly effectiveLimit: number
+      readonly attemptedWork: number
+    }
+  | {
+      readonly kind: "invalid-policy" | "inactive-stage" | "prelock-stage"
+      readonly stage:
+        VNextTextBlockUnifiedLayoutIssueV1["stage"]
+      readonly unit:
+        VNextTextBlockIncrementalCandidateWorkV1["stageWork"][number]["unit"]
+    }
+
+function previousSummaryBase(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  unit: VNextTextBlockIncrementalCandidateWorkV1["stageWork"][number]["unit"],
+): number {
+  switch (unit) {
+    case "source-items":
+    case "flow-atoms":
+    case "flow-tree-nodes":
+      return root.sourceState.summary.itemCount
+    case "spatial-index-nodes":
+    case "spatial-query-bands":
+      return root.spatialState.summary.entryCount
+    case "recomputed-lines":
+    case "proof-nodes":
+    case "reprojected-lines":
+    case "visited-fragments":
+      return root.lineTree.summary.lineCount
+    case "copied-scene-nodes":
+    case "replacement-chunks":
+    case "delivery-operations":
+    case "retain-cover-nodes":
+      return root.persistentScene.summary.chunkCount
+    case "estimated-canonical-payload-bytes":
+      return root.persistentScene.summary.estimatedCanonicalPayloadByteCount
+  }
+}
+
+function workLimitFailure(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+): WorkLimitFailure | null {
+  for (const item of work.stageWork) {
+    const row = workPolicy.stages.find((candidate) =>
+      candidate.stage === item.stage && candidate.unit === item.unit
+    )
+    if (row == null) {
+      return {
+        kind: "invalid-policy",
+        stage: item.stage,
+        unit: item.unit,
+      }
+    }
+    /*
+     * The one-subtree all-E proof and payload-byte observation are structural
+     * verification facts, not activated text-layout or payload work lanes.
+     */
+    const lockedException =
+      item.unit === "proof-nodes"
+      || item.unit === "estimated-canonical-payload-bytes"
+    if (row.lockStatus === "inactive") {
+      if (item.count > 0 && !lockedException) {
+        return {
+          kind: "inactive-stage",
+          stage: item.stage,
+          unit: item.unit,
+        }
+      }
+      continue
+    }
+    if (row.lockStatus === "prelock") {
+      return {
+        kind: "prelock-stage",
+        stage: item.stage,
+        unit: item.unit,
+      }
+    }
+    const evaluation = evaluateVNextTextBlockStageWorkLimitInternalV1({
+      policy: workPolicy,
+      stage: item.stage,
+      unit: item.unit,
+      previousSummaryBase: previousSummaryBase(root, item.unit),
+      exactValidatedChangeDelta: 1,
+      attemptedWork: item.count,
+    })
+    if (evaluation.status === "invalid") {
+      return {
+        kind: "invalid-policy",
+        stage: item.stage,
+        unit: item.unit,
+      }
+    }
+    if (evaluation.status === "limit-exceeded") {
+      return {
+        kind: "limit-exceeded",
+        stage: item.stage,
+        unit: item.unit,
+        effectiveLimit: evaluation.effectiveLimit,
+        attemptedWork: evaluation.attemptedWork,
+      }
+    }
+  }
+  return null
+}
+
 export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
   input: {
     readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -499,6 +657,57 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         scene.deliveryPlan.summary.estimatedCanonicalPayloadByteCount,
     },
   )
+  const limitFailure = workLimitFailure(
+    input.previousRoot,
+    input.workPolicy,
+    beforeRegistrationWork,
+  )
+  if (limitFailure != null) {
+    if (limitFailure.kind === "limit-exceeded") {
+      const fallback =
+        createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+          previousRoot: input.previousRoot,
+          change: input.change,
+          workPolicy: input.workPolicy,
+          mode: "deterministic-work-limit-exceeded",
+          reason: {
+            code: "stage-unit-limit-exceeded",
+            stage: limitFailure.stage,
+            unit: limitFailure.unit,
+            effectiveLimit: limitFailure.effectiveLimit,
+            attemptedWork: limitFailure.attemptedWork,
+          },
+          skippedOrFailedStage: limitFailure.stage,
+          incrementalCandidateWork: beforeRegistrationWork,
+        })
+      if (fallback.status !== "fallback-required") {
+        return blockedResult(
+          fallback.incrementalCandidateWork,
+          fallback.issues,
+        )
+      }
+      return registerResult(Object.freeze({
+        ...fallback,
+        stagedEditorApply: false,
+        mayPublishLayout: false,
+        productionBinding: false,
+      }))
+    }
+    const code = limitFailure.kind === "invalid-policy"
+      ? "invalid-work-policy"
+      : limitFailure.kind === "prelock-stage"
+        ? "prelock-work-policy-stage"
+        : "inactive-work-policy-stage"
+    return blockedResult(
+      beforeRegistrationWork,
+      [issue(
+        code,
+        limitFailure.stage,
+        limitFailure.unit,
+        `work policy does not open ${limitFailure.stage}/${limitFailure.unit}`,
+      )],
+    )
+  }
   const transitionFingerprint = fingerprint({
     previousRootFingerprint: input.previousRoot.fingerprint,
     changeFingerprint: fingerprint(input.change),
@@ -614,4 +823,32 @@ export function inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
     sceneFingerprint: record.sceneFingerprint,
     fallbackRequestFingerprint: record.fallbackRequestFingerprint,
   }
+}
+
+export function attemptVNextTextBlockUnifiedLayoutRootTransitionV1(input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly evidence?: VNextTextBlockTransitionEvidenceV1
+}): VNextTextBlockUnifiedLayoutTransitionResultV1
+export function attemptVNextTextBlockUnifiedLayoutRootTransitionV1(
+  input: unknown,
+): VNextTextBlockUnifiedLayoutTransitionResultV1
+export function attemptVNextTextBlockUnifiedLayoutRootTransitionV1(
+  input: unknown,
+): VNextTextBlockUnifiedLayoutTransitionResultV1 {
+  const exact = exactPublicAttemptInput(input)
+  return attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+    previousRoot: exact?.previousRoot as VNextTextBlockUnifiedLayoutRootV2,
+    change: exact?.change as VNextTextBlockUnifiedLayoutChangeV1,
+    ...(exact != null && Object.hasOwn(exact, "evidence")
+      ? { evidence: exact.evidence }
+      : {}),
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  })
+}
+
+export function inspectVNextTextBlockUnifiedLayoutTransitionResultV1(
+  value: unknown,
+): VNextTextBlockUnifiedLayoutTransitionResultInspectionV1 {
+  return inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(value)
 }

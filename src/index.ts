@@ -103,6 +103,71 @@ export {
   createVNextTextBlockUnifiedLayoutRootV1,
   inspectVNextTextBlockUnifiedLayoutRootV1,
 } from "./layout/textBlockUnifiedLayoutRootV1.js"
+export type {
+  VNextTextBlockUnifiedLayoutRootBuildInputV2,
+  VNextTextBlockUnifiedLayoutRootInspectionV2,
+  VNextTextBlockUnifiedLayoutRootResultV2,
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "./layout/textBlockUnifiedLayoutRootContractV2.js"
+export {
+  createVNextTextBlockUnifiedLayoutRootV2,
+  inspectVNextTextBlockUnifiedLayoutRootV2,
+} from "./layout/textBlockUnifiedLayoutRootV2.js"
+export type {
+  VNextTextBlockUnifiedLayoutChangeV1,
+  VNextTextBlockUnifiedLayoutChangeKindV1,
+} from "./layout/textBlockUnifiedLayoutChangeContractV1.js"
+export type {
+  VNextTextBlockTransitionEvidenceAcceptanceResultV1,
+  VNextTextBlockTransitionEvidenceInspectionV1,
+  VNextTextBlockTransitionEvidenceRequestInspectionV1,
+  VNextTextBlockTransitionEvidenceRequestResultV1,
+  VNextTextBlockTransitionEvidenceV1,
+} from "./layout/textBlockUnifiedLayoutEvidenceContractV1.js"
+export {
+  acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1,
+  createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1,
+  inspectVNextTextBlockTransitionEvidenceRequestV1,
+  inspectVNextTextBlockTransitionEvidenceV1,
+} from "./layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+export type {
+  VNextTextBlockUnifiedLayoutCompleteFallbackResultV1,
+  VNextTextBlockUnifiedLayoutFallbackRequestInspectionV1,
+  VNextTextBlockUnifiedLayoutFallbackRequestV1,
+  VNextTextBlockUnifiedLayoutTransitionResultInspectionV1,
+  VNextTextBlockUnifiedLayoutTransitionResultV1,
+} from "./layout/textBlockUnifiedLayoutTransitionContractV1.js"
+export {
+  attemptVNextTextBlockUnifiedLayoutRootTransitionV1,
+  inspectVNextTextBlockUnifiedLayoutTransitionResultV1,
+} from "./layout/textBlockUnifiedLayoutTransitionV1.js"
+export {
+  completeVNextTextBlockUnifiedLayoutRootFallbackV1,
+  inspectVNextTextBlockUnifiedLayoutFallbackRequestV1,
+} from "./layout/textBlockUnifiedLayoutFallbackV1.js"
+export type {
+  VNextTextBlockPersistentSceneInspectionV2,
+  VNextTextBlockPersistentSceneV2,
+} from "./layout/textBlockPersistentSceneContractV2.js"
+export {
+  inspectVNextTextBlockPersistentSceneV2,
+} from "./layout/textBlockPersistentSceneV2.js"
+export type {
+  VNextTextBlockCompleteSceneDeliveryInspectionV2,
+  VNextTextBlockCompleteSceneDeliveryResultV2,
+  VNextTextBlockCompleteSceneDeliveryV2,
+  VNextTextBlockSceneDeliveryPlanInspectionV2,
+  VNextTextBlockSceneDeliveryPlanV2,
+} from "./layout/textBlockSceneDeliveryContractV2.js"
+export {
+  createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2,
+  inspectVNextTextBlockCompleteSceneDeliveryV2,
+  inspectVNextTextBlockSceneDeliveryPlanV2,
+} from "./layout/textBlockSceneDeliveryV2.js"
+export {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+} from "./layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 export * from "./authoring/editableSession.js"
 export * from "./authoring/textTransactions.js"
 export * from "./authoring/textBlockV1Grammar.js"

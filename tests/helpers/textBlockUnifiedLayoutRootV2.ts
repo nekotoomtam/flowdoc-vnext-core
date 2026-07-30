@@ -1,33 +1,19 @@
-import { createVNextCompactFingerprint } from "../../src/fingerprint/compactFingerprint.js"
-import { stringifyVNextCanonicalJson } from "../../src/fingerprint/canonicalJson.js"
 import type {
   VNextTextBlockUnifiedLayoutRootBuildInputV2,
 } from "../../src/layout/textBlockUnifiedLayoutRootContractV2.js"
 import {
   createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
 } from "../../src/layout/textBlockUnifiedLayoutRootV2.js"
-import type {
-  VNextTextBlockUnifiedLayoutWorkPolicyV1,
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
 } from "../../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   acceptedInlineImageEvidenceFixture,
   type InlineImageFlowFixtureOptions,
 } from "./textBlockInlineImageFlowV2.js"
 
-const workPolicyFacts = {
-  source: "vnext-text-block-unified-layout-work-policy-v1" as const,
-  contractVersion: 1 as const,
-  checkpoint: "5B-1" as const,
-  stages: Object.freeze([]),
-}
-
-export const ROOT_V2_TEST_WORK_POLICY:
-VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
-  ...workPolicyFacts,
-  fingerprint: createVNextCompactFingerprint(
-    stringifyVNextCanonicalJson(workPolicyFacts),
-  ),
-})
+export const ROOT_V2_TEST_WORK_POLICY =
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1
 
 export function unifiedLayoutRootBuildInputFixtureV2(
   options: InlineImageFlowFixtureOptions = {},

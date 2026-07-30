@@ -13,6 +13,8 @@ import type {
 import {
   VNEXT_TEXT_BLOCK_SCENE_DELIVERY_PLAN_V2_SOURCE,
   VNEXT_TEXT_BLOCK_SCENE_DELIVERY_PLAN_V2_VERSION,
+  type VNextTextBlockCompleteSceneDeliveryInspectionV2,
+  type VNextTextBlockCompleteSceneDeliveryV2,
   type VNextTextBlockCompleteSceneDeliveryResultV2,
   type VNextTextBlockSceneDeliveryOperationDraftV2,
   type VNextTextBlockSceneDeliveryOperationV2,
@@ -24,6 +26,12 @@ import {
   type VNextTextBlockSceneDeliveryPlanV2,
   type VNextTextBlockSceneDeliveryRangeV2,
 } from "./textBlockSceneDeliveryContractV2.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "./textBlockUnifiedLayoutRootContractV2.js"
+import {
+  inspectVNextTextBlockUnifiedLayoutRootV2,
+} from "./textBlockUnifiedLayoutRootV2.js"
 import type {
   VNextTextBlockUnifiedLayoutIssueV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
@@ -807,6 +815,13 @@ export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
 export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: unknown,
 ): VNextTextBlockSceneDeliveryPlanInspectionV2 {
+  return verifyDeliveryPlanV2(input, true)
+}
+
+function verifyDeliveryPlanV2(
+  input: unknown,
+  requireExactReplacementIdentity: boolean,
+): VNextTextBlockSceneDeliveryPlanInspectionV2 {
   const exact = exactVerifierInput(input)
   if (
     exact == null
@@ -949,12 +964,17 @@ export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
           expected.length !== operation.replacementChunks.length
           || expected.some(
             (chunk, chunkIndex) =>
-              chunk !== operation.replacementChunks[chunkIndex],
+              requireExactReplacementIdentity
+                ? chunk !== operation.replacementChunks[chunkIndex]
+                : !exactSummaryEquals(
+                    chunk,
+                    operation.replacementChunks[chunkIndex],
+                  ),
           )
         ) {
           return invalidInspection(
             "delivery-plan-replacement-mismatch",
-            "splice replacement chunks are not the exact next-range payload",
+            "splice replacement chunks are not canonical next-range data",
           )
         }
         replacementChunkCount = safeAdd(
@@ -1050,7 +1070,7 @@ export function inspectVNextTextBlockSceneDeliveryPlanV2(input: {
       "public delivery inspection requires exact registered Scene V2 roots",
     )
   }
-  return verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(input)
+  return verifyDeliveryPlanV2(input, false)
 }
 
 function completeDeliveryIssue(
@@ -1162,5 +1182,298 @@ export function prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2(
       "persistentScene",
       "complete delivery exceeded safe traversal or canonical arithmetic",
     ))
+  }
+}
+
+export function createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2(
+  input: { readonly root: VNextTextBlockUnifiedLayoutRootV2 },
+): VNextTextBlockCompleteSceneDeliveryResultV2
+export function createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2(
+  input: unknown,
+): VNextTextBlockCompleteSceneDeliveryResultV2
+export function createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2(
+  input: unknown,
+): VNextTextBlockCompleteSceneDeliveryResultV2 {
+  const exact = exactRecord(input, ["root"])
+  if (
+    exact == null
+    || inspectVNextTextBlockUnifiedLayoutRootV2(exact.root).status !== "valid"
+  ) {
+    return blockedCompleteDelivery(completeDeliveryIssue(
+      "root",
+      "complete delivery requires the exact process-local Root V2",
+    ))
+  }
+  const root = exact.root as VNextTextBlockUnifiedLayoutRootV2
+  return prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2({
+    persistentScene: root.persistentScene,
+    rootFingerprint: root.fingerprint,
+  })
+}
+
+function invalidCompleteDeliveryInspection(
+  code: Extract<
+    VNextTextBlockCompleteSceneDeliveryInspectionV2,
+    { status: "invalid" }
+  >["code"],
+  message: string,
+): VNextTextBlockCompleteSceneDeliveryInspectionV2 {
+  return { status: "invalid", code, message }
+}
+
+function completeDeliveryChunkIssue(
+  delivery: VNextTextBlockCompleteSceneDeliveryV2,
+): string | null {
+  try {
+    let textFragmentCount = 0
+    let inlineImageFragmentCount = 0
+    let estimatedCanonicalPayloadByteCount = 0
+    let authoredTopLayoutUnit: number | null = null
+    let authoredBottomLayoutUnit: number | null = null
+    for (const chunk of delivery.chunks) {
+      const record = exactRecord(chunk, [
+        "lineLineageId",
+        "sourceMapping",
+        "lineInternals",
+        "contentLocalGeometry",
+        "authoredBoxGeometry",
+        "fragments",
+        "lineInternalsFingerprint",
+        "sourceFingerprint",
+        "provenanceFingerprint",
+        "paintFingerprint",
+        "boundarySpatialContextFingerprint",
+        "fingerprint",
+      ])
+      const fragments = exactArray(record?.fragments)
+      const mappings = exactArray(record?.sourceMapping)
+      if (
+        record == null
+        || fragments == null
+        || mappings == null
+        || typeof record.lineLineageId !== "string"
+        || typeof record.lineInternalsFingerprint !== "string"
+        || typeof record.sourceFingerprint !== "string"
+        || typeof record.provenanceFingerprint !== "string"
+        || typeof record.paintFingerprint !== "string"
+        || typeof record.boundarySpatialContextFingerprint !== "string"
+        || typeof record.fingerprint !== "string"
+        || (
+          record.lineInternals as { readonly fingerprint?: unknown }
+        )?.fingerprint !== record.lineInternalsFingerprint
+      ) return "chunk-shape"
+      for (const fragment of fragments) {
+        const kind = fragment != null && typeof fragment === "object"
+          ? Object.getOwnPropertyDescriptor(fragment, "kind")?.value
+          : null
+        const keys = kind === "text"
+          ? [
+              "kind",
+              "lineageId",
+              "sourceSpans",
+              "paintRuns",
+              "paintFingerprint",
+              "fingerprint",
+            ]
+          : [
+              "kind",
+              "lineageId",
+              "sourceSpans",
+              "assetId",
+              "authoredFrame",
+              "paintFingerprint",
+              "fingerprint",
+            ]
+        const fragmentRecord = exactRecord(fragment, keys)
+        if (
+          fragmentRecord == null
+          || (kind !== "text" && kind !== "inline-image")
+          || typeof fragmentRecord.fingerprint !== "string"
+        ) return "fragment-shape"
+        const { fingerprint: fragmentFingerprint, ...fragmentFacts } =
+          fragmentRecord
+        if (fragmentFingerprint !== fingerprint({
+          contractVersion: 2,
+          ...fragmentFacts,
+        })) return "fragment-fingerprint"
+        if (kind === "text") textFragmentCount += 1
+        else inlineImageFragmentCount += 1
+      }
+      const { fingerprint: chunkFingerprint, ...chunkFacts } = record
+      if (chunkFingerprint !== fingerprint({
+        contractVersion: 2,
+        ...chunkFacts,
+      })) return "chunk-fingerprint"
+      estimatedCanonicalPayloadByteCount = safeAdd(
+        estimatedCanonicalPayloadByteCount,
+        utf8ByteCount({ payloadPolicyVersion: 1, chunk }),
+      )
+      const geometry = record.authoredBoxGeometry as {
+        readonly yOffsetLayoutUnit?: unknown
+        readonly heightLayoutUnit?: unknown
+      }
+      if (
+        !Number.isSafeInteger(geometry.yOffsetLayoutUnit)
+        || !Number.isSafeInteger(geometry.heightLayoutUnit)
+        || (geometry.heightLayoutUnit as number) < 0
+      ) return "authored-geometry"
+      const top = geometry.yOffsetLayoutUnit as number
+      const bottom = safeAdd(top, geometry.heightLayoutUnit as number)
+      authoredTopLayoutUnit = authoredTopLayoutUnit == null
+        ? top
+        : Math.min(authoredTopLayoutUnit, top)
+      authoredBottomLayoutUnit = authoredBottomLayoutUnit == null
+        ? bottom
+        : Math.max(authoredBottomLayoutUnit, bottom)
+    }
+    estimatedCanonicalPayloadByteCount = safeAdd(
+      estimatedCanonicalPayloadByteCount,
+      utf8ByteCount({
+        payloadPolicyVersion: 1,
+        source: "vnext-text-block-persistent-scene-v2",
+        contractVersion: 2,
+      }),
+    )
+    const summary = exactRecord(delivery.summary, [
+      "chunkCount",
+      "lineCount",
+      "textFragmentCount",
+      "inlineImageFragmentCount",
+      "leafCount",
+      "nodeCount",
+      "sourceRange",
+      "authoredTopLayoutUnit",
+      "authoredBottomLayoutUnit",
+      "estimatedCanonicalPayloadByteCount",
+      "lineInternalsFingerprint",
+      "sourceFingerprint",
+      "provenanceFingerprint",
+      "paintFingerprint",
+      "boundarySpatialContextFingerprint",
+    ])
+    if (summary == null) return "summary-shape"
+    if (
+      summary.chunkCount !== delivery.chunks.length
+      || summary.lineCount !== delivery.chunks.length
+      || summary.leafCount !== delivery.chunks.length
+    ) return "summary-counts"
+    if (
+      !Number.isSafeInteger(summary.nodeCount)
+      || (summary.nodeCount as number) < delivery.chunks.length
+    ) return "summary-node-count"
+    if (
+      summary.textFragmentCount !== textFragmentCount
+      || summary.inlineImageFragmentCount !== inlineImageFragmentCount
+    ) return "summary-fragment-counts"
+    if (
+      summary.estimatedCanonicalPayloadByteCount
+        !== estimatedCanonicalPayloadByteCount
+      || delivery.work.estimatedCanonicalPayloadByteCount
+        !== estimatedCanonicalPayloadByteCount
+    ) return `summary-payload-bytes(${String(
+      summary.estimatedCanonicalPayloadByteCount,
+    )}/${String(delivery.work.estimatedCanonicalPayloadByteCount)}/${
+      String(estimatedCanonicalPayloadByteCount)
+    })`
+    if (
+      summary.authoredTopLayoutUnit !== authoredTopLayoutUnit
+      || summary.authoredBottomLayoutUnit !== authoredBottomLayoutUnit
+    ) return "summary-authored-bounds"
+    return null
+  } catch {
+    return "unsafe-canonical-data"
+  }
+}
+
+export function inspectVNextTextBlockCompleteSceneDeliveryV2(
+  value: unknown,
+): VNextTextBlockCompleteSceneDeliveryInspectionV2 {
+  const record = exactRecord(value, [
+    "source",
+    "contractVersion",
+    "rootFingerprint",
+    "persistentSceneFingerprint",
+    "chunks",
+    "summary",
+    "work",
+    "stagedEditorApply",
+    "mayPublishLayout",
+    "productionBinding",
+    "fingerprint",
+  ])
+  const chunks = exactArray(record?.chunks)
+  const work = exactRecord(record?.work, [
+    "completeDeliveryCount",
+    "visitedSceneNodeCount",
+    "emittedChunkCount",
+    "estimatedCanonicalPayloadByteCount",
+  ])
+  if (
+    record == null
+    || chunks == null
+    || work == null
+    || record.source !== "vnext-text-block-complete-scene-delivery-v2"
+    || record.contractVersion !== 2
+    || typeof record.rootFingerprint !== "string"
+    || typeof record.persistentSceneFingerprint !== "string"
+    || typeof record.fingerprint !== "string"
+    || record.stagedEditorApply !== false
+    || record.mayPublishLayout !== false
+    || record.productionBinding !== false
+    || work.completeDeliveryCount !== 1
+    || !Number.isSafeInteger(work.visitedSceneNodeCount)
+    || (work.visitedSceneNodeCount as number) < 0
+    || !Number.isSafeInteger(work.emittedChunkCount)
+    || (work.emittedChunkCount as number) < 0
+    || !Number.isSafeInteger(work.estimatedCanonicalPayloadByteCount)
+    || (work.estimatedCanonicalPayloadByteCount as number) < 0
+    || work.emittedChunkCount !== chunks.length
+  ) {
+    return invalidCompleteDeliveryInspection(
+      "complete-delivery-data-mismatch",
+      "complete delivery is not one exact canonical renderer-data record",
+    )
+  }
+  try {
+    const delivery = record as unknown as VNextTextBlockCompleteSceneDeliveryV2
+    const chunkIssue = completeDeliveryChunkIssue(delivery)
+    if (chunkIssue != null) {
+      return invalidCompleteDeliveryInspection(
+        "complete-delivery-data-mismatch",
+        `complete delivery chunks or summary are not canonical renderer data: ${chunkIssue}`,
+      )
+    }
+    const facts = {
+      source: delivery.source,
+      contractVersion: delivery.contractVersion,
+      rootFingerprint: delivery.rootFingerprint,
+      persistentSceneFingerprint: delivery.persistentSceneFingerprint,
+      chunks: delivery.chunks,
+      summary: delivery.summary,
+      work: delivery.work,
+      stagedEditorApply: delivery.stagedEditorApply,
+      mayPublishLayout: delivery.mayPublishLayout,
+      productionBinding: delivery.productionBinding,
+    }
+    if (delivery.fingerprint !== fingerprint(facts)) {
+      return invalidCompleteDeliveryInspection(
+        "complete-delivery-fingerprint-mismatch",
+        "complete delivery fingerprint does not match canonical renderer data",
+      )
+    }
+    return {
+      status: "valid",
+      fingerprint: delivery.fingerprint,
+      rootFingerprint: delivery.rootFingerprint,
+      persistentSceneFingerprint: delivery.persistentSceneFingerprint,
+      emittedChunkCount: delivery.work.emittedChunkCount,
+      estimatedCanonicalPayloadByteCount:
+        delivery.work.estimatedCanonicalPayloadByteCount,
+    }
+  } catch {
+    return invalidCompleteDeliveryInspection(
+      "complete-delivery-unsafe-count",
+      "complete delivery could not be canonically inspected",
+    )
   }
 }

@@ -13,10 +13,28 @@ const reviewedUnifiedRuntimeExports = [
   "projectVNextTextBlockUnifiedLayoutSceneV1",
 ] as const
 
+const reviewed5B1UnifiedRuntimeExports = [
+  "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID",
+  "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1",
+  "acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1",
+  "attemptVNextTextBlockUnifiedLayoutRootTransitionV1",
+  "completeVNextTextBlockUnifiedLayoutRootFallbackV1",
+  "createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2",
+  "createVNextTextBlockUnifiedLayoutRootV2",
+  "createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1",
+  "inspectVNextTextBlockUnifiedLayoutFallbackRequestV1",
+  "inspectVNextTextBlockUnifiedLayoutRootV2",
+  "inspectVNextTextBlockUnifiedLayoutTransitionResultV1",
+] as const
+
 const privilegedRuntimeNames = [
   "inspectVNextTextBlockUnifiedLayoutRootBindingInternalV1",
   "projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2",
   "registerVNextTextBlockUnifiedLayoutRootInternalV1",
+  "registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2",
+  "createVNextTextBlockUnifiedLayoutRootCompleteInternalV2",
+  "attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1",
+  "evaluateVNextTextBlockStageWorkLimitInternalV1",
   "canonicalRootFacts",
   "rootFingerprintFacts",
   "roots",
@@ -42,8 +60,14 @@ describe("Live Draft MR1 unified TextBlock root Phase 5A public boundary", () =>
       ))
       .sort()
 
-    expect(unifiedRuntimeExports).toEqual([...reviewedUnifiedRuntimeExports].sort())
-    for (const name of reviewedUnifiedRuntimeExports) {
+    expect(unifiedRuntimeExports).toEqual([
+      ...reviewedUnifiedRuntimeExports,
+      ...reviewed5B1UnifiedRuntimeExports,
+    ].sort())
+    for (const name of [
+      ...reviewedUnifiedRuntimeExports,
+      ...reviewed5B1UnifiedRuntimeExports,
+    ]) {
       expect(name in core, name).toBe(true)
     }
     for (const name of privilegedRuntimeNames) {

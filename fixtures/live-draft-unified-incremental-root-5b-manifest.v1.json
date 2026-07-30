@@ -1,0 +1,381 @@
+{
+  "source": "flowdoc-live-draft-unified-incremental-root-5b-manifest",
+  "manifestVersion": 1,
+  "checkpoint": "5B-1",
+  "scope": {
+    "repository": "flowdoc-vnext-core",
+    "processLocal": true,
+    "editor": false,
+    "backend": false,
+    "productionActivation": false
+  },
+  "policy": {
+    "policyId": "5b-1-v1",
+    "fingerprint": "sha256:7ea9c80e77b0d81fc9af5d425ddd9d11935de4ba1d6ee2d66e92f94514ee0179",
+    "calibration": {
+      "smallBlockFloor": "next-power-of-two(max-observed-unit-count where lineCount <= 32)",
+      "absoluteStageLimit": "next-power-of-two(4 * max-observed-unit-count in declared 5B-1 matrix)",
+      "relativeNumerator": "min-positive-integer(max(ceil(workUnit / max(1, previousSummaryBase))))",
+      "relativeDenominator": 1,
+      "relativeStageLimit": "ceil(previousSummaryBase * relativeNumerator / relativeDenominator) + exactValidatedChangeDelta",
+      "clockOrDurationFieldCount": 0
+    },
+    "lockedStageLimits": [
+      {
+        "stage": "source-flow",
+        "unit": "source-items",
+        "policyClass": "paint-source-copy",
+        "smallBlockFloor": 1,
+        "absoluteStageLimit": 4,
+        "relativeNumerator": 1,
+        "relativeDenominator": 1
+      },
+      {
+        "stage": "scene",
+        "unit": "copied-scene-nodes",
+        "policyClass": "scene-path-copy",
+        "smallBlockFloor": 2,
+        "absoluteStageLimit": 16,
+        "relativeNumerator": 1,
+        "relativeDenominator": 1
+      },
+      {
+        "stage": "scene",
+        "unit": "replacement-chunks",
+        "policyClass": "replacement-chunk",
+        "smallBlockFloor": 1,
+        "absoluteStageLimit": 4,
+        "relativeNumerator": 1,
+        "relativeDenominator": 1
+      },
+      {
+        "stage": "delivery-plan",
+        "unit": "delivery-operations",
+        "policyClass": "delivery-plan",
+        "smallBlockFloor": 4,
+        "absoluteStageLimit": 16,
+        "relativeNumerator": 1,
+        "relativeDenominator": 1
+      },
+      {
+        "stage": "delivery-plan",
+        "unit": "retain-cover-nodes",
+        "policyClass": "canonical-retain-cover",
+        "smallBlockFloor": 16,
+        "absoluteStageLimit": 64,
+        "relativeNumerator": 1,
+        "relativeDenominator": 1
+      }
+    ],
+    "inactiveUnits": [
+      "flow-atoms",
+      "flow-tree-nodes",
+      "spatial-index-nodes",
+      "spatial-query-bands",
+      "recomputed-lines",
+      "proof-nodes",
+      "reprojected-lines",
+      "visited-fragments",
+      "estimated-canonical-payload-bytes"
+    ],
+    "inactiveUnitExceptions": [
+      {
+        "unit": "proof-nodes",
+        "purpose": "one canonical all-E structural proof only",
+        "activatesTextLayout": false
+      },
+      {
+        "unit": "estimated-canonical-payload-bytes",
+        "purpose": "observation only",
+        "selectsExecutionPath": false
+      }
+    ]
+  },
+  "fixtures": [
+    {
+      "fixtureId": "5b1-empty-structural",
+      "changeFamily": "empty-scene-calibration",
+      "atomCount": 0,
+      "lineCount": 0,
+      "chunkCount": 0,
+      "policyClass": "structural-zero",
+      "expectedPath": "calibration-only",
+      "oracleId": "persistent-scene-v2-empty-kernel",
+      "counters": {
+        "sourceItems": 0,
+        "proofNodes": 0,
+        "copiedSceneNodes": 0,
+        "replacementChunks": 0,
+        "deliveryOperations": 0,
+        "retainCoverNodes": 0,
+        "estimatedCanonicalPayloadBytes": 0
+      }
+    },
+    {
+      "fixtureId": "5b1-1-line-first",
+      "changeFamily": "image-paint-first",
+      "atomCount": 3,
+      "lineCount": 1,
+      "chunkCount": 1,
+      "policyClass": "paint-only",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 0,
+        "replacementChunks": 1,
+        "deliveryOperations": 1,
+        "retainCoverNodes": 0,
+        "estimatedCanonicalPayloadBytes": 6566
+      }
+    },
+    {
+      "fixtureId": "5b1-8-line-middle",
+      "changeFamily": "image-paint-middle",
+      "atomCount": 24,
+      "lineCount": 8,
+      "chunkCount": 8,
+      "policyClass": "paint-only",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 1,
+        "replacementChunks": 1,
+        "deliveryOperations": 3,
+        "retainCoverNodes": 7,
+        "estimatedCanonicalPayloadBytes": 6585
+      }
+    },
+    {
+      "fixtureId": "5b1-32-line-last",
+      "changeFamily": "image-paint-last",
+      "atomCount": 96,
+      "lineCount": 32,
+      "chunkCount": 32,
+      "policyClass": "paint-only",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 2,
+        "replacementChunks": 1,
+        "deliveryOperations": 2,
+        "retainCoverNodes": 10,
+        "estimatedCanonicalPayloadBytes": 6604
+      }
+    },
+    {
+      "fixtureId": "5b1-33-line-middle",
+      "changeFamily": "image-paint-middle",
+      "atomCount": 99,
+      "lineCount": 33,
+      "chunkCount": 33,
+      "policyClass": "paint-only",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 2,
+        "replacementChunks": 1,
+        "deliveryOperations": 3,
+        "retainCoverNodes": 11,
+        "estimatedCanonicalPayloadBytes": 6604
+      }
+    },
+    {
+      "fixtureId": "5b1-128-line-first",
+      "changeFamily": "image-paint-first",
+      "atomCount": 384,
+      "lineCount": 128,
+      "chunkCount": 128,
+      "policyClass": "paint-only-scale",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 3,
+        "replacementChunks": 1,
+        "deliveryOperations": 2,
+        "retainCoverNodes": 15,
+        "estimatedCanonicalPayloadBytes": 6566
+      }
+    },
+    {
+      "fixtureId": "5b1-image-paint-first",
+      "changeFamily": "image-paint-first",
+      "atomCount": 24,
+      "lineCount": 8,
+      "chunkCount": 8,
+      "policyClass": "position-matrix",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 1,
+        "replacementChunks": 1,
+        "deliveryOperations": 2,
+        "retainCoverNodes": 7,
+        "estimatedCanonicalPayloadBytes": 6566
+      }
+    },
+    {
+      "fixtureId": "5b1-image-paint-middle",
+      "changeFamily": "image-paint-middle",
+      "atomCount": 24,
+      "lineCount": 8,
+      "chunkCount": 8,
+      "policyClass": "position-matrix",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 1,
+        "replacementChunks": 1,
+        "deliveryOperations": 3,
+        "retainCoverNodes": 7,
+        "estimatedCanonicalPayloadBytes": 6585
+      }
+    },
+    {
+      "fixtureId": "5b1-image-paint-last",
+      "changeFamily": "image-paint-last",
+      "atomCount": 24,
+      "lineCount": 8,
+      "chunkCount": 8,
+      "policyClass": "position-matrix",
+      "expectedPath": "accepted-incremental",
+      "oracleId": "independent-complete-root-v2",
+      "counters": {
+        "sourceItems": 1,
+        "proofNodes": 1,
+        "copiedSceneNodes": 1,
+        "replacementChunks": 1,
+        "deliveryOperations": 2,
+        "retainCoverNodes": 7,
+        "estimatedCanonicalPayloadBytes": 6587
+      }
+    },
+    {
+      "fixtureId": "5b1-128-line-no-op",
+      "changeFamily": "no-op",
+      "atomCount": 384,
+      "lineCount": 128,
+      "chunkCount": 128,
+      "policyClass": "exact-wrapper",
+      "expectedPath": "accepted-no-op",
+      "oracleId": "exact-previous-root-v2",
+      "counters": {
+        "sourceItems": 0,
+        "proofNodes": 1,
+        "copiedSceneNodes": 0,
+        "replacementChunks": 0,
+        "deliveryOperations": 0,
+        "retainCoverNodes": 0,
+        "estimatedCanonicalPayloadBytes": 0
+      }
+    },
+    {
+      "fixtureId": "5b1-128-line-exclusion",
+      "changeFamily": "exclusion-change",
+      "atomCount": 384,
+      "lineCount": 128,
+      "chunkCount": 128,
+      "policyClass": "inactive-5B-3",
+      "expectedPath": "blocked-inactive-work-policy-stage",
+      "oracleId": "not-run-in-5B-1",
+      "counters": {
+        "sourceItems": 0,
+        "proofNodes": 0,
+        "copiedSceneNodes": 0,
+        "replacementChunks": 0,
+        "deliveryOperations": 0,
+        "retainCoverNodes": 0,
+        "estimatedCanonicalPayloadBytes": 0
+      }
+    }
+  ],
+  "thresholdRows": [
+    {
+      "stage": "source-flow",
+      "unit": "source-items",
+      "previousSummaryBase": 384,
+      "exactValidatedChangeDelta": 1,
+      "effectiveLimit": 4,
+      "limitMinusOne": 3,
+      "limit": 4,
+      "limitPlusOne": 5
+    },
+    {
+      "stage": "scene",
+      "unit": "copied-scene-nodes",
+      "previousSummaryBase": 128,
+      "exactValidatedChangeDelta": 1,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "scene",
+      "unit": "replacement-chunks",
+      "previousSummaryBase": 128,
+      "exactValidatedChangeDelta": 1,
+      "effectiveLimit": 4,
+      "limitMinusOne": 3,
+      "limit": 4,
+      "limitPlusOne": 5
+    },
+    {
+      "stage": "delivery-plan",
+      "unit": "delivery-operations",
+      "previousSummaryBase": 128,
+      "exactValidatedChangeDelta": 1,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "delivery-plan",
+      "unit": "retain-cover-nodes",
+      "previousSummaryBase": 128,
+      "exactValidatedChangeDelta": 1,
+      "effectiveLimit": 64,
+      "limitMinusOne": 63,
+      "limit": 64,
+      "limitPlusOne": 65
+    }
+  ],
+  "invariants": {
+    "completeNextInputTraversalCount": 0,
+    "completeNextInputComparisonCount": 0,
+    "completeSceneTraversalCount": 0,
+    "completeSuffixTraversalCount": 0,
+    "sceneV1MaterializationCount": 0,
+    "wallClockExecutionPathSelection": false,
+    "partialCandidateMayEnterFallback": false,
+    "callerMaySelectWorkPolicy": false,
+    "stagedEditorApply": false,
+    "mayPublishLayout": false,
+    "productionBinding": false
+  },
+  "ownershipMap": {
+    "rootV2Authority": "Core",
+    "persistentSceneV2Authority": "Core",
+    "dirtyRange": "Core",
+    "affectedLinesAndBands": "Core",
+    "reconvergenceAndReuse": "Core",
+    "fallbackSelection": "Core",
+    "producerEvidenceResponse": "producer-within-Core-bounded-request",
+    "editorApply": "out-of-scope",
+    "backendPersistence": "out-of-scope"
+  }
+}

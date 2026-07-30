@@ -65,6 +65,7 @@ import type {
   VNextTextBlockUnifiedLayoutStageV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
@@ -207,23 +208,95 @@ function validWorkPolicy(
   const record = exactRecord(value, [
     "source",
     "contractVersion",
+    "policyId",
     "checkpoint",
     "stages",
     "fingerprint",
   ])
+  const stageRows = exactArray(record?.stages)
   if (
     record == null
     || record.source
       !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE
     || record.contractVersion
       !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION
+    || typeof record.policyId !== "string"
+    || record.policyId.length === 0
     || record.checkpoint !== "5B-1"
     || typeof record.fingerprint !== "string"
-    || exactArray(record.stages) == null
+    || stageRows == null
+    || stageRows.length !== 14
   ) return false
-  return record.fingerprint === fingerprint({
+  const allowed = new Map([
+    ["source-items", "source-flow"],
+    ["flow-atoms", "source-flow"],
+    ["flow-tree-nodes", "source-flow"],
+    ["spatial-index-nodes", "spatial-index"],
+    ["spatial-query-bands", "spatial-index"],
+    ["recomputed-lines", "layout-reconvergence"],
+    ["proof-nodes", "layout-reconvergence"],
+    ["reprojected-lines", "geometry"],
+    ["visited-fragments", "geometry"],
+    ["copied-scene-nodes", "scene"],
+    ["replacement-chunks", "scene"],
+    ["delivery-operations", "delivery-plan"],
+    ["retain-cover-nodes", "delivery-plan"],
+    ["estimated-canonical-payload-bytes", "delivery-plan"],
+  ])
+  const seen = new Set<string>()
+  for (const value of stageRows) {
+    const row = exactRecord(value, [
+      "stage",
+      "unit",
+      "lockStatus",
+      "smallBlockFloor",
+      "absoluteStageLimit",
+      "relativeNumerator",
+      "relativeDenominator",
+      "checkpointOwner",
+      "fingerprint",
+    ])
+    if (
+      row == null
+      || typeof row.unit !== "string"
+      || allowed.get(row.unit) !== row.stage
+      || seen.has(row.unit)
+      || (
+        row.lockStatus !== "inactive"
+        && row.lockStatus !== "prelock"
+        && row.lockStatus !== "locked"
+      )
+      || (
+        row.checkpointOwner !== "5B-1"
+        && row.checkpointOwner !== "5B-2"
+        && row.checkpointOwner !== "5B-3"
+      )
+      || !Number.isSafeInteger(row.smallBlockFloor)
+      || (row.smallBlockFloor as number) < 0
+      || !Number.isSafeInteger(row.absoluteStageLimit)
+      || (row.absoluteStageLimit as number) < 0
+      || !Number.isSafeInteger(row.relativeNumerator)
+      || (row.relativeNumerator as number) < 0
+      || row.relativeDenominator !== 1
+      || typeof row.fingerprint !== "string"
+      || row.fingerprint !== fingerprint({
+        stage: row.stage,
+        unit: row.unit,
+        lockStatus: row.lockStatus,
+        smallBlockFloor: row.smallBlockFloor,
+        absoluteStageLimit: row.absoluteStageLimit,
+        relativeNumerator: row.relativeNumerator,
+        relativeDenominator: row.relativeDenominator,
+        checkpointOwner: row.checkpointOwner,
+      })
+    ) return false
+    seen.add(row.unit)
+  }
+  return seen.size === allowed.size
+    && record.fingerprint === fingerprint({
     source: record.source,
     contractVersion: record.contractVersion,
+    policyId: record.policyId,
     checkpoint: record.checkpoint,
     stages: record.stages,
   })
@@ -801,4 +874,19 @@ export function inspectVNextTextBlockUnifiedLayoutRootV2(
   value: unknown,
 ): VNextTextBlockUnifiedLayoutRootInspectionV2 {
   return inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2(value)
+}
+
+export function createVNextTextBlockUnifiedLayoutRootV2(
+  input: VNextTextBlockUnifiedLayoutRootBuildInputV2,
+): VNextTextBlockUnifiedLayoutRootResultV2
+export function createVNextTextBlockUnifiedLayoutRootV2(
+  input: unknown,
+): VNextTextBlockUnifiedLayoutRootResultV2
+export function createVNextTextBlockUnifiedLayoutRootV2(
+  input: unknown,
+): VNextTextBlockUnifiedLayoutRootResultV2 {
+  return createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    input,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  )
 }

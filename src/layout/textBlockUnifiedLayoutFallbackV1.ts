@@ -31,8 +31,9 @@ import type {
   VNextTextBlockUnifiedLayoutStageUnitV1,
   VNextTextBlockUnifiedLayoutStageV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
-import type {
-  VNextTextBlockUnifiedLayoutWorkPolicyV1,
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function fingerprint(value: unknown): string {
@@ -606,5 +607,30 @@ export function completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1(
     stagedEditorApply: false,
     mayPublishLayout: false,
     productionBinding: false,
+  })
+}
+
+export function inspectVNextTextBlockUnifiedLayoutFallbackRequestV1(
+  value: unknown,
+): VNextTextBlockUnifiedLayoutFallbackRequestInspectionV1 {
+  return inspectVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(value)
+}
+
+export function completeVNextTextBlockUnifiedLayoutRootFallbackV1(input: {
+  readonly request: VNextTextBlockUnifiedLayoutFallbackRequestV1
+  readonly completeMaterial: VNextTextBlockUnifiedLayoutRootBuildInputV2
+}): VNextTextBlockUnifiedLayoutCompleteFallbackResultV1
+export function completeVNextTextBlockUnifiedLayoutRootFallbackV1(
+  input: unknown,
+): VNextTextBlockUnifiedLayoutCompleteFallbackResultV1
+export function completeVNextTextBlockUnifiedLayoutRootFallbackV1(
+  input: unknown,
+): VNextTextBlockUnifiedLayoutCompleteFallbackResultV1 {
+  const exact = exactRecord(input, ["request", "completeMaterial"])
+  return completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
+    request: exact?.request as VNextTextBlockUnifiedLayoutFallbackRequestV1,
+    completeMaterial:
+      exact?.completeMaterial as VNextTextBlockUnifiedLayoutRootBuildInputV2,
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
   })
 }

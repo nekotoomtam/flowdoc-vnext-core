@@ -189,6 +189,14 @@ const phase4BExpectedExports: Readonly<Record<string, readonly string[]>> = {
 }
 const phase4BV2RootModulePaths = Object.keys(phase4BExpectedExports)
   .filter((modulePath) => /V2\.js$/u.test(modulePath))
+const reviewedPostPhase4BV2RootModulePaths = new Set([
+  "./layout/textBlockPersistentSceneContractV2.js",
+  "./layout/textBlockPersistentSceneV2.js",
+  "./layout/textBlockSceneDeliveryContractV2.js",
+  "./layout/textBlockSceneDeliveryV2.js",
+  "./layout/textBlockUnifiedLayoutRootContractV2.js",
+  "./layout/textBlockUnifiedLayoutRootV2.js",
+])
 const isPhase4BRootModule = (modulePath: string): boolean =>
   modulePath === "./layout/textBlockInlineImageLineBoxV1.js"
   || /^\.\/layout\/.*V2\.js$/iu.test(modulePath)
@@ -204,6 +212,9 @@ const assertPhase4BExports = (
   )
   const actualV2RootModulePaths = [...exports.rootModulePaths]
     .filter((modulePath) => /^\.\/layout\/.*V2\.js$/iu.test(modulePath))
+    .filter((modulePath) =>
+      !reviewedPostPhase4BV2RootModulePaths.has(modulePath)
+    )
   expect(actualV2RootModulePaths.sort()).toEqual([...phase4BV2RootModulePaths].sort())
   expect([...exports.rootLocalSymbols]).toEqual([])
   for (const [module, expectedSymbols] of Object.entries(phase4BExpectedExports)) {

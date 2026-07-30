@@ -32,10 +32,14 @@ import {
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
-import type {
-  VNextTextBlockUnifiedLayoutWorkPolicyV1,
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
-
+/*
+ * Work policy remains an internal orchestration choice.  The public request
+ * wrapper below always selects the locked checkpoint policy.
+ */
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
 }
@@ -1101,4 +1105,58 @@ export function inspectVNextTextBlockUnifiedLayoutTransitionEvidenceInternalV1(
     changeFingerprint: record.changeFingerprint,
     fingerprint: record.fingerprint,
   }
+}
+
+export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1(
+  input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  },
+): VNextTextBlockTransitionEvidenceRequestResultV1
+export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1(
+  input: unknown,
+): VNextTextBlockTransitionEvidenceRequestResultV1
+export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1(
+  input: unknown,
+): VNextTextBlockTransitionEvidenceRequestResultV1 {
+  const exact = exactRecord(input, ["previousRoot", "change"])
+  return createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1({
+    previousRoot: exact?.previousRoot as VNextTextBlockUnifiedLayoutRootV2,
+    change: exact?.change as VNextTextBlockUnifiedLayoutChangeV1,
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  })
+}
+
+export function inspectVNextTextBlockTransitionEvidenceRequestV1(
+  value: unknown,
+): VNextTextBlockTransitionEvidenceRequestInspectionV1 {
+  if (
+    value == null
+    || typeof value !== "object"
+    || !requestTuples.has(value as object)
+  ) {
+    return {
+      status: "invalid",
+      code: "evidence-authority-mismatch",
+      message: "request is not the exact process-local Root-owned request",
+    }
+  }
+  const request = value as Extract<
+    VNextTextBlockTransitionEvidenceRequestResultV1,
+    { status: "required" }
+  >["request"]
+  return {
+    status: "valid",
+    previousRootFingerprint: request.previousRootFingerprint,
+    changeFingerprint: request.changeFingerprint,
+    previousSourceRange: request.previousSourceRange,
+    nextSourceRange: request.nextSourceRange,
+    fingerprint: request.fingerprint,
+  }
+}
+
+export function inspectVNextTextBlockTransitionEvidenceV1(
+  value: unknown,
+): VNextTextBlockTransitionEvidenceInspectionV1 {
+  return inspectVNextTextBlockUnifiedLayoutTransitionEvidenceInternalV1(value)
 }
