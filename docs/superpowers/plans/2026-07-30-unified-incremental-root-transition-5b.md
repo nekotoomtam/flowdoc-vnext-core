@@ -8,10 +8,11 @@ bounded producer evidence, exact/translated reconvergence, and deterministic
 work gates defined by the approved Phase 5B design.
 
 **Architecture:** Keep Root V1 and Scene V1 frozen as compatibility and QA
-references. Complete bootstrap and complete fallback independently build a
-transition-native Root V2 graph containing a task-specific persistent source
-state, layout-only flow tree, exclusion index, Flow Region Provider authority,
-persistent line tree, authored box summary, and Persistent Scene V2.
+references. Complete bootstrap and complete fallback consume independently
+supplied complete material through one private complete Root V2 construction
+kernel, producing a task-specific persistent source state, layout-only flow
+tree, exclusion index, Flow Region Provider authority, persistent line tree,
+authored box summary, and Persistent Scene V2.
 Incremental attempts validate one closed
 tagged change, request only Core-derived bounded producer facts, execute private
 stages under locked deterministic policies, and atomically register a next Root
@@ -24,6 +25,12 @@ Node-native / browser-Worker-WASM text-engine fixtures.
 
 ## Global Constraints
 
+- Tasks 1-10 were implemented locally through `5750fd2`, but their original
+  5B-1 close claim is provisional after the approved 2026-07-31 design
+  corrections. Before Task 11, execute and independently review
+  `docs/superpowers/plans/2026-07-31-unified-incremental-root-transition-5b-1-corrective.md`.
+  Phase 5B-2 remains blocked until that corrective stop-gate passes and the
+  user explicitly authorizes continuation.
 - Before Task 1, re-read the applicable `AGENTS.md`, fetch/prune all three
   repositories, and revalidate branch, HEAD, upstream divergence, and working
   trees. This plan is based on Core `main` at
@@ -76,8 +83,22 @@ Node-native / browser-Worker-WASM text-engine fixtures.
 - Delivery uses zero-based half-open immutable previous/next domains and only
   canonical `retain-range` / `splice-range` operations.
 - Retain proof uses the unique left-to-right maximal-subtree cover.
+- Retain-cover uniqueness is relative to the exact registered tree authority,
+  versioned tree-policy fingerprint, and half-open ordinal range. Foreign,
+  cloned, unregistered, or policy-mismatched alternate shapes block.
 - Fingerprint equality proves deterministic integrity, never process-local
   authority. Exact authority uses weak-key process-local registries.
+- Root semantic identity excludes construction provenance, work policy,
+  fixture calibration revision, and payload observations. Root composite
+  authority identity binds the active work policy and construction facts.
+- Persistent Scene semantic fingerprints exclude payload-estimation policy,
+  payload observations, and build/path-copy work. Delivery binds the semantic
+  Scene fingerprint and a separate payload-observation fingerprint.
+- Payload size remains observational only and cannot appear in execution
+  stage work, work-policy limits, fallback reasons, or path selection.
+- Core derives the closed true-no-op/semantic-only/paint-affecting/
+  geometry-affecting classification and `semanticIdentityChanged`; callers
+  cannot provide or override it.
 - Work limits are deterministic, stage-specific, fixture-evidenced, versioned,
   and fingerprinted. Wall-clock observations never choose an execution path.
 - The Core-owned policy evolves by explicit checkpoint version. A stage is
@@ -113,7 +134,8 @@ Node-native / browser-Worker-WASM text-engine fixtures.
 ## Checkpoint And Review Order
 
 1. **5B-1 Transition and Persistent Scene Foundation** — Tasks 1-10.
-   Stop for independent review after Task 10.
+   The original implementation stop is superseded by the separately reviewed
+   5B-1 corrective plan. Stop again after that plan.
 2. **5B-2 Text and Style Incremental Transition** — Tasks 11-15.
    Stop for independent review after Task 15.
 3. **5B-3 Image, Spatial, and Scale Closure** — Tasks 16-18.
@@ -121,6 +143,7 @@ Node-native / browser-Worker-WASM text-engine fixtures.
 
 No task in a later checkpoint starts before the preceding checkpoint's focused
 gate, policy manifest, lifetime gate, public-boundary guard, and review pass.
+In particular, Task 11 cannot start from `5750fd2` alone.
 
 ## Target File Structure
 
@@ -2433,6 +2456,11 @@ export function transitionVNextTextBlockUnifiedLayoutFlowInternalV1(input: {
   insertion/deletion; absolute rendered offsets are traversal results.
 - Identical rendered resolved-field text with changed source/provenance changes
   source state and scene mapping but may reuse layout-only flow.
+- Every accepted flow-stage result preserves the Core-derived effect
+  classification from the validated change. A semantic-only row updates
+  source/provenance and scene mapping without forcing paint/layout change;
+  paint-affecting and geometry-affecting rows remain distinct even when both
+  also change semantic identity.
 - Style rows classify:
   - same effective style and provenance: true no-op;
   - paint-only color: source/paint path copy with exact flow reuse;
@@ -2778,8 +2806,9 @@ git commit -m "feat(layout): complete text and style Root V2 transitions"
 
 - Publish checkpoint policy version `5b-2-v1`. Lock evidence, flow/tree,
   layout, and reconvergence limits using the exact deterministic calibration
-  rule from Task 10. Keep the already locked 5B-1 scene/delivery rows byte-for-
-  byte unchanged.
+  rule from the corrected 5B-1 gate. Extend active `5b-1-v2`; keep its already
+  locked paint-source, structural-reuse, scene, and delivery rows byte-for-byte
+  unchanged, and keep payload observations outside the work policy.
 - Geometry executes under a `prelock` safety ceiling derived from the declared
   5B-2 text/style fixtures. It is exact, versioned, finite, fingerprinted, and
   threshold-tested, but Task 18 alone may mark geometry `locked` after the
@@ -3045,6 +3074,24 @@ old affected band union new affected band = mandatory recomputation seed
   width/origin changes from the complete next authored-box plan, starts a real
   attempt when policy permits, and may return only allowlisted
   `planned-complete` reasons recorded in policy.
+- Authored-box policy paths are exact:
+  - top/bottom inset only with unchanged content width and flow intervals
+    starts a bounded attempt, retains exact line internals, and rebuilds
+    affected authored geometry/scene;
+  - compensated left/right inset change with unchanged content width starts a
+    bounded attempt, retains exact flow/layout internals, and rebuilds shifted
+    authored geometry/scene;
+  - a width change with local rewrap starts a bounded attempt and continues to
+    exact/translated reconvergence or a deterministic limit;
+  - a derived whole-block width impact may be `planned-complete` only when an
+    allowlisted fact is proven from registered bounded summaries without
+    walking the block; otherwise Core starts a bounded attempt and reports
+    proof/work-limit fallback factually;
+  - inconsistent outer width/insets/content width blocks at the change gate;
+    and
+  - fixed-height/overflow-shaped input blocks as outside Phase 5B.
+- Width, line count, block size, or implementation complexity alone can never
+  select `planned-complete`.
 - Before the spatial stage, the flow stage path-copies source state to replace
   the authored-box plan and reuses the exact layout-only flow tree. The spatial
   stage consumes that accepted flow result, creates a new spatial-state wrapper
@@ -3061,11 +3108,14 @@ path-copy index work, spatial queries, reconvergence, and oracle parity.
 
 - [ ] **Step 2: Write failing authored-box matrix**
 
-Cover width widening/narrowing, left/right/top/bottom inset changes, unchanged
-content width with moved origin, width/inset change under the existing
-auto-height contract, unsupported fixed-height-shaped input, and an allowlisted
-whole-block width case. Assert required/permitted classification and exact
-planned-complete reason.
+Cover the exact authored-box policy rows above at first/middle/last affected
+regions: top/bottom inset with unchanged content width, compensated left/right
+inset with unchanged content width, local rewrap, bounded-summary-proven
+whole-block impact, inconsistent outer width/insets/content width, and
+fixed-height/overflow-shaped input. Assert the exact attempt,
+`planned-complete`, or blocked path and exact reason. Add a large-block row
+whose local rewrap still starts incrementally, proving block size alone cannot
+select `planned-complete`.
 
 - [ ] **Step 3: Run the spatial transition test and verify RED**
 
@@ -3137,10 +3187,10 @@ git commit -m "feat(layout): add spatial and authored-box transitions"
   query-band, image, and geometry policies using the Task 10 deterministic
   calibration rule; replace the 5B-2 geometry `prelock` entry with the
   fixture-bound `locked` entry.
-- Keep locked 5B-1 scene/delivery and 5B-2 evidence/flow/layout/reconvergence
-  subpolicies unchanged. Any required value change triggers an explicit
-  subpolicy version bump plus rerun and independent review of its original
-  binding checkpoint before Phase 5B may close.
+- Keep locked 5B-1 paint-source/structural-reuse/scene/delivery and 5B-2
+  evidence/flow/layout/reconvergence subpolicies unchanged. Any required value
+  change triggers an explicit subpolicy version bump plus rerun and independent
+  review of its original binding checkpoint before Phase 5B may close.
 - Scale rows include small/long text, small/long mixed text/images,
   32/128/2,048/6,000-line TextBlocks, 0/1/128/1,024 exclusions, first/middle/
   last changes, translated and exact suffixes, proof failure, and every
@@ -3181,8 +3231,9 @@ line dispositions, scene delivery, Root V2, complete delivery, and counters.
 
 Apply the calibration formula separately for spatial nodes, query bands,
 recomputed image lines, geometry lines/fragments, copied scene nodes,
-replacement chunks, plan operations, and payload bytes. Commit exact values,
-the final `5b-3-v1` policy fingerprint,
+replacement chunks, and plan operations. Keep payload bytes in the separate
+observation matrix and never calibrate an execution limit from them. Commit
+exact work-limit values, the final `5b-3-v1` policy fingerprint,
 limit-minus-one/limit/limit-plus-one results, and oracle identity to source and
 manifest. Scene/delivery rows are validation rows against the locked 5B-1
 subpolicy, not an implicit recalibration.
@@ -3312,6 +3363,7 @@ publication/production capability remains unchanged and false.
 | 27-28 Unknowns and deferred decisions | Task 18 handoff |
 | 29 Required handoff artifacts | Task 10 manifest; Task 18 manifest/ownership/report |
 | 30 Phase 5B stop-gate | Task 18 focused/full gates and final review stop |
+| 2026-07-31 capability/identity corrections | Separate 5B-1 corrective plan plus amended Tasks 12, 15, 17, and 18 |
 
 ---
 
@@ -3337,7 +3389,14 @@ publication/production capability remains unchanged and false.
 - Strict translated reuse proves internals, source/provenance, constant delta,
   spatial compatibility, authored bounds, and boundary semantics.
 - Scene delivery uses immutable domains, canonical operation order, and the
-  unique maximal-subtree retain cover.
+  maximal-subtree retain cover canonical for the exact tree/policy/range tuple.
+- Root/Scene semantic fingerprints remain separate from work policy,
+  construction provenance, fixture calibration, and payload observation as
+  assigned by the approved design.
+- Complete bootstrap and fallback use one complete-construction kernel while
+  fallback still receives only independently supplied complete material.
+- Effect classification is Core-derived and rendered equality cannot erase
+  source/provenance identity.
 - Exact process-local authority never relies on fingerprint equality and does
   not create strong previous-root history chains.
 - Candidate, fallback, and oracle work ledgers remain separate.
