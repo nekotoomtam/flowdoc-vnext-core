@@ -11,14 +11,8 @@ const sectionAtPeerHeading = (document: string, heading: string): string => {
   return document.slice(startIndex, nextHeadingIndex < 0 ? document.length : nextHeadingIndex)
 }
 
-const phase4bPointer = "Phase 4B is the accepted bounded Core-only inline-image line-box checkpoint"
 const historicalDeferredNoGo =
   "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
-const phase4bNoGo =
-  "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
-const phase5Gate =
-  "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
-const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 3: Core Spatial Wrapping 3A`.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 
 describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
   it("pins the Phase 3 evidence sections, capability matrix, and authority limits", () => {
@@ -88,14 +82,12 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
     expect(next).toContain(historicalDeferredNoGo)
   })
 
-  it("pins public exports and advances only the active cross-runtime and ledger pointers", () => {
+  it("pins public exports and section-bounded historical cross-runtime and ledger evidence", () => {
     const publicIndexLines = read("src/index.ts").split(/\r?\n/gu)
     const crossRuntime = read("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("docs/PHASE_LEDGER.md")
     const requiredReading = normalize(sectionAtPeerHeading(crossRuntime, "## Required Reading"))
     const phase3 = normalize(sectionAtPeerHeading(crossRuntime, "## Phase 3 Core Spatial Wrapping 3A"))
-    const currentTask = normalize(sectionAtPeerHeading(crossRuntime, "## First Task For The Next Thread"))
-    const activePrompt = normalize(sectionAtPeerHeading(crossRuntime, "## Handoff Prompt"))
     const ledgerPhase3 = normalize(sectionAtPeerHeading(ledger, "## Phase 3 Core Spatial Wrapping 3A"))
 
     for (const statement of [
@@ -114,14 +106,6 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       expect(active).toContain("`productionBinding: false`")
       expect(active).toContain("`stagedEditorApply: false`")
       expect(active).toContain(historicalDeferredNoGo)
-    }
-    expect(currentTask).toContain(phase4bPointer)
-    expect(activePrompt).toContain("accepted Phase 4B Core implementation head f8eb3ba")
-    for (const active of [currentTask, activePrompt]) {
-      expect(active).toContain(phase4bNoGo)
-      expect(active).toContain(phase5Gate)
-      expect(active).not.toContain("Proceed only to `Phase 3")
-      for (const directive of supersededActiveDirectives) expect(active).not.toContain(directive)
     }
   })
 })

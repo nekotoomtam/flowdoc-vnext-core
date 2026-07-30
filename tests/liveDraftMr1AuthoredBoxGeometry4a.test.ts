@@ -15,11 +15,6 @@ const implementationBaseline = "d39d61f8c16b46b4fb709d045890ab9ee8677fbd"
 const evidencePath = "docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md"
 const deferredNoGo =
   "List decoration, inline-image geometry, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
-const phase5Gate =
-  "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
-const phase4bNoGo =
-  "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
-const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 const focusedTotals = "focused Phase 4A gate passed 8 files / 131 tests"
 const fullTotals = "full `npm run check` passed 420 files / 2,114 tests"
 
@@ -84,7 +79,7 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
     expect(next).toContain("The active Core handoff is Phase 4B")
   })
 
-  it("retains Phase 4A history while advancing the active pointer through accepted Phase 4B", () => {
+  it("retains Phase 4A history after later active handoff pointers advance", () => {
     const phase3 = read("docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md")
     const crossRuntime = read("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("docs/PHASE_LEDGER.md")
@@ -92,11 +87,6 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
       "docs/superpowers/specs/2026-07-27-initial-text-block-authored-box-geometry-design.md",
     )
     const phase3Next = normalize(sectionAtPeerHeading(phase3, "## Next Checkpoint"))
-    const crossHeader = normalize(crossRuntime.slice(0, crossRuntime.indexOf("## Objective")))
-    const crossBaseline = normalize(sectionAtPeerHeading(crossRuntime, "## Current Baseline"))
-    const currentTask = normalize(sectionAtPeerHeading(crossRuntime, "## First Task For The Next Thread"))
-    const requiredReading = sectionAtPeerHeading(crossRuntime, "## Required Reading")
-    const activePrompt = normalize(sectionAtPeerHeading(crossRuntime, "## Handoff Prompt"))
     const crossPhase4a = normalize(
       sectionAtPeerHeading(crossRuntime, "## Phase 4A Initial TextBlock Authored Box Geometry"),
     )
@@ -107,21 +97,6 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
     expect(phase3Next).toContain(
       "Historical pointer status on 2026-07-27: fulfilled by `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`.",
     )
-    expect(crossRuntime.split(/\r?\n/u, 1)[0]).toContain("Phase 4B")
-    expect(crossHeader).toContain("updated through `Phase 4B: Inline Image Line-Box Geometry` on 2026-07-28")
-    expect(crossBaseline).toContain("Current Phase 4B Core implementation baseline: `f8eb3ba`.")
-    expect(requiredReading.match(/^- `[^`]+`/mu)?.[0]).toBe(
-      "- `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`",
-    )
-
-    for (const active of [currentTask, activePrompt]) {
-      expect(active).toContain("Phase 4B")
-      expect(active).toContain(phase5Gate)
-      expect(active).toContain(phase4bNoGo)
-      expect(active).not.toContain("Stop after Phase 4A.")
-      expect(active).not.toContain("Proceed only to `Phase 4: Initial TextBlock Geometry`.")
-      for (const directive of supersededActiveDirectives) expect(active).not.toContain(directive)
-    }
     for (const record of [crossPhase4a, ledgerPhase4a]) {
       expect(record).toContain(implementationBaseline)
       expect(record).toContain("`mayPublishLayout: false`")

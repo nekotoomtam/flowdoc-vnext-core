@@ -1,13 +1,16 @@
-# Live Draft Cross-Runtime Parity Handoff (Phase 4B; Phase 4A; Phase 3A Historical)
+# Live Draft Cross-Runtime Parity Handoff (Phase 5A; Phase 4B Historical)
 
 Status: implementation handoff; runtime behavior is not changed by this
 document.
 
-Date: 2026-07-20; updated through `Phase 4B: Inline Image Line-Box Geometry`
-on 2026-07-28.
+Date: 2026-07-20; updated through
+`Phase 5A: Unified TextBlock Retained Root` on 2026-07-30.
 
-Historical header status: updated through `Phase 4A: Authored Box Geometry` on
-2026-07-27.
+Historical header status: updated through
+`Phase 4B: Inline Image Line-Box Geometry` on 2026-07-28.
+
+Earlier historical header status: updated through
+`Phase 4A: Authored Box Geometry` on 2026-07-27.
 
 The historical header status was updated through `Phase 3: Core Spatial Wrapping 3A`;
 that phrase is retained only as prior handoff evidence.
@@ -65,15 +68,25 @@ The following rules are locked for this lane:
 
 ## Current Baseline
 
-Current Phase 4B Core implementation baseline: `f8eb3ba`.
+Current Phase 5A implementation evidence is complete through accepted Task 6
+head `995edd5`; the reviewed public boundary, handoff, and final gate are
+accepted in Task 7.
+Evidence is retained at
+`docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md`.
+
+Historical Phase 4B Core implementation baseline: `f8eb3ba`.
 
 Historical Phase 4A Core implementation baseline:
 `d39d61f8c16b46b4fb709d045890ab9ee8677fbd`.
 
 Phase 4B evidence is Core-only and retained at
-`docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`. Phase 5 remains separately
-authorized; this handoff does not authorize Phase 5 implementation or
-activation.
+`docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`.
+
+Phase 5A is Core-only and retains `stagedEditorApply: false`,
+`mayPublishLayout: false`, and `productionBinding: false` across all applicable
+root, scene, and child contracts. Phase 5B remains separately authorized; this
+handoff does not authorize incremental transitions, activation, publication,
+or production.
 
 Historical current-state text recorded:
 Current Phase 3 Core implementation baseline: `a249b30`.
@@ -120,6 +133,15 @@ oracle-analysis facts.
   accepted line and fragment geometry into authored box-local coordinates,
   owns exact vertical insets and auto-height through the retained spatial
   maximum bottom, and preserves every nonpublication and nonproduction gate.
+- `Phase 5A: Unified TextBlock Retained Root` owns one exact V2 dependency
+  chain, computes spatial layout once, projects authored geometry from that
+  exact precomputed result, emits one complete structured-clone-safe
+  chunk-fingerprinted scene, and binds the eight dependency fingerprints into
+  one process-local root. Root wrapper work is exactly `8 / 0 / 0 / 1`.
+- Node-native and Worker-WASM U+FFFC/hard-break producers produce exact equal
+  complete roots, scenes, and fingerprints. Scene chunking is a measured
+  complete-projection seam, not incremental delivery. No Worker session,
+  Editor/Backend binding, transition, reuse, or reconvergence exists.
 - `stagedCoverageCompatible: true` is B1 compatibility evidence for stable
   ordered identity and resumable references only. Editor staged apply/state is
   not implemented.
@@ -470,17 +492,22 @@ identity.
 
 ## First Task For The Next Thread
 
-Phase 4B is the accepted bounded Core-only inline-image line-box checkpoint at
-`f8eb3ba`; read `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md` before any
-follow-on design work.
+Phase 5A is the bounded Core-only unified retained-root checkpoint. Read
+`docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md` before any follow-on
+design work.
 
-Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation.
-List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+Phase 5B must be separately designed, reviewed, and explicitly authorized.
+List decoration, empty-block geometry, Editor/Backend binding, Columns/Table
+integration, Table auto-fit, fixed-height behavior, publication, production
+activation, and Editor staged apply remain NO-GO.
 
 ## Required Reading
 
 Core:
 
+- `docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md`
+- `docs/superpowers/specs/2026-07-28-unified-incremental-live-draft-product-readiness-design.md`
+- `docs/superpowers/plans/2026-07-28-unified-text-block-retained-root-5a.md`
 - `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`
 - `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`
 - `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`
@@ -593,18 +620,21 @@ active instruction.
 Continue FlowDoc from
 flowdoc-vnext-core/docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md.
 
-Read the Required Reading section and the accepted Phase 4B Core implementation
-head f8eb3ba. Review the evidence handoff at
-docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md.
+Read the Required Reading section and the accepted Phase 5A evidence through
+Task 6 head 995edd5. Review the evidence handoff at
+docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md.
 
-Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation.
-List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+Phase 5B must be separately designed, reviewed, and explicitly authorized.
+List decoration, empty-block geometry, Editor/Backend binding, Columns/Table
+integration, Table auto-fit, fixed-height behavior, publication, production
+activation, and Editor staged apply remain NO-GO.
 
-Preserve the strict synthetic spatial boundary, no-flow-affecting fast path,
-content-local Phase 3 behavior, box-local Phase 4A projection, and immutable
-Initial Flow/request/tree/index identity and provenance gates, including the
-MR1-Q immutable identity/provenance gates. Do not introduce an authored
-positioned-object schema or spatial-line reuse/reconvergence claim.
+Preserve the exact Phase 5A dependency graph, strict synthetic spatial
+boundary, no-flow-affecting fast path, one precomputed spatial layout,
+complete-only scene projection, compositional root fingerprint, and immutable
+Initial Flow/evidence/tree/index/layout/geometry/scene identity and provenance
+gates. Do not introduce an authored positioned-object schema, Worker session,
+incremental-delivery claim, or reuse/reconvergence claim.
 
 
 Add focused tests before implementation, preserve accepted and blocked evidence,
@@ -1653,3 +1683,42 @@ passed 420 files / 2,114 tests including type-check.
 
 Stop after Phase 4A. `Phase 4B: Inline Image Line-Box Geometry` requires a
 separately reviewed and explicitly approved design before implementation.
+
+## Phase 5A Unified TextBlock Retained Root
+
+`Phase 5A: Unified TextBlock Retained Root` is implemented and accepted.
+Implementation evidence runs through accepted Task 6 head `995edd5`; Task 7
+adds the reviewed public boundary and final gates recorded in
+`docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md`.
+
+Core owns one complete process-local root over the exact V2 Initial
+Flow/evidence/tree/index/provider-authority/spatial-layout/authored-geometry/
+scene dependency set. The root builder computes spatial layout once and the
+authored-box internal seam consumes that exact precomputed layout.
+
+The renderer-consumption scene is complete, data-only,
+structured-clone-safe, ordered, and chunk-fingerprinted. Scene chunking is a
+measured complete-projection seam, not incremental delivery. Root wrapper work
+is compositionally fixed at `8 / 0 / 0 / 1`.
+
+The real Node-native and Worker-WASM U+FFFC/hard-break producers retain exact
+root and scene parity. The named 32-line / 128-spatial-entry Task 6 root-build
+observation was `3,723.1477 ms` under its local Node/Vitest runtime and fixture
+context only; it is neither a universal product budget nor a retained
+fingerprint fact.
+
+All applicable root, scene, and child capability facts remain
+`stagedEditorApply: false`, `mayPublishLayout: false`, and
+`productionBinding: false`. There is no Editor/Backend or Worker session, no
+incremental transition/reuse/reconvergence, and no fixed-height or asset
+lifecycle policy.
+
+List decoration, empty-block geometry, Editor/Backend binding, Columns/Table
+integration, Table auto-fit, fixed-height behavior, publication, production
+activation, and Editor staged apply remain NO-GO. Phase 5B is a separately
+authorized checkpoint.
+
+The final focused Phase 5A gate passed 6 test files / 50 tests. The historical
+pointer-guard regression plus public guard passed 6 files / 31 tests.
+Type-check and diff hygiene passed, and the final unchanged `npm run check`
+passed 439 test files / 2,359 tests including type-check.

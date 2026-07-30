@@ -12892,3 +12892,48 @@ at accepted Task 11 implementation head `f8eb3ba`.
   type-check.
 - Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation.
 - List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO.
+
+## Phase 5A Unified TextBlock Retained Root
+
+Status: implemented and accepted as the bounded Core-only Phase 5A checkpoint.
+Implementation evidence is complete through accepted Task 6 head `995edd5`;
+Task 7 adds the reviewed public boundary, handoff, and final gate.
+
+- Added one complete, exact, process-local V2 TextBlock root over Initial Flow,
+  producer evidence, persistent flow tree, spatial index, Flow Region Provider
+  authority descriptor, one spatial layout, authored-box geometry, and one
+  renderer scene.
+- Authored-box projection consumes the exact precomputed spatial layout from
+  the root build; the internal seam is not publicly exported.
+- Added one complete structured-clone-safe, ordered,
+  chunk-fingerprinted scene. Chunking is a measured complete-projection seam,
+  not incremental delivery.
+- Root fingerprinting is compositional over eight dependency fingerprints and
+  root-owned facts. Wrapper work remains exactly `8 / 0 / 0 / 1`.
+- Real Node-native and Worker-WASM U+FFFC/hard-break evidence produces exact
+  equal complete roots, scenes, and fingerprints.
+- The named 32-line / 128-spatial-entry `performance.now()` root-build
+  observation was `3,723.1477 ms` in its local Node/Vitest fixture/runtime
+  context only. It is not a universal budget or retained fingerprint fact.
+- Public exports are limited to the reviewed scene/root contracts and four
+  project/inspect/create/inspect functions. Authority registries, WeakMaps,
+  the authored-box internal projection seam, and root helpers stay private.
+- Every applicable root, scene, and retained-child contract keeps
+  `stagedEditorApply: false`, `mayPublishLayout: false`, and
+  `productionBinding: false`.
+- There is no Editor/Backend or Worker session, no transition/reuse/
+  reconvergence claim, and no fixed-height or asset-lifecycle policy.
+- Evidence: `docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md`,
+  `tests/liveDraftMr1UnifiedLayoutRoot5a.test.ts`, and the unified scene/root,
+  adversarial, scale, and Node/WASM focused tests.
+- Verification: strict public-boundary RED failed 1 file / 3 tests because the
+  reviewed exports were missing; public-boundary GREEN passed 1 file / 3
+  tests. The final focused Phase 5A gate passed 6 files / 50 tests; historical
+  pointer-guard regression plus public guard passed 6 files / 31 tests.
+  Type-check and diff hygiene passed, and the final unchanged
+  `npm run check` passed 439 files / 2,359 tests including type-check.
+- List decoration, empty-block geometry, Editor/Backend binding, Columns/Table
+  integration, Table auto-fit, fixed-height behavior, publication, production
+  activation, and Editor staged apply remain NO-GO.
+- Next: Phase 5B Unified Incremental Transition, only after a separately
+  reviewed plan and explicit authorization.

@@ -14,12 +14,6 @@ const sectionAtPeerHeading = (document: string, heading: string): string => {
 const phase3Pointer = "Proceed only to `Phase 3: Core Spatial Wrapping 3A`."
 const phase3NoGo =
   "Do not start list/image geometry, empty-block geometry, Editor binding, Backend binding, Columns/Table integration, table auto-fit, publication, or production activation inside Phase 3."
-const phase4bPointer = "Phase 4B is the accepted bounded Core-only inline-image line-box checkpoint"
-const phase4bNoGo =
-  "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
-const phase5Gate =
-  "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
-const supersededActiveDirectives = ["Stop after Phase 4A.", "Proceed only to `Phase 3: Core Spatial Wrapping 3A`.", "Proceed only to `Phase 4: Initial TextBlock Geometry`."] as const
 
 describe("Live Draft MR1 persistent flow foundation handoff", () => {
   it("pins every MR1-Q section, capability row, counter row, gate total, and next boundary", () => {
@@ -105,13 +99,11 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
     expect(next).not.toContain("Phase 2 Persistent Flow Tree Foundation")
   })
 
-  it("pins exact public exports and section-bounded cross-runtime and ledger pointers", () => {
+  it("pins exact public exports and section-bounded historical cross-runtime and ledger evidence", () => {
     const publicIndexLines = read("src/index.ts").split(/\r?\n/u)
     const crossRuntime = read("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("docs/PHASE_LEDGER.md")
-    const currentTask = normalize(sectionAtPeerHeading(crossRuntime, "## First Task For The Next Thread"))
     const requiredReading = normalize(sectionAtPeerHeading(crossRuntime, "## Required Reading"))
-    const activePrompt = normalize(sectionAtPeerHeading(crossRuntime, "## Handoff Prompt"))
     const currentTruth = normalize(sectionAtPeerHeading(crossRuntime, "## MR1-Q Persistent Flow Tree Foundation"))
     const ledgerMr1q = normalize(sectionAtPeerHeading(ledger, "## MR1-Q Persistent Flow Tree Foundation"))
 
@@ -126,15 +118,6 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
     for (const active of [currentTruth, ledgerMr1q]) {
       expect(active).toContain("MR1-Q Persistent Flow Tree Foundation")
       expect(active).toContain("Phase 3: Core Spatial Wrapping 3A")
-    }
-    expect(currentTask).toContain(phase4bPointer)
-    expect(activePrompt).toContain("accepted Phase 4B Core implementation head f8eb3ba")
-    for (const active of [currentTask, activePrompt]) {
-      expect(active).toContain(phase4bNoGo)
-      expect(active).toContain(phase5Gate)
-      expect(active).not.toContain("completeNextSemanticPassCount: 1")
-      expect(active).not.toContain("Proceed to Phase 2")
-      for (const directive of supersededActiveDirectives) expect(active).not.toContain(directive)
     }
     expect(currentTruth).toContain("passed 7 files / 33 tests")
     expect(currentTruth).toContain("passed 412 files / 2,047 tests")

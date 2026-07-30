@@ -357,14 +357,10 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
     }
   })
 
-  it("advances active documentation pointers to Phase 4B while retaining deferred rows", () => {
+  it("retains Phase 4B historical records and deferred rows after active pointers advance", () => {
     const phase4a = normalize(read("docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md"))
-    const crossRuntime = read("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("docs/PHASE_LEDGER.md")
     const design = read("docs/superpowers/specs/2026-07-27-inline-image-line-box-geometry-design.md")
-    const crossHeader = crossRuntime.split(/\r?\n/gu, 1)[0]
-    const currentTask = normalize(sectionAtPeerHeading(crossRuntime, "## First Task For The Next Thread"))
-    const prompt = normalize(sectionAtPeerHeading(crossRuntime, "## Handoff Prompt"))
     const ledgerPhase4b = normalize(
       sectionAtPeerHeading(ledger, "## Phase 4B Inline Image Line-Box Geometry"),
     )
@@ -372,12 +368,11 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
     expect(phase4a).toContain(
       "Historical pointer status on 2026-07-28: fulfilled by `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`.",
     )
-    expect(crossHeader).toContain("Phase 4B")
-    for (const record of [currentTask, prompt, ledgerPhase4b]) {
-      expect(record).toContain("Phase 4B")
-      expect(record).toContain(phase5Gate)
-      expect(record).toContain(deferredNoGo)
-      for (const directive of supersededActiveDirectives) expect(record).not.toContain(directive)
+    expect(ledgerPhase4b).toContain("Phase 4B")
+    expect(ledgerPhase4b).toContain(phase5Gate)
+    expect(ledgerPhase4b).toContain(deferredNoGo)
+    for (const directive of supersededActiveDirectives) {
+      expect(ledgerPhase4b).not.toContain(directive)
     }
     expect(design).toContain("**Status:** Implemented and accepted as the bounded Core-only Phase 4B checkpoint")
   })
