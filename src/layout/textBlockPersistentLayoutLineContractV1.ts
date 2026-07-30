@@ -28,6 +28,12 @@ export interface VNextTextBlockPersistentLayoutSourceRangeV1 {
   readonly end: VNextTextBlockPersistentLayoutSourcePointV1 | null
 }
 
+export interface VNextTextBlockPersistentLayoutLocalSourceSpanV1 {
+  readonly lineageId: string
+  readonly localStartRenderedUtf16: number
+  readonly localEndRenderedUtf16: number
+}
+
 export interface VNextTextBlockPersistentLayoutSourceMappingV1 {
   readonly lineageId: string
   readonly inlineId: string
@@ -47,6 +53,8 @@ export type VNextTextBlockPersistentLayoutLineFragmentInternalsV1 =
   | {
       readonly kind: "text"
       readonly lineageId: string
+      readonly sourceSpans:
+        readonly VNextTextBlockPersistentLayoutLocalSourceSpanV1[]
       readonly text: string
       readonly xLayoutUnit: number
       readonly advanceLayoutUnit: number
@@ -64,6 +72,8 @@ export type VNextTextBlockPersistentLayoutLineFragmentInternalsV1 =
   | {
       readonly kind: "inline-image"
       readonly lineageId: string
+      readonly sourceSpans:
+        readonly VNextTextBlockPersistentLayoutLocalSourceSpanV1[]
       readonly xLayoutUnit: number
       readonly yLayoutUnit: number
       readonly widthLayoutUnit: number

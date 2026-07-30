@@ -207,6 +207,7 @@ const preparedTrees = new WeakMap<
   {
     readonly fingerprint: string
     readonly canonicalFacts: string
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   }
 >()
 
@@ -359,33 +360,48 @@ function sourceMappings(
   return output
 }
 
-function fragmentLineageId(
+function fragmentSourceSpans(
   sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
   fragment: VNextTextBlockSpatialFragmentV2,
-): string | null {
+): readonly {
+  readonly lineageId: string
+  readonly localStartRenderedUtf16: number
+  readonly localEndRenderedUtf16: number
+}[] | null {
   const mappings = sourceMappings(sourceState, fragment.sourceSegments)
-  return mappings == null
-    ? null
-    : fingerprint({
-        kind: fragment.kind,
-        mappings: mappings.map((mapping) => ({
-          lineageId: mapping.lineageId,
-          localStartRenderedUtf16: mapping.localStartRenderedUtf16,
-          localEndRenderedUtf16: mapping.localEndRenderedUtf16,
-        })),
-      })
+  return mappings?.map((mapping) => ({
+    lineageId: mapping.lineageId,
+    localStartRenderedUtf16: mapping.localStartRenderedUtf16,
+    localEndRenderedUtf16: mapping.localEndRenderedUtf16,
+  })) ?? null
+}
+
+function fragmentLineageId(
+  fragmentKind: VNextTextBlockSpatialFragmentV2["kind"],
+  sourceSpans: readonly {
+    readonly lineageId: string
+    readonly localStartRenderedUtf16: number
+    readonly localEndRenderedUtf16: number
+  }[],
+): string {
+  return fingerprint({
+    kind: fragmentKind,
+    mappings: sourceSpans,
+  })
 }
 
 function lineInternalsFragment(
   sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
   fragment: VNextTextBlockSpatialFragmentV2,
 ): VNextTextBlockPersistentLayoutLineFragmentInternalsV1 | null {
-  const lineageId = fragmentLineageId(sourceState, fragment)
-  if (lineageId == null) return null
+  const sourceSpans = fragmentSourceSpans(sourceState, fragment)
+  if (sourceSpans == null) return null
+  const lineageId = fragmentLineageId(fragment.kind, sourceSpans)
   return fragment.kind === "text"
     ? {
         kind: "text",
         lineageId,
+        sourceSpans,
         text: fragment.text,
         xLayoutUnit: fragment.xLayoutUnit,
         advanceLayoutUnit: fragment.advanceLayoutUnit,
@@ -403,6 +419,7 @@ function lineInternalsFragment(
     : {
         kind: "inline-image",
         lineageId,
+        sourceSpans,
         xLayoutUnit: fragment.xLayoutUnit,
         yLayoutUnit: fragment.yLayoutUnit,
         widthLayoutUnit: fragment.widthLayoutUnit,
@@ -454,8 +471,9 @@ function contentLocalGeometry(
     "fragments"
   ][number][] = []
   for (const fragment of line.fragments) {
-    const lineageId = fragmentLineageId(sourceState, fragment)
-    if (lineageId == null) return null
+    const sourceSpans = fragmentSourceSpans(sourceState, fragment)
+    if (sourceSpans == null) return null
+    const lineageId = fragmentLineageId(fragment.kind, sourceSpans)
     fragments.push(fragment.kind === "text"
       ? {
           kind: "text",
@@ -510,8 +528,9 @@ function authoredBoxGeometry(
     "fragments"
   ][number][] = []
   for (const fragment of authoredLine.fragments) {
-    const lineageId = fragmentLineageId(sourceState, fragment)
-    if (lineageId == null) return null
+    const sourceSpans = fragmentSourceSpans(sourceState, fragment)
+    if (sourceSpans == null) return null
+    const lineageId = fragmentLineageId(fragment.kind, sourceSpans)
     fragments.push(fragment.kind === "text"
       ? {
           kind: "text",
@@ -1137,6 +1156,7 @@ export function createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1(
     preparedTrees.set(lineTree, {
       fingerprint: lineTree.fingerprint,
       canonicalFacts,
+      sourceState,
     })
     return Object.freeze({
       status: "prepared",
@@ -1203,6 +1223,24 @@ export function verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
       message: "prepared line tree is not canonically inspectable",
     }
   }
+}
+
+export function hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternalV1(
+  sourceState: unknown,
+  lineTree: unknown,
+): lineTree is VNextTextBlockPersistentLayoutLineTreeV1 {
+  if (
+    sourceState == null
+    || typeof sourceState !== "object"
+    || lineTree == null
+    || typeof lineTree !== "object"
+  ) return false
+  const candidate =
+    lineTree as VNextTextBlockPersistentLayoutLineTreeV1
+  return verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
+    candidate,
+  ).status === "valid-candidate"
+    && preparedTrees.get(candidate)?.sourceState === sourceState
 }
 
 export function lookupVNextTextBlockPersistentLayoutLineInternalV1(input: {
