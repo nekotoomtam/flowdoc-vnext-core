@@ -13,6 +13,7 @@ import type {
   VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "./textBlockSpatialIndexContractV1.js"
 import {
+  hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
@@ -463,6 +464,32 @@ export function hasVNextTextBlockUnifiedSpatialStatePreparedBindingInternalV1(
     )?.has(
       spatialState as VNextTextBlockUnifiedSpatialStateV1,
     ) === true
+}
+
+export function bindVNextTextBlockUnifiedSpatialStateToImagePaintSourceInternalV1(
+  input: {
+    readonly previousSourceState:
+      VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly nextSourceState:
+      VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
+  },
+): boolean {
+  if (
+    !hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1(
+      input.previousSourceState,
+      input.nextSourceState,
+    )
+    || !hasVNextTextBlockUnifiedSpatialStatePreparedBindingInternalV1(
+      input.previousSourceState,
+      input.spatialState,
+    )
+  ) return false
+  const bound = spatialStatesBySourceState.get(input.nextSourceState)
+    ?? new WeakSet<VNextTextBlockUnifiedSpatialStateV1>()
+  bound.add(input.spatialState)
+  spatialStatesBySourceState.set(input.nextSourceState, bound)
+  return true
 }
 
 export function registerPreparedVNextTextBlockUnifiedSpatialStateRootGraphChildInternalV2(

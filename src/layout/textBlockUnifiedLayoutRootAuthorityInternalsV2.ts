@@ -51,6 +51,10 @@ interface PreparedRootBindingV2 {
   readonly rootFingerprint: string
   readonly dependencyFingerprints:
     VNextTextBlockUnifiedLayoutRootV2["dependencyFingerprints"]
+  readonly childrenToRegister: readonly {
+    readonly childKind: ChildKind
+    readonly child: object
+  }[]
 }
 
 interface CommitTokenRecordV2 {
@@ -268,6 +272,40 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
     || root.authoredBoxSummary.lineCount !== root.lineTree.summary.lineCount
     || root.persistentScene.lineTreeFingerprint !== root.lineTree.fingerprint
   ) return false
+  const childEntries = [
+    { childKind: "source-state" as const, child: root.sourceState },
+    { childKind: "flow-tree" as const, child: root.flowTree },
+    { childKind: "spatial-state" as const, child: root.spatialState },
+    { childKind: "line-tree" as const, child: root.lineTree },
+    {
+      childKind: "persistent-scene" as const,
+      child: root.persistentScene,
+    },
+  ]
+  const childrenToRegister = childEntries.filter((entry) => {
+    switch (entry.childKind) {
+      case "source-state":
+        return !hasVNextTextBlockUnifiedLayoutSourceStateRegisteredRootGraphBindingInternalV2(
+          entry.child,
+        )
+      case "flow-tree":
+        return !hasVNextTextBlockIncrementalFlowTreeRegisteredRootGraphBindingInternalV2(
+          entry.child,
+        )
+      case "spatial-state":
+        return !hasVNextTextBlockUnifiedSpatialStateRegisteredRootGraphBindingInternalV2(
+          entry.child,
+        )
+      case "line-tree":
+        return !hasVNextTextBlockPersistentLayoutLineTreeRegisteredRootGraphBindingInternalV2(
+          entry.child,
+        )
+      case "persistent-scene":
+        return !hasVNextTextBlockPersistentSceneRegisteredRootGraphBindingInternalV2(
+          entry.child,
+        )
+    }
+  })
   const canonicalRootFacts =
     canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(root)
   if (
@@ -284,6 +322,7 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
     persistentScene: root.persistentScene,
     rootFingerprint: root.fingerprint,
     dependencyFingerprints: { ...root.dependencyFingerprints },
+    childrenToRegister,
   })
   return true
 }
@@ -291,8 +330,8 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
 export type VNextTextBlockUnifiedLayoutRootGraphRegistrationResultV2 =
   | {
       readonly status: "committed"
-      readonly attemptedRegistrationCount: 6
-      readonly committedRegistrationCount: 6
+      readonly attemptedRegistrationCount: number
+      readonly committedRegistrationCount: number
     }
   | {
       readonly status: "blocked"
@@ -308,21 +347,6 @@ export function registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
   if (
     binding == null
     || roots.has(root)
-    || hasVNextTextBlockUnifiedLayoutSourceStateRegisteredRootGraphBindingInternalV2(
-      binding.sourceState,
-    )
-    || hasVNextTextBlockIncrementalFlowTreeRegisteredRootGraphBindingInternalV2(
-      binding.flowTree,
-    )
-    || hasVNextTextBlockUnifiedSpatialStateRegisteredRootGraphBindingInternalV2(
-      binding.spatialState,
-    )
-    || hasVNextTextBlockPersistentLayoutLineTreeRegisteredRootGraphBindingInternalV2(
-      binding.lineTree,
-    )
-    || hasVNextTextBlockPersistentSceneRegisteredRootGraphBindingInternalV2(
-      binding.persistentScene,
-    )
   ) {
     return {
       status: "blocked",
@@ -331,16 +355,7 @@ export function registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
       message: "Root V2 graph is not one fresh exact prepared candidate",
     }
   }
-  const expected = [
-    { childKind: "source-state" as const, child: binding.sourceState },
-    { childKind: "flow-tree" as const, child: binding.flowTree },
-    { childKind: "spatial-state" as const, child: binding.spatialState },
-    { childKind: "line-tree" as const, child: binding.lineTree },
-    {
-      childKind: "persistent-scene" as const,
-      child: binding.persistentScene,
-    },
-  ]
+  const expected = binding.childrenToRegister
   const token = Object.freeze({})
   const tokenRecord: CommitTokenRecordV2 = {
     expected,
@@ -349,33 +364,51 @@ export function registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
     commitIndex: 0,
   }
   commitTokens.set(token, tokenRecord)
-  const preflight = [
-    registerPreparedVNextTextBlockUnifiedLayoutSourceStateRootGraphChildInternalV2({
-      token,
-      phase: "preflight",
-      sourceState: binding.sourceState,
-    }),
-    registerPreparedVNextTextBlockIncrementalFlowTreeRootGraphChildInternalV2({
-      token,
-      phase: "preflight",
-      flowTree: binding.flowTree,
-    }),
-    registerPreparedVNextTextBlockUnifiedSpatialStateRootGraphChildInternalV2({
-      token,
-      phase: "preflight",
-      spatialState: binding.spatialState,
-    }),
-    registerPreparedVNextTextBlockPersistentLayoutLineTreeRootGraphChildInternalV2({
-      token,
-      phase: "preflight",
-      lineTree: binding.lineTree,
-    }),
-    registerPreparedVNextTextBlockPersistentSceneRootGraphChildInternalV2({
-      token,
-      phase: "preflight",
-      scene: binding.persistentScene,
-    }),
-  ]
+  const registerChild = (
+    entry: (typeof expected)[number],
+    phase: "preflight" | "commit",
+  ): boolean => {
+    switch (entry.childKind) {
+      case "source-state":
+        return registerPreparedVNextTextBlockUnifiedLayoutSourceStateRootGraphChildInternalV2({
+          token,
+          phase,
+          sourceState: entry.child as
+            VNextTextBlockUnifiedLayoutRootV2["sourceState"],
+        })
+      case "flow-tree":
+        return registerPreparedVNextTextBlockIncrementalFlowTreeRootGraphChildInternalV2({
+          token,
+          phase,
+          flowTree: entry.child as
+            VNextTextBlockUnifiedLayoutRootV2["flowTree"],
+        })
+      case "spatial-state":
+        return registerPreparedVNextTextBlockUnifiedSpatialStateRootGraphChildInternalV2({
+          token,
+          phase,
+          spatialState: entry.child as
+            VNextTextBlockUnifiedLayoutRootV2["spatialState"],
+        })
+      case "line-tree":
+        return registerPreparedVNextTextBlockPersistentLayoutLineTreeRootGraphChildInternalV2({
+          token,
+          phase,
+          lineTree: entry.child as
+            VNextTextBlockUnifiedLayoutRootV2["lineTree"],
+        })
+      case "persistent-scene":
+        return registerPreparedVNextTextBlockPersistentSceneRootGraphChildInternalV2({
+          token,
+          phase,
+          scene: entry.child as
+            VNextTextBlockUnifiedLayoutRootV2["persistentScene"],
+        })
+    }
+  }
+  const preflight = expected.map((entry) =>
+    registerChild(entry, "preflight")
+  )
   if (
     preflight.some((accepted) => !accepted)
     || tokenRecord.preflightIndex !== expected.length
@@ -389,33 +422,9 @@ export function registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
     }
   }
   tokenRecord.phase = "commit"
-  const committed = [
-    registerPreparedVNextTextBlockUnifiedLayoutSourceStateRootGraphChildInternalV2({
-      token,
-      phase: "commit",
-      sourceState: binding.sourceState,
-    }),
-    registerPreparedVNextTextBlockIncrementalFlowTreeRootGraphChildInternalV2({
-      token,
-      phase: "commit",
-      flowTree: binding.flowTree,
-    }),
-    registerPreparedVNextTextBlockUnifiedSpatialStateRootGraphChildInternalV2({
-      token,
-      phase: "commit",
-      spatialState: binding.spatialState,
-    }),
-    registerPreparedVNextTextBlockPersistentLayoutLineTreeRootGraphChildInternalV2({
-      token,
-      phase: "commit",
-      lineTree: binding.lineTree,
-    }),
-    registerPreparedVNextTextBlockPersistentSceneRootGraphChildInternalV2({
-      token,
-      phase: "commit",
-      scene: binding.persistentScene,
-    }),
-  ]
+  const committed = expected.map((entry) =>
+    registerChild(entry, "commit")
+  )
   commitTokens.delete(token)
   if (
     committed.some((accepted) => !accepted)
@@ -429,8 +438,8 @@ export function registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
   preparedRoots.delete(root)
   return {
     status: "committed",
-    attemptedRegistrationCount: 6,
-    committedRegistrationCount: 6,
+    attemptedRegistrationCount: expected.length + 1,
+    committedRegistrationCount: expected.length + 1,
   }
 }
 

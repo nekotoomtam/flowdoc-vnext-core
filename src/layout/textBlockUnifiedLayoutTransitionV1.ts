@@ -1,0 +1,617 @@
+import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
+import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
+import type {
+  VNextTextBlockUnifiedLayoutChangeV1,
+} from "./textBlockUnifiedLayoutChangeContractV1.js"
+import type {
+  VNextTextBlockTransitionEvidenceV1,
+} from "./textBlockUnifiedLayoutEvidenceContractV1.js"
+import {
+  bindVNextTextBlockIncrementalFlowTreeToImagePaintSourceInternalV1,
+} from "./textBlockIncrementalFlowTreeV1.js"
+import {
+  bindVNextTextBlockPersistentLayoutLineTreeToImagePaintSourceInternalV1,
+  createVNextTextBlockLineDispositionCoverInternalV1,
+} from "./textBlockPersistentLayoutLineTreeV1.js"
+import type {
+  VNextTextBlockLineDispositionCoverV1,
+} from "./textBlockPersistentLayoutLineContractV1.js"
+import {
+  inspectVNextTextBlockSceneDeliveryPlanV2,
+} from "./textBlockSceneDeliveryV2.js"
+import {
+  createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
+} from "./textBlockUnifiedLayoutFallbackV1.js"
+import {
+  registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
+} from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "./textBlockUnifiedLayoutRootContractV2.js"
+import {
+  prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateInternalV2,
+} from "./textBlockUnifiedLayoutRootV2.js"
+import {
+  createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1,
+} from "./textBlockUnifiedLayoutSourceStateV1.js"
+import type {
+  VNextTextBlockExpectedTargetBindingV1,
+  VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockUnifiedLayoutIssueV1,
+  VNextTextBlockUnifiedLayoutTransitionResultInspectionV1,
+  VNextTextBlockUnifiedLayoutTransitionResultV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
+import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
+} from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
+  prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1,
+} from "./textBlockUnifiedLayoutTransitionSceneInternalsV1.js"
+import {
+  bindVNextTextBlockUnifiedSpatialStateToImagePaintSourceInternalV1,
+} from "./textBlockUnifiedSpatialStateV1.js"
+import type {
+  VNextTextBlockUnifiedLayoutWorkPolicyV1,
+} from "./textBlockUnifiedLayoutWorkPolicyV1.js"
+
+function fingerprint(value: unknown): string {
+  return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+}
+
+function deepFreeze<T>(value: T): T {
+  if (value == null || typeof value !== "object") return value
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)
+    if (descriptor != null && Object.hasOwn(descriptor, "value")) {
+      deepFreeze(descriptor.value)
+    }
+  }
+  return Object.isFrozen(value) ? value : Object.freeze(value)
+}
+
+function issue(
+  code: VNextTextBlockUnifiedLayoutIssueV1["code"],
+  stage: VNextTextBlockUnifiedLayoutIssueV1["stage"],
+  path: string,
+  message: string,
+): VNextTextBlockUnifiedLayoutIssueV1 {
+  return { code, severity: "error", stage, path, message }
+}
+
+interface ResultRecord {
+  readonly resultStatus:
+    | "accepted-no-op"
+    | "accepted-incremental"
+    | "fallback-required"
+    | "blocked"
+  readonly rootFingerprint: string | null
+  readonly sceneFingerprint: string | null
+  readonly fallbackRequestFingerprint: string | null
+}
+
+const transitionResults = new WeakMap<object, ResultRecord>()
+
+function registerResult<T extends VNextTextBlockUnifiedLayoutTransitionResultV1>(
+  result: T,
+): T {
+  transitionResults.set(result, {
+    resultStatus: result.status,
+    rootFingerprint:
+      result.status === "accepted-no-op"
+      || result.status === "accepted-incremental"
+        ? result.root.fingerprint
+        : null,
+    sceneFingerprint:
+      result.status === "accepted-no-op"
+      || result.status === "accepted-incremental"
+        ? result.persistentScene.fingerprint
+        : null,
+    fallbackRequestFingerprint: result.status === "fallback-required"
+      ? result.fallbackRequest.fingerprint
+      : null,
+  })
+  return result
+}
+
+function blockedResult(
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+  issues: readonly VNextTextBlockUnifiedLayoutIssueV1[],
+): VNextTextBlockUnifiedLayoutTransitionResultV1 {
+  return registerResult(Object.freeze({
+    status: "blocked",
+    root: null,
+    persistentScene: null,
+    deliveryPlan: null,
+    fallbackRequest: null,
+    incrementalCandidateWork: work,
+    issues: Object.freeze([...issues]),
+    stagedEditorApply: false,
+    mayPublishLayout: false,
+    productionBinding: false,
+  }))
+}
+
+function allExactDispositions(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): VNextTextBlockLineDispositionCoverV1 | null {
+  const lineCount = root.lineTree.summary.lineCount
+  if (lineCount === 0) return null
+  const result = createVNextTextBlockLineDispositionCoverInternalV1({
+    previousTree: root.lineTree,
+    nextTree: root.lineTree,
+    segments: [{
+      disposition: "E",
+      previousRange: { start: 0, end: lineCount },
+      nextRange: { start: 0, end: lineCount },
+      constantYDeltaLayoutUnit: null,
+    }],
+  })
+  return result.status === "accepted" ? result.cover : null
+}
+
+function noOpWork(
+  base: VNextTextBlockIncrementalCandidateWorkV1,
+  dispositions: VNextTextBlockLineDispositionCoverV1,
+  visitedSourceItemCount = 0,
+): VNextTextBlockIncrementalCandidateWorkV1 {
+  return deepFreeze({
+    ...base,
+    flow: {
+      ...base.flow,
+      visitedSourceItemCount,
+    },
+    layout: {
+      ...base.layout,
+      proofNodeCount: dispositions.work.selectedSubtreeCount,
+    },
+    stageWork: [{
+      stage: "layout-reconvergence" as const,
+      unit: "proof-nodes" as const,
+      count: dispositions.work.selectedSubtreeCount,
+    }],
+  })
+}
+
+function acceptedNoOp(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  dispositions: VNextTextBlockLineDispositionCoverV1,
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+): VNextTextBlockUnifiedLayoutTransitionResultV1 {
+  return registerResult(Object.freeze({
+    status: "accepted-no-op",
+    root,
+    persistentScene: root.persistentScene,
+    deliveryPlan: null,
+    dispositions,
+    incrementalCandidateWork: work,
+    issues: Object.freeze([]) as readonly [],
+    stagedEditorApply: false,
+    mayPublishLayout: false,
+    productionBinding: false,
+  }))
+}
+
+function sameTargetBinding(
+  actual: VNextTextBlockExpectedTargetBindingV1,
+  expected: VNextTextBlockExpectedTargetBindingV1,
+): boolean {
+  return actual.semanticFingerprint === expected.semanticFingerprint
+    && actual.renderedContentFingerprint
+      === expected.renderedContentFingerprint
+    && actual.sourceFingerprint === expected.sourceFingerprint
+    && actual.provenanceFingerprint === expected.provenanceFingerprint
+    && actual.paintFingerprint === expected.paintFingerprint
+    && actual.layoutDependencyFingerprint
+      === expected.layoutDependencyFingerprint
+    && actual.authoredBoxPlanFingerprint
+      === expected.authoredBoxPlanFingerprint
+    && actual.spatialEntrySetFingerprint
+      === expected.spatialEntrySetFingerprint
+    && actual.fingerprint === expected.fingerprint
+}
+
+function paintWork(
+  base: VNextTextBlockIncrementalCandidateWorkV1,
+  input: {
+    readonly dispositionCover: VNextTextBlockLineDispositionCoverV1
+    readonly copiedSceneNodeCount: number
+    readonly replacementChunkCount: number
+    readonly deliveryOperationCount: number
+    readonly retainCoverNodeCount: number
+    readonly estimatedCanonicalPayloadByteCount: number
+    readonly attemptedRegistrationCount?: number
+    readonly committedRegistrationCount?: number
+  },
+): VNextTextBlockIncrementalCandidateWorkV1 {
+  return deepFreeze({
+    ...base,
+    flow: {
+      ...base.flow,
+      visitedSourceItemCount: 1,
+    },
+    layout: {
+      ...base.layout,
+      proofNodeCount:
+        input.dispositionCover.work.selectedSubtreeCount,
+    },
+    scene: {
+      copiedSceneNodeCount: input.copiedSceneNodeCount,
+      replacementChunkCount: input.replacementChunkCount,
+    },
+    deliveryPlan: {
+      deliveryOperationCount: input.deliveryOperationCount,
+      retainCoverNodeCount: input.retainCoverNodeCount,
+      estimatedCanonicalPayloadByteCount:
+        input.estimatedCanonicalPayloadByteCount,
+    },
+    atomicAcceptance: {
+      attemptedRegistrationCount:
+        input.attemptedRegistrationCount ?? 0,
+      committedRegistrationCount:
+        input.committedRegistrationCount ?? 0,
+    },
+    stageWork: [
+      {
+        stage: "source-flow" as const,
+        unit: "source-items" as const,
+        count: 1,
+      },
+      {
+        stage: "layout-reconvergence" as const,
+        unit: "proof-nodes" as const,
+        count: input.dispositionCover.work.selectedSubtreeCount,
+      },
+      {
+        stage: "scene" as const,
+        unit: "copied-scene-nodes" as const,
+        count: input.copiedSceneNodeCount,
+      },
+      {
+        stage: "scene" as const,
+        unit: "replacement-chunks" as const,
+        count: input.replacementChunkCount,
+      },
+      {
+        stage: "delivery-plan" as const,
+        unit: "delivery-operations" as const,
+        count: input.deliveryOperationCount,
+      },
+      {
+        stage: "delivery-plan" as const,
+        unit: "retain-cover-nodes" as const,
+        count: input.retainCoverNodeCount,
+      },
+      {
+        stage: "delivery-plan" as const,
+        unit: "estimated-canonical-payload-bytes" as const,
+        count: input.estimatedCanonicalPayloadByteCount,
+      },
+    ],
+    rootWrapperAllocationCount: 1,
+  })
+}
+
+export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
+  input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly change: VNextTextBlockUnifiedLayoutChangeV1
+    readonly evidence?: VNextTextBlockTransitionEvidenceV1
+    readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  },
+): VNextTextBlockUnifiedLayoutTransitionResultV1 {
+  const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+    previousRoot: input.previousRoot,
+    change: input.change,
+    workPolicy: input.workPolicy,
+  })
+  if (bound.status !== "accepted") {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      bound.issues,
+    )
+  }
+  if (
+    bound.validatedChange.producerEvidence === "not-required"
+    && input.evidence != null
+  ) {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      [issue(
+        "evidence-not-required",
+        "evidence",
+        "evidence",
+        "no-op and paint-only changes forbid producer evidence",
+      )],
+    )
+  }
+  const dispositions = allExactDispositions(input.previousRoot)
+  if (dispositions == null) {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      [issue(
+        "incremental-proof-unavailable",
+        "layout-reconvergence",
+        "dispositions",
+        "transition could not prove one canonical all-E line cover",
+      )],
+    )
+  }
+  if (input.change.kind === "no-op") {
+    return acceptedNoOp(
+      input.previousRoot,
+      dispositions,
+      noOpWork(bound.incrementalCandidateWork, dispositions),
+    )
+  }
+  if (input.change.kind === "authored-box-width-inset-change") {
+    const fallback =
+      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+        previousRoot: input.previousRoot,
+        change: input.change,
+        workPolicy: input.workPolicy,
+        mode: "planned-complete",
+        reason: {
+          code: "allowlisted-whole-block-spatial-impact",
+          policyFact: "authored-box-width-or-inset",
+        },
+        skippedOrFailedStage: "source-flow",
+        incrementalCandidateWork: bound.incrementalCandidateWork,
+      })
+    if (fallback.status !== "fallback-required") {
+      return blockedResult(
+        fallback.incrementalCandidateWork,
+        fallback.issues,
+      )
+    }
+    return registerResult(Object.freeze({
+      ...fallback,
+      stagedEditorApply: false,
+      mayPublishLayout: false,
+      productionBinding: false,
+    }))
+  }
+  if (input.change.kind !== "image-paint-fact-change") {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      [issue(
+        "inactive-work-policy-stage",
+        "source-flow",
+        "change.kind",
+        "the 5B-1 private foundation opens only no-op and image paint",
+      )],
+    )
+  }
+  const source =
+    createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+      previousSourceState: input.previousRoot.sourceState,
+      inlineId: input.change.inlineId,
+      expectedImageSourceFingerprint:
+        input.change.expectedImageSourceFingerprint,
+      expectedImageDependencyFingerprint:
+        input.change.expectedImageDependencyFingerprint,
+      nextFit: input.change.nextFit,
+      nextCrop: input.change.nextCrop,
+    })
+  if (source.status === "blocked") {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      [issue(
+        "change-target-mismatch",
+        "source-flow",
+        "change",
+        source.issues[0].message,
+      )],
+    )
+  }
+  if (source.status === "unchanged") {
+    return acceptedNoOp(
+      input.previousRoot,
+      dispositions,
+      noOpWork(
+        bound.incrementalCandidateWork,
+        dispositions,
+        1,
+      ),
+    )
+  }
+  const aliasesAccepted =
+    bindVNextTextBlockIncrementalFlowTreeToImagePaintSourceInternalV1({
+      previousSourceState: input.previousRoot.sourceState,
+      nextSourceState: source.sourceState,
+      flowTree: input.previousRoot.flowTree,
+    })
+    && bindVNextTextBlockUnifiedSpatialStateToImagePaintSourceInternalV1({
+      previousSourceState: input.previousRoot.sourceState,
+      nextSourceState: source.sourceState,
+      spatialState: input.previousRoot.spatialState,
+    })
+    && bindVNextTextBlockPersistentLayoutLineTreeToImagePaintSourceInternalV1({
+      previousSourceState: input.previousRoot.sourceState,
+      nextSourceState: source.sourceState,
+      flowTree: input.previousRoot.flowTree,
+      spatialState: input.previousRoot.spatialState,
+      lineTree: input.previousRoot.lineTree,
+    })
+  if (!aliasesAccepted) {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      [issue(
+        "atomic-acceptance-failed",
+        "source-flow",
+        "sourceState",
+        "paint source state could not bind exact reused layout dependencies",
+      )],
+    )
+  }
+  const scene =
+    prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1({
+      previousRoot: input.previousRoot,
+      nextSourceState: source.sourceState,
+      inlineId: input.change.inlineId,
+    })
+  if (scene.status !== "prepared") {
+    const attemptedWork = paintWork(bound.incrementalCandidateWork, {
+      dispositionCover: dispositions,
+      copiedSceneNodeCount: 0,
+      replacementChunkCount: 0,
+      deliveryOperationCount: 0,
+      retainCoverNodeCount: 0,
+      estimatedCanonicalPayloadByteCount: 0,
+    })
+    const fallback =
+      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+        previousRoot: input.previousRoot,
+        change: input.change,
+        workPolicy: input.workPolicy,
+        mode: "incremental-proof-failed",
+        reason: {
+          code: "bounded-reuse-proof-unavailable",
+          stage: "scene",
+          proof: "retain-cover",
+        },
+        skippedOrFailedStage: "scene",
+        incrementalCandidateWork: attemptedWork,
+      })
+    if (fallback.status !== "fallback-required") {
+      return blockedResult(
+        fallback.incrementalCandidateWork,
+        fallback.issues,
+      )
+    }
+    return registerResult(Object.freeze({
+      ...fallback,
+      stagedEditorApply: false,
+      mayPublishLayout: false,
+      productionBinding: false,
+    }))
+  }
+  const beforeRegistrationWork = paintWork(
+    bound.incrementalCandidateWork,
+    {
+      dispositionCover: dispositions,
+      copiedSceneNodeCount: scene.copiedSceneNodeCount,
+      replacementChunkCount: scene.replacementChunkCount,
+      deliveryOperationCount: scene.deliveryPlan.operations.length,
+      retainCoverNodeCount:
+        scene.deliveryPlan.summary.retainedSubtreeCount,
+      estimatedCanonicalPayloadByteCount:
+        scene.deliveryPlan.summary.estimatedCanonicalPayloadByteCount,
+    },
+  )
+  const transitionFingerprint = fingerprint({
+    previousRootFingerprint: input.previousRoot.fingerprint,
+    changeFingerprint: fingerprint(input.change),
+    nextSourceStateFingerprint: source.sourceState.fingerprint,
+    nextSceneFingerprint: scene.scene.fingerprint,
+    deliveryPlanFingerprint: scene.deliveryPlan.fingerprint,
+    dispositionsFingerprint: dispositions.fingerprint,
+  })
+  const preparedRoot =
+    prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateInternalV2({
+      previousRoot: input.previousRoot,
+      nextSourceState: source.sourceState,
+      nextPersistentScene: scene.scene,
+      workPolicy: input.workPolicy,
+      transitionFingerprint,
+    })
+  if (preparedRoot.status !== "prepared") {
+    return blockedResult(
+      beforeRegistrationWork,
+      preparedRoot.issues,
+    )
+  }
+  const actualTargetBinding =
+    deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
+      preparedRoot.root,
+    )
+  if (!sameTargetBinding(
+    actualTargetBinding,
+    bound.validatedChange.expectedTargetBinding,
+  )) {
+    return blockedResult(
+      beforeRegistrationWork,
+      [issue(
+        "change-target-mismatch",
+        "atomic-acceptance",
+        "expectedTargetBinding",
+        "paint transition candidate does not match every target-binding field",
+      )],
+    )
+  }
+  const registration =
+    registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
+      preparedRoot.root,
+    )
+  if (registration.status !== "committed") {
+    return blockedResult(
+      beforeRegistrationWork,
+      [issue(
+        "atomic-acceptance-failed",
+        "atomic-acceptance",
+        "root",
+        registration.message,
+      )],
+    )
+  }
+  const deliveryInspection = inspectVNextTextBlockSceneDeliveryPlanV2({
+    previousScene: input.previousRoot.persistentScene,
+    nextScene: scene.scene,
+    plan: scene.deliveryPlan,
+  })
+  if (deliveryInspection.status !== "valid") {
+    throw new Error(
+      "registered paint transition failed post-commit delivery invariant",
+    )
+  }
+  const work = paintWork(bound.incrementalCandidateWork, {
+    dispositionCover: dispositions,
+    copiedSceneNodeCount: scene.copiedSceneNodeCount,
+    replacementChunkCount: scene.replacementChunkCount,
+    deliveryOperationCount: scene.deliveryPlan.operations.length,
+    retainCoverNodeCount:
+      scene.deliveryPlan.summary.retainedSubtreeCount,
+    estimatedCanonicalPayloadByteCount:
+      scene.deliveryPlan.summary.estimatedCanonicalPayloadByteCount,
+    attemptedRegistrationCount:
+      registration.attemptedRegistrationCount,
+    committedRegistrationCount:
+      registration.committedRegistrationCount,
+  })
+  return registerResult(Object.freeze({
+    status: "accepted-incremental",
+    root: preparedRoot.root,
+    persistentScene: scene.scene,
+    deliveryPlan: scene.deliveryPlan,
+    dispositions,
+    incrementalCandidateWork: work,
+    issues: Object.freeze([]) as readonly [],
+    stagedEditorApply: false,
+    mayPublishLayout: false,
+    productionBinding: false,
+  }))
+}
+
+export function inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
+  value: unknown,
+): VNextTextBlockUnifiedLayoutTransitionResultInspectionV1 {
+  if (
+    value == null
+    || typeof value !== "object"
+    || !transitionResults.has(value)
+  ) {
+    return {
+      status: "invalid",
+      code: "atomic-acceptance-failed",
+      message: "transition result is not the exact process-local result",
+    }
+  }
+  const record = transitionResults.get(value)!
+  return {
+    status: "valid",
+    resultStatus: record.resultStatus,
+    rootFingerprint: record.rootFingerprint,
+    sceneFingerprint: record.sceneFingerprint,
+    fallbackRequestFingerprint: record.fallbackRequestFingerprint,
+  }
+}

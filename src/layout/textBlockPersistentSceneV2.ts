@@ -2,6 +2,7 @@ import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
   hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternalV1,
+  lookupVNextTextBlockPersistentLayoutLineInternalV1,
   verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1,
 } from "./textBlockPersistentLayoutLineTreeV1.js"
 import type {
@@ -36,7 +37,9 @@ import {
   type VNextTextBlockPersistentSceneV2,
 } from "./textBlockPersistentSceneContractV2.js"
 import {
+  hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
+  lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
   VNextTextBlockUnifiedLayoutSourceItemV1,
@@ -109,16 +112,15 @@ function deepFreeze<T>(value: T): T {
   return Object.isFrozen(value) ? value : Object.freeze(value)
 }
 
-function deeplyFrozen(value: unknown): boolean {
-  if (value == null || typeof value !== "object") return true
-  if (!Object.isFrozen(value)) return false
+function frozenSceneShell(value: unknown): boolean {
+  if (value == null || typeof value !== "object") return false
   try {
-    return Reflect.ownKeys(value).every((key) => {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key)
-      return descriptor != null
-        && Object.hasOwn(descriptor, "value")
-        && deeplyFrozen(descriptor.value)
-    })
+    const scene = value as VNextTextBlockPersistentSceneV2
+    return Object.isFrozen(scene)
+      && Object.isFrozen(scene.root)
+      && Object.isFrozen(scene.summary)
+      && Object.isFrozen(scene.work)
+      && Object.isFrozen(scene.contracts)
   } catch {
     return false
   }
@@ -213,7 +215,9 @@ interface PreparedSceneRecord {
   readonly fingerprintFactory: FingerprintFactory
   readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
   readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
-  readonly nodes: WeakSet<object>
+  readonly nodeSets: readonly WeakSet<object>[]
+  readonly chunkOrdinalsByLineage:
+    ReadonlyMap<string, readonly number[]>
 }
 
 const preparedScenes = new WeakMap<
@@ -269,7 +273,7 @@ function sceneCanonicalFacts(scene: VNextTextBlockPersistentSceneV2): unknown {
     sourceStatePaintFingerprint: scene.sourceStatePaintFingerprint,
     policy: scene.policy,
     payloadPolicy: scene.payloadPolicy,
-    root: scene.root,
+    rootFingerprint: scene.root.fingerprint,
     summary: scene.summary,
     work: scene.work,
     contracts: scene.contracts,
@@ -637,6 +641,7 @@ function projectRoot(
   factory: FingerprintFactory,
   nodes: WeakSet<object>,
   chunkOrdinal: { value: number },
+  chunkOrdinalsByLineage: Map<string, number[]>,
 ): VNextTextBlockPersistentSceneRootV2 | VNextTextBlockPersistentSceneIssueV2 {
   if (lineRoot.nodeKind === "empty") {
     nodes.add(VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2)
@@ -654,6 +659,13 @@ function projectRoot(
       )
     }
     const leaf = leafFromChunk(lineRoot, chunk, factory)
+    for (const mapping of chunk.sourceMapping) {
+      const ordinals = chunkOrdinalsByLineage.get(mapping.lineageId) ?? []
+      if (ordinals[ordinals.length - 1] !== ordinal) {
+        ordinals.push(ordinal)
+      }
+      chunkOrdinalsByLineage.set(mapping.lineageId, ordinals)
+    }
     nodes.add(leaf)
     return leaf
   }
@@ -665,6 +677,7 @@ function projectRoot(
       factory,
       nodes,
       chunkOrdinal,
+      chunkOrdinalsByLineage,
     )
     if (Object.hasOwn(projected, "code")) {
       return projected as VNextTextBlockPersistentSceneIssueV2
@@ -732,12 +745,14 @@ function buildComplete(
   try {
     const nodes = new WeakSet<object>()
     const chunkOrdinal = { value: 0 }
+    const chunkOrdinalsByLineage = new Map<string, number[]>()
     const projected = projectRoot(
       lineTree.root,
       collected.itemsByLineage,
       factory,
       nodes,
       chunkOrdinal,
+      chunkOrdinalsByLineage,
     )
     if (Object.hasOwn(projected, "code")) {
       return blocked(projected as VNextTextBlockPersistentSceneIssueV2)
@@ -842,7 +857,8 @@ function buildComplete(
       fingerprintFactory: factory,
       lineTree,
       sourceState,
-      nodes,
+      nodeSets: [nodes],
+      chunkOrdinalsByLineage,
     })
     return Object.freeze({
       status: "prepared",
@@ -877,6 +893,345 @@ export function createVNextTextBlockPersistentSceneWithForcedCollisionForTestInt
   return buildComplete(input, forcedCollisionFingerprint)
 }
 
+function replaceSceneLeafAtOrdinal(
+  input: {
+    readonly node: VNextTextBlockPersistentSceneNodeV2
+    readonly relativeOrdinal: number
+    readonly replacement: VNextTextBlockPersistentSceneLeafV2
+    readonly factory: FingerprintFactory
+    readonly nodes: WeakSet<object>
+    readonly copiedPathNodes:
+      VNextTextBlockPersistentSceneNodeV2[]
+    readonly siblingReferences:
+      VNextTextBlockPersistentSceneSiblingReferenceV2[]
+  },
+): VNextTextBlockPersistentSceneNodeV2 {
+  if (input.node.nodeKind === "leaf") {
+    if (input.relativeOrdinal !== 0) {
+      throw new RangeError("scene replacement ordinal escaped one leaf")
+    }
+    return input.replacement
+  }
+  let childStart = 0
+  let selectedIndex = -1
+  for (
+    let childIndex = 0;
+    childIndex < input.node.children.length;
+    childIndex += 1
+  ) {
+    const child = input.node.children[childIndex]!
+    const childEnd = childStart + child.summary.chunkCount
+    if (input.relativeOrdinal < childEnd) {
+      selectedIndex = childIndex
+      break
+    }
+    childStart = childEnd
+  }
+  if (selectedIndex < 0) {
+    throw new RangeError("scene replacement ordinal escaped root")
+  }
+  const children = input.node.children.map((child, childIndex) => {
+    if (childIndex !== selectedIndex) {
+      input.siblingReferences.push({
+        node: child,
+        fingerprint: child.fingerprint,
+        summary: child.summary,
+      })
+      return child
+    }
+    return replaceSceneLeafAtOrdinal({
+      ...input,
+      node: child,
+      relativeOrdinal: input.relativeOrdinal - childStart,
+    })
+  })
+  const pendingCopied = branchFromChildren(children, input.factory)
+  deepFreeze(pendingCopied.summary)
+  Object.freeze(pendingCopied.children)
+  const copied = Object.freeze(pendingCopied)
+  input.nodes.add(copied)
+  input.copiedPathNodes.push(copied)
+  return copied
+}
+
+export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidateInternalV2(
+  input: {
+    readonly previousScene: VNextTextBlockPersistentSceneV2
+    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
+    readonly inlineId: string
+  },
+):
+  | {
+      readonly status: "prepared"
+      readonly scene: VNextTextBlockPersistentSceneV2
+      readonly affectedChunkOrdinals: readonly [number]
+      readonly copiedPathNodes:
+        readonly VNextTextBlockPersistentSceneNodeV2[]
+      readonly replacementNodes:
+        readonly [VNextTextBlockPersistentSceneLeafV2]
+      readonly siblingReferences:
+        readonly VNextTextBlockPersistentSceneSiblingReferenceV2[]
+      readonly work: VNextTextBlockPersistentSceneV2["work"]
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked"
+      readonly scene: null
+      readonly affectedChunkOrdinals: null
+      readonly copiedPathNodes: null
+      readonly replacementNodes: null
+      readonly siblingReferences: null
+      readonly work: null
+      readonly issues: readonly VNextTextBlockPersistentSceneIssueV2[]
+    } {
+  const previous = preparedScenes.get(input.previousScene)
+  const nextSourceInspection =
+    inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
+      input.nextSourceState,
+    )
+  if (
+    previous == null
+    || !registeredScenes.has(input.previousScene)
+    || nextSourceInspection.status !== "prepared-unregistered"
+    || previous.lineTree !== input.lineTree
+    || !hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1(
+      previous.sourceState,
+      input.nextSourceState,
+    )
+    || !hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternalV1(
+      input.nextSourceState,
+      input.lineTree,
+    )
+  ) {
+    return {
+      status: "blocked",
+      scene: null,
+      affectedChunkOrdinals: null,
+      copiedPathNodes: null,
+      replacementNodes: null,
+      siblingReferences: null,
+      work: null,
+      issues: [issue(
+        "scene-dependency-binding-mismatch",
+        "paint scene transition requires one exact previous Scene/source/line tuple",
+      )],
+    }
+  }
+  const changedItem =
+    lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
+      sourceState: input.nextSourceState,
+      inlineId: input.inlineId,
+    })
+  if (
+    changedItem.status !== "found"
+    || changedItem.item.kind !== "inline-image"
+  ) {
+    return {
+      status: "blocked",
+      scene: null,
+      affectedChunkOrdinals: null,
+      copiedPathNodes: null,
+      replacementNodes: null,
+      siblingReferences: null,
+      work: null,
+      issues: [issue(
+        "scene-source-lineage-mismatch",
+        "paint scene transition source item is not an exact image",
+      )],
+    }
+  }
+  const ordinals = previous.chunkOrdinalsByLineage.get(
+    changedItem.item.lineageId,
+  )
+  if (ordinals?.length !== 1) {
+    return {
+      status: "blocked",
+      scene: null,
+      affectedChunkOrdinals: null,
+      copiedPathNodes: null,
+      replacementNodes: null,
+      siblingReferences: null,
+      work: null,
+      issues: [issue(
+        "scene-invalid-topology",
+        "one inline image must map to exactly one renderer chunk",
+      )],
+    }
+  }
+  const chunkOrdinal = ordinals[0]!
+  const line = lookupVNextTextBlockPersistentLayoutLineInternalV1({
+    lineTree: input.lineTree,
+    lineOrdinal: chunkOrdinal,
+  })
+  if (line.status !== "found") {
+    return {
+      status: "blocked",
+      scene: null,
+      affectedChunkOrdinals: null,
+      copiedPathNodes: null,
+      replacementNodes: null,
+      siblingReferences: null,
+      work: null,
+      issues: [issue(
+        "scene-invalid-topology",
+        "paint scene transition could not resolve one exact line leaf",
+      )],
+    }
+  }
+  try {
+    const itemsByLineage = new Map<
+      string,
+      VNextTextBlockUnifiedLayoutSourceItemV1
+    >()
+    for (const mapping of line.leaf.line.sourceMapping) {
+      const found =
+        lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
+          sourceState: input.nextSourceState,
+          inlineId: mapping.inlineId,
+        })
+      if (
+        found.status !== "found"
+        || found.item.lineageId !== mapping.lineageId
+      ) {
+        throw new Error("line source mapping escaped bounded source index")
+      }
+      itemsByLineage.set(mapping.lineageId, found.item)
+    }
+    const chunk = chunkFromLineLeaf(
+      line.leaf,
+      itemsByLineage,
+      previous.fingerprintFactory,
+    )
+    if (chunk == null) {
+      throw new Error("paint chunk projection failed")
+    }
+    const replacement = deepFreeze(leafFromChunk(
+      line.leaf,
+      chunk,
+      previous.fingerprintFactory,
+    ))
+    const nodes = new WeakSet<object>()
+    nodes.add(replacement)
+    const copiedPathNodes: VNextTextBlockPersistentSceneNodeV2[] = []
+    const siblingReferences:
+      VNextTextBlockPersistentSceneSiblingReferenceV2[] = []
+    if (input.previousScene.root.nodeKind === "empty") {
+      throw new Error("non-empty image source cannot have an empty scene")
+    }
+    const root = replaceSceneLeafAtOrdinal({
+      node: input.previousScene.root,
+      relativeOrdinal: chunkOrdinal,
+      replacement,
+      factory: previous.fingerprintFactory,
+      nodes,
+      copiedPathNodes,
+      siblingReferences,
+    })
+    const headerByteCount = utf8ByteCount({
+      payloadPolicyVersion: 1,
+      source: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_SOURCE,
+      contractVersion: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_VERSION,
+    })
+    const summary: VNextTextBlockPersistentSceneSummaryV2 = deepFreeze({
+      ...root.summary,
+      estimatedCanonicalPayloadByteCount: safeAdd(
+        headerByteCount,
+        root.summary.estimatedCanonicalPayloadByteCount,
+      ),
+    })
+    const work = deepFreeze({
+      completeSceneProjectionCount: 0 as const,
+      visitedLineCount: 1,
+      visitedFragmentCount: chunk.fragments.length,
+      visitedSourceItemCount: itemsByLineage.size,
+      emittedChunkCount: 1,
+      createdLeafCount: 1,
+      createdNodeCount: copiedPathNodes.length + 1,
+      reusedChunkCount: input.previousScene.summary.chunkCount - 1,
+      reusedSceneNodeCount: siblingReferences.length,
+      incrementalCopiedNodeCount: copiedPathNodes.length,
+      completeLineTreeTraversalCount: 0 as const,
+      completeSceneTraversalCount: 0 as const,
+      estimatedCanonicalPayloadByteCount:
+        summary.estimatedCanonicalPayloadByteCount,
+    })
+    const facts = {
+      source: input.previousScene.source,
+      contractVersion: input.previousScene.contractVersion,
+      documentId: input.previousScene.documentId,
+      sectionId: input.previousScene.sectionId,
+      textBlockId: input.previousScene.textBlockId,
+      instanceRevision: input.previousScene.instanceRevision,
+      layoutId: input.previousScene.layoutId,
+      lineTreeFingerprint: input.lineTree.fingerprint,
+      sourceStateSourceFingerprint:
+        input.nextSourceState.summary.sourceFingerprint,
+      sourceStateProvenanceFingerprint:
+        input.nextSourceState.summary.provenanceFingerprint,
+      sourceStatePaintFingerprint:
+        input.nextSourceState.summary.paintFingerprint,
+      policy: input.previousScene.policy,
+      payloadPolicy: input.previousScene.payloadPolicy,
+      root,
+      summary,
+      work,
+      contracts: input.previousScene.contracts,
+      mayPublishLayout: false as const,
+      productionBinding: false as const,
+    }
+    const canonicalFacts = stringifyVNextCanonicalJson(sceneCanonicalFacts({
+      ...facts,
+      fingerprint: "",
+    }))
+    const scene = Object.freeze({
+      ...facts,
+      fingerprint: previous.fingerprintFactory(canonicalFacts),
+    })
+    preparedScenes.set(scene, {
+      fingerprint: scene.fingerprint,
+      canonicalFacts,
+      fingerprintFactory: previous.fingerprintFactory,
+      lineTree: input.lineTree,
+      sourceState: input.nextSourceState,
+      nodeSets: [nodes, ...previous.nodeSets],
+      chunkOrdinalsByLineage: previous.chunkOrdinalsByLineage,
+    })
+    const inspection =
+      verifyVNextTextBlockPersistentSceneCandidateInternalV2(scene)
+    if (inspection.status !== "valid-candidate") {
+      preparedScenes.delete(scene)
+      throw new Error(inspection.message)
+    }
+    return Object.freeze({
+      status: "prepared",
+      scene,
+      affectedChunkOrdinals: Object.freeze([chunkOrdinal]) as
+        readonly [number],
+      copiedPathNodes: Object.freeze(copiedPathNodes),
+      replacementNodes: Object.freeze([replacement]) as
+        readonly [VNextTextBlockPersistentSceneLeafV2],
+      siblingReferences: Object.freeze(siblingReferences),
+      work,
+      issues: Object.freeze([]) as readonly [],
+    })
+  } catch {
+    return {
+      status: "blocked",
+      scene: null,
+      affectedChunkOrdinals: null,
+      copiedPathNodes: null,
+      replacementNodes: null,
+      siblingReferences: null,
+      work: null,
+      issues: [issue(
+        "scene-unsafe-summary",
+        "paint scene transition exceeded bounded path-copy invariants",
+      )],
+    }
+  }
+}
+
 export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
   value: unknown,
 ): VNextTextBlockPersistentSceneCandidateInspectionV2 {
@@ -891,7 +1246,7 @@ export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
       message: "scene is not the exact process-local prepared candidate",
     }
   }
-  if (!deeplyFrozen(value)) {
+  if (!frozenSceneShell(value)) {
     return {
       status: "invalid",
       code: "scene-candidate-not-deeply-frozen",
@@ -1027,7 +1382,7 @@ export function inspectVNextTextBlockPersistentSceneV2(
       message: "scene is not an exact process-local committed Root V2 child",
     }
   }
-  if (!deeplyFrozen(value)) {
+  if (!frozenSceneShell(value)) {
     return {
       status: "invalid",
       code: "scene-not-deeply-frozen",
@@ -1229,12 +1584,14 @@ export function inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV
   }
   const scene = record.scene as VNextTextBlockPersistentSceneV2
   const prepared = preparedScenes.get(scene)!
+  const hasNode = (node: object): boolean =>
+    prepared.nodeSets.some((nodes) => nodes.has(node))
   if (
     [...copiedPathNodes, ...replacementNodes].some(
       (node) =>
         node == null
         || typeof node !== "object"
-        || !prepared.nodes.has(node),
+        || !hasNode(node),
     )
   ) {
     return {
@@ -1246,7 +1603,7 @@ export function inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV
   if (siblings.some((reference) =>
     reference.node == null
     || typeof reference.node !== "object"
-    || !prepared.nodes.has(reference.node)
+    || !hasNode(reference.node)
     || reference.node.fingerprint !== reference.fingerprint
     || reference.node.summary !== reference.summary
   )) {

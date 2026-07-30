@@ -2,8 +2,14 @@ import type {
   VNextTextBlockUnifiedLayoutChangeV1,
 } from "./textBlockUnifiedLayoutChangeContractV1.js"
 import type {
+  VNextTextBlockLineDispositionCoverV1,
+} from "./textBlockPersistentLayoutLineContractV1.js"
+import type {
   VNextTextBlockPersistentSceneV2,
 } from "./textBlockPersistentSceneContractV2.js"
+import type {
+  VNextTextBlockSceneDeliveryPlanV2,
+} from "./textBlockSceneDeliveryContractV2.js"
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
@@ -54,27 +60,11 @@ export type VNextTextBlockUnifiedLayoutFallbackModeV1 =
   | "incremental-proof-failed"
   | "deterministic-work-limit-exceeded"
 
-export type VNextTextBlockLineDispositionV1 = "E" | "T" | "R" | "N"
-
-export interface VNextTextBlockLineDispositionSegmentV1 {
-  readonly disposition: VNextTextBlockLineDispositionV1
-  readonly previousStartLine: number | null
-  readonly previousEndLine: number | null
-  readonly nextStartLine: number
-  readonly nextEndLine: number
-  readonly constantYDeltaLayoutUnit: number | null
-  readonly fingerprint: string
-}
-
-export interface VNextTextBlockLineDispositionCoverV1 {
-  readonly source: "vnext-text-block-line-disposition-cover-v1"
-  readonly contractVersion: 1
-  readonly previousTreeFingerprint: string
-  readonly nextTreeFingerprint: string
-  readonly segments: readonly VNextTextBlockLineDispositionSegmentV1[]
-  readonly counts: Readonly<Record<VNextTextBlockLineDispositionV1, number>>
-  readonly fingerprint: string
-}
+export type {
+  VNextTextBlockLineDispositionCoverV1,
+  VNextTextBlockLineDispositionSegmentV1,
+  VNextTextBlockLineDispositionV1,
+} from "./textBlockPersistentLayoutLineContractV1.js"
 
 export interface VNextTextBlockLayoutSeedRegionV1 {
   readonly previousSourceRange: {
@@ -363,6 +353,61 @@ export type VNextTextBlockUnifiedLayoutCompleteFallbackResultV1 =
       readonly persistentScene: null
       readonly deliveryPlan: null
       readonly completeFallbackWork: VNextTextBlockCompleteFallbackWorkV1
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
+    }
+
+export type VNextTextBlockUnifiedLayoutTransitionResultV1 =
+  | {
+      readonly status: "accepted-no-op"
+      readonly root: VNextTextBlockUnifiedLayoutRootV2
+      readonly persistentScene: VNextTextBlockPersistentSceneV2
+      readonly deliveryPlan: null
+      readonly dispositions: VNextTextBlockLineDispositionCoverV1
+      readonly incrementalCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
+    }
+  | {
+      readonly status: "accepted-incremental"
+      readonly root: VNextTextBlockUnifiedLayoutRootV2
+      readonly persistentScene: VNextTextBlockPersistentSceneV2
+      readonly deliveryPlan: VNextTextBlockSceneDeliveryPlanV2
+      readonly dispositions: VNextTextBlockLineDispositionCoverV1
+      readonly incrementalCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
+    }
+  | {
+      readonly status: "fallback-required"
+      readonly root: null
+      readonly persistentScene: null
+      readonly deliveryPlan: null
+      readonly fallbackRequest:
+        VNextTextBlockUnifiedLayoutFallbackRequestV1
+      readonly incrementalCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
+    }
+  | {
+      readonly status: "blocked"
+      readonly root: null
+      readonly persistentScene: null
+      readonly deliveryPlan: null
+      readonly fallbackRequest: null
+      readonly incrementalCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
       readonly stagedEditorApply: false
       readonly mayPublishLayout: false

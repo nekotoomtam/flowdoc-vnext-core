@@ -32,6 +32,7 @@ import {
   authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 import {
+  hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1,
   hasVNextTextBlockUnifiedLayoutSourceStatePreparedBindingInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
@@ -908,6 +909,32 @@ export function hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
     )?.has(
       flowTree as VNextTextBlockIncrementalFlowTreeV1,
     ) === true
+}
+
+export function bindVNextTextBlockIncrementalFlowTreeToImagePaintSourceInternalV1(
+  input: {
+    readonly previousSourceState:
+      VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly nextSourceState:
+      VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
+  },
+): boolean {
+  if (
+    !hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1(
+      input.previousSourceState,
+      input.nextSourceState,
+    )
+    || !hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
+      input.previousSourceState,
+      input.flowTree,
+    )
+  ) return false
+  const bound = treesBySourceState.get(input.nextSourceState)
+    ?? new WeakSet<VNextTextBlockIncrementalFlowTreeV1>()
+  bound.add(input.flowTree)
+  treesBySourceState.set(input.nextSourceState, bound)
+  return true
 }
 
 export function registerPreparedVNextTextBlockIncrementalFlowTreeRootGraphChildInternalV2(

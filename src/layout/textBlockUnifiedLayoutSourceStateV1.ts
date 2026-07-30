@@ -52,6 +52,11 @@ interface IndexedSourceItemRecord {
   }[]
 }
 
+interface SourceItemIndex {
+  readonly entries: ReadonlyMap<string, IndexedSourceItemRecord>
+  readonly parent: SourceItemIndex | null
+}
+
 const policyFacts = {
   policyVersion: 1 as const,
   maximumLeafItems: 8 as const,
@@ -76,7 +81,7 @@ VNextTextBlockUnifiedLayoutSourceStateV1,
   readonly fingerprint: string
   readonly canonicalFacts: string
   readonly fingerprintFactory: FingerprintFactory
-  readonly itemsByInlineId: ReadonlyMap<string, IndexedSourceItemRecord>
+  readonly itemIndex: SourceItemIndex
 }
 >()
 const statesByEvidence = new WeakMap<
@@ -89,6 +94,10 @@ WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
 >()
 const registeredRootGraphStates = new WeakSet<
 VNextTextBlockUnifiedLayoutSourceStateV1
+>()
+const imagePaintPreviousStates = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceStateV1,
+  VNextTextBlockUnifiedLayoutSourceStateV1
 >()
 
 function fingerprintWith(
@@ -104,7 +113,7 @@ function defaultFingerprint(canonicalFacts: string): string {
 
 function indexSourceItems(
   root: VNextTextBlockUnifiedLayoutSourceNodeV1,
-): ReadonlyMap<string, IndexedSourceItemRecord> | null {
+): SourceItemIndex | null {
   const output = new Map<string, IndexedSourceItemRecord>()
   const visit = (
     node: VNextTextBlockUnifiedLayoutSourceNodeV1,
@@ -146,7 +155,22 @@ function indexSourceItems(
     }
     return true
   }
-  return visit(root, [], 0) ? output : null
+  return visit(root, [], 0)
+    ? { entries: output, parent: null }
+    : null
+}
+
+function indexedSourceItem(
+  index: SourceItemIndex,
+  inlineId: string,
+): IndexedSourceItemRecord | undefined {
+  let cursor: SourceItemIndex | null = index
+  while (cursor != null) {
+    const found = cursor.entries.get(inlineId)
+    if (found != null) return found
+    cursor = cursor.parent
+  }
+  return undefined
 }
 
 function forcedCollisionFingerprint(_canonicalFacts: string): string {
@@ -164,16 +188,15 @@ function deepFreeze<T>(value: T): T {
   return Object.isFrozen(value) ? value : Object.freeze(value)
 }
 
-function deeplyFrozen(value: unknown): boolean {
-  if (value == null || typeof value !== "object") return true
-  if (!Object.isFrozen(value)) return false
+function frozenSourceStateShell(value: unknown): boolean {
+  if (value == null || typeof value !== "object") return false
   try {
-    return Reflect.ownKeys(value).every((key) => {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key)
-      return descriptor != null
-        && Object.hasOwn(descriptor, "value")
-        && deeplyFrozen(descriptor.value)
-    })
+    const state = value as VNextTextBlockUnifiedLayoutSourceStateV1
+    return Object.isFrozen(state)
+      && Object.isFrozen(state.root)
+      && Object.isFrozen(state.summary)
+      && Object.isFrozen(state.work)
+      && Object.isFrozen(state.contracts)
   } catch {
     return false
   }
@@ -824,8 +847,10 @@ function buildComplete(
       }),
     }
     const work = {
+      constructionKind: "complete" as const,
       completeBuildCount: 1 as const,
       visitedInitialFlowAtomCount: initialFlow.atoms.length,
+      visitedSummaryNodeCount: 0 as const,
       createdItemCount: items.length,
       createdLeafCount: root.summary.leafCount,
       createdNodeCount: root.summary.nodeCount,
@@ -874,8 +899,8 @@ function buildComplete(
       ...withoutFingerprint,
       fingerprint: factory(canonicalFacts),
     })
-    const itemsByInlineId = indexSourceItems(sourceState.root)
-    if (itemsByInlineId == null) {
+    const itemIndex = indexSourceItems(sourceState.root)
+    if (itemIndex == null) {
       return blocked(
         "invalid-source-topology",
         "source-state items require unique inline identities",
@@ -885,7 +910,7 @@ function buildComplete(
       fingerprint: sourceState.fingerprint,
       canonicalFacts,
       fingerprintFactory: factory,
-      itemsByInlineId,
+      itemIndex,
     })
     const evidenceStates = statesByEvidence.get(evidence) ?? new WeakSet()
     evidenceStates.add(sourceState)
@@ -966,7 +991,7 @@ export function inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
       message: "source state is not the exact process-local prepared candidate",
     }
   }
-  if (!deeplyFrozen(value)) {
+  if (!frozenSourceStateShell(value)) {
     return {
       status: "invalid",
       code: "source-state-not-deeply-frozen",
@@ -1076,6 +1101,264 @@ export function inspectVNextTextBlockUnifiedLayoutSourceStateV1(
       }
 }
 
+export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1(
+  input: {
+    readonly previousSourceState:
+      VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly inlineId: string
+    readonly expectedImageSourceFingerprint: string
+    readonly expectedImageDependencyFingerprint: string
+    readonly nextFit: ImageFrameV4Target["fit"]
+    readonly nextCrop: NonNullable<ImageFrameV4Target["crop"]> | null
+  },
+):
+  | {
+      readonly status: "unchanged"
+      readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+      readonly visitedSummaryNodeCount: number
+      readonly createdNodeCount: 0
+      readonly reusedNodeCount: number
+      readonly completeSuffixTraversalCount: 0
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "prepared"
+      readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+      readonly visitedSummaryNodeCount: number
+      readonly createdNodeCount: number
+      readonly reusedNodeCount: number
+      readonly completeSuffixTraversalCount: 0
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked"
+      readonly sourceState: null
+      readonly visitedSummaryNodeCount: 0
+      readonly createdNodeCount: 0
+      readonly reusedNodeCount: 0
+      readonly completeSuffixTraversalCount: 0
+      readonly issues: readonly [{
+        readonly code: "source-state-authority-mismatch"
+        readonly message: string
+      }]
+    } {
+  const prepared = preparedStates.get(input.previousSourceState)
+  const indexed = prepared == null
+    ? undefined
+    : indexedSourceItem(prepared.itemIndex, input.inlineId)
+  if (
+    prepared == null
+    || indexed == null
+    || indexed.item.kind !== "inline-image"
+    || indexed.item.sourceFingerprint
+      !== input.expectedImageSourceFingerprint
+    || indexed.item.layoutDependencyFingerprint
+      !== input.expectedImageDependencyFingerprint
+  ) {
+    return {
+      status: "blocked",
+      sourceState: null,
+      visitedSummaryNodeCount: 0,
+      createdNodeCount: 0,
+      reusedNodeCount: 0,
+      completeSuffixTraversalCount: 0,
+      issues: [{
+        code: "source-state-authority-mismatch",
+        message: "image paint path copy requires exact registered source facts",
+      }],
+    }
+  }
+  const previousCrop = indexed.item.authoredFrame.crop ?? null
+  if (
+    indexed.item.authoredFrame.fit === input.nextFit
+    && stringifyVNextCanonicalJson(previousCrop)
+      === stringifyVNextCanonicalJson(input.nextCrop)
+  ) {
+    return {
+      status: "unchanged",
+      sourceState: input.previousSourceState,
+      visitedSummaryNodeCount: indexed.ancestors.length + 1,
+      createdNodeCount: 0,
+      reusedNodeCount: input.previousSourceState.summary.nodeCount,
+      completeSuffixTraversalCount: 0,
+      issues: Object.freeze([]) as readonly [],
+    }
+  }
+  try {
+    const {
+      crop: _previousCrop,
+      ...frameWithoutCrop
+    } = indexed.item.authoredFrame
+    const authoredFrame: ImageFrameV4Target = {
+      ...structuredClone(frameWithoutCrop),
+      fit: input.nextFit,
+      ...(input.nextCrop == null
+        ? {}
+        : { crop: structuredClone(input.nextCrop) }),
+    }
+    const {
+      fingerprint: _previousItemFingerprint,
+      paintFingerprint: _previousPaintFingerprint,
+      authoredFrame: _previousAuthoredFrame,
+      ...unchangedItemFacts
+    } = indexed.item
+    const itemFacts = {
+      ...unchangedItemFacts,
+      authoredFrame,
+      paintFingerprint: fingerprintWith(prepared.fingerprintFactory, {
+        assetId: indexed.item.assetId,
+        fit: input.nextFit,
+        crop: input.nextCrop,
+      }),
+    }
+    const nextItem: VNextTextBlockUnifiedLayoutSourceItemV1 = deepFreeze({
+      ...itemFacts,
+      fingerprint: fingerprintWith(prepared.fingerprintFactory, {
+        contractVersion: 1,
+        ...itemFacts,
+      }),
+    })
+    const nextLeaf = deepFreeze(leaf(
+      indexed.leaf.items.map((item, itemIndex) =>
+        itemIndex === indexed.itemIndex ? nextItem : item
+      ),
+      prepared.fingerprintFactory,
+    ))
+    const copiedBranches = new Map<
+      VNextTextBlockUnifiedLayoutSourceBranchV1,
+      VNextTextBlockUnifiedLayoutSourceBranchV1
+    >()
+    let nextPathNode: VNextTextBlockUnifiedLayoutSourceNodeV1 = nextLeaf
+    for (
+      let ancestorIndex = indexed.ancestors.length - 1;
+      ancestorIndex >= 0;
+      ancestorIndex -= 1
+    ) {
+      const ancestor = indexed.ancestors[ancestorIndex]!
+      const pendingCopied = branch(
+        ancestor.branch.children.map((child, childIndex) =>
+          childIndex === ancestor.childIndex ? nextPathNode : child
+        ),
+        prepared.fingerprintFactory,
+      )
+      deepFreeze(pendingCopied.summary)
+      Object.freeze(pendingCopied.children)
+      const copied = Object.freeze(pendingCopied)
+      copiedBranches.set(ancestor.branch, copied)
+      nextPathNode = copied
+    }
+    const nextAncestors = indexed.ancestors.map((ancestor) => ({
+      branch: copiedBranches.get(ancestor.branch)!,
+      childIndex: ancestor.childIndex,
+    }))
+    const createdNodeCount = indexed.ancestors.length + 1
+    const work = {
+      constructionKind: "image-paint-path-copy" as const,
+      completeBuildCount: 0 as const,
+      visitedInitialFlowAtomCount: 0 as const,
+      visitedSummaryNodeCount: createdNodeCount,
+      createdItemCount: 1 as const,
+      createdLeafCount: 1 as const,
+      createdNodeCount,
+      reusedItemCount:
+        input.previousSourceState.summary.itemCount - 1,
+      reusedNodeCount:
+        input.previousSourceState.summary.nodeCount - createdNodeCount,
+      completeSuffixTraversalCount: 0 as const,
+    }
+    const facts = {
+      source: input.previousSourceState.source,
+      contractVersion: input.previousSourceState.contractVersion,
+      documentId: input.previousSourceState.documentId,
+      sectionId: input.previousSourceState.sectionId,
+      textBlockId: input.previousSourceState.textBlockId,
+      instanceRevision: input.previousSourceState.instanceRevision,
+      initialFlowFingerprint:
+        input.previousSourceState.initialFlowFingerprint,
+      flowEvidenceFingerprint:
+        input.previousSourceState.flowEvidenceFingerprint,
+      authoredBoxPlan: input.previousSourceState.authoredBoxPlan,
+      producerRequirements:
+        input.previousSourceState.producerRequirements,
+      policy: input.previousSourceState.policy,
+      root: nextPathNode,
+      summary: nextPathNode.summary,
+      work: deepFreeze(work),
+      contracts: input.previousSourceState.contracts,
+      mayPublishLayout: false as const,
+      productionBinding: false as const,
+    }
+    const canonicalFacts = stringifyVNextCanonicalJson(
+      stateCanonicalFacts({
+        ...facts,
+        fingerprint: "",
+      }),
+    )
+    const sourceState = Object.freeze({
+      ...facts,
+      fingerprint: prepared.fingerprintFactory(canonicalFacts),
+    })
+    preparedStates.set(sourceState, {
+      fingerprint: sourceState.fingerprint,
+      canonicalFacts,
+      fingerprintFactory: prepared.fingerprintFactory,
+      itemIndex: {
+        entries: new Map([[
+          input.inlineId,
+          {
+            item: nextItem,
+            itemIndex: indexed.itemIndex,
+            absoluteStartRenderedUtf16:
+              indexed.absoluteStartRenderedUtf16,
+            leaf: nextLeaf,
+            ancestors: nextAncestors,
+          },
+        ]]),
+        parent: prepared.itemIndex,
+      },
+    })
+    imagePaintPreviousStates.set(
+      sourceState,
+      input.previousSourceState,
+    )
+    return Object.freeze({
+      status: "prepared",
+      sourceState,
+      visitedSummaryNodeCount: createdNodeCount,
+      createdNodeCount,
+      reusedNodeCount: work.reusedNodeCount,
+      completeSuffixTraversalCount: 0 as const,
+      issues: Object.freeze([]) as readonly [],
+    })
+  } catch {
+    return {
+      status: "blocked",
+      sourceState: null,
+      visitedSummaryNodeCount: 0,
+      createdNodeCount: 0,
+      reusedNodeCount: 0,
+      completeSuffixTraversalCount: 0,
+      issues: [{
+        code: "source-state-authority-mismatch",
+        message: "image paint path copy exceeded safe canonical arithmetic",
+      }],
+    }
+  }
+}
+
+export function hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1(
+  previousSourceState: unknown,
+  nextSourceState: unknown,
+): nextSourceState is VNextTextBlockUnifiedLayoutSourceStateV1 {
+  return previousSourceState != null
+    && typeof previousSourceState === "object"
+    && nextSourceState != null
+    && typeof nextSourceState === "object"
+    && imagePaintPreviousStates.get(
+      nextSourceState as VNextTextBlockUnifiedLayoutSourceStateV1,
+    ) === previousSourceState
+}
+
 export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
   input: {
     readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
@@ -1099,7 +1382,9 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
       readonly completeSourceTraversalCount: 0
     } {
   const prepared = preparedStates.get(input.sourceState)
-  const indexed = prepared?.itemsByInlineId.get(input.inlineId)
+  const indexed = prepared == null
+    ? undefined
+    : indexedSourceItem(prepared.itemIndex, input.inlineId)
   if (
     prepared == null
     || indexed == null
@@ -1182,7 +1467,9 @@ export function lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1(
       readonly completeTreeTraversalCount: 0
     } {
   const prepared = preparedStates.get(input.sourceState)
-  const indexed = prepared?.itemsByInlineId.get(input.inlineId)
+  const indexed = prepared == null
+    ? undefined
+    : indexedSourceItem(prepared.itemIndex, input.inlineId)
   if (prepared == null || indexed == null) {
     return {
       status: "not-found",

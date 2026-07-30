@@ -63,6 +63,7 @@ import type {
   VNextTextBlockUnifiedSpatialStateV1,
 } from "./textBlockUnifiedSpatialStateContractV1.js"
 import {
+  hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
@@ -211,6 +212,8 @@ const preparedTrees = new WeakMap<
     readonly fingerprint: string
     readonly canonicalFacts: string
     readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly imagePaintSourceAliases:
+      WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
     readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
     readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
   }
@@ -1165,6 +1168,8 @@ export function createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1(
       fingerprint: lineTree.fingerprint,
       canonicalFacts,
       sourceState,
+      imagePaintSourceAliases:
+        new WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>(),
       flowTree,
       spatialState,
     })
@@ -1250,7 +1255,12 @@ export function hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternal
   return verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
     candidate,
   ).status === "valid-candidate"
-    && preparedTrees.get(candidate)?.sourceState === sourceState
+    && (
+      preparedTrees.get(candidate)?.sourceState === sourceState
+      || preparedTrees.get(candidate)?.imagePaintSourceAliases.has(
+        sourceState as VNextTextBlockUnifiedLayoutSourceStateV1,
+      ) === true
+    )
 }
 
 export function hasVNextTextBlockPersistentLayoutLineTreePreparedRootDependenciesInternalV2(
@@ -1274,9 +1284,45 @@ export function hasVNextTextBlockPersistentLayoutLineTreePreparedRootDependencie
     input.lineTree as VNextTextBlockPersistentLayoutLineTreeV1,
   )
   return binding != null
-    && binding.sourceState === input.sourceState
+    && (
+      binding.sourceState === input.sourceState
+      || binding.imagePaintSourceAliases.has(
+        input.sourceState as VNextTextBlockUnifiedLayoutSourceStateV1,
+      )
+    )
     && binding.flowTree === input.flowTree
     && binding.spatialState === input.spatialState
+}
+
+export function bindVNextTextBlockPersistentLayoutLineTreeToImagePaintSourceInternalV1(
+  input: {
+    readonly previousSourceState:
+      VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly nextSourceState:
+      VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
+    readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
+    readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
+  },
+): boolean {
+  const binding = preparedTrees.get(input.lineTree)
+  if (
+    binding == null
+    || (
+      binding.sourceState !== input.previousSourceState
+      && !binding.imagePaintSourceAliases.has(
+        input.previousSourceState,
+      )
+    )
+    || binding.flowTree !== input.flowTree
+    || binding.spatialState !== input.spatialState
+    || !hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1(
+      input.previousSourceState,
+      input.nextSourceState,
+    )
+  ) return false
+  binding.imagePaintSourceAliases.add(input.nextSourceState)
+  return true
 }
 
 export function registerPreparedVNextTextBlockPersistentLayoutLineTreeRootGraphChildInternalV2(

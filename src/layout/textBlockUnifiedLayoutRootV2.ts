@@ -679,6 +679,124 @@ export function createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
   })
 }
 
+export function prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateInternalV2(
+  input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly nextSourceState:
+      VNextTextBlockUnifiedLayoutRootV2["sourceState"]
+    readonly nextPersistentScene:
+      VNextTextBlockUnifiedLayoutRootV2["persistentScene"]
+    readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+    readonly transitionFingerprint: string
+  },
+):
+  | {
+      readonly status: "prepared"
+      readonly root: VNextTextBlockUnifiedLayoutRootV2
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked"
+      readonly root: null
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+    } {
+  const previousInspection =
+    inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2(
+      input.previousRoot,
+    )
+  if (
+    previousInspection.status !== "valid"
+    || input.workPolicy !== input.previousRoot.workPolicy
+    || input.transitionFingerprint.length === 0
+  ) {
+    return {
+      status: "blocked",
+      root: null,
+      issues: [issue(
+        "previous-root-authority-mismatch",
+        "atomic-acceptance",
+        "previousRoot",
+        "incremental Root V2 requires one exact previous Root/policy",
+      )],
+    }
+  }
+  const dependencyFingerprints = Object.freeze({
+    sourceState: input.nextSourceState.fingerprint,
+    flowTree: input.previousRoot.flowTree.fingerprint,
+    spatialState: input.previousRoot.spatialState.fingerprint,
+    flowRegionProviderAuthority:
+      input.previousRoot.flowRegionProviderAuthority.fingerprint,
+    lineTree: input.previousRoot.lineTree.fingerprint,
+    authoredBoxSummary:
+      input.previousRoot.authoredBoxSummary.fingerprint,
+    persistentScene: input.nextPersistentScene.fingerprint,
+    workPolicy: input.workPolicy.fingerprint,
+  })
+  const constructionFingerprint = fingerprint({
+    constructionKind: "incremental",
+    previousRootFingerprint: input.previousRoot.fingerprint,
+    transitionFingerprint: input.transitionFingerprint,
+    dependencyFingerprints,
+  })
+  const facts = {
+    source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_ROOT_V2_SOURCE,
+    contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_ROOT_V2_VERSION,
+    inputAuthority: "core-synthetic-qa-only" as const,
+    documentId: input.previousRoot.documentId,
+    instanceRevision: input.nextSourceState.instanceRevision,
+    sectionId: input.previousRoot.sectionId,
+    textBlockId: input.previousRoot.textBlockId,
+    layoutId: input.previousRoot.layoutId,
+    sourceState: input.nextSourceState,
+    flowTree: input.previousRoot.flowTree,
+    spatialState: input.previousRoot.spatialState,
+    flowRegionProviderAuthority:
+      input.previousRoot.flowRegionProviderAuthority,
+    lineTree: input.previousRoot.lineTree,
+    authoredBoxSummary: input.previousRoot.authoredBoxSummary,
+    persistentScene: input.nextPersistentScene,
+    workPolicy: input.workPolicy,
+    dependencyFingerprints,
+    constructionKind: "incremental" as const,
+    constructionFingerprint,
+    contracts: input.previousRoot.contracts,
+    stagedEditorApply: false as const,
+    mayPublishLayout: false as const,
+    productionBinding: false as const,
+  }
+  const pending = {
+    ...facts,
+    fingerprint: "",
+  } satisfies VNextTextBlockUnifiedLayoutRootV2
+  const root = Object.freeze({
+    ...facts,
+    fingerprint: createVNextCompactFingerprint(
+      canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(pending),
+    ),
+  })
+  if (
+    !prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2(
+      root,
+    )
+  ) {
+    return {
+      status: "blocked",
+      root: null,
+      issues: [issue(
+        "atomic-acceptance-failed",
+        "atomic-acceptance",
+        "root",
+        "incremental Root V2 dependencies failed exact candidate binding",
+      )],
+    }
+  }
+  return Object.freeze({
+    status: "prepared",
+    root,
+    issues: Object.freeze([]) as readonly [],
+  })
+}
+
 export function inspectVNextTextBlockUnifiedLayoutRootV2(
   value: unknown,
 ): VNextTextBlockUnifiedLayoutRootInspectionV2 {

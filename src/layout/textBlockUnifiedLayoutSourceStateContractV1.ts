@@ -127,16 +127,31 @@ export interface VNextTextBlockUnifiedLayoutProducerRequirementsV1 {
   readonly producerRuntimeRequirementFingerprint: string
 }
 
-export interface VNextTextBlockUnifiedLayoutSourceStateWorkV1 {
-  readonly completeBuildCount: 1
-  readonly visitedInitialFlowAtomCount: number
-  readonly createdItemCount: number
-  readonly createdLeafCount: number
-  readonly createdNodeCount: number
-  readonly reusedItemCount: 0
-  readonly reusedNodeCount: 0
-  readonly completeSuffixTraversalCount: 0
-}
+export type VNextTextBlockUnifiedLayoutSourceStateWorkV1 =
+  | {
+      readonly constructionKind: "complete"
+      readonly completeBuildCount: 1
+      readonly visitedInitialFlowAtomCount: number
+      readonly visitedSummaryNodeCount: 0
+      readonly createdItemCount: number
+      readonly createdLeafCount: number
+      readonly createdNodeCount: number
+      readonly reusedItemCount: 0
+      readonly reusedNodeCount: 0
+      readonly completeSuffixTraversalCount: 0
+    }
+  | {
+      readonly constructionKind: "image-paint-path-copy"
+      readonly completeBuildCount: 0
+      readonly visitedInitialFlowAtomCount: 0
+      readonly visitedSummaryNodeCount: number
+      readonly createdItemCount: 1
+      readonly createdLeafCount: 1
+      readonly createdNodeCount: number
+      readonly reusedItemCount: number
+      readonly reusedNodeCount: number
+      readonly completeSuffixTraversalCount: 0
+    }
 
 export interface VNextTextBlockUnifiedLayoutSourceStateV1 {
   readonly source: typeof VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_SOURCE_STATE_V1_SOURCE

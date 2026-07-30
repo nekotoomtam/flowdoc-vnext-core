@@ -131,21 +131,37 @@ export type VNextTextBlockPersistentSceneRootV2 =
   | VNextTextBlockPersistentSceneEmptyRootV2
   | VNextTextBlockPersistentSceneNodeV2
 
-export interface VNextTextBlockPersistentSceneWorkV2 {
-  readonly completeSceneProjectionCount: 1
-  readonly visitedLineCount: number
-  readonly visitedFragmentCount: number
-  readonly visitedSourceItemCount: number
-  readonly emittedChunkCount: number
-  readonly createdLeafCount: number
-  readonly createdNodeCount: number
-  readonly reusedChunkCount: 0
-  readonly reusedSceneNodeCount: 0
-  readonly incrementalCopiedNodeCount: 0
-  readonly completeLineTreeTraversalCount: 1
-  readonly completeSceneTraversalCount: 0
-  readonly estimatedCanonicalPayloadByteCount: number
-}
+export type VNextTextBlockPersistentSceneWorkV2 =
+  | {
+      readonly completeSceneProjectionCount: 1
+      readonly visitedLineCount: number
+      readonly visitedFragmentCount: number
+      readonly visitedSourceItemCount: number
+      readonly emittedChunkCount: number
+      readonly createdLeafCount: number
+      readonly createdNodeCount: number
+      readonly reusedChunkCount: 0
+      readonly reusedSceneNodeCount: 0
+      readonly incrementalCopiedNodeCount: 0
+      readonly completeLineTreeTraversalCount: 1
+      readonly completeSceneTraversalCount: 0
+      readonly estimatedCanonicalPayloadByteCount: number
+    }
+  | {
+      readonly completeSceneProjectionCount: 0
+      readonly visitedLineCount: number
+      readonly visitedFragmentCount: number
+      readonly visitedSourceItemCount: number
+      readonly emittedChunkCount: number
+      readonly createdLeafCount: number
+      readonly createdNodeCount: number
+      readonly reusedChunkCount: number
+      readonly reusedSceneNodeCount: number
+      readonly incrementalCopiedNodeCount: number
+      readonly completeLineTreeTraversalCount: 0
+      readonly completeSceneTraversalCount: 0
+      readonly estimatedCanonicalPayloadByteCount: number
+    }
 
 export interface VNextTextBlockPersistentSceneV2 {
   readonly source: typeof VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_SOURCE
