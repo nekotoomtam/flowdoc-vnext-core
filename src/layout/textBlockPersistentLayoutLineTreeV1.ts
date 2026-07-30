@@ -69,6 +69,9 @@ import {
 import type {
   VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
+import {
+  authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
+} from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 
 type AcceptedSpatialLayoutV2 = Extract<
   VNextTextBlockSpatialWrappingLayoutResultV2,
@@ -208,6 +211,8 @@ const preparedTrees = new WeakMap<
     readonly fingerprint: string
     readonly canonicalFacts: string
     readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
+    readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
   }
 >()
 
@@ -219,6 +224,9 @@ const covers = new WeakMap<
     readonly fingerprint: string
     readonly canonicalFacts: string
   }
+>()
+const registeredRootGraphTrees = new WeakSet<
+VNextTextBlockPersistentLayoutLineTreeV1
 >()
 
 function treeIssue(
@@ -1157,6 +1165,8 @@ export function createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1(
       fingerprint: lineTree.fingerprint,
       canonicalFacts,
       sourceState,
+      flowTree,
+      spatialState,
     })
     return Object.freeze({
       status: "prepared",
@@ -1241,6 +1251,104 @@ export function hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternal
     candidate,
   ).status === "valid-candidate"
     && preparedTrees.get(candidate)?.sourceState === sourceState
+}
+
+export function hasVNextTextBlockPersistentLayoutLineTreePreparedRootDependenciesInternalV2(
+  input: {
+    readonly sourceState: unknown
+    readonly flowTree: unknown
+    readonly spatialState: unknown
+    readonly lineTree: unknown
+  },
+): input is {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
+  readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
+} {
+  if (
+    input.lineTree == null
+    || typeof input.lineTree !== "object"
+  ) return false
+  const binding = preparedTrees.get(
+    input.lineTree as VNextTextBlockPersistentLayoutLineTreeV1,
+  )
+  return binding != null
+    && binding.sourceState === input.sourceState
+    && binding.flowTree === input.flowTree
+    && binding.spatialState === input.spatialState
+}
+
+export function registerPreparedVNextTextBlockPersistentLayoutLineTreeRootGraphChildInternalV2(
+  input: {
+    readonly token: unknown
+    readonly phase: "preflight" | "commit"
+    readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
+  },
+): boolean {
+  if (input.phase === "preflight") {
+    return !registeredRootGraphTrees.has(input.lineTree)
+      && verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
+        input.lineTree,
+      ).status === "valid-candidate"
+      && authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+        token: input.token,
+        phase: input.phase,
+        childKind: "line-tree",
+        child: input.lineTree,
+      })
+  }
+  if (
+    !authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+      token: input.token,
+      phase: input.phase,
+      childKind: "line-tree",
+      child: input.lineTree,
+    })
+  ) return false
+  registeredRootGraphTrees.add(input.lineTree)
+  return true
+}
+
+export function hasVNextTextBlockPersistentLayoutLineTreeRegisteredRootGraphBindingInternalV2(
+  value: unknown,
+): value is VNextTextBlockPersistentLayoutLineTreeV1 {
+  return value != null
+    && typeof value === "object"
+    && registeredRootGraphTrees.has(
+      value as VNextTextBlockPersistentLayoutLineTreeV1,
+    )
+}
+
+export function inspectVNextTextBlockPersistentLayoutLineTreeV1(
+  value: unknown,
+):
+  | { readonly status: "valid"; readonly fingerprint: string }
+  | {
+      readonly status: "invalid"
+      readonly code: "line-tree-authority-mismatch"
+      readonly message: string
+    } {
+  if (
+    !hasVNextTextBlockPersistentLayoutLineTreeRegisteredRootGraphBindingInternalV2(
+      value,
+    )
+  ) {
+    return {
+      status: "invalid",
+      code: "line-tree-authority-mismatch",
+      message: "line tree is not an exact committed Root V2 child",
+    }
+  }
+  const candidate =
+    verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(value)
+  return candidate.status === "valid-candidate"
+    ? { status: "valid", fingerprint: candidate.fingerprint }
+    : {
+        status: "invalid",
+        code: "line-tree-authority-mismatch",
+        message: candidate.message,
+      }
 }
 
 export function lookupVNextTextBlockPersistentLayoutLineInternalV1(input: {

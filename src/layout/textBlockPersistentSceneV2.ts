@@ -43,6 +43,9 @@ import type {
   VNextTextBlockUnifiedLayoutSourceNodeV1,
   VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
+import {
+  authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
+} from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -944,6 +947,70 @@ export function hasVNextTextBlockPersistentScenePreparedCandidateInternalV2(
   return value != null
     && typeof value === "object"
     && preparedScenes.has(value as VNextTextBlockPersistentSceneV2)
+}
+
+export function hasVNextTextBlockPersistentScenePreparedDependenciesInternalV2(
+  input: {
+    readonly lineTree: unknown
+    readonly sourceState: unknown
+    readonly scene: unknown
+  },
+): input is {
+  readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly scene: VNextTextBlockPersistentSceneV2
+} {
+  if (input.scene == null || typeof input.scene !== "object") return false
+  const prepared = preparedScenes.get(
+    input.scene as VNextTextBlockPersistentSceneV2,
+  )
+  return prepared != null
+    && prepared.lineTree === input.lineTree
+    && prepared.sourceState === input.sourceState
+}
+
+export function registerPreparedVNextTextBlockPersistentSceneRootGraphChildInternalV2(
+  input: {
+    readonly token: unknown
+    readonly phase: "preflight" | "commit"
+    readonly scene: VNextTextBlockPersistentSceneV2
+  },
+): boolean {
+  if (input.phase === "preflight") {
+    return !registeredScenes.has(input.scene)
+      && verifyVNextTextBlockPersistentSceneCandidateInternalV2(
+        input.scene,
+      ).status === "valid-candidate"
+      && authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+        token: input.token,
+        phase: input.phase,
+        childKind: "persistent-scene",
+        child: input.scene,
+      })
+  }
+  if (
+    !authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+      token: input.token,
+      phase: input.phase,
+      childKind: "persistent-scene",
+      child: input.scene,
+    })
+  ) return false
+  const prepared = preparedScenes.get(input.scene)
+  if (prepared == null) return false
+  registeredScenes.set(input.scene, {
+    fingerprint: input.scene.fingerprint,
+    canonicalFacts: prepared.canonicalFacts,
+  })
+  return true
+}
+
+export function hasVNextTextBlockPersistentSceneRegisteredRootGraphBindingInternalV2(
+  value: unknown,
+): value is VNextTextBlockPersistentSceneV2 {
+  return value != null
+    && typeof value === "object"
+    && registeredScenes.has(value as VNextTextBlockPersistentSceneV2)
 }
 
 export function inspectVNextTextBlockPersistentSceneV2(

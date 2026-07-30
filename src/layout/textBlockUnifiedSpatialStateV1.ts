@@ -28,6 +28,9 @@ import {
   type VNextTextBlockUnifiedSpatialStateQueryResultV1,
   type VNextTextBlockUnifiedSpatialStateV1,
 } from "./textBlockUnifiedSpatialStateContractV1.js"
+import {
+  authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
+} from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 
 const EMPTY_SUMMARY: VNextTextBlockSpatialIndexSummaryV1 = Object.freeze({
   entryCount: 0,
@@ -48,6 +51,9 @@ VNextTextBlockUnifiedSpatialStateV1,
 const spatialStatesBySourceState = new WeakMap<
 VNextTextBlockUnifiedLayoutSourceStateV1,
 WeakSet<VNextTextBlockUnifiedSpatialStateV1>
+>()
+const registeredRootGraphStates = new WeakSet<
+VNextTextBlockUnifiedSpatialStateV1
 >()
 
 function fingerprint(value: unknown): string {
@@ -457,6 +463,78 @@ export function hasVNextTextBlockUnifiedSpatialStatePreparedBindingInternalV1(
     )?.has(
       spatialState as VNextTextBlockUnifiedSpatialStateV1,
     ) === true
+}
+
+export function registerPreparedVNextTextBlockUnifiedSpatialStateRootGraphChildInternalV2(
+  input: {
+    readonly token: unknown
+    readonly phase: "preflight" | "commit"
+    readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
+  },
+): boolean {
+  if (input.phase === "preflight") {
+    return !registeredRootGraphStates.has(input.spatialState)
+      && verifyVNextTextBlockUnifiedSpatialStateCandidateInternalV1(
+        input.spatialState,
+      ).status === "valid-candidate"
+      && authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+        token: input.token,
+        phase: input.phase,
+        childKind: "spatial-state",
+        child: input.spatialState,
+      })
+  }
+  if (
+    !authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+      token: input.token,
+      phase: input.phase,
+      childKind: "spatial-state",
+      child: input.spatialState,
+    })
+  ) return false
+  registeredRootGraphStates.add(input.spatialState)
+  return true
+}
+
+export function hasVNextTextBlockUnifiedSpatialStateRegisteredRootGraphBindingInternalV2(
+  value: unknown,
+): value is VNextTextBlockUnifiedSpatialStateV1 {
+  return value != null
+    && typeof value === "object"
+    && registeredRootGraphStates.has(
+      value as VNextTextBlockUnifiedSpatialStateV1,
+    )
+}
+
+export function inspectVNextTextBlockUnifiedSpatialStateV1(
+  value: unknown,
+):
+  | { readonly status: "valid"; readonly fingerprint: string }
+  | {
+      readonly status: "invalid"
+      readonly code: "spatial-state-authority-mismatch"
+      readonly message: string
+    } {
+  if (
+    !hasVNextTextBlockUnifiedSpatialStateRegisteredRootGraphBindingInternalV2(
+      value,
+    )
+  ) {
+    return {
+      status: "invalid",
+      code: "spatial-state-authority-mismatch",
+      message: "spatial state is not an exact committed Root V2 child",
+    }
+  }
+  const candidate =
+    verifyVNextTextBlockUnifiedSpatialStateCandidateInternalV1(value)
+  return candidate.status === "valid-candidate"
+    ? { status: "valid", fingerprint: candidate.fingerprint }
+    : {
+        status: "invalid",
+        code: "spatial-state-authority-mismatch",
+        message: candidate.message,
+      }
 }
 
 export function queryVNextTextBlockUnifiedSpatialStateInternalV1(input: {

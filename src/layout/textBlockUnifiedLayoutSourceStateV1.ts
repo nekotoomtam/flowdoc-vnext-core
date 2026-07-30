@@ -29,6 +29,9 @@ import {
   type VNextTextBlockUnifiedLayoutSourceStyleV1,
   type VNextTextBlockUnifiedLayoutSourceSummaryV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
+import {
+  authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
+} from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -68,6 +71,9 @@ WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
 const statesByInitialFlow = new WeakMap<
 VNextTextBlockInitialFlowV1,
 WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
+>()
+const registeredRootGraphStates = new WeakSet<
+VNextTextBlockUnifiedLayoutSourceStateV1
 >()
 
 function fingerprintWith(
@@ -926,6 +932,78 @@ export function inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
       message: "prepared source state is not canonically inspectable",
     }
   }
+}
+
+export function registerPreparedVNextTextBlockUnifiedLayoutSourceStateRootGraphChildInternalV2(
+  input: {
+    readonly token: unknown
+    readonly phase: "preflight" | "commit"
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  },
+): boolean {
+  if (input.phase === "preflight") {
+    return !registeredRootGraphStates.has(input.sourceState)
+      && inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
+        input.sourceState,
+      ).status === "prepared-unregistered"
+      && authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+        token: input.token,
+        phase: input.phase,
+        childKind: "source-state",
+        child: input.sourceState,
+      })
+  }
+  if (
+    !authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+      token: input.token,
+      phase: input.phase,
+      childKind: "source-state",
+      child: input.sourceState,
+    })
+  ) return false
+  registeredRootGraphStates.add(input.sourceState)
+  return true
+}
+
+export function hasVNextTextBlockUnifiedLayoutSourceStateRegisteredRootGraphBindingInternalV2(
+  value: unknown,
+): value is VNextTextBlockUnifiedLayoutSourceStateV1 {
+  return value != null
+    && typeof value === "object"
+    && registeredRootGraphStates.has(
+      value as VNextTextBlockUnifiedLayoutSourceStateV1,
+    )
+}
+
+export function inspectVNextTextBlockUnifiedLayoutSourceStateV1(
+  value: unknown,
+):
+  | { readonly status: "valid"; readonly fingerprint: string }
+  | {
+      readonly status: "invalid"
+      readonly code: "source-state-authority-mismatch"
+      readonly message: string
+    } {
+  if (
+    !hasVNextTextBlockUnifiedLayoutSourceStateRegisteredRootGraphBindingInternalV2(
+      value,
+    )
+  ) {
+    return {
+      status: "invalid",
+      code: "source-state-authority-mismatch",
+      message: "source state is not an exact committed Root V2 child",
+    }
+  }
+  const candidate =
+    inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(value)
+  return candidate.status === "prepared-unregistered"
+    ? { status: "valid", fingerprint: candidate.fingerprint }
+    : {
+        status: "invalid",
+        code: "source-state-authority-mismatch",
+        message: candidate.message,
+      }
 }
 
 export function lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1(input: {

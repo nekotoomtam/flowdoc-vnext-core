@@ -29,6 +29,9 @@ import {
   type VNextTextBlockIncrementalFlowTreeV1,
 } from "./textBlockIncrementalFlowTreeContractV1.js"
 import {
+  authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
+} from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
+import {
   hasVNextTextBlockUnifiedLayoutSourceStatePreparedBindingInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
@@ -76,6 +79,9 @@ WeakSet<VNextTextBlockIncrementalFlowTreeV1>
 const treesByEvidence = new WeakMap<
 VNextTextBlockFlowEvidenceV2,
 WeakSet<VNextTextBlockIncrementalFlowTreeV1>
+>()
+const registeredRootGraphTrees = new WeakSet<
+VNextTextBlockIncrementalFlowTreeV1
 >()
 
 function defaultFingerprint(canonicalFacts: string): string {
@@ -902,6 +908,77 @@ export function hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
     )?.has(
       flowTree as VNextTextBlockIncrementalFlowTreeV1,
     ) === true
+}
+
+export function registerPreparedVNextTextBlockIncrementalFlowTreeRootGraphChildInternalV2(
+  input: {
+    readonly token: unknown
+    readonly phase: "preflight" | "commit"
+    readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
+  },
+): boolean {
+  if (input.phase === "preflight") {
+    return !registeredRootGraphTrees.has(input.flowTree)
+      && inspectVNextTextBlockIncrementalFlowTreeInternalV1(
+        input.flowTree,
+      ).status === "prepared-unregistered"
+      && authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+        token: input.token,
+        phase: input.phase,
+        childKind: "flow-tree",
+        child: input.flowTree,
+      })
+  }
+  if (
+    !authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
+      token: input.token,
+      phase: input.phase,
+      childKind: "flow-tree",
+      child: input.flowTree,
+    })
+  ) return false
+  registeredRootGraphTrees.add(input.flowTree)
+  return true
+}
+
+export function hasVNextTextBlockIncrementalFlowTreeRegisteredRootGraphBindingInternalV2(
+  value: unknown,
+): value is VNextTextBlockIncrementalFlowTreeV1 {
+  return value != null
+    && typeof value === "object"
+    && registeredRootGraphTrees.has(
+      value as VNextTextBlockIncrementalFlowTreeV1,
+    )
+}
+
+export function inspectVNextTextBlockIncrementalFlowTreeV1(
+  value: unknown,
+):
+  | { readonly status: "valid"; readonly fingerprint: string }
+  | {
+      readonly status: "invalid"
+      readonly code: "flow-tree-authority-mismatch"
+      readonly message: string
+    } {
+  if (
+    !hasVNextTextBlockIncrementalFlowTreeRegisteredRootGraphBindingInternalV2(
+      value,
+    )
+  ) {
+    return {
+      status: "invalid",
+      code: "flow-tree-authority-mismatch",
+      message: "flow tree is not an exact committed Root V2 child",
+    }
+  }
+  const candidate = inspectVNextTextBlockIncrementalFlowTreeInternalV1(value)
+  return candidate.status === "prepared-unregistered"
+    ? { status: "valid", fingerprint: candidate.fingerprint }
+    : {
+        status: "invalid",
+        code: "flow-tree-authority-mismatch",
+        message: candidate.message,
+      }
 }
 
 export function lookupVNextTextBlockIncrementalFlowAtomInternalV1(input: {
