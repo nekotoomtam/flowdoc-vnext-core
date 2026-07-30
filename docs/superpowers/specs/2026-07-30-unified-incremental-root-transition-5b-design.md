@@ -1,10 +1,10 @@
 # Unified Incremental Root Transition 5B Design
 
 Status: approved design baseline for the separately authorized Core-only Phase
-5B checkpoint. The 2026-07-31 capability-honesty correction is approved in
-concept and pending review of this written consolidation. This document does
-not authorize Phase 5C, Editor or Backend binding, publication, or production
-activation.
+5B checkpoint. The 2026-07-31 capability-honesty and identity refinements are
+approved in concept and pending review of this written consolidation. This
+document does not authorize Phase 5C, Editor or Backend binding, publication,
+or production activation.
 
 ## 1. Decision Summary
 
@@ -169,6 +169,36 @@ Root V2 is the only active 5B root:
 V1 retirement requires a later consumer and evidence audit. No Phase 5B
 implementation may add new feature behavior to Root V1 or Scene V1.
 
+### 5.1 Runtime And Evidence Version Layers
+
+Phase 5B separates three version axes:
+
+- `contractVersion` versions runtime shape and semantic interpretation;
+- `workPolicyId` plus work-policy fingerprint versions execution limits and
+  exact process-local policy authority; and
+- `fixtureCalibrationRevision` versions checked-in calibration evidence.
+
+Changing only fixture rows or calibration provenance does not change runtime
+Root or Scene identity. Changing a work-policy value changes the Root
+process-local authority fingerprint and requires a policy version bump, but
+does not change document/layout semantics.
+
+Root V2 therefore exposes two distinct facts:
+
+- `semanticFingerprint`, which excludes construction provenance, work policy,
+  fixture calibration revision, and payload observations; and
+- `fingerprint`, which remains the exact composite Root authority/integrity
+  fingerprint and includes the active work-policy binding.
+
+The complete oracle and compatibility comparisons use semantic fingerprints
+and explicit semantic dependency facts. Process-local transition authority
+continues to require exact objects and the composite Root fingerprint.
+
+Semantic fingerprints may include the exact persistent structural topology.
+When two valid registered histories have different topology, QA compares their
+normalized ordered renderer semantics rather than requiring equal raw
+structural fingerprints.
+
 ## 6. Public Boundary
 
 The reviewed public package surface contains only versioned contracts,
@@ -218,6 +248,23 @@ The complete Root V2 bootstrap:
 
 Complete bootstrap reports its complete work explicitly. It does not claim
 incremental reuse.
+
+### 7.1.1 Shared Complete Construction Kernel
+
+Complete bootstrap and complete fallback use one private complete Root V2
+construction kernel. The kernel accepts validated complete material plus a
+construction provenance tag and returns one unregistered candidate graph.
+
+- bootstrap supplies the complete-bootstrap envelope and registers after
+  ordinary complete validation;
+- fallback first validates exact request/policy authority, supplies the
+  complete-fallback envelope, calls the same kernel, checks the expected
+  target binding, and registers only after that check; and
+- neither boundary owns a second flow, spatial, layout, scene, or Root builder.
+
+Given equal complete material and work policy, the two boundaries must produce
+equal semantic fingerprints and semantic dependency facts. Construction
+provenance and the composite authority fingerprint may differ intentionally.
 
 ### 7.2 Private Stage Pipeline
 
@@ -290,6 +337,34 @@ decisions.
 Malformed, extra-field, accessor-shaped, proxy-shaped, identity-mismatched, or
 unsupported changes block before producer or layout work.
 
+### 8.4 Core-Derived Effect Classification
+
+After strict validation, Core derives an effect classification. The caller
+cannot supply or override it.
+
+```text
+true-no-op
+semantic-only-change
+paint-affecting-change
+geometry-affecting-change
+```
+
+The validated classification also carries
+`semanticIdentityChanged: boolean`.
+
+- `true-no-op` requires exact equality of semantic/source/provenance, paint,
+  layout, geometry, and scene target identity;
+- `semantic-only-change` changes semantic/source/provenance identity while
+  paint and geometry remain unchanged;
+- `paint-affecting-change` changes renderer paint without changing layout or
+  geometry and separately states whether semantic identity also changed; and
+- `geometry-affecting-change` changes or requires recomputation of line
+  placement, authored geometry, spatial context, or flow topology and
+  separately states whether semantic identity also changed.
+
+Rendered-text equality, metric equality, or visual equality alone can never
+produce `true-no-op`.
+
 ## 9. Incremental Eligibility
 
 Every supported change has one policy class:
@@ -317,6 +392,20 @@ Required families include:
 Permitted families include supported authored-box width/inset changes and
 explicit factual whole-block spatial impacts. Planned-complete is allowed only
 for allowlisted policy facts and exact reason codes.
+
+Authored-box policy is fixed by this matrix:
+
+| Change | Required policy path |
+| --- | --- |
+| top/bottom inset only with unchanged content width and flow intervals | start a bounded incremental attempt; retain exact line internals and rebuild affected authored geometry/scene |
+| compensated left/right inset change with unchanged content width | start a bounded incremental attempt; retain exact flow/layout internals and rebuild horizontally shifted authored geometry/scene |
+| width change with locally changed wrapping | start a bounded incremental attempt and continue until exact/translated reconvergence or a deterministic limit |
+| width change with whole-block impact | use `planned-complete` only when Core can derive an exact allowlisted whole-block fact from registered bounded summaries without walking the block; otherwise start a bounded attempt and report proof/work-limit fallback factually |
+| inconsistent outer width, insets, and derived content width | block at the change gate |
+| fixed-height/overflow-shaped input | block as outside the Phase 5B authored-box contract |
+
+Width change, block size, and implementation complexity alone are never
+planned-complete reasons.
 
 Forbidden planned-complete reasons include block size alone, implementation
 complexity, preference, or unmeasured timing.
@@ -382,7 +471,8 @@ The complete fallback builder:
 
 1. validates exact fallback-request authority;
 2. starts from complete material independent of the incremental candidate;
-3. builds a complete Root V2 and Persistent Scene V2;
+3. invokes the same private complete-construction kernel as bootstrap with
+   complete-fallback provenance;
 4. derives target semantic/content fingerprints from that build;
 5. binds them to the fallback request and change target;
 6. registers complete outputs atomically; and
@@ -512,9 +602,20 @@ new Core root for a true no-op.
 No-op and paint-only paths may prove unchanged layout state from:
 
 - the exact registered previous line-tree authority;
-- the exact retained next line-tree authority;
+- the same exact line-tree dependency retained by the candidate next Root;
 - one canonical maximal whole-range subtree cover; and
 - exact process-local identity for every selected retained subtree.
+
+For paint-only:
+
+```text
+candidateNextRoot.lineTree === previousRoot.lineTree
+lineTreeWrapperAllocationCount = 0
+completeLineTreeTraversalCount = 0
+```
+
+Fingerprint equality is insufficient. Creating a new line-tree wrapper and
+then proving equivalent content is forbidden.
 
 The work ledger names this stage `structural-reuse-proof` and counts selected
 exact subtree nodes. The proof does not search for a reconvergence point,
@@ -635,16 +736,34 @@ equal-height children in branches. Subtree summaries contain:
 
 - chunk and line counts;
 - text/image fragment counts;
-- deterministic estimated canonical payload bytes;
 - source-range and authored-y bounds;
 - line-internals fingerprint;
 - source/provenance fingerprint;
 - boundary/spatial-context fingerprint; and
-- subtree fingerprint.
+- semantic subtree fingerprint.
 
-Leaf fingerprints compose ordered chunk fingerprints, summary facts, and
-policy fingerprints. Branch fingerprints compose ordered child fingerprints,
-summary facts, and policy fingerprints.
+Each subtree also carries a separate compositional payload observation:
+
+```text
+estimatedCanonicalPayloadByteCount
+payloadObservationFingerprint
+```
+
+The existing Scene `fingerprint` is the structural-semantic Scene fingerprint
+for the exact tree and policy. Leaf semantic fingerprints compose ordered
+chunk fingerprints, semantic summary facts, and the versioned scene-tree
+policy. Branch semantic fingerprints compose ordered child semantic
+fingerprints, semantic summary facts, and the same policy.
+
+Payload observation fingerprints compose:
+
+- the subtree semantic fingerprint;
+- the payload-estimation-contract fingerprint;
+- the estimated canonical payload byte count; and
+- ordered child payload-observation fingerprints where applicable.
+
+Changing only the estimation contract changes payload observation/delivery
+fingerprints, not semantic subtree, Scene, or Root semantic fingerprints.
 
 There is no linear suffix-rehash chunk chain.
 
@@ -657,8 +776,8 @@ paths. Hot-path validation inspects:
 - validated changed ranges;
 - copied paths;
 - replacement leaves/nodes;
-- sibling summary/fingerprint references on copied paths; and
-- the new scene root summary/fingerprint.
+- sibling semantic and payload-observation references on copied paths; and
+- the new scene root semantic and payload-observation summaries/fingerprints.
 
 Accepted incremental paths require zero complete scene-tree traversals and zero
 complete scene re-hashes.
@@ -682,15 +801,33 @@ against an array mutated by preceding operations.
 
 ### 17.2 Canonical Maximal-Subtree Retain Cover
 
-A retained range uses one unique maximal-subtree cover:
+Cover uniqueness is defined over this exact tuple:
 
-1. start at the left edge;
-2. select the largest policy-aligned retained subtree wholly inside the range;
-3. advance to its end; and
-4. repeat until coverage is complete.
+```text
+(treePolicyFingerprint, exact registered tree authority, ordinal range)
+```
+
+For that tuple, a retained range uses one unique maximal-subtree cover:
+
+1. verify the exact registered tree and its versioned balancing-policy
+   fingerprint;
+2. traverse ordered children by increasing chunk ordinal, left to right;
+3. when a node is wholly inside the range, select that node and do not descend;
+4. otherwise recurse into intersecting children in their stored order; and
+5. stop when the half-open ordinal range is covered exactly.
+
+“Largest” means highest fully contained ancestor in the exact registered tree,
+not an implementation-dependent numeric-size tie. Ordered children make the
+selection deterministic without a separate tie breaker.
 
 Non-maximal decomposition, invalid alignment, reordered nodes, duplicates,
 gaps, and alternate equivalent covers block.
+
+Canonicality is relative to the exact tree shape and policy, not to an abstract
+logical range alone. A foreign, unregistered, or policy-mismatched alternative
+shape blocks. Different exact registered histories may have different
+structural covers, but must normalize to the same ordered renderer sequence
+and semantic output.
 
 ### 17.3 Inspector Proof
 
@@ -700,10 +837,11 @@ The plan inspector proves:
 - no overlap, gap, or out-of-range index;
 - canonical operation ordering;
 - canonical maximal-subtree retain covers;
-- retained subtree fingerprints against the previous scene;
+- retained semantic subtree and payload-observation fingerprints against the
+  previous scene;
 - replacement chunk fingerprints and counts;
 - final line/chunk/fragment/payload summaries; and
-- the composed next scene fingerprint.
+- the composed next semantic Scene and payload-observation fingerprints.
 
 Inspector work is bounded by plan and replacement-payload size. It cannot walk
 the complete previous or next scene.
@@ -742,13 +880,15 @@ Phase 5B it is not:
 Transition ledgers keep the estimate in a separate `observations` record, not
 under `layout`, `deliveryPlan`, or `stageWork`. Complete-delivery data likewise
 keeps visited/emitted counters under `work` and the payload estimate under
-`observations`. Persistent Scene and delivery summaries may retain the
-deterministic estimate as a compositional integrity fact.
+`observations`. Persistent Scene subtrees and delivery summaries retain the
+deterministic estimate plus `payloadObservationFingerprint` separately from
+semantic summaries and semantic Scene fingerprints.
 
 ## 19. Complete V2 Recovery Delivery
 
 Persistent Scene V2 has a V2-native complete delivery boundary that emits all
-renderer chunks and binds the exact Root V2/Persistent Scene V2 fingerprint.
+renderer chunks and binds the exact Root V2 composite fingerprint, semantic
+Scene fingerprint, and payload-observation fingerprint.
 
 Complete recovery delivery:
 
@@ -914,9 +1054,15 @@ independently built complete Root V2 in:
 - semantic/source/provenance facts;
 - flow/tree and spatial facts;
 - line/fragment geometry;
-- Persistent Scene V2;
+- Persistent Scene V2 semantic fingerprints and ordered renderer data;
+- payload observations under the exact estimation contract;
 - complete V2 delivery; and
 - normalized deterministic fingerprints.
+
+Complete bootstrap and complete fallback parity uses equal complete material
+and policy. It requires the shared construction kernel to produce equal Root
+semantic fingerprints and semantic dependency facts while allowing
+construction provenance and composite authority fingerprints to differ.
 
 Root V1/Scene V1 provide an additional frozen reference comparison during the
 transition period.
@@ -928,13 +1074,26 @@ Tests cover:
 - cloned, foreign, mutable, proxy, accessor, symbol, and class-shaped inputs;
 - forged and cross-bound request/evidence/root tuples;
 - forced digest collision through an isolated test-only non-production seam;
+- paint-only attempts that must retain exact line-tree dependency identity
+  with zero wrapper allocation and zero complete line-tree traversal;
 - rendered equality with source/provenance inequality;
+- every Core-derived effect classification, including visually identical
+  semantic-only changes;
 - translated-looking geometry with incompatible destination spatial context;
 - boundary crossing;
 - forged subtree summary and retain cover;
+- foreign/unregistered/policy-mismatched alternative tree shapes;
+- equivalent registered tree histories whose covers may differ structurally
+  but normalize to equal ordered renderer output;
 - plan gaps, overlaps, reordering, and final-count mismatch;
 - change-gate hidden whole-input scans;
 - candidate contamination of fallback;
+- estimation-contract-only changes that alter payload observations without
+  altering Scene or Root semantic fingerprints;
+- work-policy changes that alter composite Root authority without altering the
+  Root semantic fingerprint;
+- fixture-calibration-only changes that alter the manifest revision without
+  altering runtime fingerprints;
 - policy fingerprint drift;
 - threshold stability; and
 - exact Node-native/Worker-WASM facts and counter parity.
@@ -963,6 +1122,13 @@ Style fixtures distinguish:
 - unsupported/global dependencies; and
 - same effective style and provenance true no-op.
 
+### 24.5 Authored-Box Policy Matrix
+
+Authored-box fixtures cover every row in Section 9, first/middle/last affected
+regions, exact expected policy path, and exact fallback or block reason. Tests
+must demonstrate that width change and block size alone cannot produce
+`planned-complete`.
+
 ## 25. Checkpoints
 
 ### 25.1 5B-1 Transition And Persistent Scene Foundation
@@ -985,7 +1151,10 @@ Style fixtures distinguish:
 suffix rehash, retain proof is noncanonical, or incremental work materializes
 Scene V1. It also cannot begin while a 5B-1 structural-reuse proof is reported
 as reconvergence, payload size can select an execution path, or calibration
-and inactive-reference fixtures leave false capabilities implicit.
+and inactive-reference fixtures leave false capabilities implicit. Paint-only
+must retain the exact previous line-tree dependency, complete bootstrap and
+fallback must share one complete kernel, and semantic Scene identity must be
+independent of payload-estimation policy.
 
 ### 25.2 5B-2 Text And Style Transition
 
@@ -1032,9 +1201,12 @@ The primary risks are:
 7. translated reuse accepts visual similarity without semantic proof;
 8. fingerprint equality is mistaken for authority;
 9. partial candidates contaminate complete fallback;
-10. V1 and V2 become permanent active architectures; and
-11. future source/binding provenance is erased by rendered equality; and
-12. observational payload size is mistaken for Core execution policy.
+10. V1 and V2 become permanent active architectures;
+11. future source/binding provenance is erased by rendered equality;
+12. observational payload size is mistaken for Core execution policy;
+13. complete bootstrap and fallback builders drift apart;
+14. fixture calibration revision is confused with runtime compatibility; and
+15. canonical retain-cover claims omit the exact tree/policy scope.
 
 Every risk has a blocking gate in Sections 20, 23, 24, or 25.
 
@@ -1074,6 +1246,9 @@ Later gates decide:
 The handoff publishes a stable manifest containing:
 
 - fixture identity;
+- runtime contract version;
+- work-policy id and fingerprint;
+- fixture calibration revision;
 - change family;
 - block/atom/line/spatial/chunk sizes;
 - required/permitted policy class;
@@ -1082,7 +1257,6 @@ The handoff publishes a stable manifest containing:
 - structural-reuse mode for structural-reuse fixtures;
 - reconvergence mode only for fixtures that actually search for
   reconvergence;
-- work-policy id and fingerprint;
 - exact floor/absolute/relative limits;
 - threshold-boundary rows;
 - oracle identity; and
@@ -1126,17 +1300,25 @@ Phase 5B passes only when:
 - all three checkpoints pass independent review;
 - mandatory daily changes are genuinely incremental;
 - complete fallback is explicit and independently built;
+- complete bootstrap and complete fallback share one private complete
+  construction kernel and pass semantic parity;
 - producer evidence answers exact Core-owned requests;
 - complete next material never enters the incremental hot path;
 - complete oracle remains QA-only and independent;
 - exact/translated/recomputed/new line categories are exhaustive and
   non-overlapping;
+- Core-derived effect classification distinguishes true no-op,
+  semantic-only, paint-affecting, and geometry-affecting changes;
 - hot paths perform no complete child, suffix, scene, or next-input traversal;
 - persistent scene fingerprints and delivery plans are subtree-compositional
   and canonical;
 - work policies contain exact calibrated constants and stable fingerprints;
+- runtime contract, work-policy, and fixture-calibration versions remain
+  separate;
 - payload-size estimates remain observational and cannot select execution or
   fallback;
+- semantic Scene and Root fingerprints remain independent of payload
+  estimation policy;
 - candidate, fallback, and oracle work ledgers remain separate;
 - object-graph reachability/retention and forced-collision gates pass;
 - Node/WASM deterministic output and counter parity pass;
