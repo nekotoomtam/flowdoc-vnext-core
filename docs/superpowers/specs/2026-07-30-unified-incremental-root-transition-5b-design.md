@@ -1,9 +1,10 @@
 # Unified Incremental Root Transition 5B Design
 
 Status: approved design baseline for the separately authorized Core-only Phase
-5B checkpoint; the consolidated document remains pending final user review.
-This document does not authorize implementation, Phase 5C, Editor or Backend
-binding, publication, or production activation.
+5B checkpoint. The 2026-07-31 capability-honesty correction is approved in
+concept and pending review of this written consolidation. This document does
+not authorize Phase 5C, Editor or Backend binding, publication, or production
+activation.
 
 ## 1. Decision Summary
 
@@ -28,7 +29,7 @@ exact previous Root V2
   -> strict change gate
   -> persistent flow/tree transition
   -> spatial-index transition
-  -> bounded layout and reconvergence
+  -> bounded structural reuse or layout/reconvergence
   -> authored-geometry projection
   -> persistent-scene transition
   -> atomic next Root V2 acceptance
@@ -38,6 +39,11 @@ Phase 5B also defines a V2-native complete bootstrap, deferred complete
 fallback, persistent scene, canonical retain/splice delivery plan, complete V2
 recovery delivery, deterministic work policies, and independent QA oracle
 comparison.
+
+No-op and paint-only 5B-1 paths use a whole-subtree exact structural-reuse
+proof. That proof is not reconvergence. Deterministic payload-size estimates
+remain observation facts and never select a Core execution path or fallback
+mode in Phase 5B.
 
 Phase 5B remains Core-only and process-local. Core does not acquire browser
 scheduling, revision queues, cancellation policy, Worker-session lifetime,
@@ -501,6 +507,20 @@ An image `fit` or `crop` paint-fact change:
 Editor local layout revisions remain a later Editor concern and do not force a
 new Core root for a true no-op.
 
+### 12.1 Whole-Subtree Exact Structural Reuse Proof
+
+No-op and paint-only paths may prove unchanged layout state from:
+
+- the exact registered previous line-tree authority;
+- the exact retained next line-tree authority;
+- one canonical maximal whole-range subtree cover; and
+- exact process-local identity for every selected retained subtree.
+
+The work ledger names this stage `structural-reuse-proof` and counts selected
+exact subtree nodes. The proof does not search for a reconvergence point,
+compare independently recomputed next lines, enumerate every retained line, or
+walk a complete suffix. The 5B-1 layout/reconvergence stage remains inactive.
+
 ## 13. Line Disposition
 
 Every next line belongs to exactly one primary disposition:
@@ -528,6 +548,11 @@ Line-internals, geometry, and scene-work counters are orthogonal:
 - translated scene chunks are replacements, not retained chunks.
 
 ## 14. Reconvergence
+
+Reconvergence begins only after a change recomputes flow or layout and Core
+searches for a later stable exact or strictly translated suffix. The
+whole-subtree structural-reuse proof in Section 12.1 is not reconvergence and
+must not be reported under a reconvergence stage or counter.
 
 ### 14.1 Exact Reconvergence
 
@@ -691,8 +716,8 @@ references. A clone with the same fingerprint is renderer data only.
 
 ## 18. Deterministic Payload Estimation
 
-Scene payload estimates use a versioned, fingerprinted policy over an exact
-allowlist and canonical UTF-8 data-only representation.
+Scene payload estimates use a versioned, fingerprinted estimation contract
+over an exact allowlist and canonical UTF-8 data-only representation.
 
 The deterministic fact is named:
 
@@ -704,6 +729,22 @@ It is not JavaScript memory size, structured-clone allocation, actual transfer
 bytes, or duration. Real transfer observations belong to Phase 5C and product
 budgets belong to Phase 5D.
 
+The estimate remains on scene/delivery summaries and fixture observations for
+deterministic integrity, scale comparison, and later transport design. In
+Phase 5B it is not:
+
+- a work-policy stage unit;
+- an effective-limit input;
+- a fallback reason;
+- a threshold row; or
+- an incremental, planned-complete, or complete-fallback path selector.
+
+Transition ledgers keep the estimate in a separate `observations` record, not
+under `layout`, `deliveryPlan`, or `stageWork`. Complete-delivery data likewise
+keeps visited/emitted counters under `work` and the payload estimate under
+`observations`. Persistent Scene and delivery summaries may retain the
+deterministic estimate as a compositional integrity fact.
+
 ## 19. Complete V2 Recovery Delivery
 
 Persistent Scene V2 has a V2-native complete delivery boundary that emits all
@@ -713,7 +754,8 @@ Complete recovery delivery:
 
 - is versioned and structured-clone-safe;
 - reports one explicit complete-delivery count;
-- reports complete visited, emitted, and deterministic payload work;
+- reports complete visited and emitted work plus one deterministic payload
+  observation;
 - is requested when a future consumer lacks a retained range required by an
   incremental plan; and
 - does not depend on Scene V1.
@@ -726,14 +768,17 @@ Actual Worker transport and Editor recovery apply remain Phase 5C/5D.
 
 Wall-clock time never selects an execution path. Policies are stage-specific:
 
+- structural reuse: selected exact subtree nodes;
 - flow/tree: visited atoms and tree nodes;
 - spatial: visited index nodes and queried bands;
 - layout/reconvergence: recomputed lines and proof nodes;
 - geometry: reprojected lines and visited fragments; and
-- scene: copied nodes, replacement chunks, plan size, and deterministic
-  estimated payload bytes.
+- scene/delivery: copied nodes, replacement chunks, plan operations, and
+  canonical retain-cover nodes.
 
 Different units are not added into one aggregate score.
+`estimatedCanonicalPayloadByteCount` is excluded from execution work policy
+and remains observational as defined in Section 18.
 
 ### 20.2 Effective Limits
 
@@ -752,7 +797,8 @@ scan or complete next output.
 
 Policies lock separately:
 
-- 5B-1: scene-tree and delivery-plan policy;
+- 5B-1: paint-source copy, structural-reuse proof, scene-tree, and
+  delivery-plan policy;
 - 5B-2: flow/tree, layout, and reconvergence policy; and
 - 5B-3: spatial, image, and geometry policy.
 
@@ -767,6 +813,12 @@ Each checkpoint must publish:
 No checkpoint closes with placeholders, infinity, or temporary unversioned
 limits. Changing a locked policy requires an explicit version bump and rerun of
 the binding fixture matrix.
+
+The capability-honesty correction publishes `5b-1-v2`. It preserves the
+already locked paint-source, scene, and delivery numeric limits, adds the
+fixture-calibrated structural-reuse-proof limit, removes payload size from the
+execution policy, and reruns the complete 5B-1 binding and threshold matrix.
+`5b-1-v1` remains superseded evidence and is not an active Root V2 policy.
 
 ## 21. Future Data-Binding Compatibility
 
@@ -826,9 +878,9 @@ deliveryPlan: null
 No timing, stack trace, engine-specific error string, or memory observation
 enters deterministic fingerprints.
 
-## 23. Lifetime Correctness
+## 23. Object-Graph Reachability And Retention
 
-Phase 5B must prove:
+The deterministic Phase 5B gate proves only these object-graph facts:
 
 - no strong global root history;
 - no previous Root wrapper retained by a distinct next Root;
@@ -839,8 +891,10 @@ Phase 5B must prove:
 - blocked and fallback results do not retain candidate graphs; and
 - true no-op is the only path returning exact previous wrappers.
 
-Deterministic reachability/ownership tests are gating. Forced-GC,
-`WeakRef`, or `FinalizationRegistry` observations may be recorded but cannot be
+These facts are an object-graph reachability/retention proof, not a broad
+lifetime-correctness or memory-reclamation claim. Deterministic
+reachability/ownership tests are gating. Forced-GC, `WeakRef`, or
+`FinalizationRegistry` observations may be recorded but cannot be
 deterministic PASS gates.
 
 Worker handles, transfer buffers, thousands-of-revisions browser memory, and
@@ -922,12 +976,16 @@ Style fixtures distinguish:
 - canonical retain/splice delivery plan;
 - complete V2 recovery delivery;
 - no-op and paint-only paths;
-- authority, collision, lifetime, and public-boundary gates; and
+- whole-subtree exact structural-reuse proof;
+- authority, collision, object-graph reachability/retention, and
+  public-boundary gates; and
 - frozen 5B-1 fixture/policy evidence.
 
 5B-2 cannot begin if hot-path scene validation performs complete traversal or
 suffix rehash, retain proof is noncanonical, or incremental work materializes
-Scene V1.
+Scene V1. It also cannot begin while a 5B-1 structural-reuse proof is reported
+as reconvergence, payload size can select an execution path, or calibration
+and inactive-reference fixtures leave false capabilities implicit.
 
 ### 25.2 5B-2 Text And Style Transition
 
@@ -975,7 +1033,8 @@ The primary risks are:
 8. fingerprint equality is mistaken for authority;
 9. partial candidates contaminate complete fallback;
 10. V1 and V2 become permanent active architectures; and
-11. future source/binding provenance is erased by rendered equality.
+11. future source/binding provenance is erased by rendered equality; and
+12. observational payload size is mistaken for Core execution policy.
 
 Every risk has a blocking gate in Sections 20, 23, 24, or 25.
 
@@ -1018,12 +1077,21 @@ The handoff publishes a stable manifest containing:
 - change family;
 - block/atom/line/spatial/chunk sizes;
 - required/permitted policy class;
-- expected execution path and reconvergence mode;
+- explicit capability status and whether a transition was executed;
+- expected execution path;
+- structural-reuse mode for structural-reuse fixtures;
+- reconvergence mode only for fixtures that actually search for
+  reconvergence;
 - work-policy id and fingerprint;
 - exact floor/absolute/relative limits;
 - threshold-boundary rows;
 - oracle identity; and
 - expected counters and invariants.
+
+Structural-calibration and inactive-reference rows must carry explicit false
+capability facts. In particular, the empty 5B-1 row does not enable empty-block
+transition capability, and the 128-exclusion 5B-1 row does not prove
+incremental exclusion transition.
 
 ### 29.2 Frozen Ownership Map
 
@@ -1067,8 +1135,10 @@ Phase 5B passes only when:
 - persistent scene fingerprints and delivery plans are subtree-compositional
   and canonical;
 - work policies contain exact calibrated constants and stable fingerprints;
+- payload-size estimates remain observational and cannot select execution or
+  fallback;
 - candidate, fallback, and oracle work ledgers remain separate;
-- lifetime and forced-collision gates pass;
+- object-graph reachability/retention and forced-collision gates pass;
 - Node/WASM deterministic output and counter parity pass;
 - the complete Core suite and type-check pass;
 - no Editor, Backend, or Phase 5C implementation appears; and
