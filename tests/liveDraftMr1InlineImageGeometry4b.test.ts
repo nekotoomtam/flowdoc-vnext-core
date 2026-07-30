@@ -78,6 +78,9 @@ const deferredNoGo =
   "List decoration, empty-block geometry, Editor/Backend binding, Columns/Table integration, Table auto-fit, publication, production activation, and Editor staged apply remain NO-GO."
 const phase5Gate =
   "Phase 5 remains separately authorized; this handoff does not authorize Phase 5 implementation or activation."
+// Complete export-graph checks create TypeScript programs over the package surface.
+// Keep their contention allowance local instead of changing Vitest's global policy.
+const phase4BExportGraphTimeoutMs = 30_000
 const authorityAttackClasses = [
   "stale",
   "cloned",
@@ -379,7 +382,7 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
 
   it("maps the complete public Phase 4B exports to their intended modules", () => {
     assertPhase4BExports(read("src/index.ts"), loadPhase4BModuleSource)
-  })
+  }, phase4BExportGraphTimeoutMs)
 
   it("resolves declarations, aliases, defaults, repeated exports, and cycles", () => {
     const sources: Readonly<Record<string, string>> = {
@@ -500,7 +503,7 @@ export const extraPhase4BWildcardSymbol = true
     })
 
     expect(() => assertPhase4BExports(read("src/index.ts"), loader)).toThrow()
-  })
+  }, phase4BExportGraphTimeoutMs)
 
   it("rejects an extra non-privileged Phase 4B V2 root module", () => {
     const modulePath = "./layout/textBlockHarmlessExtensionV2.js"
@@ -512,7 +515,7 @@ export * from "${modulePath}"
 `
 
     expect(() => assertPhase4BExports(index, loader)).toThrow()
-  })
+  }, phase4BExportGraphTimeoutMs)
 
   it("rejects a case-variant privileged path behind an allowed wildcard", () => {
     const modulePath = "./layout/textBlockFlowEvidenceContractV2.js"
@@ -525,7 +528,7 @@ export * from "./textBlockAuThOrItYBridgeV2.js"
     })
 
     expect(() => assertPhase4BExports(read("src/index.ts"), loader)).toThrow()
-  })
+  }, phase4BExportGraphTimeoutMs)
 
   it("rejects a direct privileged symbol declared at the root", () => {
     const index = `${read("src/index.ts")}
@@ -533,7 +536,7 @@ export const AuThOrItYTokenV2 = true
 `
 
     expect(() => assertPhase4BExports(index, loadPhase4BModuleSource)).toThrow()
-  })
+  }, phase4BExportGraphTimeoutMs)
 
   it("rejects a direct privileged V1 wildcard path at the root", () => {
     const index = `${read("src/index.ts")}
@@ -541,5 +544,5 @@ export * from "./layout/textBlockFlowRegionKernelV1.js"
 `
 
     expect(() => assertPhase4BExports(index, loadPhase4BModuleSource)).toThrow()
-  })
+  }, phase4BExportGraphTimeoutMs)
 })
