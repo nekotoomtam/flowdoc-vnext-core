@@ -886,6 +886,24 @@ export function inspectVNextTextBlockIncrementalFlowTreeInternalV1(
   }
 }
 
+export function hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
+  sourceState: unknown,
+  flowTree: unknown,
+): flowTree is VNextTextBlockIncrementalFlowTreeV1 {
+  return sourceState != null
+    && typeof sourceState === "object"
+    && flowTree != null
+    && typeof flowTree === "object"
+    && inspectVNextTextBlockIncrementalFlowTreeInternalV1(
+      flowTree,
+    ).status === "prepared-unregistered"
+    && treesBySourceState.get(
+      sourceState as VNextTextBlockUnifiedLayoutSourceStateV1,
+    )?.has(
+      flowTree as VNextTextBlockIncrementalFlowTreeV1,
+    ) === true
+}
+
 export function lookupVNextTextBlockIncrementalFlowAtomInternalV1(input: {
   readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
   readonly renderedUtf16Offset: number

@@ -17,6 +17,7 @@ import {
 } from "./textBlockInitialFlowV1.js"
 
 export interface InlineImageFlowFixtureOptions {
+  documentId?: string
   content?:
     | "image-only"
     | "text-image-text"
@@ -251,6 +252,7 @@ export function acceptedInlineImageEvidenceFixture(
     },
     measurement: {
       ...buildInput.measurement,
+      documentId: options.documentId ?? buildInput.measurement.documentId,
       renderedText,
       runs,
     },
