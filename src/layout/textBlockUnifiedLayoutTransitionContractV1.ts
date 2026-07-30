@@ -1,6 +1,12 @@
 import type {
   VNextTextBlockUnifiedLayoutChangeV1,
 } from "./textBlockUnifiedLayoutChangeContractV1.js"
+import type {
+  VNextTextBlockPersistentSceneV2,
+} from "./textBlockPersistentSceneContractV2.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "./textBlockUnifiedLayoutRootContractV2.js"
 
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_TRANSITION_V1_SOURCE =
   "vnext-text-block-unified-layout-transition-v1" as const
@@ -323,6 +329,44 @@ export type VNextTextBlockUnifiedLayoutFallbackRequestInspectionV1 =
       readonly status: "invalid"
       readonly code: "fallback-request-authority-mismatch"
       readonly message: string
+    }
+
+export type VNextTextBlockUnifiedLayoutFallbackRequestResultV1 =
+  | {
+      readonly status: "fallback-required"
+      readonly root: null
+      readonly persistentScene: null
+      readonly deliveryPlan: null
+      readonly fallbackRequest:
+        VNextTextBlockUnifiedLayoutFallbackRequestV1
+      readonly incrementalCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+    }
+  | VNextTextBlockUnifiedLayoutBlockedStageV1
+
+export type VNextTextBlockUnifiedLayoutCompleteFallbackResultV1 =
+  | {
+      readonly status: "accepted-complete-fallback"
+      readonly root: VNextTextBlockUnifiedLayoutRootV2
+      readonly persistentScene: VNextTextBlockPersistentSceneV2
+      readonly deliveryPlan: null
+      readonly completeFallbackWork: VNextTextBlockCompleteFallbackWorkV1
+      readonly issues: readonly []
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
+    }
+  | {
+      readonly status: "blocked"
+      readonly root: null
+      readonly persistentScene: null
+      readonly deliveryPlan: null
+      readonly completeFallbackWork: VNextTextBlockCompleteFallbackWorkV1
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
     }
 
 export type VNextTextBlockUnifiedLayoutTransitionResultInspectionV1 =

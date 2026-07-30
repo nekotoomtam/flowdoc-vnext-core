@@ -26,6 +26,7 @@ export interface VNextTextBlockTransitionEvidenceRequestV1 {
   readonly rightContextRenderedUtf16Length: number
   readonly fontStyleUnitDependencyFingerprint: string
   readonly producerRuntimeRequirementFingerprint: string
+  readonly layoutUnitPolicyFingerprint: string
   readonly maximumEvidenceCoverageRenderedUtf16Length: number
   readonly workPolicyFingerprint: string
   readonly fingerprint: string
@@ -40,6 +41,8 @@ export interface VNextTextBlockTransitionProducerRuntimeIdentityV1 {
   readonly engineBuildFingerprint: string
   readonly fontBackendFingerprint: string
   readonly unitPolicyFingerprint: string
+  readonly fontStyleUnitDependencyFingerprint: string
+  readonly producerRuntimeRequirementFingerprint: string
   readonly fingerprint: string
 }
 

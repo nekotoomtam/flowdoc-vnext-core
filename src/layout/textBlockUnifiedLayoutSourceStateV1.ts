@@ -1,5 +1,8 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
+import type {
+  ImageFrameV4Target,
+} from "../schema/documentV4ImageTarget.js"
 import {
   convertVNextPositiveUnitValueToLayoutUnitV1,
 } from "./layoutUnitPolicyV1.js"
@@ -38,6 +41,17 @@ type FingerprintFactory = (canonicalFacts: string) => string
 const FORCED_COLLISION_FINGERPRINT =
   `sha256:${"0".repeat(64)}` as const
 
+interface IndexedSourceItemRecord {
+  readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+  readonly itemIndex: number
+  readonly absoluteStartRenderedUtf16: number
+  readonly leaf: VNextTextBlockUnifiedLayoutSourceLeafV1
+  readonly ancestors: readonly {
+    readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
+    readonly childIndex: number
+  }[]
+}
+
 const policyFacts = {
   policyVersion: 1 as const,
   maximumLeafItems: 8 as const,
@@ -62,6 +76,7 @@ VNextTextBlockUnifiedLayoutSourceStateV1,
   readonly fingerprint: string
   readonly canonicalFacts: string
   readonly fingerprintFactory: FingerprintFactory
+  readonly itemsByInlineId: ReadonlyMap<string, IndexedSourceItemRecord>
 }
 >()
 const statesByEvidence = new WeakMap<
@@ -85,6 +100,53 @@ function fingerprintWith(
 
 function defaultFingerprint(canonicalFacts: string): string {
   return createVNextCompactFingerprint(canonicalFacts)
+}
+
+function indexSourceItems(
+  root: VNextTextBlockUnifiedLayoutSourceNodeV1,
+): ReadonlyMap<string, IndexedSourceItemRecord> | null {
+  const output = new Map<string, IndexedSourceItemRecord>()
+  const visit = (
+    node: VNextTextBlockUnifiedLayoutSourceNodeV1,
+    ancestors: readonly {
+      readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
+      readonly childIndex: number
+    }[],
+    absoluteStartRenderedUtf16: number,
+  ): boolean => {
+    if (node.nodeKind === "leaf") {
+      let itemStartRenderedUtf16 = absoluteStartRenderedUtf16
+      for (let itemIndex = 0; itemIndex < node.items.length; itemIndex += 1) {
+        const item = node.items[itemIndex]!
+        if (output.has(item.inlineId)) return false
+        output.set(item.inlineId, {
+          item,
+          itemIndex,
+          absoluteStartRenderedUtf16: itemStartRenderedUtf16,
+          leaf: node,
+          ancestors,
+        })
+        itemStartRenderedUtf16 += item.renderedUtf16Length
+      }
+      return true
+    }
+    let childStartRenderedUtf16 = absoluteStartRenderedUtf16
+    for (
+      let childIndex = 0;
+      childIndex < node.children.length;
+      childIndex += 1
+    ) {
+      const child = node.children[childIndex]!
+      if (!visit(
+        child,
+        [...ancestors, { branch: node, childIndex }],
+        childStartRenderedUtf16,
+      )) return false
+      childStartRenderedUtf16 += child.summary.renderedUtf16Length
+    }
+    return true
+  }
+  return visit(root, [], 0) ? output : null
 }
 
 function forcedCollisionFingerprint(_canonicalFacts: string): string {
@@ -812,10 +874,18 @@ function buildComplete(
       ...withoutFingerprint,
       fingerprint: factory(canonicalFacts),
     })
+    const itemsByInlineId = indexSourceItems(sourceState.root)
+    if (itemsByInlineId == null) {
+      return blocked(
+        "invalid-source-topology",
+        "source-state items require unique inline identities",
+      )
+    }
     preparedStates.set(sourceState, {
       fingerprint: sourceState.fingerprint,
       canonicalFacts,
       fingerprintFactory: factory,
+      itemsByInlineId,
     })
     const evidenceStates = statesByEvidence.get(evidence) ?? new WeakSet()
     evidenceStates.add(sourceState)
@@ -1004,6 +1074,135 @@ export function inspectVNextTextBlockUnifiedLayoutSourceStateV1(
         code: "source-state-authority-mismatch",
         message: candidate.message,
       }
+}
+
+export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly inlineId: string
+    readonly expectedImageSourceFingerprint: string
+    readonly expectedImageDependencyFingerprint: string
+    readonly nextFit: ImageFrameV4Target["fit"]
+    readonly nextCrop: NonNullable<ImageFrameV4Target["crop"]> | null
+  },
+):
+  | {
+      readonly status: "accepted"
+      readonly paintFingerprint: string
+      readonly visitedSummaryNodeCount: number
+      readonly completeSourceTraversalCount: 0
+    }
+  | {
+      readonly status: "blocked"
+      readonly paintFingerprint: null
+      readonly visitedSummaryNodeCount: 0
+      readonly completeSourceTraversalCount: 0
+    } {
+  const prepared = preparedStates.get(input.sourceState)
+  const indexed = prepared?.itemsByInlineId.get(input.inlineId)
+  if (
+    prepared == null
+    || indexed == null
+    || indexed.item.kind !== "inline-image"
+    || indexed.item.sourceFingerprint
+      !== input.expectedImageSourceFingerprint
+    || indexed.item.layoutDependencyFingerprint
+      !== input.expectedImageDependencyFingerprint
+  ) {
+    return {
+      status: "blocked",
+      paintFingerprint: null,
+      visitedSummaryNodeCount: 0,
+      completeSourceTraversalCount: 0,
+    }
+  }
+  const nextItemPaintFingerprint = fingerprintWith(
+    prepared.fingerprintFactory,
+    {
+      assetId: indexed.item.assetId,
+      fit: input.nextFit,
+      crop: input.nextCrop,
+    },
+  )
+  let pathPaintFingerprint = fingerprintWith(
+    prepared.fingerprintFactory,
+    {
+      items: indexed.leaf.items.map((item, itemIndex) =>
+        itemIndex === indexed.itemIndex
+          ? nextItemPaintFingerprint
+          : item.paintFingerprint
+      ),
+    },
+  )
+  for (
+    let ancestorIndex = indexed.ancestors.length - 1;
+    ancestorIndex >= 0;
+    ancestorIndex -= 1
+  ) {
+    const ancestor = indexed.ancestors[ancestorIndex]!
+    pathPaintFingerprint = fingerprintWith(
+      prepared.fingerprintFactory,
+      {
+        children: ancestor.branch.children.map((child, childIndex) =>
+          childIndex === ancestor.childIndex
+            ? pathPaintFingerprint
+            : child.summary.paintFingerprint
+        ),
+      },
+    )
+  }
+  return {
+    status: "accepted",
+    paintFingerprint: pathPaintFingerprint,
+    visitedSummaryNodeCount: indexed.ancestors.length + 1,
+    completeSourceTraversalCount: 0,
+  }
+}
+
+export function lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly inlineId: string
+  },
+):
+  | {
+      readonly status: "found"
+      readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+      readonly absoluteStartRenderedUtf16: number
+      readonly absoluteEndRenderedUtf16: number
+      readonly visitedSummaryNodeCount: number
+      readonly completeTreeTraversalCount: 0
+    }
+  | {
+      readonly status: "not-found"
+      readonly item: null
+      readonly absoluteStartRenderedUtf16: null
+      readonly absoluteEndRenderedUtf16: null
+      readonly visitedSummaryNodeCount: 0
+      readonly completeTreeTraversalCount: 0
+    } {
+  const prepared = preparedStates.get(input.sourceState)
+  const indexed = prepared?.itemsByInlineId.get(input.inlineId)
+  if (prepared == null || indexed == null) {
+    return {
+      status: "not-found",
+      item: null,
+      absoluteStartRenderedUtf16: null,
+      absoluteEndRenderedUtf16: null,
+      visitedSummaryNodeCount: 0,
+      completeTreeTraversalCount: 0,
+    }
+  }
+  return {
+    status: "found",
+    item: indexed.item,
+    absoluteStartRenderedUtf16: indexed.absoluteStartRenderedUtf16,
+    absoluteEndRenderedUtf16:
+      indexed.absoluteStartRenderedUtf16
+      + indexed.item.renderedUtf16Length,
+    visitedSummaryNodeCount: indexed.ancestors.length + 1,
+    completeTreeTraversalCount: 0,
+  }
 }
 
 export function lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1(input: {
