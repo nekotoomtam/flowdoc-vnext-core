@@ -18,10 +18,14 @@ import {
   inspectVNextTextBlockPersistentSceneV2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
+  createVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
+} from "../src/layout/textBlockSceneDeliveryV2.js"
+import {
   completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1,
+  createVNextTextBlockReuseProofFailureAuthorityInternalV1,
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
   inspectVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
-  mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
+  mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1,
   setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
@@ -212,20 +216,17 @@ function makeFallbackAttempt(
   if (limit.status !== "limit-exceeded") {
     throw new Error("test fixture must exceed the active source-item limit")
   }
-  const minted = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+  const minted = mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
     validatedChange: bound.validatedChange,
     previousRoot: root,
     change,
     workPolicy: ROOT_V2_TEST_WORK_POLICY,
-    mode: "deterministic-work-limit-exceeded",
-    reason: deepFreeze({
-      code: "stage-unit-limit-exceeded" as const,
+    limit: deepFreeze({
       stage: "source-flow" as const,
       unit: "source-items" as const,
       effectiveLimit: limit.effectiveLimit,
       attemptedWork,
     }),
-    skippedOrFailedStage: "source-flow",
     incrementalCandidateWork,
   })
   if (minted.status !== "minted") {
@@ -319,6 +320,121 @@ function producerResponse(
 }
 
 describe("Phase 5B deferred Root V2 fallback protocol", () => {
+  it("derives proof fallback only from the exact failed retain operation", () => {
+    const crop = { x: 0.1, y: 0.2, width: 0.7, height: 0.6 }
+    const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
+    const independentNext = acceptedUnifiedLayoutRootFixtureV2({
+      fit: "cover",
+      crop,
+    })
+    const change = imagePaintChange(previous.root)
+    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    expect(bound.status).toBe("accepted")
+    if (bound.status !== "accepted") return
+    const failed = createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: previous.root.persistentScene,
+      nextScene: independentNext.root.persistentScene,
+      operations: [{
+        kind: "retain-range",
+        previousRange: {
+          start: 0,
+          end: previous.root.persistentScene.summary.chunkCount,
+        },
+        nextRange: {
+          start: 0,
+          end: independentNext.root.persistentScene.summary.chunkCount,
+        },
+      }],
+    })
+    expect(failed.status).toBe("blocked")
+    if (
+      failed.status !== "blocked"
+      || failed.proofUnavailableAuthority == null
+    ) return
+    const work = deepFreeze({
+      ...bound.incrementalCandidateWork,
+      deliveryPlan: {
+        ...bound.incrementalCandidateWork.deliveryPlan,
+        visitedSceneTreeNodeCount:
+          failed.work.constructionSceneTreeVisitCount
+          + failed.work.verificationSceneTreeVisitCount,
+      },
+    })
+    const foreignChange = imagePaintChange(independentNext.root)
+    const foreignBound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: independentNext.root,
+      change: foreignChange,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    expect(foreignBound.status).toBe("accepted")
+    if (foreignBound.status !== "accepted") return
+    expect(createVNextTextBlockReuseProofFailureAuthorityInternalV1({
+      validatedChange: foreignBound.validatedChange,
+      deliveryProofFailureAuthority: failed.proofUnavailableAuthority,
+      incrementalCandidateWork: work,
+    })).toBeNull()
+    expect(createVNextTextBlockReuseProofFailureAuthorityInternalV1({
+      validatedChange: bound.validatedChange,
+      deliveryProofFailureAuthority: failed.proofUnavailableAuthority,
+      incrementalCandidateWork: deepFreeze({
+        ...work,
+        deliveryPlan: {
+          ...work.deliveryPlan,
+          visitedSceneTreeNodeCount:
+            work.deliveryPlan.visitedSceneTreeNodeCount + 1,
+        },
+      }),
+    })).toBeNull()
+    const authority =
+      createVNextTextBlockReuseProofFailureAuthorityInternalV1({
+        validatedChange: bound.validatedChange,
+        deliveryProofFailureAuthority: failed.proofUnavailableAuthority,
+        incrementalCandidateWork: work,
+      })
+    expect(authority).toMatchObject({
+      source: "vnext-text-block-reuse-proof-failure-authority-internal-v1",
+    })
+    if (authority == null) return
+    expect(createVNextTextBlockReuseProofFailureAuthorityInternalV1({
+      validatedChange: bound.validatedChange,
+      deliveryProofFailureAuthority: failed.proofUnavailableAuthority,
+      incrementalCandidateWork: work,
+    })).toBeNull()
+    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: structuredClone(authority),
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+    const fallback =
+      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+        attempt: authority,
+      })
+    expect(fallback).toMatchObject({
+      status: "fallback-required",
+      fallbackRequest: {
+        mode: "incremental-proof-failed",
+        reason: {
+          code: "bounded-reuse-proof-unavailable",
+          stage: "scene",
+          proof: "retain-cover",
+        },
+        skippedOrFailedStage: "scene",
+      },
+      incrementalCandidateWork: work,
+    })
+    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: authority,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+  })
+
   it("rejects cloned and cross-bound validated-change authority", () => {
     const first = acceptedUnifiedLayoutRootFixtureV2()
     const second = acceptedUnifiedLayoutRootFixtureV2({
@@ -356,15 +472,18 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       attemptedWork,
     })
     const mint = (overrides: Partial<Parameters<
-      typeof mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1
-    >[0]> = {}) => mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+      typeof mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
+    >[0]> = {}) => mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
       validatedChange: bound.validatedChange,
       previousRoot: first.root,
       change,
       workPolicy: ROOT_V2_TEST_WORK_POLICY,
-      mode: "deterministic-work-limit-exceeded",
-      reason,
-      skippedOrFailedStage: "source-flow",
+      limit: {
+        stage: reason.stage,
+        unit: reason.unit,
+        effectiveLimit: reason.effectiveLimit,
+        attemptedWork: reason.attemptedWork,
+      },
       incrementalCandidateWork,
       ...overrides,
     })
@@ -439,20 +558,17 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       expect(limit.status).toBe("limit-exceeded")
       if (limit.status !== "limit-exceeded") return
 
-      const minted = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+      const minted = mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
         validatedChange: bound.validatedChange,
         previousRoot: previous.root,
         change,
         workPolicy: ROOT_V2_TEST_WORK_POLICY,
-        mode: "deterministic-work-limit-exceeded",
-        reason: deepFreeze({
-          code: "stage-unit-limit-exceeded" as const,
+        limit: deepFreeze({
           stage: "source-flow" as const,
           unit: "source-items" as const,
           effectiveLimit: limit.effectiveLimit,
           attemptedWork,
         }),
-        skippedOrFailedStage: "source-flow",
         incrementalCandidateWork,
       })
       expect(minted.status).toBe("minted")

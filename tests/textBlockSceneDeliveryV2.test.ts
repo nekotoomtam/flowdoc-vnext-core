@@ -19,6 +19,7 @@ import type {
 import {
   createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2,
   createVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
+  getVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2,
   inspectVNextTextBlockCompleteSceneDeliveryV2,
   inspectVNextTextBlockSceneDeliveryPlanV2,
   verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
@@ -265,6 +266,56 @@ function expectHighestContainedCover(
 }
 
 describe("Phase 5B canonical Scene V2 delivery", () => {
+  it("issues opaque proof authority only when exact retain identity cannot be established", () => {
+    const previousScene = completeScene()
+    const nextScene = completeScene()
+    const failed = createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene,
+      nextScene,
+      operations: [{
+        kind: "retain-range",
+        previousRange: {
+          start: 0,
+          end: previousScene.summary.chunkCount,
+        },
+        nextRange: { start: 0, end: nextScene.summary.chunkCount },
+      }],
+    })
+
+    expect(failed).toMatchObject({
+      status: "blocked",
+      proofUnavailableAuthority: {},
+      issues: [{ code: "delivery-plan-retain-payload-mismatch" }],
+    })
+    if (
+      failed.status !== "blocked"
+      || failed.proofUnavailableAuthority == null
+    ) return
+    const record =
+      getVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2(
+        failed.proofUnavailableAuthority,
+      )
+    expect(record?.previousScene).toBe(previousScene)
+    expect(record?.nextScene).toBe(nextScene)
+    expect(record?.work).toBe(failed.work)
+    expect(
+      getVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2(
+        structuredClone(failed.proofUnavailableAuthority),
+      ),
+    ).toBeNull()
+
+    const malformed = createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene,
+      nextScene,
+      operations: [],
+    })
+    expect(malformed).toMatchObject({
+      status: "blocked",
+      proofUnavailableAuthority: null,
+      issues: [{ code: "delivery-plan-range-nonexhaustive" }],
+    })
+  })
+
   it("selects the literal highest-node cover in stored order at 8/9/17/33 chunks", () => {
     const rows = [
       {

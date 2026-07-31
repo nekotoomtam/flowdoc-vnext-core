@@ -20,8 +20,9 @@ import {
   inspectVNextTextBlockSceneDeliveryPlanV2,
 } from "./textBlockSceneDeliveryV2.js"
 import {
+  createVNextTextBlockReuseProofFailureAuthorityInternalV1,
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
-  mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
+  mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1,
 } from "./textBlockUnifiedLayoutFallbackV1.js"
 import {
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
@@ -683,7 +684,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       sceneLineTreeNodeCount: scene.visitedLineTreeNodeCount,
       sceneTreeNodeCount: scene.visitedSceneTreeNodeCount,
       deliverySceneTreeNodeCount: scene.deliveryVisitedSceneTreeNodeCount,
-      copiedSceneNodeCount: 0,
+      copiedSceneNodeCount: scene.copiedSceneNodeCount,
       replacementChunkCount: 0,
       deliveryOperationCount: 0,
       retainCoverNodeCount: 0,
@@ -693,29 +694,34 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       visitedChangedSourceLeafItemCount:
         source.visitedChangedSourceLeafItemCount,
     })
-    const attempt = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+    if (scene.status === "blocked") {
+      return blockedResult(
+        attemptedWork,
+        [issue(
+          "atomic-acceptance-failed",
+          "scene",
+          "scene",
+          scene.issues[0]?.message ?? "paint scene transition blocked",
+        )],
+      )
+    }
+    const proofAuthority =
+      createVNextTextBlockReuseProofFailureAuthorityInternalV1({
         validatedChange: bound.validatedChange,
-        previousRoot: input.previousRoot,
-        change: input.change,
-        workPolicy: input.workPolicy,
-        mode: "incremental-proof-failed",
-        reason: {
-          code: "bounded-reuse-proof-unavailable",
-          stage: "scene",
-          proof: "retain-cover",
-        },
-        skippedOrFailedStage: "scene",
+        deliveryProofFailureAuthority: scene.authority,
         incrementalCandidateWork: attemptedWork,
       })
-    if (attempt.status !== "minted") {
-      return blockedResult(
-        attempt.incrementalCandidateWork,
-        attempt.issues,
-      )
+    if (proofAuthority == null) {
+      return blockedResult(attemptedWork, [issue(
+        "fallback-request-authority-mismatch",
+        "scene",
+        "proofAuthority",
+        "failed retain proof did not match its exact bound transition",
+      )])
     }
     const fallback =
       createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-        attempt: attempt.attempt,
+        attempt: proofAuthority,
       })
     if (fallback.status !== "fallback-required") {
       return blockedResult(
@@ -761,20 +767,17 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
   if (limitFailure != null) {
     if (limitFailure.kind === "limit-exceeded") {
       const attempt =
-        mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+        mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
           validatedChange: bound.validatedChange,
           previousRoot: input.previousRoot,
           change: input.change,
           workPolicy: input.workPolicy,
-          mode: "deterministic-work-limit-exceeded",
-          reason: {
-            code: "stage-unit-limit-exceeded",
+          limit: {
             stage: limitFailure.stage,
             unit: limitFailure.unit,
             effectiveLimit: limitFailure.effectiveLimit,
             attemptedWork: limitFailure.attemptedWork,
           },
-          skippedOrFailedStage: limitFailure.stage,
           incrementalCandidateWork: beforeRegistrationWork,
         })
       if (attempt.status !== "minted") {

@@ -27,6 +27,7 @@ import {
   type VNextTextBlockSceneDeliveryPlanIssueV2,
   type VNextTextBlockSceneDeliveryPlanV2,
   type VNextTextBlockSceneDeliveryRangeV2,
+  type VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2,
 } from "./textBlockSceneDeliveryContractV2.js"
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
@@ -506,13 +507,46 @@ function blockedPlan(
   code: VNextTextBlockSceneDeliveryPlanIssueCodeV2,
   message: string,
   work: VNextTextBlockSceneDeliveryPlanBuildWorkV2 = ZERO_PLAN_BUILD_WORK,
+  proofUnavailableAuthority:
+    VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2 | null =
+      null,
 ): VNextTextBlockSceneDeliveryPlanBuildResultV2 {
   return Object.freeze({
     status: "blocked",
     plan: null,
     work,
+    proofUnavailableAuthority,
     issues: Object.freeze([deliveryIssue(code, message)]),
   })
+}
+
+export interface VNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2 {
+  readonly previousScene: VNextTextBlockPersistentSceneV2
+  readonly nextScene: VNextTextBlockPersistentSceneV2
+  readonly work: VNextTextBlockSceneDeliveryPlanBuildWorkV2
+}
+
+const retainProofFailureRecords = new WeakMap<
+  VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2,
+  VNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2
+>()
+
+export function getVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2(
+  authority: unknown,
+): VNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2 | null {
+  return authority != null && typeof authority === "object"
+    ? retainProofFailureRecords.get(
+      authority as VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2,
+    ) ?? null
+    : null
+}
+
+export function consumeVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2(
+  authority: VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2,
+): VNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2 | null {
+  const record = retainProofFailureRecords.get(authority) ?? null
+  if (record != null) retainProofFailureRecords.delete(authority)
+  return record
 }
 
 const ZERO_PLAN_BUILD_WORK = Object.freeze({
@@ -942,9 +976,19 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
           previousSelected.selected,
           nextSelected.selected,
         )) {
-          return block(
+          const work = currentWork()
+          const proofUnavailableAuthority = Object.freeze({}) as unknown as
+            VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2
+          retainProofFailureRecords.set(proofUnavailableAuthority, {
+            previousScene,
+            nextScene,
+            work,
+          })
+          return blockedPlan(
             "delivery-plan-retain-payload-mismatch",
             "retain range does not name exact shared scene subtrees",
+            work,
+            proofUnavailableAuthority,
           )
         }
         operations.push({

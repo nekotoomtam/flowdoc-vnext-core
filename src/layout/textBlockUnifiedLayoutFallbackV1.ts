@@ -4,6 +4,13 @@ import type {
   VNextTextBlockUnifiedLayoutChangeV1,
 } from "./textBlockUnifiedLayoutChangeContractV1.js"
 import {
+  consumeVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2,
+  getVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2,
+} from "./textBlockSceneDeliveryV2.js"
+import type {
+  VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2,
+} from "./textBlockSceneDeliveryContractV2.js"
+import {
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 import type {
@@ -33,6 +40,7 @@ import type {
   VNextTextBlockUnifiedLayoutFallbackRequestResultV1,
   VNextTextBlockUnifiedLayoutFallbackRequestV1,
   VNextTextBlockUnifiedLayoutIssueV1,
+  VNextTextBlockReuseProofFailureAuthorityInternalV1,
   VNextTextBlockUnifiedLayoutStageUnitV1,
   VNextTextBlockUnifiedLayoutStageV1,
   VNextTextBlockValidatedChangeV1,
@@ -305,14 +313,68 @@ interface FallbackAttemptRecord {
   readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
 }
 
-export interface VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1 {
-  readonly __fallbackAttemptOpaque: never
+export interface VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1 {
+  readonly __limitFallbackAttemptOpaque: never
 }
 
 const fallbackAttempts = new WeakMap<
-  VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
+  object,
   FallbackAttemptRecord
 >()
+
+export function createVNextTextBlockReuseProofFailureAuthorityInternalV1(
+  input: {
+    readonly validatedChange: VNextTextBlockValidatedChangeV1
+    readonly deliveryProofFailureAuthority:
+      VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2
+    readonly incrementalCandidateWork:
+      VNextTextBlockIncrementalCandidateWorkV1
+  },
+): VNextTextBlockReuseProofFailureAuthorityInternalV1 | null {
+  const validated =
+    getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
+      input.validatedChange,
+    )
+  const delivery =
+    getVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2(
+      input.deliveryProofFailureAuthority,
+    )
+  const deliveryVisitCount = delivery == null
+    ? null
+    : delivery.work.constructionSceneTreeVisitCount
+      + delivery.work.verificationSceneTreeVisitCount
+  if (
+    validated == null
+    || delivery == null
+    || delivery.previousScene !== validated.previousRoot.persistentScene
+    || !boundedCandidateWork(input.incrementalCandidateWork)
+    || !Number.isSafeInteger(deliveryVisitCount)
+    || input.incrementalCandidateWork.deliveryPlan.visitedSceneTreeNodeCount
+      !== deliveryVisitCount
+  ) return null
+  if (
+    consumeVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2(
+      input.deliveryProofFailureAuthority,
+    ) !== delivery
+  ) return null
+  const authority = Object.freeze({
+    source:
+      "vnext-text-block-reuse-proof-failure-authority-internal-v1" as const,
+  })
+  fallbackAttempts.set(authority, {
+    validatedChangeAuthority: validated,
+    mode: "incremental-proof-failed",
+    reason: Object.freeze({
+      code: "bounded-reuse-proof-unavailable" as const,
+      stage: "scene" as const,
+      proof: "retain-cover" as const,
+    }),
+    skippedOrFailedStage: "scene",
+    incrementalCandidateWork: input.incrementalCandidateWork,
+    expectedTargetBinding: validated.expectedTargetBinding,
+  })
+  return authority
+}
 
 function invalidFallbackAttempt(
   work: VNextTextBlockIncrementalCandidateWorkV1,
@@ -363,22 +425,26 @@ function limitReasonMatchesAttempt(
     && evaluation.attemptedWork === reason.attemptedWork
 }
 
-export function mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1(
+export function mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1(
   input: {
     readonly validatedChange: VNextTextBlockValidatedChangeV1
     readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
     readonly change: VNextTextBlockUnifiedLayoutChangeV1
     readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
-    readonly mode: VNextTextBlockUnifiedLayoutFallbackModeV1
-    readonly reason: VNextTextBlockUnifiedLayoutFallbackReasonV1
-    readonly skippedOrFailedStage: VNextTextBlockUnifiedLayoutStageV1
+    readonly limit: {
+      readonly stage: VNextTextBlockUnifiedLayoutStageV1
+      readonly unit: VNextTextBlockUnifiedLayoutStageUnitV1
+      readonly effectiveLimit: number
+      readonly attemptedWork: number
+    }
     readonly incrementalCandidateWork:
       VNextTextBlockIncrementalCandidateWorkV1
   },
 ):
   | {
       readonly status: "minted"
-      readonly attempt: VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1
+      readonly attempt:
+        VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
       readonly incrementalCandidateWork:
         VNextTextBlockIncrementalCandidateWorkV1
     }
@@ -401,28 +467,30 @@ export function mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1(
         ?? createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(),
     )
   }
-  const reason = validatedReason(input.reason)
+  const reason = validatedReason({
+    code: "stage-unit-limit-exceeded",
+    ...input.limit,
+  })
   if (
     reason == null
-    || !stages.has(input.skippedOrFailedStage)
-    || !modeMatchesReason(input.mode, reason, input.skippedOrFailedStage)
+    || reason.code !== "stage-unit-limit-exceeded"
     || !boundedCandidateWork(input.incrementalCandidateWork)
-    || (reason.code === "stage-unit-limit-exceeded" && !limitReasonMatchesAttempt(
+    || !limitReasonMatchesAttempt(
       input.previousRoot,
       input.workPolicy,
       reason,
       input.incrementalCandidateWork,
-    ))
+    )
   ) {
     return invalidFallbackAttempt(validatedChangeAuthority.bindingWork)
   }
   const attempt = deepFreeze({}) as unknown as
-    VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1
+    VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
   fallbackAttempts.set(attempt, {
     validatedChangeAuthority,
-    mode: input.mode,
+    mode: "deterministic-work-limit-exceeded",
     reason,
-    skippedOrFailedStage: input.skippedOrFailedStage,
+    skippedOrFailedStage: reason.stage,
     incrementalCandidateWork: input.incrementalCandidateWork,
     expectedTargetBinding: validatedChangeAuthority.expectedTargetBinding,
   })
@@ -435,7 +503,11 @@ export function mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1(
 
 export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
   input:
-    | { readonly attempt: VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1 }
+    | {
+        readonly attempt:
+          | VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
+          | VNextTextBlockReuseProofFailureAuthorityInternalV1
+      }
     | {
         readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
         readonly change: VNextTextBlockUnifiedLayoutChangeV1

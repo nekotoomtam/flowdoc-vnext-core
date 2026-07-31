@@ -109,6 +109,10 @@ export interface VNextTextBlockSceneDeliveryPlanBuildWorkV2 {
   readonly retainCoverNodeCount: number
 }
 
+export interface VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2 {
+  readonly __sceneDeliveryRetainProofFailureAuthorityOpaque: never
+}
+
 export type VNextTextBlockSceneDeliveryPlanBuildResultV2 =
   | {
       readonly status: "prepared"
@@ -120,6 +124,8 @@ export type VNextTextBlockSceneDeliveryPlanBuildResultV2 =
       readonly status: "blocked"
       readonly plan: null
       readonly work: VNextTextBlockSceneDeliveryPlanBuildWorkV2
+      readonly proofUnavailableAuthority:
+        VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2 | null
       readonly issues: readonly VNextTextBlockSceneDeliveryPlanIssueV2[]
     }
 

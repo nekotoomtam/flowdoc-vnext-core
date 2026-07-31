@@ -1,6 +1,7 @@
 import type {
   VNextTextBlockSceneDeliveryOperationDraftV2,
   VNextTextBlockSceneDeliveryPlanV2,
+  VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2,
 } from "./textBlockSceneDeliveryContractV2.js"
 import {
   createVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
@@ -34,6 +35,20 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly deliveryPlan: VNextTextBlockSceneDeliveryPlanV2
       readonly copiedSceneNodeCount: number
       readonly replacementChunkCount: 1
+      readonly visitedSourceItemCount: number
+      readonly visitedLineTreeNodeCount: number
+      readonly visitedSceneTreeNodeCount: number
+      readonly deliveryVisitedSceneTreeNodeCount: number
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "proof-unavailable"
+      readonly authority:
+        VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2
+      readonly scene: null
+      readonly deliveryPlan: null
+      readonly copiedSceneNodeCount: number
+      readonly replacementChunkCount: 0
       readonly visitedSourceItemCount: number
       readonly visitedLineTreeNodeCount: number
       readonly visitedSceneTreeNodeCount: number
@@ -139,6 +154,23 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
     operations,
   })
   if (delivery.status !== "prepared") {
+    if (delivery.proofUnavailableAuthority != null) {
+      return Object.freeze({
+        status: "proof-unavailable" as const,
+        authority: delivery.proofUnavailableAuthority,
+        scene: null,
+        deliveryPlan: null,
+        copiedSceneNodeCount: scene.work.incrementalCopiedNodeCount,
+        replacementChunkCount: 0 as const,
+        visitedSourceItemCount: scene.work.visitedSourceItemCount,
+        visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
+        visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
+        deliveryVisitedSceneTreeNodeCount:
+          delivery.work.constructionSceneTreeVisitCount
+          + delivery.work.verificationSceneTreeVisitCount,
+        issues: Object.freeze([]) as readonly [],
+      })
+    }
     return {
       status: "blocked",
       scene: null,

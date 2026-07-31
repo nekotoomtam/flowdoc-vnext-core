@@ -66,6 +66,11 @@ export type VNextTextBlockUnifiedLayoutFallbackModeV1 =
   | "incremental-proof-failed"
   | "deterministic-work-limit-exceeded"
 
+export interface VNextTextBlockReuseProofFailureAuthorityInternalV1 {
+  readonly source:
+    "vnext-text-block-reuse-proof-failure-authority-internal-v1"
+}
+
 export type {
   VNextTextBlockLineDispositionCoverV1,
   VNextTextBlockLineDispositionSegmentV1,

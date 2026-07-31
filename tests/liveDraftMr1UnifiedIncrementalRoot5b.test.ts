@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import * as publicCore from "../src/index.js"
 import {
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
-  mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
+  mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
@@ -779,20 +779,17 @@ describe("Phase 5B-1 public foundation gate", () => {
     })
     if (bound.status !== "accepted") throw new Error("change binding blocked")
     const fabricated =
-      mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+      mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
         validatedChange: bound.validatedChange,
         previousRoot: previousResult.root,
         change,
         workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-        mode: "deterministic-work-limit-exceeded",
-        reason: {
-          code: "stage-unit-limit-exceeded",
+        limit: {
           stage: "source-flow",
           unit: "source-items",
           effectiveLimit: 4,
           attemptedWork: 5,
         },
-        skippedOrFailedStage: "source-flow",
         incrementalCandidateWork: bound.incrementalCandidateWork,
       })
     expect(fabricated).toMatchObject({
