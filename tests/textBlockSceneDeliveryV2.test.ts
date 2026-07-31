@@ -11,6 +11,11 @@ import {
   createVNextTextBlockPersistentSceneCompleteInternalV2,
   lookupVNextTextBlockPersistentSceneChunkInternalV2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
+import type {
+  VNextTextBlockPersistentSceneNodeV2,
+  VNextTextBlockPersistentSceneRootV2,
+  VNextTextBlockPersistentSceneV2,
+} from "../src/layout/textBlockPersistentSceneContractV2.js"
 import {
   createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2,
   createVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
@@ -143,7 +148,193 @@ function retainOnly(scene: ReturnType<typeof completeScene>) {
   return result.plan
 }
 
+function retainRange(
+  scene: VNextTextBlockPersistentSceneV2,
+  range: { readonly start: number; readonly end: number },
+) {
+  const operations = [
+    ...(range.start === 0
+      ? []
+      : [{
+          kind: "splice-range" as const,
+          previousRange: { start: 0, end: range.start },
+          nextRange: { start: 0, end: range.start },
+        }]),
+    {
+      kind: "retain-range" as const,
+      previousRange: range,
+      nextRange: range,
+    },
+    ...(range.end === scene.summary.chunkCount
+      ? []
+      : [{
+          kind: "splice-range" as const,
+          previousRange: {
+            start: range.end,
+            end: scene.summary.chunkCount,
+          },
+          nextRange: {
+            start: range.end,
+            end: scene.summary.chunkCount,
+          },
+        }]),
+  ]
+  const result = createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+    previousScene: scene,
+    nextScene: scene,
+    operations,
+  })
+  if (result.status !== "prepared") {
+    throw new Error(`delivery plan blocked: ${JSON.stringify(result.issues)}`)
+  }
+  const retain = result.plan.operations.find(
+    (operation) => operation.kind === "retain-range",
+  )
+  if (retain?.kind !== "retain-range") throw new Error("retain missing")
+  return { plan: result.plan, retain }
+}
+
+function nodeRangeAtPath(
+  root: VNextTextBlockPersistentSceneRootV2,
+  path: readonly number[],
+): {
+  readonly node: VNextTextBlockPersistentSceneNodeV2
+  readonly start: number
+  readonly end: number
+  readonly parentStart: number | null
+  readonly parentEnd: number | null
+} {
+  if (root.nodeKind === "empty") throw new Error("empty root has no path")
+  let node: VNextTextBlockPersistentSceneNodeV2 = root
+  let start = 0
+  let parentStart: number | null = null
+  let parentEnd: number | null = null
+  for (const childIndex of path) {
+    if (node.nodeKind !== "branch") throw new Error("path left branch")
+    parentStart = start
+    parentEnd = start + node.summary.chunkCount
+    for (let index = 0; index < childIndex; index += 1) {
+      start += node.children[index]!.summary.chunkCount
+    }
+    node = node.children[childIndex]!
+  }
+  return {
+    node,
+    start,
+    end: start + node.summary.chunkCount,
+    parentStart,
+    parentEnd,
+  }
+}
+
+function expectHighestContainedCover(
+  scene: VNextTextBlockPersistentSceneV2,
+  range: { readonly start: number; readonly end: number },
+  retained: Extract<
+    VNextTextBlockSceneDeliveryPlanV2["operations"][number],
+    { readonly kind: "retain-range" }
+  >["retainedSubtrees"],
+): void {
+  for (const item of retained) {
+    const selected = nodeRangeAtPath(scene.root, item.previousPath)
+    expect(selected.start).toBeGreaterThanOrEqual(range.start)
+    expect(selected.end).toBeLessThanOrEqual(range.end)
+    expect(item.fingerprint).toBe(selected.node.fingerprint)
+    expect(item.payloadObservationFingerprint).toBe(
+      selected.node.payloadObservation.payloadObservationFingerprint,
+    )
+    expect(item.chunkCount).toBe(selected.node.summary.chunkCount)
+    if (selected.parentStart != null && selected.parentEnd != null) {
+      expect(
+        range.start <= selected.parentStart
+          && selected.parentEnd <= range.end,
+      ).toBe(false)
+    }
+  }
+}
+
 describe("Phase 5B canonical Scene V2 delivery", () => {
+  it("selects the literal highest-node cover in stored order at 8/9/17/33 chunks", () => {
+    const rows = [
+      {
+        chunkCount: 8,
+        range: { start: 1, end: 7 },
+        previousPaths: [[1], [2], [3], [4], [5], [6]],
+      },
+      {
+        chunkCount: 9,
+        range: { start: 1, end: 8 },
+        previousPaths: [
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 0],
+          [1, 1],
+          [1, 2],
+          [1, 3],
+        ],
+      },
+      {
+        chunkCount: 17,
+        range: { start: 2, end: 15 },
+        previousPaths: [
+          [0, 2],
+          [0, 3],
+          [0, 4],
+          [0, 5],
+          [0, 6],
+          [0, 7],
+          [1],
+          [2, 0],
+          [2, 1],
+          [2, 2],
+        ],
+      },
+      {
+        chunkCount: 33,
+        range: { start: 3, end: 30 },
+        previousPaths: [
+          [0, 3],
+          [0, 4],
+          [0, 5],
+          [0, 6],
+          [0, 7],
+          [1],
+          [2],
+          [3],
+          [4, 0],
+          [4, 1],
+        ],
+      },
+    ] as const
+
+    for (const row of rows) {
+      const scene = repeatedScene(row.chunkCount)
+      expect(scene.policy).toMatchObject({
+        policyVersion: 1,
+        maximumBranchChildren: 8,
+        splitOverflowLeftCount: 4,
+        splitOverflowRightCount: 5,
+        underflowBorrowOrder: ["left", "right"],
+        underflowMergeOrder: ["left", "right"],
+        collapseUnaryRoot: true,
+      })
+      const { plan, retain } = retainRange(scene, row.range)
+      expect(retain.retainedSubtrees.map((item) => item.previousPath))
+        .toEqual(row.previousPaths)
+      expectHighestContainedCover(scene, row.range, retain.retainedSubtrees)
+      expect(verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+        previousScene: scene,
+        nextScene: scene,
+        plan,
+      })).toMatchObject({
+        status: "valid",
+        completePreviousSceneTraversalCount: 0,
+        completeNextSceneTraversalCount: 0,
+      })
+    }
+  }, 60_000)
+
   it("builds one greedy root retain without complete scene traversal", () => {
     const scene = repeatedScene(9)
     const plan = retainOnly(scene)
@@ -464,6 +655,193 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       })).toMatchObject({ status: "invalid" })
     }
   })
+
+  it("rejects reordered, nonmaximal, cloned, foreign, policy-drifted, and observation-drifted retain authority", () => {
+    const scene = repeatedScene(17)
+    const { plan: canonical } = retainRange(scene, { start: 2, end: 15 })
+    const canonicalRetain = canonical.operations.find(
+      (operation) => operation.kind === "retain-range",
+    )
+    if (
+      canonicalRetain?.kind !== "retain-range"
+      || scene.root.nodeKind !== "branch"
+      || scene.root.children[1]?.nodeKind !== "branch"
+    ) throw new Error("retain authority fixture topology missing")
+
+    const reversed = structuredClone(canonical) as
+      DeepMutable<VNextTextBlockSceneDeliveryPlanV2>
+    const reversedRetain = reversed.operations.find(
+      (operation) => operation.kind === "retain-range",
+    )
+    if (reversedRetain?.kind !== "retain-range") throw new Error("retain missing")
+    reversedRetain.retainedSubtrees.reverse()
+
+    const leafDecomposition = structuredClone(canonical) as
+      DeepMutable<VNextTextBlockSceneDeliveryPlanV2>
+    const decomposedRetain = leafDecomposition.operations.find(
+      (operation) => operation.kind === "retain-range",
+    )
+    if (decomposedRetain?.kind !== "retain-range") {
+      throw new Error("retain missing")
+    }
+    const fullyContainedParent = scene.root.children[1]
+    const parentIndex = decomposedRetain.retainedSubtrees.findIndex(
+      (item) => item.previousPath.length === 1 && item.previousPath[0] === 1,
+    )
+    if (parentIndex < 0) throw new Error("maximal parent missing")
+    decomposedRetain.retainedSubtrees.splice(
+      parentIndex,
+      1,
+      ...fullyContainedParent.children.map((child, index) => ({
+        previousPath: [1, index],
+        fingerprint: child.fingerprint,
+        payloadObservationFingerprint:
+          child.payloadObservation.payloadObservationFingerprint,
+        chunkCount: child.summary.chunkCount,
+      })),
+    )
+
+    const observationDrift = structuredClone(canonical) as
+      DeepMutable<VNextTextBlockSceneDeliveryPlanV2>
+    const observationRetain = observationDrift.operations.find(
+      (operation) => operation.kind === "retain-range",
+    )
+    if (observationRetain?.kind !== "retain-range") {
+      throw new Error("retain missing")
+    }
+    const exactObservationRetain = canonical.operations.find(
+      (operation) => operation.kind === "retain-range",
+    )
+    if (exactObservationRetain?.kind !== "retain-range") {
+      throw new Error("exact retain missing")
+    }
+    observationRetain.retainedSubtrees[0]!
+      .payloadObservationFingerprint = `sha256:${"d".repeat(64)}`
+    expect(observationRetain.retainedSubtrees[0]!.fingerprint).toBe(
+      exactObservationRetain.retainedSubtrees[0]!.fingerprint,
+    )
+    expect(
+      observationRetain.retainedSubtrees[0]!
+        .payloadObservationFingerprint,
+    ).not.toBe(
+      exactObservationRetain.retainedSubtrees[0]!
+        .payloadObservationFingerprint,
+    )
+
+    const policyDrift = structuredClone(canonical) as
+      DeepMutable<VNextTextBlockSceneDeliveryPlanV2>
+    policyDrift.previousTreePolicyFingerprint = `sha256:${"e".repeat(64)}`
+
+    for (const forged of [
+      reversed,
+      leafDecomposition,
+      observationDrift,
+    ]) {
+      for (let index = 0; index < forged.operations.length; index += 1) {
+        const operation = forged.operations[index]
+        const exactOperation = canonical.operations[index]
+        if (
+          operation?.kind === "splice-range"
+          && exactOperation?.kind === "splice-range"
+        ) {
+          operation.replacementChunks = [
+            ...exactOperation.replacementChunks,
+          ] as DeepMutable<typeof operation.replacementChunks>
+        }
+      }
+    }
+
+    for (const [forged, code] of [
+      [reversed, "delivery-plan-retain-cover-mismatch"],
+      [leafDecomposition, "delivery-plan-retain-cover-mismatch"],
+      [observationDrift, "delivery-plan-retain-cover-mismatch"],
+      [policyDrift, "delivery-plan-scene-binding-mismatch"],
+    ] as const) {
+      expect(verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+        previousScene: scene,
+        nextScene: scene,
+        plan: forged,
+      })).toMatchObject({ status: "invalid", code })
+    }
+
+    const clonedScene = structuredClone(scene)
+    expect(clonedScene.fingerprint).toBe(scene.fingerprint)
+    expect(clonedScene.root).not.toBe(scene.root)
+    expect(createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: scene,
+      nextScene: clonedScene,
+      operations: [{
+        kind: "retain-range",
+        previousRange: { start: 0, end: 17 },
+        nextRange: { start: 0, end: 17 },
+      }],
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "invalid-input" }],
+    })
+
+    const independentlyPrepared = repeatedScene(17)
+    expect(independentlyPrepared.root).not.toBe(scene.root)
+    expect(independentlyPrepared.fingerprint).toBe(scene.fingerprint)
+    expect(createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: scene,
+      nextScene: independentlyPrepared,
+      operations: [{
+        kind: "retain-range",
+        previousRange: { start: 0, end: 17 },
+        nextRange: { start: 0, end: 17 },
+      }],
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "delivery-plan-retain-payload-mismatch" }],
+    })
+
+    const firstRegistered = acceptedUnifiedLayoutRootFixtureV2()
+    const secondRegistered = acceptedUnifiedLayoutRootFixtureV2()
+    expect(secondRegistered.persistentScene.root)
+      .not.toBe(firstRegistered.persistentScene.root)
+    expect(secondRegistered.persistentScene.fingerprint)
+      .toBe(firstRegistered.persistentScene.fingerprint)
+    for (
+      let ordinal = 0;
+      ordinal < firstRegistered.persistentScene.summary.chunkCount;
+      ordinal += 1
+    ) {
+      const firstChunk = lookupVNextTextBlockPersistentSceneChunkInternalV2({
+        scene: firstRegistered.persistentScene,
+        chunkOrdinal: ordinal,
+      })
+      const secondChunk = lookupVNextTextBlockPersistentSceneChunkInternalV2({
+        scene: secondRegistered.persistentScene,
+        chunkOrdinal: ordinal,
+      })
+      if (
+        firstChunk.status !== "found"
+        || secondChunk.status !== "found"
+      ) throw new Error("registered renderer chunk missing")
+      expect(secondChunk.leaf.chunk).toEqual(firstChunk.leaf.chunk)
+      expect(secondChunk.leaf.chunk).not.toBe(firstChunk.leaf.chunk)
+    }
+    expect(createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: firstRegistered.persistentScene,
+      nextScene: secondRegistered.persistentScene,
+      operations: [{
+        kind: "retain-range",
+        previousRange: {
+          start: 0,
+          end: firstRegistered.persistentScene.summary.chunkCount,
+        },
+        nextRange: {
+          start: 0,
+          end: secondRegistered.persistentScene.summary.chunkCount,
+        },
+      }],
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "delivery-plan-retain-payload-mismatch" }],
+    })
+
+  }, 60_000)
 
   it("blocks wrong replacement identity/count and reordered scripts", () => {
     const scene = repeatedScene(9)

@@ -24,6 +24,13 @@ import {
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 
+type DeepMutable<T> =
+  T extends readonly (infer Item)[]
+    ? DeepMutable<Item>[]
+    : T extends object
+      ? { -readonly [Key in keyof T]: DeepMutable<T[Key]> }
+      : T
+
 function deepFreeze<T>(value: T): T {
   if (value == null || typeof value !== "object") return value
   for (const key of Reflect.ownKeys(value)) {
@@ -214,6 +221,60 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
         workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
       } as never),
     ).toMatchObject({ status: "blocked" })
+  })
+
+  it("does not let forced semantic digests confer Scene or Root authority", () => {
+    const first = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
+      unifiedLayoutRootBuildInputFixtureV2(),
+    )
+    const second = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
+      unifiedLayoutRootBuildInputFixtureV2({
+        documentId: "document-forced-semantic-collision",
+        fit: "cover",
+        crop: { x: 0, y: 0, width: 0.5, height: 1 },
+      }),
+    )
+    if (first.status !== "accepted" || second.status !== "accepted") {
+      throw new Error("Root V2 collision fixture blocked")
+    }
+    expect(second.root.semanticFingerprint)
+      .not.toBe(first.root.semanticFingerprint)
+    const forged = structuredClone(second.root) as unknown as
+      DeepMutable<typeof second.root>
+    forged.semanticFingerprint = first.root.semanticFingerprint
+    forged.persistentScene.fingerprint =
+      first.persistentScene.fingerprint
+    const collision = deepFreeze(forged)
+
+    expect(collision.documentId).not.toBe(first.root.documentId)
+    expect(collision.semanticFingerprint)
+      .toBe(first.root.semanticFingerprint)
+    expect(collision.persistentScene.fingerprint)
+      .toBe(first.persistentScene.fingerprint)
+    expect(collision.persistentScene)
+      .not.toBe(first.persistentScene)
+    expect(publicCore.inspectVNextTextBlockPersistentSceneV2(
+      collision.persistentScene,
+    )).toMatchObject({
+      status: "invalid",
+      code: "scene-authority-mismatch",
+    })
+    expect(publicCore.inspectVNextTextBlockUnifiedLayoutRootV2(
+      collision,
+    )).toMatchObject({
+      status: "invalid",
+      code: "root-authority-mismatch",
+    })
+    expect(publicCore.inspectVNextTextBlockSceneDeliveryPlanV2({
+      previousScene: first.persistentScene,
+      nextScene: collision.persistentScene,
+      plan: {
+        source: "vnext-text-block-scene-delivery-plan-v2",
+      },
+    } as never)).toMatchObject({
+      status: "invalid",
+      code: "delivery-scene-authority-mismatch",
+    })
   })
 
   it("rejects cloned results and forged delivery summaries and covers", () => {

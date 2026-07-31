@@ -321,6 +321,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
     expect(completed.root.constructionFingerprint)
       .not.toBe(previous.root.constructionFingerprint)
     expect(completed.root.fingerprint).not.toBe(previous.root.fingerprint)
+    expect(completed.root.fingerprint).toMatch(/^sha256:[a-f0-9]{64}$/u)
     expect(inspectVNextTextBlockUnifiedLayoutRootV2(completed.root).status)
       .toBe("valid")
     expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
@@ -367,6 +368,78 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       ])
     } finally {
       setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2(
+        null,
+      )
+    }
+  })
+
+  it("never exposes a partial complete-fallback candidate", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2()
+    const attempt = makeFallback(
+      previous.root,
+      noOpChange(previous.root),
+    )
+    if (attempt.status !== "fallback-required") {
+      throw new Error("expected fallback request")
+    }
+    const observed: VNextTextBlockUnifiedLayoutRootV2[] = []
+    setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
+      (candidate) => observed.push(candidate),
+    )
+    try {
+      const completeMaterial = unifiedLayoutRootBuildInputFixtureV2()
+      const partialMaterial = {
+        inputAuthority: completeMaterial.inputAuthority,
+        initialFlow: completeMaterial.initialFlow,
+        evidence: completeMaterial.evidence,
+      }
+      expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
+        request: attempt.fallbackRequest,
+        completeMaterial: partialMaterial as never,
+        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      })).toMatchObject({
+        status: "blocked",
+        root: null,
+        persistentScene: null,
+        completeFallbackWork: {
+          completeRootV2BuildCount: 0,
+          completeSceneV2BuildCount: 0,
+        },
+      })
+      expect(observed).toEqual([])
+
+      const completed =
+        completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
+          request: attempt.fallbackRequest,
+          completeMaterial,
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+      expect(completed.status).toBe("accepted-complete-fallback")
+      expect(observed).toHaveLength(1)
+      expect(observed[0]).toMatchObject({
+        constructionKind: "complete-fallback",
+        sourceState: expect.any(Object),
+        flowTree: expect.any(Object),
+        spatialState: expect.any(Object),
+        flowRegionProviderAuthority: expect.any(Object),
+        lineTree: expect.any(Object),
+        authoredBoxSummary: expect.any(Object),
+        persistentScene: expect.any(Object),
+        semanticDependencyFingerprints: {
+          sourceState: expect.any(String),
+          flowTree: expect.any(String),
+          spatialState: expect.any(String),
+          flowRegionProviderAuthority: expect.any(String),
+          lineTree: expect.any(String),
+          authoredBoxSummary: expect.any(String),
+          persistentScene: expect.any(String),
+        },
+        dependencyFingerprints: {
+          workPolicy: ROOT_V2_TEST_WORK_POLICY.fingerprint,
+        },
+      })
+    } finally {
+      setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
         null,
       )
     }
