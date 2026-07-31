@@ -132,6 +132,13 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       .toBe(0)
     expect(result.incrementalCandidateWork.scene.replacementChunkCount)
       .toBe(0)
+    expect(result.incrementalCandidateWork.flow.visitedSourceItemCount)
+      .toBe(1)
+    expect(result.incrementalCandidateWork.stageWork).toContainEqual({
+      stage: "source-flow",
+      unit: "source-items",
+      count: 1,
+    })
   })
 
   const transitions: readonly {

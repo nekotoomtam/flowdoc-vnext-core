@@ -211,11 +211,18 @@ function noOpWork(
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
     },
-    stageWork: [{
-      stage: "structural-reuse-proof" as const,
-      unit: "selected-exact-subtree-nodes" as const,
-      count: dispositions.work.selectedSubtreeCount,
-    }],
+    stageWork: [
+      ...(visitedSourceItemCount === 0 ? [] : [{
+        stage: "source-flow" as const,
+        unit: "source-items" as const,
+        count: visitedSourceItemCount,
+      }]),
+      {
+        stage: "structural-reuse-proof" as const,
+        unit: "selected-exact-subtree-nodes" as const,
+        count: dispositions.work.selectedSubtreeCount,
+      },
+    ],
   })
 }
 
@@ -442,6 +449,29 @@ function workLimitFailure(
   return null
 }
 
+function acceptedNoOpAfterWorkLimit(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+  dispositions: VNextTextBlockLineDispositionCoverV1,
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+): VNextTextBlockUnifiedLayoutTransitionResultV1 {
+  const failure = workLimitFailure(root, workPolicy, work)
+  if (failure == null) return acceptedNoOp(root, dispositions, work)
+  const code = failure.kind === "limit-exceeded"
+    ? "deterministic-work-limit-exceeded"
+    : failure.kind === "invalid-policy"
+      ? "invalid-work-policy"
+      : failure.kind === "prelock-stage"
+        ? "prelock-work-policy-stage"
+        : "inactive-work-policy-stage"
+  return blockedResult(work, [issue(
+    code,
+    failure.stage,
+    failure.unit,
+    `work policy does not accept ${failure.stage}/${failure.unit}`,
+  )])
+}
+
 export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
   input: {
     readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -488,8 +518,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     )
   }
   if (input.change.kind === "no-op") {
-    return acceptedNoOp(
+    return acceptedNoOpAfterWorkLimit(
       input.previousRoot,
+      input.workPolicy,
       dispositions,
       noOpWork(bound.incrementalCandidateWork, dispositions),
     )
@@ -555,8 +586,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     )
   }
   if (source.status === "unchanged") {
-    return acceptedNoOp(
+    return acceptedNoOpAfterWorkLimit(
       input.previousRoot,
+      input.workPolicy,
       dispositions,
       noOpWork(
         bound.incrementalCandidateWork,
