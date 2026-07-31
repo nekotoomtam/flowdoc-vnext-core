@@ -9,6 +9,12 @@ import {
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
 import {
+  deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import type {
+  VNextTextBlockExpectedTargetBindingV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionContractV1.js"
+import {
   effectiveStageLimitV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
@@ -41,6 +47,23 @@ const insertedSource = {
   sourceFingerprint: "source-inserted",
   provenanceFingerprint: "provenance-inserted",
 } as const
+
+function targetBinding(
+  overrides: Partial<VNextTextBlockExpectedTargetBindingV1> = {},
+): VNextTextBlockExpectedTargetBindingV1 {
+  return deepFreeze({
+    semanticFingerprint: "semantic-previous",
+    renderedContentFingerprint: "content-previous",
+    sourceFingerprint: "source-previous",
+    provenanceFingerprint: "provenance-previous",
+    paintFingerprint: "paint-previous",
+    layoutDependencyFingerprint: "layout-previous",
+    authoredBoxPlanFingerprint: "authored-box-previous",
+    spatialEntrySetFingerprint: "spatial-previous",
+    fingerprint: "target-binding-previous",
+    ...overrides,
+  })
+}
 
 const inlineImage = {
   id: "inline-image-1",
@@ -251,6 +274,103 @@ afterEach(() => {
 })
 
 describe("Phase 5B closed transition contracts", () => {
+  it("derives the closed Core effect-class matrix from frozen target bindings", () => {
+    const previousTargetBinding = targetBinding()
+    const rows = [
+      {
+        label: "every target-binding fact equal",
+        expectedTargetBinding: targetBinding(),
+        requiresGeometryRecomputation: false,
+        effectClass: "true-no-op",
+        semanticIdentityChanged: false,
+      },
+      {
+        label: "source and provenance change without visual facts",
+        expectedTargetBinding: targetBinding({
+          sourceFingerprint: "source-next",
+          provenanceFingerprint: "provenance-next",
+          fingerprint: "target-binding-semantic",
+        }),
+        requiresGeometryRecomputation: false,
+        effectClass: "semantic-only-change",
+        semanticIdentityChanged: true,
+      },
+      {
+        label: "paint changes with geometry facts equal",
+        expectedTargetBinding: targetBinding({
+          paintFingerprint: "paint-next",
+          fingerprint: "target-binding-paint",
+        }),
+        requiresGeometryRecomputation: false,
+        effectClass: "paint-affecting-change",
+        semanticIdentityChanged: false,
+      },
+      {
+        label: "layout dependency changes",
+        expectedTargetBinding: targetBinding({
+          layoutDependencyFingerprint: "layout-next",
+          fingerprint: "target-binding-geometry",
+        }),
+        requiresGeometryRecomputation: true,
+        effectClass: "geometry-affecting-change",
+        semanticIdentityChanged: false,
+      },
+    ] as const
+
+    const classifications = rows.map((row) => (
+      deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1({
+        previousTargetBinding,
+        expectedTargetBinding: row.expectedTargetBinding,
+        requiresGeometryRecomputation: row.requiresGeometryRecomputation,
+      })
+    ))
+    expect(classifications.map((classification) => classification.effectClass))
+      .toEqual(rows.map((row) => row.effectClass))
+    expect(classifications.map((classification) => classification.semanticIdentityChanged))
+      .toEqual(rows.map((row) => row.semanticIdentityChanged))
+
+    for (const row of [
+      targetBinding({
+        semanticFingerprint: "semantic-next",
+        paintFingerprint: "paint-next",
+        fingerprint: "target-binding-semantic-paint",
+      }),
+      targetBinding({
+        sourceFingerprint: "source-next",
+        layoutDependencyFingerprint: "layout-next",
+        fingerprint: "target-binding-semantic-geometry",
+      }),
+    ]) {
+      const classification =
+        deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1({
+          previousTargetBinding,
+          expectedTargetBinding: row,
+          requiresGeometryRecomputation: false,
+        })
+      expect(classification).toMatchObject({
+        semanticIdentityChanged: true,
+      })
+    }
+    expect(deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1({
+      previousTargetBinding,
+      expectedTargetBinding: targetBinding({
+        semanticFingerprint: "semantic-next",
+        paintFingerprint: "paint-next",
+        fingerprint: "target-binding-semantic-paint",
+      }),
+      requiresGeometryRecomputation: false,
+    }).effectClass).toBe("paint-affecting-change")
+    expect(deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1({
+      previousTargetBinding,
+      expectedTargetBinding: targetBinding({
+        sourceFingerprint: "source-next",
+        layoutDependencyFingerprint: "layout-next",
+        fingerprint: "target-binding-semantic-geometry",
+      }),
+      requiresGeometryRecomputation: false,
+    }).effectClass).toBe("geometry-affecting-change")
+  })
+
   it("calibrates structural reuse separately from payload observation", () => {
     expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID)
       .toBe("5b-1-v2")
@@ -334,7 +454,7 @@ describe("Phase 5B closed transition contracts", () => {
     let accessorReadCount = 0
     const accessor = {
       ...noOp,
-      get dirtyRange() {
+      get effectClassification() {
         accessorReadCount += 1
         throw new Error("must not read accessor")
       },
@@ -444,7 +564,15 @@ describe("Phase 5B closed transition contracts", () => {
         expectedCode: "invalid-change-range",
         expectedPath: "atRenderedUtf16",
       },
-      ...(["dirtyRange", "affectedLines", "fallbackMode", "workPolicy"] as const).map((field) => ({
+      ...([
+        "dirtyRange",
+        "affectedLines",
+        "fallbackMode",
+        "workPolicy",
+        "effectClassification",
+        "effectClass",
+        "semanticIdentityChanged",
+      ] as const).map((field) => ({
         label: `caller field ${field}`,
         value: deepFreeze({ ...noOp, [field]: {} }),
         expectedCode: "caller-authority-forbidden",

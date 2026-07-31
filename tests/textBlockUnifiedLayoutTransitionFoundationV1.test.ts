@@ -10,6 +10,7 @@ import {
   inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
 import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
@@ -29,6 +30,81 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 
 describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
+  it("binds Core-derived effects before inactive text transition execution", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
+    const noOp = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change: noOpUnifiedLayoutChange5b(previous.root),
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    const unchangedPaint = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change: imagePaintUnifiedLayoutChange5b(previous.root, {
+        fit: "contain",
+        crop: null,
+      }),
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    const changedPaint = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change: imagePaintUnifiedLayoutChange5b(previous.root, {
+        fit: "cover",
+        crop: { x: 0, y: 0, width: 0.5, height: 1 },
+      }),
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    const textChange = Object.freeze({
+      source: "vnext-text-block-unified-layout-change-v1" as const,
+      contractVersion: 1 as const,
+      documentId: previous.root.documentId,
+      sectionId: previous.root.sectionId,
+      textBlockId: previous.root.textBlockId,
+      expectedPreviousRootFingerprint: previous.root.fingerprint,
+      expectedPreviousSourceFingerprint: previous.root.sourceState.fingerprint,
+      kind: "text-insertion" as const,
+      atRenderedUtf16: 0,
+      insertedText: "x",
+      insertedSource: Object.freeze({
+        lineageId: "lineage-next",
+        sourceFingerprint: "source-next",
+        provenanceFingerprint: "provenance-next",
+      }),
+      measurementStyleKey: "measurement-style-next",
+      effectiveShapingStyleKey: "shaping-style-next",
+    })
+    const inactiveText = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change: textChange,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+
+    for (const result of [noOp, unchangedPaint, changedPaint, inactiveText]) {
+      expect(result.status, JSON.stringify(result.issues)).toBe("accepted")
+    }
+    if (
+      noOp.status !== "accepted"
+      || unchangedPaint.status !== "accepted"
+      || changedPaint.status !== "accepted"
+      || inactiveText.status !== "accepted"
+    ) return
+    expect(noOp.validatedChange.effectClassification).toMatchObject({
+      effectClass: "true-no-op",
+      semanticIdentityChanged: false,
+    })
+    expect(unchangedPaint.validatedChange.effectClassification).toMatchObject({
+      effectClass: "true-no-op",
+      semanticIdentityChanged: false,
+    })
+    expect(changedPaint.validatedChange.effectClassification).toMatchObject({
+      effectClass: "paint-affecting-change",
+      semanticIdentityChanged: false,
+    })
+    expect(inactiveText.validatedChange.effectClassification).toMatchObject({
+      effectClass: "geometry-affecting-change",
+      semanticIdentityChanged: true,
+    })
+  })
+
   it("returns the exact previous Root and Scene for a true no-op", () => {
     const previous = acceptedUnifiedLayoutRootFixtureV2()
     const result =

@@ -171,6 +171,9 @@ const CALLER_AUTHORITY_FIELDS = new Set([
   "reuse",
   "fallbackMode",
   "workPolicy",
+  "effectClassification",
+  "effectClass",
+  "semanticIdentityChanged",
 ])
 
 function issue(

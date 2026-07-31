@@ -232,11 +232,24 @@ export interface VNextTextBlockExpectedTargetBindingV1 {
   readonly fingerprint: string
 }
 
+export type VNextTextBlockUnifiedLayoutEffectClassV1 =
+  | "true-no-op"
+  | "semantic-only-change"
+  | "paint-affecting-change"
+  | "geometry-affecting-change"
+
+export interface VNextTextBlockUnifiedLayoutEffectClassificationV1 {
+  readonly effectClass: VNextTextBlockUnifiedLayoutEffectClassV1
+  readonly semanticIdentityChanged: boolean
+  readonly fingerprint: string
+}
+
 export interface VNextTextBlockValidatedChangeV1 {
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly eligibility: VNextTextBlockUnifiedLayoutEligibilityV1
   readonly producerEvidence: "required" | "not-required"
   readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
+  readonly effectClassification: VNextTextBlockUnifiedLayoutEffectClassificationV1
   readonly fingerprint: string
 }
 

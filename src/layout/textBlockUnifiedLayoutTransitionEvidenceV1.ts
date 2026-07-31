@@ -20,6 +20,7 @@ import {
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
 } from "./textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
 import type {
+  VNextTextBlockUnifiedLayoutEffectClassificationV1,
   VNextTextBlockExpectedTargetBindingV1,
   VNextTextBlockIncrementalCandidateWorkV1,
   VNextTextBlockUnifiedLayoutIssueV1,
@@ -150,6 +151,47 @@ function targetBindingFacts(
   }
 }
 
+export function deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1(
+  input: {
+    readonly previousTargetBinding: VNextTextBlockExpectedTargetBindingV1
+    readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
+    readonly requiresGeometryRecomputation: boolean
+  },
+): VNextTextBlockUnifiedLayoutEffectClassificationV1 {
+  const previous = input.previousTargetBinding
+  const expected = input.expectedTargetBinding
+  const semanticIdentityChanged =
+    previous.semanticFingerprint !== expected.semanticFingerprint
+    || previous.sourceFingerprint !== expected.sourceFingerprint
+    || previous.provenanceFingerprint !== expected.provenanceFingerprint
+  const geometryChanged = input.requiresGeometryRecomputation
+    || previous.renderedContentFingerprint
+      !== expected.renderedContentFingerprint
+    || previous.layoutDependencyFingerprint
+      !== expected.layoutDependencyFingerprint
+    || previous.authoredBoxPlanFingerprint
+      !== expected.authoredBoxPlanFingerprint
+    || previous.spatialEntrySetFingerprint
+      !== expected.spatialEntrySetFingerprint
+  const effectClass = geometryChanged
+    ? "geometry-affecting-change" as const
+    : previous.paintFingerprint !== expected.paintFingerprint
+      ? "paint-affecting-change" as const
+      : semanticIdentityChanged
+        ? "semantic-only-change" as const
+        : "true-no-op" as const
+  return Object.freeze({
+    effectClass,
+    semanticIdentityChanged,
+    fingerprint: fingerprint({
+      effectClass,
+      semanticIdentityChanged,
+      previousTargetBindingFingerprint: previous.fingerprint,
+      expectedTargetBindingFingerprint: expected.fingerprint,
+    }),
+  })
+}
+
 export function deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
   root: VNextTextBlockUnifiedLayoutRootV2,
 ): VNextTextBlockExpectedTargetBindingV1 {
@@ -172,9 +214,8 @@ export function deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
 function targetBindingForChange(
   root: VNextTextBlockUnifiedLayoutRootV2,
   change: VNextTextBlockUnifiedLayoutChangeV1,
+  previous: VNextTextBlockExpectedTargetBindingV1,
 ): VNextTextBlockExpectedTargetBindingV1 | null {
-  const previous =
-    deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(root)
   if (change.kind === "no-op") return previous
   if (change.kind === "image-paint-fact-change") {
     const derived =
@@ -295,6 +336,12 @@ function producerEvidenceRequired(
     || change.kind === "supported-style-change"
 }
 
+function requiresGeometryRecomputation(
+  change: VNextTextBlockUnifiedLayoutChangeV1,
+): boolean {
+  return change.kind !== "no-op" && change.kind !== "image-paint-fact-change"
+}
+
 function blockedBinding(
   work: VNextTextBlockIncrementalCandidateWorkV1,
   item: VNextTextBlockUnifiedLayoutIssueV1,
@@ -362,9 +409,14 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       "change previous-root/source expectations are stale",
     ))
   }
+  const previousTargetBinding =
+    deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
+      input.previousRoot,
+    )
   const expectedTargetBinding = targetBindingForChange(
     input.previousRoot,
     change,
+    previousTargetBinding,
   )
   if (expectedTargetBinding == null) {
     return blockedBinding(shaped.incrementalCandidateWork, issue(
@@ -378,11 +430,18 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     ? "required" as const
     : "not-required" as const
   const eligibility = shaped.eligibility
+  const effectClassification =
+    deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1({
+      previousTargetBinding,
+      expectedTargetBinding,
+      requiresGeometryRecomputation: requiresGeometryRecomputation(change),
+    })
   const facts = {
     change,
     eligibility,
     producerEvidence,
     expectedTargetBinding,
+    effectClassification,
   }
   const validatedChange: VNextTextBlockValidatedChangeV1 = Object.freeze({
     ...facts,
@@ -391,6 +450,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       eligibility,
       producerEvidence,
       expectedTargetBinding,
+      effectClassification,
     }),
   })
   return Object.freeze({
