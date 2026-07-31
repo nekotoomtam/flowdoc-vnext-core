@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
+import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
+import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
   createVNextTextBlockIncrementalFlowTreeCompleteInternalV1,
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
@@ -17,6 +19,7 @@ import {
   verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
 } from "../src/layout/textBlockSceneDeliveryV2.js"
 import type {
+  VNextTextBlockCompleteSceneDeliveryV2,
   VNextTextBlockSceneDeliveryPlanV2,
 } from "../src/layout/textBlockSceneDeliveryContractV2.js"
 import {
@@ -57,6 +60,15 @@ type DeepMutable<T> =
     : T extends object
       ? { -readonly [Key in keyof T]: DeepMutable<T[Key]> }
       : T
+
+function refingerprintCompleteDelivery(
+  delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>,
+): void {
+  const { fingerprint: _previousFingerprint, ...facts } = delivery
+  delivery.fingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson(facts),
+  )
+}
 
 function sceneInputsFromAccepted(
   accepted: ReturnType<typeof acceptedUnifiedLayoutRootFixtureV1>,
@@ -563,6 +575,36 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       status: "invalid",
       code: "complete-delivery-data-mismatch",
     })
+
+    const wrongSourceRange = structuredClone(result.delivery) as
+      DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    if (wrongSourceRange.summary.sourceRange.start == null) {
+      throw new Error("complete delivery source range missing")
+    }
+    wrongSourceRange.summary.sourceRange.start.localRenderedUtf16 += 1
+
+    const wrongSourceFingerprint = structuredClone(result.delivery) as
+      DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    wrongSourceFingerprint.summary.sourceFingerprint =
+      `sha256:${"a".repeat(64)}`
+
+    const wrongPaintFingerprint = structuredClone(result.delivery) as
+      DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    wrongPaintFingerprint.summary.paintFingerprint =
+      `sha256:${"b".repeat(64)}`
+
+    for (const forged of [
+      wrongSourceRange,
+      wrongSourceFingerprint,
+      wrongPaintFingerprint,
+    ]) {
+      refingerprintCompleteDelivery(forged)
+      expect(inspectVNextTextBlockCompleteSceneDeliveryV2(forged))
+        .toMatchObject({
+          status: "invalid",
+          code: "complete-delivery-data-mismatch",
+        })
+    }
     expect(createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
       root: structuredClone(accepted.root),
     })).toMatchObject({

@@ -8,6 +8,7 @@ import type {
   VNextTextBlockPersistentSceneChunkV2,
   VNextTextBlockPersistentSceneNodeV2,
   VNextTextBlockPersistentSceneRootV2,
+  VNextTextBlockPersistentSceneSummaryV2,
   VNextTextBlockPersistentSceneV2,
 } from "./textBlockPersistentSceneContractV2.js"
 import {
@@ -1345,15 +1346,214 @@ function invalidCompleteDeliveryInspection(
   return { status: "invalid", code, message }
 }
 
+function completeDeliveryEmptyComponentFingerprint(
+  component: string,
+): string {
+  return fingerprint({ component, empty: true })
+}
+
+function completeDeliveryEmptySemanticSummary():
+  VNextTextBlockPersistentSceneSummaryV2 {
+  return {
+    chunkCount: 0,
+    lineCount: 0,
+    textFragmentCount: 0,
+    inlineImageFragmentCount: 0,
+    leafCount: 0,
+    nodeCount: 1,
+    sourceRange: { start: null, end: null },
+    authoredTopLayoutUnit: null,
+    authoredBottomLayoutUnit: null,
+    lineInternalsFingerprint:
+      completeDeliveryEmptyComponentFingerprint("line-internals"),
+    sourceFingerprint:
+      completeDeliveryEmptyComponentFingerprint("source"),
+    provenanceFingerprint:
+      completeDeliveryEmptyComponentFingerprint("provenance"),
+    paintFingerprint:
+      completeDeliveryEmptyComponentFingerprint("paint"),
+    boundarySpatialContextFingerprint:
+      completeDeliveryEmptyComponentFingerprint(
+        "boundary-spatial-context",
+      ),
+  }
+}
+
+function completeDeliveryLeafSemanticSummary(
+  chunk: VNextTextBlockPersistentSceneChunkV2,
+): VNextTextBlockPersistentSceneSummaryV2 {
+  let textFragmentCount = 0
+  let inlineImageFragmentCount = 0
+  for (const fragment of chunk.fragments) {
+    if (fragment.kind === "text") textFragmentCount += 1
+    else inlineImageFragmentCount += 1
+  }
+  const first = chunk.sourceMapping[0]
+  const last = chunk.sourceMapping[chunk.sourceMapping.length - 1]
+  const authoredTopLayoutUnit =
+    chunk.authoredBoxGeometry.yOffsetLayoutUnit
+  return {
+    chunkCount: 1,
+    lineCount: 1,
+    textFragmentCount,
+    inlineImageFragmentCount,
+    leafCount: 1,
+    nodeCount: 1,
+    sourceRange: first == null || last == null
+      ? { start: null, end: null }
+      : {
+          start: {
+            lineageId: first.lineageId,
+            localRenderedUtf16: first.localStartRenderedUtf16,
+          },
+          end: {
+            lineageId: last.lineageId,
+            localRenderedUtf16: last.localEndRenderedUtf16,
+          },
+        },
+    authoredTopLayoutUnit,
+    authoredBottomLayoutUnit: safeAdd(
+      authoredTopLayoutUnit,
+      chunk.authoredBoxGeometry.heightLayoutUnit,
+    ),
+    lineInternalsFingerprint: chunk.lineInternalsFingerprint,
+    sourceFingerprint: chunk.sourceFingerprint,
+    provenanceFingerprint: chunk.provenanceFingerprint,
+    paintFingerprint: chunk.paintFingerprint,
+    boundarySpatialContextFingerprint:
+      chunk.boundarySpatialContextFingerprint,
+  }
+}
+
+function completeDeliveryBranchSemanticSummary(
+  children: readonly VNextTextBlockPersistentSceneSummaryV2[],
+): VNextTextBlockPersistentSceneSummaryV2 {
+  let chunkCount = 0
+  let lineCount = 0
+  let textFragmentCount = 0
+  let inlineImageFragmentCount = 0
+  let leafCount = 0
+  let nodeCount = 1
+  let authoredTopLayoutUnit: number | null = null
+  let authoredBottomLayoutUnit: number | null = null
+  for (const child of children) {
+    chunkCount = safeAdd(chunkCount, child.chunkCount)
+    lineCount = safeAdd(lineCount, child.lineCount)
+    textFragmentCount = safeAdd(
+      textFragmentCount,
+      child.textFragmentCount,
+    )
+    inlineImageFragmentCount = safeAdd(
+      inlineImageFragmentCount,
+      child.inlineImageFragmentCount,
+    )
+    leafCount = safeAdd(leafCount, child.leafCount)
+    nodeCount = safeAdd(nodeCount, child.nodeCount)
+    if (child.authoredTopLayoutUnit != null) {
+      authoredTopLayoutUnit = authoredTopLayoutUnit == null
+        ? child.authoredTopLayoutUnit
+        : Math.min(
+            authoredTopLayoutUnit,
+            child.authoredTopLayoutUnit,
+          )
+    }
+    if (child.authoredBottomLayoutUnit != null) {
+      authoredBottomLayoutUnit = authoredBottomLayoutUnit == null
+        ? child.authoredBottomLayoutUnit
+        : Math.max(
+            authoredBottomLayoutUnit,
+            child.authoredBottomLayoutUnit,
+          )
+    }
+  }
+  const first = children[0]
+  const last = children[children.length - 1]
+  const component = (
+    name: string,
+    values: readonly string[],
+  ): string => fingerprint({ component: name, children: values })
+  return {
+    chunkCount,
+    lineCount,
+    textFragmentCount,
+    inlineImageFragmentCount,
+    leafCount,
+    nodeCount,
+    sourceRange: {
+      start: first?.sourceRange.start ?? null,
+      end: last?.sourceRange.end ?? null,
+    },
+    authoredTopLayoutUnit,
+    authoredBottomLayoutUnit,
+    lineInternalsFingerprint: component(
+      "line-internals",
+      children.map((child) => child.lineInternalsFingerprint),
+    ),
+    sourceFingerprint: component(
+      "source",
+      children.map((child) => child.sourceFingerprint),
+    ),
+    provenanceFingerprint: component(
+      "provenance",
+      children.map((child) => child.provenanceFingerprint),
+    ),
+    paintFingerprint: component(
+      "paint",
+      children.map((child) => child.paintFingerprint),
+    ),
+    boundarySpatialContextFingerprint: component(
+      "boundary-spatial-context",
+      children.map(
+        (child) => child.boundarySpatialContextFingerprint,
+      ),
+    ),
+  }
+}
+
+function completeDeliveryCanonicalGroupSizes(
+  count: number,
+): readonly number[] {
+  if (count <= 0) return []
+  if (count <= 8) return [count]
+  const fullGroups = Math.floor(count / 8)
+  const remainder = count % 8
+  const sizes = Array.from({ length: fullGroups }, () => 8)
+  if (remainder === 1) {
+    sizes[sizes.length - 1] = 4
+    sizes.push(5)
+  } else if (remainder > 1) {
+    sizes.push(remainder)
+  }
+  return sizes
+}
+
+function completeDeliverySemanticSummaryFromChunks(
+  chunks: readonly VNextTextBlockPersistentSceneChunkV2[],
+): VNextTextBlockPersistentSceneSummaryV2 {
+  if (chunks.length === 0) {
+    return completeDeliveryEmptySemanticSummary()
+  }
+  let level: readonly VNextTextBlockPersistentSceneSummaryV2[] =
+    chunks.map(completeDeliveryLeafSemanticSummary)
+  while (level.length > 1) {
+    const next: VNextTextBlockPersistentSceneSummaryV2[] = []
+    let cursor = 0
+    for (const size of completeDeliveryCanonicalGroupSizes(level.length)) {
+      next.push(completeDeliveryBranchSemanticSummary(
+        level.slice(cursor, cursor + size),
+      ))
+      cursor += size
+    }
+    level = next
+  }
+  return level[0]!
+}
+
 function completeDeliveryChunkIssue(
   delivery: VNextTextBlockCompleteSceneDeliveryV2,
 ): string | null {
   try {
-    let textFragmentCount = 0
-    let inlineImageFragmentCount = 0
     let estimatedCanonicalPayloadByteCount = 0
-    let authoredTopLayoutUnit: number | null = null
-    let authoredBottomLayoutUnit: number | null = null
     for (const chunk of delivery.chunks) {
       const record = exactRecord(chunk, [
         "lineLineageId",
@@ -1420,8 +1620,6 @@ function completeDeliveryChunkIssue(
           contractVersion: 2,
           ...fragmentFacts,
         })) return "fragment-fingerprint"
-        if (kind === "text") textFragmentCount += 1
-        else inlineImageFragmentCount += 1
       }
       const { fingerprint: chunkFingerprint, ...chunkFacts } = record
       if (chunkFingerprint !== fingerprint({
@@ -1441,14 +1639,10 @@ function completeDeliveryChunkIssue(
         || !Number.isSafeInteger(geometry.heightLayoutUnit)
         || (geometry.heightLayoutUnit as number) < 0
       ) return "authored-geometry"
-      const top = geometry.yOffsetLayoutUnit as number
-      const bottom = safeAdd(top, geometry.heightLayoutUnit as number)
-      authoredTopLayoutUnit = authoredTopLayoutUnit == null
-        ? top
-        : Math.min(authoredTopLayoutUnit, top)
-      authoredBottomLayoutUnit = authoredBottomLayoutUnit == null
-        ? bottom
-        : Math.max(authoredBottomLayoutUnit, bottom)
+      safeAdd(
+        geometry.yOffsetLayoutUnit as number,
+        geometry.heightLayoutUnit as number,
+      )
     }
     estimatedCanonicalPayloadByteCount = safeAdd(
       estimatedCanonicalPayloadByteCount,
@@ -1475,32 +1669,23 @@ function completeDeliveryChunkIssue(
       "boundarySpatialContextFingerprint",
     ])
     if (summary == null) return "summary-shape"
-    if (
-      summary.chunkCount !== delivery.chunks.length
-      || summary.lineCount !== delivery.chunks.length
-      || summary.leafCount !== delivery.chunks.length
-    ) return "summary-counts"
-    if (
-      !Number.isSafeInteger(summary.nodeCount)
-      || (summary.nodeCount as number) < delivery.chunks.length
-    ) return "summary-node-count"
-    if (delivery.work.visitedSceneNodeCount !== summary.nodeCount) {
-      return "work-visited-scene-node-count"
+    const expectedSummary =
+      completeDeliverySemanticSummaryFromChunks(delivery.chunks)
+    if (!exactSummaryEquals(summary, expectedSummary)) {
+      return "summary-semantic-mismatch"
     }
     if (
-      summary.textFragmentCount !== textFragmentCount
-      || summary.inlineImageFragmentCount !== inlineImageFragmentCount
-    ) return "summary-fragment-counts"
+      delivery.work.visitedSceneNodeCount
+        !== expectedSummary.nodeCount
+    ) {
+      return "work-visited-scene-node-count"
+    }
     if (
       delivery.observations.estimatedCanonicalPayloadByteCount
         !== estimatedCanonicalPayloadByteCount
     ) return `observation-payload-bytes(${String(
       delivery.observations.estimatedCanonicalPayloadByteCount,
     )}/${String(estimatedCanonicalPayloadByteCount)})`
-    if (
-      summary.authoredTopLayoutUnit !== authoredTopLayoutUnit
-      || summary.authoredBottomLayoutUnit !== authoredBottomLayoutUnit
-    ) return "summary-authored-bounds"
     return null
   } catch {
     return "unsafe-canonical-data"
