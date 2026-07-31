@@ -21,6 +21,7 @@ import {
 } from "./textBlockSceneDeliveryV2.js"
 import {
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
+  mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
 } from "./textBlockUnifiedLayoutFallbackV1.js"
 import {
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
@@ -44,6 +45,7 @@ import type {
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
+  getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1,
@@ -139,6 +141,16 @@ interface ResultRecord {
 
 const transitionResults = new WeakMap<object, ResultRecord>()
 
+let coverCreationObserverForTest:
+  | (() => void)
+  | null = null
+
+export function setVNextTextBlockUnifiedLayoutTransitionCoverCreationObserverForTestInternalV1(
+  observer: (() => void) | null,
+): void {
+  coverCreationObserverForTest = observer
+}
+
 function registerResult<T extends VNextTextBlockUnifiedLayoutTransitionResultV1>(
   result: T,
 ): T {
@@ -193,6 +205,7 @@ function blockedResult(
 function allExactStructuralReuseDispositions(
   root: VNextTextBlockUnifiedLayoutRootV2,
 ): VNextTextBlockLineDispositionCoverV1 | null {
+  coverCreationObserverForTest?.()
   const lineCount = root.lineTree.summary.lineCount
   if (lineCount === 0) return null
   const result = createVNextTextBlockLineDispositionCoverInternalV1({
@@ -287,6 +300,7 @@ function paintWork(
     readonly retainCoverNodeCount: number
     readonly estimatedCanonicalPayloadByteCount: number
     readonly payloadObservationFingerprint: string | null
+    readonly visitedSourceItemCount?: number
     readonly attemptedRegistrationCount?: number
     readonly committedRegistrationCount?: number
   },
@@ -295,7 +309,7 @@ function paintWork(
     ...base,
     flow: {
       ...base.flow,
-      visitedSourceItemCount: 1,
+      visitedSourceItemCount: input.visitedSourceItemCount ?? 1,
     },
     structuralReuseProof: {
       selectedExactSubtreeNodeCount:
@@ -326,7 +340,7 @@ function paintWork(
       {
         stage: "source-flow" as const,
         unit: "source-items" as const,
-        count: 1,
+        count: input.visitedSourceItemCount ?? 1,
       },
       {
         stage: "structural-reuse-proof" as const,
@@ -519,6 +533,31 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       )],
     )
   }
+  if (input.change.kind === "authored-box-width-inset-change") {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      [issue(
+        "inactive-work-policy-stage",
+        "geometry",
+        "change.kind",
+        "authored-box geometry policy remains inactive until Phase 5B-3",
+      )],
+    )
+  }
+  if (
+    input.change.kind !== "no-op"
+    && input.change.kind !== "image-paint-fact-change"
+  ) {
+    return blockedResult(
+      bound.incrementalCandidateWork,
+      [issue(
+        "inactive-work-policy-stage",
+        "source-flow",
+        "change.kind",
+        "the 5B-1 private foundation opens only no-op and image paint",
+      )],
+    )
+  }
   const dispositions = allExactStructuralReuseDispositions(input.previousRoot)
   if (dispositions == null) {
     return blockedResult(
@@ -539,47 +578,28 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       noOpWork(bound.incrementalCandidateWork, dispositions),
     )
   }
-  if (input.change.kind === "authored-box-width-inset-change") {
-    const fallback =
-      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-        previousRoot: input.previousRoot,
-        change: input.change,
-        workPolicy: input.workPolicy,
-        mode: "planned-complete",
-        reason: {
-          code: "allowlisted-whole-block-spatial-impact",
-          policyFact: "authored-box-width-or-inset",
-        },
-        skippedOrFailedStage: "source-flow",
-        incrementalCandidateWork: bound.incrementalCandidateWork,
-      })
-    if (fallback.status !== "fallback-required") {
-      return blockedResult(
-        fallback.incrementalCandidateWork,
-        fallback.issues,
-      )
-    }
-    return registerResult(Object.freeze({
-      ...fallback,
-      stagedEditorApply: false,
-      mayPublishLayout: false,
-      productionBinding: false,
-    }))
-  }
   if (input.change.kind !== "image-paint-fact-change") {
+    throw new Error("validated 5B-1 transition kind escaped closed dispatch")
+  }
+  const sourceItemAuthority =
+    getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(
+      bound.validatedChange,
+    )
+  if (sourceItemAuthority == null) {
     return blockedResult(
       bound.incrementalCandidateWork,
       [issue(
-        "inactive-work-policy-stage",
+        "change-target-mismatch",
         "source-flow",
-        "change.kind",
-        "the 5B-1 private foundation opens only no-op and image paint",
+        "change",
+        "paint transition lost its exact bound source-item authority",
       )],
     )
   }
   const source =
     createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
       previousSourceState: input.previousRoot.sourceState,
+      sourceItemAuthority,
       inlineId: input.change.inlineId,
       expectedImageSourceFingerprint:
         input.change.expectedImageSourceFingerprint,
@@ -644,6 +664,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1({
       previousRoot: input.previousRoot,
       nextSourceState: source.sourceState,
+      sourceItemAuthority: source.sourceItemAuthority,
       inlineId: input.change.inlineId,
     })
   if (scene.status !== "prepared") {
@@ -656,8 +677,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       estimatedCanonicalPayloadByteCount: 0,
       payloadObservationFingerprint: null,
     })
-    const fallback =
-      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+    const attempt = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
         previousRoot: input.previousRoot,
         change: input.change,
         workPolicy: input.workPolicy,
@@ -669,6 +689,16 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         },
         skippedOrFailedStage: "scene",
         incrementalCandidateWork: attemptedWork,
+      })
+    if (attempt.status !== "minted") {
+      return blockedResult(
+        attempt.incrementalCandidateWork,
+        attempt.issues,
+      )
+    }
+    const fallback =
+      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+        attempt: attempt.attempt,
       })
     if (fallback.status !== "fallback-required") {
       return blockedResult(
@@ -696,6 +726,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
       payloadObservationFingerprint:
         scene.deliveryPlan.observations.payloadObservationFingerprint,
+      visitedSourceItemCount: scene.visitedSourceItemCount,
     },
   )
   const limitFailure = workLimitFailure(
@@ -705,8 +736,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
   )
   if (limitFailure != null) {
     if (limitFailure.kind === "limit-exceeded") {
-      const fallback =
-        createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      const attempt =
+        mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
           previousRoot: input.previousRoot,
           change: input.change,
           workPolicy: input.workPolicy,
@@ -720,6 +751,16 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
           },
           skippedOrFailedStage: limitFailure.stage,
           incrementalCandidateWork: beforeRegistrationWork,
+        })
+      if (attempt.status !== "minted") {
+        return blockedResult(
+          attempt.incrementalCandidateWork,
+          attempt.issues,
+        )
+      }
+      const fallback =
+        createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+          attempt: attempt.attempt,
         })
       if (fallback.status !== "fallback-required") {
         return blockedResult(
@@ -825,6 +866,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
     payloadObservationFingerprint:
       scene.deliveryPlan.observations.payloadObservationFingerprint,
+    visitedSourceItemCount: scene.visitedSourceItemCount,
     attemptedRegistrationCount:
       registration.attemptedRegistrationCount,
     committedRegistrationCount:

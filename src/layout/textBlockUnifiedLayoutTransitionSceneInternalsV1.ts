@@ -25,6 +25,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
     readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
     readonly nextSourceState:
       VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly sourceItemAuthority: object
     readonly inlineId: string
   },
 ):
@@ -34,6 +35,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly deliveryPlan: VNextTextBlockSceneDeliveryPlanV2
       readonly copiedSceneNodeCount: number
       readonly replacementChunkCount: 1
+      readonly visitedSourceItemCount: number
       readonly issues: readonly []
     }
   | {
@@ -42,6 +44,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly deliveryPlan: null
       readonly copiedSceneNodeCount: 0
       readonly replacementChunkCount: 0
+      readonly visitedSourceItemCount: 0
       readonly issues: readonly [{
         readonly code: "incremental-proof-unavailable"
         readonly message: string
@@ -52,6 +55,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       previousScene: input.previousRoot.persistentScene,
       nextSourceState: input.nextSourceState,
       lineTree: input.previousRoot.lineTree,
+      sourceItemAuthority: input.sourceItemAuthority,
       inlineId: input.inlineId,
     })
   if (scene.status !== "prepared") {
@@ -61,6 +65,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       deliveryPlan: null,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
+      visitedSourceItemCount: 0,
       issues: [{
         code: "incremental-proof-unavailable",
         message: scene.issues[0]?.message
@@ -71,9 +76,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
   const fragment =
     inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV2({
       scene: scene.scene,
-      copiedPathNodes: scene.copiedPathNodes,
-      replacementNodes: scene.replacementNodes,
-      siblingReferences: scene.siblingReferences,
+      fragmentAuthority: scene.fragmentAuthority,
       completePreviousSceneTraversal: false,
       completeNextSceneTraversal: false,
     })
@@ -84,6 +87,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       deliveryPlan: null,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
+      visitedSourceItemCount: 0,
       issues: [{
         code: "incremental-proof-unavailable",
         message: fragment.message,
@@ -130,6 +134,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       deliveryPlan: null,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
+      visitedSourceItemCount: 0,
       issues: [{
         code: "incremental-proof-unavailable",
         message: delivery.issues[0]?.message
@@ -150,6 +155,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       deliveryPlan: null,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
+      visitedSourceItemCount: 0,
       issues: [{
         code: "incremental-proof-unavailable",
         message: verified.message,
@@ -162,6 +168,7 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
     deliveryPlan: delivery.plan,
     copiedSceneNodeCount: scene.work.incrementalCopiedNodeCount,
     replacementChunkCount: 1 as const,
+    visitedSourceItemCount: scene.work.visitedSourceItemCount,
     issues: Object.freeze([]) as readonly [],
   })
 }

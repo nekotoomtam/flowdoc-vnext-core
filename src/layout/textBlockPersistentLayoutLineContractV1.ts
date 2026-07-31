@@ -257,6 +257,7 @@ export interface VNextTextBlockPersistentLayoutLineTreeV1 {
   }
   readonly mayPublishLayout: false
   readonly productionBinding: false
+  readonly semanticFingerprint: string
   readonly fingerprint: string
 }
 

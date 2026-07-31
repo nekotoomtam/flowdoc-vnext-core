@@ -215,6 +215,7 @@ function targetBindingForChange(
   root: VNextTextBlockUnifiedLayoutRootV2,
   change: VNextTextBlockUnifiedLayoutChangeV1,
   previous: VNextTextBlockExpectedTargetBindingV1,
+  captureImagePaintSourceItemAuthority: (authority: object) => void,
 ): VNextTextBlockExpectedTargetBindingV1 | null {
   if (change.kind === "no-op") return previous
   if (change.kind === "image-paint-fact-change") {
@@ -229,12 +230,12 @@ function targetBindingForChange(
         nextFit: change.nextFit,
         nextCrop: change.nextCrop,
     })
-    return derived.status === "accepted"
-      ? targetBinding({
-          ...targetBindingFacts(previous),
-          paintFingerprint: derived.paintFingerprint,
-        })
-      : null
+    if (derived.status !== "accepted") return null
+    captureImagePaintSourceItemAuthority(derived.sourceItemAuthority)
+    return targetBinding({
+      ...targetBindingFacts(previous),
+      paintFingerprint: derived.paintFingerprint,
+    })
   }
   if (change.kind === "authored-box-width-inset-change") {
     if (
@@ -326,6 +327,17 @@ function targetBindingForChange(
   })
 }
 
+const validatedImagePaintSourceItemAuthorities = new WeakMap<
+  VNextTextBlockValidatedChangeV1,
+  object
+>()
+
+export function getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(
+  validatedChange: VNextTextBlockValidatedChangeV1,
+): object | null {
+  return validatedImagePaintSourceItemAuthorities.get(validatedChange) ?? null
+}
+
 function producerEvidenceRequired(
   change: VNextTextBlockUnifiedLayoutChangeV1,
 ): boolean {
@@ -413,10 +425,14 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
       input.previousRoot,
     )
+  let imagePaintSourceItemAuthority: object | null = null
   const expectedTargetBinding = targetBindingForChange(
     input.previousRoot,
     change,
     previousTargetBinding,
+    (authority) => {
+      imagePaintSourceItemAuthority = authority
+    },
   )
   if (expectedTargetBinding == null) {
     return blockedBinding(shaped.incrementalCandidateWork, issue(
@@ -453,6 +469,12 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       effectClassification,
     }),
   })
+  if (imagePaintSourceItemAuthority != null) {
+    validatedImagePaintSourceItemAuthorities.set(
+      validatedChange,
+      imagePaintSourceItemAuthority,
+    )
+  }
   return Object.freeze({
     status: "accepted",
     validatedChange,

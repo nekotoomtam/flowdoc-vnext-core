@@ -242,25 +242,7 @@ export function deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerpri
     }),
     flowRegionProviderAuthority:
       root.flowRegionProviderAuthority.fingerprint,
-    lineTree: compactFingerprint({
-      source: lineTree.source,
-      contractVersion: lineTree.contractVersion,
-      documentId: lineTree.documentId,
-      sectionId: lineTree.sectionId,
-      textBlockId: lineTree.textBlockId,
-      instanceRevision: lineTree.instanceRevision,
-      layoutId: lineTree.layoutId,
-      layoutContextFingerprint: lineTree.layoutContextFingerprint,
-      spatialContextFingerprint: lineTree.spatialContextFingerprint,
-      authoredBoxPlanFingerprint:
-        lineTree.authoredBoxPlanFingerprint,
-      policy: lineTree.policy,
-      rootFingerprint: lineTree.root.fingerprint,
-      summary: lineTree.summary,
-      contracts: lineTree.contracts,
-      mayPublishLayout: lineTree.mayPublishLayout,
-      productionBinding: lineTree.productionBinding,
-    }),
+    lineTree: lineTree.semanticFingerprint,
     authoredBoxSummary: root.authoredBoxSummary.fingerprint,
     persistentScene: root.persistentScene.fingerprint,
   })
@@ -381,6 +363,54 @@ export function canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(
   })
 }
 
+export function composeVNextTextBlockUnifiedLayoutRootIdentityForTestInternalV2(
+  input: {
+    readonly root: VNextTextBlockUnifiedLayoutRootV2
+    readonly lineTreeFingerprint: string
+    readonly lineTreeSemanticFingerprint: string
+    readonly persistentSceneFingerprint: string
+  },
+): {
+  readonly semanticDependencyFingerprints:
+    VNextTextBlockUnifiedLayoutRootV2["semanticDependencyFingerprints"]
+  readonly dependencyFingerprints:
+    VNextTextBlockUnifiedLayoutRootV2["dependencyFingerprints"]
+  readonly semanticFingerprint: string
+  readonly fingerprint: string
+} {
+  const semanticDependencyFingerprints = Object.freeze({
+    ...input.root.semanticDependencyFingerprints,
+    lineTree: input.lineTreeSemanticFingerprint,
+    persistentScene: input.persistentSceneFingerprint,
+  })
+  const dependencyFingerprints = Object.freeze({
+    ...input.root.dependencyFingerprints,
+    lineTree: input.lineTreeFingerprint,
+    persistentScene: input.persistentSceneFingerprint,
+  })
+  const semanticVariant = {
+    ...input.root,
+    semanticDependencyFingerprints,
+    dependencyFingerprints,
+  }
+  const semanticFingerprint = createVNextCompactFingerprint(
+    canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(
+      semanticVariant,
+    ),
+  )
+  return Object.freeze({
+    semanticDependencyFingerprints,
+    dependencyFingerprints,
+    semanticFingerprint,
+    fingerprint: createVNextCompactFingerprint(
+      canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2({
+        ...semanticVariant,
+        semanticFingerprint,
+      }),
+    ),
+  })
+}
+
 export function authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2(
   input: {
     readonly token: unknown
@@ -450,6 +480,8 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
       !== root.sourceState.authoredBoxPlan.fingerprint
     || root.authoredBoxSummary.lineCount !== root.lineTree.summary.lineCount
     || root.persistentScene.lineTreeFingerprint !== root.lineTree.fingerprint
+    || root.persistentScene.lineTreeSemanticFingerprint
+      !== root.lineTree.semanticFingerprint
   ) return false
   const childEntries = [
     { childKind: "source-state" as const, child: root.sourceState },

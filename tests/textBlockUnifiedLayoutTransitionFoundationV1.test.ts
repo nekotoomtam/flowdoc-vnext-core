@@ -1,13 +1,18 @@
 import { describe, expect, it } from "vitest"
 import {
   inspectVNextTextBlockPersistentSceneV2,
+  setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
+import {
+  setVNextTextBlockPersistentLayoutLineTreeFullInspectionObserverForTestInternalV1,
+} from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
 import {
   inspectVNextTextBlockUnifiedLayoutRootV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
   attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
   inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1,
+  setVNextTextBlockUnifiedLayoutTransitionCoverCreationObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
@@ -15,6 +20,7 @@ import {
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1,
+  setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   acceptedRepeatedUnifiedLayoutRootFixture5b,
@@ -62,11 +68,25 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       effectClass: "geometry-affecting-change",
       semanticIdentityChanged: true,
     })
-    const result = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
-      previousRoot: previous.root,
-      change: textChange,
-      workPolicy: ROOT_V2_TEST_WORK_POLICY,
-    })
+    let coverCreationCount = 0
+    setVNextTextBlockUnifiedLayoutTransitionCoverCreationObserverForTestInternalV1(
+      () => {
+        coverCreationCount += 1
+      },
+    )
+    const result = (() => {
+      try {
+        return attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+          previousRoot: previous.root,
+          change: textChange,
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+      } finally {
+        setVNextTextBlockUnifiedLayoutTransitionCoverCreationObserverForTestInternalV1(
+          null,
+        )
+      }
+    })()
     expect(result.status, JSON.stringify(result.issues)).toBe("blocked")
     if (result.status !== "blocked") return
     expect(result.issues).toEqual([expect.objectContaining({
@@ -87,6 +107,55 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       atomicAcceptance: { attemptedRegistrationCount: 0 },
     })
     expect(result.incrementalCandidateWork.stageWork).toEqual([])
+    expect(coverCreationCount).toBe(0)
+  })
+
+  it("does not invoke full retained-tree inspection, rehash, or recursive Scene freeze on no-op and paint hot paths", () => {
+    const noOpPrevious = acceptedUnifiedLayoutRootFixtureV2()
+    const paintPrevious = acceptedUnifiedLayoutRootFixtureV2({
+      fit: "contain",
+    })
+    const lineTreeEvents: string[] = []
+    const sceneEvents: string[] = []
+    setVNextTextBlockPersistentLayoutLineTreeFullInspectionObserverForTestInternalV1(
+      (event) => lineTreeEvents.push(event),
+    )
+    setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2(
+      (event) => {
+        if (event.kind !== "historical-node-set-probe") {
+          sceneEvents.push(event.kind)
+        }
+      },
+    )
+    try {
+      const noOp =
+        attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+          previousRoot: noOpPrevious.root,
+          change: noOpUnifiedLayoutChange5b(noOpPrevious.root),
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+      expect(noOp.status, JSON.stringify(noOp.issues))
+        .toBe("accepted-no-op")
+
+      const paint =
+        attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+          previousRoot: paintPrevious.root,
+          change: imagePaintUnifiedLayoutChange5b(paintPrevious.root, {
+            fit: "cover",
+            crop: { x: 0, y: 0, width: 0.5, height: 1 },
+          }),
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+      expect(paint.status, JSON.stringify(paint.issues))
+        .toBe("accepted-incremental")
+    } finally {
+      setVNextTextBlockPersistentLayoutLineTreeFullInspectionObserverForTestInternalV1(
+        null,
+      )
+      setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2(null)
+    }
+    expect(lineTreeEvents).toEqual([])
+    expect(sceneEvents).toEqual([])
   })
 
   it("returns the exact previous Root and Scene for a true no-op", () => {
@@ -183,40 +252,79 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
     })
   })
 
-  it("reports null Root/Scene identities for fallback and blocked results", () => {
+  it("blocks authored-box changes at the inactive 5B-3 geometry stage without child work", () => {
     const previous = acceptedUnifiedLayoutRootFixtureV2()
-    const fallback =
-      attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
-        previousRoot: previous.root,
-        change: Object.freeze({
-          source: "vnext-text-block-unified-layout-change-v1" as const,
-          contractVersion: 1 as const,
-          documentId: previous.root.documentId,
-          sectionId: previous.root.sectionId,
-          textBlockId: previous.root.textBlockId,
-          expectedPreviousRootFingerprint: previous.root.fingerprint,
-          expectedPreviousSourceFingerprint:
-            previous.root.sourceState.fingerprint,
-          kind: "authored-box-width-inset-change" as const,
-          expectedAuthoredBoxPlanFingerprint:
-            previous.root.sourceState.authoredBoxPlan.fingerprint,
-          nextAuthoredBoxPlan:
-            previous.root.sourceState.authoredBoxPlan,
-        }),
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
-      })
-    expect(fallback.status).toBe("fallback-required")
+    let coverCreationCount = 0
+    setVNextTextBlockUnifiedLayoutTransitionCoverCreationObserverForTestInternalV1(
+      () => {
+        coverCreationCount += 1
+      },
+    )
+    const authoredBox = (() => {
+      try {
+        return attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+          previousRoot: previous.root,
+          change: Object.freeze({
+            source: "vnext-text-block-unified-layout-change-v1" as const,
+            contractVersion: 1 as const,
+            documentId: previous.root.documentId,
+            sectionId: previous.root.sectionId,
+            textBlockId: previous.root.textBlockId,
+            expectedPreviousRootFingerprint: previous.root.fingerprint,
+            expectedPreviousSourceFingerprint:
+              previous.root.sourceState.fingerprint,
+            kind: "authored-box-width-inset-change" as const,
+            expectedAuthoredBoxPlanFingerprint:
+              previous.root.sourceState.authoredBoxPlan.fingerprint,
+            nextAuthoredBoxPlan:
+              previous.root.sourceState.authoredBoxPlan,
+          }),
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+      } finally {
+        setVNextTextBlockUnifiedLayoutTransitionCoverCreationObserverForTestInternalV1(
+          null,
+        )
+      }
+    })()
+    expect(authoredBox.status).toBe("blocked")
+    if (authoredBox.status !== "blocked") return
     expect(inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
-      fallback,
+      authoredBox,
     )).toMatchObject({
       status: "valid",
-      resultStatus: "fallback-required",
+      resultStatus: "blocked",
       rootFingerprint: null,
       rootSemanticFingerprint: null,
       persistentSceneFingerprint: null,
       persistentScenePayloadObservationFingerprint: null,
+      fallbackRequestFingerprint: null,
     })
+    expect(authoredBox.root).toBeNull()
+    expect(authoredBox.persistentScene).toBeNull()
+    expect(authoredBox.deliveryPlan).toBeNull()
+    expect(authoredBox.fallbackRequest).toBeNull()
+    expect(authoredBox.issues).toEqual([expect.objectContaining({
+      code: "inactive-work-policy-stage",
+      stage: "geometry",
+      path: "change.kind",
+    })])
+    expect(authoredBox.incrementalCandidateWork.stageWork).toEqual([])
+    expect(authoredBox.incrementalCandidateWork.structuralReuseProof)
+      .toMatchObject({ selectedExactSubtreeNodeCount: 0 })
+    expect(authoredBox.incrementalCandidateWork.scene).toEqual({
+      copiedSceneNodeCount: 0,
+      replacementChunkCount: 0,
+    })
+    expect(authoredBox.incrementalCandidateWork.deliveryPlan).toEqual({
+      deliveryOperationCount: 0,
+      retainCoverNodeCount: 0,
+    })
+    expect(coverCreationCount).toBe(0)
+  })
 
+  it("reports null Root/Scene identities for blocked results", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2()
     const clonedRoot = structuredClone(previous.root)
     const blocked =
       attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
@@ -473,6 +581,37 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
     })
   }
 
+  it("visits only the changed image when its line also maps an unchanged hard break", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2({
+      content: "text-image-text-break",
+      fit: "contain",
+    })
+    const independent = acceptedUnifiedLayoutRootFixtureV2({
+      content: "text-image-text-break",
+      fit: "cover",
+      crop: { x: 0, y: 0, width: 0.5, height: 1 },
+    })
+    const result =
+      attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+        previousRoot: previous.root,
+        change: imagePaintUnifiedLayoutChange5b(previous.root, {
+          fit: "cover",
+          crop: { x: 0, y: 0, width: 0.5, height: 1 },
+        }),
+        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      })
+
+    expect(result.status, JSON.stringify(result.issues))
+      .toBe("accepted-incremental")
+    if (result.status !== "accepted-incremental") return
+    expect(result.incrementalCandidateWork.flow.visitedSourceItemCount)
+      .toBe(1)
+    expect(result.persistentScene.work.visitedSourceItemCount).toBe(1)
+    expect(result.persistentScene.root).toEqual(
+      independent.persistentScene.root,
+    )
+  })
+
   it("copies bounded source and scene paths while retaining untouched 9-line subtrees", () => {
     const previous = acceptedRepeatedUnifiedLayoutRootFixture5b(9)
     const result =
@@ -579,6 +718,91 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       .toBe(0)
     expect(second.incrementalCandidateWork.completeSceneTraversalCount)
       .toBe(0)
+  })
+
+  it("keeps source and Scene authority probes bounded across 32 sequential paint transitions", () => {
+    const initial = acceptedUnifiedLayoutRootFixtureV2({
+      fit: "contain",
+    })
+    let previousRoot = initial.root
+    const perTransitionMaximumIndexProbeCount: number[] = []
+    const perTransitionIndexLookupCount: number[] = []
+    const perTransitionHistoricalSceneProbeCount: number[] = []
+    let lastCrop = {
+      x: 0,
+      y: 0,
+      width: 0.5,
+      height: 1,
+    }
+
+    for (let revision = 0; revision < 32; revision += 1) {
+      const indexProbeCounts: number[] = []
+      const historicalSceneProbeCounts: number[] = []
+      setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+        (observation) => {
+          indexProbeCounts.push(observation.indexProbeCount)
+        },
+      )
+      setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2(
+        (event) => {
+          if (event.kind === "historical-node-set-probe") {
+            historicalSceneProbeCounts.push(event.probeCount)
+          }
+        },
+      )
+      lastCrop = revision % 2 === 0
+        ? { x: 0, y: 0, width: 0.5, height: 1 }
+        : { x: 0.2, y: 0.1, width: 0.6, height: 0.8 }
+      const result = (() => {
+        try {
+          return attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+            previousRoot,
+            change: imagePaintUnifiedLayoutChange5b(previousRoot, {
+              fit: "cover",
+              crop: lastCrop,
+            }),
+            workPolicy: ROOT_V2_TEST_WORK_POLICY,
+          })
+        } finally {
+          setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+            null,
+          )
+          setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2(null)
+        }
+      })()
+      expect(result.status, JSON.stringify(result.issues))
+        .toBe("accepted-incremental")
+      if (result.status !== "accepted-incremental") return
+      previousRoot = result.root
+      perTransitionMaximumIndexProbeCount.push(
+        Math.max(0, ...indexProbeCounts),
+      )
+      perTransitionIndexLookupCount.push(indexProbeCounts.length)
+      perTransitionHistoricalSceneProbeCount.push(
+        historicalSceneProbeCounts.reduce(
+          (sum, probeCount) => sum + probeCount,
+          0,
+        ),
+      )
+      expect(result.incrementalCandidateWork.completeNextInputTraversalCount)
+        .toBe(0)
+      expect(result.incrementalCandidateWork.completeSceneTraversalCount)
+        .toBe(0)
+    }
+
+    const independent = acceptedUnifiedLayoutRootFixtureV2({
+      fit: "cover",
+      crop: lastCrop,
+    })
+    expect(previousRoot.sourceState.root)
+      .toEqual(independent.root.sourceState.root)
+    expect(previousRoot.persistentScene.root)
+      .toEqual(independent.root.persistentScene.root)
+    expect(new Set(perTransitionMaximumIndexProbeCount)).toEqual(new Set([1]))
+    expect(perTransitionIndexLookupCount)
+      .toEqual(Array.from({ length: 32 }, () => 1))
+    expect(perTransitionHistoricalSceneProbeCount)
+      .toEqual(Array.from({ length: 32 }, () => 0))
   })
 
   it("retains the exact line tree for first, middle, and last image paint", () => {

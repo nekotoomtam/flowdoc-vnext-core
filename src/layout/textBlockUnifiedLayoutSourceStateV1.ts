@@ -53,8 +53,10 @@ interface IndexedSourceItemRecord {
 }
 
 interface SourceItemIndex {
-  readonly entries: ReadonlyMap<string, IndexedSourceItemRecord>
-  readonly parent: SourceItemIndex | null
+  readonly entries: ReadonlyMap<string, {
+    readonly itemOrdinal: number
+    readonly absoluteStartRenderedUtf16: number
+  }>
 }
 
 const policyFacts = {
@@ -95,10 +97,40 @@ WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
 const registeredRootGraphStates = new WeakSet<
 VNextTextBlockUnifiedLayoutSourceStateV1
 >()
-const imagePaintPreviousStates = new WeakMap<
+const imagePaintNextStates = new WeakMap<
   VNextTextBlockUnifiedLayoutSourceStateV1,
-  VNextTextBlockUnifiedLayoutSourceStateV1
+  WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
 >()
+const imagePaintSourceItemAuthorities = new WeakMap<
+  object,
+  {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly inlineId: string
+    readonly item: Extract<
+      VNextTextBlockUnifiedLayoutSourceItemV1,
+      { readonly kind: "inline-image" }
+    >
+    readonly indexed: IndexedSourceItemRecord | null
+  }
+>()
+
+export interface VNextTextBlockSourceIndexLookupObservationForTestV1 {
+  readonly inlineId: string
+  readonly indexProbeCount: number
+  readonly found: boolean
+}
+
+let sourceIndexLookupObserverForTest:
+  | ((observation: VNextTextBlockSourceIndexLookupObservationForTestV1) => void)
+  | null = null
+
+export function setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+  observer:
+    | ((observation: VNextTextBlockSourceIndexLookupObservationForTestV1) => void)
+    | null,
+): void {
+  sourceIndexLookupObserverForTest = observer
+}
 
 function fingerprintWith(
   factory: FingerprintFactory,
@@ -114,13 +146,13 @@ function defaultFingerprint(canonicalFacts: string): string {
 function indexSourceItems(
   root: VNextTextBlockUnifiedLayoutSourceNodeV1,
 ): SourceItemIndex | null {
-  const output = new Map<string, IndexedSourceItemRecord>()
+  const output = new Map<string, {
+    readonly itemOrdinal: number
+    readonly absoluteStartRenderedUtf16: number
+  }>()
+  let itemOrdinal = 0
   const visit = (
     node: VNextTextBlockUnifiedLayoutSourceNodeV1,
-    ancestors: readonly {
-      readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
-      readonly childIndex: number
-    }[],
     absoluteStartRenderedUtf16: number,
   ): boolean => {
     if (node.nodeKind === "leaf") {
@@ -129,12 +161,10 @@ function indexSourceItems(
         const item = node.items[itemIndex]!
         if (output.has(item.inlineId)) return false
         output.set(item.inlineId, {
-          item,
-          itemIndex,
+          itemOrdinal,
           absoluteStartRenderedUtf16: itemStartRenderedUtf16,
-          leaf: node,
-          ancestors,
         })
+        itemOrdinal += 1
         itemStartRenderedUtf16 += item.renderedUtf16Length
       }
       return true
@@ -146,31 +176,81 @@ function indexSourceItems(
       childIndex += 1
     ) {
       const child = node.children[childIndex]!
-      if (!visit(
-        child,
-        [...ancestors, { branch: node, childIndex }],
-        childStartRenderedUtf16,
-      )) return false
+      if (!visit(child, childStartRenderedUtf16)) return false
       childStartRenderedUtf16 += child.summary.renderedUtf16Length
     }
     return true
   }
-  return visit(root, [], 0)
-    ? { entries: output, parent: null }
+  return visit(root, 0)
+    ? { entries: output }
     : null
 }
 
 function indexedSourceItem(
   index: SourceItemIndex,
+  root: VNextTextBlockUnifiedLayoutSourceNodeV1,
   inlineId: string,
 ): IndexedSourceItemRecord | undefined {
-  let cursor: SourceItemIndex | null = index
-  while (cursor != null) {
-    const found = cursor.entries.get(inlineId)
-    if (found != null) return found
-    cursor = cursor.parent
+  const authority = index.entries.get(inlineId)
+  if (authority == null) {
+    sourceIndexLookupObserverForTest?.({
+      inlineId,
+      indexProbeCount: 1,
+      found: false,
+    })
+    return undefined
   }
-  return undefined
+  const ancestors: {
+    readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
+    readonly childIndex: number
+  }[] = []
+  let relativeItemOrdinal = authority.itemOrdinal
+  let node = root
+  while (node.nodeKind === "branch") {
+    let selected:
+      | {
+          readonly child: VNextTextBlockUnifiedLayoutSourceNodeV1
+          readonly childIndex: number
+        }
+      | null = null
+    for (
+      let childIndex = 0;
+      childIndex < node.children.length;
+      childIndex += 1
+    ) {
+      const child = node.children[childIndex]!
+      if (relativeItemOrdinal < child.summary.itemCount) {
+        selected = { child, childIndex }
+        break
+      }
+      relativeItemOrdinal -= child.summary.itemCount
+    }
+    if (selected == null) break
+    ancestors.push({
+      branch: node,
+      childIndex: selected.childIndex,
+    })
+    node = selected.child
+  }
+  const item = node.nodeKind === "leaf"
+    ? node.items[relativeItemOrdinal]
+    : undefined
+  const found = item != null && item.inlineId === inlineId
+  sourceIndexLookupObserverForTest?.({
+    inlineId,
+    indexProbeCount: 1,
+    found,
+  })
+  return !found || node.nodeKind !== "leaf"
+    ? undefined
+    : {
+        item,
+        itemIndex: relativeItemOrdinal,
+        absoluteStartRenderedUtf16:
+          authority.absoluteStartRenderedUtf16,
+        leaf: node,
+        ancestors,
+      }
 }
 
 function forcedCollisionFingerprint(_canonicalFacts: string): string {
@@ -1105,6 +1185,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
   input: {
     readonly previousSourceState:
       VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly sourceItemAuthority: object
     readonly inlineId: string
     readonly expectedImageSourceFingerprint: string
     readonly expectedImageDependencyFingerprint: string
@@ -1115,6 +1196,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
   | {
       readonly status: "unchanged"
       readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+      readonly sourceItemAuthority: object
       readonly visitedSummaryNodeCount: number
       readonly createdNodeCount: 0
       readonly reusedNodeCount: number
@@ -1124,6 +1206,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
   | {
       readonly status: "prepared"
       readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+      readonly sourceItemAuthority: object
       readonly visitedSummaryNodeCount: number
       readonly createdNodeCount: number
       readonly reusedNodeCount: number
@@ -1133,6 +1216,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
   | {
       readonly status: "blocked"
       readonly sourceState: null
+      readonly sourceItemAuthority: null
       readonly visitedSummaryNodeCount: 0
       readonly createdNodeCount: 0
       readonly reusedNodeCount: 0
@@ -1143,13 +1227,17 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       }]
     } {
   const prepared = preparedStates.get(input.previousSourceState)
-  const indexed = prepared == null
-    ? undefined
-    : indexedSourceItem(prepared.itemIndex, input.inlineId)
+  const sourceItemAuthority =
+    imagePaintSourceItemAuthorities.get(input.sourceItemAuthority)
+  const indexed = sourceItemAuthority?.indexed ?? undefined
   if (
     prepared == null
+    || sourceItemAuthority == null
+    || sourceItemAuthority.sourceState !== input.previousSourceState
+    || sourceItemAuthority.inlineId !== input.inlineId
     || indexed == null
     || indexed.item.kind !== "inline-image"
+    || sourceItemAuthority.item !== indexed.item
     || indexed.item.sourceFingerprint
       !== input.expectedImageSourceFingerprint
     || indexed.item.layoutDependencyFingerprint
@@ -1158,6 +1246,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
     return {
       status: "blocked",
       sourceState: null,
+      sourceItemAuthority: null,
       visitedSummaryNodeCount: 0,
       createdNodeCount: 0,
       reusedNodeCount: 0,
@@ -1177,6 +1266,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
     return {
       status: "unchanged",
       sourceState: input.previousSourceState,
+      sourceItemAuthority: input.sourceItemAuthority,
       visitedSummaryNodeCount: indexed.ancestors.length + 1,
       createdNodeCount: 0,
       reusedNodeCount: input.previousSourceState.summary.nodeCount,
@@ -1224,10 +1314,6 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       ),
       prepared.fingerprintFactory,
     ))
-    const copiedBranches = new Map<
-      VNextTextBlockUnifiedLayoutSourceBranchV1,
-      VNextTextBlockUnifiedLayoutSourceBranchV1
-    >()
     let nextPathNode: VNextTextBlockUnifiedLayoutSourceNodeV1 = nextLeaf
     for (
       let ancestorIndex = indexed.ancestors.length - 1;
@@ -1244,13 +1330,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       deepFreeze(pendingCopied.summary)
       Object.freeze(pendingCopied.children)
       const copied = Object.freeze(pendingCopied)
-      copiedBranches.set(ancestor.branch, copied)
       nextPathNode = copied
     }
-    const nextAncestors = indexed.ancestors.map((ancestor) => ({
-      branch: copiedBranches.get(ancestor.branch)!,
-      childIndex: ancestor.childIndex,
-    }))
     const createdNodeCount = indexed.ancestors.length + 1
     const work = {
       constructionKind: "image-paint-path-copy" as const,
@@ -1302,28 +1383,26 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       fingerprint: sourceState.fingerprint,
       canonicalFacts,
       fingerprintFactory: prepared.fingerprintFactory,
-      itemIndex: {
-        entries: new Map([[
-          input.inlineId,
-          {
-            item: nextItem,
-            itemIndex: indexed.itemIndex,
-            absoluteStartRenderedUtf16:
-              indexed.absoluteStartRenderedUtf16,
-            leaf: nextLeaf,
-            ancestors: nextAncestors,
-          },
-        ]]),
-        parent: prepared.itemIndex,
-      },
+      itemIndex: prepared.itemIndex,
     })
-    imagePaintPreviousStates.set(
+    const nextStates =
+      imagePaintNextStates.get(input.previousSourceState) ?? new WeakSet()
+    nextStates.add(sourceState)
+    imagePaintNextStates.set(input.previousSourceState, nextStates)
+    const nextSourceItemAuthority = Object.freeze({})
+    imagePaintSourceItemAuthorities.set(nextSourceItemAuthority, {
       sourceState,
-      input.previousSourceState,
-    )
+      inlineId: nextItem.inlineId,
+      item: nextItem as Extract<
+        VNextTextBlockUnifiedLayoutSourceItemV1,
+        { readonly kind: "inline-image" }
+      >,
+      indexed: null,
+    })
     return Object.freeze({
       status: "prepared",
       sourceState,
+      sourceItemAuthority: nextSourceItemAuthority,
       visitedSummaryNodeCount: createdNodeCount,
       createdNodeCount,
       reusedNodeCount: work.reusedNodeCount,
@@ -1334,6 +1413,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
     return {
       status: "blocked",
       sourceState: null,
+      sourceItemAuthority: null,
       visitedSummaryNodeCount: 0,
       createdNodeCount: 0,
       reusedNodeCount: 0,
@@ -1354,9 +1434,11 @@ export function hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBin
     && typeof previousSourceState === "object"
     && nextSourceState != null
     && typeof nextSourceState === "object"
-    && imagePaintPreviousStates.get(
+    && imagePaintNextStates.get(
+      previousSourceState as VNextTextBlockUnifiedLayoutSourceStateV1,
+    )?.has(
       nextSourceState as VNextTextBlockUnifiedLayoutSourceStateV1,
-    ) === previousSourceState
+    ) === true
 }
 
 export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
@@ -1372,19 +1454,25 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
   | {
       readonly status: "accepted"
       readonly paintFingerprint: string
+      readonly sourceItemAuthority: object
       readonly visitedSummaryNodeCount: number
       readonly completeSourceTraversalCount: 0
     }
   | {
       readonly status: "blocked"
       readonly paintFingerprint: null
+      readonly sourceItemAuthority: null
       readonly visitedSummaryNodeCount: 0
       readonly completeSourceTraversalCount: 0
     } {
   const prepared = preparedStates.get(input.sourceState)
   const indexed = prepared == null
     ? undefined
-    : indexedSourceItem(prepared.itemIndex, input.inlineId)
+    : indexedSourceItem(
+        prepared.itemIndex,
+        input.sourceState.root,
+        input.inlineId,
+      )
   if (
     prepared == null
     || indexed == null
@@ -1397,6 +1485,7 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
     return {
       status: "blocked",
       paintFingerprint: null,
+      sourceItemAuthority: null,
       visitedSummaryNodeCount: 0,
       completeSourceTraversalCount: 0,
     }
@@ -1436,12 +1525,39 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
       },
     )
   }
+  const sourceItemAuthority = Object.freeze({})
+  imagePaintSourceItemAuthorities.set(sourceItemAuthority, {
+    sourceState: input.sourceState,
+    inlineId: indexed.item.inlineId,
+    item: indexed.item,
+    indexed,
+  })
   return {
     status: "accepted",
     paintFingerprint: pathPaintFingerprint,
+    sourceItemAuthority,
     visitedSummaryNodeCount: indexed.ancestors.length + 1,
     completeSourceTraversalCount: 0,
   }
+}
+
+export function resolveVNextTextBlockUnifiedLayoutImagePaintSourceItemAuthorityInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly inlineId: string
+    readonly sourceItemAuthority: object
+  },
+): Extract<
+  VNextTextBlockUnifiedLayoutSourceItemV1,
+  { readonly kind: "inline-image" }
+> | null {
+  const authority =
+    imagePaintSourceItemAuthorities.get(input.sourceItemAuthority)
+  return authority != null
+    && authority.sourceState === input.sourceState
+    && authority.inlineId === input.inlineId
+    ? authority.item
+    : null
 }
 
 export function lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1(
@@ -1469,7 +1585,11 @@ export function lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1(
   const prepared = preparedStates.get(input.sourceState)
   const indexed = prepared == null
     ? undefined
-    : indexedSourceItem(prepared.itemIndex, input.inlineId)
+    : indexedSourceItem(
+        prepared.itemIndex,
+        input.sourceState.root,
+        input.inlineId,
+      )
   if (prepared == null || indexed == null) {
     return {
       status: "not-found",

@@ -182,6 +182,7 @@ export interface VNextTextBlockPersistentSceneV2 {
   readonly instanceRevision: number
   readonly layoutId: string
   readonly lineTreeFingerprint: string
+  readonly lineTreeSemanticFingerprint: string
   readonly sourceStateSourceFingerprint: string
   readonly sourceStateProvenanceFingerprint: string
   readonly sourceStatePaintFingerprint: string

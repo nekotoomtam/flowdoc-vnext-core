@@ -4,16 +4,19 @@ import {
   inspectVNextTextBlockIncrementalFlowTreeV1,
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
 import {
+  composeVNextTextBlockPersistentLayoutLineTreeIdentityForTestInternalV1,
   inspectVNextTextBlockPersistentLayoutLineTreeV1,
   verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1,
 } from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
 import {
+  composeVNextTextBlockPersistentSceneIdentityForTestInternalV2,
   inspectVNextTextBlockPersistentSceneV2,
   verifyVNextTextBlockPersistentSceneCandidateInternalV2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
   canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2,
   canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2,
+  composeVNextTextBlockUnifiedLayoutRootIdentityForTestInternalV2,
   deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2,
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
@@ -45,35 +48,50 @@ import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 
-type DeepMutable<T> =
-  T extends readonly (infer Item)[]
-    ? DeepMutable<Item>[]
-    : T extends object
-      ? { -readonly [Key in keyof T]: DeepMutable<T[Key]> }
-      : T
-
 describe("Phase 5B independent unified Root V2", () => {
-  it("derives semantic child identities without work ledgers or payload observations", () => {
+  it("recomposes line-tree, Scene, and Root identity without leaking work into semantics", () => {
     const accepted = acceptedUnifiedLayoutRootFixtureV2()
-    const workVariant = structuredClone(accepted.root) as unknown as
-      DeepMutable<VNextTextBlockUnifiedLayoutRootV2>
-    workVariant.sourceState.work.visitedInitialFlowAtomCount += 1
-    workVariant.flowTree.work.visitedSourceItemCount += 1
-    workVariant.spatialState.work.visitedInputEntryCount += 1
-    workVariant.lineTree.work.visitedLineCount += 1
-    workVariant.persistentScene.work.visitedLineCount += 1
-    workVariant.persistentScene.payloadObservation
-      .estimatedCanonicalPayloadByteCount += 1
+    const lineIdentity =
+      composeVNextTextBlockPersistentLayoutLineTreeIdentityForTestInternalV1({
+        lineTree: accepted.root.lineTree,
+        work: Object.freeze({
+          ...accepted.root.lineTree.work,
+          visitedLineCount:
+            accepted.root.lineTree.work.visitedLineCount + 1,
+        }),
+      })
+    expect(lineIdentity.semanticFingerprint)
+      .toBe(accepted.root.lineTree.semanticFingerprint)
+    expect(lineIdentity.fingerprint)
+      .not.toBe(accepted.root.lineTree.fingerprint)
 
-    expect(
-      deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2(
-        workVariant as unknown as VNextTextBlockUnifiedLayoutRootV2,
-      ),
-    ).toEqual(
-      deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2(
-        accepted.root,
-      ),
-    )
+    const sceneIdentity =
+      composeVNextTextBlockPersistentSceneIdentityForTestInternalV2({
+        scene: accepted.root.persistentScene,
+        lineTreeFingerprint: lineIdentity.fingerprint,
+        lineTreeSemanticFingerprint: lineIdentity.semanticFingerprint,
+      })
+    expect(sceneIdentity.fingerprint)
+      .toBe(accepted.root.persistentScene.fingerprint)
+    expect(sceneIdentity.lineTreeFingerprint)
+      .toBe(lineIdentity.fingerprint)
+    expect(sceneIdentity.lineTreeSemanticFingerprint)
+      .toBe(lineIdentity.semanticFingerprint)
+
+    const rootIdentity =
+      composeVNextTextBlockUnifiedLayoutRootIdentityForTestInternalV2({
+        root: accepted.root,
+        lineTreeFingerprint: lineIdentity.fingerprint,
+        lineTreeSemanticFingerprint: lineIdentity.semanticFingerprint,
+        persistentSceneFingerprint: sceneIdentity.fingerprint,
+      })
+    expect(rootIdentity.semanticFingerprint)
+      .toBe(accepted.root.semanticFingerprint)
+    expect(rootIdentity.fingerprint).not.toBe(accepted.root.fingerprint)
+    expect(rootIdentity.semanticDependencyFingerprints.lineTree)
+      .toBe(lineIdentity.semanticFingerprint)
+    expect(rootIdentity.dependencyFingerprints.lineTree)
+      .toBe(lineIdentity.fingerprint)
   })
 
   it("keeps QA-only work-policy variation out of canonical semantic identity", () => {

@@ -6,9 +6,11 @@ import {
   createVNextTextBlockIncrementalFlowTreeCompleteInternalV1,
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
 import {
+  bindVNextTextBlockPersistentLayoutLineTreeToImagePaintSourceInternalV1,
   createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1,
 } from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
 import {
+  createVNextTextBlockPersistentSceneImagePaintTransitionCandidateInternalV2,
   createVNextTextBlockPersistentSceneCompleteInternalV2,
   createVNextTextBlockPersistentSceneWithForcedCollisionForTestInternalV2,
   inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV2,
@@ -23,7 +25,9 @@ import {
   createVNextTextBlockUnifiedSpatialStateCompleteInternalV1,
 } from "../src/layout/textBlockUnifiedSpatialStateV1.js"
 import {
+  createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1,
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
+  deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   createVNextTextBlockUnifiedLayoutRootV1,
@@ -32,6 +36,12 @@ import {
   acceptedUnifiedLayoutRootFixtureV1,
   repeatedUnifiedLayoutRootSourceFixtureV1,
 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import {
+  acceptedUnifiedLayoutRootFixtureV2,
+} from "./helpers/textBlockUnifiedLayoutRootV2.js"
+import {
+  imagePaintUnifiedLayoutChange5b,
+} from "./helpers/textBlockUnifiedIncremental5b.js"
 import type {
   InlineImageFlowFixtureOptions,
 } from "./helpers/textBlockInlineImageFlowV2.js"
@@ -463,44 +473,102 @@ describe("Phase 5B Persistent Scene V2", () => {
   })
 
   it("provides bounded incremental-fragment inspection without scene traversal", () => {
-    const built = completeScene({ content: "text-image-text" })
+    const previous = acceptedUnifiedLayoutRootFixtureV2({
+      content: "text-image-text",
+      fit: "contain",
+    })
+    const change = imagePaintUnifiedLayoutChange5b(previous.root, {
+      fit: "cover",
+      crop: { x: 0, y: 0, width: 0.5, height: 1 },
+    })
+    if (change.kind !== "image-paint-fact-change") {
+      throw new Error("fixture did not create one image-paint change")
+    }
+    const derived =
+      deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1({
+        sourceState: previous.root.sourceState,
+        inlineId: change.inlineId,
+        expectedImageSourceFingerprint:
+          change.expectedImageSourceFingerprint,
+        expectedImageDependencyFingerprint:
+          change.expectedImageDependencyFingerprint,
+        nextFit: change.nextFit,
+        nextCrop: change.nextCrop,
+      })
+    if (derived.status !== "accepted") {
+      throw new Error("source paint summary blocked")
+    }
+    const source =
+      createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+        previousSourceState: previous.root.sourceState,
+        sourceItemAuthority: derived.sourceItemAuthority,
+        inlineId: change.inlineId,
+        expectedImageSourceFingerprint:
+          change.expectedImageSourceFingerprint,
+        expectedImageDependencyFingerprint:
+          change.expectedImageDependencyFingerprint,
+        nextFit: change.nextFit,
+        nextCrop: change.nextCrop,
+      })
+    if (source.status !== "prepared") throw new Error("source paint blocked")
+    expect(
+      bindVNextTextBlockPersistentLayoutLineTreeToImagePaintSourceInternalV1({
+        previousSourceState: previous.root.sourceState,
+        nextSourceState: source.sourceState,
+        flowTree: previous.root.flowTree,
+        spatialState: previous.root.spatialState,
+        lineTree: previous.root.lineTree,
+      }),
+    ).toBe(true)
+    const candidate =
+      createVNextTextBlockPersistentSceneImagePaintTransitionCandidateInternalV2({
+        previousScene: previous.persistentScene,
+        nextSourceState: source.sourceState,
+        lineTree: previous.root.lineTree,
+        sourceItemAuthority: source.sourceItemAuthority,
+        inlineId: change.inlineId,
+      })
+    if (candidate.status !== "prepared") {
+      throw new Error(`scene paint blocked: ${JSON.stringify(candidate.issues)}`)
+    }
     const accepted =
       inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV2({
-        scene: built.scene,
-        copiedPathNodes: [built.scene.root],
-        replacementNodes: [],
-        siblingReferences: [{
-          node: built.scene.root,
-          fingerprint: built.scene.root.fingerprint,
-          payloadObservationFingerprint:
-            built.scene.root.payloadObservation.payloadObservationFingerprint,
-          summary: built.scene.root.summary,
-        }],
+        scene: candidate.scene,
+        fragmentAuthority: candidate.fragmentAuthority,
         completePreviousSceneTraversal: false,
         completeNextSceneTraversal: false,
       })
-    expect(accepted).toEqual({
+    expect(accepted).toMatchObject({
       status: "valid-fragment",
       work: {
-        inspectedCopiedPathNodeCount: 1,
-        inspectedReplacementNodeCount: 0,
-        inspectedSiblingReferenceCount: 1,
+        inspectedCopiedPathNodeCount: candidate.copiedPathNodes.length,
+        inspectedReplacementNodeCount: candidate.replacementNodes.length,
+        inspectedSiblingReferenceCount: candidate.siblingReferences.length,
         completePreviousSceneTraversalCount: 0,
         completeNextSceneTraversalCount: 0,
       },
     })
     expect(
       inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV2({
-        scene: built.scene,
-        copiedPathNodes: [],
-        replacementNodes: [],
-        siblingReferences: [],
+        scene: candidate.scene,
+        fragmentAuthority: candidate.fragmentAuthority,
         completePreviousSceneTraversal: true,
         completeNextSceneTraversal: false,
       }),
     ).toMatchObject({
       status: "invalid",
       code: "scene-complete-traversal-forbidden",
+    })
+    expect(
+      inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV2({
+        scene: candidate.scene,
+        fragmentAuthority: structuredClone(candidate.fragmentAuthority),
+        completePreviousSceneTraversal: false,
+        completeNextSceneTraversal: false,
+      }),
+    ).toMatchObject({
+      status: "invalid",
+      code: "scene-incremental-fragment-invalid",
     })
   })
 

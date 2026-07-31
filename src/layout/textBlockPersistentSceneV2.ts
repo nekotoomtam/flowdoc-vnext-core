@@ -2,6 +2,7 @@ import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
   hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternalV1,
+  inspectVNextTextBlockPersistentLayoutLineTreeShallowAuthorityInternalV1,
   lookupVNextTextBlockPersistentLayoutLineInternalV1,
   verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1,
 } from "./textBlockPersistentLayoutLineTreeV1.js"
@@ -40,7 +41,7 @@ import {
 import {
   hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
-  lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
+  resolveVNextTextBlockUnifiedLayoutImagePaintSourceItemAuthorityInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
   VNextTextBlockUnifiedLayoutSourceItemV1,
@@ -258,7 +259,6 @@ interface PreparedSceneRecord {
   readonly fingerprintFactory: FingerprintFactory
   readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
   readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
-  readonly nodeSets: readonly WeakSet<object>[]
   readonly chunkOrdinalsByLineage:
     ReadonlyMap<string, readonly number[]>
 }
@@ -275,6 +275,51 @@ const registeredScenes = new WeakMap<
     readonly canonicalFacts: string
   }
 >()
+
+interface IncrementalFragmentAuthorityRecordV2 {
+  readonly scene: VNextTextBlockPersistentSceneV2
+  readonly copiedPathNodes:
+    readonly VNextTextBlockPersistentSceneNodeV2[]
+  readonly replacementNodes:
+    readonly VNextTextBlockPersistentSceneLeafV2[]
+  readonly siblingReferences:
+    readonly VNextTextBlockPersistentSceneSiblingReferenceV2[]
+}
+
+const incrementalFragmentAuthorities = new WeakMap<
+  object,
+  IncrementalFragmentAuthorityRecordV2
+>()
+
+const sourcePaintFingerprintsByChunk = new WeakMap<
+  VNextTextBlockPersistentSceneChunkV2,
+  readonly string[]
+>()
+
+type VNextTextBlockPersistentSceneHotPathEventForTestV2 =
+  | {
+      readonly kind:
+        | "full-candidate-inspection"
+        | "full-canonical-rehash"
+        | "retained-graph-recursive-freeze"
+      readonly probeCount: 1
+    }
+  | {
+      readonly kind: "historical-node-set-probe"
+      readonly probeCount: number
+    }
+
+let hotPathObserverForTest:
+  | ((event: VNextTextBlockPersistentSceneHotPathEventForTestV2) => void)
+  | null = null
+
+export function setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2(
+  observer:
+    | ((event: VNextTextBlockPersistentSceneHotPathEventForTestV2) => void)
+    | null,
+): void {
+  hotPathObserverForTest = observer
+}
 
 function issue(
   code: VNextTextBlockPersistentSceneIssueCodeV2,
@@ -309,7 +354,7 @@ function sceneSemanticFacts(scene: VNextTextBlockPersistentSceneV2): unknown {
     textBlockId: scene.textBlockId,
     instanceRevision: scene.instanceRevision,
     layoutId: scene.layoutId,
-    lineTreeFingerprint: scene.lineTreeFingerprint,
+    lineTreeSemanticFingerprint: scene.lineTreeSemanticFingerprint,
     sourceStateSourceFingerprint: scene.sourceStateSourceFingerprint,
     sourceStateProvenanceFingerprint:
       scene.sourceStateProvenanceFingerprint,
@@ -321,6 +366,32 @@ function sceneSemanticFacts(scene: VNextTextBlockPersistentSceneV2): unknown {
     mayPublishLayout: scene.mayPublishLayout,
     productionBinding: scene.productionBinding,
   }
+}
+
+export function composeVNextTextBlockPersistentSceneIdentityForTestInternalV2(
+  input: {
+    readonly scene: VNextTextBlockPersistentSceneV2
+    readonly lineTreeFingerprint: string
+    readonly lineTreeSemanticFingerprint: string
+  },
+): {
+  readonly lineTreeFingerprint: string
+  readonly lineTreeSemanticFingerprint: string
+  readonly fingerprint: string
+} {
+  const record = preparedScenes.get(input.scene)
+  const fingerprintFactory = record?.fingerprintFactory ?? defaultFingerprint
+  return Object.freeze({
+    lineTreeFingerprint: input.lineTreeFingerprint,
+    lineTreeSemanticFingerprint: input.lineTreeSemanticFingerprint,
+    fingerprint: fingerprintFactory(stringifyVNextCanonicalJson(
+      sceneSemanticFacts({
+        ...input.scene,
+        lineTreeFingerprint: input.lineTreeFingerprint,
+        lineTreeSemanticFingerprint: input.lineTreeSemanticFingerprint,
+      }),
+    )),
+  })
 }
 
 function exactBuildInput(value: unknown): {
@@ -541,13 +612,121 @@ function chunkFromLineLeaf(
     boundarySpatialContextFingerprint:
       leaf.line.boundarySpatialContextFingerprint,
   }
-  return {
+  const chunk = {
     ...facts,
     fingerprint: fingerprintWith(factory, {
       contractVersion: 2,
       ...facts,
     }),
   }
+  sourcePaintFingerprintsByChunk.set(
+    chunk,
+    Object.freeze(mappedItems.map((item) => item!.paintFingerprint)),
+  )
+  return chunk
+}
+
+function imagePaintChunkFromPrevious(
+  input: {
+    readonly previousChunk: VNextTextBlockPersistentSceneChunkV2
+    readonly changedItem:
+      Extract<VNextTextBlockUnifiedLayoutSourceItemV1, { readonly kind: "inline-image" }>
+    readonly factory: FingerprintFactory
+  },
+): VNextTextBlockPersistentSceneChunkV2 | null {
+  const previousSourcePaint =
+    sourcePaintFingerprintsByChunk.get(input.previousChunk)
+  if (
+    previousSourcePaint == null
+    || previousSourcePaint.length !== input.previousChunk.sourceMapping.length
+  ) return null
+
+  const changedMappingIndexes: number[] = []
+  input.previousChunk.sourceMapping.forEach((mapping, index) => {
+    if (mapping.lineageId === input.changedItem.lineageId) {
+      changedMappingIndexes.push(index)
+    }
+  })
+  if (changedMappingIndexes.length !== 1) return null
+  const changedMappingIndex = changedMappingIndexes[0]!
+  const changedMapping = input.previousChunk.sourceMapping[changedMappingIndex]!
+  if (
+    changedMapping.inlineId !== input.changedItem.inlineId
+    || changedMapping.sourceKind !== "inline-image"
+    || changedMapping.sourceFingerprint !== input.changedItem.sourceFingerprint
+    || changedMapping.provenanceFingerprint
+      !== input.changedItem.provenanceFingerprint
+  ) return null
+
+  let changedFragmentCount = 0
+  const fragments = input.previousChunk.fragments.map((fragment) => {
+    if (
+      fragment.kind !== "inline-image"
+      || !fragment.sourceSpans.some(
+        (span) => span.lineageId === input.changedItem.lineageId,
+      )
+    ) return fragment
+    if (
+      fragment.sourceSpans.length !== 1
+      || fragment.sourceSpans[0]!.lineageId !== input.changedItem.lineageId
+      || fragment.assetId !== input.changedItem.assetId
+    ) throw new Error("image fragment escaped exact paint lineage")
+    changedFragmentCount += 1
+    const authoredFrame = deepFreeze(structuredClone(
+      input.changedItem.authoredFrame,
+    ))
+    const facts = {
+      kind: "inline-image" as const,
+      lineageId: fragment.lineageId,
+      sourceSpans: fragment.sourceSpans,
+      assetId: input.changedItem.assetId,
+      authoredFrame,
+      paintFingerprint: input.changedItem.paintFingerprint,
+    }
+    return Object.freeze({
+      ...facts,
+      fingerprint: fingerprintWith(input.factory, {
+        contractVersion: 2,
+        ...facts,
+      }),
+    })
+  })
+  if (changedFragmentCount !== 1) return null
+
+  const nextSourcePaint = [...previousSourcePaint]
+  nextSourcePaint[changedMappingIndex] = input.changedItem.paintFingerprint
+  const frozenSourcePaint = Object.freeze(nextSourcePaint)
+  const frozenFragments = Object.freeze(fragments)
+  const paintFingerprint = fingerprintWith(input.factory, {
+    sourcePaint: frozenSourcePaint,
+    fragmentPaint: frozenFragments.map(
+      (fragment) => fragment.paintFingerprint,
+    ),
+  })
+  const facts = {
+    lineLineageId: input.previousChunk.lineLineageId,
+    sourceMapping: input.previousChunk.sourceMapping,
+    lineInternals: input.previousChunk.lineInternals,
+    contentLocalGeometry: input.previousChunk.contentLocalGeometry,
+    authoredBoxGeometry: input.previousChunk.authoredBoxGeometry,
+    fragments: frozenFragments,
+    lineInternalsFingerprint:
+      input.previousChunk.lineInternalsFingerprint,
+    sourceFingerprint: input.previousChunk.sourceFingerprint,
+    provenanceFingerprint: input.previousChunk.provenanceFingerprint,
+    paintFingerprint,
+    boundarySpatialContextFingerprint:
+      input.previousChunk.boundarySpatialContextFingerprint,
+  }
+  const chunk = Object.freeze({
+    ...facts,
+    fingerprint: fingerprintWith(input.factory, {
+      contractVersion: 2,
+      ...facts,
+    }),
+  })
+  sourcePaintFingerprintsByChunk.set(chunk, frozenSourcePaint)
+  return chunk
 }
 
 function leafFromChunk(
@@ -733,7 +912,6 @@ function projectRoot(
   >,
   factory: FingerprintFactory,
   payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2,
-  nodes: WeakSet<object>,
   chunkOrdinal: { value: number },
   chunkOrdinalsByLineage: Map<string, number[]>,
 ): VNextTextBlockPersistentSceneRootV2 | VNextTextBlockPersistentSceneIssueV2 {
@@ -741,7 +919,6 @@ function projectRoot(
     const root = payloadPolicy === VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2
       ? VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2
       : emptyRoot(payloadPolicy)
-    nodes.add(root)
     return root
   }
   if (lineRoot.nodeKind === "leaf") {
@@ -763,7 +940,6 @@ function projectRoot(
       }
       chunkOrdinalsByLineage.set(mapping.lineageId, ordinals)
     }
-    nodes.add(leaf)
     return leaf
   }
   const children: VNextTextBlockPersistentSceneNodeV2[] = []
@@ -773,7 +949,6 @@ function projectRoot(
       itemsByLineage,
       factory,
       payloadPolicy,
-      nodes,
       chunkOrdinal,
       chunkOrdinalsByLineage,
     )
@@ -783,7 +958,6 @@ function projectRoot(
     children.push(projected as VNextTextBlockPersistentSceneNodeV2)
   }
   const branch = branchFromChildren(children, factory, payloadPolicy)
-  nodes.add(branch)
   return branch
 }
 
@@ -850,7 +1024,6 @@ function buildComplete(
     ))
   }
   try {
-    const nodes = new WeakSet<object>()
     const chunkOrdinal = { value: 0 }
     const chunkOrdinalsByLineage = new Map<string, number[]>()
     const projected = projectRoot(
@@ -858,7 +1031,6 @@ function buildComplete(
       collected.itemsByLineage,
       factory,
       payloadPolicy,
-      nodes,
       chunkOrdinal,
       chunkOrdinalsByLineage,
     )
@@ -904,6 +1076,7 @@ function buildComplete(
       instanceRevision: lineTree.instanceRevision,
       layoutId: lineTree.layoutId,
       lineTreeFingerprint: lineTree.fingerprint,
+      lineTreeSemanticFingerprint: lineTree.semanticFingerprint,
       sourceStateSourceFingerprint:
         sourceState.summary.sourceFingerprint,
       sourceStateProvenanceFingerprint:
@@ -963,7 +1136,6 @@ function buildComplete(
       fingerprintFactory: factory,
       lineTree,
       sourceState,
-      nodeSets: [nodes],
       chunkOrdinalsByLineage,
     })
     return Object.freeze({
@@ -1006,7 +1178,6 @@ function replaceSceneLeafAtOrdinal(
     readonly replacement: VNextTextBlockPersistentSceneLeafV2
     readonly factory: FingerprintFactory
     readonly payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2
-    readonly nodes: WeakSet<object>
     readonly copiedPathNodes:
       VNextTextBlockPersistentSceneNodeV2[]
     readonly siblingReferences:
@@ -1062,7 +1233,6 @@ function replaceSceneLeafAtOrdinal(
   deepFreeze(pendingCopied.summary)
   Object.freeze(pendingCopied.children)
   const copied = Object.freeze(pendingCopied)
-  input.nodes.add(copied)
   input.copiedPathNodes.push(copied)
   return copied
 }
@@ -1072,6 +1242,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
     readonly previousScene: VNextTextBlockPersistentSceneV2
     readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
     readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
+    readonly sourceItemAuthority: object
     readonly inlineId: string
   },
 ):
@@ -1085,6 +1256,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
         readonly [VNextTextBlockPersistentSceneLeafV2]
       readonly siblingReferences:
         readonly VNextTextBlockPersistentSceneSiblingReferenceV2[]
+      readonly fragmentAuthority: object
       readonly work: VNextTextBlockPersistentSceneV2["work"]
       readonly issues: readonly []
     }
@@ -1095,6 +1267,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       readonly copiedPathNodes: null
       readonly replacementNodes: null
       readonly siblingReferences: null
+      readonly fragmentAuthority: null
       readonly work: null
       readonly issues: readonly VNextTextBlockPersistentSceneIssueV2[]
     } {
@@ -1124,6 +1297,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       copiedPathNodes: null,
       replacementNodes: null,
       siblingReferences: null,
+      fragmentAuthority: null,
       work: null,
       issues: [issue(
         "scene-dependency-binding-mismatch",
@@ -1132,13 +1306,13 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
     }
   }
   const changedItem =
-    lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
+    resolveVNextTextBlockUnifiedLayoutImagePaintSourceItemAuthorityInternalV1({
       sourceState: input.nextSourceState,
       inlineId: input.inlineId,
+      sourceItemAuthority: input.sourceItemAuthority,
     })
   if (
-    changedItem.status !== "found"
-    || changedItem.item.kind !== "inline-image"
+    changedItem == null
   ) {
     return {
       status: "blocked",
@@ -1147,6 +1321,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       copiedPathNodes: null,
       replacementNodes: null,
       siblingReferences: null,
+      fragmentAuthority: null,
       work: null,
       issues: [issue(
         "scene-source-lineage-mismatch",
@@ -1155,7 +1330,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
     }
   }
   const ordinals = previous.chunkOrdinalsByLineage.get(
-    changedItem.item.lineageId,
+    changedItem.lineageId,
   )
   if (ordinals?.length !== 1) {
     return {
@@ -1165,6 +1340,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       copiedPathNodes: null,
       replacementNodes: null,
       siblingReferences: null,
+      fragmentAuthority: null,
       work: null,
       issues: [issue(
         "scene-invalid-topology",
@@ -1185,6 +1361,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       copiedPathNodes: null,
       replacementNodes: null,
       siblingReferences: null,
+      fragmentAuthority: null,
       work: null,
       issues: [issue(
         "scene-invalid-topology",
@@ -1193,40 +1370,30 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
     }
   }
   try {
-    const itemsByLineage = new Map<
-      string,
-      VNextTextBlockUnifiedLayoutSourceItemV1
-    >()
-    for (const mapping of line.leaf.line.sourceMapping) {
-      const found =
-        lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
-          sourceState: input.nextSourceState,
-          inlineId: mapping.inlineId,
-        })
-      if (
-        found.status !== "found"
-        || found.item.lineageId !== mapping.lineageId
-      ) {
-        throw new Error("line source mapping escaped bounded source index")
-      }
-      itemsByLineage.set(mapping.lineageId, found.item)
+    const previousChunk =
+      lookupVNextTextBlockPersistentSceneChunkInternalV2({
+        scene: input.previousScene,
+        chunkOrdinal,
+      })
+    if (previousChunk.status !== "found") {
+      throw new Error("paint chunk escaped exact previous Scene")
     }
-    const chunk = chunkFromLineLeaf(
-      line.leaf,
-      itemsByLineage,
-      previous.fingerprintFactory,
-    )
+    const chunk = imagePaintChunkFromPrevious({
+      previousChunk: previousChunk.leaf.chunk,
+      changedItem,
+      factory: previous.fingerprintFactory,
+    })
     if (chunk == null) {
       throw new Error("paint chunk projection failed")
     }
-    const replacement = deepFreeze(leafFromChunk(
+    const pendingReplacement = leafFromChunk(
       line.leaf,
       chunk,
       previous.fingerprintFactory,
       input.previousScene.payloadPolicy,
-    ))
-    const nodes = new WeakSet<object>()
-    nodes.add(replacement)
+    )
+    Object.freeze(pendingReplacement.summary)
+    const replacement = Object.freeze(pendingReplacement)
     const copiedPathNodes: VNextTextBlockPersistentSceneNodeV2[] = []
     const siblingReferences:
       VNextTextBlockPersistentSceneSiblingReferenceV2[] = []
@@ -1239,7 +1406,6 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       replacement,
       factory: previous.fingerprintFactory,
       payloadPolicy: input.previousScene.payloadPolicy,
-      nodes,
       copiedPathNodes,
       siblingReferences,
     })
@@ -1249,11 +1415,11 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       contractVersion: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_VERSION,
     })
     const summary: VNextTextBlockPersistentSceneSummaryV2 = root.summary
-    const work = deepFreeze({
+    const work = Object.freeze({
       completeSceneProjectionCount: 0 as const,
       visitedLineCount: 1,
       visitedFragmentCount: chunk.fragments.length,
-      visitedSourceItemCount: itemsByLineage.size,
+      visitedSourceItemCount: 1,
       emittedChunkCount: 1,
       createdLeafCount: 1,
       createdNodeCount: copiedPathNodes.length + 1,
@@ -1272,6 +1438,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       instanceRevision: input.previousScene.instanceRevision,
       layoutId: input.previousScene.layoutId,
       lineTreeFingerprint: input.lineTree.fingerprint,
+      lineTreeSemanticFingerprint: input.lineTree.semanticFingerprint,
       sourceStateSourceFingerprint:
         input.nextSourceState.summary.sourceFingerprint,
       sourceStateProvenanceFingerprint:
@@ -1291,7 +1458,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       facts as VNextTextBlockPersistentSceneV2,
     ))
     const sceneFingerprint = previous.fingerprintFactory(canonicalFacts)
-    const scene = deepFreeze({
+    const scene = Object.freeze({
       ...facts,
       payloadObservation: payloadObservation(
         sceneFingerprint,
@@ -1304,17 +1471,29 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       ),
       fingerprint: sceneFingerprint,
     })
+    const exactCopiedPathNodes = Object.freeze([...copiedPathNodes])
+    const exactReplacementNodes = Object.freeze([replacement]) as
+      readonly [VNextTextBlockPersistentSceneLeafV2]
+    const exactSiblingReferences = Object.freeze(
+      siblingReferences.map((reference) => Object.freeze(reference)),
+    )
+    const fragmentAuthority = Object.freeze({})
+    incrementalFragmentAuthorities.set(fragmentAuthority, {
+      scene,
+      copiedPathNodes: exactCopiedPathNodes,
+      replacementNodes: exactReplacementNodes,
+      siblingReferences: exactSiblingReferences,
+    })
     preparedScenes.set(scene, {
       fingerprint: scene.fingerprint,
       canonicalFacts,
       fingerprintFactory: previous.fingerprintFactory,
       lineTree: input.lineTree,
       sourceState: input.nextSourceState,
-      nodeSets: [nodes, ...previous.nodeSets],
       chunkOrdinalsByLineage: previous.chunkOrdinalsByLineage,
     })
     const inspection =
-      verifyVNextTextBlockPersistentSceneCandidateInternalV2(scene)
+      inspectVNextTextBlockPersistentSceneShallowAuthorityInternalV2(scene)
     if (inspection.status !== "valid-candidate") {
       preparedScenes.delete(scene)
       throw new Error(inspection.message)
@@ -1324,10 +1503,10 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       scene,
       affectedChunkOrdinals: Object.freeze([chunkOrdinal]) as
         readonly [number],
-      copiedPathNodes: Object.freeze(copiedPathNodes),
-      replacementNodes: Object.freeze([replacement]) as
-        readonly [VNextTextBlockPersistentSceneLeafV2],
-      siblingReferences: Object.freeze(siblingReferences),
+      copiedPathNodes: exactCopiedPathNodes,
+      replacementNodes: exactReplacementNodes,
+      siblingReferences: exactSiblingReferences,
+      fragmentAuthority,
       work,
       issues: Object.freeze([]) as readonly [],
     })
@@ -1339,6 +1518,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       copiedPathNodes: null,
       replacementNodes: null,
       siblingReferences: null,
+      fragmentAuthority: null,
       work: null,
       issues: [issue(
         "scene-unsafe-summary",
@@ -1351,6 +1531,10 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
 export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
   value: unknown,
 ): VNextTextBlockPersistentSceneCandidateInspectionV2 {
+  hotPathObserverForTest?.({
+    kind: "full-candidate-inspection",
+    probeCount: 1,
+  })
   if (
     value == null
     || typeof value !== "object"
@@ -1384,6 +1568,10 @@ export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
         message: "prepared scene dependencies no longer form one exact record",
       }
     }
+    hotPathObserverForTest?.({
+      kind: "full-canonical-rehash",
+      probeCount: 1,
+    })
     const canonicalFacts = stringifyVNextCanonicalJson(
       sceneSemanticFacts(scene),
     )
@@ -1411,6 +1599,44 @@ export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
       code: "scene-candidate-canonical-facts-mismatch",
       message: "prepared scene is not canonically inspectable",
     }
+  }
+}
+
+export function inspectVNextTextBlockPersistentSceneShallowAuthorityInternalV2(
+  value: unknown,
+): VNextTextBlockPersistentSceneCandidateInspectionV2 {
+  if (
+    value == null
+    || typeof value !== "object"
+    || !preparedScenes.has(value as VNextTextBlockPersistentSceneV2)
+  ) {
+    return {
+      status: "invalid",
+      code: "scene-candidate-authority-mismatch",
+      message: "scene is not the exact process-local prepared candidate",
+    }
+  }
+  const scene = value as VNextTextBlockPersistentSceneV2
+  const record = preparedScenes.get(scene)!
+  if (
+    !frozenSceneShell(scene)
+    || scene.fingerprint !== record.fingerprint
+    || scene.lineTreeFingerprint !== record.lineTree.fingerprint
+    || scene.lineTreeSemanticFingerprint
+      !== record.lineTree.semanticFingerprint
+  ) {
+    return {
+      status: "invalid",
+      code: "scene-candidate-authority-mismatch",
+      message: "prepared scene no longer matches exact shallow authority",
+    }
+  }
+  return {
+    status: "valid-candidate",
+    fingerprint: record.fingerprint,
+    payloadObservationFingerprint:
+      scene.payloadObservation.payloadObservationFingerprint,
+    registeredAuthority: false,
   }
 }
 
@@ -1451,7 +1677,7 @@ export function registerPreparedVNextTextBlockPersistentSceneRootGraphChildInter
 ): boolean {
   if (input.phase === "preflight") {
     return !registeredScenes.has(input.scene)
-      && verifyVNextTextBlockPersistentSceneCandidateInternalV2(
+      && inspectVNextTextBlockPersistentSceneShallowAuthorityInternalV2(
         input.scene,
       ).status === "valid-candidate"
       && authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2({
@@ -1610,72 +1836,12 @@ export function lookupVNextTextBlockPersistentSceneChunkInternalV2(input: {
       }
 }
 
-function exactArray(value: unknown): readonly unknown[] | null {
-  try {
-    if (
-      !Array.isArray(value)
-      || Object.getPrototypeOf(value) !== Array.prototype
-    ) return null
-    const length = Object.getOwnPropertyDescriptor(value, "length")
-    if (
-      length == null
-      || !Object.hasOwn(length, "value")
-      || !Number.isSafeInteger(length.value)
-      || length.value < 0
-      || Reflect.ownKeys(value).length !== length.value + 1
-    ) return null
-    const output: unknown[] = []
-    for (let index = 0; index < length.value; index += 1) {
-      const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
-      if (
-        descriptor == null
-        || !Object.hasOwn(descriptor, "value")
-        || descriptor.enumerable !== true
-      ) return null
-      output.push(descriptor.value)
-    }
-    return output
-  } catch {
-    return null
-  }
-}
-
-function siblingReferences(
-  value: unknown,
-): readonly VNextTextBlockPersistentSceneSiblingReferenceV2[] | null {
-  const values = exactArray(value)
-  if (values == null) return null
-  const output: VNextTextBlockPersistentSceneSiblingReferenceV2[] = []
-  for (const item of values) {
-    const record = exactRecord(item, [
-      "node",
-      "fingerprint",
-      "payloadObservationFingerprint",
-      "summary",
-    ])
-    if (
-      record == null
-      || typeof record.fingerprint !== "string"
-      || typeof record.payloadObservationFingerprint !== "string"
-    ) return null
-    output.push({
-      node: record.node as VNextTextBlockPersistentSceneRootV2,
-      fingerprint: record.fingerprint,
-      payloadObservationFingerprint: record.payloadObservationFingerprint,
-      summary: record.summary as VNextTextBlockPersistentSceneSummaryV2,
-    })
-  }
-  return output
-}
-
 export function inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV2(
   input: unknown,
 ): VNextTextBlockPersistentSceneIncrementalFragmentInspectionV2 {
   const record = exactRecord(input, [
     "scene",
-    "copiedPathNodes",
-    "replacementNodes",
-    "siblingReferences",
+    "fragmentAuthority",
     "completePreviousSceneTraversal",
     "completeNextSceneTraversal",
   ])
@@ -1696,18 +1862,16 @@ export function inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV
       message: "incremental inspection forbids complete previous/next scene traversal",
     }
   }
-  const copiedPathNodes = exactArray(record.copiedPathNodes)
-  const replacementNodes = exactArray(record.replacementNodes)
-  const siblings = siblingReferences(record.siblingReferences)
+  const authority = record.fragmentAuthority == null
+    || typeof record.fragmentAuthority !== "object"
+    ? null
+    : incrementalFragmentAuthorities.get(record.fragmentAuthority)
   if (
-    copiedPathNodes == null
-    || replacementNodes == null
-    || siblings == null
+    authority == null
     || record.scene == null
     || typeof record.scene !== "object"
-    || !preparedScenes.has(
-      record.scene as VNextTextBlockPersistentSceneV2,
-    )
+    || authority.scene !== record.scene
+    || !preparedScenes.has(authority.scene)
   ) {
     return {
       status: "invalid",
@@ -1715,45 +1879,12 @@ export function inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV
       message: "incremental scene fragment or candidate is invalid",
     }
   }
-  const scene = record.scene as VNextTextBlockPersistentSceneV2
-  const prepared = preparedScenes.get(scene)!
-  const hasNode = (node: object): boolean =>
-    prepared.nodeSets.some((nodes) => nodes.has(node))
-  if (
-    [...copiedPathNodes, ...replacementNodes].some(
-      (node) =>
-        node == null
-        || typeof node !== "object"
-        || !hasNode(node),
-    )
-  ) {
-    return {
-      status: "invalid",
-      code: "scene-incremental-node-authority-mismatch",
-      message: "incremental path/replacement node is not exact scene-local data",
-    }
-  }
-  if (siblings.some((reference) =>
-    reference.node == null
-    || typeof reference.node !== "object"
-    || !hasNode(reference.node)
-    || reference.node.fingerprint !== reference.fingerprint
-    || reference.node.payloadObservation.payloadObservationFingerprint
-      !== reference.payloadObservationFingerprint
-    || reference.node.summary !== reference.summary
-  )) {
-    return {
-      status: "invalid",
-      code: "scene-incremental-sibling-reference-mismatch",
-      message: "incremental sibling summary/fingerprint reference is not exact",
-    }
-  }
   return {
     status: "valid-fragment",
     work: {
-      inspectedCopiedPathNodeCount: copiedPathNodes.length,
-      inspectedReplacementNodeCount: replacementNodes.length,
-      inspectedSiblingReferenceCount: siblings.length,
+      inspectedCopiedPathNodeCount: authority.copiedPathNodes.length,
+      inspectedReplacementNodeCount: authority.replacementNodes.length,
+      inspectedSiblingReferenceCount: authority.siblingReferences.length,
       completePreviousSceneTraversalCount: 0,
       completeNextSceneTraversalCount: 0,
     },

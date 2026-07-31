@@ -210,7 +210,13 @@ const preparedTrees = new WeakMap<
   VNextTextBlockPersistentLayoutLineTreeV1,
   {
     readonly fingerprint: string
+    readonly semanticFingerprint: string
     readonly canonicalFacts: string
+    readonly canonicalSemanticFacts: string
+    readonly root: VNextTextBlockPersistentLayoutLineRootV1
+    readonly summary: VNextTextBlockPersistentLayoutLineSummaryV1
+    readonly work: VNextTextBlockPersistentLayoutLineTreeV1["work"]
+    readonly contracts: VNextTextBlockPersistentLayoutLineTreeV1["contracts"]
     readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
     readonly imagePaintSourceAliases:
       WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
@@ -231,6 +237,22 @@ const covers = new WeakMap<
 const registeredRootGraphTrees = new WeakSet<
 VNextTextBlockPersistentLayoutLineTreeV1
 >()
+
+type VNextTextBlockLineTreeFullInspectionEventForTestV1 =
+  | "full-candidate-inspection"
+  | "full-canonical-rehash"
+
+let fullInspectionObserverForTest:
+  | ((event: VNextTextBlockLineTreeFullInspectionEventForTestV1) => void)
+  | null = null
+
+export function setVNextTextBlockPersistentLayoutLineTreeFullInspectionObserverForTestInternalV1(
+  observer:
+    | ((event: VNextTextBlockLineTreeFullInspectionEventForTestV1) => void)
+    | null,
+): void {
+  fullInspectionObserverForTest = observer
+}
 
 function treeIssue(
   code: VNextTextBlockPersistentLayoutLineTreeIssueCodeV1,
@@ -278,6 +300,16 @@ function treeCanonicalFacts(
   tree: VNextTextBlockPersistentLayoutLineTreeV1,
 ): unknown {
   return {
+    semanticFingerprint: tree.semanticFingerprint,
+    semanticFacts: treeSemanticFacts(tree),
+    work: tree.work,
+  }
+}
+
+function treeSemanticFacts(
+  tree: VNextTextBlockPersistentLayoutLineTreeV1,
+): unknown {
+  return {
     source: tree.source,
     contractVersion: tree.contractVersion,
     documentId: tree.documentId,
@@ -291,11 +323,37 @@ function treeCanonicalFacts(
     policy: tree.policy,
     root: tree.root,
     summary: tree.summary,
-    work: tree.work,
     contracts: tree.contracts,
     mayPublishLayout: tree.mayPublishLayout,
     productionBinding: tree.productionBinding,
   }
+}
+
+export function composeVNextTextBlockPersistentLayoutLineTreeIdentityForTestInternalV1(
+  input: {
+    readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
+    readonly work: VNextTextBlockPersistentLayoutLineTreeV1["work"]
+  },
+): {
+  readonly semanticFingerprint: string
+  readonly fingerprint: string
+} {
+  const semanticVariant = {
+    ...input.lineTree,
+    work: input.work,
+  }
+  const semanticFingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson(treeSemanticFacts(semanticVariant)),
+  )
+  return Object.freeze({
+    semanticFingerprint,
+    fingerprint: createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson(treeCanonicalFacts({
+        ...semanticVariant,
+        semanticFingerprint,
+      })),
+    ),
+  })
 }
 
 function coverCanonicalFacts(
@@ -1156,17 +1214,35 @@ export function createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1(
       productionBinding: false as const,
     }
     const withoutFingerprint = deepFreeze(facts)
+    const canonicalSemanticFacts = stringifyVNextCanonicalJson(
+      treeSemanticFacts({
+        ...withoutFingerprint,
+        semanticFingerprint: "",
+        fingerprint: "",
+      }),
+    )
+    const semanticFingerprint = createVNextCompactFingerprint(
+      canonicalSemanticFacts,
+    )
     const canonicalFacts = stringifyVNextCanonicalJson(treeCanonicalFacts({
       ...withoutFingerprint,
+      semanticFingerprint,
       fingerprint: "",
     }))
     const lineTree = Object.freeze({
       ...withoutFingerprint,
+      semanticFingerprint,
       fingerprint: createVNextCompactFingerprint(canonicalFacts),
     })
     preparedTrees.set(lineTree, {
       fingerprint: lineTree.fingerprint,
+      semanticFingerprint: lineTree.semanticFingerprint,
       canonicalFacts,
+      canonicalSemanticFacts,
+      root: lineTree.root,
+      summary: lineTree.summary,
+      work: lineTree.work,
+      contracts: lineTree.contracts,
       sourceState,
       imagePaintSourceAliases:
         new WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>(),
@@ -1191,6 +1267,7 @@ export function createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1(
 export function verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
   value: unknown,
 ): VNextTextBlockPersistentLayoutLineTreeInspectionV1 {
+  fullInspectionObserverForTest?.("full-candidate-inspection")
   if (
     value == null
     || typeof value !== "object"
@@ -1212,11 +1289,19 @@ export function verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
   try {
     const tree = value as VNextTextBlockPersistentLayoutLineTreeV1
     const stored = preparedTrees.get(tree)!
+    fullInspectionObserverForTest?.("full-canonical-rehash")
+    const canonicalSemanticFacts = stringifyVNextCanonicalJson(
+      treeSemanticFacts(tree),
+    )
     const canonicalFacts = stringifyVNextCanonicalJson(
       treeCanonicalFacts(tree),
     )
     if (
-      stored.canonicalFacts !== canonicalFacts
+      stored.canonicalSemanticFacts !== canonicalSemanticFacts
+      || stored.semanticFingerprint !== tree.semanticFingerprint
+      || tree.semanticFingerprint
+        !== createVNextCompactFingerprint(canonicalSemanticFacts)
+      || stored.canonicalFacts !== canonicalFacts
       || stored.fingerprint !== tree.fingerprint
       || tree.fingerprint !== createVNextCompactFingerprint(canonicalFacts)
     ) {
@@ -1240,6 +1325,44 @@ export function verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
   }
 }
 
+export function inspectVNextTextBlockPersistentLayoutLineTreeShallowAuthorityInternalV1(
+  value: unknown,
+): VNextTextBlockPersistentLayoutLineTreeInspectionV1 {
+  if (
+    value == null
+    || typeof value !== "object"
+    || !preparedTrees.has(value as VNextTextBlockPersistentLayoutLineTreeV1)
+  ) {
+    return {
+      status: "invalid",
+      code: "line-tree-authority-mismatch",
+      message: "line tree is not the exact process-local prepared candidate",
+    }
+  }
+  const tree = value as VNextTextBlockPersistentLayoutLineTreeV1
+  const stored = preparedTrees.get(tree)!
+  if (
+    !Object.isFrozen(tree)
+    || tree.root !== stored.root
+    || tree.summary !== stored.summary
+    || tree.work !== stored.work
+    || tree.contracts !== stored.contracts
+    || tree.semanticFingerprint !== stored.semanticFingerprint
+    || tree.fingerprint !== stored.fingerprint
+  ) {
+    return {
+      status: "invalid",
+      code: "line-tree-authority-mismatch",
+      message: "prepared line tree no longer matches exact shallow authority",
+    }
+  }
+  return {
+    status: "valid-candidate",
+    fingerprint: stored.fingerprint,
+    registeredAuthority: false,
+  }
+}
+
 export function hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternalV1(
   sourceState: unknown,
   lineTree: unknown,
@@ -1252,7 +1375,7 @@ export function hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternal
   ) return false
   const candidate =
     lineTree as VNextTextBlockPersistentLayoutLineTreeV1
-  return verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
+  return inspectVNextTextBlockPersistentLayoutLineTreeShallowAuthorityInternalV1(
     candidate,
   ).status === "valid-candidate"
     && (
@@ -1402,7 +1525,7 @@ export function lookupVNextTextBlockPersistentLayoutLineInternalV1(input: {
   readonly lineOrdinal: number
 }): VNextTextBlockPersistentLayoutLineLookupResultV1 {
   const inspection =
-    verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
+    inspectVNextTextBlockPersistentLayoutLineTreeShallowAuthorityInternalV1(
       input.lineTree,
     )
   if (inspection.status !== "valid-candidate") {
@@ -1619,11 +1742,11 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
     )
   }
   const previousInspection =
-    verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
+    inspectVNextTextBlockPersistentLayoutLineTreeShallowAuthorityInternalV1(
       exact.previousTree,
     )
   const nextInspection =
-    verifyVNextTextBlockPersistentLayoutLineTreeCandidateInternalV1(
+    inspectVNextTextBlockPersistentLayoutLineTreeShallowAuthorityInternalV1(
       exact.nextTree,
     )
   if (

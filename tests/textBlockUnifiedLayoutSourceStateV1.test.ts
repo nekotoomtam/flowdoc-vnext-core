@@ -9,10 +9,15 @@ import {
   type VNextTextBlockResolvedShapingRunV1,
 } from "../src/index.js"
 import {
+  createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1,
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
   createVNextTextBlockUnifiedLayoutSourceStateWithForcedCollisionForTestInternalV1,
+  deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1,
+  hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
+  lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1,
+  setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   createVNextTextBlockIncrementalFlowTreeCompleteInternalV1,
@@ -238,6 +243,97 @@ describe("Phase 5B transition-native source state", () => {
     expect(state).not.toHaveProperty("evidence")
     expect(state.producerRequirements).not.toHaveProperty("shapingRuns")
     expect(state.producerRequirements).not.toHaveProperty("breakOffsets")
+  })
+
+  it("keeps current-tree inline lookup constant across 32 paint successors", () => {
+    const built = sourceState(acceptedInlineImageEvidenceFixture({
+      content: "text-image-text",
+      fit: "contain",
+    }))
+    const image =
+      lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
+        sourceState: built.sourceState,
+        inlineId: "image-1",
+      })
+    if (image.status !== "found" || image.item.kind !== "inline-image") {
+      throw new Error("source history fixture image missing")
+    }
+    let current = built.sourceState
+    let firstSuccessor = built.sourceState
+    for (let revision = 0; revision < 32; revision += 1) {
+      const crop = revision % 2 === 0
+        ? { x: 0, y: 0, width: 0.5, height: 1 }
+        : { x: 0.2, y: 0.1, width: 0.6, height: 0.8 }
+      const derived =
+        deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1({
+          sourceState: current,
+          inlineId: image.item.inlineId,
+          expectedImageSourceFingerprint: image.item.sourceFingerprint,
+          expectedImageDependencyFingerprint:
+            image.item.layoutDependencyFingerprint,
+          nextFit: "cover",
+          nextCrop: crop,
+        })
+      if (derived.status !== "accepted") {
+        throw new Error("source history summary blocked")
+      }
+      const previous = current
+      const next =
+        createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+          previousSourceState: previous,
+          sourceItemAuthority: derived.sourceItemAuthority,
+          inlineId: image.item.inlineId,
+          expectedImageSourceFingerprint: image.item.sourceFingerprint,
+          expectedImageDependencyFingerprint:
+            image.item.layoutDependencyFingerprint,
+          nextFit: "cover",
+          nextCrop: crop,
+        })
+      if (next.status !== "prepared") {
+        throw new Error("source history transition blocked")
+      }
+      expect(
+        hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1(
+          previous,
+          next.sourceState,
+        ),
+      ).toBe(true)
+      expect(
+        hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1(
+          next.sourceState,
+          previous,
+        ),
+      ).toBe(false)
+      current = next.sourceState
+      if (revision === 0) firstSuccessor = current
+    }
+
+    const probeCounts = (
+      sourceStateToProbe: typeof current,
+    ): readonly number[] => {
+      const observations: number[] = []
+      setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+        (observation) => observations.push(observation.indexProbeCount),
+      )
+      try {
+        expect(
+          lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
+            sourceState: sourceStateToProbe,
+            inlineId: "text-a",
+          }),
+        ).toMatchObject({
+          status: "found",
+          item: { inlineId: "text-a", kind: "text" },
+        })
+      } finally {
+        setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+          null,
+        )
+      }
+      return observations
+    }
+    expect(probeCounts(firstSuccessor)).toEqual([1])
+    expect(probeCounts(current)).toEqual([1])
   })
 
   it("reports complete creation work but no accepted authority before graph commit", () => {
