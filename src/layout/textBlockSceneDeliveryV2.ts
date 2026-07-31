@@ -157,10 +157,16 @@ function planCanonicalFacts(plan: VNextTextBlockSceneDeliveryPlanV2): unknown {
     status: plan.status,
     previousSceneFingerprint: plan.previousSceneFingerprint,
     nextSceneFingerprint: plan.nextSceneFingerprint,
+    previousPayloadObservationFingerprint:
+      plan.previousPayloadObservationFingerprint,
+    nextPayloadObservationFingerprint: plan.nextPayloadObservationFingerprint,
+    previousTreePolicyFingerprint: plan.previousTreePolicyFingerprint,
+    nextTreePolicyFingerprint: plan.nextTreePolicyFingerprint,
     previousChunkCount: plan.previousChunkCount,
     nextChunkCount: plan.nextChunkCount,
     operations: plan.operations,
     summary: plan.summary,
+    observations: plan.observations,
     work: plan.work,
   }
 }
@@ -423,6 +429,50 @@ function replacementPayloadEstimate(
   return total
 }
 
+function operationPayloadObservationFingerprint(
+  operation: VNextTextBlockSceneDeliveryOperationV2,
+): string {
+  return fingerprint(operation.kind === "retain-range"
+    ? {
+        kind: operation.kind,
+        retainedSubtreePayloadObservationFingerprints:
+          operation.retainedSubtrees.map((retained) =>
+            retained.payloadObservationFingerprint
+          ),
+      }
+    : {
+        kind: operation.kind,
+        replacementChunkFingerprints: operation.replacementChunks.map(
+          (chunk) => chunk.fingerprint,
+        ),
+        estimatedCanonicalPayloadByteCount:
+          replacementPayloadEstimate(operation.replacementChunks),
+      })
+}
+
+function planPayloadObservationFingerprint(input: {
+  readonly previousSceneFingerprint: string
+  readonly nextSceneFingerprint: string
+  readonly previousPayloadObservationFingerprint: string
+  readonly nextPayloadObservationFingerprint: string
+  readonly estimatedCanonicalPayloadByteCount: number
+  readonly operations: readonly VNextTextBlockSceneDeliveryOperationV2[]
+}): string {
+  return fingerprint({
+    previousSceneFingerprint: input.previousSceneFingerprint,
+    nextSceneFingerprint: input.nextSceneFingerprint,
+    previousPayloadObservationFingerprint:
+      input.previousPayloadObservationFingerprint,
+    nextPayloadObservationFingerprint:
+      input.nextPayloadObservationFingerprint,
+    estimatedCanonicalPayloadByteCount:
+      input.estimatedCanonicalPayloadByteCount,
+    operationPayloadObservationFingerprints: input.operations.map(
+      operationPayloadObservationFingerprint,
+    ),
+  })
+}
+
 export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: VNextTextBlockSceneDeliveryPlanCandidateInputV2,
 ): VNextTextBlockSceneDeliveryPlanBuildResultV2
@@ -482,6 +532,8 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
           retainedSubtrees: previousSelected.map((selected) => ({
             previousPath: selected.path,
             fingerprint: selected.node.fingerprint,
+            payloadObservationFingerprint:
+              selected.node.payloadObservation.payloadObservationFingerprint,
             chunkCount: selected.node.summary.chunkCount,
           })),
         })
@@ -528,7 +580,19 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
       spliceOperationCount,
       retainedSubtreeCount,
       replacementChunkCount,
+    }
+    const observations = {
       estimatedCanonicalPayloadByteCount,
+      payloadObservationFingerprint: planPayloadObservationFingerprint({
+        previousSceneFingerprint: previousScene.fingerprint,
+        nextSceneFingerprint: nextScene.fingerprint,
+        previousPayloadObservationFingerprint:
+          previousScene.payloadObservation.payloadObservationFingerprint,
+        nextPayloadObservationFingerprint:
+          nextScene.payloadObservation.payloadObservationFingerprint,
+        estimatedCanonicalPayloadByteCount,
+        operations,
+      }),
     }
     const work = {
       visitedOperationCount: operations.length,
@@ -543,10 +607,17 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
       status: "accepted" as const,
       previousSceneFingerprint: previousScene.fingerprint,
       nextSceneFingerprint: nextScene.fingerprint,
+      previousPayloadObservationFingerprint:
+        previousScene.payloadObservation.payloadObservationFingerprint,
+      nextPayloadObservationFingerprint:
+        nextScene.payloadObservation.payloadObservationFingerprint,
+      previousTreePolicyFingerprint: previousScene.policy.fingerprint,
+      nextTreePolicyFingerprint: nextScene.policy.fingerprint,
       previousChunkCount: previousScene.root.summary.chunkCount,
       nextChunkCount: nextScene.root.summary.chunkCount,
       operations,
       summary,
+      observations,
       work,
     }
     const withoutFingerprint = deepFreeze(facts)
@@ -593,6 +664,7 @@ function exactPath(value: unknown): readonly number[] | null {
 function exactRetainedSubtrees(value: unknown): readonly {
   readonly previousPath: readonly number[]
   readonly fingerprint: string
+  readonly payloadObservationFingerprint: string
   readonly chunkCount: number
 }[] | null {
   const values = exactArray(value)
@@ -600,12 +672,14 @@ function exactRetainedSubtrees(value: unknown): readonly {
   const output: {
     readonly previousPath: readonly number[]
     readonly fingerprint: string
+    readonly payloadObservationFingerprint: string
     readonly chunkCount: number
   }[] = []
   for (const item of values) {
     const record = exactRecord(item, [
       "previousPath",
       "fingerprint",
+      "payloadObservationFingerprint",
       "chunkCount",
     ])
     const previousPath = record == null ? null : exactPath(record.previousPath)
@@ -613,11 +687,13 @@ function exactRetainedSubtrees(value: unknown): readonly {
       record == null
       || previousPath == null
       || typeof record.fingerprint !== "string"
+      || typeof record.payloadObservationFingerprint !== "string"
       || typeof record.chunkCount !== "number"
     ) return null
     output.push({
       previousPath,
       fingerprint: record.fingerprint,
+      payloadObservationFingerprint: record.payloadObservationFingerprint,
       chunkCount: record.chunkCount,
     })
   }
@@ -703,10 +779,15 @@ function exactPlan(value: unknown): VNextTextBlockSceneDeliveryPlanV2 | null {
     "status",
     "previousSceneFingerprint",
     "nextSceneFingerprint",
+    "previousPayloadObservationFingerprint",
+    "nextPayloadObservationFingerprint",
+    "previousTreePolicyFingerprint",
+    "nextTreePolicyFingerprint",
     "previousChunkCount",
     "nextChunkCount",
     "operations",
     "summary",
+    "observations",
     "work",
     "fingerprint",
   ])
@@ -717,7 +798,10 @@ function exactPlan(value: unknown): VNextTextBlockSceneDeliveryPlanV2 | null {
     "spliceOperationCount",
     "retainedSubtreeCount",
     "replacementChunkCount",
+  ])
+  const observations = exactRecord(record.observations, [
     "estimatedCanonicalPayloadByteCount",
+    "payloadObservationFingerprint",
   ])
   const work = exactRecord(record.work, [
     "visitedOperationCount",
@@ -729,9 +813,14 @@ function exactPlan(value: unknown): VNextTextBlockSceneDeliveryPlanV2 | null {
   if (
     operations == null
     || summary == null
+    || observations == null
     || work == null
     || typeof record.previousSceneFingerprint !== "string"
     || typeof record.nextSceneFingerprint !== "string"
+    || typeof record.previousPayloadObservationFingerprint !== "string"
+    || typeof record.nextPayloadObservationFingerprint !== "string"
+    || typeof record.previousTreePolicyFingerprint !== "string"
+    || typeof record.nextTreePolicyFingerprint !== "string"
     || typeof record.previousChunkCount !== "number"
     || typeof record.nextChunkCount !== "number"
     || typeof record.fingerprint !== "string"
@@ -745,11 +834,19 @@ function exactPlan(value: unknown): VNextTextBlockSceneDeliveryPlanV2 | null {
     status: record.status as "accepted",
     previousSceneFingerprint: record.previousSceneFingerprint,
     nextSceneFingerprint: record.nextSceneFingerprint,
+    previousPayloadObservationFingerprint:
+      record.previousPayloadObservationFingerprint,
+    nextPayloadObservationFingerprint: record.nextPayloadObservationFingerprint,
+    previousTreePolicyFingerprint: record.previousTreePolicyFingerprint,
+    nextTreePolicyFingerprint: record.nextTreePolicyFingerprint,
     previousChunkCount: record.previousChunkCount,
     nextChunkCount: record.nextChunkCount,
     operations,
     summary: summary as unknown as VNextTextBlockSceneDeliveryPlanV2[
       "summary"
+    ],
+    observations: observations as unknown as VNextTextBlockSceneDeliveryPlanV2[
+      "observations"
     ],
     work: work as unknown as VNextTextBlockSceneDeliveryPlanV2["work"],
     fingerprint: record.fingerprint,
@@ -786,6 +883,8 @@ function retainedCoverMatches(
       const selected = expected[index]
       return selected != null
         && retained.fingerprint === selected.node.fingerprint
+        && retained.payloadObservationFingerprint
+          === selected.node.payloadObservation.payloadObservationFingerprint
         && retained.chunkCount === selected.node.summary.chunkCount
         && retained.previousPath.length === selected.path.length
         && retained.previousPath.every(
@@ -866,6 +965,26 @@ function verifyDeliveryPlanV2(
     return invalidInspection(
       "delivery-plan-scene-binding-mismatch",
       "delivery plan does not bind the exact scene domains",
+    )
+  }
+  if (
+    plan.previousTreePolicyFingerprint !== previousScene.policy.fingerprint
+    || plan.nextTreePolicyFingerprint !== nextScene.policy.fingerprint
+  ) {
+    return invalidInspection(
+      "delivery-plan-scene-binding-mismatch",
+      "delivery plan does not bind the exact scene tree policies",
+    )
+  }
+  if (
+    plan.previousPayloadObservationFingerprint
+      !== previousScene.payloadObservation.payloadObservationFingerprint
+    || plan.nextPayloadObservationFingerprint
+      !== nextScene.payloadObservation.payloadObservationFingerprint
+  ) {
+    return invalidInspection(
+      "delivery-plan-scene-binding-mismatch",
+      "delivery plan does not bind the exact scene payload observations",
     )
   }
   let previousCursor = 0
@@ -1003,12 +1122,30 @@ function verifyDeliveryPlanV2(
       spliceOperationCount,
       retainedSubtreeCount,
       replacementChunkCount,
-      estimatedCanonicalPayloadByteCount,
     }
     if (!exactSummaryEquals(plan.summary, expectedSummary)) {
       return invalidInspection(
         "delivery-plan-summary-mismatch",
         "delivery summary does not match canonical operations",
+      )
+    }
+    const expectedObservations = {
+      estimatedCanonicalPayloadByteCount,
+      payloadObservationFingerprint: planPayloadObservationFingerprint({
+        previousSceneFingerprint: previousScene.fingerprint,
+        nextSceneFingerprint: nextScene.fingerprint,
+        previousPayloadObservationFingerprint:
+          previousScene.payloadObservation.payloadObservationFingerprint,
+        nextPayloadObservationFingerprint:
+          nextScene.payloadObservation.payloadObservationFingerprint,
+        estimatedCanonicalPayloadByteCount,
+        operations: plan.operations,
+      }),
+    }
+    if (!exactSummaryEquals(plan.observations, expectedObservations)) {
+      return invalidInspection(
+        "delivery-plan-observations-mismatch",
+        "delivery observations do not match canonical operations",
       )
     }
     const expectedWork = {
@@ -1034,6 +1171,8 @@ function verifyDeliveryPlanV2(
     return {
       status: "valid",
       fingerprint: plan.fingerprint,
+      payloadObservationFingerprint:
+        plan.observations.payloadObservationFingerprint,
       previousCoverageCount: previousCursor,
       nextCoverageCount: nextCursor,
       visitedOperationCount: plan.operations.length,

@@ -273,6 +273,7 @@ function paintWork(
     readonly deliveryOperationCount: number
     readonly retainCoverNodeCount: number
     readonly estimatedCanonicalPayloadByteCount: number
+    readonly payloadObservationFingerprint: string | null
     readonly attemptedRegistrationCount?: number
     readonly committedRegistrationCount?: number
   },
@@ -300,7 +301,7 @@ function paintWork(
     observations: {
       estimatedCanonicalPayloadByteCount:
         input.estimatedCanonicalPayloadByteCount,
-      payloadObservationFingerprint: null,
+      payloadObservationFingerprint: input.payloadObservationFingerprint,
     },
     atomicAcceptance: {
       attemptedRegistrationCount:
@@ -640,6 +641,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       deliveryOperationCount: 0,
       retainCoverNodeCount: 0,
       estimatedCanonicalPayloadByteCount: 0,
+      payloadObservationFingerprint: null,
     })
     const fallback =
       createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
@@ -678,7 +680,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       retainCoverNodeCount:
         scene.deliveryPlan.summary.retainedSubtreeCount,
       estimatedCanonicalPayloadByteCount:
-        scene.deliveryPlan.summary.estimatedCanonicalPayloadByteCount,
+        scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
+      payloadObservationFingerprint:
+        scene.deliveryPlan.observations.payloadObservationFingerprint,
     },
   )
   const limitFailure = workLimitFailure(
@@ -805,7 +809,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     retainCoverNodeCount:
       scene.deliveryPlan.summary.retainedSubtreeCount,
     estimatedCanonicalPayloadByteCount:
-      scene.deliveryPlan.summary.estimatedCanonicalPayloadByteCount,
+      scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
+    payloadObservationFingerprint:
+      scene.deliveryPlan.observations.payloadObservationFingerprint,
     attemptedRegistrationCount:
       registration.attemptedRegistrationCount,
     committedRegistrationCount:

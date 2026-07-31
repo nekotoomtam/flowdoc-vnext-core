@@ -24,6 +24,7 @@ export type VNextTextBlockSceneDeliveryOperationV2 =
       readonly retainedSubtrees: readonly {
         readonly previousPath: readonly number[]
         readonly fingerprint: string
+        readonly payloadObservationFingerprint: string
         readonly chunkCount: number
       }[]
     }
@@ -48,6 +49,10 @@ export interface VNextTextBlockSceneDeliveryPlanV2 {
   readonly status: "accepted"
   readonly previousSceneFingerprint: string
   readonly nextSceneFingerprint: string
+  readonly previousPayloadObservationFingerprint: string
+  readonly nextPayloadObservationFingerprint: string
+  readonly previousTreePolicyFingerprint: string
+  readonly nextTreePolicyFingerprint: string
   readonly previousChunkCount: number
   readonly nextChunkCount: number
   readonly operations: readonly VNextTextBlockSceneDeliveryOperationV2[]
@@ -56,7 +61,10 @@ export interface VNextTextBlockSceneDeliveryPlanV2 {
     readonly spliceOperationCount: number
     readonly retainedSubtreeCount: number
     readonly replacementChunkCount: number
+  }
+  readonly observations: {
     readonly estimatedCanonicalPayloadByteCount: number
+    readonly payloadObservationFingerprint: string
   }
   readonly work: {
     readonly visitedOperationCount: number
@@ -83,6 +91,7 @@ export type VNextTextBlockSceneDeliveryPlanIssueCodeV2 =
   | "delivery-plan-retain-cover-mismatch"
   | "delivery-plan-replacement-mismatch"
   | "delivery-plan-summary-mismatch"
+  | "delivery-plan-observations-mismatch"
   | "delivery-plan-work-mismatch"
   | "delivery-plan-fingerprint-mismatch"
   | "delivery-plan-unsafe-count"
@@ -108,6 +117,7 @@ export type VNextTextBlockSceneDeliveryPlanInspectionV2 =
   | {
       readonly status: "valid"
       readonly fingerprint: string
+      readonly payloadObservationFingerprint: string
       readonly previousCoverageCount: number
       readonly nextCoverageCount: number
       readonly visitedOperationCount: number

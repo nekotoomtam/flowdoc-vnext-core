@@ -127,6 +127,8 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       retainedSubtrees: [{
         previousPath: [],
         fingerprint: scene.root.fingerprint,
+        payloadObservationFingerprint:
+          scene.root.payloadObservation.payloadObservationFingerprint,
         chunkCount: 9,
       }],
     }])
@@ -135,7 +137,26 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       spliceOperationCount: 0,
       retainedSubtreeCount: 1,
       replacementChunkCount: 0,
+    })
+    expect(plan.summary).not.toHaveProperty(
+      "estimatedCanonicalPayloadByteCount",
+    )
+    expect(plan.work).not.toHaveProperty(
+      "estimatedCanonicalPayloadByteCount",
+    )
+    expect(plan.observations).toEqual({
       estimatedCanonicalPayloadByteCount: 0,
+      payloadObservationFingerprint: expect.any(String),
+    })
+    expect(plan).toMatchObject({
+      previousSceneFingerprint: scene.fingerprint,
+      nextSceneFingerprint: scene.fingerprint,
+      previousPayloadObservationFingerprint:
+        scene.payloadObservation.payloadObservationFingerprint,
+      nextPayloadObservationFingerprint:
+        scene.payloadObservation.payloadObservationFingerprint,
+      previousTreePolicyFingerprint: scene.policy.fingerprint,
+      nextTreePolicyFingerprint: scene.policy.fingerprint,
     })
     expect(verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
       previousScene: scene,
@@ -143,6 +164,8 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       plan,
     })).toMatchObject({
       status: "valid",
+      payloadObservationFingerprint:
+        plan.observations.payloadObservationFingerprint,
       previousCoverageCount: 9,
       nextCoverageCount: 9,
       completePreviousSceneTraversalCount: 0,
@@ -249,10 +272,18 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       retainedSubtreeCount: 0,
       replacementChunkCount: 1,
     })
-    expect(result.plan.summary.estimatedCanonicalPayloadByteCount)
+    expect(result.plan.summary).not.toHaveProperty(
+      "estimatedCanonicalPayloadByteCount",
+    )
+    expect(result.plan.work).not.toHaveProperty(
+      "estimatedCanonicalPayloadByteCount",
+    )
+    expect(result.plan.observations.estimatedCanonicalPayloadByteCount)
       .toBe(
         nextChunk.leaf.payloadObservation.estimatedCanonicalPayloadByteCount,
       )
+    expect(result.plan.observations.estimatedCanonicalPayloadByteCount)
+      .toBeGreaterThan(0)
   })
 
   it("blocks gaps, overlaps, alternate covers, and noncanonical operations", () => {
@@ -290,6 +321,8 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
     retain.retainedSubtrees = scene.root.children.map((child, index) => ({
       previousPath: [index],
       fingerprint: child.fingerprint,
+      payloadObservationFingerprint:
+        child.payloadObservation.payloadObservationFingerprint,
       chunkCount: child.summary.chunkCount,
     }))
     rows.push(alternateCover)
@@ -305,6 +338,9 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
         retainedSubtrees: [{
           previousPath: [0],
           fingerprint: scene.root.children[0]!.fingerprint,
+          payloadObservationFingerprint:
+            scene.root.children[0]!.payloadObservation
+              .payloadObservationFingerprint,
           chunkCount: 4,
         }],
       },
@@ -315,6 +351,9 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
         retainedSubtrees: [{
           previousPath: [1],
           fingerprint: scene.root.children[1]!.fingerprint,
+          payloadObservationFingerprint:
+            scene.root.children[1]!.payloadObservation
+              .payloadObservationFingerprint,
           chunkCount: 5,
         }],
       },
@@ -329,6 +368,22 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
     wrongFingerprint.operations[0]!.retainedSubtrees[0]!.fingerprint =
       `sha256:${"f".repeat(64)}`
     rows.push(wrongFingerprint)
+
+    const wrongPayloadObservation = structuredClone(canonical) as
+      DeepMutable<VNextTextBlockSceneDeliveryPlanV2>
+    if (wrongPayloadObservation.operations[0]!.kind !== "retain-range") {
+      throw new Error("retain missing")
+    }
+    wrongPayloadObservation.operations[0]!.retainedSubtrees[0]!
+      .payloadObservationFingerprint = `sha256:${"d".repeat(64)}`
+    expect(verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: scene,
+      nextScene: scene,
+      plan: wrongPayloadObservation,
+    })).toMatchObject({
+      status: "invalid",
+      code: "delivery-plan-retain-cover-mismatch",
+    })
 
     const wrongSummary = structuredClone(canonical) as
       DeepMutable<VNextTextBlockSceneDeliveryPlanV2>

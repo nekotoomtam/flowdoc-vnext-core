@@ -304,6 +304,17 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
         spliceOperationCount: 1,
         replacementChunkCount: 1,
       })
+      expect(result.incrementalCandidateWork.observations).toEqual({
+        estimatedCanonicalPayloadByteCount:
+          result.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
+        payloadObservationFingerprint:
+          result.deliveryPlan.observations.payloadObservationFingerprint,
+      })
+      expect(result.incrementalCandidateWork.stageWork).not.toContainEqual(
+        expect.objectContaining({
+          unit: "estimated-canonical-payload-bytes",
+        }),
+      )
       expect(result.deliveryPlan.operations.some(
         (operation) => operation.kind === "splice-range",
       )).toBe(true)
@@ -380,6 +391,14 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
     })
     expect(result.deliveryPlan.summary.retainedSubtreeCount)
       .toBeGreaterThan(0)
+    expect(result.deliveryPlan.observations.estimatedCanonicalPayloadByteCount)
+      .toBeGreaterThan(0)
+    expect(result.incrementalCandidateWork.observations).toEqual({
+      estimatedCanonicalPayloadByteCount:
+        result.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
+      payloadObservationFingerprint:
+        result.deliveryPlan.observations.payloadObservationFingerprint,
+    })
     expect(result.incrementalCandidateWork.layout.recomputedLineCount)
       .toBe(0)
     expect(result.incrementalCandidateWork.geometry.reprojectedLineCount)
