@@ -433,7 +433,9 @@ export type VNextTextBlockUnifiedLayoutTransitionResultInspectionV1 =
         | "fallback-required"
         | "blocked"
       readonly rootFingerprint: string | null
-      readonly sceneFingerprint: string | null
+      readonly rootSemanticFingerprint: string | null
+      readonly persistentSceneFingerprint: string | null
+      readonly persistentScenePayloadObservationFingerprint: string | null
       readonly fallbackRequestFingerprint: string | null
     }
   | {

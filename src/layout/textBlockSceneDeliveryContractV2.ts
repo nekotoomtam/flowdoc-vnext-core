@@ -1,5 +1,6 @@
 import type {
   VNextTextBlockPersistentSceneChunkV2,
+  VNextTextBlockPersistentScenePayloadObservationV2,
   VNextTextBlockPersistentSceneSummaryV2,
   VNextTextBlockPersistentSceneV2,
 } from "./textBlockPersistentSceneContractV2.js"
@@ -136,14 +137,16 @@ export interface VNextTextBlockCompleteSceneDeliveryV2 {
   readonly source: "vnext-text-block-complete-scene-delivery-v2"
   readonly contractVersion: 2
   readonly rootFingerprint: string
+  readonly rootSemanticFingerprint: string
   readonly persistentSceneFingerprint: string
+  readonly persistentScenePayloadObservationFingerprint: string
   readonly chunks: readonly VNextTextBlockPersistentSceneChunkV2[]
   readonly summary: VNextTextBlockPersistentSceneSummaryV2
+  readonly observations: VNextTextBlockPersistentScenePayloadObservationV2
   readonly work: {
     readonly completeDeliveryCount: 1
     readonly visitedSceneNodeCount: number
     readonly emittedChunkCount: number
-    readonly estimatedCanonicalPayloadByteCount: number
   }
   readonly stagedEditorApply: false
   readonly mayPublishLayout: false
@@ -168,7 +171,9 @@ export type VNextTextBlockCompleteSceneDeliveryInspectionV2 =
       readonly status: "valid"
       readonly fingerprint: string
       readonly rootFingerprint: string
+      readonly rootSemanticFingerprint: string
       readonly persistentSceneFingerprint: string
+      readonly persistentScenePayloadObservationFingerprint: string
       readonly emittedChunkCount: number
       readonly estimatedCanonicalPayloadByteCount: number
     }

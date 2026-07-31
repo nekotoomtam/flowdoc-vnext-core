@@ -131,7 +131,9 @@ interface ResultRecord {
     | "fallback-required"
     | "blocked"
   readonly rootFingerprint: string | null
-  readonly sceneFingerprint: string | null
+  readonly rootSemanticFingerprint: string | null
+  readonly persistentSceneFingerprint: string | null
+  readonly persistentScenePayloadObservationFingerprint: string | null
   readonly fallbackRequestFingerprint: string | null
 }
 
@@ -147,10 +149,21 @@ function registerResult<T extends VNextTextBlockUnifiedLayoutTransitionResultV1>
       || result.status === "accepted-incremental"
         ? result.root.fingerprint
         : null,
-    sceneFingerprint:
+    rootSemanticFingerprint:
+      result.status === "accepted-no-op"
+      || result.status === "accepted-incremental"
+        ? result.root.semanticFingerprint
+        : null,
+    persistentSceneFingerprint:
       result.status === "accepted-no-op"
       || result.status === "accepted-incremental"
         ? result.persistentScene.fingerprint
+        : null,
+    persistentScenePayloadObservationFingerprint:
+      result.status === "accepted-no-op"
+      || result.status === "accepted-incremental"
+        ? result.persistentScene.payloadObservation
+          .payloadObservationFingerprint
         : null,
     fallbackRequestFingerprint: result.status === "fallback-required"
       ? result.fallbackRequest.fingerprint
@@ -850,7 +863,10 @@ export function inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
     status: "valid",
     resultStatus: record.resultStatus,
     rootFingerprint: record.rootFingerprint,
-    sceneFingerprint: record.sceneFingerprint,
+    rootSemanticFingerprint: record.rootSemanticFingerprint,
+    persistentSceneFingerprint: record.persistentSceneFingerprint,
+    persistentScenePayloadObservationFingerprint:
+      record.persistentScenePayloadObservationFingerprint,
     fallbackRequestFingerprint: record.fallbackRequestFingerprint,
   }
 }

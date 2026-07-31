@@ -1258,8 +1258,7 @@ function collectCompleteDeliveryChunks(
 
 export function prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2(
   input: {
-    readonly persistentScene: VNextTextBlockPersistentSceneV2
-    readonly rootFingerprint: string
+    readonly root: VNextTextBlockUnifiedLayoutRootV2
   },
 ): VNextTextBlockCompleteSceneDeliveryResultV2
 export function prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2(
@@ -1268,40 +1267,37 @@ export function prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2(
 export function prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2(
   input: unknown,
 ): VNextTextBlockCompleteSceneDeliveryResultV2 {
-  const exact = exactRecord(input, [
-    "persistentScene",
-    "rootFingerprint",
-  ])
+  const exact = exactRecord(input, ["root"])
   if (
     exact == null
-    || typeof exact.rootFingerprint !== "string"
-    || !/^sha256:[a-f0-9]{64}$/u.test(exact.rootFingerprint)
-    || !hasVNextTextBlockPersistentScenePreparedCandidateInternalV2(
-      exact.persistentScene,
-    )
+    || inspectVNextTextBlockUnifiedLayoutRootV2(exact.root).status
+      !== "valid"
   ) {
     return blockedCompleteDelivery(completeDeliveryIssue(
       "input",
-      "complete delivery requires an exact prepared scene and Root V2 fingerprint",
+      "complete delivery requires one exact registered Root/Scene V2 pair",
     ))
   }
   try {
-    const scene = exact.persistentScene
+    const root = exact.root as VNextTextBlockUnifiedLayoutRootV2
+    const scene = root.persistentScene
     const emitted = collectCompleteDeliveryChunks(scene.root)
     const work = {
       completeDeliveryCount: 1 as const,
       visitedSceneNodeCount: emitted.visitedSceneNodeCount,
       emittedChunkCount: emitted.chunks.length,
-      estimatedCanonicalPayloadByteCount:
-        scene.payloadObservation.estimatedCanonicalPayloadByteCount,
     }
     const facts = {
       source: "vnext-text-block-complete-scene-delivery-v2" as const,
       contractVersion: 2 as const,
-      rootFingerprint: exact.rootFingerprint,
+      rootFingerprint: root.fingerprint,
+      rootSemanticFingerprint: root.semanticFingerprint,
       persistentSceneFingerprint: scene.fingerprint,
+      persistentScenePayloadObservationFingerprint:
+        scene.payloadObservation.payloadObservationFingerprint,
       chunks: emitted.chunks,
       summary: scene.summary,
+      observations: scene.payloadObservation,
       work,
       stagedEditorApply: false as const,
       mayPublishLayout: false as const,
@@ -1334,19 +1330,8 @@ export function createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2(
   input: unknown,
 ): VNextTextBlockCompleteSceneDeliveryResultV2 {
   const exact = exactRecord(input, ["root"])
-  if (
-    exact == null
-    || inspectVNextTextBlockUnifiedLayoutRootV2(exact.root).status !== "valid"
-  ) {
-    return blockedCompleteDelivery(completeDeliveryIssue(
-      "root",
-      "complete delivery requires the exact process-local Root V2",
-    ))
-  }
-  const root = exact.root as VNextTextBlockUnifiedLayoutRootV2
   return prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2({
-    persistentScene: root.persistentScene,
-    rootFingerprint: root.fingerprint,
+    root: exact?.root as VNextTextBlockUnifiedLayoutRootV2,
   })
 }
 
@@ -1499,15 +1484,18 @@ function completeDeliveryChunkIssue(
       !Number.isSafeInteger(summary.nodeCount)
       || (summary.nodeCount as number) < delivery.chunks.length
     ) return "summary-node-count"
+    if (delivery.work.visitedSceneNodeCount !== summary.nodeCount) {
+      return "work-visited-scene-node-count"
+    }
     if (
       summary.textFragmentCount !== textFragmentCount
       || summary.inlineImageFragmentCount !== inlineImageFragmentCount
     ) return "summary-fragment-counts"
     if (
-      delivery.work.estimatedCanonicalPayloadByteCount
+      delivery.observations.estimatedCanonicalPayloadByteCount
         !== estimatedCanonicalPayloadByteCount
-    ) return `work-payload-bytes(${String(
-      delivery.work.estimatedCanonicalPayloadByteCount,
+    ) return `observation-payload-bytes(${String(
+      delivery.observations.estimatedCanonicalPayloadByteCount,
     )}/${String(estimatedCanonicalPayloadByteCount)})`
     if (
       summary.authoredTopLayoutUnit !== authoredTopLayoutUnit
@@ -1526,9 +1514,12 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
     "source",
     "contractVersion",
     "rootFingerprint",
+    "rootSemanticFingerprint",
     "persistentSceneFingerprint",
+    "persistentScenePayloadObservationFingerprint",
     "chunks",
     "summary",
+    "observations",
     "work",
     "stagedEditorApply",
     "mayPublishLayout",
@@ -1536,20 +1527,26 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
     "fingerprint",
   ])
   const chunks = exactArray(record?.chunks)
+  const observations = exactRecord(record?.observations, [
+    "estimatedCanonicalPayloadByteCount",
+    "payloadObservationFingerprint",
+  ])
   const work = exactRecord(record?.work, [
     "completeDeliveryCount",
     "visitedSceneNodeCount",
     "emittedChunkCount",
-    "estimatedCanonicalPayloadByteCount",
   ])
   if (
     record == null
     || chunks == null
+    || observations == null
     || work == null
     || record.source !== "vnext-text-block-complete-scene-delivery-v2"
     || record.contractVersion !== 2
     || typeof record.rootFingerprint !== "string"
+    || typeof record.rootSemanticFingerprint !== "string"
     || typeof record.persistentSceneFingerprint !== "string"
+    || typeof record.persistentScenePayloadObservationFingerprint !== "string"
     || typeof record.fingerprint !== "string"
     || record.stagedEditorApply !== false
     || record.mayPublishLayout !== false
@@ -1559,9 +1556,14 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
     || (work.visitedSceneNodeCount as number) < 0
     || !Number.isSafeInteger(work.emittedChunkCount)
     || (work.emittedChunkCount as number) < 0
-    || !Number.isSafeInteger(work.estimatedCanonicalPayloadByteCount)
-    || (work.estimatedCanonicalPayloadByteCount as number) < 0
     || work.emittedChunkCount !== chunks.length
+    || !Number.isSafeInteger(
+      observations.estimatedCanonicalPayloadByteCount,
+    )
+    || (observations.estimatedCanonicalPayloadByteCount as number) < 0
+    || typeof observations.payloadObservationFingerprint !== "string"
+    || record.persistentScenePayloadObservationFingerprint
+      !== observations.payloadObservationFingerprint
   ) {
     return invalidCompleteDeliveryInspection(
       "complete-delivery-data-mismatch",
@@ -1581,9 +1583,13 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
       source: delivery.source,
       contractVersion: delivery.contractVersion,
       rootFingerprint: delivery.rootFingerprint,
+      rootSemanticFingerprint: delivery.rootSemanticFingerprint,
       persistentSceneFingerprint: delivery.persistentSceneFingerprint,
+      persistentScenePayloadObservationFingerprint:
+        delivery.persistentScenePayloadObservationFingerprint,
       chunks: delivery.chunks,
       summary: delivery.summary,
+      observations: delivery.observations,
       work: delivery.work,
       stagedEditorApply: delivery.stagedEditorApply,
       mayPublishLayout: delivery.mayPublishLayout,
@@ -1599,10 +1605,13 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
       status: "valid",
       fingerprint: delivery.fingerprint,
       rootFingerprint: delivery.rootFingerprint,
+      rootSemanticFingerprint: delivery.rootSemanticFingerprint,
       persistentSceneFingerprint: delivery.persistentSceneFingerprint,
+      persistentScenePayloadObservationFingerprint:
+        delivery.persistentScenePayloadObservationFingerprint,
       emittedChunkCount: delivery.work.emittedChunkCount,
       estimatedCanonicalPayloadByteCount:
-        delivery.work.estimatedCanonicalPayloadByteCount,
+        delivery.observations.estimatedCanonicalPayloadByteCount,
     }
   } catch {
     return invalidCompleteDeliveryInspection(

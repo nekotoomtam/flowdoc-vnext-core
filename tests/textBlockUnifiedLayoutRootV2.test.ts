@@ -12,6 +12,9 @@ import {
   verifyVNextTextBlockPersistentSceneCandidateInternalV2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
+  canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2,
+  canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2,
+  deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2,
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 import {
@@ -19,6 +22,9 @@ import {
   inspectVNextTextBlockUnifiedLayoutRootV2,
   prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
 import * as rootV1Module from "../src/layout/textBlockUnifiedLayoutRootV1.js"
 import * as sceneV1Module from "../src/layout/textBlockUnifiedLayoutSceneV1.js"
 import {
@@ -39,7 +45,74 @@ import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 
+type DeepMutable<T> =
+  T extends readonly (infer Item)[]
+    ? DeepMutable<Item>[]
+    : T extends object
+      ? { -readonly [Key in keyof T]: DeepMutable<T[Key]> }
+      : T
+
 describe("Phase 5B independent unified Root V2", () => {
+  it("derives semantic child identities without work ledgers or payload observations", () => {
+    const accepted = acceptedUnifiedLayoutRootFixtureV2()
+    const workVariant = structuredClone(accepted.root) as unknown as
+      DeepMutable<VNextTextBlockUnifiedLayoutRootV2>
+    workVariant.sourceState.work.visitedInitialFlowAtomCount += 1
+    workVariant.flowTree.work.visitedSourceItemCount += 1
+    workVariant.spatialState.work.visitedInputEntryCount += 1
+    workVariant.lineTree.work.visitedLineCount += 1
+    workVariant.persistentScene.work.visitedLineCount += 1
+    workVariant.persistentScene.payloadObservation
+      .estimatedCanonicalPayloadByteCount += 1
+
+    expect(
+      deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2(
+        workVariant as unknown as VNextTextBlockUnifiedLayoutRootV2,
+      ),
+    ).toEqual(
+      deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2(
+        accepted.root,
+      ),
+    )
+  })
+
+  it("keeps QA-only work-policy variation out of canonical semantic identity", () => {
+    const accepted = acceptedUnifiedLayoutRootFixtureV2()
+    const alternate = structuredClone(accepted.root) as
+      VNextTextBlockUnifiedLayoutRootV2
+    const alternatePolicyFingerprint = `sha256:${"c".repeat(64)}`
+    Object.assign(alternate, {
+      workPolicy: Object.freeze({
+        ...alternate.workPolicy,
+        policyId: "qa-only-unregistered-policy-variation",
+        fingerprint: alternatePolicyFingerprint,
+      }),
+      dependencyFingerprints: Object.freeze({
+        ...alternate.dependencyFingerprints,
+        workPolicy: alternatePolicyFingerprint,
+      }),
+    })
+
+    expect(canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(
+      alternate,
+    )).toBe(
+      canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(
+        accepted.root,
+      ),
+    )
+    expect(canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(alternate))
+      .not.toBe(
+        canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(
+          accepted.root,
+        ),
+      )
+    expect(inspectVNextTextBlockUnifiedLayoutRootV2(alternate))
+      .toMatchObject({
+        status: "invalid",
+        code: "root-authority-mismatch",
+      })
+  })
+
   it("accepts only the active V2 structural-reuse work policy", () => {
     const input = unifiedLayoutRootBuildInputFixtureV2()
     expect(createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
@@ -206,7 +279,11 @@ describe("Phase 5B independent unified Root V2", () => {
     expect(inspectVNextTextBlockUnifiedLayoutRootV2(accepted.root)).toEqual({
       status: "valid",
       fingerprint: accepted.root.fingerprint,
+      semanticFingerprint: accepted.root.semanticFingerprint,
       persistentSceneFingerprint: accepted.root.persistentScene.fingerprint,
+      persistentScenePayloadObservationFingerprint:
+        accepted.root.persistentScene.payloadObservation
+          .payloadObservationFingerprint,
       constructionKind: "complete-bootstrap",
       work: {
         topLevelDependencyCount: 8,

@@ -10,9 +10,10 @@ import {
   lookupVNextTextBlockPersistentSceneChunkInternalV2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
+  createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2,
   createVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
+  inspectVNextTextBlockCompleteSceneDeliveryV2,
   inspectVNextTextBlockSceneDeliveryPlanV2,
-  prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2,
   verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
 } from "../src/layout/textBlockSceneDeliveryV2.js"
 import type {
@@ -498,14 +499,12 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
     }
   })
 
-  it("prepares a clone-safe complete delivery without granting authority", () => {
-    const scene = repeatedScene(9)
-    const rootFingerprint = `sha256:${"a".repeat(64)}`
-    const result =
-      prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2({
-        persistentScene: scene,
-        rootFingerprint,
-      })
+  it("binds complete delivery to exact Root and Scene semantic/observation identities", () => {
+    const accepted = acceptedUnifiedLayoutRootFixtureV2()
+    const scene = accepted.persistentScene
+    const result = createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+      root: accepted.root,
+    })
     if (result.status !== "accepted") {
       throw new Error(`complete delivery blocked: ${JSON.stringify(result.issues)}`)
     }
@@ -513,21 +512,29 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
     expect(result.delivery).toMatchObject({
       source: "vnext-text-block-complete-scene-delivery-v2",
       contractVersion: 2,
-      rootFingerprint,
+      rootFingerprint: accepted.root.fingerprint,
+      rootSemanticFingerprint: accepted.root.semanticFingerprint,
       persistentSceneFingerprint: scene.fingerprint,
+      persistentScenePayloadObservationFingerprint:
+        scene.payloadObservation.payloadObservationFingerprint,
       summary: scene.summary,
+      observations: scene.payloadObservation,
       work: {
         completeDeliveryCount: 1,
-        emittedChunkCount: 9,
-        estimatedCanonicalPayloadByteCount:
-          scene.payloadObservation.estimatedCanonicalPayloadByteCount,
+        emittedChunkCount: scene.summary.chunkCount,
       },
       stagedEditorApply: false,
       mayPublishLayout: false,
       productionBinding: false,
     })
+    expect(result.delivery.work).not.toHaveProperty(
+      "estimatedCanonicalPayloadByteCount",
+    )
+    expect(
+      result.delivery.observations.estimatedCanonicalPayloadByteCount,
+    ).toBe(scene.payloadObservation.estimatedCanonicalPayloadByteCount)
     expect(structuredClone(result.delivery)).toEqual(result.delivery)
-    expect(result.delivery.chunks).toHaveLength(9)
+    expect(result.delivery.chunks).toHaveLength(scene.summary.chunkCount)
     for (let index = 0; index < result.delivery.chunks.length; index += 1) {
       const found = lookupVNextTextBlockPersistentSceneChunkInternalV2({
         scene,
@@ -536,12 +543,29 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       if (found.status !== "found") throw new Error("chunk missing")
       expect(result.delivery.chunks[index]).toBe(found.leaf.chunk)
     }
-    expect(
-      prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2({
-        persistentScene: structuredClone(scene),
-        rootFingerprint,
-      }),
-    ).toMatchObject({
+    expect(inspectVNextTextBlockCompleteSceneDeliveryV2(result.delivery))
+      .toMatchObject({
+        status: "valid",
+        rootFingerprint: accepted.root.fingerprint,
+        rootSemanticFingerprint: accepted.root.semanticFingerprint,
+        persistentSceneFingerprint: scene.fingerprint,
+        persistentScenePayloadObservationFingerprint:
+          scene.payloadObservation.payloadObservationFingerprint,
+        estimatedCanonicalPayloadByteCount:
+          scene.payloadObservation.estimatedCanonicalPayloadByteCount,
+      })
+    const wrongTraversalWork = structuredClone(result.delivery) as
+      DeepMutable<typeof result.delivery>
+    wrongTraversalWork.work.visitedSceneNodeCount = 0
+    expect(inspectVNextTextBlockCompleteSceneDeliveryV2(
+      wrongTraversalWork,
+    )).toMatchObject({
+      status: "invalid",
+      code: "complete-delivery-data-mismatch",
+    })
+    expect(createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+      root: structuredClone(accepted.root),
+    })).toMatchObject({
       status: "blocked",
       delivery: null,
     })

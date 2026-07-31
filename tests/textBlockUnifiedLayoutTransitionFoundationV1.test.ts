@@ -7,6 +7,7 @@ import {
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
   attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
+  inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
 import {
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
@@ -107,6 +108,73 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
     expect(result.incrementalCandidateWork.stageWork).not.toContainEqual(
       expect.objectContaining({ stage: "layout-reconvergence" }),
     )
+    expect(inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
+      result,
+    )).toEqual({
+      status: "valid",
+      resultStatus: "accepted-no-op",
+      rootFingerprint: previous.root.fingerprint,
+      rootSemanticFingerprint: previous.root.semanticFingerprint,
+      persistentSceneFingerprint: previous.persistentScene.fingerprint,
+      persistentScenePayloadObservationFingerprint:
+        previous.persistentScene.payloadObservation
+          .payloadObservationFingerprint,
+      fallbackRequestFingerprint: null,
+    })
+  })
+
+  it("reports null Root/Scene identities for fallback and blocked results", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2()
+    const fallback =
+      attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+        previousRoot: previous.root,
+        change: Object.freeze({
+          source: "vnext-text-block-unified-layout-change-v1" as const,
+          contractVersion: 1 as const,
+          documentId: previous.root.documentId,
+          sectionId: previous.root.sectionId,
+          textBlockId: previous.root.textBlockId,
+          expectedPreviousRootFingerprint: previous.root.fingerprint,
+          expectedPreviousSourceFingerprint:
+            previous.root.sourceState.fingerprint,
+          kind: "authored-box-width-inset-change" as const,
+          expectedAuthoredBoxPlanFingerprint:
+            previous.root.sourceState.authoredBoxPlan.fingerprint,
+          nextAuthoredBoxPlan:
+            previous.root.sourceState.authoredBoxPlan,
+        }),
+        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      })
+    expect(fallback.status).toBe("fallback-required")
+    expect(inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
+      fallback,
+    )).toMatchObject({
+      status: "valid",
+      resultStatus: "fallback-required",
+      rootFingerprint: null,
+      rootSemanticFingerprint: null,
+      persistentSceneFingerprint: null,
+      persistentScenePayloadObservationFingerprint: null,
+    })
+
+    const clonedRoot = structuredClone(previous.root)
+    const blocked =
+      attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+        previousRoot: clonedRoot,
+        change: noOpUnifiedLayoutChange5b(clonedRoot),
+        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      })
+    expect(blocked.status).toBe("blocked")
+    expect(inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
+      blocked,
+    )).toMatchObject({
+      status: "valid",
+      resultStatus: "blocked",
+      rootFingerprint: null,
+      rootSemanticFingerprint: null,
+      persistentSceneFingerprint: null,
+      persistentScenePayloadObservationFingerprint: null,
+    })
   })
 
   it("collapses an unchanged image paint request to exact no-op identity", () => {

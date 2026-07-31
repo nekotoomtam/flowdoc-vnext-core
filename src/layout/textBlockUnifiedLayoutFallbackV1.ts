@@ -540,6 +540,8 @@ export function completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1(
     || completedFallbackRequests.has(input.request)
     || fallbackPolicies.get(input.request)?.has(input.workPolicy) !== true
     || input.request.workPolicyFingerprint !== input.workPolicy.fingerprint
+    || input.request.expectedTargetBinding.fingerprint
+      !== record?.expectedTargetBindingFingerprint
   ) {
     return blockedComplete(zeroCompleteFallbackWork(), issue(
       "fallback-request-authority-mismatch",
@@ -572,8 +574,6 @@ export function completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1(
     prepared.root.documentId !== record.documentId
     || prepared.root.sectionId !== record.sectionId
     || prepared.root.textBlockId !== record.textBlockId
-    || input.request.expectedTargetBinding.fingerprint
-      !== record.expectedTargetBindingFingerprint
     || !sameTargetBinding(
       actualTargetBinding,
       input.request.expectedTargetBinding,

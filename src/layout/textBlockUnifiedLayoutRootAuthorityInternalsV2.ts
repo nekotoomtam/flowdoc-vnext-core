@@ -48,7 +48,16 @@ interface PreparedRootBindingV2 {
   readonly lineTree: VNextTextBlockUnifiedLayoutRootV2["lineTree"]
   readonly persistentScene:
     VNextTextBlockUnifiedLayoutRootV2["persistentScene"]
+  readonly flowRegionProviderAuthority:
+    VNextTextBlockUnifiedLayoutRootV2["flowRegionProviderAuthority"]
+  readonly authoredBoxSummary:
+    VNextTextBlockUnifiedLayoutRootV2["authoredBoxSummary"]
+  readonly workPolicy: VNextTextBlockUnifiedLayoutRootV2["workPolicy"]
   readonly rootFingerprint: string
+  readonly rootSemanticFingerprint: string
+  readonly canonicalRootSemanticFacts: string
+  readonly semanticDependencyFingerprints:
+    VNextTextBlockUnifiedLayoutRootV2["semanticDependencyFingerprints"]
   readonly dependencyFingerprints:
     VNextTextBlockUnifiedLayoutRootV2["dependencyFingerprints"]
   readonly childrenToRegister: readonly {
@@ -94,9 +103,11 @@ const ROOT_KEYS = [
   "authoredBoxSummary",
   "persistentScene",
   "workPolicy",
+  "semanticDependencyFingerprints",
   "dependencyFingerprints",
   "constructionKind",
   "constructionFingerprint",
+  "semanticFingerprint",
   "contracts",
   "stagedEditorApply",
   "mayPublishLayout",
@@ -147,6 +158,141 @@ function dependenciesMatch(
     && fingerprints.workPolicy === root.workPolicy.fingerprint
 }
 
+function compactFingerprint(value: unknown): string {
+  return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+}
+
+export function deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2(
+  root: Pick<
+    VNextTextBlockUnifiedLayoutRootV2,
+    | "sourceState"
+    | "flowTree"
+    | "spatialState"
+    | "flowRegionProviderAuthority"
+    | "lineTree"
+    | "authoredBoxSummary"
+    | "persistentScene"
+  >,
+): VNextTextBlockUnifiedLayoutRootV2["semanticDependencyFingerprints"] {
+  const sourceState = root.sourceState
+  const flowTree = root.flowTree
+  const spatialState = root.spatialState
+  const lineTree = root.lineTree
+  return Object.freeze({
+    sourceState: compactFingerprint({
+      source: sourceState.source,
+      contractVersion: sourceState.contractVersion,
+      documentId: sourceState.documentId,
+      sectionId: sourceState.sectionId,
+      textBlockId: sourceState.textBlockId,
+      instanceRevision: sourceState.instanceRevision,
+      initialFlowFingerprint: sourceState.initialFlowFingerprint,
+      flowEvidenceFingerprint: sourceState.flowEvidenceFingerprint,
+      authoredBoxPlanFingerprint:
+        sourceState.authoredBoxPlan.fingerprint,
+      producerRequirements: sourceState.producerRequirements,
+      policyFingerprint: sourceState.policy.fingerprint,
+      rootFingerprint: sourceState.root.fingerprint,
+      summary: sourceState.summary,
+      contracts: sourceState.contracts,
+      mayPublishLayout: sourceState.mayPublishLayout,
+      productionBinding: sourceState.productionBinding,
+    }),
+    flowTree: compactFingerprint({
+      source: flowTree.source,
+      contractVersion: flowTree.contractVersion,
+      documentId: flowTree.documentId,
+      sectionId: flowTree.sectionId,
+      textBlockId: flowTree.textBlockId,
+      instanceRevision: flowTree.instanceRevision,
+      layoutId: flowTree.layoutId,
+      layoutContextFingerprint: flowTree.layoutContextFingerprint,
+      sourceStateLayoutDependencyFingerprint:
+        flowTree.sourceStateLayoutDependencyFingerprint,
+      producerRuntimeRequirementFingerprint:
+        flowTree.producerRuntimeRequirementFingerprint,
+      policyFingerprint: flowTree.policy.fingerprint,
+      rootFingerprint: flowTree.root.fingerprint,
+      summary: flowTree.summary,
+      contracts: flowTree.contracts,
+      mayPublishLayout: flowTree.mayPublishLayout,
+      productionBinding: flowTree.productionBinding,
+    }),
+    spatialState: compactFingerprint({
+      source: spatialState.source,
+      contractVersion: spatialState.contractVersion,
+      documentId: spatialState.documentId,
+      sectionId: spatialState.sectionId,
+      textBlockId: spatialState.textBlockId,
+      instanceRevision: spatialState.instanceRevision,
+      contentLeftLayoutUnit: spatialState.contentLeftLayoutUnit,
+      contentRightLayoutUnit: spatialState.contentRightLayoutUnit,
+      layoutUnitPolicyFingerprint:
+        spatialState.layoutUnitPolicyFingerprint,
+      contentContextFingerprint:
+        spatialState.contentContextFingerprint,
+      geometryOwnerFactsFingerprint:
+        spatialState.geometryOwnerFactsFingerprint,
+      entrySetFingerprint: spatialState.entrySetFingerprint,
+      entryRootFingerprint: spatialState.entryRootFingerprint,
+      summary: spatialState.summary,
+      contracts: spatialState.contracts,
+      mayPublishLayout: spatialState.mayPublishLayout,
+      productionBinding: spatialState.productionBinding,
+    }),
+    flowRegionProviderAuthority:
+      root.flowRegionProviderAuthority.fingerprint,
+    lineTree: compactFingerprint({
+      source: lineTree.source,
+      contractVersion: lineTree.contractVersion,
+      documentId: lineTree.documentId,
+      sectionId: lineTree.sectionId,
+      textBlockId: lineTree.textBlockId,
+      instanceRevision: lineTree.instanceRevision,
+      layoutId: lineTree.layoutId,
+      layoutContextFingerprint: lineTree.layoutContextFingerprint,
+      spatialContextFingerprint: lineTree.spatialContextFingerprint,
+      authoredBoxPlanFingerprint:
+        lineTree.authoredBoxPlanFingerprint,
+      policy: lineTree.policy,
+      rootFingerprint: lineTree.root.fingerprint,
+      summary: lineTree.summary,
+      contracts: lineTree.contracts,
+      mayPublishLayout: lineTree.mayPublishLayout,
+      productionBinding: lineTree.productionBinding,
+    }),
+    authoredBoxSummary: root.authoredBoxSummary.fingerprint,
+    persistentScene: root.persistentScene.fingerprint,
+  })
+}
+
+function semanticDependenciesMatch(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): boolean {
+  const expected =
+    deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2(
+      root,
+    )
+  const actual = root.semanticDependencyFingerprints
+  return actual.sourceState === expected.sourceState
+    && actual.flowTree === expected.flowTree
+    && actual.spatialState === expected.spatialState
+    && actual.flowRegionProviderAuthority
+      === expected.flowRegionProviderAuthority
+    && actual.lineTree === expected.lineTree
+    && actual.authoredBoxSummary === expected.authoredBoxSummary
+    && actual.persistentScene === expected.persistentScene
+}
+
+function fingerprintRecordsMatch(
+  left: Readonly<Record<string, string>>,
+  right: Readonly<Record<string, string>>,
+): boolean {
+  const keys = Object.keys(left)
+  return keys.length === Object.keys(right).length
+    && keys.every((key) => left[key] === right[key])
+}
+
 function rootClaimsMatch(root: VNextTextBlockUnifiedLayoutRootV2): boolean {
   return root.source === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_ROOT_V2_SOURCE
     && root.contractVersion
@@ -174,28 +320,60 @@ function exactRootShell(root: VNextTextBlockUnifiedLayoutRootV2): boolean {
   return Object.isFrozen(root)
     && Object.isFrozen(root.flowRegionProviderAuthority)
     && Object.isFrozen(root.authoredBoxSummary)
+    && Object.isFrozen(root.semanticDependencyFingerprints)
     && Object.isFrozen(root.dependencyFingerprints)
     && Object.isFrozen(root.contracts)
     && exactDataProperties(root, ROOT_KEYS)
+    && exactDataProperties(root.semanticDependencyFingerprints, [
+      "sourceState",
+      "flowTree",
+      "spatialState",
+      "flowRegionProviderAuthority",
+      "lineTree",
+      "authoredBoxSummary",
+      "persistentScene",
+    ])
+    && exactDataProperties(root.dependencyFingerprints, [
+      "sourceState",
+      "flowTree",
+      "spatialState",
+      "flowRegionProviderAuthority",
+      "lineTree",
+      "authoredBoxSummary",
+      "persistentScene",
+      "workPolicy",
+    ])
+}
+
+export function canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): string {
+  return stringifyVNextCanonicalJson({
+    source: root.source,
+    contractVersion: root.contractVersion,
+    documentId: root.documentId,
+    instanceRevision: root.instanceRevision,
+    sectionId: root.sectionId,
+    textBlockId: root.textBlockId,
+    layoutId: root.layoutId,
+    semanticDependencyFingerprints: root.semanticDependencyFingerprints,
+    contracts: root.contracts,
+    stagedEditorApply: root.stagedEditorApply,
+    mayPublishLayout: root.mayPublishLayout,
+    productionBinding: root.productionBinding,
+  })
 }
 
 export function canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(
   root: VNextTextBlockUnifiedLayoutRootV2,
 ): string {
   return stringifyVNextCanonicalJson({
-    source: root.source,
-    contractVersion: root.contractVersion,
+    semanticFingerprint: root.semanticFingerprint,
     inputAuthority: root.inputAuthority,
-    documentId: root.documentId,
-    instanceRevision: root.instanceRevision,
-    sectionId: root.sectionId,
-    textBlockId: root.textBlockId,
-    layoutId: root.layoutId,
-    flowRegionProviderAuthority: root.flowRegionProviderAuthority,
-    authoredBoxSummary: root.authoredBoxSummary,
     dependencyFingerprints: root.dependencyFingerprints,
     constructionKind: root.constructionKind,
     constructionFingerprint: root.constructionFingerprint,
+    workPolicy: root.workPolicy,
     contracts: root.contracts,
     stagedEditorApply: root.stagedEditorApply,
     mayPublishLayout: root.mayPublishLayout,
@@ -241,6 +419,7 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
     || !exactRootShell(root)
     || !rootClaimsMatch(root)
     || !dependenciesMatch(root)
+    || !semanticDependenciesMatch(root)
     || inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
       root.sourceState,
     ).status !== "prepared-unregistered"
@@ -308,9 +487,13 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
   })
   const canonicalRootFacts =
     canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(root)
+  const canonicalRootSemanticFacts =
+    canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(root)
   if (
-    root.fingerprint
-    !== createVNextCompactFingerprint(canonicalRootFacts)
+    root.semanticFingerprint
+      !== createVNextCompactFingerprint(canonicalRootSemanticFacts)
+    || root.fingerprint
+      !== createVNextCompactFingerprint(canonicalRootFacts)
   ) return false
   preparedRoots.set(root, {
     root,
@@ -320,7 +503,15 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
     spatialState: root.spatialState,
     lineTree: root.lineTree,
     persistentScene: root.persistentScene,
+    flowRegionProviderAuthority: root.flowRegionProviderAuthority,
+    authoredBoxSummary: root.authoredBoxSummary,
+    workPolicy: root.workPolicy,
     rootFingerprint: root.fingerprint,
+    rootSemanticFingerprint: root.semanticFingerprint,
+    canonicalRootSemanticFacts,
+    semanticDependencyFingerprints: {
+      ...root.semanticDependencyFingerprints,
+    },
     dependencyFingerprints: { ...root.dependencyFingerprints },
     childrenToRegister,
   })
@@ -472,7 +663,19 @@ export function inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2(
     || root.spatialState !== binding.spatialState
     || root.lineTree !== binding.lineTree
     || root.persistentScene !== binding.persistentScene
+    || root.flowRegionProviderAuthority
+      !== binding.flowRegionProviderAuthority
+    || root.authoredBoxSummary !== binding.authoredBoxSummary
+    || root.workPolicy !== binding.workPolicy
     || !dependenciesMatch(root)
+    || !fingerprintRecordsMatch(
+      root.semanticDependencyFingerprints,
+      binding.semanticDependencyFingerprints,
+    )
+    || !fingerprintRecordsMatch(
+      root.dependencyFingerprints,
+      binding.dependencyFingerprints,
+    )
     || !hasVNextTextBlockUnifiedLayoutSourceStateRegisteredRootGraphBindingInternalV2(
       root.sourceState,
     )
@@ -497,6 +700,9 @@ export function inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2(
   }
   if (
     root.fingerprint !== binding.rootFingerprint
+    || root.semanticFingerprint !== binding.rootSemanticFingerprint
+    || canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(root)
+      !== binding.canonicalRootSemanticFacts
     || canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(root)
       !== binding.canonicalRootFacts
   ) {
@@ -509,7 +715,11 @@ export function inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2(
   return {
     status: "valid",
     fingerprint: root.fingerprint,
+    semanticFingerprint: root.semanticFingerprint,
     persistentSceneFingerprint: root.persistentScene.fingerprint,
+    persistentScenePayloadObservationFingerprint:
+      root.persistentScene.payloadObservation
+        .payloadObservationFingerprint,
     constructionKind: root.constructionKind,
     work: {
       topLevelDependencyCount: 8,

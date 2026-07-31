@@ -87,6 +87,15 @@ export interface VNextTextBlockUnifiedLayoutRootV2 {
   readonly authoredBoxSummary: VNextTextBlockAuthoredBoxSummaryV2
   readonly persistentScene: VNextTextBlockPersistentSceneV2
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly semanticDependencyFingerprints: {
+    readonly sourceState: string
+    readonly flowTree: string
+    readonly spatialState: string
+    readonly flowRegionProviderAuthority: string
+    readonly lineTree: string
+    readonly authoredBoxSummary: string
+    readonly persistentScene: string
+  }
   readonly dependencyFingerprints: {
     readonly sourceState: string
     readonly flowTree: string
@@ -100,6 +109,7 @@ export interface VNextTextBlockUnifiedLayoutRootV2 {
   readonly constructionKind:
     VNextTextBlockUnifiedLayoutRootConstructionKindV2
   readonly constructionFingerprint: string
+  readonly semanticFingerprint: string
   readonly contracts: {
     readonly unifiedTextBlockAuthority: true
     readonly processLocalImmutableRoot: true
@@ -167,7 +177,9 @@ export type VNextTextBlockUnifiedLayoutRootInspectionV2 =
   | {
       readonly status: "valid"
       readonly fingerprint: string
+      readonly semanticFingerprint: string
       readonly persistentSceneFingerprint: string
+      readonly persistentScenePayloadObservationFingerprint: string
       readonly constructionKind:
         VNextTextBlockUnifiedLayoutRootConstructionKindV2
       readonly work: {

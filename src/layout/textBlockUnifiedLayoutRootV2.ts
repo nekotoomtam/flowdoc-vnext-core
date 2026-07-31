@@ -37,6 +37,8 @@ import {
 } from "./textBlockSpatialWrappingLayoutV2.js"
 import {
   canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2,
+  canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2,
+  deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2,
   inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2,
   prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2,
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
@@ -369,6 +371,22 @@ function authoredBoxSummary(input: {
   })
 }
 
+let completeKernelObserver:
+  | ((
+      constructionKind: "complete-bootstrap" | "complete-fallback",
+    ) => void)
+  | null = null
+
+export function setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2(
+  observer:
+    | ((
+        constructionKind: "complete-bootstrap" | "complete-fallback",
+      ) => void)
+    | null,
+): void {
+  completeKernelObserver = observer
+}
+
 export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
   input: VNextTextBlockUnifiedLayoutRootBuildInputV2,
   workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
@@ -384,6 +402,9 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
   workPolicy: unknown,
   constructionKind: unknown,
 ): VNextTextBlockUnifiedLayoutRootCompleteCandidateResultV2 {
+  completeKernelObserver?.(
+    constructionKind as "complete-bootstrap" | "complete-fallback",
+  )
   let work = zeroWork()
   const envelope = strictInput(input)
   if (envelope == null) {
@@ -622,6 +643,16 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
     authoredGeometryFingerprint:
       lines.lineTree.summary.authoredBoxGeometryFingerprint,
   })
+  const semanticDependencyFingerprints =
+    deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2({
+      sourceState: source.sourceState,
+      flowTree: flow.flowTree,
+      spatialState: spatial.spatialState,
+      flowRegionProviderAuthority: provider,
+      lineTree: lines.lineTree,
+      authoredBoxSummary: boxSummary,
+      persistentScene: scene.scene,
+  })
   const dependencyFingerprints = Object.freeze({
     sourceState: source.sourceState.fingerprint,
     flowTree: flow.flowTree.fingerprint,
@@ -657,6 +688,7 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
     authoredBoxSummary: boxSummary,
     persistentScene: scene.scene,
     workPolicy,
+    semanticDependencyFingerprints,
     dependencyFingerprints,
     constructionKind: constructionKind as
       VNextTextBlockUnifiedLayoutRootConstructionKindV2,
@@ -676,12 +708,22 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
   }
   const pending = {
     ...facts,
+    semanticFingerprint: "",
     fingerprint: "",
   } satisfies VNextTextBlockUnifiedLayoutRootV2
+  const semanticFingerprint = createVNextCompactFingerprint(
+    canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(
+      pending,
+    ),
+  )
   const root = Object.freeze({
     ...facts,
+    semanticFingerprint,
     fingerprint: createVNextCompactFingerprint(
-      canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(pending),
+      canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2({
+        ...pending,
+        semanticFingerprint,
+      }),
     ),
   })
   if (
@@ -788,6 +830,17 @@ export function prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateIntern
       )],
     }
   }
+  const semanticDependencyFingerprints =
+    deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2({
+      sourceState: input.nextSourceState,
+      flowTree: input.previousRoot.flowTree,
+      spatialState: input.previousRoot.spatialState,
+      flowRegionProviderAuthority:
+        input.previousRoot.flowRegionProviderAuthority,
+      lineTree: input.previousRoot.lineTree,
+      authoredBoxSummary: input.previousRoot.authoredBoxSummary,
+      persistentScene: input.nextPersistentScene,
+  })
   const dependencyFingerprints = Object.freeze({
     sourceState: input.nextSourceState.fingerprint,
     flowTree: input.previousRoot.flowTree.fingerprint,
@@ -824,6 +877,7 @@ export function prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateIntern
     authoredBoxSummary: input.previousRoot.authoredBoxSummary,
     persistentScene: input.nextPersistentScene,
     workPolicy: input.workPolicy,
+    semanticDependencyFingerprints,
     dependencyFingerprints,
     constructionKind: "incremental" as const,
     constructionFingerprint,
@@ -834,12 +888,22 @@ export function prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateIntern
   }
   const pending = {
     ...facts,
+    semanticFingerprint: "",
     fingerprint: "",
   } satisfies VNextTextBlockUnifiedLayoutRootV2
+  const semanticFingerprint = createVNextCompactFingerprint(
+    canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2(
+      pending,
+    ),
+  )
   const root = Object.freeze({
     ...facts,
+    semanticFingerprint,
     fingerprint: createVNextCompactFingerprint(
-      canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2(pending),
+      canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2({
+        ...pending,
+        semanticFingerprint,
+      }),
     ),
   })
   if (

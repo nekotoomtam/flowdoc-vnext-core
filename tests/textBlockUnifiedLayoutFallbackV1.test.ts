@@ -27,7 +27,9 @@ import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
 import {
+  createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
   inspectVNextTextBlockUnifiedLayoutRootV2,
+  setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
   inspectVNextTextBlockUnifiedLayoutSourceStateV1,
@@ -307,7 +309,18 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
     if (completed.status !== "accepted-complete-fallback") {
       throw new Error(`complete fallback blocked: ${JSON.stringify(completed.issues)}`)
     }
+    expect(completed.root.semanticDependencyFingerprints)
+      .toEqual(previous.root.semanticDependencyFingerprints)
+    expect(completed.root.semanticFingerprint)
+      .toMatch(/^sha256:[a-f0-9]{64}$/u)
+    expect(completed.root.semanticFingerprint)
+      .toBe(previous.root.semanticFingerprint)
     expect(completed.root.constructionKind).toBe("complete-fallback")
+    expect(completed.root.constructionKind)
+      .not.toBe(previous.root.constructionKind)
+    expect(completed.root.constructionFingerprint)
+      .not.toBe(previous.root.constructionFingerprint)
+    expect(completed.root.fingerprint).not.toBe(previous.root.fingerprint)
     expect(inspectVNextTextBlockUnifiedLayoutRootV2(completed.root).status)
       .toBe("valid")
     expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
@@ -318,6 +331,45 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       status: "blocked",
       issues: [{ code: "fallback-request-authority-mismatch" }],
     })
+  })
+
+  it("routes bootstrap and fallback through the one complete candidate kernel", () => {
+    const observed: string[] = []
+    setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2(
+      (constructionKind) => observed.push(constructionKind),
+    )
+    try {
+      const material = unifiedLayoutRootBuildInputFixtureV2()
+      const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+        material,
+        ROOT_V2_TEST_WORK_POLICY,
+      )
+      if (previous.status !== "accepted") {
+        throw new Error(`bootstrap blocked: ${JSON.stringify(previous.issues)}`)
+      }
+      const attempt = makeFallback(
+        previous.root,
+        noOpChange(previous.root),
+      )
+      if (attempt.status !== "fallback-required") {
+        throw new Error("expected fallback request")
+      }
+      const completed =
+        completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
+          request: attempt.fallbackRequest,
+          completeMaterial: material,
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+      expect(completed.status).toBe("accepted-complete-fallback")
+      expect(observed).toEqual([
+        "complete-bootstrap",
+        "complete-fallback",
+      ])
+    } finally {
+      setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2(
+        null,
+      )
+    }
   })
 
   it("matches every target-binding field for a paint-only fallback", () => {
