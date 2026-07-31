@@ -30,29 +30,8 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 
 describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
-  it("binds Core-derived effects before inactive text transition execution", () => {
+  it("blocks inactive text transition after Core classifies its geometry effect", () => {
     const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
-    const noOp = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-      previousRoot: previous.root,
-      change: noOpUnifiedLayoutChange5b(previous.root),
-      workPolicy: ROOT_V2_TEST_WORK_POLICY,
-    })
-    const unchangedPaint = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-      previousRoot: previous.root,
-      change: imagePaintUnifiedLayoutChange5b(previous.root, {
-        fit: "contain",
-        crop: null,
-      }),
-      workPolicy: ROOT_V2_TEST_WORK_POLICY,
-    })
-    const changedPaint = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-      previousRoot: previous.root,
-      change: imagePaintUnifiedLayoutChange5b(previous.root, {
-        fit: "cover",
-        crop: { x: 0, y: 0, width: 0.5, height: 1 },
-      }),
-      workPolicy: ROOT_V2_TEST_WORK_POLICY,
-    })
     const textChange = Object.freeze({
       source: "vnext-text-block-unified-layout-change-v1" as const,
       contractVersion: 1 as const,
@@ -72,37 +51,42 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       measurementStyleKey: "measurement-style-next",
       effectiveShapingStyleKey: "shaping-style-next",
     })
-    const inactiveText = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
       previousRoot: previous.root,
       change: textChange,
       workPolicy: ROOT_V2_TEST_WORK_POLICY,
     })
-
-    for (const result of [noOp, unchangedPaint, changedPaint, inactiveText]) {
-      expect(result.status, JSON.stringify(result.issues)).toBe("accepted")
-    }
-    if (
-      noOp.status !== "accepted"
-      || unchangedPaint.status !== "accepted"
-      || changedPaint.status !== "accepted"
-      || inactiveText.status !== "accepted"
-    ) return
-    expect(noOp.validatedChange.effectClassification).toMatchObject({
-      effectClass: "true-no-op",
-      semanticIdentityChanged: false,
-    })
-    expect(unchangedPaint.validatedChange.effectClassification).toMatchObject({
-      effectClass: "true-no-op",
-      semanticIdentityChanged: false,
-    })
-    expect(changedPaint.validatedChange.effectClassification).toMatchObject({
-      effectClass: "paint-affecting-change",
-      semanticIdentityChanged: false,
-    })
-    expect(inactiveText.validatedChange.effectClassification).toMatchObject({
+    expect(bound.status, JSON.stringify(bound.issues)).toBe("accepted")
+    if (bound.status !== "accepted") return
+    expect(bound.validatedChange.effectClassification).toMatchObject({
       effectClass: "geometry-affecting-change",
       semanticIdentityChanged: true,
     })
+    const result = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+      previousRoot: previous.root,
+      change: textChange,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    expect(result.status, JSON.stringify(result.issues)).toBe("blocked")
+    if (result.status !== "blocked") return
+    expect(result.issues).toEqual([expect.objectContaining({
+      code: "inactive-work-policy-stage",
+      stage: "source-flow",
+      path: "change.kind",
+    })])
+    expect(result.incrementalCandidateWork).toMatchObject({
+      evidence: { requestCount: 0 },
+      flow: {
+        visitedSourceItemCount: 0,
+        visitedFlowAtomCount: 0,
+        createdFlowTreeNodeCount: 0,
+      },
+      layout: { recomputedLineCount: 0 },
+      geometry: { reprojectedLineCount: 0 },
+      scene: { replacementChunkCount: 0 },
+      atomicAcceptance: { attemptedRegistrationCount: 0 },
+    })
+    expect(result.incrementalCandidateWork.stageWork).toEqual([])
   })
 
   it("returns the exact previous Root and Scene for a true no-op", () => {
