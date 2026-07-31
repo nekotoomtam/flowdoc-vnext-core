@@ -1,6 +1,13 @@
 {
   "source": "flowdoc-live-draft-unified-incremental-root-5b-manifest",
   "manifestVersion": 1,
+  "runtimeContractVersions": {
+    "rootV2": 2,
+    "persistentSceneV2": 2,
+    "transitionV1": 1,
+    "sceneDeliveryV2": 2
+  },
+  "fixtureCalibrationRevision": 2,
   "checkpoint": "5B-1",
   "scope": {
     "repository": "flowdoc-vnext-core",
@@ -96,6 +103,8 @@
       "lineCount": 0,
       "chunkCount": 0,
       "policyClass": "structural-zero",
+      "capabilityStatus": "structural-calibration",
+      "transitionExecuted": false,
       "expectedPath": "calibration-only",
       "oracleId": "persistent-scene-v2-empty-kernel",
       "counters": {
@@ -105,6 +114,9 @@
         "replacementChunks": 0,
         "deliveryOperations": 0,
         "retainCoverNodes": 0
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 0
       }
     },
     {
@@ -114,6 +126,8 @@
       "lineCount": 1,
       "chunkCount": 1,
       "policyClass": "paint-only",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -123,6 +137,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 1,
         "retainCoverNodes": 0
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6566
       }
     },
     {
@@ -132,6 +149,8 @@
       "lineCount": 8,
       "chunkCount": 8,
       "policyClass": "paint-only",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -141,6 +160,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 3,
         "retainCoverNodes": 7
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6585
       }
     },
     {
@@ -150,6 +172,8 @@
       "lineCount": 32,
       "chunkCount": 32,
       "policyClass": "paint-only",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -159,6 +183,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 2,
         "retainCoverNodes": 10
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6604
       }
     },
     {
@@ -168,6 +195,8 @@
       "lineCount": 33,
       "chunkCount": 33,
       "policyClass": "paint-only",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -177,6 +206,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 3,
         "retainCoverNodes": 11
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6604
       }
     },
     {
@@ -186,6 +218,8 @@
       "lineCount": 128,
       "chunkCount": 128,
       "policyClass": "paint-only-scale",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -195,6 +229,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 2,
         "retainCoverNodes": 15
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6566
       }
     },
     {
@@ -204,6 +241,8 @@
       "lineCount": 8,
       "chunkCount": 8,
       "policyClass": "position-matrix",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -213,6 +252,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 2,
         "retainCoverNodes": 7
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6566
       }
     },
     {
@@ -222,6 +264,8 @@
       "lineCount": 8,
       "chunkCount": 8,
       "policyClass": "position-matrix",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -231,6 +275,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 3,
         "retainCoverNodes": 7
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6585
       }
     },
     {
@@ -240,6 +287,8 @@
       "lineCount": 8,
       "chunkCount": 8,
       "policyClass": "position-matrix",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-incremental",
       "oracleId": "independent-complete-root-v2",
       "counters": {
@@ -249,6 +298,9 @@
         "replacementChunks": 1,
         "deliveryOperations": 2,
         "retainCoverNodes": 7
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 6587
       }
     },
     {
@@ -258,6 +310,8 @@
       "lineCount": 128,
       "chunkCount": 128,
       "policyClass": "exact-wrapper",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
       "expectedPath": "accepted-no-op",
       "oracleId": "exact-previous-root-v2",
       "counters": {
@@ -267,6 +321,9 @@
         "replacementChunks": 0,
         "deliveryOperations": 0,
         "retainCoverNodes": 0
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 0
       }
     },
     {
@@ -276,6 +333,8 @@
       "lineCount": 128,
       "chunkCount": 128,
       "policyClass": "inactive-5B-3",
+      "capabilityStatus": "inactive-reference",
+      "transitionExecuted": false,
       "expectedPath": "blocked-inactive-work-policy-stage",
       "oracleId": "not-run-in-5B-1",
       "counters": {
@@ -285,6 +344,9 @@
         "replacementChunks": 0,
         "deliveryOperations": 0,
         "retainCoverNodes": 0
+      },
+      "observations": {
+        "estimatedCanonicalPayloadByteCount": 0
       }
     }
   ],
@@ -350,6 +412,16 @@
       "limitPlusOne": 65
     }
   ],
+  "capabilities": {
+    "emptyBlockIncrementalTransition": false,
+    "exclusionIncrementalTransition": false,
+    "semanticOnlyIncrementalTransition": false,
+    "alternateRegisteredTreeHistoryNormalization": false,
+    "workerSessionProtocol": false,
+    "editorApply": false,
+    "backendPersistence": false,
+    "productionActivation": false
+  },
   "invariants": {
     "completeNextInputTraversalCount": 0,
     "completeNextInputComparisonCount": 0,

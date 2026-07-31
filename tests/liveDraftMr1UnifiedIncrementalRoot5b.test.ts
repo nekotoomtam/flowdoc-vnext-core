@@ -26,6 +26,8 @@ interface ManifestCounterRow {
   readonly atomCount: number
   readonly lineCount: number
   readonly chunkCount: number
+  readonly capabilityStatus: string
+  readonly transitionExecuted: boolean
   readonly expectedPath: string
   readonly counters: {
     readonly sourceItems: number
@@ -34,6 +36,9 @@ interface ManifestCounterRow {
     readonly replacementChunks: number
     readonly deliveryOperations: number
     readonly retainCoverNodes: number
+  }
+  readonly observations: {
+    readonly estimatedCanonicalPayloadByteCount: number
   }
 }
 
@@ -62,7 +67,15 @@ interface ManifestThreshold {
 }
 
 interface Manifest5b1 {
+  readonly manifestVersion: number
   readonly checkpoint: string
+  readonly runtimeContractVersions: {
+    readonly rootV2: number
+    readonly persistentSceneV2: number
+    readonly transitionV1: number
+    readonly sceneDeliveryV2: number
+  }
+  readonly fixtureCalibrationRevision: number
   readonly scope: {
     readonly repository: string
     readonly processLocal: boolean
@@ -77,9 +90,12 @@ interface Manifest5b1 {
       readonly clockOrDurationFieldCount: number
     }
     readonly lockedStageLimits: readonly ManifestStageLimit[]
+    readonly inactiveUnits: readonly string[]
+    readonly inactiveUnitExceptions: readonly string[]
   }
   readonly fixtures: readonly ManifestCounterRow[]
   readonly thresholdRows: readonly ManifestThreshold[]
+  readonly capabilities: Record<string, boolean>
   readonly invariants: Record<string, boolean | number>
   readonly ownershipMap: Record<string, string>
 }
@@ -188,8 +204,23 @@ describe("Phase 5B-1 public foundation gate", () => {
       expect(typeof publicCore[name as keyof typeof publicCore], name)
         .toBe("function")
     }
+    expect(publicCore.VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2)
+      .toBe(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2)
+    expect(publicCore.VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID)
+      .toBe("5b-1-v2")
     for (const privateName of [
+      "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1",
+      "VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2",
+      "createVNextTextBlockPersistentSceneCompleteInternalV2",
+      "createVNextTextBlockPersistentSceneWithForcedCollisionForTestInternalV2",
+      "createVNextTextBlockIncrementalFlowTreeWithForcedCollisionForTestInternalV1",
+      "createVNextTextBlockUnifiedLayoutSourceStateWithForcedCollisionForTestInternalV1",
+      "createVNextTextBlockSceneDeliveryPlanCandidateInternalV2",
+      "verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2",
+      "deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1",
       "createVNextTextBlockUnifiedLayoutRootCompleteInternalV2",
+      "prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2",
+      "setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2",
       "attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1",
       "evaluateVNextTextBlockStageWorkLimitInternalV1",
       "registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2",
@@ -225,6 +256,206 @@ describe("Phase 5B-1 public foundation gate", () => {
         change: noOpUnifiedLayoutChange5b(result.root),
       })
     expect(request.status).toBe("not-required")
+  })
+
+  it("locks runtime/calibration versions and capability-honest fixture rows", () => {
+    expect(manifest).toMatchObject({
+      manifestVersion: 1,
+      runtimeContractVersions: {
+        rootV2: 2,
+        persistentSceneV2: 2,
+        transitionV1: 1,
+        sceneDeliveryV2: 2,
+      },
+      fixtureCalibrationRevision: 2,
+      policy: {
+        policyId: "5b-1-v2",
+        fingerprint:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.fingerprint,
+      },
+    })
+    expect(manifest.policy.lockedStageLimits.map((row) => ({
+      stage: row.stage,
+      unit: row.unit,
+      smallBlockFloor: row.smallBlockFloor,
+      absoluteStageLimit: row.absoluteStageLimit,
+      relativeNumerator: row.relativeNumerator,
+      relativeDenominator: row.relativeDenominator,
+    }))).toEqual([
+      {
+        stage: "source-flow",
+        unit: "source-items",
+        smallBlockFloor: 1,
+        absoluteStageLimit: 4,
+        relativeNumerator: 1,
+        relativeDenominator: 1,
+      },
+      {
+        stage: "structural-reuse-proof",
+        unit: "selected-exact-subtree-nodes",
+        smallBlockFloor: 1,
+        absoluteStageLimit: 4,
+        relativeNumerator: 1,
+        relativeDenominator: 1,
+      },
+      {
+        stage: "scene",
+        unit: "copied-scene-nodes",
+        smallBlockFloor: 2,
+        absoluteStageLimit: 16,
+        relativeNumerator: 1,
+        relativeDenominator: 1,
+      },
+      {
+        stage: "scene",
+        unit: "replacement-chunks",
+        smallBlockFloor: 1,
+        absoluteStageLimit: 4,
+        relativeNumerator: 1,
+        relativeDenominator: 1,
+      },
+      {
+        stage: "delivery-plan",
+        unit: "delivery-operations",
+        smallBlockFloor: 4,
+        absoluteStageLimit: 16,
+        relativeNumerator: 1,
+        relativeDenominator: 1,
+      },
+      {
+        stage: "delivery-plan",
+        unit: "retain-cover-nodes",
+        smallBlockFloor: 16,
+        absoluteStageLimit: 64,
+        relativeNumerator: 1,
+        relativeDenominator: 1,
+      },
+    ])
+    expect(JSON.stringify({
+      lockedStageLimits: manifest.policy.lockedStageLimits,
+      inactiveUnits: manifest.policy.inactiveUnits,
+      inactiveUnitExceptions: manifest.policy.inactiveUnitExceptions,
+      thresholdRows: manifest.thresholdRows,
+    })).not.toMatch(/payload|estimated-canonical-payload-bytes/u)
+    expect(manifest.thresholdRows).toContainEqual({
+      stage: "structural-reuse-proof",
+      unit: "selected-exact-subtree-nodes",
+      previousSummaryBase: 128,
+      exactValidatedChangeDelta: 1,
+      effectiveLimit: 4,
+      limitMinusOne: 3,
+      limit: 4,
+      limitPlusOne: 5,
+    })
+    expect(Object.fromEntries(manifest.fixtures.map((fixture) => [
+      fixture.fixtureId,
+      {
+        capabilityStatus: fixture.capabilityStatus,
+        transitionExecuted: fixture.transitionExecuted,
+      },
+    ]))).toEqual({
+      "5b1-empty-structural": {
+        capabilityStatus: "structural-calibration",
+        transitionExecuted: false,
+      },
+      "5b1-1-line-first": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-8-line-middle": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-32-line-last": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-33-line-middle": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-128-line-first": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-image-paint-first": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-image-paint-middle": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-image-paint-last": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-128-line-no-op": {
+        capabilityStatus: "active",
+        transitionExecuted: true,
+      },
+      "5b1-128-line-exclusion": {
+        capabilityStatus: "inactive-reference",
+        transitionExecuted: false,
+      },
+    })
+    expect(manifest.capabilities).toEqual({
+      emptyBlockIncrementalTransition: false,
+      exclusionIncrementalTransition: false,
+      semanticOnlyIncrementalTransition: false,
+      alternateRegisteredTreeHistoryNormalization: false,
+      workerSessionProtocol: false,
+      editorApply: false,
+      backendPersistence: false,
+      productionActivation: false,
+    })
+    for (const fixture of manifest.fixtures) {
+      expect(
+        Number.isSafeInteger(
+          fixture.observations.estimatedCanonicalPayloadByteCount,
+        ),
+        fixture.fixtureId,
+      ).toBe(true)
+      expect(
+        fixture.observations.estimatedCanonicalPayloadByteCount,
+        fixture.fixtureId,
+      ).toBeGreaterThanOrEqual(0)
+      if (!fixture.transitionExecuted) {
+        expect(
+          fixture.observations.estimatedCanonicalPayloadByteCount,
+          fixture.fixtureId,
+        ).toBe(0)
+      }
+    }
+  })
+
+  it("keeps fixture calibration revision outside Root and Scene identity", () => {
+    const before = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
+      unifiedLayoutRootBuildInputFixtureV2(),
+    )
+    expect(before.status, JSON.stringify(before.issues)).toBe("accepted")
+    if (before.status !== "accepted") return
+
+    const recalibratedManifest = structuredClone(manifest)
+    ;(recalibratedManifest as { fixtureCalibrationRevision: number })
+      .fixtureCalibrationRevision = 3
+    expect(recalibratedManifest.fixtureCalibrationRevision).toBe(3)
+
+    const after = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
+      unifiedLayoutRootBuildInputFixtureV2(),
+    )
+    expect(after.status, JSON.stringify(after.issues)).toBe("accepted")
+    if (after.status !== "accepted") return
+    expect(after.root.semanticFingerprint)
+      .toBe(before.root.semanticFingerprint)
+    expect(after.root.fingerprint).toBe(before.root.fingerprint)
+    expect(before.root).not.toHaveProperty("fixtureCalibrationRevision")
+    expect(before.persistentScene)
+      .not.toHaveProperty("fixtureCalibrationRevision")
+    expect(JSON.stringify({
+      root: before.root,
+      scene: before.persistentScene,
+    })).not.toContain("fixtureCalibrationRevision")
   })
 
   it("validates clone-safe complete renderer data without granting Root authority", () => {
@@ -323,6 +554,7 @@ describe("Phase 5B-1 public foundation gate", () => {
       return created
     }
     const observed = new Map<string, ReturnType<typeof observedCounters>>()
+    const observedPayloadBytes = new Map<string, number>()
     for (const row of manifest.fixtures) {
       if (
         row.expectedPath !== "accepted-incremental"
@@ -349,6 +581,11 @@ describe("Phase 5B-1 public foundation gate", () => {
         `${row.lineCount}:${row.changeFamily}`,
         observedCounters(result),
       )
+      observedPayloadBytes.set(
+        `${row.lineCount}:${row.changeFamily}`,
+        result.incrementalCandidateWork.observations
+          .estimatedCanonicalPayloadByteCount,
+      )
     }
     for (const row of manifest.fixtures) {
       if (row.expectedPath !== "accepted-incremental") continue
@@ -356,6 +593,13 @@ describe("Phase 5B-1 public foundation gate", () => {
         observed.get(`${row.lineCount}:${row.changeFamily}`),
         row.fixtureId,
       ).toEqual(row.counters)
+      expect.soft(
+        row.observations,
+        `${row.fixtureId} payload observation`,
+      ).toEqual({
+        estimatedCanonicalPayloadByteCount:
+          observedPayloadBytes.get(`${row.lineCount}:${row.changeFamily}`),
+      })
     }
     const noOpFixture = manifest.fixtures.find((row) =>
       row.expectedPath === "accepted-no-op"
@@ -381,6 +625,11 @@ describe("Phase 5B-1 public foundation gate", () => {
         retainCoverNodes:
           noOp.incrementalCandidateWork.deliveryPlan.retainCoverNodeCount,
       }).toEqual(noOpFixture.counters)
+      expect.soft(noOpFixture.observations).toEqual({
+        estimatedCanonicalPayloadByteCount:
+          noOp.incrementalCandidateWork.observations
+            .estimatedCanonicalPayloadByteCount,
+      })
     }
   }, 120_000)
 

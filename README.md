@@ -164,6 +164,24 @@ The package must remain runnable without any parent editor checkout.
   Bold, field-adjacent, and deletion rows match the optional full oracle, while
   diagnostic timing exposes repeated complete-suffix semantic hashing as the
   next performance target. Product publication and production remain blocked.
+- Live Draft MR1 Phase 5B-1 now has a corrected Core-only Root V2 no-op and
+  image-paint transition foundation. Paint changes retain the exact whole
+  line-tree subtree with zero wrapper allocation/traversal; this is structural
+  reuse, not reconvergence. Persistent Scene separates semantic from payload
+  observation identity, Root separates semantic from composite authority, and
+  bootstrap/fallback use one private complete construction kernel. The active
+  `5b-1-v2` policy has six deterministic execution rows; payload bytes remain
+  observations only. The deterministic lifetime gate proves object-graph
+  reachability/retention only, not product-scale memory or reclamation.
+  Empty, exclusion, semantic-only, alternate-history, Worker-session, Editor
+  apply, Backend persistence, publication, and production capabilities remain
+  inactive. Evidence:
+  `docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`,
+  `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`, and
+  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`. The focused corrective
+  gate passed 8 files / 66 tests; the complete Core gate passed 452 files /
+  2,449 tests plus type-check. Phase 5B-2 remains stopped pending explicit
+  review authorization.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

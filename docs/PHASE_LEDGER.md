@@ -12937,3 +12937,73 @@ Task 7 adds the reviewed public boundary, handoff, and final gate.
   activation, and Editor staged apply remain NO-GO.
 - Next: Phase 5B Unified Incremental Transition, only after a separately
   reviewed plan and explicit authorization.
+
+## Phase 5B-1 Unified Incremental Root Transition Foundation
+
+Status: implemented at the corrected Core-only 5B-1 independent review stop.
+Phase 5B-2, Phase 5B-3, Phase 5C, Editor/Backend integration, publication,
+production activation, and Root V1/Scene V1 retirement remain NO-GO.
+
+- Added active Root V2 true-no-op and inline-image paint-fact transition
+  behavior. True no-op returns the exact previous Root/Scene wrappers. Paint
+  retains the exact previous line-tree object and selects one exact whole-tree
+  subtree with zero line-tree wrapper allocation/traversal. This is exact
+  structural reuse, never reconvergence. Evidence:
+  `attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(...)` in
+  `src/layout/textBlockUnifiedLayoutTransitionV1.ts` and
+  `tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts`.
+- Persistent Scene V2 separates structural-semantic fingerprints from payload
+  observations; Root V2 separately exposes semantic and composite authority
+  fingerprints. Complete bootstrap and fallback call the same private
+  `prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(...)`
+  kernel while retaining distinct construction/composite authority. Evidence:
+  `src/layout/textBlockPersistentSceneV2.ts`,
+  `src/layout/textBlockUnifiedLayoutRootV2.ts`,
+  `tests/textBlockPersistentSceneV2.test.ts`,
+  `tests/textBlockUnifiedLayoutRootV2.test.ts`, and
+  `tests/textBlockUnifiedLayoutFallbackV1.test.ts`.
+- Locked runtime contracts at Root V2 `2`, Persistent Scene V2 `2`,
+  Transition V1 `1`, and Scene Delivery V2 `2`; active policy is `5b-1-v2`,
+  while fixture calibration revision is independently `2`. Changing only an
+  in-memory calibration clone from `2` to `3` leaves exact Root semantic and
+  composite fingerprints unchanged, and calibration is absent from Root/Scene.
+- Locked exactly six deterministic execution rows: source items `1/4/1:1`,
+  structural selected-subtree nodes `1/4/1:1`, copied Scene nodes
+  `2/16/1:1`, replacement chunks `1/4/1:1`, delivery operations
+  `4/16/1:1`, and retain-cover nodes `16/64/1:1`. Payload byte estimates exist
+  only under observations, never execution units, threshold rows, fallback
+  reasons, or selectors. The manifest counters and payload observations are
+  compared with deterministic transition results in
+  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`.
+- Canonical retain covers are scoped to the exact registered Scene tree,
+  tree-policy fingerprint, and half-open ordinal range. Exact 8/9/17/33-chunk
+  coverage plus reordered, nonmaximal, cloned, foreign, policy-drifted, and
+  payload-observation-drifted blocks are in
+  `tests/textBlockSceneDeliveryV2.test.ts`.
+- Public exports retain the reviewed V2 policy, contracts, orchestration
+  boundaries, and inspectors. Superseded/test-only policy, collision,
+  alternate-payload, candidate/selector, registry, classifier, complete-kernel,
+  and fallback-observer internals remain private under the package-boundary
+  test in `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`.
+- The deterministic lifetime test proves object-graph reachability/retention
+  only. It does not claim garbage-collection timing, product-scale memory,
+  Worker-handle lifetime, transfer behavior, or memory reclamation.
+- The empty row is structural calibration with no transition; the 128-line
+  exclusion row is an inactive reference with no transition. Empty,
+  exclusion, semantic-only, alternate registered history, Worker session,
+  Editor apply, Backend persistence, publication, and production capabilities
+  remain false/inactive. Editor and Backend repositories are unchanged.
+- Evidence:
+  `docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`,
+  `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`,
+  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`, and the seven focused
+  corrective subsystem tests.
+- TDD handoff RED ran 1 file / 9 tests with 2 failed and 7 passed for the
+  actually missing runtime/calibration metadata and fixture observations;
+  inherited V2 public-policy facts already passed. Handoff GREEN passed
+  1 file / 9 tests.
+- The complete focused corrective gate passed 8 files / 66 tests.
+  `npm run type-check` and `git diff --check` passed. The complete
+  `npm run check` passed TypeScript and 452 test files / 2,449 tests.
+- Next: independent review of the corrected 5B-1 checkpoint. Do not start
+  Phase 5B-2 without explicit authorization.
