@@ -171,16 +171,22 @@ The package must remain runnable without any parent editor checkout.
   observation identity, Root separates semantic from composite authority, and
   bootstrap/fallback use one private complete construction kernel. The active
   `5b-1-v2` policy has six deterministic execution rows; payload bytes remain
-  observations only. The deterministic lifetime gate proves object-graph
-  reachability/retention only, not product-scale memory or reclamation.
+  observations only. Final-review hardening uses shallow exact WeakMap
+  authority on retained hot paths, one exact source-item resolution reused
+  through paint path-copy, work-free semantic identity through line tree,
+  Scene, and Root, exact fallback-attempt authority, descriptor-safe nested
+  delivery validation, and real forced-collision rejection. Authored-box
+  execution remains blocked at the inactive 5B-3 geometry stage. The
+  deterministic lifetime gate proves object-graph reachability/retention only,
+  not product-scale memory or reclamation.
   Empty, exclusion, semantic-only, alternate-history, Worker-session, Editor
   apply, Backend persistence, publication, and production capabilities remain
   inactive. Evidence:
   `docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`,
   `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`, and
-  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`. The focused corrective
-  gate passed 8 files / 66 tests; the complete Core gate passed 452 files /
-  2,449 tests plus type-check. Phase 5B-2 remains stopped pending explicit
+  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`. The corrected focused
+  gate passed 11 files / 88 tests; the complete Core gate passed 452 files /
+  2,458 tests plus type-check. Phase 5B-2 remains stopped pending explicit
   review authorization.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps

@@ -49,8 +49,11 @@ is `keeps fixture calibration revision outside Root and Scene identity` in
 
 Persistent Scene V2 separates structural-semantic identity from payload
 observation identity. Semantic Scene and subtree fingerprints exclude the
-payload policy, byte observation, and construction/path-copy work. Each Scene
-node and wrapper separately composes
+payload policy, byte observation, and construction/path-copy work. Persistent
+Layout Line Tree V1 now exposes a work-free `semanticFingerprint`; Scene binds
+that identity while retaining the work-bearing line-tree fingerprint only for
+exact composite authority. Root semantic dependencies therefore remain
+work-free transitively. Each Scene node and wrapper separately composes
 `payloadObservationFingerprint` and
 `estimatedCanonicalPayloadByteCount`. The implementation is
 `payloadObservation(...)` plus the complete and paint candidate builders in
@@ -62,7 +65,10 @@ Root V2 likewise separates `semanticFingerprint` from the composite
 process-local authority `fingerprint`. Semantic identity excludes construction
 provenance, work policy, calibration, work ledgers, and payload observations.
 Composite identity binds the active work policy and construction/integrity
-facts. Exact tests are in `tests/textBlockUnifiedLayoutRootV2.test.ts`.
+facts. A dependency-ordered QA recomposition proves that changing only
+line-tree work changes composite authority without changing line-tree, Scene,
+or Root semantic identity. Exact tests are in
+`tests/textBlockUnifiedLayoutRootV2.test.ts`.
 
 Complete bootstrap and complete fallback both call the single private
 `prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(...)`
@@ -92,12 +98,29 @@ counters and bytes are rerun against real deterministic transitions by
 `matches the deterministic manifest counters and calibration formula` in
 `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`.
 
+Accepted no-op and paint paths use shallow exact WeakMap authority and never
+rehash or recursively freeze retained line-tree/Scene descendants. A private
+source-item authority resolves the changed image once and reuses it through
+source and Scene path-copy; a 32-transition chain keeps one index lookup and
+zero historical Scene-authority probes per transition. The one-item
+`source-flow` row therefore remains factual without a policy or calibration
+change. Builder-owned exact fragment tokens replace accumulated historical
+node-set scans.
+
 Retain covers are canonical only relative to the exact registered Scene tree,
 tree-policy fingerprint, and half-open ordinal range. The private selector
 chooses the highest fully contained nodes in stored left-to-right order.
 `tests/textBlockSceneDeliveryV2.test.ts` covers 8-, 9-, 17-, and 33-chunk
 trees plus reordered, nonmaximal, cloned, foreign, policy-drifted, and
 payload-observation-drifted authority.
+
+Fallback requests consume one exact Core-minted attempt whose reason, failed
+stage, active-policy limit, and work row correspond. Nested delivery data is
+descriptor-validated before ordinary reads or canonicalization. Tests use the
+real private collision factory to prove equal claimed Scene digests cannot
+cross exact delivery or Root authority. Authored-box width/inset changes remain
+classified but block at the inactive 5B-3 geometry stage with no cover,
+fallback, or child work.
 
 ## Public and private boundary
 
@@ -154,9 +177,12 @@ The repository boundary remains the one documented in
   per-fixture payload observations; inherited V2 policy/public-boundary facts
   already passed.
 - Handoff GREEN: 1 file / 9 tests passed.
-- Complete focused corrective gate: 8 files / 66 tests passed.
+- Final-review RED evidence covered retained hot-path work, inactive pre-cover
+  behavior, three duplicate source lookups, fabricated fallback authority,
+  nested delivery getters, and fake collision coverage.
+- Complete corrected focused gate: 11 files / 88 tests passed.
 - `npm run type-check` and `git diff --check` passed.
-- Complete `npm run check`: TypeScript passed, then 452 test files / 2,449
+- Complete `npm run check`: TypeScript passed, then 452 test files / 2,458
   tests passed.
 
 ## Risks and unknowns

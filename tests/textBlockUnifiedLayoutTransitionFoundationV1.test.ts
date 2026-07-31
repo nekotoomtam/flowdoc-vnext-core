@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   inspectVNextTextBlockPersistentSceneV2,
+  recursivelyFreezeVNextTextBlockPersistentSceneForTestInternalV2,
   setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
@@ -128,6 +129,11 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       },
     )
     try {
+      recursivelyFreezeVNextTextBlockPersistentSceneForTestInternalV2(
+        paintPrevious.persistentScene,
+      )
+      expect(sceneEvents).toContain("retained-graph-recursive-freeze")
+      sceneEvents.length = 0
       const noOp =
         attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
           previousRoot: noOpPrevious.root,

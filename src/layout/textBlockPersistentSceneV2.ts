@@ -108,8 +108,41 @@ function fingerprintWith(
   return factory(stringifyVNextCanonicalJson(value))
 }
 
+type VNextTextBlockPersistentSceneHotPathEventForTestV2 =
+  | {
+      readonly kind:
+        | "full-candidate-inspection"
+        | "full-canonical-rehash"
+        | "retained-graph-recursive-freeze"
+      readonly probeCount: 1
+    }
+  | {
+      readonly kind: "historical-node-set-probe"
+      readonly probeCount: number
+    }
+
+let hotPathObserverForTest:
+  | ((event: VNextTextBlockPersistentSceneHotPathEventForTestV2) => void)
+  | null = null
+
+const constructedSceneNodes = new WeakSet<object>()
+
+export function setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2(
+  observer:
+    | ((event: VNextTextBlockPersistentSceneHotPathEventForTestV2) => void)
+    | null,
+): void {
+  hotPathObserverForTest = observer
+}
+
 function deepFreeze<T>(value: T): T {
   if (value == null || typeof value !== "object") return value
+  if (Object.isFrozen(value) && constructedSceneNodes.has(value)) {
+    hotPathObserverForTest?.({
+      kind: "retained-graph-recursive-freeze",
+      probeCount: 1,
+    })
+  }
   for (const key of Reflect.ownKeys(value)) {
     const descriptor = Object.getOwnPropertyDescriptor(value, key)
     if (descriptor != null && Object.hasOwn(descriptor, "value")) {
@@ -117,6 +150,12 @@ function deepFreeze<T>(value: T): T {
     }
   }
   return Object.isFrozen(value) ? value : Object.freeze(value)
+}
+
+export function recursivelyFreezeVNextTextBlockPersistentSceneForTestInternalV2(
+  scene: VNextTextBlockPersistentSceneV2,
+): void {
+  deepFreeze(scene)
 }
 
 function frozenSceneShell(value: unknown): boolean {
@@ -235,7 +274,7 @@ function payloadObservation(
 function emptyRoot(
   payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2,
 ): VNextTextBlockPersistentSceneEmptyRootV2 {
-  return deepFreeze({
+  const root = deepFreeze({
     nodeKind: "empty" as const,
     height: 0 as const,
     summary: emptySummary,
@@ -247,6 +286,8 @@ function emptyRoot(
     ),
     fingerprint: emptySemanticFingerprint,
   })
+  constructedSceneNodes.add(root)
+  return root
 }
 
 export const VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2 = emptyRoot(
@@ -295,31 +336,6 @@ const sourcePaintFingerprintsByChunk = new WeakMap<
   VNextTextBlockPersistentSceneChunkV2,
   readonly string[]
 >()
-
-type VNextTextBlockPersistentSceneHotPathEventForTestV2 =
-  | {
-      readonly kind:
-        | "full-candidate-inspection"
-        | "full-canonical-rehash"
-        | "retained-graph-recursive-freeze"
-      readonly probeCount: 1
-    }
-  | {
-      readonly kind: "historical-node-set-probe"
-      readonly probeCount: number
-    }
-
-let hotPathObserverForTest:
-  | ((event: VNextTextBlockPersistentSceneHotPathEventForTestV2) => void)
-  | null = null
-
-export function setVNextTextBlockPersistentSceneHotPathObserverForTestInternalV2(
-  observer:
-    | ((event: VNextTextBlockPersistentSceneHotPathEventForTestV2) => void)
-    | null,
-): void {
-  hotPathObserverForTest = observer
-}
 
 function issue(
   code: VNextTextBlockPersistentSceneIssueCodeV2,
@@ -766,7 +782,7 @@ function leafFromChunk(
     scenePolicyFingerprint: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2
       .fingerprint,
   })
-  return {
+  const leaf: VNextTextBlockPersistentSceneLeafV2 = {
     nodeKind: "leaf",
     height: 0,
     chunk,
@@ -779,6 +795,8 @@ function leafFromChunk(
     ),
     fingerprint,
   }
+  constructedSceneNodes.add(leaf)
+  return leaf
 }
 
 function summaryFromChildren(
@@ -881,7 +899,7 @@ function branchFromChildren(
     scenePolicyFingerprint: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2
       .fingerprint,
   })
-  return {
+  const branch: VNextTextBlockPersistentSceneBranchV2 = {
     nodeKind: "branch",
     height: children[0]!.height + 1,
     children,
@@ -902,6 +920,8 @@ function branchFromChildren(
     ),
     fingerprint,
   }
+  constructedSceneNodes.add(branch)
+  return branch
 }
 
 function projectRoot(

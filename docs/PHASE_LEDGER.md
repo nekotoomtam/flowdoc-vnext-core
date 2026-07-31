@@ -12962,6 +12962,18 @@ production activation, and Root V1/Scene V1 retirement remain NO-GO.
   `tests/textBlockPersistentSceneV2.test.ts`,
   `tests/textBlockUnifiedLayoutRootV2.test.ts`, and
   `tests/textBlockUnifiedLayoutFallbackV1.test.ts`.
+- Final-review hardening adds a work-free line-tree semantic fingerprint so
+  Scene and Root semantic identity remain work-free transitively while exact
+  composite authority still binds the work-bearing line tree. Accepted no-op
+  and paint paths use shallow exact WeakMap authority, freeze only new
+  wrappers/nodes, and perform no retained-graph canonical rehash.
+- Source paint resolves one exact current item and reuses its private authority
+  through source and Scene path-copy. Exact prior-chunk paint authority avoids
+  neighbor lookups, including unchanged hard-break paint. A 32-transition
+  chain proves one index lookup and zero historical Scene probes per
+  transition; exact builder-owned fragment tokens replace ancestor node-set
+  scans. The existing `source-flow/source-items = 1` row remains factual, so
+  policy `5b-1-v2` and calibration revision `2` are unchanged.
 - Locked runtime contracts at Root V2 `2`, Persistent Scene V2 `2`,
   Transition V1 `1`, and Scene Delivery V2 `2`; active policy is `5b-1-v2`,
   while fixture calibration revision is independently `2`. Changing only an
@@ -12980,6 +12992,12 @@ production activation, and Root V1/Scene V1 retirement remain NO-GO.
   coverage plus reordered, nonmaximal, cloned, foreign, policy-drifted, and
   payload-observation-drifted blocks are in
   `tests/textBlockSceneDeliveryV2.test.ts`.
+- Fallback creation now consumes one exact Core-minted attempt and recomputes
+  the matching active-policy limit/work row. Public delivery validation parses
+  nested cloneable data descriptor-safely before reads or canonicalization.
+  Genuine forced-collision Scenes with equal digests are rejected across
+  delivery and Root authority. Authored-box changes block at the inactive 5B-3
+  geometry stage with no cover, fallback, or incremental child work.
 - Public exports retain the reviewed V2 policy, contracts, orchestration
   boundaries, and inspectors. Superseded/test-only policy, collision,
   alternate-payload, candidate/selector, registry, classifier, complete-kernel,
@@ -12996,14 +13014,14 @@ production activation, and Root V1/Scene V1 retirement remain NO-GO.
 - Evidence:
   `docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`,
   `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`,
-  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`, and the seven focused
+  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`, and the ten focused
   corrective subsystem tests.
 - TDD handoff RED ran 1 file / 9 tests with 2 failed and 7 passed for the
   actually missing runtime/calibration metadata and fixture observations;
   inherited V2 public-policy facts already passed. Handoff GREEN passed
   1 file / 9 tests.
-- The complete focused corrective gate passed 8 files / 66 tests.
+- The complete corrected focused gate passed 11 files / 88 tests.
   `npm run type-check` and `git diff --check` passed. The complete
-  `npm run check` passed TypeScript and 452 test files / 2,449 tests.
+  `npm run check` passed TypeScript and 452 test files / 2,458 tests.
 - Next: independent review of the corrected 5B-1 checkpoint. Do not start
   Phase 5B-2 without explicit authorization.
