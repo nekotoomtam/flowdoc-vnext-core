@@ -66,6 +66,17 @@ type DeepMutable<T> =
       ? { -readonly [Key in keyof T]: DeepMutable<T[Key]> }
       : T
 
+function deepFreeze<T>(value: T): T {
+  if (value == null || typeof value !== "object") return value
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)
+    if (descriptor != null && Object.hasOwn(descriptor, "value")) {
+      deepFreeze(descriptor.value)
+    }
+  }
+  return Object.isFrozen(value) ? value : Object.freeze(value)
+}
+
 function refingerprintCompleteDelivery(
   delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>,
 ): void {
@@ -764,20 +775,26 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       })).toMatchObject({ status: "invalid", code })
     }
 
-    const clonedScene = structuredClone(scene)
-    expect(clonedScene.fingerprint).toBe(scene.fingerprint)
-    expect(clonedScene.root).not.toBe(scene.root)
-    expect(createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
-      previousScene: scene,
+    const registeredForClone = acceptedUnifiedLayoutRootFixtureV2()
+    const exactRegisteredPlan = retainOnly(
+      registeredForClone.persistentScene,
+    )
+    const clonedScene = deepFreeze(structuredClone(
+      registeredForClone.persistentScene,
+    ))
+    expect(clonedScene.fingerprint)
+      .toBe(registeredForClone.persistentScene.fingerprint)
+    expect(clonedScene.root)
+      .not.toBe(registeredForClone.persistentScene.root)
+    expect(Object.isFrozen(clonedScene)).toBe(true)
+    expect(Object.isFrozen(clonedScene.root)).toBe(true)
+    expect(inspectVNextTextBlockSceneDeliveryPlanV2({
+      previousScene: registeredForClone.persistentScene,
       nextScene: clonedScene,
-      operations: [{
-        kind: "retain-range",
-        previousRange: { start: 0, end: 17 },
-        nextRange: { start: 0, end: 17 },
-      }],
+      plan: exactRegisteredPlan,
     })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "invalid-input" }],
+      status: "invalid",
+      code: "delivery-scene-authority-mismatch",
     })
 
     const independentlyPrepared = repeatedScene(17)

@@ -416,28 +416,8 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
         })
       expect(completed.status).toBe("accepted-complete-fallback")
       expect(observed).toHaveLength(1)
-      expect(observed[0]).toMatchObject({
-        constructionKind: "complete-fallback",
-        sourceState: expect.any(Object),
-        flowTree: expect.any(Object),
-        spatialState: expect.any(Object),
-        flowRegionProviderAuthority: expect.any(Object),
-        lineTree: expect.any(Object),
-        authoredBoxSummary: expect.any(Object),
-        persistentScene: expect.any(Object),
-        semanticDependencyFingerprints: {
-          sourceState: expect.any(String),
-          flowTree: expect.any(String),
-          spatialState: expect.any(String),
-          flowRegionProviderAuthority: expect.any(String),
-          lineTree: expect.any(String),
-          authoredBoxSummary: expect.any(String),
-          persistentScene: expect.any(String),
-        },
-        dependencyFingerprints: {
-          workPolicy: ROOT_V2_TEST_WORK_POLICY.fingerprint,
-        },
-      })
+      if (completed.status !== "accepted-complete-fallback") return
+      expect(observed[0]).toBe(completed.root)
     } finally {
       setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
         null,
