@@ -39,6 +39,7 @@ import {
 import {
   inspectVNextTextBlockUnifiedLayoutSourceStateV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1,
+  setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
@@ -212,6 +213,7 @@ function makeFallbackAttempt(
     throw new Error("test fixture must exceed the active source-item limit")
   }
   const minted = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+    validatedChange: bound.validatedChange,
     previousRoot: root,
     change,
     workPolicy: ROOT_V2_TEST_WORK_POLICY,
@@ -317,6 +319,151 @@ function producerResponse(
 }
 
 describe("Phase 5B deferred Root V2 fallback protocol", () => {
+  it("rejects cloned and cross-bound validated-change authority", () => {
+    const first = acceptedUnifiedLayoutRootFixtureV2()
+    const second = acceptedUnifiedLayoutRootFixtureV2({
+      documentId: "document-2",
+    })
+    const change = noOpChange(first.root)
+    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: first.root,
+      change,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    expect(bound.status).toBe("accepted")
+    if (bound.status !== "accepted") return
+    const attemptedWork = 5
+    const incrementalCandidateWork = deepFreeze({
+      ...bound.incrementalCandidateWork,
+      flow: {
+        ...bound.incrementalCandidateWork.flow,
+        visitedSourceItemCount: attemptedWork,
+      },
+      stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+        policy: ROOT_V2_TEST_WORK_POLICY,
+        factualCounts: [{
+          stage: "source-flow" as const,
+          unit: "source-items" as const,
+          count: attemptedWork,
+        }],
+      }),
+    })
+    const reason = deepFreeze({
+      code: "stage-unit-limit-exceeded" as const,
+      stage: "source-flow" as const,
+      unit: "source-items" as const,
+      effectiveLimit: 4,
+      attemptedWork,
+    })
+    const mint = (overrides: Partial<Parameters<
+      typeof mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1
+    >[0]> = {}) => mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+      validatedChange: bound.validatedChange,
+      previousRoot: first.root,
+      change,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      mode: "deterministic-work-limit-exceeded",
+      reason,
+      skippedOrFailedStage: "source-flow",
+      incrementalCandidateWork,
+      ...overrides,
+    })
+
+    expect(mint().status).toBe("minted")
+    expect(mint({
+      validatedChange: structuredClone(bound.validatedChange),
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+    expect(mint({ previousRoot: second.root })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+    expect(mint({
+      workPolicy: structuredClone(ROOT_V2_TEST_WORK_POLICY),
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+    expect(mint({ change: noOpChange(first.root) })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+  })
+
+  it("reuses exact validated-change authority without binding or source lookup again", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
+    const change = imagePaintChange(previous.root)
+    let visitedSourceLookupNodeCount = 0
+    setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+      () => {
+        visitedSourceLookupNodeCount += 1
+      },
+    )
+    try {
+      const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+        previousRoot: previous.root,
+        change,
+        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      })
+      expect(bound.status).toBe("accepted")
+      if (bound.status !== "accepted") return
+      const visitsAfterBinding = visitedSourceLookupNodeCount
+      expect(visitsAfterBinding).toBeGreaterThan(0)
+
+      const attemptedWork = 5
+      const incrementalCandidateWork = deepFreeze({
+        ...bound.incrementalCandidateWork,
+        flow: {
+          ...bound.incrementalCandidateWork.flow,
+          visitedSourceItemCount: attemptedWork,
+        },
+        stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+          policy: ROOT_V2_TEST_WORK_POLICY,
+          factualCounts: [{
+            stage: "source-flow" as const,
+            unit: "source-items" as const,
+            count: attemptedWork,
+          }],
+        }),
+      })
+      const limit = evaluateVNextTextBlockStageWorkLimitInternalV1({
+        policy: ROOT_V2_TEST_WORK_POLICY,
+        stage: "source-flow",
+        unit: "source-items",
+        previousSummaryBase: previous.root.sourceState.summary.itemCount,
+        exactValidatedChangeDelta: 1,
+        attemptedWork,
+      })
+      expect(limit.status).toBe("limit-exceeded")
+      if (limit.status !== "limit-exceeded") return
+
+      const minted = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+        validatedChange: bound.validatedChange,
+        previousRoot: previous.root,
+        change,
+        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        mode: "deterministic-work-limit-exceeded",
+        reason: deepFreeze({
+          code: "stage-unit-limit-exceeded" as const,
+          stage: "source-flow" as const,
+          unit: "source-items" as const,
+          effectiveLimit: limit.effectiveLimit,
+          attemptedWork,
+        }),
+        skippedOrFailedStage: "source-flow",
+        incrementalCandidateWork,
+      })
+      expect(minted.status).toBe("minted")
+      expect(visitedSourceLookupNodeCount).toBe(visitsAfterBinding)
+    } finally {
+      setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+        null,
+      )
+    }
+  })
+
   it("consumes one exact private fallback attempt and records factual limit work", () => {
     const previous = acceptedUnifiedLayoutRootFixtureV2()
     const minted = makeFallbackAttempt(previous.root, noOpChange(previous.root))

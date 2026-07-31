@@ -17,8 +17,9 @@ import {
   createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1,
 } from "./textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
 import {
-  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
+  getVNextTextBlockValidatedChangeAuthorityRecordInternalV1,
+  type VNextTextBlockValidatedChangeAuthorityRecordInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import type {
   VNextTextBlockCompleteFallbackWorkV1,
@@ -34,6 +35,7 @@ import type {
   VNextTextBlockUnifiedLayoutIssueV1,
   VNextTextBlockUnifiedLayoutStageUnitV1,
   VNextTextBlockUnifiedLayoutStageV1,
+  VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
@@ -294,9 +296,8 @@ const completedFallbackRequests = new WeakSet<
 >()
 
 interface FallbackAttemptRecord {
-  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
-  readonly change: VNextTextBlockUnifiedLayoutChangeV1
-  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly validatedChangeAuthority:
+    VNextTextBlockValidatedChangeAuthorityRecordInternalV1
   readonly mode: VNextTextBlockUnifiedLayoutFallbackModeV1
   readonly reason: VNextTextBlockUnifiedLayoutFallbackReasonV1
   readonly skippedOrFailedStage: VNextTextBlockUnifiedLayoutStageV1
@@ -364,6 +365,7 @@ function limitReasonMatchesAttempt(
 
 export function mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1(
   input: {
+    readonly validatedChange: VNextTextBlockValidatedChangeV1
     readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
     readonly change: VNextTextBlockUnifiedLayoutChangeV1
     readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
@@ -381,12 +383,24 @@ export function mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1(
         VNextTextBlockIncrementalCandidateWorkV1
     }
   | VNextTextBlockUnifiedLayoutBlockedStageV1 {
-  const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-    previousRoot: input.previousRoot,
-    change: input.change,
-    workPolicy: input.workPolicy,
-  })
-  if (bound.status !== "accepted") return bound
+  const validatedChangeAuthority =
+    getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
+      input.validatedChange,
+    )
+  if (
+    validatedChangeAuthority == null
+    || validatedChangeAuthority.previousRoot !== input.previousRoot
+    || validatedChangeAuthority.workPolicy !== input.workPolicy
+    || validatedChangeAuthority.originalChange !== input.change
+    || validatedChangeAuthority.validatedChange !== input.validatedChange
+    || validatedChangeAuthority.expectedTargetBinding
+      !== input.validatedChange.expectedTargetBinding
+  ) {
+    return invalidFallbackAttempt(
+      validatedChangeAuthority?.bindingWork
+        ?? createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(),
+    )
+  }
   const reason = validatedReason(input.reason)
   if (
     reason == null
@@ -400,19 +414,17 @@ export function mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1(
       input.incrementalCandidateWork,
     ))
   ) {
-    return invalidFallbackAttempt(bound.incrementalCandidateWork)
+    return invalidFallbackAttempt(validatedChangeAuthority.bindingWork)
   }
   const attempt = deepFreeze({}) as unknown as
     VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1
   fallbackAttempts.set(attempt, {
-    previousRoot: input.previousRoot,
-    change: input.change,
-    workPolicy: input.workPolicy,
+    validatedChangeAuthority,
     mode: input.mode,
     reason,
     skippedOrFailedStage: input.skippedOrFailedStage,
     incrementalCandidateWork: input.incrementalCandidateWork,
-    expectedTargetBinding: bound.validatedChange.expectedTargetBinding,
+    expectedTargetBinding: validatedChangeAuthority.expectedTargetBinding,
   })
   return Object.freeze({
     status: "minted" as const,
@@ -445,6 +457,7 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
     )
   }
   fallbackAttempts.delete(input.attempt)
+  const authority = record.validatedChangeAuthority
   const facts = {
     source: "vnext-text-block-unified-layout-fallback-request-v1" as const,
     contractVersion: 1 as const,
@@ -452,13 +465,13 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
     reason: record.reason,
     skippedOrFailedStage: record.skippedOrFailedStage,
     incrementalWorkAttempted: record.mode !== "planned-complete",
-    previousRootFingerprint: record.previousRoot.fingerprint,
-    changeFingerprint: fingerprint(record.change),
-    documentId: record.previousRoot.documentId,
-    sectionId: record.previousRoot.sectionId,
-    textBlockId: record.previousRoot.textBlockId,
+    previousRootFingerprint: authority.previousRoot.fingerprint,
+    changeFingerprint: fingerprint(authority.originalChange),
+    documentId: authority.previousRoot.documentId,
+    sectionId: authority.previousRoot.sectionId,
+    textBlockId: authority.previousRoot.textBlockId,
     expectedTargetBinding: record.expectedTargetBinding,
-    workPolicyFingerprint: record.workPolicy.fingerprint,
+    workPolicyFingerprint: authority.workPolicy.fingerprint,
     incrementalCandidateWork: record.incrementalCandidateWork,
   }
   const canonicalFacts = stringifyVNextCanonicalJson(facts)
@@ -476,7 +489,7 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
     textBlockId: request.textBlockId,
   })
   const policies = new WeakSet<VNextTextBlockUnifiedLayoutWorkPolicyV1>()
-  policies.add(record.workPolicy)
+  policies.add(authority.workPolicy)
   fallbackPolicies.set(request, policies)
   return Object.freeze({
     status: "fallback-required",

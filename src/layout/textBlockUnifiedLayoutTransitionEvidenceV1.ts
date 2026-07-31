@@ -17,6 +17,7 @@ import {
   lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
+  createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1,
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
 } from "./textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
 import type {
@@ -346,6 +347,26 @@ const validatedImagePaintSourceItemAuthorities = new WeakMap<
   }
 >()
 
+export interface VNextTextBlockValidatedChangeAuthorityRecordInternalV1 {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly originalChange: VNextTextBlockUnifiedLayoutChangeV1
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
+  readonly bindingWork: VNextTextBlockIncrementalCandidateWorkV1
+}
+
+const validatedChangeAuthorityRecords = new WeakMap<
+  VNextTextBlockValidatedChangeV1,
+  VNextTextBlockValidatedChangeAuthorityRecordInternalV1
+>()
+
+export function getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
+  validatedChange: VNextTextBlockValidatedChangeV1,
+): VNextTextBlockValidatedChangeAuthorityRecordInternalV1 | null {
+  return validatedChangeAuthorityRecords.get(validatedChange) ?? null
+}
+
 export function getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(
   validatedChange: VNextTextBlockValidatedChangeV1,
 ): object | null {
@@ -525,6 +546,14 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       },
     )
   }
+  validatedChangeAuthorityRecords.set(validatedChange, Object.freeze({
+    previousRoot: input.previousRoot,
+    workPolicy: input.workPolicy,
+    originalChange: input.change,
+    validatedChange,
+    expectedTargetBinding,
+    bindingWork: incrementalCandidateWork,
+  }))
   return Object.freeze({
     status: "accepted",
     validatedChange,
@@ -535,7 +564,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
 
 interface RequestRecord {
   readonly fingerprint: string
-  readonly validatedChangeFingerprint: string
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
   readonly incrementalCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
 }
 
@@ -771,7 +800,7 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
   >()
   byChange.set(input.change, {
     fingerprint: request.fingerprint,
-    validatedChangeFingerprint: bound.validatedChange.fingerprint,
+    validatedChange: bound.validatedChange,
     incrementalCandidateWork,
   })
   byRoot.set(input.previousRoot, byChange)
@@ -1116,15 +1145,8 @@ export function acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1(input: {
   const requestRecord = requestTuples.get(input.request)?.get(
     input.previousRoot,
   )?.get(input.change)
-  const rebound = requestRecord == null
-    ? bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-      previousRoot: input.previousRoot,
-      change: input.change,
-      workPolicy: input.previousRoot.workPolicy,
-    })
-    : null
   const baseWork = requestRecord?.incrementalCandidateWork
-    ?? rebound!.incrementalCandidateWork
+    ?? createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1()
   const response = exactResponse(input.response)
   if (
     requestInspection.status !== "valid"

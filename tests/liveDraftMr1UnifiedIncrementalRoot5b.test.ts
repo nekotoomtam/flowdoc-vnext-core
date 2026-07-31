@@ -780,6 +780,7 @@ describe("Phase 5B-1 public foundation gate", () => {
     if (bound.status !== "accepted") throw new Error("change binding blocked")
     const fabricated =
       mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+        validatedChange: bound.validatedChange,
         previousRoot: previousResult.root,
         change,
         workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,

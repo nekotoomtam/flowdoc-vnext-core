@@ -3,6 +3,7 @@ import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerp
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  getVNextTextBlockValidatedChangeAuthorityRecordInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
@@ -17,6 +18,46 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 
 describe("Phase 5B-1 Core-derived transition evidence", () => {
+  it("registers authority only for the exact validated-change object", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
+    const change = noOpUnifiedLayoutChange5b(previous.root)
+    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+
+    expect(bound.status).toBe("accepted")
+    if (bound.status !== "accepted") return
+    const record =
+      getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
+        bound.validatedChange,
+      )
+    expect(record).toMatchObject({
+      previousRoot: previous.root,
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      originalChange: change,
+      validatedChange: bound.validatedChange,
+      expectedTargetBinding: bound.validatedChange.expectedTargetBinding,
+      bindingWork: bound.incrementalCandidateWork,
+    })
+    expect(record?.previousRoot).toBe(previous.root)
+    expect(record?.workPolicy).toBe(ROOT_V2_TEST_WORK_POLICY)
+    expect(record?.originalChange).toBe(change)
+    expect(record?.validatedChange).toBe(bound.validatedChange)
+    expect(record?.expectedTargetBinding)
+      .toBe(bound.validatedChange.expectedTargetBinding)
+    expect(record?.bindingWork).toBe(bound.incrementalCandidateWork)
+
+    const cloned = structuredClone(bound.validatedChange)
+    expect(getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(cloned))
+      .toBeNull()
+    expect(getVNextTextBlockValidatedChangeAuthorityRecordInternalV1({
+      ...bound.validatedChange,
+    }))
+      .toBeNull()
+  })
+
   it("binds frozen effects and fingerprints them into exact validated changes", () => {
     const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
     const rows = [

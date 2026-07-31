@@ -694,6 +694,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         source.visitedChangedSourceLeafItemCount,
     })
     const attempt = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+        validatedChange: bound.validatedChange,
         previousRoot: input.previousRoot,
         change: input.change,
         workPolicy: input.workPolicy,
@@ -761,6 +762,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     if (limitFailure.kind === "limit-exceeded") {
       const attempt =
         mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
+          validatedChange: bound.validatedChange,
           previousRoot: input.previousRoot,
           change: input.change,
           workPolicy: input.workPolicy,
