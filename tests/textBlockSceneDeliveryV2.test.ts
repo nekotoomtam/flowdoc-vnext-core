@@ -444,6 +444,147 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
     })
   })
 
+  it("rejects nested accessor-backed retain, splice, and complete delivery data without reading getters", () => {
+    const accepted = acceptedUnifiedLayoutRootFixtureV2()
+    const scene = accepted.persistentScene
+    const retainPlan = structuredClone(retainOnly(scene)) as
+      DeepMutable<VNextTextBlockSceneDeliveryPlanV2>
+    const retain = retainPlan.operations[0]
+    if (retain?.kind !== "retain-range") throw new Error("retain missing")
+    const retainedPath = retain.retainedSubtrees[0]!.previousPath as number[]
+    const retainedPathValue = retainedPath[0]
+    let retainGetterReads = 0
+    Object.defineProperty(retainedPath, "0", {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        retainGetterReads += 1
+        return retainedPathValue
+      },
+    })
+    expect(inspectVNextTextBlockSceneDeliveryPlanV2({
+      previousScene: scene,
+      nextScene: scene,
+      plan: retainPlan,
+    })).toMatchObject({ status: "invalid", code: "invalid-input" })
+    expect(retainGetterReads).toBe(0)
+
+    const splice = createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: scene,
+      nextScene: scene,
+      operations: [{
+        kind: "splice-range",
+        previousRange: { start: 0, end: scene.summary.chunkCount },
+        nextRange: { start: 0, end: scene.summary.chunkCount },
+      }],
+    })
+    if (splice.status !== "prepared") throw new Error("splice plan blocked")
+    const splicePlan = structuredClone(splice.plan) as
+      DeepMutable<VNextTextBlockSceneDeliveryPlanV2>
+    const spliceOperation = splicePlan.operations[0]
+    if (spliceOperation?.kind !== "splice-range") {
+      throw new Error("splice missing")
+    }
+    const sourceSpan = spliceOperation.replacementChunks[0]!
+      .lineInternals.fragments[0]!.sourceSpans[0]!
+    const sourceSpanValue = sourceSpan.localStartRenderedUtf16
+    let spliceGetterReads = 0
+    Object.defineProperty(sourceSpan, "localStartRenderedUtf16", {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        spliceGetterReads += 1
+        return sourceSpanValue
+      },
+    })
+    expect(inspectVNextTextBlockSceneDeliveryPlanV2({
+      previousScene: scene,
+      nextScene: scene,
+      plan: splicePlan,
+    })).toMatchObject({ status: "invalid", code: "invalid-input" })
+    expect(spliceGetterReads).toBe(0)
+
+    const complete = createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+      root: accepted.root,
+    })
+    if (complete.status !== "accepted") {
+      throw new Error("complete delivery blocked")
+    }
+    const forgedComplete = structuredClone(complete.delivery) as
+      DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    const completeSpan = forgedComplete.chunks[0]!
+      .lineInternals.fragments[0]!.sourceSpans[0]!
+    const completeSpanValue = completeSpan.localStartRenderedUtf16
+    let completeGetterReads = 0
+    Object.defineProperty(completeSpan, "localStartRenderedUtf16", {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        completeGetterReads += 1
+        return completeSpanValue
+      },
+    })
+    expect(inspectVNextTextBlockCompleteSceneDeliveryV2(forgedComplete))
+      .toMatchObject({
+        status: "invalid",
+        code: "complete-delivery-data-mismatch",
+      })
+    expect(completeGetterReads).toBe(0)
+
+    const completeNestedAccessors = [
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => ({
+        target: delivery.chunks[0]!.sourceMapping[0] as unknown as Record<string, unknown>,
+        key: "sourceStartOffset",
+      }),
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => ({
+        target: delivery.chunks[0]!.contentLocalGeometry.fragments[0] as unknown as Record<string, unknown>,
+        key: "xLayoutUnit",
+      }),
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => ({
+        target: delivery.chunks[0]!.authoredBoxGeometry.fragments[0] as unknown as Record<string, unknown>,
+        key: "xLayoutUnit",
+      }),
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => {
+        const text = delivery.chunks[0]!.fragments.find(
+          (fragment) => fragment.kind === "text",
+        )
+        if (text?.kind !== "text") throw new Error("text paint run missing")
+        return { target: text.paintRuns[0] as unknown as Record<string, unknown>, key: "textColor" }
+      },
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => {
+        const image = delivery.chunks[0]!.fragments.find(
+          (fragment) => fragment.kind === "inline-image",
+        )
+        if (image?.kind !== "inline-image") throw new Error("image frame missing")
+        return { target: image.authoredFrame.width as unknown as Record<string, unknown>, key: "value" }
+      },
+    ]
+    for (const select of completeNestedAccessors) {
+      const forged = structuredClone(complete.delivery) as
+        DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+      const { target, key } = select(forged)
+      const descriptor = Object.getOwnPropertyDescriptor(target, key)
+      if (descriptor == null || !Object.hasOwn(descriptor, "value")) {
+        throw new Error("nested delivery value missing")
+      }
+      let getterReads = 0
+      Object.defineProperty(target, key, {
+        configurable: true,
+        enumerable: true,
+        get: () => {
+          getterReads += 1
+          return descriptor.value
+        },
+      })
+      expect(inspectVNextTextBlockCompleteSceneDeliveryV2(forged))
+        .toMatchObject({
+          status: "invalid",
+          code: "complete-delivery-data-mismatch",
+        })
+      expect(getterReads).toBe(0)
+    }
+  })
+
   it("normalizes adjacent insert/delete drafts into one replacement", () => {
     const scene = repeatedScene(9)
     const result = createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({

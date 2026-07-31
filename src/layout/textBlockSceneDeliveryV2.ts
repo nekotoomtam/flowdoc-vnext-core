@@ -126,6 +126,366 @@ function exactArray(value: unknown): readonly unknown[] | null {
   }
 }
 
+interface DeliveryParseState {
+  readonly seen: WeakSet<object>
+}
+
+function deliveryRecord(
+  state: DeliveryParseState,
+  value: unknown,
+  keys: readonly string[],
+): Record<string, unknown> | null {
+  void state
+  return exactRecord(value, keys)
+}
+
+function deliveryArray(
+  state: DeliveryParseState,
+  value: unknown,
+): readonly unknown[] | null {
+  void state
+  return exactArray(value)
+}
+
+function safeInteger(
+  value: unknown,
+  minimum = Number.MIN_SAFE_INTEGER,
+): value is number {
+  return typeof value === "number"
+    && Number.isSafeInteger(value)
+    && value >= minimum
+}
+
+function deliveryDataField(value: unknown, key: string): unknown {
+  try {
+    if (value == null || typeof value !== "object" || Array.isArray(value)) {
+      return null
+    }
+    const prototype = Object.getPrototypeOf(value)
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)
+    return (prototype === Object.prototype || prototype === null)
+      && Object.getOwnPropertySymbols(value).length === 0
+      && descriptor != null
+      && Object.hasOwn(descriptor, "value")
+      && descriptor.enumerable === true
+      ? descriptor.value
+      : null
+  } catch {
+    return null
+  }
+}
+
+function parseDeliverySpan(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const record = deliveryRecord(state, value, [
+    "lineageId", "localStartRenderedUtf16", "localEndRenderedUtf16",
+  ])
+  return record == null
+    || typeof record.lineageId !== "string"
+    || !safeInteger(record.localStartRenderedUtf16, 0)
+    || !safeInteger(record.localEndRenderedUtf16, 0)
+    || record.localEndRenderedUtf16 < record.localStartRenderedUtf16
+    ? null
+    : { ...record }
+}
+
+function parseDeliverySpans(
+  state: DeliveryParseState,
+  value: unknown,
+): readonly Record<string, unknown>[] | null {
+  const values = deliveryArray(state, value)
+  if (values == null) return null
+  const spans: Record<string, unknown>[] = []
+  for (const item of values) {
+    const span = parseDeliverySpan(state, item)
+    if (span == null) return null
+    spans.push(span)
+  }
+  return spans
+}
+
+function parseDeliverySourceMapping(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const record = deliveryRecord(state, value, [
+    "lineageId", "inlineId", "sourceKind", "localStartRenderedUtf16",
+    "localEndRenderedUtf16", "sourceStartOffset", "sourceEndOffset",
+    "renderedText", "sourceFingerprint", "provenanceFingerprint",
+    "boundaryFingerprint", "fingerprint",
+  ])
+  const sourceKinds = new Set([
+    "text", "resolved-field", "generated-page-number", "hard-break",
+    "inline-image",
+  ])
+  return record == null
+    || typeof record.lineageId !== "string"
+    || typeof record.inlineId !== "string"
+    || typeof record.sourceKind !== "string"
+    || !sourceKinds.has(record.sourceKind)
+    || !safeInteger(record.localStartRenderedUtf16, 0)
+    || !safeInteger(record.localEndRenderedUtf16, 0)
+    || !safeInteger(record.sourceStartOffset, 0)
+    || !safeInteger(record.sourceEndOffset, 0)
+    || record.localEndRenderedUtf16 < record.localStartRenderedUtf16
+    || record.sourceEndOffset < record.sourceStartOffset
+    || typeof record.renderedText !== "string"
+    || typeof record.sourceFingerprint !== "string"
+    || typeof record.provenanceFingerprint !== "string"
+    || typeof record.boundaryFingerprint !== "string"
+    || typeof record.fingerprint !== "string"
+    ? null
+    : { ...record }
+}
+
+function parseDeliveryUnit(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const record = deliveryRecord(state, value, ["value", "unit"])
+  return record == null
+    || typeof record.value !== "number"
+    || !Number.isFinite(record.value)
+    || record.value <= 0
+    || (record.unit !== "pt" && record.unit !== "mm")
+    ? null
+    : { ...record }
+}
+
+function parseDeliveryAuthoredFrame(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const record = deliveryRecord(state, value, ["width", "height", "fit", "crop"])
+    ?? deliveryRecord(state, value, ["width", "height", "fit"])
+  if (record == null || (record.fit !== "contain" && record.fit !== "cover")) {
+    return null
+  }
+  const width = parseDeliveryUnit(state, record.width)
+  const height = parseDeliveryUnit(state, record.height)
+  if (width == null || height == null) return null
+  if (!Object.hasOwn(record, "crop") || record.crop === undefined) {
+    return { width, height, fit: record.fit }
+  }
+  const crop = deliveryRecord(state, record.crop, ["x", "y", "width", "height"])
+  if (
+    crop == null
+    || ![crop.x, crop.y, crop.width, crop.height].every(
+      (item) => typeof item === "number" && Number.isFinite(item),
+    )
+    || (crop.x as number) < 0
+    || (crop.y as number) < 0
+    || (crop.width as number) <= 0
+    || (crop.height as number) <= 0
+    || (crop.x as number) + (crop.width as number) > 1
+    || (crop.y as number) + (crop.height as number) > 1
+  ) return null
+  return { width, height, fit: record.fit, crop: { ...crop } }
+}
+
+function parseDeliveryLineInternalFragment(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const kind = deliveryDataField(value, "kind")
+  const keys = kind === "text"
+    ? ["kind", "lineageId", "sourceSpans", "text", "xLayoutUnit", "advanceLayoutUnit", "baselineShiftLayoutUnit", "fontFaceId", "fontFamily", "fontSha256", "fontWeight", "fontStyle", "fontSizeLayoutUnit", "ascentLayoutUnit", "descentLayoutUnit", "lineGapLayoutUnit"]
+    : kind === "inline-image"
+      ? ["kind", "lineageId", "sourceSpans", "xLayoutUnit", "yLayoutUnit", "widthLayoutUnit", "heightLayoutUnit", "verticalAlign", "alignmentPolicyFingerprint"]
+      : null
+  const record = keys == null ? null : deliveryRecord(state, value, keys)
+  const spans = record == null ? null : parseDeliverySpans(state, record.sourceSpans)
+  if (record == null || spans == null || typeof record.lineageId !== "string") return null
+  if (record.kind === "text") {
+    const numberKeys = ["xLayoutUnit", "advanceLayoutUnit", "baselineShiftLayoutUnit", "fontWeight", "fontSizeLayoutUnit", "ascentLayoutUnit", "descentLayoutUnit", "lineGapLayoutUnit"] as const
+    return numberKeys.every((key) => safeInteger(record[key]))
+      && record.baselineShiftLayoutUnit === 0
+      && typeof record.text === "string"
+      && typeof record.fontFaceId === "string"
+      && typeof record.fontFamily === "string"
+      && typeof record.fontSha256 === "string"
+      && (record.fontStyle === "normal" || record.fontStyle === "italic")
+      ? { ...record, sourceSpans: spans }
+      : null
+  }
+  return safeInteger(record.xLayoutUnit)
+    && safeInteger(record.yLayoutUnit)
+    && safeInteger(record.widthLayoutUnit)
+    && safeInteger(record.heightLayoutUnit)
+    && (record.verticalAlign === "baseline" || record.verticalAlign === "middle" || record.verticalAlign === "text-bottom")
+    && typeof record.alignmentPolicyFingerprint === "string"
+    ? { ...record, sourceSpans: spans }
+    : null
+}
+
+function parseDeliveryLineInternals(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const record = deliveryRecord(state, value, ["lineageId", "heightLayoutUnit", "baselineOffsetLayoutUnit", "fragments", "fingerprint"])
+  const values = record == null ? null : deliveryArray(state, record.fragments)
+  if (
+    record == null || values == null || typeof record.lineageId !== "string"
+    || !safeInteger(record.heightLayoutUnit) || !safeInteger(record.baselineOffsetLayoutUnit)
+    || typeof record.fingerprint !== "string"
+  ) return null
+  const fragments: Record<string, unknown>[] = []
+  for (const item of values) {
+    const fragment = parseDeliveryLineInternalFragment(state, item)
+    if (fragment == null) return null
+    fragments.push(fragment)
+  }
+  return { ...record, fragments }
+}
+
+function parseDeliveryGeometry(
+  state: DeliveryParseState,
+  value: unknown,
+  authored: boolean,
+): Record<string, unknown> | null {
+  const keys = authored
+    ? ["contentYOffsetLayoutUnit", "yOffsetLayoutUnit", "heightLayoutUnit", "baselineOffsetLayoutUnit", "fragments", "fingerprint"]
+    : ["yOffsetLayoutUnit", "heightLayoutUnit", "baselineOffsetLayoutUnit", "availableIntervals", "intervalPlacements", "fragments", "fingerprint"]
+  const record = deliveryRecord(state, value, keys)
+  if (record == null || typeof record.fingerprint !== "string") return null
+  const numericKeys = authored
+    ? ["contentYOffsetLayoutUnit", "yOffsetLayoutUnit", "heightLayoutUnit", "baselineOffsetLayoutUnit"]
+    : ["yOffsetLayoutUnit", "heightLayoutUnit", "baselineOffsetLayoutUnit"]
+  if (!numericKeys.every((key) => safeInteger(record[key]))) return null
+  const fragmentsValue = deliveryArray(state, record.fragments)
+  if (fragmentsValue == null) return null
+  const fragments: Record<string, unknown>[] = []
+  for (const value of fragmentsValue) {
+    const kind = deliveryDataField(value, "kind")
+    const fragmentKeys = kind === "text"
+      ? (authored ? ["kind", "lineageId", "contentXLayoutUnit", "xLayoutUnit", "advanceLayoutUnit"] : ["kind", "lineageId", "xLayoutUnit", "advanceLayoutUnit"])
+      : kind === "inline-image"
+        ? (authored ? ["kind", "lineageId", "contentXLayoutUnit", "contentYLayoutUnit", "xLayoutUnit", "yLayoutUnit", "widthLayoutUnit", "heightLayoutUnit"] : ["kind", "lineageId", "xLayoutUnit", "yLayoutUnit", "widthLayoutUnit", "heightLayoutUnit"])
+        : null
+    const fragment = fragmentKeys == null ? null : deliveryRecord(state, value, fragmentKeys)
+    if (fragment == null || typeof fragment.lineageId !== "string") return null
+    if (!Object.keys(fragment).filter((key) => key.endsWith("LayoutUnit")).every((key) => safeInteger(fragment[key]))) return null
+    fragments.push({ ...fragment })
+  }
+  if (authored) return { ...record, fragments }
+  const intervals = deliveryArray(state, record.availableIntervals)
+  const placements = deliveryArray(state, record.intervalPlacements)
+  if (intervals == null || placements == null) return null
+  const copiedIntervals: Record<string, unknown>[] = []
+  for (const value of intervals) {
+    const interval = deliveryRecord(state, value, ["leftLayoutUnit", "rightLayoutUnit"])
+    if (interval == null || !safeInteger(interval.leftLayoutUnit) || !safeInteger(interval.rightLayoutUnit) || interval.rightLayoutUnit < interval.leftLayoutUnit) return null
+    copiedIntervals.push({ ...interval })
+  }
+  const copiedPlacements: Record<string, unknown>[] = []
+  for (const value of placements) {
+    const placement = deliveryRecord(state, value, ["localStartRenderedUtf16", "localEndRenderedUtf16", "intervalOrdinal", "leftLayoutUnit", "rightLayoutUnit"])
+    if (placement == null || ![placement.localStartRenderedUtf16, placement.localEndRenderedUtf16, placement.intervalOrdinal, placement.leftLayoutUnit, placement.rightLayoutUnit].every((item) => safeInteger(item)) || (placement.localEndRenderedUtf16 as number) < (placement.localStartRenderedUtf16 as number) || (placement.rightLayoutUnit as number) < (placement.leftLayoutUnit as number)) return null
+    copiedPlacements.push({ ...placement })
+  }
+  return { ...record, availableIntervals: copiedIntervals, intervalPlacements: copiedPlacements, fragments }
+}
+
+function parseDeliverySceneFragment(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const kind = deliveryDataField(value, "kind")
+  const keys = kind === "text"
+    ? ["kind", "lineageId", "sourceSpans", "paintRuns", "paintFingerprint", "fingerprint"]
+    : kind === "inline-image"
+      ? ["kind", "lineageId", "sourceSpans", "assetId", "authoredFrame", "paintFingerprint", "fingerprint"]
+      : null
+  const record = keys == null ? null : deliveryRecord(state, value, keys)
+  const spans = record == null ? null : parseDeliverySpans(state, record.sourceSpans)
+  if (record == null || spans == null || typeof record.lineageId !== "string" || typeof record.paintFingerprint !== "string" || typeof record.fingerprint !== "string") return null
+  if (record.kind === "inline-image") {
+    const authoredFrame = parseDeliveryAuthoredFrame(state, record.authoredFrame)
+    return typeof record.assetId !== "string" || authoredFrame == null
+      ? null
+      : { ...record, sourceSpans: spans, authoredFrame }
+  }
+  const values = deliveryArray(state, record.paintRuns)
+  if (values == null) return null
+  const paintRuns: Record<string, unknown>[] = []
+  for (const value of values) {
+    const run = deliveryRecord(state, value, ["sourceSpan", "textColor", "textDecoration", "strikethrough", "authoredTextColor", "paintFingerprint"])
+    const span = run == null ? null : parseDeliverySpan(state, run.sourceSpan)
+    if (run == null || span == null || typeof run.textColor !== "string" || (run.textDecoration !== "none" && run.textDecoration !== "underline") || typeof run.strikethrough !== "boolean" || (run.authoredTextColor !== null && typeof run.authoredTextColor !== "string") || typeof run.paintFingerprint !== "string") return null
+    paintRuns.push({ ...run, sourceSpan: span })
+  }
+  return { ...record, sourceSpans: spans, paintRuns }
+}
+
+function parseDeliveryChunk(
+  state: DeliveryParseState,
+  value: unknown,
+): VNextTextBlockPersistentSceneChunkV2 | null {
+  if (value == null || typeof value !== "object" || state.seen.has(value)) {
+    return null
+  }
+  state.seen.add(value)
+  const record = deliveryRecord(state, value, ["lineLineageId", "sourceMapping", "lineInternals", "contentLocalGeometry", "authoredBoxGeometry", "fragments", "lineInternalsFingerprint", "sourceFingerprint", "provenanceFingerprint", "paintFingerprint", "boundarySpatialContextFingerprint", "fingerprint"])
+  if (record == null || typeof record.lineLineageId !== "string" || ![record.lineInternalsFingerprint, record.sourceFingerprint, record.provenanceFingerprint, record.paintFingerprint, record.boundarySpatialContextFingerprint, record.fingerprint].every((item) => typeof item === "string")) return null
+  const mappingValues = deliveryArray(state, record.sourceMapping)
+  const fragmentValues = deliveryArray(state, record.fragments)
+  const lineInternals = parseDeliveryLineInternals(state, record.lineInternals)
+  const contentLocalGeometry = parseDeliveryGeometry(state, record.contentLocalGeometry, false)
+  const authoredBoxGeometry = parseDeliveryGeometry(state, record.authoredBoxGeometry, true)
+  if (mappingValues == null || fragmentValues == null || lineInternals == null || contentLocalGeometry == null || authoredBoxGeometry == null) return null
+  const sourceMapping: Record<string, unknown>[] = []
+  for (const item of mappingValues) {
+    const mapping = parseDeliverySourceMapping(state, item)
+    if (mapping == null) return null
+    sourceMapping.push(mapping)
+  }
+  const fragments: Record<string, unknown>[] = []
+  for (const item of fragmentValues) {
+    const fragment = parseDeliverySceneFragment(state, item)
+    if (fragment == null) return null
+    fragments.push(fragment)
+  }
+  return { ...record, sourceMapping, lineInternals, contentLocalGeometry, authoredBoxGeometry, fragments } as unknown as VNextTextBlockPersistentSceneChunkV2
+}
+
+function parseDeliverySourcePoint(
+  state: DeliveryParseState,
+  value: unknown,
+): Record<string, unknown> | null {
+  const record = deliveryRecord(state, value, ["lineageId", "localRenderedUtf16"])
+  return record == null
+    || typeof record.lineageId !== "string"
+    || !safeInteger(record.localRenderedUtf16, 0)
+    ? null
+    : { ...record }
+}
+
+function parseDeliverySummary(
+  state: DeliveryParseState,
+  value: unknown,
+): VNextTextBlockPersistentSceneSummaryV2 | null {
+  const record = deliveryRecord(state, value, ["chunkCount", "lineCount", "textFragmentCount", "inlineImageFragmentCount", "leafCount", "nodeCount", "sourceRange", "authoredTopLayoutUnit", "authoredBottomLayoutUnit", "lineInternalsFingerprint", "sourceFingerprint", "provenanceFingerprint", "paintFingerprint", "boundarySpatialContextFingerprint"])
+  if (
+    record == null
+    || ![record.chunkCount, record.lineCount, record.textFragmentCount, record.inlineImageFragmentCount, record.leafCount, record.nodeCount].every((item) => safeInteger(item, 0))
+    || ![record.lineInternalsFingerprint, record.sourceFingerprint, record.provenanceFingerprint, record.paintFingerprint, record.boundarySpatialContextFingerprint].every((item) => typeof item === "string")
+    || (record.authoredTopLayoutUnit !== null && !safeInteger(record.authoredTopLayoutUnit))
+    || (record.authoredBottomLayoutUnit !== null && !safeInteger(record.authoredBottomLayoutUnit))
+    || (record.authoredTopLayoutUnit !== null && record.authoredBottomLayoutUnit !== null && record.authoredBottomLayoutUnit < record.authoredTopLayoutUnit)
+  ) return null
+  const range = deliveryRecord(state, record.sourceRange, ["start", "end"])
+  if (range == null) return null
+  const start = range.start === null ? null : parseDeliverySourcePoint(state, range.start)
+  const end = range.end === null ? null : parseDeliverySourcePoint(state, range.end)
+  if ((range.start !== null && start == null) || (range.end !== null && end == null)) return null
+  return {
+    ...record,
+    sourceRange: { start, end },
+  } as unknown as VNextTextBlockPersistentSceneSummaryV2
+}
+
 function deliveryIssue(
   code: VNextTextBlockSceneDeliveryPlanIssueCodeV2,
   message: string,
@@ -260,8 +620,9 @@ function sameSelectedNodeIdentity(
 function exactRange(value: unknown): VNextTextBlockSceneDeliveryRangeV2 | null {
   const record = exactRecord(value, ["start", "end"])
   return record == null
-    || typeof record.start !== "number"
-    || typeof record.end !== "number"
+    || !safeInteger(record.start, 0)
+    || !safeInteger(record.end, 0)
+    || record.end < record.start
     ? null
     : { start: record.start, end: record.end }
 }
@@ -689,7 +1050,7 @@ function exactRetainedSubtrees(value: unknown): readonly {
       || previousPath == null
       || typeof record.fingerprint !== "string"
       || typeof record.payloadObservationFingerprint !== "string"
-      || typeof record.chunkCount !== "number"
+      || !safeInteger(record.chunkCount)
     ) return null
     output.push({
       previousPath,
@@ -703,8 +1064,10 @@ function exactRetainedSubtrees(value: unknown): readonly {
 
 function exactPlanOperations(
   value: unknown,
+  state: DeliveryParseState,
+  preserveReplacementIdentity: boolean,
 ): readonly VNextTextBlockSceneDeliveryOperationV2[] | null {
-  const values = exactArray(value)
+  const values = deliveryArray(state, value)
   if (values == null) return null
   const output: VNextTextBlockSceneDeliveryOperationV2[] = []
   for (const item of values) {
@@ -751,20 +1114,27 @@ function exactPlanOperations(
         ? null
         : exactRange(record.previousRange)
       const nextRange = record == null ? null : exactRange(record.nextRange)
-      const replacementChunks = record == null
+      const replacementValues = record == null
         ? null
-        : exactArray(record.replacementChunks)
+        : deliveryArray(state, record.replacementChunks)
       if (
         previousRange == null
         || nextRange == null
-        || replacementChunks == null
+        || replacementValues == null
       ) return null
+      const replacementChunks: VNextTextBlockPersistentSceneChunkV2[] = []
+      for (const value of replacementValues) {
+        const chunk = parseDeliveryChunk(state, value)
+        if (chunk == null) return null
+        replacementChunks.push(preserveReplacementIdentity
+          ? value as VNextTextBlockPersistentSceneChunkV2
+          : chunk)
+      }
       output.push({
         kind: "splice-range",
         previousRange,
         nextRange,
-        replacementChunks:
-          replacementChunks as readonly VNextTextBlockPersistentSceneChunkV2[],
+        replacementChunks,
       })
     } else {
       return null
@@ -773,7 +1143,10 @@ function exactPlanOperations(
   return output
 }
 
-function exactPlan(value: unknown): VNextTextBlockSceneDeliveryPlanV2 | null {
+function exactPlan(
+  value: unknown,
+  preserveReplacementIdentity = false,
+): VNextTextBlockSceneDeliveryPlanV2 | null {
   const record = exactRecord(value, [
     "source",
     "contractVersion",
@@ -793,7 +1166,12 @@ function exactPlan(value: unknown): VNextTextBlockSceneDeliveryPlanV2 | null {
     "fingerprint",
   ])
   if (record == null) return null
-  const operations = exactPlanOperations(record.operations)
+  const state: DeliveryParseState = { seen: new WeakSet<object>() }
+  const operations = exactPlanOperations(
+    record.operations,
+    state,
+    preserveReplacementIdentity,
+  )
   const summary = exactRecord(record.summary, [
     "retainOperationCount",
     "spliceOperationCount",
@@ -822,9 +1200,13 @@ function exactPlan(value: unknown): VNextTextBlockSceneDeliveryPlanV2 | null {
     || typeof record.nextPayloadObservationFingerprint !== "string"
     || typeof record.previousTreePolicyFingerprint !== "string"
     || typeof record.nextTreePolicyFingerprint !== "string"
-    || typeof record.previousChunkCount !== "number"
-    || typeof record.nextChunkCount !== "number"
+    || !safeInteger(record.previousChunkCount)
+    || !safeInteger(record.nextChunkCount)
     || typeof record.fingerprint !== "string"
+    || ![summary.retainOperationCount, summary.spliceOperationCount, summary.retainedSubtreeCount, summary.replacementChunkCount, observations.estimatedCanonicalPayloadByteCount, work.visitedOperationCount, work.visitedRetainCoverNodeCount, work.visitedReplacementChunkCount].every((item) => safeInteger(item))
+    || work.completePreviousSceneTraversalCount !== 0
+    || work.completeNextSceneTraversalCount !== 0
+    || typeof observations.payloadObservationFingerprint !== "string"
   ) return null
   return {
     source: record.source as VNextTextBlockSceneDeliveryPlanV2["source"],
@@ -937,7 +1319,7 @@ function verifyDeliveryPlanV2(
       "candidate verification requires exact prepared scenes",
     )
   }
-  const plan = exactPlan(exact.plan)
+  const plan = exactPlan(exact.plan, requireExactReplacementIdentity)
   if (plan == null) {
     return invalidInspection(
       "invalid-input",
@@ -1711,7 +2093,22 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
     "productionBinding",
     "fingerprint",
   ])
-  const chunks = exactArray(record?.chunks)
+  const state: DeliveryParseState = { seen: new WeakSet<object>() }
+  const chunkValues = deliveryArray(state, record?.chunks)
+  const chunks: VNextTextBlockPersistentSceneChunkV2[] = []
+  if (chunkValues != null) {
+    for (const chunkValue of chunkValues) {
+      const chunk = parseDeliveryChunk(state, chunkValue)
+      if (chunk == null) {
+        return invalidCompleteDeliveryInspection(
+          "complete-delivery-data-mismatch",
+          "complete delivery is not one exact canonical renderer-data record",
+        )
+      }
+      chunks.push(chunk)
+    }
+  }
+  const summary = parseDeliverySummary(state, record?.summary)
   const observations = exactRecord(record?.observations, [
     "estimatedCanonicalPayloadByteCount",
     "payloadObservationFingerprint",
@@ -1723,7 +2120,8 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
   ])
   if (
     record == null
-    || chunks == null
+    || chunkValues == null
+    || summary == null
     || observations == null
     || work == null
     || record.source !== "vnext-text-block-complete-scene-delivery-v2"
@@ -1756,7 +2154,13 @@ export function inspectVNextTextBlockCompleteSceneDeliveryV2(
     )
   }
   try {
-    const delivery = record as unknown as VNextTextBlockCompleteSceneDeliveryV2
+    const delivery = {
+      ...record,
+      chunks,
+      summary,
+      observations,
+      work,
+    } as unknown as VNextTextBlockCompleteSceneDeliveryV2
     const chunkIssue = completeDeliveryChunkIssue(delivery)
     if (chunkIssue != null) {
       return invalidCompleteDeliveryInspection(
