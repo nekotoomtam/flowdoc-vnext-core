@@ -8,6 +8,9 @@ import {
   setVNextTextBlockPersistentLayoutLineTreeFullInspectionObserverForTestInternalV1,
 } from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
 import {
+  setVNextTextBlockSceneDeliveryPlanVerificationObserverForTestInternalV2,
+} from "../src/layout/textBlockSceneDeliveryV2.js"
+import {
   inspectVNextTextBlockUnifiedLayoutRootV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
@@ -738,6 +741,34 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       .toBe(0)
   })
 
+  it("runs the delivery builder verification gate exactly once", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
+    let verificationCount = 0
+    setVNextTextBlockSceneDeliveryPlanVerificationObserverForTestInternalV2(
+      () => {
+        verificationCount += 1
+      },
+    )
+    try {
+      const result =
+        attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+          previousRoot: previous.root,
+          change: imagePaintUnifiedLayoutChange5b(previous.root, {
+            fit: "cover",
+            crop: { x: 0, y: 0, width: 0.5, height: 1 },
+          }),
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+      expect(result.status, JSON.stringify(result.issues))
+        .toBe("accepted-incremental")
+    } finally {
+      setVNextTextBlockSceneDeliveryPlanVerificationObserverForTestInternalV2(
+        null,
+      )
+    }
+    expect(verificationCount).toBe(1)
+  })
+
   it("supports consecutive paint transitions without reaching for complete material", () => {
     const initial = acceptedUnifiedLayoutRootFixtureV2({
       fit: "contain",
@@ -870,55 +901,78 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
   })
 
   it("retains the exact line tree for first, middle, and last image paint", () => {
-    const previous = acceptedRepeatedUnifiedLayoutRootFixture5b(3)
-    const inlineIds: string[] = []
-    for (
-      let offset = 0;
-      offset < previous.root.sourceState.summary.renderedUtf16Length;
-      offset += 1
-    ) {
-      const lookup = lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1({
-        sourceState: previous.root.sourceState,
-        renderedUtf16Offset: offset,
-      })
-      if (
-        lookup.status === "found"
-        && lookup.item.kind === "inline-image"
-        && !inlineIds.includes(lookup.item.inlineId)
+    for (const row of [
+      {
+        lineCount: 3,
+        selectedOrdinals: [0, 1, 2],
+        sceneLookupNodeCount: 2,
+        deliverySceneVisitCounts: [26, 42, 26],
+      },
+      {
+        lineCount: 9,
+        selectedOrdinals: [0, 4, 8],
+        sceneLookupNodeCount: 3,
+        deliverySceneVisitCounts: [44, 62, 50],
+      },
+    ]) {
+      const previous = acceptedRepeatedUnifiedLayoutRootFixture5b(row.lineCount)
+      const inlineIds: string[] = []
+      for (
+        let offset = 0;
+        offset < previous.root.sourceState.summary.renderedUtf16Length;
+        offset += 1
       ) {
-        inlineIds.push(lookup.item.inlineId)
+        const lookup = lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1({
+          sourceState: previous.root.sourceState,
+          renderedUtf16Offset: offset,
+        })
+        if (
+          lookup.status === "found"
+          && lookup.item.kind === "inline-image"
+          && !inlineIds.includes(lookup.item.inlineId)
+        ) {
+          inlineIds.push(lookup.item.inlineId)
+        }
+      }
+      expect(inlineIds).toHaveLength(row.lineCount)
+
+      for (const [index, ordinal] of row.selectedOrdinals.entries()) {
+        const inlineId = inlineIds[ordinal]
+        const paint = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+          previousRoot: previous.root,
+          change: imagePaintUnifiedLayoutChange5b(previous.root, {
+            inlineId,
+            fit: "cover",
+            crop: { x: 0, y: 0, width: 0.5, height: 1 },
+          }),
+          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        })
+        expect(paint.status, JSON.stringify(paint.issues))
+          .toBe("accepted-incremental")
+        if (paint.status !== "accepted-incremental") continue
+        expect(paint.root.lineTree).toBe(previous.root.lineTree)
+        expect(paint.incrementalCandidateWork.structuralReuseProof).toEqual({
+          visitedLineTreeNodeCount: 2,
+          selectedExactSubtreeNodeCount: 1,
+          lineTreeWrapperAllocationCount: 0,
+          completeLineTreeTraversalCount: 0,
+        })
+        expect(paint.incrementalCandidateWork.scene).toMatchObject({
+          visitedLineTreeNodeCount: row.sceneLookupNodeCount,
+          visitedSceneTreeNodeCount: row.sceneLookupNodeCount,
+        })
+        expect(paint.incrementalCandidateWork.deliveryPlan).toMatchObject({
+          visitedSceneTreeNodeCount: row.deliverySceneVisitCounts[index],
+        })
+        expect(paint.incrementalCandidateWork.layout).toMatchObject({
+          recomputedLineCount: 0,
+          proofNodeCount: 0,
+          completeSuffixTraversalCount: 0,
+        })
+        expect(paint.incrementalCandidateWork.stageWork.filter(
+          (stageRow) => stageRow.stage === "layout-reconvergence",
+        ).every((stageRow) => stageRow.count === 0)).toBe(true)
       }
     }
-    expect(inlineIds).toHaveLength(3)
-
-    for (const inlineId of [inlineIds[0], inlineIds[1], inlineIds[2]]) {
-      const paint = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
-        previousRoot: previous.root,
-        change: imagePaintUnifiedLayoutChange5b(previous.root, {
-          inlineId,
-          fit: "cover",
-          crop: { x: 0, y: 0, width: 0.5, height: 1 },
-        }),
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
-      })
-      expect(paint.status, JSON.stringify(paint.issues))
-        .toBe("accepted-incremental")
-      if (paint.status !== "accepted-incremental") continue
-      expect(paint.root.lineTree).toBe(previous.root.lineTree)
-      expect(paint.incrementalCandidateWork.structuralReuseProof).toEqual({
-        visitedLineTreeNodeCount: 2,
-        selectedExactSubtreeNodeCount: 1,
-        lineTreeWrapperAllocationCount: 0,
-        completeLineTreeTraversalCount: 0,
-      })
-      expect(paint.incrementalCandidateWork.layout).toMatchObject({
-        recomputedLineCount: 0,
-        proofNodeCount: 0,
-        completeSuffixTraversalCount: 0,
-      })
-      expect(paint.incrementalCandidateWork.stageWork.filter(
-        (row) => row.stage === "layout-reconvergence",
-      ).every((row) => row.count === 0)).toBe(true)
-    }
-  })
+  }, 60_000)
 })

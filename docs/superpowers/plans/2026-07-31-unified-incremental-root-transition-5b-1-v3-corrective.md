@@ -451,6 +451,10 @@ type VNextTextBlockSceneDeliveryPlanBuildResultV2 =
 
 The Scene candidate also returns line-ordinal lookup visits and Scene-ordinal
 lookup visits separately from copied nodes/replacement chunks.
+For a splice range, construction and verification Scene-tree visits include
+both maximal range selection and the selected-node walk required to emit or
+compare exact replacement chunks; `replacementChunkCount` remains a separate
+result-size fact.
 
 - [ ] **Step 1: Add RED Scene tests** at the fixed scales/positions/heights.
   Assert lookup counts come from the existing lookup results and that copied

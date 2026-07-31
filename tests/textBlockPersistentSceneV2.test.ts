@@ -531,6 +531,12 @@ describe("Phase 5B Persistent Scene V2", () => {
     if (candidate.status !== "prepared") {
       throw new Error(`scene paint blocked: ${JSON.stringify(candidate.issues)}`)
     }
+    expect(candidate.work).toMatchObject({
+      visitedLineTreeNodeCount: 1,
+      visitedSceneTreeNodeCount: 1,
+      incrementalCopiedNodeCount: 0,
+      emittedChunkCount: 1,
+    })
     const accepted =
       inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV2({
         scene: candidate.scene,

@@ -315,6 +315,9 @@ function paintWork(
   input: {
     readonly dispositionCover: VNextTextBlockLineDispositionCoverV1
     readonly visitedLineTreeNodeCount: number
+    readonly sceneLineTreeNodeCount: number
+    readonly sceneTreeNodeCount: number
+    readonly deliverySceneTreeNodeCount: number
     readonly copiedSceneNodeCount: number
     readonly replacementChunkCount: number
     readonly deliveryOperationCount: number
@@ -343,13 +346,13 @@ function paintWork(
       completeLineTreeTraversalCount: 0,
     },
     scene: {
-      visitedLineTreeNodeCount: 0,
-      visitedSceneTreeNodeCount: 0,
+      visitedLineTreeNodeCount: input.sceneLineTreeNodeCount,
+      visitedSceneTreeNodeCount: input.sceneTreeNodeCount,
       copiedSceneNodeCount: input.copiedSceneNodeCount,
       replacementChunkCount: input.replacementChunkCount,
     },
     deliveryPlan: {
-      visitedSceneTreeNodeCount: 0,
+      visitedSceneTreeNodeCount: input.deliverySceneTreeNodeCount,
       deliveryOperationCount: input.deliveryOperationCount,
       retainCoverNodeCount: input.retainCoverNodeCount,
     },
@@ -677,6 +680,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       dispositionCover: structuralReuseProof.cover,
       visitedLineTreeNodeCount:
         structuralReuseProof.visitedLineTreeNodeCount,
+      sceneLineTreeNodeCount: scene.visitedLineTreeNodeCount,
+      sceneTreeNodeCount: scene.visitedSceneTreeNodeCount,
+      deliverySceneTreeNodeCount: scene.deliveryVisitedSceneTreeNodeCount,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
       deliveryOperationCount: 0,
@@ -729,6 +735,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       dispositionCover: structuralReuseProof.cover,
       visitedLineTreeNodeCount:
         structuralReuseProof.visitedLineTreeNodeCount,
+      sceneLineTreeNodeCount: scene.visitedLineTreeNodeCount,
+      sceneTreeNodeCount: scene.visitedSceneTreeNodeCount,
+      deliverySceneTreeNodeCount: scene.deliveryVisitedSceneTreeNodeCount,
       copiedSceneNodeCount: scene.copiedSceneNodeCount,
       replacementChunkCount: scene.replacementChunkCount,
       deliveryOperationCount: scene.deliveryPlan.operations.length,
@@ -872,6 +881,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
   const work = paintWork(bound.incrementalCandidateWork, {
     dispositionCover: structuralReuseProof.cover,
     visitedLineTreeNodeCount: structuralReuseProof.visitedLineTreeNodeCount,
+    sceneLineTreeNodeCount: scene.visitedLineTreeNodeCount,
+    sceneTreeNodeCount: scene.visitedSceneTreeNodeCount,
+    deliverySceneTreeNodeCount: scene.deliveryVisitedSceneTreeNodeCount,
     copiedSceneNodeCount: scene.copiedSceneNodeCount,
     replacementChunkCount: scene.replacementChunkCount,
     deliveryOperationCount: scene.deliveryPlan.operations.length,

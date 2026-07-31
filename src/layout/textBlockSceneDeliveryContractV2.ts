@@ -102,15 +102,24 @@ export interface VNextTextBlockSceneDeliveryPlanIssueV2 {
   readonly message: string
 }
 
+export interface VNextTextBlockSceneDeliveryPlanBuildWorkV2 {
+  readonly constructionSceneTreeVisitCount: number
+  readonly verificationSceneTreeVisitCount: number
+  readonly deliveryOperationCount: number
+  readonly retainCoverNodeCount: number
+}
+
 export type VNextTextBlockSceneDeliveryPlanBuildResultV2 =
   | {
       readonly status: "prepared"
       readonly plan: VNextTextBlockSceneDeliveryPlanV2
+      readonly work: VNextTextBlockSceneDeliveryPlanBuildWorkV2
       readonly issues: readonly []
     }
   | {
       readonly status: "blocked"
       readonly plan: null
+      readonly work: VNextTextBlockSceneDeliveryPlanBuildWorkV2
       readonly issues: readonly VNextTextBlockSceneDeliveryPlanIssueV2[]
     }
 
@@ -124,6 +133,7 @@ export type VNextTextBlockSceneDeliveryPlanInspectionV2 =
       readonly visitedOperationCount: number
       readonly visitedRetainCoverNodeCount: number
       readonly visitedReplacementChunkCount: number
+      readonly visitedSceneTreeNodeCount: number
       readonly completePreviousSceneTraversalCount: 0
       readonly completeNextSceneTraversalCount: 0
     }
@@ -131,6 +141,7 @@ export type VNextTextBlockSceneDeliveryPlanInspectionV2 =
       readonly status: "invalid"
       readonly code: VNextTextBlockSceneDeliveryPlanIssueCodeV2
       readonly message: string
+      readonly visitedSceneTreeNodeCount: number
     }
 
 export interface VNextTextBlockCompleteSceneDeliveryV2 {

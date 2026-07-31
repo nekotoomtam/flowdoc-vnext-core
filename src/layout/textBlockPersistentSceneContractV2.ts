@@ -162,6 +162,8 @@ export type VNextTextBlockPersistentSceneWorkV2 =
       readonly visitedLineCount: number
       readonly visitedFragmentCount: number
       readonly visitedSourceItemCount: number
+      readonly visitedLineTreeNodeCount: number
+      readonly visitedSceneTreeNodeCount: number
       readonly emittedChunkCount: number
       readonly createdLeafCount: number
       readonly createdNodeCount: number
@@ -171,6 +173,11 @@ export type VNextTextBlockPersistentSceneWorkV2 =
       readonly completeLineTreeTraversalCount: 0
       readonly completeSceneTraversalCount: 0
     }
+
+export type VNextTextBlockPersistentSceneIncrementalWorkV2 = Extract<
+  VNextTextBlockPersistentSceneWorkV2,
+  { readonly completeSceneProjectionCount: 0 }
+>
 
 export interface VNextTextBlockPersistentSceneV2 {
   readonly source: typeof VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_SOURCE

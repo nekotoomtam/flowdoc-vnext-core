@@ -202,7 +202,7 @@ function retainRange(
     (operation) => operation.kind === "retain-range",
   )
   if (retain?.kind !== "retain-range") throw new Error("retain missing")
-  return { plan: result.plan, retain }
+  return { plan: result.plan, retain, work: result.work }
 }
 
 function nodeRangeAtPath(
@@ -271,6 +271,7 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
         chunkCount: 8,
         range: { start: 1, end: 7 },
         previousPaths: [[1], [2], [3], [4], [5], [6]],
+        sceneTreeVisitCount: 38,
       },
       {
         chunkCount: 9,
@@ -284,6 +285,7 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
           [1, 2],
           [1, 3],
         ],
+        sceneTreeVisitCount: 41,
       },
       {
         chunkCount: 17,
@@ -300,6 +302,7 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
           [2, 1],
           [2, 2],
         ],
+        sceneTreeVisitCount: 59,
       },
       {
         chunkCount: 33,
@@ -316,6 +319,7 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
           [4, 0],
           [4, 1],
         ],
+        sceneTreeVisitCount: 69,
       },
     ] as const
 
@@ -330,7 +334,13 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
         underflowMergeOrder: ["left", "right"],
         collapseUnaryRoot: true,
       })
-      const { plan, retain } = retainRange(scene, row.range)
+      const { plan, retain, work } = retainRange(scene, row.range)
+      expect(work).toEqual({
+        constructionSceneTreeVisitCount: row.sceneTreeVisitCount,
+        verificationSceneTreeVisitCount: row.sceneTreeVisitCount,
+        deliveryOperationCount: 3,
+        retainCoverNodeCount: row.previousPaths.length,
+      })
       expect(retain.retainedSubtrees.map((item) => item.previousPath))
         .toEqual(row.previousPaths)
       expectHighestContainedCover(scene, row.range, retain.retainedSubtrees)
@@ -348,7 +358,25 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
 
   it("builds one greedy root retain without complete scene traversal", () => {
     const scene = repeatedScene(9)
-    const plan = retainOnly(scene)
+    const built = createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: scene,
+      nextScene: scene,
+      operations: [{
+        kind: "retain-range",
+        previousRange: { start: 0, end: 9 },
+        nextRange: { start: 0, end: 9 },
+      }],
+    })
+    expect(built.status).toBe("prepared")
+    if (built.status !== "prepared") return
+    const plan = built.plan
+
+    expect(built.work).toEqual({
+      constructionSceneTreeVisitCount: 2,
+      verificationSceneTreeVisitCount: 2,
+      deliveryOperationCount: 1,
+      retainCoverNodeCount: 1,
+    })
 
     expect(plan.operations).toEqual([{
       kind: "retain-range",
@@ -941,7 +969,8 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
     const independentlyPrepared = repeatedScene(17)
     expect(independentlyPrepared.root).not.toBe(scene.root)
     expect(independentlyPrepared.fingerprint).toBe(scene.fingerprint)
-    expect(createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+    const blockedRetain =
+      createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
       previousScene: scene,
       nextScene: independentlyPrepared,
       operations: [{
@@ -949,9 +978,16 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
         previousRange: { start: 0, end: 17 },
         nextRange: { start: 0, end: 17 },
       }],
-    })).toMatchObject({
+    })
+    expect(blockedRetain).toMatchObject({
       status: "blocked",
       issues: [{ code: "delivery-plan-retain-payload-mismatch" }],
+      work: {
+        constructionSceneTreeVisitCount: 2,
+        verificationSceneTreeVisitCount: 0,
+        deliveryOperationCount: 0,
+        retainCoverNodeCount: 0,
+      },
     })
 
     const firstRegistered = acceptedUnifiedLayoutRootFixtureV2()

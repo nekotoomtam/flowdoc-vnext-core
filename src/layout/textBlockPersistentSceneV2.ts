@@ -26,6 +26,7 @@ import {
   type VNextTextBlockPersistentSceneFragmentV2,
   type VNextTextBlockPersistentSceneIncrementalFragmentInspectionV2,
   type VNextTextBlockPersistentSceneInspectionV2,
+  type VNextTextBlockPersistentSceneIncrementalWorkV2,
   type VNextTextBlockPersistentSceneIssueCodeV2,
   type VNextTextBlockPersistentSceneIssueV2,
   type VNextTextBlockPersistentSceneLeafV2,
@@ -53,6 +54,30 @@ import {
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
+
+function incrementalSceneAttemptWork(input: {
+  readonly visitedLineCount?: number
+  readonly visitedSourceItemCount?: number
+  readonly visitedLineTreeNodeCount?: number
+  readonly visitedSceneTreeNodeCount?: number
+} = {}): VNextTextBlockPersistentSceneIncrementalWorkV2 {
+  return Object.freeze({
+    completeSceneProjectionCount: 0,
+    visitedLineCount: input.visitedLineCount ?? 0,
+    visitedFragmentCount: 0,
+    visitedSourceItemCount: input.visitedSourceItemCount ?? 0,
+    visitedLineTreeNodeCount: input.visitedLineTreeNodeCount ?? 0,
+    visitedSceneTreeNodeCount: input.visitedSceneTreeNodeCount ?? 0,
+    emittedChunkCount: 0,
+    createdLeafCount: 0,
+    createdNodeCount: 0,
+    reusedChunkCount: 0,
+    reusedSceneNodeCount: 0,
+    incrementalCopiedNodeCount: 0,
+    completeLineTreeTraversalCount: 0,
+    completeSceneTraversalCount: 0,
+  })
+}
 
 const FORCED_COLLISION_FINGERPRINT =
   `sha256:${"0".repeat(64)}` as const
@@ -1277,7 +1302,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       readonly siblingReferences:
         readonly VNextTextBlockPersistentSceneSiblingReferenceV2[]
       readonly fragmentAuthority: object
-      readonly work: VNextTextBlockPersistentSceneV2["work"]
+      readonly work: VNextTextBlockPersistentSceneIncrementalWorkV2
       readonly issues: readonly []
     }
   | {
@@ -1288,7 +1313,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       readonly replacementNodes: null
       readonly siblingReferences: null
       readonly fragmentAuthority: null
-      readonly work: null
+      readonly work: VNextTextBlockPersistentSceneIncrementalWorkV2
       readonly issues: readonly VNextTextBlockPersistentSceneIssueV2[]
     } {
   const previous = preparedScenes.get(input.previousScene)
@@ -1318,7 +1343,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       replacementNodes: null,
       siblingReferences: null,
       fragmentAuthority: null,
-      work: null,
+      work: incrementalSceneAttemptWork(),
       issues: [issue(
         "scene-dependency-binding-mismatch",
         "paint scene transition requires one exact previous Scene/source/line tuple",
@@ -1342,7 +1367,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       replacementNodes: null,
       siblingReferences: null,
       fragmentAuthority: null,
-      work: null,
+      work: incrementalSceneAttemptWork(),
       issues: [issue(
         "scene-source-lineage-mismatch",
         "paint scene transition source item is not an exact image",
@@ -1361,7 +1386,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       replacementNodes: null,
       siblingReferences: null,
       fragmentAuthority: null,
-      work: null,
+      work: incrementalSceneAttemptWork({ visitedSourceItemCount: 1 }),
       issues: [issue(
         "scene-invalid-topology",
         "one inline image must map to exactly one renderer chunk",
@@ -1382,19 +1407,26 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       replacementNodes: null,
       siblingReferences: null,
       fragmentAuthority: null,
-      work: null,
+      work: incrementalSceneAttemptWork({
+        visitedSourceItemCount: 1,
+        visitedLineTreeNodeCount: line.work?.visitedNodeCount ?? 0,
+      }),
       issues: [issue(
         "scene-invalid-topology",
         "paint scene transition could not resolve one exact line leaf",
       )],
     }
   }
+  let visitedSceneTreeNodeCount = 0
   try {
     const previousChunk =
       lookupVNextTextBlockPersistentSceneChunkInternalV2({
         scene: input.previousScene,
         chunkOrdinal,
       })
+    if (previousChunk.work != null) {
+      visitedSceneTreeNodeCount = previousChunk.work.visitedNodeCount
+    }
     if (previousChunk.status !== "found") {
       throw new Error("paint chunk escaped exact previous Scene")
     }
@@ -1440,6 +1472,8 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       visitedLineCount: 1,
       visitedFragmentCount: chunk.fragments.length,
       visitedSourceItemCount: 1,
+      visitedLineTreeNodeCount: line.work.visitedNodeCount,
+      visitedSceneTreeNodeCount: previousChunk.work.visitedNodeCount,
       emittedChunkCount: 1,
       createdLeafCount: 1,
       createdNodeCount: copiedPathNodes.length + 1,
@@ -1539,7 +1573,12 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       replacementNodes: null,
       siblingReferences: null,
       fragmentAuthority: null,
-      work: null,
+      work: incrementalSceneAttemptWork({
+        visitedLineCount: 1,
+        visitedSourceItemCount: 1,
+        visitedLineTreeNodeCount: line.work.visitedNodeCount,
+        visitedSceneTreeNodeCount,
+      }),
       issues: [issue(
         "scene-unsafe-summary",
         "paint scene transition exceeded bounded path-copy invariants",

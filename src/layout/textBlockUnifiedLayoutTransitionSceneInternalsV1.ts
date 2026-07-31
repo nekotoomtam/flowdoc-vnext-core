@@ -4,7 +4,6 @@ import type {
 } from "./textBlockSceneDeliveryContractV2.js"
 import {
   createVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
-  verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
 } from "./textBlockSceneDeliveryV2.js"
 import type {
   VNextTextBlockPersistentSceneV2,
@@ -36,6 +35,9 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly copiedSceneNodeCount: number
       readonly replacementChunkCount: 1
       readonly visitedSourceItemCount: number
+      readonly visitedLineTreeNodeCount: number
+      readonly visitedSceneTreeNodeCount: number
+      readonly deliveryVisitedSceneTreeNodeCount: number
       readonly issues: readonly []
     }
   | {
@@ -44,7 +46,10 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly deliveryPlan: null
       readonly copiedSceneNodeCount: 0
       readonly replacementChunkCount: 0
-      readonly visitedSourceItemCount: 0
+      readonly visitedSourceItemCount: number
+      readonly visitedLineTreeNodeCount: number
+      readonly visitedSceneTreeNodeCount: number
+      readonly deliveryVisitedSceneTreeNodeCount: number
       readonly issues: readonly [{
         readonly code: "incremental-proof-unavailable"
         readonly message: string
@@ -65,7 +70,10 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       deliveryPlan: null,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
-      visitedSourceItemCount: 0,
+      visitedSourceItemCount: scene.work.visitedSourceItemCount,
+      visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
+      visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
+      deliveryVisitedSceneTreeNodeCount: 0,
       issues: [{
         code: "incremental-proof-unavailable",
         message: scene.issues[0]?.message
@@ -87,7 +95,10 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       deliveryPlan: null,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
-      visitedSourceItemCount: 0,
+      visitedSourceItemCount: scene.work.visitedSourceItemCount,
+      visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
+      visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
+      deliveryVisitedSceneTreeNodeCount: 0,
       issues: [{
         code: "incremental-proof-unavailable",
         message: fragment.message,
@@ -134,31 +145,16 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       deliveryPlan: null,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
-      visitedSourceItemCount: 0,
+      visitedSourceItemCount: scene.work.visitedSourceItemCount,
+      visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
+      visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
+      deliveryVisitedSceneTreeNodeCount:
+        delivery.work.constructionSceneTreeVisitCount
+        + delivery.work.verificationSceneTreeVisitCount,
       issues: [{
         code: "incremental-proof-unavailable",
         message: delivery.issues[0]?.message
           ?? "paint scene delivery plan failed",
-      }],
-    }
-  }
-  const verified =
-    verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
-      previousScene: input.previousRoot.persistentScene,
-      nextScene: scene.scene,
-      plan: delivery.plan,
-    })
-  if (verified.status !== "valid") {
-    return {
-      status: "blocked",
-      scene: null,
-      deliveryPlan: null,
-      copiedSceneNodeCount: 0,
-      replacementChunkCount: 0,
-      visitedSourceItemCount: 0,
-      issues: [{
-        code: "incremental-proof-unavailable",
-        message: verified.message,
       }],
     }
   }
@@ -169,6 +165,11 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
     copiedSceneNodeCount: scene.work.incrementalCopiedNodeCount,
     replacementChunkCount: 1 as const,
     visitedSourceItemCount: scene.work.visitedSourceItemCount,
+    visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
+    visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
+    deliveryVisitedSceneTreeNodeCount:
+      delivery.work.constructionSceneTreeVisitCount
+      + delivery.work.verificationSceneTreeVisitCount,
     issues: Object.freeze([]) as readonly [],
   })
 }

@@ -20,6 +20,7 @@ import {
   type VNextTextBlockSceneDeliveryOperationDraftV2,
   type VNextTextBlockSceneDeliveryOperationV2,
   type VNextTextBlockSceneDeliveryPlanBuildResultV2,
+  type VNextTextBlockSceneDeliveryPlanBuildWorkV2,
   type VNextTextBlockSceneDeliveryPlanCandidateInputV2,
   type VNextTextBlockSceneDeliveryPlanInspectionV2,
   type VNextTextBlockSceneDeliveryPlanIssueCodeV2,
@@ -56,6 +57,14 @@ function safeAdd(left: number, right: number): number {
   const result = left + right
   if (!Number.isSafeInteger(result)) throw new Error("unsafe integer")
   return result
+}
+
+let planVerificationObserverForTest: (() => void) | null = null
+
+export function setVNextTextBlockSceneDeliveryPlanVerificationObserverForTestInternalV2(
+  observer: (() => void) | null,
+): void {
+  planVerificationObserverForTest = observer
 }
 
 function utf8ByteCount(value: unknown): number {
@@ -496,19 +505,29 @@ function deliveryIssue(
 function blockedPlan(
   code: VNextTextBlockSceneDeliveryPlanIssueCodeV2,
   message: string,
+  work: VNextTextBlockSceneDeliveryPlanBuildWorkV2 = ZERO_PLAN_BUILD_WORK,
 ): VNextTextBlockSceneDeliveryPlanBuildResultV2 {
   return Object.freeze({
     status: "blocked",
     plan: null,
+    work,
     issues: Object.freeze([deliveryIssue(code, message)]),
   })
 }
 
+const ZERO_PLAN_BUILD_WORK = Object.freeze({
+  constructionSceneTreeVisitCount: 0,
+  verificationSceneTreeVisitCount: 0,
+  deliveryOperationCount: 0,
+  retainCoverNodeCount: 0,
+})
+
 function invalidInspection(
   code: VNextTextBlockSceneDeliveryPlanIssueCodeV2,
   message: string,
+  visitedSceneTreeNodeCount = 0,
 ): VNextTextBlockSceneDeliveryPlanInspectionV2 {
-  return { status: "invalid", code, message }
+  return { status: "invalid", code, message, visitedSceneTreeNodeCount }
 }
 
 function planCanonicalFacts(plan: VNextTextBlockSceneDeliveryPlanV2): unknown {
@@ -554,17 +573,29 @@ interface SelectedSceneNode {
   readonly end: number
 }
 
+interface SelectedSceneNodesResult {
+  readonly selected: readonly SelectedSceneNode[]
+  readonly visitedNodeCount: number
+}
+
 function selectMaximalNodes(
   root: VNextTextBlockPersistentSceneRootV2,
   range: VNextTextBlockSceneDeliveryRangeV2,
-): readonly SelectedSceneNode[] {
-  if (range.start === range.end || root.nodeKind === "empty") return []
+): SelectedSceneNodesResult {
+  if (range.start === range.end || root.nodeKind === "empty") {
+    return Object.freeze({
+      selected: Object.freeze([]),
+      visitedNodeCount: 0,
+    })
+  }
   const selected: SelectedSceneNode[] = []
+  let visitedNodeCount = 0
   const visit = (
     node: VNextTextBlockPersistentSceneNodeV2,
     start: number,
     path: readonly number[],
   ): void => {
+    visitedNodeCount = safeAdd(visitedNodeCount, 1)
     const end = start + node.summary.chunkCount
     if (end <= range.start || start >= range.end) return
     if (range.start <= start && end <= range.end) {
@@ -586,7 +617,10 @@ function selectMaximalNodes(
     }
   }
   visit(root, 0, [])
-  return selected
+  return Object.freeze({
+    selected: Object.freeze(selected),
+    visitedNodeCount,
+  })
 }
 
 function chunksFromSelected(
@@ -844,6 +878,22 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
 export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: unknown,
 ): VNextTextBlockSceneDeliveryPlanBuildResultV2 {
+  let constructionSceneTreeVisitCount = 0
+  let verificationSceneTreeVisitCount = 0
+  let deliveryOperationCount = 0
+  let retainCoverNodeCount = 0
+  const currentWork = (): VNextTextBlockSceneDeliveryPlanBuildWorkV2 =>
+    Object.freeze({
+      constructionSceneTreeVisitCount,
+      verificationSceneTreeVisitCount,
+      deliveryOperationCount,
+      retainCoverNodeCount,
+    })
+  const block = (
+    code: VNextTextBlockSceneDeliveryPlanIssueCodeV2,
+    message: string,
+  ): VNextTextBlockSceneDeliveryPlanBuildResultV2 =>
+    blockedPlan(code, message, currentWork())
   const exact = exactBuilderInput(input)
   if (
     exact == null
@@ -854,7 +904,7 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
       exact.nextScene,
     )
   ) {
-    return blockedPlan(
+    return block(
       "invalid-input",
       "plan construction requires exact prepared scenes and operation drafts",
     )
@@ -867,7 +917,7 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
     nextScene.root.summary.chunkCount,
   )
   if (coverageIssue != null) {
-    return blockedPlan(coverageIssue.code, coverageIssue.message)
+    return block(coverageIssue.code, coverageIssue.message)
   }
   try {
     const operations: VNextTextBlockSceneDeliveryOperationV2[] = []
@@ -881,8 +931,18 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
           nextScene.root,
           draft.nextRange,
         )
-        if (!sameSelectedNodeIdentity(previousSelected, nextSelected)) {
-          return blockedPlan(
+        constructionSceneTreeVisitCount = safeAdd(
+          constructionSceneTreeVisitCount,
+          safeAdd(
+            previousSelected.visitedNodeCount,
+            nextSelected.visitedNodeCount,
+          ),
+        )
+        if (!sameSelectedNodeIdentity(
+          previousSelected.selected,
+          nextSelected.selected,
+        )) {
+          return block(
             "delivery-plan-retain-payload-mismatch",
             "retain range does not name exact shared scene subtrees",
           )
@@ -891,7 +951,7 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
           kind: "retain-range",
           previousRange: draft.previousRange,
           nextRange: draft.nextRange,
-          retainedSubtrees: previousSelected.map((selected) => ({
+          retainedSubtrees: previousSelected.selected.map((selected) => ({
             previousPath: selected.path,
             fingerprint: selected.node.fingerprint,
             payloadObservationFingerprint:
@@ -899,18 +959,28 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
             chunkCount: selected.node.summary.chunkCount,
           })),
         })
+        deliveryOperationCount = safeAdd(deliveryOperationCount, 1)
+        retainCoverNodeCount = safeAdd(
+          retainCoverNodeCount,
+          previousSelected.selected.length,
+        )
       } else {
         const selected = selectMaximalNodes(
           nextScene.root,
           draft.nextRange,
         )
-        const replacement = chunksFromSelected(selected)
+        const replacement = chunksFromSelected(selected.selected)
+        constructionSceneTreeVisitCount = safeAdd(
+          constructionSceneTreeVisitCount,
+          safeAdd(selected.visitedNodeCount, replacement.visitedNodeCount),
+        )
         operations.push({
           kind: "splice-range",
           previousRange: draft.previousRange,
           nextRange: draft.nextRange,
           replacementChunks: replacement.chunks,
         })
+        deliveryOperationCount = safeAdd(deliveryOperationCount, 1)
       }
     }
     let retainOperationCount = 0
@@ -997,15 +1067,19 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
         plan,
       })
     if (inspection.status !== "valid") {
-      return blockedPlan(inspection.code, inspection.message)
+      verificationSceneTreeVisitCount =
+        inspection.visitedSceneTreeNodeCount
+      return block(inspection.code, inspection.message)
     }
+    verificationSceneTreeVisitCount = inspection.visitedSceneTreeNodeCount
     return Object.freeze({
       status: "prepared",
       plan,
+      work: currentWork(),
       issues: Object.freeze([]) as readonly [],
     })
   } catch {
-    return blockedPlan(
+    return block(
       "delivery-plan-unsafe-count",
       "delivery plan exceeded safe range, payload, or work arithmetic",
     )
@@ -1297,6 +1371,7 @@ export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
 export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: unknown,
 ): VNextTextBlockSceneDeliveryPlanInspectionV2 {
+  planVerificationObserverForTest?.()
   return verifyDeliveryPlanV2(input, true)
 }
 
@@ -1304,6 +1379,12 @@ function verifyDeliveryPlanV2(
   input: unknown,
   requireExactReplacementIdentity: boolean,
 ): VNextTextBlockSceneDeliveryPlanInspectionV2 {
+  let visitedSceneTreeNodeCount = 0
+  const invalidAfterTraversal = (
+    code: VNextTextBlockSceneDeliveryPlanIssueCodeV2,
+    message: string,
+  ): VNextTextBlockSceneDeliveryPlanInspectionV2 =>
+    invalidInspection(code, message, visitedSceneTreeNodeCount)
   const exact = exactVerifierInput(input)
   if (
     exact == null
@@ -1384,7 +1465,7 @@ function verifyDeliveryPlanV2(
         !validRange(operation.previousRange, plan.previousChunkCount)
         || !validRange(operation.nextRange, plan.nextChunkCount)
       ) {
-        return invalidInspection(
+        return invalidAfterTraversal(
           "invalid-input",
           "delivery plan contains an unsafe or out-of-domain range",
         )
@@ -1393,7 +1474,7 @@ function verifyDeliveryPlanV2(
         operation.previousRange.start < previousCursor
         || operation.nextRange.start < nextCursor
       ) {
-        return invalidInspection(
+        return invalidAfterTraversal(
           "delivery-plan-range-overlap",
           "delivery plan ranges overlap or move backwards",
         )
@@ -1402,7 +1483,7 @@ function verifyDeliveryPlanV2(
         operation.previousRange.start > previousCursor
         || operation.nextRange.start > nextCursor
       ) {
-        return invalidInspection(
+        return invalidAfterTraversal(
           "delivery-plan-range-gap",
           "delivery plan ranges contain a gap",
         )
@@ -1411,7 +1492,7 @@ function verifyDeliveryPlanV2(
         index > 0
         && plan.operations[index - 1]!.kind === operation.kind
       ) {
-        return invalidInspection(
+        return invalidAfterTraversal(
           "delivery-plan-nonmaximal-operation",
           "adjacent delivery operations of one kind must be merged",
         )
@@ -1419,7 +1500,7 @@ function verifyDeliveryPlanV2(
       const previousLength = rangeLength(operation.previousRange)
       const nextLength = rangeLength(operation.nextRange)
       if (previousLength === 0 && nextLength === 0) {
-        return invalidInspection(
+        return invalidAfterTraversal(
           "delivery-plan-empty-operation",
           "delivery operation may not have two empty ranges",
         )
@@ -1427,7 +1508,7 @@ function verifyDeliveryPlanV2(
       if (operation.kind === "retain-range") {
         retainOperationCount += 1
         if (previousLength === 0 || previousLength !== nextLength) {
-          return invalidInspection(
+          return invalidAfterTraversal(
             "delivery-plan-retain-length-mismatch",
             "retain operation requires equal non-empty ranges",
           )
@@ -1440,14 +1521,24 @@ function verifyDeliveryPlanV2(
           nextScene.root,
           operation.nextRange,
         )
-        if (!sameSelectedNodeIdentity(previousSelected, nextSelected)) {
-          return invalidInspection(
+        visitedSceneTreeNodeCount = safeAdd(
+          visitedSceneTreeNodeCount,
+          safeAdd(
+            previousSelected.visitedNodeCount,
+            nextSelected.visitedNodeCount,
+          ),
+        )
+        if (!sameSelectedNodeIdentity(
+          previousSelected.selected,
+          nextSelected.selected,
+        )) {
+          return invalidAfterTraversal(
             "delivery-plan-retain-payload-mismatch",
             "retain operation does not map exact shared subtrees",
           )
         }
-        if (!retainedCoverMatches(operation, previousSelected)) {
-          return invalidInspection(
+        if (!retainedCoverMatches(operation, previousSelected.selected)) {
+          return invalidAfterTraversal(
             "delivery-plan-retain-cover-mismatch",
             "retain operation is not the greedy maximal-subtree cover",
           )
@@ -1458,10 +1549,19 @@ function verifyDeliveryPlanV2(
         )
       } else {
         spliceOperationCount += 1
-        const expected = chunksFromSelected(selectMaximalNodes(
+        const selected = selectMaximalNodes(
           nextScene.root,
           operation.nextRange,
-        )).chunks
+        )
+        const selectedChunks = chunksFromSelected(selected.selected)
+        visitedSceneTreeNodeCount = safeAdd(
+          visitedSceneTreeNodeCount,
+          safeAdd(
+            selected.visitedNodeCount,
+            selectedChunks.visitedNodeCount,
+          ),
+        )
+        const expected = selectedChunks.chunks
         if (
           expected.length !== operation.replacementChunks.length
           || expected.some(
@@ -1474,7 +1574,7 @@ function verifyDeliveryPlanV2(
                   ),
           )
         ) {
-          return invalidInspection(
+          return invalidAfterTraversal(
             "delivery-plan-replacement-mismatch",
             "splice replacement chunks are not canonical next-range data",
           )
@@ -1495,7 +1595,7 @@ function verifyDeliveryPlanV2(
       previousCursor !== plan.previousChunkCount
       || nextCursor !== plan.nextChunkCount
     ) {
-      return invalidInspection(
+      return invalidAfterTraversal(
         "delivery-plan-range-nonexhaustive",
         "delivery plan does not exhaust both scene domains",
       )
@@ -1507,7 +1607,7 @@ function verifyDeliveryPlanV2(
       replacementChunkCount,
     }
     if (!exactSummaryEquals(plan.summary, expectedSummary)) {
-      return invalidInspection(
+      return invalidAfterTraversal(
         "delivery-plan-summary-mismatch",
         "delivery summary does not match canonical operations",
       )
@@ -1526,7 +1626,7 @@ function verifyDeliveryPlanV2(
       }),
     }
     if (!exactSummaryEquals(plan.observations, expectedObservations)) {
-      return invalidInspection(
+      return invalidAfterTraversal(
         "delivery-plan-observations-mismatch",
         "delivery observations do not match canonical operations",
       )
@@ -1539,14 +1639,14 @@ function verifyDeliveryPlanV2(
       completeNextSceneTraversalCount: 0,
     }
     if (!exactSummaryEquals(plan.work, expectedWork)) {
-      return invalidInspection(
+      return invalidAfterTraversal(
         "delivery-plan-work-mismatch",
         "delivery inspection work does not match bounded operations",
       )
     }
     const expectedFingerprint = fingerprint(planCanonicalFacts(plan))
     if (plan.fingerprint !== expectedFingerprint) {
-      return invalidInspection(
+      return invalidAfterTraversal(
         "delivery-plan-fingerprint-mismatch",
         "delivery plan fingerprint does not match canonical facts",
       )
@@ -1561,11 +1661,12 @@ function verifyDeliveryPlanV2(
       visitedOperationCount: plan.operations.length,
       visitedRetainCoverNodeCount: retainedSubtreeCount,
       visitedReplacementChunkCount: replacementChunkCount,
+      visitedSceneTreeNodeCount,
       completePreviousSceneTraversalCount: 0,
       completeNextSceneTraversalCount: 0,
     }
   } catch {
-    return invalidInspection(
+    return invalidAfterTraversal(
       "delivery-plan-unsafe-count",
       "delivery verification exceeded safe bounded arithmetic",
     )
