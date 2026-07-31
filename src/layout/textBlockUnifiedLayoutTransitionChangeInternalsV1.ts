@@ -350,6 +350,11 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
       completeIndexRebuildCount: 0,
       completeIndexTraversalCount: 0,
     },
+    structuralReuseProof: {
+      selectedExactSubtreeNodeCount: 0,
+      lineTreeWrapperAllocationCount: 0,
+      completeLineTreeTraversalCount: 0,
+    },
     layout: {
       recomputedLineCount: 0,
       proofNodeCount: 0,
@@ -366,7 +371,10 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
     deliveryPlan: {
       deliveryOperationCount: 0,
       retainCoverNodeCount: 0,
+    },
+    observations: {
       estimatedCanonicalPayloadByteCount: 0,
+      payloadObservationFingerprint: null,
     },
     atomicAcceptance: {
       attemptedRegistrationCount: 0,

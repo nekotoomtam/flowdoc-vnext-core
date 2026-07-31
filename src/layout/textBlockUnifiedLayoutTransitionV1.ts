@@ -56,7 +56,7 @@ import type {
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function fingerprint(value: unknown): string {
@@ -177,7 +177,7 @@ function blockedResult(
   }))
 }
 
-function allExactDispositions(
+function allExactStructuralReuseDispositions(
   root: VNextTextBlockUnifiedLayoutRootV2,
 ): VNextTextBlockLineDispositionCoverV1 | null {
   const lineCount = root.lineTree.summary.lineCount
@@ -206,13 +206,14 @@ function noOpWork(
       ...base.flow,
       visitedSourceItemCount,
     },
-    layout: {
-      ...base.layout,
-      proofNodeCount: dispositions.work.selectedSubtreeCount,
+    structuralReuseProof: {
+      selectedExactSubtreeNodeCount: dispositions.work.selectedSubtreeCount,
+      lineTreeWrapperAllocationCount: 0,
+      completeLineTreeTraversalCount: 0,
     },
     stageWork: [{
-      stage: "layout-reconvergence" as const,
-      unit: "proof-nodes" as const,
+      stage: "structural-reuse-proof" as const,
+      unit: "selected-exact-subtree-nodes" as const,
       count: dispositions.work.selectedSubtreeCount,
     }],
   })
@@ -275,10 +276,11 @@ function paintWork(
       ...base.flow,
       visitedSourceItemCount: 1,
     },
-    layout: {
-      ...base.layout,
-      proofNodeCount:
+    structuralReuseProof: {
+      selectedExactSubtreeNodeCount:
         input.dispositionCover.work.selectedSubtreeCount,
+      lineTreeWrapperAllocationCount: 0,
+      completeLineTreeTraversalCount: 0,
     },
     scene: {
       copiedSceneNodeCount: input.copiedSceneNodeCount,
@@ -287,8 +289,11 @@ function paintWork(
     deliveryPlan: {
       deliveryOperationCount: input.deliveryOperationCount,
       retainCoverNodeCount: input.retainCoverNodeCount,
+    },
+    observations: {
       estimatedCanonicalPayloadByteCount:
         input.estimatedCanonicalPayloadByteCount,
+      payloadObservationFingerprint: null,
     },
     atomicAcceptance: {
       attemptedRegistrationCount:
@@ -303,8 +308,8 @@ function paintWork(
         count: 1,
       },
       {
-        stage: "layout-reconvergence" as const,
-        unit: "proof-nodes" as const,
+        stage: "structural-reuse-proof" as const,
+        unit: "selected-exact-subtree-nodes" as const,
         count: input.dispositionCover.work.selectedSubtreeCount,
       },
       {
@@ -326,11 +331,6 @@ function paintWork(
         stage: "delivery-plan" as const,
         unit: "retain-cover-nodes" as const,
         count: input.retainCoverNodeCount,
-      },
-      {
-        stage: "delivery-plan" as const,
-        unit: "estimated-canonical-payload-bytes" as const,
-        count: input.estimatedCanonicalPayloadByteCount,
       },
     ],
     rootWrapperAllocationCount: 1,
@@ -367,6 +367,7 @@ function previousSummaryBase(
     case "spatial-index-nodes":
     case "spatial-query-bands":
       return root.spatialState.summary.entryCount
+    case "selected-exact-subtree-nodes":
     case "recomputed-lines":
     case "proof-nodes":
     case "reprojected-lines":
@@ -377,8 +378,6 @@ function previousSummaryBase(
     case "delivery-operations":
     case "retain-cover-nodes":
       return root.persistentScene.summary.chunkCount
-    case "estimated-canonical-payload-bytes":
-      return root.persistentScene.summary.estimatedCanonicalPayloadByteCount
   }
 }
 
@@ -398,15 +397,8 @@ function workLimitFailure(
         unit: item.unit,
       }
     }
-    /*
-     * The one-subtree all-E proof and payload-byte observation are structural
-     * verification facts, not activated text-layout or payload work lanes.
-     */
-    const lockedException =
-      item.unit === "proof-nodes"
-      || item.unit === "estimated-canonical-payload-bytes"
     if (row.lockStatus === "inactive") {
-      if (item.count > 0 && !lockedException) {
+      if (item.count > 0) {
         return {
           kind: "inactive-stage",
           stage: item.stage,
@@ -483,13 +475,13 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       )],
     )
   }
-  const dispositions = allExactDispositions(input.previousRoot)
+  const dispositions = allExactStructuralReuseDispositions(input.previousRoot)
   if (dispositions == null) {
     return blockedResult(
       bound.incrementalCandidateWork,
       [issue(
         "incremental-proof-unavailable",
-        "layout-reconvergence",
+        "structural-reuse-proof",
         "dispositions",
         "transition could not prove one canonical all-E line cover",
       )],
@@ -843,7 +835,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionV1(
     ...(exact != null && Object.hasOwn(exact, "evidence")
       ? { evidence: exact.evidence }
       : {}),
-    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   })
 }
 

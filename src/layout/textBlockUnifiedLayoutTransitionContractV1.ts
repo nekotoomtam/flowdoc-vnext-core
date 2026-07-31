@@ -23,6 +23,7 @@ export type VNextTextBlockUnifiedLayoutStageV1 =
   | "evidence"
   | "source-flow"
   | "spatial-index"
+  | "structural-reuse-proof"
   | "layout-reconvergence"
   | "geometry"
   | "scene"
@@ -35,6 +36,7 @@ export type VNextTextBlockUnifiedLayoutStageUnitV1 =
   | "flow-tree-nodes"
   | "spatial-index-nodes"
   | "spatial-query-bands"
+  | "selected-exact-subtree-nodes"
   | "recomputed-lines"
   | "proof-nodes"
   | "reprojected-lines"
@@ -43,7 +45,6 @@ export type VNextTextBlockUnifiedLayoutStageUnitV1 =
   | "replacement-chunks"
   | "delivery-operations"
   | "retain-cover-nodes"
-  | "estimated-canonical-payload-bytes"
 
 export type VNextTextBlockUnifiedLayoutStageStatusV1 =
   | "accepted"
@@ -164,6 +165,11 @@ export interface VNextTextBlockIncrementalCandidateWorkV1 {
     readonly completeIndexRebuildCount: 0
     readonly completeIndexTraversalCount: 0
   }
+  readonly structuralReuseProof: {
+    readonly selectedExactSubtreeNodeCount: number
+    readonly lineTreeWrapperAllocationCount: 0
+    readonly completeLineTreeTraversalCount: 0
+  }
   readonly layout: {
     readonly recomputedLineCount: number
     readonly proofNodeCount: number
@@ -180,7 +186,10 @@ export interface VNextTextBlockIncrementalCandidateWorkV1 {
   readonly deliveryPlan: {
     readonly deliveryOperationCount: number
     readonly retainCoverNodeCount: number
+  }
+  readonly observations: {
     readonly estimatedCanonicalPayloadByteCount: number
+    readonly payloadObservationFingerprint: string | null
   }
   readonly atomicAcceptance: {
     readonly attemptedRegistrationCount: number
@@ -268,6 +277,7 @@ export type VNextTextBlockUnifiedLayoutFallbackReasonV1 =
       readonly stage:
         | "source-flow"
         | "spatial-index"
+        | "structural-reuse-proof"
         | "layout-reconvergence"
         | "geometry"
         | "scene"

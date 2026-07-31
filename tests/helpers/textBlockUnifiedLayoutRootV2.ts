@@ -5,7 +5,7 @@ import {
   createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
 } from "../../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
 } from "../../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   acceptedInlineImageEvidenceFixture,
@@ -13,7 +13,7 @@ import {
 } from "./textBlockInlineImageFlowV2.js"
 
 export const ROOT_V2_TEST_WORK_POLICY =
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2
 
 export function unifiedLayoutRootBuildInputFixtureV2(
   options: InlineImageFlowFixtureOptions = {},

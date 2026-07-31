@@ -66,6 +66,7 @@ import type {
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
@@ -220,29 +221,18 @@ function validWorkPolicy(
       !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE
     || record.contractVersion
       !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION
-    || typeof record.policyId !== "string"
-    || record.policyId.length === 0
+    || record.policyId
+      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.policyId
     || record.checkpoint !== "5B-1"
     || typeof record.fingerprint !== "string"
     || stageRows == null
     || stageRows.length !== 14
   ) return false
-  const allowed = new Map([
-    ["source-items", "source-flow"],
-    ["flow-atoms", "source-flow"],
-    ["flow-tree-nodes", "source-flow"],
-    ["spatial-index-nodes", "spatial-index"],
-    ["spatial-query-bands", "spatial-index"],
-    ["recomputed-lines", "layout-reconvergence"],
-    ["proof-nodes", "layout-reconvergence"],
-    ["reprojected-lines", "geometry"],
-    ["visited-fragments", "geometry"],
-    ["copied-scene-nodes", "scene"],
-    ["replacement-chunks", "scene"],
-    ["delivery-operations", "delivery-plan"],
-    ["retain-cover-nodes", "delivery-plan"],
-    ["estimated-canonical-payload-bytes", "delivery-plan"],
-  ])
+  const allowed = new Map<
+    string,
+    VNextTextBlockUnifiedLayoutWorkPolicyV1["stages"][number]
+  >(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2
+    .stages.map((row) => [row.unit, row] as const))
   const seen = new Set<string>()
   for (const value of stageRows) {
     const row = exactRecord(value, [
@@ -259,7 +249,7 @@ function validWorkPolicy(
     if (
       row == null
       || typeof row.unit !== "string"
-      || allowed.get(row.unit) !== row.stage
+      || allowed.get(row.unit)?.stage !== row.stage
       || seen.has(row.unit)
       || (
         row.lockStatus !== "inactive"
@@ -279,6 +269,12 @@ function validWorkPolicy(
       || (row.relativeNumerator as number) < 0
       || row.relativeDenominator !== 1
       || typeof row.fingerprint !== "string"
+      || row.lockStatus !== allowed.get(row.unit)?.lockStatus
+      || row.smallBlockFloor !== allowed.get(row.unit)?.smallBlockFloor
+      || row.absoluteStageLimit !== allowed.get(row.unit)?.absoluteStageLimit
+      || row.relativeNumerator !== allowed.get(row.unit)?.relativeNumerator
+      || row.relativeDenominator !== allowed.get(row.unit)?.relativeDenominator
+      || row.checkpointOwner !== allowed.get(row.unit)?.checkpointOwner
       || row.fingerprint !== fingerprint({
         stage: row.stage,
         unit: row.unit,

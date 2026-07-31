@@ -164,7 +164,7 @@ function observedCounters(
     retainCoverNodes:
       result.incrementalCandidateWork.deliveryPlan.retainCoverNodeCount,
     estimatedCanonicalPayloadBytes:
-      result.incrementalCandidateWork.deliveryPlan
+      result.incrementalCandidateWork.observations
         .estimatedCanonicalPayloadByteCount,
   }
 }
@@ -380,7 +380,7 @@ describe("Phase 5B-1 public foundation gate", () => {
         retainCoverNodes:
           noOp.incrementalCandidateWork.deliveryPlan.retainCoverNodeCount,
         estimatedCanonicalPayloadBytes:
-          noOp.incrementalCandidateWork.deliveryPlan
+          noOp.incrementalCandidateWork.observations
             .estimatedCanonicalPayloadByteCount,
       }).toEqual(noOpFixture.counters)
     }

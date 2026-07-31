@@ -5,10 +5,14 @@ import type {
   VNextTextBlockUnifiedLayoutChangeV1,
 } from "../src/layout/textBlockUnifiedLayoutChangeContractV1.js"
 import {
+  createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1,
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
 import {
   effectiveStageLimitV1,
+  evaluateVNextTextBlockStageWorkLimitInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function deepFreeze<T>(value: T): T {
@@ -247,6 +251,46 @@ afterEach(() => {
 })
 
 describe("Phase 5B closed transition contracts", () => {
+  it("calibrates structural reuse separately from payload observation", () => {
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID)
+      .toBe("5b-1-v2")
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages)
+      .toContainEqual(expect.objectContaining({
+        stage: "structural-reuse-proof",
+        unit: "selected-exact-subtree-nodes",
+        lockStatus: "locked",
+        smallBlockFloor: 1,
+        absoluteStageLimit: 4,
+        relativeNumerator: 1,
+        relativeDenominator: 1,
+      }))
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages.some(
+      (row) => String(row.unit) === "estimated-canonical-payload-bytes",
+    )).toBe(false)
+
+    const empty = createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1()
+    expect(empty.structuralReuseProof).toEqual({
+      selectedExactSubtreeNodeCount: 0,
+      lineTreeWrapperAllocationCount: 0,
+      completeLineTreeTraversalCount: 0,
+    })
+    expect(empty.observations.payloadObservationFingerprint).toBeNull()
+    expect(empty.stageWork.some(
+      (row) => String(row.unit) === "estimated-canonical-payload-bytes",
+    )).toBe(false)
+
+    expect([3, 4, 5].map((attemptedWork) => (
+      evaluateVNextTextBlockStageWorkLimitInternalV1({
+        policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+        stage: "structural-reuse-proof",
+        unit: "selected-exact-subtree-nodes",
+        previousSummaryBase: 128,
+        exactValidatedChangeDelta: 1,
+        attemptedWork,
+      }).status
+    ))).toEqual(["within-limit", "within-limit", "limit-exceeded"])
+  })
+
   it("accepts every exact frozen V1 change and keeps eligibility closed", () => {
     const results = frozenChanges().map((change) => (
       validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1(change)

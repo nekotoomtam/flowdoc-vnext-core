@@ -112,6 +112,7 @@ const stages = new Set<VNextTextBlockUnifiedLayoutStageV1>([
   "evidence",
   "source-flow",
   "spatial-index",
+  "structural-reuse-proof",
   "layout-reconvergence",
   "geometry",
   "scene",
@@ -121,6 +122,7 @@ const stages = new Set<VNextTextBlockUnifiedLayoutStageV1>([
 const proofStages = new Set<VNextTextBlockUnifiedLayoutStageV1>([
   "source-flow",
   "spatial-index",
+  "structural-reuse-proof",
   "layout-reconvergence",
   "geometry",
   "scene",
@@ -132,6 +134,7 @@ const stageUnits = new Set<VNextTextBlockUnifiedLayoutStageUnitV1>([
   "flow-tree-nodes",
   "spatial-index-nodes",
   "spatial-query-bands",
+  "selected-exact-subtree-nodes",
   "recomputed-lines",
   "proof-nodes",
   "reprojected-lines",
@@ -140,7 +143,6 @@ const stageUnits = new Set<VNextTextBlockUnifiedLayoutStageUnitV1>([
   "replacement-chunks",
   "delivery-operations",
   "retain-cover-nodes",
-  "estimated-canonical-payload-bytes",
 ])
 const proofs = new Set([
   "source-binding",

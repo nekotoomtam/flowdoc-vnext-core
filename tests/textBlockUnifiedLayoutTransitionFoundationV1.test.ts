@@ -12,6 +12,9 @@ import {
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
+  lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
+import {
   acceptedRepeatedUnifiedLayoutRootFixture5b,
   imagePaintUnifiedLayoutChange5b,
   noOpUnifiedLayoutChange5b,
@@ -77,7 +80,6 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       deliveryPlan: {
         deliveryOperationCount: 0,
         retainCoverNodeCount: 0,
-        estimatedCanonicalPayloadByteCount: 0,
       },
       atomicAcceptance: {
         attemptedRegistrationCount: 0,
@@ -88,6 +90,23 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       completeNextInputComparisonCount: 0,
       completeSceneTraversalCount: 0,
     })
+    expect(result.incrementalCandidateWork.structuralReuseProof).toEqual({
+      selectedExactSubtreeNodeCount: 1,
+      lineTreeWrapperAllocationCount: 0,
+      completeLineTreeTraversalCount: 0,
+    })
+    expect(result.incrementalCandidateWork.observations).toEqual({
+      estimatedCanonicalPayloadByteCount: 0,
+      payloadObservationFingerprint: null,
+    })
+    expect(result.incrementalCandidateWork.layout).toMatchObject({
+      recomputedLineCount: 0,
+      proofNodeCount: 0,
+      completeSuffixTraversalCount: 0,
+    })
+    expect(result.incrementalCandidateWork.stageWork).not.toContainEqual(
+      expect.objectContaining({ stage: "layout-reconvergence" }),
+    )
   })
 
   it("collapses an unchanged image paint request to exact no-op identity", () => {
@@ -251,8 +270,6 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
           deliveryOperationCount: result.deliveryPlan.operations.length,
           retainCoverNodeCount:
             result.deliveryPlan.summary.retainedSubtreeCount,
-          estimatedCanonicalPayloadByteCount:
-            result.deliveryPlan.summary.estimatedCanonicalPayloadByteCount,
         },
         atomicAcceptance: {
           attemptedRegistrationCount: 3,
@@ -263,6 +280,19 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
         completeNextInputComparisonCount: 0,
         completeSceneTraversalCount: 0,
       })
+      expect(result.incrementalCandidateWork.structuralReuseProof).toEqual({
+        selectedExactSubtreeNodeCount: 1,
+        lineTreeWrapperAllocationCount: 0,
+        completeLineTreeTraversalCount: 0,
+      })
+      expect(result.incrementalCandidateWork.layout).toMatchObject({
+        recomputedLineCount: 0,
+        proofNodeCount: 0,
+        completeSuffixTraversalCount: 0,
+      })
+      expect(result.incrementalCandidateWork.stageWork).not.toContainEqual(
+        expect.objectContaining({ stage: "layout-reconvergence" }),
+      )
       expect(result.deliveryPlan.summary).toMatchObject({
         spliceOperationCount: 1,
         replacementChunkCount: 1,
@@ -389,5 +419,57 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       .toBe(0)
     expect(second.incrementalCandidateWork.completeSceneTraversalCount)
       .toBe(0)
+  })
+
+  it("retains the exact line tree for first, middle, and last image paint", () => {
+    const previous = acceptedRepeatedUnifiedLayoutRootFixture5b(3)
+    const inlineIds: string[] = []
+    for (
+      let offset = 0;
+      offset < previous.root.sourceState.summary.renderedUtf16Length;
+      offset += 1
+    ) {
+      const lookup = lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1({
+        sourceState: previous.root.sourceState,
+        renderedUtf16Offset: offset,
+      })
+      if (
+        lookup.status === "found"
+        && lookup.item.kind === "inline-image"
+        && !inlineIds.includes(lookup.item.inlineId)
+      ) {
+        inlineIds.push(lookup.item.inlineId)
+      }
+    }
+    expect(inlineIds).toHaveLength(3)
+
+    for (const inlineId of [inlineIds[0], inlineIds[1], inlineIds[2]]) {
+      const paint = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+        previousRoot: previous.root,
+        change: imagePaintUnifiedLayoutChange5b(previous.root, {
+          inlineId,
+          fit: "cover",
+          crop: { x: 0, y: 0, width: 0.5, height: 1 },
+        }),
+        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      })
+      expect(paint.status, JSON.stringify(paint.issues))
+        .toBe("accepted-incremental")
+      if (paint.status !== "accepted-incremental") continue
+      expect(paint.root.lineTree).toBe(previous.root.lineTree)
+      expect(paint.incrementalCandidateWork.structuralReuseProof).toEqual({
+        selectedExactSubtreeNodeCount: 1,
+        lineTreeWrapperAllocationCount: 0,
+        completeLineTreeTraversalCount: 0,
+      })
+      expect(paint.incrementalCandidateWork.layout).toMatchObject({
+        recomputedLineCount: 0,
+        proofNodeCount: 0,
+        completeSuffixTraversalCount: 0,
+      })
+      expect(paint.incrementalCandidateWork.stageWork).not.toContainEqual(
+        expect.objectContaining({ stage: "layout-reconvergence" }),
+      )
+    }
   })
 })

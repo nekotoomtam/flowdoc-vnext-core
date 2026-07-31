@@ -8,8 +8,10 @@ import type {
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE =
   "vnext-text-block-unified-layout-work-policy-v1" as const
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION = 1 as const
-export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID =
+const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1_ID =
   "5b-1-v1" as const
+export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID =
+  "5b-1-v2" as const
 
 export type VNextTextBlockWorkPolicyLockStatusV1 =
   | "inactive"
@@ -127,12 +129,31 @@ const locked = (
   checkpointOwner: "5B-1",
 })
 
+function legacyInactive(
+  stage: VNextTextBlockUnifiedLayoutStageV1,
+  unit: "estimated-canonical-payload-bytes",
+  checkpointOwner: VNextTextBlockWorkPolicyCheckpointOwnerV1,
+) {
+  const facts = {
+    stage,
+    unit,
+    lockStatus: "inactive" as const,
+    smallBlockFloor: 0,
+    absoluteStageLimit: 0,
+    relativeNumerator: 0,
+    relativeDenominator: 1 as const,
+    checkpointOwner,
+  }
+  return Object.freeze({ ...facts, fingerprint: fingerprint(facts) })
+}
+
 /*
  * The constants below are the checked-in result of the 5B-1 fixture
- * calibration manifest.  No elapsed-time value participates in the policy.
- * Payload bytes remain an observation in 5B-1, not an execution-path unit.
+ * calibration manifest. No elapsed-time value participates in the policy.
+ * The retained V1 row is staged compatibility only; V2 keeps payload bytes
+ * observational and outside execution work.
  */
-const policy5b1Stages = Object.freeze([
+const policy5b1V1Stages = Object.freeze([
   locked("source-flow", "source-items", 1, 4, 1),
   inactive("source-flow", "flow-atoms", "5B-2"),
   inactive("source-flow", "flow-tree-nodes", "5B-2"),
@@ -146,25 +167,62 @@ const policy5b1Stages = Object.freeze([
   locked("scene", "replacement-chunks", 1, 4, 1),
   locked("delivery-plan", "delivery-operations", 4, 16, 1),
   locked("delivery-plan", "retain-cover-nodes", 16, 64, 1),
-  inactive(
+  legacyInactive(
     "delivery-plan",
     "estimated-canonical-payload-bytes",
     "5B-3",
   ),
-] satisfies readonly VNextTextBlockStageLimitV1[])
+])
 
-const policy5b1Facts = {
+const policy5b1V1Facts = {
   source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
   contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
-  policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
+  policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1_ID,
   checkpoint: "5B-1" as const,
-  stages: policy5b1Stages,
+  stages: policy5b1V1Stages,
 }
 
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1:
 VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
-  ...policy5b1Facts,
-  fingerprint: fingerprint(policy5b1Facts),
+  ...policy5b1V1Facts,
+  fingerprint: fingerprint(policy5b1V1Facts),
+}) as unknown as VNextTextBlockUnifiedLayoutWorkPolicyV1
+
+const policy5b1V2Stages = Object.freeze([
+  locked("source-flow", "source-items", 1, 4, 1),
+  inactive("source-flow", "flow-atoms", "5B-2"),
+  inactive("source-flow", "flow-tree-nodes", "5B-2"),
+  inactive("spatial-index", "spatial-index-nodes", "5B-3"),
+  inactive("spatial-index", "spatial-query-bands", "5B-3"),
+  locked(
+    "structural-reuse-proof",
+    "selected-exact-subtree-nodes",
+    1,
+    4,
+    1,
+  ),
+  inactive("layout-reconvergence", "recomputed-lines", "5B-2"),
+  inactive("layout-reconvergence", "proof-nodes", "5B-2"),
+  inactive("geometry", "reprojected-lines", "5B-3"),
+  inactive("geometry", "visited-fragments", "5B-3"),
+  locked("scene", "copied-scene-nodes", 2, 16, 1),
+  locked("scene", "replacement-chunks", 1, 4, 1),
+  locked("delivery-plan", "delivery-operations", 4, 16, 1),
+  locked("delivery-plan", "retain-cover-nodes", 16, 64, 1),
+] satisfies readonly VNextTextBlockStageLimitV1[])
+
+const policy5b1V2Facts = {
+  source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
+  contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
+  policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
+  checkpoint: "5B-1" as const,
+  stages: policy5b1V2Stages,
+}
+
+export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2:
+VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
+  ...policy5b1V2Facts,
+  fingerprint: fingerprint(policy5b1V2Facts),
 })
 
 export type VNextTextBlockStageWorkLimitEvaluationV1 =

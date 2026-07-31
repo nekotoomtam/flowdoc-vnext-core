@@ -35,8 +35,27 @@ import {
   acceptedUnifiedLayoutRootFixtureV2,
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 
 describe("Phase 5B independent unified Root V2", () => {
+  it("accepts only the active V2 structural-reuse work policy", () => {
+    const input = unifiedLayoutRootBuildInputFixtureV2()
+    expect(createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      input,
+      ROOT_V2_TEST_WORK_POLICY,
+    ).status).toBe("accepted")
+    expect(createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      input,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+    )).toMatchObject({
+      status: "blocked",
+      root: null,
+      issues: [{ code: "invalid-work-policy" }],
+    })
+  })
+
   it("bootstraps without Root V1 or Scene V1 construction", () => {
     const rootV1Spy = vi.spyOn(
       rootV1Module,
