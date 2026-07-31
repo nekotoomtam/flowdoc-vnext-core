@@ -1,10 +1,10 @@
 # Unified Incremental Root Transition 5B Design
 
 Status: approved design baseline for the separately authorized Core-only Phase
-5B checkpoint. The 2026-07-31 corrective direction is recorded in the written
-amendment linked below and awaits its explicit user review before implementation
-planning. This document does not authorize Phase 5C, Editor or Backend binding,
-publication, or production activation.
+5B checkpoint. The 2026-07-31 corrective direction is approved in the written
+amendment linked below for implementation planning. This document does not
+authorize Phase 5C, Editor or Backend binding, publication, or production
+activation.
 
 The normative
 [`2026-07-31-unified-incremental-root-transition-5b-1-corrective-design.md`](./2026-07-31-unified-incremental-root-transition-5b-1-corrective-design.md)

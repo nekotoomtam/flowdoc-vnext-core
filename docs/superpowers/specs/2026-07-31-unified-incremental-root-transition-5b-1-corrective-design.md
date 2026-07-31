@@ -1,7 +1,11 @@
 # Unified Incremental Root Transition 5B-1 Corrective Design
 
-Status: approved design direction; this written normative amendment awaits
-explicit user review before implementation planning.
+Status: approved normative amendment for implementation planning.
+
+The detailed
+[`2026-07-31-unified-incremental-root-transition-5b-1-v3-corrective.md`](../plans/2026-07-31-unified-incremental-root-transition-5b-1-v3-corrective.md)
+implementation plan is prepared for explicit user review. Its presence does not
+authorize implementation before that review is accepted.
 
 This amendment is Core-only and process-local. It corrects the implemented
 5B-1 foundation without activating 5B-2, 5B-3, Editor, Backend, publication,
@@ -209,12 +213,14 @@ participate.
 
 ### 4.5 Calibration Before Activation
 
-V3 activation is a two-stage change:
+V3 activation is a three-stage change:
 
 1. add operation-owned observation and regression counters while V2 remains
    the active public policy in the working branch; then
-2. derive, freeze, and atomically activate the complete V3 policy and public
-   boundary.
+2. derive and freeze the complete V3 candidate policy without exposing it as
+   the active public lane; then
+3. atomically activate V3 only after branch-owned proof and limit fallback
+   authority is complete.
 
 Calibration uses fixtures of size 1, 8, 9, 64, 65, and 128, with affected
 items at the beginning, middle, and end where applicable. It covers minimum
@@ -489,11 +495,12 @@ The implementation plan must preserve these ordered sub-checkpoints.
 ### 8.1 5B-1C-1 Factual Work Foundation
 
 - add operation-owned counters and multi-height/leaf-width regression evidence;
-- calibrate all new rows before activating V3;
+- remove duplicate transition-wrapper delivery-plan verification before final
+  delivery lookup calibration;
+- calibrate all new rows and freeze the V3 candidate policy;
 - freeze the 21-row policy and fixture manifest;
-- switch Root validation and all public wrappers atomically to V3;
-- remove V2 from public exports; and
-- prove V2 Root rejection and V3 complete bootstrap.
+- keep V2 as the sole active public policy until 5B-1C-2; and
+- prove the frozen V3 candidate independently before activation.
 
 ### 8.2 5B-1C-2 Branch-Owned Fallback
 
@@ -502,13 +509,15 @@ The implementation plan must preserve these ordered sub-checkpoints.
 - issue proof and limit authorities only from their actual operations;
 - preserve partial factual work;
 - distinguish proof unavailability from corruption; and
-- prove shared-kernel complete fallback without candidate contamination.
+- prove shared-kernel complete fallback without candidate contamination;
+- switch Root validation and all public wrappers atomically to V3;
+- remove V2 from public exports; and
+- prove V2 Root rejection and V3 complete bootstrap/fallback.
 
 ### 8.3 5B-1C-3 Complete-Delivery Integrity And Closure
 
 - add owner-specific canonical fact helpers;
 - recompose nested identities and cross-record relations;
-- remove duplicate delivery-plan verification;
 - add adversarial nested-mutation tests;
 - prove incremental, fallback, and oracle renderer parity; and
 - complete documentation and final scoped review.
