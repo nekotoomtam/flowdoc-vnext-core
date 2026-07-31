@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import {
   createVNextTextBlockIncrementalFlowTreeCompleteInternalV1,
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
@@ -34,6 +34,21 @@ import {
 import type {
   InlineImageFlowFixtureOptions,
 } from "./helpers/textBlockInlineImageFlowV2.js"
+import {
+  acceptedUnifiedLayoutRootFixtureV2,
+} from "./helpers/textBlockUnifiedLayoutRootV2.js"
+
+vi.mock("../src/layout/textBlockPersistentSceneV2.js", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../src/layout/textBlockPersistentSceneV2.js")
+  >()
+  return {
+    ...actual,
+    inspectVNextTextBlockPersistentSceneV2: () => {
+      throw new Error("delivery inspection must not traverse a complete Scene")
+    },
+  }
+})
 
 type DeepMutable<T> =
   T extends readonly (infer Item)[]
@@ -175,6 +190,39 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       previousScene: scene,
       nextScene: scene,
       plan,
+    })).toMatchObject({
+      status: "invalid",
+      code: "delivery-scene-authority-mismatch",
+    })
+  })
+
+  it("uses registered Scene authority without complete canonical inspection", () => {
+    const accepted = acceptedUnifiedLayoutRootFixtureV2()
+    const plan = retainOnly(accepted.persistentScene)
+
+    expect(inspectVNextTextBlockSceneDeliveryPlanV2({
+      previousScene: accepted.persistentScene,
+      nextScene: accepted.persistentScene,
+      plan,
+    })).toMatchObject({
+      status: "valid",
+      completePreviousSceneTraversalCount: 0,
+      completeNextSceneTraversalCount: 0,
+    })
+    expect(inspectVNextTextBlockSceneDeliveryPlanV2({
+      previousScene: structuredClone(accepted.persistentScene),
+      nextScene: accepted.persistentScene,
+      plan,
+    })).toMatchObject({
+      status: "invalid",
+      code: "delivery-scene-authority-mismatch",
+    })
+
+    const foreign = repeatedScene(9)
+    expect(inspectVNextTextBlockSceneDeliveryPlanV2({
+      previousScene: foreign,
+      nextScene: foreign,
+      plan: retainOnly(foreign),
     })).toMatchObject({
       status: "invalid",
       code: "delivery-scene-authority-mismatch",

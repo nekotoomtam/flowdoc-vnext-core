@@ -2,7 +2,7 @@ import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
   hasVNextTextBlockPersistentScenePreparedCandidateInternalV2,
-  inspectVNextTextBlockPersistentSceneV2,
+  hasVNextTextBlockPersistentSceneRegisteredRootGraphBindingInternalV2,
 } from "./textBlockPersistentSceneV2.js"
 import type {
   VNextTextBlockPersistentSceneChunkV2,
@@ -1197,12 +1197,12 @@ export function inspectVNextTextBlockSceneDeliveryPlanV2(input: {
   const exact = exactVerifierInput(input)
   if (
     exact == null
-    || inspectVNextTextBlockPersistentSceneV2(
+    || !hasVNextTextBlockPersistentSceneRegisteredRootGraphBindingInternalV2(
       exact.previousScene,
-    ).status !== "valid"
-    || inspectVNextTextBlockPersistentSceneV2(
+    )
+    || !hasVNextTextBlockPersistentSceneRegisteredRootGraphBindingInternalV2(
       exact.nextScene,
-    ).status !== "valid"
+    )
   ) {
     return invalidInspection(
       "delivery-scene-authority-mismatch",
