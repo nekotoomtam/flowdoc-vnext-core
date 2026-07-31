@@ -277,7 +277,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       completeSceneTraversalCount: 0,
     })
     expect(result.incrementalCandidateWork.structuralReuseProof).toEqual({
-      visitedLineTreeNodeCount: 0,
+      visitedLineTreeNodeCount: 2,
       selectedExactSubtreeNodeCount: 1,
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
@@ -587,7 +587,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
         completeSceneTraversalCount: 0,
       })
       expect(result.incrementalCandidateWork.structuralReuseProof).toEqual({
-        visitedLineTreeNodeCount: 0,
+        visitedLineTreeNodeCount: 2,
         selectedExactSubtreeNodeCount: 1,
         lineTreeWrapperAllocationCount: 0,
         completeLineTreeTraversalCount: 0,
@@ -906,7 +906,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       if (paint.status !== "accepted-incremental") continue
       expect(paint.root.lineTree).toBe(previous.root.lineTree)
       expect(paint.incrementalCandidateWork.structuralReuseProof).toEqual({
-        visitedLineTreeNodeCount: 0,
+        visitedLineTreeNodeCount: 2,
         selectedExactSubtreeNodeCount: 1,
         lineTreeWrapperAllocationCount: 0,
         completeLineTreeTraversalCount: 0,

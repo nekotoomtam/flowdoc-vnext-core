@@ -23,6 +23,7 @@ import {
   type VNextTextBlockLineDispositionCoverInspectionV1,
   type VNextTextBlockLineDispositionCoverResultV1,
   type VNextTextBlockLineDispositionCoverV1,
+  type VNextTextBlockLineDispositionCoverWorkV1,
   type VNextTextBlockLineDispositionIssueCodeV1,
   type VNextTextBlockLineDispositionIssueV1,
   type VNextTextBlockLineDispositionSegmentV1,
@@ -288,13 +289,21 @@ function dispositionIssue(
 function blockedCover(
   code: VNextTextBlockLineDispositionIssueCodeV1,
   message: string,
+  work: VNextTextBlockLineDispositionCoverWorkV1 = ZERO_DISPOSITION_COVER_WORK,
 ): VNextTextBlockLineDispositionCoverResultV1 {
   return Object.freeze({
     status: "blocked",
     cover: null,
+    work,
     issues: Object.freeze([dispositionIssue(code, message)]),
   })
 }
+
+const ZERO_DISPOSITION_COVER_WORK = Object.freeze({
+  visitedPreviousLineTreeNodeCount: 0,
+  visitedNextLineTreeNodeCount: 0,
+  selectedSubtreeNodeCount: 0,
+})
 
 function treeCanonicalFacts(
   tree: VNextTextBlockPersistentLayoutLineTreeV1,
@@ -1595,16 +1604,28 @@ interface SelectedNode {
   readonly end: number
 }
 
+interface SelectedNodesResult {
+  readonly selected: readonly SelectedNode[]
+  readonly visitedNodeCount: number
+}
+
 function selectMaximalNodes(
   root: VNextTextBlockPersistentLayoutLineRootV1,
   range: VNextTextBlockLineOrdinalRangeV1,
-): readonly SelectedNode[] {
-  if (root.nodeKind === "empty") return []
+): SelectedNodesResult {
+  if (root.nodeKind === "empty") {
+    return Object.freeze({
+      selected: Object.freeze([]),
+      visitedNodeCount: 0,
+    })
+  }
   const selected: SelectedNode[] = []
+  let visitedNodeCount = 0
   const visit = (
     node: VNextTextBlockPersistentLayoutLineNodeV1,
     start: number,
   ): void => {
+    visitedNodeCount = safeAdd(visitedNodeCount, 1)
     const end = start + node.summary.lineCount
     if (end <= range.start || start >= range.end) return
     if (range.start <= start && end <= range.end) {
@@ -1621,7 +1642,10 @@ function selectMaximalNodes(
     }
   }
   visit(root, 0)
-  return selected
+  return Object.freeze({
+    selected: Object.freeze(selected),
+    visitedNodeCount,
+  })
 }
 
 function summaryForSelected(
@@ -1734,9 +1758,23 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
 export function createVNextTextBlockLineDispositionCoverInternalV1(
   input: unknown,
 ): VNextTextBlockLineDispositionCoverResultV1 {
+  let visitedPreviousLineTreeNodeCount = 0
+  let visitedNextLineTreeNodeCount = 0
+  let selectedSubtreeNodeCount = 0
+  const currentWork = (): VNextTextBlockLineDispositionCoverWorkV1 =>
+    Object.freeze({
+      visitedPreviousLineTreeNodeCount,
+      visitedNextLineTreeNodeCount,
+      selectedSubtreeNodeCount,
+    })
+  const blockedAfterTraversal = (
+    code: VNextTextBlockLineDispositionIssueCodeV1,
+    message: string,
+  ): VNextTextBlockLineDispositionCoverResultV1 =>
+    blockedCover(code, message, currentWork())
   const exact = exactCoverInput(input)
   if (exact == null) {
-    return blockedCover(
+    return blockedAfterTraversal(
       "invalid-input",
       "disposition cover requires exact accessor-free trees and segments",
     )
@@ -1753,7 +1791,7 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
     previousInspection.status !== "valid-candidate"
     || nextInspection.status !== "valid-candidate"
   ) {
-    return blockedCover(
+    return blockedAfterTraversal(
       "line-tree-authority-mismatch",
       "disposition cover requires exact process-local line-tree candidates",
     )
@@ -1768,24 +1806,23 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
   let nextCursor = 0
   let previousCursor = 0
   let consumedPrevious = 0
-  let selectedSubtreeCount = 0
   try {
     for (let index = 0; index < exact.segments.length; index += 1) {
       const segment = exact.segments[index]!
       if (!validRange(segment.nextRange, nextTree.summary.lineCount)) {
-        return blockedCover(
+        return blockedAfterTraversal(
           "line-disposition-next-nonexhaustive",
           "next ranges must be non-empty safe ranges inside the next tree",
         )
       }
       if (segment.nextRange.start < nextCursor) {
-        return blockedCover(
+        return blockedAfterTraversal(
           "line-disposition-next-overlap",
           "next disposition ranges overlap or are reordered",
         )
       }
       if (segment.nextRange.start > nextCursor) {
-        return blockedCover(
+        return blockedAfterTraversal(
           "line-disposition-next-gap",
           "next disposition ranges contain an uncovered gap",
         )
@@ -1794,7 +1831,7 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
         index > 0
         && adjacentSegmentsAreNonmaximal(exact.segments[index - 1]!, segment)
       ) {
-        return blockedCover(
+        return blockedAfterTraversal(
           "line-disposition-nonmaximal-segments",
           "adjacent equivalent dispositions must be represented maximally",
         )
@@ -1810,14 +1847,14 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
           )
         )
       ) {
-        return blockedCover(
+        return blockedAfterTraversal(
           "line-disposition-range-mismatch",
           "E/T/R require a valid previous range and N forbids one",
         )
       }
       if (segment.previousRange != null) {
         if (segment.previousRange.start < previousCursor) {
-          return blockedCover(
+          return blockedAfterTraversal(
             "line-disposition-previous-overlap",
             "previous ranges overlap or are reordered",
           )
@@ -1837,16 +1874,20 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
         nextTree.root,
         segment.nextRange,
       )
-      selectedSubtreeCount = safeAdd(
-        selectedSubtreeCount,
-        nextSelected.length,
+      visitedNextLineTreeNodeCount = safeAdd(
+        visitedNextLineTreeNodeCount,
+        nextSelected.visitedNodeCount,
+      )
+      selectedSubtreeNodeCount = safeAdd(
+        selectedSubtreeNodeCount,
+        nextSelected.selected.length,
       )
       if (segment.disposition === "E" || segment.disposition === "T") {
         const previousRange = segment.previousRange!
         if (
           previousRange.end - previousRange.start !== nextLength
         ) {
-          return blockedCover(
+          return blockedAfterTraversal(
             "line-disposition-range-mismatch",
             "E/T ranges must preserve a one-to-one logical-line count",
           )
@@ -1855,13 +1896,17 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
           previousTree.root,
           previousRange,
         )
-        const previousSummary = summaryForSelected(previousSelected)
-        const nextSummary = summaryForSelected(nextSelected)
+        visitedPreviousLineTreeNodeCount = safeAdd(
+          visitedPreviousLineTreeNodeCount,
+          previousSelected.visitedNodeCount,
+        )
+        const previousSummary = summaryForSelected(previousSelected.selected)
+        const nextSummary = summaryForSelected(nextSelected.selected)
         if (
           previousSummary.sourceFingerprint
           !== nextSummary.sourceFingerprint
         ) {
-          return blockedCover(
+          return blockedAfterTraversal(
             "line-disposition-source-mismatch",
             "E/T cannot cross source-fact drift",
           )
@@ -1870,7 +1915,7 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
           previousSummary.provenanceFingerprint
           !== nextSummary.provenanceFingerprint
         ) {
-          return blockedCover(
+          return blockedAfterTraversal(
             "line-disposition-provenance-mismatch",
             "E/T cannot cross provenance drift",
           )
@@ -1879,7 +1924,7 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
           previousSummary.boundarySpatialContextFingerprint
           !== nextSummary.boundarySpatialContextFingerprint
         ) {
-          return blockedCover(
+          return blockedAfterTraversal(
             "line-disposition-boundary-mismatch",
             "E/T require compatible break and spatial-boundary semantics",
           )
@@ -1888,14 +1933,14 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
           previousSummary.lineInternalsFingerprint
           !== nextSummary.lineInternalsFingerprint
         ) {
-          return blockedCover(
+          return blockedAfterTraversal(
             "line-disposition-internals-mismatch",
             "E/T require identical immutable line internals",
           )
         }
         if (segment.disposition === "E") {
           if (segment.constantYDeltaLayoutUnit !== null) {
-            return blockedCover(
+            return blockedAfterTraversal(
               "line-disposition-invalid-translation",
               "E must not declare a translation delta",
             )
@@ -1906,13 +1951,16 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
             || previousSummary.authoredBoxGeometryFingerprint
               !== nextSummary.authoredBoxGeometryFingerprint
           ) {
-            return blockedCover(
+            return blockedAfterTraversal(
               "line-disposition-geometry-mismatch",
               "E requires identical content-local and authored geometry",
             )
           }
-          if (!sameSelectedIdentity(previousSelected, nextSelected)) {
-            return blockedCover(
+          if (!sameSelectedIdentity(
+            previousSelected.selected,
+            nextSelected.selected,
+          )) {
+            return blockedAfterTraversal(
               "line-disposition-not-exact-reuse",
               "E requires exact retained process-local subtree identity",
             )
@@ -1920,7 +1968,7 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
         } else {
           const delta = segment.constantYDeltaLayoutUnit
           if (!Number.isSafeInteger(delta)) {
-            return blockedCover(
+            return blockedAfterTraversal(
               "line-disposition-invalid-translation",
               "T requires one safe-integer constant y delta",
             )
@@ -1937,14 +1985,14 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
             || nextSummary.authoredBottomLayoutUnit
               - previousSummary.authoredBottomLayoutUnit !== delta
           ) {
-            return blockedCover(
+            return blockedAfterTraversal(
               "line-disposition-geometry-mismatch",
               "T requires strict constant-delta translated geometry",
             )
           }
         }
       } else if (segment.constantYDeltaLayoutUnit !== null) {
-        return blockedCover(
+        return blockedAfterTraversal(
           "line-disposition-invalid-translation",
           "only T may declare a translation delta",
         )
@@ -1954,21 +2002,21 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
         previousRange: segment.previousRange,
         nextRange: segment.nextRange,
         constantYDeltaLayoutUnit: segment.constantYDeltaLayoutUnit,
-        subtreeFingerprints: nextSelected.map(
+        subtreeFingerprints: nextSelected.selected.map(
           (selected) => selected.node.fingerprint,
         ),
       })
       nextCursor = segment.nextRange.end
     }
     if (nextCursor !== nextTree.summary.lineCount) {
-      return blockedCover(
+      return blockedAfterTraversal(
         "line-disposition-next-nonexhaustive",
         "disposition segments do not exhaust the next line tree",
       )
     }
     const removed = previousTree.summary.lineCount - consumedPrevious
     if (removed < 0) {
-      return blockedCover(
+      return blockedAfterTraversal(
         "line-disposition-count-overflow",
         "previous disposition count exceeds the previous line tree",
       )
@@ -1985,7 +2033,7 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
       },
       work: {
         visitedSegmentCount: exact.segments.length,
-        selectedSubtreeCount,
+        selectedSubtreeCount: selectedSubtreeNodeCount,
         enumeratedLineCount: 0 as const,
       },
     }
@@ -2009,10 +2057,11 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
     return Object.freeze({
       status: "accepted",
       cover,
+      work: currentWork(),
       issues: Object.freeze([]) as readonly [],
     })
   } catch {
-    return blockedCover(
+    return blockedAfterTraversal(
       "line-disposition-count-overflow",
       "disposition cover exceeded safe range or summary arithmetic",
     )

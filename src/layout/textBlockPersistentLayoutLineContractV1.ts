@@ -404,15 +404,23 @@ export interface VNextTextBlockLineDispositionIssueV1 {
   readonly message: string
 }
 
+export interface VNextTextBlockLineDispositionCoverWorkV1 {
+  readonly visitedPreviousLineTreeNodeCount: number
+  readonly visitedNextLineTreeNodeCount: number
+  readonly selectedSubtreeNodeCount: number
+}
+
 export type VNextTextBlockLineDispositionCoverResultV1 =
   | {
       readonly status: "accepted"
       readonly cover: VNextTextBlockLineDispositionCoverV1
+      readonly work: VNextTextBlockLineDispositionCoverWorkV1
       readonly issues: readonly []
     }
   | {
       readonly status: "blocked"
       readonly cover: null
+      readonly work: VNextTextBlockLineDispositionCoverWorkV1
       readonly issues: readonly VNextTextBlockLineDispositionIssueV1[]
     }
 

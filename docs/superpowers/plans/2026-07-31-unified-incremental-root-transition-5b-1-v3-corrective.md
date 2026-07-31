@@ -366,7 +366,7 @@ type VNextTextBlockLineDispositionCoverResultV1 =
       readonly work: {
         readonly visitedPreviousLineTreeNodeCount: number
         readonly visitedNextLineTreeNodeCount: number
-        readonly selectedExactSubtreeNodeCount: number
+        readonly selectedSubtreeNodeCount: number
       }
       readonly issues: readonly []
     }
@@ -374,6 +374,9 @@ type VNextTextBlockLineDispositionCoverResultV1 =
 ```
 
 Keep the serialized cover shape unchanged. Work is an internal result sidecar.
+The generic cover sidecar counts every selected cover subtree. Only the
+all-`E` transition boundary may project that factual count to
+`selectedExactSubtreeNodeCount` after exact identity has succeeded.
 Paint-only proves
 `nextLineTreeDependency === previousRoot.lineTree`; it does not allocate or
 compare a replacement wrapper.

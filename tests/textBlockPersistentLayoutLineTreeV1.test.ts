@@ -114,6 +114,21 @@ function noOpSegment(lineCount: number): VNextTextBlockLineDispositionSegmentV1 
   }
 }
 
+function repeatedTree(lineCount: number) {
+  const source = repeatedUnifiedLayoutRootSourceFixtureV1({
+    lineCount,
+    includeImages: false,
+  })
+  const accepted = createVNextTextBlockUnifiedLayoutRootV1({
+    inputAuthority: "core-synthetic-qa-only",
+    initialFlow: source.initialFlow,
+    evidence: source.evidence,
+    spatialEntries: [],
+  })
+  if (accepted.status !== "accepted") throw new Error("repeated root blocked")
+  return lineTreeFromAcceptedRoot(accepted, [])
+}
+
 describe("Phase 5B persistent layout line tree", () => {
   it("projects one leaf per complete line with separated immutable facts", () => {
     const built = completeTree({
@@ -195,18 +210,7 @@ describe("Phase 5B persistent layout line tree", () => {
       VNEXT_TEXT_BLOCK_PERSISTENT_LAYOUT_EMPTY_ROOT_V1,
     )).toBe(true)
 
-    const source = repeatedUnifiedLayoutRootSourceFixtureV1({
-      lineCount: 9,
-      includeImages: false,
-    })
-    const accepted = createVNextTextBlockUnifiedLayoutRootV1({
-      inputAuthority: "core-synthetic-qa-only",
-      initialFlow: source.initialFlow,
-      evidence: source.evidence,
-      spatialEntries: [],
-    })
-    if (accepted.status !== "accepted") throw new Error("repeated root blocked")
-    const built = lineTreeFromAcceptedRoot(accepted, [])
+    const built = repeatedTree(9)
     expect(built.tree.summary.lineCount).toBe(9)
     expect(built.tree.root.nodeKind).toBe("branch")
     if (built.tree.root.nodeKind !== "branch") throw new Error("line root not branch")
@@ -257,6 +261,11 @@ describe("Phase 5B persistent layout line tree", () => {
       selectedSubtreeCount: 1,
       enumeratedLineCount: 0,
     })
+    expect(result.work).toEqual({
+      visitedPreviousLineTreeNodeCount: 1,
+      visitedNextLineTreeNodeCount: 1,
+      selectedSubtreeNodeCount: 1,
+    })
     expect(inspectVNextTextBlockLineDispositionCoverInternalV1({
       previousTree: built.tree,
       nextTree: built.tree,
@@ -264,6 +273,194 @@ describe("Phase 5B persistent layout line tree", () => {
     })).toEqual({
       status: "valid",
       fingerprint: result.cover.fingerprint,
+    })
+  })
+
+  it("reports exact maximal-cover visits separately from selected subtrees", () => {
+    const built = repeatedTree(9)
+    const result = createVNextTextBlockLineDispositionCoverInternalV1({
+      previousTree: built.tree,
+      nextTree: built.tree,
+      segments: [
+        {
+          disposition: "E",
+          previousRange: { start: 0, end: 4 },
+          nextRange: { start: 0, end: 4 },
+          constantYDeltaLayoutUnit: null,
+        },
+        {
+          disposition: "R",
+          previousRange: { start: 4, end: 9 },
+          nextRange: { start: 4, end: 9 },
+          constantYDeltaLayoutUnit: null,
+        },
+      ],
+    })
+
+    expect(result.status).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect(result.cover.covers.map((row) => ({
+      disposition: row.disposition,
+      subtreeCount: row.subtreeFingerprints.length,
+    }))).toEqual([
+      { disposition: "E", subtreeCount: 1 },
+      { disposition: "R", subtreeCount: 1 },
+    ])
+    expect(result.work).toEqual({
+      visitedPreviousLineTreeNodeCount: 3,
+      visitedNextLineTreeNodeCount: 6,
+      selectedSubtreeNodeCount: 2,
+    })
+  })
+
+  it.each([
+    {
+      lineCount: 8,
+      exactStart: 0,
+      expected: { previous: 9, next: 18, selected: 8 },
+    },
+    {
+      lineCount: 8,
+      exactStart: 4,
+      expected: { previous: 9, next: 27, selected: 8 },
+    },
+    {
+      lineCount: 8,
+      exactStart: 7,
+      expected: { previous: 9, next: 18, selected: 8 },
+    },
+    {
+      lineCount: 9,
+      exactStart: 0,
+      expected: { previous: 7, next: 14, selected: 5 },
+    },
+    {
+      lineCount: 9,
+      exactStart: 4,
+      expected: { previous: 8, next: 19, selected: 6 },
+    },
+    {
+      lineCount: 9,
+      exactStart: 8,
+      expected: { previous: 8, next: 16, selected: 6 },
+    },
+  ])(
+    "counts canonical first/middle/last visits for $lineCount lines at $exactStart",
+    ({ lineCount, exactStart, expected }) => {
+      const built = repeatedTree(lineCount)
+      const exactEnd = exactStart + 1
+      const segments: VNextTextBlockLineDispositionSegmentV1[] = []
+      if (exactStart > 0) {
+        segments.push({
+          disposition: "R",
+          previousRange: { start: 0, end: exactStart },
+          nextRange: { start: 0, end: exactStart },
+          constantYDeltaLayoutUnit: null,
+        })
+      }
+      segments.push({
+        disposition: "E",
+        previousRange: { start: exactStart, end: exactEnd },
+        nextRange: { start: exactStart, end: exactEnd },
+        constantYDeltaLayoutUnit: null,
+      })
+      if (exactEnd < lineCount) {
+        segments.push({
+          disposition: "R",
+          previousRange: { start: exactEnd, end: lineCount },
+          nextRange: { start: exactEnd, end: lineCount },
+          constantYDeltaLayoutUnit: null,
+        })
+      }
+
+      const result = createVNextTextBlockLineDispositionCoverInternalV1({
+        previousTree: built.tree,
+        nextTree: built.tree,
+        segments,
+      })
+      expect(result.status).toBe("accepted")
+      if (result.status !== "accepted") return
+      expect(result.cover.counts).toEqual({
+        E: 1,
+        T: 0,
+        R: lineCount - 1,
+        N: 0,
+        removed: 0,
+      })
+      expect(result.work).toEqual({
+        visitedPreviousLineTreeNodeCount: expected.previous,
+        visitedNextLineTreeNodeCount: expected.next,
+        selectedSubtreeNodeCount: expected.selected,
+      })
+      expect(result.cover.work.selectedSubtreeCount).toBe(expected.selected)
+    },
+  )
+
+  it("keeps E/T/R/N mutually exclusive and exhaustive", () => {
+    const built = repeatedTree(4)
+    const result = createVNextTextBlockLineDispositionCoverInternalV1({
+      previousTree: built.tree,
+      nextTree: built.tree,
+      segments: [
+        {
+          disposition: "E",
+          previousRange: { start: 0, end: 1 },
+          nextRange: { start: 0, end: 1 },
+          constantYDeltaLayoutUnit: null,
+        },
+        {
+          disposition: "T",
+          previousRange: { start: 1, end: 2 },
+          nextRange: { start: 1, end: 2 },
+          constantYDeltaLayoutUnit: 0,
+        },
+        {
+          disposition: "R",
+          previousRange: { start: 2, end: 3 },
+          nextRange: { start: 2, end: 3 },
+          constantYDeltaLayoutUnit: null,
+        },
+        {
+          disposition: "N",
+          previousRange: null,
+          nextRange: { start: 3, end: 4 },
+          constantYDeltaLayoutUnit: null,
+        },
+      ],
+    })
+
+    expect(result.status).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect(result.cover.counts).toEqual({
+      E: 1,
+      T: 1,
+      R: 1,
+      N: 1,
+      removed: 1,
+    })
+    expect(result.cover.covers.map((row) => row.disposition)).toEqual([
+      "E",
+      "T",
+      "R",
+      "N",
+    ])
+  })
+
+  it("preserves factual traversal work when exact subtree identity blocks", () => {
+    const previous = repeatedTree(9)
+    const next = repeatedTree(9)
+    const result = createVNextTextBlockLineDispositionCoverInternalV1({
+      previousTree: previous.tree,
+      nextTree: next.tree,
+      segments: [noOpSegment(9)],
+    })
+
+    expect(result.status).toBe("blocked")
+    expect(result.issues[0]?.code).toBe("line-disposition-not-exact-reuse")
+    expect(result.work).toEqual({
+      visitedPreviousLineTreeNodeCount: 1,
+      visitedNextLineTreeNodeCount: 1,
+      selectedSubtreeNodeCount: 1,
     })
   })
 

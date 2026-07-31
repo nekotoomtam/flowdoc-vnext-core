@@ -204,9 +204,15 @@ function blockedResult(
   }))
 }
 
+interface AllExactStructuralReuseProof {
+  readonly cover: VNextTextBlockLineDispositionCoverV1
+  readonly visitedLineTreeNodeCount: number
+  readonly selectedExactSubtreeNodeCount: number
+}
+
 function allExactStructuralReuseDispositions(
   root: VNextTextBlockUnifiedLayoutRootV2,
-): VNextTextBlockLineDispositionCoverV1 | null {
+): AllExactStructuralReuseProof | null {
   coverCreationObserverForTest?.()
   const lineCount = root.lineTree.summary.lineCount
   if (lineCount === 0) return null
@@ -220,18 +226,31 @@ function allExactStructuralReuseDispositions(
       constantYDeltaLayoutUnit: null,
     }],
   })
-  return result.status === "accepted" ? result.cover : null
+  if (
+    result.status !== "accepted"
+    || result.work.selectedSubtreeNodeCount
+      !== result.cover.work.selectedSubtreeCount
+  ) return null
+  const visitedLineTreeNodeCount =
+    result.work.visitedPreviousLineTreeNodeCount
+    + result.work.visitedNextLineTreeNodeCount
+  if (!Number.isSafeInteger(visitedLineTreeNodeCount)) return null
+  return Object.freeze({
+    cover: result.cover,
+    visitedLineTreeNodeCount,
+    selectedExactSubtreeNodeCount: result.work.selectedSubtreeNodeCount,
+  })
 }
 
 function noOpWork(
   base: VNextTextBlockIncrementalCandidateWorkV1,
-  dispositions: VNextTextBlockLineDispositionCoverV1,
+  proof: AllExactStructuralReuseProof,
 ): VNextTextBlockIncrementalCandidateWorkV1 {
   return deepFreeze({
     ...base,
     structuralReuseProof: {
-      visitedLineTreeNodeCount: 0,
-      selectedExactSubtreeNodeCount: dispositions.work.selectedSubtreeCount,
+      visitedLineTreeNodeCount: proof.visitedLineTreeNodeCount,
+      selectedExactSubtreeNodeCount: proof.selectedExactSubtreeNodeCount,
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
     },
@@ -246,7 +265,7 @@ function noOpWork(
         {
           stage: "structural-reuse-proof" as const,
           unit: "selected-exact-subtree-nodes" as const,
-          count: dispositions.work.selectedSubtreeCount,
+          count: proof.selectedExactSubtreeNodeCount,
         },
       ],
     }),
@@ -295,6 +314,7 @@ function paintWork(
   base: VNextTextBlockIncrementalCandidateWorkV1,
   input: {
     readonly dispositionCover: VNextTextBlockLineDispositionCoverV1
+    readonly visitedLineTreeNodeCount: number
     readonly copiedSceneNodeCount: number
     readonly replacementChunkCount: number
     readonly deliveryOperationCount: number
@@ -316,7 +336,7 @@ function paintWork(
         input.visitedChangedSourceLeafItemCount,
     },
     structuralReuseProof: {
-      visitedLineTreeNodeCount: 0,
+      visitedLineTreeNodeCount: input.visitedLineTreeNodeCount,
       selectedExactSubtreeNodeCount:
         input.dispositionCover.work.selectedSubtreeCount,
       lineTreeWrapperAllocationCount: 0,
@@ -546,8 +566,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       )],
     )
   }
-  const dispositions = allExactStructuralReuseDispositions(input.previousRoot)
-  if (dispositions == null) {
+  const structuralReuseProof =
+    allExactStructuralReuseDispositions(input.previousRoot)
+  if (structuralReuseProof == null) {
     return blockedResult(
       bound.incrementalCandidateWork,
       [issue(
@@ -562,8 +583,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     return acceptedNoOpAfterWorkLimit(
       input.previousRoot,
       input.workPolicy,
-      dispositions,
-      noOpWork(bound.incrementalCandidateWork, dispositions),
+      structuralReuseProof.cover,
+      noOpWork(bound.incrementalCandidateWork, structuralReuseProof),
     )
   }
   if (input.change.kind !== "image-paint-fact-change") {
@@ -611,8 +632,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     return acceptedNoOpAfterWorkLimit(
       input.previousRoot,
       input.workPolicy,
-      dispositions,
-      noOpWork(bound.incrementalCandidateWork, dispositions),
+      structuralReuseProof.cover,
+      noOpWork(bound.incrementalCandidateWork, structuralReuseProof),
     )
   }
   const aliasesAccepted =
@@ -653,7 +674,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     })
   if (scene.status !== "prepared") {
     const attemptedWork = paintWork(bound.incrementalCandidateWork, {
-      dispositionCover: dispositions,
+      dispositionCover: structuralReuseProof.cover,
+      visitedLineTreeNodeCount:
+        structuralReuseProof.visitedLineTreeNodeCount,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
       deliveryOperationCount: 0,
@@ -703,7 +726,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
   const beforeRegistrationWork = paintWork(
     bound.incrementalCandidateWork,
     {
-      dispositionCover: dispositions,
+      dispositionCover: structuralReuseProof.cover,
+      visitedLineTreeNodeCount:
+        structuralReuseProof.visitedLineTreeNodeCount,
       copiedSceneNodeCount: scene.copiedSceneNodeCount,
       replacementChunkCount: scene.replacementChunkCount,
       deliveryOperationCount: scene.deliveryPlan.operations.length,
@@ -785,7 +810,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     nextSourceStateFingerprint: source.sourceState.fingerprint,
     nextSceneFingerprint: scene.scene.fingerprint,
     deliveryPlanFingerprint: scene.deliveryPlan.fingerprint,
-    dispositionsFingerprint: dispositions.fingerprint,
+    dispositionsFingerprint: structuralReuseProof.cover.fingerprint,
   })
   const preparedRoot =
     prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateInternalV2({
@@ -845,7 +870,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     )
   }
   const work = paintWork(bound.incrementalCandidateWork, {
-    dispositionCover: dispositions,
+    dispositionCover: structuralReuseProof.cover,
+    visitedLineTreeNodeCount: structuralReuseProof.visitedLineTreeNodeCount,
     copiedSceneNodeCount: scene.copiedSceneNodeCount,
     replacementChunkCount: scene.replacementChunkCount,
     deliveryOperationCount: scene.deliveryPlan.operations.length,
@@ -868,7 +894,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     root: preparedRoot.root,
     persistentScene: scene.scene,
     deliveryPlan: scene.deliveryPlan,
-    dispositions,
+    dispositions: structuralReuseProof.cover,
     incrementalCandidateWork: work,
     issues: Object.freeze([]) as readonly [],
     stagedEditorApply: false,
