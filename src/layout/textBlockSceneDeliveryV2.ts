@@ -1154,7 +1154,7 @@ export function prepareVNextTextBlockPersistentSceneCompleteDeliveryInternalV2(
       visitedSceneNodeCount: emitted.visitedSceneNodeCount,
       emittedChunkCount: emitted.chunks.length,
       estimatedCanonicalPayloadByteCount:
-        scene.summary.estimatedCanonicalPayloadByteCount,
+        scene.payloadObservation.estimatedCanonicalPayloadByteCount,
     }
     const facts = {
       source: "vnext-text-block-complete-scene-delivery-v2" as const,
@@ -1344,7 +1344,6 @@ function completeDeliveryChunkIssue(
       "sourceRange",
       "authoredTopLayoutUnit",
       "authoredBottomLayoutUnit",
-      "estimatedCanonicalPayloadByteCount",
       "lineInternalsFingerprint",
       "sourceFingerprint",
       "provenanceFingerprint",
@@ -1366,15 +1365,11 @@ function completeDeliveryChunkIssue(
       || summary.inlineImageFragmentCount !== inlineImageFragmentCount
     ) return "summary-fragment-counts"
     if (
-      summary.estimatedCanonicalPayloadByteCount
+      delivery.work.estimatedCanonicalPayloadByteCount
         !== estimatedCanonicalPayloadByteCount
-      || delivery.work.estimatedCanonicalPayloadByteCount
-        !== estimatedCanonicalPayloadByteCount
-    ) return `summary-payload-bytes(${String(
-      summary.estimatedCanonicalPayloadByteCount,
-    )}/${String(delivery.work.estimatedCanonicalPayloadByteCount)}/${
-      String(estimatedCanonicalPayloadByteCount)
-    })`
+    ) return `work-payload-bytes(${String(
+      delivery.work.estimatedCanonicalPayloadByteCount,
+    )}/${String(estimatedCanonicalPayloadByteCount)})`
     if (
       summary.authoredTopLayoutUnit !== authoredTopLayoutUnit
       || summary.authoredBottomLayoutUnit !== authoredBottomLayoutUnit

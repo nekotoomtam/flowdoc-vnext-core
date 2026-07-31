@@ -9,7 +9,7 @@ import {
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   acceptedRepeatedUnifiedLayoutRootFixture5b,
@@ -29,12 +29,11 @@ interface ManifestCounterRow {
   readonly expectedPath: string
   readonly counters: {
     readonly sourceItems: number
-    readonly proofNodes: number
+    readonly selectedExactSubtreeNodes: number
     readonly copiedSceneNodes: number
     readonly replacementChunks: number
     readonly deliveryOperations: number
     readonly retainCoverNodes: number
-    readonly estimatedCanonicalPayloadBytes: number
   }
 }
 
@@ -154,7 +153,9 @@ function observedCounters(
 ) {
   return {
     sourceItems: result.incrementalCandidateWork.flow.visitedSourceItemCount,
-    proofNodes: result.incrementalCandidateWork.layout.proofNodeCount,
+    selectedExactSubtreeNodes:
+      result.incrementalCandidateWork.structuralReuseProof
+        .selectedExactSubtreeNodeCount,
     copiedSceneNodes:
       result.incrementalCandidateWork.scene.copiedSceneNodeCount,
     replacementChunks:
@@ -163,9 +164,6 @@ function observedCounters(
       result.incrementalCandidateWork.deliveryPlan.deliveryOperationCount,
     retainCoverNodes:
       result.incrementalCandidateWork.deliveryPlan.retainCoverNodeCount,
-    estimatedCanonicalPayloadBytes:
-      result.incrementalCandidateWork.observations
-        .estimatedCanonicalPayloadByteCount,
   }
 }
 
@@ -212,8 +210,8 @@ describe("Phase 5B-1 public foundation gate", () => {
     expect(result.status, JSON.stringify(result.issues)).toBe("accepted")
     if (result.status !== "accepted") return
     expect(result.root.workPolicy)
-      .toBe(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1)
-    expect(result.root.workPolicy.policyId).toBe("5b-1-v1")
+      .toBe(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2)
+    expect(result.root.workPolicy.policyId).toBe("5b-1-v2")
     expect(result.root.contracts).toMatchObject({
       completeNextInputOnHotPath: false,
       stagedEditorApply: false,
@@ -267,9 +265,9 @@ describe("Phase 5B-1 public foundation gate", () => {
         productionActivation: false,
       },
       policy: {
-        policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1.policyId,
+        policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.policyId,
         fingerprint:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1.fingerprint,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.fingerprint,
         calibration: { clockOrDurationFieldCount: 0 },
       },
     })
@@ -279,6 +277,7 @@ describe("Phase 5B-1 public foundation gate", () => {
 
     const unitCounter = {
       "source-items": "sourceItems",
+      "selected-exact-subtree-nodes": "selectedExactSubtreeNodes",
       "copied-scene-nodes": "copiedSceneNodes",
       "replacement-chunks": "replacementChunks",
       "delivery-operations": "deliveryOperations",
@@ -370,7 +369,9 @@ describe("Phase 5B-1 public foundation gate", () => {
     if (noOp.status === "accepted-no-op") {
       expect({
         sourceItems: noOp.incrementalCandidateWork.flow.visitedSourceItemCount,
-        proofNodes: noOp.incrementalCandidateWork.layout.proofNodeCount,
+        selectedExactSubtreeNodes:
+          noOp.incrementalCandidateWork.structuralReuseProof
+            .selectedExactSubtreeNodeCount,
         copiedSceneNodes:
           noOp.incrementalCandidateWork.scene.copiedSceneNodeCount,
         replacementChunks:
@@ -379,9 +380,6 @@ describe("Phase 5B-1 public foundation gate", () => {
           noOp.incrementalCandidateWork.deliveryPlan.deliveryOperationCount,
         retainCoverNodes:
           noOp.incrementalCandidateWork.deliveryPlan.retainCoverNodeCount,
-        estimatedCanonicalPayloadBytes:
-          noOp.incrementalCandidateWork.observations
-            .estimatedCanonicalPayloadByteCount,
       }).toEqual(noOpFixture.counters)
     }
   }, 120_000)
@@ -394,7 +392,7 @@ describe("Phase 5B-1 public foundation gate", () => {
         [row.limitPlusOne, "limit-exceeded"],
       ] as const) {
         expect(evaluateVNextTextBlockStageWorkLimitInternalV1({
-          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
           stage: row.stage,
           unit: row.unit,
           previousSummaryBase: row.previousSummaryBase,
@@ -419,14 +417,14 @@ describe("Phase 5B-1 public foundation gate", () => {
     const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
       previousRoot: previousResult.root,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
     })
     if (bound.status !== "accepted") throw new Error("change binding blocked")
     const fallback =
       createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
         previousRoot: previousResult.root,
         change,
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
         mode: "deterministic-work-limit-exceeded",
         reason: {
           code: "stage-unit-limit-exceeded",

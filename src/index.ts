@@ -166,7 +166,7 @@ export {
 } from "./layout/textBlockSceneDeliveryV2.js"
 export {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
 } from "./layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 export * from "./authoring/editableSession.js"
 export * from "./authoring/textTransactions.js"

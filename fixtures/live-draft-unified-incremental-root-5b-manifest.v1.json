@@ -10,8 +10,8 @@
     "productionActivation": false
   },
   "policy": {
-    "policyId": "5b-1-v1",
-    "fingerprint": "sha256:7ea9c80e77b0d81fc9af5d425ddd9d11935de4ba1d6ee2d66e92f94514ee0179",
+    "policyId": "5b-1-v2",
+    "fingerprint": "sha256:a34ec28417de166943010ad6afedd303b1ce9d77df63a7a56069b1d98d18c8c4",
     "calibration": {
       "smallBlockFloor": "next-power-of-two(max-observed-unit-count where lineCount <= 32)",
       "absoluteStageLimit": "next-power-of-two(4 * max-observed-unit-count in declared 5B-1 matrix)",
@@ -25,6 +25,15 @@
         "stage": "source-flow",
         "unit": "source-items",
         "policyClass": "paint-source-copy",
+        "smallBlockFloor": 1,
+        "absoluteStageLimit": 4,
+        "relativeNumerator": 1,
+        "relativeDenominator": 1
+      },
+      {
+        "stage": "structural-reuse-proof",
+        "unit": "selected-exact-subtree-nodes",
+        "policyClass": "selected-exact-subtree",
         "smallBlockFloor": 1,
         "absoluteStageLimit": 4,
         "relativeNumerator": 1,
@@ -75,21 +84,9 @@
       "recomputed-lines",
       "proof-nodes",
       "reprojected-lines",
-      "visited-fragments",
-      "estimated-canonical-payload-bytes"
+      "visited-fragments"
     ],
-    "inactiveUnitExceptions": [
-      {
-        "unit": "proof-nodes",
-        "purpose": "one canonical all-E structural proof only",
-        "activatesTextLayout": false
-      },
-      {
-        "unit": "estimated-canonical-payload-bytes",
-        "purpose": "observation only",
-        "selectsExecutionPath": false
-      }
-    ]
+    "inactiveUnitExceptions": []
   },
   "fixtures": [
     {
@@ -103,12 +100,11 @@
       "oracleId": "persistent-scene-v2-empty-kernel",
       "counters": {
         "sourceItems": 0,
-        "proofNodes": 0,
+        "selectedExactSubtreeNodes": 0,
         "copiedSceneNodes": 0,
         "replacementChunks": 0,
         "deliveryOperations": 0,
-        "retainCoverNodes": 0,
-        "estimatedCanonicalPayloadBytes": 0
+        "retainCoverNodes": 0
       }
     },
     {
@@ -122,12 +118,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 0,
         "replacementChunks": 1,
         "deliveryOperations": 1,
-        "retainCoverNodes": 0,
-        "estimatedCanonicalPayloadBytes": 6566
+        "retainCoverNodes": 0
       }
     },
     {
@@ -141,12 +136,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 1,
         "replacementChunks": 1,
         "deliveryOperations": 3,
-        "retainCoverNodes": 7,
-        "estimatedCanonicalPayloadBytes": 6585
+        "retainCoverNodes": 7
       }
     },
     {
@@ -160,12 +154,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 2,
         "replacementChunks": 1,
         "deliveryOperations": 2,
-        "retainCoverNodes": 10,
-        "estimatedCanonicalPayloadBytes": 6604
+        "retainCoverNodes": 10
       }
     },
     {
@@ -179,12 +172,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 2,
         "replacementChunks": 1,
         "deliveryOperations": 3,
-        "retainCoverNodes": 11,
-        "estimatedCanonicalPayloadBytes": 6604
+        "retainCoverNodes": 11
       }
     },
     {
@@ -198,12 +190,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 3,
         "replacementChunks": 1,
         "deliveryOperations": 2,
-        "retainCoverNodes": 15,
-        "estimatedCanonicalPayloadBytes": 6566
+        "retainCoverNodes": 15
       }
     },
     {
@@ -217,12 +208,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 1,
         "replacementChunks": 1,
         "deliveryOperations": 2,
-        "retainCoverNodes": 7,
-        "estimatedCanonicalPayloadBytes": 6566
+        "retainCoverNodes": 7
       }
     },
     {
@@ -236,12 +226,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 1,
         "replacementChunks": 1,
         "deliveryOperations": 3,
-        "retainCoverNodes": 7,
-        "estimatedCanonicalPayloadBytes": 6585
+        "retainCoverNodes": 7
       }
     },
     {
@@ -255,12 +244,11 @@
       "oracleId": "independent-complete-root-v2",
       "counters": {
         "sourceItems": 1,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 1,
         "replacementChunks": 1,
         "deliveryOperations": 2,
-        "retainCoverNodes": 7,
-        "estimatedCanonicalPayloadBytes": 6587
+        "retainCoverNodes": 7
       }
     },
     {
@@ -274,12 +262,11 @@
       "oracleId": "exact-previous-root-v2",
       "counters": {
         "sourceItems": 0,
-        "proofNodes": 1,
+        "selectedExactSubtreeNodes": 1,
         "copiedSceneNodes": 0,
         "replacementChunks": 0,
         "deliveryOperations": 0,
-        "retainCoverNodes": 0,
-        "estimatedCanonicalPayloadBytes": 0
+        "retainCoverNodes": 0
       }
     },
     {
@@ -293,12 +280,11 @@
       "oracleId": "not-run-in-5B-1",
       "counters": {
         "sourceItems": 0,
-        "proofNodes": 0,
+        "selectedExactSubtreeNodes": 0,
         "copiedSceneNodes": 0,
         "replacementChunks": 0,
         "deliveryOperations": 0,
-        "retainCoverNodes": 0,
-        "estimatedCanonicalPayloadBytes": 0
+        "retainCoverNodes": 0
       }
     }
   ],
@@ -307,6 +293,16 @@
       "stage": "source-flow",
       "unit": "source-items",
       "previousSummaryBase": 384,
+      "exactValidatedChangeDelta": 1,
+      "effectiveLimit": 4,
+      "limitMinusOne": 3,
+      "limit": 4,
+      "limitPlusOne": 5
+    },
+    {
+      "stage": "structural-reuse-proof",
+      "unit": "selected-exact-subtree-nodes",
+      "previousSummaryBase": 128,
       "exactValidatedChangeDelta": 1,
       "effectiveLimit": 4,
       "limitMinusOne": 3,

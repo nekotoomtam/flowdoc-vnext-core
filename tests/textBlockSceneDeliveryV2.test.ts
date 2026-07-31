@@ -250,7 +250,9 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
       replacementChunkCount: 1,
     })
     expect(result.plan.summary.estimatedCanonicalPayloadByteCount)
-      .toBe(nextChunk.leaf.summary.estimatedCanonicalPayloadByteCount)
+      .toBe(
+        nextChunk.leaf.payloadObservation.estimatedCanonicalPayloadByteCount,
+      )
   })
 
   it("blocks gaps, overlaps, alternate covers, and noncanonical operations", () => {
@@ -415,7 +417,7 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
         completeDeliveryCount: 1,
         emittedChunkCount: 9,
         estimatedCanonicalPayloadByteCount:
-          scene.summary.estimatedCanonicalPayloadByteCount,
+          scene.payloadObservation.estimatedCanonicalPayloadByteCount,
       },
       stagedEditorApply: false,
       mayPublishLayout: false,

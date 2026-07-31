@@ -16,6 +16,7 @@ import {
   lookupVNextTextBlockPersistentSceneChunkInternalV2,
   verifyVNextTextBlockPersistentSceneCandidateInternalV2,
   VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2,
+  VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
   createVNextTextBlockUnifiedSpatialStateCompleteInternalV1,
@@ -108,6 +109,8 @@ function expectDefaultNodeFingerprintParity(
         summary: node.summary,
       }),
     ))
+    expect(node.payloadObservation.payloadObservationFingerprint)
+      .toMatch(/^sha256:/)
     return
   }
   for (const child of node.children) {
@@ -122,6 +125,8 @@ function expectDefaultNodeFingerprintParity(
       summary: node.summary,
     }),
   ))
+  expect(node.payloadObservation.payloadObservationFingerprint)
+    .toMatch(/^sha256:/)
 }
 
 describe("Phase 5B Persistent Scene V2", () => {
@@ -148,6 +153,7 @@ describe("Phase 5B Persistent Scene V2", () => {
       built.scene,
     )).toMatchObject({
       status: "valid-candidate",
+      payloadObservationFingerprint: expect.stringMatching(/^sha256:/),
       registeredAuthority: false,
     })
     expect(inspectVNextTextBlockPersistentSceneV2(built.scene)).toMatchObject({
@@ -253,7 +259,10 @@ describe("Phase 5B Persistent Scene V2", () => {
         payloadPolicyVersion: 1,
         chunk: found.leaf.chunk,
       })
-      expect(found.leaf.summary.estimatedCanonicalPayloadByteCount)
+      expect(found.leaf.summary).not.toHaveProperty(
+        "estimatedCanonicalPayloadByteCount",
+      )
+      expect(found.leaf.payloadObservation.estimatedCanonicalPayloadByteCount)
         .toBe(expected)
       chunkBytes += expected
     }
@@ -262,15 +271,51 @@ describe("Phase 5B Persistent Scene V2", () => {
       source: "vnext-text-block-persistent-scene-v2",
       contractVersion: 2,
     })
-    expect(built.scene.root.summary.estimatedCanonicalPayloadByteCount)
+    expect(built.scene.root.payloadObservation.estimatedCanonicalPayloadByteCount)
       .toBe(chunkBytes)
-    expect(built.scene.summary.estimatedCanonicalPayloadByteCount)
+    expect(built.scene.summary).not.toHaveProperty(
+      "estimatedCanonicalPayloadByteCount",
+    )
+    expect(built.scene.payloadObservation.estimatedCanonicalPayloadByteCount)
       .toBe(headerBytes + chunkBytes)
-    expect(built.work.estimatedCanonicalPayloadByteCount)
-      .toBe(headerBytes + chunkBytes)
+    expect(built.scene.payloadObservation.payloadObservationFingerprint)
+      .toMatch(/^sha256:/)
+    expect(built.scene.root).toHaveProperty("payloadObservation")
     expect(built.scene).not.toHaveProperty("estimatedPayloadByteCount")
     expect(built.scene.work).not.toHaveProperty("payloadByteCount")
     expectDefaultNodeFingerprintParity(built.scene.root)
+  })
+
+  it("keeps semantic Scene identity stable when only the payload policy changes", () => {
+    const input = completeInputs({ content: "text-image-text" })
+    const alternatePayloadPolicy = Object.freeze({
+      ...VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2,
+      fieldAllowlistFingerprint: `sha256:${"1".repeat(64)}`,
+      fingerprint: createVNextCompactFingerprint(stringifyVNextCanonicalJson({
+        payloadPolicyVersion: 1,
+        canonicalEncoding: "utf8-canonical-json",
+        fieldAllowlistFingerprint: `sha256:${"1".repeat(64)}`,
+      })),
+    })
+    const left = createVNextTextBlockPersistentSceneCompleteInternalV2({
+      lineTree: input.lineTree,
+      sourceState: input.sourceState,
+    })
+    const rightInput = {
+      lineTree: input.lineTree,
+      sourceState: input.sourceState,
+      payloadPolicy: alternatePayloadPolicy,
+    }
+    const right = createVNextTextBlockPersistentSceneCompleteInternalV2(
+      rightInput,
+    )
+    expect(left.status).toBe("prepared")
+    expect(right.status).toBe("prepared")
+    if (left.status !== "prepared" || right.status !== "prepared") return
+    expect(left.scene.fingerprint).toBe(right.scene.fingerprint)
+    expect(left.scene.root.fingerprint).toBe(right.scene.root.fingerprint)
+    expect(left.scene.payloadObservation.payloadObservationFingerprint)
+      .not.toBe(right.scene.payloadObservation.payloadObservationFingerprint)
   })
 
   it("uses a dedicated empty sentinel and the canonical trailing 4/5 split", () => {
@@ -283,8 +328,8 @@ describe("Phase 5B Persistent Scene V2", () => {
         textFragmentCount: 0,
         inlineImageFragmentCount: 0,
         nodeCount: 1,
-        estimatedCanonicalPayloadByteCount: 0,
       },
+      payloadObservation: { estimatedCanonicalPayloadByteCount: 0 },
     })
     expect(Object.isFrozen(
       VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2,
@@ -414,6 +459,8 @@ describe("Phase 5B Persistent Scene V2", () => {
         siblingReferences: [{
           node: built.scene.root,
           fingerprint: built.scene.root.fingerprint,
+          payloadObservationFingerprint:
+            built.scene.root.payloadObservation.payloadObservationFingerprint,
           summary: built.scene.root.summary,
         }],
         completePreviousSceneTraversal: false,

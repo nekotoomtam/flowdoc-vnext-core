@@ -32,7 +32,7 @@ import type {
   VNextTextBlockUnifiedLayoutStageV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
@@ -633,6 +633,6 @@ export function completeVNextTextBlockUnifiedLayoutRootFallbackV1(
     request: exact?.request as VNextTextBlockUnifiedLayoutFallbackRequestV1,
     completeMaterial:
       exact?.completeMaterial as VNextTextBlockUnifiedLayoutRootBuildInputV2,
-    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   })
 }

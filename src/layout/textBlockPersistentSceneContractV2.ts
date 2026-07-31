@@ -30,7 +30,13 @@ export interface VNextTextBlockPersistentScenePolicyV2 {
 export interface VNextTextBlockPersistentScenePayloadPolicyV2 {
   readonly payloadPolicyVersion: 1
   readonly canonicalEncoding: "utf8-canonical-json"
+  readonly fieldAllowlistFingerprint: string
   readonly fingerprint: string
+}
+
+export interface VNextTextBlockPersistentScenePayloadObservationV2 {
+  readonly estimatedCanonicalPayloadByteCount: number
+  readonly payloadObservationFingerprint: string
 }
 
 export interface VNextTextBlockPersistentSceneTextPaintRunV2 {
@@ -92,7 +98,6 @@ export interface VNextTextBlockPersistentSceneSummaryV2 {
   readonly sourceRange: VNextTextBlockPersistentLayoutSourceRangeV1
   readonly authoredTopLayoutUnit: number | null
   readonly authoredBottomLayoutUnit: number | null
-  readonly estimatedCanonicalPayloadByteCount: number
   readonly lineInternalsFingerprint: string
   readonly sourceFingerprint: string
   readonly provenanceFingerprint: string
@@ -104,6 +109,8 @@ export interface VNextTextBlockPersistentSceneEmptyRootV2 {
   readonly nodeKind: "empty"
   readonly height: 0
   readonly summary: VNextTextBlockPersistentSceneSummaryV2
+  readonly payloadObservation:
+    VNextTextBlockPersistentScenePayloadObservationV2
   readonly fingerprint: string
 }
 
@@ -112,6 +119,8 @@ export interface VNextTextBlockPersistentSceneLeafV2 {
   readonly height: 0
   readonly chunk: VNextTextBlockPersistentSceneChunkV2
   readonly summary: VNextTextBlockPersistentSceneSummaryV2
+  readonly payloadObservation:
+    VNextTextBlockPersistentScenePayloadObservationV2
   readonly fingerprint: string
 }
 
@@ -120,6 +129,8 @@ export interface VNextTextBlockPersistentSceneBranchV2 {
   readonly height: number
   readonly children: readonly VNextTextBlockPersistentSceneNodeV2[]
   readonly summary: VNextTextBlockPersistentSceneSummaryV2
+  readonly payloadObservation:
+    VNextTextBlockPersistentScenePayloadObservationV2
   readonly fingerprint: string
 }
 
@@ -145,7 +156,6 @@ export type VNextTextBlockPersistentSceneWorkV2 =
       readonly incrementalCopiedNodeCount: 0
       readonly completeLineTreeTraversalCount: 1
       readonly completeSceneTraversalCount: 0
-      readonly estimatedCanonicalPayloadByteCount: number
     }
   | {
       readonly completeSceneProjectionCount: 0
@@ -160,7 +170,6 @@ export type VNextTextBlockPersistentSceneWorkV2 =
       readonly incrementalCopiedNodeCount: number
       readonly completeLineTreeTraversalCount: 0
       readonly completeSceneTraversalCount: 0
-      readonly estimatedCanonicalPayloadByteCount: number
     }
 
 export interface VNextTextBlockPersistentSceneV2 {
@@ -180,6 +189,8 @@ export interface VNextTextBlockPersistentSceneV2 {
   readonly payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2
   readonly root: VNextTextBlockPersistentSceneRootV2
   readonly summary: VNextTextBlockPersistentSceneSummaryV2
+  readonly payloadObservation:
+    VNextTextBlockPersistentScenePayloadObservationV2
   readonly work: VNextTextBlockPersistentSceneWorkV2
   readonly contracts: {
     readonly rendererConsumptionOnly: true
@@ -243,6 +254,7 @@ export type VNextTextBlockPersistentSceneCandidateInspectionV2 =
   | {
       readonly status: "valid-candidate"
       readonly fingerprint: string
+      readonly payloadObservationFingerprint: string
       readonly registeredAuthority: false
     }
   | {
@@ -259,6 +271,7 @@ export type VNextTextBlockPersistentSceneInspectionV2 =
   | {
       readonly status: "valid"
       readonly fingerprint: string
+      readonly payloadObservationFingerprint: string
     }
   | {
       readonly status: "invalid"
@@ -299,6 +312,7 @@ export type VNextTextBlockPersistentSceneChunkLookupResultV2 =
 export interface VNextTextBlockPersistentSceneSiblingReferenceV2 {
   readonly node: VNextTextBlockPersistentSceneRootV2
   readonly fingerprint: string
+  readonly payloadObservationFingerprint: string
   readonly summary: VNextTextBlockPersistentSceneSummaryV2
 }
 

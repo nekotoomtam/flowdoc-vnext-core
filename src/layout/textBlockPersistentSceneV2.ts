@@ -29,6 +29,7 @@ import {
   type VNextTextBlockPersistentSceneIssueV2,
   type VNextTextBlockPersistentSceneLeafV2,
   type VNextTextBlockPersistentSceneNodeV2,
+  type VNextTextBlockPersistentScenePayloadObservationV2,
   type VNextTextBlockPersistentScenePayloadPolicyV2,
   type VNextTextBlockPersistentScenePolicyV2,
   type VNextTextBlockPersistentSceneRootV2,
@@ -76,6 +77,11 @@ VNextTextBlockPersistentScenePolicyV2 = Object.freeze({
 const payloadPolicyFacts = {
   payloadPolicyVersion: 1 as const,
   canonicalEncoding: "utf8-canonical-json" as const,
+  fieldAllowlistFingerprint: createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson({
+      payloadFields: ["chunk"] as const,
+    }),
+  ),
 }
 
 export const VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2:
@@ -119,6 +125,7 @@ function frozenSceneShell(value: unknown): boolean {
     return Object.isFrozen(scene)
       && Object.isFrozen(scene.root)
       && Object.isFrozen(scene.summary)
+      && Object.isFrozen(scene.payloadObservation)
       && Object.isFrozen(scene.work)
       && Object.isFrozen(scene.contracts)
   } catch {
@@ -186,7 +193,6 @@ const emptySummary: VNextTextBlockPersistentSceneSummaryV2 = deepFreeze({
   sourceRange: { start: null, end: null },
   authoredTopLayoutUnit: null,
   authoredBottomLayoutUnit: null,
-  estimatedCanonicalPayloadByteCount: 0,
   lineInternalsFingerprint: emptyComponentFingerprint("line-internals"),
   sourceFingerprint: emptyComponentFingerprint("source"),
   provenanceFingerprint: emptyComponentFingerprint("provenance"),
@@ -195,19 +201,54 @@ const emptySummary: VNextTextBlockPersistentSceneSummaryV2 = deepFreeze({
     emptyComponentFingerprint("boundary-spatial-context"),
 })
 
-export const VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2:
-VNextTextBlockPersistentSceneEmptyRootV2 = deepFreeze({
-  nodeKind: "empty",
-  height: 0,
-  summary: emptySummary,
-  fingerprint: createVNextCompactFingerprint(
-    stringifyVNextCanonicalJson({
-      contractVersion: 2,
-      nodeKind: "empty",
-      summary: emptySummary,
-    }),
-  ),
-})
+const emptySemanticFingerprint = createVNextCompactFingerprint(
+  stringifyVNextCanonicalJson({
+    contractVersion: 2,
+    nodeKind: "empty",
+    summary: emptySummary,
+  }),
+)
+
+function payloadObservation(
+  semanticFingerprint: string,
+  estimatedCanonicalPayloadByteCount: number,
+  payloadPolicyFingerprint: string,
+  childObservationFingerprints: readonly string[],
+): VNextTextBlockPersistentScenePayloadObservationV2 {
+  const facts = {
+    semanticFingerprint,
+    estimatedCanonicalPayloadByteCount,
+    payloadPolicyFingerprint,
+    childObservationFingerprints,
+  }
+  return deepFreeze({
+    estimatedCanonicalPayloadByteCount,
+    payloadObservationFingerprint: createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson(facts),
+    ),
+  })
+}
+
+function emptyRoot(
+  payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2,
+): VNextTextBlockPersistentSceneEmptyRootV2 {
+  return deepFreeze({
+    nodeKind: "empty" as const,
+    height: 0 as const,
+    summary: emptySummary,
+    payloadObservation: payloadObservation(
+      emptySemanticFingerprint,
+      0,
+      payloadPolicy.fingerprint,
+      [],
+    ),
+    fingerprint: emptySemanticFingerprint,
+  })
+}
+
+export const VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2 = emptyRoot(
+  VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2,
+)
 
 interface PreparedSceneRecord {
   readonly fingerprint: string
@@ -257,7 +298,7 @@ function blocked(
   })
 }
 
-function sceneCanonicalFacts(scene: VNextTextBlockPersistentSceneV2): unknown {
+function sceneSemanticFacts(scene: VNextTextBlockPersistentSceneV2): unknown {
   return {
     source: scene.source,
     contractVersion: scene.contractVersion,
@@ -272,10 +313,8 @@ function sceneCanonicalFacts(scene: VNextTextBlockPersistentSceneV2): unknown {
       scene.sourceStateProvenanceFingerprint,
     sourceStatePaintFingerprint: scene.sourceStatePaintFingerprint,
     policy: scene.policy,
-    payloadPolicy: scene.payloadPolicy,
     rootFingerprint: scene.root.fingerprint,
     summary: scene.summary,
-    work: scene.work,
     contracts: scene.contracts,
     mayPublishLayout: scene.mayPublishLayout,
     productionBinding: scene.productionBinding,
@@ -285,14 +324,48 @@ function sceneCanonicalFacts(scene: VNextTextBlockPersistentSceneV2): unknown {
 function exactBuildInput(value: unknown): {
   readonly lineTree: unknown
   readonly sourceState: unknown
+  readonly payloadPolicy:
+    VNextTextBlockPersistentScenePayloadPolicyV2 | null
 } | null {
   const record = exactRecord(value, ["lineTree", "sourceState"])
+    ?? exactRecord(value, ["lineTree", "sourceState", "payloadPolicy"])
   return record == null
     ? null
     : {
         lineTree: record.lineTree,
         sourceState: record.sourceState,
+        payloadPolicy: record.payloadPolicy == null
+          ? null
+          : record.payloadPolicy as VNextTextBlockPersistentScenePayloadPolicyV2,
       }
+}
+
+function exactPayloadPolicy(
+  value: unknown,
+): VNextTextBlockPersistentScenePayloadPolicyV2 | null {
+  const record = exactRecord(value, [
+    "payloadPolicyVersion",
+    "canonicalEncoding",
+    "fieldAllowlistFingerprint",
+    "fingerprint",
+  ])
+  if (
+    record == null
+    || record.payloadPolicyVersion !== 1
+    || record.canonicalEncoding !== "utf8-canonical-json"
+    || typeof record.fieldAllowlistFingerprint !== "string"
+    || typeof record.fingerprint !== "string"
+  ) return null
+  const expectedFingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson({
+      payloadPolicyVersion: record.payloadPolicyVersion,
+      canonicalEncoding: record.canonicalEncoding,
+      fieldAllowlistFingerprint: record.fieldAllowlistFingerprint,
+    }),
+  )
+  return record.fingerprint === expectedFingerprint
+    ? record as unknown as VNextTextBlockPersistentScenePayloadPolicyV2
+    : null
 }
 
 function collectSourceItems(
@@ -479,6 +552,7 @@ function leafFromChunk(
   lineLeaf: VNextTextBlockPersistentLayoutLineLeafV1,
   chunk: VNextTextBlockPersistentSceneChunkV2,
   factory: FingerprintFactory,
+  payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2,
 ): VNextTextBlockPersistentSceneLeafV2 {
   let textFragmentCount = 0
   let inlineImageFragmentCount = 0
@@ -496,10 +570,6 @@ function leafFromChunk(
     sourceRange: lineLeaf.summary.sourceRange,
     authoredTopLayoutUnit: lineLeaf.summary.authoredTopLayoutUnit,
     authoredBottomLayoutUnit: lineLeaf.summary.authoredBottomLayoutUnit,
-    estimatedCanonicalPayloadByteCount: utf8ByteCount({
-      payloadPolicyVersion: 1,
-      chunk,
-    }),
     lineInternalsFingerprint: chunk.lineInternalsFingerprint,
     sourceFingerprint: chunk.sourceFingerprint,
     provenanceFingerprint: chunk.provenanceFingerprint,
@@ -507,17 +577,24 @@ function leafFromChunk(
     boundarySpatialContextFingerprint:
       chunk.boundarySpatialContextFingerprint,
   }
+  const fingerprint = fingerprintWith(factory, {
+    contractVersion: 2,
+    nodeKind: "leaf",
+    chunkFingerprint: chunk.fingerprint,
+    summary,
+  })
   return {
     nodeKind: "leaf",
     height: 0,
     chunk,
     summary,
-    fingerprint: fingerprintWith(factory, {
-      contractVersion: 2,
-      nodeKind: "leaf",
-      chunkFingerprint: chunk.fingerprint,
-      summary,
-    }),
+    payloadObservation: payloadObservation(
+      fingerprint,
+      utf8ByteCount({ payloadPolicyVersion: 1, chunk }),
+      payloadPolicy.fingerprint,
+      [],
+    ),
+    fingerprint,
   }
 }
 
@@ -531,7 +608,6 @@ function summaryFromChildren(
   let inlineImageFragmentCount = 0
   let leafCount = 0
   let nodeCount = 1
-  let estimatedCanonicalPayloadByteCount = 0
   let authoredTopLayoutUnit: number | null = null
   let authoredBottomLayoutUnit: number | null = null
   for (const child of children) {
@@ -547,10 +623,6 @@ function summaryFromChildren(
     )
     leafCount = safeAdd(leafCount, child.summary.leafCount)
     nodeCount = safeAdd(nodeCount, child.summary.nodeCount)
-    estimatedCanonicalPayloadByteCount = safeAdd(
-      estimatedCanonicalPayloadByteCount,
-      child.summary.estimatedCanonicalPayloadByteCount,
-    )
     const top = child.summary.authoredTopLayoutUnit
     const bottom = child.summary.authoredBottomLayoutUnit
     if (top != null) {
@@ -581,7 +653,6 @@ function summaryFromChildren(
     },
     authoredTopLayoutUnit,
     authoredBottomLayoutUnit,
-    estimatedCanonicalPayloadByteCount,
     lineInternalsFingerprint: component(
       "line-internals",
       children.map((child) => child.summary.lineInternalsFingerprint),
@@ -610,6 +681,7 @@ function summaryFromChildren(
 function branchFromChildren(
   children: readonly VNextTextBlockPersistentSceneNodeV2[],
   factory: FingerprintFactory,
+  payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2,
 ): VNextTextBlockPersistentSceneBranchV2 {
   if (
     children.length < 2
@@ -617,18 +689,33 @@ function branchFromChildren(
     || children.some((child) => child.height !== children[0]!.height)
   ) throw new Error("invalid scene branch")
   const summary = summaryFromChildren(children, factory)
+  const fingerprint = fingerprintWith(factory, {
+    contractVersion: 2,
+    nodeKind: "branch",
+    height: children[0]!.height + 1,
+    childFingerprints: children.map((child) => child.fingerprint),
+    summary,
+  })
   return {
     nodeKind: "branch",
     height: children[0]!.height + 1,
     children,
     summary,
-    fingerprint: fingerprintWith(factory, {
-      contractVersion: 2,
-      nodeKind: "branch",
-      height: children[0]!.height + 1,
-      childFingerprints: children.map((child) => child.fingerprint),
-      summary,
-    }),
+    payloadObservation: payloadObservation(
+      fingerprint,
+      children.reduce(
+        (total, child) => safeAdd(
+          total,
+          child.payloadObservation.estimatedCanonicalPayloadByteCount,
+        ),
+        0,
+      ),
+      payloadPolicy.fingerprint,
+      children.map(
+        (child) => child.payloadObservation.payloadObservationFingerprint,
+      ),
+    ),
+    fingerprint,
   }
 }
 
@@ -639,13 +726,17 @@ function projectRoot(
     VNextTextBlockUnifiedLayoutSourceItemV1
   >,
   factory: FingerprintFactory,
+  payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2,
   nodes: WeakSet<object>,
   chunkOrdinal: { value: number },
   chunkOrdinalsByLineage: Map<string, number[]>,
 ): VNextTextBlockPersistentSceneRootV2 | VNextTextBlockPersistentSceneIssueV2 {
   if (lineRoot.nodeKind === "empty") {
-    nodes.add(VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2)
-    return VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2
+    const root = payloadPolicy === VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2
+      ? VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2
+      : emptyRoot(payloadPolicy)
+    nodes.add(root)
+    return root
   }
   if (lineRoot.nodeKind === "leaf") {
     const ordinal = chunkOrdinal.value
@@ -658,7 +749,7 @@ function projectRoot(
         ordinal,
       )
     }
-    const leaf = leafFromChunk(lineRoot, chunk, factory)
+    const leaf = leafFromChunk(lineRoot, chunk, factory, payloadPolicy)
     for (const mapping of chunk.sourceMapping) {
       const ordinals = chunkOrdinalsByLineage.get(mapping.lineageId) ?? []
       if (ordinals[ordinals.length - 1] !== ordinal) {
@@ -675,6 +766,7 @@ function projectRoot(
       child,
       itemsByLineage,
       factory,
+      payloadPolicy,
       nodes,
       chunkOrdinal,
       chunkOrdinalsByLineage,
@@ -684,7 +776,7 @@ function projectRoot(
     }
     children.push(projected as VNextTextBlockPersistentSceneNodeV2)
   }
-  const branch = branchFromChildren(children, factory)
+  const branch = branchFromChildren(children, factory, payloadPolicy)
   nodes.add(branch)
   return branch
 }
@@ -724,6 +816,15 @@ function buildComplete(
     exact.lineTree as VNextTextBlockPersistentLayoutLineTreeV1
   const sourceState =
     exact.sourceState as VNextTextBlockUnifiedLayoutSourceStateV1
+  const payloadPolicy = exact.payloadPolicy == null
+    ? VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2
+    : exactPayloadPolicy(exact.payloadPolicy)
+  if (payloadPolicy == null) {
+    return blocked(issue(
+      "invalid-input",
+      "Persistent Scene V2 payload policy must be one exact canonical policy",
+    ))
+  }
   if (
     !hasVNextTextBlockPersistentLayoutLineTreePreparedBindingInternalV1(
       sourceState,
@@ -750,6 +851,7 @@ function buildComplete(
       lineTree.root,
       collected.itemsByLineage,
       factory,
+      payloadPolicy,
       nodes,
       chunkOrdinal,
       chunkOrdinalsByLineage,
@@ -769,15 +871,7 @@ function buildComplete(
       source: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_SOURCE,
       contractVersion: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_VERSION,
     })
-    const totalEstimatedPayloadByteCount = safeAdd(
-      headerByteCount,
-      root.summary.estimatedCanonicalPayloadByteCount,
-    )
-    const summary: VNextTextBlockPersistentSceneSummaryV2 = {
-      ...root.summary,
-      estimatedCanonicalPayloadByteCount:
-        totalEstimatedPayloadByteCount,
-    }
+    const summary: VNextTextBlockPersistentSceneSummaryV2 = root.summary
     const work = {
       completeSceneProjectionCount: 1 as const,
       visitedLineCount: lineTree.summary.lineCount,
@@ -794,8 +888,6 @@ function buildComplete(
       incrementalCopiedNodeCount: 0 as const,
       completeLineTreeTraversalCount: 1 as const,
       completeSceneTraversalCount: 0 as const,
-      estimatedCanonicalPayloadByteCount:
-        totalEstimatedPayloadByteCount,
     }
     const facts = {
       source: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_SOURCE,
@@ -813,8 +905,7 @@ function buildComplete(
       sourceStatePaintFingerprint:
         sourceState.summary.paintFingerprint,
       policy: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2,
-      payloadPolicy:
-        VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2,
+      payloadPolicy,
       root,
       summary,
       work,
@@ -842,14 +933,23 @@ function buildComplete(
       mayPublishLayout: false as const,
       productionBinding: false as const,
     }
-    const withoutFingerprint = deepFreeze(facts)
-    const canonicalFacts = stringifyVNextCanonicalJson(sceneCanonicalFacts({
-      ...withoutFingerprint,
-      fingerprint: "",
-    }))
-    const scene = Object.freeze({
-      ...withoutFingerprint,
-      fingerprint: factory(canonicalFacts),
+    const semanticFacts = sceneSemanticFacts(facts as
+      VNextTextBlockPersistentSceneV2)
+    const canonicalFacts = stringifyVNextCanonicalJson(semanticFacts)
+    const sceneFingerprint = factory(canonicalFacts)
+    const scenePayloadObservation = payloadObservation(
+      sceneFingerprint,
+      safeAdd(
+        headerByteCount,
+        root.payloadObservation.estimatedCanonicalPayloadByteCount,
+      ),
+      payloadPolicy.fingerprint,
+      [root.payloadObservation.payloadObservationFingerprint],
+    )
+    const scene = deepFreeze({
+      ...facts,
+      payloadObservation: scenePayloadObservation,
+      fingerprint: sceneFingerprint,
     })
     preparedScenes.set(scene, {
       fingerprint: scene.fingerprint,
@@ -899,6 +999,7 @@ function replaceSceneLeafAtOrdinal(
     readonly relativeOrdinal: number
     readonly replacement: VNextTextBlockPersistentSceneLeafV2
     readonly factory: FingerprintFactory
+    readonly payloadPolicy: VNextTextBlockPersistentScenePayloadPolicyV2
     readonly nodes: WeakSet<object>
     readonly copiedPathNodes:
       VNextTextBlockPersistentSceneNodeV2[]
@@ -935,6 +1036,8 @@ function replaceSceneLeafAtOrdinal(
       input.siblingReferences.push({
         node: child,
         fingerprint: child.fingerprint,
+        payloadObservationFingerprint:
+          child.payloadObservation.payloadObservationFingerprint,
         summary: child.summary,
       })
       return child
@@ -945,7 +1048,11 @@ function replaceSceneLeafAtOrdinal(
       relativeOrdinal: input.relativeOrdinal - childStart,
     })
   })
-  const pendingCopied = branchFromChildren(children, input.factory)
+  const pendingCopied = branchFromChildren(
+    children,
+    input.factory,
+    input.payloadPolicy,
+  )
   deepFreeze(pendingCopied.summary)
   Object.freeze(pendingCopied.children)
   const copied = Object.freeze(pendingCopied)
@@ -1110,6 +1217,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       line.leaf,
       chunk,
       previous.fingerprintFactory,
+      input.previousScene.payloadPolicy,
     ))
     const nodes = new WeakSet<object>()
     nodes.add(replacement)
@@ -1124,6 +1232,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       relativeOrdinal: chunkOrdinal,
       replacement,
       factory: previous.fingerprintFactory,
+      payloadPolicy: input.previousScene.payloadPolicy,
       nodes,
       copiedPathNodes,
       siblingReferences,
@@ -1133,13 +1242,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       source: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_SOURCE,
       contractVersion: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_VERSION,
     })
-    const summary: VNextTextBlockPersistentSceneSummaryV2 = deepFreeze({
-      ...root.summary,
-      estimatedCanonicalPayloadByteCount: safeAdd(
-        headerByteCount,
-        root.summary.estimatedCanonicalPayloadByteCount,
-      ),
-    })
+    const summary: VNextTextBlockPersistentSceneSummaryV2 = root.summary
     const work = deepFreeze({
       completeSceneProjectionCount: 0 as const,
       visitedLineCount: 1,
@@ -1153,8 +1256,6 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       incrementalCopiedNodeCount: copiedPathNodes.length,
       completeLineTreeTraversalCount: 0 as const,
       completeSceneTraversalCount: 0 as const,
-      estimatedCanonicalPayloadByteCount:
-        summary.estimatedCanonicalPayloadByteCount,
     })
     const facts = {
       source: input.previousScene.source,
@@ -1180,13 +1281,22 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       mayPublishLayout: false as const,
       productionBinding: false as const,
     }
-    const canonicalFacts = stringifyVNextCanonicalJson(sceneCanonicalFacts({
+    const canonicalFacts = stringifyVNextCanonicalJson(sceneSemanticFacts(
+      facts as VNextTextBlockPersistentSceneV2,
+    ))
+    const sceneFingerprint = previous.fingerprintFactory(canonicalFacts)
+    const scene = deepFreeze({
       ...facts,
-      fingerprint: "",
-    }))
-    const scene = Object.freeze({
-      ...facts,
-      fingerprint: previous.fingerprintFactory(canonicalFacts),
+      payloadObservation: payloadObservation(
+        sceneFingerprint,
+        safeAdd(
+          headerByteCount,
+          root.payloadObservation.estimatedCanonicalPayloadByteCount,
+        ),
+        input.previousScene.payloadPolicy.fingerprint,
+        [root.payloadObservation.payloadObservationFingerprint],
+      ),
+      fingerprint: sceneFingerprint,
     })
     preparedScenes.set(scene, {
       fingerprint: scene.fingerprint,
@@ -1269,7 +1379,7 @@ export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
       }
     }
     const canonicalFacts = stringifyVNextCanonicalJson(
-      sceneCanonicalFacts(scene),
+      sceneSemanticFacts(scene),
     )
     if (
       record.canonicalFacts !== canonicalFacts
@@ -1285,6 +1395,8 @@ export function verifyVNextTextBlockPersistentSceneCandidateInternalV2(
     return {
       status: "valid-candidate",
       fingerprint: scene.fingerprint,
+      payloadObservationFingerprint:
+        scene.payloadObservation.payloadObservationFingerprint,
       registeredAuthority: false,
     }
   } catch {
@@ -1393,7 +1505,7 @@ export function inspectVNextTextBlockPersistentSceneV2(
     const scene = value as VNextTextBlockPersistentSceneV2
     const record = registeredScenes.get(scene)!
     const canonicalFacts = stringifyVNextCanonicalJson(
-      sceneCanonicalFacts(scene),
+      sceneSemanticFacts(scene),
     )
     if (
       record.canonicalFacts !== canonicalFacts
@@ -1405,7 +1517,12 @@ export function inspectVNextTextBlockPersistentSceneV2(
         message: "registered scene no longer matches committed canonical facts",
       }
     }
-    return { status: "valid", fingerprint: scene.fingerprint }
+    return {
+      status: "valid",
+      fingerprint: scene.fingerprint,
+      payloadObservationFingerprint:
+        scene.payloadObservation.payloadObservationFingerprint,
+    }
   } catch {
     return {
       status: "invalid",
@@ -1524,11 +1641,21 @@ function siblingReferences(
   if (values == null) return null
   const output: VNextTextBlockPersistentSceneSiblingReferenceV2[] = []
   for (const item of values) {
-    const record = exactRecord(item, ["node", "fingerprint", "summary"])
-    if (record == null || typeof record.fingerprint !== "string") return null
+    const record = exactRecord(item, [
+      "node",
+      "fingerprint",
+      "payloadObservationFingerprint",
+      "summary",
+    ])
+    if (
+      record == null
+      || typeof record.fingerprint !== "string"
+      || typeof record.payloadObservationFingerprint !== "string"
+    ) return null
     output.push({
       node: record.node as VNextTextBlockPersistentSceneRootV2,
       fingerprint: record.fingerprint,
+      payloadObservationFingerprint: record.payloadObservationFingerprint,
       summary: record.summary as VNextTextBlockPersistentSceneSummaryV2,
     })
   }
@@ -1605,6 +1732,8 @@ export function inspectVNextTextBlockPersistentSceneIncrementalFragmentInternalV
     || typeof reference.node !== "object"
     || !hasNode(reference.node)
     || reference.node.fingerprint !== reference.fingerprint
+    || reference.node.payloadObservation.payloadObservationFingerprint
+      !== reference.payloadObservationFingerprint
     || reference.node.summary !== reference.summary
   )) {
     return {

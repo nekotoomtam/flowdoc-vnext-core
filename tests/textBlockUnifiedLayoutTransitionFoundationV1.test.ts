@@ -367,6 +367,12 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       completeLineTreeTraversalCount: 0,
       completeSceneTraversalCount: 0,
     })
+    expect(result.persistentScene.summary).not.toHaveProperty(
+      "estimatedCanonicalPayloadByteCount",
+    )
+    expect(result.persistentScene.payloadObservation
+      .estimatedCanonicalPayloadByteCount).toBeGreaterThan(0)
+    expect(result.persistentScene.root).toHaveProperty("payloadObservation")
     expect(result.deliveryPlan.summary).toMatchObject({
       retainOperationCount: 1,
       spliceOperationCount: 1,

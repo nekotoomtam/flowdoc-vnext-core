@@ -33,7 +33,7 @@ import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 /*
@@ -1123,7 +1123,7 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1(
   return createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1({
     previousRoot: exact?.previousRoot as VNextTextBlockUnifiedLayoutRootV2,
     change: exact?.change as VNextTextBlockUnifiedLayoutChangeV1,
-    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   })
 }
 
