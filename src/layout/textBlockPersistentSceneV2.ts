@@ -206,6 +206,8 @@ const emptySemanticFingerprint = createVNextCompactFingerprint(
     contractVersion: 2,
     nodeKind: "empty",
     summary: emptySummary,
+    scenePolicyFingerprint: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2
+      .fingerprint,
   }),
 )
 
@@ -582,6 +584,8 @@ function leafFromChunk(
     nodeKind: "leaf",
     chunkFingerprint: chunk.fingerprint,
     summary,
+    scenePolicyFingerprint: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2
+      .fingerprint,
   })
   return {
     nodeKind: "leaf",
@@ -695,6 +699,8 @@ function branchFromChildren(
     height: children[0]!.height + 1,
     childFingerprints: children.map((child) => child.fingerprint),
     summary,
+    scenePolicyFingerprint: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2
+      .fingerprint,
   })
   return {
     nodeKind: "branch",

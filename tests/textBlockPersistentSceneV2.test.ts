@@ -17,6 +17,7 @@ import {
   verifyVNextTextBlockPersistentSceneCandidateInternalV2,
   VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2,
   VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2,
+  VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
   createVNextTextBlockUnifiedSpatialStateCompleteInternalV1,
@@ -107,6 +108,8 @@ function expectDefaultNodeFingerprintParity(
         nodeKind: "leaf",
         chunkFingerprint,
         summary: node.summary,
+        scenePolicyFingerprint:
+          VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2.fingerprint,
       }),
     ))
     expect(node.payloadObservation.payloadObservationFingerprint)
@@ -123,6 +126,8 @@ function expectDefaultNodeFingerprintParity(
       height: node.height,
       childFingerprints: node.children.map((child) => child.fingerprint),
       summary: node.summary,
+      scenePolicyFingerprint:
+        VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2.fingerprint,
     }),
   ))
   expect(node.payloadObservation.payloadObservationFingerprint)
@@ -334,6 +339,14 @@ describe("Phase 5B Persistent Scene V2", () => {
     expect(Object.isFrozen(
       VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2,
     )).toBe(true)
+    expect(VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2.fingerprint)
+      .toBe(createVNextCompactFingerprint(stringifyVNextCanonicalJson({
+        contractVersion: 2,
+        nodeKind: "empty",
+        summary: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_EMPTY_ROOT_V2.summary,
+        scenePolicyFingerprint:
+          VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2.fingerprint,
+      })))
 
     const repeated = repeatedUnifiedLayoutRootSourceFixtureV1({
       lineCount: 9,
