@@ -108,6 +108,61 @@ const manifest = JSON.parse(readFileSync(
   "utf8",
 )) as Manifest5b1
 
+const explicitlyPrivatePublicNames = [
+  "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1",
+  "VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2",
+  "createVNextTextBlockPersistentSceneCompleteInternalV2",
+  "createVNextTextBlockPersistentSceneWithForcedCollisionForTestInternalV2",
+  "createVNextTextBlockIncrementalFlowTreeWithForcedCollisionForTestInternalV1",
+  "createVNextTextBlockUnifiedLayoutSourceStateWithForcedCollisionForTestInternalV1",
+  "createVNextTextBlockSceneDeliveryPlanCandidateInternalV2",
+  "verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2",
+  "deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1",
+  "createVNextTextBlockUnifiedLayoutRootCompleteInternalV2",
+  "prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2",
+  "setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2",
+  "attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1",
+  "evaluateVNextTextBlockStageWorkLimitInternalV1",
+  "registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2",
+  "setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1",
+] as const
+
+function privatePublicExportNames(names: readonly string[]): readonly string[] {
+  const explicitlyPrivate = new Set<string>(explicitlyPrivatePublicNames)
+  return names.filter((name) =>
+    explicitlyPrivate.has(name) || /Internal|ForTest/u.test(name)
+  )
+}
+
+function manifestPayloadLocationViolations(
+  value: Manifest5b1,
+): readonly string[] {
+  const violations: string[] = []
+  const allowedKey = "estimatedCanonicalPayloadByteCount"
+  for (const [index, fixture] of value.fixtures.entries()) {
+    const entries = Object.entries(fixture.observations)
+    if (
+      entries.length !== 1
+      || entries[0]?.[0] !== allowedKey
+      || !Number.isSafeInteger(entries[0][1])
+      || (entries[0][1] as number) < 0
+    ) {
+      violations.push(`fixtures[${index}].observations`)
+    }
+  }
+
+  const withoutFixtureObservations = structuredClone(value) as unknown as {
+    readonly fixtures: Array<Record<string, unknown>>
+  }
+  for (const fixture of withoutFixtureObservations.fixtures) {
+    delete fixture.observations
+  }
+  if (/payload/iu.test(JSON.stringify(withoutFixtureObservations))) {
+    violations.push("outside-fixture-observations")
+  }
+  return violations
+}
+
 function nextPowerOfTwo(value: number): number {
   if (!Number.isSafeInteger(value) || value < 0) {
     throw new RangeError("calibration value must be a safe integer")
@@ -208,30 +263,25 @@ describe("Phase 5B-1 public foundation gate", () => {
       .toBe(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2)
     expect(publicCore.VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID)
       .toBe("5b-1-v2")
-    for (const privateName of [
-      "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1",
-      "VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2",
-      "createVNextTextBlockPersistentSceneCompleteInternalV2",
-      "createVNextTextBlockPersistentSceneWithForcedCollisionForTestInternalV2",
-      "createVNextTextBlockIncrementalFlowTreeWithForcedCollisionForTestInternalV1",
-      "createVNextTextBlockUnifiedLayoutSourceStateWithForcedCollisionForTestInternalV1",
-      "createVNextTextBlockSceneDeliveryPlanCandidateInternalV2",
-      "verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2",
-      "deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1",
-      "createVNextTextBlockUnifiedLayoutRootCompleteInternalV2",
-      "prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2",
-      "setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2",
-      "attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1",
-      "evaluateVNextTextBlockStageWorkLimitInternalV1",
-      "registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2",
-      "setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1",
-    ]) {
+    for (const privateName of explicitlyPrivatePublicNames) {
       expect(publicCore).not.toHaveProperty(privateName)
     }
+    expect(privatePublicExportNames(Object.keys(publicCore))).toEqual([])
     expect(publicCore.createVNextTextBlockUnifiedLayoutRootV1)
       .toBeTypeOf("function")
     expect(publicCore.inspectVNextTextBlockUnifiedLayoutRootV1)
       .toBeTypeOf("function")
+  })
+
+  it("rejects unlisted Internal and ForTest public export mutations", () => {
+    const mutations = [
+      "registerPreparedOtherRootGraphInternalV2",
+      "createOtherCollisionForTestV2",
+    ]
+    expect(privatePublicExportNames([
+      ...Object.keys(publicCore),
+      ...mutations,
+    ])).toEqual(mutations)
   })
 
   it("uses the locked policy internally and preserves false capabilities", () => {
@@ -331,12 +381,7 @@ describe("Phase 5B-1 public foundation gate", () => {
         relativeDenominator: 1,
       },
     ])
-    expect(JSON.stringify({
-      lockedStageLimits: manifest.policy.lockedStageLimits,
-      inactiveUnits: manifest.policy.inactiveUnits,
-      inactiveUnitExceptions: manifest.policy.inactiveUnitExceptions,
-      thresholdRows: manifest.thresholdRows,
-    })).not.toMatch(/payload|estimated-canonical-payload-bytes/u)
+    expect(manifestPayloadLocationViolations(manifest)).toEqual([])
     expect(manifest.thresholdRows).toContainEqual({
       stage: "structural-reuse-proof",
       unit: "selected-exact-subtree-nodes",
@@ -410,6 +455,9 @@ describe("Phase 5B-1 public foundation gate", () => {
       productionActivation: false,
     })
     for (const fixture of manifest.fixtures) {
+      expect(Object.keys(fixture.observations), fixture.fixtureId).toEqual([
+        "estimatedCanonicalPayloadByteCount",
+      ])
       expect(
         Number.isSafeInteger(
           fixture.observations.estimatedCanonicalPayloadByteCount,
@@ -426,6 +474,39 @@ describe("Phase 5B-1 public foundation gate", () => {
           fixture.fixtureId,
         ).toBe(0)
       }
+    }
+  })
+
+  it("rejects payload facts outside exact fixture observations", () => {
+    const topLevel = structuredClone(manifest) as Manifest5b1 & {
+      estimatedCanonicalPayloadByteCount: number
+    }
+    topLevel.estimatedCanonicalPayloadByteCount = 1
+
+    const policy = structuredClone(manifest) as Manifest5b1 & {
+      policy: Manifest5b1["policy"] & {
+        payloadObservationFingerprint: string
+      }
+    }
+    policy.policy.payloadObservationFingerprint = `sha256:${"0".repeat(64)}`
+
+    const counter = structuredClone(manifest)
+    ;(counter.fixtures[0]!.counters as unknown as Record<string, unknown>)
+      .estimatedCanonicalPayloadByteCount = 1
+
+    const extraObservation = structuredClone(manifest)
+    ;(extraObservation.fixtures[0]!.observations as unknown as
+      Record<string, unknown>).payloadObservationFingerprint =
+        `sha256:${"0".repeat(64)}`
+
+    for (const [mutated, expectedViolation] of [
+      [topLevel, "outside-fixture-observations"],
+      [policy, "outside-fixture-observations"],
+      [counter, "outside-fixture-observations"],
+      [extraObservation, "fixtures[0].observations"],
+    ] as const) {
+      expect(manifestPayloadLocationViolations(mutated))
+        .toContain(expectedViolation)
     }
   })
 
