@@ -48,6 +48,33 @@ export interface VNextTextBlockUnifiedLayoutWorkPolicyV1 {
   readonly fingerprint: string
 }
 
+export interface VNextTextBlockWorkCalibrationObservationInternalV1 {
+  readonly fixtureId: string
+  readonly capabilityStatus:
+    | "active"
+    | "structural-calibration"
+    | "inactive-reference"
+  readonly transitionExecuted: boolean
+  readonly previousSourceItemCount: number
+  readonly previousLineCount: number
+  readonly previousChunkCount: number
+  readonly factualCounts: readonly VNextTextBlockStageWorkCountV1[]
+}
+
+export interface VNextTextBlockWorkPolicyCalibrationInternalV1 {
+  readonly formulaVersion: "5b-1-v3-calibration-v1"
+  readonly fixtureIds: readonly string[]
+  readonly lockedRows: readonly (VNextTextBlockStageLimitV1 & {
+    readonly maximumObservedWork: number
+    readonly maximumSmallBlockObservedWork: number
+    readonly thresholdPreviousSummaryBase: number
+    readonly effectiveLimit: number
+    readonly limitMinusOne: number
+    readonly limit: number
+    readonly limitPlusOne: number
+  })[]
+}
+
 export function composeVNextTextBlockStageWorkLedgerInternalV1(input: {
   readonly policy: VNextTextBlockUnifiedLayoutWorkPolicyV1
   readonly factualCounts: readonly VNextTextBlockStageWorkCountV1[]
@@ -209,6 +236,130 @@ const locked = (
   checkpointOwner: "5B-1",
 })
 
+const v3LockedRowKeys = Object.freeze([
+  ["source-flow", "source-items"],
+  ["source-flow", "source-lookup-nodes"],
+  ["source-flow", "source-path-copy-nodes"],
+  ["source-flow", "source-leaf-items"],
+  ["structural-reuse-proof", "selected-exact-subtree-nodes"],
+  ["structural-reuse-proof", "line-tree-lookup-nodes"],
+  ["scene", "line-tree-lookup-nodes"],
+  ["scene", "copied-scene-nodes"],
+  ["scene", "replacement-chunks"],
+  ["scene", "scene-tree-lookup-nodes"],
+  ["delivery-plan", "delivery-operations"],
+  ["delivery-plan", "retain-cover-nodes"],
+  ["delivery-plan", "scene-tree-lookup-nodes"],
+] as const)
+
+function nextPowerOfTwo(value: number): number {
+  if (!Number.isSafeInteger(value) || value <= 0) {
+    throw new RangeError("calibration values must be positive safe integers")
+  }
+  let output = 1
+  while (output < value) output *= 2
+  if (!Number.isSafeInteger(output)) {
+    throw new RangeError("calibration power-of-two exceeded safe range")
+  }
+  return output
+}
+
+function calibrationBase(
+  observation: VNextTextBlockWorkCalibrationObservationInternalV1,
+  unit: VNextTextBlockUnifiedLayoutStageUnitV1,
+): number {
+  switch (unit) {
+    case "source-items":
+    case "source-lookup-nodes":
+    case "source-path-copy-nodes":
+    case "source-leaf-items":
+      return observation.previousSourceItemCount
+    case "selected-exact-subtree-nodes":
+    case "line-tree-lookup-nodes":
+      return observation.previousLineCount
+    case "copied-scene-nodes":
+    case "replacement-chunks":
+    case "scene-tree-lookup-nodes":
+    case "delivery-operations":
+    case "retain-cover-nodes":
+      return observation.previousChunkCount
+    default:
+      throw new TypeError(`inactive unit ${unit} cannot be calibrated as locked`)
+  }
+}
+
+export function deriveVNextTextBlockWorkPolicyCalibrationInternalV1(
+  observations: readonly VNextTextBlockWorkCalibrationObservationInternalV1[],
+): VNextTextBlockWorkPolicyCalibrationInternalV1 {
+  if (observations.length === 0) throw new TypeError("calibration matrix is empty")
+  const fixtureIds = new Set<string>()
+  for (const observation of observations) {
+    if (fixtureIds.has(observation.fixtureId)) {
+      throw new TypeError(`duplicate calibration fixture ${observation.fixtureId}`)
+    }
+    fixtureIds.add(observation.fixtureId)
+    if ([
+      observation.previousSourceItemCount,
+      observation.previousLineCount,
+      observation.previousChunkCount,
+    ].some((value) => !Number.isSafeInteger(value) || value < 0)) {
+      throw new RangeError("calibration summary bases must be safe and nonnegative")
+    }
+    if (observation.factualCounts.length !== v3LockedRowKeys.length) {
+      throw new TypeError("calibration fixture must contain all 13 locked rows")
+    }
+  }
+  const rows = v3LockedRowKeys.map(([stage, unit], rowIndex) => {
+    const samples = observations.map((observation) => {
+      const fact = observation.factualCounts[rowIndex]
+      if (
+        fact?.stage !== stage
+        || fact.unit !== unit
+        || !Number.isSafeInteger(fact.count)
+        || fact.count < 0
+      ) throw new TypeError(`calibration row order mismatch at ${stage}/${unit}`)
+      return {
+        count: fact.count,
+        base: calibrationBase(observation, unit),
+        small: observation.previousLineCount <= 32,
+      }
+    })
+    const maximumObservedWork = Math.max(...samples.map((sample) => sample.count))
+    const maximumSmallBlockObservedWork = Math.max(
+      ...samples.filter((sample) => sample.small).map((sample) => sample.count),
+    )
+    if (maximumObservedWork <= 0 || maximumSmallBlockObservedWork <= 0) {
+      throw new RangeError(`locked calibration row ${stage}/${unit} lacks positive evidence`)
+    }
+    const smallBlockFloor = nextPowerOfTwo(maximumSmallBlockObservedWork)
+    const absoluteStageLimit = nextPowerOfTwo(4 * maximumObservedWork)
+    const relativeNumerator = Math.max(...samples.map((sample) =>
+      Math.ceil(sample.count / Math.max(1, sample.base))
+    ))
+    const thresholdPreviousSummaryBase = Math.max(...samples.map((sample) => sample.base))
+    const effectiveLimit = effectiveStageLimitV1({
+      smallBlockFloor,
+      absoluteStageLimit,
+      relativeStageLimit: thresholdPreviousSummaryBase * relativeNumerator + 1,
+    })
+    return Object.freeze({
+      ...locked(stage, unit, smallBlockFloor, absoluteStageLimit, relativeNumerator),
+      maximumObservedWork,
+      maximumSmallBlockObservedWork,
+      thresholdPreviousSummaryBase,
+      effectiveLimit,
+      limitMinusOne: effectiveLimit - 1,
+      limit: effectiveLimit,
+      limitPlusOne: effectiveLimit + 1,
+    })
+  })
+  return Object.freeze({
+    formulaVersion: "5b-1-v3-calibration-v1" as const,
+    fixtureIds: Object.freeze([...fixtureIds]),
+    lockedRows: Object.freeze(rows),
+  })
+}
+
 function legacyInactive(
   stage: VNextTextBlockUnifiedLayoutStageV1,
   unit: "estimated-canonical-payload-bytes",
@@ -303,6 +454,64 @@ export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2:
 VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
   ...policy5b1V2Facts,
   fingerprint: fingerprint(policy5b1V2Facts),
+})
+
+const frozenV3Locked = new Map([
+  locked("source-flow", "source-items", 1, 4, 1),
+  locked("source-flow", "source-lookup-nodes", 2, 16, 1),
+  locked("source-flow", "source-path-copy-nodes", 2, 16, 1),
+  locked("source-flow", "source-leaf-items", 8, 32, 1),
+  locked("structural-reuse-proof", "selected-exact-subtree-nodes", 1, 4, 1),
+  locked("structural-reuse-proof", "line-tree-lookup-nodes", 2, 8, 2),
+  locked("scene", "line-tree-lookup-nodes", 4, 16, 1),
+  locked("scene", "copied-scene-nodes", 2, 16, 1),
+  locked("scene", "replacement-chunks", 1, 4, 1),
+  locked("scene", "scene-tree-lookup-nodes", 4, 16, 1),
+  locked("delivery-plan", "delivery-operations", 4, 16, 1),
+  locked("delivery-plan", "retain-cover-nodes", 8, 64, 1),
+  locked("delivery-plan", "scene-tree-lookup-nodes", 128, 512, 12),
+].map((row) => [`${row.stage}/${row.unit}`, row]))
+const v3Row = (
+  stage: VNextTextBlockUnifiedLayoutStageV1,
+  unit: VNextTextBlockUnifiedLayoutStageUnitV1,
+  owner: VNextTextBlockWorkPolicyCheckpointOwnerV1 = "5B-1",
+): VNextTextBlockStageLimitV1 =>
+  frozenV3Locked.get(`${stage}/${unit}`)
+    ?? inactive(stage, unit, owner)
+const policy5b1V3CandidateStages = Object.freeze([
+  v3Row("source-flow", "source-items"),
+  v3Row("source-flow", "source-lookup-nodes"),
+  v3Row("source-flow", "source-path-copy-nodes"),
+  v3Row("source-flow", "source-leaf-items"),
+  v3Row("source-flow", "flow-atoms", "5B-2"),
+  v3Row("source-flow", "flow-tree-nodes", "5B-2"),
+  v3Row("spatial-index", "spatial-index-nodes", "5B-3"),
+  v3Row("spatial-index", "spatial-query-bands", "5B-3"),
+  v3Row("structural-reuse-proof", "selected-exact-subtree-nodes"),
+  v3Row("structural-reuse-proof", "line-tree-lookup-nodes"),
+  v3Row("layout-reconvergence", "recomputed-lines", "5B-2"),
+  v3Row("layout-reconvergence", "proof-nodes", "5B-2"),
+  v3Row("geometry", "reprojected-lines", "5B-3"),
+  v3Row("geometry", "visited-fragments", "5B-3"),
+  v3Row("scene", "line-tree-lookup-nodes"),
+  v3Row("scene", "copied-scene-nodes"),
+  v3Row("scene", "replacement-chunks"),
+  v3Row("scene", "scene-tree-lookup-nodes"),
+  v3Row("delivery-plan", "delivery-operations"),
+  v3Row("delivery-plan", "retain-cover-nodes"),
+  v3Row("delivery-plan", "scene-tree-lookup-nodes"),
+])
+const policy5b1V3CandidateFacts = {
+  source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
+  contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
+  policyId: "5b-1-v3",
+  checkpoint: "5B-1" as const,
+  stages: policy5b1V3CandidateStages,
+}
+export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL:
+VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
+  ...policy5b1V3CandidateFacts,
+  fingerprint: fingerprint(policy5b1V3CandidateFacts),
 })
 
 export type VNextTextBlockStageWorkLimitEvaluationV1 =

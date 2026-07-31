@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs"
+import { createHash } from "node:crypto"
 import { describe, expect, it } from "vitest"
 import * as publicCore from "../src/index.js"
 import {
@@ -11,6 +12,7 @@ import {
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   acceptedRepeatedUnifiedLayoutRootFixture5b,
@@ -87,6 +89,16 @@ interface Manifest5b1 {
   readonly policy: {
     readonly policyId: string
     readonly fingerprint: string
+    readonly activationStatus: string
+    readonly v3Candidate: {
+      readonly status: string
+      readonly policyId: string
+      readonly fingerprint: string
+      readonly calibrationFile: string
+      readonly calibrationFileSha256: string
+      readonly formulaVersion: string
+      readonly lockedStageLimits: readonly ManifestStageLimit[]
+    }
     readonly calibration: {
       readonly clockOrDurationFieldCount: number
     }
@@ -318,13 +330,28 @@ describe("Phase 5B-1 public foundation gate", () => {
         transitionV1: 1,
         sceneDeliveryV2: 2,
       },
-      fixtureCalibrationRevision: 2,
+      fixtureCalibrationRevision: 3,
       policy: {
         policyId: "5b-1-v2",
         fingerprint:
           VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.fingerprint,
+        activationStatus: "active-public",
+        v3Candidate: {
+          status: "frozen-private-candidate",
+          policyId: "5b-1-v3",
+          fingerprint:
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.fingerprint,
+          formulaVersion: "5b-1-v3-calibration-v1",
+        },
       },
     })
+    const calibrationBytes = readFileSync(new URL(
+      `../fixtures/${manifest.policy.v3Candidate.calibrationFile}`,
+      import.meta.url,
+    ))
+    expect(createHash("sha256").update(calibrationBytes).digest("hex"))
+      .toBe(manifest.policy.v3Candidate.calibrationFileSha256)
+    expect(manifest.policy.v3Candidate.lockedStageLimits).toHaveLength(13)
     expect(manifest.policy.lockedStageLimits.map((row) => ({
       stage: row.stage,
       unit: row.unit,

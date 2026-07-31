@@ -7,7 +7,7 @@
     "transitionV1": 1,
     "sceneDeliveryV2": 2
   },
-  "fixtureCalibrationRevision": 2,
+  "fixtureCalibrationRevision": 3,
   "checkpoint": "5B-1",
   "scope": {
     "repository": "flowdoc-vnext-core",
@@ -19,6 +19,30 @@
   "policy": {
     "policyId": "5b-1-v2",
     "fingerprint": "sha256:a34ec28417de166943010ad6afedd303b1ce9d77df63a7a56069b1d98d18c8c4",
+    "activationStatus": "active-public",
+    "v3Candidate": {
+      "status": "frozen-private-candidate",
+      "policyId": "5b-1-v3",
+      "fingerprint": "sha256:896f2163367070bd1f1e6fa0d9b34c0f47e371e6256cc9c15bd27e898c185982",
+      "calibrationFile": "live-draft-unified-incremental-root-5b-work-calibration.v3.json",
+      "calibrationFileSha256": "88f4edf6d1eeb1e0a8242184d7466b746e82978edc0eb644a8b20b5322ca3163",
+      "formulaVersion": "5b-1-v3-calibration-v1",
+      "lockedStageLimits": [
+        { "stage": "source-flow", "unit": "source-items", "smallBlockFloor": 1, "absoluteStageLimit": 4, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "source-flow", "unit": "source-lookup-nodes", "smallBlockFloor": 2, "absoluteStageLimit": 16, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "source-flow", "unit": "source-path-copy-nodes", "smallBlockFloor": 2, "absoluteStageLimit": 16, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "source-flow", "unit": "source-leaf-items", "smallBlockFloor": 8, "absoluteStageLimit": 32, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "structural-reuse-proof", "unit": "selected-exact-subtree-nodes", "smallBlockFloor": 1, "absoluteStageLimit": 4, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "structural-reuse-proof", "unit": "line-tree-lookup-nodes", "smallBlockFloor": 2, "absoluteStageLimit": 8, "relativeNumerator": 2, "relativeDenominator": 1 },
+        { "stage": "scene", "unit": "line-tree-lookup-nodes", "smallBlockFloor": 4, "absoluteStageLimit": 16, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "scene", "unit": "copied-scene-nodes", "smallBlockFloor": 2, "absoluteStageLimit": 16, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "scene", "unit": "replacement-chunks", "smallBlockFloor": 1, "absoluteStageLimit": 4, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "scene", "unit": "scene-tree-lookup-nodes", "smallBlockFloor": 4, "absoluteStageLimit": 16, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "delivery-plan", "unit": "delivery-operations", "smallBlockFloor": 4, "absoluteStageLimit": 16, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "delivery-plan", "unit": "retain-cover-nodes", "smallBlockFloor": 8, "absoluteStageLimit": 64, "relativeNumerator": 1, "relativeDenominator": 1 },
+        { "stage": "delivery-plan", "unit": "scene-tree-lookup-nodes", "smallBlockFloor": 128, "absoluteStageLimit": 512, "relativeNumerator": 12, "relativeDenominator": 1 }
+      ]
+    },
     "calibration": {
       "smallBlockFloor": "next-power-of-two(max-observed-unit-count where lineCount <= 32)",
       "absoluteStageLimit": "next-power-of-two(4 * max-observed-unit-count in declared 5B-1 matrix)",

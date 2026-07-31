@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
+import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
+import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import type { VNextAuthoredBoxPlanV1 } from "../src/renderer/authoredBoxContractV1.js"
 import type { InlineImageV4Target } from "../src/schema/documentV4ImageTarget.js"
 import type {
@@ -23,6 +25,7 @@ import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
   type VNextTextBlockStageLimitV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -393,6 +396,14 @@ describe("Phase 5B closed transition contracts", () => {
     expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages.some(
       (row) => String(row.unit) === "estimated-canonical-payload-bytes",
     )).toBe(false)
+    const candidate =
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    const { fingerprint: _fingerprint, ...candidateFacts } = candidate
+    expect(candidate.policyId).toBe("5b-1-v3")
+    expect(candidate.stages).toHaveLength(21)
+    expect(candidate.fingerprint).toBe(createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson(candidateFacts),
+    ))
 
     const empty = createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1()
     expect(empty.structuralReuseProof).toEqual({

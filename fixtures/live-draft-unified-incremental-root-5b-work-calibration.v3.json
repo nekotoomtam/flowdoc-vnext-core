@@ -1,0 +1,528 @@
+{
+  "source": "flowdoc-live-draft-unified-incremental-root-5b-work-calibration",
+  "calibrationRevision": 3,
+  "formulaVersion": "5b-1-v3-calibration-v1",
+  "fixtureIds": [
+    "5b1-v3-empty-structural",
+    "5b1-v3-1-first",
+    "5b1-v3-8-first",
+    "5b1-v3-8-middle",
+    "5b1-v3-8-last",
+    "5b1-v3-9-middle",
+    "5b1-v3-64-first",
+    "5b1-v3-65-middle",
+    "5b1-v3-128-last",
+    "5b1-v3-128-no-op",
+    "5b1-v3-128-exclusion-inactive"
+  ],
+  "observations": [
+    {
+      "fixtureId": "5b1-v3-empty-structural",
+      "capabilityStatus": "structural-calibration",
+      "transitionExecuted": false,
+      "previousSummaryBases": [
+        0,
+        0,
+        0
+      ],
+      "factualCounts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-1-first",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        3,
+        1,
+        1
+      ],
+      "factualCounts": [
+        1,
+        1,
+        1,
+        3,
+        1,
+        2,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        4
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-8-first",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        24,
+        8,
+        8
+      ],
+      "factualCounts": [
+        1,
+        2,
+        2,
+        8,
+        1,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        7,
+        56
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-8-middle",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        24,
+        8,
+        8
+      ],
+      "factualCounts": [
+        1,
+        2,
+        2,
+        8,
+        1,
+        2,
+        2,
+        1,
+        1,
+        2,
+        3,
+        7,
+        92
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-8-last",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        24,
+        8,
+        8
+      ],
+      "factualCounts": [
+        1,
+        2,
+        2,
+        8,
+        1,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        7,
+        56
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-9-middle",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        27,
+        9,
+        9
+      ],
+      "factualCounts": [
+        1,
+        2,
+        2,
+        8,
+        1,
+        2,
+        3,
+        2,
+        1,
+        3,
+        3,
+        5,
+        62
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-64-first",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        192,
+        64,
+        64
+      ],
+      "factualCounts": [
+        1,
+        3,
+        3,
+        8,
+        1,
+        2,
+        3,
+        2,
+        1,
+        3,
+        2,
+        14,
+        104
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-65-middle",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        195,
+        65,
+        65
+      ],
+      "factualCounts": [
+        1,
+        3,
+        3,
+        8,
+        1,
+        2,
+        4,
+        3,
+        1,
+        4,
+        3,
+        12,
+        110
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-128-last",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        384,
+        128,
+        128
+      ],
+      "factualCounts": [
+        1,
+        3,
+        3,
+        8,
+        1,
+        2,
+        4,
+        3,
+        1,
+        4,
+        2,
+        15,
+        116
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-128-no-op",
+      "capabilityStatus": "active",
+      "transitionExecuted": true,
+      "previousSummaryBases": [
+        384,
+        128,
+        128
+      ],
+      "factualCounts": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "fixtureId": "5b1-v3-128-exclusion-inactive",
+      "capabilityStatus": "inactive-reference",
+      "transitionExecuted": false,
+      "previousSummaryBases": [
+        384,
+        128,
+        128
+      ],
+      "factualCounts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "lockedRows": [
+    {
+      "stage": "source-flow",
+      "unit": "source-items",
+      "smallBlockFloor": 1,
+      "absoluteStageLimit": 4,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 1,
+      "maximumSmallBlockObservedWork": 1,
+      "thresholdPreviousSummaryBase": 384,
+      "effectiveLimit": 4,
+      "limitMinusOne": 3,
+      "limit": 4,
+      "limitPlusOne": 5
+    },
+    {
+      "stage": "source-flow",
+      "unit": "source-lookup-nodes",
+      "smallBlockFloor": 2,
+      "absoluteStageLimit": 16,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 3,
+      "maximumSmallBlockObservedWork": 2,
+      "thresholdPreviousSummaryBase": 384,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "source-flow",
+      "unit": "source-path-copy-nodes",
+      "smallBlockFloor": 2,
+      "absoluteStageLimit": 16,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 3,
+      "maximumSmallBlockObservedWork": 2,
+      "thresholdPreviousSummaryBase": 384,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "source-flow",
+      "unit": "source-leaf-items",
+      "smallBlockFloor": 8,
+      "absoluteStageLimit": 32,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 8,
+      "maximumSmallBlockObservedWork": 8,
+      "thresholdPreviousSummaryBase": 384,
+      "effectiveLimit": 32,
+      "limitMinusOne": 31,
+      "limit": 32,
+      "limitPlusOne": 33
+    },
+    {
+      "stage": "structural-reuse-proof",
+      "unit": "selected-exact-subtree-nodes",
+      "smallBlockFloor": 1,
+      "absoluteStageLimit": 4,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 1,
+      "maximumSmallBlockObservedWork": 1,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 4,
+      "limitMinusOne": 3,
+      "limit": 4,
+      "limitPlusOne": 5
+    },
+    {
+      "stage": "structural-reuse-proof",
+      "unit": "line-tree-lookup-nodes",
+      "smallBlockFloor": 2,
+      "absoluteStageLimit": 8,
+      "relativeNumerator": 2,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 2,
+      "maximumSmallBlockObservedWork": 2,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 8,
+      "limitMinusOne": 7,
+      "limit": 8,
+      "limitPlusOne": 9
+    },
+    {
+      "stage": "scene",
+      "unit": "line-tree-lookup-nodes",
+      "smallBlockFloor": 4,
+      "absoluteStageLimit": 16,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 4,
+      "maximumSmallBlockObservedWork": 3,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "scene",
+      "unit": "copied-scene-nodes",
+      "smallBlockFloor": 2,
+      "absoluteStageLimit": 16,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 3,
+      "maximumSmallBlockObservedWork": 2,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "scene",
+      "unit": "replacement-chunks",
+      "smallBlockFloor": 1,
+      "absoluteStageLimit": 4,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 1,
+      "maximumSmallBlockObservedWork": 1,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 4,
+      "limitMinusOne": 3,
+      "limit": 4,
+      "limitPlusOne": 5
+    },
+    {
+      "stage": "scene",
+      "unit": "scene-tree-lookup-nodes",
+      "smallBlockFloor": 4,
+      "absoluteStageLimit": 16,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 4,
+      "maximumSmallBlockObservedWork": 3,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "delivery-plan",
+      "unit": "delivery-operations",
+      "smallBlockFloor": 4,
+      "absoluteStageLimit": 16,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 3,
+      "maximumSmallBlockObservedWork": 3,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 16,
+      "limitMinusOne": 15,
+      "limit": 16,
+      "limitPlusOne": 17
+    },
+    {
+      "stage": "delivery-plan",
+      "unit": "retain-cover-nodes",
+      "smallBlockFloor": 8,
+      "absoluteStageLimit": 64,
+      "relativeNumerator": 1,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 15,
+      "maximumSmallBlockObservedWork": 7,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 64,
+      "limitMinusOne": 63,
+      "limit": 64,
+      "limitPlusOne": 65
+    },
+    {
+      "stage": "delivery-plan",
+      "unit": "scene-tree-lookup-nodes",
+      "smallBlockFloor": 128,
+      "absoluteStageLimit": 512,
+      "relativeNumerator": 12,
+      "relativeDenominator": 1,
+      "maximumObservedWork": 116,
+      "maximumSmallBlockObservedWork": 92,
+      "thresholdPreviousSummaryBase": 128,
+      "effectiveLimit": 512,
+      "limitMinusOne": 511,
+      "limit": 512,
+      "limitPlusOne": 513
+    }
+  ],
+  "inactiveRows": [
+    {
+      "stage": "source-flow",
+      "unit": "flow-atoms"
+    },
+    {
+      "stage": "source-flow",
+      "unit": "flow-tree-nodes"
+    },
+    {
+      "stage": "spatial-index",
+      "unit": "spatial-index-nodes"
+    },
+    {
+      "stage": "spatial-index",
+      "unit": "spatial-query-bands"
+    },
+    {
+      "stage": "layout-reconvergence",
+      "unit": "recomputed-lines"
+    },
+    {
+      "stage": "layout-reconvergence",
+      "unit": "proof-nodes"
+    },
+    {
+      "stage": "geometry",
+      "unit": "reprojected-lines"
+    },
+    {
+      "stage": "geometry",
+      "unit": "visited-fragments"
+    }
+  ],
+  "candidatePolicyId": "5b-1-v3",
+  "candidatePolicyFingerprint": "sha256:896f2163367070bd1f1e6fa0d9b34c0f47e371e6256cc9c15bd27e898c185982"
+}
