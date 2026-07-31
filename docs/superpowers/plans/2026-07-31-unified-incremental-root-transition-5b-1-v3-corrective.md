@@ -325,9 +325,12 @@ npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutSourceState
   passes that authority forward. Source transition must not repeat the lookup.
   Task 6 later expands this into the complete validated-change authority
   record; do not pre-create a second competing registry here.
-- [ ] **Step 5: Aggregate exact operation results into canonical stage rows.**
-  Map `source-items`, `source-lookup-nodes`, `source-path-copy-nodes`, and
-  `source-leaf-items` without defaults.
+- [ ] **Step 5: Aggregate exact operation results without activating V3
+  rows.** Populate the detailed `flow` counters and preserve V2's canonical
+  14-row `stageWork` while V2 is active. Task 5 projects `source-items`,
+  `source-lookup-nodes`, `source-path-copy-nodes`, and `source-leaf-items` into
+  the private V3 calibration ledger; public transitions do not emit those new
+  rows until the atomic V3 activation in Task 10.
 - [ ] **Step 6: Run GREEN and type-check.**
 
 ```text
@@ -392,9 +395,11 @@ npx vitest run --config vitest.config.ts tests/textBlockPersistentLayoutLineTree
 - [ ] **Step 4: Instrument the exact recursive cover selector.** Increment
   before each node inspection, preserve deterministic child order, return
   partial completed work on block, and do not add a generic tree walker.
-- [ ] **Step 5: Map factual visits only to
-  `structural-reuse-proof/line-tree-lookup-nodes`.** Keep
-  `layout-reconvergence` inactive and `layout.proofNodeCount = 0`.
+- [ ] **Step 5: Store factual visits only as structural-reuse detail while V2
+  remains active.** Keep `layout-reconvergence` inactive and
+  `layout.proofNodeCount = 0`. Task 5 projects the detail to
+  `structural-reuse-proof/line-tree-lookup-nodes` for private V3 calibration;
+  the public ledger gains that row only at Task 10 activation.
 - [ ] **Step 6: Run GREEN and type-check.**
 
 ```text
@@ -464,9 +469,11 @@ npx vitest run --config vitest.config.ts tests/textBlockPersistentSceneV2.test.t
   authority plus total factual work. Remove the wrapper call to
   `verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2`; do not remove the
   builder's verification gate.
-- [ ] **Step 6: Canonically aggregate the two new Scene rows and the new
-  Delivery row.** No count may equal selected subtree count merely because the
-  old implementation used that approximation.
+- [ ] **Step 6: Preserve the new counts as exact Scene/Delivery detail while
+  V2 remains active.** No count may equal selected subtree count merely because
+  the old implementation used that approximation. Task 5 projects the two new
+  Scene rows and one new Delivery row into private V3 calibration; Task 10
+  adds them to the public canonical ledger during atomic V3 activation.
 - [ ] **Step 7: Run GREEN and type-check.**
 
 ```text
