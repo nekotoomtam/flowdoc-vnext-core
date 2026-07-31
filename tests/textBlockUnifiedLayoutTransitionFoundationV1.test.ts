@@ -107,7 +107,10 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       scene: { replacementChunkCount: 0 },
       atomicAcceptance: { attemptedRegistrationCount: 0 },
     })
-    expect(result.incrementalCandidateWork.stageWork).toEqual([])
+    expect(result.incrementalCandidateWork.stageWork).toHaveLength(14)
+    expect(result.incrementalCandidateWork.stageWork.every(
+      (row) => row.count === 0,
+    )).toBe(true)
     expect(coverCreationCount).toBe(0)
   })
 
@@ -227,6 +230,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       completeSceneTraversalCount: 0,
     })
     expect(result.incrementalCandidateWork.structuralReuseProof).toEqual({
+      visitedLineTreeNodeCount: 0,
       selectedExactSubtreeNodeCount: 1,
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
@@ -240,9 +244,9 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       proofNodeCount: 0,
       completeSuffixTraversalCount: 0,
     })
-    expect(result.incrementalCandidateWork.stageWork).not.toContainEqual(
-      expect.objectContaining({ stage: "layout-reconvergence" }),
-    )
+    expect(result.incrementalCandidateWork.stageWork.filter(
+      (row) => row.stage === "layout-reconvergence",
+    ).every((row) => row.count === 0)).toBe(true)
     expect(inspectVNextTextBlockUnifiedLayoutTransitionResultInternalV1(
       result,
     )).toEqual({
@@ -315,14 +319,20 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       stage: "geometry",
       path: "change.kind",
     })])
-    expect(authoredBox.incrementalCandidateWork.stageWork).toEqual([])
+    expect(authoredBox.incrementalCandidateWork.stageWork).toHaveLength(14)
+    expect(authoredBox.incrementalCandidateWork.stageWork.every(
+      (row) => row.count === 0,
+    )).toBe(true)
     expect(authoredBox.incrementalCandidateWork.structuralReuseProof)
       .toMatchObject({ selectedExactSubtreeNodeCount: 0 })
     expect(authoredBox.incrementalCandidateWork.scene).toEqual({
+      visitedLineTreeNodeCount: 0,
+      visitedSceneTreeNodeCount: 0,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
     })
     expect(authoredBox.incrementalCandidateWork.deliveryPlan).toEqual({
+      visitedSceneTreeNodeCount: 0,
       deliveryOperationCount: 0,
       retainCoverNodeCount: 0,
     })
@@ -530,6 +540,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
         completeSceneTraversalCount: 0,
       })
       expect(result.incrementalCandidateWork.structuralReuseProof).toEqual({
+        visitedLineTreeNodeCount: 0,
         selectedExactSubtreeNodeCount: 1,
         lineTreeWrapperAllocationCount: 0,
         completeLineTreeTraversalCount: 0,
@@ -539,9 +550,9 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
         proofNodeCount: 0,
         completeSuffixTraversalCount: 0,
       })
-      expect(result.incrementalCandidateWork.stageWork).not.toContainEqual(
-        expect.objectContaining({ stage: "layout-reconvergence" }),
-      )
+      expect(result.incrementalCandidateWork.stageWork.filter(
+        (row) => row.stage === "layout-reconvergence",
+      ).every((row) => row.count === 0)).toBe(true)
       expect(result.deliveryPlan.summary).toMatchObject({
         spliceOperationCount: 1,
         replacementChunkCount: 1,
@@ -848,6 +859,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       if (paint.status !== "accepted-incremental") continue
       expect(paint.root.lineTree).toBe(previous.root.lineTree)
       expect(paint.incrementalCandidateWork.structuralReuseProof).toEqual({
+        visitedLineTreeNodeCount: 0,
         selectedExactSubtreeNodeCount: 1,
         lineTreeWrapperAllocationCount: 0,
         completeLineTreeTraversalCount: 0,
@@ -857,9 +869,9 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
         proofNodeCount: 0,
         completeSuffixTraversalCount: 0,
       })
-      expect(paint.incrementalCandidateWork.stageWork).not.toContainEqual(
-        expect.objectContaining({ stage: "layout-reconvergence" }),
-      )
+      expect(paint.incrementalCandidateWork.stageWork.filter(
+        (row) => row.stage === "layout-reconvergence",
+      ).every((row) => row.count === 0)).toBe(true)
     }
   })
 })

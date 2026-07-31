@@ -25,6 +25,7 @@ import {
   setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
+  composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import type {
@@ -190,11 +191,14 @@ function makeFallbackAttempt(
       ...bound.incrementalCandidateWork.flow,
       visitedSourceItemCount: attemptedWork,
     },
-    stageWork: [{
-      stage: "source-flow" as const,
-      unit: "source-items" as const,
-      count: attemptedWork,
-    }],
+    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+      policy: ROOT_V2_TEST_WORK_POLICY,
+      factualCounts: [{
+        stage: "source-flow" as const,
+        unit: "source-items" as const,
+        count: attemptedWork,
+      }],
+    }),
   })
   const limit = evaluateVNextTextBlockStageWorkLimitInternalV1({
     policy: ROOT_V2_TEST_WORK_POLICY,
@@ -340,6 +344,12 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       && row.count === reason.attemptedWork
     )
     expect(matchingRows).toHaveLength(1)
+    expect(issued.incrementalCandidateWork.stageWork).toHaveLength(14)
+    expect(issued.incrementalCandidateWork.stageWork.map(
+      ({ stage, unit }) => ({ stage, unit }),
+    )).toEqual(ROOT_V2_TEST_WORK_POLICY.stages.map(
+      ({ stage, unit }) => ({ stage, unit }),
+    ))
     expect(issued.fallbackRequest).not.toHaveProperty("attempt")
     expect(issued.fallbackRequest).not.toHaveProperty("previousRoot")
     expect(reaches(issued, previous.root)).toBe(false)

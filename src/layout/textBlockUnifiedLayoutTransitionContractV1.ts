@@ -32,11 +32,16 @@ export type VNextTextBlockUnifiedLayoutStageV1 =
 
 export type VNextTextBlockUnifiedLayoutStageUnitV1 =
   | "source-items"
+  | "source-lookup-nodes"
+  | "source-path-copy-nodes"
+  | "source-leaf-items"
   | "flow-atoms"
   | "flow-tree-nodes"
   | "spatial-index-nodes"
   | "spatial-query-bands"
   | "selected-exact-subtree-nodes"
+  | "line-tree-lookup-nodes"
+  | "scene-tree-lookup-nodes"
   | "recomputed-lines"
   | "proof-nodes"
   | "reprojected-lines"
@@ -149,6 +154,9 @@ export interface VNextTextBlockIncrementalCandidateWorkV1 {
   }
   readonly flow: {
     readonly visitedSourceItemCount: number
+    readonly visitedSourceLookupNodeCount: number
+    readonly copiedSourcePathNodeCount: number
+    readonly visitedChangedSourceLeafItemCount: number
     readonly visitedFlowAtomCount: number
     readonly visitedFlowTreeNodeCount: number
     readonly reusedFlowTreeNodeCount: number
@@ -166,6 +174,7 @@ export interface VNextTextBlockIncrementalCandidateWorkV1 {
     readonly completeIndexTraversalCount: 0
   }
   readonly structuralReuseProof: {
+    readonly visitedLineTreeNodeCount: number
     readonly selectedExactSubtreeNodeCount: number
     readonly lineTreeWrapperAllocationCount: 0
     readonly completeLineTreeTraversalCount: 0
@@ -180,10 +189,13 @@ export interface VNextTextBlockIncrementalCandidateWorkV1 {
     readonly visitedFragmentCount: number
   }
   readonly scene: {
+    readonly visitedLineTreeNodeCount: number
+    readonly visitedSceneTreeNodeCount: number
     readonly copiedSceneNodeCount: number
     readonly replacementChunkCount: number
   }
   readonly deliveryPlan: {
+    readonly visitedSceneTreeNodeCount: number
     readonly deliveryOperationCount: number
     readonly retainCoverNodeCount: number
   }

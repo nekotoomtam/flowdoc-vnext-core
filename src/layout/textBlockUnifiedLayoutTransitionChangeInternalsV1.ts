@@ -23,6 +23,10 @@ import type {
   VNextTextBlockUnifiedLayoutIssueV1,
   VNextTextBlockValidatedChangeShapeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
+import {
+  composeVNextTextBlockStageWorkLedgerInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+} from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 type StrictData =
   | null
@@ -337,6 +341,9 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
     },
     flow: {
       visitedSourceItemCount: 0,
+      visitedSourceLookupNodeCount: 0,
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
       visitedFlowAtomCount: 0,
       visitedFlowTreeNodeCount: 0,
       reusedFlowTreeNodeCount: 0,
@@ -354,6 +361,7 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
       completeIndexTraversalCount: 0,
     },
     structuralReuseProof: {
+      visitedLineTreeNodeCount: 0,
       selectedExactSubtreeNodeCount: 0,
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
@@ -368,10 +376,13 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
       visitedFragmentCount: 0,
     },
     scene: {
+      visitedLineTreeNodeCount: 0,
+      visitedSceneTreeNodeCount: 0,
       copiedSceneNodeCount: 0,
       replacementChunkCount: 0,
     },
     deliveryPlan: {
+      visitedSceneTreeNodeCount: 0,
       deliveryOperationCount: 0,
       retainCoverNodeCount: 0,
     },
@@ -383,7 +394,10 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
       attemptedRegistrationCount: 0,
       committedRegistrationCount: 0,
     },
-    stageWork: [],
+    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      factualCounts: [],
+    }),
     rootWrapperAllocationCount: 0,
     completeNextInputTraversalCount: 0,
     completeNextInputComparisonCount: 0,

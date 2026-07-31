@@ -57,7 +57,9 @@ import type {
   VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
+  composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
+  previousVNextTextBlockStageSummaryBaseInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
@@ -233,22 +235,26 @@ function noOpWork(
       visitedSourceItemCount,
     },
     structuralReuseProof: {
+      visitedLineTreeNodeCount: 0,
       selectedExactSubtreeNodeCount: dispositions.work.selectedSubtreeCount,
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
     },
-    stageWork: [
-      ...(visitedSourceItemCount === 0 ? [] : [{
+    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      factualCounts: [
+        ...(visitedSourceItemCount === 0 ? [] : [{
         stage: "source-flow" as const,
         unit: "source-items" as const,
         count: visitedSourceItemCount,
-      }]),
-      {
-        stage: "structural-reuse-proof" as const,
-        unit: "selected-exact-subtree-nodes" as const,
-        count: dispositions.work.selectedSubtreeCount,
-      },
-    ],
+        }]),
+        {
+          stage: "structural-reuse-proof" as const,
+          unit: "selected-exact-subtree-nodes" as const,
+          count: dispositions.work.selectedSubtreeCount,
+        },
+      ],
+    }),
   })
 }
 
@@ -300,7 +306,7 @@ function paintWork(
     readonly retainCoverNodeCount: number
     readonly estimatedCanonicalPayloadByteCount: number
     readonly payloadObservationFingerprint: string | null
-    readonly visitedSourceItemCount?: number
+    readonly visitedSourceItemCount: number
     readonly attemptedRegistrationCount?: number
     readonly committedRegistrationCount?: number
   },
@@ -309,19 +315,23 @@ function paintWork(
     ...base,
     flow: {
       ...base.flow,
-      visitedSourceItemCount: input.visitedSourceItemCount ?? 1,
+      visitedSourceItemCount: input.visitedSourceItemCount,
     },
     structuralReuseProof: {
+      visitedLineTreeNodeCount: 0,
       selectedExactSubtreeNodeCount:
         input.dispositionCover.work.selectedSubtreeCount,
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
     },
     scene: {
+      visitedLineTreeNodeCount: 0,
+      visitedSceneTreeNodeCount: 0,
       copiedSceneNodeCount: input.copiedSceneNodeCount,
       replacementChunkCount: input.replacementChunkCount,
     },
     deliveryPlan: {
+      visitedSceneTreeNodeCount: 0,
       deliveryOperationCount: input.deliveryOperationCount,
       retainCoverNodeCount: input.retainCoverNodeCount,
     },
@@ -336,38 +346,41 @@ function paintWork(
       committedRegistrationCount:
         input.committedRegistrationCount ?? 0,
     },
-    stageWork: [
-      {
-        stage: "source-flow" as const,
-        unit: "source-items" as const,
-        count: input.visitedSourceItemCount ?? 1,
-      },
-      {
-        stage: "structural-reuse-proof" as const,
-        unit: "selected-exact-subtree-nodes" as const,
-        count: input.dispositionCover.work.selectedSubtreeCount,
-      },
-      {
-        stage: "scene" as const,
-        unit: "copied-scene-nodes" as const,
-        count: input.copiedSceneNodeCount,
-      },
-      {
-        stage: "scene" as const,
-        unit: "replacement-chunks" as const,
-        count: input.replacementChunkCount,
-      },
-      {
-        stage: "delivery-plan" as const,
-        unit: "delivery-operations" as const,
-        count: input.deliveryOperationCount,
-      },
-      {
-        stage: "delivery-plan" as const,
-        unit: "retain-cover-nodes" as const,
-        count: input.retainCoverNodeCount,
-      },
-    ],
+    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      factualCounts: [
+        {
+          stage: "source-flow" as const,
+          unit: "source-items" as const,
+          count: input.visitedSourceItemCount,
+        },
+        {
+          stage: "structural-reuse-proof" as const,
+          unit: "selected-exact-subtree-nodes" as const,
+          count: input.dispositionCover.work.selectedSubtreeCount,
+        },
+        {
+          stage: "scene" as const,
+          unit: "copied-scene-nodes" as const,
+          count: input.copiedSceneNodeCount,
+        },
+        {
+          stage: "scene" as const,
+          unit: "replacement-chunks" as const,
+          count: input.replacementChunkCount,
+        },
+        {
+          stage: "delivery-plan" as const,
+          unit: "delivery-operations" as const,
+          count: input.deliveryOperationCount,
+        },
+        {
+          stage: "delivery-plan" as const,
+          unit: "retain-cover-nodes" as const,
+          count: input.retainCoverNodeCount,
+        },
+      ],
+    }),
     rootWrapperAllocationCount: 1,
   })
 }
@@ -389,32 +402,6 @@ type WorkLimitFailure =
       readonly unit:
         VNextTextBlockIncrementalCandidateWorkV1["stageWork"][number]["unit"]
     }
-
-function previousSummaryBase(
-  root: VNextTextBlockUnifiedLayoutRootV2,
-  unit: VNextTextBlockIncrementalCandidateWorkV1["stageWork"][number]["unit"],
-): number {
-  switch (unit) {
-    case "source-items":
-    case "flow-atoms":
-    case "flow-tree-nodes":
-      return root.sourceState.summary.itemCount
-    case "spatial-index-nodes":
-    case "spatial-query-bands":
-      return root.spatialState.summary.entryCount
-    case "selected-exact-subtree-nodes":
-    case "recomputed-lines":
-    case "proof-nodes":
-    case "reprojected-lines":
-    case "visited-fragments":
-      return root.lineTree.summary.lineCount
-    case "copied-scene-nodes":
-    case "replacement-chunks":
-    case "delivery-operations":
-    case "retain-cover-nodes":
-      return root.persistentScene.summary.chunkCount
-  }
-}
 
 function workLimitFailure(
   root: VNextTextBlockUnifiedLayoutRootV2,
@@ -453,7 +440,10 @@ function workLimitFailure(
       policy: workPolicy,
       stage: item.stage,
       unit: item.unit,
-      previousSummaryBase: previousSummaryBase(root, item.unit),
+      previousSummaryBase: previousVNextTextBlockStageSummaryBaseInternalV1({
+        previousRoot: root,
+        unit: item.unit,
+      }),
       exactValidatedChangeDelta: 1,
       attemptedWork: item.count,
     })
@@ -676,6 +666,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       retainCoverNodeCount: 0,
       estimatedCanonicalPayloadByteCount: 0,
       payloadObservationFingerprint: null,
+      visitedSourceItemCount: scene.visitedSourceItemCount,
     })
     const attempt = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
         previousRoot: input.previousRoot,

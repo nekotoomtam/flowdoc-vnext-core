@@ -14,6 +14,9 @@ import {
   prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2,
 } from "./textBlockUnifiedLayoutRootV2.js"
 import {
+  createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1,
+} from "./textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
+import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
@@ -34,6 +37,7 @@ import type {
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
+  previousVNextTextBlockStageSummaryBaseInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -309,32 +313,6 @@ const fallbackAttempts = new WeakMap<
   FallbackAttemptRecord
 >()
 
-function previousSummaryBase(
-  root: VNextTextBlockUnifiedLayoutRootV2,
-  unit: VNextTextBlockUnifiedLayoutStageUnitV1,
-): number {
-  switch (unit) {
-    case "source-items":
-    case "flow-atoms":
-    case "flow-tree-nodes":
-      return root.sourceState.summary.itemCount
-    case "spatial-index-nodes":
-    case "spatial-query-bands":
-      return root.spatialState.summary.entryCount
-    case "selected-exact-subtree-nodes":
-    case "recomputed-lines":
-    case "proof-nodes":
-    case "reprojected-lines":
-    case "visited-fragments":
-      return root.lineTree.summary.lineCount
-    case "copied-scene-nodes":
-    case "replacement-chunks":
-    case "delivery-operations":
-    case "retain-cover-nodes":
-      return root.persistentScene.summary.chunkCount
-  }
-}
-
 function invalidFallbackAttempt(
   work: VNextTextBlockIncrementalCandidateWorkV1,
 ): VNextTextBlockUnifiedLayoutBlockedStageV1 {
@@ -371,7 +349,10 @@ function limitReasonMatchesAttempt(
     policy,
     stage: reason.stage,
     unit: reason.unit,
-    previousSummaryBase: previousSummaryBase(root, reason.unit),
+    previousSummaryBase: previousVNextTextBlockStageSummaryBaseInternalV1({
+      previousRoot: root,
+      unit: reason.unit,
+    }),
     // The active 5B-1 change contract has one exact bound change delta.
     exactValidatedChangeDelta: 1,
     attemptedWork: reason.attemptedWork,
@@ -459,26 +440,9 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
   }
   const record = fallbackAttempts.get(input.attempt)
   if (record == null) {
-    return invalidFallbackAttempt(deepFreeze({
-      source: "vnext-text-block-incremental-candidate-work-v1" as const,
-      contractVersion: 1 as const,
-      changeGateVisitedFieldCount: 0,
-      evidence: { requestCount: 0, requestedAtomCount: 0, requestedClusterCount: 0, consumedAtomCount: 0, consumedClusterCount: 0, unusedCoverageRenderedUtf16Length: 0, visitedEvidenceNodeCount: 0 },
-      flow: { visitedSourceItemCount: 0, visitedFlowAtomCount: 0, visitedFlowTreeNodeCount: 0, reusedFlowTreeNodeCount: 0, createdFlowTreeNodeCount: 0, createdCanonicalPayloadByteCount: 0, completeTreeRebuildCount: 0 as const, completeSemanticPassCount: 0 as const, completeSuffixTraversalCount: 0 as const },
-      spatial: { visitedSpatialIndexNodeCount: 0, createdSpatialIndexNodeCount: 0, spatialQueryBandCount: 0, completeIndexRebuildCount: 0 as const, completeIndexTraversalCount: 0 as const },
-      structuralReuseProof: { selectedExactSubtreeNodeCount: 0, lineTreeWrapperAllocationCount: 0 as const, completeLineTreeTraversalCount: 0 as const },
-      layout: { recomputedLineCount: 0, proofNodeCount: 0, completeSuffixTraversalCount: 0 as const },
-      geometry: { reprojectedLineCount: 0, visitedFragmentCount: 0 },
-      scene: { copiedSceneNodeCount: 0, replacementChunkCount: 0 },
-      deliveryPlan: { deliveryOperationCount: 0, retainCoverNodeCount: 0 },
-      observations: { estimatedCanonicalPayloadByteCount: 0, payloadObservationFingerprint: null },
-      atomicAcceptance: { attemptedRegistrationCount: 0, committedRegistrationCount: 0 },
-      stageWork: [],
-      rootWrapperAllocationCount: 0,
-      completeNextInputTraversalCount: 0 as const,
-      completeNextInputComparisonCount: 0 as const,
-      completeSceneTraversalCount: 0 as const,
-    }))
+    return invalidFallbackAttempt(
+      createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(),
+    )
   }
   fallbackAttempts.delete(input.attempt)
   const facts = {

@@ -12,13 +12,19 @@ import {
   deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import type {
+  VNextTextBlockStageWorkCountV1,
   VNextTextBlockExpectedTargetBindingV1,
+  VNextTextBlockUnifiedLayoutStageUnitV1,
+  VNextTextBlockUnifiedLayoutStageV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionContractV1.js"
 import {
+  composeVNextTextBlockStageWorkLedgerInternalV1,
   effectiveStageLimitV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+  type VNextTextBlockStageLimitV1,
+  type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function deepFreeze<T>(value: T): T {
@@ -390,11 +396,34 @@ describe("Phase 5B closed transition contracts", () => {
 
     const empty = createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1()
     expect(empty.structuralReuseProof).toEqual({
+      visitedLineTreeNodeCount: 0,
       selectedExactSubtreeNodeCount: 0,
       lineTreeWrapperAllocationCount: 0,
       completeLineTreeTraversalCount: 0,
     })
+    expect(empty.flow).toMatchObject({
+      visitedSourceLookupNodeCount: 0,
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
+    })
+    expect(empty.scene).toEqual({
+      visitedLineTreeNodeCount: 0,
+      visitedSceneTreeNodeCount: 0,
+      copiedSceneNodeCount: 0,
+      replacementChunkCount: 0,
+    })
+    expect(empty.deliveryPlan).toEqual({
+      visitedSceneTreeNodeCount: 0,
+      deliveryOperationCount: 0,
+      retainCoverNodeCount: 0,
+    })
     expect(empty.observations.payloadObservationFingerprint).toBeNull()
+    expect(empty.stageWork).toHaveLength(14)
+    expect(empty.stageWork.every((row) => row.count === 0)).toBe(true)
+    expect(empty.stageWork.map(({ stage, unit }) => ({ stage, unit })))
+      .toEqual(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages.map(
+        ({ stage, unit }) => ({ stage, unit }),
+      ))
     expect(empty.stageWork.some(
       (row) => String(row.unit) === "estimated-canonical-payload-bytes",
     )).toBe(false)
@@ -409,6 +438,121 @@ describe("Phase 5B closed transition contracts", () => {
         attemptedWork,
       }).status
     ))).toEqual(["within-limit", "within-limit", "limit-exceeded"])
+  })
+
+  it("composes one canonical factual row for every provisional V3 policy row", () => {
+    const orderedPairs = [
+      ["source-flow", "source-items"],
+      ["source-flow", "source-lookup-nodes"],
+      ["source-flow", "source-path-copy-nodes"],
+      ["source-flow", "source-leaf-items"],
+      ["source-flow", "flow-atoms"],
+      ["source-flow", "flow-tree-nodes"],
+      ["spatial-index", "spatial-index-nodes"],
+      ["spatial-index", "spatial-query-bands"],
+      ["structural-reuse-proof", "selected-exact-subtree-nodes"],
+      ["structural-reuse-proof", "line-tree-lookup-nodes"],
+      ["layout-reconvergence", "recomputed-lines"],
+      ["layout-reconvergence", "proof-nodes"],
+      ["geometry", "reprojected-lines"],
+      ["geometry", "visited-fragments"],
+      ["scene", "line-tree-lookup-nodes"],
+      ["scene", "scene-tree-lookup-nodes"],
+      ["scene", "copied-scene-nodes"],
+      ["scene", "replacement-chunks"],
+      ["delivery-plan", "scene-tree-lookup-nodes"],
+      ["delivery-plan", "delivery-operations"],
+      ["delivery-plan", "retain-cover-nodes"],
+    ] as const satisfies readonly (readonly [
+      VNextTextBlockUnifiedLayoutStageV1,
+      VNextTextBlockUnifiedLayoutStageUnitV1,
+    ])[]
+    const lockedPairs = new Set([
+      "source-flow/source-items",
+      "source-flow/source-lookup-nodes",
+      "source-flow/source-path-copy-nodes",
+      "source-flow/source-leaf-items",
+      "structural-reuse-proof/selected-exact-subtree-nodes",
+      "structural-reuse-proof/line-tree-lookup-nodes",
+      "scene/line-tree-lookup-nodes",
+      "scene/scene-tree-lookup-nodes",
+      "scene/copied-scene-nodes",
+      "scene/replacement-chunks",
+      "delivery-plan/scene-tree-lookup-nodes",
+      "delivery-plan/delivery-operations",
+      "delivery-plan/retain-cover-nodes",
+    ])
+    const stages = orderedPairs.map(([stage, unit]) => Object.freeze({
+      stage,
+      unit,
+      lockStatus: lockedPairs.has(`${stage}/${unit}`) ? "locked" : "inactive",
+      smallBlockFloor: 1,
+      absoluteStageLimit: 1,
+      relativeNumerator: 1,
+      relativeDenominator: 1,
+      checkpointOwner: stage === "source-flow"
+        && (unit === "flow-atoms" || unit === "flow-tree-nodes")
+        ? "5B-2"
+        : stage === "spatial-index" || stage === "geometry"
+          ? "5B-3"
+          : "5B-1",
+      fingerprint: `fixture:${stage}/${unit}`,
+    } satisfies VNextTextBlockStageLimitV1))
+    const policy = Object.freeze({
+      source: "vnext-text-block-unified-layout-work-policy-v1",
+      contractVersion: 1,
+      policyId: "5b-1-v3-test",
+      checkpoint: "5B-1",
+      stages: Object.freeze(stages),
+      fingerprint: "fixture:policy",
+    } satisfies VNextTextBlockUnifiedLayoutWorkPolicyV1)
+    const factualCounts = Object.freeze([
+      { stage: "source-flow", unit: "source-items", count: 1 },
+      {
+        stage: "structural-reuse-proof",
+        unit: "line-tree-lookup-nodes",
+        count: 7,
+      },
+      { stage: "scene", unit: "replacement-chunks", count: 1 },
+    ] as const satisfies readonly VNextTextBlockStageWorkCountV1[])
+
+    const ledger = composeVNextTextBlockStageWorkLedgerInternalV1({
+      policy,
+      factualCounts,
+    })
+
+    expect(ledger.map(({ stage, unit }) => [stage, unit])).toEqual(orderedPairs)
+    expect(ledger.map(({ count }) => count)).toEqual([
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+    ])
+    expect(Object.isFrozen(ledger)).toBe(true)
+    expect(ledger.every(Object.isFrozen)).toBe(true)
+  })
+
+  it("rejects noncanonical factual work instead of repairing authority", () => {
+    const policy = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2
+    const compose = (factualCounts: readonly VNextTextBlockStageWorkCountV1[]) =>
+      composeVNextTextBlockStageWorkLedgerInternalV1({ policy, factualCounts })
+
+    expect(() => compose([
+      { stage: "scene", unit: "copied-scene-nodes", count: 1 },
+      { stage: "source-flow", unit: "source-items", count: 1 },
+    ])).toThrow("policy order")
+    expect(() => compose([
+      { stage: "source-flow", unit: "source-items", count: 1 },
+      { stage: "source-flow", unit: "source-items", count: 1 },
+    ])).toThrow("duplicate")
+    expect(() => compose([
+      { stage: "source-flow", unit: "flow-atoms", count: 1 },
+    ])).toThrow("inactive")
+    expect(() => compose([
+      { stage: "source-flow", unit: "source-items", count: -1 },
+    ])).toThrow("nonnegative safe integer")
+    expect(() => compose([{
+      stage: "source-flow",
+      unit: "unknown-unit",
+      count: 1,
+    } as unknown as VNextTextBlockStageWorkCountV1])).toThrow("unknown")
   })
 
   it("accepts every exact frozen V1 change and keeps eligibility closed", () => {

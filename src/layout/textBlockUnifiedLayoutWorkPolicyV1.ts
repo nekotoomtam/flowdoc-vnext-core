@@ -1,9 +1,13 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type {
+  VNextTextBlockStageWorkCountV1,
   VNextTextBlockUnifiedLayoutStageUnitV1,
   VNextTextBlockUnifiedLayoutStageV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "./textBlockUnifiedLayoutRootContractV2.js"
 
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE =
   "vnext-text-block-unified-layout-work-policy-v1" as const
@@ -42,6 +46,82 @@ export interface VNextTextBlockUnifiedLayoutWorkPolicyV1 {
   readonly checkpoint: VNextTextBlockWorkPolicyCheckpointOwnerV1
   readonly stages: readonly VNextTextBlockStageLimitV1[]
   readonly fingerprint: string
+}
+
+export function composeVNextTextBlockStageWorkLedgerInternalV1(input: {
+  readonly policy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly factualCounts: readonly VNextTextBlockStageWorkCountV1[]
+}): readonly VNextTextBlockStageWorkCountV1[] {
+  const policyIndexes = new Map<string, number>()
+  input.policy.stages.forEach((row, index) => {
+    const key = `${row.stage}/${row.unit}`
+    if (policyIndexes.has(key)) {
+      throw new TypeError(`work policy contains duplicate row ${key}`)
+    }
+    policyIndexes.set(key, index)
+  })
+
+  const counts = new Map<string, number>()
+  let previousIndex = -1
+  for (const fact of input.factualCounts) {
+    if (!Number.isSafeInteger(fact.count) || fact.count < 0) {
+      throw new RangeError("factual work count must be a nonnegative safe integer")
+    }
+    const key = `${fact.stage}/${fact.unit}`
+    const index = policyIndexes.get(key)
+    if (index == null) {
+      throw new TypeError(`factual work contains unknown policy row ${key}`)
+    }
+    if (counts.has(key)) {
+      throw new TypeError(`factual work contains duplicate row ${key}`)
+    }
+    if (index <= previousIndex) {
+      throw new TypeError("factual work rows must follow policy order")
+    }
+    const row = input.policy.stages[index]!
+    if (row.lockStatus !== "locked" && fact.count !== 0) {
+      throw new TypeError(`inactive policy row ${key} cannot report work`)
+    }
+    counts.set(key, fact.count)
+    previousIndex = index
+  }
+
+  return Object.freeze(input.policy.stages.map((row) => Object.freeze({
+    stage: row.stage,
+    unit: row.unit,
+    count: counts.get(`${row.stage}/${row.unit}`) ?? 0,
+  })))
+}
+
+export function previousVNextTextBlockStageSummaryBaseInternalV1(input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly unit: VNextTextBlockUnifiedLayoutStageUnitV1
+}): number {
+  switch (input.unit) {
+    case "source-items":
+    case "source-lookup-nodes":
+    case "source-path-copy-nodes":
+    case "source-leaf-items":
+    case "flow-atoms":
+    case "flow-tree-nodes":
+      return input.previousRoot.sourceState.summary.itemCount
+    case "spatial-index-nodes":
+    case "spatial-query-bands":
+      return input.previousRoot.spatialState.summary.entryCount
+    case "selected-exact-subtree-nodes":
+    case "line-tree-lookup-nodes":
+    case "recomputed-lines":
+    case "proof-nodes":
+    case "reprojected-lines":
+    case "visited-fragments":
+      return input.previousRoot.lineTree.summary.lineCount
+    case "copied-scene-nodes":
+    case "replacement-chunks":
+    case "scene-tree-lookup-nodes":
+    case "delivery-operations":
+    case "retain-cover-nodes":
+      return input.previousRoot.persistentScene.summary.chunkCount
+  }
 }
 
 export interface VNextTextBlockFlowStageLimitsV1 {
