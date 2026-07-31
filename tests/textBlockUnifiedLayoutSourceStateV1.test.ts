@@ -24,6 +24,9 @@ import {
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
 import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineImageFlowV2.js"
 import { listImageGeometryBuildInputFixture } from "./helpers/textBlockInitialFlowV1.js"
+import {
+  repeatedUnifiedLayoutRootSourceFixtureV1,
+} from "./helpers/textBlockUnifiedLayoutRootV1.js"
 
 function shapingRun(
   atom: Extract<VNextTextBlockInitialFlowV1["atoms"][number], {
@@ -335,6 +338,146 @@ describe("Phase 5B transition-native source state", () => {
     expect(probeCounts(firstSuccessor)).toEqual([1])
     expect(probeCounts(current)).toEqual([1])
   })
+
+  it("reports exact image lookup, path-copy, and changed-leaf work", () => {
+    const built = sourceState(acceptedInlineImageEvidenceFixture({
+      content: "image-only",
+      fit: "contain",
+    }))
+    const item = lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
+      sourceState: built.sourceState,
+      inlineId: "image-1",
+    })
+    if (item.status !== "found" || item.item.kind !== "inline-image") {
+      throw new Error("source work fixture image missing")
+    }
+    const changed =
+      deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1({
+        sourceState: built.sourceState,
+        inlineId: item.item.inlineId,
+        expectedImageSourceFingerprint: item.item.sourceFingerprint,
+        expectedImageDependencyFingerprint:
+          item.item.layoutDependencyFingerprint,
+        nextFit: "cover",
+        nextCrop: { x: 0, y: 0, width: 0.5, height: 1 },
+      })
+    expect(changed).toMatchObject({
+      status: "accepted",
+      visitedSourceLookupNodeCount: 1,
+      visitedSourceItemCount: 1,
+    })
+    if (changed.status !== "accepted") return
+    const copied =
+      createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+        previousSourceState: built.sourceState,
+        sourceItemAuthority: changed.sourceItemAuthority,
+        inlineId: item.item.inlineId,
+        expectedImageSourceFingerprint: item.item.sourceFingerprint,
+        expectedImageDependencyFingerprint:
+          item.item.layoutDependencyFingerprint,
+        nextFit: "cover",
+        nextCrop: { x: 0, y: 0, width: 0.5, height: 1 },
+      })
+    expect(copied).toMatchObject({
+      status: "prepared",
+      copiedSourcePathNodeCount: 1,
+      visitedChangedSourceLeafItemCount: 1,
+      createdNodeCount: 1,
+    })
+
+    const unchanged =
+      deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1({
+        sourceState: built.sourceState,
+        inlineId: item.item.inlineId,
+        expectedImageSourceFingerprint: item.item.sourceFingerprint,
+        expectedImageDependencyFingerprint:
+          item.item.layoutDependencyFingerprint,
+        nextFit: "contain",
+        nextCrop: null,
+      })
+    if (unchanged.status !== "accepted") {
+      throw new Error("source semantic no-op summary blocked")
+    }
+    expect(createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+      previousSourceState: built.sourceState,
+      sourceItemAuthority: unchanged.sourceItemAuthority,
+      inlineId: item.item.inlineId,
+      expectedImageSourceFingerprint: item.item.sourceFingerprint,
+      expectedImageDependencyFingerprint:
+        item.item.layoutDependencyFingerprint,
+      nextFit: "contain",
+      nextCrop: null,
+    })).toMatchObject({
+      status: "unchanged",
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
+      createdNodeCount: 0,
+    })
+
+    const rows = [
+      { lineCount: 1, lookupNodes: 1, firstLeafItems: 3, lastLeafItems: 3 },
+      { lineCount: 8, lookupNodes: 2, firstLeafItems: 8, lastLeafItems: 8 },
+      { lineCount: 9, lookupNodes: 2, firstLeafItems: 8, lastLeafItems: 3 },
+      { lineCount: 64, lookupNodes: 3, firstLeafItems: 8, lastLeafItems: 8 },
+      { lineCount: 65, lookupNodes: 3, firstLeafItems: 8, lastLeafItems: 3 },
+      { lineCount: 128, lookupNodes: 3, firstLeafItems: 8, lastLeafItems: 8 },
+    ] as const
+    for (const row of rows) {
+      const repeatedSource = repeatedUnifiedLayoutRootSourceFixtureV1({
+        lineCount: row.lineCount,
+        includeImages: true,
+      })
+      const repeated = sourceState({
+        initialFlow: repeatedSource.initialFlow,
+        evidence: repeatedSource.evidence,
+      })
+      const targets = new Map([
+        [0, row.firstLeafItems],
+        [Math.floor(row.lineCount / 2), row.lineCount === 1 ? 3 : 8],
+        [row.lineCount - 1, row.lastLeafItems],
+      ])
+      for (const [lineIndex, leafItems] of targets) {
+        const target =
+          lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1({
+            sourceState: repeated.sourceState,
+            inlineId: `repeat-image-${lineIndex}`,
+          })
+        if (target.status !== "found" || target.item.kind !== "inline-image") {
+          throw new Error(`repeated source image ${lineIndex} missing`)
+        }
+        const summary =
+          deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1({
+            sourceState: repeated.sourceState,
+            inlineId: target.item.inlineId,
+            expectedImageSourceFingerprint: target.item.sourceFingerprint,
+            expectedImageDependencyFingerprint:
+              target.item.layoutDependencyFingerprint,
+            nextFit: "cover",
+            nextCrop: { x: 0.1, y: 0.2, width: 0.6, height: 0.7 },
+          })
+        expect(summary).toMatchObject({
+          status: "accepted",
+          visitedSourceLookupNodeCount: row.lookupNodes,
+          visitedSourceItemCount: 1,
+        })
+        if (summary.status !== "accepted") continue
+        expect(createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+          previousSourceState: repeated.sourceState,
+          sourceItemAuthority: summary.sourceItemAuthority,
+          inlineId: target.item.inlineId,
+          expectedImageSourceFingerprint: target.item.sourceFingerprint,
+          expectedImageDependencyFingerprint:
+            target.item.layoutDependencyFingerprint,
+          nextFit: "cover",
+          nextCrop: { x: 0.1, y: 0.2, width: 0.6, height: 0.7 },
+        })).toMatchObject({
+          status: "prepared",
+          copiedSourcePathNodeCount: row.lookupNodes,
+          visitedChangedSourceLeafItemCount: leafItems,
+        })
+      }
+    }
+  }, 20_000)
 
   it("reports complete creation work but no accepted authority before graph commit", () => {
     const fixture = acceptedInlineImageEvidenceFixture({

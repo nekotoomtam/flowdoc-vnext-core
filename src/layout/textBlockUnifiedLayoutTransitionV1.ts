@@ -226,14 +226,9 @@ function allExactStructuralReuseDispositions(
 function noOpWork(
   base: VNextTextBlockIncrementalCandidateWorkV1,
   dispositions: VNextTextBlockLineDispositionCoverV1,
-  visitedSourceItemCount = 0,
 ): VNextTextBlockIncrementalCandidateWorkV1 {
   return deepFreeze({
     ...base,
-    flow: {
-      ...base.flow,
-      visitedSourceItemCount,
-    },
     structuralReuseProof: {
       visitedLineTreeNodeCount: 0,
       selectedExactSubtreeNodeCount: dispositions.work.selectedSubtreeCount,
@@ -243,10 +238,10 @@ function noOpWork(
     stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
       policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
       factualCounts: [
-        ...(visitedSourceItemCount === 0 ? [] : [{
+        ...(base.flow.visitedSourceItemCount === 0 ? [] : [{
         stage: "source-flow" as const,
         unit: "source-items" as const,
-        count: visitedSourceItemCount,
+        count: base.flow.visitedSourceItemCount,
         }]),
         {
           stage: "structural-reuse-proof" as const,
@@ -306,7 +301,8 @@ function paintWork(
     readonly retainCoverNodeCount: number
     readonly estimatedCanonicalPayloadByteCount: number
     readonly payloadObservationFingerprint: string | null
-    readonly visitedSourceItemCount: number
+    readonly copiedSourcePathNodeCount: number
+    readonly visitedChangedSourceLeafItemCount: number
     readonly attemptedRegistrationCount?: number
     readonly committedRegistrationCount?: number
   },
@@ -315,7 +311,9 @@ function paintWork(
     ...base,
     flow: {
       ...base.flow,
-      visitedSourceItemCount: input.visitedSourceItemCount,
+      copiedSourcePathNodeCount: input.copiedSourcePathNodeCount,
+      visitedChangedSourceLeafItemCount:
+        input.visitedChangedSourceLeafItemCount,
     },
     structuralReuseProof: {
       visitedLineTreeNodeCount: 0,
@@ -352,7 +350,7 @@ function paintWork(
         {
           stage: "source-flow" as const,
           unit: "source-items" as const,
-          count: input.visitedSourceItemCount,
+          count: base.flow.visitedSourceItemCount,
         },
         {
           stage: "structural-reuse-proof" as const,
@@ -614,11 +612,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       input.previousRoot,
       input.workPolicy,
       dispositions,
-      noOpWork(
-        bound.incrementalCandidateWork,
-        dispositions,
-        1,
-      ),
+      noOpWork(bound.incrementalCandidateWork, dispositions),
     )
   }
   const aliasesAccepted =
@@ -666,7 +660,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       retainCoverNodeCount: 0,
       estimatedCanonicalPayloadByteCount: 0,
       payloadObservationFingerprint: null,
-      visitedSourceItemCount: scene.visitedSourceItemCount,
+      copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
+      visitedChangedSourceLeafItemCount:
+        source.visitedChangedSourceLeafItemCount,
     })
     const attempt = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
         previousRoot: input.previousRoot,
@@ -717,7 +713,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
       payloadObservationFingerprint:
         scene.deliveryPlan.observations.payloadObservationFingerprint,
-      visitedSourceItemCount: scene.visitedSourceItemCount,
+      copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
+      visitedChangedSourceLeafItemCount:
+        source.visitedChangedSourceLeafItemCount,
     },
   )
   const limitFailure = workLimitFailure(
@@ -857,7 +855,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
     payloadObservationFingerprint:
       scene.deliveryPlan.observations.payloadObservationFingerprint,
-    visitedSourceItemCount: scene.visitedSourceItemCount,
+    copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
+    visitedChangedSourceLeafItemCount:
+      source.visitedChangedSourceLeafItemCount,
     attemptedRegistrationCount:
       registration.attemptedRegistrationCount,
     committedRegistrationCount:

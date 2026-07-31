@@ -34,6 +34,7 @@ import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
+  composeVNextTextBlockStageWorkLedgerInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -215,7 +216,11 @@ function targetBindingForChange(
   root: VNextTextBlockUnifiedLayoutRootV2,
   change: VNextTextBlockUnifiedLayoutChangeV1,
   previous: VNextTextBlockExpectedTargetBindingV1,
-  captureImagePaintSourceItemAuthority: (authority: object) => void,
+  captureImagePaintSourceWork: (work: {
+    readonly authority: object | null
+    readonly visitedSourceLookupNodeCount: number
+    readonly visitedSourceItemCount: number
+  }) => void,
 ): VNextTextBlockExpectedTargetBindingV1 | null {
   if (change.kind === "no-op") return previous
   if (change.kind === "image-paint-fact-change") {
@@ -229,9 +234,14 @@ function targetBindingForChange(
           change.expectedImageDependencyFingerprint,
         nextFit: change.nextFit,
         nextCrop: change.nextCrop,
+      })
+    captureImagePaintSourceWork({
+      authority: derived.sourceItemAuthority,
+      visitedSourceLookupNodeCount:
+        derived.visitedSourceLookupNodeCount,
+      visitedSourceItemCount: derived.visitedSourceItemCount,
     })
     if (derived.status !== "accepted") return null
-    captureImagePaintSourceItemAuthority(derived.sourceItemAuthority)
     return targetBinding({
       ...targetBindingFacts(previous),
       paintFingerprint: derived.paintFingerprint,
@@ -329,13 +339,18 @@ function targetBindingForChange(
 
 const validatedImagePaintSourceItemAuthorities = new WeakMap<
   VNextTextBlockValidatedChangeV1,
-  object
+  {
+    readonly authority: object
+    readonly visitedSourceLookupNodeCount: number
+    readonly visitedSourceItemCount: number
+  }
 >()
 
 export function getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(
   validatedChange: VNextTextBlockValidatedChangeV1,
 ): object | null {
-  return validatedImagePaintSourceItemAuthorities.get(validatedChange) ?? null
+  return validatedImagePaintSourceItemAuthorities.get(validatedChange)
+    ?.authority ?? null
 }
 
 function producerEvidenceRequired(
@@ -425,17 +440,46 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
       input.previousRoot,
     )
-  let imagePaintSourceItemAuthority: object | null = null
+  const imagePaintSourceCapture: {
+    current: {
+      readonly authority: object | null
+      readonly visitedSourceLookupNodeCount: number
+      readonly visitedSourceItemCount: number
+    } | null
+  } = { current: null }
   const expectedTargetBinding = targetBindingForChange(
     input.previousRoot,
     change,
     previousTargetBinding,
-    (authority) => {
-      imagePaintSourceItemAuthority = authority
+    (work) => {
+      imagePaintSourceCapture.current = work
     },
   )
+  const imagePaintSourceWork = imagePaintSourceCapture.current
+  const incrementalCandidateWork = imagePaintSourceWork == null
+    ? shaped.incrementalCandidateWork
+    : deepFreeze({
+        ...shaped.incrementalCandidateWork,
+        flow: {
+          ...shaped.incrementalCandidateWork.flow,
+          visitedSourceItemCount:
+            imagePaintSourceWork.visitedSourceItemCount,
+          visitedSourceLookupNodeCount:
+            imagePaintSourceWork.visitedSourceLookupNodeCount,
+        },
+        stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+          policy: input.workPolicy,
+          factualCounts: imagePaintSourceWork.visitedSourceItemCount === 0
+            ? []
+            : [{
+                stage: "source-flow" as const,
+                unit: "source-items" as const,
+                count: imagePaintSourceWork.visitedSourceItemCount,
+              }],
+        }),
+      })
   if (expectedTargetBinding == null) {
-    return blockedBinding(shaped.incrementalCandidateWork, issue(
+    return blockedBinding(incrementalCandidateWork, issue(
       "change-target-mismatch",
       "change-gate",
       "change",
@@ -469,16 +513,22 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       effectClassification,
     }),
   })
-  if (imagePaintSourceItemAuthority != null) {
+  if (imagePaintSourceWork?.authority != null) {
     validatedImagePaintSourceItemAuthorities.set(
       validatedChange,
-      imagePaintSourceItemAuthority,
+      {
+        authority: imagePaintSourceWork.authority,
+        visitedSourceLookupNodeCount:
+          imagePaintSourceWork.visitedSourceLookupNodeCount,
+        visitedSourceItemCount:
+          imagePaintSourceWork.visitedSourceItemCount,
+      },
     )
   }
   return Object.freeze({
     status: "accepted",
     validatedChange,
-    incrementalCandidateWork: shaped.incrementalCandidateWork,
+    incrementalCandidateWork,
     issues: Object.freeze([]) as readonly [],
   })
 }

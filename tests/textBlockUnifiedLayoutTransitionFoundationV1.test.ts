@@ -37,6 +37,53 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 
 describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
+  it("propagates factual source work into an accepted transition", () => {
+    const previous = acceptedRepeatedUnifiedLayoutRootFixture5b(8)
+    const result = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+      previousRoot: previous.root,
+      change: imagePaintUnifiedLayoutChange5b(previous.root, {
+        fit: "cover",
+        crop: { x: 0.1, y: 0.2, width: 0.6, height: 0.7 },
+        inlineId: "repeat-image-4",
+      }),
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+    expect(result.status).toBe("accepted-incremental")
+    expect(result.incrementalCandidateWork.flow).toMatchObject({
+      visitedSourceItemCount: 1,
+      visitedSourceLookupNodeCount: 2,
+      copiedSourcePathNodeCount: 2,
+      visitedChangedSourceLeafItemCount: 8,
+    })
+    expect(result.incrementalCandidateWork.stageWork).toHaveLength(14)
+    expect(result.incrementalCandidateWork.stageWork.some((work) =>
+      work.unit === "source-lookup-nodes"
+      || work.unit === "source-path-copy-nodes"
+      || work.unit === "source-leaf-items"
+    )).toBe(false)
+  })
+
+  it("reports lookup-only work for an image-paint semantic no-op", () => {
+    const previous = acceptedRepeatedUnifiedLayoutRootFixture5b(8)
+    const result = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+      previousRoot: previous.root,
+      change: imagePaintUnifiedLayoutChange5b(previous.root, {
+        fit: "contain",
+        crop: null,
+        inlineId: "repeat-image-4",
+      }),
+      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    })
+
+    expect(result.status).toBe("accepted-no-op")
+    expect(result.incrementalCandidateWork.flow).toMatchObject({
+      visitedSourceItemCount: 1,
+      visitedSourceLookupNodeCount: 2,
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
+    })
+  })
+
   it("blocks inactive text transition after Core classifies its geometry effect", () => {
     const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
     const textChange = Object.freeze({

@@ -50,6 +50,7 @@ interface IndexedSourceItemRecord {
     readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
     readonly childIndex: number
   }[]
+  readonly visitedSourceLookupNodeCount: number
 }
 
 interface SourceItemIndex {
@@ -250,6 +251,7 @@ function indexedSourceItem(
           authority.absoluteStartRenderedUtf16,
         leaf: node,
         ancestors,
+        visitedSourceLookupNodeCount: ancestors.length + 1,
       }
 }
 
@@ -1198,6 +1200,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
       readonly sourceItemAuthority: object
       readonly visitedSummaryNodeCount: number
+      readonly copiedSourcePathNodeCount: 0
+      readonly visitedChangedSourceLeafItemCount: 0
       readonly createdNodeCount: 0
       readonly reusedNodeCount: number
       readonly completeSuffixTraversalCount: 0
@@ -1208,6 +1212,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
       readonly sourceItemAuthority: object
       readonly visitedSummaryNodeCount: number
+      readonly copiedSourcePathNodeCount: number
+      readonly visitedChangedSourceLeafItemCount: number
       readonly createdNodeCount: number
       readonly reusedNodeCount: number
       readonly completeSuffixTraversalCount: 0
@@ -1218,6 +1224,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       readonly sourceState: null
       readonly sourceItemAuthority: null
       readonly visitedSummaryNodeCount: 0
+      readonly copiedSourcePathNodeCount: 0
+      readonly visitedChangedSourceLeafItemCount: 0
       readonly createdNodeCount: 0
       readonly reusedNodeCount: 0
       readonly completeSuffixTraversalCount: 0
@@ -1248,6 +1256,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       sourceState: null,
       sourceItemAuthority: null,
       visitedSummaryNodeCount: 0,
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
       createdNodeCount: 0,
       reusedNodeCount: 0,
       completeSuffixTraversalCount: 0,
@@ -1268,6 +1278,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       sourceState: input.previousSourceState,
       sourceItemAuthority: input.sourceItemAuthority,
       visitedSummaryNodeCount: indexed.ancestors.length + 1,
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
       createdNodeCount: 0,
       reusedNodeCount: input.previousSourceState.summary.nodeCount,
       completeSuffixTraversalCount: 0,
@@ -1404,6 +1416,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       sourceState,
       sourceItemAuthority: nextSourceItemAuthority,
       visitedSummaryNodeCount: createdNodeCount,
+      copiedSourcePathNodeCount: createdNodeCount,
+      visitedChangedSourceLeafItemCount: indexed.leaf.items.length,
       createdNodeCount,
       reusedNodeCount: work.reusedNodeCount,
       completeSuffixTraversalCount: 0 as const,
@@ -1415,6 +1429,8 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       sourceState: null,
       sourceItemAuthority: null,
       visitedSummaryNodeCount: 0,
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
       createdNodeCount: 0,
       reusedNodeCount: 0,
       completeSuffixTraversalCount: 0,
@@ -1456,6 +1472,8 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
       readonly paintFingerprint: string
       readonly sourceItemAuthority: object
       readonly visitedSummaryNodeCount: number
+      readonly visitedSourceLookupNodeCount: number
+      readonly visitedSourceItemCount: 1
       readonly completeSourceTraversalCount: 0
     }
   | {
@@ -1463,6 +1481,8 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
       readonly paintFingerprint: null
       readonly sourceItemAuthority: null
       readonly visitedSummaryNodeCount: 0
+      readonly visitedSourceLookupNodeCount: number
+      readonly visitedSourceItemCount: number
       readonly completeSourceTraversalCount: 0
     } {
   const prepared = preparedStates.get(input.sourceState)
@@ -1482,11 +1502,16 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
     || indexed.item.layoutDependencyFingerprint
       !== input.expectedImageDependencyFingerprint
   ) {
+    const visitedSourceLookupNodeCount = indexed == null
+      ? 0
+      : indexed.visitedSourceLookupNodeCount
     return {
       status: "blocked",
       paintFingerprint: null,
       sourceItemAuthority: null,
       visitedSummaryNodeCount: 0,
+      visitedSourceLookupNodeCount,
+      visitedSourceItemCount: indexed == null ? 0 : 1,
       completeSourceTraversalCount: 0,
     }
   }
@@ -1537,6 +1562,9 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
     paintFingerprint: pathPaintFingerprint,
     sourceItemAuthority,
     visitedSummaryNodeCount: indexed.ancestors.length + 1,
+    visitedSourceLookupNodeCount:
+      indexed.visitedSourceLookupNodeCount,
+    visitedSourceItemCount: 1,
     completeSourceTraversalCount: 0,
   }
 }
