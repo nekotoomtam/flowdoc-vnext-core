@@ -3,7 +3,26 @@ import * as publicCore from "../src/index.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
+  createVNextTextBlockPersistentSceneWithForcedCollisionForTestInternalV2,
+  verifyVNextTextBlockPersistentSceneCandidateInternalV2,
+} from "../src/layout/textBlockPersistentSceneV2.js"
+import type {
+  VNextTextBlockPersistentSceneV2,
+} from "../src/layout/textBlockPersistentSceneContractV2.js"
+import {
+  createVNextTextBlockSceneDeliveryPlanCandidateInternalV2,
+} from "../src/layout/textBlockSceneDeliveryV2.js"
+import {
+  composeVNextTextBlockUnifiedLayoutRootIdentityForTestInternalV2,
+  prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2,
+  registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
+import {
   createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
+  prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
   attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
@@ -64,6 +83,40 @@ function reaches(source: unknown, target: object): boolean {
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+}
+
+function rootWithPreparedScene(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  persistentScene: VNextTextBlockPersistentSceneV2,
+): VNextTextBlockUnifiedLayoutRootV2 {
+  const dependencyFingerprints = Object.freeze({
+    ...root.dependencyFingerprints,
+    persistentScene: persistentScene.fingerprint,
+  })
+  const constructionFingerprint = fingerprint({
+    constructionKind: root.constructionKind,
+    initialFlowFingerprint: root.sourceState.initialFlowFingerprint,
+    evidenceFingerprint: root.sourceState.flowEvidenceFingerprint,
+    spatialEntrySetFingerprint: root.spatialState.entrySetFingerprint,
+    dependencyFingerprints,
+  })
+  const basis = Object.freeze({
+    ...root,
+    persistentScene,
+    dependencyFingerprints,
+    constructionFingerprint,
+  })
+  const identity =
+    composeVNextTextBlockUnifiedLayoutRootIdentityForTestInternalV2({
+      root: basis,
+      lineTreeFingerprint: basis.lineTree.fingerprint,
+      lineTreeSemanticFingerprint: basis.lineTree.semanticFingerprint,
+      persistentSceneFingerprint: persistentScene.fingerprint,
+    })
+  return Object.freeze({
+    ...basis,
+    ...identity,
+  })
 }
 
 function policyLimitedAt(
@@ -223,58 +276,110 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
     ).toMatchObject({ status: "blocked" })
   })
 
-  it("does not let forced semantic digests confer Scene or Root authority", () => {
-    const first = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
-      unifiedLayoutRootBuildInputFixtureV2(),
-    )
-    const second = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
-      unifiedLayoutRootBuildInputFixtureV2({
-        documentId: "document-forced-semantic-collision",
-        fit: "cover",
-        crop: { x: 0, y: 0, width: 0.5, height: 1 },
-      }),
-    )
-    if (first.status !== "accepted" || second.status !== "accepted") {
-      throw new Error("Root V2 collision fixture blocked")
+  it("rejects genuine forced Scene collisions across retain and Root authority", () => {
+    const contain =
+      prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+        unifiedLayoutRootBuildInputFixtureV2({
+          content: "image-only",
+          fit: "contain",
+        }),
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+        "complete-bootstrap",
+      )
+    const cover =
+      prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+        unifiedLayoutRootBuildInputFixtureV2({
+          content: "image-only",
+          fit: "cover",
+          crop: { x: 0, y: 0, width: 0.5, height: 1 },
+        }),
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+        "complete-bootstrap",
+      )
+    if (contain.status !== "prepared" || cover.status !== "prepared") {
+      throw new Error("Root V2 collision dependencies blocked")
     }
-    expect(second.root.semanticFingerprint)
-      .not.toBe(first.root.semanticFingerprint)
-    const forged = structuredClone(second.root) as unknown as
-      DeepMutable<typeof second.root>
-    forged.semanticFingerprint = first.root.semanticFingerprint
-    forged.persistentScene.fingerprint =
-      first.persistentScene.fingerprint
-    const collision = deepFreeze(forged)
+    const containScene =
+      createVNextTextBlockPersistentSceneWithForcedCollisionForTestInternalV2({
+        lineTree: contain.root.lineTree,
+        sourceState: contain.root.sourceState,
+      })
+    const coverScene =
+      createVNextTextBlockPersistentSceneWithForcedCollisionForTestInternalV2({
+        lineTree: cover.root.lineTree,
+        sourceState: cover.root.sourceState,
+      })
+    if (
+      containScene.status !== "prepared"
+      || coverScene.status !== "prepared"
+    ) throw new Error("forced-collision Scenes blocked")
 
-    expect(collision.documentId).not.toBe(first.root.documentId)
-    expect(collision.semanticFingerprint)
-      .toBe(first.root.semanticFingerprint)
-    expect(collision.persistentScene.fingerprint)
-      .toBe(first.persistentScene.fingerprint)
-    expect(collision.persistentScene)
-      .not.toBe(first.persistentScene)
-    expect(publicCore.inspectVNextTextBlockPersistentSceneV2(
-      collision.persistentScene,
+    expect(contain.root.lineTree).not.toBe(cover.root.lineTree)
+    expect(contain.root.lineTree.fingerprint)
+      .toBe(cover.root.lineTree.fingerprint)
+    expect(containScene.scene.sourceStatePaintFingerprint)
+      .not.toBe(coverScene.scene.sourceStatePaintFingerprint)
+    expect(containScene.scene.root).not.toEqual(coverScene.scene.root)
+    expect(containScene.scene.fingerprint).toBe(coverScene.scene.fingerprint)
+    expect(verifyVNextTextBlockPersistentSceneCandidateInternalV2(
+      containScene.scene,
+    )).toMatchObject({ status: "valid-candidate" })
+    expect(verifyVNextTextBlockPersistentSceneCandidateInternalV2(
+      coverScene.scene,
+    )).toMatchObject({ status: "valid-candidate" })
+
+    expect(createVNextTextBlockSceneDeliveryPlanCandidateInternalV2({
+      previousScene: containScene.scene,
+      nextScene: coverScene.scene,
+      operations: [{
+        kind: "retain-range",
+        previousRange: { start: 0, end: 1 },
+        nextRange: { start: 0, end: 1 },
+      }],
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "delivery-plan-retain-payload-mismatch" }],
+    })
+
+    const exactRoot = rootWithPreparedScene(
+      contain.root,
+      containScene.scene,
+    )
+    const foreignSceneRoot = rootWithPreparedScene(
+      contain.root,
+      coverScene.scene,
+    )
+    expect(exactRoot.persistentScene)
+      .not.toBe(foreignSceneRoot.persistentScene)
+    expect(exactRoot.semanticFingerprint)
+      .toBe(foreignSceneRoot.semanticFingerprint)
+    expect(exactRoot.fingerprint).toBe(foreignSceneRoot.fingerprint)
+    expect(
+      prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2(
+        exactRoot,
+      ),
+    ).toBe(true)
+    expect(
+      prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2(
+        foreignSceneRoot,
+      ),
+    ).toBe(false)
+    expect(registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
+      foreignSceneRoot,
     )).toMatchObject({
-      status: "invalid",
-      code: "scene-authority-mismatch",
+      status: "blocked",
+      attemptedRegistrationCount: 0,
+      committedRegistrationCount: 0,
     })
-    expect(publicCore.inspectVNextTextBlockUnifiedLayoutRootV2(
-      collision,
+    expect(registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
+      exactRoot,
     )).toMatchObject({
-      status: "invalid",
-      code: "root-authority-mismatch",
+      status: "committed",
+      attemptedRegistrationCount: 6,
+      committedRegistrationCount: 6,
     })
-    expect(publicCore.inspectVNextTextBlockSceneDeliveryPlanV2({
-      previousScene: first.persistentScene,
-      nextScene: collision.persistentScene,
-      plan: {
-        source: "vnext-text-block-scene-delivery-plan-v2",
-      },
-    } as never)).toMatchObject({
-      status: "invalid",
-      code: "delivery-scene-authority-mismatch",
-    })
+    expect(publicCore.inspectVNextTextBlockUnifiedLayoutRootV2(exactRoot))
+      .toMatchObject({ status: "valid" })
   })
 
   it("rejects cloned results and forged delivery summaries and covers", () => {
