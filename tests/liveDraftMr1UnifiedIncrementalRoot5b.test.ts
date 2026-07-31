@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import * as publicCore from "../src/index.js"
 import {
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
+  mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
@@ -737,7 +738,7 @@ describe("Phase 5B-1 public foundation gate", () => {
     }
   })
 
-  it("keeps fallback scalar-only and public completion policy-owned", () => {
+  it("blocks fabricated fallback reasons with an empty incremental-work ledger", () => {
     const previousResult =
       publicCore.createVNextTextBlockUnifiedLayoutRootV2(
         unifiedLayoutRootBuildInputFixtureV2(),
@@ -750,8 +751,8 @@ describe("Phase 5B-1 public foundation gate", () => {
       workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
     })
     if (bound.status !== "accepted") throw new Error("change binding blocked")
-    const fallback =
-      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+    const fabricated =
+      mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
         previousRoot: previousResult.root,
         change,
         workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
@@ -766,27 +767,16 @@ describe("Phase 5B-1 public foundation gate", () => {
         skippedOrFailedStage: "source-flow",
         incrementalCandidateWork: bound.incrementalCandidateWork,
       })
-    if (fallback.status !== "fallback-required") {
-      throw new Error("fallback request blocked")
-    }
-    expect(publicCore.inspectVNextTextBlockUnifiedLayoutFallbackRequestV1(
-      fallback.fallbackRequest,
-    )).toMatchObject({ status: "valid" })
-    expect(publicCore.inspectVNextTextBlockUnifiedLayoutFallbackRequestV1(
-      structuredClone(fallback.fallbackRequest),
-    )).toMatchObject({
-      status: "invalid",
-      code: "fallback-request-authority-mismatch",
+    expect(fabricated).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
     })
+    const fallback = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: Object.freeze({}) as never,
+    })
+    expect(fallback.status).toBe("blocked")
+    expect(reaches(fabricated, previousResult.root)).toBe(false)
     expect(reaches(fallback, previousResult.root)).toBe(false)
-
-    const completed =
-      publicCore.completeVNextTextBlockUnifiedLayoutRootFallbackV1({
-        request: fallback.fallbackRequest,
-        completeMaterial: unifiedLayoutRootBuildInputFixtureV2(),
-      })
-    expect(completed.status, JSON.stringify(completed.issues))
-      .toBe("accepted-complete-fallback")
   })
 
   it("passes deterministic wrapper and scene lifetime reachability gates", () => {

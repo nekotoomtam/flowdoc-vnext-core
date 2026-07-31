@@ -21,8 +21,12 @@ import {
   completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1,
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
   inspectVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
+  mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
   setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
+import {
+  evaluateVNextTextBlockStageWorkLimitInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
@@ -66,6 +70,18 @@ function deepFreeze<T>(value: T): T {
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+}
+
+function reaches(value: unknown, target: object, seen = new Set<object>()): boolean {
+  if (value === target) return true
+  if (value == null || typeof value !== "object" || seen.has(value)) return false
+  seen.add(value)
+  return Reflect.ownKeys(value).some((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)
+    return descriptor != null
+      && Object.hasOwn(descriptor, "value")
+      && reaches(descriptor.value, target, seen)
+  })
 }
 
 function changeBase(root: VNextTextBlockUnifiedLayoutRootV2) {
@@ -155,15 +171,7 @@ function resolvedFieldChange(
   })
 }
 
-const fallbackReason = deepFreeze({
-  code: "stage-unit-limit-exceeded" as const,
-  stage: "source-flow" as const,
-  unit: "source-items" as const,
-  effectiveLimit: 1,
-  attemptedWork: 2,
-})
-
-function makeFallback(
+function makeFallbackAttempt(
   root: VNextTextBlockUnifiedLayoutRootV2,
   change: VNextTextBlockUnifiedLayoutChangeV1,
 ) {
@@ -175,14 +183,58 @@ function makeFallback(
   if (bound.status !== "accepted") {
     throw new Error(`change binding blocked: ${JSON.stringify(bound.issues)}`)
   }
-  return createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+  const attemptedWork = 5
+  const incrementalCandidateWork = deepFreeze({
+    ...bound.incrementalCandidateWork,
+    flow: {
+      ...bound.incrementalCandidateWork.flow,
+      visitedSourceItemCount: attemptedWork,
+    },
+    stageWork: [{
+      stage: "source-flow" as const,
+      unit: "source-items" as const,
+      count: attemptedWork,
+    }],
+  })
+  const limit = evaluateVNextTextBlockStageWorkLimitInternalV1({
+    policy: ROOT_V2_TEST_WORK_POLICY,
+    stage: "source-flow",
+    unit: "source-items",
+    previousSummaryBase: root.sourceState.summary.itemCount,
+    exactValidatedChangeDelta: 1,
+    attemptedWork,
+  })
+  if (limit.status !== "limit-exceeded") {
+    throw new Error("test fixture must exceed the active source-item limit")
+  }
+  const minted = mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1({
     previousRoot: root,
     change,
     workPolicy: ROOT_V2_TEST_WORK_POLICY,
     mode: "deterministic-work-limit-exceeded",
-    reason: fallbackReason,
+    reason: deepFreeze({
+      code: "stage-unit-limit-exceeded" as const,
+      stage: "source-flow" as const,
+      unit: "source-items" as const,
+      effectiveLimit: limit.effectiveLimit,
+      attemptedWork,
+    }),
     skippedOrFailedStage: "source-flow",
-    incrementalCandidateWork: bound.incrementalCandidateWork,
+    incrementalCandidateWork,
+  })
+  if (minted.status !== "minted") {
+    throw new Error(`fallback attempt blocked: ${JSON.stringify(minted.issues)}`)
+  }
+  return minted
+}
+
+function makeFallback(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  change: VNextTextBlockUnifiedLayoutChangeV1,
+) {
+  const minted = makeFallbackAttempt(root, change)
+  return createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+    attempt: minted.attempt,
   })
 }
 
@@ -261,6 +313,44 @@ function producerResponse(
 }
 
 describe("Phase 5B deferred Root V2 fallback protocol", () => {
+  it("consumes one exact private fallback attempt and records factual limit work", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV2()
+    const minted = makeFallbackAttempt(previous.root, noOpChange(previous.root))
+    const clonedAttempt = structuredClone(minted.attempt)
+
+    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: clonedAttempt as never,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+
+    const issued = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: minted.attempt,
+    })
+    expect(issued.status).toBe("fallback-required")
+    if (issued.status !== "fallback-required") return
+    const reason = issued.fallbackRequest.reason
+    if (reason.code !== "stage-unit-limit-exceeded") {
+      throw new Error("expected limit fallback reason")
+    }
+    const matchingRows = issued.incrementalCandidateWork.stageWork.filter((row) =>
+      row.stage === reason.stage
+      && row.unit === reason.unit
+      && row.count === reason.attemptedWork
+    )
+    expect(matchingRows).toHaveLength(1)
+    expect(issued.fallbackRequest).not.toHaveProperty("attempt")
+    expect(issued.fallbackRequest).not.toHaveProperty("previousRoot")
+    expect(reaches(issued, previous.root)).toBe(false)
+    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: minted.attempt,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+  })
+
   it("returns a scalar-only request, then accepts independently supplied complete material", () => {
     const previous = acceptedUnifiedLayoutRootFixtureV2()
     const change = noOpChange(previous.root)

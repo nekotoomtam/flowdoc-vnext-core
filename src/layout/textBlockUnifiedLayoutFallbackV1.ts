@@ -21,6 +21,7 @@ import type {
   VNextTextBlockCompleteFallbackWorkV1,
   VNextTextBlockExpectedTargetBindingV1,
   VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockUnifiedLayoutBlockedStageV1,
   VNextTextBlockUnifiedLayoutCompleteFallbackResultV1,
   VNextTextBlockUnifiedLayoutFallbackModeV1,
   VNextTextBlockUnifiedLayoutFallbackReasonV1,
@@ -32,6 +33,7 @@ import type {
   VNextTextBlockUnifiedLayoutStageV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
+  evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -287,7 +289,99 @@ const completedFallbackRequests = new WeakSet<
   VNextTextBlockUnifiedLayoutFallbackRequestV1
 >()
 
-export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
+interface FallbackAttemptRecord {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly mode: VNextTextBlockUnifiedLayoutFallbackModeV1
+  readonly reason: VNextTextBlockUnifiedLayoutFallbackReasonV1
+  readonly skippedOrFailedStage: VNextTextBlockUnifiedLayoutStageV1
+  readonly incrementalCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
+}
+
+export interface VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1 {
+  readonly __fallbackAttemptOpaque: never
+}
+
+const fallbackAttempts = new WeakMap<
+  VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1,
+  FallbackAttemptRecord
+>()
+
+function previousSummaryBase(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  unit: VNextTextBlockUnifiedLayoutStageUnitV1,
+): number {
+  switch (unit) {
+    case "source-items":
+    case "flow-atoms":
+    case "flow-tree-nodes":
+      return root.sourceState.summary.itemCount
+    case "spatial-index-nodes":
+    case "spatial-query-bands":
+      return root.spatialState.summary.entryCount
+    case "selected-exact-subtree-nodes":
+    case "recomputed-lines":
+    case "proof-nodes":
+    case "reprojected-lines":
+    case "visited-fragments":
+      return root.lineTree.summary.lineCount
+    case "copied-scene-nodes":
+    case "replacement-chunks":
+    case "delivery-operations":
+    case "retain-cover-nodes":
+      return root.persistentScene.summary.chunkCount
+  }
+}
+
+function invalidFallbackAttempt(
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+): VNextTextBlockUnifiedLayoutBlockedStageV1 {
+  return Object.freeze({
+    status: "blocked",
+    stage: "change-gate",
+    change: null,
+    incrementalCandidateWork: work,
+    issues: Object.freeze([issue(
+      "fallback-request-authority-mismatch",
+      "change-gate",
+      "fallback",
+      "fallback request creation requires one exact Core-produced attempt",
+    )]),
+  })
+}
+
+function limitReasonMatchesAttempt(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+  reason: Extract<
+    VNextTextBlockUnifiedLayoutFallbackReasonV1,
+    { readonly code: "stage-unit-limit-exceeded" }
+  >,
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+): boolean {
+  const matchingRows = work.stageWork.filter((item) =>
+    item.stage === reason.stage
+    && item.unit === reason.unit
+    && item.count === reason.attemptedWork
+  )
+  if (matchingRows.length !== 1) return false
+  const evaluation = evaluateVNextTextBlockStageWorkLimitInternalV1({
+    policy,
+    stage: reason.stage,
+    unit: reason.unit,
+    previousSummaryBase: previousSummaryBase(root, reason.unit),
+    // The active 5B-1 change contract has one exact bound change delta.
+    exactValidatedChangeDelta: 1,
+    attemptedWork: reason.attemptedWork,
+  })
+  return evaluation.status === "limit-exceeded"
+    && evaluation.effectiveLimit === reason.effectiveLimit
+    && evaluation.attemptedWork === reason.attemptedWork
+}
+
+export function mintVNextTextBlockUnifiedLayoutFallbackAttemptInternalV1(
   input: {
     readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
     readonly change: VNextTextBlockUnifiedLayoutChangeV1
@@ -298,7 +392,14 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
     readonly incrementalCandidateWork:
       VNextTextBlockIncrementalCandidateWorkV1
   },
-): VNextTextBlockUnifiedLayoutFallbackRequestResultV1 {
+):
+  | {
+      readonly status: "minted"
+      readonly attempt: VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1
+      readonly incrementalCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+    }
+  | VNextTextBlockUnifiedLayoutBlockedStageV1 {
   const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
     previousRoot: input.previousRoot,
     change: input.change,
@@ -311,35 +412,90 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
     || !stages.has(input.skippedOrFailedStage)
     || !modeMatchesReason(input.mode, reason, input.skippedOrFailedStage)
     || !boundedCandidateWork(input.incrementalCandidateWork)
+    || (reason.code === "stage-unit-limit-exceeded" && !limitReasonMatchesAttempt(
+      input.previousRoot,
+      input.workPolicy,
+      reason,
+      input.incrementalCandidateWork,
+    ))
   ) {
-    return Object.freeze({
-      status: "blocked",
-      stage: "change-gate",
-      change: null,
-      incrementalCandidateWork: bound.incrementalCandidateWork,
-      issues: Object.freeze([issue(
-        "invalid-change-data",
-        "change-gate",
-        "fallback",
-        "fallback request creation requires one exact closed mode/reason/work tuple",
-      )]),
-    })
+    return invalidFallbackAttempt(bound.incrementalCandidateWork)
   }
-  const facts = {
-    source: "vnext-text-block-unified-layout-fallback-request-v1" as const,
-    contractVersion: 1 as const,
+  const attempt = deepFreeze({}) as unknown as
+    VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1
+  fallbackAttempts.set(attempt, {
+    previousRoot: input.previousRoot,
+    change: input.change,
+    workPolicy: input.workPolicy,
     mode: input.mode,
     reason,
     skippedOrFailedStage: input.skippedOrFailedStage,
-    incrementalWorkAttempted: input.mode !== "planned-complete",
-    previousRootFingerprint: input.previousRoot.fingerprint,
-    changeFingerprint: fingerprint(input.change),
-    documentId: input.previousRoot.documentId,
-    sectionId: input.previousRoot.sectionId,
-    textBlockId: input.previousRoot.textBlockId,
-    expectedTargetBinding: bound.validatedChange.expectedTargetBinding,
-    workPolicyFingerprint: input.workPolicy.fingerprint,
     incrementalCandidateWork: input.incrementalCandidateWork,
+    expectedTargetBinding: bound.validatedChange.expectedTargetBinding,
+  })
+  return Object.freeze({
+    status: "minted" as const,
+    attempt,
+    incrementalCandidateWork: input.incrementalCandidateWork,
+  })
+}
+
+export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
+  input:
+    | { readonly attempt: VNextTextBlockUnifiedLayoutFallbackAttemptInternalV1 }
+    | {
+        readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+        readonly change: VNextTextBlockUnifiedLayoutChangeV1
+        readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+        readonly mode: VNextTextBlockUnifiedLayoutFallbackModeV1
+        readonly reason: VNextTextBlockUnifiedLayoutFallbackReasonV1
+        readonly skippedOrFailedStage: VNextTextBlockUnifiedLayoutStageV1
+        readonly incrementalCandidateWork:
+          VNextTextBlockIncrementalCandidateWorkV1
+      },
+): VNextTextBlockUnifiedLayoutFallbackRequestResultV1 {
+  if (!("attempt" in input)) {
+    return invalidFallbackAttempt(input.incrementalCandidateWork)
+  }
+  const record = fallbackAttempts.get(input.attempt)
+  if (record == null) {
+    return invalidFallbackAttempt(deepFreeze({
+      source: "vnext-text-block-incremental-candidate-work-v1" as const,
+      contractVersion: 1 as const,
+      changeGateVisitedFieldCount: 0,
+      evidence: { requestCount: 0, requestedAtomCount: 0, requestedClusterCount: 0, consumedAtomCount: 0, consumedClusterCount: 0, unusedCoverageRenderedUtf16Length: 0, visitedEvidenceNodeCount: 0 },
+      flow: { visitedSourceItemCount: 0, visitedFlowAtomCount: 0, visitedFlowTreeNodeCount: 0, reusedFlowTreeNodeCount: 0, createdFlowTreeNodeCount: 0, createdCanonicalPayloadByteCount: 0, completeTreeRebuildCount: 0 as const, completeSemanticPassCount: 0 as const, completeSuffixTraversalCount: 0 as const },
+      spatial: { visitedSpatialIndexNodeCount: 0, createdSpatialIndexNodeCount: 0, spatialQueryBandCount: 0, completeIndexRebuildCount: 0 as const, completeIndexTraversalCount: 0 as const },
+      structuralReuseProof: { selectedExactSubtreeNodeCount: 0, lineTreeWrapperAllocationCount: 0 as const, completeLineTreeTraversalCount: 0 as const },
+      layout: { recomputedLineCount: 0, proofNodeCount: 0, completeSuffixTraversalCount: 0 as const },
+      geometry: { reprojectedLineCount: 0, visitedFragmentCount: 0 },
+      scene: { copiedSceneNodeCount: 0, replacementChunkCount: 0 },
+      deliveryPlan: { deliveryOperationCount: 0, retainCoverNodeCount: 0 },
+      observations: { estimatedCanonicalPayloadByteCount: 0, payloadObservationFingerprint: null },
+      atomicAcceptance: { attemptedRegistrationCount: 0, committedRegistrationCount: 0 },
+      stageWork: [],
+      rootWrapperAllocationCount: 0,
+      completeNextInputTraversalCount: 0 as const,
+      completeNextInputComparisonCount: 0 as const,
+      completeSceneTraversalCount: 0 as const,
+    }))
+  }
+  fallbackAttempts.delete(input.attempt)
+  const facts = {
+    source: "vnext-text-block-unified-layout-fallback-request-v1" as const,
+    contractVersion: 1 as const,
+    mode: record.mode,
+    reason: record.reason,
+    skippedOrFailedStage: record.skippedOrFailedStage,
+    incrementalWorkAttempted: record.mode !== "planned-complete",
+    previousRootFingerprint: record.previousRoot.fingerprint,
+    changeFingerprint: fingerprint(record.change),
+    documentId: record.previousRoot.documentId,
+    sectionId: record.previousRoot.sectionId,
+    textBlockId: record.previousRoot.textBlockId,
+    expectedTargetBinding: record.expectedTargetBinding,
+    workPolicyFingerprint: record.workPolicy.fingerprint,
+    incrementalCandidateWork: record.incrementalCandidateWork,
   }
   const canonicalFacts = stringifyVNextCanonicalJson(facts)
   const request: VNextTextBlockUnifiedLayoutFallbackRequestV1 = deepFreeze({
@@ -356,7 +512,7 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
     textBlockId: request.textBlockId,
   })
   const policies = new WeakSet<VNextTextBlockUnifiedLayoutWorkPolicyV1>()
-  policies.add(input.workPolicy)
+  policies.add(record.workPolicy)
   fallbackPolicies.set(request, policies)
   return Object.freeze({
     status: "fallback-required",
@@ -364,7 +520,7 @@ export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
     persistentScene: null,
     deliveryPlan: null,
     fallbackRequest: request,
-    incrementalCandidateWork: input.incrementalCandidateWork,
+    incrementalCandidateWork: record.incrementalCandidateWork,
     issues: Object.freeze([]) as readonly [],
   })
 }
