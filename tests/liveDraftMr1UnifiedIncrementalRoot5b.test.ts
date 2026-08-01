@@ -4,11 +4,7 @@ import { describe, expect, it } from "vitest"
 import * as publicCore from "../src/index.js"
 import {
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
-  mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
-import {
-  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
-} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
@@ -771,26 +767,20 @@ describe("Phase 5B-1 public foundation gate", () => {
         unifiedLayoutRootBuildInputFixtureV2(),
       )
     if (previousResult.status !== "accepted") throw new Error("Root blocked")
-    const change = noOpUnifiedLayoutChange5b(previousResult.root)
-    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-      previousRoot: previousResult.root,
-      change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-    })
-    if (bound.status !== "accepted") throw new Error("change binding blocked")
     const fabricated =
-      mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
-        validatedChange: bound.validatedChange,
-        previousRoot: previousResult.root,
-        change,
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-        limit: {
-          stage: "source-flow",
-          unit: "source-items",
-          effectiveLimit: 4,
-          attemptedWork: 5,
-        },
-        incrementalCandidateWork: bound.incrementalCandidateWork,
+      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+        attempt: Object.freeze({
+          previousRoot: previousResult.root,
+          change: noOpUnifiedLayoutChange5b(previousResult.root),
+          workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+          reason: {
+            code: "stage-unit-limit-exceeded",
+            stage: "source-flow",
+            unit: "source-items",
+            effectiveLimit: 4,
+            attemptedWork: 5,
+          },
+        }),
       })
     expect(fabricated).toMatchObject({
       status: "blocked",

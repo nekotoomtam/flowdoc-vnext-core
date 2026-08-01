@@ -25,12 +25,10 @@ import {
   createVNextTextBlockReuseProofFailureAuthorityInternalV1,
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
   inspectVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
-  mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1,
   setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
-  composeVNextTextBlockStageWorkLedgerInternalV1,
-  evaluateVNextTextBlockStageWorkLimitInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
@@ -43,7 +41,6 @@ import {
 import {
   inspectVNextTextBlockUnifiedLayoutSourceStateV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1,
-  setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
@@ -51,8 +48,12 @@ import {
   createVNextTextBlockTransitionProducerRuntimeIdentityInternalV1,
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
+  evaluateNextVNextTextBlockStageVisitInternalV1,
+  getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
+  getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1,
   inspectVNextTextBlockUnifiedLayoutTransitionEvidenceInternalV1,
   inspectVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1,
+  setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   inspectVNextTextBlockUnifiedSpatialStateV1,
@@ -151,6 +152,28 @@ function imagePaintChange(
   })
 }
 
+function identityImagePaintChange(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): VNextTextBlockUnifiedLayoutChangeV1 {
+  const lookup = lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1({
+    sourceState: root.sourceState,
+    renderedUtf16Offset: 1,
+  })
+  if (lookup.status !== "found" || lookup.item.kind !== "inline-image") {
+    throw new Error("image fixture source item missing")
+  }
+  return deepFreeze({
+    ...changeBase(root),
+    kind: "image-paint-fact-change" as const,
+    inlineId: lookup.item.inlineId,
+    expectedImageSourceFingerprint: lookup.item.sourceFingerprint,
+    expectedImageDependencyFingerprint:
+      lookup.item.layoutDependencyFingerprint,
+    nextFit: lookup.item.authoredFrame.fit,
+    nextCrop: lookup.item.authoredFrame.crop ?? null,
+  })
+}
+
 function resolvedFieldChange(
   root: VNextTextBlockUnifiedLayoutRootV2,
 ): VNextTextBlockUnifiedLayoutChangeV1 {
@@ -184,65 +207,62 @@ function makeFallbackAttempt(
   const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
     previousRoot: root,
     change,
-    workPolicy: ROOT_V2_TEST_WORK_POLICY,
+    workPolicy:
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
   })
   if (bound.status !== "accepted") {
     throw new Error(`change binding blocked: ${JSON.stringify(bound.issues)}`)
   }
-  const attemptedWork = 5
-  const incrementalCandidateWork = deepFreeze({
-    ...bound.incrementalCandidateWork,
-    flow: {
-      ...bound.incrementalCandidateWork.flow,
-      visitedSourceItemCount: attemptedWork,
-    },
-    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
-      policy: ROOT_V2_TEST_WORK_POLICY,
-      factualCounts: [{
-        stage: "source-flow" as const,
-        unit: "source-items" as const,
-        count: attemptedWork,
-      }],
-    }),
+  setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
+    stage: "structural-reuse-proof",
+    unit: "line-tree-lookup-nodes",
+    effectiveLimit: 0,
   })
-  const limit = evaluateVNextTextBlockStageWorkLimitInternalV1({
-    policy: ROOT_V2_TEST_WORK_POLICY,
-    stage: "source-flow",
-    unit: "source-items",
-    previousSummaryBase: root.sourceState.summary.itemCount,
-    exactValidatedChangeDelta: 1,
-    attemptedWork,
-  })
-  if (limit.status !== "limit-exceeded") {
-    throw new Error("test fixture must exceed the active source-item limit")
+  try {
+    const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
+      validatedChange: bound.validatedChange,
+      stage: "structural-reuse-proof",
+      unit: "line-tree-lookup-nodes",
+      completedWork: 0,
+      completedCandidateWork: bound.incrementalCandidateWork,
+    })
+    if (evaluation.status !== "limit-exceeded") {
+      throw new Error("exact evaluator limit authority missing")
+    }
+    return { bound, evaluation }
+  } finally {
+    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
   }
-  const minted = mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
-    validatedChange: bound.validatedChange,
-    previousRoot: root,
-    change,
-    workPolicy: ROOT_V2_TEST_WORK_POLICY,
-    limit: deepFreeze({
-      stage: "source-flow" as const,
-      unit: "source-items" as const,
-      effectiveLimit: limit.effectiveLimit,
-      attemptedWork,
-    }),
-    incrementalCandidateWork,
-  })
-  if (minted.status !== "minted") {
-    throw new Error(`fallback attempt blocked: ${JSON.stringify(minted.issues)}`)
-  }
-  return minted
 }
 
 function makeFallback(
   root: VNextTextBlockUnifiedLayoutRootV2,
   change: VNextTextBlockUnifiedLayoutChangeV1,
 ) {
-  const minted = makeFallbackAttempt(root, change)
+  const evaluated = makeFallbackAttempt(root, change)
   return createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-    attempt: minted.attempt,
+    attempt: evaluated.evaluation.evaluatorAuthority,
   })
+}
+
+function acceptedUnifiedLayoutRootFixtureV3(
+  options: Parameters<typeof unifiedLayoutRootBuildInputFixtureV2>[0] = {},
+) {
+  const result = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2(options),
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  )
+  if (result.status !== "accepted") {
+    throw new Error(`V3 Root blocked: ${JSON.stringify(result.issues)}`)
+  }
+  return result
+}
+
+function exactEvaluatorLimitFixture() {
+  const previous = acceptedUnifiedLayoutRootFixtureV3({ fit: "contain" })
+  const change = imagePaintChange(previous.root)
+  const evaluated = makeFallbackAttempt(previous.root, change)
+  return { previous, change, ...evaluated }
 }
 
 const runtimeFacts = {
@@ -435,198 +455,123 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
     })
   })
 
-  it("rejects cloned and cross-bound validated-change authority", () => {
-    const first = acceptedUnifiedLayoutRootFixtureV2()
-    const second = acceptedUnifiedLayoutRootFixtureV2({
-      documentId: "document-2",
-    })
-    const change = noOpChange(first.root)
-    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-      previousRoot: first.root,
-      change,
-      workPolicy: ROOT_V2_TEST_WORK_POLICY,
-    })
-    expect(bound.status).toBe("accepted")
-    if (bound.status !== "accepted") return
-    const attemptedWork = 5
-    const incrementalCandidateWork = deepFreeze({
-      ...bound.incrementalCandidateWork,
-      flow: {
-        ...bound.incrementalCandidateWork.flow,
-        visitedSourceItemCount: attemptedWork,
-      },
-      stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
-        policy: ROOT_V2_TEST_WORK_POLICY,
-        factualCounts: [{
-          stage: "source-flow" as const,
-          unit: "source-items" as const,
-          count: attemptedWork,
-        }],
-      }),
-    })
-    const reason = deepFreeze({
-      code: "stage-unit-limit-exceeded" as const,
-      stage: "source-flow" as const,
-      unit: "source-items" as const,
-      effectiveLimit: 4,
-      attemptedWork,
-    })
-    const mint = (overrides: Partial<Parameters<
-      typeof mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
-    >[0]> = {}) => mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
-      validatedChange: bound.validatedChange,
-      previousRoot: first.root,
-      change,
-      workPolicy: ROOT_V2_TEST_WORK_POLICY,
-      limit: {
-        stage: reason.stage,
-        unit: reason.unit,
-        effectiveLimit: reason.effectiveLimit,
-        attemptedWork: reason.attemptedWork,
-      },
-      incrementalCandidateWork,
-      ...overrides,
-    })
-
-    expect(mint().status).toBe("minted")
-    expect(mint({
-      validatedChange: structuredClone(bound.validatedChange),
-    })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "fallback-request-authority-mismatch" }],
-    })
-    expect(mint({ previousRoot: second.root })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "fallback-request-authority-mismatch" }],
-    })
-    expect(mint({
-      workPolicy: structuredClone(ROOT_V2_TEST_WORK_POLICY),
-    })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "fallback-request-authority-mismatch" }],
-    })
-    expect(mint({ change: noOpChange(first.root) })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "fallback-request-authority-mismatch" }],
-    })
-  })
-
-  it("reuses exact validated-change authority without binding or source lookup again", () => {
-    const previous = acceptedUnifiedLayoutRootFixtureV2({ fit: "contain" })
-    const change = imagePaintChange(previous.root)
-    let visitedSourceLookupNodeCount = 0
-    setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
-      () => {
-        visitedSourceLookupNodeCount += 1
-      },
+  it("derives one limit fallback only from the exact evaluator authority", () => {
+    const fixture = exactEvaluatorLimitFixture()
+    const clonedAuthority = structuredClone(
+      fixture.evaluation.evaluatorAuthority,
     )
-    try {
-      const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
-        previousRoot: previous.root,
-        change,
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
-      })
-      expect(bound.status).toBe("accepted")
-      if (bound.status !== "accepted") return
-      const visitsAfterBinding = visitedSourceLookupNodeCount
-      expect(visitsAfterBinding).toBeGreaterThan(0)
 
-      const attemptedWork = 5
-      const incrementalCandidateWork = deepFreeze({
-        ...bound.incrementalCandidateWork,
-        flow: {
-          ...bound.incrementalCandidateWork.flow,
-          visitedSourceItemCount: attemptedWork,
+    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: clonedAuthority as never,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+
+    const issued =
+      createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+        attempt: fixture.evaluation.evaluatorAuthority as never,
+      })
+    expect(issued).toMatchObject({
+      status: "fallback-required",
+      fallbackRequest: {
+        mode: "deterministic-work-limit-exceeded",
+        reason: {
+          code: "stage-unit-limit-exceeded",
+          stage: "structural-reuse-proof",
+          unit: "line-tree-lookup-nodes",
+          effectiveLimit: 0,
+          attemptedWork: 1,
         },
-        stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
-          policy: ROOT_V2_TEST_WORK_POLICY,
-          factualCounts: [{
-            stage: "source-flow" as const,
-            unit: "source-items" as const,
-            count: attemptedWork,
-          }],
-        }),
-      })
-      const limit = evaluateVNextTextBlockStageWorkLimitInternalV1({
-        policy: ROOT_V2_TEST_WORK_POLICY,
-        stage: "source-flow",
-        unit: "source-items",
-        previousSummaryBase: previous.root.sourceState.summary.itemCount,
-        exactValidatedChangeDelta: 1,
-        attemptedWork,
-      })
-      expect(limit.status).toBe("limit-exceeded")
-      if (limit.status !== "limit-exceeded") return
+        skippedOrFailedStage: "structural-reuse-proof",
+        expectedTargetBinding:
+          fixture.bound.validatedChange.expectedTargetBinding,
+        workPolicyFingerprint:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+            .fingerprint,
+      },
+      incrementalCandidateWork: fixture.bound.incrementalCandidateWork,
+    })
+    if (issued.status !== "fallback-required") return
+    expect(issued.incrementalCandidateWork)
+      .toBe(fixture.bound.incrementalCandidateWork)
+    expect(issued.incrementalCandidateWork.stageWork).toHaveLength(21)
+    expect(issued.incrementalCandidateWork.stageWork.find((row) =>
+      row.stage === "structural-reuse-proof"
+      && row.unit === "line-tree-lookup-nodes"
+    )?.count).toBe(0)
+    expect(reaches(issued, fixture.previous.root)).toBe(false)
 
-      const minted = mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
-        validatedChange: bound.validatedChange,
-        previousRoot: previous.root,
-        change,
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
-        limit: deepFreeze({
-          stage: "source-flow" as const,
-          unit: "source-items" as const,
-          effectiveLimit: limit.effectiveLimit,
-          attemptedWork,
-        }),
-        incrementalCandidateWork,
-      })
-      expect(minted.status).toBe("minted")
-      expect(visitedSourceLookupNodeCount).toBe(visitsAfterBinding)
-    } finally {
-      setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
-        null,
-      )
-    }
+    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: fixture.evaluation.evaluatorAuthority as never,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
   })
 
-  it("consumes one exact private fallback attempt and records factual limit work", () => {
-    const previous = acceptedUnifiedLayoutRootFixtureV2()
-    const minted = makeFallbackAttempt(previous.root, noOpChange(previous.root))
-    const clonedAttempt = structuredClone(minted.attempt)
-
-    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-      attempt: clonedAttempt as never,
-    })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "fallback-request-authority-mismatch" }],
-    })
-
-    const issued = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-      attempt: minted.attempt,
-    })
-    expect(issued.status).toBe("fallback-required")
-    if (issued.status !== "fallback-required") return
-    const reason = issued.fallbackRequest.reason
-    if (reason.code !== "stage-unit-limit-exceeded") {
-      throw new Error("expected limit fallback reason")
+  it("rejects raw, modified, prebinding, source-row, and foreign envelopes closed", () => {
+    const fixture = exactEvaluatorLimitFixture()
+    const sourceItemAuthority =
+      getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(
+        fixture.bound.validatedChange,
+      )
+    const sourceVisitGuard =
+      getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1(
+        fixture.bound.validatedChange,
+      )
+    const modified = {
+      ...structuredClone(fixture.evaluation.evaluatorAuthority),
+      stage: "scene",
     }
-    const matchingRows = issued.incrementalCandidateWork.stageWork.filter((row) =>
-      row.stage === reason.stage
-      && row.unit === reason.unit
-      && row.count === reason.attemptedWork
-    )
-    expect(matchingRows).toHaveLength(1)
-    expect(issued.incrementalCandidateWork.stageWork).toHaveLength(14)
-    expect(issued.incrementalCandidateWork.stageWork.map(
-      ({ stage, unit }) => ({ stage, unit }),
-    )).toEqual(ROOT_V2_TEST_WORK_POLICY.stages.map(
-      ({ stage, unit }) => ({ stage, unit }),
-    ))
-    expect(issued.fallbackRequest).not.toHaveProperty("attempt")
-    expect(issued.fallbackRequest).not.toHaveProperty("previousRoot")
-    expect(reaches(issued, previous.root)).toBe(false)
+    const foreignEnvelope = {
+      evaluatorAuthority: fixture.evaluation.evaluatorAuthority,
+      previousRoot: structuredClone(fixture.previous.root),
+      change: structuredClone(fixture.change),
+      workPolicy: structuredClone(
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      ),
+    }
+    const invalidAttempts = [
+      Object.freeze({
+        code: "stage-unit-limit-exceeded",
+        stage: "structural-reuse-proof",
+        unit: "line-tree-lookup-nodes",
+        effectiveLimit: 0,
+        attemptedWork: 1,
+      }),
+      fixture.bound.validatedChange,
+      sourceItemAuthority,
+      sourceVisitGuard,
+      modified,
+      foreignEnvelope,
+    ]
+
+    for (const attempt of invalidAttempts) {
+      const rejected =
+        createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({ attempt })
+      expect(rejected).toMatchObject({
+        status: "blocked",
+        issues: [{ code: "fallback-request-authority-mismatch" }],
+        incrementalCandidateWork: {
+          completeNextInputTraversalCount: 0,
+          completeNextInputComparisonCount: 0,
+          completeSceneTraversalCount: 0,
+        },
+      })
+      expect(rejected.incrementalCandidateWork.stageWork.every(
+        (row) => row.count === 0,
+      )).toBe(true)
+    }
+
     expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-      attempt: minted.attempt,
-    })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "fallback-request-authority-mismatch" }],
-    })
+      attempt: fixture.evaluation.evaluatorAuthority,
+    }).status).toBe("fallback-required")
   })
 
   it("returns a scalar-only request, then accepts independently supplied complete material", () => {
-    const previous = acceptedUnifiedLayoutRootFixtureV2()
-    const change = noOpChange(previous.root)
+    const previous = acceptedUnifiedLayoutRootFixtureV3()
+    const change = identityImagePaintChange(previous.root)
     const attempt = makeFallback(previous.root, change)
 
     expect(attempt).toMatchObject({
@@ -654,7 +599,8 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
         request: attempt.fallbackRequest,
         completeMaterial: unifiedLayoutRootBuildInputFixtureV2(),
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        workPolicy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
       })
 
     expect(completed).toMatchObject({
@@ -706,14 +652,14 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       const material = unifiedLayoutRootBuildInputFixtureV2()
       const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
         material,
-        ROOT_V2_TEST_WORK_POLICY,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
       )
       if (previous.status !== "accepted") {
         throw new Error(`bootstrap blocked: ${JSON.stringify(previous.issues)}`)
       }
       const attempt = makeFallback(
         previous.root,
-        noOpChange(previous.root),
+        identityImagePaintChange(previous.root),
       )
       if (attempt.status !== "fallback-required") {
         throw new Error("expected fallback request")
@@ -722,7 +668,8 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
         completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
           request: attempt.fallbackRequest,
           completeMaterial: material,
-          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+          workPolicy:
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
         })
       expect(completed.status).toBe("accepted-complete-fallback")
       expect(observed).toEqual([
@@ -737,10 +684,10 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
   })
 
   it("never exposes a partial complete-fallback candidate", () => {
-    const previous = acceptedUnifiedLayoutRootFixtureV2()
+    const previous = acceptedUnifiedLayoutRootFixtureV3()
     const attempt = makeFallback(
       previous.root,
-      noOpChange(previous.root),
+      identityImagePaintChange(previous.root),
     )
     if (attempt.status !== "fallback-required") {
       throw new Error("expected fallback request")
@@ -759,7 +706,8 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
         request: attempt.fallbackRequest,
         completeMaterial: partialMaterial as never,
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        workPolicy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
       })).toMatchObject({
         status: "blocked",
         root: null,
@@ -775,7 +723,8 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
         completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
           request: attempt.fallbackRequest,
           completeMaterial,
-          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+          workPolicy:
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
         })
       expect(completed.status).toBe("accepted-complete-fallback")
       expect(observed).toHaveLength(1)
@@ -789,7 +738,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
   })
 
   it("matches every target-binding field for a paint-only fallback", () => {
-    const previous = acceptedUnifiedLayoutRootFixtureV2()
+    const previous = acceptedUnifiedLayoutRootFixtureV3()
     const change = imagePaintChange(previous.root)
     const attempt = makeFallback(previous.root, change)
     if (attempt.status !== "fallback-required") {
@@ -803,7 +752,8 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
           fit: "cover",
           crop: { x: 0.1, y: 0.2, width: 0.7, height: 0.6 },
         }),
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        workPolicy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
       })
 
     expect(completed.status).toBe("accepted-complete-fallback")
@@ -814,7 +764,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
   })
 
   it("discards an independently prepared target mismatch without registering any graph node", () => {
-    const previous = acceptedUnifiedLayoutRootFixtureV2()
+    const previous = acceptedUnifiedLayoutRootFixtureV3()
     const attempt = makeFallback(
       previous.root,
       imagePaintChange(previous.root),
@@ -835,7 +785,8 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
         completeMaterial: unifiedLayoutRootBuildInputFixtureV2({
           fit: "contain",
         }),
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        workPolicy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
       })
     setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
       null,
@@ -875,9 +826,10 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
           fit: "cover",
           crop: { x: 0.1, y: 0.2, width: 0.7, height: 0.6 },
         }),
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        workPolicy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
       })
-    const independent = acceptedUnifiedLayoutRootFixtureV2({
+    const independent = acceptedUnifiedLayoutRootFixtureV3({
       fit: "cover",
       crop: { x: 0.1, y: 0.2, width: 0.7, height: 0.6 },
     })
@@ -895,18 +847,24 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
   })
 
   it("blocks cloned requests and cloned policies closed", () => {
-    const previous = acceptedUnifiedLayoutRootFixtureV2()
-    const attempt = makeFallback(previous.root, noOpChange(previous.root))
+    const previous = acceptedUnifiedLayoutRootFixtureV3()
+    const attempt = makeFallback(
+      previous.root,
+      identityImagePaintChange(previous.root),
+    )
     if (attempt.status !== "fallback-required") {
       throw new Error("expected fallback request")
     }
     const clonedRequest = structuredClone(attempt.fallbackRequest)
-    const clonedPolicy = structuredClone(ROOT_V2_TEST_WORK_POLICY)
+    const clonedPolicy = structuredClone(
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    )
 
     expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
       request: clonedRequest,
       completeMaterial: unifiedLayoutRootBuildInputFixtureV2(),
-      workPolicy: ROOT_V2_TEST_WORK_POLICY,
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
     })).toMatchObject({
       status: "blocked",
       issues: [{ code: "fallback-request-authority-mismatch" }],

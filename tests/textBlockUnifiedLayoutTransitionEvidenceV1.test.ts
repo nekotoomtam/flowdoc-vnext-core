@@ -545,10 +545,19 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
     expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
       attempt: exceeded.evaluatorAuthority as never,
     })).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "fallback-request-authority-mismatch" }],
+      status: "fallback-required",
+      fallbackRequest: {
+        mode: "deterministic-work-limit-exceeded",
+        reason: {
+          code: "stage-unit-limit-exceeded",
+          stage: "scene",
+          unit: "copied-scene-nodes",
+          effectiveLimit: 2,
+          attemptedWork: 3,
+        },
+      },
+      incrementalCandidateWork: atLimit,
     })
-    expect(boundary.consume(exceeded.evaluatorAuthority)).toBe(record)
     expect(boundary.consume(exceeded.evaluatorAuthority)).toBeNull()
     expect(boundary.getRecord(exceeded.evaluatorAuthority)).toBeNull()
   })

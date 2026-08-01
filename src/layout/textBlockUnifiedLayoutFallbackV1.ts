@@ -1,8 +1,5 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
-import type {
-  VNextTextBlockUnifiedLayoutChangeV1,
-} from "./textBlockUnifiedLayoutChangeContractV1.js"
 import {
   consumeVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2,
   getVNextTextBlockSceneDeliveryRetainProofFailureRecordInternalV2,
@@ -24,6 +21,7 @@ import {
   createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1,
 } from "./textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
 import {
+  consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
   getVNextTextBlockValidatedChangeAuthorityRecordInternalV1,
   type VNextTextBlockValidatedChangeAuthorityRecordInternalV1,
@@ -41,13 +39,10 @@ import type {
   VNextTextBlockUnifiedLayoutFallbackRequestV1,
   VNextTextBlockUnifiedLayoutIssueV1,
   VNextTextBlockReuseProofFailureAuthorityInternalV1,
-  VNextTextBlockUnifiedLayoutStageUnitV1,
   VNextTextBlockUnifiedLayoutStageV1,
   VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
-  evaluateVNextTextBlockStageWorkLimitInternalV1,
-  previousVNextTextBlockStageSummaryBaseInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -121,111 +116,6 @@ function issue(
   message: string,
 ): VNextTextBlockUnifiedLayoutIssueV1 {
   return { code, severity: "error", stage, path, message }
-}
-
-const stages = new Set<VNextTextBlockUnifiedLayoutStageV1>([
-  "change-gate",
-  "evidence",
-  "source-flow",
-  "spatial-index",
-  "structural-reuse-proof",
-  "layout-reconvergence",
-  "geometry",
-  "scene",
-  "delivery-plan",
-  "atomic-acceptance",
-])
-const proofStages = new Set<VNextTextBlockUnifiedLayoutStageV1>([
-  "source-flow",
-  "spatial-index",
-  "structural-reuse-proof",
-  "layout-reconvergence",
-  "geometry",
-  "scene",
-  "delivery-plan",
-])
-const stageUnits = new Set<VNextTextBlockUnifiedLayoutStageUnitV1>([
-  "source-items",
-  "flow-atoms",
-  "flow-tree-nodes",
-  "spatial-index-nodes",
-  "spatial-query-bands",
-  "selected-exact-subtree-nodes",
-  "recomputed-lines",
-  "proof-nodes",
-  "reprojected-lines",
-  "visited-fragments",
-  "copied-scene-nodes",
-  "replacement-chunks",
-  "delivery-operations",
-  "retain-cover-nodes",
-])
-const proofs = new Set([
-  "source-binding",
-  "flow-path-copy",
-  "spatial-path-copy",
-  "exact",
-  "translated",
-  "retain-cover",
-])
-
-function safeNonNegativeInteger(value: unknown): value is number {
-  return Number.isSafeInteger(value) && (value as number) >= 0
-}
-
-function validatedReason(
-  value: unknown,
-): VNextTextBlockUnifiedLayoutFallbackReasonV1 | null {
-  const head = exactRecord(value, ["code", "policyFact"])
-  if (
-    head?.code === "allowlisted-whole-block-spatial-impact"
-    && head.policyFact === "authored-box-width-or-inset"
-  ) {
-    return deepFreeze({
-      code: head.code,
-      policyFact: head.policyFact,
-    })
-  }
-  const proof = exactRecord(value, ["code", "stage", "proof"])
-  if (
-    proof?.code === "bounded-reuse-proof-unavailable"
-    && typeof proof.stage === "string"
-    && proofStages.has(proof.stage as VNextTextBlockUnifiedLayoutStageV1)
-    && typeof proof.proof === "string"
-    && proofs.has(proof.proof)
-  ) {
-    return deepFreeze({
-      code: proof.code,
-      stage: proof.stage,
-      proof: proof.proof,
-    } as VNextTextBlockUnifiedLayoutFallbackReasonV1)
-  }
-  const limit = exactRecord(value, [
-    "code",
-    "stage",
-    "unit",
-    "effectiveLimit",
-    "attemptedWork",
-  ])
-  if (
-    limit?.code === "stage-unit-limit-exceeded"
-    && typeof limit.stage === "string"
-    && stages.has(limit.stage as VNextTextBlockUnifiedLayoutStageV1)
-    && typeof limit.unit === "string"
-    && stageUnits.has(limit.unit as VNextTextBlockUnifiedLayoutStageUnitV1)
-    && safeNonNegativeInteger(limit.effectiveLimit)
-    && safeNonNegativeInteger(limit.attemptedWork)
-    && limit.attemptedWork > limit.effectiveLimit
-  ) {
-    return deepFreeze({
-      code: limit.code,
-      stage: limit.stage,
-      unit: limit.unit,
-      effectiveLimit: limit.effectiveLimit,
-      attemptedWork: limit.attemptedWork,
-    } as VNextTextBlockUnifiedLayoutFallbackReasonV1)
-  }
-  return null
 }
 
 function modeMatchesReason(
@@ -313,10 +203,6 @@ interface FallbackAttemptRecord {
   readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
 }
 
-export interface VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1 {
-  readonly __limitFallbackAttemptOpaque: never
-}
-
 const fallbackAttempts = new WeakMap<
   object,
   FallbackAttemptRecord
@@ -393,142 +279,63 @@ function invalidFallbackAttempt(
   })
 }
 
-function limitReasonMatchesAttempt(
-  root: VNextTextBlockUnifiedLayoutRootV2,
-  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
-  reason: Extract<
-    VNextTextBlockUnifiedLayoutFallbackReasonV1,
-    { readonly code: "stage-unit-limit-exceeded" }
-  >,
-  work: VNextTextBlockIncrementalCandidateWorkV1,
-): boolean {
-  const matchingRows = work.stageWork.filter((item) =>
-    item.stage === reason.stage
-    && item.unit === reason.unit
-    && item.count === reason.attemptedWork
-  )
-  if (matchingRows.length !== 1) return false
-  const evaluation = evaluateVNextTextBlockStageWorkLimitInternalV1({
-    policy,
-    stage: reason.stage,
-    unit: reason.unit,
-    previousSummaryBase: previousVNextTextBlockStageSummaryBaseInternalV1({
-      previousRoot: root,
-      unit: reason.unit,
-    }),
-    // The active 5B-1 change contract has one exact bound change delta.
-    exactValidatedChangeDelta: 1,
-    attemptedWork: reason.attemptedWork,
-  })
-  return evaluation.status === "limit-exceeded"
-    && evaluation.effectiveLimit === reason.effectiveLimit
-    && evaluation.attemptedWork === reason.attemptedWork
-}
-
-export function mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1(
-  input: {
-    readonly validatedChange: VNextTextBlockValidatedChangeV1
-    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
-    readonly change: VNextTextBlockUnifiedLayoutChangeV1
-    readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
-    readonly limit: {
-      readonly stage: VNextTextBlockUnifiedLayoutStageV1
-      readonly unit: VNextTextBlockUnifiedLayoutStageUnitV1
-      readonly effectiveLimit: number
-      readonly attemptedWork: number
-    }
-    readonly incrementalCandidateWork:
-      VNextTextBlockIncrementalCandidateWorkV1
-  },
-):
-  | {
-      readonly status: "minted"
-      readonly attempt:
-        VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
-      readonly incrementalCandidateWork:
-        VNextTextBlockIncrementalCandidateWorkV1
-    }
-  | VNextTextBlockUnifiedLayoutBlockedStageV1 {
-  const validatedChangeAuthority =
-    getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
-      input.validatedChange,
-    )
-  if (
-    validatedChangeAuthority == null
-    || validatedChangeAuthority.previousRoot !== input.previousRoot
-    || validatedChangeAuthority.workPolicy !== input.workPolicy
-    || validatedChangeAuthority.originalChange !== input.change
-    || validatedChangeAuthority.validatedChange !== input.validatedChange
-    || validatedChangeAuthority.expectedTargetBinding
-      !== input.validatedChange.expectedTargetBinding
-  ) {
-    return invalidFallbackAttempt(
-      validatedChangeAuthority?.bindingWork
-        ?? createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(),
-    )
-  }
-  const reason = validatedReason({
-    code: "stage-unit-limit-exceeded",
-    ...input.limit,
-  })
-  if (
-    reason == null
-    || reason.code !== "stage-unit-limit-exceeded"
-    || !boundedCandidateWork(input.incrementalCandidateWork)
-    || !limitReasonMatchesAttempt(
-      input.previousRoot,
-      input.workPolicy,
-      reason,
-      input.incrementalCandidateWork,
-    )
-  ) {
-    return invalidFallbackAttempt(validatedChangeAuthority.bindingWork)
-  }
-  const attempt = deepFreeze({}) as unknown as
-    VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
-  fallbackAttempts.set(attempt, {
-    validatedChangeAuthority,
-    mode: "deterministic-work-limit-exceeded",
-    reason,
-    skippedOrFailedStage: reason.stage,
-    incrementalCandidateWork: input.incrementalCandidateWork,
-    expectedTargetBinding: validatedChangeAuthority.expectedTargetBinding,
-  })
-  return Object.freeze({
-    status: "minted" as const,
-    attempt,
-    incrementalCandidateWork: input.incrementalCandidateWork,
-  })
-}
-
 export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1(
-  input:
-    | {
-        readonly attempt:
-          | VNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1
-          | VNextTextBlockReuseProofFailureAuthorityInternalV1
-      }
-    | {
-        readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
-        readonly change: VNextTextBlockUnifiedLayoutChangeV1
-        readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
-        readonly mode: VNextTextBlockUnifiedLayoutFallbackModeV1
-        readonly reason: VNextTextBlockUnifiedLayoutFallbackReasonV1
-        readonly skippedOrFailedStage: VNextTextBlockUnifiedLayoutStageV1
-        readonly incrementalCandidateWork:
-          VNextTextBlockIncrementalCandidateWorkV1
-      },
+  input: {
+    readonly attempt: unknown
+  },
 ): VNextTextBlockUnifiedLayoutFallbackRequestResultV1 {
-  if (!("attempt" in input)) {
-    return invalidFallbackAttempt(input.incrementalCandidateWork)
+  const exactAttempt = input.attempt != null && typeof input.attempt === "object"
+    ? input.attempt
+    : null
+  let record = exactAttempt == null
+    ? undefined
+    : fallbackAttempts.get(exactAttempt)
+  if (record != null) {
+    fallbackAttempts.delete(exactAttempt!)
+  } else {
+    const evaluator =
+      consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+        input.attempt,
+      )
+    const validated = evaluator?.validatedChangeAuthority
+    if (
+      evaluator == null
+      || validated == null
+      || getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
+        evaluator.validatedChange,
+      ) !== validated
+      || evaluator.previousRoot !== validated.previousRoot
+      || evaluator.originalChange !== validated.originalChange
+      || evaluator.workPolicy !== validated.workPolicy
+      || evaluator.validatedChange !== validated.validatedChange
+      || evaluator.completedCandidateWork.stageWork
+        !== evaluator.canonicalStageWork
+      || !boundedCandidateWork(evaluator.completedCandidateWork)
+    ) {
+      return invalidFallbackAttempt(
+        createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(),
+      )
+    }
+    record = {
+      validatedChangeAuthority: validated,
+      mode: "deterministic-work-limit-exceeded",
+      reason: Object.freeze({
+        code: "stage-unit-limit-exceeded",
+        stage: evaluator.stage,
+        unit: evaluator.unit,
+        effectiveLimit: evaluator.effectiveLimit,
+        attemptedWork: evaluator.attemptedWork,
+      }),
+      skippedOrFailedStage: evaluator.stage,
+      incrementalCandidateWork: evaluator.completedCandidateWork,
+      expectedTargetBinding: validated.expectedTargetBinding,
+    }
   }
-  const record = fallbackAttempts.get(input.attempt)
   if (record == null) {
     return invalidFallbackAttempt(
       createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(),
     )
   }
-  fallbackAttempts.delete(input.attempt)
   const authority = record.validatedChangeAuthority
   const facts = {
     source: "vnext-text-block-unified-layout-fallback-request-v1" as const,

@@ -20,7 +20,6 @@ import type {
 import {
   createVNextTextBlockReuseProofFailureAuthorityInternalV1,
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
-  mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1,
 } from "./textBlockUnifiedLayoutFallbackV1.js"
 import {
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
@@ -44,7 +43,6 @@ import type {
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
-  consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
   getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
   getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1,
@@ -571,39 +569,19 @@ function acceptedNoOpAfterWorkLimit(
   dispositions: VNextTextBlockLineDispositionCoverV1,
   work: VNextTextBlockIncrementalCandidateWorkV1,
 ): VNextTextBlockUnifiedLayoutTransitionResultV1 {
-  if (
-    workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
-  ) {
-    const audit = auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1({
-      previousRoot: root,
-      workPolicy,
-      completedCandidateWork: work,
-    })
-    return audit.status === "valid"
-      ? acceptedNoOp(root, dispositions, work)
-      : blockedResult(work, [issue(
-          "previous-root-authority-mismatch",
-          audit.stage,
-          audit.unit,
-          "V3 final work audit found operation work not stopped by its owner",
-        )])
-  }
-  const failure = workLimitFailure(root, workPolicy, work)
-  if (failure == null) return acceptedNoOp(root, dispositions, work)
-  const code = failure.kind === "limit-exceeded"
-    ? "deterministic-work-limit-exceeded"
-    : failure.kind === "invalid-policy"
-      ? "invalid-work-policy"
-      : failure.kind === "prelock-stage"
-        ? "prelock-work-policy-stage"
-        : "inactive-work-policy-stage"
-  return blockedResult(work, [issue(
-    code,
-    failure.stage,
-    failure.unit,
-    `work policy does not accept ${failure.stage}/${failure.unit}`,
-  )])
+  const audit = auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1({
+    previousRoot: root,
+    workPolicy,
+    completedCandidateWork: work,
+  })
+  return audit.status === "valid"
+    ? acceptedNoOp(root, dispositions, work)
+    : blockedResult(work, [issue(
+        "previous-root-authority-mismatch",
+        audit.stage,
+        audit.unit,
+        "final work audit found operation work not stopped by its owner",
+      )])
 }
 
 export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
@@ -676,45 +654,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         : undefined,
     )
   if (structuralReuseProof.status === "limit-exceeded") {
-    const exactLimit =
-      consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1(
-        structuralReuseProof.evaluatorAuthority,
-      )
-    if (
-      exactLimit == null
-      || exactLimit.validatedChange !== bound.validatedChange
-      || exactLimit.completedCandidateWork
-        !== structuralReuseProof.completedCandidateWork
-    ) {
-      return blockedResult(
-        structuralReuseProof.completedCandidateWork,
-        [issue(
-          "previous-root-authority-mismatch",
-          "structural-reuse-proof",
-          "evaluatorAuthority",
-          "line-cover limit did not retain its exact evaluator authority",
-        )],
-      )
-    }
-    const attempt =
-      mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
-        validatedChange: bound.validatedChange,
-        previousRoot: input.previousRoot,
-        change: input.change,
-        workPolicy: input.workPolicy,
-        limit: {
-          stage: exactLimit.stage,
-          unit: exactLimit.unit,
-          effectiveLimit: exactLimit.effectiveLimit,
-          attemptedWork: exactLimit.attemptedWork,
-        },
-        incrementalCandidateWork: exactLimit.completedCandidateWork,
-      })
-    if (attempt.status !== "minted") {
-      return blockedResult(attempt.incrementalCandidateWork, attempt.issues)
-    }
     const fallback = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-      attempt: attempt.attempt,
+      attempt: structuralReuseProof.evaluatorAuthority,
     })
     if (fallback.status !== "fallback-required") {
       return blockedResult(
@@ -895,41 +836,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         : {}),
     })
   if (scene.status === "limit-exceeded") {
-    const exactLimit =
-      consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1(
-        scene.evaluatorAuthority!,
-      )
-    if (
-      exactLimit == null
-      || exactLimit.validatedChange !== bound.validatedChange
-      || exactLimit.completedCandidateWork !== scene.completedCandidateWork
-    ) {
-      return blockedResult(scene.completedCandidateWork, [issue(
-        "previous-root-authority-mismatch",
-        "scene",
-        "evaluatorAuthority",
-        "Scene/Delivery limit lost its exact evaluator authority",
-      )])
-    }
-    const attempt =
-      mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
-        validatedChange: bound.validatedChange,
-        previousRoot: input.previousRoot,
-        change: input.change,
-        workPolicy: input.workPolicy,
-        limit: {
-          stage: exactLimit.stage,
-          unit: exactLimit.unit,
-          effectiveLimit: exactLimit.effectiveLimit,
-          attemptedWork: exactLimit.attemptedWork,
-        },
-        incrementalCandidateWork: exactLimit.completedCandidateWork,
-      })
-    if (attempt.status !== "minted") {
-      return blockedResult(attempt.incrementalCandidateWork, attempt.issues)
-    }
     const fallback = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-      attempt: attempt.attempt,
+      attempt: scene.evaluatorAuthority!,
     })
     if (fallback.status !== "fallback-required") {
       return blockedResult(fallback.incrementalCandidateWork, fallback.issues)
@@ -1060,82 +968,18 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       preserveOwnedTransitionWork: hasOwnedSceneAndDeliveryWork,
     },
   )
-  const v3FinalAudit = input.workPolicy
-    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
-    ? auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1({
-        previousRoot: input.previousRoot,
-        workPolicy: input.workPolicy,
-        completedCandidateWork: beforeRegistrationWork,
-      })
-    : null
-  if (v3FinalAudit?.status === "invariant-blocked") {
+  const finalAudit = auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1({
+    previousRoot: input.previousRoot,
+    workPolicy: input.workPolicy,
+    completedCandidateWork: beforeRegistrationWork,
+  })
+  if (finalAudit.status === "invariant-blocked") {
     return blockedResult(beforeRegistrationWork, [issue(
       "previous-root-authority-mismatch",
-      v3FinalAudit.stage,
-      v3FinalAudit.unit,
-      "V3 final work audit found operation work not stopped by its owner",
+      finalAudit.stage,
+      finalAudit.unit,
+      "final work audit found operation work not stopped by its owner",
     )])
-  }
-  const limitFailure = v3FinalAudit == null
-    ? workLimitFailure(
-        input.previousRoot,
-        input.workPolicy,
-        beforeRegistrationWork,
-      )
-    : null
-  if (limitFailure != null) {
-    if (limitFailure.kind === "limit-exceeded") {
-      const attempt =
-        mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
-          validatedChange: bound.validatedChange,
-          previousRoot: input.previousRoot,
-          change: input.change,
-          workPolicy: input.workPolicy,
-          limit: {
-            stage: limitFailure.stage,
-            unit: limitFailure.unit,
-            effectiveLimit: limitFailure.effectiveLimit,
-            attemptedWork: limitFailure.attemptedWork,
-          },
-          incrementalCandidateWork: beforeRegistrationWork,
-        })
-      if (attempt.status !== "minted") {
-        return blockedResult(
-          attempt.incrementalCandidateWork,
-          attempt.issues,
-        )
-      }
-      const fallback =
-        createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
-          attempt: attempt.attempt,
-        })
-      if (fallback.status !== "fallback-required") {
-        return blockedResult(
-          fallback.incrementalCandidateWork,
-          fallback.issues,
-        )
-      }
-      return registerResult(Object.freeze({
-        ...fallback,
-        stagedEditorApply: false,
-        mayPublishLayout: false,
-        productionBinding: false,
-      }))
-    }
-    const code = limitFailure.kind === "invalid-policy"
-      ? "invalid-work-policy"
-      : limitFailure.kind === "prelock-stage"
-        ? "prelock-work-policy-stage"
-        : "inactive-work-policy-stage"
-    return blockedResult(
-      beforeRegistrationWork,
-      [issue(
-        code,
-        limitFailure.stage,
-        limitFailure.unit,
-        `work policy does not open ${limitFailure.stage}/${limitFailure.unit}`,
-      )],
-    )
   }
   const transitionFingerprint = fingerprint({
     previousRootFingerprint: input.previousRoot.fingerprint,
