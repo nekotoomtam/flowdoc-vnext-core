@@ -5,11 +5,12 @@
 > resolved-style facts, range semantics, bounded runtime proof, and work
 > ownership are superseded by
 > `2026-08-02-unified-incremental-transition-evidence-v2-design-correction.md`.
-> Implementation remains blocked until that correction is reviewed and the
-> implementation plan is rewritten.
+> The correction is accepted and the rewritten Evidence V2 implementation
+> plan now awaits explicit user review and approval.
 
-Status: written V3-aware amendment awaiting user review. This document defines
-the planning baseline for Core-only Phase 5B-2. It does not authorize
+Status: accepted V3-aware amendment, superseded wherever the 2026-08-02
+Evidence V2 correction conflicts. This document defines the planning baseline
+for Core-only Phase 5B-2. It does not authorize
 implementation, Phase 5B-3, Phase 5C, Editor or Backend integration,
 publication, production activation, or Root V1/Scene V1 retirement.
 
