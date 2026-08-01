@@ -29,6 +29,7 @@ import type {
   VNextTextBlockUnifiedLayoutEffectClassificationV1,
   VNextTextBlockExpectedTargetBindingV1,
   VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockLimitExceededAuthorityInternalV1,
   VNextTextBlockStageWorkCountV1,
   VNextTextBlockUnifiedLayoutIssueV1,
   VNextTextBlockUnifiedLayoutStageUnitV1,
@@ -620,10 +621,6 @@ export function getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1(
   return validatedSourceTransitionVisitGuards.get(validatedChange) ?? null
 }
 
-export interface VNextTextBlockLimitExceededAuthorityInternalV1 {
-  readonly __limitExceededAuthorityOpaque: never
-}
-
 export type VNextTextBlockStageVisitAttemptInternalV1 =
   | {
       readonly status: "accepted"
@@ -795,6 +792,27 @@ export function hasCanonicalVNextTextBlockStageWorkInternalV1(input: {
       || work.contractVersion !== 1
       || work.stageWork.length !== policy.stages.length
     ) return false
+    for (const [unit, count] of [
+      [
+        "evidence-request-lookup-nodes",
+        work.evidence.visitedRequestLookupNodeCount,
+      ],
+      [
+        "evidence-context-atoms",
+        work.evidence.materializedContextAtomCount,
+      ],
+      [
+        "evidence-response-nodes",
+        work.evidence.visitedEvidenceNodeCount,
+      ],
+    ] as const) {
+      if (
+        !policy.stages.some((row) =>
+          row.stage === "evidence" && row.unit === unit
+        )
+        && count !== 0
+      ) return false
+    }
     for (let index = 0; index < policy.stages.length; index += 1) {
       const expected = policy.stages[index]!
       const actual = work.stageWork[index]
@@ -1422,7 +1440,11 @@ function requestEvidenceVisit(
   },
 ):
   | { readonly status: "accepted"; readonly work: VNextTextBlockIncrementalCandidateWorkV1 }
-  | { readonly status: "blocked"; readonly issue: VNextTextBlockUnifiedLayoutIssueV1 } {
+  | {
+      readonly status: "blocked"
+      readonly issue: VNextTextBlockUnifiedLayoutIssueV1
+      readonly evaluatorAuthority?: VNextTextBlockLimitExceededAuthorityInternalV1
+    } {
   const authority = getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
     input.bound.validatedChange,
   )
@@ -1449,6 +1471,9 @@ function requestEvidenceVisit(
         `workPolicy.evidence.${input.unit}`,
         "request evidence work was not accepted by its exact evaluator authority",
       ),
+      ...(evaluation.status === "limit-exceeded"
+        ? { evaluatorAuthority: evaluation.evaluatorAuthority }
+        : {}),
     }
   }
   return {
@@ -1498,6 +1523,9 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
       request: null,
       incrementalCandidateWork: bound.incrementalCandidateWork,
       issues: [lookupVisit.issue],
+      ...(lookupVisit.evaluatorAuthority == null
+        ? {}
+        : { evaluatorAuthority: lookupVisit.evaluatorAuthority }),
     }
   }
   const ranges = changedRanges(input.previousRoot, input.change)
@@ -1561,6 +1589,9 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
       request: null,
       incrementalCandidateWork: lookupVisit.work,
       issues: [contextVisit.issue],
+      ...(contextVisit.evaluatorAuthority == null
+        ? {}
+        : { evaluatorAuthority: contextVisit.evaluatorAuthority }),
     }
   }
   const facts = {

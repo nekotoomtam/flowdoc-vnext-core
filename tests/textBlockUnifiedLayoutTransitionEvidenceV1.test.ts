@@ -70,6 +70,30 @@ function calibrationRoot() {
   return result.root
 }
 
+function calibrationTextInsertionChange(
+  previousRoot: ReturnType<typeof calibrationRoot>,
+) {
+  return Object.freeze({
+    source: "vnext-text-block-unified-layout-change-v1" as const,
+    contractVersion: 1 as const,
+    documentId: previousRoot.documentId,
+    sectionId: previousRoot.sectionId,
+    textBlockId: previousRoot.textBlockId,
+    expectedPreviousRootFingerprint: previousRoot.fingerprint,
+    expectedPreviousSourceFingerprint: previousRoot.sourceState.fingerprint,
+    kind: "text-insertion" as const,
+    atRenderedUtf16: 0,
+    insertedText: "x",
+    insertedSource: Object.freeze({
+      lineageId: "5b2-lineage-next",
+      sourceFingerprint: "5b2-source-next",
+      provenanceFingerprint: "5b2-provenance-next",
+    }),
+    measurementStyleKey: "5b2-measurement-style-next",
+    effectiveShapingStyleKey: "5b2-shaping-style-next",
+  })
+}
+
 function preBindingTestBoundaries() {
   const evidence = transitionEvidenceInternals as unknown as {
     readonly setVNextTextBlockChangeBindingAttemptObserverForTestInternalV1?:
@@ -103,6 +127,8 @@ function postBindingTestBoundaries() {
       (value: unknown) => unknown
     readonly consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1?:
       (value: unknown) => unknown
+    readonly setVNextTextBlockPostBindingLimitOverrideForTestInternalV1?:
+      (value: unknown) => void
   }
   return {
     evaluate: evidence.evaluateNextVNextTextBlockStageVisitInternalV1,
@@ -110,6 +136,8 @@ function postBindingTestBoundaries() {
       evidence.getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
     consume:
       evidence.consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1,
+    setNextLimit:
+      evidence.setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
   }
 }
 
@@ -184,29 +212,28 @@ describe("Phase 5B-2 evidence work ownership", () => {
       work: calibrationWork,
       policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     })).toBe(false)
+
+    const v3WorkWithAbsentEvidenceRows = structuredClone(
+      v3NoOp.incrementalCandidateWork,
+    ) as unknown as {
+      evidence: {
+        visitedRequestLookupNodeCount: number
+        materializedContextAtomCount: number
+      }
+    }
+    v3WorkWithAbsentEvidenceRows.evidence.visitedRequestLookupNodeCount = 1
+    v3WorkWithAbsentEvidenceRows.evidence.materializedContextAtomCount = 1
+    expect(hasCanonicalVNextTextBlockStageWorkInternalV1({
+      work: deepFreezeTestValue(
+        v3WorkWithAbsentEvidenceRows,
+      ) as VNextTextBlockIncrementalCandidateWorkV1,
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+    })).toBe(false)
   })
 
   it("owns each request lookup and context atom before producer evidence", () => {
     const previousRoot = calibrationRoot()
-    const change = Object.freeze({
-      source: "vnext-text-block-unified-layout-change-v1" as const,
-      contractVersion: 1 as const,
-      documentId: previousRoot.documentId,
-      sectionId: previousRoot.sectionId,
-      textBlockId: previousRoot.textBlockId,
-      expectedPreviousRootFingerprint: previousRoot.fingerprint,
-      expectedPreviousSourceFingerprint: previousRoot.sourceState.fingerprint,
-      kind: "text-insertion" as const,
-      atRenderedUtf16: 0,
-      insertedText: "x",
-      insertedSource: Object.freeze({
-        lineageId: "5b2-lineage-next",
-        sourceFingerprint: "5b2-source-next",
-        provenanceFingerprint: "5b2-provenance-next",
-      }),
-      measurementStyleKey: "5b2-measurement-style-next",
-      effectiveShapingStyleKey: "5b2-shaping-style-next",
-    })
+    const change = calibrationTextInsertionChange(previousRoot)
     const result =
       createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1({
         previousRoot,
@@ -227,6 +254,45 @@ describe("Phase 5B-2 evidence work ownership", () => {
       policy:
         VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
     })).toBe(true)
+  })
+
+  it("retains exact evaluator authority for exhausted request evidence work", () => {
+    const boundaries = postBindingTestBoundaries()
+    expect(boundaries.setNextLimit).toBeTypeOf("function")
+    expect(boundaries.getRecord).toBeTypeOf("function")
+    if (boundaries.setNextLimit == null || boundaries.getRecord == null) return
+
+    for (const unit of [
+      "evidence-request-lookup-nodes",
+      "evidence-context-atoms",
+    ] as const) {
+      boundaries.setNextLimit({ stage: "evidence", unit, effectiveLimit: 0 })
+      try {
+        const previousRoot = calibrationRoot()
+        const result =
+          createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1({
+            previousRoot,
+            change: calibrationTextInsertionChange(previousRoot),
+            workPolicy:
+              VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+          })
+        expect(result.status, unit).toBe("blocked")
+        if (result.status !== "blocked") continue
+        expect(result.evaluatorAuthority, unit).toBeDefined()
+        expect(boundaries.getRecord(result.evaluatorAuthority), unit)
+          .toMatchObject({
+            workPolicy:
+              VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+            stage: "evidence",
+            unit,
+            completedWork: 0,
+            attemptedWork: 1,
+            effectiveLimit: 0,
+          })
+      } finally {
+        boundaries.setNextLimit(null)
+      }
+    }
   })
 
   it("keeps calibration policy selection outside public bootstrap and attempt", () => {

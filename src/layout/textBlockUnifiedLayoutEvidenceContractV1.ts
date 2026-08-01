@@ -9,6 +9,7 @@ import type {
 } from "./textBlockMultiRunLayoutContractV1.js"
 import type {
   VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockLimitExceededAuthorityInternalV1,
   VNextTextBlockUnifiedLayoutIssueV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
@@ -141,6 +142,8 @@ export type VNextTextBlockTransitionEvidenceRequestResultV1 =
       readonly request: null
       readonly incrementalCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+      readonly evaluatorAuthority?:
+        VNextTextBlockLimitExceededAuthorityInternalV1
     }
 
 export type VNextTextBlockTransitionEvidenceAcceptanceResultV1 =

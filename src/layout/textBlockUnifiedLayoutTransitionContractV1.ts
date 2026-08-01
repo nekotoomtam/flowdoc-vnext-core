@@ -74,6 +74,10 @@ export interface VNextTextBlockReuseProofFailureAuthorityInternalV1 {
     "vnext-text-block-reuse-proof-failure-authority-internal-v1"
 }
 
+export interface VNextTextBlockLimitExceededAuthorityInternalV1 {
+  readonly __limitExceededAuthorityOpaque: never
+}
+
 export type {
   VNextTextBlockLineDispositionCoverV1,
   VNextTextBlockLineDispositionSegmentV1,
