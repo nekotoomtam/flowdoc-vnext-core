@@ -41,6 +41,11 @@ foundations, and package-local `npm run check`.
   stay frozen compatibility and QA reference only.
 - The public caller never selects a work policy, range, affected line/band,
   reconvergence, reuse, fallback, or oracle result.
+- The text-engine adapter imports transition producer contracts only through
+  type-only exports from `@flowdoc/vnext-core`. Type visibility grants no
+  process-local authority. Runtime-identity factories, registries, inspectors,
+  Root/change inputs, and evidence acceptance remain Core-owned and private to
+  the adapter.
 - Complete next canonical material is absent from request derivation and the
   incremental attempt. Complete fallback receives independent material later.
 - Required common changes never use planned-complete because of size,
@@ -280,6 +285,7 @@ git commit -m "refactor(layout): own transition evidence work"
 - Create: `packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV1.ts`
 - Create: `tests/textBlockUnifiedLayoutProducerEvidenceV1.test.ts`
 - Modify: `packages/text-engine-rust-wasm/src/index.ts`
+- Modify: `src/index.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.ts`
 
 **Interfaces:**
@@ -289,6 +295,13 @@ git commit -m "refactor(layout): own transition evidence work"
   pinned Node-native or Worker-WASM range runtime.
 - Produces: one strict `VNextTextBlockTransitionProducerResponseV1`; it does
   not accept complete canonical input or decision-shaped facts.
+- Public type seam: `src/index.ts` re-exports only
+  `VNextTextBlockTransitionEvidenceRequestV1`,
+  `VNextTextBlockTransitionProducerSourceMaterialV1`,
+  `VNextTextBlockTransitionProducerResponseV1`, and
+  `VNextTextBlockTransitionProducerRuntimeIdentityV1`. It does not export the
+  runtime-identity factory, authority registry, or any adapter-facing
+  acceptance shortcut.
 
 ```ts
 export interface FlowDocUnifiedIncrementalEvidenceRuntimeV1 {
@@ -366,7 +379,8 @@ Snapshot own data descriptors before ordinary reads. Validate exact request
 fingerprint, previous/next coverage, atom-kind/style/boundary invariants,
 font faces, topology, unit policy, and runtime identity. Reject any field that
 could carry dirty ranges, lines, bands, reuse, fallback, complete input, asset
-bytes, or decoded state.
+bytes, or decoded state. Import the four Core producer contract types from
+`@flowdoc/vnext-core`; do not import `src/layout/**` from the adapter package.
 
 - [ ] **Step 4: Execute bounded MR1 range shaping and segmentation**
 
@@ -389,10 +403,15 @@ const work = Object.freeze({
 
 - [ ] **Step 5: Bind response acceptance to exact tuple authority**
 
-Feed the response through
+The producer returns its factual response without importing the Core
+acceptance boundary. In the focused Core integration test, the caller that
+already owns the exact request, previous Root, validated change, and
+Core-minted runtime identity feeds the response through
 `acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1(...)`. Prove clone,
 digest collision, cross-root, cross-change, cross-request, and cross-runtime
-responses cannot gain authority.
+responses cannot gain authority. Assert that no runtime-identity factory,
+authority registry, Root/change input, or adapter acceptance shortcut is
+exported from either public package surface.
 
 - [ ] **Step 6: Run GREEN and range regressions**
 
@@ -405,7 +424,7 @@ git diff --check
 - [ ] **Step 7: Commit**
 
 ```powershell
-git add packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV1.ts packages/text-engine-rust-wasm/src/index.ts src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.ts tests/textBlockUnifiedLayoutProducerEvidenceV1.test.ts
+git add packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV1.ts packages/text-engine-rust-wasm/src/index.ts src/index.ts src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.ts tests/textBlockUnifiedLayoutProducerEvidenceV1.test.ts
 git commit -m "feat(layout): add bounded transition evidence producer"
 ```
 

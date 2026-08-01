@@ -170,6 +170,28 @@ work facts before their policy rows can be activated. Existing request and
 acceptance contracts remain version 1 unless a real data-shape incompatibility
 is discovered; implementation convenience is not a version-bump reason.
 
+### 6.1 Producer package and authority seam
+
+The text-engine adapter imports Core contracts only from the public
+`@flowdoc/vnext-core` package boundary. Core therefore exposes the transition
+evidence request, producer source-material, producer response, and producer
+runtime-identity shapes as TypeScript type-only exports. Type visibility does
+not mint process-local authority and does not expose an authority factory,
+registry, inspector, policy selector, Root, or change input to the adapter.
+
+Core mints and retains the exact producer runtime identity. The caller injects
+that identity beside the bounded Node-native or Worker-WASM range functions.
+The adapter descriptor-validates only the injected request-scoped material and
+runtime facts, executes the bounded range work, and returns one factual
+response. It does not import or invoke the Core acceptance boundary.
+
+After the adapter returns, the Core caller that already owns the exact request,
+previous Root, validated change, and runtime identity passes the response to
+`acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1(...)`. That boundary
+alone registers accepted evidence authority. A structurally equal type-shaped
+clone cannot substitute for the Core-minted runtime identity or any other
+member of the exact authority tuple.
+
 ## 7. Slice B: Source and Flow Transition
 
 Source transition uses summary-guided half-open range lookup and local path
