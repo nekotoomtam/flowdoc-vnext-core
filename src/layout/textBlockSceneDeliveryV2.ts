@@ -36,8 +36,13 @@ import {
   inspectVNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootV2.js"
 import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
   VNextTextBlockUnifiedLayoutIssueV1,
+  VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
+import {
+  evaluateNextVNextTextBlockStageVisitInternalV1,
+} from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
@@ -52,6 +57,53 @@ function deepFreeze<T>(value: T): T {
     }
   }
   return Object.isFrozen(value) ? value : Object.freeze(value)
+}
+
+type DeliveryVisitUnitInternalV2 =
+  | "scene-tree-lookup-nodes"
+  | "delivery-operations"
+  | "retain-cover-nodes"
+
+type DeliveryVisitPhaseInternalV2 = "construction" | "verification"
+
+export interface VNextTextBlockSceneDeliveryVisitContextInternalV2 {
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+}
+
+let deliveryOperationObserverForTest:
+  | ((observation: {
+      readonly phase: DeliveryVisitPhaseInternalV2
+      readonly unit: DeliveryVisitUnitInternalV2
+      readonly completedWork: number
+    }) => void)
+  | null = null
+
+export function setVNextTextBlockSceneDeliveryOperationObserverForTestInternalV2(
+  observer: typeof deliveryOperationObserverForTest,
+): void {
+  deliveryOperationObserverForTest = observer
+}
+
+function withDeliveryVisitWorkInternalV2(input: {
+  readonly base: VNextTextBlockIncrementalCandidateWorkV1
+  readonly unit: DeliveryVisitUnitInternalV2
+  readonly count: number
+}): VNextTextBlockIncrementalCandidateWorkV1 {
+  const key = input.unit === "scene-tree-lookup-nodes"
+    ? "visitedSceneTreeNodeCount"
+    : input.unit === "delivery-operations"
+      ? "deliveryOperationCount"
+      : "retainCoverNodeCount"
+  return deepFreeze({
+    ...input.base,
+    deliveryPlan: { ...input.base.deliveryPlan, [key]: input.count },
+    stageWork: input.base.stageWork.map((row) =>
+      row.stage === "delivery-plan" && row.unit === input.unit
+        ? { ...row, count: input.count }
+        : row
+    ),
+  })
 }
 
 function safeAdd(left: number, right: number): number {
@@ -610,16 +662,20 @@ interface SelectedSceneNode {
 interface SelectedSceneNodesResult {
   readonly selected: readonly SelectedSceneNode[]
   readonly visitedNodeCount: number
+  readonly completed: boolean
 }
 
 function selectMaximalNodes(
   root: VNextTextBlockPersistentSceneRootV2,
   range: VNextTextBlockSceneDeliveryRangeV2,
+  beforeNodeVisit?: () => boolean,
+  beforeNodeSelection?: () => boolean,
 ): SelectedSceneNodesResult {
   if (range.start === range.end || root.nodeKind === "empty") {
     return Object.freeze({
       selected: Object.freeze([]),
       visitedNodeCount: 0,
+      completed: true,
     })
   }
   const selected: SelectedSceneNode[] = []
@@ -628,13 +684,15 @@ function selectMaximalNodes(
     node: VNextTextBlockPersistentSceneNodeV2,
     start: number,
     path: readonly number[],
-  ): void => {
+  ): boolean => {
+    if (beforeNodeVisit?.() === false) return false
     visitedNodeCount = safeAdd(visitedNodeCount, 1)
     const end = start + node.summary.chunkCount
-    if (end <= range.start || start >= range.end) return
+    if (end <= range.start || start >= range.end) return true
     if (range.start <= start && end <= range.end) {
+      if (beforeNodeSelection?.() === false) return false
       selected.push({ node, path, start, end })
-      return
+      return true
     }
     if (node.nodeKind === "leaf") {
       throw new Error("partial scene leaf")
@@ -646,35 +704,47 @@ function selectMaximalNodes(
       childIndex += 1
     ) {
       const child = node.children[childIndex]!
-      visit(child, childStart, [...path, childIndex])
+      if (!visit(child, childStart, [...path, childIndex])) return false
       childStart += child.summary.chunkCount
     }
+    return true
   }
-  visit(root, 0, [])
+  const completed = visit(root, 0, [])
   return Object.freeze({
     selected: Object.freeze(selected),
     visitedNodeCount,
+    completed,
   })
 }
 
 function chunksFromSelected(
   selected: readonly SelectedSceneNode[],
+  beforeNodeVisit?: () => boolean,
 ): {
   readonly chunks: readonly VNextTextBlockPersistentSceneChunkV2[]
   readonly visitedNodeCount: number
+  readonly completed: boolean
 } {
   const chunks: VNextTextBlockPersistentSceneChunkV2[] = []
   let visitedNodeCount = 0
-  const visit = (node: VNextTextBlockPersistentSceneNodeV2): void => {
+  const visit = (node: VNextTextBlockPersistentSceneNodeV2): boolean => {
+    if (beforeNodeVisit?.() === false) return false
     visitedNodeCount += 1
     if (node.nodeKind === "leaf") {
       chunks.push(node.chunk)
-      return
+      return true
     }
-    for (const child of node.children) visit(child)
+    for (const child of node.children) {
+      if (!visit(child)) return false
+    }
+    return true
   }
-  for (const item of selected) visit(item.node)
-  return { chunks, visitedNodeCount }
+  for (const item of selected) {
+    if (!visit(item.node)) {
+      return { chunks, visitedNodeCount, completed: false }
+    }
+  }
+  return { chunks, visitedNodeCount, completed: true }
 }
 
 function sameSelectedNodeIdentity(
@@ -905,17 +975,27 @@ function planPayloadObservationFingerprint(input: {
 
 export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: VNextTextBlockSceneDeliveryPlanCandidateInputV2,
+  context?: VNextTextBlockSceneDeliveryVisitContextInternalV2,
 ): VNextTextBlockSceneDeliveryPlanBuildResultV2
 export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: unknown,
+  context?: VNextTextBlockSceneDeliveryVisitContextInternalV2,
 ): VNextTextBlockSceneDeliveryPlanBuildResultV2
 export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: unknown,
+  context?: VNextTextBlockSceneDeliveryVisitContextInternalV2,
 ): VNextTextBlockSceneDeliveryPlanBuildResultV2 {
   let constructionSceneTreeVisitCount = 0
   let verificationSceneTreeVisitCount = 0
   let deliveryOperationCount = 0
   let retainCoverNodeCount = 0
+  let completedCandidateWork = context?.completedCandidateWork ?? null
+  let visitFailure:
+    | Exclude<
+        ReturnType<typeof evaluateNextVNextTextBlockStageVisitInternalV1>,
+        { readonly status: "accepted" }
+      >
+    | null = null
   const currentWork = (): VNextTextBlockSceneDeliveryPlanBuildWorkV2 =>
     Object.freeze({
       constructionSceneTreeVisitCount,
@@ -926,8 +1006,69 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   const block = (
     code: VNextTextBlockSceneDeliveryPlanIssueCodeV2,
     message: string,
-  ): VNextTextBlockSceneDeliveryPlanBuildResultV2 =>
-    blockedPlan(code, message, currentWork())
+  ): VNextTextBlockSceneDeliveryPlanBuildResultV2 => {
+    const result = blockedPlan(code, message, currentWork())
+    return completedCandidateWork == null
+      ? result
+      : Object.freeze({ ...result, completedCandidateWork })
+  }
+  const beforeVisit = (
+    phase: DeliveryVisitPhaseInternalV2,
+    unit: DeliveryVisitUnitInternalV2,
+    commit: () => void,
+  ): boolean => {
+    if (context == null) {
+      if (unit === "scene-tree-lookup-nodes") commit()
+      return true
+    }
+    if (completedCandidateWork == null) return false
+    const completedWork = unit === "scene-tree-lookup-nodes"
+      ? completedCandidateWork.deliveryPlan.visitedSceneTreeNodeCount
+      : unit === "delivery-operations"
+        ? completedCandidateWork.deliveryPlan.deliveryOperationCount
+        : completedCandidateWork.deliveryPlan.retainCoverNodeCount
+    const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
+      validatedChange: context.validatedChange,
+      stage: "delivery-plan",
+      unit,
+      completedWork,
+      completedCandidateWork,
+    })
+    if (evaluation.status !== "accepted") {
+      visitFailure = evaluation
+      return false
+    }
+    commit()
+    completedCandidateWork = withDeliveryVisitWorkInternalV2({
+      base: completedCandidateWork,
+      unit,
+      count: evaluation.attemptedWork,
+    })
+    deliveryOperationObserverForTest?.({
+      phase,
+      unit,
+      completedWork: evaluation.attemptedWork,
+    })
+    return true
+  }
+  const visitResult = (): VNextTextBlockSceneDeliveryPlanBuildResultV2 => {
+    if (visitFailure == null || completedCandidateWork == null) {
+      throw new Error("delivery visit failure lost exact evaluator work")
+    }
+    return Object.freeze({
+      status: visitFailure.status,
+      plan: null,
+      work: currentWork(),
+      proofUnavailableAuthority: null,
+      attemptedWork: visitFailure.attemptedWork,
+      effectiveLimit: visitFailure.effectiveLimit,
+      ...(visitFailure.status === "limit-exceeded"
+        ? { evaluatorAuthority: visitFailure.evaluatorAuthority }
+        : {}),
+      completedCandidateWork,
+      issues: Object.freeze([]) as readonly [],
+    })
+  }
   const exact = exactBuilderInput(input)
   if (
     exact == null
@@ -956,22 +1097,47 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   try {
     const operations: VNextTextBlockSceneDeliveryOperationV2[] = []
     for (const draft of normalizeDrafts(exact.operations)) {
+      if (!beforeVisit(
+        "construction",
+        "delivery-operations",
+        () => { deliveryOperationCount = safeAdd(deliveryOperationCount, 1) },
+      )) return visitResult()
       if (draft.kind === "retain-range") {
         const previousSelected = selectMaximalNodes(
           previousScene.root,
           draft.previousRange,
+          () => beforeVisit(
+            "construction",
+            "scene-tree-lookup-nodes",
+            () => {
+              constructionSceneTreeVisitCount = safeAdd(
+                constructionSceneTreeVisitCount,
+                1,
+              )
+            },
+          ),
+          () => beforeVisit(
+            "construction",
+            "retain-cover-nodes",
+            () => { retainCoverNodeCount = safeAdd(retainCoverNodeCount, 1) },
+          ),
         )
+        if (!previousSelected.completed) return visitResult()
         const nextSelected = selectMaximalNodes(
           nextScene.root,
           draft.nextRange,
-        )
-        constructionSceneTreeVisitCount = safeAdd(
-          constructionSceneTreeVisitCount,
-          safeAdd(
-            previousSelected.visitedNodeCount,
-            nextSelected.visitedNodeCount,
+          () => beforeVisit(
+            "construction",
+            "scene-tree-lookup-nodes",
+            () => {
+              constructionSceneTreeVisitCount = safeAdd(
+                constructionSceneTreeVisitCount,
+                1,
+              )
+            },
           ),
         )
+        if (!nextSelected.completed) return visitResult()
         if (!sameSelectedNodeIdentity(
           previousSelected.selected,
           nextSelected.selected,
@@ -984,12 +1150,15 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
             nextScene,
             work,
           })
-          return blockedPlan(
+          const blocked = blockedPlan(
             "delivery-plan-retain-payload-mismatch",
             "retain range does not name exact shared scene subtrees",
             work,
             proofUnavailableAuthority,
           )
+          return completedCandidateWork == null
+            ? blocked
+            : Object.freeze({ ...blocked, completedCandidateWork })
         }
         operations.push({
           kind: "retain-range",
@@ -1003,28 +1172,52 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
             chunkCount: selected.node.summary.chunkCount,
           })),
         })
-        deliveryOperationCount = safeAdd(deliveryOperationCount, 1)
-        retainCoverNodeCount = safeAdd(
-          retainCoverNodeCount,
-          previousSelected.selected.length,
-        )
+        if (context == null) {
+          deliveryOperationCount = safeAdd(deliveryOperationCount, 1)
+          retainCoverNodeCount = safeAdd(
+            retainCoverNodeCount,
+            previousSelected.selected.length,
+          )
+        }
       } else {
         const selected = selectMaximalNodes(
           nextScene.root,
           draft.nextRange,
+          () => beforeVisit(
+            "construction",
+            "scene-tree-lookup-nodes",
+            () => {
+              constructionSceneTreeVisitCount = safeAdd(
+                constructionSceneTreeVisitCount,
+                1,
+              )
+            },
+          ),
         )
-        const replacement = chunksFromSelected(selected.selected)
-        constructionSceneTreeVisitCount = safeAdd(
-          constructionSceneTreeVisitCount,
-          safeAdd(selected.visitedNodeCount, replacement.visitedNodeCount),
+        if (!selected.completed) return visitResult()
+        const replacement = chunksFromSelected(
+          selected.selected,
+          () => beforeVisit(
+            "construction",
+            "scene-tree-lookup-nodes",
+            () => {
+              constructionSceneTreeVisitCount = safeAdd(
+                constructionSceneTreeVisitCount,
+                1,
+              )
+            },
+          ),
         )
+        if (!replacement.completed) return visitResult()
         operations.push({
           kind: "splice-range",
           previousRange: draft.previousRange,
           nextRange: draft.nextRange,
           replacementChunks: replacement.chunks,
         })
-        deliveryOperationCount = safeAdd(deliveryOperationCount, 1)
+        if (context == null) {
+          deliveryOperationCount = safeAdd(deliveryOperationCount, 1)
+        }
       }
     }
     let retainOperationCount = 0
@@ -1109,17 +1302,27 @@ export function createVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
         previousScene,
         nextScene,
         plan,
+      }, {
+        beforeSceneNodeVisit: () => beforeVisit(
+          "verification",
+          "scene-tree-lookup-nodes",
+          () => {
+            verificationSceneTreeVisitCount = safeAdd(
+              verificationSceneTreeVisitCount,
+              1,
+            )
+          },
+        ),
       })
+    if (visitFailure != null) return visitResult()
     if (inspection.status !== "valid") {
-      verificationSceneTreeVisitCount =
-        inspection.visitedSceneTreeNodeCount
       return block(inspection.code, inspection.message)
     }
-    verificationSceneTreeVisitCount = inspection.visitedSceneTreeNodeCount
     return Object.freeze({
       status: "prepared",
       plan,
       work: currentWork(),
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: Object.freeze([]) as readonly [],
     })
   } catch {
@@ -1408,20 +1611,24 @@ export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
     readonly nextScene: VNextTextBlockPersistentSceneV2
     readonly plan: unknown
   },
+  options?: { readonly beforeSceneNodeVisit?: () => boolean },
 ): VNextTextBlockSceneDeliveryPlanInspectionV2
 export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: unknown,
+  options?: { readonly beforeSceneNodeVisit?: () => boolean },
 ): VNextTextBlockSceneDeliveryPlanInspectionV2
 export function verifyVNextTextBlockSceneDeliveryPlanCandidateInternalV2(
   input: unknown,
+  options?: { readonly beforeSceneNodeVisit?: () => boolean },
 ): VNextTextBlockSceneDeliveryPlanInspectionV2 {
   planVerificationObserverForTest?.()
-  return verifyDeliveryPlanV2(input, true)
+  return verifyDeliveryPlanV2(input, true, options)
 }
 
 function verifyDeliveryPlanV2(
   input: unknown,
   requireExactReplacementIdentity: boolean,
+  options?: { readonly beforeSceneNodeVisit?: () => boolean },
 ): VNextTextBlockSceneDeliveryPlanInspectionV2 {
   let visitedSceneTreeNodeCount = 0
   const invalidAfterTraversal = (
@@ -1560,18 +1767,33 @@ function verifyDeliveryPlanV2(
         const previousSelected = selectMaximalNodes(
           previousScene.root,
           operation.previousRange,
-        )
-        const nextSelected = selectMaximalNodes(
-          nextScene.root,
-          operation.nextRange,
+          options?.beforeSceneNodeVisit,
         )
         visitedSceneTreeNodeCount = safeAdd(
           visitedSceneTreeNodeCount,
-          safeAdd(
-            previousSelected.visitedNodeCount,
-            nextSelected.visitedNodeCount,
-          ),
+          previousSelected.visitedNodeCount,
         )
+        if (!previousSelected.completed) {
+          return invalidAfterTraversal(
+            "delivery-plan-unsafe-count",
+            "delivery verification scene visit was rejected",
+          )
+        }
+        const nextSelected = selectMaximalNodes(
+          nextScene.root,
+          operation.nextRange,
+          options?.beforeSceneNodeVisit,
+        )
+        visitedSceneTreeNodeCount = safeAdd(
+          visitedSceneTreeNodeCount,
+          nextSelected.visitedNodeCount,
+        )
+        if (!nextSelected.completed) {
+          return invalidAfterTraversal(
+            "delivery-plan-unsafe-count",
+            "delivery verification scene visit was rejected",
+          )
+        }
         if (!sameSelectedNodeIdentity(
           previousSelected.selected,
           nextSelected.selected,
@@ -1596,15 +1818,32 @@ function verifyDeliveryPlanV2(
         const selected = selectMaximalNodes(
           nextScene.root,
           operation.nextRange,
+          options?.beforeSceneNodeVisit,
         )
-        const selectedChunks = chunksFromSelected(selected.selected)
         visitedSceneTreeNodeCount = safeAdd(
           visitedSceneTreeNodeCount,
-          safeAdd(
-            selected.visitedNodeCount,
-            selectedChunks.visitedNodeCount,
-          ),
+          selected.visitedNodeCount,
         )
+        if (!selected.completed) {
+          return invalidAfterTraversal(
+            "delivery-plan-unsafe-count",
+            "delivery verification scene visit was rejected",
+          )
+        }
+        const selectedChunks = chunksFromSelected(
+          selected.selected,
+          options?.beforeSceneNodeVisit,
+        )
+        visitedSceneTreeNodeCount = safeAdd(
+          visitedSceneTreeNodeCount,
+          selectedChunks.visitedNodeCount,
+        )
+        if (!selectedChunks.completed) {
+          return invalidAfterTraversal(
+            "delivery-plan-unsafe-count",
+            "delivery verification scene visit was rejected",
+          )
+        }
         const expected = selectedChunks.chunks
         if (
           expected.length !== operation.replacementChunks.length

@@ -52,6 +52,13 @@ import type {
 import {
   authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
+import {
+  evaluateNextVNextTextBlockStageVisitInternalV1,
+} from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockValidatedChangeV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -60,6 +67,10 @@ function incrementalSceneAttemptWork(input: {
   readonly visitedSourceItemCount?: number
   readonly visitedLineTreeNodeCount?: number
   readonly visitedSceneTreeNodeCount?: number
+  readonly emittedChunkCount?: number
+  readonly createdLeafCount?: number
+  readonly createdNodeCount?: number
+  readonly incrementalCopiedNodeCount?: number
 } = {}): VNextTextBlockPersistentSceneIncrementalWorkV2 {
   return Object.freeze({
     completeSceneProjectionCount: 0,
@@ -68,14 +79,61 @@ function incrementalSceneAttemptWork(input: {
     visitedSourceItemCount: input.visitedSourceItemCount ?? 0,
     visitedLineTreeNodeCount: input.visitedLineTreeNodeCount ?? 0,
     visitedSceneTreeNodeCount: input.visitedSceneTreeNodeCount ?? 0,
-    emittedChunkCount: 0,
-    createdLeafCount: 0,
-    createdNodeCount: 0,
+    emittedChunkCount: input.emittedChunkCount ?? 0,
+    createdLeafCount: input.createdLeafCount ?? 0,
+    createdNodeCount: input.createdNodeCount ?? 0,
     reusedChunkCount: 0,
     reusedSceneNodeCount: 0,
-    incrementalCopiedNodeCount: 0,
+    incrementalCopiedNodeCount: input.incrementalCopiedNodeCount ?? 0,
     completeLineTreeTraversalCount: 0,
     completeSceneTraversalCount: 0,
+  })
+}
+
+type SceneTransitionUnitInternalV2 =
+  | "line-tree-lookup-nodes"
+  | "scene-tree-lookup-nodes"
+  | "copied-scene-nodes"
+  | "replacement-chunks"
+
+export interface VNextTextBlockPersistentSceneTransitionVisitContextInternalV2 {
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+}
+
+let sceneTransitionOperationObserverForTest:
+  | ((observation: {
+      readonly unit: SceneTransitionUnitInternalV2
+      readonly completedWork: number
+    }) => void)
+  | null = null
+
+export function setVNextTextBlockPersistentSceneTransitionOperationObserverForTestInternalV2(
+  observer: typeof sceneTransitionOperationObserverForTest,
+): void {
+  sceneTransitionOperationObserverForTest = observer
+}
+
+function withSceneTransitionVisitWorkInternalV2(input: {
+  readonly base: VNextTextBlockIncrementalCandidateWorkV1
+  readonly unit: SceneTransitionUnitInternalV2
+  readonly count: number
+}): VNextTextBlockIncrementalCandidateWorkV1 {
+  const key = input.unit === "line-tree-lookup-nodes"
+    ? "visitedLineTreeNodeCount"
+    : input.unit === "scene-tree-lookup-nodes"
+      ? "visitedSceneTreeNodeCount"
+      : input.unit === "copied-scene-nodes"
+        ? "copiedSceneNodeCount"
+        : "replacementChunkCount"
+  return deepFreeze({
+    ...input.base,
+    scene: { ...input.base.scene, [key]: input.count },
+    stageWork: input.base.stageWork.map((row) =>
+      row.stage === "scene" && row.unit === input.unit
+        ? { ...row, count: input.count }
+        : row
+    ),
   })
 }
 
@@ -1227,8 +1285,9 @@ function replaceSceneLeafAtOrdinal(
       VNextTextBlockPersistentSceneNodeV2[]
     readonly siblingReferences:
       VNextTextBlockPersistentSceneSiblingReferenceV2[]
+    readonly beforeCopiedNode?: () => boolean
   },
-): VNextTextBlockPersistentSceneNodeV2 {
+): VNextTextBlockPersistentSceneNodeV2 | null {
   if (input.node.nodeKind === "leaf") {
     if (input.relativeOrdinal !== 0) {
       throw new RangeError("scene replacement ordinal escaped one leaf")
@@ -1270,8 +1329,10 @@ function replaceSceneLeafAtOrdinal(
       relativeOrdinal: input.relativeOrdinal - childStart,
     })
   })
+  if (children.some((child) => child == null)) return null
+  if (input.beforeCopiedNode?.() === false) return null
   const pendingCopied = branchFromChildren(
-    children,
+    children as VNextTextBlockPersistentSceneNodeV2[],
     input.factory,
     input.payloadPolicy,
   )
@@ -1290,6 +1351,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
     readonly sourceItemAuthority: object
     readonly inlineId: string
   },
+  context?: VNextTextBlockPersistentSceneTransitionVisitContextInternalV2,
 ):
   | {
       readonly status: "prepared"
@@ -1303,6 +1365,8 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
         readonly VNextTextBlockPersistentSceneSiblingReferenceV2[]
       readonly fragmentAuthority: object
       readonly work: VNextTextBlockPersistentSceneIncrementalWorkV2
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly []
     }
   | {
@@ -1314,8 +1378,100 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       readonly siblingReferences: null
       readonly fragmentAuthority: null
       readonly work: VNextTextBlockPersistentSceneIncrementalWorkV2
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly VNextTextBlockPersistentSceneIssueV2[]
+    }
+  | {
+      readonly status: "limit-exceeded" | "invariant-blocked"
+      readonly scene: null
+      readonly affectedChunkOrdinals: null
+      readonly copiedPathNodes: null
+      readonly replacementNodes: null
+      readonly siblingReferences: null
+      readonly fragmentAuthority: null
+      readonly work: VNextTextBlockPersistentSceneIncrementalWorkV2
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly evaluatorAuthority?: object
+      readonly completedCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
     } {
+  let completedCandidateWork = context?.completedCandidateWork ?? null
+  let visitedLineTreeNodeCount = 0
+  let visitedSceneTreeNodeCount = 0
+  let copiedSceneNodeCount = 0
+  let replacementChunkCount = 0
+  let visitFailure:
+    | Exclude<
+        ReturnType<typeof evaluateNextVNextTextBlockStageVisitInternalV1>,
+        { readonly status: "accepted" }
+      >
+    | null = null
+  const beforeVisit = (
+    unit: SceneTransitionUnitInternalV2,
+    commit: () => void,
+  ): boolean => {
+    if (context == null) {
+      commit()
+      return true
+    }
+    if (completedCandidateWork == null) return false
+    const completedWork = unit === "line-tree-lookup-nodes"
+      ? completedCandidateWork.scene.visitedLineTreeNodeCount
+      : unit === "scene-tree-lookup-nodes"
+        ? completedCandidateWork.scene.visitedSceneTreeNodeCount
+        : unit === "copied-scene-nodes"
+          ? completedCandidateWork.scene.copiedSceneNodeCount
+          : completedCandidateWork.scene.replacementChunkCount
+    const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
+      validatedChange: context.validatedChange,
+      stage: "scene",
+      unit,
+      completedWork,
+      completedCandidateWork,
+    })
+    if (evaluation.status !== "accepted") {
+      visitFailure = evaluation
+      return false
+    }
+    commit()
+    completedCandidateWork = withSceneTransitionVisitWorkInternalV2({
+      base: completedCandidateWork,
+      unit,
+      count: evaluation.attemptedWork,
+    })
+    sceneTransitionOperationObserverForTest?.({
+      unit,
+      completedWork: evaluation.attemptedWork,
+    })
+    return true
+  }
+  const visitResult = (
+    work: VNextTextBlockPersistentSceneIncrementalWorkV2,
+  ) => {
+    if (visitFailure == null || completedCandidateWork == null) {
+      throw new Error("Scene visit failure lost exact evaluator work")
+    }
+    return Object.freeze({
+      status: visitFailure.status,
+      scene: null,
+      affectedChunkOrdinals: null,
+      copiedPathNodes: null,
+      replacementNodes: null,
+      siblingReferences: null,
+      fragmentAuthority: null,
+      work,
+      attemptedWork: visitFailure.attemptedWork,
+      effectiveLimit: visitFailure.effectiveLimit,
+      ...(visitFailure.status === "limit-exceeded"
+        ? { evaluatorAuthority: visitFailure.evaluatorAuthority }
+        : {}),
+      completedCandidateWork,
+      issues: Object.freeze([]) as readonly [],
+    })
+  }
   const previous = preparedScenes.get(input.previousScene)
   const nextSourceInspection =
     inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
@@ -1344,6 +1500,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       siblingReferences: null,
       fragmentAuthority: null,
       work: incrementalSceneAttemptWork(),
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: [issue(
         "scene-dependency-binding-mismatch",
         "paint scene transition requires one exact previous Scene/source/line tuple",
@@ -1368,6 +1525,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       siblingReferences: null,
       fragmentAuthority: null,
       work: incrementalSceneAttemptWork(),
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: [issue(
         "scene-source-lineage-mismatch",
         "paint scene transition source item is not an exact image",
@@ -1387,6 +1545,7 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       siblingReferences: null,
       fragmentAuthority: null,
       work: incrementalSceneAttemptWork({ visitedSourceItemCount: 1 }),
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: [issue(
         "scene-invalid-topology",
         "one inline image must map to exactly one renderer chunk",
@@ -1397,7 +1556,18 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
   const line = lookupVNextTextBlockPersistentLayoutLineInternalV1({
     lineTree: input.lineTree,
     lineOrdinal: chunkOrdinal,
+  }, {
+    beforeNodeVisit: () => beforeVisit(
+      "line-tree-lookup-nodes",
+      () => { visitedLineTreeNodeCount += 1 },
+    ),
   })
+  if (visitFailure != null) {
+    return visitResult(incrementalSceneAttemptWork({
+      visitedSourceItemCount: 1,
+      visitedLineTreeNodeCount,
+    }))
+  }
   if (line.status !== "found") {
     return {
       status: "blocked",
@@ -1409,26 +1579,47 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       fragmentAuthority: null,
       work: incrementalSceneAttemptWork({
         visitedSourceItemCount: 1,
-        visitedLineTreeNodeCount: line.work?.visitedNodeCount ?? 0,
+        visitedLineTreeNodeCount,
       }),
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: [issue(
         "scene-invalid-topology",
         "paint scene transition could not resolve one exact line leaf",
       )],
     }
   }
-  let visitedSceneTreeNodeCount = 0
   try {
     const previousChunk =
       lookupVNextTextBlockPersistentSceneChunkInternalV2({
         scene: input.previousScene,
         chunkOrdinal,
+      }, {
+        beforeNodeVisit: () => beforeVisit(
+          "scene-tree-lookup-nodes",
+          () => { visitedSceneTreeNodeCount += 1 },
+        ),
       })
-    if (previousChunk.work != null) {
-      visitedSceneTreeNodeCount = previousChunk.work.visitedNodeCount
+    if (visitFailure != null) {
+      return visitResult(incrementalSceneAttemptWork({
+        visitedLineCount: 1,
+        visitedSourceItemCount: 1,
+        visitedLineTreeNodeCount,
+        visitedSceneTreeNodeCount,
+      }))
     }
     if (previousChunk.status !== "found") {
       throw new Error("paint chunk escaped exact previous Scene")
+    }
+    if (!beforeVisit(
+      "replacement-chunks",
+      () => { replacementChunkCount += 1 },
+    )) {
+      return visitResult(incrementalSceneAttemptWork({
+        visitedLineCount: 1,
+        visitedSourceItemCount: 1,
+        visitedLineTreeNodeCount,
+        visitedSceneTreeNodeCount,
+      }))
     }
     const chunk = imagePaintChunkFromPrevious({
       previousChunk: previousChunk.leaf.chunk,
@@ -1460,7 +1651,26 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       payloadPolicy: input.previousScene.payloadPolicy,
       copiedPathNodes,
       siblingReferences,
+      beforeCopiedNode: () => beforeVisit(
+        "copied-scene-nodes",
+        () => { copiedSceneNodeCount += 1 },
+      ),
     })
+    if (root == null) {
+      if (visitFailure != null) {
+        return visitResult(incrementalSceneAttemptWork({
+          visitedLineCount: 1,
+          visitedSourceItemCount: 1,
+          visitedLineTreeNodeCount,
+          visitedSceneTreeNodeCount,
+          emittedChunkCount: replacementChunkCount,
+          createdLeafCount: replacementChunkCount,
+          createdNodeCount: replacementChunkCount + copiedSceneNodeCount,
+          incrementalCopiedNodeCount: copiedSceneNodeCount,
+        }))
+      }
+      throw new Error("scene path copy stopped without evaluator failure")
+    }
     const headerByteCount = utf8ByteCount({
       payloadPolicyVersion: 1,
       source: VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_V2_SOURCE,
@@ -1472,14 +1682,14 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       visitedLineCount: 1,
       visitedFragmentCount: chunk.fragments.length,
       visitedSourceItemCount: 1,
-      visitedLineTreeNodeCount: line.work.visitedNodeCount,
-      visitedSceneTreeNodeCount: previousChunk.work.visitedNodeCount,
+      visitedLineTreeNodeCount,
+      visitedSceneTreeNodeCount,
       emittedChunkCount: 1,
       createdLeafCount: 1,
       createdNodeCount: copiedPathNodes.length + 1,
       reusedChunkCount: input.previousScene.summary.chunkCount - 1,
       reusedSceneNodeCount: siblingReferences.length,
-      incrementalCopiedNodeCount: copiedPathNodes.length,
+      incrementalCopiedNodeCount: copiedSceneNodeCount,
       completeLineTreeTraversalCount: 0 as const,
       completeSceneTraversalCount: 0 as const,
     })
@@ -1562,9 +1772,22 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       siblingReferences: exactSiblingReferences,
       fragmentAuthority,
       work,
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: Object.freeze([]) as readonly [],
     })
   } catch {
+    if (visitFailure != null) {
+      return visitResult(incrementalSceneAttemptWork({
+        visitedLineCount: 1,
+        visitedSourceItemCount: 1,
+        visitedLineTreeNodeCount,
+        visitedSceneTreeNodeCount,
+        emittedChunkCount: replacementChunkCount,
+        createdLeafCount: replacementChunkCount,
+        createdNodeCount: replacementChunkCount + copiedSceneNodeCount,
+        incrementalCopiedNodeCount: copiedSceneNodeCount,
+      }))
+    }
     return {
       status: "blocked",
       scene: null,
@@ -1576,9 +1799,14 @@ export function createVNextTextBlockPersistentSceneImagePaintTransitionCandidate
       work: incrementalSceneAttemptWork({
         visitedLineCount: 1,
         visitedSourceItemCount: 1,
-        visitedLineTreeNodeCount: line.work.visitedNodeCount,
+        visitedLineTreeNodeCount,
         visitedSceneTreeNodeCount,
+        emittedChunkCount: replacementChunkCount,
+        createdLeafCount: replacementChunkCount,
+        createdNodeCount: replacementChunkCount + copiedSceneNodeCount,
+        incrementalCopiedNodeCount: copiedSceneNodeCount,
       }),
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: [issue(
         "scene-unsafe-summary",
         "paint scene transition exceeded bounded path-copy invariants",
@@ -1826,6 +2054,8 @@ export function inspectVNextTextBlockPersistentSceneV2(
 export function lookupVNextTextBlockPersistentSceneChunkInternalV2(input: {
   readonly scene: VNextTextBlockPersistentSceneV2
   readonly chunkOrdinal: number
+}, options?: {
+  readonly beforeNodeVisit?: () => boolean
 }): VNextTextBlockPersistentSceneChunkLookupResultV2 {
   if (
     input.scene == null
@@ -1860,8 +2090,22 @@ export function lookupVNextTextBlockPersistentSceneChunkInternalV2(input: {
   }
   let relativeOrdinal = input.chunkOrdinal
   let node = input.scene.root
-  let visitedNodeCount = 1
-  while (node.nodeKind === "branch") {
+  let visitedNodeCount = 0
+  while (true) {
+    if (options?.beforeNodeVisit?.() === false) {
+      return {
+        status: "blocked",
+        chunkOrdinal: null,
+        leaf: null,
+        work: null,
+        issues: [issue(
+          "scene-invalid-topology",
+          "scene lookup visit was rejected before node access",
+        )],
+      }
+    }
+    visitedNodeCount += 1
+    if (node.nodeKind !== "branch") break
     let selected: VNextTextBlockPersistentSceneNodeV2 | null = null
     for (const child of node.children) {
       if (relativeOrdinal < child.summary.chunkCount) {
@@ -1872,7 +2116,6 @@ export function lookupVNextTextBlockPersistentSceneChunkInternalV2(input: {
     }
     if (selected == null) break
     node = selected
-    visitedNodeCount += 1
   }
   return node.nodeKind === "leaf"
     ? {

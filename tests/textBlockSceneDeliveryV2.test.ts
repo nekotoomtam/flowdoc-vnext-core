@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
+import * as deliveryInternals from "../src/layout/textBlockSceneDeliveryV2.js"
+import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   createVNextTextBlockIncrementalFlowTreeCompleteInternalV1,
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
@@ -35,6 +37,15 @@ import {
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
+  createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
   createVNextTextBlockUnifiedLayoutRootV1,
 } from "../src/layout/textBlockUnifiedLayoutRootV1.js"
 import {
@@ -47,6 +58,9 @@ import type {
 import {
   acceptedUnifiedLayoutRootFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
+import {
+  imagePaintUnifiedLayoutChange5b,
+} from "./helpers/textBlockUnifiedIncremental5b.js"
 
 vi.mock("../src/layout/textBlockPersistentSceneV2.js", async (importOriginal) => {
   const actual = await importOriginal<
@@ -142,6 +156,64 @@ function repeatedScene(lineCount: number) {
   })
   if (accepted.status !== "accepted") throw new Error("root blocked")
   return sceneInputsFromAccepted(accepted)
+}
+
+function v3DeliveryFixture() {
+  const source = repeatedUnifiedLayoutRootSourceFixtureV1({
+    lineCount: 9,
+    includeImages: true,
+  })
+  const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2({
+    inputAuthority: "core-synthetic-qa-only",
+    initialFlow: source.initialFlow,
+    evidence: source.evidence,
+    spatialEntries: source.spatialEntries,
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL)
+  if (previous.status !== "accepted") throw new Error("V3 delivery Root blocked")
+  const change = imagePaintUnifiedLayoutChange5b(previous.root, {
+    inlineId: "repeat-image-4",
+    fit: "cover",
+    crop: { x: 0, y: 0, width: 0.5, height: 1 },
+  })
+  const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+    previousRoot: previous.root,
+    change,
+    workPolicy:
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  })
+  if (bound.status !== "accepted") throw new Error("V3 delivery change blocked")
+  return {
+    input: {
+      previousScene: previous.root.persistentScene,
+      nextScene: previous.root.persistentScene,
+      operations: [{
+        kind: "retain-range" as const,
+        previousRange: { start: 0, end: 9 },
+        nextRange: { start: 0, end: 9 },
+      }],
+    },
+    context: {
+      validatedChange: bound.validatedChange,
+      completedCandidateWork: bound.incrementalCandidateWork,
+    },
+  }
+}
+
+function deliveryVisitTestBoundaries() {
+  const evidence = transitionEvidenceInternals as unknown as {
+    readonly setVNextTextBlockPostBindingLimitOverrideForTestInternalV1?:
+      (value: unknown) => void
+  }
+  const delivery = deliveryInternals as unknown as {
+    readonly setVNextTextBlockSceneDeliveryOperationObserverForTestInternalV2?:
+      (observer: ((value: unknown) => void) | null) => void
+  }
+  return {
+    setLimit:
+      evidence.setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
+    setObserver:
+      delivery.setVNextTextBlockSceneDeliveryOperationObserverForTestInternalV2,
+  }
 }
 
 function retainOnly(scene: ReturnType<typeof completeScene>) {
@@ -266,6 +338,98 @@ function expectHighestContainedCover(
 }
 
 describe("Phase 5B canonical Scene V2 delivery", () => {
+  it("bounds V3 delivery construction and its one verification as one attempt", () => {
+    const boundaries = deliveryVisitTestBoundaries()
+    expect(boundaries.setLimit).toBeTypeOf("function")
+    expect(boundaries.setObserver).toBeTypeOf("function")
+    if (boundaries.setLimit == null || boundaries.setObserver == null) return
+    const createBounded =
+      createVNextTextBlockSceneDeliveryPlanCandidateInternalV2 as unknown as (
+        input: unknown,
+        context: unknown,
+      ) => any
+    const baselineEvents: Array<{
+      phase: "construction" | "verification"
+      unit: string
+      completedWork: number
+    }> = []
+    boundaries.setObserver((value) => baselineEvents.push(value as typeof baselineEvents[number]))
+    try {
+      const fixture = v3DeliveryFixture()
+      const baselineResult = createBounded(fixture.input, fixture.context)
+      expect(baselineResult).toMatchObject({
+        status: "prepared",
+        plan: expect.any(Object),
+        completedCandidateWork: expect.any(Object),
+      })
+    } finally {
+      boundaries.setObserver(null)
+    }
+    expect(baselineEvents.filter(
+      (event) => event.unit === "delivery-operations",
+    )).toEqual([{
+      phase: "construction",
+      unit: "delivery-operations",
+      completedWork: 1,
+    }])
+    expect(baselineEvents.some(
+      (event) => event.phase === "verification"
+        && event.unit === "scene-tree-lookup-nodes",
+    )).toBe(true)
+    for (const unit of [
+      "scene-tree-lookup-nodes",
+      "delivery-operations",
+      "retain-cover-nodes",
+    ] as const) {
+      const actual = Math.max(
+        ...baselineEvents
+          .filter((event) => event.unit === unit)
+          .map((event) => event.completedWork),
+      )
+      expect(actual).toBeGreaterThan(0)
+      for (const effectiveLimit of [actual + 1, actual, actual - 1]) {
+        const events: unknown[] = []
+        boundaries.setLimit({
+          stage: "delivery-plan",
+          unit,
+          effectiveLimit,
+        })
+        boundaries.setObserver((value) => events.push(value))
+        try {
+          const fixture = v3DeliveryFixture()
+          const result = createBounded(fixture.input, fixture.context)
+          if (effectiveLimit >= actual) {
+            expect(result).toMatchObject({ status: "prepared" })
+            expect(events).toEqual(baselineEvents)
+          } else {
+            const rejectedIndex = baselineEvents.findIndex((event) =>
+              event.unit === unit
+              && event.completedWork === effectiveLimit + 1
+            )
+            expect(result).toMatchObject({
+              status: "limit-exceeded",
+              plan: null,
+              attemptedWork: effectiveLimit + 1,
+              effectiveLimit,
+              evaluatorAuthority: expect.any(Object),
+            })
+            expect(result.completedCandidateWork.deliveryPlan[
+              unit === "scene-tree-lookup-nodes"
+                ? "visitedSceneTreeNodeCount"
+                : unit === "delivery-operations"
+                  ? "deliveryOperationCount"
+                  : "retainCoverNodeCount"
+            ]).toBe(effectiveLimit)
+            expect(events).toEqual(baselineEvents.slice(0, rejectedIndex))
+          }
+        } finally {
+          boundaries.setLimit(null)
+          boundaries.setObserver(null)
+        }
+      }
+    }
+  }, 30_000)
+
   it("issues opaque proof authority only when exact retain identity cannot be established", () => {
     const previousScene = completeScene()
     const nextScene = completeScene()

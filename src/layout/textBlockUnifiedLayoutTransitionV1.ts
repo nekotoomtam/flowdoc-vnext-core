@@ -18,9 +18,6 @@ import type {
   VNextTextBlockLineDispositionCoverV1,
 } from "./textBlockPersistentLayoutLineContractV1.js"
 import {
-  inspectVNextTextBlockSceneDeliveryPlanV2,
-} from "./textBlockSceneDeliveryV2.js"
-import {
   createVNextTextBlockReuseProofFailureAuthorityInternalV1,
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
   mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1,
@@ -356,14 +353,14 @@ function paintWork(
     readonly payloadObservationFingerprint: string | null
     readonly copiedSourcePathNodeCount: number
     readonly visitedChangedSourceLeafItemCount: number
-    readonly preserveOwnedSourceAndLineWork?: boolean
+    readonly preserveOwnedTransitionWork?: boolean
     readonly attemptedRegistrationCount?: number
     readonly committedRegistrationCount?: number
   },
 ): VNextTextBlockIncrementalCandidateWorkV1 {
   return deepFreeze({
     ...base,
-    flow: input.preserveOwnedSourceAndLineWork
+    flow: input.preserveOwnedTransitionWork
       ? base.flow
       : {
           ...base.flow,
@@ -371,7 +368,7 @@ function paintWork(
           visitedChangedSourceLeafItemCount:
             input.visitedChangedSourceLeafItemCount,
         },
-    structuralReuseProof: input.preserveOwnedSourceAndLineWork
+    structuralReuseProof: input.preserveOwnedTransitionWork
       ? base.structuralReuseProof
       : {
           visitedLineTreeNodeCount: input.visitedLineTreeNodeCount,
@@ -380,17 +377,21 @@ function paintWork(
           lineTreeWrapperAllocationCount: 0,
           completeLineTreeTraversalCount: 0,
         },
-    scene: {
-      visitedLineTreeNodeCount: input.sceneLineTreeNodeCount,
-      visitedSceneTreeNodeCount: input.sceneTreeNodeCount,
-      copiedSceneNodeCount: input.copiedSceneNodeCount,
-      replacementChunkCount: input.replacementChunkCount,
-    },
-    deliveryPlan: {
-      visitedSceneTreeNodeCount: input.deliverySceneTreeNodeCount,
-      deliveryOperationCount: input.deliveryOperationCount,
-      retainCoverNodeCount: input.retainCoverNodeCount,
-    },
+    scene: input.preserveOwnedTransitionWork
+      ? base.scene
+      : {
+          visitedLineTreeNodeCount: input.sceneLineTreeNodeCount,
+          visitedSceneTreeNodeCount: input.sceneTreeNodeCount,
+          copiedSceneNodeCount: input.copiedSceneNodeCount,
+          replacementChunkCount: input.replacementChunkCount,
+        },
+    deliveryPlan: input.preserveOwnedTransitionWork
+      ? base.deliveryPlan
+      : {
+          visitedSceneTreeNodeCount: input.deliverySceneTreeNodeCount,
+          deliveryOperationCount: input.deliveryOperationCount,
+          retainCoverNodeCount: input.retainCoverNodeCount,
+        },
     observations: {
       estimatedCanonicalPayloadByteCount:
         input.estimatedCanonicalPayloadByteCount,
@@ -402,30 +403,8 @@ function paintWork(
       committedRegistrationCount:
         input.committedRegistrationCount ?? 0,
     },
-    stageWork: input.preserveOwnedSourceAndLineWork
-      ? base.stageWork.map((row) => {
-          const count = (() => {
-            switch (`${row.stage}/${row.unit}`) {
-              case "scene/line-tree-lookup-nodes":
-                return input.sceneLineTreeNodeCount
-              case "scene/scene-tree-lookup-nodes":
-                return input.sceneTreeNodeCount
-              case "scene/copied-scene-nodes":
-                return input.copiedSceneNodeCount
-              case "scene/replacement-chunks":
-                return input.replacementChunkCount
-              case "delivery-plan/scene-tree-lookup-nodes":
-                return input.deliverySceneTreeNodeCount
-              case "delivery-plan/delivery-operations":
-                return input.deliveryOperationCount
-              case "delivery-plan/retain-cover-nodes":
-                return input.retainCoverNodeCount
-              default:
-                return row.count
-            }
-          })()
-          return count === row.count ? row : { ...row, count }
-        })
+    stageWork: input.preserveOwnedTransitionWork
+      ? base.stageWork
       : composeVNextTextBlockStageWorkLedgerInternalV1({
           policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
           factualCounts: [
@@ -907,9 +886,72 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       nextSourceState: source.sourceState,
       sourceItemAuthority: source.sourceItemAuthority,
       inlineId: input.change.inlineId,
+      ...(input.workPolicy
+          === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+        ? {
+            validatedChange: bound.validatedChange,
+            completedCandidateWork: sourceCompletedWork,
+          }
+        : {}),
     })
+  if (scene.status === "limit-exceeded") {
+    const exactLimit =
+      consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+        scene.evaluatorAuthority!,
+      )
+    if (
+      exactLimit == null
+      || exactLimit.validatedChange !== bound.validatedChange
+      || exactLimit.completedCandidateWork !== scene.completedCandidateWork
+    ) {
+      return blockedResult(scene.completedCandidateWork, [issue(
+        "previous-root-authority-mismatch",
+        "scene",
+        "evaluatorAuthority",
+        "Scene/Delivery limit lost its exact evaluator authority",
+      )])
+    }
+    const attempt =
+      mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
+        validatedChange: bound.validatedChange,
+        previousRoot: input.previousRoot,
+        change: input.change,
+        workPolicy: input.workPolicy,
+        limit: {
+          stage: exactLimit.stage,
+          unit: exactLimit.unit,
+          effectiveLimit: exactLimit.effectiveLimit,
+          attemptedWork: exactLimit.attemptedWork,
+        },
+        incrementalCandidateWork: exactLimit.completedCandidateWork,
+      })
+    if (attempt.status !== "minted") {
+      return blockedResult(attempt.incrementalCandidateWork, attempt.issues)
+    }
+    const fallback = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: attempt.attempt,
+    })
+    if (fallback.status !== "fallback-required") {
+      return blockedResult(fallback.incrementalCandidateWork, fallback.issues)
+    }
+    return registerResult(Object.freeze({
+      ...fallback,
+      stagedEditorApply: false,
+      mayPublishLayout: false,
+      productionBinding: false,
+    }))
+  }
+  if (scene.status === "invariant-blocked") {
+    return blockedResult(scene.completedCandidateWork, [issue(
+      "previous-root-authority-mismatch",
+      "scene",
+      "stageVisit",
+      "Scene/Delivery owner rejected an invalid exact visit authority",
+    )])
+  }
   if (scene.status !== "prepared") {
-    const attemptedWork = paintWork(sourceCompletedWork, {
+    const attemptedWork = scene.completedCandidateWork
+      ?? paintWork(sourceCompletedWork, {
       dispositionCover: structuralReuseProof.cover,
       visitedLineTreeNodeCount:
         structuralReuseProof.visitedLineTreeNodeCount,
@@ -925,9 +967,9 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
       visitedChangedSourceLeafItemCount:
         source.visitedChangedSourceLeafItemCount,
-      preserveOwnedSourceAndLineWork:
+      preserveOwnedTransitionWork:
         structuralReuseProof.completedCandidateWork != null,
-    })
+        })
     if (scene.status === "blocked") {
       return blockedResult(
         attemptedWork,
@@ -938,6 +980,14 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
           scene.issues[0]?.message ?? "paint scene transition blocked",
         )],
       )
+    }
+    if (scene.status !== "proof-unavailable") {
+      return blockedResult(attemptedWork, [issue(
+        "previous-root-authority-mismatch",
+        "scene",
+        "stageVisit",
+        "Scene owner returned an unhandled visit status",
+      )])
     }
     const proofAuthority =
       createVNextTextBlockReuseProofFailureAuthorityInternalV1({
@@ -970,20 +1020,36 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       productionBinding: false,
     }))
   }
+  const sceneCompletedWork = scene.completedCandidateWork
+    ?? sourceCompletedWork
+  const hasOwnedSceneAndDeliveryWork = scene.completedCandidateWork != null
   const beforeRegistrationWork = paintWork(
-    sourceCompletedWork,
+    sceneCompletedWork,
     {
       dispositionCover: structuralReuseProof.cover,
       visitedLineTreeNodeCount:
         structuralReuseProof.visitedLineTreeNodeCount,
-      sceneLineTreeNodeCount: scene.visitedLineTreeNodeCount,
-      sceneTreeNodeCount: scene.visitedSceneTreeNodeCount,
-      deliverySceneTreeNodeCount: scene.deliveryVisitedSceneTreeNodeCount,
-      copiedSceneNodeCount: scene.copiedSceneNodeCount,
-      replacementChunkCount: scene.replacementChunkCount,
-      deliveryOperationCount: scene.deliveryPlan.operations.length,
-      retainCoverNodeCount:
-        scene.deliveryPlan.summary.retainedSubtreeCount,
+      sceneLineTreeNodeCount: hasOwnedSceneAndDeliveryWork
+        ? sceneCompletedWork.scene.visitedLineTreeNodeCount
+        : scene.visitedLineTreeNodeCount,
+      sceneTreeNodeCount: hasOwnedSceneAndDeliveryWork
+        ? sceneCompletedWork.scene.visitedSceneTreeNodeCount
+        : scene.visitedSceneTreeNodeCount,
+      deliverySceneTreeNodeCount: hasOwnedSceneAndDeliveryWork
+        ? sceneCompletedWork.deliveryPlan.visitedSceneTreeNodeCount
+        : scene.deliveryVisitedSceneTreeNodeCount,
+      copiedSceneNodeCount: hasOwnedSceneAndDeliveryWork
+        ? sceneCompletedWork.scene.copiedSceneNodeCount
+        : scene.copiedSceneNodeCount,
+      replacementChunkCount: hasOwnedSceneAndDeliveryWork
+        ? sceneCompletedWork.scene.replacementChunkCount
+        : scene.replacementChunkCount,
+      deliveryOperationCount: hasOwnedSceneAndDeliveryWork
+        ? sceneCompletedWork.deliveryPlan.deliveryOperationCount
+        : scene.deliveryPlan.operations.length,
+      retainCoverNodeCount: hasOwnedSceneAndDeliveryWork
+        ? sceneCompletedWork.deliveryPlan.retainCoverNodeCount
+        : scene.deliveryPlan.summary.retainedSubtreeCount,
       estimatedCanonicalPayloadByteCount:
         scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
       payloadObservationFingerprint:
@@ -991,8 +1057,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
       visitedChangedSourceLeafItemCount:
         source.visitedChangedSourceLeafItemCount,
-      preserveOwnedSourceAndLineWork:
-        structuralReuseProof.completedCandidateWork != null,
+      preserveOwnedTransitionWork: hasOwnedSceneAndDeliveryWork,
     },
   )
   const v3FinalAudit = input.workPolicy
@@ -1127,27 +1192,30 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       )],
     )
   }
-  const deliveryInspection = inspectVNextTextBlockSceneDeliveryPlanV2({
-    previousScene: input.previousRoot.persistentScene,
-    nextScene: scene.scene,
-    plan: scene.deliveryPlan,
-  })
-  if (deliveryInspection.status !== "valid") {
-    throw new Error(
-      "registered paint transition failed post-commit delivery invariant",
-    )
-  }
-  const work = paintWork(sourceCompletedWork, {
+  const work = paintWork(sceneCompletedWork, {
     dispositionCover: structuralReuseProof.cover,
     visitedLineTreeNodeCount: structuralReuseProof.visitedLineTreeNodeCount,
-    sceneLineTreeNodeCount: scene.visitedLineTreeNodeCount,
-    sceneTreeNodeCount: scene.visitedSceneTreeNodeCount,
-    deliverySceneTreeNodeCount: scene.deliveryVisitedSceneTreeNodeCount,
-    copiedSceneNodeCount: scene.copiedSceneNodeCount,
-    replacementChunkCount: scene.replacementChunkCount,
-    deliveryOperationCount: scene.deliveryPlan.operations.length,
-    retainCoverNodeCount:
-      scene.deliveryPlan.summary.retainedSubtreeCount,
+    sceneLineTreeNodeCount: hasOwnedSceneAndDeliveryWork
+      ? sceneCompletedWork.scene.visitedLineTreeNodeCount
+      : scene.visitedLineTreeNodeCount,
+    sceneTreeNodeCount: hasOwnedSceneAndDeliveryWork
+      ? sceneCompletedWork.scene.visitedSceneTreeNodeCount
+      : scene.visitedSceneTreeNodeCount,
+    deliverySceneTreeNodeCount: hasOwnedSceneAndDeliveryWork
+      ? sceneCompletedWork.deliveryPlan.visitedSceneTreeNodeCount
+      : scene.deliveryVisitedSceneTreeNodeCount,
+    copiedSceneNodeCount: hasOwnedSceneAndDeliveryWork
+      ? sceneCompletedWork.scene.copiedSceneNodeCount
+      : scene.copiedSceneNodeCount,
+    replacementChunkCount: hasOwnedSceneAndDeliveryWork
+      ? sceneCompletedWork.scene.replacementChunkCount
+      : scene.replacementChunkCount,
+    deliveryOperationCount: hasOwnedSceneAndDeliveryWork
+      ? sceneCompletedWork.deliveryPlan.deliveryOperationCount
+      : scene.deliveryPlan.operations.length,
+    retainCoverNodeCount: hasOwnedSceneAndDeliveryWork
+      ? sceneCompletedWork.deliveryPlan.retainCoverNodeCount
+      : scene.deliveryPlan.summary.retainedSubtreeCount,
     estimatedCanonicalPayloadByteCount:
       scene.deliveryPlan.observations.estimatedCanonicalPayloadByteCount,
     payloadObservationFingerprint:
@@ -1155,8 +1223,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
     visitedChangedSourceLeafItemCount:
       source.visitedChangedSourceLeafItemCount,
-    preserveOwnedSourceAndLineWork:
-      structuralReuseProof.completedCandidateWork != null,
+    preserveOwnedTransitionWork: hasOwnedSceneAndDeliveryWork,
     attemptedRegistrationCount:
       registration.attemptedRegistrationCount,
     committedRegistrationCount:

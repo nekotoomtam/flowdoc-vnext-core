@@ -1539,6 +1539,8 @@ export function inspectVNextTextBlockPersistentLayoutLineTreeV1(
 export function lookupVNextTextBlockPersistentLayoutLineInternalV1(input: {
   readonly lineTree: VNextTextBlockPersistentLayoutLineTreeV1
   readonly lineOrdinal: number
+}, options?: {
+  readonly beforeNodeVisit?: () => boolean
 }): VNextTextBlockPersistentLayoutLineLookupResultV1 {
   const inspection =
     inspectVNextTextBlockPersistentLayoutLineTreeShallowAuthorityInternalV1(
@@ -1570,8 +1572,22 @@ export function lookupVNextTextBlockPersistentLayoutLineInternalV1(input: {
   }
   let relativeOrdinal = input.lineOrdinal
   let node = input.lineTree.root
-  let visitedNodeCount = 1
-  while (node.nodeKind === "branch") {
+  let visitedNodeCount = 0
+  while (true) {
+    if (options?.beforeNodeVisit?.() === false) {
+      return {
+        status: "blocked",
+        lineOrdinal: null,
+        leaf: null,
+        work: null,
+        issues: [treeIssue(
+          "invalid-line-topology",
+          "line lookup visit was rejected before node access",
+        )],
+      }
+    }
+    visitedNodeCount += 1
+    if (node.nodeKind !== "branch") break
     let selected: VNextTextBlockPersistentLayoutLineNodeV1 | null = null
     for (const child of node.children) {
       if (relativeOrdinal < child.summary.lineCount) {
@@ -1582,7 +1598,6 @@ export function lookupVNextTextBlockPersistentLayoutLineInternalV1(input: {
     }
     if (selected == null) break
     node = selected
-    visitedNodeCount += 1
   }
   return node.nodeKind === "leaf"
     ? {

@@ -19,6 +19,10 @@ import type {
 import type {
   VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockValidatedChangeV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
 export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1(
   input: {
@@ -27,6 +31,8 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       VNextTextBlockUnifiedLayoutSourceStateV1
     readonly sourceItemAuthority: object
     readonly inlineId: string
+    readonly validatedChange?: VNextTextBlockValidatedChangeV1
+    readonly completedCandidateWork?: VNextTextBlockIncrementalCandidateWorkV1
   },
 ):
   | {
@@ -39,6 +45,8 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly visitedLineTreeNodeCount: number
       readonly visitedSceneTreeNodeCount: number
       readonly deliveryVisitedSceneTreeNodeCount: number
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly []
     }
   | {
@@ -53,6 +61,8 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly visitedLineTreeNodeCount: number
       readonly visitedSceneTreeNodeCount: number
       readonly deliveryVisitedSceneTreeNodeCount: number
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly []
     }
   | {
@@ -65,11 +75,37 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       readonly visitedLineTreeNodeCount: number
       readonly visitedSceneTreeNodeCount: number
       readonly deliveryVisitedSceneTreeNodeCount: number
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly [{
         readonly code: "incremental-proof-unavailable"
         readonly message: string
       }]
+    }
+  | {
+      readonly status: "limit-exceeded" | "invariant-blocked"
+      readonly evaluatorAuthority?: object
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly scene: null
+      readonly deliveryPlan: null
+      readonly copiedSceneNodeCount: number
+      readonly replacementChunkCount: number
+      readonly visitedSourceItemCount: number
+      readonly visitedLineTreeNodeCount: number
+      readonly visitedSceneTreeNodeCount: number
+      readonly deliveryVisitedSceneTreeNodeCount: number
+      readonly completedCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
     } {
+  const context = input.validatedChange == null
+      || input.completedCandidateWork == null
+    ? undefined
+    : {
+        validatedChange: input.validatedChange,
+        completedCandidateWork: input.completedCandidateWork,
+      }
   const scene =
     createVNextTextBlockPersistentSceneImagePaintTransitionCandidateInternalV2({
       previousScene: input.previousRoot.persistentScene,
@@ -77,7 +113,31 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       lineTree: input.previousRoot.lineTree,
       sourceItemAuthority: input.sourceItemAuthority,
       inlineId: input.inlineId,
+    }, context)
+  if (
+    scene.status === "limit-exceeded"
+    || scene.status === "invariant-blocked"
+  ) {
+    return Object.freeze({
+      status: scene.status,
+      ...(scene.status === "limit-exceeded"
+        ? { evaluatorAuthority: scene.evaluatorAuthority }
+        : {}),
+      attemptedWork: scene.attemptedWork,
+      effectiveLimit: scene.effectiveLimit,
+      scene: null,
+      deliveryPlan: null,
+      copiedSceneNodeCount: scene.work.incrementalCopiedNodeCount,
+      replacementChunkCount:
+        scene.completedCandidateWork.scene.replacementChunkCount,
+      visitedSourceItemCount: scene.work.visitedSourceItemCount,
+      visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
+      visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
+      deliveryVisitedSceneTreeNodeCount: 0,
+      completedCandidateWork: scene.completedCandidateWork,
+      issues: Object.freeze([]) as readonly [],
     })
+  }
   if (scene.status !== "prepared") {
     return {
       status: "blocked",
@@ -89,6 +149,9 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
       visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
       deliveryVisitedSceneTreeNodeCount: 0,
+      ...(scene.completedCandidateWork == null ? {} : {
+        completedCandidateWork: scene.completedCandidateWork,
+      }),
       issues: [{
         code: "incremental-proof-unavailable",
         message: scene.issues[0]?.message
@@ -114,6 +177,9 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
       visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
       visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
       deliveryVisitedSceneTreeNodeCount: 0,
+      ...(scene.completedCandidateWork == null ? {} : {
+        completedCandidateWork: scene.completedCandidateWork,
+      }),
       issues: [{
         code: "incremental-proof-unavailable",
         message: fragment.message,
@@ -152,7 +218,38 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
     previousScene: input.previousRoot.persistentScene,
     nextScene: scene.scene,
     operations,
-  })
+  }, scene.completedCandidateWork == null || input.validatedChange == null
+    ? undefined
+    : {
+        validatedChange: input.validatedChange,
+        completedCandidateWork: scene.completedCandidateWork,
+      })
+  if (
+    delivery.status === "limit-exceeded"
+    || delivery.status === "invariant-blocked"
+  ) {
+    return Object.freeze({
+      status: delivery.status,
+      ...(delivery.status === "limit-exceeded"
+        ? { evaluatorAuthority: delivery.evaluatorAuthority }
+        : {}),
+      attemptedWork: delivery.attemptedWork,
+      effectiveLimit: delivery.effectiveLimit,
+      scene: null,
+      deliveryPlan: null,
+      copiedSceneNodeCount: scene.work.incrementalCopiedNodeCount,
+      replacementChunkCount:
+        delivery.completedCandidateWork.scene.replacementChunkCount,
+      visitedSourceItemCount: scene.work.visitedSourceItemCount,
+      visitedLineTreeNodeCount: scene.work.visitedLineTreeNodeCount,
+      visitedSceneTreeNodeCount: scene.work.visitedSceneTreeNodeCount,
+      deliveryVisitedSceneTreeNodeCount:
+        delivery.work.constructionSceneTreeVisitCount
+        + delivery.work.verificationSceneTreeVisitCount,
+      completedCandidateWork: delivery.completedCandidateWork,
+      issues: Object.freeze([]) as readonly [],
+    })
+  }
   if (delivery.status !== "prepared") {
     if (delivery.proofUnavailableAuthority != null) {
       return Object.freeze({
@@ -169,6 +266,9 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
           delivery.work.constructionSceneTreeVisitCount
           + delivery.work.verificationSceneTreeVisitCount,
         issues: Object.freeze([]) as readonly [],
+        ...(delivery.completedCandidateWork == null ? {} : {
+          completedCandidateWork: delivery.completedCandidateWork,
+        }),
       })
     }
     return {
@@ -188,6 +288,9 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
         message: delivery.issues[0]?.message
           ?? "paint scene delivery plan failed",
       }],
+      ...(delivery.completedCandidateWork == null ? {} : {
+        completedCandidateWork: delivery.completedCandidateWork,
+      }),
     }
   }
   return Object.freeze({
@@ -202,6 +305,9 @@ export function prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInter
     deliveryVisitedSceneTreeNodeCount:
       delivery.work.constructionSceneTreeVisitCount
       + delivery.work.verificationSceneTreeVisitCount,
+    ...(delivery.completedCandidateWork == null ? {} : {
+      completedCandidateWork: delivery.completedCandidateWork,
+    }),
     issues: Object.freeze([]) as readonly [],
   })
 }

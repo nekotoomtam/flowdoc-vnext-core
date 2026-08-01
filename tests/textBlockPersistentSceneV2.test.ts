@@ -3,8 +3,11 @@ import * as publicCore from "../src/index.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
+  bindVNextTextBlockIncrementalFlowTreeToImagePaintSourceInternalV1,
   createVNextTextBlockIncrementalFlowTreeCompleteInternalV1,
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
+import * as sceneInternals from "../src/layout/textBlockPersistentSceneV2.js"
+import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   bindVNextTextBlockPersistentLayoutLineTreeToImagePaintSourceInternalV1,
   createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1,
@@ -22,6 +25,7 @@ import {
   VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import {
+  bindVNextTextBlockUnifiedSpatialStateToImagePaintSourceInternalV1,
   createVNextTextBlockUnifiedSpatialStateCompleteInternalV1,
 } from "../src/layout/textBlockUnifiedSpatialStateV1.js"
 import {
@@ -29,6 +33,21 @@ import {
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
   deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
+import {
+  createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
+  getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1,
+  getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
+  prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionSceneInternalsV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   createVNextTextBlockUnifiedLayoutRootV1,
 } from "../src/layout/textBlockUnifiedLayoutRootV1.js"
@@ -92,6 +111,117 @@ function completeScene(
     throw new Error(`scene blocked: ${JSON.stringify(result.issues)}`)
   }
   return { ...input, scene: result.scene, work: result.work }
+}
+
+function v3ScenePaintFixture() {
+  const source = repeatedUnifiedLayoutRootSourceFixtureV1({
+    lineCount: 9,
+    includeImages: true,
+  })
+  const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2({
+    inputAuthority: "core-synthetic-qa-only",
+    initialFlow: source.initialFlow,
+    evidence: source.evidence,
+    spatialEntries: source.spatialEntries,
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL)
+  if (previous.status !== "accepted") throw new Error("V3 scene Root blocked")
+  const change = imagePaintUnifiedLayoutChange5b(previous.root, {
+    inlineId: "repeat-image-4",
+    fit: "cover",
+    crop: { x: 0, y: 0, width: 0.5, height: 1 },
+  })
+  if (change.kind !== "image-paint-fact-change") {
+    throw new Error("V3 scene fixture did not create image paint")
+  }
+  const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+    previousRoot: previous.root,
+    change,
+    workPolicy:
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  })
+  if (bound.status !== "accepted") throw new Error("V3 scene change blocked")
+  const sourceItemAuthority =
+    getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(
+      bound.validatedChange,
+    )
+  const sourceGuard =
+    getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1(
+      bound.validatedChange,
+    )
+  if (sourceItemAuthority == null || sourceGuard == null) {
+    throw new Error("V3 scene source authority missing")
+  }
+  const nextSource =
+    createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+      previousSourceState: previous.root.sourceState,
+      sourceItemAuthority,
+      inlineId: change.inlineId,
+      expectedImageSourceFingerprint: change.expectedImageSourceFingerprint,
+      expectedImageDependencyFingerprint:
+        change.expectedImageDependencyFingerprint,
+      nextFit: change.nextFit,
+      nextCrop: change.nextCrop,
+      validatedChange: bound.validatedChange,
+      completedCandidateWork: bound.incrementalCandidateWork,
+      stageVisitGuard: sourceGuard,
+    })
+  if (
+    nextSource.status !== "prepared"
+    || nextSource.completedCandidateWork == null
+  ) throw new Error("V3 scene source transition blocked")
+  const aliasesAccepted =
+    bindVNextTextBlockIncrementalFlowTreeToImagePaintSourceInternalV1({
+      previousSourceState: previous.root.sourceState,
+      nextSourceState: nextSource.sourceState,
+      flowTree: previous.root.flowTree,
+    })
+    && bindVNextTextBlockUnifiedSpatialStateToImagePaintSourceInternalV1({
+      previousSourceState: previous.root.sourceState,
+      nextSourceState: nextSource.sourceState,
+      spatialState: previous.root.spatialState,
+    })
+    && bindVNextTextBlockPersistentLayoutLineTreeToImagePaintSourceInternalV1({
+      previousSourceState: previous.root.sourceState,
+      nextSourceState: nextSource.sourceState,
+      flowTree: previous.root.flowTree,
+      spatialState: previous.root.spatialState,
+      lineTree: previous.root.lineTree,
+    })
+  if (!aliasesAccepted) throw new Error("V3 scene aliases blocked")
+  return {
+    previousRoot: previous.root,
+    nextSourceState: nextSource.sourceState,
+    sourceItemAuthority: nextSource.sourceItemAuthority,
+    inlineId: change.inlineId,
+    input: {
+      previousScene: previous.root.persistentScene,
+      nextSourceState: nextSource.sourceState,
+      lineTree: previous.root.lineTree,
+      sourceItemAuthority: nextSource.sourceItemAuthority,
+      inlineId: change.inlineId,
+    },
+    context: {
+      validatedChange: bound.validatedChange,
+      completedCandidateWork: nextSource.completedCandidateWork,
+    },
+  }
+}
+
+function sceneVisitTestBoundaries() {
+  const evidence = transitionEvidenceInternals as unknown as {
+    readonly setVNextTextBlockPostBindingLimitOverrideForTestInternalV1?:
+      (value: unknown) => void
+  }
+  const scene = sceneInternals as unknown as {
+    readonly setVNextTextBlockPersistentSceneTransitionOperationObserverForTestInternalV2?:
+      (observer: ((value: unknown) => void) | null) => void
+  }
+  return {
+    setLimit:
+      evidence.setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
+    setObserver:
+      scene.setVNextTextBlockPersistentSceneTransitionOperationObserverForTestInternalV2,
+  }
 }
 
 function utf8ByteCount(value: unknown): number {
@@ -577,6 +707,129 @@ describe("Phase 5B Persistent Scene V2", () => {
       code: "scene-incremental-fragment-invalid",
     })
   })
+
+  it("checks every V3 Scene operation before observing or retaining it", () => {
+    const boundaries = sceneVisitTestBoundaries()
+    expect(boundaries.setLimit).toBeTypeOf("function")
+    expect(boundaries.setObserver).toBeTypeOf("function")
+    if (boundaries.setLimit == null || boundaries.setObserver == null) return
+    const createBounded = (
+      createVNextTextBlockPersistentSceneImagePaintTransitionCandidateInternalV2
+    ) as unknown as (input: unknown, context: unknown) => any
+    const baselineEvents: Array<{ unit: string; completedWork: number }> = []
+    boundaries.setObserver((value) => baselineEvents.push(
+      value as { unit: string; completedWork: number },
+    ))
+    try {
+      const fixture = v3ScenePaintFixture()
+      expect(createBounded(fixture.input, fixture.context)).toMatchObject({
+        status: "prepared",
+        scene: expect.any(Object),
+        completedCandidateWork: expect.any(Object),
+      })
+    } finally {
+      boundaries.setObserver(null)
+    }
+    const units = [
+      "line-tree-lookup-nodes",
+      "scene-tree-lookup-nodes",
+      "copied-scene-nodes",
+      "replacement-chunks",
+    ] as const
+    for (const unit of units) {
+      const actual = Math.max(
+        ...baselineEvents
+          .filter((event) => event.unit === unit)
+          .map((event) => event.completedWork),
+      )
+      expect(actual).toBeGreaterThan(0)
+      for (const effectiveLimit of [actual + 1, actual, actual - 1]) {
+        const events: unknown[] = []
+        boundaries.setLimit({ stage: "scene", unit, effectiveLimit })
+        boundaries.setObserver((value) => events.push(value))
+        try {
+          const fixture = v3ScenePaintFixture()
+          const result = createBounded(fixture.input, fixture.context)
+          if (effectiveLimit >= actual) {
+            expect(result).toMatchObject({ status: "prepared" })
+            expect(events).toEqual(baselineEvents)
+          } else {
+            const rejectedIndex = baselineEvents.findIndex((event) =>
+              event.unit === unit
+              && event.completedWork === effectiveLimit + 1
+            )
+            expect(result).toMatchObject({
+              status: "limit-exceeded",
+              scene: null,
+              copiedPathNodes: null,
+              replacementNodes: null,
+              attemptedWork: effectiveLimit + 1,
+              effectiveLimit,
+              evaluatorAuthority: expect.any(Object),
+            })
+            expect(result.completedCandidateWork.scene[
+              unit === "line-tree-lookup-nodes"
+                ? "visitedLineTreeNodeCount"
+                : unit === "scene-tree-lookup-nodes"
+                  ? "visitedSceneTreeNodeCount"
+                  : unit === "copied-scene-nodes"
+                    ? "copiedSceneNodeCount"
+                    : "replacementChunkCount"
+            ]).toBe(effectiveLimit)
+            expect(events).toEqual(baselineEvents.slice(0, rejectedIndex))
+          }
+        } finally {
+          boundaries.setLimit(null)
+          boundaries.setObserver(null)
+        }
+      }
+    }
+  }, 30_000)
+
+  it("propagates the exact Scene evaluator authority without a partial candidate", () => {
+    const boundaries = sceneVisitTestBoundaries()
+    expect(boundaries.setLimit).toBeTypeOf("function")
+    if (boundaries.setLimit == null) return
+    boundaries.setLimit({
+      stage: "scene",
+      unit: "replacement-chunks",
+      effectiveLimit: 0,
+    })
+    try {
+      const fixture = v3ScenePaintFixture()
+      const result =
+        prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1({
+          previousRoot: fixture.previousRoot,
+          nextSourceState: fixture.nextSourceState,
+          sourceItemAuthority: fixture.sourceItemAuthority,
+          inlineId: fixture.inlineId,
+          ...fixture.context,
+        })
+      expect(result).toMatchObject({
+        status: "limit-exceeded",
+        scene: null,
+        deliveryPlan: null,
+        attemptedWork: 1,
+        effectiveLimit: 0,
+        evaluatorAuthority: expect.any(Object),
+      })
+      if (result.status !== "limit-exceeded") return
+      const record = getVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+        result.evaluatorAuthority,
+      )
+      expect(record).toMatchObject({
+        stage: "scene",
+        unit: "replacement-chunks",
+        completedWork: 0,
+        attemptedWork: 1,
+        effectiveLimit: 0,
+      })
+      expect(record?.completedCandidateWork)
+        .toBe(result.completedCandidateWork)
+    } finally {
+      boundaries.setLimit(null)
+    }
+  }, 30_000)
 
   it("blocks clones, foreign dependency pairing, and accessor envelopes", () => {
     const built = completeInputs()

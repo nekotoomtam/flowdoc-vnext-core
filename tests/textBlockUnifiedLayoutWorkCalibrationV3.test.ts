@@ -5,6 +5,9 @@ import {
   attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
 import {
+  createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import {
   deriveVNextTextBlockWorkPolicyCalibrationInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
@@ -22,6 +25,9 @@ import {
 import {
   ROOT_V2_TEST_WORK_POLICY,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
+import {
+  repeatedUnifiedLayoutRootSourceFixtureV1,
+} from "./helpers/textBlockUnifiedLayoutRootV1.js"
 
 const lockedRows = [
   ["source-flow", "source-items"],
@@ -270,6 +276,57 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
     }
     expect(JSON.stringify(calibration)).not.toMatch(/clock|duration|payloadByte/i)
   })
+
+  it("aggregates exact V3 Source, Line, Scene, and Delivery owner work", () => {
+    const source = repeatedUnifiedLayoutRootSourceFixtureV1({
+      lineCount: 9,
+      includeImages: true,
+    })
+    const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2({
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: source.initialFlow,
+      evidence: source.evidence,
+      spatialEntries: source.spatialEntries,
+    }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL)
+    if (previous.status !== "accepted") throw new Error("V3 Root blocked")
+    const result = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+      previousRoot: previous.root,
+      change: imagePaintUnifiedLayoutChange5b(previous.root, {
+        inlineId: "repeat-image-4",
+        fit: "cover",
+        crop: { x: 0, y: 0, width: 0.5, height: 1 },
+      }),
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    })
+    expect(result.status, JSON.stringify(result.issues))
+      .toBe("accepted-incremental")
+    if (result.status !== "accepted-incremental") return
+    expect(result.incrementalCandidateWork.stageWork).toHaveLength(21)
+    for (const fact of facts(result)) {
+      expect(result.incrementalCandidateWork.stageWork.find((row) =>
+        row.stage === fact.stage && row.unit === fact.unit
+      )).toEqual(fact)
+    }
+    expect(result.incrementalCandidateWork).toMatchObject({
+      structuralReuseProof: {
+        visitedLineTreeNodeCount: expect.any(Number),
+        selectedExactSubtreeNodeCount: expect.any(Number),
+      },
+      scene: {
+        visitedLineTreeNodeCount: expect.any(Number),
+        visitedSceneTreeNodeCount: expect.any(Number),
+        copiedSceneNodeCount: expect.any(Number),
+        replacementChunkCount: 1,
+      },
+      deliveryPlan: {
+        visitedSceneTreeNodeCount: expect.any(Number),
+        deliveryOperationCount: 3,
+        retainCoverNodeCount: expect.any(Number),
+      },
+      rootWrapperAllocationCount: 1,
+    })
+  }, 30_000)
 
   it("evaluates empty, leaf, and maximum-height V3 source envelopes", () => {
     const policy =

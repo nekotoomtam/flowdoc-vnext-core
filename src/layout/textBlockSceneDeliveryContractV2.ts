@@ -5,6 +5,7 @@ import type {
   VNextTextBlockPersistentSceneV2,
 } from "./textBlockPersistentSceneContractV2.js"
 import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
   VNextTextBlockUnifiedLayoutIssueV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
@@ -118,6 +119,8 @@ export type VNextTextBlockSceneDeliveryPlanBuildResultV2 =
       readonly status: "prepared"
       readonly plan: VNextTextBlockSceneDeliveryPlanV2
       readonly work: VNextTextBlockSceneDeliveryPlanBuildWorkV2
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly []
     }
   | {
@@ -126,7 +129,21 @@ export type VNextTextBlockSceneDeliveryPlanBuildResultV2 =
       readonly work: VNextTextBlockSceneDeliveryPlanBuildWorkV2
       readonly proofUnavailableAuthority:
         VNextTextBlockSceneDeliveryRetainProofFailureAuthorityInternalV2 | null
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly VNextTextBlockSceneDeliveryPlanIssueV2[]
+    }
+  | {
+      readonly status: "limit-exceeded" | "invariant-blocked"
+      readonly plan: null
+      readonly work: VNextTextBlockSceneDeliveryPlanBuildWorkV2
+      readonly proofUnavailableAuthority: null
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly evaluatorAuthority?: object
+      readonly completedCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
     }
 
 export type VNextTextBlockSceneDeliveryPlanInspectionV2 =
