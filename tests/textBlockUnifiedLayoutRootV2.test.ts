@@ -54,7 +54,7 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function rootSourceEnvelopeAuthority(value: unknown): unknown {
@@ -73,7 +73,7 @@ describe("Phase 5B independent unified Root V2", () => {
     const prepared =
       prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
         input,
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         "complete-bootstrap",
       )
     expect(prepared.status).toBe("prepared")
@@ -88,7 +88,7 @@ describe("Phase 5B independent unified Root V2", () => {
 
     const accepted = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
       input,
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     )
     expect(accepted.status).toBe("accepted")
     if (accepted.status !== "accepted") throw new Error("V3 Root blocked")
@@ -98,13 +98,18 @@ describe("Phase 5B independent unified Root V2", () => {
     expect(accepted.root.sourceState).not.toHaveProperty("treeHeight")
     expect(accepted.root.sourceState.summary).not.toHaveProperty("treeHeight")
 
-    const activeV2 = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    const retiredV2 = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
       input,
-      ROOT_V2_TEST_WORK_POLICY,
+      Object.freeze({
+        ...ROOT_V2_TEST_WORK_POLICY,
+        policyId: "5b-1-v2",
+      }) as never,
     )
-    expect(activeV2.status).toBe("accepted")
-    if (activeV2.status !== "accepted") throw new Error("V2 Root blocked")
-    expect(rootSourceEnvelopeAuthority(activeV2.root)).toBeNull()
+    expect(retiredV2).toMatchObject({
+      status: "blocked",
+      root: null,
+      issues: [{ code: "invalid-work-policy" }],
+    })
   })
 
   it("rejects a V3 source-envelope breach before downstream complete work", () => {
@@ -135,7 +140,7 @@ describe("Phase 5B independent unified Root V2", () => {
       const rejected =
         prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
           input,
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
           "complete-bootstrap",
         )
       expect(rejected).toMatchObject({
@@ -158,7 +163,7 @@ describe("Phase 5B independent unified Root V2", () => {
       const corrected =
         prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
           input,
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
           "complete-fallback",
         )
       expect(corrected.status).toBe("prepared")
@@ -186,7 +191,7 @@ describe("Phase 5B independent unified Root V2", () => {
         content: "text-image-text-break",
         fit: "contain",
       }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     )
     if (previous.status !== "accepted") throw new Error("V3 previous Root blocked")
     const previousAuthority = rootSourceEnvelopeAuthority(previous.root)
@@ -199,7 +204,7 @@ describe("Phase 5B independent unified Root V2", () => {
         crop: { x: 0, y: 0, width: 0.5, height: 1 },
       }),
       workPolicy:
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     })
     expect(result.status).toBe("accepted-incremental")
     if (result.status !== "accepted-incremental") return

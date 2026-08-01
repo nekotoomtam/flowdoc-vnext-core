@@ -46,7 +46,7 @@ import {
   prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionSceneInternalsV1.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   createVNextTextBlockUnifiedLayoutRootV1,
@@ -123,7 +123,7 @@ function v3ScenePaintFixture() {
     initialFlow: source.initialFlow,
     evidence: source.evidence,
     spatialEntries: source.spatialEntries,
-  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL)
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3)
   if (previous.status !== "accepted") throw new Error("V3 scene Root blocked")
   const change = imagePaintUnifiedLayoutChange5b(previous.root, {
     inlineId: "repeat-image-4",
@@ -137,7 +137,7 @@ function v3ScenePaintFixture() {
     previousRoot: previous.root,
     change,
     workPolicy:
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   })
   if (bound.status !== "accepted") throw new Error("V3 scene change blocked")
   const sourceItemAuthority =

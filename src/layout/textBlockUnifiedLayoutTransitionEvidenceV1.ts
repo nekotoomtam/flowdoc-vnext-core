@@ -51,8 +51,7 @@ import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   previousVNextTextBlockStageSummaryBaseInternalV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 /*
@@ -779,7 +778,7 @@ function hasCanonicalV3StageWorkInternalV1(
 ): boolean {
   try {
     const policy =
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     if (
       !candidateWorkIsDeeplyFrozenInternalV1(work)
       || work.source !== "vnext-text-block-incremental-candidate-work-v1"
@@ -860,7 +859,7 @@ export function evaluateNextVNextTextBlockStageVisitInternalV1(input: {
   if (
     validated == null
     || validated.workPolicy
-      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     || validated.previousRoot.workPolicy !== validated.workPolicy
     || validated.originalChange !== input.validatedChange.change
     || validated.rootSourceEnvelopeAuthority == null
@@ -1059,13 +1058,13 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     ))
   }
   const rootSourceEnvelopeAuthority = input.workPolicy
-    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     ? getVNextTextBlockRootSourceEnvelopeAuthorityInternalV1(
         input.previousRoot,
       )
     : null
   const bindingAttempt = input.workPolicy
-    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     && rootSourceEnvelopeAuthority != null
     ? createChangeBindingAttemptInternalV1({
         previousRoot: input.previousRoot,
@@ -1078,7 +1077,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     : null
   if (
     input.workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     && bindingAttempt == null
   ) {
     return blockedBinding(shaped.incrementalCandidateWork, issue(
@@ -1138,7 +1137,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
                   count: imagePaintSourceWork.visitedSourceItemCount,
                 }]),
             ...(input.workPolicy
-                === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+                === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
               && imagePaintSourceWork.visitedSourceLookupNodeCount !== 0
               ? [{
                   stage: "source-flow" as const,
@@ -1233,7 +1232,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
   }))
   if (
     input.workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
   ) {
     validatedSourceTransitionVisitGuards.set(
       validatedChange,
@@ -1977,7 +1976,7 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1(
   return createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1({
     previousRoot: exact?.previousRoot as VNextTextBlockUnifiedLayoutRootV2,
     change: exact?.change as VNextTextBlockUnifiedLayoutChangeV1,
-    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   })
 }
 

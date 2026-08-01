@@ -32,7 +32,7 @@ import {
   getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineImageFlowV2.js"
 import { listImageGeometryBuildInputFixture } from "./helpers/textBlockInitialFlowV1.js"
@@ -167,7 +167,7 @@ function v3SourceTransitionFixture() {
       content: "text-image-text-break",
       fit: "contain",
     }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   )
   if (previous.status !== "accepted") throw new Error("V3 Root blocked")
   const change = imagePaintUnifiedLayoutChange5b(previous.root, {
@@ -181,7 +181,7 @@ function v3SourceTransitionFixture() {
     previousRoot: previous.root,
     change,
     workPolicy:
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   })
   if (bound.status !== "accepted") throw new Error("V3 change did not bind")
   const sourceItemAuthority =

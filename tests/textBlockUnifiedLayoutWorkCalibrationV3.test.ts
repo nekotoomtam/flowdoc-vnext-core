@@ -10,8 +10,7 @@ import {
 import {
   deriveVNextTextBlockWorkPolicyCalibrationInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   type VNextTextBlockWorkCalibrationObservationInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import type {
@@ -199,13 +198,13 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       limit: row.limit,
       limitPlusOne: row.limitPlusOne,
     })),
-    inactiveRows: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.stages
+    inactiveRows: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages
       .filter((row) => row.lockStatus === "inactive")
       .map((row) => ({ stage: row.stage, unit: row.unit })),
     candidatePolicyId:
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.policyId,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.policyId,
     candidatePolicyFingerprint:
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.fingerprint,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.fingerprint,
   }
 
   it("derives 13 finite locked rows from the closed fixture matrix", () => {
@@ -221,18 +220,18 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
     ].every((value) => Number.isSafeInteger(value) && value > 0))).toBe(true)
   })
 
-  it("freezes a private 21-row candidate while V2 remains active", () => {
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.policyId)
+  it("activates the reviewed 21-row V3 policy without changing calibration", () => {
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.policyId)
       .toBe("5b-1-v3")
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.stages)
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages)
       .toHaveLength(21)
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.stages.filter(
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages.filter(
       (row) => row.lockStatus === "locked",
     )).toHaveLength(13)
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.stages.filter(
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages.filter(
       (row) => row.lockStatus === "inactive",
     )).toHaveLength(8)
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.stages.filter(
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages.filter(
       (row) => row.lockStatus === "locked",
     ).map((row) => ({
       stage: row.stage,
@@ -247,25 +246,22 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       absoluteStageLimit: row.absoluteStageLimit,
       relativeNumerator: row.relativeNumerator,
     })))
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.policyId).toBe("5b-1-v2")
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.policyId).toBe("5b-1-v3")
 
     const previous = repeatedRoot(1)
-    const rejected = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+    const accepted = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
       previousRoot: previous.root,
       change: noOpUnifiedLayoutChange5b(previous.root),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     })
-    expect(rejected).toMatchObject({
-      status: "blocked",
-      issues: [{ code: "invalid-work-policy" }],
-    })
+    expect(accepted.status).toBe("accepted-no-op")
   })
 
   it("proves minus-one/equal/plus-one for every derived locked row", () => {
     for (const row of calibration.lockedRows) {
       for (const [offset, status] of [[-1, "within-limit"], [0, "within-limit"], [1, "limit-exceeded"]] as const) {
         expect(evaluateVNextTextBlockStageWorkLimitInternalV1({
-          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
           stage: row.stage,
           unit: row.unit,
           previousSummaryBase: row.thresholdPreviousSummaryBase,
@@ -287,7 +283,7 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       initialFlow: source.initialFlow,
       evidence: source.evidence,
       spatialEntries: source.spatialEntries,
-    }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL)
+    }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3)
     if (previous.status !== "accepted") throw new Error("V3 Root blocked")
     const result = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
       previousRoot: previous.root,
@@ -297,7 +293,7 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
         crop: { x: 0, y: 0, width: 0.5, height: 1 },
       }),
       workPolicy:
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     })
     expect(result.status, JSON.stringify(result.issues))
       .toBe("accepted-incremental")
@@ -330,7 +326,7 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
 
   it("evaluates empty, leaf, and maximum-height V3 source envelopes", () => {
     const policy =
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     expect(sourceEnvelopeEvaluation({
       policy,
       sourceItemCount: 0,
@@ -376,7 +372,7 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
 
   it("fails closed on source fact thresholds and foreign policy authority", () => {
     const policy =
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     const sourceFacts = {
       policy,
       sourceItemCount: 0,
@@ -438,7 +434,7 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       console.log("FLOWDOC_5B1_V3_CALIBRATION", JSON.stringify({
         observations,
         calibration,
-        candidate: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        candidate: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       }))
     }
     expect(true).toBe(true)

@@ -60,8 +60,7 @@ import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   previousVNextTextBlockStageSummaryBaseInternalV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function fingerprint(value: unknown): string {
@@ -280,7 +279,7 @@ function noOpWork(
       completeLineTreeTraversalCount: 0,
     },
     stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
-      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       factualCounts: [
         ...(base.flow.visitedSourceItemCount === 0 ? [] : [{
         stage: "source-flow" as const,
@@ -404,7 +403,7 @@ function paintWork(
     stageWork: input.preserveOwnedTransitionWork
       ? base.stageWork
       : composeVNextTextBlockStageWorkLedgerInternalV1({
-          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
           factualCounts: [
             {
               stage: "source-flow" as const,
@@ -646,7 +645,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     allExactStructuralReuseDispositions(
       input.previousRoot,
       input.workPolicy
-          === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+          === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
         ? {
             validatedChange: bound.validatedChange,
             completedCandidateWork: bound.incrementalCandidateWork,
@@ -723,14 +722,14 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
   const sourceBaseWork = structuralReuseProof.completedCandidateWork
     ?? bound.incrementalCandidateWork
   const sourceVisitGuard = input.workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     ? getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1(
         bound.validatedChange,
       )
     : null
   if (
     input.workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     && sourceVisitGuard == null
   ) {
     return blockedResult(sourceBaseWork, [issue(
@@ -828,7 +827,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       sourceItemAuthority: source.sourceItemAuthority,
       inlineId: input.change.inlineId,
       ...(input.workPolicy
-          === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+          === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
         ? {
             validatedChange: bound.validatedChange,
             completedCandidateWork: sourceCompletedWork,
@@ -1132,7 +1131,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionV1(
     ...(exact != null && Object.hasOwn(exact, "evidence")
       ? { evidence: exact.evidence }
       : {}),
-    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+    workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   })
 }
 

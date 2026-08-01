@@ -58,12 +58,14 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       copiedSourcePathNodeCount: 2,
       visitedChangedSourceLeafItemCount: 8,
     })
-    expect(result.incrementalCandidateWork.stageWork).toHaveLength(14)
-    expect(result.incrementalCandidateWork.stageWork.some((work) =>
-      work.unit === "source-lookup-nodes"
-      || work.unit === "source-path-copy-nodes"
-      || work.unit === "source-leaf-items"
-    )).toBe(false)
+    expect(result.incrementalCandidateWork.stageWork).toHaveLength(21)
+    expect(result.incrementalCandidateWork.stageWork).toEqual(
+      expect.arrayContaining([
+        { stage: "source-flow", unit: "source-lookup-nodes", count: 2 },
+        { stage: "source-flow", unit: "source-path-copy-nodes", count: 2 },
+        { stage: "source-flow", unit: "source-leaf-items", count: 8 },
+      ]),
+    )
   })
 
   it("reports lookup-only work for an image-paint semantic no-op", () => {
@@ -157,7 +159,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       scene: { replacementChunkCount: 0 },
       atomicAcceptance: { attemptedRegistrationCount: 0 },
     })
-    expect(result.incrementalCandidateWork.stageWork).toHaveLength(14)
+    expect(result.incrementalCandidateWork.stageWork).toHaveLength(21)
     expect(result.incrementalCandidateWork.stageWork.every(
       (row) => row.count === 0,
     )).toBe(true)
@@ -369,7 +371,7 @@ describe("Phase 5B-1 no-op and paint-only transition foundation", () => {
       stage: "geometry",
       path: "change.kind",
     })])
-    expect(authoredBox.incrementalCandidateWork.stageWork).toHaveLength(14)
+    expect(authoredBox.incrementalCandidateWork.stageWork).toHaveLength(21)
     expect(authoredBox.incrementalCandidateWork.stageWork.every(
       (row) => row.count === 0,
     )).toBe(true)

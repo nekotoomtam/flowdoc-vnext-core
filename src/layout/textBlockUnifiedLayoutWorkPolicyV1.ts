@@ -15,7 +15,7 @@ export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION = 1 as const
 const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1_ID =
   "5b-1-v1" as const
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID =
-  "5b-1-v2" as const
+  "5b-1-v3" as const
 
 export type VNextTextBlockWorkPolicyLockStatusV1 =
   | "inactive"
@@ -419,43 +419,6 @@ VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
   fingerprint: fingerprint(policy5b1V1Facts),
 }) as unknown as VNextTextBlockUnifiedLayoutWorkPolicyV1
 
-const policy5b1V2Stages = Object.freeze([
-  locked("source-flow", "source-items", 1, 4, 1),
-  inactive("source-flow", "flow-atoms", "5B-2"),
-  inactive("source-flow", "flow-tree-nodes", "5B-2"),
-  inactive("spatial-index", "spatial-index-nodes", "5B-3"),
-  inactive("spatial-index", "spatial-query-bands", "5B-3"),
-  locked(
-    "structural-reuse-proof",
-    "selected-exact-subtree-nodes",
-    1,
-    4,
-    1,
-  ),
-  inactive("layout-reconvergence", "recomputed-lines", "5B-2"),
-  inactive("layout-reconvergence", "proof-nodes", "5B-2"),
-  inactive("geometry", "reprojected-lines", "5B-3"),
-  inactive("geometry", "visited-fragments", "5B-3"),
-  locked("scene", "copied-scene-nodes", 2, 16, 1),
-  locked("scene", "replacement-chunks", 1, 4, 1),
-  locked("delivery-plan", "delivery-operations", 4, 16, 1),
-  locked("delivery-plan", "retain-cover-nodes", 16, 64, 1),
-] satisfies readonly VNextTextBlockStageLimitV1[])
-
-const policy5b1V2Facts = {
-  source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
-  contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
-  policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
-  checkpoint: "5B-1" as const,
-  stages: policy5b1V2Stages,
-}
-
-export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2:
-VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
-  ...policy5b1V2Facts,
-  fingerprint: fingerprint(policy5b1V2Facts),
-})
-
 const frozenV3Locked = new Map([
   locked("source-flow", "source-items", 1, 4, 1),
   locked("source-flow", "source-lookup-nodes", 2, 16, 1),
@@ -478,7 +441,7 @@ const v3Row = (
 ): VNextTextBlockStageLimitV1 =>
   frozenV3Locked.get(`${stage}/${unit}`)
     ?? inactive(stage, unit, owner)
-const policy5b1V3CandidateStages = Object.freeze([
+const policy5b1V3Stages = Object.freeze([
   v3Row("source-flow", "source-items"),
   v3Row("source-flow", "source-lookup-nodes"),
   v3Row("source-flow", "source-path-copy-nodes"),
@@ -501,17 +464,17 @@ const policy5b1V3CandidateStages = Object.freeze([
   v3Row("delivery-plan", "retain-cover-nodes"),
   v3Row("delivery-plan", "scene-tree-lookup-nodes"),
 ])
-const policy5b1V3CandidateFacts = {
+const policy5b1V3Facts = {
   source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
   contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
   policyId: "5b-1-v3",
   checkpoint: "5B-1" as const,
-  stages: policy5b1V3CandidateStages,
+  stages: policy5b1V3Stages,
 }
-export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL:
+export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3:
 VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
-  ...policy5b1V3CandidateFacts,
-  fingerprint: fingerprint(policy5b1V3CandidateFacts),
+  ...policy5b1V3Facts,
+  fingerprint: fingerprint(policy5b1V3Facts),
 })
 
 export interface VNextTextBlockSourceEnvelopeLimitInternalV1 {
@@ -545,7 +508,7 @@ export function evaluateVNextTextBlockSourceWorkEnvelopeInternalV1(input: {
   readonly maximumLeafOccupancy: 8
   readonly deliberateItemResolutionCount: 1
 }): VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1 {
-  if (input.policy !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL) {
+  if (input.policy !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3) {
     return Object.freeze({ status: "invalid-policy" as const })
   }
   if ([

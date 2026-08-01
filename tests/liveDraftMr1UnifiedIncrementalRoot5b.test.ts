@@ -7,8 +7,7 @@ import {
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   acceptedRepeatedUnifiedLayoutRootFixture5b,
@@ -86,15 +85,9 @@ interface Manifest5b1 {
     readonly policyId: string
     readonly fingerprint: string
     readonly activationStatus: string
-    readonly v3Candidate: {
-      readonly status: string
-      readonly policyId: string
-      readonly fingerprint: string
-      readonly calibrationFile: string
-      readonly calibrationFileSha256: string
-      readonly formulaVersion: string
-      readonly lockedStageLimits: readonly ManifestStageLimit[]
-    }
+    readonly calibrationFile: string
+    readonly calibrationFileSha256: string
+    readonly formulaVersion: string
     readonly calibration: {
       readonly clockOrDurationFieldCount: number
     }
@@ -170,15 +163,6 @@ function manifestPayloadLocationViolations(
     violations.push("outside-fixture-observations")
   }
   return violations
-}
-
-function nextPowerOfTwo(value: number): number {
-  if (!Number.isSafeInteger(value) || value < 0) {
-    throw new RangeError("calibration value must be a safe integer")
-  }
-  let output = 1
-  while (output < value) output *= 2
-  return output
 }
 
 function reaches(source: unknown, target: object): boolean {
@@ -268,10 +252,15 @@ describe("Phase 5B-1 public foundation gate", () => {
       expect(typeof publicCore[name as keyof typeof publicCore], name)
         .toBe("function")
     }
-    expect(publicCore.VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2)
-      .toBe(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2)
+    expect(publicCore).not.toHaveProperty(
+      "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2",
+    )
+    expect(publicCore).toHaveProperty(
+      "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3",
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+    )
     expect(publicCore.VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID)
-      .toBe("5b-1-v2")
+      .toBe("5b-1-v3")
     for (const privateName of explicitlyPrivatePublicNames) {
       expect(publicCore).not.toHaveProperty(privateName)
     }
@@ -300,8 +289,8 @@ describe("Phase 5B-1 public foundation gate", () => {
     expect(result.status, JSON.stringify(result.issues)).toBe("accepted")
     if (result.status !== "accepted") return
     expect(result.root.workPolicy)
-      .toBe(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2)
-    expect(result.root.workPolicy.policyId).toBe("5b-1-v2")
+      .toBe(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3)
+    expect(result.root.workPolicy.policyId).toBe("5b-1-v3")
     expect(result.root.contracts).toMatchObject({
       completeNextInputOnHotPath: false,
       stagedEditorApply: false,
@@ -328,26 +317,20 @@ describe("Phase 5B-1 public foundation gate", () => {
       },
       fixtureCalibrationRevision: 3,
       policy: {
-        policyId: "5b-1-v2",
+        policyId: "5b-1-v3",
         fingerprint:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.fingerprint,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.fingerprint,
         activationStatus: "active-public",
-        v3Candidate: {
-          status: "frozen-private-candidate",
-          policyId: "5b-1-v3",
-          fingerprint:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL.fingerprint,
-          formulaVersion: "5b-1-v3-calibration-v1",
-        },
+        formulaVersion: "5b-1-v3-calibration-v1",
       },
     })
     const calibrationBytes = readFileSync(new URL(
-      `../fixtures/${manifest.policy.v3Candidate.calibrationFile}`,
+      `../fixtures/${manifest.policy.calibrationFile}`,
       import.meta.url,
     ))
     expect(createHash("sha256").update(calibrationBytes).digest("hex"))
-      .toBe(manifest.policy.v3Candidate.calibrationFileSha256)
-    expect(manifest.policy.v3Candidate.lockedStageLimits).toHaveLength(13)
+      .toBe(manifest.policy.calibrationFileSha256)
+    expect(manifest.policy.lockedStageLimits).toHaveLength(13)
     expect(manifest.policy.lockedStageLimits.map((row) => ({
       stage: row.stage,
       unit: row.unit,
@@ -355,56 +338,16 @@ describe("Phase 5B-1 public foundation gate", () => {
       absoluteStageLimit: row.absoluteStageLimit,
       relativeNumerator: row.relativeNumerator,
       relativeDenominator: row.relativeDenominator,
-    }))).toEqual([
-      {
-        stage: "source-flow",
-        unit: "source-items",
-        smallBlockFloor: 1,
-        absoluteStageLimit: 4,
-        relativeNumerator: 1,
-        relativeDenominator: 1,
-      },
-      {
-        stage: "structural-reuse-proof",
-        unit: "selected-exact-subtree-nodes",
-        smallBlockFloor: 1,
-        absoluteStageLimit: 4,
-        relativeNumerator: 1,
-        relativeDenominator: 1,
-      },
-      {
-        stage: "scene",
-        unit: "copied-scene-nodes",
-        smallBlockFloor: 2,
-        absoluteStageLimit: 16,
-        relativeNumerator: 1,
-        relativeDenominator: 1,
-      },
-      {
-        stage: "scene",
-        unit: "replacement-chunks",
-        smallBlockFloor: 1,
-        absoluteStageLimit: 4,
-        relativeNumerator: 1,
-        relativeDenominator: 1,
-      },
-      {
-        stage: "delivery-plan",
-        unit: "delivery-operations",
-        smallBlockFloor: 4,
-        absoluteStageLimit: 16,
-        relativeNumerator: 1,
-        relativeDenominator: 1,
-      },
-      {
-        stage: "delivery-plan",
-        unit: "retain-cover-nodes",
-        smallBlockFloor: 16,
-        absoluteStageLimit: 64,
-        relativeNumerator: 1,
-        relativeDenominator: 1,
-      },
-    ])
+    }))).toEqual(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages
+      .filter((row) => row.lockStatus === "locked")
+      .map((row) => ({
+        stage: row.stage,
+        unit: row.unit,
+        smallBlockFloor: row.smallBlockFloor,
+        absoluteStageLimit: row.absoluteStageLimit,
+        relativeNumerator: row.relativeNumerator,
+        relativeDenominator: row.relativeDenominator,
+      })))
     expect(manifestPayloadLocationViolations(manifest)).toEqual([])
     expect(manifest.thresholdRows).toContainEqual({
       stage: "structural-reuse-proof",
@@ -601,9 +544,9 @@ describe("Phase 5B-1 public foundation gate", () => {
         productionActivation: false,
       },
       policy: {
-        policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.policyId,
+        policyId: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.policyId,
         fingerprint:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.fingerprint,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.fingerprint,
         calibration: { clockOrDurationFieldCount: 0 },
       },
     })
@@ -611,42 +554,18 @@ describe("Phase 5B-1 public foundation gate", () => {
       /elapsed|durationMs|performance\.now|Date\.now/u,
     )
 
-    const unitCounter = {
-      "source-items": "sourceItems",
-      "selected-exact-subtree-nodes": "selectedExactSubtreeNodes",
-      "copied-scene-nodes": "copiedSceneNodes",
-      "replacement-chunks": "replacementChunks",
-      "delivery-operations": "deliveryOperations",
-      "retain-cover-nodes": "retainCoverNodes",
-    } as const
-    for (const row of manifest.policy.lockedStageLimits) {
-      const counter = unitCounter[row.unit as keyof typeof unitCounter]
-      expect(counter).toBeDefined()
-      const observed = manifest.fixtures.map((fixture) =>
-        fixture.counters[counter!]
-      )
-      const smallObserved = manifest.fixtures
-        .filter((fixture) => fixture.lineCount <= 32)
-        .map((fixture) => fixture.counters[counter!])
-      expect(row.smallBlockFloor).toBe(nextPowerOfTwo(
-        Math.max(...smallObserved),
-      ))
-      expect(row.absoluteStageLimit).toBe(nextPowerOfTwo(
-        Math.max(...observed) * 4,
-      ))
-      const bases = manifest.fixtures.map((fixture) =>
-        row.unit === "source-items"
-          ? fixture.atomCount
-          : fixture.chunkCount
-      )
-      expect(row.relativeNumerator).toBe(Math.max(
-        1,
-        ...observed.map((count, index) =>
-          Math.ceil(count / Math.max(1, bases[index]!))
-        ),
-      ))
-      expect(row.relativeDenominator).toBe(1)
-    }
+    expect(manifest.policy.lockedStageLimits).toEqual(
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages
+        .filter((row) => row.lockStatus === "locked")
+        .map((row) => ({
+          stage: row.stage,
+          unit: row.unit,
+          smallBlockFloor: row.smallBlockFloor,
+          absoluteStageLimit: row.absoluteStageLimit,
+          relativeNumerator: row.relativeNumerator,
+          relativeDenominator: row.relativeDenominator,
+        })),
+    )
 
     const roots = new Map<number, ReturnType<
       typeof acceptedRepeatedUnifiedLayoutRootFixture5b
@@ -746,7 +665,7 @@ describe("Phase 5B-1 public foundation gate", () => {
         [row.limitPlusOne, "limit-exceeded"],
       ] as const) {
         expect(evaluateVNextTextBlockStageWorkLimitInternalV1({
-          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
           stage: row.stage,
           unit: row.unit,
           previousSummaryBase: row.previousSummaryBase,
@@ -772,7 +691,7 @@ describe("Phase 5B-1 public foundation gate", () => {
         attempt: Object.freeze({
           previousRoot: previousResult.root,
           change: noOpUnifiedLayoutChange5b(previousResult.root),
-          workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+          workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
           reason: {
             code: "stage-unit-limit-exceeded",
             stage: "source-flow",

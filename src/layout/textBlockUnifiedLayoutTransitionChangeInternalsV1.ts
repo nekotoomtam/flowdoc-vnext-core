@@ -25,7 +25,7 @@ import type {
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 type StrictData =
@@ -395,7 +395,7 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
       committedRegistrationCount: 0,
     },
     stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
-      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       factualCounts: [],
     }),
     rootWrapperAllocationCount: 0,

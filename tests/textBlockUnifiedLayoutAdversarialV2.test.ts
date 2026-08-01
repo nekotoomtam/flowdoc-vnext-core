@@ -35,8 +35,7 @@ import {
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   imagePaintUnifiedLayoutChange5b,
@@ -128,7 +127,7 @@ function rootWithPreparedScene(
 function policyLimitedAt(
   unit: VNextTextBlockUnifiedLayoutWorkPolicyV1["stages"][number]["unit"],
 ): VNextTextBlockUnifiedLayoutWorkPolicyV1 {
-  const stages = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages
+  const stages = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages
     .map((row) => {
       if (row.unit !== unit) return row
       const {
@@ -149,7 +148,7 @@ function policyLimitedAt(
   const facts = {
     source: "vnext-text-block-unified-layout-work-policy-v1" as const,
     contractVersion: 1 as const,
-    policyId: "5b-1-v2",
+    policyId: "5b-1-v3",
     checkpoint: "5B-1" as const,
     stages: Object.freeze(stages),
   }
@@ -172,7 +171,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
         content: "text-image-text-break",
         fit: "contain",
       }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     )
     if (previous.status !== "accepted") throw new Error("V3 Root blocked")
     const change = imagePaintUnifiedLayoutChange5b(previous.root, {
@@ -183,7 +182,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
       previousRoot: previous.root,
       change,
       workPolicy:
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     })
     if (bound.status !== "accepted") throw new Error("V3 change did not bind")
     const work = structuredClone(
@@ -198,7 +197,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
     const result = audit({
       previousRoot: previous.root,
       workPolicy:
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       completedCandidateWork: deepFreeze(work),
     })
     expect(result).toMatchObject({
@@ -354,7 +353,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
       publicCore.createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1({
         previousRoot: first.root,
         change: noOpUnifiedLayoutChange5b(first.root),
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       } as never),
     ).toMatchObject({ status: "blocked" })
   })
@@ -366,7 +365,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
           content: "image-only",
           fit: "contain",
         }),
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         "complete-bootstrap",
       )
     const cover =
@@ -376,7 +375,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
           fit: "cover",
           crop: { x: 0, y: 0, width: 0.5, height: 1 },
         }),
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         "complete-bootstrap",
       )
     if (contain.status !== "prepared" || cover.status !== "prepared") {
@@ -553,7 +552,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
 
   it("blocks unsafe limit arithmetic and exposes no collision or registry hooks", () => {
     expect(evaluateVNextTextBlockStageWorkLimitInternalV1({
-      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       stage: "scene",
       unit: "copied-scene-nodes",
       previousSummaryBase: Number.MAX_SAFE_INTEGER,
@@ -564,7 +563,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
       effectiveLimit: null,
     })
     expect(evaluateVNextTextBlockStageWorkLimitInternalV1({
-      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       stage: "scene",
       unit: "copied-scene-nodes",
       previousSummaryBase: 1,
@@ -606,7 +605,7 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
       const previous =
         createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
           material,
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         )
       if (previous.status !== "accepted") {
         throw new Error(`limited-policy root blocked: ${target.unit}`)
@@ -637,9 +636,9 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
     }
 
     const drifted = deepFreeze({
-      ...VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+      ...VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       stages:
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages.map(
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages.map(
           (row, index) => index === 0
             ? { ...row, absoluteStageLimit: row.absoluteStageLimit + 1 }
             : row,

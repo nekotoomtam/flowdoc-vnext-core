@@ -24,8 +24,7 @@ import {
   effectiveStageLimitV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   type VNextTextBlockStageLimitV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -382,8 +381,8 @@ describe("Phase 5B closed transition contracts", () => {
 
   it("calibrates structural reuse separately from payload observation", () => {
     expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID)
-      .toBe("5b-1-v2")
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages)
+      .toBe("5b-1-v3")
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages)
       .toContainEqual(expect.objectContaining({
         stage: "structural-reuse-proof",
         unit: "selected-exact-subtree-nodes",
@@ -393,11 +392,11 @@ describe("Phase 5B closed transition contracts", () => {
         relativeNumerator: 1,
         relativeDenominator: 1,
       }))
-    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages.some(
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages.some(
       (row) => String(row.unit) === "estimated-canonical-payload-bytes",
     )).toBe(false)
     const candidate =
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     const { fingerprint: _fingerprint, ...candidateFacts } = candidate
     expect(candidate.policyId).toBe("5b-1-v3")
     expect(candidate.stages).toHaveLength(21)
@@ -429,10 +428,10 @@ describe("Phase 5B closed transition contracts", () => {
       retainCoverNodeCount: 0,
     })
     expect(empty.observations.payloadObservationFingerprint).toBeNull()
-    expect(empty.stageWork).toHaveLength(14)
+    expect(empty.stageWork).toHaveLength(21)
     expect(empty.stageWork.every((row) => row.count === 0)).toBe(true)
     expect(empty.stageWork.map(({ stage, unit }) => ({ stage, unit })))
-      .toEqual(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.stages.map(
+      .toEqual(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages.map(
         ({ stage, unit }) => ({ stage, unit }),
       ))
     expect(empty.stageWork.some(
@@ -441,7 +440,7 @@ describe("Phase 5B closed transition contracts", () => {
 
     expect([3, 4, 5].map((attemptedWork) => (
       evaluateVNextTextBlockStageWorkLimitInternalV1({
-        policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+        policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         stage: "structural-reuse-proof",
         unit: "selected-exact-subtree-nodes",
         previousSummaryBase: 128,
@@ -541,7 +540,7 @@ describe("Phase 5B closed transition contracts", () => {
   })
 
   it("rejects noncanonical factual work instead of repairing authority", () => {
-    const policy = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2
+    const policy = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     const compose = (factualCounts: readonly VNextTextBlockStageWorkCountV1[]) =>
       composeVNextTextBlockStageWorkLedgerInternalV1({ policy, factualCounts })
 

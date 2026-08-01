@@ -28,7 +28,7 @@ import {
   setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
@@ -208,7 +208,7 @@ function makeFallbackAttempt(
     previousRoot: root,
     change,
     workPolicy:
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   })
   if (bound.status !== "accepted") {
     throw new Error(`change binding blocked: ${JSON.stringify(bound.issues)}`)
@@ -250,7 +250,7 @@ function acceptedUnifiedLayoutRootFixtureV3(
 ) {
   const result = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
     unifiedLayoutRootBuildInputFixtureV2(options),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   )
   if (result.status !== "accepted") {
     throw new Error(`V3 Root blocked: ${JSON.stringify(result.issues)}`)
@@ -487,7 +487,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
         expectedTargetBinding:
           fixture.bound.validatedChange.expectedTargetBinding,
         workPolicyFingerprint:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
             .fingerprint,
       },
       incrementalCandidateWork: fixture.bound.incrementalCandidateWork,
@@ -529,7 +529,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       previousRoot: structuredClone(fixture.previous.root),
       change: structuredClone(fixture.change),
       workPolicy: structuredClone(
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       ),
     }
     const invalidAttempts = [
@@ -600,7 +600,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
         request: attempt.fallbackRequest,
         completeMaterial: unifiedLayoutRootBuildInputFixtureV2(),
         workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       })
 
     expect(completed).toMatchObject({
@@ -652,7 +652,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       const material = unifiedLayoutRootBuildInputFixtureV2()
       const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
         material,
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       )
       if (previous.status !== "accepted") {
         throw new Error(`bootstrap blocked: ${JSON.stringify(previous.issues)}`)
@@ -669,7 +669,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
           request: attempt.fallbackRequest,
           completeMaterial: material,
           workPolicy:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         })
       expect(completed.status).toBe("accepted-complete-fallback")
       expect(observed).toEqual([
@@ -707,7 +707,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
         request: attempt.fallbackRequest,
         completeMaterial: partialMaterial as never,
         workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       })).toMatchObject({
         status: "blocked",
         root: null,
@@ -724,7 +724,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
           request: attempt.fallbackRequest,
           completeMaterial,
           workPolicy:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         })
       expect(completed.status).toBe("accepted-complete-fallback")
       expect(observed).toHaveLength(1)
@@ -753,7 +753,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
           crop: { x: 0.1, y: 0.2, width: 0.7, height: 0.6 },
         }),
         workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       })
 
     expect(completed.status).toBe("accepted-complete-fallback")
@@ -786,7 +786,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
           fit: "contain",
         }),
         workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       })
     setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
       null,
@@ -827,7 +827,7 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
           crop: { x: 0.1, y: 0.2, width: 0.7, height: 0.6 },
         }),
         workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       })
     const independent = acceptedUnifiedLayoutRootFixtureV3({
       fit: "cover",
@@ -857,14 +857,14 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
     }
     const clonedRequest = structuredClone(attempt.fallbackRequest)
     const clonedPolicy = structuredClone(
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     )
 
     expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
       request: clonedRequest,
       completeMaterial: unifiedLayoutRootBuildInputFixtureV2(),
       workPolicy:
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     })).toMatchObject({
       status: "blocked",
       issues: [{ code: "fallback-request-authority-mismatch" }],

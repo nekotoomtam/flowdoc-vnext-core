@@ -14,7 +14,7 @@ import {
   createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
@@ -42,7 +42,7 @@ function v3Root(
 ) {
   const result = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
     unifiedLayoutRootBuildInputFixtureV2(options),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   )
   if (result.status !== "accepted") throw new Error("V3 Root fixture blocked")
   return result.root
@@ -112,7 +112,7 @@ function v3BoundImagePaint() {
     previousRoot,
     change,
     workPolicy:
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   })
   if (bound.status !== "accepted") throw new Error("V3 change did not bind")
   return { previousRoot, change, bound }
@@ -214,7 +214,7 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
             inlineId: fixture.inlineId,
           }),
           workPolicy:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         })
         expect(bound.status, fixture.content).toBe("accepted")
         expect(reads, fixture.content).toEqual([
@@ -255,7 +255,7 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
         previousRoot,
         change,
         workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       })
       expect(bound.status).toBe("accepted")
       if (bound.status !== "accepted") return
@@ -300,7 +300,7 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
         previousRoot: structuredClone(previousRoot),
         change,
         workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       })).toMatchObject({
         status: "blocked",
         issues: [{ code: "previous-root-authority-mismatch" }],
@@ -312,7 +312,7 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
           previousRoot,
           change: Object.freeze({ ...change, textBlockId: "wrong-block" }),
           workPolicy:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         },
         {
           previousRoot,
@@ -321,12 +321,12 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
             expectedPreviousRootFingerprint: `sha256:${"0".repeat(64)}`,
           }),
           workPolicy:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         },
         {
           previousRoot,
           change,
-          workPolicy: ROOT_V2_TEST_WORK_POLICY,
+          workPolicy: structuredClone(ROOT_V2_TEST_WORK_POLICY),
         },
       ]) {
         expect(bindVNextTextBlockUnifiedLayoutChangeInternalV1(
@@ -382,7 +382,7 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
             crop: { x: 0, y: 0, width: 0.5, height: 1 },
           }),
           workPolicy:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         })
         expect(bound).toMatchObject({
           status: "blocked",
@@ -433,7 +433,7 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
             crop: { x: 0, y: 0, width: 0.5, height: 1 },
           }),
           workPolicy:
-            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+            VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
         }).status).toBe("accepted")
         expect(reads).toContainEqual({
           unit: "source-lookup-nodes",
@@ -522,7 +522,7 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
       previousRoot,
       originalChange: change,
       workPolicy:
-        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
       validatedChange: bound.validatedChange,
       stage: "scene",
       unit: "copied-scene-nodes",

@@ -15,7 +15,7 @@ const reviewedUnifiedRuntimeExports = [
 
 const reviewed5B1UnifiedRuntimeExports = [
   "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_ID",
-  "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2",
+  "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3",
   "acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1",
   "attemptVNextTextBlockUnifiedLayoutRootTransitionV1",
   "completeVNextTextBlockUnifiedLayoutRootFallbackV1",
