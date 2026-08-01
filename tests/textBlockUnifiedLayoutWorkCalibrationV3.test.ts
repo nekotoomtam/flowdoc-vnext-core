@@ -10,6 +10,7 @@ import {
 import {
   deriveVNextTextBlockWorkPolicyCalibrationInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   type VNextTextBlockWorkCalibrationObservationInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -247,6 +248,9 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       relativeNumerator: row.relativeNumerator,
     })))
     expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.policyId).toBe("5b-1-v3")
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.fingerprint).toBe(
+      "sha256:896f2163367070bd1f1e6fa0d9b34c0f47e371e6256cc9c15bd27e898c185982",
+    )
 
     const previous = repeatedRoot(1)
     const accepted = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
@@ -255,6 +259,28 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
     })
     expect(accepted.status).toBe("accepted-no-op")
+  })
+
+  it("keeps the 5B2 evidence calibration policy internal and finitely bounded", () => {
+    const policy =
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+    expect(policy.stages).toHaveLength(24)
+    expect(policy.stages.filter((row) =>
+      row.stage === "spatial-index" && row.lockStatus === "inactive"
+    )).toHaveLength(2)
+    expect(policy.stages.filter((row) => row.stage === "evidence"))
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          unit: "evidence-request-lookup-nodes",
+          lockStatus: "locked",
+          smallBlockFloor: 8_192,
+          absoluteStageLimit: 32_768,
+          relativeNumerator: 8,
+          relativeDenominator: 1,
+        }),
+        expect.objectContaining({ unit: "evidence-context-atoms" }),
+        expect.objectContaining({ unit: "evidence-response-nodes" }),
+      ]))
   })
 
   it("proves minus-one/equal/plus-one for every derived locked row", () => {

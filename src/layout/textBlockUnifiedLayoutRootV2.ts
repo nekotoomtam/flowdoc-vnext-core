@@ -73,6 +73,7 @@ import type {
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   evaluateVNextTextBlockSourceWorkEnvelopeInternalV1,
+  isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1,
   type VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -185,7 +186,7 @@ function strictInput(value: unknown): {
 function validWorkPolicy(
   value: unknown,
 ): value is VNextTextBlockUnifiedLayoutWorkPolicyV1 {
-  return value === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
+  return isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(value)
 }
 
 function issue(
@@ -414,10 +415,7 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
     inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
       source.sourceState,
     )
-  if (
-    workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
-  ) {
+  if (isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(workPolicy)) {
     const evaluation = sourceEnvelopeFacts == null
       ? null
       : evaluateVNextTextBlockSourceWorkEnvelopeInternalV1({
@@ -812,10 +810,7 @@ export function prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateIntern
         >
       }
     | null = null
-  if (
-    input.workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
-  ) {
+  if (isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(input.workPolicy)) {
     const previousEnvelope =
       getVNextTextBlockRootSourceEnvelopeRecordInternalV1(
         input.previousRoot,

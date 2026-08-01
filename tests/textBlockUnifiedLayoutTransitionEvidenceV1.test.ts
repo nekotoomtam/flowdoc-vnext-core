@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest"
+import * as publicCore from "../src/index.js"
 import * as sourceStateInternals from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1,
   getVNextTextBlockValidatedChangeAuthorityRecordInternalV1,
+  hasCanonicalVNextTextBlockStageWorkInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
@@ -14,8 +17,13 @@ import {
   createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
+  composeVNextTextBlockStageWorkLedgerInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
+  attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
 import {
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
@@ -45,6 +53,20 @@ function v3Root(
     VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   )
   if (result.status !== "accepted") throw new Error("V3 Root fixture blocked")
+  return result.root
+}
+
+function calibrationRoot() {
+  const result = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-image-text-break",
+      fit: "contain",
+    }),
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  )
+  if (result.status !== "accepted") {
+    throw new Error("5B2 calibration Root fixture blocked")
+  }
   return result.root
 }
 
@@ -117,6 +139,119 @@ function v3BoundImagePaint() {
   if (bound.status !== "accepted") throw new Error("V3 change did not bind")
   return { previousRoot, change, bound }
 }
+
+describe("Phase 5B-2 evidence work ownership", () => {
+  it("validates evidence-stage candidate work against its exact authority policy", () => {
+    const previousRoot = v3Root()
+    const v3NoOp = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+      previousRoot,
+      change: noOpUnifiedLayoutChange5b(previousRoot),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+    })
+    expect(v3NoOp.status).toBe("accepted-no-op")
+    if (v3NoOp.status !== "accepted-no-op") return
+
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages)
+      .toHaveLength(21)
+    expect(v3NoOp.incrementalCandidateWork.evidence).toMatchObject({
+      visitedRequestLookupNodeCount: 0,
+      materializedContextAtomCount: 0,
+      visitedEvidenceNodeCount: 0,
+    })
+    expect(hasCanonicalVNextTextBlockStageWorkInternalV1({
+      work: v3NoOp.incrementalCandidateWork,
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+    })).toBe(true)
+
+    const calibrationPreviousRoot = calibrationRoot()
+    expect(calibrationPreviousRoot.workPolicy).toBe(
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    )
+    const calibrationWork = deepFreezeTestValue({
+      ...v3NoOp.incrementalCandidateWork,
+      stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+        policy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+        factualCounts: v3NoOp.incrementalCandidateWork.stageWork,
+      }),
+    })
+    expect(hasCanonicalVNextTextBlockStageWorkInternalV1({
+      work: calibrationWork,
+      policy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })).toBe(true)
+    expect(hasCanonicalVNextTextBlockStageWorkInternalV1({
+      work: calibrationWork,
+      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+    })).toBe(false)
+  })
+
+  it("owns each request lookup and context atom before producer evidence", () => {
+    const previousRoot = calibrationRoot()
+    const change = Object.freeze({
+      source: "vnext-text-block-unified-layout-change-v1" as const,
+      contractVersion: 1 as const,
+      documentId: previousRoot.documentId,
+      sectionId: previousRoot.sectionId,
+      textBlockId: previousRoot.textBlockId,
+      expectedPreviousRootFingerprint: previousRoot.fingerprint,
+      expectedPreviousSourceFingerprint: previousRoot.sourceState.fingerprint,
+      kind: "text-insertion" as const,
+      atRenderedUtf16: 0,
+      insertedText: "x",
+      insertedSource: Object.freeze({
+        lineageId: "5b2-lineage-next",
+        sourceFingerprint: "5b2-source-next",
+        provenanceFingerprint: "5b2-provenance-next",
+      }),
+      measurementStyleKey: "5b2-measurement-style-next",
+      effectiveShapingStyleKey: "5b2-shaping-style-next",
+    })
+    const result =
+      createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1({
+        previousRoot,
+        change,
+        workPolicy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      })
+    expect(result.status, JSON.stringify(result.issues)).toBe("required")
+    if (result.status !== "required") return
+    expect(result.incrementalCandidateWork.evidence).toMatchObject({
+      requestCount: 1,
+      visitedRequestLookupNodeCount: 1,
+      materializedContextAtomCount: 1,
+      visitedEvidenceNodeCount: 0,
+    })
+    expect(hasCanonicalVNextTextBlockStageWorkInternalV1({
+      work: result.incrementalCandidateWork,
+      policy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })).toBe(true)
+  })
+
+  it("keeps calibration policy selection outside public bootstrap and attempt", () => {
+    const rootInput = unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-image-text-break",
+      fit: "contain",
+    })
+    expect(publicCore).not.toHaveProperty(
+      "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1",
+    )
+    expect(publicCore.createVNextTextBlockUnifiedLayoutRootV2({
+      ...rootInput,
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    } as never).status).toBe("blocked")
+
+    const previousRoot = v3Root()
+    expect(publicCore.attemptVNextTextBlockUnifiedLayoutRootTransitionV1({
+      previousRoot,
+      change: noOpUnifiedLayoutChange5b(previousRoot),
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    } as never).status).toBe("blocked")
+  })
+})
 
 function workWithStageCount(
   base: VNextTextBlockIncrementalCandidateWorkV1,

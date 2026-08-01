@@ -332,6 +332,8 @@ export function createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1(
     changeGateVisitedFieldCount,
     evidence: {
       requestCount: 0,
+      visitedRequestLookupNodeCount: 0,
+      materializedContextAtomCount: 0,
       requestedAtomCount: 0,
       requestedClusterCount: 0,
       consumedAtomCount: 0,

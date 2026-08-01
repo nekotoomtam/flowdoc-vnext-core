@@ -50,6 +50,7 @@ import type {
 import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
+  isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1,
   previousVNextTextBlockStageSummaryBaseInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
@@ -718,6 +719,12 @@ function candidateDetailedWorkCountInternalV1(
       return work.flow.visitedFlowAtomCount
     case "source-flow/flow-tree-nodes":
       return work.flow.visitedFlowTreeNodeCount
+    case "evidence/evidence-request-lookup-nodes":
+      return work.evidence.visitedRequestLookupNodeCount
+    case "evidence/evidence-context-atoms":
+      return work.evidence.materializedContextAtomCount
+    case "evidence/evidence-response-nodes":
+      return work.evidence.visitedEvidenceNodeCount
     case "spatial-index/spatial-index-nodes":
       return work.spatial.visitedSpatialIndexNodeCount
     case "spatial-index/spatial-query-bands":
@@ -773,12 +780,15 @@ function candidateWorkIsDeeplyFrozenInternalV1(
   ].every((value) => Object.isFrozen(value))
 }
 
-function hasCanonicalV3StageWorkInternalV1(
-  work: VNextTextBlockIncrementalCandidateWorkV1,
-): boolean {
+export function hasCanonicalVNextTextBlockStageWorkInternalV1(input: {
+  readonly work: VNextTextBlockIncrementalCandidateWorkV1
+  readonly policy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+}): boolean {
+  const { work, policy } = input
+  if (!isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(policy)) {
+    return false
+  }
   try {
-    const policy =
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     if (
       !candidateWorkIsDeeplyFrozenInternalV1(work)
       || work.source !== "vnext-text-block-incremental-candidate-work-v1"
@@ -794,6 +804,7 @@ function hasCanonicalV3StageWorkInternalV1(
         || actual.unit !== expected.unit
         || !Number.isSafeInteger(actual.count)
         || actual.count < 0
+        || (expected.lockStatus !== "locked" && actual.count !== 0)
         || candidateDetailedWorkCountInternalV1(
           work,
           actual.stage,
@@ -858,8 +869,9 @@ export function evaluateNextVNextTextBlockStageVisitInternalV1(input: {
     validatedChangeAuthorityRecords.get(input.validatedChange)
   if (
     validated == null
-    || validated.workPolicy
-      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
+    || !isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(
+      validated.workPolicy,
+    )
     || validated.previousRoot.workPolicy !== validated.workPolicy
     || validated.originalChange !== input.validatedChange.change
     || validated.rootSourceEnvelopeAuthority == null
@@ -892,7 +904,10 @@ export function evaluateNextVNextTextBlockStageVisitInternalV1(input: {
   if (
     evaluation.status === "invalid"
     || evaluation.status === "inactive"
-    || !hasCanonicalV3StageWorkInternalV1(input.completedCandidateWork)
+    || !hasCanonicalVNextTextBlockStageWorkInternalV1({
+      work: input.completedCandidateWork,
+      policy: validated.workPolicy,
+    })
     || candidateDetailedWorkCountInternalV1(
       input.completedCandidateWork,
       input.stage,
@@ -1057,14 +1072,14 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       "change previous-root/source expectations are stale",
     ))
   }
-  const rootSourceEnvelopeAuthority = input.workPolicy
-    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
+  const rootSourceEnvelopeAuthority =
+    isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(input.workPolicy)
     ? getVNextTextBlockRootSourceEnvelopeAuthorityInternalV1(
         input.previousRoot,
       )
     : null
-  const bindingAttempt = input.workPolicy
-    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
+  const bindingAttempt =
+    isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(input.workPolicy)
     && rootSourceEnvelopeAuthority != null
     ? createChangeBindingAttemptInternalV1({
         previousRoot: input.previousRoot,
@@ -1076,8 +1091,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       })
     : null
   if (
-    input.workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
+    isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(input.workPolicy)
     && bindingAttempt == null
   ) {
     return blockedBinding(shaped.incrementalCandidateWork, issue(
@@ -1091,6 +1105,11 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
       input.previousRoot,
     )
+  const baseCandidateWork = withEvidenceWork(
+    shaped.incrementalCandidateWork,
+    input.workPolicy,
+    {},
+  )
   const imagePaintSourceCapture: {
     current: {
       readonly status: "completed" | "invariant-blocked"
@@ -1116,11 +1135,11 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
   )
   const imagePaintSourceWork = imagePaintSourceCapture.current
   const incrementalCandidateWork = imagePaintSourceWork == null
-    ? shaped.incrementalCandidateWork
+    ? baseCandidateWork
     : deepFreeze({
-        ...shaped.incrementalCandidateWork,
+        ...baseCandidateWork,
         flow: {
-          ...shaped.incrementalCandidateWork.flow,
+          ...baseCandidateWork.flow,
           visitedSourceItemCount:
             imagePaintSourceWork.visitedSourceItemCount,
           visitedSourceLookupNodeCount:
@@ -1136,8 +1155,9 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
                   unit: "source-items" as const,
                   count: imagePaintSourceWork.visitedSourceItemCount,
                 }]),
-            ...(input.workPolicy
-                === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
+            ...(isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(
+              input.workPolicy,
+            )
               && imagePaintSourceWork.visitedSourceLookupNodeCount !== 0
               ? [{
                   stage: "source-flow" as const,
@@ -1230,10 +1250,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     rootSourceEnvelopeAuthority:
       consumedBindingAttempt?.rootSourceEnvelopeAuthority ?? null,
   }))
-  if (
-    input.workPolicy
-      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
-  ) {
+  if (isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(input.workPolicy)) {
     validatedSourceTransitionVisitGuards.set(
       validatedChange,
       registerVNextTextBlockPostBindingSourceVisitGuardInternalV1({
@@ -1264,6 +1281,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
 interface RequestRecord {
   readonly fingerprint: string
   readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
   readonly incrementalCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
 }
 
@@ -1368,19 +1386,81 @@ function changedRanges(
   }
 }
 
-function withEvidenceRequestWork(
+function withEvidenceWork(
   work: VNextTextBlockIncrementalCandidateWorkV1,
-  requestedCoverage: number,
+  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+  evidence: Partial<VNextTextBlockIncrementalCandidateWorkV1["evidence"]>,
 ): VNextTextBlockIncrementalCandidateWorkV1 {
+  const nextEvidence = { ...work.evidence, ...evidence }
   return deepFreeze({
     ...work,
-    evidence: {
-      ...work.evidence,
-      requestCount: 1,
-      requestedAtomCount: 1,
-      requestedClusterCount: requestedCoverage,
-    },
+    evidence: nextEvidence,
+    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
+      policy,
+      factualCounts: policy.stages.map((row) => ({
+        stage: row.stage,
+        unit: row.unit,
+        count: candidateDetailedWorkCountInternalV1(
+          { ...work, evidence: nextEvidence },
+          row.stage,
+          row.unit,
+        ) ?? 0,
+      })),
+    }),
   })
+}
+
+function requestEvidenceVisit(
+  input: {
+    readonly bound: Extract<VNextTextBlockValidatedChangeResultV1, {
+      readonly status: "accepted"
+    }>
+    readonly work: VNextTextBlockIncrementalCandidateWorkV1
+    readonly unit:
+      | "evidence-request-lookup-nodes"
+      | "evidence-context-atoms"
+  },
+):
+  | { readonly status: "accepted"; readonly work: VNextTextBlockIncrementalCandidateWorkV1 }
+  | { readonly status: "blocked"; readonly issue: VNextTextBlockUnifiedLayoutIssueV1 } {
+  const authority = getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
+    input.bound.validatedChange,
+  )
+  if (!authority?.workPolicy.stages.some((row) =>
+    row.stage === "evidence" && row.unit === input.unit
+  )) {
+    return { status: "accepted", work: input.work }
+  }
+  const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
+    validatedChange: input.bound.validatedChange,
+    stage: "evidence",
+    unit: input.unit,
+    completedWork: input.unit === "evidence-request-lookup-nodes"
+      ? input.work.evidence.visitedRequestLookupNodeCount
+      : input.work.evidence.materializedContextAtomCount,
+    completedCandidateWork: input.work,
+  })
+  if (evaluation.status !== "accepted") {
+    return {
+      status: "blocked",
+      issue: issue(
+        "deterministic-work-limit-exceeded",
+        "evidence",
+        `workPolicy.evidence.${input.unit}`,
+        "request evidence work was not accepted by its exact evaluator authority",
+      ),
+    }
+  }
+  return {
+    status: "accepted",
+    work: withEvidenceWork(
+      input.work,
+      authority.workPolicy,
+      input.unit === "evidence-request-lookup-nodes"
+        ? { visitedRequestLookupNodeCount: evaluation.attemptedWork }
+        : { materializedContextAtomCount: evaluation.attemptedWork },
+    ),
+  }
 }
 
 export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1(
@@ -1407,12 +1487,25 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
       issues: Object.freeze([]) as readonly [],
     })
   }
+  const lookupVisit = requestEvidenceVisit({
+    bound,
+    work: bound.incrementalCandidateWork,
+    unit: "evidence-request-lookup-nodes",
+  })
+  if (lookupVisit.status === "blocked") {
+    return {
+      status: "blocked",
+      request: null,
+      incrementalCandidateWork: bound.incrementalCandidateWork,
+      issues: [lookupVisit.issue],
+    }
+  }
   const ranges = changedRanges(input.previousRoot, input.change)
   if (ranges == null) {
     return {
       status: "blocked",
       request: null,
-      incrementalCandidateWork: bound.incrementalCandidateWork,
+      incrementalCandidateWork: lookupVisit.work,
       issues: [issue(
         "incremental-proof-unavailable",
         "evidence",
@@ -1435,7 +1528,7 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
     return {
       status: "blocked",
       request: null,
-      incrementalCandidateWork: bound.incrementalCandidateWork,
+      incrementalCandidateWork: lookupVisit.work,
       issues: [issue(
         "evidence-coverage-mismatch",
         "evidence",
@@ -1457,6 +1550,19 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
       - ranges.nextSourceRange.startRenderedUtf16
     )
     + rightContextRenderedUtf16Length
+  const contextVisit = requestEvidenceVisit({
+    bound,
+    work: lookupVisit.work,
+    unit: "evidence-context-atoms",
+  })
+  if (contextVisit.status === "blocked") {
+    return {
+      status: "blocked",
+      request: null,
+      incrementalCandidateWork: lookupVisit.work,
+      issues: [contextVisit.issue],
+    }
+  }
   const facts = {
     source: "vnext-text-block-transition-evidence-request-v1" as const,
     contractVersion: 1 as const,
@@ -1485,9 +1591,14 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
     ...facts,
     fingerprint: fingerprint(facts),
   })
-  const incrementalCandidateWork = withEvidenceRequestWork(
-    bound.incrementalCandidateWork,
-    maximumEvidenceCoverageRenderedUtf16Length,
+  const incrementalCandidateWork = withEvidenceWork(
+    contextVisit.work,
+    input.workPolicy,
+    {
+      requestCount: 1,
+      requestedAtomCount: 1,
+      requestedClusterCount: maximumEvidenceCoverageRenderedUtf16Length,
+    },
   )
   const byRoot = new WeakMap<
     VNextTextBlockUnifiedLayoutRootV2,
@@ -1500,6 +1611,7 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestIntern
   byChange.set(input.change, {
     fingerprint: request.fingerprint,
     validatedChange: bound.validatedChange,
+    workPolicy: input.workPolicy,
     incrementalCandidateWork,
   })
   byRoot.set(input.previousRoot, byChange)
@@ -1808,19 +1920,17 @@ function exactResponse(
 function acceptedEvidenceWork(
   base: VNextTextBlockIncrementalCandidateWorkV1,
   response: VNextTextBlockTransitionProducerResponseV1,
+  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
 ): VNextTextBlockIncrementalCandidateWorkV1 {
-  return deepFreeze({
-    ...base,
-    evidence: {
-      requestCount: 1,
-      requestedAtomCount: response.work.requestedAtomCount,
-      requestedClusterCount: response.work.requestedClusterCount,
-      consumedAtomCount: response.work.consumedAtomCount,
-      consumedClusterCount: response.work.consumedClusterCount,
-      unusedCoverageRenderedUtf16Length:
-        response.work.unusedCoverageRenderedUtf16Length,
-      visitedEvidenceNodeCount: response.work.visitedEvidenceNodeCount,
-    },
+  return withEvidenceWork(base, policy, {
+    requestCount: 1,
+    requestedAtomCount: response.work.requestedAtomCount,
+    requestedClusterCount: response.work.requestedClusterCount,
+    consumedAtomCount: response.work.consumedAtomCount,
+    consumedClusterCount: response.work.consumedClusterCount,
+    unusedCoverageRenderedUtf16Length:
+      response.work.unusedCoverageRenderedUtf16Length,
+    visitedEvidenceNodeCount: response.work.visitedEvidenceNodeCount,
   })
 }
 
@@ -1918,7 +2028,12 @@ export function acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1(input: {
   return Object.freeze({
     status: "accepted",
     evidence,
-    incrementalCandidateWork: acceptedEvidenceWork(baseWork, response),
+    incrementalCandidateWork: acceptedEvidenceWork(
+      baseWork,
+      response,
+      requestRecord?.workPolicy
+        ?? VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+    ),
     issues: Object.freeze([]) as readonly [],
   })
 }

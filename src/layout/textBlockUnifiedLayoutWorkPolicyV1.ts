@@ -131,6 +131,9 @@ export function previousVNextTextBlockStageSummaryBaseInternalV1(input: {
     case "source-leaf-items":
     case "flow-atoms":
     case "flow-tree-nodes":
+    case "evidence-request-lookup-nodes":
+    case "evidence-context-atoms":
+    case "evidence-response-nodes":
       return input.previousRoot.sourceState.summary.itemCount
     case "spatial-index-nodes":
     case "spatial-query-bands":
@@ -477,6 +480,51 @@ VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
   fingerprint: fingerprint(policy5b1V3Facts),
 })
 
+const calibrationEvidenceLocked = (
+  unit:
+    | "evidence-request-lookup-nodes"
+    | "evidence-context-atoms"
+    | "evidence-response-nodes",
+): VNextTextBlockStageLimitV1 => stageLimit({
+  stage: "evidence",
+  unit,
+  lockStatus: "locked",
+  smallBlockFloor: 8_192,
+  absoluteStageLimit: 32_768,
+  relativeNumerator: 8,
+  relativeDenominator: 1,
+  checkpointOwner: "5B-2",
+})
+
+const policy5b2CalibrationTestOnlyStages = Object.freeze([
+  calibrationEvidenceLocked("evidence-request-lookup-nodes"),
+  calibrationEvidenceLocked("evidence-context-atoms"),
+  calibrationEvidenceLocked("evidence-response-nodes"),
+  ...policy5b1V3Stages,
+])
+const policy5b2CalibrationTestOnlyFacts = {
+  source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
+  contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
+  policyId: "5b-2-calibration-test-only",
+  checkpoint: "5B-2" as const,
+  stages: policy5b2CalibrationTestOnlyStages,
+}
+
+/** Internal calibration seam; never selected by public bootstrap or attempt. */
+export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1:
+VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
+  ...policy5b2CalibrationTestOnlyFacts,
+  fingerprint: fingerprint(policy5b2CalibrationTestOnlyFacts),
+})
+
+export function isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(
+  value: unknown,
+): value is VNextTextBlockUnifiedLayoutWorkPolicyV1 {
+  return value === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
+    || value
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+}
+
 export interface VNextTextBlockSourceEnvelopeLimitInternalV1 {
   readonly unit:
     | "source-items"
@@ -508,7 +556,7 @@ export function evaluateVNextTextBlockSourceWorkEnvelopeInternalV1(input: {
   readonly maximumLeafOccupancy: 8
   readonly deliberateItemResolutionCount: 1
 }): VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1 {
-  if (input.policy !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3) {
+  if (!isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(input.policy)) {
     return Object.freeze({ status: "invalid-policy" as const })
   }
   if ([

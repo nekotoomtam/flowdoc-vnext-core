@@ -31,6 +31,9 @@ export type VNextTextBlockUnifiedLayoutStageV1 =
   | "atomic-acceptance"
 
 export type VNextTextBlockUnifiedLayoutStageUnitV1 =
+  | "evidence-request-lookup-nodes"
+  | "evidence-context-atoms"
+  | "evidence-response-nodes"
   | "source-items"
   | "source-lookup-nodes"
   | "source-path-copy-nodes"
@@ -151,6 +154,8 @@ export interface VNextTextBlockIncrementalCandidateWorkV1 {
   readonly changeGateVisitedFieldCount: number
   readonly evidence: {
     readonly requestCount: number
+    readonly visitedRequestLookupNodeCount: number
+    readonly materializedContextAtomCount: number
     readonly requestedAtomCount: number
     readonly requestedClusterCount: number
     readonly consumedAtomCount: number
