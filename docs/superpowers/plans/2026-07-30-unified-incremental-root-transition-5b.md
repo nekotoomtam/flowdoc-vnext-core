@@ -1,5 +1,11 @@
 # Unified Incremental Root Transition 5B Implementation Plan
 
+> **5B-2 planning notice (2026-08-01):** Tasks 11-15 below retain historical
+> design evidence but are not executable against the accepted 5B-1 V3 base.
+> The V3-aware replacement is
+> [`2026-08-01-unified-incremental-root-transition-5b-2-v3.md`](./2026-08-01-unified-incremental-root-transition-5b-2-v3.md),
+> which remains subject to explicit user review before implementation.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the Core-only, process-local Root V2-to-Root V2 incremental
