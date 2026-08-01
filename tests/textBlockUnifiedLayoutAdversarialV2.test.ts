@@ -548,6 +548,33 @@ describe("Phase 5B-1 Root V2 adversarial gate", () => {
       status: "invalid",
       code: "complete-delivery-data-mismatch",
     })
+
+    const staleNested = structuredClone(complete.delivery) as
+      DeepMutable<typeof complete.delivery>
+    const staleChunk = staleNested.chunks[0]
+    const staleMapping = staleChunk?.sourceMapping[0]
+    if (staleChunk == null || staleMapping == null) {
+      throw new Error("complete delivery mapping missing")
+    }
+    staleMapping.renderedText += "-forged"
+    const { fingerprint: _chunkFingerprint, ...chunkFacts } = staleChunk
+    staleChunk.fingerprint = fingerprint({
+      contractVersion: 2,
+      ...chunkFacts,
+    })
+    const { fingerprint: _deliveryFingerprint, ...deliveryFacts } =
+      staleNested
+    staleNested.fingerprint = fingerprint(deliveryFacts)
+    expect(publicCore.inspectVNextTextBlockCompleteSceneDeliveryV2(
+      staleNested,
+    )).toMatchObject({
+      status: "invalid",
+      code: "complete-delivery-data-mismatch",
+    })
+    expect(Object.keys(publicCore).some((name) =>
+      name.includes("recomposeVNextTextBlock")
+      || name.includes("canonicalVNextTextBlock")
+    )).toBe(false)
   })
 
   it("blocks unsafe limit arithmetic and exposes no collision or registry hooks", () => {

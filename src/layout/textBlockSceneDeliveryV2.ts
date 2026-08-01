@@ -3,7 +3,18 @@ import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
   hasVNextTextBlockPersistentScenePreparedCandidateInternalV2,
   hasVNextTextBlockPersistentSceneRegisteredRootGraphBindingInternalV2,
+  recomposeVNextTextBlockSceneChunkIdentityInternalV2,
+  recomposeVNextTextBlockSceneFragmentIdentityInternalV2,
+  VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2,
+  VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2,
 } from "./textBlockPersistentSceneV2.js"
+import {
+  recomposeVNextTextBlockAuthoredBoxGeometryFingerprintInternalV1,
+  recomposeVNextTextBlockContentLocalGeometryFingerprintInternalV1,
+  recomposeVNextTextBlockLineFragmentLineageInternalV1,
+  recomposeVNextTextBlockLineInternalsIdentityInternalV1,
+  recomposeVNextTextBlockSourceMappingFingerprintInternalV1,
+} from "./textBlockPersistentLayoutLineTreeV1.js"
 import type {
   VNextTextBlockPersistentSceneChunkV2,
   VNextTextBlockPersistentSceneNodeV2,
@@ -35,6 +46,11 @@ import type {
 import {
   inspectVNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootV2.js"
+import {
+  canonicalVNextTextBlockHardBreakPaintFactsInternalV1,
+  canonicalVNextTextBlockImagePaintFactsInternalV1,
+  canonicalVNextTextBlockTextPaintFactsInternalV1,
+} from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
   VNextTextBlockIncrementalCandidateWorkV1,
   VNextTextBlockUnifiedLayoutIssueV1,
@@ -2315,91 +2331,418 @@ function completeDeliverySemanticSummaryFromChunks(
   return level[0]!
 }
 
+interface CompleteDeliveryObservationNodeInternalV2 {
+  readonly height: number
+  readonly summary: VNextTextBlockPersistentSceneSummaryV2
+  readonly semanticFingerprint: string
+  readonly estimatedCanonicalPayloadByteCount: number
+  readonly payloadObservationFingerprint: string
+}
+
+function completeDeliveryObservationFingerprint(input: {
+  readonly semanticFingerprint: string
+  readonly estimatedCanonicalPayloadByteCount: number
+  readonly childObservationFingerprints: readonly string[]
+}): string {
+  return fingerprint({
+    semanticFingerprint: input.semanticFingerprint,
+    estimatedCanonicalPayloadByteCount:
+      input.estimatedCanonicalPayloadByteCount,
+    payloadPolicyFingerprint:
+      VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2.fingerprint,
+    childObservationFingerprints: input.childObservationFingerprints,
+  })
+}
+
+function completeDeliveryLeafObservationNode(
+  chunk: VNextTextBlockPersistentSceneChunkV2,
+): CompleteDeliveryObservationNodeInternalV2 {
+  const summary = completeDeliveryLeafSemanticSummary(chunk)
+  const semanticFingerprint = fingerprint({
+    contractVersion: 2,
+    nodeKind: "leaf",
+    chunkFingerprint: chunk.fingerprint,
+    summary,
+    scenePolicyFingerprint:
+      VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2.fingerprint,
+  })
+  const estimatedCanonicalPayloadByteCount = utf8ByteCount({
+    payloadPolicyVersion: 1,
+    chunk,
+  })
+  return {
+    height: 0,
+    summary,
+    semanticFingerprint,
+    estimatedCanonicalPayloadByteCount,
+    payloadObservationFingerprint: completeDeliveryObservationFingerprint({
+      semanticFingerprint,
+      estimatedCanonicalPayloadByteCount,
+      childObservationFingerprints: [],
+    }),
+  }
+}
+
+function completeDeliveryBranchObservationNode(
+  children: readonly CompleteDeliveryObservationNodeInternalV2[],
+): CompleteDeliveryObservationNodeInternalV2 {
+  if (
+    children.length < 2
+    || children.length > 8
+    || children.some((child) => child.height !== children[0]!.height)
+  ) throw new Error("invalid complete delivery observation branch")
+  const height = children[0]!.height + 1
+  const summary = completeDeliveryBranchSemanticSummary(
+    children.map((child) => child.summary),
+  )
+  const semanticFingerprint = fingerprint({
+    contractVersion: 2,
+    nodeKind: "branch",
+    height,
+    childFingerprints: children.map(
+      (child) => child.semanticFingerprint,
+    ),
+    summary,
+    scenePolicyFingerprint:
+      VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2.fingerprint,
+  })
+  const estimatedCanonicalPayloadByteCount = children.reduce(
+    (total, child) => safeAdd(
+      total,
+      child.estimatedCanonicalPayloadByteCount,
+    ),
+    0,
+  )
+  return {
+    height,
+    summary,
+    semanticFingerprint,
+    estimatedCanonicalPayloadByteCount,
+    payloadObservationFingerprint: completeDeliveryObservationFingerprint({
+      semanticFingerprint,
+      estimatedCanonicalPayloadByteCount,
+      childObservationFingerprints: children.map(
+        (child) => child.payloadObservationFingerprint,
+      ),
+    }),
+  }
+}
+
+function completeDeliveryRootObservationFromChunks(
+  chunks: readonly VNextTextBlockPersistentSceneChunkV2[],
+): CompleteDeliveryObservationNodeInternalV2 {
+  if (chunks.length === 0) {
+    const summary = completeDeliveryEmptySemanticSummary()
+    const semanticFingerprint = fingerprint({
+      contractVersion: 2,
+      nodeKind: "empty",
+      summary,
+      scenePolicyFingerprint:
+        VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2.fingerprint,
+    })
+    return {
+      height: 0,
+      summary,
+      semanticFingerprint,
+      estimatedCanonicalPayloadByteCount: 0,
+      payloadObservationFingerprint: completeDeliveryObservationFingerprint({
+        semanticFingerprint,
+        estimatedCanonicalPayloadByteCount: 0,
+        childObservationFingerprints: [],
+      }),
+    }
+  }
+  let level: readonly CompleteDeliveryObservationNodeInternalV2[] =
+    chunks.map(completeDeliveryLeafObservationNode)
+  while (level.length > 1) {
+    const next: CompleteDeliveryObservationNodeInternalV2[] = []
+    let cursor = 0
+    for (const size of completeDeliveryCanonicalGroupSizes(level.length)) {
+      next.push(completeDeliveryBranchObservationNode(
+        level.slice(cursor, cursor + size),
+      ))
+      cursor += size
+    }
+    level = next
+  }
+  return level[0]!
+}
+
+function completeDeliverySpanEquals(
+  left: {
+    readonly lineageId: string
+    readonly localStartRenderedUtf16: number
+    readonly localEndRenderedUtf16: number
+  },
+  right: {
+    readonly lineageId: string
+    readonly localStartRenderedUtf16: number
+    readonly localEndRenderedUtf16: number
+  },
+): boolean {
+  return left.lineageId === right.lineageId
+    && left.localStartRenderedUtf16 === right.localStartRenderedUtf16
+    && left.localEndRenderedUtf16 === right.localEndRenderedUtf16
+}
+
+function completeDeliveryNestedChunkIssue(
+  chunk: VNextTextBlockPersistentSceneChunkV2,
+): string | null {
+  const factory = createVNextCompactFingerprint
+  const lastLocalEndByLineage = new Map<string, number>()
+  for (const mapping of chunk.sourceMapping) {
+    const { fingerprint: mappingFingerprint, ...mappingFacts } = mapping
+    if (
+      mappingFingerprint
+        !== recomposeVNextTextBlockSourceMappingFingerprintInternalV1(
+          mappingFacts,
+          factory,
+        )
+    ) return "source-mapping-fingerprint"
+    if (
+      mapping.lineageId !== `${mapping.sourceKind}:${mapping.inlineId}`
+      || mapping.localEndRenderedUtf16
+        <= mapping.localStartRenderedUtf16
+      || mapping.renderedText.length
+        !== mapping.localEndRenderedUtf16
+          - mapping.localStartRenderedUtf16
+    ) return "source-mapping-lineage"
+    const lastEnd = lastLocalEndByLineage.get(mapping.lineageId)
+    if (
+      lastEnd != null
+      && mapping.localStartRenderedUtf16 < lastEnd
+    ) return "source-mapping-order"
+    lastLocalEndByLineage.set(
+      mapping.lineageId,
+      mapping.localEndRenderedUtf16,
+    )
+  }
+  if (
+    chunk.sourceFingerprint !== fingerprint({
+      mappings: chunk.sourceMapping.map(
+        (mapping) => mapping.sourceFingerprint,
+      ),
+    })
+    || chunk.provenanceFingerprint !== fingerprint({
+      mappings: chunk.sourceMapping.map(
+        (mapping) => mapping.provenanceFingerprint,
+      ),
+    })
+  ) return "mapping-parent-binding"
+
+  const mappingPositionForSpan = (span: {
+    readonly lineageId: string
+    readonly localStartRenderedUtf16: number
+    readonly localEndRenderedUtf16: number
+  }): number => chunk.sourceMapping.findIndex((mapping) =>
+    mapping.lineageId === span.lineageId
+    && mapping.localStartRenderedUtf16 <= span.localStartRenderedUtf16
+    && mapping.localEndRenderedUtf16 >= span.localEndRenderedUtf16
+  )
+  let lastFragmentMappingPosition = -1
+  let lastFragmentLocalEnd = -1
+  for (const fragment of chunk.lineInternals.fragments) {
+    if (
+      fragment.lineageId
+        !== recomposeVNextTextBlockLineFragmentLineageInternalV1(
+          fragment.kind,
+          fragment.sourceSpans,
+          factory,
+        )
+      || fragment.sourceSpans.length === 0
+    ) return "line-fragment-lineage"
+    let expectedText = ""
+    for (const span of fragment.sourceSpans) {
+      const mappingPosition = mappingPositionForSpan(span)
+      const mapping = chunk.sourceMapping[mappingPosition]
+      const ordered = mappingPosition > lastFragmentMappingPosition
+        || (
+          mappingPosition === lastFragmentMappingPosition
+          && span.localStartRenderedUtf16 >= lastFragmentLocalEnd
+        )
+      if (
+        span.localEndRenderedUtf16 <= span.localStartRenderedUtf16
+        || mapping == null
+        || !ordered
+        || (fragment.kind === "inline-image")
+          !== (mapping.sourceKind === "inline-image")
+        || mapping.sourceKind === "hard-break"
+      ) return "line-fragment-source-binding"
+      if (fragment.kind === "text") {
+        expectedText += mapping.renderedText.slice(
+          span.localStartRenderedUtf16
+            - mapping.localStartRenderedUtf16,
+          span.localEndRenderedUtf16
+            - mapping.localStartRenderedUtf16,
+        )
+      }
+      lastFragmentMappingPosition = mappingPosition
+      lastFragmentLocalEnd = span.localEndRenderedUtf16
+    }
+    if (fragment.kind === "text" && fragment.text !== expectedText) {
+      return "line-fragment-text-binding"
+    }
+  }
+  const lineIdentity =
+    recomposeVNextTextBlockLineInternalsIdentityInternalV1({
+      sourceMappings: chunk.sourceMapping,
+      heightLayoutUnit: chunk.lineInternals.heightLayoutUnit,
+      baselineOffsetLayoutUnit:
+        chunk.lineInternals.baselineOffsetLayoutUnit,
+      fragments: chunk.lineInternals.fragments,
+    }, factory)
+  if (
+    chunk.lineInternals.lineageId !== lineIdentity.lineageId
+    || chunk.lineInternals.fingerprint !== lineIdentity.fingerprint
+    || chunk.lineLineageId !== lineIdentity.lineageId
+    || chunk.lineInternalsFingerprint !== lineIdentity.fingerprint
+  ) return "line-internals-identity"
+
+  const {
+    fingerprint: _contentFingerprint,
+    ...contentFacts
+  } = chunk.contentLocalGeometry
+  const {
+    fingerprint: _authoredFingerprint,
+    ...authoredFacts
+  } = chunk.authoredBoxGeometry
+  if (
+    chunk.contentLocalGeometry.fingerprint
+      !== recomposeVNextTextBlockContentLocalGeometryFingerprintInternalV1(
+        contentFacts,
+        factory,
+      )
+    || chunk.authoredBoxGeometry.fingerprint
+      !== recomposeVNextTextBlockAuthoredBoxGeometryFingerprintInternalV1(
+        authoredFacts,
+        factory,
+      )
+  ) return "geometry-fingerprint"
+  if (
+    chunk.lineInternals.fragments.length
+      !== chunk.contentLocalGeometry.fragments.length
+    || chunk.lineInternals.fragments.length
+      !== chunk.authoredBoxGeometry.fragments.length
+    || chunk.lineInternals.fragments.length !== chunk.fragments.length
+  ) return "fragment-cardinality"
+  for (let index = 0; index < chunk.lineInternals.fragments.length; index += 1) {
+    const line = chunk.lineInternals.fragments[index]!
+    const content = chunk.contentLocalGeometry.fragments[index]!
+    const authored = chunk.authoredBoxGeometry.fragments[index]!
+    const scene = chunk.fragments[index]!
+    if (
+      line.kind !== content.kind
+      || line.kind !== authored.kind
+      || line.kind !== scene.kind
+      || line.lineageId !== content.lineageId
+      || line.lineageId !== authored.lineageId
+      || line.lineageId !== scene.lineageId
+      || line.sourceSpans.length !== scene.sourceSpans.length
+      || !line.sourceSpans.every((span, spanIndex) =>
+        completeDeliverySpanEquals(span, scene.sourceSpans[spanIndex]!)
+      )
+    ) return "fragment-cross-record-binding"
+  }
+
+  const paintByLineage = new Map<string, string>()
+  const paintKindByLineage = new Map<
+    string,
+    "text" | "inline-image"
+  >()
+  for (const fragment of chunk.fragments) {
+    if (fragment.kind === "text") {
+      for (const run of fragment.paintRuns) {
+        const paint = canonicalVNextTextBlockTextPaintFactsInternalV1({
+          textColor: run.textColor,
+          textDecoration: run.textDecoration,
+          strikethrough: run.strikethrough,
+          authoredTextColor: run.authoredTextColor,
+        }, factory)
+        if (run.paintFingerprint !== paint.fingerprint) {
+          return "text-paint-fingerprint"
+        }
+        const retained = paintByLineage.get(run.sourceSpan.lineageId)
+        if (retained != null && retained !== run.paintFingerprint) {
+          return "conflicting-repeated-lineage-paint"
+        }
+        paintByLineage.set(run.sourceSpan.lineageId, run.paintFingerprint)
+        paintKindByLineage.set(run.sourceSpan.lineageId, "text")
+      }
+    } else {
+      const paint = canonicalVNextTextBlockImagePaintFactsInternalV1({
+        assetId: fragment.assetId,
+        authoredFrame: fragment.authoredFrame,
+      }, factory)
+      if (fragment.paintFingerprint !== paint.fingerprint) {
+        return "image-paint-fingerprint"
+      }
+      const lineage = fragment.sourceSpans[0]?.lineageId
+      if (lineage == null) return "image-source-span"
+      const retained = paintByLineage.get(lineage)
+      if (retained != null && retained !== fragment.paintFingerprint) {
+        return "conflicting-repeated-lineage-paint"
+      }
+      paintByLineage.set(lineage, fragment.paintFingerprint)
+      paintKindByLineage.set(lineage, "inline-image")
+    }
+    const { fingerprint: _fragmentFingerprint, ...fragmentFacts } = fragment
+    const identity =
+      recomposeVNextTextBlockSceneFragmentIdentityInternalV2(
+        fragmentFacts,
+        factory,
+      )
+    if (
+      identity == null
+      || fragment.paintFingerprint !== identity.paintFingerprint
+      || fragment.fingerprint !== identity.fingerprint
+    ) return "scene-fragment-identity"
+  }
+
+  const sourcePaintFingerprints: string[] = []
+  for (const mapping of chunk.sourceMapping) {
+    if (mapping.sourceKind === "hard-break") {
+      sourcePaintFingerprints.push(
+        canonicalVNextTextBlockHardBreakPaintFactsInternalV1(factory)
+          .fingerprint,
+      )
+      continue
+    }
+    const paint = paintByLineage.get(mapping.lineageId)
+    const paintKind = paintKindByLineage.get(mapping.lineageId)
+    if (
+      paint == null
+      || paintKind == null
+      || (mapping.sourceKind === "inline-image") !== (
+        paintKind === "inline-image"
+      )
+    ) return "mapping-without-compatible-paint"
+    sourcePaintFingerprints.push(paint)
+  }
+  const {
+    paintFingerprint: _chunkPaintFingerprint,
+    fingerprint: _chunkFingerprint,
+    ...chunkFacts
+  } = chunk
+  const chunkIdentity = recomposeVNextTextBlockSceneChunkIdentityInternalV2(
+    chunkFacts,
+    sourcePaintFingerprints,
+    factory,
+  )
+  return chunkIdentity == null
+    || chunk.paintFingerprint !== chunkIdentity.paintFingerprint
+    || chunk.fingerprint !== chunkIdentity.fingerprint
+    ? "scene-chunk-identity"
+    : null
+}
+
 function completeDeliveryChunkIssue(
   delivery: VNextTextBlockCompleteSceneDeliveryV2,
 ): string | null {
   try {
-    let estimatedCanonicalPayloadByteCount = 0
     for (const chunk of delivery.chunks) {
-      const record = exactRecord(chunk, [
-        "lineLineageId",
-        "sourceMapping",
-        "lineInternals",
-        "contentLocalGeometry",
-        "authoredBoxGeometry",
-        "fragments",
-        "lineInternalsFingerprint",
-        "sourceFingerprint",
-        "provenanceFingerprint",
-        "paintFingerprint",
-        "boundarySpatialContextFingerprint",
-        "fingerprint",
-      ])
-      const fragments = exactArray(record?.fragments)
-      const mappings = exactArray(record?.sourceMapping)
-      if (
-        record == null
-        || fragments == null
-        || mappings == null
-        || typeof record.lineLineageId !== "string"
-        || typeof record.lineInternalsFingerprint !== "string"
-        || typeof record.sourceFingerprint !== "string"
-        || typeof record.provenanceFingerprint !== "string"
-        || typeof record.paintFingerprint !== "string"
-        || typeof record.boundarySpatialContextFingerprint !== "string"
-        || typeof record.fingerprint !== "string"
-        || (
-          record.lineInternals as { readonly fingerprint?: unknown }
-        )?.fingerprint !== record.lineInternalsFingerprint
-      ) return "chunk-shape"
-      for (const fragment of fragments) {
-        const kind = fragment != null && typeof fragment === "object"
-          ? Object.getOwnPropertyDescriptor(fragment, "kind")?.value
-          : null
-        const keys = kind === "text"
-          ? [
-              "kind",
-              "lineageId",
-              "sourceSpans",
-              "paintRuns",
-              "paintFingerprint",
-              "fingerprint",
-            ]
-          : [
-              "kind",
-              "lineageId",
-              "sourceSpans",
-              "assetId",
-              "authoredFrame",
-              "paintFingerprint",
-              "fingerprint",
-            ]
-        const fragmentRecord = exactRecord(fragment, keys)
-        if (
-          fragmentRecord == null
-          || (kind !== "text" && kind !== "inline-image")
-          || typeof fragmentRecord.fingerprint !== "string"
-        ) return "fragment-shape"
-        const { fingerprint: fragmentFingerprint, ...fragmentFacts } =
-          fragmentRecord
-        if (fragmentFingerprint !== fingerprint({
-          contractVersion: 2,
-          ...fragmentFacts,
-        })) return "fragment-fingerprint"
-      }
-      const { fingerprint: chunkFingerprint, ...chunkFacts } = record
-      if (chunkFingerprint !== fingerprint({
-        contractVersion: 2,
-        ...chunkFacts,
-      })) return "chunk-fingerprint"
-      estimatedCanonicalPayloadByteCount = safeAdd(
-        estimatedCanonicalPayloadByteCount,
-        utf8ByteCount({ payloadPolicyVersion: 1, chunk }),
-      )
-      const geometry = record.authoredBoxGeometry as {
-        readonly yOffsetLayoutUnit?: unknown
-        readonly heightLayoutUnit?: unknown
-      }
+      const nestedIssue = completeDeliveryNestedChunkIssue(chunk)
+      if (nestedIssue != null) return nestedIssue
+      const geometry = chunk.authoredBoxGeometry
       if (
         !Number.isSafeInteger(geometry.yOffsetLayoutUnit)
         || !Number.isSafeInteger(geometry.heightLayoutUnit)
@@ -2410,8 +2753,10 @@ function completeDeliveryChunkIssue(
         geometry.heightLayoutUnit as number,
       )
     }
-    estimatedCanonicalPayloadByteCount = safeAdd(
-      estimatedCanonicalPayloadByteCount,
+    const rootObservation =
+      completeDeliveryRootObservationFromChunks(delivery.chunks)
+    const estimatedCanonicalPayloadByteCount = safeAdd(
+      rootObservation.estimatedCanonicalPayloadByteCount,
       utf8ByteCount({
         payloadPolicyVersion: 1,
         source: "vnext-text-block-persistent-scene-v2",
@@ -2452,6 +2797,20 @@ function completeDeliveryChunkIssue(
     ) return `observation-payload-bytes(${String(
       delivery.observations.estimatedCanonicalPayloadByteCount,
     )}/${String(estimatedCanonicalPayloadByteCount)})`
+    const expectedObservationFingerprint =
+      completeDeliveryObservationFingerprint({
+        semanticFingerprint: delivery.persistentSceneFingerprint,
+        estimatedCanonicalPayloadByteCount,
+        childObservationFingerprints: [
+          rootObservation.payloadObservationFingerprint,
+        ],
+      })
+    if (
+      delivery.observations.payloadObservationFingerprint
+        !== expectedObservationFingerprint
+      || delivery.persistentScenePayloadObservationFingerprint
+        !== expectedObservationFingerprint
+    ) return "observation-fingerprint"
     return null
   } catch {
     return "unsafe-canonical-data"

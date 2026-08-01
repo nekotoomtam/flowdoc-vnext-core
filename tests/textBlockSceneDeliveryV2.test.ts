@@ -8,10 +8,13 @@ import {
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
 import {
   createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1,
+  recomposeVNextTextBlockLineInternalsIdentityInternalV1,
 } from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
 import {
   createVNextTextBlockPersistentSceneCompleteInternalV2,
   lookupVNextTextBlockPersistentSceneChunkInternalV2,
+  VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2,
+  VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2,
 } from "../src/layout/textBlockPersistentSceneV2.js"
 import type {
   VNextTextBlockPersistentSceneNodeV2,
@@ -99,6 +102,78 @@ function refingerprintCompleteDelivery(
   delivery.fingerprint = createVNextCompactFingerprint(
     stringifyVNextCanonicalJson(facts),
   )
+}
+
+function canonicalByteCount(value: unknown): number {
+  return new TextEncoder().encode(stringifyVNextCanonicalJson(value)).byteLength
+}
+
+function refreshSingleChunkCompleteDeliveryOuterIdentities(
+  delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>,
+): void {
+  if (delivery.chunks.length !== 1) {
+    throw new Error("nested integrity fixture requires one chunk")
+  }
+  const chunk = delivery.chunks[0]!
+  for (const fragment of chunk.fragments) {
+    const { fingerprint: _fragmentFingerprint, ...fragmentFacts } = fragment
+    fragment.fingerprint = createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson({
+        contractVersion: 2,
+        ...fragmentFacts,
+      }),
+    )
+  }
+  const { fingerprint: _chunkFingerprint, ...chunkFacts } = chunk
+  chunk.fingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson({
+      contractVersion: 2,
+      ...chunkFacts,
+    }),
+  )
+  const chunkByteCount = canonicalByteCount({
+    payloadPolicyVersion: 1,
+    chunk,
+  })
+  const rootSemanticFingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson({
+      contractVersion: 2,
+      nodeKind: "leaf",
+      chunkFingerprint: chunk.fingerprint,
+      summary: delivery.summary,
+      scenePolicyFingerprint:
+        VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_POLICY_V2.fingerprint,
+    }),
+  )
+  const rootObservationFingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson({
+      semanticFingerprint: rootSemanticFingerprint,
+      estimatedCanonicalPayloadByteCount: chunkByteCount,
+      payloadPolicyFingerprint:
+        VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2.fingerprint,
+      childObservationFingerprints: [],
+    }),
+  )
+  const totalByteCount = chunkByteCount + canonicalByteCount({
+    payloadPolicyVersion: 1,
+    source: "vnext-text-block-persistent-scene-v2",
+    contractVersion: 2,
+  })
+  const sceneObservationFingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson({
+      semanticFingerprint: delivery.persistentSceneFingerprint,
+      estimatedCanonicalPayloadByteCount: totalByteCount,
+      payloadPolicyFingerprint:
+        VNEXT_TEXT_BLOCK_PERSISTENT_SCENE_PAYLOAD_POLICY_V2.fingerprint,
+      childObservationFingerprints: [rootObservationFingerprint],
+    }),
+  )
+  delivery.observations.estimatedCanonicalPayloadByteCount = totalByteCount
+  delivery.observations.payloadObservationFingerprint =
+    sceneObservationFingerprint
+  delivery.persistentScenePayloadObservationFingerprint =
+    sceneObservationFingerprint
+  refingerprintCompleteDelivery(delivery)
 }
 
 function sceneInputsFromAccepted(
@@ -338,6 +413,274 @@ function expectHighestContainedCover(
 }
 
 describe("Phase 5B canonical Scene V2 delivery", () => {
+  it("rejects stale nested identities after every outer delivery hash is rebuilt", () => {
+    const deliveryFor = (content: "text-only" | "image-only") => {
+      const accepted = acceptedUnifiedLayoutRootFixtureV2({ content })
+      const result = createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+        root: accepted.root,
+      })
+      if (result.status !== "accepted") throw new Error("delivery blocked")
+      if (result.delivery.chunks.length !== 1) {
+        throw new Error("nested fixture did not produce one chunk")
+      }
+      return structuredClone(result.delivery) as
+        DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    }
+    const cases: readonly {
+      readonly name: string
+      readonly content: "text-only" | "image-only"
+      readonly mutate: (
+        delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>,
+      ) => void
+    }[] = [
+      {
+        name: "source mapping",
+        content: "text-only",
+        mutate: (delivery) => {
+          delivery.chunks[0]!.sourceMapping[0]!.renderedText += "x"
+        },
+      },
+      {
+        name: "line-internals fragment",
+        content: "text-only",
+        mutate: (delivery) => {
+          const fragment = delivery.chunks[0]!.lineInternals.fragments[0]!
+          if (fragment.kind !== "text") throw new Error("text fragment missing")
+          fragment.text += "x"
+        },
+      },
+      {
+        name: "content-local geometry",
+        content: "text-only",
+        mutate: (delivery) => {
+          delivery.chunks[0]!.contentLocalGeometry.fragments[0]!
+            .xLayoutUnit += 1
+        },
+      },
+      {
+        name: "authored-box geometry",
+        content: "text-only",
+        mutate: (delivery) => {
+          delivery.chunks[0]!.authoredBoxGeometry.fragments[0]!
+            .xLayoutUnit += 1
+        },
+      },
+      {
+        name: "text paint run",
+        content: "text-only",
+        mutate: (delivery) => {
+          const fragment = delivery.chunks[0]!.fragments[0]!
+          if (fragment.kind !== "text") throw new Error("text paint missing")
+          fragment.paintRuns[0]!.textColor += "-forged"
+        },
+      },
+      {
+        name: "image fit and crop",
+        content: "image-only",
+        mutate: (delivery) => {
+          const fragment = delivery.chunks[0]!.fragments[0]!
+          if (fragment.kind !== "inline-image") throw new Error("image missing")
+          fragment.authoredFrame.fit = "cover"
+          fragment.authoredFrame.crop = { x: 0, y: 0, width: 0.5, height: 1 }
+        },
+      },
+      {
+        name: "scene fragment span",
+        content: "text-only",
+        mutate: (delivery) => {
+          const fragment = delivery.chunks[0]!.fragments[0]!
+          if (fragment.kind !== "text") throw new Error("text scene missing")
+          fragment.sourceSpans[0]!.localEndRenderedUtf16 += 1
+          fragment.paintRuns[0]!.sourceSpan.localEndRenderedUtf16 += 1
+        },
+      },
+    ]
+    for (const testCase of cases) {
+      const forged = deliveryFor(testCase.content)
+      testCase.mutate(forged)
+      refreshSingleChunkCompleteDeliveryOuterIdentities(forged)
+      expect(
+        inspectVNextTextBlockCompleteSceneDeliveryV2(forged),
+        testCase.name,
+      ).toMatchObject({
+        status: "invalid",
+        code: "complete-delivery-data-mismatch",
+      })
+    }
+  })
+
+  it("rejects cross-record lineage, geometry, paint, and aggregate drift", () => {
+    const deliveryFor = (content: "text-only" | "image-only") => {
+      const accepted = acceptedUnifiedLayoutRootFixtureV2({ content })
+      const result = createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+        root: accepted.root,
+      })
+      if (result.status !== "accepted") throw new Error("delivery blocked")
+      return structuredClone(result.delivery) as
+        DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    }
+    const refingerprintRecord = (record: { fingerprint: string }): void => {
+      const { fingerprint: _fingerprint, ...facts } = record
+      record.fingerprint = createVNextCompactFingerprint(
+        stringifyVNextCanonicalJson({ contractVersion: 1, ...facts }),
+      )
+    }
+
+    const lineageKind = deliveryFor("text-only")
+    const lineageMapping = lineageKind.chunks[0]!.sourceMapping[0]!
+    lineageMapping.sourceKind = "inline-image"
+    refingerprintRecord(lineageMapping)
+
+    const geometryCardinality = deliveryFor("text-only")
+    geometryCardinality.chunks[0]!.contentLocalGeometry.fragments = []
+    refingerprintRecord(geometryCardinality.chunks[0]!.contentLocalGeometry)
+
+    const paintGap = deliveryFor("text-only")
+    const paintGapFragment = paintGap.chunks[0]!.fragments[0]!
+    if (paintGapFragment.kind !== "text") throw new Error("text paint missing")
+    paintGapFragment.paintRuns = []
+
+    const missingImage = deliveryFor("image-only")
+    const imageChunk = missingImage.chunks[0]!
+    const imagePaint = imageChunk.fragments[0]?.paintFingerprint
+    if (imagePaint == null) throw new Error("image paint missing")
+    imageChunk.fragments = []
+    imageChunk.paintFingerprint = createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson({
+        sourcePaint: [imagePaint],
+        fragmentPaint: [],
+      }),
+    )
+    missingImage.summary.inlineImageFragmentCount = 0
+    missingImage.summary.paintFingerprint = imageChunk.paintFingerprint
+
+    const aggregate = deliveryFor("text-only")
+    aggregate.chunks[0]!.sourceFingerprint = `sha256:${"a".repeat(64)}`
+    aggregate.summary.sourceFingerprint = aggregate.chunks[0]!.sourceFingerprint
+
+    const textBinding = deliveryFor("text-only")
+    const textBindingChunk = textBinding.chunks[0]!
+    const textBindingFragment = textBindingChunk.lineInternals.fragments[0]!
+    if (textBindingFragment.kind !== "text") {
+      throw new Error("text binding fragment missing")
+    }
+    textBindingFragment.text += "x"
+    const lineIdentity =
+      recomposeVNextTextBlockLineInternalsIdentityInternalV1({
+        sourceMappings: textBindingChunk.sourceMapping,
+        heightLayoutUnit: textBindingChunk.lineInternals.heightLayoutUnit,
+        baselineOffsetLayoutUnit:
+          textBindingChunk.lineInternals.baselineOffsetLayoutUnit,
+        fragments: textBindingChunk.lineInternals.fragments,
+      }, createVNextCompactFingerprint)
+    textBindingChunk.lineInternals.lineageId = lineIdentity.lineageId
+    textBindingChunk.lineInternals.fingerprint = lineIdentity.fingerprint
+    textBindingChunk.lineLineageId = lineIdentity.lineageId
+    textBindingChunk.lineInternalsFingerprint = lineIdentity.fingerprint
+    textBinding.summary.lineInternalsFingerprint = lineIdentity.fingerprint
+
+    for (const [name, forged] of [
+      ["lineage kind", lineageKind],
+      ["geometry cardinality", geometryCardinality],
+      ["paint gap", paintGap],
+      ["missing image", missingImage],
+      ["aggregate", aggregate],
+      ["text binding", textBinding],
+    ] as const) {
+      refreshSingleChunkCompleteDeliveryOuterIdentities(forged)
+      expect(
+        inspectVNextTextBlockCompleteSceneDeliveryV2(forged),
+        name,
+      ).toMatchObject({ status: "invalid" })
+    }
+
+    for (const content of [
+      "text-image-text-break",
+      "field-image-page-break",
+      "thai-image-latin",
+    ] as const) {
+      const accepted = acceptedUnifiedLayoutRootFixtureV2({ content })
+      const complete = createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+        root: accepted.root,
+      })
+      if (complete.status !== "accepted") {
+        throw new Error(`${content} delivery blocked`)
+      }
+      if (content !== "thai-image-latin") {
+        expect(complete.delivery.chunks.some((chunk) =>
+          chunk.sourceMapping.some(
+            (mapping) => mapping.sourceKind === "hard-break",
+          )
+        )).toBe(true)
+      }
+      expect(inspectVNextTextBlockCompleteSceneDeliveryV2(
+        structuredClone(complete.delivery),
+      )).toMatchObject({ status: "valid" })
+    }
+
+    const repeated = repeatedUnifiedLayoutRootSourceFixtureV1({
+      lineCount: 9,
+      includeImages: true,
+    })
+    const repeatedRoot = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2({
+      inputAuthority: "core-synthetic-qa-only",
+      initialFlow: repeated.initialFlow,
+      evidence: repeated.evidence,
+      spatialEntries: repeated.spatialEntries,
+    }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3)
+    if (repeatedRoot.status !== "accepted") throw new Error("9-line Root blocked")
+    const repeatedDelivery =
+      createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+        root: repeatedRoot.root,
+      })
+    if (repeatedDelivery.status !== "accepted") {
+      throw new Error("9-chunk delivery blocked")
+    }
+    expect(repeatedDelivery.delivery.chunks).toHaveLength(9)
+    expect(inspectVNextTextBlockCompleteSceneDeliveryV2(
+      structuredClone(repeatedDelivery.delivery),
+    )).toMatchObject({ status: "valid", emittedChunkCount: 9 })
+  })
+
+  it("keeps opaque upstream facts descriptor-safe and parent-bound", () => {
+    const accepted = acceptedUnifiedLayoutRootFixtureV2({
+      content: "text-only",
+    })
+    const result = createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+      root: accepted.root,
+    })
+    if (result.status !== "accepted") throw new Error("delivery blocked")
+    for (const mutate of [
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => {
+        delivery.chunks[0]!.sourceMapping[0]!.sourceFingerprint = "opaque-source"
+      },
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => {
+        delivery.chunks[0]!.sourceMapping[0]!.provenanceFingerprint =
+          "opaque-provenance"
+      },
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => {
+        delivery.chunks[0]!.sourceMapping[0]!.boundaryFingerprint =
+          "opaque-boundary"
+      },
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => {
+        const fragment = delivery.chunks[0]!.lineInternals.fragments[0]!
+        if (fragment.kind !== "text") throw new Error("text fragment missing")
+        fragment.fontSha256 = "opaque-font-sha"
+      },
+      (delivery: DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>) => {
+        delivery.chunks[0]!.boundarySpatialContextFingerprint =
+          "opaque-spatial-context"
+      },
+    ]) {
+      const forged = structuredClone(result.delivery) as
+        DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+      mutate(forged)
+      refreshSingleChunkCompleteDeliveryOuterIdentities(forged)
+      expect(inspectVNextTextBlockCompleteSceneDeliveryV2(forged))
+        .toMatchObject({ status: "invalid" })
+    }
+  })
+
   it("bounds V3 delivery construction and its one verification as one attempt", () => {
     const boundaries = deliveryVisitTestBoundaries()
     expect(boundaries.setLimit).toBeTypeOf("function")
@@ -825,6 +1168,49 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
           code: "complete-delivery-data-mismatch",
         })
       expect(getterReads).toBe(0)
+    }
+  })
+
+  it("rejects prototype, symbol, cycle, unsafe number, and unknown nested delivery data", () => {
+    const accepted = acceptedUnifiedLayoutRootFixtureV2({ content: "text-only" })
+    const complete = createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+      root: accepted.root,
+    })
+    if (complete.status !== "accepted") throw new Error("delivery blocked")
+    const clone = () => structuredClone(complete.delivery) as
+      DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    const prototype = clone()
+    Object.setPrototypeOf(prototype.chunks[0]!.sourceMapping[0]!, {
+      foreign: true,
+    })
+    const symbol = clone()
+    Object.defineProperty(symbol.chunks[0]!.sourceMapping[0]!, Symbol("x"), {
+      enumerable: true,
+      value: true,
+    })
+    const cycle = clone()
+    const cycleMapping = cycle.chunks[0]!.sourceMapping[0]! as unknown as
+      Record<string, unknown>
+    cycleMapping.self = cycleMapping
+    const unsafeNumber = clone()
+    unsafeNumber.chunks[0]!.sourceMapping[0]!.sourceStartOffset =
+      Number.MAX_SAFE_INTEGER + 1
+    const unknownField = clone()
+    ;(unknownField.chunks[0]!.sourceMapping[0]! as unknown as
+      Record<string, unknown>).unexpected = true
+
+    for (const forged of [
+      prototype,
+      symbol,
+      cycle,
+      unsafeNumber,
+      unknownField,
+    ]) {
+      expect(inspectVNextTextBlockCompleteSceneDeliveryV2(forged))
+        .toMatchObject({
+          status: "invalid",
+          code: "complete-delivery-data-mismatch",
+        })
     }
   })
 
@@ -1392,6 +1778,19 @@ describe("Phase 5B canonical Scene V2 delivery", () => {
           code: "complete-delivery-data-mismatch",
         })
     }
+    const wrongPayloadObservation = structuredClone(result.delivery) as
+      DeepMutable<VNextTextBlockCompleteSceneDeliveryV2>
+    wrongPayloadObservation.observations.payloadObservationFingerprint =
+      `sha256:${"c".repeat(64)}`
+    wrongPayloadObservation.persistentScenePayloadObservationFingerprint =
+      wrongPayloadObservation.observations.payloadObservationFingerprint
+    refingerprintCompleteDelivery(wrongPayloadObservation)
+    expect(inspectVNextTextBlockCompleteSceneDeliveryV2(
+      wrongPayloadObservation,
+    )).toMatchObject({
+      status: "invalid",
+      code: "complete-delivery-data-mismatch",
+    })
     expect(createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
       root: structuredClone(accepted.root),
     })).toMatchObject({
