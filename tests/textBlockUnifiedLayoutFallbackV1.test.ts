@@ -37,10 +37,12 @@ import {
   createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
   inspectVNextTextBlockUnifiedLayoutRootV2,
   setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2,
+  setVNextTextBlockUnifiedLayoutSourceEnvelopeObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
   inspectVNextTextBlockUnifiedLayoutSourceStateV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1,
+  setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
@@ -732,6 +734,83 @@ describe("Phase 5B deferred Root V2 fallback protocol", () => {
       expect(observed[0]).toBe(completed.root)
     } finally {
       setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
+        null,
+      )
+    }
+  })
+
+  it("keeps a fallback request retryable after complete source-envelope rejection", () => {
+    const previous = acceptedUnifiedLayoutRootFixtureV3()
+    const attempt = makeFallback(
+      previous.root,
+      identityImagePaintChange(previous.root),
+    )
+    if (attempt.status !== "fallback-required") {
+      throw new Error("expected fallback request")
+    }
+    const completeMaterial = unifiedLayoutRootBuildInputFixtureV2()
+    const observed: VNextTextBlockUnifiedLayoutRootV2[] = []
+    const envelopeObservations: unknown[] = []
+    setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
+      (candidate) => observed.push(candidate),
+    )
+    setVNextTextBlockUnifiedLayoutSourceEnvelopeObserverForTestInternalV1(
+      (value) => envelopeObservations.push(value),
+    )
+    try {
+      setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1({
+        sourceItemCount: completeMaterial.initialFlow.atoms.length,
+        treeHeight: 17,
+        maximumLeafOccupancy: 8,
+        deliberateItemResolutionCount: 1,
+      })
+      expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
+        request: attempt.fallbackRequest,
+        completeMaterial,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+      })).toMatchObject({
+        status: "blocked",
+        root: null,
+        persistentScene: null,
+        completeFallbackWork: {
+          completeRootV2BuildCount: 0,
+          completeSceneV2BuildCount: 0,
+        },
+      })
+      expect(observed).toEqual([])
+      expect(envelopeObservations).toEqual([
+        expect.objectContaining({
+          constructionKind: "complete-fallback",
+          status: "rejected",
+          sourceItemCount: completeMaterial.initialFlow.atoms.length,
+          treeHeight: 17,
+        }),
+      ])
+
+      const corrected =
+        completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
+          request: attempt.fallbackRequest,
+          completeMaterial,
+          workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+        })
+      expect(corrected.status).toBe("accepted-complete-fallback")
+      expect(observed).toHaveLength(1)
+      expect(completeVNextTextBlockUnifiedLayoutRootFallbackInternalV1({
+        request: attempt.fallbackRequest,
+        completeMaterial,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+      })).toMatchObject({
+        status: "blocked",
+        issues: [{ code: "fallback-request-authority-mismatch" }],
+      })
+    } finally {
+      setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1(
+        null,
+      )
+      setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(
+        null,
+      )
+      setVNextTextBlockUnifiedLayoutSourceEnvelopeObserverForTestInternalV1(
         null,
       )
     }
