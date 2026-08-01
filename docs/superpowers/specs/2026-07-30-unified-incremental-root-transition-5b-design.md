@@ -13,6 +13,12 @@ path/leaf accounting, fallback-attempt authority, complete-delivery nested
 identity validation, or 5B-1 corrective closure gate conflicts with the
 amendment. All other checkpoint boundaries and non-goals remain in force.
 
+The normative
+[`2026-08-01-unified-incremental-root-transition-5b-2-v3-amendment-design.md`](./2026-08-01-unified-incremental-root-transition-5b-2-v3-amendment-design.md)
+amendment supersedes this document only for the accepted 5B-1 V3 execution
+base, the 5B-2 stage decomposition, text/style geometry-policy ownership, and
+the 5B-2 closure gate. It does not authorize 5B-2 implementation by itself.
+
 ## 1. Decision Summary
 
 Phase 5B adds one exact Root V2-to-Root V2 incremental transition lane over the
