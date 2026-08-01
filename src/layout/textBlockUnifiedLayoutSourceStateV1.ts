@@ -92,9 +92,13 @@ VNextTextBlockUnifiedLayoutSourceStateV1,
   readonly canonicalFacts: string
   readonly fingerprintFactory: FingerprintFactory
   readonly itemIndex: SourceItemIndex
-  readonly treeHeight: number
+  readonly sourceEnvelopeFacts:
+    VNextTextBlockPreparedSourceEnvelopeFactsInternalV1
 }
 >()
+let sourceEnvelopeFactsForNextCompleteBuildForTest:
+  | VNextTextBlockPreparedSourceEnvelopeFactsInternalV1
+  | null = null
 const statesByEvidence = new WeakMap<
 VNextTextBlockFlowEvidenceV2,
 WeakSet<VNextTextBlockUnifiedLayoutSourceStateV1>
@@ -139,6 +143,14 @@ export function setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestIn
     | null,
 ): void {
   sourceIndexLookupObserverForTest = observer
+}
+
+export function setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1(
+  facts: VNextTextBlockPreparedSourceEnvelopeFactsInternalV1 | null,
+): void {
+  sourceEnvelopeFactsForNextCompleteBuildForTest = facts == null
+    ? null
+    : Object.freeze({ ...facts })
 }
 
 function fingerprintWith(
@@ -996,12 +1008,21 @@ function buildComplete(
         "source-state items require unique inline identities",
       )
     }
+    const sourceEnvelopeFacts =
+      sourceEnvelopeFactsForNextCompleteBuildForTest
+      ?? Object.freeze({
+        sourceItemCount: sourceState.summary.itemCount,
+        treeHeight: sourceState.root.height + 1,
+        maximumLeafOccupancy: 8 as const,
+        deliberateItemResolutionCount: 1 as const,
+      })
+    sourceEnvelopeFactsForNextCompleteBuildForTest = null
     preparedStates.set(sourceState, {
       fingerprint: sourceState.fingerprint,
       canonicalFacts,
       fingerprintFactory: factory,
       itemIndex,
-      treeHeight: sourceState.root.height + 1,
+      sourceEnvelopeFacts,
     })
     const evidenceStates = statesByEvidence.get(evidence) ?? new WeakSet()
     evidenceStates.add(sourceState)
@@ -1053,12 +1074,7 @@ export function inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
 ): VNextTextBlockPreparedSourceEnvelopeFactsInternalV1 | null {
   const prepared = preparedStates.get(sourceState)
   if (prepared == null) return null
-  return Object.freeze({
-    sourceItemCount: sourceState.summary.itemCount,
-    treeHeight: prepared.treeHeight,
-    maximumLeafOccupancy: 8 as const,
-    deliberateItemResolutionCount: 1 as const,
-  })
+  return prepared.sourceEnvelopeFacts
 }
 
 export function hasVNextTextBlockUnifiedLayoutSourceStatePreparedBindingInternalV1(
@@ -1418,7 +1434,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       canonicalFacts,
       fingerprintFactory: prepared.fingerprintFactory,
       itemIndex: prepared.itemIndex,
-      treeHeight: prepared.treeHeight,
+      sourceEnvelopeFacts: prepared.sourceEnvelopeFacts,
     })
     const nextStates =
       imagePaintNextStates.get(input.previousSourceState) ?? new WeakSet()

@@ -126,6 +126,7 @@ export type VNextTextBlockUnifiedLayoutIssueCodeV1 =
   | "evidence-coverage-mismatch"
   | "incremental-proof-unavailable"
   | "deterministic-work-limit-exceeded"
+  | "source-work-envelope-exceeded"
   | "fallback-request-authority-mismatch"
   | "fallback-target-binding-failed"
   | "atomic-acceptance-failed"

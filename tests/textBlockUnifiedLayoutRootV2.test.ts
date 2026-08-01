@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
+import * as rootV2Internals from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import * as sourceStateInternals from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   inspectVNextTextBlockIncrementalFlowTreeInternalV1,
   inspectVNextTextBlockIncrementalFlowTreeV1,
@@ -25,6 +27,9 @@ import {
   inspectVNextTextBlockUnifiedLayoutRootV2,
   prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import {
+  attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
@@ -40,15 +45,173 @@ import {
   registerPreparedVNextTextBlockUnifiedLayoutSourceStateRootGraphChildInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
+  imagePaintUnifiedLayoutChange5b,
+} from "./helpers/textBlockUnifiedIncremental5b.js"
+import {
   ROOT_V2_TEST_WORK_POLICY,
   acceptedUnifiedLayoutRootFixtureV2,
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 
+function rootSourceEnvelopeAuthority(value: unknown): unknown {
+  const get = (rootV2Internals as unknown as {
+    readonly getVNextTextBlockRootSourceEnvelopeAuthorityInternalV1?:
+      (root: unknown) => unknown
+  }).getVNextTextBlockRootSourceEnvelopeAuthorityInternalV1
+  return get?.(value) ?? null
+}
+
 describe("Phase 5B independent unified Root V2", () => {
+  it("atomically registers source envelope authority only for exact V3 roots", () => {
+    const input = unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-image-text-break",
+    })
+    const prepared =
+      prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+        input,
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+        "complete-bootstrap",
+      )
+    expect(prepared.status).toBe("prepared")
+    if (prepared.status !== "prepared") throw new Error("V3 candidate blocked")
+    expect(rootSourceEnvelopeAuthority(prepared.root)).toBeNull()
+    expect(registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
+      prepared.root,
+    )).toMatchObject({ status: "committed" })
+    const preparedAuthority = rootSourceEnvelopeAuthority(prepared.root)
+    expect(preparedAuthority).not.toBeNull()
+    expect(Object.isFrozen(preparedAuthority)).toBe(true)
+
+    const accepted = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      input,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    )
+    expect(accepted.status).toBe("accepted")
+    if (accepted.status !== "accepted") throw new Error("V3 Root blocked")
+    expect(rootSourceEnvelopeAuthority(accepted.root)).not.toBeNull()
+    expect(rootSourceEnvelopeAuthority(structuredClone(accepted.root))).toBeNull()
+    expect(accepted.root).not.toHaveProperty("treeHeight")
+    expect(accepted.root.sourceState).not.toHaveProperty("treeHeight")
+    expect(accepted.root.sourceState.summary).not.toHaveProperty("treeHeight")
+
+    const activeV2 = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      input,
+      ROOT_V2_TEST_WORK_POLICY,
+    )
+    expect(activeV2.status).toBe("accepted")
+    if (activeV2.status !== "accepted") throw new Error("V2 Root blocked")
+    expect(rootSourceEnvelopeAuthority(activeV2.root)).toBeNull()
+  })
+
+  it("rejects a V3 source-envelope breach before downstream complete work", () => {
+    const setNextFacts = (sourceStateInternals as unknown as {
+      readonly setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1?:
+        (facts: unknown) => void
+    }).setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1
+    const setObserver = (rootV2Internals as unknown as {
+      readonly setVNextTextBlockUnifiedLayoutSourceEnvelopeObserverForTestInternalV1?:
+        (observer: ((value: unknown) => void) | null) => void
+    }).setVNextTextBlockUnifiedLayoutSourceEnvelopeObserverForTestInternalV1
+    expect(setNextFacts).toBeTypeOf("function")
+    expect(setObserver).toBeTypeOf("function")
+    if (setNextFacts == null || setObserver == null) return
+
+    const input = unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-image-text-break",
+    })
+    const observations: unknown[] = []
+    setObserver((value) => observations.push(value))
+    try {
+      setNextFacts({
+        sourceItemCount: input.initialFlow.atoms.length,
+        treeHeight: 17,
+        maximumLeafOccupancy: 8,
+        deliberateItemResolutionCount: 1,
+      })
+      const rejected =
+        prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+          input,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          "complete-bootstrap",
+        )
+      expect(rejected).toMatchObject({
+        status: "blocked",
+        root: null,
+        persistentScene: null,
+        deliveryPlan: null,
+        completeBuildWork: {
+          completeSourceItemVisitCount: input.initialFlow.atoms.length,
+          completeFlowAtomVisitCount: 0,
+          completeLineVisitCount: 0,
+          completeSceneNodeVisitCount: 0,
+        },
+        issues: [{
+          code: "source-work-envelope-exceeded",
+          stage: "source-flow",
+        }],
+      })
+
+      const corrected =
+        prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+          input,
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+          "complete-fallback",
+        )
+      expect(corrected.status).toBe("prepared")
+      expect(observations).toEqual([
+        expect.objectContaining({
+          constructionKind: "complete-bootstrap",
+          status: "rejected",
+          treeHeight: 17,
+        }),
+        expect.objectContaining({
+          constructionKind: "complete-fallback",
+          status: "accepted",
+          treeHeight: 1,
+        }),
+      ])
+    } finally {
+      setNextFacts(null)
+      setObserver(null)
+    }
+  })
+
+  it("atomically carries exact source envelope authority into a V3 paint root", () => {
+    const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      unifiedLayoutRootBuildInputFixtureV2({
+        content: "text-image-text-break",
+        fit: "contain",
+      }),
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    )
+    if (previous.status !== "accepted") throw new Error("V3 previous Root blocked")
+    const previousAuthority = rootSourceEnvelopeAuthority(previous.root)
+    expect(previousAuthority).not.toBeNull()
+
+    const result = attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1({
+      previousRoot: previous.root,
+      change: imagePaintUnifiedLayoutChange5b(previous.root, {
+        fit: "cover",
+        crop: { x: 0, y: 0, width: 0.5, height: 1 },
+      }),
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    })
+    expect(result.status).toBe("accepted-incremental")
+    if (result.status !== "accepted-incremental") return
+    const nextAuthority = rootSourceEnvelopeAuthority(result.root)
+    expect(nextAuthority).not.toBeNull()
+    expect(nextAuthority).not.toBe(previousAuthority)
+    expect(result.root.sourceState.summary.itemCount)
+      .toBe(previous.root.sourceState.summary.itemCount)
+    expect(result.root.sourceState.root.height)
+      .toBe(previous.root.sourceState.root.height)
+  })
+
   it("recomposes line-tree, Scene, and Root identity without leaking work into semantics", () => {
     const accepted = acceptedUnifiedLayoutRootFixtureV2()
     const lineIdentity =

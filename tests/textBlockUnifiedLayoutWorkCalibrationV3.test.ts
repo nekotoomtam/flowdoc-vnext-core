@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
+import * as workPolicyInternals from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
@@ -150,6 +151,14 @@ function collect(): readonly VNextTextBlockWorkCalibrationObservationInternalV1[
   ]
 }
 
+function sourceEnvelopeEvaluation(input: unknown): unknown {
+  const evaluate = (workPolicyInternals as unknown as {
+    readonly evaluateVNextTextBlockSourceWorkEnvelopeInternalV1?:
+      (value: unknown) => unknown
+  }).evaluateVNextTextBlockSourceWorkEnvelopeInternalV1
+  return evaluate?.(input) ?? null
+}
+
 describe("Phase 5B-1 private V3 factual work calibration", () => {
   const observations = collect()
   const calibration = deriveVNextTextBlockWorkPolicyCalibrationInternalV1(observations)
@@ -260,6 +269,111 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       }
     }
     expect(JSON.stringify(calibration)).not.toMatch(/clock|duration|payloadByte/i)
+  })
+
+  it("evaluates empty, leaf, and maximum-height V3 source envelopes", () => {
+    const policy =
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    expect(sourceEnvelopeEvaluation({
+      policy,
+      sourceItemCount: 0,
+      treeHeight: 0,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    })).toEqual({
+      status: "accepted",
+      effectiveLimits: [
+        { unit: "source-items", attemptedWork: 1, effectiveLimit: 1 },
+        { unit: "source-lookup-nodes", attemptedWork: 0, effectiveLimit: 2 },
+        { unit: "source-path-copy-nodes", attemptedWork: 0, effectiveLimit: 2 },
+        { unit: "source-leaf-items", attemptedWork: 8, effectiveLimit: 8 },
+      ],
+    })
+    expect(sourceEnvelopeEvaluation({
+      policy,
+      sourceItemCount: 1,
+      treeHeight: 1,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    })).toMatchObject({ status: "accepted" })
+    expect(sourceEnvelopeEvaluation({
+      policy,
+      sourceItemCount: 15,
+      treeHeight: 16,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    })).toMatchObject({ status: "accepted" })
+    expect(sourceEnvelopeEvaluation({
+      policy,
+      sourceItemCount: 16,
+      treeHeight: 17,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    })).toEqual({
+      status: "rejected",
+      unit: "source-lookup-nodes",
+      attemptedWork: 17,
+      effectiveLimit: 16,
+    })
+  })
+
+  it("fails closed on source fact thresholds and foreign policy authority", () => {
+    const policy =
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    const sourceFacts = {
+      policy,
+      sourceItemCount: 0,
+      treeHeight: 0,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    }
+    expect(sourceEnvelopeEvaluation({
+      ...sourceFacts,
+      deliberateItemResolutionCount: 2,
+    })).toEqual({
+      status: "rejected",
+      unit: "source-items",
+      attemptedWork: 2,
+      effectiveLimit: 1,
+    })
+    expect(sourceEnvelopeEvaluation({
+      ...sourceFacts,
+      maximumLeafOccupancy: 9,
+    })).toEqual({
+      status: "rejected",
+      unit: "source-leaf-items",
+      attemptedWork: 9,
+      effectiveLimit: 8,
+    })
+    expect(sourceEnvelopeEvaluation({
+      ...sourceFacts,
+      policy: structuredClone(policy),
+    })).toEqual({ status: "invalid-policy" })
+    for (const unsafe of [-1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      expect(sourceEnvelopeEvaluation({
+        ...sourceFacts,
+        treeHeight: unsafe,
+      })).toEqual({ status: "invalid-policy" })
+    }
+
+    const pathRow = policy.stages.find((row) =>
+      row.stage === "source-flow" && row.unit === "source-path-copy-nodes"
+    )
+    if (pathRow == null) throw new Error("V3 source path-copy row missing")
+    for (const [attemptedWork, status] of [
+      [1, "within-limit"],
+      [2, "within-limit"],
+      [3, "limit-exceeded"],
+    ] as const) {
+      expect(evaluateVNextTextBlockStageWorkLimitInternalV1({
+        policy,
+        stage: pathRow.stage,
+        unit: pathRow.unit,
+        previousSummaryBase: 0,
+        exactValidatedChangeDelta: 1,
+        attemptedWork,
+      })).toEqual({ status, effectiveLimit: 2, attemptedWork })
+    }
   })
 
   it("prints canonical evidence only under the task-specific report switch", () => {

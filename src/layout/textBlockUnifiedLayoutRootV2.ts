@@ -39,9 +39,12 @@ import {
   canonicalVNextTextBlockUnifiedLayoutRootFactsInternalV2,
   canonicalVNextTextBlockUnifiedLayoutRootSemanticFactsInternalV2,
   deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2,
+  getVNextTextBlockRootSourceEnvelopeRecordInternalV1,
   inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2,
+  prepareVNextTextBlockRootSourceEnvelopeBindingInternalV1,
   prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2,
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
+  type VNextTextBlockRootSourceEnvelopeAuthorityInternalV1,
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_ROOT_V2_SOURCE,
@@ -61,6 +64,7 @@ import {
 } from "./textBlockUnifiedSpatialStateV1.js"
 import {
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
+  inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
   VNextTextBlockUnifiedLayoutIssueV1,
@@ -68,8 +72,9 @@ import type {
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  evaluateVNextTextBlockSourceWorkEnvelopeInternalV1,
+  type VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
@@ -178,125 +183,12 @@ function strictInput(value: unknown): {
   }
 }
 
-function deeplyFrozenData(value: unknown): boolean {
-  if (value == null || typeof value !== "object") return true
-  if (!Object.isFrozen(value)) return false
-  try {
-    const prototype = Object.getPrototypeOf(value)
-    if (
-      !Array.isArray(value)
-      && prototype !== Object.prototype
-      && prototype !== null
-    ) return false
-    return Reflect.ownKeys(value).every((key) => {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key)
-      return descriptor != null
-        && Object.hasOwn(descriptor, "value")
-        && (
-          key === "length"
-          || descriptor.enumerable === true
-        )
-        && deeplyFrozenData(descriptor.value)
-    })
-  } catch {
-    return false
-  }
-}
-
 function validWorkPolicy(
   value: unknown,
 ): value is VNextTextBlockUnifiedLayoutWorkPolicyV1 {
-  if (!deeplyFrozenData(value)) return false
-  const record = exactRecord(value, [
-    "source",
-    "contractVersion",
-    "policyId",
-    "checkpoint",
-    "stages",
-    "fingerprint",
-  ])
-  const stageRows = exactArray(record?.stages)
-  if (
-    record == null
-    || record.source
-      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE
-    || record.contractVersion
-      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION
-    || record.policyId
-      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2.policyId
-    || record.checkpoint !== "5B-1"
-    || typeof record.fingerprint !== "string"
-    || stageRows == null
-    || stageRows.length !== 14
-  ) return false
-  const allowed = new Map<
-    string,
-    VNextTextBlockUnifiedLayoutWorkPolicyV1["stages"][number]
-  >(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2
-    .stages.map((row) => [row.unit, row] as const))
-  const seen = new Set<string>()
-  for (const value of stageRows) {
-    const row = exactRecord(value, [
-      "stage",
-      "unit",
-      "lockStatus",
-      "smallBlockFloor",
-      "absoluteStageLimit",
-      "relativeNumerator",
-      "relativeDenominator",
-      "checkpointOwner",
-      "fingerprint",
-    ])
-    if (
-      row == null
-      || typeof row.unit !== "string"
-      || allowed.get(row.unit)?.stage !== row.stage
-      || seen.has(row.unit)
-      || (
-        row.lockStatus !== "inactive"
-        && row.lockStatus !== "prelock"
-        && row.lockStatus !== "locked"
-      )
-      || (
-        row.checkpointOwner !== "5B-1"
-        && row.checkpointOwner !== "5B-2"
-        && row.checkpointOwner !== "5B-3"
-      )
-      || !Number.isSafeInteger(row.smallBlockFloor)
-      || (row.smallBlockFloor as number) < 0
-      || !Number.isSafeInteger(row.absoluteStageLimit)
-      || (row.absoluteStageLimit as number) < 0
-      || !Number.isSafeInteger(row.relativeNumerator)
-      || (row.relativeNumerator as number) < 0
-      || row.relativeDenominator !== 1
-      || typeof row.fingerprint !== "string"
-      || row.lockStatus !== allowed.get(row.unit)?.lockStatus
-      || row.smallBlockFloor !== allowed.get(row.unit)?.smallBlockFloor
-      || row.absoluteStageLimit !== allowed.get(row.unit)?.absoluteStageLimit
-      || row.relativeNumerator !== allowed.get(row.unit)?.relativeNumerator
-      || row.relativeDenominator !== allowed.get(row.unit)?.relativeDenominator
-      || row.checkpointOwner !== allowed.get(row.unit)?.checkpointOwner
-      || row.fingerprint !== fingerprint({
-        stage: row.stage,
-        unit: row.unit,
-        lockStatus: row.lockStatus,
-        smallBlockFloor: row.smallBlockFloor,
-        absoluteStageLimit: row.absoluteStageLimit,
-        relativeNumerator: row.relativeNumerator,
-        relativeDenominator: row.relativeDenominator,
-        checkpointOwner: row.checkpointOwner,
-      })
-    ) return false
-    seen.add(row.unit)
-  }
-  return seen.size === allowed.size
-    && record.fingerprint === fingerprint({
-    source: record.source,
-    contractVersion: record.contractVersion,
-    policyId: record.policyId,
-    checkpoint: record.checkpoint,
-    stages: record.stages,
-  })
+  return value === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2
+    || value
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
 }
 
 function issue(
@@ -377,6 +269,18 @@ let completeKernelObserver:
     ) => void)
   | null = null
 
+export interface VNextTextBlockSourceEnvelopeObservationForTestInternalV1 {
+  readonly constructionKind: "complete-bootstrap" | "complete-fallback"
+  readonly status: "accepted" | "rejected" | "invalid-policy"
+  readonly sourceItemCount: number | null
+  readonly treeHeight: number | null
+}
+
+let sourceEnvelopeObserver:
+  | ((observation:
+      VNextTextBlockSourceEnvelopeObservationForTestInternalV1) => void)
+  | null = null
+
 export function setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInternalV2(
   observer:
     | ((
@@ -385,6 +289,15 @@ export function setVNextTextBlockUnifiedLayoutCompleteKernelObserverForTestInter
     | null,
 ): void {
   completeKernelObserver = observer
+}
+
+export function setVNextTextBlockUnifiedLayoutSourceEnvelopeObserverForTestInternalV1(
+  observer:
+    | ((observation:
+        VNextTextBlockSourceEnvelopeObservationForTestInternalV1) => void)
+    | null,
+): void {
+  sourceEnvelopeObserver = observer
 }
 
 export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
@@ -493,6 +406,42 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
   work = {
     ...work,
     completeSourceItemVisitCount: source.sourceState.summary.itemCount,
+  }
+  let sourceEnvelope:
+    | Extract<
+        VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1,
+        { readonly status: "accepted" }
+      >
+    | null = null
+  const sourceEnvelopeFacts =
+    inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
+      source.sourceState,
+    )
+  if (
+    workPolicy
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+  ) {
+    const evaluation = sourceEnvelopeFacts == null
+      ? null
+      : evaluateVNextTextBlockSourceWorkEnvelopeInternalV1({
+          policy: workPolicy,
+          ...sourceEnvelopeFacts,
+        })
+    sourceEnvelopeObserver?.(Object.freeze({
+      constructionKind,
+      status: evaluation?.status ?? "invalid-policy",
+      sourceItemCount: sourceEnvelopeFacts?.sourceItemCount ?? null,
+      treeHeight: sourceEnvelopeFacts?.treeHeight ?? null,
+    }))
+    if (evaluation?.status !== "accepted") {
+      return blocked(work, issue(
+        "source-work-envelope-exceeded",
+        "source-flow",
+        "sourceState.sourceEnvelope",
+        "complete Root V2 source state exceeds the exact V3 source work envelope",
+      ))
+    }
+    sourceEnvelope = evaluation
   }
   const flow = createVNextTextBlockIncrementalFlowTreeCompleteInternalV1({
     sourceState: source.sourceState,
@@ -727,6 +676,22 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
     ),
   })
   if (
+    sourceEnvelope != null
+    && sourceEnvelopeFacts != null
+    && !prepareVNextTextBlockRootSourceEnvelopeBindingInternalV1({
+      root,
+      facts: sourceEnvelopeFacts,
+      effectiveLimits: sourceEnvelope.effectiveLimits,
+    })
+  ) {
+    return blocked(work, issue(
+      "atomic-acceptance-failed",
+      "atomic-acceptance",
+      "root.sourceEnvelope",
+      "Root V2 candidate failed exact source-envelope preparation",
+    ))
+  }
+  if (
     !prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2(
       root,
     )
@@ -746,6 +711,13 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
     completeBuildWork: work,
     issues: Object.freeze([]) as readonly [],
   })
+}
+
+export function getVNextTextBlockRootSourceEnvelopeAuthorityInternalV1(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): VNextTextBlockRootSourceEnvelopeAuthorityInternalV1 | null {
+  return getVNextTextBlockRootSourceEnvelopeRecordInternalV1(root)
+    ?.authority ?? null
 }
 
 export function createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
@@ -830,6 +802,65 @@ export function prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateIntern
       )],
     }
   }
+  let nextSourceEnvelope:
+    | {
+        readonly facts: NonNullable<
+          ReturnType<
+            typeof inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1
+          >
+        >
+        readonly evaluation: Extract<
+          VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1,
+          { readonly status: "accepted" }
+        >
+      }
+    | null = null
+  if (
+    input.workPolicy
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+  ) {
+    const previousEnvelope =
+      getVNextTextBlockRootSourceEnvelopeRecordInternalV1(
+        input.previousRoot,
+      )
+    const nextFacts =
+      inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
+        input.nextSourceState,
+      )
+    const evaluation = nextFacts == null
+      ? null
+      : evaluateVNextTextBlockSourceWorkEnvelopeInternalV1({
+          policy: input.workPolicy,
+          ...nextFacts,
+        })
+    if (
+      previousEnvelope == null
+      || previousEnvelope.root !== input.previousRoot
+      || previousEnvelope.sourceState !== input.previousRoot.sourceState
+      || previousEnvelope.workPolicy !== input.workPolicy
+      || nextFacts == null
+      || evaluation?.status !== "accepted"
+      || nextFacts.sourceItemCount
+        !== previousEnvelope.facts.sourceItemCount
+      || nextFacts.treeHeight !== previousEnvelope.facts.treeHeight
+      || nextFacts.maximumLeafOccupancy
+        !== previousEnvelope.facts.maximumLeafOccupancy
+      || nextFacts.deliberateItemResolutionCount
+        !== previousEnvelope.facts.deliberateItemResolutionCount
+    ) {
+      return {
+        status: "blocked",
+        root: null,
+        issues: [issue(
+          "previous-root-authority-mismatch",
+          "source-flow",
+          "previousRoot.sourceEnvelope",
+          "incremental Root V2 requires exact source-envelope continuity",
+        )],
+      }
+    }
+    nextSourceEnvelope = { facts: nextFacts, evaluation }
+  }
   const semanticDependencyFingerprints =
     deriveVNextTextBlockUnifiedLayoutRootSemanticDependencyFingerprintsInternalV2({
       sourceState: input.nextSourceState,
@@ -906,6 +937,25 @@ export function prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateIntern
       }),
     ),
   })
+  if (
+    nextSourceEnvelope != null
+    && !prepareVNextTextBlockRootSourceEnvelopeBindingInternalV1({
+      root,
+      facts: nextSourceEnvelope.facts,
+      effectiveLimits: nextSourceEnvelope.evaluation.effectiveLimits,
+    })
+  ) {
+    return {
+      status: "blocked",
+      root: null,
+      issues: [issue(
+        "atomic-acceptance-failed",
+        "atomic-acceptance",
+        "root.sourceEnvelope",
+        "incremental Root V2 failed exact source-envelope preparation",
+      )],
+    }
+  }
   if (
     !prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInternalV2(
       root,

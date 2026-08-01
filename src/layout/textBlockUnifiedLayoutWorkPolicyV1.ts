@@ -514,6 +514,108 @@ VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
   fingerprint: fingerprint(policy5b1V3CandidateFacts),
 })
 
+export interface VNextTextBlockSourceEnvelopeLimitInternalV1 {
+  readonly unit:
+    | "source-items"
+    | "source-lookup-nodes"
+    | "source-path-copy-nodes"
+    | "source-leaf-items"
+  readonly attemptedWork: number
+  readonly effectiveLimit: number
+}
+
+export type VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1 =
+  | {
+      readonly status: "accepted"
+      readonly effectiveLimits:
+        readonly VNextTextBlockSourceEnvelopeLimitInternalV1[]
+    }
+  | {
+      readonly status: "rejected"
+      readonly unit: VNextTextBlockSourceEnvelopeLimitInternalV1["unit"]
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+    }
+  | { readonly status: "invalid-policy" }
+
+export function evaluateVNextTextBlockSourceWorkEnvelopeInternalV1(input: {
+  readonly policy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly sourceItemCount: number
+  readonly treeHeight: number
+  readonly maximumLeafOccupancy: 8
+  readonly deliberateItemResolutionCount: 1
+}): VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1 {
+  if (input.policy !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL) {
+    return Object.freeze({ status: "invalid-policy" as const })
+  }
+  if ([
+    input.sourceItemCount,
+    input.treeHeight,
+    input.maximumLeafOccupancy,
+    input.deliberateItemResolutionCount,
+  ].some((value) => !Number.isSafeInteger(value) || value < 0)) {
+    return Object.freeze({ status: "invalid-policy" as const })
+  }
+  const attempts = [
+    {
+      unit: "source-items" as const,
+      attemptedWork: input.deliberateItemResolutionCount,
+    },
+    {
+      unit: "source-lookup-nodes" as const,
+      attemptedWork: input.treeHeight,
+    },
+    {
+      unit: "source-path-copy-nodes" as const,
+      attemptedWork: input.treeHeight,
+    },
+    {
+      unit: "source-leaf-items" as const,
+      attemptedWork: input.maximumLeafOccupancy,
+    },
+  ]
+  const effectiveLimits: VNextTextBlockSourceEnvelopeLimitInternalV1[] = []
+  for (const attempt of attempts) {
+    const evaluation = evaluateVNextTextBlockStageWorkLimitInternalV1({
+      policy: input.policy,
+      stage: "source-flow",
+      unit: attempt.unit,
+      previousSummaryBase: input.sourceItemCount,
+      exactValidatedChangeDelta: 1,
+      attemptedWork: attempt.attemptedWork,
+    })
+    if (
+      evaluation.status === "invalid"
+      || evaluation.status === "inactive"
+    ) {
+      return Object.freeze({ status: "invalid-policy" as const })
+    }
+    const limit = Object.freeze({
+      ...attempt,
+      effectiveLimit: evaluation.effectiveLimit,
+    })
+    if (evaluation.status === "limit-exceeded") {
+      return Object.freeze({
+        status: "rejected" as const,
+        ...limit,
+      })
+    }
+    effectiveLimits.push(limit)
+  }
+  if (input.treeHeight > 16) {
+    return Object.freeze({
+      status: "rejected" as const,
+      unit: "source-lookup-nodes" as const,
+      attemptedWork: input.treeHeight,
+      effectiveLimit: 16,
+    })
+  }
+  return Object.freeze({
+    status: "accepted" as const,
+    effectiveLimits: Object.freeze(effectiveLimits),
+  })
+}
+
 export type VNextTextBlockStageWorkLimitEvaluationV1 =
   | {
       readonly status: "within-limit"

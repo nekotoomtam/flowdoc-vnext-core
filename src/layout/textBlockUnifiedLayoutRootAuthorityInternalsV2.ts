@@ -24,6 +24,7 @@ import {
   hasVNextTextBlockUnifiedLayoutSourceStateRegisteredRootGraphBindingInternalV2,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
   registerPreparedVNextTextBlockUnifiedLayoutSourceStateRootGraphChildInternalV2,
+  type VNextTextBlockPreparedSourceEnvelopeFactsInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_ROOT_V2_SOURCE,
@@ -31,6 +32,10 @@ import {
   type VNextTextBlockUnifiedLayoutRootInspectionV2,
   type VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
+import type {
+  VNextTextBlockSourceEnvelopeLimitInternalV1,
+  VNextTextBlockUnifiedLayoutWorkPolicyV1,
+} from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 type ChildKind =
   | "source-state"
@@ -66,6 +71,20 @@ interface PreparedRootBindingV2 {
   }[]
 }
 
+export interface VNextTextBlockRootSourceEnvelopeAuthorityInternalV1 {
+  readonly __rootSourceEnvelopeAuthorityOpaque: never
+}
+
+export interface VNextTextBlockRootSourceEnvelopeRecordInternalV1 {
+  readonly root: VNextTextBlockUnifiedLayoutRootV2
+  readonly sourceState: VNextTextBlockUnifiedLayoutRootV2["sourceState"]
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly authority: VNextTextBlockRootSourceEnvelopeAuthorityInternalV1
+  readonly facts: VNextTextBlockPreparedSourceEnvelopeFactsInternalV1
+  readonly effectiveLimits:
+    readonly VNextTextBlockSourceEnvelopeLimitInternalV1[]
+}
+
 interface CommitTokenRecordV2 {
   readonly expected: readonly {
     readonly childKind: ChildKind
@@ -85,6 +104,18 @@ const roots = new WeakMap<
   PreparedRootBindingV2
 >()
 const commitTokens = new WeakMap<object, CommitTokenRecordV2>()
+const preparedRootSourceEnvelopes = new WeakMap<
+  VNextTextBlockUnifiedLayoutRootV2,
+  Omit<VNextTextBlockRootSourceEnvelopeRecordInternalV1, "root">
+>()
+const rootSourceEnvelopes = new WeakMap<
+  VNextTextBlockUnifiedLayoutRootV2,
+  VNextTextBlockRootSourceEnvelopeRecordInternalV1
+>()
+const rootSourceEnvelopeAuthorities = new WeakMap<
+  VNextTextBlockRootSourceEnvelopeAuthorityInternalV1,
+  VNextTextBlockRootSourceEnvelopeRecordInternalV1
+>()
 
 const ROOT_KEYS = [
   "source",
@@ -550,6 +581,37 @@ export function prepareVNextTextBlockUnifiedLayoutRootGraphCandidateBindingInter
   return true
 }
 
+export function prepareVNextTextBlockRootSourceEnvelopeBindingInternalV1(
+  input: {
+    readonly root: VNextTextBlockUnifiedLayoutRootV2
+    readonly facts: VNextTextBlockPreparedSourceEnvelopeFactsInternalV1
+    readonly effectiveLimits:
+      readonly VNextTextBlockSourceEnvelopeLimitInternalV1[]
+  },
+): boolean {
+  if (
+    preparedRootSourceEnvelopes.has(input.root)
+    || rootSourceEnvelopes.has(input.root)
+    || input.root.sourceState.summary.itemCount
+      !== input.facts.sourceItemCount
+    || input.facts.maximumLeafOccupancy !== 8
+    || input.facts.deliberateItemResolutionCount !== 1
+    || !Number.isSafeInteger(input.facts.treeHeight)
+    || input.facts.treeHeight < 0
+    || input.effectiveLimits.length !== 4
+  ) return false
+  const authority = Object.freeze({}) as unknown as
+    VNextTextBlockRootSourceEnvelopeAuthorityInternalV1
+  preparedRootSourceEnvelopes.set(input.root, Object.freeze({
+    sourceState: input.root.sourceState,
+    workPolicy: input.root.workPolicy,
+    authority,
+    facts: input.facts,
+    effectiveLimits: input.effectiveLimits,
+  }))
+  return true
+}
+
 export type VNextTextBlockUnifiedLayoutRootGraphRegistrationResultV2 =
   | {
       readonly status: "committed"
@@ -658,12 +720,38 @@ export function registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
     )
   }
   roots.set(root, binding)
+  const preparedEnvelope = preparedRootSourceEnvelopes.get(root)
+  if (preparedEnvelope != null) {
+    const committedEnvelope = Object.freeze({
+      root,
+      ...preparedEnvelope,
+    })
+    rootSourceEnvelopes.set(root, committedEnvelope)
+    rootSourceEnvelopeAuthorities.set(
+      preparedEnvelope.authority,
+      committedEnvelope,
+    )
+    preparedRootSourceEnvelopes.delete(root)
+  }
   preparedRoots.delete(root)
   return {
     status: "committed",
     attemptedRegistrationCount: expected.length + 1,
     committedRegistrationCount: expected.length + 1,
   }
+}
+
+export function getVNextTextBlockRootSourceEnvelopeRecordInternalV1(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): VNextTextBlockRootSourceEnvelopeRecordInternalV1 | null {
+  if (!roots.has(root)) return null
+  return rootSourceEnvelopes.get(root) ?? null
+}
+
+export function resolveVNextTextBlockRootSourceEnvelopeAuthorityInternalV1(
+  authority: VNextTextBlockRootSourceEnvelopeAuthorityInternalV1,
+): VNextTextBlockRootSourceEnvelopeRecordInternalV1 | null {
+  return rootSourceEnvelopeAuthorities.get(authority) ?? null
 }
 
 export function inspectVNextTextBlockUnifiedLayoutRootBindingInternalV2(
