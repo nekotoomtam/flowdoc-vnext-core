@@ -1,5 +1,11 @@
 # Unified Incremental Root Transition 5B-2 V3 Implementation Plan
 
+> **PAUSED — DO NOT EXECUTE TASK 2 OR LATER.** The 2026-08-02 risk audit found
+> an evidence/source ordering cycle and V1 protocol gaps. The approved
+> direction is documented in
+> `../specs/2026-08-02-unified-incremental-transition-evidence-v2-design-correction.md`.
+> This plan must be rewritten and reviewed before implementation resumes.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Activate bounded Core-only text, resolved-field, and supported-style

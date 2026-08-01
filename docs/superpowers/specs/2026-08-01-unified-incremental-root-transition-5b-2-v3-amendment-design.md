@@ -1,5 +1,13 @@
 # Unified Incremental Root Transition 5B-2 V3 Amendment Design
 
+> **2026-08-02 correction:** Transition Evidence V1 is not the executable
+> Phase 5B-2 producer lane. Evidence ordering, exact source-material authority,
+> resolved-style facts, range semantics, bounded runtime proof, and work
+> ownership are superseded by
+> `2026-08-02-unified-incremental-transition-evidence-v2-design-correction.md`.
+> Implementation remains blocked until that correction is reviewed and the
+> implementation plan is rewritten.
+
 Status: written V3-aware amendment awaiting user review. This document defines
 the planning baseline for Core-only Phase 5B-2. It does not authorize
 implementation, Phase 5B-3, Phase 5C, Editor or Backend integration,
