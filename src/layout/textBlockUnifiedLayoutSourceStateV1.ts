@@ -137,6 +137,72 @@ let sourceIndexLookupObserverForTest:
   | ((observation: VNextTextBlockSourceIndexLookupObservationForTestV1) => void)
   | null = null
 
+export interface VNextTextBlockPreBindingSourceVisitGuardInternalV1 {
+  readonly __preBindingSourceVisitGuardOpaque: never
+}
+
+export type VNextTextBlockPreBindingSourceVisitEvaluationInternalV1 =
+  | {
+      readonly status: "accepted"
+      readonly completedWork: number
+    }
+  | {
+      readonly status: "invariant-blocked"
+      readonly completedWork: number
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+    }
+
+interface PreBindingSourceVisitGuardRecordInternalV1 {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly evaluate: (
+    unit: "source-lookup-nodes" | "source-items",
+    completedWork: number,
+  ) => VNextTextBlockPreBindingSourceVisitEvaluationInternalV1
+}
+
+const preBindingSourceVisitGuards = new WeakMap<
+  VNextTextBlockPreBindingSourceVisitGuardInternalV1,
+  PreBindingSourceVisitGuardRecordInternalV1
+>()
+
+let preBindingSourceReadObserverForTest:
+  | ((observation: {
+      readonly unit: "source-lookup-nodes" | "source-items"
+      readonly completedWork: number
+    }) => void)
+  | null = null
+
+export function registerVNextTextBlockPreBindingSourceVisitGuardInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly evaluate: PreBindingSourceVisitGuardRecordInternalV1["evaluate"]
+  },
+): VNextTextBlockPreBindingSourceVisitGuardInternalV1 {
+  const guard = Object.freeze(
+    {},
+  ) as VNextTextBlockPreBindingSourceVisitGuardInternalV1
+  preBindingSourceVisitGuards.set(guard, Object.freeze({ ...input }))
+  return guard
+}
+
+export function consumeVNextTextBlockPreBindingSourceVisitGuardInternalV1(
+  guard: VNextTextBlockPreBindingSourceVisitGuardInternalV1,
+): boolean {
+  return preBindingSourceVisitGuards.delete(guard)
+}
+
+export function setVNextTextBlockPreBindingSourceReadObserverForTestInternalV1(
+  observer:
+    | ((observation: {
+        readonly unit: "source-lookup-nodes" | "source-items"
+        readonly completedWork: number
+      }) => void)
+    | null,
+): void {
+  preBindingSourceReadObserverForTest = observer
+}
+
 export function setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
   observer:
     | ((observation: VNextTextBlockSourceIndexLookupObservationForTestV1) => void)
@@ -273,6 +339,168 @@ function indexedSourceItem(
         ancestors,
         visitedSourceLookupNodeCount: ancestors.length + 1,
       }
+}
+
+type GuardedIndexedSourceItemResultInternalV1 =
+  | {
+      readonly status: "completed"
+      readonly indexed: IndexedSourceItemRecord | undefined
+      readonly completedSourceLookupNodeCount: number
+      readonly completedSourceItemCount: number
+    }
+  | ({
+      readonly status: "invariant-blocked"
+      readonly unit: "source-lookup-nodes" | "source-items"
+    } & Extract<
+      VNextTextBlockPreBindingSourceVisitEvaluationInternalV1,
+      { readonly status: "invariant-blocked" }
+    > & {
+      readonly completedSourceLookupNodeCount: number
+      readonly completedSourceItemCount: number
+    })
+
+function evaluatePreBindingSourceReadInternalV1(input: {
+  readonly guard: VNextTextBlockPreBindingSourceVisitGuardInternalV1
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly unit: "source-lookup-nodes" | "source-items"
+  readonly completedWork: number
+}): VNextTextBlockPreBindingSourceVisitEvaluationInternalV1 {
+  const record = preBindingSourceVisitGuards.get(input.guard)
+  if (record == null || record.sourceState !== input.sourceState) {
+    return {
+      status: "invariant-blocked",
+      completedWork: input.completedWork,
+      attemptedWork: input.completedWork + 1,
+      effectiveLimit: input.completedWork,
+    }
+  }
+  return record.evaluate(input.unit, input.completedWork)
+}
+
+function indexedSourceItemWithPreBindingGuardInternalV1(
+  index: SourceItemIndex,
+  sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
+  inlineId: string,
+  guard: VNextTextBlockPreBindingSourceVisitGuardInternalV1,
+): GuardedIndexedSourceItemResultInternalV1 {
+  const authority = index.entries.get(inlineId)
+  if (authority == null) {
+    sourceIndexLookupObserverForTest?.({
+      inlineId,
+      indexProbeCount: 1,
+      found: false,
+    })
+    return {
+      status: "completed",
+      indexed: undefined,
+      completedSourceLookupNodeCount: 0,
+      completedSourceItemCount: 0,
+    }
+  }
+  const ancestors: IndexedSourceItemRecord["ancestors"][number][] = []
+  let relativeItemOrdinal = authority.itemOrdinal
+  let node = sourceState.root
+  let completedSourceLookupNodeCount = 0
+  while (true) {
+    const lookupEvaluation = evaluatePreBindingSourceReadInternalV1({
+      guard,
+      sourceState,
+      unit: "source-lookup-nodes",
+      completedWork: completedSourceLookupNodeCount,
+    })
+    if (lookupEvaluation.status !== "accepted") {
+      return {
+        ...lookupEvaluation,
+        unit: "source-lookup-nodes",
+        completedSourceLookupNodeCount,
+        completedSourceItemCount: 0,
+      }
+    }
+    completedSourceLookupNodeCount = lookupEvaluation.completedWork
+    preBindingSourceReadObserverForTest?.({
+      unit: "source-lookup-nodes",
+      completedWork: completedSourceLookupNodeCount,
+    })
+    if (node.nodeKind !== "branch") break
+    let selected:
+      | {
+          readonly child: VNextTextBlockUnifiedLayoutSourceNodeV1
+          readonly childIndex: number
+        }
+      | null = null
+    for (
+      let childIndex = 0;
+      childIndex < node.children.length;
+      childIndex += 1
+    ) {
+      const child = node.children[childIndex]!
+      if (relativeItemOrdinal < child.summary.itemCount) {
+        selected = { child, childIndex }
+        break
+      }
+      relativeItemOrdinal -= child.summary.itemCount
+    }
+    if (selected == null) break
+    ancestors.push({
+      branch: node,
+      childIndex: selected.childIndex,
+    })
+    node = selected.child
+  }
+  if (node.nodeKind !== "leaf") {
+    sourceIndexLookupObserverForTest?.({
+      inlineId,
+      indexProbeCount: 1,
+      found: false,
+    })
+    return {
+      status: "completed",
+      indexed: undefined,
+      completedSourceLookupNodeCount,
+      completedSourceItemCount: 0,
+    }
+  }
+  const itemEvaluation = evaluatePreBindingSourceReadInternalV1({
+    guard,
+    sourceState,
+    unit: "source-items",
+    completedWork: 0,
+  })
+  if (itemEvaluation.status !== "accepted") {
+    return {
+      ...itemEvaluation,
+      unit: "source-items",
+      completedSourceLookupNodeCount,
+      completedSourceItemCount: 0,
+    }
+  }
+  preBindingSourceReadObserverForTest?.({
+    unit: "source-items",
+    completedWork: itemEvaluation.completedWork,
+  })
+  const item = node.items[relativeItemOrdinal]
+  const found = item != null && item.inlineId === inlineId
+  sourceIndexLookupObserverForTest?.({
+    inlineId,
+    indexProbeCount: 1,
+    found,
+  })
+  return {
+    status: "completed",
+    indexed: !found
+      ? undefined
+      : {
+          item,
+          itemIndex: relativeItemOrdinal,
+          absoluteStartRenderedUtf16:
+            authority.absoluteStartRenderedUtf16,
+          leaf: node,
+          ancestors,
+          visitedSourceLookupNodeCount: completedSourceLookupNodeCount,
+        },
+    completedSourceLookupNodeCount,
+    completedSourceItemCount: itemEvaluation.completedWork,
+  }
 }
 
 function forcedCollisionFingerprint(_canonicalFacts: string): string {
@@ -1504,6 +1732,8 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
     readonly expectedImageDependencyFingerprint: string
     readonly nextFit: ImageFrameV4Target["fit"]
     readonly nextCrop: NonNullable<ImageFrameV4Target["crop"]> | null
+    readonly preBindingGuard?:
+      VNextTextBlockPreBindingSourceVisitGuardInternalV1
   },
 ):
   | {
@@ -1523,15 +1753,54 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
       readonly visitedSourceLookupNodeCount: number
       readonly visitedSourceItemCount: number
       readonly completeSourceTraversalCount: 0
+    }
+  | {
+      readonly status: "invariant-blocked"
+      readonly paintFingerprint: null
+      readonly sourceItemAuthority: null
+      readonly visitedSummaryNodeCount: 0
+      readonly visitedSourceLookupNodeCount: number
+      readonly visitedSourceItemCount: number
+      readonly completeSourceTraversalCount: 0
+      readonly unit: "source-lookup-nodes" | "source-items"
+      readonly completedWork: number
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
     } {
   const prepared = preparedStates.get(input.sourceState)
-  const indexed = prepared == null
-    ? undefined
-    : indexedSourceItem(
+  const guarded = prepared == null || input.preBindingGuard == null
+    ? null
+    : indexedSourceItemWithPreBindingGuardInternalV1(
         prepared.itemIndex,
-        input.sourceState.root,
+        input.sourceState,
         input.inlineId,
+        input.preBindingGuard,
       )
+  if (guarded?.status === "invariant-blocked") {
+    return {
+      status: "invariant-blocked",
+      paintFingerprint: null,
+      sourceItemAuthority: null,
+      visitedSummaryNodeCount: 0,
+      visitedSourceLookupNodeCount:
+        guarded.completedSourceLookupNodeCount,
+      visitedSourceItemCount: guarded.completedSourceItemCount,
+      completeSourceTraversalCount: 0,
+      unit: guarded.unit,
+      completedWork: guarded.completedWork,
+      attemptedWork: guarded.attemptedWork,
+      effectiveLimit: guarded.effectiveLimit,
+    }
+  }
+  const indexed = guarded?.status === "completed"
+    ? guarded.indexed
+    : prepared == null
+      ? undefined
+      : indexedSourceItem(
+          prepared.itemIndex,
+          input.sourceState.root,
+          input.inlineId,
+        )
   if (
     prepared == null
     || indexed == null
@@ -1541,16 +1810,20 @@ export function deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1(
     || indexed.item.layoutDependencyFingerprint
       !== input.expectedImageDependencyFingerprint
   ) {
-    const visitedSourceLookupNodeCount = indexed == null
-      ? 0
-      : indexed.visitedSourceLookupNodeCount
+    const visitedSourceLookupNodeCount = guarded?.status === "completed"
+      ? guarded.completedSourceLookupNodeCount
+      : indexed == null
+        ? 0
+        : indexed.visitedSourceLookupNodeCount
     return {
       status: "blocked",
       paintFingerprint: null,
       sourceItemAuthority: null,
       visitedSummaryNodeCount: 0,
       visitedSourceLookupNodeCount,
-      visitedSourceItemCount: indexed == null ? 0 : 1,
+      visitedSourceItemCount: guarded?.status === "completed"
+        ? guarded.completedSourceItemCount
+        : indexed == null ? 0 : 1,
       completeSourceTraversalCount: 0,
     }
   }

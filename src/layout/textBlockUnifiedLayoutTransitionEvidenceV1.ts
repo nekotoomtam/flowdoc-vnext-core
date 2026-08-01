@@ -13,8 +13,11 @@ import type {
   VNextTextBlockTransitionProducerRuntimeIdentityV1,
 } from "./textBlockUnifiedLayoutEvidenceContractV1.js"
 import {
+  consumeVNextTextBlockPreBindingSourceVisitGuardInternalV1,
   deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
+  registerVNextTextBlockPreBindingSourceVisitGuardInternalV1,
+  type VNextTextBlockPreBindingSourceVisitGuardInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
   createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1,
@@ -29,14 +32,20 @@ import type {
   VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
+  getVNextTextBlockRootSourceEnvelopeAuthorityInternalV1,
   inspectVNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootV2.js"
+import {
+  resolveVNextTextBlockRootSourceEnvelopeAuthorityInternalV1,
+  type VNextTextBlockRootSourceEnvelopeAuthorityInternalV1,
+} from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 /*
@@ -129,6 +138,207 @@ function issue(
   return { code, severity: "error", stage, path, message }
 }
 
+export interface VNextTextBlockChangeBindingAttemptAuthorityInternalV1 {
+  readonly __changeBindingAttemptAuthorityOpaque: never
+}
+
+export type VNextTextBlockPreBindingVisitAttemptInternalV1 =
+  | { readonly status: "accepted"; readonly completedWork: number }
+  | {
+      readonly status: "invariant-blocked"
+      readonly completedWork: number
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+    }
+
+interface ChangeBindingAttemptRecordInternalV1 {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly originalChange: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly changeGateVisitedFieldCount: number
+  readonly rootSourceEnvelopeAuthority:
+    VNextTextBlockRootSourceEnvelopeAuthorityInternalV1
+  readonly sourceGuard: VNextTextBlockPreBindingSourceVisitGuardInternalV1
+  readonly effectiveLimits: ReadonlyMap<
+    "source-lookup-nodes" | "source-items",
+    number
+  >
+  readonly completedWork: Map<
+    "source-lookup-nodes" | "source-items",
+    number
+  >
+  invariantBlocked: boolean
+}
+
+const changeBindingAttempts = new WeakMap<
+  VNextTextBlockChangeBindingAttemptAuthorityInternalV1,
+  ChangeBindingAttemptRecordInternalV1
+>()
+
+let changeBindingAttemptObserverForTest:
+  | ((observation: {
+      readonly event: "created" | "invariant-blocked" | "consumed"
+      readonly authority: VNextTextBlockChangeBindingAttemptAuthorityInternalV1
+      readonly unit?: "source-lookup-nodes" | "source-items"
+      readonly completedWork?: number
+      readonly attemptedWork?: number
+      readonly effectiveLimit?: number
+    }) => void)
+  | null = null
+
+let preBindingLimitOverrideForNextAttemptForTest:
+  | {
+      readonly unit: "source-lookup-nodes" | "source-items"
+      readonly effectiveLimit: number
+    }
+  | null = null
+
+export function setVNextTextBlockChangeBindingAttemptObserverForTestInternalV1(
+  observer: typeof changeBindingAttemptObserverForTest,
+): void {
+  changeBindingAttemptObserverForTest = observer
+}
+
+export function setVNextTextBlockPreBindingLimitOverrideForNextAttemptForTestInternalV1(
+  value:
+    | {
+        readonly unit: "source-lookup-nodes" | "source-items"
+        readonly effectiveLimit: number
+      }
+    | null,
+): void {
+  if (
+    value != null
+    && (
+      !["source-lookup-nodes", "source-items"].includes(value.unit)
+      || !Number.isSafeInteger(value.effectiveLimit)
+      || value.effectiveLimit < 0
+    )
+  ) throw new TypeError("pre-binding limit override is invalid")
+  preBindingLimitOverrideForNextAttemptForTest = value == null
+    ? null
+    : Object.freeze({ ...value })
+}
+
+export function evaluateNextVNextTextBlockPreBindingVisitInternalV1(input: {
+  readonly attemptAuthority:
+    VNextTextBlockChangeBindingAttemptAuthorityInternalV1
+  readonly unit: "source-lookup-nodes" | "source-items"
+  readonly completedWork: number
+}): VNextTextBlockPreBindingVisitAttemptInternalV1 {
+  const record = changeBindingAttempts.get(input.attemptAuthority)
+  const effectiveLimit = record?.effectiveLimits.get(input.unit)
+  const recordedCompleted = record?.completedWork.get(input.unit)
+  if (
+    record == null
+    || record.invariantBlocked
+    || effectiveLimit == null
+    || recordedCompleted !== input.completedWork
+    || !Number.isSafeInteger(input.completedWork)
+    || input.completedWork < 0
+  ) {
+    return Object.freeze({
+      status: "invariant-blocked" as const,
+      completedWork: Number.isSafeInteger(input.completedWork)
+        && input.completedWork >= 0 ? input.completedWork : 0,
+      attemptedWork: Number.isSafeInteger(input.completedWork)
+        && input.completedWork >= 0 ? input.completedWork + 1 : 1,
+      effectiveLimit: effectiveLimit ?? 0,
+    })
+  }
+  const attemptedWork = input.completedWork + 1
+  if (attemptedWork > effectiveLimit) {
+    record.invariantBlocked = true
+    const blocked = Object.freeze({
+      status: "invariant-blocked" as const,
+      completedWork: input.completedWork,
+      attemptedWork,
+      effectiveLimit,
+    })
+    changeBindingAttemptObserverForTest?.({
+      event: "invariant-blocked",
+      authority: input.attemptAuthority,
+      unit: input.unit,
+      completedWork: input.completedWork,
+      attemptedWork,
+      effectiveLimit,
+    })
+    return blocked
+  }
+  record.completedWork.set(input.unit, attemptedWork)
+  return Object.freeze({
+    status: "accepted" as const,
+    completedWork: attemptedWork,
+  })
+}
+
+function createChangeBindingAttemptInternalV1(input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly originalChange: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly changeGateVisitedFieldCount: number
+  readonly rootSourceEnvelopeAuthority:
+    VNextTextBlockRootSourceEnvelopeAuthorityInternalV1
+}): {
+  readonly authority: VNextTextBlockChangeBindingAttemptAuthorityInternalV1
+  readonly sourceGuard: VNextTextBlockPreBindingSourceVisitGuardInternalV1
+} | null {
+  const envelope = resolveVNextTextBlockRootSourceEnvelopeAuthorityInternalV1(
+    input.rootSourceEnvelopeAuthority,
+  )
+  if (
+    envelope == null
+    || envelope.root !== input.previousRoot
+    || envelope.sourceState !== input.previousRoot.sourceState
+    || envelope.workPolicy !== input.workPolicy
+  ) return null
+  const limits = new Map<"source-lookup-nodes" | "source-items", number>()
+  for (const unit of ["source-items", "source-lookup-nodes"] as const) {
+    const limit = envelope.effectiveLimits.find((row) => row.unit === unit)
+    if (limit == null) return null
+    limits.set(unit, limit.effectiveLimit)
+  }
+  const override = preBindingLimitOverrideForNextAttemptForTest
+  preBindingLimitOverrideForNextAttemptForTest = null
+  if (override != null) limits.set(override.unit, override.effectiveLimit)
+  const authority = Object.freeze(
+    {},
+  ) as VNextTextBlockChangeBindingAttemptAuthorityInternalV1
+  const sourceGuard =
+    registerVNextTextBlockPreBindingSourceVisitGuardInternalV1({
+      sourceState: input.previousRoot.sourceState,
+      evaluate: (unit, completedWork) =>
+        evaluateNextVNextTextBlockPreBindingVisitInternalV1({
+          attemptAuthority: authority,
+          unit,
+          completedWork,
+        }),
+    })
+  changeBindingAttempts.set(authority, {
+    ...input,
+    sourceGuard,
+    effectiveLimits: limits,
+    completedWork: new Map([
+      ["source-items", 0],
+      ["source-lookup-nodes", 0],
+    ]),
+    invariantBlocked: false,
+  })
+  changeBindingAttemptObserverForTest?.({ event: "created", authority })
+  return { authority, sourceGuard }
+}
+
+function consumeChangeBindingAttemptInternalV1(
+  authority: VNextTextBlockChangeBindingAttemptAuthorityInternalV1,
+): ChangeBindingAttemptRecordInternalV1 | null {
+  const record = changeBindingAttempts.get(authority)
+  if (record == null) return null
+  changeBindingAttempts.delete(authority)
+  consumeVNextTextBlockPreBindingSourceVisitGuardInternalV1(record.sourceGuard)
+  changeBindingAttemptObserverForTest?.({ event: "consumed", authority })
+  return record
+}
+
 function targetBinding(
   facts: Omit<VNextTextBlockExpectedTargetBindingV1, "fingerprint">,
 ): VNextTextBlockExpectedTargetBindingV1 {
@@ -218,10 +428,19 @@ function targetBindingForChange(
   change: VNextTextBlockUnifiedLayoutChangeV1,
   previous: VNextTextBlockExpectedTargetBindingV1,
   captureImagePaintSourceWork: (work: {
+    readonly status: "completed" | "invariant-blocked"
     readonly authority: object | null
     readonly visitedSourceLookupNodeCount: number
     readonly visitedSourceItemCount: number
+    readonly invariant?: {
+      readonly unit: "source-lookup-nodes" | "source-items"
+      readonly completedWork: number
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+    }
   }) => void,
+  preBindingGuard:
+    VNextTextBlockPreBindingSourceVisitGuardInternalV1 | null = null,
 ): VNextTextBlockExpectedTargetBindingV1 | null {
   if (change.kind === "no-op") return previous
   if (change.kind === "image-paint-fact-change") {
@@ -235,12 +454,26 @@ function targetBindingForChange(
           change.expectedImageDependencyFingerprint,
         nextFit: change.nextFit,
         nextCrop: change.nextCrop,
+        ...(preBindingGuard == null ? {} : { preBindingGuard }),
       })
     captureImagePaintSourceWork({
+      status: derived.status === "invariant-blocked"
+        ? "invariant-blocked"
+        : "completed",
       authority: derived.sourceItemAuthority,
       visitedSourceLookupNodeCount:
         derived.visitedSourceLookupNodeCount,
       visitedSourceItemCount: derived.visitedSourceItemCount,
+      ...(derived.status === "invariant-blocked"
+        ? {
+            invariant: {
+              unit: derived.unit,
+              completedWork: derived.completedWork,
+              attemptedWork: derived.attemptedWork,
+              effectiveLimit: derived.effectiveLimit,
+            },
+          }
+        : {}),
     })
     if (derived.status !== "accepted") return null
     return targetBinding({
@@ -354,6 +587,8 @@ export interface VNextTextBlockValidatedChangeAuthorityRecordInternalV1 {
   readonly validatedChange: VNextTextBlockValidatedChangeV1
   readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
   readonly bindingWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly rootSourceEnvelopeAuthority:
+    VNextTextBlockRootSourceEnvelopeAuthorityInternalV1 | null
 }
 
 const validatedChangeAuthorityRecords = new WeakMap<
@@ -457,15 +692,52 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       "change previous-root/source expectations are stale",
     ))
   }
+  const rootSourceEnvelopeAuthority = input.workPolicy
+    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    ? getVNextTextBlockRootSourceEnvelopeAuthorityInternalV1(
+        input.previousRoot,
+      )
+    : null
+  const bindingAttempt = input.workPolicy
+    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    && rootSourceEnvelopeAuthority != null
+    ? createChangeBindingAttemptInternalV1({
+        previousRoot: input.previousRoot,
+        originalChange: input.change,
+        workPolicy: input.workPolicy,
+        changeGateVisitedFieldCount:
+          shaped.incrementalCandidateWork.changeGateVisitedFieldCount,
+        rootSourceEnvelopeAuthority,
+      })
+    : null
+  if (
+    input.workPolicy
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    && bindingAttempt == null
+  ) {
+    return blockedBinding(shaped.incrementalCandidateWork, issue(
+      "previous-root-authority-mismatch",
+      "source-flow",
+      "previousRoot.sourceEnvelopeAuthority",
+      "V3 change binding requires the exact accepted Root source envelope",
+    ))
+  }
   const previousTargetBinding =
     deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
       input.previousRoot,
     )
   const imagePaintSourceCapture: {
     current: {
+      readonly status: "completed" | "invariant-blocked"
       readonly authority: object | null
       readonly visitedSourceLookupNodeCount: number
       readonly visitedSourceItemCount: number
+      readonly invariant?: {
+        readonly unit: "source-lookup-nodes" | "source-items"
+        readonly completedWork: number
+        readonly attemptedWork: number
+        readonly effectiveLimit: number
+      }
     } | null
   } = { current: null }
   const expectedTargetBinding = targetBindingForChange(
@@ -475,6 +747,7 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     (work) => {
       imagePaintSourceCapture.current = work
     },
+    bindingAttempt?.sourceGuard ?? null,
   )
   const imagePaintSourceWork = imagePaintSourceCapture.current
   const incrementalCandidateWork = imagePaintSourceWork == null
@@ -490,16 +763,41 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
         },
         stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
           policy: input.workPolicy,
-          factualCounts: imagePaintSourceWork.visitedSourceItemCount === 0
-            ? []
-            : [{
-                stage: "source-flow" as const,
-                unit: "source-items" as const,
-                count: imagePaintSourceWork.visitedSourceItemCount,
-              }],
+          factualCounts: [
+            ...(imagePaintSourceWork.visitedSourceItemCount === 0
+              ? []
+              : [{
+                  stage: "source-flow" as const,
+                  unit: "source-items" as const,
+                  count: imagePaintSourceWork.visitedSourceItemCount,
+                }]),
+            ...(input.workPolicy
+                === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+              && imagePaintSourceWork.visitedSourceLookupNodeCount !== 0
+              ? [{
+                  stage: "source-flow" as const,
+                  unit: "source-lookup-nodes" as const,
+                  count: imagePaintSourceWork.visitedSourceLookupNodeCount,
+                }]
+              : []),
+          ],
         }),
       })
+  if (imagePaintSourceWork?.status === "invariant-blocked") {
+    if (bindingAttempt != null) {
+      consumeChangeBindingAttemptInternalV1(bindingAttempt.authority)
+    }
+    return blockedBinding(incrementalCandidateWork, issue(
+      "previous-root-authority-mismatch",
+      "source-flow",
+      `workPolicy.source-flow.${imagePaintSourceWork.invariant?.unit ?? "source-items"}`,
+      "accepted Root source-envelope invariant was exhausted before a source read",
+    ))
+  }
   if (expectedTargetBinding == null) {
+    if (bindingAttempt != null) {
+      consumeChangeBindingAttemptInternalV1(bindingAttempt.authority)
+    }
     return blockedBinding(incrementalCandidateWork, issue(
       "change-target-mismatch",
       "change-gate",
@@ -534,6 +832,17 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
       effectClassification,
     }),
   })
+  const consumedBindingAttempt = bindingAttempt == null
+    ? null
+    : consumeChangeBindingAttemptInternalV1(bindingAttempt.authority)
+  if (bindingAttempt != null && consumedBindingAttempt == null) {
+    return blockedBinding(incrementalCandidateWork, issue(
+      "previous-root-authority-mismatch",
+      "source-flow",
+      "changeBindingAttempt",
+      "V3 change binding attempt was not the exact unconsumed authority",
+    ))
+  }
   if (imagePaintSourceWork?.authority != null) {
     validatedImagePaintSourceItemAuthorities.set(
       validatedChange,
@@ -553,6 +862,8 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     validatedChange,
     expectedTargetBinding,
     bindingWork: incrementalCandidateWork,
+    rootSourceEnvelopeAuthority:
+      consumedBindingAttempt?.rootSourceEnvelopeAuthority ?? null,
   }))
   return Object.freeze({
     status: "accepted",
