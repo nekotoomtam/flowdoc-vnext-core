@@ -1961,7 +1961,11 @@ function acceptedEvidenceWork(
     consumedClusterCount: response.work.consumedClusterCount,
     unusedCoverageRenderedUtf16Length:
       response.work.unusedCoverageRenderedUtf16Length,
-    visitedEvidenceNodeCount: response.work.visitedEvidenceNodeCount,
+    visitedEvidenceNodeCount: policy.stages.some((row) =>
+      row.stage === "evidence" && row.unit === "evidence-response-nodes"
+    )
+      ? response.work.visitedEvidenceNodeCount
+      : base.evidence.visitedEvidenceNodeCount,
   })
 }
 

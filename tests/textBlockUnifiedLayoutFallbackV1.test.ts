@@ -53,6 +53,7 @@ import {
   evaluateNextVNextTextBlockStageVisitInternalV1,
   getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
   getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1,
+  hasCanonicalVNextTextBlockStageWorkInternalV1,
   inspectVNextTextBlockUnifiedLayoutTransitionEvidenceInternalV1,
   inspectVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1,
   setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
@@ -1137,6 +1138,12 @@ describe("Phase 5B bounded transition evidence authority", () => {
       })
     expect(accepted.status).toBe("accepted")
     if (accepted.status === "accepted") {
+      expect(accepted.incrementalCandidateWork.evidence)
+        .toMatchObject({ visitedEvidenceNodeCount: 0 })
+      expect(hasCanonicalVNextTextBlockStageWorkInternalV1({
+        work: accepted.incrementalCandidateWork,
+        policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+      })).toBe(true)
       expect(inspectVNextTextBlockUnifiedLayoutTransitionEvidenceInternalV1(
         accepted.evidence,
       )).toMatchObject({
